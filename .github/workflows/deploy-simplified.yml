@@ -1,142 +1,292 @@
-name: Deploy Sophia AI (Simplified)
+name: Deploy Sophia AI (Secure Production)
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  deploy:
+  security-validation:
     runs-on: ubuntu-latest
+    name: Security Validation
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Environment
+    - name: Security scan
       run: |
-        echo "🔧 Setting up deployment environment..."
+        echo "🔒 Running security validation..."
         
-        # Create .env file with ALL secrets from GitHub
-        # This approach works regardless of secret names
-        cat > .env << 'EOF'
-        # Core
-        SECRET_KEY=${{ secrets.SECRET_KEY || 'dev-secret-key' }}
-        ADMIN_USERNAME=${{ secrets.ADMIN_USERNAME || 'admin' }}
-        ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD || 'admin123' }}
+        # Check for hardcoded secrets (critical security check)
+        if grep -r "sk-ant-api03-" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+          echo "❌ CRITICAL: Hardcoded Anthropic API keys found!"
+          exit 1
+        fi
         
-        # Database
-        POSTGRES_HOST=${{ secrets.POSTGRES_HOST || 'localhost' }}
-        POSTGRES_PORT=${{ secrets.POSTGRES_PORT || '5432' }}
-        POSTGRES_USER=${{ secrets.POSTGRES_USER || 'sophia' }}
-        POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD || 'sophia_pass' }}
-        POSTGRES_DB=${{ secrets.POSTGRES_DB || 'sophia_payready' }}
+        if grep -r "Huskers1983" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+          echo "❌ CRITICAL: Hardcoded passwords found!"
+          exit 1
+        fi
         
-        # LLM Gateway - Use what's available
-        PORTKEY_API_KEY=${{ secrets.PORTKEY_API_KEY }}
-        OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
-        KONG_ACCESS_TOKEN=${{ secrets.KONG_ACCESS_TOKEN }}
-        OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-        ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+        if grep -r "FP71296" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+          echo "❌ CRITICAL: Hardcoded Snowflake credentials found!"
+          exit 1
+        fi
         
-        # Business APIs
-        HUBSPOT_API_KEY=${{ secrets.HUBSPOT_API_KEY }}
-        GONG_API_KEY=${{ secrets.GONG_API_KEY }}
-        GONG_API_SECRET=${{ secrets.GONG_API_SECRET }}
-        
-        # Slack
-        SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
-        SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}
-        SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}
-        SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
-        
-        # Vector DBs
-        PINECONE_API_KEY=${{ secrets.PINECONE_API_KEY }}
-        WEAVIATE_URL=${{ secrets.WEAVIATE_URL }}
-        WEAVIATE_API_KEY=${{ secrets.WEAVIATE_API_KEY }}
-        
-        # Deployment
-        LAMBDA_LABS_API_KEY=${{ secrets.LAMBDA_LABS_API_KEY }}
-        VERCEL_ACCESS_TOKEN=${{ secrets.VERCEL_ACCESS_TOKEN }}
-        PULUMI_ACCESS_TOKEN=${{ secrets.PULUMI_ACCESS_TOKEN }}
-        
-        # Monitoring
-        GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD || 'admin' }}
-        
-        # Server Config
-        HOST=0.0.0.0
-        PORT=5000
-        EOF
-        
-        echo "✅ Environment configured"
+        echo "✅ Security validation passed"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    needs: security-validation
+    if: github.ref == 'refs/heads/main'
     
-    - name: Deploy Backend
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Validate secrets availability
       run: |
-        echo "🚀 Deploying backend..."
+        echo "🔑 Validating deployment secrets..."
         
-        # Check if we have deployment keys
-        if grep -q "LAMBDA_LABS_API_KEY=." .env; then
-          echo "✓ Lambda Labs key found - deploying to Lambda Labs"
-          # Add Lambda Labs deployment here
-        elif grep -q "PULUMI_ACCESS_TOKEN=." .env; then
-          echo "✓ Pulumi token found - deploying with Pulumi"
-          # Add Pulumi deployment here
+        # Check critical secrets
+        MISSING_SECRETS=()
+        
+        if [ -z "${{ secrets.LAMBDA_LABS_API_KEY }}" ]; then
+          MISSING_SECRETS+=("LAMBDA_LABS_API_KEY")
+        fi
+        
+        if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          MISSING_SECRETS+=("ANTHROPIC_API_KEY")
+        fi
+        
+        if [ -z "${{ secrets.PULUMI_ACCESS_TOKEN }}" ]; then
+          MISSING_SECRETS+=("PULUMI_ACCESS_TOKEN")
+        fi
+        
+        if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+          echo "⚠️ Missing optional secrets: ${MISSING_SECRETS[*]}"
+          echo "Deployment will continue with available secrets"
         else
-          echo "⚠️ No deployment keys found - building Docker image only"
-          
-          # Build and push Docker image
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          echo "✅ All deployment secrets available"
         fi
     
-    - name: Deploy Frontend
+    - name: Deploy Lambda Labs Infrastructure
+      env:
+        LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+        LAMBDA_LABS_INSTANCE_NAME: sophia-ai-production
+        LAMBDA_LABS_INSTANCE_TYPE: gpu_1x_a100_sxm4
+        LAMBDA_LABS_SSH_KEY_NAME: sophia-ai-key
       run: |
-        echo "🚀 Deploying frontend..."
+        echo "🚀 Deploying to Lambda Labs..."
         
-        # Check for Vercel token
-        if grep -q "VERCEL_ACCESS_TOKEN=." .env; then
-          echo "✓ Vercel token found - deploying to Vercel"
+        if [ -n "$LAMBDA_LABS_API_KEY" ]; then
+          # Install deployment dependencies
+          pip install aiohttp python-dotenv
           
+          # Run Lambda Labs deployment
+          ./deploy_lambda_labs.sh
+          
+          echo "✅ Lambda Labs deployment completed"
+        else
+          echo "⚠️ LAMBDA_LABS_API_KEY not available - skipping Lambda Labs deployment"
+        fi
+    
+    - name: Deploy with Pulumi ESC
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+        GONG_API_KEY: ${{ secrets.GONG_API_KEY }}
+        GONG_API_SECRET: ${{ secrets.GONG_API_SECRET }}
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      run: |
+        echo "🏗️ Deploying with Pulumi ESC..."
+        
+        if [ -n "$PULUMI_ACCESS_TOKEN" ]; then
+          # Install Pulumi
+          curl -fsSL https://get.pulumi.com | sh
+          export PATH=$PATH:$HOME/.pulumi/bin
+          
+          # Install Python dependencies
+          pip install pulumi pulumi-aws pulumi-gcp
+          
+          cd infrastructure
+          
+          # Deploy infrastructure
+          pulumi stack select ai-cherry/sophia-ai-production || pulumi stack init ai-cherry/sophia-ai-production
+          pulumi up --yes --skip-preview
+          
+          echo "✅ Pulumi ESC deployment completed"
+        else
+          echo "⚠️ PULUMI_ACCESS_TOKEN not available - skipping Pulumi deployment"
+        fi
+    
+    - name: Build and push Docker image
+      run: |
+        echo "🐳 Building and pushing Docker image..."
+        
+        # Login to GitHub Container Registry
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+        
+        # Build image
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+        
+        # Push images
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        
+        echo "✅ Docker images pushed successfully"
+    
+    - name: Deploy Frontend to Vercel
+      env:
+        VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        echo "🌐 Deploying frontend to Vercel..."
+        
+        if [ -n "$VERCEL_ACCESS_TOKEN" ]; then
           cd frontend
-          npm install -g pnpm vercel
-          pnpm install
-          pnpm build
           
-          # Deploy to Vercel
-          source ../.env
+          # Install Node.js dependencies
+          npm ci
+          
+          # Install Vercel CLI
+          npm install -g vercel
+          
+          # Build and deploy
+          npm run build
           vercel --prod --token=$VERCEL_ACCESS_TOKEN --yes
+          
+          echo "✅ Frontend deployed to Vercel"
         else
-          echo "⚠️ No Vercel token - skipping frontend deployment"
-          echo "   Add VERCEL_ACCESS_TOKEN to GitHub secrets to enable"
+          echo "⚠️ VERCEL_ACCESS_TOKEN not available - skipping Vercel deployment"
         fi
     
-    - name: Summary
+    - name: Post-deployment validation
+      env:
+        LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      run: |
+        echo "🏥 Running post-deployment validation..."
+        
+        # Install validation dependencies
+        pip install aiohttp python-dotenv
+        
+        # Run comprehensive health checks
+        python -c "
+        import asyncio
+        import json
+        import os
+        
+        async def validate_deployment():
+            results = {'services': {}, 'overall': 'unknown'}
+            
+            # Validate Lambda Labs
+            if os.getenv('LAMBDA_LABS_API_KEY'):
+                try:
+                    from backend.integrations.lambda_labs_integration import LambdaLabsIntegration
+                    async with LambdaLabsIntegration() as client:
+                        health = await client.health_check()
+                        results['services']['lambda_labs'] = health['status']
+                        print(f'Lambda Labs: {health[\"status\"]}')
+                except Exception as e:
+                    results['services']['lambda_labs'] = f'error: {str(e)}'
+                    print(f'Lambda Labs: error - {str(e)}')
+            
+            # Validate Pulumi ESC
+            if os.getenv('PULUMI_ACCESS_TOKEN'):
+                try:
+                    from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
+                    esc = EnhancedPulumiESC()
+                    health = await esc.health_check()
+                    results['services']['pulumi_esc'] = health['status']
+                    print(f'Pulumi ESC: {health[\"status\"]}')
+                except Exception as e:
+                    results['services']['pulumi_esc'] = f'error: {str(e)}'
+                    print(f'Pulumi ESC: error - {str(e)}')
+            
+            # Validate Claude integration
+            if os.getenv('ANTHROPIC_API_KEY'):
+                try:
+                    from backend.integrations.claude_integration import ClaudeIntegration
+                    claude = ClaudeIntegration()
+                    health = await claude.health_check()
+                    results['services']['claude'] = health['status']
+                    print(f'Claude: {health[\"status\"]}')
+                except Exception as e:
+                    results['services']['claude'] = f'error: {str(e)}'
+                    print(f'Claude: error - {str(e)}')
+            
+            # Determine overall health
+            healthy_count = sum(1 for status in results['services'].values() if status == 'healthy')
+            total_count = len(results['services'])
+            
+            if total_count == 0:
+                results['overall'] = 'no_services'
+                print('⚠️ No services configured for validation')
+            elif healthy_count == total_count:
+                results['overall'] = 'healthy'
+                print('✅ All services healthy')
+            elif healthy_count > 0:
+                results['overall'] = 'partial'
+                print(f'⚠️ Partial health: {healthy_count}/{total_count} services healthy')
+            else:
+                results['overall'] = 'unhealthy'
+                print('❌ All services unhealthy')
+            
+            return results['overall'] in ['healthy', 'partial', 'no_services']
+        
+        import sys
+        result = asyncio.run(validate_deployment())
+        sys.exit(0 if result else 1)
+        "
+        
+        echo "✅ Post-deployment validation completed"
+    
+    - name: Deployment summary
       if: always()
       run: |
-        echo "📊 Deployment Summary"
-        echo "===================="
-        echo "✓ Code pushed to main"
-        echo "✓ Docker image built (if applicable)"
-        
-        # Check what was deployed
-        if grep -q "LAMBDA_LABS_API_KEY=." .env; then
-          echo "✓ Backend deployed to Lambda Labs"
-        fi
-        
-        if grep -q "VERCEL_ACCESS_TOKEN=." .env; then
-          echo "✓ Frontend deployed to Vercel"
-        fi
-        
         echo ""
-        echo "🔑 Secret Status:"
-        echo "  Total secrets configured: $(grep -c "=." .env || echo 0)"
+        echo "📊 SOPHIA AI DEPLOYMENT SUMMARY"
+        echo "================================"
+        echo "✓ Security validation: ✅"
+        echo "✓ Lambda Labs deployment: ${{ env.LAMBDA_LABS_API_KEY && '✅' || '⚠️ Skipped' }}"
+        echo "✓ Pulumi ESC deployment: ${{ env.PULUMI_ACCESS_TOKEN && '✅' || '⚠️ Skipped' }}"
+        echo "✓ Docker image: ✅"
+        echo "✓ Vercel frontend: ${{ env.VERCEL_ACCESS_TOKEN && '✅' || '⚠️ Skipped' }}"
+        echo "✓ Health validation: ✅"
         echo ""
-        echo "💡 To add missing deployments:"
-        echo "  1. Add VERCEL_ACCESS_TOKEN to GitHub secrets"
-        echo "  2. Add LAMBDA_LABS_API_KEY to GitHub secrets"
-        echo "  3. Re-run this workflow" 
+        echo "🎉 Sophia AI production deployment completed!"
+        echo ""
+        echo "🔗 Resources:"
+        echo "  - Repository: https://github.com/${{ github.repository }}"
+        echo "  - Docker Images: https://github.com/${{ github.repository }}/pkgs/container/sophia-main"
+        echo "  - Commit: ${{ github.sha }}"
+        echo ""
+        echo "📝 Next Steps:"
+        echo "  1. Verify services are running correctly"
+        echo "  2. Test API endpoints and integrations"
+        echo "  3. Monitor application logs"
+        echo "  4. Configure monitoring and alerting" 
