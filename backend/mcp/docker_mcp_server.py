@@ -100,6 +100,39 @@ class DockerMCPServer(BaseMCPServer):
                     },
                     "required": ["container_id"]
                 }
+            ),
+            Tool(
+                name="get_container_logs",
+                description="Retrieves logs from a specific container.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "container_id": {
+                            "type": "string",
+                            "description": "The ID or name of the container to get logs from."
+                        },
+                        "tail": {
+                            "type": "integer",
+                            "description": "Number of lines to show from the end of the logs.",
+                            "default": 100
+                        }
+                    },
+                    "required": ["container_id"]
+                }
+            ),
+            Tool(
+                name="get_container_stats",
+                description="Gets real-time performance statistics for a container.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "container_id": {
+                            "type": "string",
+                            "description": "The ID or name of the container to get stats for."
+                        }
+                    },
+                    "required": ["container_id"]
+                }
             )
         ]
 
@@ -119,6 +152,22 @@ class DockerMCPServer(BaseMCPServer):
                 else:
                     container = self.docker_client.containers.get(container_id)
                     result = container.attrs
+            elif tool_name == "get_container_logs":
+                container_id = args.get("container_id")
+                if not container_id:
+                    result = {"error": "container_id is required"}
+                else:
+                    container = self.docker_client.containers.get(container_id)
+                    logs = container.logs(tail=args.get("tail", 100)).decode('utf-8', errors='ignore')
+                    result = {"container_id": container.short_id, "logs": logs}
+            elif tool_name == "get_container_stats":
+                container_id = args.get("container_id")
+                if not container_id:
+                    result = {"error": "container_id is required"}
+                else:
+                    container = self.docker_client.containers.get(container_id)
+                    stats = container.stats(stream=False)
+                    result = {"container_id": container.short_id, "stats": stats}
             else:
                 result = {"error": f"Unknown tool: {tool_name}"}
                 
