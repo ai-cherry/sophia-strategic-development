@@ -199,13 +199,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mcp
+      args:
+        MCP_SERVER_MODULE: "placeholder" # This will be overridden
     volumes:
       - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock # For the Docker MCP server
     environment:
       - PYTHONUNBUFFERED=1
       - PULUMI_ORG=${PULUMI_ORG}
       - PINECONE_API_KEY=${PINECONE_API_KEY}
-      - HUGGING_FACE_API_KEY=${HUGGING_FACE_API_KEY}
+      - RETOOL_API_TOKEN=${RETOOL_API_TOKEN}
       # Add any other required env vars for secrets here
     networks:
       - sophia-network
@@ -214,49 +217,86 @@ services:
   # --- Individual MCP Servers ---
   gong-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.gong_mcp_server
     container_name: sophia-gong-mcp
-    command: ["python3", "-m", "backend.mcp.gong_mcp_server"]
 
   claude-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.claude_mcp_server
     container_name: sophia-claude-mcp
-    command: ["python3", "-m", "backend.mcp.claude_mcp_server"]
 
   lambda-labs-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.lambda_labs_mcp_server
     container_name: sophia-lambda-labs-mcp
-    command: ["python3", "-m", "backend.mcp.lambda_labs_mcp_server"]
 
   linear-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.linear_mcp_server
     container_name: sophia-linear-mcp
-    command: ["python3", "-m", "backend.mcp.linear_mcp_server"]
 
   slack-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.slack_mcp_server
     container_name: sophia-slack-mcp
-    command: ["python3", "-m", "backend.mcp.slack_mcp_server"]
 
   knowledge-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.knowledge_mcp_server
     container_name: sophia-knowledge-mcp
-    command: ["python3", "-m", "backend.mcp.knowledge_mcp_server"]
 
   codebase-awareness-mcp:
     <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.codebase_awareness_mcp_server
     container_name: sophia-codebase-awareness-mcp
-    command: ["python3", "-m", "backend.mcp.codebase_awareness_mcp_server"]
 
-  # --- Placeholder MCP Servers (to be enabled later) ---
-  # hubspot-mcp:
-  #   <<: *base-mcp-service
-  #   container_name: sophia-hubspot-mcp
-  #   command: ["python3", "-m", "backend.mcp.hubspot_mcp_server"]
-  #
-  # intercom-mcp:
-  #   <<: *base-mcp-service
-  #   container_name: sophia-intercom-mcp
-  #   command: ["python3", "-m", "backend.mcp.intercom_mcp_server"]
+  ai-memory-mcp:
+    <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.ai_memory_mcp_server
+    container_name: sophia-ai-memory-mcp
+
+  retool-mcp:
+    <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.retool_mcp_server
+    container_name: sophia-retool-mcp
+  
+  docker-mcp:
+    <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.docker_mcp_server
+    container_name: sophia-docker-mcp
+
+  # MCP Gateway to route requests to the correct server
+  mcp-gateway:
+    build:
+      context: ./mcp-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./mcp-config/mcp_servers.json:/app/mcp_servers.json
+    networks:
+      - sophia-network
+    restart: unless-stopped
 
 networks:
   sophia-network:

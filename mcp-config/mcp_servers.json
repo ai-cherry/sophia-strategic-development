@@ -1,4 +1,7 @@
 [
   {"name": "snowflake", "url": "http://snowflake-mcp:8080"},
-  {"name": "pulumi", "url": "http://pulumi-mcp:8080"}
+  {"name": "pulumi", "url": "http://pulumi-mcp:8080"},
+  {"name": "ai_memory", "url": "http://ai-memory-mcp:9000"},
+  {"name": "retool", "url": "http://retool-mcp:9000"},
+  {"name": "docker", "url": "http://docker-mcp:9000"}
 ] 
