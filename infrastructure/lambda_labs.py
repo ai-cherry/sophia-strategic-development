@@ -7,6 +7,8 @@ import pulumi
 import json
 import pulumi_aws as aws
 from pulumi import Config
+import pulumi_lambda_labs as lambda_labs
+from typing import List, Optional
 
 # Load configuration
 config = Config()
@@ -100,3 +102,49 @@ pulumi.export("lambda_labs_ssh_key_name", ssh_key.key_name)
 pulumi.export("lambda_labs_data_bucket", data_bucket.bucket)
 pulumi.export("lambda_labs_iam_role", lambda_labs_role.name)
 pulumi.export("lambda_labs_environment", env)
+
+class LambdaLabsInstance(pulumi.ComponentResource):
+    """
+    A custom Pulumi component to provision a Lambda Labs instance.
+    """
+    def __init__(self,
+                 name: str,
+                 instance_type: str,
+                 region: str,
+                 ssh_key_names: List[str],
+                 opts: Optional[pulumi.ResourceOptions] = None):
+        """
+        Args:
+            name: The name of the resource.
+            instance_type: The type of instance to provision (e.g., 'gpu_1x_a10', 'cpu_1x_c2').
+            region: The region to deploy the instance in (e.g., 'us-east-1').
+            ssh_key_names: A list of SSH key names already registered in Lambda Labs.
+            opts: Optional Pulumi resource options.
+        """
+        super().__init__('sophia:infrastructure:LambdaLabsInstance', name, {}, opts)
+
+        # Provision the instance using the lambda-labs provider
+        self.instance = lambda_labs.Instance(name,
+            instance_type_name=instance_type,
+            region_name=region,
+            ssh_key_names=ssh_key_names,
+            # Ensure the component depends on the instance
+            opts=pulumi.ResourceOptions(parent=self)
+        )
+
+        # Register outputs for the component
+        self.ip = self.instance.ip
+        self.name = self.instance.name
+        self.register_outputs({
+            'ip': self.ip,
+            'name': self.name,
+            'instance_id': self.instance.id
+        })
+
+# Example of how to use it (for reference)
+# dev_server = LambdaLabsInstance("my-dev-server",
+#     instance_type="cpu_1x_c2",
+#     region="us-east-1",
+#     ssh_key_names=["my-ssh-key"]
+# )
+# pulumi.export("server_ip", dev_server.ip)
