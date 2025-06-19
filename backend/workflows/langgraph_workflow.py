@@ -390,6 +390,43 @@ class WorkflowTemplates:
         
         return workflow
 
+    @staticmethod
+    def create_gong_transformation_workflow() -> LangGraphWorkflow:
+        """
+        Creates a workflow to transform raw Gong data (loaded by Airbyte)
+        into enriched, structured data in Snowflake.
+        """
+        workflow = LangGraphWorkflow(
+            workflow_id=f"gong-snowflake-transform-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            description="Transforms raw Gong data in Snowflake and populates analytics tables."
+        )
+
+        # Step 1: Read the raw data from the Snowflake tables populated by Airbyte
+        workflow.add_step(WorkflowStep(
+            name="read_raw_gong_data",
+            agent="brain_agent", # The BrainAgent can write and execute SQL
+            command="write a SQL query to select all new raw Gong calls from the 'gong_raw_data' table in Snowflake"
+        ))
+
+        # Step 2: Process each call for analytics and load it into the structured tables
+        # A real LangGraph would loop here. We represent it as a single, powerful step.
+        workflow.add_step(WorkflowStep(
+            name="transform_and_load_data",
+            agent="brain_agent",
+            command="For each raw call, run the 'process_call_for_analytics' function and then use the 'upsert_gong_call' tool to save the results to Snowflake.",
+            depends_on=["read_raw_gong_data"]
+        ))
+        
+        # Step 3: Vectorize the newly processed data
+        workflow.add_step(WorkflowStep(
+            name="vectorize_gong_insights",
+            agent="knowledge_agent",
+            command="Read the summaries and insights from the 'sophia_conversation_intelligence' table in Snowflake and ingest them into the knowledge base.",
+            depends_on=["transform_and_load_data"]
+        ))
+        
+        return workflow
+
 # Workflow manager for tracking and managing workflows
 class WorkflowManager:
     """Manages workflow execution and tracking"""

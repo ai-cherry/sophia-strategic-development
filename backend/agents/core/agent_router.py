@@ -146,6 +146,16 @@ class CentralizedAgentRouter:
         elif any(keyword in command_lower for keyword in ["codebase", "architecture", "contextualize"]):
             return "codebase_awareness_agent"
         
+        # Admin keywords
+        elif any(keyword in command_lower for keyword in ["admin", "status", "health", "system"]):
+            return "admin_agent"
+        elif any(keyword in command_lower for keyword in ["hubspot", "crm", "deal"]):
+            return "hubspot_agent"
+        elif any(keyword in command_lower for keyword in ["intercom", "support", "ticket"]):
+            return "intercom_agent"
+        elif any(keyword in command_lower for keyword in ["iac", "infra", "configure"]):
+            return "iac_manager_agent"
+        
         # Default to Brain agent for general and complex queries
         else:
             logger.info(f"No specific agent found for command, defaulting to Brain agent.")

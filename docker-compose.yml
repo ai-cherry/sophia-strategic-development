@@ -247,6 +247,17 @@ services:
     container_name: sophia-codebase-awareness-mcp
     command: ["python3", "-m", "backend.mcp.codebase_awareness_mcp_server"]
 
+  # --- Placeholder MCP Servers (to be enabled later) ---
+  # hubspot-mcp:
+  #   <<: *base-mcp-service
+  #   container_name: sophia-hubspot-mcp
+  #   command: ["python3", "-m", "backend.mcp.hubspot_mcp_server"]
+  #
+  # intercom-mcp:
+  #   <<: *base-mcp-service
+  #   container_name: sophia-intercom-mcp
+  #   command: ["python3", "-m", "backend.mcp.intercom_mcp_server"]
+
 networks:
   sophia-network:
     driver: bridge

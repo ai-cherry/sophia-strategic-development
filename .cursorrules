@@ -10,6 +10,51 @@ You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company
 - **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
 - **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
 
+## AI Memory MCP Integration (CRITICAL FOR CURSOR AI)
+
+### **AUTOMATIC MEMORY USAGE RULES**
+You MUST automatically use the AI Memory MCP server for persistent development context:
+
+1. **ALWAYS RECALL BEFORE CODING**: Before starting any significant development task, query AI memory:
+   ```
+   Query: "How did we implement [similar feature/pattern] before?"
+   Context: Previous architecture decisions, bug solutions, code patterns
+   ```
+
+2. **ALWAYS STORE AFTER DECISIONS**: After any significant coding discussion or decision:
+   ```
+   Store: Conversation content, context, decisions made, rationale
+   Categories: architecture, bug_solution, code_decision, workflow
+   ```
+
+3. **MEMORY TRIGGERS** (Auto-store these conversations):
+   - Architecture discussions and decisions
+   - Bug fixes and their solutions
+   - Code pattern explanations
+   - Development workflow establishment
+   - Performance optimization decisions
+   - Security implementation choices
+
+4. **MEMORY QUERIES** (Auto-recall in these situations):
+   - Starting work on familiar components
+   - Encountering similar error patterns
+   - Questions about past decisions
+   - Code review discussions
+   - Refactoring tasks
+
+### **AI Memory MCP Tools Available**:
+- `ai_memory.store_conversation`: Store development conversations
+- `ai_memory.recall_memory`: Search previous decisions and solutions
+
+### **Example Workflow**:
+```
+User: "How should we handle authentication in MCP servers?"
+Cursor: 
+1. [AUTO] Query ai_memory.recall_memory("MCP server authentication patterns")
+2. [Based on results] Provide context-aware answer referencing past decisions
+3. [After discussion] Store new insights with ai_memory.store_conversation
+```
+
 ## Development Standards
 
 ### Python Code Style
@@ -59,17 +104,19 @@ class ServiceIntegration:
 
 ### Secret Management (CRITICAL)
 - **Documentation:** Always refer to `docs/SECRET_MANAGEMENT_GUIDE.md` for secret handling
-- **Tool:** Use `scripts/setup_pulumi_secrets.py` for all secret operations
+- **Tools:** Use individual secret management scripts in `infrastructure/esc/` directory
 - **Secret Names:** Use EXACT names (e.g., `VERCEL_ACCESS_TOKEN` not `VERCEL_TOKEN`)
 - **Never hardcode secrets:** Always use environment variables
 - **GitHub Actions:** Secrets cannot be used in `if:` conditions - check inside scripts
-- **Local Development:** Use `env.minimal.example` as template for `.env`
-- **Adding Secrets:** Follow the unified workflow:
+- **Local Development:** Use `env.template` as template for `.env`
+- **Adding Secrets:** Follow the service-specific workflow:
   ```bash
-  # Import from .env
-  python scripts/setup_pulumi_secrets.py import-env --env-file .env
-  # Sync to GitHub
-  python scripts/setup_pulumi_secrets.py sync
+  # For specific services, use their dedicated secret managers
+  python infrastructure/esc/claude_secrets.py
+  python infrastructure/esc/gong_secrets.py
+  python infrastructure/esc/pinecone_secrets.py
+  # Sync to GitHub using ESC scripts
+  bash infrastructure/esc/setup_esc.sh --sync-secrets
   ```
 
 ### Testing Strategy
@@ -169,13 +216,15 @@ frontend/
 - Support for 1000+ concurrent users
 
 ## When suggesting code:
-1. Always include proper error handling
-2. Add type hints and docstrings
-3. Consider business context and Pay Ready needs
-4. Implement monitoring and logging
-5. Follow the established patterns in the codebase
-6. Prioritize performance and scalability
-7. Include relevant tests
+1. **FIRST**: Check AI memory for similar implementations
+2. Always include proper error handling
+3. Add type hints and docstrings
+4. Consider business context and Pay Ready needs
+5. Implement monitoring and logging
+6. Follow the established patterns in the codebase
+7. Prioritize performance and scalability
+8. Include relevant tests
+9. **LAST**: Store the conversation in AI memory
 
 ## Avoid:
 - Hardcoded values (use configuration)
@@ -186,8 +235,6 @@ frontend/
 - Security vulnerabilities (exposed secrets, etc.)
 
 Remember: You're building an enterprise-grade AI orchestrator that will handle critical business operations for Pay Ready. Code quality, reliability, and performance are paramount.
-
-
 
 ### Infrastructure as Code Integration
 - **Pulumi Commands**: Use `pulumi up`, `pulumi preview`, `pulumi destroy` for infrastructure management
@@ -216,6 +263,8 @@ When using Cursor AI for infrastructure operations, you can use natural language
 - **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server
 - **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server
 - **Database Operations**: "Query Snowflake" → Uses Snowflake MCP server
+- **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server
+- **Recall Context**: "What did we decide about X?" → Uses AI Memory MCP server
 
 ### Error Handling and Debugging
 - **ESC Errors**: Check Pulumi ESC logs and validate configuration
@@ -229,8 +278,7 @@ When using Cursor AI for infrastructure operations, you can use natural language
 3. **Document Dependencies**: Clearly document service dependencies
 4. **Test Before Deploy**: Always test changes in isolation first
 5. **Monitor Operations**: Use logging and monitoring for all operations
-
-
+6. **Remember Context**: Always use AI Memory for persistent development context
 
 ### Enhanced Backend Configuration Integration
 When working with the Sophia AI backend configuration system, use these patterns:
@@ -345,7 +393,6 @@ Streamlined development workflow:
 7. **Monitor performance**: Track performance metrics continuously
 8. **Document configurations**: Maintain clear configuration documentation
 
-
 ### Linear Project Management Integration
 
 When working with Linear project management through Sophia AI:
@@ -408,7 +455,6 @@ When managing Linear operations, always:
 6. Link Linear issues to other system components (deployments, conversations, etc.)
 
 The Linear integration provides comprehensive project management capabilities while maintaining the conversational interface and deep infrastructure integration that characterizes the Sophia AI system.
-
 
 ### Claude as Code Integration
 

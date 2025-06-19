@@ -14,7 +14,7 @@ from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     Resource, Tool, TextContent,
-    CallToolRequest, GetResourceRequest, ListResourcesRequest, ListToolsRequest
+    CallToolRequest, ReadResourceRequest, ListResourcesRequest, ListToolsRequest
 )
 
 class BaseMCPServer(ABC):
@@ -51,7 +51,7 @@ class BaseMCPServer(ABC):
         pass
 
     @abstractmethod
-    async def get_resource(self, request: GetResourceRequest) -> str:
+    async def get_resource(self, request: ReadResourceRequest) -> str:
         """
         Abstract method to get a specific resource.
         Should return a JSON string of the resource content.
@@ -65,53 +65,32 @@ class BaseMCPServer(ABC):
 
     @abstractmethod
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Abstract method to handle a tool call."""
+        """
+        Abstract method to handle tool calls.
+        Should return a list of TextContent objects.
+        """
         pass
 
     def _setup_handlers(self):
         """
-        Sets up the MCP server handlers, wrapping the abstract methods
-        with error handling and ensuring correct signatures.
+        Sets up the standard MCP handlers for this server.
         """
-        
+        # Register handlers using the server's handler decorators
         @self.server.list_resources()
-        async def _list_resources_handler(request: ListResourcesRequest) -> List[Resource]:
-            try:
-                return await self.list_resources(request)
-            except Exception as e:
-                self.logger.error(f"Error listing resources: {e}", exc_info=True)
-                return []
+        async def handle_list_resources(request: ListResourcesRequest) -> List[Resource]:
+            return await self.list_resources(request)
 
-        @self.server.get_resource()
-        async def _get_resource_handler(request: GetResourceRequest) -> str:
-            try:
-                return await self.get_resource(request)
-            except Exception as e:
-                self.logger.error(f"Error getting resource '{request.uri}': {e}", exc_info=True)
-                return json.dumps({"error": f"Failed to get resource: {e}"})
+        @self.server.read_resource()
+        async def handle_get_resource(request: ReadResourceRequest) -> str:
+            return await self.get_resource(request)
 
         @self.server.list_tools()
-        async def _list_tools_handler(request: ListToolsRequest) -> List[Tool]:
-            try:
-                return await self.list_tools(request)
-            except Exception as e:
-                self.logger.error(f"Error listing tools: {e}", exc_info=True)
-                return []
+        async def handle_list_tools(request: ListToolsRequest) -> List[Tool]:
+            return await self.list_tools(request)
 
         @self.server.call_tool()
-        async def _call_tool_handler(request: CallToolRequest) -> List[TextContent]:
-            try:
-                # Ensure integration is initialized before any tool call
-                if self.integration_client is None:
-                    self.logger.info("Integration client not initialized. Initializing now.")
-                    await self.initialize_integration()
-                    if self.integration_client is None:
-                         raise ConnectionError("Failed to initialize integration client.")
-                
-                return await self.call_tool(request)
-            except Exception as e:
-                self.logger.error(f"Error calling tool '{request.params.name}': {e}", exc_info=True)
-                return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
+        async def handle_call_tool(request: CallToolRequest) -> List[TextContent]:
+            return await self.call_tool(request)
 
     async def run(self):
         """
@@ -144,9 +123,15 @@ class BaseMCPServer(ABC):
                 )
             )
 
-def setup_logging():
-    """Sets up basic logging for the server."""
+
+def setup_logging(level: int = logging.INFO):
+    """
+    Sets up logging for MCP servers.
+    """
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler()
+        ]
     ) 

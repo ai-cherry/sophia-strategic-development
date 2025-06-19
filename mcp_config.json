@@ -52,6 +52,22 @@
         "CLAUDE_MODEL": "${CLAUDE_MODEL}",
         "CLAUDE_MAX_TOKENS": "${CLAUDE_MAX_TOKENS}"
       }
+    },
+    "knowledge_base": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.knowledge_mcp_server"],
+      "env": {
+        "PYTHONPATH": ".",
+        "PINECONE_API_KEY": "${PINECONE_API_KEY}"
+      }
+    },
+    "ai_memory": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.ai_memory_mcp_server"],
+      "env": {
+        "PYTHONPATH": ".",
+        "PINECONE_API_KEY": "${PINECONE_API_KEY}"
+      }
     }
   }
 }

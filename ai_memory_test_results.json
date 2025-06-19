@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-06-19T11:57:13.128888",
+  "tests": {
+    "config_validation": {
+      "passed": true,
+      "message": "AI Memory server properly configured"
+    },
+    "server_startup": {
+      "passed": true,
+      "message": "AI Memory MCP server can be instantiated",
+      "server_name": "ai_memory"
+    },
+    "dependencies": {
+      "passed": true,
+      "message": "All dependencies available",
+      "warnings": [
+        "PINECONE_API_KEY environment variable not set"
+      ]
+    },
+    "cursor_integration": {
+      "passed": true,
+      "message": "Cursor integration readiness: 3/3 checks passed",
+      "cursorrules_updated": true,
+      "mcp_config_exists": true,
+      "auto_discovery_exists": true,
+      "warnings": []
+    }
+  },
+  "overall_status": "passed",
+  "errors": [],
+  "warnings": [
+    "dependencies: PINECONE_API_KEY environment variable not set"
+  ]
+}

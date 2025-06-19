@@ -7,6 +7,7 @@ import pulumi
 import json
 from pulumi import Config
 import pulumi_kubernetes as k8s
+import pulumi_airbyte as airbyte
 
 # Load configuration
 config = Config()
@@ -227,3 +228,57 @@ pulumi.export("airbyte_sources", [source["name"] for source in source_configs])
 pulumi.export("airbyte_destinations", [dest["name"] for dest in destination_configs])
 pulumi.export("airbyte_connections", [conn["name"] for conn in connection_configs])
 pulumi.export("airbyte_environment", env)
+
+class AirbyteConnection(pulumi.ComponentResource):
+    """
+    A Pulumi component that represents an Airbyte connection, source,
+    and destination. This simplifies creating new data pipelines.
+    """
+    def __init__(self, name: str,
+                 source_config: pulumi.Input[dict],
+                 destination_config: pulumi.Input[dict],
+                 connection_config: pulumi.Input[dict],
+                 opts: pulumi.ResourceOptions = None):
+        """
+        Creates the Airbyte resources for a data pipeline.
+        
+        Args:
+            name: The base name for the resources.
+            source_config: The configuration for the Airbyte source.
+            destination_config: The configuration for the Airbyte destination.
+            connection_config: The configuration for the connection itself.
+        """
+        super().__init__("sophia:infrastructure:AirbyteConnection", name, None, opts)
+
+        # A real implementation would require the workspace_id, which could be
+        # fetched from a central config or another Pulumi resource.
+        workspace_id = "your-airbyte-workspace-id" # Placeholder
+
+        # Create the Airbyte Source
+        self.source = airbyte.Source(f"{name}-source",
+            workspace_id=workspace_id,
+            configuration=source_config,
+            opts=pulumi.ResourceOptions(parent=self)
+        )
+        
+        # Create the Airbyte Destination
+        self.destination = airbyte.Destination(f"{name}-destination",
+            workspace_id=workspace_id,
+            configuration=destination_config,
+            opts=pulumi.ResourceOptions(parent=self)
+        )
+        
+        # Create the Airbyte Connection
+        self.connection = airbyte.Connection(f"{name}-connection",
+            workspace_id=workspace_id,
+            source_id=self.source.source_id,
+            destination_id=self.destination.destination_id,
+            configuration=connection_config,
+            opts=pulumi.ResourceOptions(parent=self)
+        )
+        
+        self.register_outputs({
+            "sourceId": self.source.source_id,
+            "destinationId": self.destination.destination_id,
+            "connectionId": self.connection.connection_id,
+        })

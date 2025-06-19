@@ -36,8 +36,12 @@ class BrainAgent(BaseAgent):
         Returns:
             A TaskResult with the final, synthesized answer.
         """
-        logger.info(f"BrainAgent received complex task: {task.command}")
+        logger.info(f"BrainAgent received task: {task.command}")
         
+        # Check if this is a direct tool call to the brain, e.g., for code generation
+        if task.command == "generate_code":
+            return await self.generate_code(task.parameters.get("prompt", ""))
+
         try:
             # 1. Generate a plan (which may include a SQL query)
             system_prompt = self._create_planning_prompt()
@@ -86,6 +90,39 @@ class BrainAgent(BaseAgent):
 
         except Exception as e:
             logger.error(f"Error executing brain task '{task.command}': {e}", exc_info=True)
+            return TaskResult(status="error", output={"error": str(e)})
+
+    async def generate_code(self, prompt: str) -> TaskResult:
+        """
+        Uses the LLM via Portkey to generate a block of code based on a prompt.
+        
+        Args:
+            prompt: A detailed prompt describing the desired code.
+            
+        Returns:
+            A TaskResult containing the generated code.
+        """
+        logger.info("BrainAgent received code generation request.")
+        
+        system_prompt = """You are an expert Python and Pulumi developer.
+        Your sole task is to generate clean, correct, and readable code based on the user's prompt.
+        Do NOT add any explanatory text, conversational filler, or markdown code blocks (```python ... ```).
+        Your output must be ONLY the raw code itself.
+        """
+        
+        try:
+            code_response = await self.portkey.llm_call(prompt, system_prompt=system_prompt)
+            generated_code = code_response.get("choices", [{}])[0].get("message", {}).get("content", "")
+            
+            # Clean up the response to ensure it's just code
+            if "```python" in generated_code:
+                generated_code = generated_code.split("```python\n")[1].split("```")[0]
+            elif "```" in generated_code:
+                generated_code = generated_code.replace("```", "")
+
+            return TaskResult(status="success", output=generated_code.strip())
+        except Exception as e:
+            logger.error(f"Error during code generation: {e}", exc_info=True)
             return TaskResult(status="error", output={"error": str(e)})
 
     def _create_planning_prompt(self) -> str:

@@ -16,10 +16,14 @@ from backend.agents.knowledge_agent import KnowledgeAgent
 from backend.agents.huggingface_agent import HuggingFaceAgent
 from backend.agents.brain_agent import BrainAgent
 from backend.agents.codebase_awareness_agent import CodebaseAwarenessAgent
+from backend.agents.admin_agent import AdminAgent
 from backend.agents.core.agent_router import AgentRouter
 from backend.mcp.mcp_client import MCPClient
 from backend.integrations.huggingface_integration import huggingface_integration
 from backend.integrations.portkey_client import portkey_client
+from backend.agents.hubspot_agent import HubSpotAgent
+from backend.agents.intercom_agent import IntercomAgent
+from backend.agents.iac_manager_agent import IaCManagerAgent
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +71,16 @@ async def initialize_agent_system():
             AgentConfig(name="codebase_awareness_agent", version="1.0"),
             mcp_client=mcp_client
         )
+        admin_agent = AdminAgent(
+            AgentConfig(name="admin_agent", version="1.0"),
+            mcp_client=mcp_client
+        )
+        hubspot_agent = HubSpotAgent(AgentConfig(name="hubspot_agent", version="1.0"))
+        intercom_agent = IntercomAgent(AgentConfig(name="intercom_agent", version="1.0"))
+        iac_manager_agent = IaCManagerAgent(
+            AgentConfig(name="iac_manager_agent", version="1.0"),
+            portkey_client=portkey_client
+        )
 
         # 4. Register Agents with the Router
         agent_router.register_agent(docker_agent, "docker_agent")
@@ -75,6 +89,10 @@ async def initialize_agent_system():
         agent_router.register_agent(huggingface_agent, "huggingface_agent")
         agent_router.register_agent(brain_agent, "brain_agent")
         agent_router.register_agent(codebase_awareness_agent, "codebase_awareness_agent")
+        agent_router.register_agent(admin_agent, "admin_agent")
+        agent_router.register_agent(hubspot_agent, "hubspot_agent")
+        agent_router.register_agent(intercom_agent, "intercom_agent")
+        agent_router.register_agent(iac_manager_agent, "iac_manager_agent")
 
         # Optional: Set a default agent
         agent_router.set_default_agent("brain_agent")
@@ -120,5 +138,9 @@ __all__ = [
     'HuggingFaceAgent',
     'BrainAgent',
     'huggingface_integration',
-    'portkey_client'
+    'portkey_client',
+    'AdminAgent',
+    'HubSpotAgent',
+    'IntercomAgent',
+    'IaCManagerAgent'
 ]
