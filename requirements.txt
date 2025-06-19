@@ -20,8 +20,6 @@ pulumi-aws>=6.0.0
 pulumi-gcp>=7.0.0
 pulumi-azure-native>=2.0.0
 
-mcp==1.0.0
-
 # Integration dependencies
 snowflake-connector-python[pandas]>=3.6.0
 pinecone-client>=2.2.4
@@ -77,9 +75,6 @@ python-docx
 pypdf
 unstructured
 
-# Vector DB clients
-pinecone-client
-
 # Metadata DB clients
 psycopg2-binary
 
@@ -90,7 +85,7 @@ docker>=7.1.0
 # Excel parsing
 openpyxl
 # Data Integration clients
-airbyte-api-client
+airbyte
 pinecone>=7.2.0
 sentence-transformers>=4.1.0
 mcp>=1.9.4

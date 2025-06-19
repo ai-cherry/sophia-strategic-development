@@ -11,9 +11,20 @@ app = FastAPI(title="Sophia AI Real MCP Gateway")
 
 @app.on_event("startup")
 async def startup_event():
-    # Load MCP servers from config file
-    with open(CONFIG_PATH, "r") as f:
-        app.state.mcp_servers = {s["name"]: s["url"] for s in json.load(f)}
+    # Load MCP servers directly
+    app.state.mcp_servers = {
+        "retool": "http://retool-mcp:9000",
+        "docker": "http://docker-mcp:9000",
+        "ai_memory": "http://ai-memory-mcp:9000",
+        "knowledge": "http://knowledge-mcp:9000",
+        "gong": "http://gong-mcp:9000",
+        "claude": "http://claude-mcp:9000",
+        "lambda-labs": "http://lambda-labs-mcp:9000",
+        "linear": "http://linear-mcp:9000",
+        "slack": "http://slack-mcp:9000",
+        "codebase-awareness": "http://codebase-awareness-mcp:9000"
+        # Add other servers here as needed
+    }
     app.state.http_session = aiohttp.ClientSession()
 
 @app.on_event("shutdown")
@@ -23,6 +34,14 @@ async def shutdown_event():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "discovered_servers": list(app.state.mcp_servers.keys())}
+
+@app.get("/servers")
+async def get_servers():
+    if not hasattr(app.state, "mcp_servers") or not app.state.mcp_servers:
+        return JSONResponse(status_code=404, content={"error": "No MCP servers configured or configuration file not loaded."})
+    
+    server_list = [{"name": name, "url": url} for name, url in app.state.mcp_servers.items()]
+    return {"servers": server_list}
 
 @app.post("/tool-call")
 async def tool_call(request: Request):

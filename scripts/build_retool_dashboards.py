@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 from typing import Dict, Any
+import aiohttp
 
 from backend.mcp.mcp_client import MCPClient
 
@@ -22,9 +23,31 @@ class RetoolDashboardBuilder:
         self.mcp_client = MCPClient(mcp_gateway_url)
 
     async def initialize(self):
-        """Connect to the MCP gateway."""
+        """Connect to the MCP gateway after ensuring it's healthy."""
+        await self._wait_for_gateway()
         await self.mcp_client.connect()
         logger.info("MCP Client connected.")
+
+    async def _wait_for_gateway(self, timeout: int = 60):
+        """Polls the MCP gateway's health endpoint until it's ready."""
+        start_time = asyncio.get_event_loop().time()
+        health_url = f"{self.mcp_client.gateway_url}/health"
+        logger.info(f"Waiting for MCP gateway to be healthy at {health_url}...")
+        
+        while True:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(health_url) as response:
+                        if response.status == 200:
+                            logger.info("MCP gateway is healthy!")
+                            return
+            except aiohttp.ClientConnectorError:
+                pass  # Ignore connection errors while waiting
+
+            if asyncio.get_event_loop().time() - start_time >= timeout:
+                raise TimeoutError(f"Gateway not healthy after {timeout} seconds.")
+            
+            await asyncio.sleep(5)
 
     async def close(self):
         """Close the MCP client connection."""
@@ -43,10 +66,8 @@ class RetoolDashboardBuilder:
             create_app_result = await self.mcp_client.call_tool(
                 "retool",
                 "create_admin_dashboard",
-                {
-                    "dashboard_name": dashboard_name,
-                    "description": "Live dashboard to monitor the health and status of all running MCP servers."
-                }
+                dashboard_name=dashboard_name,
+                description="Live dashboard to monitor the health and status of all running MCP servers."
             )
 
             if not create_app_result.get("success"):

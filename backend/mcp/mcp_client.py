@@ -45,7 +45,8 @@ class MCPClient:
         try:
             async with self.session.get(f"{self.gateway_url}/servers") as response:
                 if response.status == 200:
-                    servers = await response.json()
+                    data = await response.json()
+                    servers = data.get("servers", [])
                     for server in servers:
                         server_name = server["name"]
                         self._servers[server_name] = server

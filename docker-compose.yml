@@ -290,10 +290,13 @@ services:
     build:
       context: ./mcp-gateway
       dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8080
     ports:
       - "8090:8080"
     volumes:
-      - ./mcp-config/mcp_servers.json:/app/mcp_servers.json
+      - ./mcp-config/mcp_servers.json:/app/mcp_servers.json:ro
+    environment:
+      - MCP_SERVERS_CONFIG=/app/mcp_servers.json
     networks:
       - sophia-network
     restart: unless-stopped
