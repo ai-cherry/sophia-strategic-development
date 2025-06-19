@@ -33,6 +33,11 @@ class ClaudeSecretManager:
     
     async def setup_claude_secrets(self) -> bool:
         """Setup Claude secrets in Pulumi ESC"""
+        # Validate API key is provided
+        if not self.anthropic_api_key:
+            logger.error("ANTHROPIC_API_KEY environment variable is required")
+            return False
+
         try:
             logger.info("Setting up Claude secrets in Pulumi ESC...")
             
@@ -375,11 +380,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-        
-        # Validate API key is provided
-        if not self.anthropic_api_key:
-            logger.error("ANTHROPIC_API_KEY environment variable is required")
-            return False
 

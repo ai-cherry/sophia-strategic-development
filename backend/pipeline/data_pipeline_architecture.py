@@ -255,7 +255,7 @@ class DataPipeline:
     def log_pipeline_run(self, run_summary: Dict[str, Any]):
         """Log pipeline run summary to a persistent store (e.g., database or log file)"""
         # For demo, logging to console and storing in memory
-        self.logger.info(f"Pipeline Run Summary: {json.dumps(run_summary, indent=2)}")
+        self.logger.info("Pipeline Run Summary: %s", json.dumps(run_summary, indent=2))
         # In a real system, this would write to a `pipeline_runs` table or structured log.
 
     def get_pipeline_status(self) -> Dict[str, Any]:
