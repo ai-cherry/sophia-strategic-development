@@ -353,6 +353,43 @@ class WorkflowTemplates:
         
         return workflow
 
+    @staticmethod
+    def create_gong_sync_workflow(days_back: int = 7) -> LangGraphWorkflow:
+        """
+        Creates a workflow to sync and analyze recent Gong calls.
+        """
+        workflow = LangGraphWorkflow(
+            workflow_id=f"gong-sync-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            description=f"Sync and analyze Gong calls from the last {days_back} days."
+        )
+
+        # Step 1: Fetch recent calls from the Gong MCP server
+        workflow.add_step(WorkflowStep(
+            name="fetch_recent_calls",
+            agent="gong_agent", # Assumes a GongAgent that maps to the GongMCPServer
+            command=f"get calls from the last {days_back} days"
+        ))
+        
+        # Step 2: Process each call for analytics
+        # Note: A real LangGraph implementation would loop over the results of the first step.
+        # This is a simplified representation where we imagine an agent capable of this.
+        workflow.add_step(WorkflowStep(
+            name="process_calls_for_analytics",
+            agent="gong_agent",
+            command="process and store analytics for all fetched calls",
+            depends_on=["fetch_recent_calls"]
+        ))
+        
+        # Step 3: Generate a summary report
+        workflow.add_step(WorkflowStep(
+            name="generate_sync_report",
+            agent="brain_agent",
+            command="generate a summary report of the Gong sync",
+            depends_on=["process_calls_for_analytics"]
+        ))
+        
+        return workflow
+
 # Workflow manager for tracking and managing workflows
 class WorkflowManager:
     """Manages workflow execution and tracking"""

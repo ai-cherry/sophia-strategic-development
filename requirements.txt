@@ -85,3 +85,7 @@ psycopg2-binary
 
 # Data Warehouse clients
 snowflake-connector-python
+# Docker client
+docker
+# Excel parsing
+openpyxl

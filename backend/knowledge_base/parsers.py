@@ -10,6 +10,7 @@ from pathlib import Path
 import docx
 import pptx
 from pypdf import PdfReader
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,29 @@ class DocumentParser:
             return ""
 
     @staticmethod
+    def parse_excel(file_path: Path) -> str:
+        """
+        Parses an Excel file (.xlsx, .xls) and converts it to a text-based
+        (CSV-like) string for easy embedding.
+        
+        Args:
+            file_path: The path to the Excel file.
+            
+        Returns:
+            A string representation of the Excel data.
+        """
+        logger.info(f"Parsing Excel file: {file_path}")
+        try:
+            # Read the excel file, assuming the first sheet is the one of interest
+            df = pd.read_excel(file_path, engine='openpyxl')
+            # Convert the dataframe to a string, which can be chunked and embedded
+            # We'll use CSV format for the string representation.
+            return df.to_csv(index=False)
+        except Exception as e:
+            logger.error(f"Failed to parse Excel file {file_path}: {e}", exc_info=True)
+            return ""
+
+    @staticmethod
     def parse(file_path: Path) -> str:
         """
         Automatically detects the file type and parses it.
@@ -101,6 +125,8 @@ class DocumentParser:
             return DocumentParser.parse_docx(file_path)
         elif suffix == ".pptx":
             return DocumentParser.parse_pptx(file_path)
+        elif suffix in [".xlsx", ".xls"]:
+            return DocumentParser.parse_excel(file_path)
         else:
             logger.warning(f"Unsupported file type: {suffix}. Skipping {file_path}")
             return ""

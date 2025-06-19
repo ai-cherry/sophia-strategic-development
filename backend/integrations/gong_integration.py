@@ -12,6 +12,9 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 
 from ..core.integration_config import Integration, ServiceConfig
+from backend.analytics.gong_analytics import process_call_for_analytics
+# In a real app, this would come from a central DB management module
+# from ..database.connection import db_connection_pool 
 
 logger = logging.getLogger(__name__)
 
@@ -180,6 +183,64 @@ class GongIntegration(Integration):
             logger.error(f"Error searching calls: {e}")
             return []
     
+    async def process_and_store_call(self, call_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Fetches a call, processes it for analytics, and stores the results.
+        
+        Args:
+            call_id: The ID of the Gong call to process.
+            
+        Returns:
+            A dictionary of the stored analytics data, or None on failure.
+        """
+        # 1. Fetch the detailed call data
+        call_data = await self.get_call_details(call_id)
+        if not call_data:
+            logger.warning(f"Could not retrieve details for call {call_id}. Skipping.")
+            return None
+            
+        # 2. Process the data using the analytics library
+        analytics_results = process_call_for_analytics(call_data)
+        
+        # 3. Store the results in the database
+        stored_data = await self.store_call_analytics(analytics_results)
+        
+        return stored_data
+
+    async def store_call_analytics(self, analytics_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Stores the results of a call analysis in the database.
+        This is a mock implementation. A real one would use a shared DB connection.
+        
+        Args:
+            analytics_data: The processed analytics data to store.
+            
+        Returns:
+            The data that was stored, or None on failure.
+        """
+        call_id = analytics_data.get("call_id")
+        if not call_id:
+            logger.error("Cannot store analytics without a call_id.")
+            return None
+            
+        logger.info(f"Storing analytics for call_id: {call_id}")
+        
+        # MOCK DATABASE INTERACTION
+        # In a real implementation, you would get a connection from a central pool
+        # and execute asyncpg INSERT/UPDATE commands here.
+        # e.g., conn = await db_connection_pool.acquire()
+        #      await conn.execute("INSERT INTO ...", *analytics_data.values())
+        #      await db_connection_pool.release(conn)
+        
+        print(f"--- MOCK DB STORE for call {call_id} ---")
+        print(f"  Relevance Score: {analytics_data.get('apartment_relevance_score')}")
+        print(f"  Deal Stage: {analytics_data.get('deal_signals', {}).get('deal_progression_stage')}")
+        print(f"  Competitors: {analytics_data.get('competitive_intelligence', {}).get('competitors_mentioned')}")
+        print("-----------------------------------------")
+        
+        # For now, just return the data as if it were successfully stored.
+        return analytics_data
+
     async def close(self):
         """Close the client session"""
         if self.session:

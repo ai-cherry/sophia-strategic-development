@@ -142,6 +142,10 @@ class CentralizedAgentRouter:
         elif any(keyword in command_lower for keyword in ["huggingface", "hf", "model", "dataset", "paper", "space"]):
             return "huggingface_agent"
         
+        # Codebase keywords
+        elif any(keyword in command_lower for keyword in ["codebase", "architecture", "contextualize"]):
+            return "codebase_awareness_agent"
+        
         # Default to Brain agent for general and complex queries
         else:
             logger.info(f"No specific agent found for command, defaulting to Brain agent.")

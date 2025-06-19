@@ -15,6 +15,7 @@ from backend.agents.pulumi_agent import pulumi_agent, pulumi_registration, Pulum
 from backend.agents.knowledge_agent import KnowledgeAgent
 from backend.agents.huggingface_agent import HuggingFaceAgent
 from backend.agents.brain_agent import BrainAgent
+from backend.agents.codebase_awareness_agent import CodebaseAwarenessAgent
 from backend.agents.core.agent_router import AgentRouter
 from backend.mcp.mcp_client import MCPClient
 from backend.integrations.huggingface_integration import huggingface_integration
@@ -62,6 +63,10 @@ async def initialize_agent_system():
             AgentConfig(name="brain_agent", version="1.0"),
             portkey_client=portkey_client
         )
+        codebase_awareness_agent = CodebaseAwarenessAgent(
+            AgentConfig(name="codebase_awareness_agent", version="1.0"),
+            mcp_client=mcp_client
+        )
 
         # 4. Register Agents with the Router
         agent_router.register_agent(docker_agent, "docker_agent")
@@ -69,6 +74,7 @@ async def initialize_agent_system():
         agent_router.register_agent(knowledge_agent, "knowledge_agent")
         agent_router.register_agent(huggingface_agent, "huggingface_agent")
         agent_router.register_agent(brain_agent, "brain_agent")
+        agent_router.register_agent(codebase_awareness_agent, "codebase_awareness_agent")
 
         # Optional: Set a default agent
         agent_router.set_default_agent("brain_agent")

@@ -18,13 +18,11 @@ services:
       - PINECONE_API_KEY=${PINECONE_API_KEY}
       - PINECONE_ENVIRONMENT=${PINECONE_ENVIRONMENT:-us-east1-gcp}
       - WEAVIATE_URL=http://weaviate:8080
-      - MEM0_URL=http://mem0:8000
       - ESTUARY_API_URL=${ESTUARY_API_URL:-https://api.estuary.tech}
     depends_on:
       - postgres
       - redis
       - weaviate
-      - mem0
     networks:
       - sophia-network
     restart: unless-stopped
@@ -100,26 +98,6 @@ services:
       - DEFAULT_VECTORIZER_MODULE=none
       - ENABLE_MODULES=text2vec-openai
       - OPENAI_APIKEY=${OPENAI_API_KEY}
-    networks:
-      - sophia-network
-    restart: unless-stopped
-
-  # mem0 Persistent Memory Service
-  mem0:
-    build:
-      context: ./mem0
-      dockerfile: Dockerfile
-    ports:
-      - "8001:8000"
-    volumes:
-      - ./mem0:/app
-      - mem0-data:/data
-    environment:
-      - REDIS_URL=redis://redis:6379/1
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - DATA_PATH=/data
-    depends_on:
-      - redis
     networks:
       - sophia-network
     restart: unless-stopped
@@ -216,20 +194,58 @@ services:
     profiles:
       - production
 
-  # Example: Custom Agent Service
-  my-agent:
+  # Base service definition for MCP servers to avoid repetition
+  x-base-mcp-service: &base-mcp-service
     build:
-      context: ./my_agent
-      dockerfile: Dockerfile
-    ports:
-      - "9000:9000"
+      context: .
+      dockerfile: Dockerfile.mcp
+    volumes:
+      - .:/app
     environment:
-      - ENV_VAR=value
-    depends_on:
-      - redis
+      - PYTHONUNBUFFERED=1
+      - PULUMI_ORG=${PULUMI_ORG}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - HUGGING_FACE_API_KEY=${HUGGING_FACE_API_KEY}
+      # Add any other required env vars for secrets here
     networks:
       - sophia-network
     restart: unless-stopped
+
+  # --- Individual MCP Servers ---
+  gong-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-gong-mcp
+    command: ["python3", "-m", "backend.mcp.gong_mcp_server"]
+
+  claude-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-claude-mcp
+    command: ["python3", "-m", "backend.mcp.claude_mcp_server"]
+
+  lambda-labs-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-lambda-labs-mcp
+    command: ["python3", "-m", "backend.mcp.lambda_labs_mcp_server"]
+
+  linear-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-linear-mcp
+    command: ["python3", "-m", "backend.mcp.linear_mcp_server"]
+
+  slack-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-slack-mcp
+    command: ["python3", "-m", "backend.mcp.slack_mcp_server"]
+
+  knowledge-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-knowledge-mcp
+    command: ["python3", "-m", "backend.mcp.knowledge_mcp_server"]
+
+  codebase-awareness-mcp:
+    <<: *base-mcp-service
+    container_name: sophia-codebase-awareness-mcp
+    command: ["python3", "-m", "backend.mcp.codebase_awareness_mcp_server"]
 
 networks:
   sophia-network:
@@ -239,7 +255,6 @@ volumes:
   postgres-data:
   redis-data:
   weaviate-data:
-  mem0-data:
   prometheus-data:
   grafana-data:
   estuary-data:
