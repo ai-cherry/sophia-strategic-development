@@ -1,0 +1,58 @@
+{
+  "mcpServers": {
+    "sophia": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.sophia_mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "gong": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.gong_mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "vercel": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.vercel_mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "lambda_labs": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.lambda_labs_mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "slack": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.slack_mcp_server"],
+      "env": {
+        "PYTHONPATH": "."
+      }
+    },
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/sse"],
+      "env": {
+        "LINEAR_API_TOKEN": "${LINEAR_API_TOKEN}",
+        "LINEAR_WORKSPACE_ID": "${LINEAR_WORKSPACE_ID}"
+      }
+    },
+    "claude": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.claude_mcp_server"],
+      "env": {
+        "PYTHONPATH": ".",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "CLAUDE_MODEL": "${CLAUDE_MODEL}",
+        "CLAUDE_MAX_TOKENS": "${CLAUDE_MAX_TOKENS}"
+      }
+    }
+  }
+}
+

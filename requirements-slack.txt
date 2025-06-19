@@ -1,0 +1,6 @@
+# Slack Integration Requirements
+slack-sdk>=3.23.0
+slack-bolt>=1.18.0
+
+# Add to existing requirements.txt
+

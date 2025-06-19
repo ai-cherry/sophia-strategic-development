@@ -1,0 +1,145 @@
+services:
+  sophia-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp.fixed
+    container_name: sophia-mcp-servers
+    environment:
+      - SOPHIA_ENVIRONMENT=production
+      - PULUMI_ORGANIZATION=ai-cherry
+      - PULUMI_PROJECT=sophia
+    ports:
+      - "8000:8000"  # Main Sophia MCP server
+      - "8001:8001"  # Gong MCP server
+      - "8002:8002"  # Vercel MCP server
+      - "8003:8003"  # Lambda Labs MCP server
+      - "8004:8004"  # Snowflake MCP server
+      - "8005:8005"  # Vector DB MCP server
+      - "8006:8006"  # Estuary MCP server
+      - "8007:8007"  # Airbyte MCP server
+    volumes:
+      - ./backend:/app/backend
+      - ./infrastructure:/app/infrastructure
+      - ./mcp_config.json:/app/mcp_config.json
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import asyncio; from backend.core.integration_registry import integration_registry; print('healthy' if asyncio.run(integration_registry.initialize()) else 'unhealthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sophia-redis:
+    image: redis:7-alpine
+    container_name: sophia-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    command: redis-server --appendonly yes
+
+  sophia-postgres:
+    image: postgres:15-alpine
+    container_name: sophia-postgres
+    environment:
+      - POSTGRES_DB=sophia
+      - POSTGRES_USER=sophia
+      - POSTGRES_PASSWORD=sophia_secure_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/sql:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  slack:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp.fixed
+    container_name: sophia-slack-mcp
+    environment:
+      - MCP_SERVER_TYPE=slack
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+    ports:
+      - "8004:8000"  # Map to port 8004 externally
+    depends_on:
+      - sophia-redis
+      - sophia-postgres
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  linear:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp.fixed
+    container_name: sophia-linear-mcp
+    environment:
+      - MCP_SERVER_TYPE=linear
+      - LINEAR_API_TOKEN=${LINEAR_API_TOKEN}
+      - LINEAR_WORKSPACE_ID=${LINEAR_WORKSPACE_ID}
+      - LINEAR_MCP_SERVER_URL=https://mcp.linear.app/sse
+    ports:
+      - "8003:8000"  # Map to port 8003 externally
+    depends_on:
+      - sophia-redis
+      - sophia-postgres
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  claude:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp.fixed
+    container_name: sophia-claude-mcp
+    environment:
+      - MCP_SERVER_TYPE=claude
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      - CLAUDE_MAX_TOKENS=${CLAUDE_MAX_TOKENS:-4096}
+      - CLAUDE_ORGANIZATION_ID=${CLAUDE_ORGANIZATION_ID:-sophia-ai}
+      - PYTHONPATH=/app
+    ports:
+      - "8001:8000"  # Map to port 8001 externally
+    depends_on:
+      - sophia-redis
+      - sophia-postgres
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./backend:/app/backend
+      - ./infrastructure:/app/infrastructure
+
+networks:
+  sophia-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:

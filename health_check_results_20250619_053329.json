@@ -1,0 +1,148 @@
+{
+  "overall_status": "degraded",
+  "healthy_checks": 7,
+  "total_checks": 9,
+  "health_percentage": 77.77777777777779,
+  "execution_time": "0.46s",
+  "timestamp": "2025-06-19T05:33:29.344593",
+  "checks": {
+    "System Resources": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "cpu_usage": "N/A (check skipped)",
+        "memory_usage": "N/A (check skipped)",
+        "disk_usage": "N/A (check skipped)",
+        "warnings": []
+      },
+      "timestamp": "2025-06-19T05:33:28.888803"
+    },
+    "Docker Services": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "total_services": 0,
+        "healthy_services": 0,
+        "services": []
+      },
+      "timestamp": "2025-06-19T05:33:28.943764"
+    },
+    "MCP Servers": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "total_servers": 5,
+        "healthy_servers": 0,
+        "servers": [
+          {
+            "name": "Sophia MCP",
+            "status": "unhealthy",
+            "error": "HTTP 404"
+          },
+          {
+            "name": "Claude MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8001 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8001, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8001)]"
+          },
+          {
+            "name": "Gong MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8002 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8002, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8002)]"
+          },
+          {
+            "name": "Linear MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8003 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 8003, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 8003)]"
+          },
+          {
+            "name": "Slack MCP",
+            "status": "unhealthy",
+            "error": "HTTP 404"
+          }
+        ]
+      },
+      "timestamp": "2025-06-19T05:33:28.989516"
+    },
+    "Pulumi ESC": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "user": "lynnmusil",
+        "available_stacks": 0,
+        "stacks": []
+      },
+      "timestamp": "2025-06-19T05:33:29.341163"
+    },
+    "Database Connections": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "databases": {
+          "snowflake": "check skipped",
+          "postgres": "check skipped"
+        }
+      },
+      "timestamp": "2025-06-19T05:33:29.341311"
+    },
+    "API Endpoints": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "total_endpoints": 3,
+        "healthy_endpoints": 0,
+        "endpoints": [
+          {
+            "name": "Health Check",
+            "status": "unhealthy",
+            "response_code": 404
+          },
+          {
+            "name": "Natural Query",
+            "status": "unhealthy",
+            "response_code": 404
+          },
+          {
+            "name": "Config API",
+            "status": "unhealthy",
+            "response_code": 404
+          }
+        ]
+      },
+      "timestamp": "2025-06-19T05:33:29.344330"
+    },
+    "Secret Access": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "can_access_secrets": true,
+        "test_result": "check skipped"
+      },
+      "timestamp": "2025-06-19T05:33:29.344384"
+    },
+    "Claude Integration": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "api_accessible": true,
+        "model_available": "check skipped",
+        "response_time": "check skipped"
+      },
+      "timestamp": "2025-06-19T05:33:29.344403"
+    },
+    "Configuration Validation": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "mcp_servers_configured": 7,
+        "cursor_rules_exists": true,
+        "missing_env_vars": [],
+        "config_files": {
+          "mcp_config.json": true,
+          ".cursorrules": true,
+          "docker-compose.mcp.yml": true
+        }
+      },
+      "timestamp": "2025-06-19T05:33:29.344581"
+    }
+  }
+}

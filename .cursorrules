@@ -1,0 +1,491 @@
+# Sophia AI Pay Ready Platform - Cursor AI Rules
+
+## Project Overview
+You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company. Sophia serves as the central "Pay Ready Brain" that orchestrates multiple AI agents and integrates with business systems.
+
+## Architecture Context
+- **Type:** Multi-agent AI orchestrator with flat-to-hierarchical evolution
+- **Primary Role:** Business intelligence and automation for Pay Ready
+- **Core Integrations:** HubSpot CRM, Gong.io call analysis, Slack communication
+- **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
+- **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
+
+## Development Standards
+
+### Python Code Style
+- Use Python 3.11+ with type hints for all functions
+- Follow PEP 8 with 88-character line limit (Black formatter)
+- Use async/await for I/O operations
+- Implement comprehensive error handling with logging
+- Include detailed docstrings for all classes and methods
+
+### Agent Development Pattern
+```python
+from backend.agents.core.base_agent import BaseAgent
+
+class YourAgent(BaseAgent):
+    def __init__(self, config: AgentConfig):
+        super().__init__(config)
+        # Agent-specific initialization
+    
+    async def execute_task(self, task: Task) -> TaskResult:
+        # Implementation with error handling
+        pass
+```
+
+### Integration Pattern
+```python
+class ServiceIntegration:
+    def __init__(self, config: ServiceConfig):
+        self.config = config
+        self.client = self._create_client()
+    
+    async def _make_request(self, method: str, endpoint: str, **kwargs):
+        # Standardized request handling with rate limiting
+        pass
+```
+
+### Business Intelligence Focus
+- Always consider Pay Ready business context
+- Implement metrics for revenue, customer health, sales performance
+- Focus on actionable insights for sales coaching and client monitoring
+- Prioritize real-time data processing and notifications
+
+### Security Requirements
+- Use encrypted storage for all API keys
+- Implement proper authentication and authorization
+- Log all security-relevant events
+- Follow principle of least privilege
+
+### Secret Management (CRITICAL)
+- **Documentation:** Always refer to `docs/SECRET_MANAGEMENT_GUIDE.md` for secret handling
+- **Tool:** Use `scripts/setup_pulumi_secrets.py` for all secret operations
+- **Secret Names:** Use EXACT names (e.g., `VERCEL_ACCESS_TOKEN` not `VERCEL_TOKEN`)
+- **Never hardcode secrets:** Always use environment variables
+- **GitHub Actions:** Secrets cannot be used in `if:` conditions - check inside scripts
+- **Local Development:** Use `env.minimal.example` as template for `.env`
+- **Adding Secrets:** Follow the unified workflow:
+  ```bash
+  # Import from .env
+  python scripts/setup_pulumi_secrets.py import-env --env-file .env
+  # Sync to GitHub
+  python scripts/setup_pulumi_secrets.py sync
+  ```
+
+### Testing Strategy
+- Write unit tests for all business logic
+- Include integration tests for external APIs
+- Implement performance tests for critical paths
+- Use pytest with async support
+
+### Error Handling Pattern
+```python
+try:
+    result = await some_operation()
+    return result
+except SpecificException as e:
+    logger.error(f"Operation failed: {e}")
+    raise BusinessLogicError(f"Failed to process: {e}")
+except Exception as e:
+    logger.exception("Unexpected error")
+    raise SystemError("Internal system error")
+```
+
+## Business Domain Knowledge
+
+### Pay Ready Context
+- Company focus: Business intelligence and automation
+- Key metrics: Revenue growth, customer satisfaction, sales efficiency
+- Team communication: Primarily through Slack
+- CRM system: HubSpot for contact and deal management
+- Call analysis: Gong.io for sales call insights
+
+### Agent Specializations
+- **Call Analysis Agent:** Process Gong.io recordings for insights
+- **CRM Sync Agent:** Maintain HubSpot data quality and synchronization
+- **Notification Agent:** Send intelligent Slack updates
+- **Business Intelligence Agent:** Generate revenue and performance reports
+
+### Integration Priorities
+1. **HubSpot:** Primary CRM for contact/deal management
+2. **Gong.io:** Critical for call analysis and sales coaching
+3. **Slack:** Main communication channel for team updates
+4. **Vector Databases:** For semantic search and AI capabilities
+
+## File Organization
+```
+backend/
+├── agents/
+│   ├── core/           # Base agent classes
+│   └── specialized/    # Domain-specific agents
+├── integrations/       # External service integrations
+├── database/          # Data layer and migrations
+├── monitoring/        # Performance and health monitoring
+└── security/          # Authentication and encryption
+
+frontend/
+├── src/
+│   ├── components/    # React components
+│   ├── pages/         # Page components
+│   └── services/      # API clients
+```
+
+## Common Patterns
+
+### API Client Implementation
+- Use aiohttp for async HTTP requests
+- Implement exponential backoff for retries
+- Respect rate limits with proper throttling
+- Include comprehensive error handling
+
+### Database Operations
+- Use SQLAlchemy with async support
+- Implement proper connection pooling
+- Use transactions for data consistency
+- Include migration scripts for schema changes
+
+### Monitoring and Logging
+- Use structured logging with JSON format
+- Include correlation IDs for request tracing
+- Monitor performance metrics and business KPIs
+- Implement health checks for all services
+
+## AI and ML Guidelines
+- Use OpenAI API for language processing
+- Implement vector search with Pinecone/Weaviate
+- Cache embeddings for performance
+- Include confidence scores in AI responses
+
+## Deployment Considerations
+- Target Lambda Labs for production deployment
+- Use Docker for containerization
+- Implement zero-downtime deployment strategies
+- Include environment-specific configurations
+
+## Performance Requirements
+- API response times < 200ms for critical paths
+- Database queries < 100ms average
+- Vector searches < 50ms average
+- Support for 1000+ concurrent users
+
+## When suggesting code:
+1. Always include proper error handling
+2. Add type hints and docstrings
+3. Consider business context and Pay Ready needs
+4. Implement monitoring and logging
+5. Follow the established patterns in the codebase
+6. Prioritize performance and scalability
+7. Include relevant tests
+
+## Avoid:
+- Hardcoded values (use configuration)
+- Synchronous I/O in async contexts
+- Missing error handling
+- Unclear variable names
+- Complex nested logic without comments
+- Security vulnerabilities (exposed secrets, etc.)
+
+Remember: You're building an enterprise-grade AI orchestrator that will handle critical business operations for Pay Ready. Code quality, reliability, and performance are paramount.
+
+
+
+### Infrastructure as Code Integration
+- **Pulumi Commands**: Use `pulumi up`, `pulumi preview`, `pulumi destroy` for infrastructure management
+- **ESC Operations**: Use scripts in `infrastructure/esc/` for secret management
+- **GitHub Integration**: All deployments go through GitHub Actions workflows
+- **MCP Integration**: Use `mcp_config.json` for MCP server configuration
+
+### Natural Language Infrastructure Commands
+When using Cursor AI for infrastructure operations, you can use natural language:
+
+#### Examples:
+- "Deploy the infrastructure" → Triggers GitHub Actions workflow
+- "Get the database password" → Retrieves secret from Pulumi ESC
+- "Rotate API keys" → Runs secret rotation framework
+- "Sync secrets" → Synchronizes GitHub and Pulumi ESC secrets
+- "Test the deployment" → Runs ESC integration tests
+
+#### Command Patterns:
+- **Secret Operations**: "get/retrieve/fetch [service] [secret_type]"
+- **Deployment Operations**: "deploy/update/rollback [component]"
+- **Testing Operations**: "test/validate/check [component]"
+- **Configuration Operations**: "configure/setup/initialize [service]"
+
+### MCP Server Natural Language Integration
+- **Query Data**: "Get recent Gong calls" → Uses Gong MCP server
+- **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server
+- **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server
+- **Database Operations**: "Query Snowflake" → Uses Snowflake MCP server
+
+### Error Handling and Debugging
+- **ESC Errors**: Check Pulumi ESC logs and validate configuration
+- **GitHub Actions Errors**: Review workflow logs and artifacts
+- **MCP Errors**: Check Docker container logs and health endpoints
+- **Secret Errors**: Validate secret names and permissions
+
+### Best Practices for Cursor AI Integration
+1. **Use Descriptive Comments**: Add context for infrastructure operations
+2. **Follow Naming Conventions**: Use consistent naming for secrets and services
+3. **Document Dependencies**: Clearly document service dependencies
+4. **Test Before Deploy**: Always test changes in isolation first
+5. **Monitor Operations**: Use logging and monitoring for all operations
+
+
+
+### Enhanced Backend Configuration Integration
+When working with the Sophia AI backend configuration system, use these patterns:
+
+#### Configuration Management Commands
+- **Service Health Checks**: "Check if Gong is healthy" → `python -c "import asyncio; from backend.core.config_manager import health_check; print(asyncio.run(health_check('gong')))"`
+- **Configuration Validation**: "Validate Snowflake config" → `python -c "import asyncio; from backend.core.config_manager import get_config; config = asyncio.run(get_config('snowflake')); print('Valid' if config else 'Invalid')"`
+- **Service Discovery**: "List all configured services" → `python -c "import asyncio; from backend.core.config_manager import list_services; print(asyncio.run(list_services()))"`
+- **Cache Management**: "Refresh configuration cache" → `python -c "import asyncio; from backend.core.config_manager import refresh_cache; asyncio.run(refresh_cache())"`
+
+#### Secret Management Integration
+- **Connection Strings**: "Get database connection" → `python -c "import asyncio; from backend.core.config_manager import get_connection_string; print(asyncio.run(get_connection_string('snowflake')))"`
+- **API Clients**: "Initialize Pinecone client" → `python -c "import asyncio; from backend.core.config_manager import get_api_client; client = asyncio.run(get_api_client('pinecone')); print('Ready' if client else 'Failed')"`
+- **Secret Validation**: "Check if all secrets are available" → Validate secret completeness across services
+
+#### Integration Testing Commands
+- **Health Monitoring**: "Check all service health" → Batch health check across all configured services
+- **Configuration Completeness**: "Validate all configurations" → Comprehensive configuration validation
+- **Performance Testing**: "Test API response times" → Performance benchmarking for all services
+
+#### Advanced Backend Operations
+- **Dynamic Configuration**: "Update service configuration" → Runtime configuration updates
+- **Error Recovery**: "Diagnose configuration issues" → Automated troubleshooting
+- **Performance Optimization**: "Optimize cache settings" → Performance tuning
+
+### Natural Language Command Patterns for Backend Integration
+Use these natural language patterns for complex backend operations:
+
+#### Conditional Operations
+- "If Snowflake is unavailable, use backup database"
+- "Deploy only if all health checks pass"
+- "Rotate secrets for services with expired credentials"
+
+#### Batch Operations
+- "Check health of all API services"
+- "Refresh cache for all database connections"
+- "Validate configuration for all integrations"
+
+#### Troubleshooting Operations
+- "Diagnose why Gong integration is failing"
+- "Show configuration issues for all services"
+- "Check secret expiration status"
+
+### MCP Agent Integration with Backend Configuration
+Enhanced MCP integration leveraging centralized configuration:
+
+#### Dynamic MCP Operations
+- **Service-Aware MCP**: MCP agents automatically discover available services
+- **Configuration-Driven MCP**: MCP operations use centralized configuration
+- **Health-Aware MCP**: MCP agents check service health before operations
+
+#### Natural Language MCP Commands
+- "Use MCP to query Gong for recent data" → MCP agent with Gong integration
+- "Deploy via MCP using current Vercel config" → MCP deployment with configuration
+- "Sync data between services via MCP" → Cross-service MCP orchestration
+
+### Error Handling and Recovery Patterns
+Enhanced error handling with backend integration:
+
+#### Automatic Fallbacks
+- Configuration fallback to environment variables
+- Service health check with automatic retry
+- Cache invalidation on configuration errors
+
+#### Error Diagnostics
+- Comprehensive error logging with context
+- Configuration validation with detailed feedback
+- Service dependency checking
+
+### Performance and Monitoring Integration
+Backend configuration system includes performance monitoring:
+
+#### Performance Metrics
+- Configuration cache hit rates
+- Service response time tracking
+- Secret rotation monitoring
+
+#### Optimization Features
+- Intelligent caching with TTL
+- Connection pooling for API clients
+- Batch operations for efficiency
+
+### Security Best Practices with Backend Integration
+Enhanced security with centralized configuration:
+
+#### Secret Security
+- Secure secret caching with TTL
+- Automatic secret masking in logs
+- Secret rotation tracking
+
+#### Access Control
+- Service-level access validation
+- Configuration audit logging
+- Secure fallback mechanisms
+
+### Development Workflow with Enhanced Backend
+Streamlined development workflow:
+
+1. **Configuration Setup**: Use centralized configuration manager
+2. **Service Registration**: Register services in integration registry
+3. **Health Validation**: Validate all service health before deployment
+4. **Performance Monitoring**: Monitor service performance continuously
+5. **Error Recovery**: Automatic error recovery with fallback mechanisms
+
+### Best Practices for Backend Configuration Integration
+1. **Always use centralized configuration**: Never hardcode service configurations
+2. **Validate configurations**: Always validate configuration completeness
+3. **Monitor service health**: Regular health checks for all services
+4. **Cache efficiently**: Use intelligent caching for performance
+5. **Handle errors gracefully**: Implement comprehensive error handling
+6. **Secure secrets**: Use secure secret management practices
+7. **Monitor performance**: Track performance metrics continuously
+8. **Document configurations**: Maintain clear configuration documentation
+
+
+### Linear Project Management Integration
+
+When working with Linear project management through Sophia AI:
+
+#### Issue Management Commands:
+- "Create a Linear issue for implementing [feature]"
+- "Update Linear issue SOPH-001 status to In Progress"
+- "Show all Linear issues assigned to me"
+- "Search Linear issues for 'MCP integration'"
+- "List Linear issues in the Sophia AI project"
+- "Mark Linear issue SOPH-002 as completed"
+
+#### Project Coordination Commands:
+- "Create a new Linear project for [project name]"
+- "Show Linear project status and progress"
+- "List all Linear projects in the workspace"
+- "Update Linear project description"
+- "Get Linear project statistics"
+
+#### Sprint and Development Tracking:
+- "Create Linear issues from GitHub commits"
+- "Track development progress for current sprint"
+- "Show Linear team velocity and metrics"
+- "Link Linear issues to deployment status"
+- "Generate Linear project report"
+
+#### Integration with Existing Systems:
+- "Connect Linear issue to Gong conversation"
+- "Create Linear issue from Slack discussion"
+- "Update Linear issue status after Vercel deployment"
+- "Link Linear project to Lambda Labs compute resources"
+
+#### Natural Language Project Management:
+- "What Linear issues are blocking the release?"
+- "Show me the progress on the MCP integration project"
+- "Create a Linear issue to fix the bug we discussed"
+- "Update all Linear issues related to Slack integration"
+- "Generate a Linear project status report for this week"
+
+#### Linear MCP Server Integration:
+- Uses official Linear MCP server (https://mcp.linear.app/sse)
+- Authenticated remote MCP protocol
+- Real-time access to Linear workspace data
+- Secure OAuth-based authentication
+- Integration with Pulumi ESC for credential management
+
+#### Configuration Management:
+- Linear credentials stored in Pulumi ESC
+- Environment variables managed centrally
+- OAuth tokens automatically refreshed
+- Secure access to Linear API and MCP server
+- Health monitoring and status checks
+
+When managing Linear operations, always:
+1. Use natural language commands for intuitive interaction
+2. Leverage the MCP server for real-time data access
+3. Integrate with existing Sophia AI workflows
+4. Maintain security through Pulumi ESC credential management
+5. Track development progress and team coordination
+6. Link Linear issues to other system components (deployments, conversations, etc.)
+
+The Linear integration provides comprehensive project management capabilities while maintaining the conversational interface and deep infrastructure integration that characterizes the Sophia AI system.
+
+
+### Claude as Code Integration
+
+When working with Claude AI through Sophia AI's "Claude as Code" functionality:
+
+#### Code Generation Commands:
+- "Generate a Python function to process CSV files"
+- "Create a React component for user authentication"
+- "Write a SQL query to analyze sales data"
+- "Generate a REST API endpoint for user management"
+- "Create a Docker configuration for this application"
+
+#### Code Analysis and Review:
+- "Analyze this Python code for potential bugs"
+- "Review this JavaScript function for performance issues"
+- "Explain how this algorithm works"
+- "Optimize this database query"
+- "Check this code for security vulnerabilities"
+
+#### Code Refactoring and Improvement:
+- "Refactor this code to improve readability"
+- "Convert this function to use async/await"
+- "Modernize this legacy JavaScript code"
+- "Optimize this code for better performance"
+- "Add error handling to this function"
+
+#### Documentation Generation:
+- "Generate API documentation for this Python module"
+- "Create a README file for this project"
+- "Add inline comments to this complex function"
+- "Generate user documentation for this feature"
+- "Create technical specifications for this API"
+
+#### Test Generation:
+- "Generate pytest tests for this Python class"
+- "Create unit tests for this JavaScript function"
+- "Write integration tests for this API endpoint"
+- "Generate test cases for edge conditions"
+- "Create mock data for testing this component"
+
+#### Debugging and Problem Solving:
+- "Help debug this error: [error message]"
+- "Explain why this code isn't working as expected"
+- "Suggest solutions for this performance issue"
+- "Help troubleshoot this deployment problem"
+- "Analyze this stack trace and suggest fixes"
+
+#### Concept Explanation:
+- "Explain microservices architecture"
+- "What are the benefits of using TypeScript?"
+- "How does OAuth 2.0 authentication work?"
+- "Explain the difference between SQL and NoSQL databases"
+- "What is the purpose of containerization?"
+
+#### Claude as Code MCP Integration:
+- Direct integration with Anthropic's Claude API
+- Secure credential management through Pulumi ESC
+- Rate limiting and usage monitoring
+- Support for multiple Claude models (Sonnet, Haiku, Opus)
+- Real-time code generation and analysis
+- Comprehensive error handling and logging
+
+#### Natural Language Programming:
+- Conversational interface for all coding tasks
+- Context-aware code generation
+- Iterative refinement of generated code
+- Integration with existing Sophia AI workflows
+- Support for multiple programming languages
+- Advanced reasoning for complex coding problems
+
+When using Claude as Code functionality, always:
+1. Use natural language to describe your coding needs
+2. Leverage Claude's advanced reasoning for complex problems
+3. Iterate and refine generated code through conversation
+4. Integrate with existing Sophia AI development workflows
+5. Take advantage of Claude's multi-language capabilities
+6. Use the MCP server for consistent, reliable access to Claude's capabilities
+
+The Claude as Code integration transforms Sophia AI into a powerful AI-assisted development environment, enabling natural language programming and advanced code intelligence capabilities.
+

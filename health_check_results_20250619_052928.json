@@ -1,0 +1,139 @@
+{
+  "overall_status": "unhealthy",
+  "healthy_checks": 3,
+  "total_checks": 9,
+  "health_percentage": 33.33333333333333,
+  "execution_time": "2.15s",
+  "timestamp": "2025-06-19T05:29:28.967955",
+  "checks": {
+    "System Resources": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "error": "list index out of range"
+      },
+      "timestamp": "2025-06-19T05:29:26.818212"
+    },
+    "Docker Services": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "total_services": 0,
+        "healthy_services": 0,
+        "services": []
+      },
+      "timestamp": "2025-06-19T05:29:26.968236"
+    },
+    "MCP Servers": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "total_servers": 5,
+        "healthy_servers": 0,
+        "servers": [
+          {
+            "name": "Sophia MCP",
+            "status": "unhealthy",
+            "error": "HTTP 404"
+          },
+          {
+            "name": "Claude MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8001 ssl:default [Connect call failed ('127.0.0.1', 8001)]"
+          },
+          {
+            "name": "Gong MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8002 ssl:default [Connect call failed ('127.0.0.1', 8002)]"
+          },
+          {
+            "name": "Linear MCP",
+            "status": "unreachable",
+            "error": "Cannot connect to host localhost:8003 ssl:default [Connect call failed ('127.0.0.1', 8003)]"
+          },
+          {
+            "name": "Slack MCP",
+            "status": "unhealthy",
+            "error": "HTTP 404"
+          }
+        ]
+      },
+      "timestamp": "2025-06-19T05:29:27.037756"
+    },
+    "Pulumi ESC": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "user": "lynnmusil",
+        "available_stacks": 0,
+        "stacks": []
+      },
+      "timestamp": "2025-06-19T05:29:27.928631"
+    },
+    "Database Connections": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "error": "'ConfigManager' object has no attribute 'test_connection'"
+      },
+      "timestamp": "2025-06-19T05:29:27.930565"
+    },
+    "API Endpoints": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "total_endpoints": 3,
+        "healthy_endpoints": 0,
+        "endpoints": [
+          {
+            "name": "Health Check",
+            "status": "unhealthy",
+            "response_code": 404
+          },
+          {
+            "name": "Natural Query",
+            "status": "unhealthy",
+            "response_code": 404
+          },
+          {
+            "name": "Config API",
+            "status": "unhealthy",
+            "response_code": 404
+          }
+        ]
+      },
+      "timestamp": "2025-06-19T05:29:27.933761"
+    },
+    "Secret Access": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "error": "ESCClient.get_secret() got an unexpected keyword argument 'default'"
+      },
+      "timestamp": "2025-06-19T05:29:28.963076"
+    },
+    "Claude Integration": {
+      "status": "unhealthy",
+      "details": {
+        "success": false,
+        "error": "'ClaudeIntegration' object has no attribute 'test_connection'"
+      },
+      "timestamp": "2025-06-19T05:29:28.967337"
+    },
+    "Configuration Validation": {
+      "status": "healthy",
+      "details": {
+        "success": true,
+        "mcp_servers_configured": 7,
+        "cursor_rules_exists": true,
+        "missing_env_vars": [],
+        "config_files": {
+          "mcp_config.json": true,
+          ".cursorrules": true,
+          "docker-compose.mcp.yml": true
+        }
+      },
+      "timestamp": "2025-06-19T05:29:28.967924"
+    }
+  }
+}

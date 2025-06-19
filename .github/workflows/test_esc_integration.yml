@@ -1,0 +1,276 @@
+name: Test Pulumi ESC Integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+      service:
+        description: 'Service to test (leave empty for all)'
+        required: false
+        type: string
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - secrets-only
+          - connectivity-only
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  test-esc-setup:
+    runs-on: ubuntu-latest
+    outputs:
+      esc_initialized: ${{ steps.init-esc.outputs.initialized }}
+      test_results: ${{ steps.test-esc.outputs.results }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi requests pyyaml
+      
+      - name: Initialize Pulumi ESC
+        id: init-esc
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          # Login to Pulumi
+          pulumi login
+          
+          # Initialize Pulumi ESC
+          cd infrastructure/esc
+          chmod +x setup_esc.sh
+          
+          if ./setup_esc.sh --environment ${{ github.event.inputs.environment }} --test-mode; then
+            echo "initialized=true" >> $GITHUB_OUTPUT
+            echo "✅ Pulumi ESC initialization successful"
+          else
+            echo "initialized=false" >> $GITHUB_OUTPUT
+            echo "❌ Pulumi ESC initialization failed"
+            exit 1
+          fi
+      
+      - name: Test ESC Configuration
+        id: test-esc
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          cd infrastructure/esc
+          
+          # Test secret retrieval
+          echo "Testing secret retrieval..."
+          if python get_secret.py --environment ${{ github.event.inputs.environment }} --test-mode; then
+            echo "✅ Secret retrieval test passed"
+            SECRET_TEST="PASS"
+          else
+            echo "❌ Secret retrieval test failed"
+            SECRET_TEST="FAIL"
+          fi
+          
+          # Test GitHub sync if full test
+          if [ "${{ github.event.inputs.test_type }}" == "full" ] || [ "${{ github.event.inputs.test_type }}" == "connectivity-only" ]; then
+            echo "Testing GitHub synchronization..."
+            if python github_sync_bidirectional.py --dry-run --environment ${{ github.event.inputs.environment }}; then
+              echo "✅ GitHub sync test passed"
+              SYNC_TEST="PASS"
+            else
+              echo "❌ GitHub sync test failed"
+              SYNC_TEST="FAIL"
+            fi
+          else
+            SYNC_TEST="SKIPPED"
+          fi
+          
+          # Create test results
+          RESULTS="{\"secret_retrieval\":\"$SECRET_TEST\",\"github_sync\":\"$SYNC_TEST\"}"
+          echo "results=$RESULTS" >> $GITHUB_OUTPUT
+          echo "Test Results: $RESULTS"
+
+  test-service-integration:
+    needs: test-esc-setup
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service != '' && (github.event.inputs.test_type == 'full' || github.event.inputs.test_type == 'secrets-only')
+    strategy:
+      matrix:
+        service: ${{ fromJson(format('["{0}"]', github.event.inputs.service)) }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi requests
+      
+      - name: Test Service Secrets
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          cd infrastructure/esc
+          
+          echo "Testing secrets for service: ${{ matrix.service }}"
+          
+          # Inject secrets for the specific service
+          chmod +x inject_secrets.sh
+          if ./inject_secrets.sh --environment ${{ github.event.inputs.environment }} --service ${{ matrix.service }} --test-mode; then
+            echo "✅ Service ${{ matrix.service }} secrets test passed"
+          else
+            echo "❌ Service ${{ matrix.service }} secrets test failed"
+            exit 1
+          fi
+
+  test-all-services:
+    needs: test-esc-setup
+    runs-on: ubuntu-latest
+    if: github.event.inputs.service == '' && (github.event.inputs.test_type == 'full' || github.event.inputs.test_type == 'secrets-only')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi requests
+      
+      - name: Test All Service Secrets
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          cd infrastructure/esc
+          
+          echo "Testing secrets for all services..."
+          
+          # List of services to test
+          SERVICES=("snowflake" "gong" "vercel" "estuary" "lambda_labs" "airbyte" "pinecone" "weaviate" "openai" "anthropic" "github")
+          
+          for service in "${SERVICES[@]}"; do
+            echo "Testing service: $service"
+            chmod +x inject_secrets.sh
+            if ./inject_secrets.sh --environment ${{ github.event.inputs.environment }} --service $service --test-mode; then
+              echo "✅ Service $service secrets test passed"
+            else
+              echo "❌ Service $service secrets test failed"
+              # Continue testing other services instead of failing immediately
+            fi
+          done
+
+  test-secret-rotation:
+    needs: test-esc-setup
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_type == 'full'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pulumi requests
+      
+      - name: Test Secret Rotation Framework
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          cd infrastructure/esc
+          
+          echo "Testing secret rotation framework..."
+          
+          # Test rotation status check
+          if python check_rotation_status.py --environment ${{ github.event.inputs.environment }}; then
+            echo "✅ Secret rotation status check passed"
+          else
+            echo "❌ Secret rotation status check failed"
+            exit 1
+          fi
+          
+          # Test dry-run rotation
+          if python secret_rotation_framework.py --environment ${{ github.event.inputs.environment }} --dry-run; then
+            echo "✅ Secret rotation dry-run test passed"
+          else
+            echo "❌ Secret rotation dry-run test failed"
+            exit 1
+          fi
+
+  generate-test-report:
+    needs: [test-esc-setup, test-service-integration, test-all-services, test-secret-rotation]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Generate Test Report
+        run: |
+          echo "# Pulumi ESC Integration Test Report" > test_report.md
+          echo "" >> test_report.md
+          echo "**Environment:** ${{ github.event.inputs.environment }}" >> test_report.md
+          echo "**Test Type:** ${{ github.event.inputs.test_type }}" >> test_report.md
+          echo "**Service:** ${{ github.event.inputs.service || 'All' }}" >> test_report.md
+          echo "**Date:** $(date)" >> test_report.md
+          echo "" >> test_report.md
+          
+          # ESC Setup Results
+          echo "## ESC Setup Test" >> test_report.md
+          if [ "${{ needs.test-esc-setup.outputs.esc_initialized }}" == "true" ]; then
+            echo "✅ **PASSED** - Pulumi ESC initialization successful" >> test_report.md
+          else
+            echo "❌ **FAILED** - Pulumi ESC initialization failed" >> test_report.md
+          fi
+          echo "" >> test_report.md
+          
+          # Test Results
+          echo "## Test Results" >> test_report.md
+          echo "${{ needs.test-esc-setup.outputs.test_results }}" | jq -r 'to_entries[] | "- **\(.key):** \(.value)"' >> test_report.md || echo "- Test results not available" >> test_report.md
+          echo "" >> test_report.md
+          
+          # Job Status Summary
+          echo "## Job Status Summary" >> test_report.md
+          echo "- **ESC Setup:** ${{ needs.test-esc-setup.result }}" >> test_report.md
+          echo "- **Service Integration:** ${{ needs.test-service-integration.result || 'Skipped' }}" >> test_report.md
+          echo "- **All Services:** ${{ needs.test-all-services.result || 'Skipped' }}" >> test_report.md
+          echo "- **Secret Rotation:** ${{ needs.test-secret-rotation.result || 'Skipped' }}" >> test_report.md
+          
+          cat test_report.md
+      
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pulumi-esc-test-report
+          path: test_report.md
+
