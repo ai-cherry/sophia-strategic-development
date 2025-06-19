@@ -23,6 +23,14 @@ jobs:
 
       - name: Run tests
         run: pytest
+        
+      - name: Run LlamaIndex integration test
+        run: ./scripts/run_llamaindex_integration_test.sh
+        env:
+          LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
+          LLAMAINDEX_PINECONE_API_KEY: ${{ secrets.LLAMAINDEX_PINECONE_API_KEY }}
+          LLAMAINDEX_WEAVIATE_API_KEY: ${{ secrets.LLAMAINDEX_WEAVIATE_API_KEY }}
+          LLAMAINDEX_OPENAI_API_KEY: ${{ secrets.LLAMAINDEX_OPENAI_API_KEY }}
 
       - name: Build Docker image
         run: docker build -t sophia-mcp-server:latest .
@@ -34,6 +42,10 @@ jobs:
           stack-name: dev
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
+          LLAMAINDEX_PINECONE_API_KEY: ${{ secrets.LLAMAINDEX_PINECONE_API_KEY }}
+          LLAMAINDEX_WEAVIATE_API_KEY: ${{ secrets.LLAMAINDEX_WEAVIATE_API_KEY }}
+          LLAMAINDEX_OPENAI_API_KEY: ${{ secrets.LLAMAINDEX_OPENAI_API_KEY }}
 
       - name: Pulumi Deploy
         uses: pulumi/actions@v4
@@ -41,4 +53,8 @@ jobs:
           command: up
           stack-name: prod
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }} 
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          LLAMA_API_KEY: ${{ secrets.LLAMA_API_KEY }}
+          LLAMAINDEX_PINECONE_API_KEY: ${{ secrets.LLAMAINDEX_PINECONE_API_KEY }}
+          LLAMAINDEX_WEAVIATE_API_KEY: ${{ secrets.LLAMAINDEX_WEAVIATE_API_KEY }}
+          LLAMAINDEX_OPENAI_API_KEY: ${{ secrets.LLAMAINDEX_OPENAI_API_KEY }}
