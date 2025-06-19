@@ -105,15 +105,13 @@ class MCPClient:
             
         # Validate parameters
         tool_info = self._tools[tool_key]
-        required_params = {
-            k for k, v in tool_info["parameters"].items() 
-            if isinstance(v, dict) and v.get("required", False)
-        }
+        schema = tool_info.get("parameters", {})
+        required_params = schema.get("required", [])
         
-        missing_params = required_params - set(parameters.keys())
+        missing_params = set(required_params) - set(parameters.keys())
         if missing_params:
             return {
-                "error": f"Missing required parameters: {missing_params}",
+                "error": f"Missing required parameters: {list(missing_params)}",
                 "tool_info": tool_info
             }
             

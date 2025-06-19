@@ -70,3 +70,18 @@ slack-bolt>=1.18.0
 
 # Claude/Anthropic API Requirements
 anthropic>=0.25.0  # Using the latest version for compatibility
+
+# New libraries for parsing documents
+python-pptx
+python-docx
+pypdf
+unstructured
+
+# Vector DB clients
+pinecone-client
+
+# Metadata DB clients
+psycopg2-binary
+
+# Data Warehouse clients
+snowflake-connector-python

@@ -216,6 +216,21 @@ services:
     profiles:
       - production
 
+  # Example: Custom Agent Service
+  my-agent:
+    build:
+      context: ./my_agent
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    environment:
+      - ENV_VAR=value
+    depends_on:
+      - redis
+    networks:
+      - sophia-network
+    restart: unless-stopped
+
 networks:
   sophia-network:
     driver: bridge

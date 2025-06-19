@@ -7,6 +7,7 @@ import pulumi
 import json
 from pulumi import Config
 import pulumi_pulumiservice as pulumiservice
+import pulumi_kubernetes as k8s
 
 # Load configuration
 config = Config()
@@ -252,6 +253,20 @@ pulumi_esc_config = pulumi.asset.AssetArchive({
         "environment": esc_environment.name
     }, indent=2))
 })
+
+# Example: Add Kubernetes HPA for MCP server autoscaling
+hpa = k8s.autoscaling.v2.HorizontalPodAutoscaler(
+    "mcp-server-hpa",
+    spec={
+        "scaleTargetRef": {"apiVersion": "apps/v1", "kind": "Deployment", "name": "mcp-server"},
+        "minReplicas": 2,
+        "maxReplicas": 10,
+        "metrics": [{
+            "type": "Resource",
+            "resource": {"name": "cpu", "target": {"type": "Utilization", "averageUtilization": 60}}
+        }]
+    }
+)
 
 # Export outputs
 pulumi.export("pulumi_esc_environment", esc_environment.name)
