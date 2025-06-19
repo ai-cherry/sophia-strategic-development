@@ -284,6 +284,28 @@ services:
       args:
         MCP_SERVER_MODULE: backend.mcp.docker_mcp_server
     container_name: sophia-docker-mcp
+    
+  agno-mcp:
+    <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.agno_mcp_server
+    container_name: sophia-agno-mcp
+    environment:
+      - AGNO_API_KEY=${AGNO_API_KEY}
+      - PYTHONUNBUFFERED=1
+      - PULUMI_ORG=${PULUMI_ORG}
+
+  iac-toolkit:
+    build:
+      context: .
+      dockerfile: Dockerfile.iac
+    container_name: sophia-iac-toolkit
+    # We mount the project directory to have access to the latest code.
+    volumes:
+      - .:/app
+    # Keep the container running so we can exec into it
+    tty: true
 
   # MCP Gateway to route requests to the correct server
   mcp-gateway:
