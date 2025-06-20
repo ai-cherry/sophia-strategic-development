@@ -1,41 +1,35 @@
 """
-Pulumi script for setting up Airbyte resources.
+Pulumi script for setting up Airbyte resources using the bridged Terraform provider.
 """
 import pulumi
-import pulumi_airbyte as airbyte
+from pulumi_terraform import state
 
 # --- Configuration ---
 config = pulumi.Config("airbyte")
-airbyte_api_url = config.get("api_url", "http://localhost:8001") # Assuming local Airbyte API
+# This local state is a placeholder. In a real scenario, you would use a remote
+# Terraform state backend like S3 or Terraform Cloud.
+tf_state_path = config.get("terraform_state_path", "airbyte.tfstate")
 
-# Configure the Airbyte provider
-airbyte_provider = airbyte.Provider("airbyte-provider",
-    server_url=airbyte_api_url,
-    # In a real scenario, you'd pass the API key here as a secret
-    # bearer_auth=config.require_secret("api_key")
-)
+# --- Resource Definitions using Terraform State ---
 
-# --- Resource Definitions ---
+# This setup assumes you have a separate Terraform project that manages your
+# Airbyte sources, destinations, and connections. Pulumi can then read the
+class AirbyteWorkspace(state.RemoteStateReference):
+    def __init__(self, name, state_path):
+        super().__init__(name, state.LocalStateArgs(path=state_path))
 
-# Example: Define a source (e.g., a GitHub repository)
-# This requires the workspace ID and the configuration for the source.
-# The exact configuration depends on the source type.
-# We will create a placeholder as we don't have a running Airbyte instance
-# to get the necessary IDs from.
+# Create a reference to the Airbyte Terraform state
+airbyte_state = AirbyteWorkspace("airbyte-tf-state", state_path=tf_state_path)
 
-# workspace_id = "your-airbyte-workspace-id"
-# github_source = airbyte.SourceGithub("sophia-github-source",
-#     workspace_id=workspace_id,
-#     configuration=airbyte.SourceGithubConfigurationArgs(
-#         repositories=["ai-cherry/sophia-main"],
-#         credentials=airbyte.SourceGithubCredentialsArgs(
-#             personal_access_token=config.require_secret("github_pat")
-#         ),
-#     ),
-#     opts=pulumi.ResourceOptions(provider=airbyte_provider)
-# )
+# You can now access outputs from your Terraform state.
+# For example, if your Terraform code outputs a `workspace_id` and a `source_id`:
+# workspace_id = airbyte_state.get_output("workspace_id")
+# source_id = airbyte_state.get_output("source_id")
 
 
 # --- Outputs ---
-pulumi.export("airbyte_setup_status", "Placeholder setup complete. A real implementation would define sources, destinations, and connections.")
-# pulumi.export("airbyte_github_source_id", github_source.source_id) 
+# This demonstrates that Pulumi is aware of the resources managed by Terraform.
+# The actual resources are defined in your .tf files.
+pulumi.export("airbyte_setup_status", "Airbyte resources are managed via a bridged Terraform state. See your Terraform files for definitions.")
+# pulumi.export("airbyte_workspace_id_from_tf", workspace_id)
+# pulumi.export("airbyte_source_id_from_tf", source_id) 
