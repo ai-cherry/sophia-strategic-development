@@ -3,3 +3,165 @@ venv/
 # Pulumi state files
 Pulumi.yaml
 Pulumi.*.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+sophia_venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Pulumi
+.pulumi/
+
+# Backup files
+backup_*/
+*.backup
+*.bak
+
+# Temporary development files
+temp/
+tmp/
+scratch/
+playground/
+
+# One-time scripts and artifacts (prevent future clutter)
+*_temp.py
+*_test_*.py
+*_demo_*.py
+*_prototype_*.py
+*_scratch.py
+*_backup.py
+quick_*.py
+temp_*.py
+test_temp_*.py
+fix_temp_*.py
+debug_*.py
+
+# Development artifacts
+*_report_*.json
+*_results_*.json
+*_output_*.json
+*_test_*.json
+*_demo_*.json
+*_analysis_*.json
+
+# Temporary documentation
+*_temp.md
+*_scratch.md
+*_notes.md
+*_draft.md
+TEMP_*.md
+DRAFT_*.md
+NOTES_*.md
+
+# Cache directories
+.cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local configuration overrides
+local_config.py
+local_settings.py
+dev_config.py
+
+# Retool exports (prevent re-accumulation)
+retool_export_*.json
+retool_backup_*.json
+retool_temp_*.json
+
+# Migration artifacts (prevent re-accumulation)
+migration_backup_*
+migration_temp_*
+migration_report_*
+
+# Validation artifacts (prevent re-accumulation)
+validation_temp_*
+validation_backup_*
+validation_report_*
+
+# Cleanup reports
+cleanup_report.json
+cleanup_backup_*/

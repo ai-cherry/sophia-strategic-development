@@ -11,11 +11,21 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from mcp.types import (CallToolRequest, ListResourcesRequest, ListToolsRequest,
-                       ReadResourceRequest, Resource, TextContent, Tool)
+from mcp.types import (
+    CallToolRequest,
+    ListResourcesRequest,
+    ListToolsRequest,
+    ReadResourceRequest,
+    Resource,
+    TextContent,
+    Tool,
+)
 
 from backend.core.comprehensive_memory_manager import (
-    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
+    MemoryOperationType,
+    MemoryRequest,
+    comprehensive_memory_manager,
+)
 from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 # Import dependencies with fallback
@@ -54,10 +64,10 @@ class AIMemoryMCPServer(BaseMCPServer):
         """Initializes the Pinecone and SentenceTransformer integration."""
         if not PINECONE_AVAILABLE:
             raise ImportError("Pinecone is not available. Please install pinecone-client.")
-        
+
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             raise ImportError("SentenceTransformers is not available. Please install sentence-transformers.")
-        
+
         try:
             # Initialize Pinecone
             api_key = os.getenv("PINECONE_API_KEY")
@@ -67,7 +77,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 self.index = None
             else:
                 self.pc = Pinecone(api_key=api_key)
-                
+
                 # Create index if it doesn't exist
                 if self.index_name not in self.pc.list_indexes().names():
                     self.pc.create_index(
@@ -80,17 +90,17 @@ class AIMemoryMCPServer(BaseMCPServer):
                         )
                     )
                     self.logger.info(f"Created Pinecone index: {self.index_name}")
-                
+
                 self.index = self.pc.Index(self.index_name)
                 self.logger.info(f"Connected to Pinecone index: {self.index_name}")
-            
+
             # Initialize sentence transformer
             self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
             self.logger.info("Initialized SentenceTransformer encoder")
-            
+
             # Set integration client for base class compatibility
             self.integration_client = self
-            
+
         except Exception as e:
             self.logger.error(f"Failed to initialize AI Memory integration: {e}")
             raise
@@ -115,7 +125,7 @@ class AIMemoryMCPServer(BaseMCPServer):
     async def get_resource(self, request: ReadResourceRequest) -> str:
         """Gets a specific AI Memory resource."""
         uri = request.uri
-        
+
         if uri == "ai_memory://health":
             health_status = {
                 "status": "healthy" if self.index is not None else "degraded",
@@ -125,7 +135,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "timestamp": datetime.now().isoformat()
             }
             return json.dumps(health_status)
-        
+
         elif uri == "ai_memory://stats":
             if self.index:
                 try:
@@ -140,7 +150,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                     return json.dumps({"error": f"Failed to get stats: {e}"})
             else:
                 return json.dumps({"error": "Pinecone index not available"})
-        
+
         else:
             return json.dumps({"error": f"Unknown resource: {uri}"})
 
@@ -224,7 +234,7 @@ class AIMemoryMCPServer(BaseMCPServer):
         """Handles AI Memory tool calls."""
         tool_name = request.params.name
         arguments = request.params.arguments or {}
-        
+
         try:
             if tool_name == "store_conversation":
                 result = await self._store_conversation(arguments)
@@ -234,9 +244,9 @@ class AIMemoryMCPServer(BaseMCPServer):
                 result = await self._delete_memory(arguments)
             else:
                 result = {"error": f"Unknown tool: {tool_name}"}
-            
+
             return [TextContent(type="text", text=json.dumps(result))]
-            
+
         except Exception as e:
             self.logger.error(f"Error in tool call {tool_name}: {e}")
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
@@ -247,17 +257,17 @@ class AIMemoryMCPServer(BaseMCPServer):
         context = args.get("context", "")
         tags = args.get("tags", [])
         category = args.get("category", "conversation")
-        
+
         if not conversation_text:
             return {"error": "conversation_text is required"}
-        
+
         if not self.encoder:
             return {"error": "Encoder not available"}
-        
+
         try:
             # Generate embedding
             embedding = self.encoder.encode(conversation_text).tolist()
-            
+
             # Create memory record
             memory_id = str(uuid.uuid4())
             metadata = {
@@ -268,12 +278,12 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "timestamp": datetime.now().isoformat(),
                 "source": "ai_memory_mcp"
             }
-            
+
             # Store in Pinecone if available
             if self.index:
-                self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=[(memory_id, embedding, metadata))])
+                await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=[(memory_id, embedding, metadata))])
                 self.logger.info(f"Stored memory {memory_id} in Pinecone")
-            
+
             return {
                 "success": True,
                 "memory_id": memory_id,
@@ -281,7 +291,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "tags": tags,
                 "timestamp": metadata["timestamp"]
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error storing conversation: {e}")
             return {"error": f"Failed to store conversation: {e}"}
@@ -292,27 +302,27 @@ class AIMemoryMCPServer(BaseMCPServer):
         category = args.get("category")
         tags = args.get("tags", [])
         top_k = args.get("top_k", 5)
-        
+
         if not query:
             return {"error": "query is required"}
-        
+
         if not self.encoder:
             return {"error": "Encoder not available"}
-        
+
         if not self.index:
             return {"error": "Pinecone index not available"}
-        
+
         try:
             # Generate query embedding
             query_embedding = self.encoder.encode(query).tolist()
-            
+
             # Build filter
             filter_dict = {}
             if category:
                 filter_dict["category"] = category
             if tags:
                 filter_dict["tags"] = {"$in": tags}
-            
+
             # Search in Pinecone
             search_results = self.index.query(
                 vector=query_embedding,
@@ -320,7 +330,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 include_metadata=True,
                 filter=filter_dict if filter_dict else None
             )
-            
+
             # Format results
             memories = []
             for match in search_results.matches:
@@ -334,14 +344,14 @@ class AIMemoryMCPServer(BaseMCPServer):
                     "timestamp": match.metadata.get("timestamp", "")
                 }
                 memories.append(memory)
-            
+
             return {
                 "success": True,
                 "query": query,
                 "count": len(memories),
                 "memories": memories
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error recalling memories: {e}")
             return {"error": f"Failed to recall memories: {e}"}
@@ -349,21 +359,21 @@ class AIMemoryMCPServer(BaseMCPServer):
     async def _delete_memory(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Delete a memory by ID."""
         memory_id = args.get("memory_id", "")
-        
+
         if not memory_id:
             return {"error": "memory_id is required"}
-        
+
         if not self.index:
             return {"error": "Pinecone index not available"}
-        
+
         try:
-            self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.DELETE, memory_id=ids=[memory_id]))
+            await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.DELETE, ids=[memory_id]))
             return {
                 "success": True,
                 "memory_id": memory_id,
                 "message": "Memory deleted successfully"
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error deleting memory: {e}")
             return {"error": f"Failed to delete memory: {e}"}

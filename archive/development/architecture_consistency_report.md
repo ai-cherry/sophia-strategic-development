@@ -1,15 +1,29 @@
 # Architecture Consistency Report
 
-Scanned 8378 files.
-Found 2780 files with architecture inconsistencies.
+Scanned 8352 files.
+Found 2776 files with architecture inconsistencies.
 
 ## Inconsistencies
 
-### Direct Api Calls: 264
+### Direct Api Calls: 269
 
 Files:
+- ./enhanced_gong_api_integration.py
+- ./sophia_fixed_gong_extraction.py
+- ./unified_integration_test.py
+- ./sophia_updated_gong_extraction.py
 - ./test_auth.py
 - ./gong_oauth_application.py
+- ./sophia_immediate_gong_extraction.py
+- ./advanced_gong_integration_prototype.py
+- ./fix_ssl_certificates.py
+- ./multitenant_gong_architecture.py
+- ./quick_setup_gong_integration.py
+- ./gong_webhook_system.py
+- ./gong_app_integration_analyzer.py
+- ./gong_calls_api_fixed.py
+- ./manage_integrations.py
+- ./enhanced_gong_api_tester.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/flask/app.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/flask/testing.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/flask/json/provider.py
@@ -177,22 +191,25 @@ Files:
 - ./sophia_admin_api/venv/lib/python3.11/site-packages/pkg_resources/_vendor/packaging/requirements.py
 - ./sophia_admin_api/venv/lib/python3.11/site-packages/greenlet/tests/leakcheck.py
 - ./backend/core/secure_credential_manager.py
+- ./backend/core/pulumi_esc.py
 - ./backend/imports/data_import_api_feeds.py
 - ./backend/integrations/huggingface_mcp.py
 - ./backend/integrations/workflow_orchestrator.py
 - ./backend/integrations/enhanced_llm_gateway.py
 - ./backend/integrations/kong_ai_gateway.py
 - ./backend/integrations/enhanced_integration.py
+- ./backend/integrations/enhanced_pulumi_esc.py
 - ./backend/integrations/github_secrets_manager.py
 - ./backend/integrations/unified_gateway_orchestrator.py
 - ./backend/integrations/airbyte_cloud_integration.py
 - ./backend/integrations/gong/enhanced_gong_integration.py
+- ./backend/knowledge/workflow_manager.py
+- ./backend/api/agui_protocol.py
 - ./backend/monitoring/sophia_monitoring.py
 - ./scripts/simple_provisioner.py
 - ./scripts/trigger_github_sync.py
 - ./scripts/start_backend_simple.py
 - ./scripts/deploy_full_executive_dashboard.py
-- ./scripts/test/unified_integration_test.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_comm.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_constants.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_referrers.py
@@ -248,34 +265,23 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/automation/_cmd.py
 - ./venv/lib/python3.11/site-packages/dill/tests/test_session.py
 - ./infrastructure/dev_server.py
+- ./infrastructure/esc/secret_rotation.py
+- ./infrastructure/esc/secret_rotation_framework.py
+- ./infrastructure/components/pinecone.py
 - ./infrastructure/components/gong.py
 - ./infrastructure/pulumi/retool_setup.py
 - ./infrastructure/pulumi/slack_setup.py
-- ./backup_1750457600/enhanced_gong_api_integration.py
-- ./backup_1750457600/sophia_fixed_gong_extraction.py
-- ./backup_1750457600/sophia_updated_gong_extraction.py
-- ./backup_1750457600/test_auth.py
-- ./backup_1750457600/gong_oauth_application.py
-- ./backup_1750457600/sophia_immediate_gong_extraction.py
-- ./backup_1750457600/fix_ssl_certificates.py
-- ./backup_1750457600/multitenant_gong_architecture.py
-- ./backup_1750457600/quick_setup_gong_integration.py
-- ./backup_1750457600/gong_webhook_system.py
-- ./backup_1750457600/gong_app_integration_analyzer.py
-- ./backup_1750457600/gong_calls_api_fixed.py
-- ./backup_1750457600/enhanced_gong_api_tester.py
+- ./architecture_inconsistencies_report.md
+- ./architecture_migration_summary.md
 - ./gong_integration_setup_guide.md
 - ./cursor_ai_optimization_prompt.md
-- ./archive/development/architecture_inconsistencies_report.md
-- ./archive/development/architecture_migration_summary.md
 - ./docs/INTEGRATION_MANAGEMENT_GUIDE.md
 - ./docs/KNOWLEDGE_INGESTION_GUIDE.md
-- ./backup_1750457600/architecture_migration_summary.md
-- ./backup_1750457600/gong_integration_setup_guide.md
 
-### Direct Pulumi Commands: 103
+### Direct Pulumi Commands: 99
 
 Files:
+- ./automated_health_check.py
 - ./gong_oauth_application.py
 - ./tests/infrastructure/conftest.py
 - ./tests/infrastructure/unit/test_snowflake_component.py
@@ -284,12 +290,12 @@ Files:
 - ./tests/infrastructure/e2e/test_complete_infrastructure.py
 - ./backend/core/secret_manager.py
 - ./backend/agents/pulumi_agent.py
+- ./backend/agents/core/__init__.py
 - ./backend/mcp/pulumi_mcp_server.py
 - ./backend/mcp/admin_mcp_server.py
 - ./backend/integrations/kong_ai_gateway.py
 - ./backend/integrations/linear_integration.py
 - ./backend/integrations/claude_integration.py
-- ./scripts/dev/automated_health_check.py
 - ./venv/lib/python3.11/site-packages/pulumi/_types.py
 - ./venv/lib/python3.11/site-packages/pulumi/output.py
 - ./venv/lib/python3.11/site-packages/pulumi/dynamic/dynamic.py
@@ -357,20 +363,16 @@ Files:
 - ./infrastructure/pulumi/airbyte_setup.py
 - ./infrastructure/pulumi/estuary_setup.py
 - ./infrastructure/pulumi/gong_setup.py
-- ./backup_1750457600/gong_oauth_application.py
 - ./configure_pulumi_esc.sh
 - ./deploy_production.sh
-- ./archive/validation/scripts/comprehensive_validation.sh
 - ./infrastructure/init_stacks.sh
 - ./infrastructure/import_secrets.sh
 - ./infrastructure/esc/setup_esc.sh
-- ./backup_1750457600/configure_pulumi_esc.sh
 - ./api_connection_iac_strategy.md
+- ./architecture_inconsistencies_report.md
 - ./gong_integration_setup_guide.md
+- ./PULUMI_IDP_MIGRATION_PLAN.md
 - ./pulumi_iac_natural_language_examples.md
-- ./archive/migrations/PULUMI_IDP_MIGRATION_PLAN.md
-- ./archive/development/architecture_inconsistencies_report.md
-- ./archive/validation/CODEBASE_VALIDATION_PLAN.md
 - ./docs/github_workflow.md
 - ./docs/PULUMI_IDP_MIGRATION_GUIDE.md
 - ./docs/TROUBLESHOOTING_GUIDE.md
@@ -378,11 +380,15 @@ Files:
 - ./docs/DEPLOYMENT_CHECKLIST.md
 - ./infrastructure/OPERATIONS_GUIDE.md
 - ./infrastructure/README.md
-- ./backup_1750457600/gong_integration_setup_guide.md
 
-### Old Ui References: 2419
+### Old Ui References: 2412
 
 Files:
+- ./sophia_live_test_suite.py
+- ./simplified_api_test.py
+- ./quick_setup_gong_integration.py
+- ./enhanced_sophia_integration.py
+- ./deploy_schema.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/jinja2/utils.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/jinja2/ext.py
 - ./sophia_admin_api/venv/lib64/python3.11/site-packages/setuptools/installer.py
@@ -395,7 +401,6 @@ Files:
 - ./scripts/check_architecture_consistency.py
 - ./scripts/build_admin_dashboard.py
 - ./scripts/seed_foundational_knowledge.py
-- ./scripts/deploy/deploy_schema.py
 - ./lambda/dashboard-generator/dashboard_generator.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_schema.py
 - ./venv/lib/python3.11/site-packages/pip/_vendor/pygments/lexers/_mapping.py
@@ -403,9 +408,6 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/deprecated.py
 - ./venv/lib/python3.11/site-packages/pulumi/runtime/proto/language_pb2_grpc.py
 - ./infrastructure/components/dashboard_platform.py
-- ./backup_1750457600/sophia_live_test_suite.py
-- ./backup_1750457600/quick_setup_gong_integration.py
-- ./backup_1750457600/enhanced_sophia_integration.py
 - ./quick_setup.sh
 - ./deploy_production.sh
 - ./frontend/vite.config.js
@@ -2718,10 +2720,12 @@ Files:
 - ./frontend/src/components/design-system/cards/MetricCard.jsx
 - ./frontend/src/components/design-system/cards/GlassCard.jsx
 - ./frontend/src/components/design-system/navigation/Header.jsx
-- ./backup_1750457600/sophia_admin_frontend.jsx
 - ./enhanced_sophia_database_integration_plan.md
 - ./architecture_consistency_report.md
+- ./architecture_migration_plan.md
 - ./slack_intelligence_enhancement_plan.md
+- ./architecture_inconsistencies_report.md
+- ./architecture_migration_summary.md
 - ./integration_fixes_summary.md
 - ./gong_integration_setup_guide.md
 - ./cursor_ai_optimization_prompt.md
@@ -2788,24 +2792,15 @@ Files:
 - ./frontend/node_modules/vaul/README.md
 - ./frontend/node_modules/cmdk/README.md
 - ./frontend/node_modules/next-themes/README.md
-- ./archive/development/architecture_consistency_report.md
-- ./archive/development/architecture_migration_plan.md
-- ./archive/development/architecture_inconsistencies_report.md
-- ./archive/development/architecture_migration_summary.md
-- ./archive/validation/CODEBASE_VALIDATION_PLAN.md
-- ./archive/validation/VALIDATION_COMPLETION_SUMMARY.md
 - ./docs/DEPLOYMENT_GUIDE.md
 - ./docs/SOPHIA_DESIGN_SYSTEM_INTEGRATION.md
 - ./docs/KNOWLEDGE_INGESTION_GUIDE.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
-- ./backup_1750457600/enhanced_sophia_database_integration_plan.md
-- ./backup_1750457600/architecture_migration_plan.md
-- ./backup_1750457600/architecture_migration_summary.md
-- ./backup_1750457600/gong_integration_setup_guide.md
 
-### Direct Vector Store Access: 21
+### Direct Vector Store Access: 19
 
 Files:
+- ./test_ai_memory_deployment.py
 - ./backend/core/config_manager.py
 - ./backend/core/integration_registry.py
 - ./backend/integration/multi_database_integration.py
@@ -2820,13 +2815,10 @@ Files:
 - ./backend/vector/vector_integration_updated.py
 - ./backend/vector/optimized_vector_config.py
 - ./scripts/migrate_vector_store_access.py
-- ./scripts/test/test_ai_memory_deployment.py
 - ./infrastructure/test_deployment.py
-- ./backup_1750457600/test_ai_memory_deployment.py
+- ./architecture_migration_summary.md
 - ./AI_MEMORY_DEPLOYMENT_GUIDE.md
-- ./archive/development/architecture_migration_summary.md
 - ./docs/implementation/sophia_technical_architecture.md
-- ./backup_1750457600/architecture_migration_summary.md
 
 ## Recommendations
 
