@@ -22,7 +22,14 @@ import {
   Clock,
   Users,
   TrendingUp,
-  Zap
+  Zap,
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw,
+  FileUp,
+  Lightbulb,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button.jsx';
 import { Input } from '@/components/ui/input.jsx';
@@ -34,6 +41,7 @@ import { Textarea } from '@/components/ui/textarea.jsx';
 import { Label } from '@/components/ui/label.jsx';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog.jsx';
 import { Alert, AlertDescription } from '@/components/ui/alert.jsx';
+import { Progress } from '@/components/ui/progress.jsx';
 import './App.css';
 
 // Mock data for demonstration
@@ -98,12 +106,54 @@ const contentTypes = [
   { value: 'vendors_partners', label: 'Vendors & Partners', color: 'bg-red-100 text-red-800' }
 ];
 
+// Add new mock data for proactive insights
+const mockProactiveInsights = [
+  {
+    id: 'insight_1',
+    type: 'new_competitor',
+    source: 'Gong Call - Innovate Corp',
+    sourceUrl: 'https://app.gong.io/call/123456',
+    insight: 'New competitor mentioned: FastTrack BI',
+    question: 'Should I add FastTrack BI to our competitor database?',
+    timestamp: '2024-01-23T10:30:00',
+    status: 'pending',
+    confidence: 0.85,
+    context: 'Customer mentioned they are also evaluating FastTrack BI for their analytics needs.'
+  },
+  {
+    id: 'insight_2',
+    type: 'product_gap',
+    source: 'Gong Call - QuantumLeap Solutions',
+    sourceUrl: 'https://app.gong.io/call/789012',
+    insight: 'Customer frustrated about data export limitations',
+    question: 'Is this a known product limitation we should document?',
+    timestamp: '2024-01-23T09:15:00',
+    status: 'pending',
+    confidence: 0.92,
+    context: 'Customer expressed frustration about not being able to export data in real-time to their BI tools.'
+  },
+  {
+    id: 'insight_3',
+    type: 'use_case',
+    source: 'Gong Call - Stellar Solutions',
+    sourceUrl: 'https://app.gong.io/call/345678',
+    insight: 'Client using platform for compliance auditing',
+    question: 'Should I add compliance auditing as a new use case?',
+    timestamp: '2024-01-23T08:45:00',
+    status: 'approved',
+    confidence: 0.78,
+    context: 'Client has been successfully using our platform for SOC2 compliance auditing.'
+  }
+];
+
 // Navigation Component
 function Navigation() {
   const location = useLocation();
   
   const navItems = [
     { path: '/', label: 'Documents', icon: FileText },
+    { path: '/discovery', label: 'Discovery Queue', icon: Lightbulb, badge: 2 },
+    { path: '/curation', label: 'Curation Chat', icon: MessageSquare },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/search', label: 'Search', icon: Search },
     { path: '/settings', label: 'Settings', icon: Settings }
@@ -125,7 +175,7 @@ function Navigation() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors relative ${
                     isActive
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -133,6 +183,11 @@ function Navigation() {
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
+                  {item.badge && (
+                    <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center">
+                      {item.badge}
+                    </Badge>
+                  )}
                 </Link>
               );
             })}
@@ -318,21 +373,52 @@ function DocumentEditor({ document, onSave, onCancel }) {
 // Documents Page
 function DocumentsPage() {
   const [documents, setDocuments] = useState(mockDocuments);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [editingDocument, setEditingDocument] = useState(null);
+  const [viewingDocument, setViewingDocument] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [editingDocument, setEditingDocument] = useState(null);
-  const [viewingDocument, setViewingDocument] = useState(null);
-  const [isCreating, setIsCreating] = useState(false);
 
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesType = filterType === 'all' || doc.contentType === filterType;
-    const matchesStatus = filterStatus === 'all' || doc.status === filterStatus;
-    return matchesSearch && matchesType && matchesStatus;
-  });
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(files);
+  };
+
+  const handleUpload = async () => {
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    // Simulate file upload with progress
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setUploadProgress(i);
+    }
+
+    // Add uploaded documents to the list
+    const newDocs = selectedFiles.map((file, index) => ({
+      id: `uploaded_${Date.now()}_${index}`,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      content: `Content from ${file.name}`,
+      contentType: 'company_core',
+      status: 'processing',
+      tags: ['uploaded', file.type],
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0],
+      createdBy: 'admin',
+      version: 1
+    }));
+
+    setDocuments([...documents, ...newDocs]);
+    setIsUploading(false);
+    setShowUploadDialog(false);
+    setSelectedFiles([]);
+    setUploadProgress(0);
+  };
 
   const handleSaveDocument = (document) => {
     if (document.id) {
@@ -348,7 +434,7 @@ function DocumentsPage() {
       setDocuments(docs => [...docs, newDocument]);
     }
     setEditingDocument(null);
-    setIsCreating(false);
+    setShowAddDialog(false);
   };
 
   const handleDeleteDocument = (document) => {
@@ -357,19 +443,27 @@ function DocumentsPage() {
     }
   };
 
-  if (editingDocument || isCreating) {
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'all' || doc.contentType === filterType;
+    const matchesStatus = filterStatus === 'all' || doc.status === filterStatus;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  if (editingDocument || showAddDialog) {
     return (
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            {isCreating ? 'Create New Document' : 'Edit Document'}
+            {showAddDialog ? 'Create New Document' : 'Edit Document'}
           </h2>
           <DocumentEditor
             document={editingDocument}
             onSave={handleSaveDocument}
             onCancel={() => {
               setEditingDocument(null);
-              setIsCreating(false);
+              setShowAddDialog(false);
             }}
           />
         </div>
@@ -379,15 +473,103 @@ function DocumentsPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Knowledge Base Documents</h2>
-          <Button onClick={() => setIsCreating(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Document
-          </Button>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Knowledge Base Documents</h2>
+        <div className="flex space-x-2">
+          <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <FileUp className="h-4 w-4 mr-2" />
+                Upload Files
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Upload Documents</DialogTitle>
+                <DialogDescription>
+                  Upload PDFs, Word docs, Excel files, or text files to add to the knowledge base.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.md"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">
+                      Click to select files or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      PDF, DOC, XLS, TXT, CSV, MD up to 10MB each
+                    </p>
+                  </label>
+                </div>
+                
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Selected files:</p>
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <span className="truncate">{file.name}</span>
+                        <span className="text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {isUploading && (
+                  <div className="space-y-2">
+                    <Progress value={uploadProgress} />
+                    <p className="text-sm text-center text-gray-600">Uploading... {uploadProgress}%</p>
+                  </div>
+                )}
+                
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={handleUpload} 
+                    disabled={selectedFiles.length === 0 || isUploading}
+                    className="flex-1"
+                  >
+                    Upload {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowUploadDialog(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Document
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Document</DialogTitle>
+                <DialogDescription>
+                  Create a new document in the knowledge base.
+                </DialogDescription>
+              </DialogHeader>
+              <DocumentEditor
+                onSave={handleSaveDocument}
+                onCancel={() => setShowAddDialog(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
-        
+      </div>
+
+      <div className="mb-6">
         <div className="flex space-x-4 mb-4">
           <div className="flex-1">
             <Input
@@ -446,7 +628,7 @@ function DocumentsPage() {
               ? 'Try adjusting your search or filters'
               : 'Get started by creating your first document'}
           </p>
-          <Button onClick={() => setIsCreating(true)}>
+          <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Document
           </Button>
@@ -834,6 +1016,386 @@ function SettingsPage() {
   );
 }
 
+// New Discovery Queue Page
+function DiscoveryQueuePage() {
+  const [insights, setInsights] = useState(mockProactiveInsights);
+  const [selectedInsight, setSelectedInsight] = useState(null);
+  const [editedContent, setEditedContent] = useState('');
+  const [filterType, setFilterType] = useState('all');
+
+  const pendingInsights = insights.filter(i => i.status === 'pending');
+  const filteredInsights = filterType === 'all' 
+    ? insights 
+    : insights.filter(i => i.type === filterType);
+
+  const handleApprove = (insight) => {
+    setInsights(insights.map(i => 
+      i.id === insight.id ? { ...i, status: 'approved' } : i
+    ));
+  };
+
+  const handleApproveWithEdit = (insight) => {
+    setSelectedInsight(insight);
+    setEditedContent(insight.insight);
+  };
+
+  const handleSaveEdit = () => {
+    setInsights(insights.map(i => 
+      i.id === selectedInsight.id 
+        ? { ...i, insight: editedContent, status: 'approved' } 
+        : i
+    ));
+    setSelectedInsight(null);
+    setEditedContent('');
+  };
+
+  const handleReject = (insight) => {
+    setInsights(insights.map(i => 
+      i.id === insight.id ? { ...i, status: 'rejected' } : i
+    ));
+  };
+
+  const getInsightIcon = (type) => {
+    switch (type) {
+      case 'new_competitor': return <Users className="h-4 w-4" />;
+      case 'product_gap': return <AlertTriangle className="h-4 w-4" />;
+      case 'use_case': return <Lightbulb className="h-4 w-4" />;
+      case 'pricing_objection': return <TrendingUp className="h-4 w-4" />;
+      default: return <Brain className="h-4 w-4" />;
+    }
+  };
+
+  const getInsightColor = (type) => {
+    switch (type) {
+      case 'new_competitor': return 'bg-red-100 text-red-800 border-red-200';
+      case 'product_gap': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'use_case': return 'bg-green-100 text-green-800 border-green-200';
+      case 'pricing_objection': return 'bg-orange-100 text-orange-800 border-orange-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Discovery Queue</h2>
+          <p className="text-gray-600 mt-1">
+            AI-discovered insights from Gong calls awaiting your review
+          </p>
+        </div>
+        <Badge variant="destructive" className="h-8 px-3">
+          {pendingInsights.length} Pending
+        </Badge>
+      </div>
+
+      <div className="mb-4">
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Filter by type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="new_competitor">New Competitors</SelectItem>
+            <SelectItem value="product_gap">Product Gaps</SelectItem>
+            <SelectItem value="use_case">Use Cases</SelectItem>
+            <SelectItem value="pricing_objection">Pricing Objections</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-4">
+        {filteredInsights.map((insight) => (
+          <Card key={insight.id} className={insight.status === 'pending' ? 'border-blue-200' : ''}>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className={`p-2 rounded-lg ${getInsightColor(insight.type)}`}>
+                    {getInsightIcon(insight.type)}
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">{insight.insight}</CardTitle>
+                    <CardDescription className="mt-1">
+                      <a 
+                        href={insight.sourceUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {insight.source}
+                      </a>
+                      {' • '}
+                      {new Date(insight.timestamp).toLocaleString()}
+                    </CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline">
+                    {Math.round(insight.confidence * 100)}% confidence
+                  </Badge>
+                  <Badge 
+                    variant={insight.status === 'pending' ? 'default' : 
+                            insight.status === 'approved' ? 'success' : 'secondary'}
+                  >
+                    {insight.status}
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-gray-50 p-3 rounded-md mb-4">
+                <p className="text-sm text-gray-700">{insight.context}</p>
+              </div>
+              
+              <div className="bg-blue-50 p-3 rounded-md mb-4">
+                <p className="text-sm font-medium text-blue-900 mb-1">Sophia asks:</p>
+                <p className="text-sm text-blue-700">{insight.question}</p>
+              </div>
+              
+              {insight.status === 'pending' && (
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    onClick={() => handleApprove(insight)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <ThumbsUp className="h-4 w-4 mr-1" />
+                    Approve
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleApproveWithEdit(insight)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Approve with Edit
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleReject(insight)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <ThumbsDown className="h-4 w-4 mr-1" />
+                    Reject
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                  >
+                    <Clock className="h-4 w-4 mr-1" />
+                    Ask Later
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!selectedInsight} onOpenChange={() => setSelectedInsight(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Insight</DialogTitle>
+            <DialogDescription>
+              Refine the insight before adding it to the knowledge base.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-content">Edited Content</Label>
+              <Textarea
+                id="edit-content"
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button onClick={handleSaveEdit}>Save & Approve</Button>
+              <Button variant="outline" onClick={() => setSelectedInsight(null)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// New Curation Chat Page
+function CurationChatPage() {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      type: 'assistant',
+      content: 'Welcome to the Knowledge Curation Chat! Ask me anything about the knowledge base, and I\'ll help you verify and refine the information.',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: inputValue,
+      timestamp: new Date()
+    };
+
+    setMessages([...messages, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse = {
+        id: Date.now() + 1,
+        type: 'assistant',
+        content: `Based on the knowledge base, the Enterprise Tier is priced at $50,000 per year.`,
+        source: 'pricing_sheet_2024.csv, Row 12',
+        timestamp: new Date(),
+        needsFeedback: true
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleFeedback = (messageId, feedback, correction = null) => {
+    setMessages(messages.map(msg => {
+      if (msg.id === messageId) {
+        return { ...msg, feedback, correction, needsFeedback: false };
+      }
+      return msg;
+    }));
+
+    if (correction) {
+      const correctionMessage = {
+        id: Date.now(),
+        type: 'system',
+        content: `Knowledge base updated: ${correction}`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, correctionMessage]);
+    }
+  };
+
+  return (
+    <div className="p-6 h-[calc(100vh-80px)] flex flex-col">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Knowledge Curation Chat</h2>
+        <p className="text-gray-600 mt-1">
+          Test and refine the knowledge base through natural conversation
+        </p>
+      </div>
+
+      <Card className="flex-1 flex flex-col">
+        <CardContent className="flex-1 overflow-y-auto p-4">
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-2xl ${message.type === 'user' ? 'order-2' : ''}`}>
+                  <div className={`rounded-lg p-3 ${
+                    message.type === 'user' ? 'bg-blue-100 text-blue-900' : 
+                    message.type === 'system' ? 'bg-green-100 text-green-900' :
+                    'bg-gray-100 text-gray-900'
+                  }`}>
+                    <p className="text-sm">{message.content}</p>
+                    {message.source && (
+                      <p className="text-xs mt-2 opacity-75">Source: {message.source}</p>
+                    )}
+                  </div>
+                  
+                  {message.needsFeedback && (
+                    <div className="mt-2 flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleFeedback(message.id, 'correct')}
+                        className="text-green-600"
+                      >
+                        <ThumbsUp className="h-4 w-4 mr-1" />
+                        Correct
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="ghost" className="text-red-600">
+                            <ThumbsDown className="h-4 w-4 mr-1" />
+                            Incorrect
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Provide Correction</DialogTitle>
+                            <DialogDescription>
+                              Help improve the knowledge base by providing the correct information.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <Textarea
+                            placeholder="Enter the correct information..."
+                            rows={4}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleFeedback(message.id, 'incorrect', e.target.value);
+                              }
+                            }}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
+                  
+                  {message.feedback && (
+                    <div className="mt-2">
+                      <Badge variant={message.feedback === 'correct' ? 'success' : 'destructive'}>
+                        {message.feedback === 'correct' ? 'Verified' : 'Corrected'}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 rounded-lg p-3">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+        
+        <div className="border-t p-4">
+          <div className="flex space-x-2">
+            <Input
+              placeholder="Ask about the knowledge base..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="flex-1"
+            />
+            <Button onClick={handleSendMessage} disabled={isLoading}>
+              <MessageSquare className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 // Main App Component
 function App() {
   return (
@@ -842,6 +1404,8 @@ function App() {
         <Navigation />
         <Routes>
           <Route path="/" element={<DocumentsPage />} />
+          <Route path="/discovery" element={<DiscoveryQueuePage />} />
+          <Route path="/curation" element={<CurationChatPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/settings" element={<SettingsPage />} />

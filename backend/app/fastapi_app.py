@@ -122,11 +122,13 @@ try:
     from backend.app.routers.hf_mcp_router import router as hf_mcp_router
     from backend.app.routers.esc_router import router as esc_router
     from backend.app.routers.costar_router import router as costar_router
+    from backend.app.routes.knowledge_routes import router as knowledge_admin_router
     
     app.include_router(knowledge_router, prefix="/api/knowledge", tags=["knowledge"])
     app.include_router(hf_mcp_router, prefix="/api/hf-mcp", tags=["hf-mcp"])
     app.include_router(esc_router, prefix="/api/esc", tags=["esc"])
     app.include_router(costar_router, prefix="/api/costar", tags=["costar"])
+    app.include_router(knowledge_admin_router, tags=["knowledge-admin"])
     
     logger.info("Integration routers registered")
 except ImportError as e:

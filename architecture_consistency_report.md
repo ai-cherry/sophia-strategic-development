@@ -1,6 +1,6 @@
 # Architecture Consistency Report
 
-Scanned 8319 files.
+Scanned 8320 files.
 Found 2770 files with architecture inconsistencies.
 
 ## Inconsistencies
