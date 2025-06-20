@@ -1,6 +1,6 @@
 
 # Sophia AI Dashboard Deployment Guide
-Generated: 2025-06-20 13:02:35
+Generated: 2025-06-20 15:59:29
 
 ## 🚀 Quick Start
 
@@ -21,7 +21,7 @@ Generated: 2025-06-20 13:02:35
 - ✅ Slack: Workspace: N/A
 - ✅ Pinecone: Index: N/A
 - ✅ Linear: Workspace: N/A
-- ✅ OpenAI:
+- ✅ OpenAI: 
 
 
 ## 📊 Dashboard URLs

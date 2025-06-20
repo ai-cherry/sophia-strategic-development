@@ -5,7 +5,7 @@ datasets, Spaces, and papers.
 import logging
 from typing import Any, Dict, List, Optional
 
-from huggingface_hub.inference import MCPClient
+from backend.mcp.mcp_client import MCPClient
 
 from infrastructure.esc.huggingface_secrets import huggingface_secret_manager
 

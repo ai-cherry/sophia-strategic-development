@@ -12,6 +12,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 import pinecone
 import weaviate
 from sentence_transformers import SentenceTransformer
@@ -137,11 +139,8 @@ class SophiaKnowledgeBase:
                     metric='cosine'
                 )
             
-            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: pinecone_index = pinecone.Index(index_name)
-pinecone_index = comprehensive_memory_manager
-pinecone_index = comprehensive_memory_manager
+            # Use comprehensive memory manager instead of direct Pinecone
+            self.pinecone_index = comprehensive_memory_manager
             logger.info("Pinecone initialized successfully")
             
         except Exception as e:

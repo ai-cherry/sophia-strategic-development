@@ -81,9 +81,15 @@ class KongAIGateway:
 
         # Agent registry for tracking available agents
         self.agent_registry: Dict[AgentType, Dict[str, Any]] = {}
+        
+        # Flag to track initialization
+        self._initialized = False
 
-        # Initialize Kong AI Gateway configuration
-        asyncio.create_task(self._initialize_kong_gateway())
+    async def ensure_initialized(self):
+        """Ensure Kong AI Gateway is initialized"""
+        if not self._initialized:
+            await self._initialize_kong_gateway()
+            self._initialized = True
 
     async def _initialize_kong_gateway(self):
         """Initialize Kong AI Gateway with AI-specific configurations"""
@@ -182,6 +188,8 @@ class KongAIGateway:
         start_time = datetime.now()
 
         try:
+            # Ensure initialization
+            await self.ensure_initialized()
             # Check if agent is registered and available
             if request.agent_type not in self.agent_registry:
                 return AgentResponse(
@@ -686,8 +694,15 @@ pulumi.export("vpc_id", vpc.id)
         return health_status
 
 
-# Initialize Kong AI Gateway
-kong_gateway = KongAIGateway()
+# Initialize Kong AI Gateway lazily
+kong_gateway = None
+
+def get_kong_gateway():
+    """Get Kong AI Gateway instance (lazy initialization)"""
+    global kong_gateway
+    if kong_gateway is None:
+        kong_gateway = KongAIGateway()
+    return kong_gateway
 
 # Flask Blueprint for API endpoints
 kong_bp = Blueprint("kong_gateway", __name__, url_prefix="/api/kong")
@@ -701,7 +716,7 @@ def register_agent():
         agent_type = AgentType(data["agent_type"])
         config = data["config"]
 
-        kong_gateway.register_agent(agent_type, config)
+        get_kong_gateway().register_agent(agent_type, config)
 
         return jsonify(
             {
@@ -729,7 +744,7 @@ async def route_agent_request():
             timeout=data.get("timeout", 30),
         )
 
-        response = await kong_gateway.route_request(agent_request)
+        response = await get_kong_gateway().route_request(agent_request)
 
         return jsonify(asdict(response))
 
@@ -744,7 +759,7 @@ def get_agent_metrics():
         agent_type_param = request.args.get("agent_type")
         agent_type = AgentType(agent_type_param) if agent_type_param else None
 
-        metrics = kong_gateway.get_agent_metrics(agent_type)
+        metrics = get_kong_gateway().get_agent_metrics(agent_type)
 
         return jsonify({"success": True, "metrics": metrics})
 
@@ -756,7 +771,7 @@ def get_agent_metrics():
 async def health_check():
     """Get system health status"""
     try:
-        health_status = await kong_gateway.health_check()
+        health_status = await get_kong_gateway().health_check()
         return jsonify(health_status)
 
     except Exception as e:

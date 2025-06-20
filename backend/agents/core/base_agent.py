@@ -34,6 +34,15 @@ class AgentConfig:
     max_concurrent_tasks: int = 5
 
 
+@dataclass
+class TaskResult:
+    """Result of task execution"""
+    status: str
+    output: Any
+    error: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
 class BaseAgent(ABC):
     """Base class for all Sophia AI agents"""
 

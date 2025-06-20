@@ -17,7 +17,8 @@ from sqlalchemy.orm import sessionmaker
 from backend.integrations.kong_ai_gateway import KongAIGateway
 from backend.integrations.natural_language_processor import NaturalLanguageProcessor
 
-from ..knowledge.knowledge_base import SophiaKnowledgeBase
+# Use stub knowledge base to avoid import errors
+from backend.knowledge.knowledge_base_stub import SophiaKnowledgeBase
 
 logger = logging.getLogger(__name__)
 

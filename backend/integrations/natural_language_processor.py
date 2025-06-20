@@ -11,11 +11,18 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 import openai
-import spacy
 from flask import Blueprint, Flask, jsonify, request
+
+# Optional spacy import
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+    spacy = None
 from flask_cors import CORS
 
-from .kong_ai_gateway import AgentRequest, AgentType, kong_gateway
+from .kong_ai_gateway import AgentRequest, AgentType, get_kong_gateway
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -58,10 +65,14 @@ class NaturalLanguageProcessor:
         self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
         # Load spaCy model for NER
-        try:
-            self.nlp = spacy.load("en_core_web_sm")
-        except OSError:
-            logger.warning("spaCy model not found, using basic NLP")
+        if SPACY_AVAILABLE:
+            try:
+                self.nlp = spacy.load("en_core_web_sm")
+            except OSError:
+                logger.warning("spaCy model not found, using basic NLP")
+                self.nlp = None
+        else:
+            logger.warning("spaCy not available, using basic NLP")
             self.nlp = None
 
         # Initialize conversation context
@@ -530,7 +541,7 @@ class NaturalLanguageProcessor:
             results = []
             for agent_request in agent_requests:
                 try:
-                    response = await kong_gateway.route_request(agent_request)
+                    response = await get_kong_gateway().route_request(agent_request)
                     results.append(
                         {
                             "agent_type": agent_request.agent_type.value,

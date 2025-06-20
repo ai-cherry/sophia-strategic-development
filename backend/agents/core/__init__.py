@@ -8,7 +8,7 @@ import logging
 from backend.agents.admin_agent import AdminAgent
 from backend.agents.brain_agent import BrainAgent
 from backend.agents.codebase_awareness_agent import CodebaseAwarenessAgent
-from backend.agents.core.agent_router import AgentRouter, agent_router
+from backend.agents.core.agent_router import CentralizedAgentRouter, agent_router
 
 # Import all agents
 from backend.agents.docker_agent import DockerAgent, docker_agent, docker_registration
@@ -134,7 +134,7 @@ __all__ = [
     "DockerAgent",
     "PulumiAgent",
     "KnowledgeAgent",
-    "AgentRouter",
+    "CentralizedAgentRouter",
     "MCPClient",
     "HuggingFaceAgent",
     "BrainAgent",

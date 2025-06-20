@@ -1,0 +1,67 @@
+{
+  "name": "Sophia Project Intelligence",
+  "description": "Unified project management across all tools",
+  "theme": {
+    "colors": {
+      "primary": "#5E6AD2",
+      "secondary": "#238636",
+      "accent": "#F59E0B",
+      "danger": "#EF4444",
+      "success": "#10B981",
+      "background": "#1a1a1a",
+      "surface": "#2a2a2a",
+      "text": "#ffffff",
+      "textSecondary": "#a0a0a0"
+    },
+    "fonts": {
+      "heading": "Inter, system-ui, sans-serif",
+      "body": "Inter, system-ui, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32
+    },
+    "borderRadius": 8,
+    "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+  },
+  "resources": [
+    {
+      "name": "ProjectAPI",
+      "type": "restapi",
+      "config": {
+        "baseURL": "http://localhost:8000/api/project-management",
+        "headers": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ environment.SOPHIA_API_KEY }}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "name": "Portfolio Overview",
+      "icon": "fas fa-th-large",
+      "color": "#5E6AD2"
+    },
+    {
+      "name": "OKR Alignment",
+      "icon": "fas fa-bullseye",
+      "color": "#10B981"
+    },
+    {
+      "name": "Team Performance",
+      "icon": "fas fa-users",
+      "color": "#238636"
+    }
+  ]
+}

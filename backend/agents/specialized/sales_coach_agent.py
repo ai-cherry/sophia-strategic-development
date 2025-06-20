@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 import snowflake.connector
 
 from ...core.config_manager import get_secret
-from .core.base_agent import (
+from ..core.base_agent import (
     AgentCapability,
     AgentConfig,
     BaseAgent,

@@ -10,7 +10,8 @@ from typing import Any, Dict, List
 import docker
 
 from backend.agents.core.agent_router import AgentCapability, AgentRegistration
-from backend.agents.core.base_agent import BaseAgent
+from backend.agents.core.base_agent import AgentConfig, BaseAgent
+from backend.agents.core.orchestrator import AgentCapability as OrchCapability
 from backend.core.context_manager import context_manager
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,12 @@ class DockerAgent(BaseAgent):
     """
 
     def __init__(self):
-        super().__init__(name="docker_agent")
+        config = AgentConfig(
+            agent_id="docker_agent",
+            agent_type="infrastructure",
+            specialization="Docker Operations"
+        )
+        super().__init__(config)
         self.client = None
         self._initialize_client()
 
@@ -418,16 +424,42 @@ class DockerAgent(BaseAgent):
             "suggestion": "Try using more specific commands like 'list containers', 'run X in Y', etc.",
         }
 
-    def get_capabilities(self) -> List[str]:
+    async def process_task(self, task) -> Dict[str, Any]:
+        """Process task - required by BaseAgent"""
+        # Delegate to execute method
+        return await self.execute(task.task_data.get("command", ""), task.task_data.get("context", {}))
+
+    async def get_capabilities(self) -> List[OrchCapability]:
         """Get list of capabilities"""
         return [
-            "list containers",
-            "run command in container",
-            "build image",
-            "stop/start container",
-            "switch container context",
-            "docker-compose operations",
-            "dev container support",
+            OrchCapability(
+                name="list_containers",
+                description="List all Docker containers",
+                input_types=["text"],
+                output_types=["json"],
+                estimated_duration=5.0
+            ),
+            OrchCapability(
+                name="run_command",
+                description="Run command in Docker container",
+                input_types=["text", "command"],
+                output_types=["json", "output"],
+                estimated_duration=30.0
+            ),
+            OrchCapability(
+                name="build_image",
+                description="Build Docker image",
+                input_types=["text", "dockerfile"],
+                output_types=["json", "image"],
+                estimated_duration=120.0
+            ),
+            OrchCapability(
+                name="container_management",
+                description="Start/stop Docker containers",
+                input_types=["text", "container_name"],
+                output_types=["json", "status"],
+                estimated_duration=10.0
+            )
         ]
 
 

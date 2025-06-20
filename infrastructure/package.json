@@ -1,0 +1,36 @@
+{
+  "name": "sophia-ai-infrastructure",
+  "version": "1.0.0",
+  "description": "Sophia AI Infrastructure as Code with Pulumi + Cursor AI Integration",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts",
+    "deploy": "pulumi up",
+    "preview": "pulumi preview",
+    "destroy": "pulumi destroy",
+    "mcp-server": "ts-node enhanced-pulumi-mcp-server.ts"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.100.0",
+    "@pulumi/aws": "^6.15.0",
+    "@pulumi/docker": "^4.5.0",
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0"
+  },
+  "keywords": [
+    "pulumi",
+    "infrastructure",
+    "ai",
+    "sophia",
+    "mcp",
+    "cursor"
+  ],
+  "author": "Sophia AI Team",
+  "license": "MIT"
+} 

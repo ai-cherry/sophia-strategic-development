@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 from backend.agents.core.agent_router import AgentCapability, AgentRegistration
-from backend.agents.core.base_agent import BaseAgent
+from backend.agents.core.base_agent import AgentConfig, BaseAgent
 from backend.core.context_manager import context_manager
 from backend.integrations.pulumi_mcp_client import pulumi_mcp_client
 
@@ -25,7 +25,12 @@ class PulumiAgent(BaseAgent):
     """
 
     def __init__(self):
-        super().__init__(name="pulumi_agent")
+        config = AgentConfig(
+            agent_id="pulumi_agent",
+            agent_type="infrastructure",
+            specialization="Pulumi Infrastructure as Code"
+        )
+        super().__init__(config)
         self.mcp_client = pulumi_mcp_client
         self._validate_environment()
 
@@ -508,7 +513,12 @@ pulumi.export("deployment_name", deployment.metadata.name)""",
 
         return stack
 
-    def get_capabilities(self) -> List[str]:
+    async def process_task(self, task) -> Dict[str, Any]:
+        """Process task - required by BaseAgent"""
+        # Delegate to execute method
+        return await self.execute(task.task_data.get("command", ""), task.task_data.get("context", {}))
+
+    async def get_capabilities(self) -> List[str]:
         """Get list of capabilities"""
         return [
             "deploy stack",
