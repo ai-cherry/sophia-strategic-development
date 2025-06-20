@@ -1,7 +1,7 @@
 # Architecture Consistency Report
 
-Scanned 8343 files.
-Found 2771 files with architecture inconsistencies.
+Scanned 8352 files.
+Found 2776 files with architecture inconsistencies.
 
 ## Inconsistencies
 
@@ -278,7 +278,7 @@ Files:
 - ./docs/INTEGRATION_MANAGEMENT_GUIDE.md
 - ./docs/KNOWLEDGE_INGESTION_GUIDE.md
 
-### Direct Pulumi Commands: 95
+### Direct Pulumi Commands: 99
 
 Files:
 - ./automated_health_check.py
@@ -313,6 +313,7 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/policy/__main__.py
 - ./mcp-servers/pulumi/main.py
 - ./infrastructure/deploy_production.py
+- ./infrastructure/pulumi_idp_main.py
 - ./infrastructure/dev_server.py
 - ./infrastructure/snowflake_setup.py
 - ./infrastructure/vercel_setup.py
@@ -337,6 +338,7 @@ Files:
 - ./infrastructure/components/pinecone.py
 - ./infrastructure/components/openrouter.py
 - ./infrastructure/components/gong.py
+- ./infrastructure/components/dashboard_platform.py
 - ./infrastructure/components/docker.py
 - ./infrastructure/components/estuary.py
 - ./infrastructure/components/mcp.py
@@ -369,15 +371,17 @@ Files:
 - ./api_connection_iac_strategy.md
 - ./architecture_inconsistencies_report.md
 - ./gong_integration_setup_guide.md
+- ./PULUMI_IDP_MIGRATION_PLAN.md
 - ./pulumi_iac_natural_language_examples.md
 - ./docs/github_workflow.md
+- ./docs/PULUMI_IDP_MIGRATION_GUIDE.md
 - ./docs/TROUBLESHOOTING_GUIDE.md
 - ./docs/cursor_ai_integration.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
 - ./infrastructure/OPERATIONS_GUIDE.md
 - ./infrastructure/README.md
 
-### Old Ui References: 2410
+### Old Ui References: 2412
 
 Files:
 - ./sophia_live_test_suite.py
@@ -397,11 +401,13 @@ Files:
 - ./scripts/check_architecture_consistency.py
 - ./scripts/build_admin_dashboard.py
 - ./scripts/seed_foundational_knowledge.py
+- ./lambda/dashboard-generator/dashboard_generator.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_schema.py
 - ./venv/lib/python3.11/site-packages/pip/_vendor/pygments/lexers/_mapping.py
 - ./venv/lib/python3.11/site-packages/setuptools/installer.py
 - ./venv/lib/python3.11/site-packages/pulumi/deprecated.py
 - ./venv/lib/python3.11/site-packages/pulumi/runtime/proto/language_pb2_grpc.py
+- ./infrastructure/components/dashboard_platform.py
 - ./quick_setup.sh
 - ./deploy_production.sh
 - ./frontend/vite.config.js
