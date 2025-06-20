@@ -1,0 +1,67 @@
+{
+  "name": "Sophia CEO Dashboard",
+  "description": "Executive command center for Pay Ready AI",
+  "theme": {
+    "colors": {
+      "primary": "#5E6AD2",
+      "secondary": "#238636",
+      "accent": "#F59E0B",
+      "danger": "#EF4444",
+      "success": "#10B981",
+      "background": "#1a1a1a",
+      "surface": "#2a2a2a",
+      "text": "#ffffff",
+      "textSecondary": "#a0a0a0"
+    },
+    "fonts": {
+      "heading": "Inter, system-ui, sans-serif",
+      "body": "Inter, system-ui, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32
+    },
+    "borderRadius": 8,
+    "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+  },
+  "resources": [
+    {
+      "name": "SophiaAPI",
+      "type": "restapi",
+      "config": {
+        "baseURL": "http://localhost:8000",
+        "headers": [
+          {
+            "key": "X-Admin-Key",
+            "value": "{{ environment.SOPHIA_ADMIN_KEY }}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "name": "Strategic Intelligence",
+      "icon": "fas fa-brain",
+      "color": "#5E6AD2"
+    },
+    {
+      "name": "Client Health",
+      "icon": "fas fa-heartbeat",
+      "color": "#10B981"
+    },
+    {
+      "name": "AI System Status",
+      "icon": "fas fa-robot",
+      "color": "#F59E0B"
+    }
+  ]
+}

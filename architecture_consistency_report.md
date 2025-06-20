@@ -1,11 +1,11 @@
 # Architecture Consistency Report
 
-Scanned 8320 files.
-Found 2770 files with architecture inconsistencies.
+Scanned 8342 files.
+Found 2771 files with architecture inconsistencies.
 
 ## Inconsistencies
 
-### Direct Api Calls: 268
+### Direct Api Calls: 269
 
 Files:
 - ./enhanced_gong_api_integration.py
@@ -276,6 +276,7 @@ Files:
 - ./gong_integration_setup_guide.md
 - ./cursor_ai_optimization_prompt.md
 - ./docs/INTEGRATION_MANAGEMENT_GUIDE.md
+- ./docs/KNOWLEDGE_INGESTION_GUIDE.md
 
 ### Direct Pulumi Commands: 95
 
@@ -376,7 +377,7 @@ Files:
 - ./infrastructure/OPERATIONS_GUIDE.md
 - ./infrastructure/README.md
 
-### Old Ui References: 2409
+### Old Ui References: 2410
 
 Files:
 - ./sophia_live_test_suite.py
@@ -2787,6 +2788,7 @@ Files:
 - ./frontend/node_modules/next-themes/README.md
 - ./docs/DEPLOYMENT_GUIDE.md
 - ./docs/SOPHIA_DESIGN_SYSTEM_INTEGRATION.md
+- ./docs/KNOWLEDGE_INGESTION_GUIDE.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
 
 ### Direct Vector Store Access: 19

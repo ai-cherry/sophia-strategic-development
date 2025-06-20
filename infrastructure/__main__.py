@@ -1,6 +1,5 @@
-import pulumi
-from pulumi import export, get_stack, Output
 import pulumi_docker as docker
+from pulumi import Output, export, get_stack
 
 # Get the stack name to tag resources.
 stack = get_stack()
@@ -28,4 +27,7 @@ backend_container = docker.Container(
 
 # Export the container name and the backend URL for easy access.
 export("container_name", backend_container.name)
-export("backend_url", Output.concat("http://localhost:", str(backend_container.ports[0].external_port)))
+export(
+    "backend_url",
+    Output.concat("http://localhost:", str(backend_container.ports[0].external_port)),
+)

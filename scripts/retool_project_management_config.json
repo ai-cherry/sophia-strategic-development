@@ -1,0 +1,1243 @@
+{
+  "name": "Sophia Project Intelligence",
+  "description": "Unified project intelligence across Linear, GitHub, Asana, and Slack",
+  "resources": [
+    {
+      "name": "ProjectManagementAPI",
+      "type": "restapi",
+      "config": {
+        "baseURL": "{{ environment.SOPHIA_API_URL }}/api/project-management",
+        "headers": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ current_user.authToken }}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "authentication": "bearer",
+        "bearerToken": "{{ environment.SOPHIA_API_KEY }}"
+      }
+    }
+  ],
+  "queries": [
+    {
+      "name": "getDashboardSummary",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/dashboard/summary",
+      "runOnPageLoad": true,
+      "pollingInterval": 60000
+    },
+    {
+      "name": "getOKRAlignment",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/okr/alignment",
+      "urlParams": [
+        {
+          "key": "quarter",
+          "value": "{{ quarterSelector.value }}"
+        }
+      ],
+      "runOnPageLoad": true
+    },
+    {
+      "name": "updateOKR",
+      "resource": "ProjectManagementAPI",
+      "type": "POST",
+      "url": "/okr/update",
+      "body": {
+        "objective_id": "{{ okrUpdateModal.data.objective_id }}",
+        "key_result_id": "{{ okrUpdateModal.data.key_result_id }}",
+        "current_value": "{{ okrValueInput.value }}",
+        "notes": "{{ okrNotesInput.value }}"
+      },
+      "onSuccess": [
+        "okrUpdateModal.close()",
+        "getOKRAlignment.trigger()",
+        "utils.showNotification({text: 'OKR updated successfully', type: 'success'})"
+      ]
+    },
+    {
+      "name": "getBlockers",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/blockers",
+      "runOnPageLoad": true
+    },
+    {
+      "name": "getRecommendations",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/recommendations",
+      "urlParams": [
+        {
+          "key": "focus_area",
+          "value": "{{ focusAreaSelect.value }}"
+        }
+      ],
+      "runOnPageLoad": true
+    },
+    {
+      "name": "updateRecommendationStatus",
+      "resource": "ProjectManagementAPI",
+      "type": "POST",
+      "url": "/recommendations/action",
+      "body": {
+        "action_id": "{{ currentRecommendation.action_id }}",
+        "status": "{{ actionStatusSelect.value }}",
+        "notes": "{{ actionNotesInput.value }}"
+      },
+      "onSuccess": [
+        "getRecommendations.trigger()",
+        "utils.showNotification({text: 'Action updated', type: 'success'})"
+      ]
+    },
+    {
+      "name": "getProjectDetails",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/projects/{{ selectedProject.id }}",
+      "runWhenModelUpdates": [
+        "selectedProject.id"
+      ]
+    },
+    {
+      "name": "getTeamPerformance",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/teams/performance",
+      "urlParams": [
+        {
+          "key": "team_name",
+          "value": "{{ teamFilter.value }}"
+        }
+      ]
+    },
+    {
+      "name": "getProjectTrends",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/insights/trends",
+      "urlParams": [
+        {
+          "key": "days",
+          "value": "{{ trendPeriodSelect.value }}"
+        }
+      ],
+      "runOnPageLoad": true
+    },
+    {
+      "name": "getMilestones",
+      "resource": "ProjectManagementAPI",
+      "type": "GET",
+      "url": "/calendar/milestones",
+      "urlParams": [
+        {
+          "key": "start_date",
+          "value": "{{ calendarView.startDate }}"
+        },
+        {
+          "key": "end_date",
+          "value": "{{ calendarView.endDate }}"
+        }
+      ]
+    },
+    {
+      "name": "generateCustomReport",
+      "resource": "ProjectManagementAPI",
+      "type": "POST",
+      "url": "/reports/custom",
+      "body": {
+        "name": "{{ reportNameInput.value }}",
+        "filters": "{{ reportFilters.value }}",
+        "metrics": "{{ selectedMetrics.value }}",
+        "grouping": "{{ groupingSelect.value }}"
+      }
+    }
+  ],
+  "components": {
+    "root": {
+      "type": "frame",
+      "sticky": true,
+      "children": [
+        "header",
+        "mainTabs"
+      ]
+    },
+    "header": {
+      "type": "container",
+      "backgroundColor": "#1a1a1a",
+      "padding": 16,
+      "children": [
+        "titleRow",
+        "statsRow"
+      ]
+    },
+    "titleRow": {
+      "type": "container",
+      "direction": "row",
+      "children": [
+        {
+          "type": "text",
+          "value": "\ud83d\ude80 Project Intelligence Command Center",
+          "size": "h1",
+          "color": "white",
+          "weight": "bold"
+        },
+        {
+          "type": "container",
+          "direction": "row",
+          "align": "right",
+          "children": [
+            {
+              "type": "select",
+              "id": "quarterSelector",
+              "value": "Q1_2024",
+              "options": [
+                "Q1_2024",
+                "Q2_2024",
+                "Q3_2024",
+                "Q4_2024"
+              ],
+              "width": 120
+            },
+            {
+              "type": "button",
+              "text": "\ud83d\udd04 Refresh",
+              "onClick": [
+                "getDashboardSummary.trigger()",
+                "getOKRAlignment.trigger()",
+                "getBlockers.trigger()"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "statsRow": {
+      "type": "container",
+      "direction": "row",
+      "gap": 16,
+      "children": [
+        {
+          "type": "statistic",
+          "label": "Total Projects",
+          "value": "{{ getDashboardSummary.data.summary.total_projects }}",
+          "prefix": "\ud83d\udcca",
+          "color": "white",
+          "backgroundColor": "#2a2a2a",
+          "borderRadius": 8,
+          "padding": 12
+        },
+        {
+          "type": "statistic",
+          "label": "On Track",
+          "value": "{{ getDashboardSummary.data.summary.status_breakdown.on_track }}",
+          "prefix": "\u2705",
+          "color": "green",
+          "backgroundColor": "#2a2a2a",
+          "borderRadius": 8,
+          "padding": 12
+        },
+        {
+          "type": "statistic",
+          "label": "At Risk",
+          "value": "{{ getDashboardSummary.data.summary.status_breakdown.at_risk }}",
+          "prefix": "\u26a0\ufe0f",
+          "color": "yellow",
+          "backgroundColor": "#2a2a2a",
+          "borderRadius": 8,
+          "padding": 12
+        },
+        {
+          "type": "statistic",
+          "label": "Blocked",
+          "value": "{{ getDashboardSummary.data.summary.status_breakdown.blocked }}",
+          "prefix": "\ud83d\udeab",
+          "color": "red",
+          "backgroundColor": "#2a2a2a",
+          "borderRadius": 8,
+          "padding": 12
+        },
+        {
+          "type": "statistic",
+          "label": "Portfolio Health",
+          "value": "{{ getDashboardSummary.data.summary.health_score.toFixed(1) }}%",
+          "prefix": "\ud83d\udcaa",
+          "color": "blue",
+          "backgroundColor": "#2a2a2a",
+          "borderRadius": 8,
+          "padding": 12
+        }
+      ]
+    },
+    "mainTabs": {
+      "type": "tabs",
+      "tabs": [
+        {
+          "name": "Portfolio Overview",
+          "icon": "fas fa-th",
+          "content": {
+            "type": "container",
+            "padding": 16,
+            "children": [
+              {
+                "type": "container",
+                "direction": "row",
+                "marginBottom": 16,
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Project Portfolio",
+                    "size": "h2",
+                    "weight": "bold"
+                  },
+                  {
+                    "type": "container",
+                    "direction": "row",
+                    "align": "right",
+                    "gap": 8,
+                    "children": [
+                      {
+                        "type": "select",
+                        "id": "statusFilter",
+                        "placeholder": "Filter by status",
+                        "options": [
+                          "All",
+                          "on_track",
+                          "at_risk",
+                          "blocked",
+                          "completed"
+                        ],
+                        "value": "All",
+                        "width": 150
+                      },
+                      {
+                        "type": "input",
+                        "id": "projectSearch",
+                        "placeholder": "Search projects...",
+                        "icon": "search",
+                        "width": 200
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "table",
+                "id": "projectsTable",
+                "data": "{{ \n                        getDashboardSummary.data.projects\n                            .filter(p => statusFilter.value === 'All' || p.status === statusFilter.value)\n                            .filter(p => !projectSearch.value || p.name.toLowerCase().includes(projectSearch.value.toLowerCase()))\n                    }}",
+                "columns": [
+                  {
+                    "key": "name",
+                    "label": "Project",
+                    "width": 250,
+                    "render": "\n                                <div style=\"display: flex; align-items: center; gap: 8px;\">\n                                    <span>{{ item }}</span>\n                                    <div style=\"display: flex; gap: 4px;\">\n                                        {{ currentRow.sources.map(s => \n                                            `<span style=\"\n                                                background: ${s === 'linear' ? '#5E6AD2' : \n                                                           s === 'github' ? '#238636' : \n                                                           s === 'slack' ? '#4A154B' : '#666'};\n                                                color: white;\n                                                padding: 2px 6px;\n                                                border-radius: 4px;\n                                                font-size: 10px;\n                                            \">${s}</span>`\n                                        ).join('') }}\n                                    </div>\n                                </div>\n                            "
+                  },
+                  {
+                    "key": "status",
+                    "label": "Status",
+                    "width": 120,
+                    "render": "\n                                <span style=\"\n                                    background: {{ \n                                        item === 'on_track' ? '#10B981' :\n                                        item === 'at_risk' ? '#F59E0B' :\n                                        item === 'blocked' ? '#EF4444' :\n                                        item === 'completed' ? '#6366F1' : '#6B7280'\n                                    }};\n                                    color: white;\n                                    padding: 4px 12px;\n                                    border-radius: 16px;\n                                    font-size: 12px;\n                                \">{{ item.replace('_', ' ').toUpperCase() }}</span>\n                            "
+                  },
+                  {
+                    "key": "metrics.completion",
+                    "label": "Progress",
+                    "width": 150,
+                    "render": "\n                                <div style=\"width: 100%;\">\n                                    <div style=\"display: flex; justify-content: space-between; margin-bottom: 4px;\">\n                                        <span style=\"font-size: 12px;\">{{ item.toFixed(1) }}%</span>\n                                    </div>\n                                    <div style=\"background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;\">\n                                        <div style=\"\n                                            background: {{ item > 80 ? '#10B981' : item > 50 ? '#F59E0B' : '#EF4444' }};\n                                            width: {{ item }}%;\n                                            height: 100%;\n                                            transition: width 0.3s;\n                                        \"></div>\n                                    </div>\n                                </div>\n                            "
+                  },
+                  {
+                    "key": "metrics.velocity",
+                    "label": "Velocity",
+                    "width": 80,
+                    "align": "center",
+                    "render": "{{ item.toFixed(1) }}"
+                  },
+                  {
+                    "key": "metrics.blocked_items",
+                    "label": "Blockers",
+                    "width": 80,
+                    "align": "center",
+                    "render": "\n                                <span style=\"\n                                    color: {{ item > 0 ? '#EF4444' : '#10B981' }};\n                                    font-weight: {{ item > 0 ? 'bold' : 'normal' }};\n                                \">{{ item }}</span>\n                            "
+                  },
+                  {
+                    "key": "okr_alignment",
+                    "label": "OKRs",
+                    "width": 80,
+                    "align": "center",
+                    "render": "\n                                <span style=\"\n                                    background: {{ item.length > 0 ? '#10B981' : '#6B7280' }};\n                                    color: white;\n                                    padding: 2px 8px;\n                                    border-radius: 12px;\n                                    font-size: 12px;\n                                \">{{ item.length }}</span>\n                            "
+                  }
+                ],
+                "onRowClick": "selectedProject.setValue(currentRow)",
+                "height": 400,
+                "pagination": true,
+                "pageSize": 20
+              },
+              {
+                "type": "container",
+                "hidden": "{{ !selectedProject.value }}",
+                "marginTop": 24,
+                "backgroundColor": "#f9fafb",
+                "borderRadius": 8,
+                "padding": 16,
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "{{ selectedProject.value.name }} Details",
+                    "size": "h3",
+                    "weight": "bold",
+                    "marginBottom": 16
+                  },
+                  {
+                    "type": "container",
+                    "direction": "row",
+                    "gap": 24,
+                    "children": [
+                      {
+                        "type": "container",
+                        "flex": 1,
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Insights",
+                            "weight": "medium",
+                            "marginBottom": 8
+                          },
+                          {
+                            "type": "container",
+                            "children": "{{\n                        selectedProject.value.insights.map(insight => ({\n                            type: 'text',\n                            value: `\u2022 ${insight}`,\n                            size: 'small',\n                            marginBottom: 4\n                        }))\n                    }}"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "container",
+                        "flex": 1,
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Recent Activity",
+                            "weight": "medium",
+                            "marginBottom": 8
+                          },
+                          {
+                            "type": "timeline",
+                            "data": "{{ getProjectDetails.data.detailed_timeline }}",
+                            "height": 200
+                          }
+                        ]
+                      },
+                      {
+                        "type": "container",
+                        "flex": 1,
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "Team Members",
+                            "weight": "medium",
+                            "marginBottom": 8
+                          },
+                          {
+                            "type": "container",
+                            "children": "{{\n                        getProjectDetails.data.team_members.map(member => ({\n                            type: 'container',\n                            direction: 'row',\n                            alignItems: 'center',\n                            marginBottom: 8,\n                            children: [\n                                {\n                                    type: 'avatar',\n                                    src: member.avatar,\n                                    name: member.name,\n                                    size: 32\n                                },\n                                {\n                                    type: 'text',\n                                    value: `${member.name} (${member.issue_count} issues)`,\n                                    size: 'small',\n                                    marginLeft: 8\n                                }\n                            ]\n                        }))\n                    }}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "OKR Alignment",
+          "icon": "fas fa-bullseye",
+          "content": {
+            "type": "container",
+            "padding": 16,
+            "children": [
+              {
+                "type": "text",
+                "value": "OKR Alignment & Progress",
+                "size": "h2",
+                "weight": "bold",
+                "marginBottom": 24
+              },
+              {
+                "type": "container",
+                "direction": "row",
+                "gap": 16,
+                "marginBottom": 24,
+                "children": [
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "center",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "\ud83c\udfaf",
+                            "size": "h3",
+                            "marginRight": 8
+                          },
+                          {
+                            "type": "text",
+                            "value": "Total Objectives",
+                            "size": "small",
+                            "color": "gray"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "{{ getOKRAlignment.data.summary.total_objectives }}",
+                        "size": "h2",
+                        "weight": "bold",
+                        "color": "default",
+                        "marginTop": 8
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "center",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "\ud83d\udcca",
+                            "size": "h3",
+                            "marginRight": 8
+                          },
+                          {
+                            "type": "text",
+                            "value": "Key Results",
+                            "size": "small",
+                            "color": "gray"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "{{ getOKRAlignment.data.summary.total_key_results }}",
+                        "size": "h2",
+                        "weight": "bold",
+                        "color": "default",
+                        "marginTop": 8
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "center",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "\u26a0\ufe0f",
+                            "size": "h3",
+                            "marginRight": 8
+                          },
+                          {
+                            "type": "text",
+                            "value": "At Risk",
+                            "size": "small",
+                            "color": "gray"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "{{ getOKRAlignment.data.summary.at_risk_key_results }}",
+                        "size": "h2",
+                        "weight": "bold",
+                        "color": "yellow",
+                        "marginTop": 8
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "center",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "\ud83d\udcc8",
+                            "size": "h3",
+                            "marginRight": 8
+                          },
+                          {
+                            "type": "text",
+                            "value": "Overall Progress",
+                            "size": "small",
+                            "color": "gray"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "{{ getOKRAlignment.data.summary.overall_progress.toFixed(1) }}%",
+                        "size": "h2",
+                        "weight": "bold",
+                        "color": "blue",
+                        "marginTop": 8
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "container",
+                "children": "{{\n                        getOKRAlignment.data.report.objectives.map(obj => ({\n                            type: 'container',\n                            marginBottom: 24,\n                            backgroundColor: 'white',\n                            borderRadius: 8,\n                            padding: 16,\n                            border: '1px solid #e5e7eb',\n                            children: [\n                                {\n                                    type: 'text',\n                                    value: obj.title,\n                                    size: 'h3',\n                                    weight: 'bold',\n                                    marginBottom: 16\n                                },\n                                {\n                                    type: 'container',\n                                    children: obj.key_results.map(kr => ({\n                                        type: 'container',\n                                        marginBottom: 12,\n                                        padding: 12,\n                                        backgroundColor: '#f9fafb',\n                                        borderRadius: 6,\n                                        children: [\n                                            {\n                                                type: 'container',\n                                                direction: 'row',\n                                                alignItems: 'center',\n                                                children: [\n                                                    {\n                                                        type: 'text',\n                                                        value: kr.title,\n                                                        weight: 'medium',\n                                                        flex: 1\n                                                    },\n                                                    {\n                                                        type: 'button',\n                                                        text: 'Update',\n                                                        size: 'small',\n                                                        onClick: () => {\n                                                            okrUpdateModal.data.setValue({\n                                                                objective_id: obj.id,\n                                                                key_result_id: kr.id,\n                                                                current_value: kr.current\n                                                            });\n                                                            okrUpdateModal.open();\n                                                        }\n                                                    }\n                                                ]\n                                            },\n                                            {\n                                                type: 'container',\n                                                direction: 'row',\n                                                marginTop: 8,\n                                                gap: 16,\n                                                children: [\n                                                    {\n                                                        type: 'text',\n                                                        value: `Current: ${kr.current} ${kr.unit}`,\n                                                        size: 'small'\n                                                    },\n                                                    {\n                                                        type: 'text',\n                                                        value: `Target: ${kr.target} ${kr.unit}`,\n                                                        size: 'small'\n                                                    },\n                                                    {\n                                                        type: 'text',\n                                                        value: `Progress: ${kr.progress_percentage.toFixed(1)}%`,\n                                                        size: 'small',\n                                                        color: kr.progress_percentage >= 70 ? 'green' : kr.progress_percentage >= 50 ? 'orange' : 'red'\n                                                    }\n                                                ]\n                                            },\n                                            {\n                                                type: 'progress',\n                                                value: kr.progress_percentage,\n                                                max: 100,\n                                                color: kr.progress_percentage >= 70 ? 'green' : kr.progress_percentage >= 50 ? 'orange' : 'red',\n                                                height: 8,\n                                                marginTop: 8\n                                            },\n                                            kr.contributing_projects.length > 0 ? {\n                                                type: 'container',\n                                                marginTop: 8,\n                                                children: [\n                                                    {\n                                                        type: 'text',\n                                                        value: 'Contributing Projects:',\n                                                        size: 'small',\n                                                        weight: 'medium'\n                                                    },\n                                                    {\n                                                        type: 'container',\n                                                        direction: 'row',\n                                                        flexWrap: 'wrap',\n                                                        gap: 4,\n                                                        marginTop: 4,\n                                                        children: kr.contributing_projects.map(p => ({\n                                                            type: 'tag',\n                                                            text: p.name,\n                                                            color: p.status === 'on_track' ? 'green' : p.status === 'at_risk' ? 'orange' : 'red'\n                                                        }))\n                                                    }\n                                                ]\n                                            } : null,\n                                            kr.risks.length > 0 ? {\n                                                type: 'alert',\n                                                type: 'warning',\n                                                message: kr.risks.join(', '),\n                                                marginTop: 8\n                                            } : null\n                                        ].filter(Boolean)\n                                    }))\n                                }\n                            ]\n                        }))\n                    }}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Blockers & Actions",
+          "icon": "fas fa-exclamation-triangle",
+          "content": {
+            "type": "container",
+            "padding": 16,
+            "children": [
+              {
+                "type": "container",
+                "direction": "row",
+                "gap": 24,
+                "children": [
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "\ud83d\udeab Cross-Project Blockers",
+                        "size": "h3",
+                        "weight": "bold",
+                        "marginBottom": 16
+                      },
+                      {
+                        "type": "container",
+                        "children": [
+                          {
+                            "type": "container",
+                            "backgroundColor": "#FEE2E2",
+                            "borderRadius": 8,
+                            "padding": 12,
+                            "marginBottom": 16,
+                            "children": [
+                              {
+                                "type": "text",
+                                "value": "Total Blockers: { getBlockers.data.total_blockers }",
+                                "weight": "bold",
+                                "color": "#DC2626"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "container",
+                            "marginBottom": 16,
+                            "children": [
+                              {
+                                "type": "text",
+                                "value": "Common Patterns",
+                                "weight": "medium",
+                                "marginBottom": 8
+                              },
+                              {
+                                "type": "container",
+                                "children": "{{\n                        getBlockers.data.patterns.map(pattern => ({\n                            type: 'container',\n                            backgroundColor: 'white',\n                            borderRadius: 6,\n                            padding: 8,\n                            marginBottom: 8,\n                            border: '1px solid #e5e7eb',\n                            children: [\n                                {\n                                    type: 'text',\n                                    value: pattern.type.replace('_', ' ').toUpperCase(),\n                                    size: 'small',\n                                    weight: 'medium'\n                                },\n                                {\n                                    type: 'text',\n                                    value: `${pattern.blocker_count} occurrences`,\n                                    size: 'small',\n                                    color: 'gray'\n                                }\n                            ]\n                        }))\n                    }}"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "container",
+                            "children": [
+                              {
+                                "type": "text",
+                                "value": "Recommended Resolutions",
+                                "weight": "medium",
+                                "marginBottom": 8
+                              },
+                              {
+                                "type": "container",
+                                "children": "{{\n                        getBlockers.data.resolutions.map(resolution => ({\n                            type: 'container',\n                            backgroundColor: '#F0FDF4',\n                            borderRadius: 6,\n                            padding: 8,\n                            marginBottom: 8,\n                            border: '1px solid #86EFAC',\n                            children: [\n                                {\n                                    type: 'text',\n                                    value: resolution.action,\n                                    size: 'small'\n                                },\n                                {\n                                    type: 'container',\n                                    direction: 'row',\n                                    marginTop: 4,\n                                    children: [\n                                        {\n                                            type: 'tag',\n                                            text: `Impact: ${resolution.impact}`,\n                                            size: 'small',\n                                            color: 'green'\n                                        },\n                                        {\n                                            type: 'tag',\n                                            text: `Effort: ${resolution.effort}`,\n                                            size: 'small',\n                                            color: 'blue',\n                                            marginLeft: 8\n                                        }\n                                    ]\n                                }\n                            ]\n                        }))\n                    }}"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "children": [
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "marginBottom": 16,
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "\ud83d\udca1 Strategic Recommendations",
+                            "size": "h3",
+                            "weight": "bold",
+                            "flex": 1
+                          },
+                          {
+                            "type": "select",
+                            "id": "focusAreaSelect",
+                            "placeholder": "Focus area",
+                            "options": [
+                              "All",
+                              "OKR Achievement",
+                              "Resource Optimization",
+                              "Risk Mitigation"
+                            ],
+                            "value": "All",
+                            "width": 180,
+                            "onChange": "getRecommendations.trigger()"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "container",
+                        "children": "{{\n                getRecommendations.data.actions.map((action, index) => ({\n                    type: 'container',\n                    backgroundColor: 'white',\n                    borderRadius: 8,\n                    padding: 12,\n                    marginBottom: 12,\n                    border: action.priority === 'critical' ? '2px solid #EF4444' : '1px solid #e5e7eb',\n                    children: [\n                        {\n                            type: 'container',\n                            direction: 'row',\n                            alignItems: 'center',\n                            children: [\n                                {\n                                    type: 'tag',\n                                    text: action.priority.toUpperCase(),\n                                    color: action.priority === 'critical' ? 'red' : action.priority === 'high' ? 'orange' : 'blue',\n                                    size: 'small'\n                                },\n                                {\n                                    type: 'tag',\n                                    text: action.category.replace('_', ' ').toUpperCase(),\n                                    color: 'gray',\n                                    size: 'small',\n                                    marginLeft: 8\n                                }\n                            ]\n                        },\n                        {\n                            type: 'text',\n                            value: action.action,\n                            marginTop: 8,\n                            marginBottom: 8\n                        },\n                        {\n                            type: 'text',\n                            value: `Impact: ${action.impact}`,\n                            size: 'small',\n                            color: 'gray',\n                            marginBottom: 8\n                        },\n                        {\n                            type: 'container',\n                            direction: 'row',\n                            gap: 8,\n                            children: [\n                                {\n                                    type: 'button',\n                                    text: 'Mark Complete',\n                                    size: 'small',\n                                    color: 'green',\n                                    onClick: () => {\n                                        currentRecommendation.setValue(action);\n                                        actionStatusSelect.setValue('completed');\n                                        updateRecommendationStatus.trigger();\n                                    }\n                                },\n                                {\n                                    type: 'button',\n                                    text: 'In Progress',\n                                    size: 'small',\n                                    color: 'blue',\n                                    onClick: () => {\n                                        currentRecommendation.setValue(action);\n                                        actionStatusSelect.setValue('in_progress');\n                                        updateRecommendationStatus.trigger();\n                                    }\n                                },\n                                {\n                                    type: 'button',\n                                    text: 'Dismiss',\n                                    size: 'small',\n                                    color: 'gray',\n                                    onClick: () => {\n                                        currentRecommendation.setValue(action);\n                                        actionStatusSelect.setValue('dismissed');\n                                        updateRecommendationStatus.trigger();\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }))\n            }}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "Team Performance",
+          "icon": "fas fa-users",
+          "content": {
+            "type": "container",
+            "padding": 16,
+            "children": [
+              {
+                "type": "container",
+                "direction": "row",
+                "marginBottom": 24,
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Team Performance Analytics",
+                    "size": "h2",
+                    "weight": "bold",
+                    "flex": 1
+                  },
+                  {
+                    "type": "select",
+                    "id": "teamFilter",
+                    "placeholder": "Select team",
+                    "options": "{{ ['All Teams'].concat(Object.keys(getTeamPerformance.data.teams)) }}",
+                    "value": "All Teams",
+                    "width": 200,
+                    "onChange": "getTeamPerformance.trigger()"
+                  }
+                ]
+              },
+              {
+                "type": "container",
+                "direction": "row",
+                "flexWrap": "wrap",
+                "gap": 16,
+                "children": "{{\n                        Object.entries(getTeamPerformance.data.teams).map(([team, metrics]) => ({\n                            type: 'container',\n                            width: '48%',\n                            backgroundColor: 'white',\n                            borderRadius: 8,\n                            padding: 16,\n                            border: '1px solid #e5e7eb',\n                            children: [\n                                {\n                                    type: 'container',\n                                    direction: 'row',\n                                    marginBottom: 12,\n                                    children: [\n                                        {\n                                            type: 'text',\n                                            value: team,\n                                            size: 'h4',\n                                            weight: 'bold',\n                                            flex: 1\n                                        },\n                                        {\n                                            type: 'text',\n                                            value: `Health: ${metrics.health_score.toFixed(0)}%`,\n                                            color: metrics.health_score >= 80 ? 'green' : metrics.health_score >= 60 ? 'orange' : 'red',\n                                            weight: 'medium'\n                                        }\n                                    ]\n                                },\n                                {\n                                    type: 'container',\n                                    direction: 'row',\n                                    gap: 16,\n                                    children: [\n                                        {\n                                            type: 'statistic',\n                                            label: 'Projects',\n                                            value: metrics.project_count,\n                                            size: 'small'\n                                        },\n                                        {\n                                            type: 'statistic',\n                                            label: 'Avg Velocity',\n                                            value: metrics.avg_velocity.toFixed(1),\n                                            size: 'small'\n                                        },\n                                        {\n                                            type: 'statistic',\n                                            label: 'Blockers',\n                                            value: metrics.blocked_items,\n                                            color: metrics.blocked_items > 0 ? 'red' : 'green',\n                                            size: 'small'\n                                        }\n                                    ]\n                                },\n                                {\n                                    type: 'container',\n                                    marginTop: 12,\n                                    children: [\n                                        {\n                                            type: 'text',\n                                            value: 'Sentiment',\n                                            size: 'small',\n                                            marginBottom: 4\n                                        },\n                                        {\n                                            type: 'progress',\n                                            value: metrics.avg_sentiment * 100,\n                                            max: 100,\n                                            color: metrics.avg_sentiment >= 0.7 ? 'green' : metrics.avg_sentiment >= 0.5 ? 'orange' : 'red',\n                                            height: 8\n                                        }\n                                    ]\n                                }\n                            ]\n                        }))\n                    }}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Analytics",
+          "icon": "fas fa-chart-line",
+          "content": {
+            "type": "container",
+            "padding": 16,
+            "children": [
+              {
+                "type": "text",
+                "value": "Project Analytics & Insights",
+                "size": "h2",
+                "weight": "bold",
+                "marginBottom": 24
+              },
+              {
+                "type": "container",
+                "direction": "row",
+                "marginBottom": 24,
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Trend Period:",
+                    "marginRight": 8,
+                    "alignSelf": "center"
+                  },
+                  {
+                    "type": "select",
+                    "id": "trendPeriodSelect",
+                    "options": [
+                      {
+                        "label": "Last 7 days",
+                        "value": 7
+                      },
+                      {
+                        "label": "Last 30 days",
+                        "value": 30
+                      },
+                      {
+                        "label": "Last 90 days",
+                        "value": 90
+                      }
+                    ],
+                    "value": 30,
+                    "width": 150,
+                    "onChange": "getProjectTrends.trigger()"
+                  }
+                ]
+              },
+              {
+                "type": "container",
+                "direction": "row",
+                "gap": 16,
+                "marginBottom": 24,
+                "children": [
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Velocity",
+                        "size": "small",
+                        "color": "gray",
+                        "marginBottom": 8
+                      },
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "baseline",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "{ getProjectTrends.data.velocity_trend.current }",
+                            "size": "h3",
+                            "weight": "bold"
+                          },
+                          {
+                            "type": "container",
+                            "direction": "row",
+                            "alignItems": "center",
+                            "marginLeft": 8,
+                            "children": [
+                              {
+                                "type": "icon",
+                                "icon": "{ getProjectTrends.data.velocity_trend.trend === 'increasing' ? 'arrow-up' : 'arrow-down' }",
+                                "color": "{ getProjectTrends.data.velocity_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "size": 16
+                              },
+                              {
+                                "type": "text",
+                                "value": "{ Math.abs(getProjectTrends.data.velocity_trend.change_percentage).toFixed(1) }%",
+                                "size": "small",
+                                "color": "{ getProjectTrends.data.velocity_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "marginLeft": 4
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "vs { getProjectTrends.data.velocity_trend.previous }",
+                        "size": "small",
+                        "color": "gray",
+                        "marginTop": 4
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Blockers",
+                        "size": "small",
+                        "color": "gray",
+                        "marginBottom": 8
+                      },
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "baseline",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "{ getProjectTrends.data.blocker_trend.current }",
+                            "size": "h3",
+                            "weight": "bold"
+                          },
+                          {
+                            "type": "container",
+                            "direction": "row",
+                            "alignItems": "center",
+                            "marginLeft": 8,
+                            "children": [
+                              {
+                                "type": "icon",
+                                "icon": "{ getProjectTrends.data.blocker_trend.trend === 'increasing' ? 'arrow-up' : 'arrow-down' }",
+                                "color": "{ getProjectTrends.data.blocker_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "size": 16
+                              },
+                              {
+                                "type": "text",
+                                "value": "{ Math.abs(getProjectTrends.data.blocker_trend.change_percentage).toFixed(1) }%",
+                                "size": "small",
+                                "color": "{ getProjectTrends.data.blocker_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "marginLeft": 4
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "vs { getProjectTrends.data.blocker_trend.previous }",
+                        "size": "small",
+                        "color": "gray",
+                        "marginTop": 4
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Completion",
+                        "size": "small",
+                        "color": "gray",
+                        "marginBottom": 8
+                      },
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "baseline",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "{ getProjectTrends.data.completion_trend.current }",
+                            "size": "h3",
+                            "weight": "bold"
+                          },
+                          {
+                            "type": "container",
+                            "direction": "row",
+                            "alignItems": "center",
+                            "marginLeft": 8,
+                            "children": [
+                              {
+                                "type": "icon",
+                                "icon": "{ getProjectTrends.data.completion_trend.trend === 'increasing' ? 'arrow-up' : 'arrow-down' }",
+                                "color": "{ getProjectTrends.data.completion_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "size": 16
+                              },
+                              {
+                                "type": "text",
+                                "value": "{ Math.abs(getProjectTrends.data.completion_trend.change_percentage).toFixed(1) }%",
+                                "size": "small",
+                                "color": "{ getProjectTrends.data.completion_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "marginLeft": 4
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "vs { getProjectTrends.data.completion_trend.previous }",
+                        "size": "small",
+                        "color": "gray",
+                        "marginTop": 4
+                      }
+                    ]
+                  },
+                  {
+                    "type": "container",
+                    "flex": 1,
+                    "backgroundColor": "white",
+                    "borderRadius": 8,
+                    "padding": 16,
+                    "border": "1px solid #e5e7eb",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Team Sentiment",
+                        "size": "small",
+                        "color": "gray",
+                        "marginBottom": 8
+                      },
+                      {
+                        "type": "container",
+                        "direction": "row",
+                        "alignItems": "baseline",
+                        "children": [
+                          {
+                            "type": "text",
+                            "value": "{ getProjectTrends.data.team_sentiment_trend.current }",
+                            "size": "h3",
+                            "weight": "bold"
+                          },
+                          {
+                            "type": "container",
+                            "direction": "row",
+                            "alignItems": "center",
+                            "marginLeft": 8,
+                            "children": [
+                              {
+                                "type": "icon",
+                                "icon": "{ getProjectTrends.data.team_sentiment_trend.trend === 'increasing' ? 'arrow-up' : 'arrow-down' }",
+                                "color": "{ getProjectTrends.data.team_sentiment_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "size": 16
+                              },
+                              {
+                                "type": "text",
+                                "value": "{ Math.abs(getProjectTrends.data.team_sentiment_trend.change_percentage).toFixed(1) }%",
+                                "size": "small",
+                                "color": "{ getProjectTrends.data.team_sentiment_trend.trend === 'increasing' ? 'green' : 'red' }",
+                                "marginLeft": 4
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "text",
+                        "value": "vs { getProjectTrends.data.team_sentiment_trend.previous }",
+                        "size": "small",
+                        "color": "gray",
+                        "marginTop": 4
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "container",
+                "direction": "row",
+                "gap": 24,
+                "children": [
+                  {
+                    "type": "chart",
+                    "title": "Project Status Distribution",
+                    "chartType": "pie",
+                    "data": "{{\n                                Object.entries(getDashboardSummary.data.summary.status_breakdown).map(([status, count]) => ({\n                                    name: status.replace('_', ' ').toUpperCase(),\n                                    value: count,\n                                    color: {\n                                        'on_track': '#10B981',\n                                        'at_risk': '#F59E0B',\n                                        'blocked': '#EF4444',\n                                        'completed': '#6366F1',\n                                        'not_started': '#6B7280'\n                                    }[status]\n                                }))\n                            }}",
+                    "height": 300,
+                    "flex": 1
+                  },
+                  {
+                    "type": "chart",
+                    "title": "Team Velocity Comparison",
+                    "chartType": "bar",
+                    "data": "{{\n                                Object.entries(getTeamPerformance.data.teams).map(([team, metrics]) => ({\n                                    name: team,\n                                    velocity: metrics.avg_velocity,\n                                    health: metrics.health_score\n                                }))\n                            }}",
+                    "xKey": "name",
+                    "yKeys": [
+                      "velocity"
+                    ],
+                    "height": 300,
+                    "flex": 1
+                  }
+                ]
+              },
+              {
+                "type": "container",
+                "marginTop": 24,
+                "backgroundColor": "#f9fafb",
+                "borderRadius": 8,
+                "padding": 16,
+                "children": [
+                  {
+                    "type": "text",
+                    "value": "Custom Report Builder",
+                    "size": "h3",
+                    "weight": "bold",
+                    "marginBottom": 16
+                  },
+                  {
+                    "type": "container",
+                    "direction": "row",
+                    "gap": 16,
+                    "marginBottom": 16,
+                    "children": [
+                      {
+                        "type": "input",
+                        "id": "reportNameInput",
+                        "placeholder": "Report name",
+                        "flex": 1
+                      },
+                      {
+                        "type": "multiselect",
+                        "id": "selectedMetrics",
+                        "placeholder": "Select metrics",
+                        "options": [
+                          "completion",
+                          "velocity",
+                          "blocked_items",
+                          "overdue_items",
+                          "team_sentiment",
+                          "code_quality",
+                          "okr_count",
+                          "days_until_deadline"
+                        ],
+                        "flex": 1
+                      },
+                      {
+                        "type": "select",
+                        "id": "groupingSelect",
+                        "placeholder": "Group by",
+                        "options": [
+                          "None",
+                          "status",
+                          "team",
+                          "source"
+                        ],
+                        "value": "None",
+                        "width": 150
+                      }
+                    ]
+                  },
+                  {
+                    "type": "button",
+                    "text": "Generate Report",
+                    "color": "primary",
+                    "onClick": "generateCustomReport.trigger()",
+                    "disabled": "{{ !reportNameInput.value || !selectedMetrics.value.length }}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "globalState": {
+    "selectedProject": {
+      "type": "object",
+      "value": null
+    },
+    "currentRecommendation": {
+      "type": "object",
+      "value": null
+    },
+    "reportFilters": {
+      "type": "object",
+      "value": {}
+    },
+    "okrUpdateModal": {
+      "type": "modal",
+      "title": "Update OKR Progress",
+      "children": [
+        {
+          "type": "numberInput",
+          "id": "okrValueInput",
+          "label": "Current Value",
+          "required": true
+        },
+        {
+          "type": "textarea",
+          "id": "okrNotesInput",
+          "label": "Notes",
+          "rows": 3
+        }
+      ],
+      "footer": [
+        {
+          "type": "button",
+          "text": "Cancel",
+          "onClick": "okrUpdateModal.close()"
+        },
+        {
+          "type": "button",
+          "text": "Update",
+          "color": "primary",
+          "onClick": "updateOKR.trigger()"
+        }
+      ]
+    },
+    "actionStatusSelect": {
+      "type": "string",
+      "value": ""
+    },
+    "actionNotesInput": {
+      "type": "string",
+      "value": ""
+    }
+  },
+  "theme": {
+    "primary": "#5E6AD2",
+    "secondary": "#10B981",
+    "danger": "#EF4444",
+    "warning": "#F59E0B",
+    "info": "#3B82F6",
+    "success": "#10B981",
+    "backgroundColor": "#F9FAFB",
+    "borderRadius": 8,
+    "fontFamily": "Inter, system-ui, sans-serif"
+  }
+}

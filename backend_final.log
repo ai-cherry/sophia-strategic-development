@@ -13,6 +13,6 @@ Traceback (most recent call last):
     from .pay_ready_agents import (
   File "/Users/lynnmusil/Desktop/sophia/sophia-main/backend/agents/specialized/pay_ready_agents.py", line 19, in <module>
     from backend.integrations.kong_ai_gateway import KongAIGateway
-  File "/Users/lynnmusil/Desktop/sophia/sophia-main/backend/integrations/kong_ai_gateway.py", line 18, in <module>
-    from flask_cors import CORS
-ModuleNotFoundError: No module named 'flask_cors'
+  File "/Users/lynnmusil/Desktop/sophia/sophia-main/backend/integrations/kong_ai_gateway.py", line 17, in <module>
+    from flask import Flask, request, jsonify, Blueprint
+ModuleNotFoundError: No module named 'flask'
