@@ -33,16 +33,59 @@ async def build_command_center():
         print(json.dumps(create_app_result, indent=2))
         print("----------------------------------")
 
-        if create_app_result.get("success"):
-            logger.info("--- Next Steps in Retool ---")
-            logger.info("1. Open the new 'sophia_ai_command_center' app in Retool.")
-            logger.info("2. Drag a 'Text Input' component onto the canvas, name it 'command_input'.")
-            logger.info("3. Drag a 'Button' component, label it 'Execute'.")
-            logger.info("4. Create a new RESTQuery named 'runSophiaCommand'.")
-            logger.info("   - Set it to POST to: http://<your_api_host>/api/v1/sophia/command")
-            logger.info("   - Set the body to: {'command': {{command_input.value}} }")
-            logger.info("5. Set the 'Execute' button's onClick event to trigger the 'runSophiaCommand' query.")
-            logger.info("6. Drag a 'JSON Explorer' component onto the canvas and set its data to `{{runSophiaCommand.data}}` to display results.")
+        if not create_app_result.get("success"):
+            logger.error("Failed to create the Retool application shell. Aborting.")
+            return
+
+        app_data = create_app_result.get("data", {})
+        app_id = app_data.get("id")
+        
+        if not app_id:
+            logger.error("Could not get App ID from creation response. Aborting widget creation.")
+            return
+
+        # --- Step 2: Add the MCP Status Table ---
+        logger.info(f"Adding the MCP Status Table widget to app {app_id}...")
+
+        # Define the properties for a Retool Table widget
+        # This includes the query that will populate it.
+        table_properties = {
+            "id": "mcpStatusTable",
+            "type": "Table",
+            "layout": {"x": 0, "y": 1, "width": 12, "height": 10},
+            "data": "{{ listMCPContainers.data.result[0].text }}", # Assumes result is JSON string in text
+            "query": {
+                "id": "listMCPContainers",
+                "type": "rest-query",
+                "resource": "SophiaAPI", # Assumes a pre-configured REST resource in Retool
+                "query": "/api/v1/mcp/tool_call",
+                "method": "POST",
+                "body": {
+                    "server": "docker",
+                    "tool": "list_containers",
+                    "arguments": {"all": True}
+                },
+                "trigger": "onPageLoad"
+            }
+        }
+
+        add_widget_result = await mcp_client.call_tool(
+            "retool",
+            "add_component",
+            app_id=app_id,
+            component_type="Table",
+            name="mcp_status_table",
+            properties=table_properties
+        )
+
+        print("\n--- Add Widget Summary ---")
+        print(json.dumps(add_widget_result, indent=2))
+        print("--------------------------")
+        
+        if add_widget_result.get("success"):
+            logger.info("🎉 Successfully created and configured the 'MCP Mission Control' dashboard in Retool!")
+        else:
+            logger.error("Failed to add the status table widget to the Retool app.")
 
     finally:
         await mcp_client.close()

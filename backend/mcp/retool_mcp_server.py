@@ -68,6 +68,20 @@ class RetoolMCPServer(BaseMCPServer):
                     },
                     "required": ["dashboard_name"]
                 }
+            ),
+            Tool(
+                name="add_component",
+                description="Adds a pre-configured UI component (widget) to a Retool application.",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "app_id": { "type": "string", "description": "The ID of the Retool application to modify." },
+                        "component_type": { "type": "string", "description": "The type of component to add (e.g., 'Table', 'Chart')." },
+                        "name": { "type": "string", "description": "A name for the new component (e.g., 'mcp_status_table')." },
+                        "properties": { "type": "object", "description": "A dictionary of properties to configure the component." }
+                    },
+                    "required": ["app_id", "component_type", "name", "properties"]
+                }
             )
         ]
 
@@ -85,6 +99,13 @@ class RetoolMCPServer(BaseMCPServer):
                     result = {"error": "dashboard_name is required."}
                 else:
                     result = await self.retool_integration.create_app(dashboard_name, description)
+            elif tool_name == "add_component":
+                result = await self.retool_integration.add_component_to_app(
+                    app_id=arguments.get("app_id"),
+                    component_type=arguments.get("component_type"),
+                    name=arguments.get("name"),
+                    properties=arguments.get("properties", {})
+                )
             else:
                 result = {"error": f"Unknown tool: {tool_name}"}
                 
