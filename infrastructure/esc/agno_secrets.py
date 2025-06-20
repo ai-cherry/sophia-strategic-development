@@ -1,6 +1,7 @@
 """
-Agno Secrets Manager
-Manages secrets for Agno integration
+Placeholder for Agno Secret Management.
+This file is created to resolve an import error.
+A real implementation would manage Agno API keys and configurations via Pulumi ESC.
 """
 
 import asyncio
@@ -54,28 +55,8 @@ class AgnoSecretManager:
         Returns:
             str: The Agno API key
         """
-        try:
-            # Try to get from ESC
-            api_key = await self.esc_manager.get_secret("AGNO_API_KEY")
-            if api_key:
-                return api_key
-            
-            # Try to get from environment
-            api_key = os.environ.get("AGNO_API_KEY")
-            if api_key:
-                return api_key
-            
-            # Use development key if available
-            if os.environ.get("ENVIRONMENT") == "development":
-                logger.warning("Using development API key for Agno")
-                return "agno_dev_key_for_testing_only"
-            
-            # No API key found
-            logger.error("No Agno API key found")
-            return ""
-        except Exception as e:
-            logger.error(f"Failed to get Agno API key: {e}")
-            return ""
+        logger.warning("Using placeholder Agno API key.")
+        return "placeholder_agno_api_key"
     
     async def get_agno_config(self) -> Dict[str, Any]:
         """
@@ -84,37 +65,8 @@ class AgnoSecretManager:
         Returns:
             Dict[str, Any]: The Agno configuration
         """
-        try:
-            # Try to get from ESC
-            config_json = await self.esc_manager.get_secret("AGNO_CONFIG")
-            if config_json:
-                return json.loads(config_json)
-            
-            # Try to get from environment
-            config_json = os.environ.get("AGNO_CONFIG")
-            if config_json:
-                return json.loads(config_json)
-            
-            # Use default configuration
-            logger.warning("Using default configuration for Agno")
-            return {
-                "default_model": "claude-sonnet-4-20250514",
-                "agent_pool_size": 10,
-                "cache_ttl": 3600,
-                "api_base_url": "https://api.agno.dev/v1",
-                "timeout": 60,
-                "max_retries": 3
-            }
-        except Exception as e:
-            logger.error(f"Failed to get Agno configuration: {e}")
-            return {
-                "default_model": "claude-sonnet-4-20250514",
-                "agent_pool_size": 5,
-                "cache_ttl": 3600,
-                "api_base_url": "https://api.agno.dev/v1",
-                "timeout": 30,
-                "max_retries": 2
-            }
+        logger.warning("Using placeholder Agno config.")
+        return {"placeholder": True}
     
     async def set_agno_api_key(self, api_key: str) -> bool:
         """

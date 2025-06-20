@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import uuid
 import os
+from pathlib import Path
 
 from langchain.memory import ConversationBufferMemory, ConversationSummaryMemory
 from langchain.memory.chat_message_histories import RedisChatMessageHistory
@@ -13,140 +14,66 @@ from langchain.schema import BaseChatMessageHistory
 
 from ...core.secret_manager import secret_manager
 
+logger = logging.getLogger(__name__)
+
 class PersistentMemory:
-    """Persistent memory for SOPHIA agents"""
-    
-    def __init__(self, agent_id: str, memory_type: str = "buffer", redis_url: Optional[str] = None, ttl: int = 86400):
+    """
+    A simple file-based persistent memory store for agents.
+    Each agent's memory is stored in a separate JSON file.
+    """
+    def __init__(self, storage_path: str = "./agent_memory"):
+        self.storage_path = Path(storage_path)
+        self.storage_path.mkdir(exist_ok=True)
+        self.lock = asyncio.Lock()
+
+    def _get_agent_memory_file(self, agent_id: str) -> Path:
+        """Gets the memory file path for a given agent."""
+        return self.storage_path / f"{agent_id}_memory.json"
+
+    async def _read_memory(self, agent_id: str) -> Dict[str, Any]:
+        """Reads the entire memory for an agent."""
+        memory_file = self._get_agent_memory_file(agent_id)
+        if not memory_file.exists():
+            return {}
+        
+        async with self.lock:
+            with open(memory_file, 'r') as f:
+                try:
+                    return json.load(f)
+                except json.JSONDecodeError:
+                    return {}
+
+    async def _write_memory(self, agent_id: str, memory_data: Dict[str, Any]):
+        """Writes the entire memory for an agent."""
+        memory_file = self._get_agent_memory_file(agent_id)
+        async with self.lock:
+            with open(memory_file, 'w') as f:
+                json.dump(memory_data, f, indent=2)
+
+    async def store_memory(self, agent_id: str, memory_type: str, content: Any, metadata: Optional[Dict[str, Any]] = None):
+        """Stores a specific piece of memory for an agent."""
+        memory_data = await self._read_memory(agent_id)
+        if memory_type not in memory_data:
+            memory_data[memory_type] = []
+        
+        memory_data[memory_type].append({
+            "content": content,
+            "metadata": metadata or {}
+        })
+        await self._write_memory(agent_id, memory_data)
+
+    async def retrieve_memories(self, agent_id: str, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
-        Initialize persistent memory
-        
-        Args:
-            agent_id: Unique identifier for the agent
-            memory_type: Type of memory to use ("buffer" or "summary")
-            redis_url: Redis URL for persistent storage (if None, will use environment variable)
-            ttl: Time to live for memory in seconds (default: 24 hours)
+        Retrieves memories. This is a simple implementation that returns the latest memories.
+        A real implementation would have more sophisticated querying.
         """
-        self.logger = logging.getLogger(__name__)
-        self.agent_id = agent_id
-        self.memory_type = memory_type
-        self.redis_url = redis_url
-        self.ttl = ttl
-        self.memory = None
-        self.message_history = None
-        self.initialized = False
+        memory_data = await self._read_memory(agent_id)
+        all_memories = []
+        for mem_type in memory_data:
+            all_memories.extend(memory_data[mem_type])
         
-    async def initialize(self):
-        """Initialize the memory"""
-        if self.initialized:
-            return
-        
-        try:
-            # Get Redis URL if not provided
-            if not self.redis_url:
-                self.redis_url = os.environ.get("REDIS_URL")
-                
-                if not self.redis_url:
-                    # Try to get from secret manager
-                    try:
-                        self.redis_url = await secret_manager.get_secret("redis_url", "memory")
-                    except Exception:
-                        # Default to local Redis
-                        self.redis_url = "redis://localhost:6379/0"
-            
-            # Create message history
-            self.message_history = RedisChatMessageHistory(
-                url=self.redis_url,
-                session_id=f"sophia:agent:{self.agent_id}",
-                ttl=self.ttl
-            )
-            
-            # Create memory based on type
-            if self.memory_type == "buffer":
-                self.memory = ConversationBufferMemory(
-                    chat_memory=self.message_history,
-                    return_messages=True,
-                    memory_key="chat_history"
-                )
-            elif self.memory_type == "summary":
-                self.memory = ConversationSummaryMemory(
-                    chat_memory=self.message_history,
-                    return_messages=True,
-                    memory_key="chat_history"
-                )
-            else:
-                raise ValueError(f"Unsupported memory type: {self.memory_type}")
-            
-            self.initialized = True
-            self.logger.info(f"Initialized persistent memory for agent {self.agent_id}")
-        except Exception as e:
-            self.logger.error(f"Failed to initialize persistent memory: {e}")
-            raise
-    
-    def get_memory(self):
-        """Get the memory object"""
-        if not self.initialized:
-            asyncio.run(self.initialize())
-        
-        return self.memory
-    
-    async def add_user_message(self, message: str):
-        """Add a user message to the memory"""
-        if not self.initialized:
-            await self.initialize()
-        
-        self.message_history.add_user_message(message)
-    
-    async def add_ai_message(self, message: str):
-        """Add an AI message to the memory"""
-        if not self.initialized:
-            await self.initialize()
-        
-        self.message_history.add_ai_message(message)
-    
-    async def get_messages(self) -> List[Dict[str, Any]]:
-        """Get all messages from the memory"""
-        if not self.initialized:
-            await self.initialize()
-        
-        messages = self.message_history.messages
-        
-        # Convert to dict
-        result = []
-        for message in messages:
-            result.append({
-                "type": message.type,
-                "content": message.content,
-                "timestamp": datetime.now().isoformat()  # Approximate timestamp
-            })
-        
-        return result
-    
-    async def clear(self):
-        """Clear the memory"""
-        if not self.initialized:
-            await self.initialize()
-        
-        self.message_history.clear()
-    
-    async def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, Any]):
-        """Save context to memory"""
-        if not self.initialized:
-            await self.initialize()
-        
-        # Extract input and output messages
-        input_str = inputs.get("input", "")
-        output_str = outputs.get("output", "")
-        
-        # Add to memory
-        await self.add_user_message(input_str)
-        await self.add_ai_message(output_str)
-    
-    async def load_memory_variables(self) -> Dict[str, Any]:
-        """Load memory variables"""
-        if not self.initialized:
-            await self.initialize()
-        
-        return self.memory.load_memory_variables({})
+        # Return the most recent memories, regardless of query for this simple version
+        return all_memories[-limit:]
 
 class Mem0PersistentMemory(PersistentMemory):
     """Persistent memory using mem0 for long-term context"""

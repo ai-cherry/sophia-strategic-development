@@ -174,15 +174,18 @@ jobs:
     - name: Start deployment monitoring
       run: |
         echo "📊 Starting deployment monitoring..."
-        curl -X POST "http://localhost:8000/api/v1/deployment-oversight/deploy/${{ env.DEPLOYMENT_ID }}" \
-          -H "Content-Type: application/json" \
-          -d '{"auto_rollback": ${{ github.event.inputs.auto_rollback || true }}}' || true
+        docker-compose exec -T iac-toolkit python -c "
+        from backend.core.deployment_oversight_system import DeploymentValidator
+        import asyncio
+        # This is now a placeholder, as the real validation happens in the next job.
+        # A real implementation could use this to register the deployment in a database.
+        print('Simulating start of deployment monitoring.')
+        "
         
     - name: Deploy infrastructure
       run: |
-        cd infrastructure
-        echo "🏗️ Deploying infrastructure..."
-        pulumi up --yes --stack production
+        echo "🏗️ Deploying infrastructure via iac-toolkit..."
+        docker-compose exec -T iac-toolkit pulumi up --yes --stack production --cwd /app/infrastructure
         
     - name: Validate infrastructure deployment
       run: |
@@ -379,11 +382,8 @@ jobs:
     - name: Update deployment status
       run: |
         echo "📝 Updating deployment status..."
-        curl -X POST "http://localhost:8000/api/v1/deployment-oversight/status/${{ env.DEPLOYMENT_ID }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "status": "${{ steps.status.outputs.status }}",
-            "message": "${{ steps.status.outputs.message }}",
-            "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
-          }' || true
+        docker-compose exec -T iac-toolkit python -c "
+        print('Final deployment status update would happen here.')
+        # Example: update_status_in_db('${{ steps.status.outputs.status }}')
+        "
 

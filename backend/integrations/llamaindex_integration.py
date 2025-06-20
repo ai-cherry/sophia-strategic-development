@@ -338,3 +338,14 @@ class LlamaIndexProcessor:
         sorted_results = sorted(all_results, key=lambda x: x.get('score', 0.0), reverse=True)
         
         return sorted_results
+
+class LlamaIndexIntegration:
+    async def initialize(self):
+        logger.warning("Using placeholder LlamaIndex integration.")
+        pass
+
+    async def process_query(self, query: str, context: dict):
+        logger.warning("Using placeholder LlamaIndex integration.")
+        return {"data": "LlamaIndex placeholder response", "query": query}
+
+llamaindex_integration = LlamaIndexIntegration()

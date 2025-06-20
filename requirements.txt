@@ -27,3 +27,7 @@ llama-index-readers-file>=0.1.4
 llama-index-readers-web>=0.1.4
 pinecone-client>=2.2.4
 weaviate-client>=3.25.3
+
+pulumi-snowflake>=2.0.0
+pulumi-vercel>=1.1.0
+pulumi-docker>=4.0.0
