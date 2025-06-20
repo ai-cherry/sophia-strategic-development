@@ -30,7 +30,7 @@ for name, bp_name, path in [
 
 # Real auth routes are used
 
-from backend.app.main import create_app, check_database, check_redis
+from backend.app.main import check_database, check_redis, create_app
 
 
 @pytest.fixture

@@ -1,19 +1,14 @@
-"""
-Knowledge Base Integration Module
+"""Knowledge Base Integration Module
 Handles integration with existing admin website and deployment
 """
 
-from flask import Flask, Blueprint, request, jsonify, render_template_string
+from flask import Blueprint, Flask, jsonify, render_template_string, request
 from flask_cors import CORS
 
 from backend.knowledge.knowledge_api import knowledge_bp
-from backend.knowledge.workflow_manager import (
-    KnowledgeBaseWorkflowManager,
-    ScheduledWorkflowManager,
-)
 
 # Knowledge Base Admin Interface Blueprint
-admin_kb_bp = Blueprint('admin_knowledge', __name__, url_prefix='/admin/knowledge')
+admin_kb_bp = Blueprint("admin_knowledge", __name__, url_prefix="/admin/knowledge")
 
 # Admin interface HTML template
 ADMIN_INTERFACE_TEMPLATE = """
@@ -287,122 +282,133 @@ ADMIN_INTERFACE_TEMPLATE = """
 </html>
 """
 
-@admin_kb_bp.route('/')
+
+@admin_kb_bp.route("/")
 def admin_interface():
     """Serve the knowledge base admin interface"""
     return render_template_string(ADMIN_INTERFACE_TEMPLATE)
 
-@admin_kb_bp.route('/api/status')
+
+@admin_kb_bp.route("/api/status")
 def api_status():
     """Get knowledge base system status"""
-    return jsonify({
-        'status': 'operational',
-        'databases': {
-            'postgresql': 'connected',
-            'redis': 'connected',
-            'pinecone': 'connected',
-            'weaviate': 'connected'
-        },
-        'metrics': {
-            'total_documents': 47,
-            'published_documents': 42,
-            'draft_documents': 5,
-            'total_searches': 1247,
-            'avg_response_time': '185ms'
+    return jsonify(
+        {
+            "status": "operational",
+            "databases": {
+                "postgresql": "connected",
+                "redis": "connected",
+                "pinecone": "connected",
+                "weaviate": "connected",
+            },
+            "metrics": {
+                "total_documents": 47,
+                "published_documents": 42,
+                "draft_documents": 5,
+                "total_searches": 1247,
+                "avg_response_time": "185ms",
+            },
         }
-    })
+    )
 
-@admin_kb_bp.route('/api/workflows')
+
+@admin_kb_bp.route("/api/workflows")
 def list_workflows():
     """List all workflow tasks"""
     # This would integrate with the actual workflow manager
     workflows = [
         {
-            'id': 'notion_sync_daily',
-            'name': 'Daily Notion Sync',
-            'source': 'notion',
-            'status': 'active',
-            'last_run': '2024-01-22T08:00:00Z',
-            'next_run': '2024-01-23T08:00:00Z'
+            "id": "notion_sync_daily",
+            "name": "Daily Notion Sync",
+            "source": "notion",
+            "status": "active",
+            "last_run": "2024-01-22T08:00:00Z",
+            "next_run": "2024-01-23T08:00:00Z",
         },
         {
-            'id': 'sharepoint_weekly',
-            'name': 'SharePoint Import',
-            'source': 'sharepoint',
-            'status': 'pending',
-            'last_run': None,
-            'next_run': '2024-01-28T09:00:00Z'
-        }
+            "id": "sharepoint_weekly",
+            "name": "SharePoint Import",
+            "source": "sharepoint",
+            "status": "pending",
+            "last_run": None,
+            "next_run": "2024-01-28T09:00:00Z",
+        },
     ]
-    return jsonify({'workflows': workflows})
+    return jsonify({"workflows": workflows})
 
-@admin_kb_bp.route('/api/workflows', methods=['POST'])
+
+@admin_kb_bp.route("/api/workflows", methods=["POST"])
 def create_workflow():
     """Create a new workflow"""
     data = request.get_json()
-    
+
     # Validate required fields
-    required_fields = ['name', 'source', 'metadata']
+    required_fields = ["name", "source", "metadata"]
     for field in required_fields:
         if field not in data:
-            return jsonify({'error': f'Missing required field: {field}'}), 400
-    
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
     # This would integrate with the actual workflow manager
     workflow_id = f"workflow_{data['source']}_{int(time.time())}"
-    
-    return jsonify({
-        'id': workflow_id,
-        'name': data['name'],
-        'source': data['source'],
-        'status': 'created',
-        'message': 'Workflow created successfully'
-    }), 201
+
+    return (
+        jsonify(
+            {
+                "id": workflow_id,
+                "name": data["name"],
+                "source": data["source"],
+                "status": "created",
+                "message": "Workflow created successfully",
+            }
+        ),
+        201,
+    )
+
 
 def create_admin_app():
     """Create Flask app with knowledge base admin interface"""
     app = Flask(__name__)
     CORS(app)
-    
+
     # Register blueprints
     app.register_blueprint(admin_kb_bp)
     app.register_blueprint(knowledge_bp)
-    
+
     return app
 
+
 def integrate_with_existing_admin(existing_app):
-    """
-    Integrate knowledge base admin with existing admin website
-    
+    """Integrate knowledge base admin with existing admin website
+
     Args:
         existing_app: Existing Flask application instance
     """
-    
     # Register the knowledge base blueprint
     existing_app.register_blueprint(admin_kb_bp)
     existing_app.register_blueprint(knowledge_bp)
-    
+
     # Add navigation item to existing admin (this would be customized based on your admin structure)
     @existing_app.context_processor
     def inject_kb_nav():
         return {
-            'knowledge_base_nav': {
-                'title': 'Knowledge Base',
-                'url': '/admin/knowledge',
-                'icon': 'brain'
+            "knowledge_base_nav": {
+                "title": "Knowledge Base",
+                "url": "/admin/knowledge",
+                "icon": "brain",
             }
         }
-    
+
     return existing_app
+
 
 # Deployment configuration
 class KnowledgeBaseDeployment:
+    """Handles deployment configuration for knowledge base admin
     """
-    Handles deployment configuration for knowledge base admin
-    """
-    
+
     def __init__(self, config):
         self.config = config
-    
+
     def deploy_to_vercel(self):
         """Deploy the React admin interface to Vercel"""
         vercel_config = {
@@ -412,29 +418,25 @@ class KnowledgeBaseDeployment:
                 {
                     "src": "package.json",
                     "use": "@vercel/static-build",
-                    "config": {
-                        "distDir": "dist"
-                    }
+                    "config": {"distDir": "dist"},
                 }
             ],
             "routes": [
-                {
-                    "src": "/api/(.*)",
-                    "dest": "/api/$1"
-                },
-                {
-                    "src": "/(.*)",
-                    "dest": "/index.html"
-                }
+                {"src": "/api/(.*)", "dest": "/api/$1"},
+                {"src": "/(.*)", "dest": "/index.html"},
             ],
             "env": {
-                "REACT_APP_API_URL": self.config.get('api_url', 'https://api.sophia.ai'),
-                "REACT_APP_AUTH_DOMAIN": self.config.get('auth_domain', 'sophia.auth0.com')
-            }
+                "REACT_APP_API_URL": self.config.get(
+                    "api_url", "https://api.sophia.ai"
+                ),
+                "REACT_APP_AUTH_DOMAIN": self.config.get(
+                    "auth_domain", "sophia.auth0.com"
+                ),
+            },
         }
-        
+
         return vercel_config
-    
+
     def deploy_to_lambda_labs(self):
         """Deploy the backend API to Lambda Labs"""
         docker_config = {
@@ -444,14 +446,14 @@ class KnowledgeBaseDeployment:
             "RUN": "pip install -r requirements.txt",
             "COPY": [".", "."],
             "EXPOSE": 5000,
-            "CMD": ["python", "app.py"]
+            "CMD": ["python", "app.py"],
         }
-        
+
         return docker_config
-    
+
     def generate_nginx_config(self):
         """Generate Nginx configuration for production deployment"""
-        nginx_config = """
+        nginx_config = r"""
 server {
     listen 80;
     server_name sophia-admin.payready.com;
@@ -506,8 +508,8 @@ server {
 """
         return nginx_config
 
+
 if __name__ == "__main__":
     # Example usage
     app = create_admin_app()
-    app.run(debug=True, host='0.0.0.0', port=5001)
-
+    app.run(debug=True, host="0.0.0.0", port=5001)

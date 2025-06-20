@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Sophia AI: Next-Level Enhancements Implementation Script
+
 Implements advanced AI, performance, and security enhancements
 """
 
 import asyncio
 import json
 import logging
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class NextLevelEnhancementConfig:
-    """Configuration for next-level enhancements"""
+    """Configuration for next-level enhancements."""
 
     def __init__(self):
         self.enable_conversational_analytics = True
@@ -30,7 +32,7 @@ class NextLevelEnhancementConfig:
 
 
 class NextLevelEnhancementImplementor:
-    """Implements next-level enhancements for Sophia AI"""
+    """Implements next-level enhancements for Sophia AI."""
 
     def __init__(self, config: NextLevelEnhancementConfig):
         self.config = config
@@ -43,7 +45,7 @@ class NextLevelEnhancementImplementor:
         )
 
     async def implement_all_enhancements(self):
-        """Implement all next-level enhancements"""
+        """Implement all next-level enhancements."""
         start_time = time.time()
         logger.info("🎯 Starting Next-Level Enhancement Implementation")
 

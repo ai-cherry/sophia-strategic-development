@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enhanced Sophia AI: Retool to Pulumi IDP Migration with Improvements"""
+"""Enhanced Sophia AI: Retool to Pulumi IDP Migration with Improvements."""
 
 import asyncio
 import json

@@ -1,22 +1,28 @@
-"""
-Docker MCP Server
+"""Docker MCP Server
 Exposes Docker daemon management as tools for AI agents.
 """
 
 import asyncio
 import json
-import logging
-from typing import List, Dict, Any
+from typing import Any, List
 
 import docker
 from docker.errors import DockerException
+from mcp.types import (
+    CallToolRequest,
+    ListResourcesRequest,
+    ListToolsRequest,
+    ReadResourceRequest,
+    Resource,
+    TextContent,
+    Tool,
+)
 
-from mcp.types import Resource, Tool, TextContent, CallToolRequest, ReadResourceRequest, ListResourcesRequest, ListToolsRequest
 from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
+
 class DockerMCPServer(BaseMCPServer):
-    """
-    MCP Server for Docker. Enables AI agents to inspect and manage
+    """MCP Server for Docker. Enables AI agents to inspect and manage
     the Docker environment they are running in.
     """
 
@@ -34,7 +40,9 @@ class DockerMCPServer(BaseMCPServer):
             self.logger.info("Docker client initialized and connected successfully.")
         except DockerException as e:
             self.logger.error(f"Failed to connect to Docker daemon: {e}")
-            self.logger.error("Ensure the Docker socket is mounted correctly in the container.")
+            self.logger.error(
+                "Ensure the Docker socket is mounted correctly in the container."
+            )
             raise
         self.integration_client = self.docker_client
 
@@ -45,14 +53,14 @@ class DockerMCPServer(BaseMCPServer):
                 uri="docker://containers",
                 name="Docker Containers",
                 description="List of all running Docker containers.",
-                mimeType="application/json"
+                mimeType="application/json",
             ),
             Resource(
                 uri="docker://images",
                 name="Docker Images",
                 description="List of all Docker images.",
-                mimeType="application/json"
-            )
+                mimeType="application/json",
+            ),
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
@@ -61,7 +69,17 @@ class DockerMCPServer(BaseMCPServer):
         try:
             if uri == "docker://containers":
                 containers = self.docker_client.containers.list()
-                return json.dumps([{"id": c.short_id, "name": c.name, "image": c.image.tags, "status": c.status} for c in containers])
+                return json.dumps(
+                    [
+                        {
+                            "id": c.short_id,
+                            "name": c.name,
+                            "image": c.image.tags,
+                            "status": c.status,
+                        }
+                        for c in containers
+                    ]
+                )
             elif uri == "docker://images":
                 images = self.docker_client.images.list()
                 return json.dumps([{"id": i.short_id, "tags": i.tags} for i in images])
@@ -82,10 +100,10 @@ class DockerMCPServer(BaseMCPServer):
                         "all": {
                             "type": "boolean",
                             "description": "Set to true to include stopped containers.",
-                            "default": False
+                            "default": False,
                         }
-                    }
-                }
+                    },
+                },
             ),
             Tool(
                 name="inspect_container",
@@ -95,11 +113,11 @@ class DockerMCPServer(BaseMCPServer):
                     "properties": {
                         "container_id": {
                             "type": "string",
-                            "description": "The ID or name of the container to inspect."
+                            "description": "The ID or name of the container to inspect.",
                         }
                     },
-                    "required": ["container_id"]
-                }
+                    "required": ["container_id"],
+                },
             ),
             Tool(
                 name="get_container_logs",
@@ -109,16 +127,16 @@ class DockerMCPServer(BaseMCPServer):
                     "properties": {
                         "container_id": {
                             "type": "string",
-                            "description": "The ID or name of the container to get logs from."
+                            "description": "The ID or name of the container to get logs from.",
                         },
                         "tail": {
                             "type": "integer",
                             "description": "Number of lines to show from the end of the logs.",
-                            "default": 100
-                        }
+                            "default": 100,
+                        },
                     },
-                    "required": ["container_id"]
-                }
+                    "required": ["container_id"],
+                },
             ),
             Tool(
                 name="get_container_stats",
@@ -128,23 +146,33 @@ class DockerMCPServer(BaseMCPServer):
                     "properties": {
                         "container_id": {
                             "type": "string",
-                            "description": "The ID or name of the container to get stats for."
+                            "description": "The ID or name of the container to get stats for.",
                         }
                     },
-                    "required": ["container_id"]
-                }
-            )
+                    "required": ["container_id"],
+                },
+            ),
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
         """Handles Docker tool calls."""
         tool_name = request.params.name
         args = request.params.arguments or {}
-        
+
         try:
             if tool_name == "list_containers":
-                containers = self.docker_client.containers.list(all=args.get("all", False))
-                result = [{"id": c.short_id, "name": c.name, "image": c.image.tags, "status": c.status} for c in containers]
+                containers = self.docker_client.containers.list(
+                    all=args.get("all", False)
+                )
+                result = [
+                    {
+                        "id": c.short_id,
+                        "name": c.name,
+                        "image": c.image.tags,
+                        "status": c.status,
+                    }
+                    for c in containers
+                ]
             elif tool_name == "inspect_container":
                 container_id = args.get("container_id")
                 if not container_id:
@@ -158,7 +186,9 @@ class DockerMCPServer(BaseMCPServer):
                     result = {"error": "container_id is required"}
                 else:
                     container = self.docker_client.containers.get(container_id)
-                    logs = container.logs(tail=args.get("tail", 100)).decode('utf-8', errors='ignore')
+                    logs = container.logs(tail=args.get("tail", 100)).decode(
+                        "utf-8", errors="ignore"
+                    )
                     result = {"container_id": container.short_id, "logs": logs}
             elif tool_name == "get_container_stats":
                 container_id = args.get("container_id")
@@ -170,22 +200,24 @@ class DockerMCPServer(BaseMCPServer):
                     result = {"container_id": container.short_id, "stats": stats}
             else:
                 result = {"error": f"Unknown tool: {tool_name}"}
-                
+
             # Use a helper to handle complex serialization
             return [TextContent(type="text", text=self._safe_json_dumps(result))]
 
         except DockerException as e:
             self.logger.error(f"Error calling tool {tool_name}: {e}", exc_info=True)
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
-    
+
     def _safe_json_dumps(self, data: Any) -> str:
         """Safely dumps data to JSON, handling non-serializable objects."""
+
         def default_serializer(o):
             if isinstance(o, (bytes, bytearray)):
-                return o.decode('utf-8', errors='ignore')
+                return o.decode("utf-8", errors="ignore")
             return f"<non-serializable: {type(o).__name__}>"
-        
+
         return json.dumps(data, default=default_serializer, indent=2)
+
 
 async def main():
     """Main entry point for the Docker MCP server."""
@@ -193,5 +225,6 @@ async def main():
     server = DockerMCPServer()
     await server.run()
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

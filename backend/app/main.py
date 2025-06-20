@@ -1,16 +1,16 @@
-"""
-Sophia AI - Pay Ready Company Assistant
+"""Sophia AI - Pay Ready Company Assistant
 Main Flask Application
 
 Dedicated business intelligence platform for Pay Ready company operations.
 """
 
+import logging
 import os
-from flask import Flask, jsonify, request
+from datetime import datetime
+
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-import logging
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
@@ -20,22 +20,24 @@ logger = logging.getLogger(__name__)
 
 # Import Orchestra Shared Library
 try:
-    from orchestra_shared.search import UnifiedSearchManager
     from orchestra_shared.ai import LangGraphOrchestrator
+    from orchestra_shared.search import UnifiedSearchManager
 
     ORCHESTRA_AVAILABLE = True
 except ImportError:
     logger.warning("Orchestra Shared Library not available - using fallback mode")
     ORCHESTRA_AVAILABLE = False
 
-# Import local modules
-from backend.app.routes.company_routes import company_bp
-from backend.app.routes.strategy_routes import strategy_bp
-from backend.app.routes.operations_routes import operations_bp
-from backend.app.routes.auth_routes import auth_bp
-from backend.config.settings import Config, settings
 import psycopg2
 import redis
+
+from backend.app.routes.auth_routes import auth_bp
+
+# Import local modules
+from backend.app.routes.company_routes import company_bp
+from backend.app.routes.operations_routes import operations_bp
+from backend.app.routes.strategy_routes import strategy_bp
+from backend.config.settings import Config, settings
 
 
 def check_database() -> bool:
@@ -94,14 +96,14 @@ def create_app(config_class=Config):
 
     # Register Knowledge Base, HF MCP, ESC, CoStar, and Enhanced Integration blueprints
     try:
-        from backend.knowledge.admin_integration import admin_kb_bp
-        from backend.knowledge.knowledge_api import knowledge_bp
-        from backend.integrations.huggingface_mcp import hf_mcp_bp
-        from backend.integrations.pulumi_esc import esc_bp
         from backend.integrations.costar_pipeline import costar_bp
         from backend.integrations.enhanced_integration import (
             create_enhanced_integration,
         )
+        from backend.integrations.huggingface_mcp import hf_mcp_bp
+        from backend.integrations.pulumi_esc import esc_bp
+        from backend.knowledge.admin_integration import admin_kb_bp
+        from backend.knowledge.knowledge_api import knowledge_bp
 
         app.register_blueprint(admin_kb_bp, url_prefix="/admin")
         app.register_blueprint(knowledge_bp, url_prefix="/api")

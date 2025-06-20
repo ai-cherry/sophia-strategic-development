@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import contextmanager
 from typing import Generator
-import os
 
 import psycopg2
-from psycopg2 import pool
 import redis
+from psycopg2 import pool
 
 logger = logging.getLogger(__name__)
 

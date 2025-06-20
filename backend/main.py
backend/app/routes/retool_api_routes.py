@@ -1,6 +1,8 @@
-from backend.app.routes import executive_routes, retool_api_routes, system_intel_routes
-from backend.app.websockets import manager
 from fastapi import WebSocket, WebSocketDisconnect
+
+from backend.app.routes import (executive_routes, retool_api_routes,
+                                system_intel_routes)
+from backend.app.websockets import manager
 
 app.include_router(executive_routes.router, prefix="/executive", tags=["Executive Intelligence"])
 app.include_router(retool_api_routes.router, prefix="/api", tags=["Retool API - Simplified Auth"])

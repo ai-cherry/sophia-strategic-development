@@ -1,12 +1,11 @@
-"""
-Pulumi ESC - Hugging Face Secret Management
+"""Pulumi ESC - Hugging Face Secret Management
 Manages Hugging Face API keys.
 """
-import pulumi
-import pulumi_pulumiservice as pulumiservice
-import os
-import json
 import logging
+import os
+
+import pulumi_pulumiservice as pulumiservice
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 logger = logging.getLogger(__name__)
@@ -20,6 +19,7 @@ HF_SECRET_NAME = "huggingFaceApiKey"
 if PULUMI_ORG == "your-pulumi-org":
     raise ValueError("Please set the PULUMI_ORG environment variable.")
 
+
 class HuggingFaceSecretManager(EnhancedPulumiESC):
     """Manages Hugging Face secrets using Pulumi ESC."""
 
@@ -27,21 +27,26 @@ class HuggingFaceSecretManager(EnhancedPulumiESC):
         super().__init__()
 
     async def get_api_key(self) -> str:
-        """
-        Retrieves the Hugging Face API key from the Pulumi ESC environment.
+        """Retrieves the Hugging Face API key from the Pulumi ESC environment.
         """
         try:
             opened_env = await pulumiservice.open_environment(
-                name=ENVIRONMENT_NAME,
-                organization=PULUMI_ORG
+                name=ENVIRONMENT_NAME, organization=PULUMI_ORG
             )
             return opened_env.get(f"sophia.{HF_SECRET_NAME}")
         except Exception as e:
-            logger.error(f"Failed to retrieve secret 'sophia.{HF_SECRET_NAME}' from Pulumi ESC: {e}")
+            logger.error(
+                f"Failed to retrieve secret 'sophia.{HF_SECRET_NAME}' from Pulumi ESC: {e}"
+            )
             api_key = os.getenv("HUGGING_FACE_API_KEY")
             if api_key:
-                logger.warning("Falling back to HUGGING_FACE_API_KEY environment variable.")
+                logger.warning(
+                    "Falling back to HUGGING_FACE_API_KEY environment variable."
+                )
                 return api_key
-            raise ConnectionError("Could not retrieve Hugging Face API key from Pulumi ESC or environment variables.")
+            raise ConnectionError(
+                "Could not retrieve Hugging Face API key from Pulumi ESC or environment variables."
+            )
 
-huggingface_secret_manager = HuggingFaceSecretManager() 
+
+huggingface_secret_manager = HuggingFaceSecretManager()

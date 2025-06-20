@@ -1,10 +1,10 @@
-"""
-Pulumi ESC - Airbyte Secret Management
+"""Pulumi ESC - Airbyte Secret Management
 Manages Airbyte API keys.
 """
-from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
-import os
 import logging
+import os
+
+from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +15,10 @@ PULUMI_STACK = "dev"
 if PULUMI_ORG == "your-pulumi-org":
     raise ValueError("Please set the PULUMI_ORG environment variable.")
 
+
 class AirbyteSecretManager(EnhancedPulumiESC):
     """Handles getting and setting Airbyte secrets via Pulumi ESC."""
-    
+
     def __init__(self):
         super().__init__()
 
@@ -25,4 +26,5 @@ class AirbyteSecretManager(EnhancedPulumiESC):
         """Retrieves the Airbyte API key."""
         return await self.get_secret("AIRBYTE_API_KEY")
 
-airbyte_secret_manager = AirbyteSecretManager() 
+
+airbyte_secret_manager = AirbyteSecretManager()

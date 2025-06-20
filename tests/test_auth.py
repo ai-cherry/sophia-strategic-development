@@ -1,15 +1,14 @@
-"""
-Sophia AI - Authentication Tests
+"""Sophia AI - Authentication Tests
 Test suite for authentication functionality
 
 This module tests the authentication endpoints and security features.
 """
 
-import pytest
 import json
-from datetime import datetime
 import sys
 from types import ModuleType
+
+import pytest
 from flask import Blueprint
 
 # Stub heavy route modules before importing the app
@@ -35,10 +34,10 @@ for name, bp_name, path in [
     sys.modules[name] = mod
 
 
+
 from backend.app.main import app
-from backend.config.settings import settings
 from backend.app.routes import auth_routes
-import asyncio
+from backend.config.settings import settings
 
 
 async def _dummy_create_session(*args, **kwargs):

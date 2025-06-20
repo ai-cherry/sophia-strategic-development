@@ -1,11 +1,11 @@
-"""
-Pulumi ESC Secret Manager for Pinecone.
+"""Pulumi ESC Secret Manager for Pinecone.
 """
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
+
 class PineconeSecretManager(EnhancedPulumiESC):
     """Handles getting and setting Pinecone secrets via Pulumi ESC."""
-    
+
     def __init__(self):
         super().__init__()
 
@@ -13,12 +13,14 @@ class PineconeSecretManager(EnhancedPulumiESC):
         """Retrieves the Pinecone API key."""
         return await self.get_secret("PINECONE_API_KEY")
 
+
 pinecone_secret_manager = PineconeSecretManager()
 
 # Example of how to run this to set the secret
 # This would typically be in a separate admin script.
-if __name__ == '__main__':
+if __name__ == "__main__":
     import os
+
     from dotenv import load_dotenv
 
     load_dotenv()
@@ -28,14 +30,20 @@ if __name__ == '__main__':
     api_key_from_env = os.getenv("PINECONE_API_KEY_TO_SET")
 
     if not api_key_from_env:
-        print("Please set PINECONE_API_KEY_TO_SET in your .env file to run this example.")
+        print(
+            "Please set PINECONE_API_KEY_TO_SET in your .env file to run this example."
+        )
     else:
-        print(f"Setting Pinecone API key in Pulumi ESC environment '{ENVIRONMENT_NAME}'...")
+        print(
+            f"Setting Pinecone API key in Pulumi ESC environment '{ENVIRONMENT_NAME}'..."
+        )
         manager = PineconeSecretManager()
         # Note: Running this with `pulumi up` would actually create the secret.
         # This python script defines the resource, but doesn't execute the creation.
         # To make this work directly, you'd use the Pulumi Automation API.
-        print("Pulumi resource definition created. Run `pulumi up` in this directory to apply.")
+        print(
+            "Pulumi resource definition created. Run `pulumi up` in this directory to apply."
+        )
 
         # For direct execution via Python (requires Pulumi Automation API setup)
         # from pulumi.automation import LocalWorkspace, Stack, create_or_select_stack
@@ -45,4 +53,4 @@ if __name__ == '__main__':
         #    stack.set_config("pulumiservice:organization", {"value": PULUMI_ORG})
         #    await stack.up()
         #
-        # asyncio.run(run_pulumi()) 
+        # asyncio.run(run_pulumi())

@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any, Dict
 
-from playwright.async_api import async_playwright, Browser
 from apify_client import ApifyClient
+from playwright.async_api import Browser, async_playwright
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,9 @@ class BrowserAutomation:
         if self._playwright:
             await self._playwright.stop()
 
-    async def run_apify_actor(self, actor_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def run_apify_actor(
+        self, actor_id: str, input_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         if not self.apify_client:
             raise RuntimeError("Apify client not configured")
         run = self.apify_client.actor(actor_id).call(run_input=input_data)

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
-"""
-Simple Backend Starter for Sophia AI
+"""Simple Backend Starter for Sophia AI
 Starts a minimal backend without Pulumi dependencies
 """
 
-import os
-import sys
 import subprocess
+import sys
 import time
-import requests
 from pathlib import Path
 
+import requests
+
 # Color codes
-GREEN = '\033[92m'
-RED = '\033[91m'
-YELLOW = '\033[93m'
-BLUE = '\033[94m'
-RESET = '\033[0m'
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+BLUE = "\033[94m"
+RESET = "\033[0m"
+
 
 def check_backend_exists():
     """Check if simplified backend exists"""
@@ -26,11 +26,12 @@ def check_backend_exists():
         create_simplified_backend()
     return True
 
+
 def create_simplified_backend():
     """Create a simplified backend file"""
     backend_dir = Path(__file__).parent.parent / "backend"
     backend_dir.mkdir(exist_ok=True)
-    
+
     simplified_backend = '''"""
 Simplified Sophia AI Backend
 Minimal FastAPI backend without Pulumi dependencies
@@ -288,50 +289,51 @@ if __name__ == "__main__":
     print(f"Admin Key: {os.getenv('SOPHIA_ADMIN_KEY', 'sophia_admin_2024')}")
     uvicorn.run(app, host="0.0.0.0", port=port)
 '''
-    
+
     # Write the file
     backend_path = backend_dir / "main_simple.py"
     backend_path.write_text(simplified_backend)
     print(f"{GREEN}✓ Created simplified backend at {backend_path}{RESET}")
 
+
 def check_port_available(port=8000):
     """Check if port is available"""
     import socket
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex(('localhost', port))
+    result = sock.connect_ex(("localhost", port))
     sock.close()
     return result != 0
+
 
 def start_backend():
     """Start the backend server"""
     print(f"\n{BLUE}=== Starting Sophia AI Backend ==={RESET}")
-    
+
     # Check if backend exists
     check_backend_exists()
-    
+
     # Check if port is available
     if not check_port_available(8000):
         print(f"{YELLOW}⚠ Port 8000 is already in use{RESET}")
-        print("Either a backend is already running or another service is using the port")
+        print(
+            "Either a backend is already running or another service is using the port"
+        )
         print("\nTo check what's running:")
         print("  lsof -i :8000")
         print("\nTo kill existing process:")
         print("  kill $(lsof -t -i:8000)")
         return False
-    
+
     # Start the backend
     backend_dir = Path(__file__).parent.parent / "backend"
     cmd = [sys.executable, "main_simple.py"]
-    
+
     print(f"{BLUE}Starting backend server...{RESET}")
     process = subprocess.Popen(
-        cmd,
-        cwd=backend_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+        cmd, cwd=backend_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
-    
+
     # Wait for server to start
     print("Waiting for server to start", end="")
     for i in range(10):
@@ -344,23 +346,40 @@ def start_backend():
                 return True
         except:
             pass
-    
+
     print(f"\n{RED}✗ Backend failed to start{RESET}")
     return False
+
 
 def test_endpoints():
     """Test backend endpoints"""
     print(f"\n{BLUE}=== Testing Backend Endpoints ==={RESET}")
-    
+
     endpoints = [
         ("Health Check", "http://localhost:8000/health", None),
         ("Root", "http://localhost:8000/", None),
-        ("Executive Summary", "http://localhost:8000/api/executive/summary", {"X-Admin-Key": "sophia_admin_2024"}),
-        ("Executive Metrics", "http://localhost:8000/api/executive/metrics", {"X-Admin-Key": "sophia_admin_2024"}),
-        ("Executive Alerts", "http://localhost:8000/api/executive/alerts", {"X-Admin-Key": "sophia_admin_2024"}),
-        ("Executive Insights", "http://localhost:8000/api/executive/insights", {"X-Admin-Key": "sophia_admin_2024"})
+        (
+            "Executive Summary",
+            "http://localhost:8000/api/executive/summary",
+            {"X-Admin-Key": "sophia_admin_2024"},
+        ),
+        (
+            "Executive Metrics",
+            "http://localhost:8000/api/executive/metrics",
+            {"X-Admin-Key": "sophia_admin_2024"},
+        ),
+        (
+            "Executive Alerts",
+            "http://localhost:8000/api/executive/alerts",
+            {"X-Admin-Key": "sophia_admin_2024"},
+        ),
+        (
+            "Executive Insights",
+            "http://localhost:8000/api/executive/insights",
+            {"X-Admin-Key": "sophia_admin_2024"},
+        ),
     ]
-    
+
     all_passed = True
     for name, url, headers in endpoints:
         try:
@@ -373,13 +392,15 @@ def test_endpoints():
         except Exception as e:
             print(f"{RED}✗ {name}: {str(e)}{RESET}")
             all_passed = False
-    
+
     return all_passed
+
 
 def print_usage():
     """Print usage information"""
     print(f"\n{BLUE}=== Backend is Running! ==={RESET}")
-    print(f"""
+    print(
+        """
 API Endpoints:
 - Health: http://localhost:8000/health
 - Docs: http://localhost:8000/docs
@@ -405,23 +426,25 @@ Next Steps:
 To stop the server:
 - Press Ctrl+C in this terminal
 - Or run: kill $(lsof -t -i:8000)
-""")
+"""
+    )
+
 
 def main():
     """Main function"""
     print(f"{BLUE}{'='*60}{RESET}")
     print(f"{BLUE}Sophia AI Simple Backend Starter{RESET}")
     print(f"{BLUE}{'='*60}{RESET}")
-    
+
     # Start backend
     if start_backend():
         # Test endpoints
         if test_endpoints():
             print(f"\n{GREEN}✓ All tests passed!{RESET}")
-        
+
         # Print usage
         print_usage()
-        
+
         # Keep running
         print(f"\n{YELLOW}Backend is running. Press Ctrl+C to stop.{RESET}")
         try:
@@ -432,6 +455,7 @@ def main():
     else:
         print(f"\n{RED}Failed to start backend{RESET}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

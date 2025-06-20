@@ -1,28 +1,25 @@
-"""
-Ingestion Pipeline for the Knowledge Base
+"""Ingestion Pipeline for the Knowledge Base
 Coordinates parsing, chunking, and storing documents and their embeddings.
 """
 import logging
-from pathlib import Path
 import uuid
-from datetime import datetime
+from pathlib import Path
 
+from backend.knowledge_base.chunking import TextChunker
+from backend.knowledge_base.metadata_store import DocumentMetadata, MetadataStore
 from backend.knowledge_base.parsers import DocumentParser
-from backend.knowledge_base.chunking import TextChunker, Chunk
 from backend.knowledge_base.vector_store import VectorStore
-from backend.knowledge_base.metadata_store import MetadataStore, DocumentMetadata
 
 logger = logging.getLogger(__name__)
 
+
 class IngestionPipeline:
-    """
-    Orchestrates the process of ingesting a document into the knowledge base.
+    """Orchestrates the process of ingesting a document into the knowledge base.
     """
 
     def __init__(self, vector_store: VectorStore, metadata_store: MetadataStore):
-        """
-        Initializes the ingestion pipeline.
-        
+        """Initializes the ingestion pipeline.
+
         Args:
             vector_store: An instance of the VectorStore.
             metadata_store: An instance of the MetadataStore.
@@ -30,19 +27,20 @@ class IngestionPipeline:
         self.vector_store = vector_store
         self.metadata_store = metadata_store
         self.parser = DocumentParser()
-        self.chunker = TextChunker() # Using default chunking settings
+        self.chunker = TextChunker()  # Using default chunking settings
 
-    async def ingest_document(self, file_path: Path, document_type: str, tags: list = None):
-        """
-        Processes a single document and adds it to the knowledge base.
-        
+    async def ingest_document(
+        self, file_path: Path, document_type: str, tags: list = None
+    ):
+        """Processes a single document and adds it to the knowledge base.
+
         The process involves:
         1. Creating a unique ID and metadata for the document.
         2. Parsing the document to extract text.
         3. Splitting the text into manageable chunks.
         4. Storing the document and chunk metadata.
         5. Embedding the chunks and storing the vectors.
-        
+
         Args:
             file_path: The path to the document file.
             document_type: A string describing the type of document (e.g., 'sales_deck').
@@ -60,43 +58,49 @@ class IngestionPipeline:
             source=str(file_path),
             file_name=file_path.name,
             document_type=document_type,
-            tags=tags or []
+            tags=tags or [],
         )
-        
+
         # 2. Parse the document
         text_content = self.parser.parse(file_path)
         if not text_content:
-            logger.error(f"Failed to extract text from {file_path}. Aborting ingestion.")
+            logger.error(
+                f"Failed to extract text from {file_path}. Aborting ingestion."
+            )
             return
 
         # 3. Split the text into chunks
         # Add the document ID to each chunk's metadata
         chunk_base_metadata = {"document_id": doc_id, "file_name": file_path.name}
         chunks = self.chunker.create_chunks(text_content, chunk_base_metadata)
-        
+
         # Add original content to metadata for Pinecone retrieval
         for chunk in chunks:
-            chunk.metadata['content'] = chunk.content
-            chunk.metadata['document_type'] = document_type
+            chunk.metadata["content"] = chunk.content
+            chunk.metadata["document_type"] = document_type
 
         if not chunks:
-            logger.warning(f"No chunks were created for {file_path}. Nothing to ingest.")
+            logger.warning(
+                f"No chunks were created for {file_path}. Nothing to ingest."
+            )
             return
-            
+
         # 4. Store document and chunk metadata
         self.metadata_store.add_document(doc_meta)
         self.metadata_store.add_chunks(chunks)
 
         # 5. Embed and store vectors
         await self.vector_store.upsert(chunks)
-        
-        logger.info(f"Successfully ingested document {file_path.name} with {len(chunks)} chunks.")
+
+        logger.info(
+            f"Successfully ingested document {file_path.name} with {len(chunks)} chunks."
+        )
 
 
 async def main():
     """A simple main function to test the ingestion pipeline."""
     import asyncio
-    
+
     logging.basicConfig(level=logging.INFO)
     logger.info("--- Testing Ingestion Pipeline ---")
 
@@ -117,9 +121,9 @@ async def main():
     await pipeline.ingest_document(
         file_path=test_file_path,
         document_type="mission_statement",
-        tags=["core_values", "company_info"]
+        tags=["core_values", "company_info"],
     )
-    
+
     # Verify ingestion
     print("\n--- Verification ---")
     # Check metadata store
@@ -128,10 +132,10 @@ async def main():
     print(f"Document in metadata store: {doc.file_name}, Type: {doc.document_type}")
     chunks_in_meta = metadata_store.get_chunks_for_document(doc_id)
     print(f"Chunks in metadata store: {len(chunks_in_meta)}")
-    
+
     # Check vector store (by querying)
     # Give Pinecone a moment to index if it's the first run
-    await asyncio.sleep(5) 
+    await asyncio.sleep(5)
     query_results = await vector_store.query("What is the company mission?", top_k=1)
     print("\nQuerying for 'What is the company mission?'...")
     if query_results:
@@ -141,7 +145,9 @@ async def main():
 
     # Clean up
     import shutil
+
     shutil.rmtree(test_dir)
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

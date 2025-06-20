@@ -59,8 +59,10 @@ class N8nWorkflowOrchestrator:
                 logger.info("Workflow %s executed", name)
                 return data
             except Exception as exc:
-                wait_time = 2 ** attempt
-                logger.warning("Workflow %s failed: %s - retrying in %ss", name, exc, wait_time)
+                wait_time = 2**attempt
+                logger.warning(
+                    "Workflow %s failed: %s - retrying in %ss", name, exc, wait_time
+                )
                 await asyncio.sleep(wait_time)
         raise RuntimeError(f"Workflow {name} execution failed after retries")
 

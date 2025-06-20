@@ -1,11 +1,11 @@
-"""
-Pulumi ESC Secret Manager for LLM Gateway services like Portkey and OpenRouter.
+"""Pulumi ESC Secret Manager for LLM Gateway services like Portkey and OpenRouter.
 """
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
+
 class LLMGatewaySecretManager(EnhancedPulumiESC):
     """Handles getting and setting API keys for LLM gateways."""
-    
+
     def __init__(self):
         super().__init__()
 
@@ -17,4 +17,5 @@ class LLMGatewaySecretManager(EnhancedPulumiESC):
         """Retrieves the OpenRouter API key."""
         return await self.get_secret("OPENROUTER_API_KEY")
 
-llm_gateway_secret_manager = LLMGatewaySecretManager() 
+
+llm_gateway_secret_manager = LLMGatewaySecretManager()

@@ -1,19 +1,19 @@
-"""
-Seeds the Knowledge Base with the strategic document on Docker vs. Cloud.
+"""Seeds the Knowledge Base with the strategic document on Docker vs. Cloud.
 """
 import asyncio
 import logging
-import tempfile
-from pathlib import Path
 
 # Add project root to path
 import sys
+import tempfile
+from pathlib import Path
+
 sys.path.append(str(Path(__file__).parent.parent))
 
 from backend.chunking.sophia_chunking_pipeline import SophiaChunkingPipeline
 from backend.mcp.knowledge_mcp_server import KnowledgeMCPServer
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 STRATEGY_DOCUMENT = """
@@ -51,51 +51,67 @@ Docker's cloud features, like Build Cloud, work with AI tools like Model Runner 
 ---
 """
 
+
 def get_tags(chunk: str) -> list[str]:
     """Determines tags based on chunk content."""
     tags = ["iac_strategy", "docker"]
     content_lower = chunk.lower()
-    if "local docker" in content_lower: tags.append("local_docker")
-    if "cloud docker" in content_lower: tags.append("cloud_docker")
-    if "pulumi" in content_lower: tags.append("pulumi")
-    if "vercel" in content_lower: tags.append("vercel")
-    if "lambda labs" in content_lower: tags.append("lambda_labs")
-    if "mcp" in content_lower: tags.append("mcp")
+    if "local docker" in content_lower:
+        tags.append("local_docker")
+    if "cloud docker" in content_lower:
+        tags.append("cloud_docker")
+    if "pulumi" in content_lower:
+        tags.append("pulumi")
+    if "vercel" in content_lower:
+        tags.append("vercel")
+    if "lambda labs" in content_lower:
+        tags.append("lambda_labs")
+    if "mcp" in content_lower:
+        tags.append("mcp")
     return list(set(tags))
+
 
 async def seed_docker_strategy():
     """Chunks and ingests the Docker strategy document directly."""
     chunker = SophiaChunkingPipeline(max_chunk_size=1024, overlap=100)
     knowledge_server = KnowledgeMCPServer()
-    
+
     try:
         await knowledge_server.initialize_integration()
         logger.info("--- Seeding Docker & Cloud Strategy Document (In-Process) ---")
 
         chunks = await chunker.chunk_content(STRATEGY_DOCUMENT, "text")
-        
+
         for i, chunk_data in enumerate(chunks):
             content = chunk_data["content"]
             tags = get_tags(content)
-            
-            with tempfile.NamedTemporaryFile(mode="w+", suffix=".md", delete=False) as temp_file:
+
+            with tempfile.NamedTemporaryFile(
+                mode="w+", suffix=".md", delete=False
+            ) as temp_file:
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
             logger.info(f"Ingesting chunk {i+1}/{len(chunks)} with tags: {tags}")
-            
+
             ingest_args = {
                 "file_path": str(temp_file_path),
                 "document_type": "iac_strategy",
-                "tags": tags
+                "tags": tags,
             }
-            ingest_result = await knowledge_server._ingest_document_with_entity_extraction(ingest_args)
-            
+            ingest_result = (
+                await knowledge_server._ingest_document_with_entity_extraction(
+                    ingest_args
+                )
+            )
+
             if not ingest_result.get("success"):
-                logger.error(f"Failed to ingest chunk {i+1}. Reason: {ingest_result.get('error')}")
+                logger.error(
+                    f"Failed to ingest chunk {i+1}. Reason: {ingest_result.get('error')}"
+                )
             else:
                 logger.info(f"Successfully ingested chunk {i+1}.")
-            
+
             Path(temp_file_path).unlink()
             await asyncio.sleep(1)
 
@@ -106,4 +122,4 @@ async def seed_docker_strategy():
 
 
 if __name__ == "__main__":
-    asyncio.run(seed_docker_strategy()) 
+    asyncio.run(seed_docker_strategy())

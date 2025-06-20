@@ -1,37 +1,38 @@
 #!/usr/bin/env python3
-"""
-Enhanced Sophia Database Schema Deployment
+"""Enhanced Sophia Database Schema Deployment
 Fixed version with proper SQL syntax
 """
 
 import asyncio
-import asyncpg
-import os
 import logging
+import os
+
+import asyncpg
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 async def deploy_enhanced_schema():
     """Deploy enhanced database schema with proper SQL syntax"""
-    
     # Database connection
     db_config = {
-        'host': os.getenv('POSTGRES_HOST', 'localhost'),
-        'port': int(os.getenv('POSTGRES_PORT', 5432)),
-        'database': os.getenv('POSTGRES_DB', 'sophia_unified'),
-        'user': os.getenv('POSTGRES_USER', 'sophia'),
-        'password': os.getenv('POSTGRES_PASSWORD', 'sophia_secure_password')
+        "host": os.getenv("POSTGRES_HOST", "localhost"),
+        "port": int(os.getenv("POSTGRES_PORT", 5432)),
+        "database": os.getenv("POSTGRES_DB", "sophia_unified"),
+        "user": os.getenv("POSTGRES_USER", "sophia"),
+        "password": os.getenv("POSTGRES_PASSWORD", "sophia_secure_password"),
     }
-    
+
     logger.info("Connecting to database...")
     conn = await asyncpg.connect(**db_config)
-    
+
     try:
         logger.info("Creating base tables...")
-        
+
         # Create enum types first
-        await conn.execute("""
+        await conn.execute(
+            """
             DO $$ BEGIN
                 CREATE TYPE deal_stage_enum AS ENUM (
                     'lead', 'qualified', 'proposal', 'negotiation', 
@@ -40,10 +41,12 @@ async def deploy_enhanced_schema():
             EXCEPTION
                 WHEN duplicate_object THEN null;
             END $$;
-        """)
-        
+        """
+        )
+
         # Create unified_contacts table if not exists
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS unified_contacts (
                 id BIGSERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE,
@@ -66,10 +69,12 @@ async def deploy_enhanced_schema():
                 updated_at TIMESTAMPTZ DEFAULT NOW(),
                 UNIQUE(source_system, source_record_id)
             );
-        """)
-        
+        """
+        )
+
         # Create unified_interactions table if not exists
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS unified_interactions (
                 id BIGSERIAL PRIMARY KEY,
                 contact_id BIGINT NOT NULL,
@@ -88,10 +93,11 @@ async def deploy_enhanced_schema():
                 FOREIGN KEY (contact_id) REFERENCES unified_contacts(id),
                 UNIQUE(source_system, source_record_id)
             );
-        """)
-        
+        """
+        )
+
         logger.info("Adding enhanced columns to unified_interactions...")
-        
+
         # Add columns one by one to avoid syntax issues
         enhanced_columns = [
             "ADD COLUMN IF NOT EXISTS slack_channel_id VARCHAR(50)",
@@ -121,16 +127,17 @@ async def deploy_enhanced_schema():
             "ADD COLUMN IF NOT EXISTS action_items_identified TEXT[]",
             "ADD COLUMN IF NOT EXISTS next_best_actions TEXT[]",
             "ADD COLUMN IF NOT EXISTS risk_indicators TEXT[]",
-            "ADD COLUMN IF NOT EXISTS opportunity_indicators TEXT[]"
+            "ADD COLUMN IF NOT EXISTS opportunity_indicators TEXT[]",
         ]
-        
+
         for column_def in enhanced_columns:
             await conn.execute(f"ALTER TABLE unified_interactions {column_def}")
-        
+
         logger.info("Creating conversation intelligence table...")
-        
+
         # Create conversation intelligence aggregation table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS conversation_intelligence (
                 id BIGSERIAL PRIMARY KEY,
                 conversation_thread_id VARCHAR(100) NOT NULL,
@@ -169,12 +176,14 @@ async def deploy_enhanced_schema():
                 FOREIGN KEY (primary_contact_id) REFERENCES unified_contacts(id),
                 UNIQUE(conversation_thread_id)
             );
-        """)
-        
+        """
+        )
+
         logger.info("Creating Slack-specific tables...")
-        
+
         # Slack channels table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS slack_channels (
                 id VARCHAR(50) PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
@@ -191,10 +200,12 @@ async def deploy_enhanced_schema():
                 created_at TIMESTAMPTZ DEFAULT NOW(),
                 updated_at TIMESTAMPTZ DEFAULT NOW()
             );
-        """)
-        
+        """
+        )
+
         # Slack users table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS slack_users (
                 id VARCHAR(50) PRIMARY KEY,
                 email VARCHAR(255),
@@ -216,10 +227,12 @@ async def deploy_enhanced_schema():
                 updated_at TIMESTAMPTZ DEFAULT NOW(),
                 FOREIGN KEY (manager_slack_id) REFERENCES slack_users(id)
             );
-        """)
-        
+        """
+        )
+
         # Slack message intelligence table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS slack_message_intelligence (
                 id BIGSERIAL PRIMARY KEY,
                 message_ts VARCHAR(50) NOT NULL,
@@ -247,10 +260,11 @@ async def deploy_enhanced_schema():
                 FOREIGN KEY (user_id) REFERENCES slack_users(id),
                 UNIQUE(message_ts, channel_id)
             );
-        """)
-        
+        """
+        )
+
         logger.info("Creating performance indexes...")
-        
+
         # Performance indexes
         indexes = [
             "CREATE INDEX IF NOT EXISTS idx_conversation_intelligence_contact_date ON conversation_intelligence(primary_contact_id, conversation_start_date)",
@@ -261,20 +275,20 @@ async def deploy_enhanced_schema():
             "CREATE INDEX IF NOT EXISTS idx_unified_interactions_contact_date ON unified_interactions(contact_id, interaction_date)",
             "CREATE INDEX IF NOT EXISTS idx_unified_interactions_source ON unified_interactions(source_system, source_record_id)",
             "CREATE INDEX IF NOT EXISTS idx_slack_message_intelligence_timestamp ON slack_message_intelligence(message_timestamp)",
-            "CREATE INDEX IF NOT EXISTS idx_conversation_intelligence_thread ON conversation_intelligence(conversation_thread_id)"
+            "CREATE INDEX IF NOT EXISTS idx_conversation_intelligence_thread ON conversation_intelligence(conversation_thread_id)",
         ]
-        
+
         for index_sql in indexes:
             await conn.execute(index_sql)
-        
+
         logger.info("Enhanced database schema deployed successfully!")
-        
+
     except Exception as e:
         logger.error(f"Schema deployment failed: {str(e)}")
         raise
     finally:
         await conn.close()
 
+
 if __name__ == "__main__":
     asyncio.run(deploy_enhanced_schema())
-

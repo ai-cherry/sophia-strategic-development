@@ -1,5 +1,7 @@
-from fastapi import WebSocket, WebSocketDisconnect
-from typing import List, Dict
+from typing import Dict
+
+from fastapi import WebSocket
+
 
 class ConnectionManager:
     def __init__(self):
@@ -20,8 +22,9 @@ class ConnectionManager:
         for connection in self.active_connections.values():
             await connection.send_text(message)
 
+
 manager = ConnectionManager()
 
 # This would be integrated into the main app and used by agents to push updates.
 # For example, when the ClientHealthAgent detects a new at-risk client:
-# await manager.send_personal_message("New at-risk client: Acme Corp", "ceo_retool_session") 
+# await manager.send_personal_message("New at-risk client: Acme Corp", "ceo_retool_session")

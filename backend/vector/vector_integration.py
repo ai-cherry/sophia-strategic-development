@@ -3,18 +3,21 @@ Sophia AI - Vector Database Integration
 Comprehensive integration with Pinecone and Weaviate for semantic search and AI-powered insights
 """
 
-import logging
-import numpy as np
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass
-import os
 import hashlib
+import logging
+import os
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
 import openai
 import pinecone
 import weaviate
 from sentence_transformers import SentenceTransformer
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
 
 
 @dataclass

@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-"""
-Test script for LlamaIndex integration in Sophia AI.
+"""Test script for LlamaIndex integration in Sophia AI.
 
 This script demonstrates how to use the LlamaIndex integration for document
 processing and querying. It processes a sample document and performs a query.
 """
 
-import os
-import sys
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, Any, List
+import os
+import sys
 
 # Import secret management
 from infrastructure.esc.llamaindex_secrets import setup_llamaindex_secrets
@@ -21,8 +18,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -62,71 +58,73 @@ SAMPLE_QUERIES = [
     "How long is the lease term?",
     "What is the damage deposit amount?",
     "Who are the tenants listed in the agreement?",
-    "What is the address of the property?"
+    "What is the address of the property?",
 ]
+
 
 async def process_document():
     """Process the sample document with LlamaIndex."""
     logger.info("Initializing LlamaIndex processor")
     processor = LlamaIndexProcessor()
-    
+
     logger.info("Processing sample document")
     result = await processor.process_document(
-        document=SAMPLE_DOCUMENT,
-        context={"test": True}
+        document=SAMPLE_DOCUMENT, context={"test": True}
     )
-    
+
     logger.info(f"Document processing result: {result}")
     return result
+
 
 async def query_document():
     """Query the processed document with sample queries."""
     logger.info("Initializing LlamaIndex processor")
     processor = LlamaIndexProcessor()
-    
+
     logger.info("Running sample queries")
     for query in SAMPLE_QUERIES:
         logger.info(f"Query: {query}")
         results = []
         async for result in processor.query_documents(
-            query=query,
-            context={"test": True}
+            query=query, context={"test": True}
         ):
             results.append(result)
             logger.info(f"Result: {result}")
-        
+
         logger.info(f"Found {len(results)} results for query: {query}")
-    
+
     return True
+
 
 async def run_tests():
     """Run all tests."""
     logger.info("Starting LlamaIndex integration tests")
-    
+
     # Process document
     process_result = await process_document()
     if process_result.get("status") != "success":
         logger.error("Document processing failed")
         return False
-    
+
     # Query document
     query_result = await query_document()
     if not query_result:
         logger.error("Document querying failed")
         return False
-    
+
     logger.info("All tests completed successfully")
     return True
 
+
 if __name__ == "__main__":
     logger.info("Running LlamaIndex integration test script")
-    
+
     # Setup LlamaIndex secrets from Pulumi ESC
     logger.info("Setting up LlamaIndex secrets from Pulumi ESC")
     setup_llamaindex_secrets()
-    
+
     # Run the tests
     result = asyncio.run(run_tests())
-    
+
     # Exit with appropriate status code
     sys.exit(0 if result else 1)

@@ -1,13 +1,15 @@
-import logging
-import json
 import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+import json
+import logging
 import os
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from ..sophia_mcp_server import MCPTool
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
+
 from ...core.secret_manager import secret_manager
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+from ..sophia_mcp_server import MCPTool
 
 
 class VectorSearchTool(MCPTool):
@@ -344,8 +346,9 @@ class VectorStoreTool(MCPTool):
     async def _store_pinecone(self, text: str, embedding: List[float], metadata: Dict[str, Any], namespace: Optional[str], item_id: Optional[str]) -> Dict[str, Any]:
         """Store data in Pinecone vector database"""
         if not self.pinecone_client:
-            import pinecone
             import uuid
+
+            import pinecone
             
             api_key = await secret_manager.get_secret("api_key", "pinecone")
             environment = os.environ.get("PINECONE_ENVIRONMENT", "us-east1-gcp")

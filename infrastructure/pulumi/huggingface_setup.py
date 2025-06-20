@@ -1,8 +1,8 @@
-"""
-Pulumi script for managing Hugging Face resources using the `huggingface-cli`.
+"""Pulumi script for managing Hugging Face resources using the `huggingface-cli`.
 """
 import pulumi
 import pulumi_command as command
+
 from infrastructure.esc.huggingface_secrets import huggingface_secret_manager
 
 # --- Configuration ---
@@ -19,24 +19,22 @@ hf_token = huggingface_secret_manager.get_api_key()
 # This resource represents a Hugging Face Inference Endpoint.
 # The `create` command uses the CLI to deploy a model.
 # The `delete` command uses the CLI to delete the endpoint.
-inference_endpoint = command.local.Command("hf-inference-endpoint",
+inference_endpoint = command.local.Command(
+    "hf-inference-endpoint",
     create=pulumi.Output.concat(
         "huggingface-cli inference-endpoints create ",
         endpoint_name,
         f" --repository {model_to_deploy}",
         " --type aws",
         f" --region {aws_region}",
-        " --instance-size medium --instance-type cpu" # Cost-effective default
+        " --instance-size medium --instance-type cpu",  # Cost-effective default
     ),
     delete=pulumi.Output.concat(
-        "huggingface-cli inference-endpoints delete ",
-        endpoint_name
+        "huggingface-cli inference-endpoints delete ", endpoint_name
     ),
-    environment={
-        "HF_TOKEN": hf_token
-    }
+    environment={"HF_TOKEN": hf_token},
 )
 
 # --- Outputs ---
 pulumi.export("huggingface_endpoint_name", endpoint_name)
-pulumi.export("huggingface_endpoint_stdout", inference_endpoint.stdout) 
+pulumi.export("huggingface_endpoint_stdout", inference_endpoint.stdout)

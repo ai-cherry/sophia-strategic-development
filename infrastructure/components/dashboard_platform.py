@@ -8,6 +8,7 @@ from .base_component import BaseComponent
 
 class DashboardPlatform(BaseComponent):
     """Pulumi IDP Dashboard Platform Component
+
     Replaces Retool with self-hosted dashboard infrastructure
     """
 
@@ -44,7 +45,7 @@ class DashboardPlatform(BaseComponent):
         )
 
     def _create_vpc(self):
-        """Create VPC for dashboard platform"""
+        """Create VPC for dashboard platform""".
         self.vpc = aws.ec2.Vpc(
             f"{self.args.name}-dashboard-vpc",
             cidr_block="10.0.0.0/16",
@@ -109,7 +110,7 @@ class DashboardPlatform(BaseComponent):
             )
 
     def _create_ecs_cluster(self):
-        """Create ECS cluster for dashboard services"""
+        """Create ECS cluster for dashboard services""".
         self.cluster = aws.ecs.Cluster(
             f"{self.args.name}-dashboard-cluster",
             capacity_providers=["FARGATE"],
@@ -155,7 +156,7 @@ class DashboardPlatform(BaseComponent):
         )
 
     def _create_dashboard_services(self):
-        """Create dashboard services to replace Retool functionality"""
+        """Create dashboard services to replace Retool functionality""".
         # CEO Dashboard Service
         self.dashboard_services["ceo"] = self._create_dashboard_service(
             "ceo",
@@ -192,7 +193,7 @@ class DashboardPlatform(BaseComponent):
     def _create_dashboard_service(
         self, dashboard_type: str, environment_vars: Dict[str, str]
     ):
-        """Create a dashboard service with ECS Fargate"""
+        """Create a dashboard service with ECS Fargate""".
         # Task definition
         task_definition = aws.ecs.TaskDefinition(
             f"{self.args.name}-{dashboard_type}-task",
@@ -268,7 +269,7 @@ class DashboardPlatform(BaseComponent):
         }
 
     def _create_ai_dashboard_generator(self):
-        """Create AI-powered dashboard generator service"""
+        """Create AI-powered dashboard generator service""".
         # This service uses Cursor AI + Pulumi AI to generate dashboards on-demand
         task_definition = aws.ecs.TaskDefinition(
             f"{self.args.name}-ai-generator-task",
@@ -349,7 +350,7 @@ class DashboardPlatform(BaseComponent):
         }
 
     def _create_load_balancer(self):
-        """Create Application Load Balancer for dashboard services"""
+        """Create Application Load Balancer for dashboard services""".
         # ALB Security Group
         alb_sg = aws.ec2.SecurityGroup(
             f"{self.args.name}-alb-sg",
@@ -402,7 +403,7 @@ class DashboardPlatform(BaseComponent):
         )
 
     def _create_target_group(self, dashboard_type: str):
-        """Create target group for dashboard service"""
+        """Create target group for dashboard service""".
         return aws.lb.TargetGroup(
             f"{self.args.name}-{dashboard_type}-tg",
             port=3000,
@@ -423,7 +424,7 @@ class DashboardPlatform(BaseComponent):
         )
 
     def _get_execution_role(self):
-        """Get or create ECS execution role"""
+        """Get or create ECS execution role""".
         if not hasattr(self, "_execution_role"):
             self._execution_role = aws.iam.Role(
                 f"{self.args.name}-ecs-execution-role",
@@ -450,7 +451,7 @@ class DashboardPlatform(BaseComponent):
         return self._execution_role
 
     def _get_task_role(self):
-        """Get or create ECS task role"""
+        """Get or create ECS task role""".
         if not hasattr(self, "_task_role"):
             self._task_role = aws.iam.Role(
                 f"{self.args.name}-ecs-task-role",
@@ -498,7 +499,7 @@ class DashboardPlatform(BaseComponent):
         return self._task_role
 
     def _create_ai_powered_dashboard_generator(self):
-        """Create Lambda function for AI-powered dashboard generation"""
+        """Create Lambda function for AI-powered dashboard generation""".
         # Lambda function for natural language dashboard creation
         dashboard_generator_lambda = aws.lambda_.Function(
             f"{self.args.name}-dashboard-generator",
@@ -572,7 +573,7 @@ class DashboardPlatform(BaseComponent):
             depends_on=[integration],
         )
 
-        stage = aws.apigateway.Stage(
+        _ = aws.apigateway.Stage(
             f"{self.args.name}-api-stage",
             deployment=deployment.id,
             rest_api=api_gateway.id,
@@ -592,7 +593,7 @@ class DashboardPlatform(BaseComponent):
 
 
 class DashboardPlatformArgs:
-    """Arguments for DashboardPlatform component"""
+    """Arguments for DashboardPlatform component""".
 
     def __init__(
         self,

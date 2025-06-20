@@ -1,20 +1,18 @@
-"""
-Airbyte MCP Server
+"""Airbyte MCP Server
 Exposes the Airbyte integration to the Sophia AI system via MCP.
 """
 import asyncio
 import json
-import logging
-from typing import Any, Dict, List
+from typing import List
 
-from mcp.types import Resource, Tool, TextContent, CallToolRequest, ListToolsRequest
+from mcp.types import CallToolRequest, ListToolsRequest, Resource, TextContent, Tool
 
-from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 from backend.integrations.airbyte_integration import airbyte_integration
+from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
+
 
 class AirbyteMCPServer(BaseMCPServer):
-    """
-    MCP Server for Airbyte.
+    """MCP Server for Airbyte.
     """
 
     def __init__(self):
@@ -31,7 +29,9 @@ class AirbyteMCPServer(BaseMCPServer):
 
     async def get_resource(self, request: any) -> str:
         """Airbyte server is tool-focused."""
-        return json.dumps({"error": "This server does not provide resources, only tools."})
+        return json.dumps(
+            {"error": "This server does not provide resources, only tools."}
+        )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
         """Lists the available Airbyte tools."""
@@ -42,10 +42,13 @@ class AirbyteMCPServer(BaseMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "connection_id": {"type": "string", "description": "The Airbyte connection ID to sync."}
+                        "connection_id": {
+                            "type": "string",
+                            "description": "The Airbyte connection ID to sync.",
+                        }
                     },
-                    "required": ["connection_id"]
-                }
+                    "required": ["connection_id"],
+                },
             ),
             Tool(
                 name="get_job_status",
@@ -53,11 +56,14 @@ class AirbyteMCPServer(BaseMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "job_id": {"type": "integer", "description": "The Airbyte job ID to check."}
+                        "job_id": {
+                            "type": "integer",
+                            "description": "The Airbyte job ID to check.",
+                        }
                     },
-                    "required": ["job_id"]
-                }
-            )
+                    "required": ["job_id"],
+                },
+            ),
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
@@ -74,9 +80,12 @@ class AirbyteMCPServer(BaseMCPServer):
             result = {"error": f"Unknown tool: {tool_name}"}
 
         if result is None:
-            result = {"error": f"Tool call for '{tool_name}' failed or returned no data."}
-            
+            result = {
+                "error": f"Tool call for '{tool_name}' failed or returned no data."
+            }
+
         return [TextContent(type="text", text=json.dumps(result, indent=2))]
+
 
 async def main():
     """Main entry point for the Airbyte MCP server."""
@@ -84,5 +93,6 @@ async def main():
     server = AirbyteMCPServer()
     await server.run()
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

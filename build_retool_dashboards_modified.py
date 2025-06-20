@@ -1,23 +1,26 @@
-"""
-Modified Build Retool Dashboards script
+"""Modified Build Retool Dashboards script
 This version works with just the gateway running, without the actual MCP servers
 """
 import asyncio
 import json
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 import aiohttp
 
 from backend.mcp.mcp_client import MCPClient
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
+
 class RetoolDashboardBuilder:
+    """An AI Agent orchestrator for building Retool UIs.
     """
-    An AI Agent orchestrator for building Retool UIs.
-    """
+
     def __init__(self, mcp_gateway_url: str = "http://localhost:8090"):
         self.mcp_client = MCPClient(mcp_gateway_url)
         self.gateway_url = mcp_gateway_url
@@ -41,7 +44,9 @@ class RetoolDashboardBuilder:
                     async with session.get(health_url) as response:
                         if response.status == 200:
                             data = await response.json()
-                            logger.info(f"Gateway is healthy! Discovered servers: {data.get('discovered_servers', [])}")
+                            logger.info(
+                                f"Gateway is healthy! Discovered servers: {data.get('discovered_servers', [])}"
+                            )
                             return
             except aiohttp.ClientConnectorError:
                 pass  # Ignore connection errors while waiting
@@ -57,26 +62,35 @@ class RetoolDashboardBuilder:
         logger.info("MCP Client disconnected.")
 
     async def build_mission_control_dashboard(self) -> Dict[str, Any]:
-        """
-        Simulates building the 'MCP Mission Control' dashboard in Retool.
+        """Simulates building the 'MCP Mission Control' dashboard in Retool.
         """
         dashboard_name = "mcp_mission_control"
         logger.info(f"Simulating building dashboard: {dashboard_name}")
 
         # Since we don't have the actual MCP servers running, we'll simulate the response
         logger.info("This is a simulation - in a real environment, we would call:")
-        logger.info("self.mcp_client.call_tool('retool', 'create_admin_dashboard', ...)")
-        
+        logger.info(
+            "self.mcp_client.call_tool('retool', 'create_admin_dashboard', ...)"
+        )
+
         # Simulate a successful response
         app_id = "simulated-app-id-12345"
-        logger.info(f"Simulated successful creation of Retool app '{dashboard_name}' with ID: {app_id}")
+        logger.info(
+            f"Simulated successful creation of Retool app '{dashboard_name}' with ID: {app_id}"
+        )
 
         # Conceptual next steps (same as original)
         logger.info("--- Conceptual Next Steps ---")
         logger.info(f"1. Add a 'Table' widget to app {app_id}.")
-        logger.info("2. Create a new REST query in the Retool app named 'listMCPContainers'.")
-        logger.info("3. Configure the query to POST to the MCP Gateway's /call_tool endpoint.")
-        logger.info(f"4. The query body should be: {{ 'server': 'docker', 'tool': 'list_containers' }}")
+        logger.info(
+            "2. Create a new REST query in the Retool app named 'listMCPContainers'."
+        )
+        logger.info(
+            "3. Configure the query to POST to the MCP Gateway's /call_tool endpoint."
+        )
+        logger.info(
+            "4. The query body should be: { 'server': 'docker', 'tool': 'list_containers' }"
+        )
         logger.info("5. Set the table's data source to `{{ listMCPContainers.data }}`.")
         logger.info("6. Set the query to run on page load and on a 30-second interval.")
         logger.info("--- End Conceptual Steps ---")
@@ -86,13 +100,12 @@ class RetoolDashboardBuilder:
             "app_id": app_id,
             "dashboard_name": dashboard_name,
             "message": "Dashboard creation simulated. In a real environment, manual steps would be required in Retool to add and configure widgets.",
-            "note": "This is a simulation since the actual MCP servers are not running."
+            "note": "This is a simulation since the actual MCP servers are not running.",
         }
 
 
 async def main():
-    """
-    Main function to run the dashboard builder.
+    """Main function to run the dashboard builder.
     """
     builder = RetoolDashboardBuilder()
     try:

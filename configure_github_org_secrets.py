@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SOPHIA AI System - GitHub Organization Secrets Configuration Script
+"""SOPHIA AI System - GitHub Organization Secrets Configuration Script
 
 This script configures GitHub organization secrets for CI/CD workflows.
 It reads secrets from a .env file and sets them as GitHub organization secrets.
@@ -19,7 +18,7 @@ import os
 import sys
 from base64 import b64encode
 from getpass import getpass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 
 try:
     from github import Github, GithubException, Organization
@@ -99,7 +98,7 @@ def read_env_file(file_path: str) -> Dict[str, str]:
                 secrets[key.strip()] = value.strip()
             except ValueError:
                 print(f"Warning: Skipping invalid line: {line}")
-    
+
     return secrets
 
 
@@ -125,27 +124,27 @@ def encrypt_secret(public_key: str, secret_value: str) -> str:
 
 
 def set_org_secrets(
-    org: Organization.Organization, 
-    secrets: Dict[str, str], 
+    org: Organization.Organization,
+    secrets: Dict[str, str],
     visibility: str = "all",
-    dry_run: bool = False
+    dry_run: bool = False,
 ) -> None:
     """Set organization secrets."""
     # Get the organization's public key
     public_key = org.get_public_key()
-    
+
     for key, value in secrets.items():
         # Skip empty values
         if not value:
             print(f"Skipping empty secret: {key}")
             continue
-            
+
         if dry_run:
             print(f"Would set organization secret: {key} (visibility: {visibility})")
         else:
             try:
                 encrypted_value = encrypt_secret(public_key.key, value)
-                
+
                 # For organization secrets, we need to use a different approach
                 # The PyGithub library doesn't directly support setting visibility
                 # We'll use the raw_data parameter to set the visibility
@@ -156,11 +155,11 @@ def set_org_secrets(
                     input={
                         "encrypted_value": encrypted_value,
                         "key_id": public_key.key_id,
-                        "visibility": visibility
+                        "visibility": visibility,
                     },
-                    headers=headers
+                    headers=headers,
                 )
-                
+
                 print(f"Successfully set organization secret: {key}")
             except GithubException as e:
                 print(f"Error setting organization secret {key}: {e}")
@@ -179,7 +178,9 @@ def list_org_secrets(org: Organization.Organization) -> None:
         print(f"Error listing organization secrets: {e}")
 
 
-def delete_org_secret(org: Organization.Organization, secret_name: str, dry_run: bool = False) -> None:
+def delete_org_secret(
+    org: Organization.Organization, secret_name: str, dry_run: bool = False
+) -> None:
     """Delete an organization secret."""
     if dry_run:
         print(f"Would delete organization secret: {secret_name}")
@@ -191,7 +192,9 @@ def delete_org_secret(org: Organization.Organization, secret_name: str, dry_run:
             print(f"Error deleting organization secret {secret_name}: {e}")
 
 
-def delete_all_org_secrets(org: Organization.Organization, dry_run: bool = False) -> None:
+def delete_all_org_secrets(
+    org: Organization.Organization, dry_run: bool = False
+) -> None:
     """Delete all organization secrets."""
     try:
         secrets = org.get_secrets()
@@ -208,52 +211,56 @@ def delete_all_org_secrets(org: Organization.Organization, dry_run: bool = False
 def main() -> None:
     """Main function."""
     args = parse_args()
-    
+
     # Get GitHub token
     token = args.token
     if not token:
         token = os.environ.get("GITHUB_TOKEN")
         if not token:
             token = getpass("GitHub Personal Access Token: ")
-    
+
     # Get organization name
     org_name = args.org
     if not org_name:
         org_name = input("GitHub Organization name: ")
-    
+
     # Get organization
     org = get_github_org(token, org_name)
     print(f"Connected to GitHub organization: {org.login}")
-    
+
     # List secrets
     if args.list:
         list_org_secrets(org)
         return
-    
+
     # Delete a specific secret
     if args.delete:
         delete_org_secret(org, args.delete, args.dry_run)
         return
-    
+
     # Delete all secrets
     if args.delete_all:
-        confirm = input("Are you sure you want to delete ALL organization secrets? (y/N): ")
+        confirm = input(
+            "Are you sure you want to delete ALL organization secrets? (y/N): "
+        )
         if confirm.lower() == "y":
             delete_all_org_secrets(org, args.dry_run)
         else:
             print("Operation cancelled.")
         return
-    
+
     # Read secrets from .env file
     secrets = read_env_file(args.env_file)
     print(f"Read {len(secrets)} secrets from {args.env_file}")
-    
+
     # Set secrets
     set_org_secrets(org, secrets, args.visibility, args.dry_run)
-    
+
     if not args.dry_run:
         print("\nAll organization secrets have been configured successfully.")
-        print("You can now use these secrets in your GitHub Actions workflows across the organization.")
+        print(
+            "You can now use these secrets in your GitHub Actions workflows across the organization."
+        )
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sophia AI: Retool to Pulumi IDP Migration Script"""
+"""Sophia AI: Retool to Pulumi IDP Migration Script."""
 
 import asyncio
 import logging

@@ -1,8 +1,10 @@
-from pulumi import ComponentResource, ResourceOptions, Config, Output, asset
-import pulumi_docker as docker
 import json
 
+import pulumi_docker as docker
+from pulumi import Config, ResourceOptions, asset
+
 from .base_component import BaseComponent
+
 
 class McpComponent(BaseComponent):
     def __init__(self, name: str, opts: ResourceOptions = None):
@@ -22,7 +24,8 @@ class McpComponent(BaseComponent):
         self.images = []
         for server_config in mcp_server_configs:
             image_name = f"{registry_url}/{server_config['name']}:{env}"
-            image = docker.Image(f"{server_config['name']}-image",
+            image = docker.Image(
+                f"{server_config['name']}-image",
                 build=docker.DockerBuildArgs(
                     context=server_config["context"],
                     dockerfile=f"{server_config['context']}/Dockerfile",
@@ -30,7 +33,7 @@ class McpComponent(BaseComponent):
                 ),
                 image_name=image_name,
                 skip_push=(env != "production"),
-                opts=component_opts
+                opts=component_opts,
             )
             self.images.append(image)
 
@@ -38,13 +41,16 @@ class McpComponent(BaseComponent):
             "version": "1.0.0",
             "environment": env,
             "servers": [
-                {"name": s['name'], "url": f"http://{s['name']}:{s['port']}"} for s in mcp_server_configs
-            ]
+                {"name": s["name"], "url": f"http://{s['name']}:{s['port']}"}
+                for s in mcp_server_configs
+            ],
         }
-        
+
         self.config_file = asset.StringAsset(json.dumps(mcp_config_data, indent=2))
 
-        self.register_outputs({
-            "image_names": [img.image_name for img in self.images],
-            "config_json": self.config_file
-        }) 
+        self.register_outputs(
+            {
+                "image_names": [img.image_name for img in self.images],
+                "config_json": self.config_file,
+            }
+        )

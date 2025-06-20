@@ -1,4 +1,5 @@
-from pulumi import ComponentResource, Output
+from pulumi import ComponentResource
+
 
 class BaseComponent(ComponentResource):
     def __init__(self, name: str, opts=None):
@@ -9,6 +10,6 @@ class BaseComponent(ComponentResource):
         # Register all outputs for the component
         for key, value in outputs.items():
             self.outputs[key] = value
-        
+
         # Also register them as top-level outputs of the component
-        super().register_outputs(self.outputs) 
+        super().register_outputs(self.outputs)

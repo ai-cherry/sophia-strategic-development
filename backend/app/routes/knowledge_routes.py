@@ -1,19 +1,18 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import json
-import uuid
 import os
 import tempfile
+import uuid
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from backend.agents.specialized.insight_extraction_agent import InsightExtractionAgent, InsightType
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+
 from backend.agents.core.base_agent import AgentConfig, Task
-from backend.knowledge.knowledge_manager import knowledge_manager
+from backend.agents.specialized.insight_extraction_agent import InsightExtractionAgent
 from backend.integrations.portkey_client import PortkeyClient
 from backend.knowledge_base.ingestion import IngestionPipeline
-from backend.knowledge_base.vector_store import VectorStore
 from backend.knowledge_base.metadata_store import MetadataStore
+from backend.knowledge_base.vector_store import VectorStore
 
 router = APIRouter(prefix="/api/knowledge", tags=["knowledge"])
 
@@ -29,45 +28,45 @@ ingestion_pipeline = IngestionPipeline(vector_store, metadata_store)
 async def upload_documents(
     files: List[UploadFile] = File(...),
     category: str = Form("general"),
-    tags: Optional[str] = Form(None)
+    tags: Optional[str] = Form(None),
 ):
     """Upload multiple documents to the knowledge base"""
     results = []
-    
+
     for file in files:
         try:
             # Save uploaded file temporarily
-            with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp_file:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=Path(file.filename).suffix
+            ) as tmp_file:
                 content = await file.read()
                 tmp_file.write(content)
                 tmp_path = Path(tmp_file.name)
-            
+
             # Parse tags
             file_tags = tags.split(",") if tags else []
-            
+
             # Ingest the document
             await ingestion_pipeline.ingest_document(
-                file_path=tmp_path,
-                document_type=category,
-                tags=file_tags
+                file_path=tmp_path, document_type=category, tags=file_tags
             )
-            
+
             # Clean up temp file
             os.unlink(tmp_path)
-            
-            results.append({
-                "filename": file.filename,
-                "status": "success",
-                "message": "Document uploaded successfully"
-            })
-            
+
+            results.append(
+                {
+                    "filename": file.filename,
+                    "status": "success",
+                    "message": "Document uploaded successfully",
+                }
+            )
+
         except Exception as e:
-            results.append({
-                "filename": file.filename,
-                "status": "error",
-                "message": str(e)
-            })
-    
+            results.append(
+                {"filename": file.filename, "status": "error", "message": str(e)}
+            )
+
     return {"results": results}
 
 
@@ -76,7 +75,7 @@ async def get_documents(
     search: Optional[str] = None,
     content_type: Optional[str] = None,
     status: Optional[str] = None,
-    limit: int = 50
+    limit: int = 50,
 ):
     """Get documents from the knowledge base"""
     # This would integrate with the actual knowledge base
@@ -92,7 +91,7 @@ async def get_documents(
             "createdAt": "2024-01-15",
             "updatedAt": "2024-01-20",
             "createdBy": "admin",
-            "version": 2
+            "version": 2,
         },
         {
             "id": "product_catalog",
@@ -104,18 +103,23 @@ async def get_documents(
             "createdAt": "2024-01-10",
             "updatedAt": "2024-01-18",
             "createdBy": "admin",
-            "version": 3
-        }
+            "version": 3,
+        },
     ]
-    
+
     # Apply filters
     if search:
-        documents = [d for d in documents if search.lower() in d["title"].lower() or search.lower() in d["content"].lower()]
+        documents = [
+            d
+            for d in documents
+            if search.lower() in d["title"].lower()
+            or search.lower() in d["content"].lower()
+        ]
     if content_type and content_type != "all":
         documents = [d for d in documents if d["contentType"] == content_type]
     if status and status != "all":
         documents = [d for d in documents if d["status"] == status]
-    
+
     return {"documents": documents[:limit]}
 
 
@@ -123,7 +127,7 @@ async def get_documents(
 async def create_document(document: Dict[str, Any]):
     """Create a new document in the knowledge base"""
     doc_id = f"doc_{uuid.uuid4().hex[:8]}"
-    
+
     # Create document with metadata
     new_doc = {
         "id": doc_id,
@@ -135,11 +139,11 @@ async def create_document(document: Dict[str, Any]):
         "createdAt": datetime.now().isoformat(),
         "updatedAt": datetime.now().isoformat(),
         "createdBy": "admin",
-        "version": 1
+        "version": 1,
     }
-    
+
     # TODO: Actually save to knowledge base
-    
+
     return {"document": new_doc}
 
 
@@ -151,9 +155,9 @@ async def update_document(document_id: str, document: Dict[str, Any]):
         "id": document_id,
         **document,
         "updatedAt": datetime.now().isoformat(),
-        "version": document.get("version", 1) + 1
+        "version": document.get("version", 1) + 1,
     }
-    
+
     return {"document": updated_doc}
 
 
@@ -169,7 +173,7 @@ async def get_pending_insights():
     """Get pending insights from the discovery queue"""
     task = Task(task_type="get_pending_insights", task_data={})
     result = await insight_agent.process_task(task)
-    
+
     if result.get("success"):
         return result.get("data", {})
     else:
@@ -180,11 +184,10 @@ async def get_pending_insights():
 async def analyze_call_for_insights(call_id: str):
     """Analyze a specific Gong call for insights"""
     task = Task(
-        task_type="analyze_transcript_for_insights",
-        task_data={"call_id": call_id}
+        task_type="analyze_transcript_for_insights", task_data={"call_id": call_id}
     )
     result = await insight_agent.process_task(task)
-    
+
     if result.get("success"):
         return result.get("data", {})
     else:
@@ -195,11 +198,10 @@ async def analyze_call_for_insights(call_id: str):
 async def batch_analyze_recent_calls(hours_back: int = 24):
     """Analyze recent calls for insights in batch"""
     task = Task(
-        task_type="batch_analyze_recent_calls",
-        task_data={"hours_back": hours_back}
+        task_type="batch_analyze_recent_calls", task_data={"hours_back": hours_back}
     )
     result = await insight_agent.process_task(task)
-    
+
     if result.get("success"):
         return result.get("data", {})
     else:
@@ -208,9 +210,7 @@ async def batch_analyze_recent_calls(hours_back: int = 24):
 
 @router.put("/insights/{insight_id}/status")
 async def update_insight_status(
-    insight_id: str,
-    status: str,
-    edited_content: Optional[str] = None
+    insight_id: str, status: str, edited_content: Optional[str] = None
 ):
     """Update the status of an insight (approve/reject)"""
     task = Task(
@@ -218,11 +218,11 @@ async def update_insight_status(
         task_data={
             "insight_id": insight_id,
             "status": status,
-            "edited_content": edited_content
-        }
+            "edited_content": edited_content,
+        },
     )
     result = await insight_agent.process_task(task)
-    
+
     if result.get("success"):
         return result.get("data", {})
     else:
@@ -235,17 +235,19 @@ async def curation_chat(query: str):
     try:
         # Search the knowledge base
         search_results = await vector_store.query(query, top_k=3)
-        
+
         if search_results:
             # Get the most relevant result
             top_result = search_results[0]
-            
+
             # Prepare response with source citation
             response = {
                 "content": top_result.get("content", "No information found"),
-                "source": top_result.get("metadata", {}).get("file_name", "Unknown source"),
+                "source": top_result.get("metadata", {}).get(
+                    "file_name", "Unknown source"
+                ),
                 "confidence": top_result.get("score", 0.0),
-                "needsFeedback": True
+                "needsFeedback": True,
             }
         else:
             # Use LLM to generate a response if no direct match
@@ -255,43 +257,43 @@ async def curation_chat(query: str):
             Based on Pay Ready's business context, provide a helpful response.
             If you don't have specific information, indicate that clearly.
             """
-            
+
             llm_response = await portkey_client.llm_call(
-                prompt=llm_prompt,
-                model="gpt-4",
-                temperature=0.3
+                prompt=llm_prompt, model="gpt-4", temperature=0.3
             )
-            
-            response_content = llm_response.get("choices", [{}])[0].get("message", {}).get("content", "I don't have information about that.")
-            
+
+            response_content = (
+                llm_response.get("choices", [{}])[0]
+                .get("message", {})
+                .get("content", "I don't have information about that.")
+            )
+
             response = {
                 "content": response_content,
                 "source": "Generated response - no direct source",
                 "confidence": 0.5,
-                "needsFeedback": True
+                "needsFeedback": True,
             }
-        
+
         return response
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/curation/feedback")
 async def submit_curation_feedback(
-    message_id: str,
-    feedback: str,
-    correction: Optional[str] = None
+    message_id: str, feedback: str, correction: Optional[str] = None
 ):
     """Submit feedback on a curation response"""
     if feedback == "incorrect" and correction:
         # TODO: Update the knowledge base with the correction
         # This would create a new high-priority entry
         pass
-    
+
     return {
         "message": f"Feedback recorded: {feedback}",
-        "correction_applied": bool(correction)
+        "correction_applied": bool(correction),
     }
 
 
@@ -310,17 +312,13 @@ async def get_knowledge_stats():
             {
                 "action": "update",
                 "document": "Product Catalog",
-                "timestamp": "2 hours ago"
+                "timestamp": "2 hours ago",
             },
-            {
-                "action": "create",
-                "document": "Sales Process",
-                "timestamp": "1 day ago"
-            },
+            {"action": "create", "document": "Sales Process", "timestamp": "1 day ago"},
             {
                 "action": "review",
                 "document": "Mission Statement",
-                "timestamp": "3 days ago"
-            }
-        ]
-    } 
+                "timestamp": "3 days ago",
+            },
+        ],
+    }

@@ -1,37 +1,36 @@
-"""
-Document Parsers for the Knowledge Base
+"""Document Parsers for the Knowledge Base
 Handles extracting text content from various document formats like PDF, DOCX, and PPTX.
 """
-import io
 import logging
-from typing import List
 from pathlib import Path
 
 import docx
+import pandas as pd
 import pptx
 from pypdf import PdfReader
-import pandas as pd
 
 logger = logging.getLogger(__name__)
+
 
 class DocumentParser:
     """A class to handle parsing of different document types."""
 
     @staticmethod
     def parse_pdf(file_path: Path) -> str:
-        """
-        Parses a PDF file and extracts its text content.
-        
+        """Parses a PDF file and extracts its text content.
+
         Args:
             file_path: The path to the PDF file.
-            
+
         Returns:
             The extracted text content as a single string.
         """
         logger.info(f"Parsing PDF: {file_path}")
         try:
             reader = PdfReader(file_path)
-            text_parts = [page.extract_text() for page in reader.pages if page.extract_text()]
+            text_parts = [
+                page.extract_text() for page in reader.pages if page.extract_text()
+            ]
             return "\n".join(text_parts)
         except Exception as e:
             logger.error(f"Failed to parse PDF {file_path}: {e}", exc_info=True)
@@ -39,12 +38,11 @@ class DocumentParser:
 
     @staticmethod
     def parse_docx(file_path: Path) -> str:
-        """
-        Parses a DOCX file and extracts its text content.
-        
+        """Parses a DOCX file and extracts its text content.
+
         Args:
             file_path: The path to the DOCX file.
-            
+
         Returns:
             The extracted text content as a single string.
         """
@@ -59,12 +57,11 @@ class DocumentParser:
 
     @staticmethod
     def parse_pptx(file_path: Path) -> str:
-        """
-        Parses a PPTX file and extracts its text content from all shapes.
-        
+        """Parses a PPTX file and extracts its text content from all shapes.
+
         Args:
             file_path: The path to the PPTX file.
-            
+
         Returns:
             The extracted text content as a single string.
         """
@@ -79,27 +76,26 @@ class DocumentParser:
                         slide_text.append(shape.text)
                 if slide_text:
                     text_parts.append("\n".join(slide_text))
-            return "\n\n---\n\n".join(text_parts) # Separate slides
+            return "\n\n---\n\n".join(text_parts)  # Separate slides
         except Exception as e:
             logger.error(f"Failed to parse PPTX {file_path}: {e}", exc_info=True)
             return ""
 
     @staticmethod
     def parse_excel(file_path: Path) -> str:
-        """
-        Parses an Excel file (.xlsx, .xls) and converts it to a text-based
+        """Parses an Excel file (.xlsx, .xls) and converts it to a text-based
         (CSV-like) string for easy embedding.
-        
+
         Args:
             file_path: The path to the Excel file.
-            
+
         Returns:
             A string representation of the Excel data.
         """
         logger.info(f"Parsing Excel file: {file_path}")
         try:
             # Read the excel file, assuming the first sheet is the one of interest
-            df = pd.read_excel(file_path, engine='openpyxl')
+            df = pd.read_excel(file_path, engine="openpyxl")
             # Convert the dataframe to a string, which can be chunked and embedded
             # We'll use CSV format for the string representation.
             return df.to_csv(index=False)
@@ -109,12 +105,11 @@ class DocumentParser:
 
     @staticmethod
     def parse(file_path: Path) -> str:
-        """
-        Automatically detects the file type and parses it.
-        
+        """Automatically detects the file type and parses it.
+
         Args:
             file_path: The path to the document file.
-            
+
         Returns:
             The extracted text content.
         """
@@ -131,6 +126,7 @@ class DocumentParser:
             logger.warning(f"Unsupported file type: {suffix}. Skipping {file_path}")
             return ""
 
+
 async def main():
     """A simple main function to test the parsers."""
     # Create dummy files for testing
@@ -144,7 +140,12 @@ async def main():
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="This is a test PDF document for Sophia AI's knowledge base.", ln=True)
+    pdf.cell(
+        200,
+        10,
+        txt="This is a test PDF document for Sophia AI's knowledge base.",
+        ln=True,
+    )
     pdf.output(pdf_path)
 
     # Create a dummy DOCX
@@ -163,21 +164,23 @@ async def main():
     body_shape = slide.shapes.add_textbox(100, 200, 500, 100)
     body_shape.text_frame.text = "This is the content of the slide."
     prs.save(ppt_path)
-    
+
     # Test parsers
     pdf_text = DocumentParser.parse(pdf_path)
     print(f"--- Parsed PDF ---\n{pdf_text}\n")
 
     docx_text = DocumentParser.parse(doc_path)
     print(f"--- Parsed DOCX ---\n{docx_text}\n")
-    
+
     pptx_text = DocumentParser.parse(ppt_path)
     print(f"--- Parsed PPTX ---\n{pptx_text}\n")
 
     # Clean up dummy files
     import shutil
+
     shutil.rmtree(test_dir)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main()) 
+    asyncio.run(main())

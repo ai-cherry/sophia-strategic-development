@@ -13,8 +13,9 @@ import pinecone
 import psycopg2
 import redis
 import weaviate
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
 
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
 
 logger = logging.getLogger(__name__)
 

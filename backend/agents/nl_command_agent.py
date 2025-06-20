@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from .core.base_agent import BaseAgent
 from ..integrations.workflow_orchestrator import N8nWorkflowOrchestrator
+from .core.base_agent import BaseAgent
 
 
 class NLCommandAgent(BaseAgent):
@@ -17,7 +17,10 @@ class NLCommandAgent(BaseAgent):
 
     async def handle(self, command: str) -> Dict[str, Any]:
         messages = [
-            {"role": "system", "content": "Parse user command and output JSON instructions"},
+            {
+                "role": "system",
+                "content": "Parse user command and output JSON instructions",
+            },
             {"role": "user", "content": command},
         ]
         plan = await self.llm.chat(messages)

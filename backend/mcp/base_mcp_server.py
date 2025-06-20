@@ -1,26 +1,28 @@
-"""
-Base MCP Server
+"""Base MCP Server
 Provides a standardized, class-based implementation for all MCP servers in Sophia AI.
 """
 
-import asyncio
-import json
 import logging
-from typing import Any, Dict, List, Optional
 from abc import ABC, abstractmethod
+from typing import List
 
 from mcp.server import Server
 from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    Resource, Tool, TextContent,
-    CallToolRequest, ReadResourceRequest, ListResourcesRequest, ListToolsRequest
+    CallToolRequest,
+    ListResourcesRequest,
+    ListToolsRequest,
+    ReadResourceRequest,
+    Resource,
+    TextContent,
+    Tool,
 )
 
+
 class BaseMCPServer(ABC):
-    """
-    Abstract base class for all Sophia AI MCP servers.
-    
+    """Abstract base class for all Sophia AI MCP servers.
+
     This class provides a standardized structure for:
     - Initialization
     - Handler registration
@@ -28,7 +30,7 @@ class BaseMCPServer(ABC):
     - Error handling
     - Consistent server startup logic
     """
-    
+
     def __init__(self, server_name: str, server_version: str = "1.0.0"):
         self.server_name = server_name
         self.server_version = server_version
@@ -39,8 +41,7 @@ class BaseMCPServer(ABC):
 
     @abstractmethod
     async def initialize_integration(self):
-        """
-        Abstract method to initialize the specific integration client for the server.
+        """Abstract method to initialize the specific integration client for the server.
         This method should create and assign the client to self.integration_client.
         """
         pass
@@ -52,8 +53,7 @@ class BaseMCPServer(ABC):
 
     @abstractmethod
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """
-        Abstract method to get a specific resource.
+        """Abstract method to get a specific resource.
         Should return a JSON string of the resource content.
         """
         pass
@@ -65,19 +65,20 @@ class BaseMCPServer(ABC):
 
     @abstractmethod
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """
-        Abstract method to handle tool calls.
+        """Abstract method to handle tool calls.
         Should return a list of TextContent objects.
         """
         pass
 
     def _setup_handlers(self):
+        """Sets up the standard MCP handlers for this server.
         """
-        Sets up the standard MCP handlers for this server.
-        """
+
         # Register handlers using the server's handler decorators
         @self.server.list_resources()
-        async def handle_list_resources(request: ListResourcesRequest) -> List[Resource]:
+        async def handle_list_resources(
+            request: ListResourcesRequest,
+        ) -> List[Resource]:
             return await self.list_resources(request)
 
         @self.server.read_resource()
@@ -93,11 +94,10 @@ class BaseMCPServer(ABC):
             return await self.call_tool(request)
 
     async def run(self):
-        """
-        Initializes the integration and runs the MCP server.
+        """Initializes the integration and runs the MCP server.
         """
         self.logger.info(f"Starting {self.server_name} MCP Server...")
-        
+
         try:
             await self.initialize_integration()
             self.logger.info("Integration initialized successfully.")
@@ -107,8 +107,10 @@ class BaseMCPServer(ABC):
             # For now, we'll allow the server to start but tool calls will fail
             # until the integration is manually initialized or the server restarts.
 
-        self.logger.info(f"{self.server_name} MCP Server running. Waiting for requests.")
-        
+        self.logger.info(
+            f"{self.server_name} MCP Server running. Waiting for requests."
+        )
+
         async with stdio_server() as (read_stream, write_stream):
             await self.server.run(
                 read_stream,
@@ -117,21 +119,17 @@ class BaseMCPServer(ABC):
                     server_name=self.server_name,
                     server_version=self.server_version,
                     capabilities=self.server.get_capabilities(
-                        notification_options=None,
-                        experimental_capabilities=None
-                    )
-                )
+                        notification_options=None, experimental_capabilities=None
+                    ),
+                ),
             )
 
 
 def setup_logging(level: int = logging.INFO):
-    """
-    Sets up logging for MCP servers.
+    """Sets up logging for MCP servers.
     """
     logging.basicConfig(
         level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler()
-        ]
-    ) 
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler()],
+    )

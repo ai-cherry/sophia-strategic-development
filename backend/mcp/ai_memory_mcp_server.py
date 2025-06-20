@@ -8,14 +8,15 @@ import json
 import logging
 import os
 import uuid
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from mcp.types import Resource, Tool, TextContent, CallToolRequest, ReadResourceRequest, ListResourcesRequest, ListToolsRequest
+from mcp.types import (CallToolRequest, ListResourcesRequest, ListToolsRequest,
+                       ReadResourceRequest, Resource, TextContent, Tool)
 
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
 from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
-
 
 # Import dependencies with fallback
 try:

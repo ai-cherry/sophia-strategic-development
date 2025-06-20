@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Sophia AI Repository Setup Script
+"""Sophia AI Repository Setup Script
 
 This script automates the setup of a new Sophia AI repository with all the necessary
 secrets and configurations. It:
@@ -16,42 +15,36 @@ Usage:
     python setup_new_repo.py --name sophia-new-repo [--source-env /path/to/master.env] [--from-pulumi]
 """
 
-import os
-import sys
 import argparse
-import subprocess
 import logging
+import os
 import shutil
-import datetime
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+import subprocess
+import sys
+from typing import List, Optional
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def run_command(command: List[str], cwd: Optional[str] = None) -> bool:
     """Run a command and return True if successful"""
     try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            cwd=cwd
-        )
-        
+        result = subprocess.run(command, capture_output=True, text=True, cwd=cwd)
+
         if result.returncode != 0:
             logger.error(f"Command failed: {' '.join(command)}")
             logger.error(f"Error: {result.stderr}")
             return False
-        
+
         return True
     except Exception as e:
         logger.error(f"Error running command: {e}")
         return False
+
 
 def create_directory(path: str) -> bool:
     """Create a directory if it doesn't exist"""
@@ -62,6 +55,7 @@ def create_directory(path: str) -> bool:
         logger.error(f"Error creating directory {path}: {e}")
         return False
 
+
 def copy_file(source: str, destination: str) -> bool:
     """Copy a file from source to destination"""
     try:
@@ -71,16 +65,17 @@ def copy_file(source: str, destination: str) -> bool:
         logger.error(f"Error copying file from {source} to {destination}: {e}")
         return False
 
+
 def create_readme(repo_path: str, repo_name: str) -> bool:
     """Create a README.md file with setup instructions"""
     try:
         readme_path = os.path.join(repo_path, "README.md")
-        with open(readme_path, 'w') as f:
+        with open(readme_path, "w") as f:
             f.write(f"# {repo_name}\n\n")
             f.write("## Setup Instructions\n\n")
             f.write("### 1. Clone the repository\n\n")
             f.write("```bash\n")
-            f.write(f"git clone <repository-url>\n")
+            f.write("git clone <repository-url>\n")
             f.write(f"cd {repo_name}\n")
             f.write("```\n\n")
             f.write("### 2. Set up environment variables\n\n")
@@ -103,7 +98,7 @@ def create_readme(repo_path: str, repo_name: str) -> bool:
             f.write("# Fix SSL certificate issues\n")
             f.write("python3 fix_ssl_certificates.py\n\n")
             f.write("# Run the health check\n")
-            f.write("python3 run_with_ssl_fix.py \"check system status\"\n")
+            f.write('python3 run_with_ssl_fix.py "check system status"\n')
             f.write("```\n\n")
             f.write("### 5. Start the MCP servers\n\n")
             f.write("```bash\n")
@@ -126,23 +121,28 @@ def create_readme(repo_path: str, repo_name: str) -> bool:
             f.write("# Validate configuration\n")
             f.write("./secrets_manager.py validate\n\n")
             f.write("# Generate template\n")
-            f.write("./secrets_manager.py generate-template --output-file env.template\n\n")
+            f.write(
+                "./secrets_manager.py generate-template --output-file env.template\n\n"
+            )
             f.write("# Sync all\n")
             f.write("./secrets_manager.py sync-all\n")
             f.write("```\n\n")
             f.write("## Troubleshooting\n\n")
-            f.write("If you encounter any issues, please refer to the [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md) file for detailed troubleshooting steps.\n")
-        
+            f.write(
+                "If you encounter any issues, please refer to the [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md) file for detailed troubleshooting steps.\n"
+            )
+
         return True
     except Exception as e:
         logger.error(f"Error creating README.md: {e}")
         return False
 
+
 def create_gitignore(repo_path: str) -> bool:
     """Create a .gitignore file"""
     try:
         gitignore_path = os.path.join(repo_path, ".gitignore")
-        with open(gitignore_path, 'w') as f:
+        with open(gitignore_path, "w") as f:
             f.write("# Environment variables\n")
             f.write(".env\n")
             f.write(".env.*\n")
@@ -196,91 +196,105 @@ def create_gitignore(repo_path: str) -> bool:
             f.write("# Pulumi\n")
             f.write("Pulumi.*.yaml\n")
             f.write("!Pulumi.yaml\n")
-        
+
         return True
     except Exception as e:
         logger.error(f"Error creating .gitignore: {e}")
         return False
 
-def setup_repository(repo_name: str, source_env: Optional[str] = None, from_pulumi: bool = False) -> bool:
+
+def setup_repository(
+    repo_name: str, source_env: Optional[str] = None, from_pulumi: bool = False
+) -> bool:
     """Set up a new repository with all the necessary files and configurations"""
     # Create the repository directory
     repo_path = os.path.abspath(repo_name)
     if not create_directory(repo_path):
         return False
-    
+
     logger.info(f"Created repository directory: {repo_path}")
-    
+
     # Initialize Git repository
     if not run_command(["git", "init"], cwd=repo_path):
         return False
-    
+
     logger.info("Initialized Git repository")
-    
+
     # Copy secrets_manager.py
-    if not copy_file("secrets_manager.py", os.path.join(repo_path, "secrets_manager.py")):
+    if not copy_file(
+        "secrets_manager.py", os.path.join(repo_path, "secrets_manager.py")
+    ):
         return False
-    
+
     # Make secrets_manager.py executable
     if not run_command(["chmod", "+x", "secrets_manager.py"], cwd=repo_path):
         return False
-    
+
     logger.info("Copied and made secrets_manager.py executable")
-    
+
     # Copy fix_ssl_certificates.py if it exists
     if os.path.exists("fix_ssl_certificates.py"):
-        if not copy_file("fix_ssl_certificates.py", os.path.join(repo_path, "fix_ssl_certificates.py")):
+        if not copy_file(
+            "fix_ssl_certificates.py",
+            os.path.join(repo_path, "fix_ssl_certificates.py"),
+        ):
             return False
         logger.info("Copied fix_ssl_certificates.py")
-    
+
     # Copy run_with_ssl_fix.py if it exists
     if os.path.exists("run_with_ssl_fix.py"):
-        if not copy_file("run_with_ssl_fix.py", os.path.join(repo_path, "run_with_ssl_fix.py")):
+        if not copy_file(
+            "run_with_ssl_fix.py", os.path.join(repo_path, "run_with_ssl_fix.py")
+        ):
             return False
         logger.info("Copied run_with_ssl_fix.py")
-    
+
     # Copy start_mcp_servers.py if it exists
     if os.path.exists("start_mcp_servers.py"):
-        if not copy_file("start_mcp_servers.py", os.path.join(repo_path, "start_mcp_servers.py")):
+        if not copy_file(
+            "start_mcp_servers.py", os.path.join(repo_path, "start_mcp_servers.py")
+        ):
             return False
         logger.info("Copied start_mcp_servers.py")
-    
+
     # Copy SETUP_INSTRUCTIONS.md if it exists
     if os.path.exists("SETUP_INSTRUCTIONS.md"):
-        if not copy_file("SETUP_INSTRUCTIONS.md", os.path.join(repo_path, "SETUP_INSTRUCTIONS.md")):
+        if not copy_file(
+            "SETUP_INSTRUCTIONS.md", os.path.join(repo_path, "SETUP_INSTRUCTIONS.md")
+        ):
             return False
         logger.info("Copied SETUP_INSTRUCTIONS.md")
-    
+
     # Create README.md
     if not create_readme(repo_path, repo_name):
         return False
-    
+
     logger.info("Created README.md")
-    
+
     # Create .gitignore
     if not create_gitignore(repo_path):
         return False
-    
+
     logger.info("Created .gitignore")
-    
+
     # Import secrets from source_env if provided
     if source_env:
         if not os.path.exists(source_env):
             logger.error(f"Source .env file not found: {source_env}")
             return False
-        
+
         # Copy the source .env file to the repository
         if not copy_file(source_env, os.path.join(repo_path, ".env")):
             return False
-        
+
         logger.info(f"Copied source .env file from {source_env}")
-        
+
         # Run secrets_manager.py to validate the configuration
         if not run_command(["./secrets_manager.py", "validate"], cwd=repo_path):
             logger.warning("Validation of imported secrets failed")
         else:
             logger.info("Validated imported secrets")
-    
+
     # Import secrets from Pulumi ESC if requested
     if from_pulumi:
         # Run secrets_manager.py to import from Pulumi ESC
@@ -288,18 +302,25 @@ def setup_repository(repo_name: str, source_env: Optional[str] = None, from_pulu
             logger.warning("Import from Pulumi ESC failed")
         else:
             logger.info("Imported secrets from Pulumi ESC")
-    
+
     logger.info(f"Repository setup complete: {repo_path}")
     return True
 
+
 def main():
     parser = argparse.ArgumentParser(description="Sophia AI Repository Setup Script")
-    parser.add_argument("--name", required=True, help="Name of the repository to create")
-    parser.add_argument("--source-env", help="Path to source .env file to import secrets from")
-    parser.add_argument("--from-pulumi", action="store_true", help="Import secrets from Pulumi ESC")
-    
+    parser.add_argument(
+        "--name", required=True, help="Name of the repository to create"
+    )
+    parser.add_argument(
+        "--source-env", help="Path to source .env file to import secrets from"
+    )
+    parser.add_argument(
+        "--from-pulumi", action="store_true", help="Import secrets from Pulumi ESC"
+    )
+
     args = parser.parse_args()
-    
+
     if setup_repository(args.name, args.source_env, args.from_pulumi):
         print(f"\n✅ Repository setup complete: {os.path.abspath(args.name)}")
         print("\nNext steps:")
@@ -309,6 +330,7 @@ def main():
     else:
         print("\n❌ Repository setup failed")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

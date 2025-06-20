@@ -1,22 +1,18 @@
-import asyncio
+
 import pulumi.automation as auto
 import snowflake.connector
-import paramiko
 from pinecone import Pinecone
 
+
 def test_deployment():
-    """
-    Validates the deployed infrastructure by checking connectivity and resource state.
+    """Validates the deployed infrastructure by checking connectivity and resource state.
     """
     print("--- Starting Infrastructure Deployment Validation ---")
     validation_results = {}
 
     # 1. Select the test stack and get its outputs
     try:
-        stack = auto.select_stack(
-            stack_name="iac-audit-test",
-            work_dir="."
-        )
+        stack = auto.select_stack(stack_name="iac-audit-test", work_dir=".")
         outputs = stack.outputs()
     except Exception as e:
         print(f"❌ Could not select stack or get outputs: {e}")
@@ -24,7 +20,9 @@ def test_deployment():
 
     # 2. Dynamically run validation checks based on available outputs
     if "lambda_labs" in outputs:
-        validation_results["Lambda Labs"] = validate_lambda_labs(outputs.get("lambda_labs"))
+        validation_results["Lambda Labs"] = validate_lambda_labs(
+            outputs.get("lambda_labs")
+        )
     else:
         print("⏭️ Lambda Labs outputs not found. Skipping validation.")
 
@@ -32,18 +30,17 @@ def test_deployment():
         validation_results["Snowflake"] = validate_snowflake(outputs.get("snowflake"))
     else:
         print("⏭️ Snowflake outputs not found. Skipping validation.")
-    
+
     if "pinecone" in outputs:
         validation_results["Pinecone"] = validate_pinecone(outputs.get("pinecone"))
     else:
         print("⏭️ Pinecone outputs not found. Skipping validation.")
 
-
     # 3. Report results
     print("\n--- Validation Summary ---")
     all_ok = True
     for component, result in validation_results.items():
-        status = '✅ OK' if result else '❌ FAILED'
+        status = "✅ OK" if result else "❌ FAILED"
         if not result:
             all_ok = False
         print(f"- {component}: {status}")
@@ -53,25 +50,29 @@ def test_deployment():
     else:
         print("\n❌ Some infrastructure components failed validation.")
 
+
 def validate_lambda_labs(lambda_outputs):
-    """ Validates the Lambda Labs instance by attempting an SSH connection. """
+    """Validates the Lambda Labs instance by attempting an SSH connection."""
     if not lambda_outputs:
         print("Lambda Labs outputs not found. Skipping validation.")
         return False
-    
+
     # This is a placeholder. A real implementation would need to securely
     # retrieve the private key and instance IP from the outputs.
     # For now, we'll just check that the outputs exist.
     print("Validating Lambda Labs outputs...")
-    if lambda_outputs.value.get("ssh_key_name") and lambda_outputs.value.get("instance_type"):
+    if lambda_outputs.value.get("ssh_key_name") and lambda_outputs.value.get(
+        "instance_type"
+    ):
         print("  - Lambda Labs outputs found.")
         return True
     else:
         print("  - Missing key outputs for Lambda Labs.")
         return False
 
+
 def validate_snowflake(snowflake_outputs):
-    """ Validates the Snowflake deployment by connecting and running a query. """
+    """Validates the Snowflake deployment by connecting and running a query."""
     if not snowflake_outputs:
         print("Snowflake outputs not found. Skipping validation.")
         return False
@@ -99,8 +100,9 @@ def validate_snowflake(snowflake_outputs):
         print(f"  - Snowflake connection failed: {e}")
         return False
 
+
 def validate_pinecone(pinecone_outputs):
-    """ Validates the Pinecone index by checking if it exists. """
+    """Validates the Pinecone index by checking if it exists."""
     if not pinecone_outputs:
         print("Pinecone outputs not found. Skipping validation.")
         return False
@@ -109,16 +111,19 @@ def validate_pinecone(pinecone_outputs):
     try:
         # API key would be fetched from Pulumi ESC.
         pc = Pinecone(api_key="key_placeholder")
-        index_name = pinecone_outputs.value.get("index_name") # Assuming this output exists
+        index_name = pinecone_outputs.value.get(
+            "index_name"
+        )  # Assuming this output exists
         if index_name in pc.list_indexes().names():
-             print(f"  - Pinecone index '{index_name}' found.")
-             return True
+            print(f"  - Pinecone index '{index_name}' found.")
+            return True
         else:
-             print(f"  - Pinecone index '{index_name}' not found.")
-             return False
+            print(f"  - Pinecone index '{index_name}' not found.")
+            return False
     except Exception as e:
         print(f"  - Pinecone validation failed: {e}")
         return False
 
+
 if __name__ == "__main__":
-    test_deployment() 
+    test_deployment()

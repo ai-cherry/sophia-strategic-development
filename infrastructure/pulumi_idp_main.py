@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Sophia AI - Pulumi IDP Main Infrastructure
+
 Replaces Retool with AI-powered dashboard platform
 """
 

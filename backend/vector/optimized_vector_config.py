@@ -6,10 +6,12 @@ Production-ready setup for Pinecone and Weaviate with advanced features
 import json
 import logging
 import os
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
 import time
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
 
 
 # Pinecone Configuration
@@ -106,7 +108,7 @@ class OptimizedVectorDatabaseManager:
         """Initialize and optimize Pinecone connection"""
         try:
             import pinecone
-            
+
             # Initialize with optimized settings
             pinecone.init(
                 api_key=self.pinecone_config.api_key,
@@ -126,7 +128,7 @@ class OptimizedVectorDatabaseManager:
         """Initialize and optimize Weaviate connection"""
         try:
             import weaviate
-            
+
             # Initialize with authentication and optimization
             auth_config = weaviate.AuthApiKey(api_key=self.weaviate_config.api_key)
             
@@ -152,7 +154,7 @@ class OptimizedVectorDatabaseManager:
     def verify_pinecone_indexes(self):
         """Verify and optimize Pinecone indexes"""
         import pinecone
-        
+
         # Check primary index
         if self.pinecone_config.primary_index not in pinecone.list_indexes():
             self.logger.warning(f"Primary index {self.pinecone_config.primary_index} not found")
@@ -351,7 +353,7 @@ index = comprehensive_memory_manager
     def search_pinecone(self, query: str, limit: int, filters: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Optimized Pinecone search with business intelligence focus"""
         import pinecone
-        
+
         # Get query embedding (would use actual embedding service)
         query_vector = self.get_embedding(query)
         
@@ -606,6 +608,7 @@ index = comprehensive_memory_manager
         try:
             start_time = time.time()
             import pinecone
+
             # Replaced pinecone.Index with ComprehensiveMemoryManager
 # Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
 # Original: index = pinecone.Index(self.pinecone_config.primary_index)

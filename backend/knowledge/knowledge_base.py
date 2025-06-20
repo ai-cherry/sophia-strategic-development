@@ -3,23 +3,25 @@ Sophia AI Knowledge Base Implementation
 Contained Company Knowledge Base System for Pay Ready
 """
 
-import os
-import json
 import hashlib
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
+import json
 import logging
+import os
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from sqlalchemy import create_engine, Column, String, Text, DateTime, Integer, Boolean, JSON
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 import pinecone
 import weaviate
 from sentence_transformers import SentenceTransformer
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+from sqlalchemy import (JSON, Boolean, Column, DateTime, Integer, String, Text,
+                        create_engine)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
+from backend.core.comprehensive_memory_manager import (
+    MemoryOperationType, MemoryRequest, comprehensive_memory_manager)
 
 logger = logging.getLogger(__name__)
 

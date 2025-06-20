@@ -1,15 +1,15 @@
-import asyncio
 import logging
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
-from ..core.base_agent import BaseAgent, AgentConfig, AgentCapability, Task, create_agent_response
+from ..core.base_agent import AgentCapability, BaseAgent, Task, create_agent_response
 
 logger = logging.getLogger(__name__)
 
+
 class EnrichmentAgent(BaseAgent):
+    """Enriches internal data with information from external sources.
     """
-    Enriches internal data with information from external sources.
-    """
+
     async def get_capabilities(self) -> List[AgentCapability]:
         return [
             AgentCapability(
@@ -17,18 +17,19 @@ class EnrichmentAgent(BaseAgent):
                 description="Enriches a company profile using external data sources.",
                 input_types=["company_name"],
                 output_types=["enriched_company_profile"],
-                estimated_duration=45.0
+                estimated_duration=45.0,
             )
         ]
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """
-        Processes a task to enrich data.
+        """Processes a task to enrich data.
         """
         if task.task_type == "enrich_company_data":
             company_name = task.task_data.get("company_name")
             if not company_name:
-                return await create_agent_response(False, error="company_name is required.")
+                return await create_agent_response(
+                    False, error="company_name is required."
+                )
 
             # --- Implementation Roadmap ---
             # 1. Call the Apollo.io integration to get company details (headcount, funding, etc.).
@@ -47,9 +48,11 @@ class EnrichmentAgent(BaseAgent):
                 "key_contacts": [
                     {"name": "Jane Doe", "title": "VP of Engineering"},
                 ],
-                "recent_news": "Placeholder: a recent news article about the company."
+                "recent_news": "Placeholder: a recent news article about the company.",
             }
 
             return await create_agent_response(True, data=enriched_profile)
         else:
-            return await create_agent_response(False, error=f"Unknown task type: {task.task_type}") 
+            return await create_agent_response(
+                False, error=f"Unknown task type: {task.task_type}"
+            )

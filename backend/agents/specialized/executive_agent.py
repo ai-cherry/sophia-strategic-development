@@ -1,20 +1,27 @@
 import asyncio
+import json
 import logging
 import uuid
-from typing import List, Dict, Any
-import openai
-import json
+from typing import Any, Dict, List
 
-from ..core.base_agent import BaseAgent, AgentConfig, AgentCapability, Task, create_agent_response
-from ..core.agent_router import agent_router
+import openai
+
 from ...core.config_manager import get_secret
+from ..core.agent_router import agent_router
+from ..core.base_agent import (
+    AgentConfig,
+    BaseAgent,
+    Task,
+    create_agent_response,
+)
 
 logger = logging.getLogger(__name__)
 
+
 class ExecutiveAgent(BaseAgent):
+    """Serves as the CEO's dedicated interface for strategic intelligence and orchestration.
     """
-    Serves as the CEO's dedicated interface for strategic intelligence and orchestration.
-    """
+
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.agent_router = agent_router
@@ -30,20 +37,19 @@ class ExecutiveAgent(BaseAgent):
                 logger.error(f"Failed to initialize OpenAI client: {e}")
 
     async def _get_deal_info_from_crm(self, deal_name: str) -> Dict[str, Any]:
-        """ Mocks a CRM lookup to get IDs associated with a deal. """
+        """Mocks a CRM lookup to get IDs associated with a deal."""
         logger.info(f"Mock CRM lookup for deal: {deal_name}")
         # In a real system, this would query your CRM (e.g., HubSpot)
         # to find the company, associated calls, etc.
         return {
             "deal_name": deal_name,
-            "client_id": "client_abc_123", # Placeholder
-            "primary_competitor": "CompetitorX", # Placeholder
-            "gong_call_ids": ["gong_call_1", "gong_call_2"] # Placeholder
+            "client_id": "client_abc_123",  # Placeholder
+            "primary_competitor": "CompetitorX",  # Placeholder
+            "gong_call_ids": ["gong_call_1", "gong_call_2"],  # Placeholder
         }
 
     async def _decompose_strategic_question(self, question: str) -> List[Task]:
-        """
-        Decomposes a high-level strategic question into a sequence of tasks.
+        """Decomposes a high-level strategic question into a sequence of tasks.
         """
         logger.info(f"Decomposing strategic question: {question}")
         tasks = []
@@ -52,22 +58,45 @@ class ExecutiveAgent(BaseAgent):
         # Improved decomposition for Deal Loss Analysis
         if "deal loss" in question_lower or "why did we lose" in question_lower:
             # This is still simplified. A real system might use an LLM to parse the deal name.
-            deal_name = "the Acme deal" # Placeholder
+            deal_name = "the Acme deal"  # Placeholder
             deal_info = await self._get_deal_info_from_crm(deal_name)
 
             # Task for Client Health Agent
-            tasks.append(Task(task_id=f"task_{uuid.uuid4().hex}", task_type="calculate_health_score", agent_id="client_health", task_data={"client_id": deal_info["client_id"]}))
-            
+            tasks.append(
+                Task(
+                    task_id=f"task_{uuid.uuid4().hex}",
+                    task_type="calculate_health_score",
+                    agent_id="client_health",
+                    task_data={"client_id": deal_info["client_id"]},
+                )
+            )
+
             # Task for Marketing Agent (competitive analysis)
-            tasks.append(Task(task_id=f"task_{uuid.uuid4().hex}", task_type="generate_competitive_analysis", agent_id="marketing", task_data={"competitor_name": deal_info["primary_competitor"]}))
-            
+            tasks.append(
+                Task(
+                    task_id=f"task_{uuid.uuid4().hex}",
+                    task_type="generate_competitive_analysis",
+                    agent_id="marketing",
+                    task_data={"competitor_name": deal_info["primary_competitor"]},
+                )
+            )
+
             # Tasks for Sales Coach Agent (one for each call)
             for call_id in deal_info["gong_call_ids"]:
-                tasks.append(Task(task_id=f"task_{uuid.uuid4().hex}", task_type="analyze_gong_call", agent_id="sales_coach", task_data={"gong_call_id": call_id}))
-        
+                tasks.append(
+                    Task(
+                        task_id=f"task_{uuid.uuid4().hex}",
+                        task_type="analyze_gong_call",
+                        agent_id="sales_coach",
+                        task_data={"gong_call_id": call_id},
+                    )
+                )
+
         return tasks
 
-    async def _synthesize_results_with_llm(self, question: str, results: List[Dict]) -> str:
+    async def _synthesize_results_with_llm(
+        self, question: str, results: List[Dict]
+    ) -> str:
         """Uses an LLM to synthesize agent results into a narrative briefing."""
         if not self.openai_client:
             await self._initialize_llm()
@@ -83,7 +112,7 @@ class ExecutiveAgent(BaseAgent):
         ---
         """
         for res in results:
-            if res.get('success'):
+            if res.get("success"):
                 prompt += f"\n**Source Agent: {res.get('agent_id', 'Unknown')}**\n"
                 prompt += f"```json\n{json.dumps(res.get('data'), indent=2)}\n```\n---"
 
@@ -108,35 +137,42 @@ class ExecutiveAgent(BaseAgent):
             return f"Error during synthesis: {e}"
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """
-        Processes a strategic query by decomposing it, routing sub-tasks, and synthesizing the results.
+        """Processes a strategic query by decomposing it, routing sub-tasks, and synthesizing the results.
         """
         if task.task_type == "strategic_synthesis_query":
             strategic_question = task.task_data.get("strategic_question")
             if not strategic_question:
-                return await create_agent_response(False, error="strategic_question is required.")
+                return await create_agent_response(
+                    False, error="strategic_question is required."
+                )
 
             sub_tasks = await self._decompose_strategic_question(strategic_question)
             if not sub_tasks:
-                 return await create_agent_response(False, error="Could not decompose the strategic question.")
+                return await create_agent_response(
+                    False, error="Could not decompose the strategic question."
+                )
 
             # Concurrently execute all sub-tasks
             task_handlers = []
             for sub_task in sub_tasks:
                 handler = self.agent_router.agents[sub_task.agent_id].handler
                 task_handlers.append(handler(sub_task))
-            
+
             results = await asyncio.gather(*task_handlers, return_exceptions=True)
 
             # Synthesize the results into a coherent narrative
-            final_briefing = await self._synthesize_results_with_llm(strategic_question, results)
-            
+            final_briefing = await self._synthesize_results_with_llm(
+                strategic_question, results
+            )
+
             # Add the raw data for drill-down capabilities in the UI
             response_data = {
                 "executive_briefing": final_briefing,
-                "supporting_data": results
+                "supporting_data": results,
             }
 
             return await create_agent_response(True, data=response_data)
         else:
-            return await create_agent_response(False, error=f"Unknown task type: {task.task_type}") 
+            return await create_agent_response(
+                False, error=f"Unknown task type: {task.task_type}"
+            )

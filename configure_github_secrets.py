@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-SOPHIA AI System - GitHub Secrets Configuration Script
+"""SOPHIA AI System - GitHub Secrets Configuration Script
 
 This script configures GitHub repository secrets for CI/CD workflows.
 It reads secrets from a .env file and sets them as GitHub repository secrets.
@@ -19,7 +18,7 @@ import os
 import sys
 from base64 import b64encode
 from getpass import getpass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 
 try:
     from github import Github, GithubException, Repository
@@ -92,7 +91,7 @@ def read_env_file(file_path: str) -> Dict[str, str]:
                 secrets[key.strip()] = value.strip()
             except ValueError:
                 print(f"Warning: Skipping invalid line: {line}")
-    
+
     return secrets
 
 
@@ -122,13 +121,13 @@ def set_repo_secrets(
 ) -> None:
     """Set repository secrets."""
     public_key = repo.get_public_key()
-    
+
     for key, value in secrets.items():
         # Skip empty values
         if not value:
             print(f"Skipping empty secret: {key}")
             continue
-            
+
         if dry_run:
             print(f"Would set secret: {key}")
         else:
@@ -153,7 +152,9 @@ def list_repo_secrets(repo: Repository.Repository) -> None:
         print(f"Error listing secrets: {e}")
 
 
-def delete_repo_secret(repo: Repository.Repository, secret_name: str, dry_run: bool = False) -> None:
+def delete_repo_secret(
+    repo: Repository.Repository, secret_name: str, dry_run: bool = False
+) -> None:
     """Delete a repository secret."""
     if dry_run:
         print(f"Would delete secret: {secret_name}")
@@ -182,14 +183,14 @@ def delete_all_repo_secrets(repo: Repository.Repository, dry_run: bool = False) 
 def main() -> None:
     """Main function."""
     args = parse_args()
-    
+
     # Get GitHub token
     token = args.token
     if not token:
         token = os.environ.get("GITHUB_TOKEN")
         if not token:
             token = getpass("GitHub Personal Access Token: ")
-    
+
     # Get repository name
     repo_name = args.repo
     if not repo_name:
@@ -198,35 +199,40 @@ def main() -> None:
             # Try to get from git remote
             try:
                 import subprocess
+
                 remote_url = subprocess.check_output(
-                    ["git", "config", "--get", "remote.origin.url"], 
-                    universal_newlines=True
+                    ["git", "config", "--get", "remote.origin.url"],
+                    universal_newlines=True,
                 ).strip()
                 if "github.com" in remote_url:
                     if remote_url.startswith("git@github.com:"):
-                        repo_name = remote_url.split("git@github.com:")[1].split(".git")[0]
+                        repo_name = remote_url.split("git@github.com:")[1].split(
+                            ".git"
+                        )[0]
                     elif remote_url.startswith("https://github.com/"):
-                        repo_name = remote_url.split("https://github.com/")[1].split(".git")[0]
+                        repo_name = remote_url.split("https://github.com/")[1].split(
+                            ".git"
+                        )[0]
             except (subprocess.SubprocessError, IndexError):
                 pass
-            
+
             if not repo_name:
                 repo_name = input("GitHub Repository (owner/repo): ")
-    
+
     # Get repository
     repo = get_github_repo(token, repo_name)
     print(f"Connected to GitHub repository: {repo.full_name}")
-    
+
     # List secrets
     if args.list:
         list_repo_secrets(repo)
         return
-    
+
     # Delete a specific secret
     if args.delete:
         delete_repo_secret(repo, args.delete, args.dry_run)
         return
-    
+
     # Delete all secrets
     if args.delete_all:
         confirm = input("Are you sure you want to delete ALL secrets? (y/N): ")
@@ -235,14 +241,14 @@ def main() -> None:
         else:
             print("Operation cancelled.")
         return
-    
+
     # Read secrets from .env file
     secrets = read_env_file(args.env_file)
     print(f"Read {len(secrets)} secrets from {args.env_file}")
-    
+
     # Set secrets
     set_repo_secrets(repo, secrets, args.dry_run)
-    
+
     if not args.dry_run:
         print("\nAll secrets have been configured successfully.")
         print("You can now use these secrets in your GitHub Actions workflows.")

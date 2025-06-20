@@ -1,9 +1,11 @@
-"""
-Simple test script to verify MCP client functionality
+"""Simple test script to verify MCP client functionality
 """
 import asyncio
+
 import aiohttp
+
 from backend.mcp.mcp_client import MCPClient
+
 
 async def test_gateway_health(gateway_url: str = "http://localhost:8090"):
     """Test if the MCP gateway is healthy"""
@@ -26,6 +28,7 @@ async def test_gateway_health(gateway_url: str = "http://localhost:8090"):
         print(f"Unexpected error: {e}")
         return False
 
+
 async def test_servers_endpoint(gateway_url: str = "http://localhost:8090"):
     """Test if the MCP gateway's servers endpoint is working"""
     print(f"Testing servers endpoint at {gateway_url}/servers...")
@@ -47,15 +50,16 @@ async def test_servers_endpoint(gateway_url: str = "http://localhost:8090"):
         print(f"Unexpected error: {e}")
         return False
 
+
 async def main():
     """Main function"""
     # Test gateway health
     health_ok = await test_gateway_health()
-    
+
     if health_ok:
         # Test servers endpoint
         await test_servers_endpoint()
-    
+
     # Try to create and connect an MCPClient
     print("\nTesting MCPClient...")
     client = MCPClient()
@@ -69,6 +73,7 @@ async def main():
     finally:
         if client.session:
             await client.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

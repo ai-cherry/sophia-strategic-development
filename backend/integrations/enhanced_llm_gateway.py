@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 class EnhancedLLMGateway:
     """Route LLM requests with intelligent model selection."""
 
-    def __init__(self, portkey_api_key: str, openrouter_api_key: str | None = None) -> None:
+    def __init__(
+        self, portkey_api_key: str, openrouter_api_key: str | None = None
+    ) -> None:
         self.portkey_key = portkey_api_key
         self.openrouter_key = openrouter_api_key
         self.client = httpx.AsyncClient(timeout=60)
@@ -24,11 +26,15 @@ class EnhancedLLMGateway:
 
     async def _post(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         headers = {"x-portkey-api-key": self.portkey_key}
-        resp = await self.client.post(f"{self.base_url}/chat/completions", json=payload, headers=headers)
+        resp = await self.client.post(
+            f"{self.base_url}/chat/completions", json=payload, headers=headers
+        )
         resp.raise_for_status()
         return resp.json()
 
-    async def chat(self, messages: List[Dict[str, str]], task: str = "reasoning") -> Dict[str, Any]:
+    async def chat(
+        self, messages: List[Dict[str, str]], task: str = "reasoning"
+    ) -> Dict[str, Any]:
         model_map = {
             "structured_output": ["claude-3-opus", "claude-3-sonnet"],
             "reasoning": ["gpt-4o", "gemini-1.5-pro"],

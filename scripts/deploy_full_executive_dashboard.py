@@ -1,30 +1,28 @@
 #!/usr/bin/env python3
-"""
-Full Executive Dashboard Deployment Script
+"""Full Executive Dashboard Deployment Script
 Deploys a fully functional CEO dashboard using the complete Sophia AI architecture
 """
 
-import os
-import sys
-import json
-import time
 import asyncio
-import subprocess
+import json
 import logging
+import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Optional
+
 import requests
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class ExecutiveDashboardDeployer:
     """Handles the complete deployment of the executive dashboard"""
-    
+
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
         self.backend_dir = self.project_root / "backend"
@@ -34,9 +32,9 @@ class ExecutiveDashboardDeployer:
             "backend": False,
             "mcp_servers": False,
             "dashboard": False,
-            "testing": False
+            "testing": False,
         }
-        
+
     def run_command(self, command: str, cwd: Optional[Path] = None) -> tuple[bool, str]:
         """Execute a shell command and return success status and output"""
         try:
@@ -45,16 +43,16 @@ class ExecutiveDashboardDeployer:
                 shell=True,
                 cwd=cwd or self.project_root,
                 capture_output=True,
-                text=True
+                text=True,
             )
             return result.returncode == 0, result.stdout + result.stderr
         except Exception as e:
             return False, str(e)
-    
+
     async def fix_backend_imports(self):
         """Fix import issues in backend files"""
         logger.info("Fixing backend import issues...")
-        
+
         # Create missing modules
         missing_modules = [
             "backend/agents/specialized/pay_ready_agents.py",
@@ -62,14 +60,14 @@ class ExecutiveDashboardDeployer:
             "backend/analytics/real_time_business_intelligence.py",
             "backend/app/api/__init__.py",
             "backend/app/api/file_processing_router.py",
-            "backend/app/api/hybrid_rag_router.py"
+            "backend/app/api/hybrid_rag_router.py",
         ]
-        
+
         for module_path in missing_modules:
             file_path = self.project_root / module_path
             if not file_path.exists():
                 file_path.parent.mkdir(parents=True, exist_ok=True)
-                
+
                 # Create basic module content
                 if "pay_ready_agents" in module_path:
                     content = self._create_pay_ready_agents_module()
@@ -81,12 +79,12 @@ class ExecutiveDashboardDeployer:
                     content = '"""API module initialization"""'
                 else:
                     content = self._create_router_module(module_path)
-                
+
                 file_path.write_text(content)
                 logger.info(f"Created missing module: {module_path}")
-        
+
         return True
-    
+
     def _create_pay_ready_agents_module(self) -> str:
         return '''"""Pay Ready Agent Orchestrator Module"""
 from enum import Enum
@@ -225,7 +223,7 @@ async def root():
     async def setup_simplified_backend(self):
         """Create a simplified backend that works"""
         logger.info("Setting up simplified backend...")
-        
+
         # Create simplified main.py
         simplified_main = '''"""Simplified Sophia AI Backend"""
 import os
@@ -335,35 +333,35 @@ async def get_executive_alerts():
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 '''
-        
+
         # Write simplified backend
         simplified_path = self.backend_dir / "main_simplified.py"
         simplified_path.write_text(simplified_main)
         logger.info("Created simplified backend")
-        
+
         return True
-    
+
     async def start_backend_server(self):
         """Start the backend server"""
         logger.info("Starting backend server...")
-        
+
         # First, fix imports
         await self.fix_backend_imports()
-        
+
         # Create simplified backend
         await self.setup_simplified_backend()
-        
+
         # Start the server in background
         cmd = f"cd {self.backend_dir} && python main_simplified.py > backend.log 2>&1 &"
         success, output = self.run_command(cmd)
-        
+
         if success:
             logger.info("Backend server started")
             self.deployment_status["backend"] = True
-            
+
             # Wait for server to be ready
             await asyncio.sleep(3)
-            
+
             # Test the server
             try:
                 response = requests.get("http://localhost:8000/health")
@@ -372,14 +370,14 @@ if __name__ == "__main__":
                     return True
             except:
                 pass
-                
+
         logger.error("Failed to start backend server")
         return False
-    
+
     async def deploy_retool_dashboard(self):
         """Deploy the Retool dashboard"""
         logger.info("Deploying Retool dashboard...")
-        
+
         # Create dashboard configuration
         dashboard_config = {
             "name": "Sophia AI Executive Dashboard",
@@ -390,30 +388,30 @@ if __name__ == "__main__":
                 "customer_analytics",
                 "ai_insights",
                 "operational_kpis",
-                "alert_center"
-            ]
+                "alert_center",
+            ],
         }
-        
+
         # Save configuration
         config_path = self.project_root / "dashboard_config.json"
         config_path.write_text(json.dumps(dashboard_config, indent=2))
-        
+
         logger.info("Dashboard configuration created")
         self.deployment_status["dashboard"] = True
-        
+
         return True
-    
+
     async def test_deployment(self):
         """Test the complete deployment"""
         logger.info("Testing deployment...")
-        
+
         tests = {
             "Backend API": "http://localhost:8000/health",
             "Executive Summary": "http://localhost:8000/api/executive/summary",
             "Metrics Endpoint": "http://localhost:8000/api/executive/metrics",
-            "Alerts Endpoint": "http://localhost:8000/api/executive/alerts"
+            "Alerts Endpoint": "http://localhost:8000/api/executive/alerts",
         }
-        
+
         all_passed = True
         for test_name, url in tests.items():
             try:
@@ -421,70 +419,78 @@ if __name__ == "__main__":
                 if response.status_code == 200:
                     logger.info(f"✓ {test_name} - PASSED")
                 else:
-                    logger.error(f"✗ {test_name} - FAILED (Status: {response.status_code})")
+                    logger.error(
+                        f"✗ {test_name} - FAILED (Status: {response.status_code})"
+                    )
                     all_passed = False
             except Exception as e:
                 logger.error(f"✗ {test_name} - FAILED ({str(e)})")
                 all_passed = False
-        
+
         self.deployment_status["testing"] = all_passed
         return all_passed
-    
+
     async def deploy(self):
         """Run the complete deployment"""
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info("SOPHIA AI EXECUTIVE DASHBOARD DEPLOYMENT")
-        logger.info("="*60)
-        
+        logger.info("=" * 60)
+
         try:
             # Step 1: Start backend server
             if await self.start_backend_server():
                 logger.info("✓ Backend server deployed")
             else:
                 raise Exception("Backend deployment failed")
-            
+
             # Step 2: Deploy dashboard
             if await self.deploy_retool_dashboard():
                 logger.info("✓ Dashboard deployed")
             else:
                 raise Exception("Dashboard deployment failed")
-            
+
             # Step 3: Test everything
             if await self.test_deployment():
                 logger.info("✓ All tests passed")
             else:
                 logger.warning("Some tests failed, but deployment completed")
-            
+
             # Print access information
-            logger.info("\n" + "="*60)
+            logger.info("\n" + "=" * 60)
             logger.info("DEPLOYMENT SUCCESSFUL!")
-            logger.info("="*60)
+            logger.info("=" * 60)
             logger.info("\nAccess your executive dashboard:")
             logger.info("- API Endpoint: http://localhost:8000")
             logger.info("- API Documentation: http://localhost:8000/docs")
-            logger.info("- Executive Summary: http://localhost:8000/api/executive/summary")
+            logger.info(
+                "- Executive Summary: http://localhost:8000/api/executive/summary"
+            )
             logger.info("\nNext steps:")
             logger.info("1. Configure Retool to connect to the API")
             logger.info("2. Import the dashboard template")
             logger.info("3. Customize for your specific needs")
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Deployment failed: {str(e)}")
             logger.info("\nDeployment Status:")
             for component, status in self.deployment_status.items():
                 status_icon = "✓" if status else "✗"
-                logger.info(f"{status_icon} {component.title()}: {'Success' if status else 'Failed'}")
+                logger.info(
+                    f"{status_icon} {component.title()}: {'Success' if status else 'Failed'}"
+                )
             return False
+
 
 async def main():
     """Main deployment function"""
     deployer = ExecutiveDashboardDeployer()
     success = await deployer.deploy()
-    
+
     if not success:
         sys.exit(1)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

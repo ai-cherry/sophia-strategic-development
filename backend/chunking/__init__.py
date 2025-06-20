@@ -1,5 +1,4 @@
-"""
-Sophia AI Chunking System
+"""Sophia AI Chunking System
 """
 from .document_chunker import DocumentChunker
 from .semantic_chunker import SemanticChunker
@@ -9,4 +8,4 @@ __all__ = [
     "DocumentChunker",
     "SemanticChunker",
     "SophiaChunkingPipeline",
-] 
+]

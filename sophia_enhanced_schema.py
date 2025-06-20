@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
-"""
-Enhanced Sophia Database Schema for Complete Gong Integration
+"""Enhanced Sophia Database Schema for Complete Gong Integration
 Implements production-ready schema with all Gong data types and apartment industry intelligence
 """
 
 import asyncio
-import asyncpg
 import json
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+import asyncpg
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class SophiaEnhancedSchema:
     """Enhanced database schema for complete Gong integration"""
-    
+
     def __init__(self, database_url: str = None):
-        self.database_url = database_url or "postgresql://postgres:password@localhost:5432/sophia_enhanced"
+        self.database_url = (
+            database_url
+            or "postgresql://postgres:password@localhost:5432/sophia_enhanced"
+        )
         self.schema_version = "3.0"
         self.connection = None
-    
+
     async def connect(self):
         """Connect to PostgreSQL database"""
         try:
@@ -32,17 +36,17 @@ class SophiaEnhancedSchema:
         except Exception as e:
             logger.error(f"❌ Database connection failed: {e}")
             return False
-    
+
     async def close(self):
         """Close database connection"""
         if self.connection:
             await self.connection.close()
             logger.info("🔌 Database connection closed")
-    
+
     async def create_enhanced_schema(self):
         """Create complete enhanced schema for Gong integration"""
         logger.info("🏗️ Creating enhanced database schema for Gong integration")
-        
+
         # Core Gong tables
         await self.create_gong_workspaces_table()
         await self.create_gong_users_table()
@@ -53,26 +57,26 @@ class SophiaEnhancedSchema:
         await self.create_gong_tracker_occurrences_table()
         await self.create_gong_emails_table()
         await self.create_gong_webhook_events_table()
-        
+
         # Sophia intelligence tables
         await self.create_sophia_conversation_intelligence_table()
         await self.create_sophia_apartment_analysis_table()
         await self.create_sophia_competitive_intelligence_table()
         await self.create_sophia_deal_signals_table()
-        
+
         # Admin and management tables
         await self.create_admin_search_history_table()
         await self.create_manual_uploads_table()
         await self.create_schema_migrations_table()
-        
+
         # Create indexes for performance
         await self.create_performance_indexes()
-        
+
         # Record schema version
         await self.record_schema_version()
-        
+
         logger.info("✅ Enhanced database schema created successfully")
-    
+
     async def create_gong_workspaces_table(self):
         """Create Gong workspaces table"""
         sql = """
@@ -90,7 +94,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📊 Created gong_workspaces table")
-    
+
     async def create_gong_users_table(self):
         """Create Gong users table"""
         sql = """
@@ -114,7 +118,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("👥 Created gong_users table")
-    
+
     async def create_gong_calls_table(self):
         """Create comprehensive Gong calls table"""
         sql = """
@@ -146,7 +150,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📞 Created gong_calls table")
-    
+
     async def create_gong_participants_table(self):
         """Create Gong call participants table"""
         sql = """
@@ -171,7 +175,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("👤 Created gong_participants table")
-    
+
     async def create_gong_ai_content_table(self):
         """Create Gong AI content table"""
         sql = """
@@ -189,7 +193,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🧠 Created gong_ai_content table")
-    
+
     async def create_gong_trackers_table(self):
         """Create Gong trackers configuration table"""
         sql = """
@@ -211,7 +215,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🎯 Created gong_trackers table")
-    
+
     async def create_gong_tracker_occurrences_table(self):
         """Create Gong tracker occurrences table"""
         sql = """
@@ -232,7 +236,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📍 Created gong_tracker_occurrences table")
-    
+
     async def create_gong_emails_table(self):
         """Create Gong emails table for manual uploads"""
         sql = """
@@ -263,7 +267,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📧 Created gong_emails table")
-    
+
     async def create_gong_webhook_events_table(self):
         """Create Gong webhook events table"""
         sql = """
@@ -284,7 +288,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🔗 Created gong_webhook_events table")
-    
+
     async def create_sophia_conversation_intelligence_table(self):
         """Create Sophia conversation intelligence table"""
         sql = """
@@ -309,7 +313,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🧠 Created sophia_conversation_intelligence table")
-    
+
     async def create_sophia_apartment_analysis_table(self):
         """Create Sophia apartment industry analysis table"""
         sql = """
@@ -331,7 +335,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🏢 Created sophia_apartment_analysis table")
-    
+
     async def create_sophia_competitive_intelligence_table(self):
         """Create Sophia competitive intelligence table"""
         sql = """
@@ -353,7 +357,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🏆 Created sophia_competitive_intelligence table")
-    
+
     async def create_sophia_deal_signals_table(self):
         """Create Sophia deal signals table"""
         sql = """
@@ -377,7 +381,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📈 Created sophia_deal_signals table")
-    
+
     async def create_admin_search_history_table(self):
         """Create admin search history table"""
         sql = """
@@ -393,7 +397,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🔍 Created admin_search_history table")
-    
+
     async def create_manual_uploads_table(self):
         """Create manual uploads tracking table"""
         sql = """
@@ -415,7 +419,7 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("📤 Created manual_uploads table")
-    
+
     async def create_schema_migrations_table(self):
         """Create schema migrations tracking table"""
         sql = """
@@ -430,11 +434,11 @@ class SophiaEnhancedSchema:
         """
         await self.connection.execute(sql)
         logger.info("🔄 Created schema_migrations table")
-    
+
     async def create_performance_indexes(self):
         """Create performance-optimized indexes"""
         logger.info("⚡ Creating performance indexes")
-        
+
         indexes = [
             # Gong calls indexes
             "CREATE INDEX IF NOT EXISTS idx_gong_calls_started ON gong_calls(started)",
@@ -444,63 +448,54 @@ class SophiaEnhancedSchema:
             "CREATE INDEX IF NOT EXISTS idx_gong_calls_apartment_relevance ON gong_calls(apartment_relevance_score)",
             "CREATE INDEX IF NOT EXISTS idx_gong_calls_business_impact ON gong_calls(business_impact_score)",
             "CREATE INDEX IF NOT EXISTS idx_gong_calls_processing_status ON gong_calls(processing_status)",
-            
             # Participants indexes
             "CREATE INDEX IF NOT EXISTS idx_gong_participants_call ON gong_participants(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_gong_participants_email ON gong_participants(email_address)",
             "CREATE INDEX IF NOT EXISTS idx_gong_participants_company ON gong_participants(company_name)",
-            
             # AI content indexes
             "CREATE INDEX IF NOT EXISTS idx_gong_ai_content_call ON gong_ai_content(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_gong_ai_content_type ON gong_ai_content(content_type)",
             "CREATE INDEX IF NOT EXISTS idx_gong_ai_content_confidence ON gong_ai_content(ai_confidence_score)",
-            
             # Tracker occurrences indexes
             "CREATE INDEX IF NOT EXISTS idx_tracker_occurrences_call ON gong_tracker_occurrences(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_tracker_occurrences_tracker ON gong_tracker_occurrences(tracker_id)",
             "CREATE INDEX IF NOT EXISTS idx_tracker_occurrences_apartment ON gong_tracker_occurrences(apartment_relevance)",
-            
             # Emails indexes
             "CREATE INDEX IF NOT EXISTS idx_gong_emails_from ON gong_emails(from_email)",
             "CREATE INDEX IF NOT EXISTS idx_gong_emails_sent ON gong_emails(sent_timestamp)",
             "CREATE INDEX IF NOT EXISTS idx_gong_emails_thread ON gong_emails(thread_id)",
             "CREATE INDEX IF NOT EXISTS idx_gong_emails_apartment_relevance ON gong_emails(apartment_relevance_score)",
-            
             # Sophia intelligence indexes
             "CREATE INDEX IF NOT EXISTS idx_sophia_intelligence_call ON sophia_conversation_intelligence(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_sophia_intelligence_apartment ON sophia_conversation_intelligence(apartment_relevance_score)",
             "CREATE INDEX IF NOT EXISTS idx_sophia_intelligence_business ON sophia_conversation_intelligence(business_impact_score)",
             "CREATE INDEX IF NOT EXISTS idx_sophia_intelligence_timestamp ON sophia_conversation_intelligence(processing_timestamp)",
-            
             # Competitive intelligence indexes
             "CREATE INDEX IF NOT EXISTS idx_competitive_intelligence_call ON sophia_competitive_intelligence(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_competitive_intelligence_threat ON sophia_competitive_intelligence(competitive_threat_level)",
-            
             # Deal signals indexes
             "CREATE INDEX IF NOT EXISTS idx_deal_signals_call ON sophia_deal_signals(call_id)",
             "CREATE INDEX IF NOT EXISTS idx_deal_signals_stage ON sophia_deal_signals(deal_progression_stage)",
             "CREATE INDEX IF NOT EXISTS idx_deal_signals_probability ON sophia_deal_signals(win_probability)",
-            
             # Search and admin indexes
             "CREATE INDEX IF NOT EXISTS idx_search_history_timestamp ON admin_search_history(search_timestamp)",
             "CREATE INDEX IF NOT EXISTS idx_manual_uploads_timestamp ON manual_uploads(upload_timestamp)",
             "CREATE INDEX IF NOT EXISTS idx_manual_uploads_type ON manual_uploads(upload_type)",
-            
             # Full-text search indexes
             "CREATE INDEX IF NOT EXISTS idx_gong_calls_title_fts ON gong_calls USING gin(to_tsvector('english', title))",
             "CREATE INDEX IF NOT EXISTS idx_gong_ai_content_fts ON gong_ai_content USING gin(to_tsvector('english', content_text))",
             "CREATE INDEX IF NOT EXISTS idx_gong_emails_subject_fts ON gong_emails USING gin(to_tsvector('english', subject_line))",
-            "CREATE INDEX IF NOT EXISTS idx_gong_emails_body_fts ON gong_emails USING gin(to_tsvector('english', email_body))"
+            "CREATE INDEX IF NOT EXISTS idx_gong_emails_body_fts ON gong_emails USING gin(to_tsvector('english', email_body))",
         ]
-        
+
         for index_sql in indexes:
             try:
                 await self.connection.execute(index_sql)
             except Exception as e:
                 logger.warning(f"Index creation warning: {e}")
-        
+
         logger.info("✅ Performance indexes created")
-    
+
     async def record_schema_version(self):
         """Record current schema version"""
         migration_sql = """
@@ -511,16 +506,16 @@ class SophiaEnhancedSchema:
             migration_description = EXCLUDED.migration_description,
             applied_timestamp = CURRENT_TIMESTAMP
         """
-        
+
         await self.connection.execute(
             migration_sql,
             f"schema_v{self.schema_version}",
             self.schema_version,
-            "Enhanced Sophia database schema for complete Gong integration"
+            "Enhanced Sophia database schema for complete Gong integration",
         )
-        
+
         logger.info(f"📝 Recorded schema version {self.schema_version}")
-    
+
     async def get_schema_info(self):
         """Get comprehensive schema information"""
         tables_sql = """
@@ -531,85 +526,86 @@ class SophiaEnhancedSchema:
         WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
         ORDER BY table_name
         """
-        
+
         tables = await self.connection.fetch(tables_sql)
-        
+
         indexes_sql = """
         SELECT schemaname, tablename, indexname, indexdef
         FROM pg_indexes
         WHERE schemaname = 'public'
         ORDER BY tablename, indexname
         """
-        
+
         indexes = await self.connection.fetch(indexes_sql)
-        
+
         return {
             "schema_version": self.schema_version,
             "tables": [dict(row) for row in tables],
             "indexes": [dict(row) for row in indexes],
             "total_tables": len(tables),
-            "total_indexes": len(indexes)
+            "total_indexes": len(indexes),
         }
+
 
 async def deploy_enhanced_schema():
     """Deploy enhanced schema with comprehensive logging"""
     logger.info("🚀 Starting Enhanced Sophia Database Schema Deployment")
-    
+
     # Database connection parameters
     db_config = {
         "host": "localhost",
         "port": 5432,
         "database": "sophia_enhanced",
         "user": "postgres",
-        "password": "password"
+        "password": "password",
     }
-    
+
     database_url = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['database']}"
-    
+
     schema_manager = SophiaEnhancedSchema(database_url)
-    
+
     try:
         # Connect to database
         connected = await schema_manager.connect()
         if not connected:
             logger.error("❌ Failed to connect to database")
             return False
-        
+
         # Create enhanced schema
         await schema_manager.create_enhanced_schema()
-        
+
         # Get schema information
         schema_info = await schema_manager.get_schema_info()
-        
+
         # Log schema summary
         logger.info("📊 Schema Deployment Summary:")
         logger.info(f"   Schema Version: {schema_info['schema_version']}")
         logger.info(f"   Total Tables: {schema_info['total_tables']}")
         logger.info(f"   Total Indexes: {schema_info['total_indexes']}")
-        
+
         logger.info("📋 Tables Created:")
-        for table in schema_info['tables']:
+        for table in schema_info["tables"]:
             logger.info(f"   - {table['table_name']} ({table['column_count']} columns)")
-        
+
         # Save schema info to file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        schema_file = f'/home/ubuntu/sophia_enhanced_schema_info_{timestamp}.json'
-        
-        with open(schema_file, 'w') as f:
+        schema_file = f"/home/ubuntu/sophia_enhanced_schema_info_{timestamp}.json"
+
+        with open(schema_file, "w") as f:
             json.dump(schema_info, f, indent=2, default=str)
-        
+
         logger.info(f"💾 Schema information saved to: {schema_file}")
         logger.info("🎉 Enhanced Sophia Database Schema Deployment Complete!")
-        
+
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Schema deployment failed: {e}")
         return False
-        
+
     finally:
         await schema_manager.close()
 
+
 if __name__ == "__main__":
     asyncio.run(deploy_enhanced_schema())
-

@@ -1,18 +1,25 @@
-"""
-Sophia AI - Data Pipeline Architecture
+"""Sophia AI - Data Pipeline Architecture
 Orchestrates data flow from various sources to PostgreSQL, Redis, and Vector Databases
 """
 
+import asyncio
 import json
 import logging
-import asyncio
-from datetime import datetime
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 import psycopg2
 import redis
-from .vector.vector_integration import VectorIntegration, VectorConfig # Assuming VectorIntegration is in a sub-module
-from .database.schema_migration_system import SchemaMigrationSystem # Assuming SchemaMigrationSystem is in a sub-module
+
+from .database.schema_migration_system import (
+    SchemaMigrationSystem,  # Assuming SchemaMigrationSystem is in a sub-module
+)
+from .vector.vector_integration import (  # Assuming VectorIntegration is in a sub-module
+    VectorConfig,
+    VectorIntegration,
+)
+
 
 # Placeholder for Airbyte integration (would typically use Airbyte API client)
 class AirbyteClient:
@@ -43,8 +50,7 @@ class PipelineConfig:
     processing_interval_seconds: int = 3600 # 1 hour
 
 class DataPipeline:
-    """
-    Manages the data pipeline for Sophia AI Pay Ready platform.
+    """Manages the data pipeline for Sophia AI Pay Ready platform.
     Integrates Airbyte, PostgreSQL, Redis, and Vector Databases.
     """
 
@@ -103,13 +109,13 @@ class DataPipeline:
 
             # Step 3: Schema Migration (based on processed data)
             # For demo, we assume `processed_data_summary` contains samples for migration
-            if processed_data_summary.get("data_for_migration"): 
+            if processed_data_summary.get("data_for_migration"):
                 migration_results = []
                 for table_name, data_sample in processed_data_summary["data_for_migration"].items():
                     migration_result = self.schema_migrator.migrate_schema(table_name, data_sample)
                     migration_results.append(migration_result)
                 run_summary["steps"].append({"name": "Schema Migration", "summary": migration_results})
-            
+
             # Step 4: Data Ingestion into PostgreSQL (main operational DB)
             # This would use the `processed_data_summary` and insert/update records
             # Placeholder for actual DB ingestion logic
@@ -204,7 +210,7 @@ class DataPipeline:
         summary = {"inserted_records": 0, "updated_records": 0, "errors": 0}
         if not data_items:
             return summary
-        
+
         # Simplified ingestion logic
         with self.get_db_connection() as conn:
             with conn.cursor():
@@ -246,7 +252,7 @@ class DataPipeline:
         """Index data in Pinecone and Weaviate"""
         if not vector_data_items:
             return {"indexed_items": 0, "errors": 0}
-        
+
         self.logger.info(f"Starting vector database indexing for {len(vector_data_items)} items.")
         results = self.vector_integration.batch_index_content(vector_data_items)
         self.logger.info(f"Vector database indexing completed: {results}")
@@ -298,7 +304,7 @@ async def main():
     # await pipeline.schedule_pipeline_runs()
 
 if __name__ == "__main__":
-    # This part is for direct execution testing; in a real app, 
+    # This part is for direct execution testing; in a real app,
     # the pipeline would be managed by the main application (e.g., FastAPI startup event).
     # asyncio.run(main())
     print("DataPipeline class defined. To run, instantiate and call methods within an async context.")

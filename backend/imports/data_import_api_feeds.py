@@ -16,7 +16,9 @@ class SlackDataImporter:
         self.token = token
         self.base = "https://slack.com/api"
 
-    def _request(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _request(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         headers = {"Authorization": f"Bearer {self.token}"}
         resp = requests.get(f"{self.base}/{endpoint}", headers=headers, params=params)
         resp.raise_for_status()
@@ -58,7 +60,9 @@ class GenericAPIImporter:
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url.rstrip("/")
 
-    def fetch(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def fetch(
+        self, path: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         resp = requests.get(f"{self.base_url}/{path.lstrip('/')}", params=params)
         resp.raise_for_status()
         return resp.json()

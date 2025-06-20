@@ -1,20 +1,20 @@
-"""
-Infrastructure as Code (IaC) Manager Agent for Sophia AI
+"""Infrastructure as Code (IaC) Manager Agent for Sophia AI
 Handles the generation and deployment of infrastructure configurations via natural language.
 """
-import logging
-from backend.agents.core.base_agent import BaseAgent, AgentConfig, Task, TaskResult
-from backend.integrations.portkey_client import PortkeyClient
-from backend.agents.tools.filesystem_tools import filesystem_tools
-from backend.agents.core.agent_router import agent_router # To call other agents
-import json
 import asyncio
+import json
+import logging
+
+from backend.agents.core.agent_router import agent_router  # To call other agents
+from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult
+from backend.agents.tools.filesystem_tools import filesystem_tools
+from backend.integrations.portkey_client import PortkeyClient
 
 logger = logging.getLogger(__name__)
 
+
 class IaCManagerAgent(BaseAgent):
-    """
-    An agent that specializes in managing the project's Infrastructure as Code.
+    """An agent that specializes in managing the project's Infrastructure as Code.
     It can understand requests to create or modify infrastructure, generate the
     necessary Pulumi code, and orchestrate its deployment.
     """
@@ -31,21 +31,24 @@ class IaCManagerAgent(BaseAgent):
         }
 
     async def execute_task(self, task: Task) -> TaskResult:
-        """
-        Executes an IaC management task by generating and then executing a plan.
+        """Executes an IaC management task by generating and then executing a plan.
         """
         logger.info(f"IaCManagerAgent received task: {task.command}")
-        
+
         # 1. Generate the plan
         system_prompt = self._create_iac_planning_prompt(task.command)
         plan_response = await self.portkey.llm_call(system_prompt)
-        plan_str = plan_response.get("choices", [{}])[0].get("message", {}).get("content", "")
-        
+        plan_str = (
+            plan_response.get("choices", [{}])[0].get("message", {}).get("content", "")
+        )
+
         try:
             plan = json.loads(plan_str.strip())
             logger.info(f"--- IaC Management Plan ---\n{json.dumps(plan, indent=2)}")
         except json.JSONDecodeError:
-            return TaskResult(status="error", output=f"Failed to parse LLM plan as JSON: {plan_str}")
+            return TaskResult(
+                status="error", output=f"Failed to parse LLM plan as JSON: {plan_str}"
+            )
 
         # 2. Execute the plan
         execution_context = {}
@@ -53,13 +56,13 @@ class IaCManagerAgent(BaseAgent):
         for step in plan:
             tool_name = step.get("tool")
             params = step.get("parameters", {})
-            
+
             if tool_name not in self.toolbox:
                 msg = f"Plan contains unknown tool: {tool_name}"
                 logger.error(msg)
                 execution_log.append(f"ERROR: {msg}")
                 break
-            
+
             # Substitute parameters from context (e.g., use output of step 1 in step 2)
             for key, value in params.items():
                 if isinstance(value, str) and value.startswith("$"):
@@ -70,21 +73,25 @@ class IaCManagerAgent(BaseAgent):
                         msg = f"Could not find referenced context variable '{ref_key}' for step '{step.get('step')}'"
                         logger.error(msg)
                         execution_log.append(f"ERROR: {msg}")
-                        return TaskResult(status="error", output={"execution_log": execution_log})
+                        return TaskResult(
+                            status="error", output={"execution_log": execution_log}
+                        )
 
             # Execute the tool
-            logger.info(f"Executing step {step.get('step')}: {tool_name} with params: {params}")
+            logger.info(
+                f"Executing step {step.get('step')}: {tool_name} with params: {params}"
+            )
             tool_function = self.toolbox[tool_name]
-            
+
             try:
                 # Await if the function is a coroutine
                 if asyncio.iscoroutinefunction(tool_function):
                     result = await tool_function(**params)
-                else: # Handle synchronous tools like those in filesystem_tools
+                else:  # Handle synchronous tools like those in filesystem_tools
                     result = tool_function(**params)
-                    
+
                 execution_log.append(f"Step {step.get('step')} ({tool_name}): SUCCESS")
-                
+
                 # Store output in context if requested
                 if step.get("output_variable"):
                     execution_context[step.get("output_variable")] = result
@@ -93,7 +100,9 @@ class IaCManagerAgent(BaseAgent):
                 msg = f"Step {step.get('step')} ({tool_name}) FAILED: {e}"
                 logger.error(msg, exc_info=True)
                 execution_log.append(f"ERROR: {msg}")
-                return TaskResult(status="error", output={"execution_log": execution_log})
+                return TaskResult(
+                    status="error", output={"execution_log": execution_log}
+                )
 
         return TaskResult(status="success", output={"execution_log": execution_log})
 
@@ -133,4 +142,4 @@ class IaCManagerAgent(BaseAgent):
             {{"step": 3, "tool": "filesystem.write", "parameters": {{"file_path": "infrastructure/airbyte.py", "content": "$step2_output"}}}},
             {{"step": 4, "tool": "pulumi_agent.deploy", "parameters": {{"stack": "dev"}}}}
         ]
-        """ 
+        """
