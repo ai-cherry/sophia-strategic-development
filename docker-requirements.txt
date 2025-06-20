@@ -1,8 +1,0 @@
-# Sophia AI - Docker Requirements File (Minimal)
-fastapi
-uvicorn
-pydantic
-aiohttp
-python-dotenv
-requests
-certifi
