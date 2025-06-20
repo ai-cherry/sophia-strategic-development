@@ -25,8 +25,8 @@ class GongCallsAPIFixed:
     
     def __init__(self):
         # Updated Gong API credentials from the attachment
-        self.access_key = "EX5L7AKSGQBOPNK66TDYVVEAKBVQ6IPK"
-        self.access_secret = "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwNjU1NDc5ODksImFjY2Vzc0tleSI6IkVYNUw3QUtTR1FCT1BOSzY2VERZVlZFQUtCVlE2SVBLIn0.djgpFaMkt94HJHYHKbymM2D5aj_tQNJMV3aY_rwOSTY"
+        self.access_key = os.getenv("GONG_ACCESS_KEY", "")
+        self.access_secret = os.getenv("GONG_CLIENT_SECRET", "")
         
         # Create authorization header
         credentials = f"{self.access_key}:{self.access_secret}"

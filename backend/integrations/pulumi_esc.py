@@ -17,7 +17,7 @@ class ESCConfig:
     """Configuration for Pulumi ESC integration"""
     environment_name: str = "sophia-ai/sophia-production"
     project_name: str = "sophia-ai"
-    organization: str = "scoobyjava-org"
+    organization: str = "ai-cherry"
 
 class SophiaESCManager:
     """

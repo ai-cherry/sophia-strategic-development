@@ -15,9 +15,9 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-from ..core.orchestrator import AgentOrchestrator
-from ..integrations.kong_ai_gateway import KongAIGateway
-from ..integrations.natural_language_processor import NaturalLanguageProcessor
+from ..core.orchestrator import SophiaOrchestrator
+from backend.integrations.kong_ai_gateway import KongAIGateway
+from backend.integrations.natural_language_processor import NaturalLanguageProcessor
 from ..knowledge.knowledge_base import SophiaKnowledgeBase
 
 logger = logging.getLogger(__name__)

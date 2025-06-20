@@ -393,13 +393,12 @@ class SecureEnvironmentValidator:
         
         # Known hardcoded values that should be replaced
         hardcoded_patterns = {
-            "FP71296": "SNOWFLAKE_ACCOUNT",
-            "scoobyjava": "SNOWFLAKE_USER", 
-            "Huskers1983Huskers1983": "SNOWFLAKE_PASSWORD",
             "your_api_key_here": "placeholder",
             "your_secret_here": "placeholder",
             "changeme": "placeholder",
-            "admin123": "placeholder"
+            "admin123": "placeholder",
+            "password123": "placeholder",
+            "secret123": "placeholder"
         }
         
         for var_name, var_value in env_vars.items():

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Updated Sophia Gong Data Extraction with New Credentials
-Real conversation data extraction using updated credentials and base URL
+Updated Sophia Gong Data Extraction with Secure Credentials
+Real conversation data extraction using secure environment variables
 """
 
 import os
@@ -14,6 +14,9 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import logging
 
+# Import secure credential manager
+from backend.core.secure_credential_manager import get_gong_credentials
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,12 +24,18 @@ logger = logging.getLogger(__name__)
 class SophiaGongDataExtractorUpdated:
     """
     Updated data extraction from Gong API for Sophia business intelligence
+    Using secure credential management
     """
     
     def __init__(self):
-        # Updated Gong API credentials
-        self.access_key = "EX5L7AKSGQBOPNK66TDYVVEAKBVQ6IPK"
-        self.access_secret = "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwNjU1NDc5ODksImFjY2Vzc0tleSI6IkVYNUw3QUtTR1FCT1BOSzY2VERZVlZFQUtCVlE2SVBLIn0.djgpFaMkt94HJHYHKbymM2D5aj_tQNJMV3aY_rwOSTY"
+        # Get Gong API credentials securely
+        gong_creds = get_gong_credentials()
+        self.access_key = gong_creds["access_key"]
+        self.access_secret = gong_creds["client_secret"]
+        self.base_url = gong_creds["base_url"]
+        
+        if not self.access_key or not self.access_secret:
+            raise ValueError("Gong API credentials not configured. Please set GONG_ACCESS_KEY and GONG_CLIENT_SECRET environment variables.")
         
         # Create authorization header
         credentials = f"{self.access_key}:{self.access_secret}"
@@ -36,16 +45,13 @@ class SophiaGongDataExtractorUpdated:
             "Content-Type": "application/json"
         }
         
-        # Updated Gong API base URL
-        self.base_url = "https://us-70092.api.gong.io/v2"
-        
-        # Database configuration
+        # Database configuration from environment
         self.db_config = {
-            "host": "localhost",
-            "port": 5432,
-            "user": "postgres", 
-            "password": "password",
-            "database": "sophia_enhanced"
+            "host": os.getenv("POSTGRES_HOST", "localhost"),
+            "port": int(os.getenv("POSTGRES_PORT", "5432")),
+            "user": os.getenv("POSTGRES_USER", "postgres"), 
+            "password": os.getenv("POSTGRES_PASSWORD", "password"),
+            "database": os.getenv("POSTGRES_DB", "sophia_enhanced")
         }
         
         # Apartment industry keywords for relevance scoring

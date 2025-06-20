@@ -14,10 +14,10 @@ from typing import Dict, List, Optional, Any
 import uvicorn
 from datetime import datetime
 
-from backend.agents.specialized.pay_ready_agents import (
-    PayReadyAgentOrchestrator,
-    AgentPriority,
-    AgentTask
+from backend.agents.core.orchestrator import (
+    SophiaOrchestrator,
+    AgentCapability,
+    Task
 )
 from backend.integrations.enhanced_natural_language_processor import (
     EnhancedNaturalLanguageProcessor
@@ -115,7 +115,7 @@ async def lifespan(app: FastAPI):
     
     try:
         # Initialize agent orchestrator
-        agent_orchestrator = PayReadyAgentOrchestrator(config)
+        agent_orchestrator = SophiaOrchestrator(config)
         
         # Initialize NLP processor
         nlp_processor = EnhancedNaturalLanguageProcessor(config)

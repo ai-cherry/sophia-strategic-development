@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Gong App Integration Analysis and Implementation Strategy
@@ -20,8 +21,8 @@ class GongAppIntegrationAnalyzer:
     
     def __init__(self):
         self.current_credentials = {
-            "access_key": "EX5L7AKSGQBOPNK66TDYVVEAKBVQ6IPK",
-            "client_secret": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjIwNjU1NDc5ODksImFjY2Vzc0tleSI6IkVYNUw3QUtTR1FCT1BOSzY2VERZVlZFQUtCVlE2SVBLIn0.djgpFaMkt94HJHYHKbymM2D5aj_tQNJMV3aY_rwOSTY",
+            "access_key": os.getenv("GONG_ACCESS_KEY", ""),
+            "client_secret": os.getenv("GONG_CLIENT_SECRET", ""),
             "base_url": "https://us-70092.api.gong.io"
         }
     

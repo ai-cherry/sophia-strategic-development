@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Enhanced Gong Integration with Credential Troubleshooting
