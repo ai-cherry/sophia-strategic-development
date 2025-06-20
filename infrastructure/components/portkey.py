@@ -63,4 +63,4 @@ portkey_config = pulumi.asset.AssetArchive({
 # Export outputs
 pulumi.export("portkey_base_url", api_base_urls.get(env, api_base_urls["development"]))
 pulumi.export("portkey_virtual_key_name", virtual_key_config["name"])
-pulumi.export("portkey_environment", env)
+pulumi.export("portkey_environment", env) 

@@ -16,17 +16,15 @@ from datetime import datetime, timedelta
 import logging
 from typing import Dict, Any
 from enum import Enum
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import JWTError, jwt
 
 from backend.config.settings import settings
 from backend.security.security_manager import SophiaSecurityManager
+from backend.app.security import UserRole
 
 logger = logging.getLogger(__name__)
-
-class UserRole(str, Enum):
-    CEO = "ceo"
-    TEAM_LEAD = "team_lead"
-    INDIVIDUAL_CONTRIBUTOR = "individual"
-    ADMIN = "admin"
 
 # In-memory user store for demonstration purposes
 # In a real application, this would be a database
@@ -42,6 +40,29 @@ auth_bp = Blueprint('auth', __name__)
 
 # Initialize security manager
 security_manager = SophiaSecurityManager()
+
+reusable_oauth2 = HTTPBearer()
+
+async def get_current_user_role(credentials: HTTPAuthorizationCredentials = Depends(reusable_oauth2)) -> UserRole:
+    """Dependency to get the current user's role from a JWT."""
+    try:
+        token = credentials.credentials
+        # In a real app, you'd get the secret from a secure config
+        SECRET_KEY = "your-super-secret-key" # Placeholder
+        ALGORITHM = "HS256"
+        
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        role = payload.get("role")
+        if role is None:
+            raise HTTPException(status_code=403, detail="Role not found in token.")
+        
+        return UserRole(role)
+    except (JWTError, ValueError):
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 @auth_bp.route('/login', methods=['POST'])
 async def login():

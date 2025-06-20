@@ -80,4 +80,4 @@ openrouter_config = pulumi.asset.AssetArchive({
 pulumi.export("openrouter_base_url", api_base_urls.get(env, api_base_urls["development"]))
 pulumi.export("openrouter_default_model", openrouter_provider["default_model"])
 pulumi.export("openrouter_route_prefix", openrouter_provider["default_route_prefix"])
-pulumi.export("openrouter_environment", env)
+pulumi.export("openrouter_environment", env) 

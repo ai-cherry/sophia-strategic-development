@@ -1,6 +1,6 @@
 # Architecture Consistency Report
 
-Scanned 8251 files.
+Scanned 8260 files.
 Found 2758 files with architecture inconsistencies.
 
 ## Inconsistencies
@@ -273,7 +273,7 @@ Files:
 - ./cursor_ai_optimization_prompt.md
 - ./docs/INTEGRATION_MANAGEMENT_GUIDE.md
 
-### Direct Pulumi Commands: 86
+### Direct Pulumi Commands: 87
 
 Files:
 - ./automated_health_check.py
@@ -303,6 +303,7 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/policy/__main__.py
 - ./mcp-servers/pulumi/main.py
 - ./infrastructure/lambda_labs.py
+- ./infrastructure/deploy_production.py
 - ./infrastructure/portkey.py
 - ./infrastructure/dev_server.py
 - ./infrastructure/vercel.py
@@ -2777,14 +2778,13 @@ Files:
 - ./docs/SOPHIA_DESIGN_SYSTEM_INTEGRATION.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
 
-### Direct Vector Store Access: 19
+### Direct Vector Store Access: 18
 
 Files:
 - ./test_ai_memory_deployment.py
 - ./backend/core/config_manager.py
 - ./backend/core/integration_registry.py
 - ./backend/integration/multi_database_integration.py
-- ./backend/agents/core/persistent_memory.py
 - ./backend/pipelines/gong_snowflake_pipeline.py
 - ./backend/mcp/ai_memory_mcp_server.py
 - ./backend/mcp/tools/vector_tools.py

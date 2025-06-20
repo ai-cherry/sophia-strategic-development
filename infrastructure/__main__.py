@@ -11,13 +11,23 @@ import sys
 # Add the current directory to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import infrastructure modules
-import snowflake
-import gong
+# Import component-based infrastructure
+from components.snowflake import SnowflakeComponent
+from components.gong import GongComponent
+from components.vercel import VercelComponent
+from components.estuary import EstuaryComponent
+from components import portkey, openrouter
+from components.lambda_labs import LambdaLabsComponent
+from components.airbyte import AirbyteComponent
+from components.github import GitHubComponent
+from components.docker import DockerComponent
+from components.mcp import McpComponent
+from components.pulumi_esc import PulumiEscComponent
+from components.pinecone import PineconeComponent
+
+# Import legacy infrastructure modules
 import vercel
 import estuary
-import portkey
-import openrouter
 import lambda_labs
 import airbyte
 import github
@@ -29,36 +39,37 @@ import mcp
 config = Config()
 env = config.require("environment")  # development, staging, or production
 
+# --- Component-based Infrastructure ---
+snowflake_component = SnowflakeComponent("snowflake")
+gong_component = GongComponent("gong")
+vercel_component = VercelComponent("vercel")
+estuary_component = EstuaryComponent("estuary")
+# lambda_labs_component = LambdaLabsComponent("lambda_labs")
+# airbyte_component = AirbyteComponent("airbyte",
+#     snowflake_config=snowflake_component.outputs
+# )
+github_component = GitHubComponent("github")
+mcp_component = McpComponent("mcp")
+docker_component = DockerComponent("docker", mcp_images=mcp_component.images)
+pinecone_component = PineconeComponent("pinecone")
+pulumi_esc_component = PulumiEscComponent("pulumi_esc")
+
+# --- Legacy Infrastructure ---
+
 # Create a stack output with all the exported values
 pulumi.export("environment", env)
 
-# Snowflake outputs
-pulumi.export("snowflake", {
-    "warehouse_name": snowflake.warehouse.name,
-    "database_name": snowflake.database.name,
-    "schema_name": snowflake.schema.name,
-    "role_name": snowflake.role.name
-})
+# Snowflake outputs (now from the component)
+pulumi.export("snowflake", snowflake_component.outputs)
 
-# Gong outputs
-pulumi.export("gong", {
-    "webhook_url": gong.webhook_urls.get(env, gong.webhook_urls["development"]),
-    "environment": env
-})
+# Gong outputs (now from the component)
+pulumi.export("gong", gong_component.outputs)
 
-# Vercel outputs
-pulumi.export("vercel", {
-    "project_name": vercel.project.name,
-    "domain": vercel.domain.name,
-    "deployment_url": vercel.deployment.url
-})
+# Vercel outputs (now from the component)
+pulumi.export("vercel", vercel_component.outputs)
 
-# Estuary outputs
-pulumi.export("estuary", {
-    "collection": estuary.collection_names.get(env, estuary.collection_names["development"]),
-    "api_url": estuary.estuary_api_url,
-    "environment": env
-})
+# Estuary outputs (now from the component)
+pulumi.export("estuary", estuary_component.outputs)
 
 # Portkey outputs
 pulumi.export("portkey", {
@@ -75,77 +86,43 @@ pulumi.export("openrouter", {
     "environment": env
 })
 
-# Lambda Labs outputs
-pulumi.export("lambda_labs", {
-    "instance_type": lambda_labs.instance_config["instance_type"],
-    "region": lambda_labs.instance_config["region"],
-    "ssh_key_name": lambda_labs.ssh_key.key_name,
-    "data_bucket": lambda_labs.data_bucket.bucket,
-    "iam_role": lambda_labs.lambda_labs_role.name,
-    "environment": env
-})
+# Lambda Labs outputs (now from the component)
+# pulumi.export("lambda_labs", lambda_labs_component.outputs)
 
-# Airbyte outputs
-pulumi.export("airbyte", {
-    "base_url": airbyte.airbyte_urls.get(env, airbyte.airbyte_urls["development"]),
-    "workspace_name": airbyte.workspace_config["name"],
-    "sources": [source["name"] for source in airbyte.source_configs],
-    "destinations": [dest["name"] for dest in airbyte.destination_configs],
-    "connections": [conn["name"] for conn in airbyte.connection_configs],
-    "environment": env
-})
+# Airbyte outputs (now from the component)
+# pulumi.export("airbyte", airbyte_component.outputs)
 
-# GitHub outputs
-pulumi.export("github", {
-    "repository_name": github.repo.name,
-    "repository_url": github.repo.html_url,
-    "team_name": github.team.name,
-    "environment": env
-})
+# GitHub outputs (now from the component)
+pulumi.export("github", github_component.outputs)
 
-# Pulumi ESC outputs
-pulumi.export("pulumi_esc", {
-    "environment": pulumi_esc.esc_environment.name,
-    "stack": pulumi_esc.stack.stack,
-    "organization": pulumi_esc.pulumi_organization,
-    "project": pulumi_esc.pulumi_project
-})
+# Pinecone outputs (now from the component)
+pulumi.export("pinecone", pinecone_component.outputs)
 
-# Docker outputs
-pulumi.export("docker", {
-    "registry": docker.registry_urls.get(env, docker.registry_urls["development"]),
-    "images": [image.image_name for image in docker.images],
-    "network": docker.network.name,
-    "volumes": [volume.name for volume in docker.volumes],
-    "containers": [container.name for container in docker.containers],
-    "environment": env
-})
+# Pulumi ESC outputs (now from the component)
+pulumi.export("pulumi_esc", pulumi_esc_component.outputs)
 
-# MCP outputs
-pulumi.export("mcp", {
-    "server_names": mcp.mcp_server_names, # Updated from mcp.mcp_servers
-    "images": [image.image_name for image in mcp.mcp_images],
-    # "containers": [container.name for container in mcp.mcp_containers], # Removed
-    "config_file_content": mcp.mcp_config_file_content, # Added
-    "environment": env
-})
+# Docker outputs (now from the component)
+pulumi.export("docker", docker_component.outputs)
+
+# MCP outputs (now from the component)
+pulumi.export("mcp", mcp_component.outputs)
 
 # Create a combined configuration output
 pulumi.export("sophia_config", {
     "environment": env,
     "snowflake": {
-        "warehouse": snowflake.warehouse.name,
-        "database": snowflake.database.name,
-        "schema": snowflake.schema.name,
-        "role": snowflake.role.name
+        "warehouse": snowflake_component.outputs["warehouse_name"],
+        "database": snowflake_component.outputs["database_name"],
+        "schema": snowflake_component.outputs["schema_name"],
+        "role": snowflake_component.outputs["role_name"]
     },
     "gong": {
-        "webhook_url": gong.webhook_urls.get(env, gong.webhook_urls["development"])
+        "webhook_url": gong_component.outputs["webhook_url"]
     },
     "vercel": {
-        "project": vercel.project.name,
-        "domain": vercel.domain.name,
-        "url": vercel.deployment.url
+        "project": vercel_component.outputs["project_name"],
+        "domain": vercel_component.outputs["domain"],
+        "url": vercel_component.outputs["deployment_url"]
     },
     "estuary": {
         "collection": estuary.collection_names.get(env, estuary.collection_names["development"]),
@@ -161,29 +138,29 @@ pulumi.export("sophia_config", {
         "route_prefix": openrouter.openrouter_provider["default_route_prefix"]
     },
     "lambda_labs": {
-        "instance_type": lambda_labs.instance_config["instance_type"],
-        "region": lambda_labs.instance_config["region"],
-        "data_bucket": lambda_labs.data_bucket.bucket
+        "instance_type": lambda_labs_component.outputs["instance_type"],
+        "region": lambda_labs_component.outputs["region"],
+        "data_bucket": lambda_labs_component.outputs["data_bucket"]
     },
     "airbyte": {
         "base_url": airbyte.airbyte_urls.get(env, airbyte.airbyte_urls["development"]),
         "workspace_name": airbyte.workspace_config["name"]
     },
     "github": {
-        "repository_name": github.repo.name,
-        "repository_url": github.repo.html_url
+        "repository_name": github_component.outputs["repository_name"],
+        "repository_url": github_component.outputs["repository_url"]
     },
-    "pulumi_esc": {
-        "environment": pulumi_esc.esc_environment.name,
-        "stack": pulumi_esc.stack.stack
+    "pinecone": {
+        "knowledge_base_index": pinecone_component.outputs["knowledge_base_index"],
+        "ai_memory_index": pinecone_component.outputs["ai_memory_index"]
     },
     "docker": {
         "registry": docker.registry_urls.get(env, docker.registry_urls["development"]),
         "network": docker.network.name
     },
     "mcp": {
-        "server_names": [server["name"] for server in mcp.mcp_server_configs], # Updated
-        "config_file_url_placeholder": "Access mcp_config.json from stack outputs" # Placeholder, actual content in mcp.config_file_content
+        "server_names": [server["name"] for server in mcp.mcp_server_configs],
+        "config_file_url_placeholder": "Access mcp_config.json from stack outputs"
     }
 })
 

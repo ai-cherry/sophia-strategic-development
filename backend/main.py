@@ -7,11 +7,12 @@ import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import uvicorn
+from datetime import datetime
 
 from backend.agents.specialized.pay_ready_agents import (
     PayReadyAgentOrchestrator,
@@ -24,6 +25,14 @@ from backend.integrations.enhanced_natural_language_processor import (
 from backend.analytics.real_time_business_intelligence import (
     RealTimeBusinessIntelligence
 )
+from backend.app.api import file_processing_router, hybrid_rag_router
+from backend.app.routers import agno_router, llamaindex_router
+from backend.agents.core.agent_router import agent_router
+from backend.agents.specialized.executive_agent import ExecutiveAgent
+from backend.agents.core.base_agent import AgentConfig, BaseAgent
+from backend.core.config_manager import get_secret
+from backend.app.routes import executive_routes, retool_api_routes, system_intel_routes
+from backend.app.websockets import manager
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +45,45 @@ logger = logging.getLogger(__name__)
 agent_orchestrator = None
 nlp_processor = None
 business_intelligence = None
+
+async def start_agents():
+    """Initializes and starts all registered agents."""
+    logger.info("Starting all registered agents...")
+    
+    # Add the ExecutiveAgent to the router
+    # This assumes other specialized agents are already registered in the router's __init__
+    if 'executive' not in agent_router.agent_instances:
+        exec_config = AgentConfig(agent_id="executive_01", agent_type="specialized", specialization="Executive Synthesis")
+        executive_agent = ExecutiveAgent(exec_config)
+        agent_router.agent_instances['executive'] = executive_agent
+        # The handler is the agent's process_task method
+        agent_router.register_agent(
+            name="executive",
+            capabilities=[], # Capabilities are dynamic for the exec agent
+            handler=executive_agent.process_task,
+            description="The CEO's dedicated interface for strategic intelligence."
+        )
+    
+    # Start all agents
+    for agent_name, agent_instance in agent_router.agent_instances.items():
+        if isinstance(agent_instance, BaseAgent) and not agent_instance.is_running:
+            try:
+                # The start method in BaseAgent is now a background task
+                asyncio.create_task(agent_instance.start())
+                logger.info(f"Agent '{agent_name}' has been scheduled to start.")
+            except Exception as e:
+                logger.error(f"Failed to start agent '{agent_name}': {e}")
+
+async def shutdown_agents():
+    """Stops all running agents gracefully."""
+    logger.info("Shutting down all agents...")
+    for agent_name, agent_instance in agent_router.agent_instances.items():
+        if isinstance(agent_instance, BaseAgent) and agent_instance.is_running:
+            try:
+                await agent_instance.stop()
+                logger.info(f"Agent '{agent_name}' has been stopped.")
+            except Exception as e:
+                logger.error(f"Failed to stop agent '{agent_name}': {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -78,6 +126,9 @@ async def lifespan(app: FastAPI):
         # Start agent processing
         asyncio.create_task(agent_orchestrator.start_processing())
         
+        # Start all agents
+        await start_agents()
+        
         logger.info("Pay Ready AI Agent System initialized successfully")
         
         yield
@@ -87,6 +138,8 @@ async def lifespan(app: FastAPI):
         raise
     finally:
         logger.info("Shutting down Pay Ready AI Agent System...")
+        # On shutdown
+        await shutdown_agents()
 
 # Create FastAPI app
 app = FastAPI(
@@ -341,6 +394,33 @@ async def conduct_market_research(research_type: str = "industry_trends"):
     except Exception as e:
         logger.error(f"Market research start failed: {e}")
         raise HTTPException(status_code=500, detail=f"Market research start failed: {str(e)}")
+
+# Include existing routers
+app.include_router(file_processing_router.router, prefix="/files", tags=["File Processing"])
+app.include_router(hybrid_rag_router.router, prefix="/rag", tags=["RAG"])
+app.include_router(agno_router.router, prefix="/agno", tags=["AGNO"])
+app.include_router(llamaindex_router.router, prefix="/llamaindex", tags=["LlamaIndex"])
+app.include_router(executive_routes.router, prefix="/executive", tags=["Executive Intelligence"])
+app.include_router(retool_api_routes.router, prefix="/api", tags=["Retool API - Simplified Auth"])
+app.include_router(system_intel_routes.router, prefix="/api", tags=["System Intelligence"])
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await manager.connect(websocket, client_id)
+    try:
+        while True:
+            await websocket.receive_text() # Keep the connection alive
+    except WebSocketDisconnect:
+        manager.disconnect(client_id)
+
+@app.get("/", tags=["Root"])
+async def read_root():
+    return {"message": "Welcome to the Sophia AI Platform"}
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    # Basic health check, can be expanded to check DB, Redis, etc.
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 if __name__ == "__main__":
     uvicorn.run(
