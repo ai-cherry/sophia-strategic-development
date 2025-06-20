@@ -1,7 +1,7 @@
 # Architecture Consistency Report
 
-Scanned 8260 files.
-Found 2758 files with architecture inconsistencies.
+Scanned 8278 files.
+Found 2766 files with architecture inconsistencies.
 
 ## Inconsistencies
 
@@ -261,10 +261,10 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/automation/_cmd.py
 - ./venv/lib/python3.11/site-packages/dill/tests/test_session.py
 - ./infrastructure/dev_server.py
-- ./infrastructure/gong.py
-- ./infrastructure/pinecone_setup.py
 - ./infrastructure/esc/secret_rotation.py
 - ./infrastructure/esc/secret_rotation_framework.py
+- ./infrastructure/components/pinecone.py
+- ./infrastructure/components/gong.py
 - ./infrastructure/pulumi/retool_setup.py
 - ./infrastructure/pulumi/slack_setup.py
 - ./architecture_inconsistencies_report.md
@@ -273,11 +273,16 @@ Files:
 - ./cursor_ai_optimization_prompt.md
 - ./docs/INTEGRATION_MANAGEMENT_GUIDE.md
 
-### Direct Pulumi Commands: 87
+### Direct Pulumi Commands: 95
 
 Files:
 - ./automated_health_check.py
 - ./gong_oauth_application.py
+- ./tests/infrastructure/conftest.py
+- ./tests/infrastructure/unit/test_snowflake_component.py
+- ./tests/infrastructure/unit/test_pinecone_component.py
+- ./tests/infrastructure/integration/test_snowflake_gong_integration.py
+- ./tests/infrastructure/e2e/test_complete_infrastructure.py
 - ./backend/core/secret_manager.py
 - ./backend/agents/pulumi_agent.py
 - ./backend/agents/core/__init__.py
@@ -302,25 +307,13 @@ Files:
 - ./venv/lib/python3.11/site-packages/pulumi/automation/_stack.py
 - ./venv/lib/python3.11/site-packages/pulumi/policy/__main__.py
 - ./mcp-servers/pulumi/main.py
-- ./infrastructure/lambda_labs.py
 - ./infrastructure/deploy_production.py
-- ./infrastructure/portkey.py
 - ./infrastructure/dev_server.py
-- ./infrastructure/vercel.py
-- ./infrastructure/openrouter.py
-- ./infrastructure/gong.py
-- ./infrastructure/docker.py
 - ./infrastructure/snowflake_setup.py
-- ./infrastructure/estuary.py
 - ./infrastructure/vercel_setup.py
-- ./infrastructure/mcp.py
-- ./infrastructure/airbyte.py
-- ./infrastructure/snowflake.py
 - ./infrastructure/docker_build.py
-- ./infrastructure/github.py
-- ./infrastructure/pulumi_esc.py
+- ./infrastructure/test_deployment.py
 - ./infrastructure/__main__.py
-- ./infrastructure/pinecone_setup.py
 - ./infrastructure/esc/claude_secrets.py
 - ./infrastructure/esc/github_sync.py
 - ./infrastructure/esc/vercel_secrets.py
@@ -332,6 +325,20 @@ Files:
 - ./infrastructure/esc/huggingface_secrets.py
 - ./infrastructure/esc/__main__.py
 - ./infrastructure/esc/hubspot_secrets.py
+- ./infrastructure/components/lambda_labs.py
+- ./infrastructure/components/portkey.py
+- ./infrastructure/components/vercel.py
+- ./infrastructure/components/base_component.py
+- ./infrastructure/components/pinecone.py
+- ./infrastructure/components/openrouter.py
+- ./infrastructure/components/gong.py
+- ./infrastructure/components/docker.py
+- ./infrastructure/components/estuary.py
+- ./infrastructure/components/mcp.py
+- ./infrastructure/components/airbyte.py
+- ./infrastructure/components/snowflake.py
+- ./infrastructure/components/github.py
+- ./infrastructure/components/pulumi_esc.py
 - ./infrastructure/pulumi/retool_setup.py
 - ./infrastructure/pulumi/pipedream_setup.py
 - ./infrastructure/pulumi/agno_setup.py
@@ -362,9 +369,10 @@ Files:
 - ./docs/TROUBLESHOOTING_GUIDE.md
 - ./docs/cursor_ai_integration.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
+- ./infrastructure/OPERATIONS_GUIDE.md
 - ./infrastructure/README.md
 
-### Old Ui References: 2410
+### Old Ui References: 2409
 
 Files:
 - ./sophia_live_test_suite.py
@@ -389,7 +397,6 @@ Files:
 - ./venv/lib/python3.11/site-packages/setuptools/installer.py
 - ./venv/lib/python3.11/site-packages/pulumi/deprecated.py
 - ./venv/lib/python3.11/site-packages/pulumi/runtime/proto/language_pb2_grpc.py
-- ./infrastructure/docker.py
 - ./quick_setup.sh
 - ./deploy_production.sh
 - ./frontend/vite.config.js
@@ -2778,7 +2785,7 @@ Files:
 - ./docs/SOPHIA_DESIGN_SYSTEM_INTEGRATION.md
 - ./docs/DEPLOYMENT_CHECKLIST.md
 
-### Direct Vector Store Access: 18
+### Direct Vector Store Access: 19
 
 Files:
 - ./test_ai_memory_deployment.py
@@ -2796,6 +2803,7 @@ Files:
 - ./backend/vector/vector_integration_updated.py
 - ./backend/vector/optimized_vector_config.py
 - ./scripts/migrate_vector_store_access.py
+- ./infrastructure/test_deployment.py
 - ./architecture_migration_summary.md
 - ./AI_MEMORY_DEPLOYMENT_GUIDE.md
 - ./docs/implementation/sophia_technical_architecture.md

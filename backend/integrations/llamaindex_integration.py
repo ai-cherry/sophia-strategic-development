@@ -124,16 +124,14 @@ class LlamaIndexProcessor:
             
             # Create vector store
             # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: index = pinecone.Index(index_name)
-index = comprehensive_memory_manager
-index = comprehensive_memory_manager
+            # Original: index = pinecone.Index(index_name)
+            index = comprehensive_memory_manager
             return PineconeVectorStore(pinecone_index=index)
             
         except Exception as e:
             logger.error(f"Failed to setup Pinecone: {e}")
             # Return a mock store for development
-            return PineconeVectorStore()
+            return None
     
     def _setup_weaviate(self) -> WeaviateVectorStore:
         """Setup Weaviate vector store."""

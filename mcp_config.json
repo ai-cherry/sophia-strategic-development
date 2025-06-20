@@ -2,50 +2,70 @@
   "mcpServers": {
     "sophia": {
       "command": "python",
-      "args": ["-m", "backend.mcp.sophia_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.sophia_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": "."
       }
     },
     "gong": {
       "command": "python",
-      "args": ["-m", "backend.mcp.gong_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.gong_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": "."
       }
     },
     "vercel": {
       "command": "python",
-      "args": ["-m", "backend.mcp.vercel_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.vercel_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": "."
       }
     },
     "lambda_labs": {
       "command": "python",
-      "args": ["-m", "backend.mcp.lambda_labs_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.lambda_labs_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": "."
       }
     },
     "slack": {
       "command": "python",
-      "args": ["-m", "backend.mcp.slack_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.slack_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": "."
       }
     },
     "linear": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://mcp.linear.app/sse"],
+      "uri": "https://mcp.linear.app/sse",
+      "transport": {
+        "type": "sse",
+        "requestTimeoutMs": 60000
+      },
       "env": {
-        "LINEAR_API_TOKEN": "${LINEAR_API_TOKEN}",
-        "LINEAR_WORKSPACE_ID": "${LINEAR_WORKSPACE_ID}"
+        "LINEAR_API_KEY": "${LINEAR_API_KEY}"
       }
     },
     "claude": {
       "command": "python",
-      "args": ["-m", "backend.mcp.claude_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.claude_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": ".",
         "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
@@ -55,7 +75,10 @@
     },
     "knowledge_base": {
       "command": "python",
-      "args": ["-m", "backend.mcp.knowledge_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.knowledge_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": ".",
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
@@ -63,7 +86,10 @@
     },
     "ai_memory": {
       "command": "python",
-      "args": ["-m", "backend.mcp.ai_memory_mcp_server"],
+      "args": [
+        "-m",
+        "backend.mcp.ai_memory_mcp_server"
+      ],
       "env": {
         "PYTHONPATH": ".",
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
@@ -71,4 +97,3 @@
     }
   }
 }
-

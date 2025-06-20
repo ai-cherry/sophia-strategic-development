@@ -104,11 +104,23 @@ class LinearIntegration:
         try:
             # This would test the Linear API connection
             # For now, return True if we have the required config
-            required_fields = ["api_token", "workspace_id"]
-            return all(field in self._config for field in required_fields)
+            required_fields = ["api_token"]
+            has_required = all(field in self._config for field in required_fields)
+            
+            # Also accept workspace_id as optional
+            if has_required:
+                logger.info("Linear authentication configuration validated")
+                return True
+            else:
+                logger.error(f"Missing required Linear fields: {required_fields}")
+                return False
         except Exception as e:
             logger.error(f"Linear authentication test failed: {e}")
             return False
+    
+    async def test_connection(self) -> bool:
+        """Test Linear API connection"""
+        return self._authenticated
     
     # Issue Management Methods
     
@@ -280,8 +292,8 @@ class LinearIntegration:
             logger.error(f"Failed to create Linear project: {e}")
             return None
     
-    async def get_projects(self, team_id: Optional[str] = None) -> List[LinearProject]:
-        """Get Linear projects"""
+    async def list_projects(self, team_id: Optional[str] = None) -> List[LinearProject]:
+        """List Linear projects"""
         try:
             if not self._authenticated:
                 await self.initialize()
@@ -473,9 +485,12 @@ async def create_project(name: str, description: str, **kwargs) -> Optional[Line
 
 async def get_projects(**kwargs) -> List[LinearProject]:
     """Get Linear projects"""
-    return await linear_integration.get_projects(**kwargs)
+    return await linear_integration.list_projects(**kwargs)
+
+async def list_projects(**kwargs) -> List[LinearProject]:
+    """List Linear projects"""
+    return await linear_integration.list_projects(**kwargs)
 
 async def search_issues(query: str, **kwargs) -> List[LinearIssue]:
     """Search Linear issues"""
     return await linear_integration.search_issues(query, **kwargs)
-
