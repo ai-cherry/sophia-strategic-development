@@ -3,7 +3,9 @@ repos:
     rev: v4.6.0
     hooks:
       - id: trailing-whitespace
+        exclude: architecture_consistency_report.md
       - id: end-of-file-fixer
+        exclude: architecture_consistency_report.md
       - id: check-yaml
       - id: check-added-large-files
 

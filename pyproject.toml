@@ -3,8 +3,13 @@ exclude_dirs = ["tests", "venv", "sophia_venv", "infrastructure/esc"]
 
 [tool.ruff]
 line-length = 88
-select = ["E", "F", "W", "I", "N", "D"]
-ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "D"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107", "E501"]
+
+[tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"

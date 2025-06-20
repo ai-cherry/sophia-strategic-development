@@ -1,11 +1,11 @@
 # Architecture Consistency Report
 
-Scanned 8278 files.
-Found 2766 files with architecture inconsistencies.
+Scanned 8312 files.
+Found 2770 files with architecture inconsistencies.
 
 ## Inconsistencies
 
-### Direct Api Calls: 264
+### Direct Api Calls: 268
 
 Files:
 - ./enhanced_gong_api_integration.py
@@ -190,6 +190,7 @@ Files:
 - ./sophia_admin_api/venv/lib/python3.11/site-packages/setuptools/_distutils/command/register.py
 - ./sophia_admin_api/venv/lib/python3.11/site-packages/pkg_resources/_vendor/packaging/requirements.py
 - ./sophia_admin_api/venv/lib/python3.11/site-packages/greenlet/tests/leakcheck.py
+- ./backend/core/secure_credential_manager.py
 - ./backend/core/pulumi_esc.py
 - ./backend/imports/data_import_api_feeds.py
 - ./backend/integrations/huggingface_mcp.py
@@ -206,6 +207,9 @@ Files:
 - ./backend/api/agui_protocol.py
 - ./backend/monitoring/sophia_monitoring.py
 - ./scripts/simple_provisioner.py
+- ./scripts/trigger_github_sync.py
+- ./scripts/start_backend_simple.py
+- ./scripts/deploy_full_executive_dashboard.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_comm.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_constants.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/pydevd_referrers.py
@@ -2822,13 +2826,13 @@ from backend.mcp.mcp_client import MCPClient
 async def gong_api_call():
     mcp_client = MCPClient("http://localhost:8090")
     await mcp_client.connect()
-    
+
     result = await mcp_client.call_tool(
         "gong",
         "get_users",
         {}
     )
-    
+
     await mcp_client.close()
     return result
 ```
@@ -2845,7 +2849,7 @@ from backend.mcp.mcp_client import MCPClient
 async def deploy_infrastructure():
     mcp_client = MCPClient("http://localhost:8090")
     await mcp_client.connect()
-    
+
     result = await mcp_client.call_tool(
         "pulumi",
         "run_pulumi_up",
@@ -2853,7 +2857,7 @@ async def deploy_infrastructure():
             "stack_name": "dev"
         }
     )
-    
+
     await mcp_client.close()
     return result
 ```
@@ -2870,7 +2874,7 @@ from backend.mcp.mcp_client import MCPClient
 async def build_admin_dashboard():
     mcp_client = MCPClient("http://localhost:8090")
     await mcp_client.connect()
-    
+
     result = await mcp_client.call_tool(
         "retool",
         "create_admin_dashboard",
@@ -2879,7 +2883,7 @@ async def build_admin_dashboard():
             "description": "Sophia AI Admin Dashboard"
         }
     )
-    
+
     await mcp_client.close()
     return result
 ```
@@ -2900,8 +2904,7 @@ async def store_memory(agent_id, content, metadata):
         content=content,
         metadata=metadata
     )
-    
+
     response = await comprehensive_memory_manager.process_memory_request(request)
     return response
 ```
-
