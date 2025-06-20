@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
+import re
 
 from .speaker_boundary_chunker import SpeakerBoundaryChunker
 from .topic_boundary_chunker import TopicBoundaryChunker
@@ -80,32 +81,61 @@ class SophiaEnhancedMetadata:
     crm_update_required: bool
 
 class SophiaChunkingPipeline:
-    """Sophia AI - Advanced Multi-Strategy Chunking Pipeline"""
-    
-    def __init__(self):
-        # Core chunking strategies
-        self.speaker_chunker = SpeakerBoundaryChunker()
-        self.topic_chunker = TopicBoundaryChunker()
-        self.decision_chunker = DecisionPointChunker()
-        self.emotional_chunker = EmotionalBoundaryChunker()
+    """
+    An intelligent chunking pipeline that understands document structure.
+    """
+    def __init__(self, max_chunk_size: int = 512, overlap: int = 50):
+        self.max_chunk_size = max_chunk_size
+        self.overlap = overlap
+
+    async def initialize(self):
+        """No async initialization needed for this simple version."""
+        pass
+
+    async def chunk_content(self, content: str, content_type: str, **kwargs) -> List[Dict[str, Any]]:
+        """
+        Chunks the provided content based on its logical structure.
+        For now, it uses paragraph splitting as a primary method.
+        """
+        if content_type != "text":
+            logger.warning(f"Chunking for content type '{content_type}' is not fully supported. Treating as plain text.")
+
+        # Split by double newline (paragraphs) first, as it's a strong logical separator.
+        paragraphs = content.split('\n\n')
         
-        # Business intelligence extractors
-        self.business_intelligence = BusinessIntelligenceExtractor()
-        self.sentiment_analyzer = SentimentAnalyzer()
-        self.decision_maker_extractor = DecisionMakerExtractor()
+        chunks = []
+        current_chunk = ""
+
+        for p in paragraphs:
+            p = p.strip()
+            if not p:
+                continue
+
+            # If adding the next paragraph would exceed the max size,
+            # finalize the current chunk and start a new one.
+            if len(current_chunk) + len(p) + 1 > self.max_chunk_size:
+                if current_chunk:
+                    chunks.append({"content": current_chunk, "metadata": {"source": "paragraph_split"}})
+                
+                # Start the new chunk, potentially with overlap from the end of the last one.
+                overlap_text = current_chunk[-self.overlap:]
+                current_chunk = overlap_text + " " + p
+            else:
+                if current_chunk:
+                    current_chunk += "\n\n" + p
+                else:
+                    current_chunk = p
         
-        # Real-time processors
-        self.real_time_processor = RealTimeProcessor()
-        self.context_preserver = ContextPreserver()
+        # Add the last remaining chunk
+        if current_chunk:
+            chunks.append({"content": current_chunk, "metadata": {"source": "paragraph_split"}})
+            
+        # A more advanced version would handle oversized paragraphs by splitting them by sentences.
+        # For now, this is a robust starting point.
         
-        # Topic classification
-        self.topic_classifier = HierarchicalTopicClassifier()
-        
-        # AI agent integration
-        self.ai_agent_integration = AIAgentIntegration()
-        
-        logger.info("Sophia Chunking Pipeline initialized")
-    
+        logger.info(f"Successfully split content into {len(chunks)} chunks.")
+        return chunks
+
     async def process_content(
         self, 
         content: str, 
