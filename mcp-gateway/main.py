@@ -22,7 +22,8 @@ async def startup_event():
         "lambda-labs": "http://lambda-labs-mcp:9000",
         "linear": "http://linear-mcp:9000",
         "slack": "http://slack-mcp:9000",
-        "codebase-awareness": "http://codebase-awareness-mcp:9000"
+        "codebase-awareness": "http://codebase-awareness-mcp:9000",
+        "pulumi": "http://pulumi-mcp:9000"
         # Add other servers here as needed
     }
     app.state.http_session = aiohttp.ClientSession()

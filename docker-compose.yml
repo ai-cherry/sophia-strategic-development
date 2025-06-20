@@ -296,6 +296,17 @@ services:
       - PYTHONUNBUFFERED=1
       - PULUMI_ORG=${PULUMI_ORG}
 
+  pulumi-mcp:
+    <<: *base-mcp-service
+    build:
+      args:
+        MCP_SERVER_MODULE: backend.mcp.pulumi_mcp_server
+    container_name: sophia-pulumi-mcp
+    # This server needs access to the iac-toolkit to run commands
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
   iac-toolkit:
     build:
       context: .
