@@ -8,6 +8,7 @@ from agno import Agent, state, transition
 
 from backend.agents.core.base_agent import BaseAgent, AgentConfig, Task, TaskResult
 from backend.mcp.mcp_client import MCPClient
+from backend.integrations.portkey_client import PortkeyClient
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class ResearchAgent(Agent, BaseAgent):
         Agent.__init__(self)
         BaseAgent.__init__(self, config)
         self.mcp_client = MCPClient("http://localhost:8090") # Assumes gateway is running
+        self.portkey_client = PortkeyClient()
         self.research_data = {}
 
     async def initialize(self):
@@ -27,20 +29,40 @@ class ResearchAgent(Agent, BaseAgent):
 
     @state(initial=True)
     async def deconstruct_topic(self, topic: str):
-        """Breaks a broad topic into specific, searchable queries."""
+        """Breaks a broad topic into specific, searchable queries using an LLM."""
         logger.info(f"[State: DECONSTRUCT_TOPIC] for topic: {topic}")
         self.research_data = {"original_topic": topic}
 
-        # In a real implementation, we would use an LLM call here to generate queries.
-        # For now, we'll use a simple, rule-based approach.
-        queries = [
-            f"{topic} market size",
-            f"{topic} key players and competitors",
-            f"{topic} challenges and opportunities 2024",
-            f"future trends in {topic}"
-        ]
+        system_prompt = """You are a master research analyst. Your task is to take a high-level research topic and break it down into a series of 3-5 specific, effective Google search queries. Return ONLY a JSON-formatted list of strings.
+
+Example Topic: "The impact of AI on the property management industry"
+Example Output:
+[
+    "AI applications in property management tenant screening",
+    "automation in multifamily rent collection using AI",
+    "predictive maintenance AI for apartment buildings",
+    "top AI-powered property management software 2024",
+    "future of AI in real estate market analysis"
+]
+"""
+        
+        llm_response = await self.portkey_client.llm_call(
+            prompt=f"Research Topic: {topic}",
+            system_prompt=system_prompt
+        )
+        
+        try:
+            # Extract and parse the JSON list from the LLM response
+            content = llm_response.get("choices", [{}])[0].get("message", {}).get("content", "[]")
+            queries = json.loads(content)
+            if not isinstance(queries, list) or not all(isinstance(q, str) for q in queries):
+                raise ValueError("LLM did not return a valid list of strings.")
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Failed to parse LLM response into search queries: {e}. Falling back to simple query.")
+            queries = [topic] # Fallback to using the original topic as the query
+
         self.research_data["search_queries"] = queries
-        logger.info(f"Generated search queries: {queries}")
+        logger.info(f"Generated search queries via LLM: {queries}")
         return self.execute_search
 
     @state
