@@ -14,6 +14,8 @@ from datetime import datetime
 from mcp.types import Resource, Tool, TextContent, CallToolRequest, ReadResourceRequest, ListResourcesRequest, ListToolsRequest
 
 from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 # Import dependencies with fallback
 try:
@@ -268,7 +270,7 @@ class AIMemoryMCPServer(BaseMCPServer):
             
             # Store in Pinecone if available
             if self.index:
-                self.index.upsert([(memory_id, embedding, metadata)])
+                self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=[(memory_id, embedding, metadata))])
                 self.logger.info(f"Stored memory {memory_id} in Pinecone")
             
             return {
@@ -354,7 +356,7 @@ class AIMemoryMCPServer(BaseMCPServer):
             return {"error": "Pinecone index not available"}
         
         try:
-            self.index.delete(ids=[memory_id])
+            self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.DELETE, memory_id=ids=[memory_id]))
             return {
                 "success": True,
                 "memory_id": memory_id,

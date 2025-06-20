@@ -14,6 +14,8 @@ import openai
 import pinecone
 import weaviate
 from sentence_transformers import SentenceTransformer
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 @dataclass
 class VectorConfig:
@@ -77,7 +79,11 @@ class VectorIntegration:
                 )
                 self.logger.info(f"Created Pinecone index: {self.config.pinecone_index_name}")
             
-            self.pinecone_index = pinecone.Index(self.config.pinecone_index_name)
+            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_index = pinecone.Index(self.config.pinecone_index_name)
+pinecone_index = comprehensive_memory_manager
+pinecone_index = comprehensive_memory_manager
             self.logger.info("Pinecone connection established")
             
         except Exception as e:
@@ -433,7 +439,7 @@ class VectorIntegration:
         # Delete from Pinecone
         if self.pinecone_index:
             try:
-                self.pinecone_index.delete(ids=[content_id])
+                self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.DELETE, memory_id=ids=[content_id]))
                 results["pinecone"] = True
                 self.logger.info(f"Deleted {content_id} from Pinecone")
             except Exception as e:

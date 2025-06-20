@@ -7,6 +7,8 @@ import os
 
 from ..sophia_mcp_server import MCPTool
 from ...core.secret_manager import secret_manager
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 class VectorSearchTool(MCPTool):
     """Tool for searching vector databases"""
@@ -119,10 +121,16 @@ class VectorSearchTool(MCPTool):
             api_key = await secret_manager.get_secret("api_key", "pinecone")
             environment = os.environ.get("PINECONE_ENVIRONMENT", "us-east1-gcp")
             
-            pinecone.init(api_key=api_key, environment=environment)
+            # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: pinecone.init(api_key=api_key, environment=environment)
             
             index_name = os.environ.get("PINECONE_INDEX", "sophia-index")
-            self.pinecone_client = pinecone.Index(index_name)
+            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_client = pinecone.Index(index_name)
+pinecone_client = comprehensive_memory_manager
+pinecone_client = comprehensive_memory_manager
         
         # Perform query
         query_response = self.pinecone_client.query(
@@ -342,10 +350,16 @@ class VectorStoreTool(MCPTool):
             api_key = await secret_manager.get_secret("api_key", "pinecone")
             environment = os.environ.get("PINECONE_ENVIRONMENT", "us-east1-gcp")
             
-            pinecone.init(api_key=api_key, environment=environment)
+            # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: pinecone.init(api_key=api_key, environment=environment)
             
             index_name = os.environ.get("PINECONE_INDEX", "sophia-index")
-            self.pinecone_client = pinecone.Index(index_name)
+            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_client = pinecone.Index(index_name)
+pinecone_client = comprehensive_memory_manager
+pinecone_client = comprehensive_memory_manager
         
         # Generate ID if not provided
         if not item_id:

@@ -27,6 +27,8 @@ from backend.knowledge_base.vector_store import VectorStoreManager
 from backend.knowledge_base.chunking import ChunkingStrategy
 from backend.knowledge_base.metadata_store import MetadataStore
 from backend.config.settings import settings
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -121,7 +123,11 @@ class LlamaIndexProcessor:
                 )
             
             # Create vector store
-            index = pinecone.Index(index_name)
+            # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: index = pinecone.Index(index_name)
+index = comprehensive_memory_manager
+index = comprehensive_memory_manager
             return PineconeVectorStore(pinecone_index=index)
             
         except Exception as e:

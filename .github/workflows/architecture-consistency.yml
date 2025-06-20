@@ -1,0 +1,61 @@
+name: Architecture Consistency Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-architecture-consistency:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+    
+    - name: Check architecture consistency
+      run: |
+        python scripts/check_architecture_consistency.py
+    
+    - name: Upload architecture consistency report
+      uses: actions/upload-artifact@v2
+      with:
+        name: architecture-consistency-report
+        path: architecture_consistency_report.md
+    
+    - name: Check for inconsistencies
+      run: |
+        # Extract the number of inconsistencies from the report
+        DIRECT_API_CALLS=$(grep -oP "Direct Api Calls: \K\d+" architecture_consistency_report.md || echo "0")
+        DIRECT_PULUMI_COMMANDS=$(grep -oP "Direct Pulumi Commands: \K\d+" architecture_consistency_report.md || echo "0")
+        OLD_UI_REFERENCES=$(grep -oP "Old Ui References: \K\d+" architecture_consistency_report.md || echo "0")
+        DIRECT_VECTOR_STORE_ACCESS=$(grep -oP "Direct Vector Store Access: \K\d+" architecture_consistency_report.md || echo "0")
+        
+        # Calculate total inconsistencies
+        TOTAL_INCONSISTENCIES=$((DIRECT_API_CALLS + DIRECT_PULUMI_COMMANDS + OLD_UI_REFERENCES + DIRECT_VECTOR_STORE_ACCESS))
+        
+        echo "Found $TOTAL_INCONSISTENCIES architecture inconsistencies:"
+        echo "- Direct API Calls: $DIRECT_API_CALLS"
+        echo "- Direct Pulumi Commands: $DIRECT_PULUMI_COMMANDS"
+        echo "- Old UI References: $OLD_UI_REFERENCES"
+        echo "- Direct Vector Store Access: $DIRECT_VECTOR_STORE_ACCESS"
+        
+        # Fail the build if there are inconsistencies
+        if [ $TOTAL_INCONSISTENCIES -gt 0 ]; then
+          echo "::error::Found $TOTAL_INCONSISTENCIES architecture inconsistencies. Please fix them before merging."
+          exit 1
+        fi
+        
+        echo "No architecture inconsistencies found."

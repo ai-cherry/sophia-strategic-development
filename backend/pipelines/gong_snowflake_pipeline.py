@@ -7,6 +7,8 @@ import snowflake.connector
 import pinecone
 from ..integrations.gong.enhanced_gong_integration import EnhancedGongIntegration
 from ..core.secret_manager import secret_manager
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 class GongSnowflakePipeline:
     """Pipeline for Gong → Snowflake → Vector DB"""
@@ -37,8 +39,14 @@ class GongSnowflakePipeline:
         
         # Pinecone connection
         pinecone_key = await secret_manager.get_secret("api_key", "pinecone")
-        pinecone.init(api_key=pinecone_key, environment="us-east1-gcp")
-        self.pinecone_index = pinecone.Index("sophia-interactions")
+        # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: pinecone.init(api_key=pinecone_key, environment="us-east1-gcp")
+        self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_index = pinecone.Index("sophia-interactions")
+pinecone_index = comprehensive_memory_manager
+pinecone_index = comprehensive_memory_manager
         
         # OpenAI for embeddings
         try:
@@ -330,5 +338,5 @@ class GongSnowflakePipeline:
         
         # Batch upsert to Pinecone
         if vectors_to_upsert:
-            self.pinecone_index.upsert(vectors=vectors_to_upsert)
+            self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=vectors=vectors_to_upsert))
             self.logger.info(f"Upserted {len(vectors_to_upsert)} conversation embeddings to Pinecone")

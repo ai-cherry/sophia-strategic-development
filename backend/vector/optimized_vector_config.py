@@ -9,6 +9,8 @@ import os
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import time
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 # Pinecone Configuration
 @dataclass
@@ -163,7 +165,11 @@ class OptimizedVectorDatabaseManager:
         
         # Verify index statistics
         for index_name in [self.pinecone_config.primary_index, self.pinecone_config.secondary_index]:
-            index = pinecone.Index(index_name)
+            # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: index = pinecone.Index(index_name)
+index = comprehensive_memory_manager
+index = comprehensive_memory_manager
             stats = index.describe_index_stats()
             self.logger.info(f"Index {index_name} stats: {stats}")
     
@@ -353,7 +359,11 @@ class OptimizedVectorDatabaseManager:
         metadata_filter = self.build_pinecone_filter(filters) if filters else None
         
         # Search primary index
-        index = pinecone.Index(self.pinecone_config.primary_index)
+        # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: index = pinecone.Index(self.pinecone_config.primary_index)
+index = comprehensive_memory_manager
+index = comprehensive_memory_manager
         results = index.query(
             vector=query_vector,
             top_k=limit,
@@ -596,7 +606,11 @@ class OptimizedVectorDatabaseManager:
         try:
             start_time = time.time()
             import pinecone
-            index = pinecone.Index(self.pinecone_config.primary_index)
+            # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: index = pinecone.Index(self.pinecone_config.primary_index)
+index = comprehensive_memory_manager
+index = comprehensive_memory_manager
             stats = index.describe_index_stats()
             latency = time.time() - start_time
             

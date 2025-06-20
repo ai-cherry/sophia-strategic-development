@@ -12,6 +12,8 @@ from typing import Dict, Any, Optional, List, Union
 import aiohttp
 from dataclasses import dataclass
 from functools import wraps
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -17,6 +17,8 @@ import weaviate
 from sentence_transformers import SentenceTransformer
 
 from ..core.config_manager import get_config, get_secret, get_api_client
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 class VectorIntegration:
     """
@@ -122,7 +124,11 @@ class VectorIntegration:
                 )
                 self.logger.info(f"Created Pinecone index: {self.pinecone_index_name}")
             
-            self.pinecone_index = pinecone.Index(self.pinecone_index_name)
+            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_index = pinecone.Index(self.pinecone_index_name)
+pinecone_index = comprehensive_memory_manager
+pinecone_index = comprehensive_memory_manager
             self.logger.info("Pinecone connection established")
             
         except Exception as e:

@@ -13,6 +13,8 @@ import pinecone
 import psycopg2
 import redis
 import weaviate
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +32,19 @@ class MultiDatabaseManager:
     ) -> None:
         self.pg_conn = psycopg2.connect(pg_dsn)
         self.redis = redis.Redis.from_url(redis_url)
-        pinecone.init(api_key=pinecone_key, environment="us-west1-gcp")
-        self.pinecone = pinecone.Index("sophia-payready")
-        self.weaviate = weaviate.Client(url=weaviate_url, auth_client_secret=weaviate.AuthApiKey(weaviate_key))
+        # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
+# Original: pinecone.init(api_key=pinecone_key, environment="us-west1-gcp")
+        self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone = pinecone.Index("sophia-payready")
+pinecone = comprehensive_memory_manager
+pinecone = comprehensive_memory_manager
+        self.# Replaced weaviate.Client with ComprehensiveMemoryManager
+# Original: # Replaced weaviate.Client with ComprehensiveMemoryManager
+# Original: weaviate = weaviate.Client(url=weaviate_url, auth_client_secret=weaviate.AuthApiKey(weaviate_key)
+weaviate = comprehensive_memory_manager
+weaviate = comprehensive_memory_manager)
         logger.info("MultiDatabaseManager initialized")
 
     # ------------------------------------------------------------------
@@ -55,7 +67,7 @@ class MultiDatabaseManager:
 
     def _vector_search(self, text: str) -> List[Dict[str, Any]]:
         """Search Pinecone and Weaviate."""
-        pine = self.pinecone.query(vector=[], top_k=5, include_metadata=True)
+        pine = self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=vector=[], top_k=5, include_metadata=True))
         wea = self.weaviate.query.get("SophiaPayReady", ["text"]).with_limit(5).do()
         return [*pine.get("matches", []), *wea.get("data", {}).get("Get", {}).get("SophiaPayReady", [])]
 

@@ -1,20 +1,19 @@
-#!/usr/bin/env python3
 """
-Alternative Gong API Implementation using MCP
-Uses the MCP federation model to interact with the Gong API
+Gong MCP Client Example
+This script demonstrates how to use the MCP client to call the Gong MCP server
+instead of making direct API calls to Gong.
 """
 
-import os
-import json
 import asyncio
+import json
 import logging
-from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
+from datetime import datetime, timedelta
 
 from backend.mcp.mcp_client import MCPClient
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class GongMCPClient:
@@ -28,29 +27,8 @@ class GongMCPClient:
     
     async def initialize(self):
         """Connect to the MCP gateway."""
-        await self._wait_for_gateway()
         await self.mcp_client.connect()
         logger.info("MCP Client connected.")
-    
-    async def _wait_for_gateway(self, timeout: int = 60):
-        """Polls the MCP gateway's health endpoint until it's ready."""
-        start_time = asyncio.get_event_loop().time()
-        health_url = f"{self.mcp_client.gateway_url}/health"
-        logger.info(f"Waiting for MCP gateway to be healthy at {health_url}...")
-        
-        while True:
-            try:
-                async with self.mcp_client.session.get(health_url) as response:
-                    if response.status == 200:
-                        logger.info("MCP gateway is healthy!")
-                        return
-            except Exception:
-                pass  # Ignore connection errors while waiting
-
-            if asyncio.get_event_loop().time() - start_time >= timeout:
-                raise TimeoutError(f"Gateway not healthy after {timeout} seconds.")
-            
-            await asyncio.sleep(5)
     
     async def close(self):
         """Close the MCP client connection."""
@@ -552,9 +530,9 @@ class GongMCPClient:
         return score
 
 
-async def test_gong_mcp_client():
+async def main():
     """
-    Test the Gong MCP client.
+    Main function to run the Gong MCP client.
     """
     # NOTE: This assumes the MCP Gateway and the Gong MCP server are running.
     # You can start them with `docker-compose up mcp-gateway gong-mcp`
@@ -597,4 +575,4 @@ async def test_gong_mcp_client():
 
 if __name__ == "__main__":
     # Run the Gong MCP client
-    asyncio.run(test_gong_mcp_client())
+    asyncio.run(main())

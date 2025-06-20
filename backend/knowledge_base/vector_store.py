@@ -11,6 +11,8 @@ from pinecone import Pinecone, ServerlessSpec
 
 from backend.knowledge_base.chunking import Chunk
 from infrastructure.esc.pinecone_secrets import pinecone_secret_manager
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +87,7 @@ class VectorStore:
                 "metadata": pinecone_metadata
             })
         
-        self.index.upsert(vectors=vectors_to_upsert)
+        self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=vectors=vectors_to_upsert))
         logger.info(f"Upserted {len(chunks)} vectors into Pinecone index '{self.INDEX_NAME}'.")
 
     async def query(self, query_text: str, top_k: int = 5, filter_dict: Dict = None) -> List[Dict[str, Any]]:
@@ -140,14 +142,14 @@ async def main():
         chunk.metadata['content'] = chunk.content
 
     # Upsert the chunks
-    await store.upsert(chunks)
+    await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=chunks))
     
     # Give Pinecone a moment to index
     await asyncio.sleep(5)
 
     # Perform a query
     query = "What is the main focus of the company?"
-    results = await store.query(query, top_k=2)
+    results = await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=query, top_k=2))
     
     print(f"\n--- Query Results for '{query}' ---")
     for res in results:
@@ -158,7 +160,7 @@ async def main():
 
     # Perform a filtered query
     filtered_query = "What tools are used?"
-    results_filtered = await store.query(filtered_query, top_k=2, filter_dict={"type": "tech"})
+    results_filtered = await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=filtered_query, top_k=2, filter_dict={"type": "tech"}))
     
     print(f"\n--- Filtered Query Results for '{filtered_query}' (type=tech) ---")
     for res in results_filtered:

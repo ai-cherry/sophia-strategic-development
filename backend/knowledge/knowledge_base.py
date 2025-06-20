@@ -18,6 +18,8 @@ from sqlalchemy.orm import sessionmaker
 import pinecone
 import weaviate
 from sentence_transformers import SentenceTransformer
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +135,11 @@ class SophiaKnowledgeBase:
                     metric='cosine'
                 )
             
-            self.pinecone_index = pinecone.Index(index_name)
+            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+# Original: pinecone_index = pinecone.Index(index_name)
+pinecone_index = comprehensive_memory_manager
+pinecone_index = comprehensive_memory_manager
             logger.info("Pinecone initialized successfully")
             
         except Exception as e:
@@ -331,7 +337,7 @@ class SophiaKnowledgeBase:
             enriched_results = []
             
             for result in results:
-                doc = session.query(KnowledgeBaseDocument).filter_by(
+                doc = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).filter_by(
                     id=result['document_id']
                 ).first()
                 
@@ -361,7 +367,7 @@ class SophiaKnowledgeBase:
         """Get a specific document by ID"""
         try:
             session = self.Session()
-            doc = session.query(KnowledgeBaseDocument).filter_by(id=document_id).first()
+            doc = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).filter_by(id=document_id).first()
             session.close()
             
             if doc:
@@ -392,7 +398,7 @@ class SophiaKnowledgeBase:
             session = self.Session()
             
             # Get existing document
-            existing = session.query(KnowledgeBaseDocument).filter_by(id=document.id).first()
+            existing = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).filter_by(id=document.id).first()
             if not existing:
                 session.close()
                 return False
@@ -435,12 +441,12 @@ class SophiaKnowledgeBase:
         try:
             session = self.Session()
             
-            total_docs = session.query(KnowledgeBaseDocument).count()
+            total_docs = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).count()
             
             # Count by content type
             type_counts = {}
             for content_type in ContentType:
-                count = session.query(KnowledgeBaseDocument).filter_by(
+                count = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).filter_by(
                     content_type=content_type.value
                 ).count()
                 type_counts[content_type.value] = count
@@ -448,7 +454,7 @@ class SophiaKnowledgeBase:
             # Count by status
             status_counts = {}
             for status in ContentStatus:
-                count = session.query(KnowledgeBaseDocument).filter_by(
+                count = await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=KnowledgeBaseDocument)).filter_by(
                     status=status.value
                 ).count()
                 status_counts[status.value] = count

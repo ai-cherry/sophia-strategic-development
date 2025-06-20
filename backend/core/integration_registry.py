@@ -15,6 +15,8 @@ from abc import ABC, abstractmethod
 from functools import wraps
 
 from .integration_config import Integration, ServiceConfig, IntegrationConfig, ConfigurationError, IntegrationError
+from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

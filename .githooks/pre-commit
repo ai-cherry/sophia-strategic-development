@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Pre-commit hook to check for architecture inconsistencies
+
+echo "Running architecture consistency check..."
+
+# Run the architecture consistency checker
+python scripts/check_architecture_consistency.py
+
+# Check if the report file exists
+if [ ! -f "architecture_consistency_report.md" ]; then
+  echo "Error: Architecture consistency report not generated."
+  exit 1
+fi
+
+# Extract the number of inconsistencies from the report
+DIRECT_API_CALLS=$(grep -oP "Direct Api Calls: \K\d+" architecture_consistency_report.md || echo "0")
+DIRECT_PULUMI_COMMANDS=$(grep -oP "Direct Pulumi Commands: \K\d+" architecture_consistency_report.md || echo "0")
+OLD_UI_REFERENCES=$(grep -oP "Old Ui References: \K\d+" architecture_consistency_report.md || echo "0")
+DIRECT_VECTOR_STORE_ACCESS=$(grep -oP "Direct Vector Store Access: \K\d+" architecture_consistency_report.md || echo "0")
+
+# Calculate total inconsistencies
+TOTAL_INCONSISTENCIES=$((DIRECT_API_CALLS + DIRECT_PULUMI_COMMANDS + OLD_UI_REFERENCES + DIRECT_VECTOR_STORE_ACCESS))
+
+echo "Found $TOTAL_INCONSISTENCIES architecture inconsistencies:"
+echo "- Direct API Calls: $DIRECT_API_CALLS"
+echo "- Direct Pulumi Commands: $DIRECT_PULUMI_COMMANDS"
+echo "- Old UI References: $OLD_UI_REFERENCES"
+echo "- Direct Vector Store Access: $DIRECT_VECTOR_STORE_ACCESS"
+
+# Fail the commit if there are inconsistencies
+if [ $TOTAL_INCONSISTENCIES -gt 0 ]; then
+  echo "Error: Found $TOTAL_INCONSISTENCIES architecture inconsistencies. Please fix them before committing."
+  echo "See architecture_consistency_report.md for details."
+  exit 1
+fi
+
+echo "No architecture inconsistencies found."
+exit 0
