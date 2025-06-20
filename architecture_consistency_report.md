@@ -1,7 +1,7 @@
 # Architecture Consistency Report
 
-Scanned 8250 files.
-Found 2757 files with architecture inconsistencies.
+Scanned 8251 files.
+Found 2758 files with architecture inconsistencies.
 
 ## Inconsistencies
 
@@ -363,7 +363,7 @@ Files:
 - ./docs/DEPLOYMENT_CHECKLIST.md
 - ./infrastructure/README.md
 
-### Old Ui References: 2409
+### Old Ui References: 2410
 
 Files:
 - ./sophia_live_test_suite.py
@@ -382,6 +382,7 @@ Files:
 - ./backend/knowledge/admin_integration.py
 - ./scripts/check_architecture_consistency.py
 - ./scripts/build_admin_dashboard.py
+- ./scripts/seed_foundational_knowledge.py
 - ./venv/lib/python3.11/site-packages/debugpy/_vendored/pydevd/_pydevd_bundle/_debug_adapter/pydevd_schema.py
 - ./venv/lib/python3.11/site-packages/pip/_vendor/pygments/lexers/_mapping.py
 - ./venv/lib/python3.11/site-packages/setuptools/installer.py

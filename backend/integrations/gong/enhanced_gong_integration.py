@@ -56,9 +56,31 @@ class EnhancedGongIntegration:
                 
         return all_conversations
     
+    async def _get_paginated_results(self, url: str, payload: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Handles pagination for Gong API requests."""
+        results = []
+        cursor = None
+        
+        while True:
+            if cursor:
+                payload["cursor"] = cursor
+            
+            response = await self.client.post(url, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            
+            key = url.strip("/")
+            results.extend(data.get(key, []))
+            
+            cursor = data.get("cursor")
+            if not cursor:
+                break
+                
+        return results
+
     async def _get_calls(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get call data with enhanced metadata"""
-        response = await self.client.post("/calls", json={
+        payload = {
             "filter": {
                 "fromDateTime": start_date,
                 "toDateTime": end_date
@@ -71,13 +93,12 @@ class EnhancedGongIntegration:
                 "includeTrackers": True,
                 "includeCrmContext": True
             }
-        })
-        response.raise_for_status()
+        }
         
-        calls_data = response.json()
+        calls_data = await self._get_paginated_results("/calls", payload)
         enhanced_calls = []
         
-        for call in calls_data.get("calls", []):
+        for call in calls_data:
             # Get detailed call information
             call_detail = await self._get_call_detail(call["id"])
             enhanced_calls.append(call_detail)
@@ -86,7 +107,7 @@ class EnhancedGongIntegration:
     
     async def _get_emails(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get email data with enhanced metadata"""
-        response = await self.client.post("/emails", json={
+        payload = {
             "filter": {
                 "fromDateTime": start_date,
                 "toDateTime": end_date
@@ -99,13 +120,12 @@ class EnhancedGongIntegration:
                 "includeCrmContext": True,
                 "includeSentiment": True
             }
-        })
-        response.raise_for_status()
+        }
         
-        emails_data = response.json()
+        emails_data = await self._get_paginated_results("/emails", payload)
         enhanced_emails = []
         
-        for email in emails_data.get("emails", []):
+        for email in emails_data:
             # Get detailed email information
             email_detail = await self._get_email_detail(email["id"])
             enhanced_emails.append(email_detail)
@@ -114,7 +134,7 @@ class EnhancedGongIntegration:
     
     async def _get_meetings(self, start_date: str, end_date: str) -> List[Dict[str, Any]]:
         """Get meeting data"""
-        response = await self.client.post("/meetings", json={
+        payload = {
             "filter": {
                 "fromDateTime": start_date,
                 "toDateTime": end_date
@@ -125,10 +145,8 @@ class EnhancedGongIntegration:
                 "includeTrackers": True,
                 "includeCrmContext": True
             }
-        })
-        response.raise_for_status()
-        
-        return response.json().get("meetings", [])
+        }
+        return await self._get_paginated_results("/meetings", payload)
     
     async def _get_call_detail(self, call_id: str) -> Dict[str, Any]:
         """Get detailed call information including transcript and spotlight"""

@@ -5,7 +5,7 @@ from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 class N8nSecretManager(EnhancedPulumiESC):
     def __init__(self):
-        super().__init__(env_file_name="n8n.env")
+        super().__init__()
     async def get_api_key(self) -> str:
         return await self.get_secret("N8N_API_KEY")
 

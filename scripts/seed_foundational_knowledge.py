@@ -12,7 +12,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
 from backend.chunking.sophia_chunking_pipeline import SophiaChunkingPipeline
-from backend.mcp.mcp_client import MCPClient
+from backend.mcp.knowledge_mcp_server import KnowledgeMCPServer
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -147,51 +147,50 @@ def get_tags_from_context(chunk: str) -> List[str]:
 async def seed_knowledge_base():
     """
     Chunks the foundational text and ingests it into the knowledge base
-    with strategic metadata.
+    by running the server logic directly in-process.
     """
     chunker = SophiaChunkingPipeline(max_chunk_size=1024, overlap=100)
-    mcp_client = MCPClient("http://localhost:8090")
+    
+    # Instantiate the server directly
+    knowledge_server = KnowledgeMCPServer()
     
     try:
-        await mcp_client.connect()
-        logger.info("--- Starting Foundational Knowledge Base Seeding ---")
+        # Initialize the server's components (connects to Pinecone, etc.)
+        await knowledge_server.initialize_integration()
+        logger.info("--- Starting Foundational Knowledge Base Seeding (In-Process) ---")
 
-        # 1. Chunk the main document
         chunks = await chunker.chunk_content(FOUNDATIONAL_TEXT, "text")
         
         for i, chunk_data in enumerate(chunks):
             content = chunk_data["content"]
-            
-            # 2. Determine strategic tags for the chunk
             tags = get_tags_from_context(content)
             
-            # 3. Ingest the chunk into our knowledge base
             with tempfile.NamedTemporaryFile(mode="w+", suffix=".md", delete=False) as temp_file:
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
             logger.info(f"Ingesting chunk {i+1}/{len(chunks)} with tags: {tags}")
             
-            # We use the knowledge_mcp_server, which now has automatic entity extraction
-            ingest_result = await mcp_client.call_tool(
-                "knowledge",
-                "ingest_document",
-                file_path=str(temp_file_path),
-                document_type="foundational_strategy",
-                tags=tags
-            )
-            
+            # Call the server's internal ingestion method directly
+            ingest_args = {
+                "file_path": str(temp_file_path),
+                "document_type": "foundational_strategy",
+                "tags": tags
+            }
+            # This simulates the tool call by invoking the underlying method
+            ingest_result = await knowledge_server._ingest_document_with_entity_extraction(ingest_args)
+
             if not ingest_result.get("success"):
                 logger.error(f"Failed to ingest chunk {i+1}. Reason: {ingest_result.get('error')}")
             
             Path(temp_file_path).unlink()
-            await asyncio.sleep(1) # To avoid rate limiting
+            await asyncio.sleep(1)
 
         logger.info("--- Knowledge Base Seeding Complete ---")
 
-    finally:
-        await mcp_client.close()
+    except Exception as e:
+        logger.error(f"An error occurred during the seeding process: {e}", exc_info=True)
+
 
 if __name__ == "__main__":
-    # Assumes the knowledge MCP server is running
     asyncio.run(seed_knowledge_base()) 

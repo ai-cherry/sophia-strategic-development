@@ -1,87 +1,18 @@
 """
-Pulumi ESC - Pinecone Secret Management
-Manages Pinecone API keys and environment configuration.
+Pulumi ESC Secret Manager for Pinecone.
 """
-import pulumi
-import pulumi_pulumiservice as pulumiservice
-import os
-import json
-import logging
+from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Constants
-PULUMI_ORG = os.getenv("PULUMI_ORG", "your-pulumi-org") # Replace with your Pulumi org name
-PULUMI_PROJECT = "sophia-ai"
-PULUMI_STACK = "dev"
-ENVIRONMENT_NAME = f"{PULUMI_PROJECT}-{PULUMI_STACK}"
-PINECONE_SECRET_NAME = "pineconeApiKey"
-
-# Ensure Pulumi org is set
-if PULUMI_ORG == "your-pulumi-org":
-    raise ValueError("Please set the PULUMI_ORG environment variable.")
-
-class PineconeSecretManager:
-    """Manages Pinecone secrets using Pulumi ESC."""
-
-    def __init__(self, org: str = PULUMI_ORG, project: str = PULUMI_PROJECT, stack: str = PULUMI_STACK):
-        self.org = org
-        self.project = project
-        self.stack = stack
-        self.environment_name = f"{project}-{stack}"
-        self.full_secret_name = f"sophia.{PINECONE_SECRET_NAME}"
-
-    def create_secret(self, secret_value: str):
-        """
-        Creates or updates the Pinecone API key in the Pulumi ESC environment.
-        This function is intended to be run from an administrative script, not the main app.
-        """
-        try:
-            # Create a Pulumi ESC environment
-            environment = pulumiservice.Environment(
-                self.environment_name,
-                organization=self.org,
-                name=self.environment_name,
-                yaml=pulumi.Output.from_input(json.dumps({
-                    "values": {
-                        "sophia": {
-                            "pineconeApiKey": {
-                                "fn::secret": secret_value
-                            }
-                        }
-                    }
-                }))
-            )
-            logger.info(f"Successfully created/updated environment '{self.environment_name}' with Pinecone secret.")
-            return environment
-        except Exception as e:
-            logger.error(f"Failed to create/update secret in Pulumi ESC: {e}")
-            raise
+class PineconeSecretManager(EnhancedPulumiESC):
+    """Handles getting and setting Pinecone secrets via Pulumi ESC."""
+    
+    def __init__(self):
+        super().__init__()
 
     async def get_pinecone_api_key(self) -> str:
-        """
-        Retrieves the Pinecone API key from the Pulumi ESC environment.
-        This is the method the application will call at runtime.
-        """
-        try:
-            # Open the stack and get the secret value
-            opened_env = await pulumiservice.open_environment(
-                name=self.environment_name,
-                organization=self.org
-            )
-            return opened_env.get(self.full_secret_name)
-        except Exception as e:
-            logger.error(f"Failed to retrieve secret '{self.full_secret_name}' from Pulumi ESC: {e}")
-            # Fallback to environment variable if ESC fails
-            api_key = os.getenv("PINECONE_API_KEY")
-            if api_key:
-                logger.warning("Falling back to PINECONE_API_KEY environment variable.")
-                return api_key
-            raise ConnectionError("Could not retrieve Pinecone API key from Pulumi ESC or environment variables.")
+        """Retrieves the Pinecone API key."""
+        return await self.get_secret("PINECONE_API_KEY")
 
-# Global instance
 pinecone_secret_manager = PineconeSecretManager()
 
 # Example of how to run this to set the secret

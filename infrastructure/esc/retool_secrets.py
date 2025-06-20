@@ -10,7 +10,7 @@ class RetoolSecretManager(EnhancedPulumiESC):
     """
     
     def __init__(self):
-        super().__init__(env_file_name="retool.env")
+        super().__init__()
 
     async def get_retool_api_token(self) -> str:
         """

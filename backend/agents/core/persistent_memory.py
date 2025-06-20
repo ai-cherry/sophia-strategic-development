@@ -13,6 +13,7 @@ from langchain.memory.chat_message_histories import RedisChatMessageHistory
 from langchain.schema import BaseChatMessageHistory
 
 from ...core.secret_manager import secret_manager
+from ...vector.vector_integration_updated import vector_integration
 from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
 
 
@@ -28,13 +29,15 @@ class PersistentMemory:
         self.storage_path.mkdir(exist_ok=True)
         self.lock = asyncio.Lock()
 
-    def _get_agent_memory_file(self, agent_id: str) -> Path:
-        """Gets the memory file path for a given agent."""
-        return self.storage_path / f"{agent_id}_memory.json"
+    def _get_agent_memory_file(self, agent_id: str, role_partition: str = "default") -> Path:
+        """Gets the memory file path for a given agent, partitioned by role."""
+        partition_path = self.storage_path / role_partition
+        partition_path.mkdir(exist_ok=True)
+        return partition_path / f"{agent_id}_memory.json"
 
-    async def _read_memory(self, agent_id: str) -> Dict[str, Any]:
+    async def _read_memory(self, agent_id: str, role_partition: str = "default") -> Dict[str, Any]:
         """Reads the entire memory for an agent."""
-        memory_file = self._get_agent_memory_file(agent_id)
+        memory_file = self._get_agent_memory_file(agent_id, role_partition)
         if not memory_file.exists():
             return {}
         
@@ -45,16 +48,16 @@ class PersistentMemory:
                 except json.JSONDecodeError:
                     return {}
 
-    async def _write_memory(self, agent_id: str, memory_data: Dict[str, Any]):
+    async def _write_memory(self, agent_id: str, memory_data: Dict[str, Any], role_partition: str = "default"):
         """Writes the entire memory for an agent."""
-        memory_file = self._get_agent_memory_file(agent_id)
+        memory_file = self._get_agent_memory_file(agent_id, role_partition)
         async with self.lock:
             with open(memory_file, 'w') as f:
                 json.dump(memory_data, f, indent=2)
 
-    async def store_memory(self, agent_id: str, memory_type: str, content: Any, metadata: Optional[Dict[str, Any]] = None):
+    async def store_memory(self, agent_id: str, memory_type: str, content: Any, metadata: Optional[Dict[str, Any]] = None, role_partition: str = "default"):
         """Stores a specific piece of memory for an agent."""
-        memory_data = await self._read_memory(agent_id)
+        memory_data = await self._read_memory(agent_id, role_partition)
         if memory_type not in memory_data:
             memory_data[memory_type] = []
         
@@ -62,14 +65,14 @@ class PersistentMemory:
             "content": content,
             "metadata": metadata or {}
         })
-        await self._write_memory(agent_id, memory_data)
+        await self._write_memory(agent_id, memory_data, role_partition)
 
-    async def retrieve_memories(self, agent_id: str, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def retrieve_memories(self, agent_id: str, query: str, limit: int = 10, role_partition: str = "default") -> List[Dict[str, Any]]:
         """
         Retrieves memories. This is a simple implementation that returns the latest memories.
         A real implementation would have more sophisticated querying.
         """
-        memory_data = await self._read_memory(agent_id)
+        memory_data = await self._read_memory(agent_id, role_partition)
         all_memories = []
         for mem_type in memory_data:
             all_memories.extend(memory_data[mem_type])
@@ -258,79 +261,18 @@ class VectorPersistentMemory(PersistentMemory):
         super().__init__(agent_id, memory_type, redis_url, ttl)
         self.vector_db = vector_db
         self.collection = collection or f"sophia_memory_{agent_id}"
-        self.pinecone_client = None
-        self.weaviate_client = None
-        self.openai_client = None
+        self.vector_client = vector_integration # Use the singleton
         
     async def initialize(self):
         """Initialize the memory"""
         await super().initialize()
         
         try:
-            # Initialize vector database client
-            if self.vector_db == "pinecone":
-                import pinecone
-                
-                api_key = await secret_manager.get_secret("api_key", "pinecone")
-                environment = os.environ.get("PINECONE_ENVIRONMENT", "us-east1-gcp")
-                
-                # Replaced pinecone.init with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
-# Original: pinecone.init(api_key=api_key, environment=environment)
-                
-                index_name = os.environ.get("PINECONE_INDEX", "sophia-index")
-                self.# Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: pinecone_client = pinecone.Index(index_name)
-pinecone_client = comprehensive_memory_manager
-pinecone_client = comprehensive_memory_manager
-                
-            elif self.vector_db == "weaviate":
-                import weaviate
-                
-                api_key = await secret_manager.get_secret("api_key", "weaviate")
-                url = os.environ.get("WEAVIATE_URL", "http://localhost:8080")
-                
-                self.weaviate_client = weaviate.Client(
-                    url=url,
-                    auth_client_secret=weaviate.AuthApiKey(api_key=api_key)
-                )
-                
-                # Check if class exists, create if not
-                class_name = self.collection.replace("-", "_").capitalize()
-                
-                if not self.weaviate_client.schema.contains(class_name):
-                    class_obj = {
-                        "class": class_name,
-                        "vectorizer": "none",  # We'll provide our own vectors
-                        "properties": [
-                            {
-                                "name": "agent_id",
-                                "dataType": ["string"]
-                            },
-                            {
-                                "name": "role",
-                                "dataType": ["string"]
-                            },
-                            {
-                                "name": "content",
-                                "dataType": ["text"]
-                            },
-                            {
-                                "name": "timestamp",
-                                "dataType": ["date"]
-                            }
-                        ]
-                    }
-                    
-                    self.weaviate_client.schema.create_class(class_obj)
+            # The vector_integration singleton handles its own initialization
+            if not self.vector_client.initialized:
+                await self.vector_client.initialize()
             
-            # Initialize OpenAI client for embeddings
-            from openai import OpenAI
-            api_key = await secret_manager.get_secret("api_key", "openai")
-            self.openai_client = OpenAI(api_key=api_key)
-            
-            self.logger.info(f"Initialized vector persistent memory for agent {self.agent_id}")
+            self.logger.info(f"Initialized vector persistent memory for agent {self.agent_id} using '{self.vector_db}'")
         except Exception as e:
             self.logger.error(f"Failed to initialize vector persistent memory: {e}")
             raise
@@ -349,59 +291,22 @@ pinecone_client = comprehensive_memory_manager
         # Also add to vector database
         await self._add_to_vector_db("ai", message)
     
-    async def _generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text"""
-        if not self.openai_client:
-            await self.initialize()
-        
-        response = self.openai_client.embeddings.create(
-            model="text-embedding-ada-002",
-            input=text
-        )
-        
-        return response.data[0].embedding
-    
     async def _add_to_vector_db(self, role: str, message: str):
         """Add a message to vector database"""
         try:
-            # Generate embedding
-            embedding = await self._generate_embedding(message)
-            
-            # Prepare metadata
+            item_id = str(uuid.uuid4())
             metadata = {
                 "agent_id": self.agent_id,
                 "role": role,
                 "content": message,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
+                "collection": self.collection
             }
             
-            # Add to vector database
             if self.vector_db == "pinecone":
-                if not self.pinecone_client:
-                    await self.initialize()
-                
-                # Generate ID
-                item_id = str(uuid.uuid4())
-                
-                # Upsert vector
-                self.pinecone_client.upsert(
-                    vectors=[(item_id, embedding, metadata)],
-                    namespace=self.collection
-                )
-                
+                await self.vector_client.index_content_pinecone(item_id, message, metadata)
             elif self.vector_db == "weaviate":
-                if not self.weaviate_client:
-                    await self.initialize()
-                
-                # Prepare data object
-                class_name = self.collection.replace("-", "_").capitalize()
-                
-                # Create object with vector
-                self.weaviate_client.data_object.create(
-                    class_name=class_name,
-                    data_object=metadata,
-                    vector=embedding
-                )
+                await self.vector_client.index_content_weaviate(item_id, message, metadata)
                 
         except Exception as e:
             self.logger.error(f"Error adding message to vector database: {e}")
@@ -409,72 +314,15 @@ pinecone_client = comprehensive_memory_manager
     async def search_memory(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """Search memory for relevant messages"""
         try:
-            # Generate embedding for query
-            embedding = await self._generate_embedding(query)
-            
-            # Search vector database
             if self.vector_db == "pinecone":
-                if not self.pinecone_client:
-                    await self.initialize()
-                
-                # Perform query
-                query_response = self.pinecone_client.query(
-                    vector=embedding,
-                    top_k=limit,
-                    namespace=self.collection,
-                    filter={"agent_id": {"$eq": self.agent_id}},
-                    include_metadata=True
-                )
-                
-                # Format results
-                results = []
-                for match in query_response.matches:
-                    result = match.metadata
-                    result["score"] = match.score
-                    results.append(result)
-                
-                return results
-                
+                # Pinecone filter needs to be adjusted based on VectorIntegration's expectation
+                pinecone_filter = {"collection": self.collection}
+                return await self.vector_client.search_pinecone(query, top_k=limit, filter_metadata=pinecone_filter)
             elif self.vector_db == "weaviate":
-                if not self.weaviate_client:
-                    await self.initialize()
-                
-                # Prepare query
-                class_name = self.collection.replace("-", "_").capitalize()
-                
-                # Build query
-                query = (
-                    self.weaviate_client.query
-                    .get(class_name, ["agent_id", "role", "content", "timestamp"])
-                    .with_near_vector({
-                        "vector": embedding
-                    })
-                    .with_where({
-                        "path": ["agent_id"],
-                        "operator": "Equal",
-                        "valueString": self.agent_id
-                    })
-                    .with_limit(limit)
-                    .with_additional(["certainty"])
-                )
-                
-                # Execute query
-                result = query.do()
-                
-                # Format results
-                results = []
-                if "data" in result and "Get" in result["data"] and class_name in result["data"]["Get"]:
-                    for item in result["data"]["Get"][class_name]:
-                        result_item = {
-                            "agent_id": item.get("agent_id"),
-                            "role": item.get("role"),
-                            "content": item.get("content"),
-                            "timestamp": item.get("timestamp"),
-                            "score": item.get("_additional", {}).get("certainty")
-                        }
-                        results.append(result_item)
-                
-                return results
+                # Weaviate filtering might be handled differently, e.g., by class name
+                # This assumes a 'collection' filter can be mapped to a Weaviate 'where' filter
+                return await self.vector_client.search_weaviate(query, top_k=limit, category_filter=self.collection)
+            return []
                 
         except Exception as e:
             self.logger.error(f"Error searching vector database: {e}")

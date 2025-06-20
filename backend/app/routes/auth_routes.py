@@ -15,11 +15,27 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 import logging
 from typing import Dict, Any
+from enum import Enum
 
 from backend.config.settings import settings
 from backend.security.security_manager import SophiaSecurityManager
 
 logger = logging.getLogger(__name__)
+
+class UserRole(str, Enum):
+    CEO = "ceo"
+    TEAM_LEAD = "team_lead"
+    INDIVIDUAL_CONTRIBUTOR = "individual"
+    ADMIN = "admin"
+
+# In-memory user store for demonstration purposes
+# In a real application, this would be a database
+USER_DB = {
+    "patrick": {"password_hash": generate_password_hash("ceo_password"), "role": UserRole.CEO},
+    "lynn": {"password_hash": generate_password_hash("lead_password"), "role": UserRole.TEAM_LEAD},
+    "sophia_user": {"password_hash": generate_password_hash("user_password"), "role": UserRole.INDIVIDUAL_CONTRIBUTOR},
+    settings.security.admin_username: {"password_hash": generate_password_hash(settings.security.admin_password), "role": UserRole.ADMIN},
+}
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -38,37 +54,37 @@ async def login():
         if not username or not password:
             return jsonify({'error': 'Username and password required'}), 400
         
-        # For now, check against admin credentials
-        # In production, this would check against a user database
-        if username == settings.security.admin_username:
-            if password == settings.security.admin_password:
-                # Create tokens
-                access_token = create_access_token(
-                    identity=username,
-                    additional_claims={
-                        'role': 'admin',
-                        'company': settings.company_name
-                    }
-                )
-                refresh_token = create_refresh_token(identity=username)
-                
-                # Create session
-                user_agent = request.headers.get('User-Agent', '')
-                ip_address = request.remote_addr
-                session_token = await security_manager.create_session(
-                    username, user_agent, ip_address
-                )
-                
-                return jsonify({
-                    'access_token': access_token,
-                    'refresh_token': refresh_token,
-                    'session_token': session_token,
-                    'user': {
-                        'username': username,
-                        'role': 'admin',
-                        'company': settings.company_name
-                    }
-                }), 200
+        # Check against the user database
+        user_data = USER_DB.get(username)
+        if user_data and check_password_hash(user_data["password_hash"], password):
+            user_role = user_data["role"]
+            # Create tokens
+            access_token = create_access_token(
+                identity=username,
+                additional_claims={
+                    'role': user_role.value,
+                    'company': settings.company_name
+                }
+            )
+            refresh_token = create_refresh_token(identity=username)
+            
+            # Create session
+            user_agent = request.headers.get('User-Agent', '')
+            ip_address = request.remote_addr
+            session_token = await security_manager.create_session(
+                username, user_agent, ip_address
+            )
+            
+            return jsonify({
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'session_token': session_token,
+                'user': {
+                    'username': username,
+                    'role': user_role.value,
+                    'company': settings.company_name
+                }
+            }), 200
         
         # Record failed attempt
         await security_manager.record_failed_attempt(username, 'login')
@@ -159,16 +175,28 @@ async def get_permissions():
         
         # Define role-based permissions
         permissions = {
-            'admin': [
+            UserRole.ADMIN: [
                 'agents.manage',
                 'integrations.manage',
                 'analytics.view',
                 'analytics.export',
                 'settings.manage',
-                'users.manage'
+                'users.manage',
+                'system.health'
             ],
-            'user': [
+            UserRole.CEO: [
+                'executive.view',
+                'strategic.direct',
                 'analytics.view',
+                'knowledge.curate'
+            ],
+            UserRole.TEAM_LEAD: [
+                'team.view',
+                'analytics.view',
+                'coaching.review'
+            ],
+            UserRole.INDIVIDUAL_CONTRIBUTOR: [
+                'analytics.self',
                 'integrations.use'
             ]
         }

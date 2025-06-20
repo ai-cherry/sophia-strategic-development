@@ -1,471 +1,150 @@
-import logging
-import json
 import asyncio
-from typing import Dict, List, Any, Optional, Type, Union
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-import uuid
-import os
+import logging
+from typing import List, Dict, Any, Optional
+import snowflake.connector
 
-from ..core.crew_orchestrator import CrewOrchestrator, SophiaAgentConfig, SophiaTaskConfig
-from ..core.persistent_memory import VectorPersistentMemory
-from ...mcp.resource_orchestrator import SophiaResourceOrchestrator
+from .core.base_agent import BaseAgent, AgentConfig, AgentCapability, Task, create_agent_response
+from ...core.config_manager import get_secret
 
-class SalesCoachAgent:
-    """Specialized agent for sales coaching"""
-    
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.crew_orchestrator = CrewOrchestrator()
-        self.resource_orchestrator = SophiaResourceOrchestrator()
-        self.initialized = False
-        self.agent_id = f"sales_coach_{uuid.uuid4().hex[:8]}"
-        self.memory = None
-        
-    async def initialize(self):
-        """Initialize the sales coach agent"""
-        if self.initialized:
-            return
-        
+logger = logging.getLogger(__name__)
+
+class SalesCoachAgent(BaseAgent):
+    """
+    Analyzes sales calls to provide coaching and performance insights.
+    """
+    def __init__(self, config: AgentConfig):
+        super().__init__(config)
+        self.snowflake_conn = None
+
+    async def _get_snowflake_connection(self):
+        """Establishes a connection to Snowflake."""
+        if self.snowflake_conn and self.snowflake_conn.is_open():
+            return self.snowflake_conn
+
         try:
-            # Initialize orchestrators
-            await self.crew_orchestrator.initialize()
-            await self.resource_orchestrator.initialize()
-            
-            # Initialize memory
-            self.memory = VectorPersistentMemory(
-                agent_id=self.agent_id,
-                memory_type="summary",
-                vector_db="pinecone",
-                collection="sophia_sales_coach_memory"
-            )
-            await self.memory.initialize()
-            
-            self.initialized = True
-            self.logger.info("Sales Coach Agent initialized successfully")
-        except Exception as e:
-            self.logger.error(f"Failed to initialize Sales Coach Agent: {e}")
-            raise
-    
-    async def analyze_call(self, call_id: str, analysis_type: str = "coaching") -> Dict[str, Any]:
-        """Analyze a Gong call recording"""
-        if not self.initialized:
-            await self.initialize()
-        
-        try:
-            # Execute Gong call analysis tool
-            analysis_result = await self.resource_orchestrator.execute_tool(
-                "gong_call_analysis",
-                {
-                    "call_id": call_id,
-                    "analysis_type": analysis_type,
-                    "include_transcript": True
-                }
-            )
-            
-            # Check for errors
-            if "error" in analysis_result:
-                raise ValueError(f"Error analyzing call: {analysis_result['error']}")
-            
-            # Create agent for call analysis
-            call_analyzer_config = SophiaAgentConfig(
-                name="call_analyzer",
-                role="Sales Call Analyzer",
-                goal="Analyze sales calls to provide actionable coaching insights",
-                backstory="You are an expert sales coach with years of experience analyzing sales calls. You have a deep understanding of sales methodologies, objection handling, and relationship building techniques.",
-                memory=self.memory,
-                tools=["gong_call_analysis", "gong_transcript_extraction"],
-                llm_config={
-                    "model": "gpt-4-turbo",
-                    "temperature": 0.3
-                }
-            )
-            
-            await self.crew_orchestrator.create_agent(call_analyzer_config)
-            
-            # Create task for call analysis
-            call_analysis_task_config = SophiaTaskConfig(
-                description=f"Analyze the sales call with ID {call_id} and provide detailed coaching feedback. Focus on strengths, areas for improvement, and specific actionable recommendations.",
-                expected_output="A comprehensive sales coaching report with specific examples from the call, actionable recommendations, and follow-up suggestions.",
-                agent_name="call_analyzer",
-                context=json.dumps(analysis_result),
-                async_execution=True,
-                tools=["gong_call_analysis", "gong_transcript_extraction"]
-            )
-            
-            task = await self.crew_orchestrator.create_task(call_analysis_task_config)
-            
-            # Find task ID
-            task_id = None
-            for tid, t in self.crew_orchestrator.tasks.items():
-                if t == task:
-                    task_id = tid
-                    break
-            
-            if not task_id:
-                raise ValueError("Failed to get task ID")
-            
-            # Run task
-            task_result = await self.crew_orchestrator.run_task(task_id)
-            
-            # Process result
-            coaching_report = self._process_coaching_report(task_result["result"], analysis_result)
-            
-            # Save to memory
-            await self.memory.add_user_message(f"Request to analyze call {call_id}")
-            await self.memory.add_ai_message(f"Provided coaching analysis for call {call_id}")
-            
-            return coaching_report
-            
-        except Exception as e:
-            self.logger.error(f"Error in sales call analysis: {e}")
-            return {
-                "error": str(e),
-                "call_id": call_id
+            sf_config = {
+                "account": await get_secret("account", "snowflake"),
+                "user": await get_secret("user", "snowflake"),
+                "password": await get_secret("password", "snowflake"),
+                "warehouse": "COMPUTE_WH",
+                "database": "SOPHIA_DB",
+                "schema": "RAW_DATA"
             }
-    
-    async def create_coaching_plan(self, rep_id: str, time_period: str = "last_30_days") -> Dict[str, Any]:
-        """Create a coaching plan for a sales rep based on their recent calls"""
-        if not self.initialized:
-            await self.initialize()
-        
-        try:
-            # Get recent calls for the rep
-            # This would typically come from a CRM query, but we'll simulate it
-            recent_calls = await self._get_recent_calls(rep_id, time_period)
-            
-            if not recent_calls:
-                return {
-                    "error": "No recent calls found for this rep",
-                    "rep_id": rep_id
-                }
-            
-            # Analyze each call
-            call_analyses = []
-            for call in recent_calls:
-                analysis = await self.analyze_call(call["call_id"], "coaching")
-                if "error" not in analysis:
-                    call_analyses.append(analysis)
-            
-            if not call_analyses:
-                return {
-                    "error": "Failed to analyze any calls for this rep",
-                    "rep_id": rep_id
-                }
-            
-            # Create agent for coaching plan
-            coach_config = SophiaAgentConfig(
-                name="sales_coach",
-                role="Sales Coach",
-                goal="Create personalized coaching plans for sales representatives",
-                backstory="You are an experienced sales coach who specializes in developing personalized coaching plans based on call analysis. You focus on identifying patterns, strengths, and areas for improvement across multiple calls.",
-                memory=self.memory,
-                tools=["crm_query"],
-                llm_config={
-                    "model": "gpt-4-turbo",
-                    "temperature": 0.4
-                }
-            )
-            
-            await self.crew_orchestrator.create_agent(coach_config)
-            
-            # Create task for coaching plan
-            coaching_plan_task_config = SophiaTaskConfig(
-                description=f"Create a comprehensive coaching plan for sales rep {rep_id} based on the analysis of their recent calls. Focus on identifying patterns, prioritizing areas for improvement, and creating actionable development steps.",
-                expected_output="A detailed coaching plan with specific goals, action items, training recommendations, and a timeline for improvement.",
-                agent_name="sales_coach",
-                context=json.dumps({
-                    "rep_id": rep_id,
-                    "time_period": time_period,
-                    "call_analyses": call_analyses
-                }),
-                async_execution=True,
-                tools=["crm_query"]
-            )
-            
-            task = await self.crew_orchestrator.create_task(coaching_plan_task_config)
-            
-            # Find task ID
-            task_id = None
-            for tid, t in self.crew_orchestrator.tasks.items():
-                if t == task:
-                    task_id = tid
-                    break
-            
-            if not task_id:
-                raise ValueError("Failed to get task ID")
-            
-            # Run task
-            task_result = await self.crew_orchestrator.run_task(task_id)
-            
-            # Process result
-            coaching_plan = self._process_coaching_plan(task_result["result"], rep_id, call_analyses)
-            
-            # Save to memory
-            await self.memory.add_user_message(f"Request to create coaching plan for rep {rep_id}")
-            await self.memory.add_ai_message(f"Provided coaching plan for rep {rep_id}")
-            
-            return coaching_plan
-            
+            self.snowflake_conn = snowflake.connector.connect(**sf_config)
+            logger.info("Successfully connected to Snowflake.")
+            return self.snowflake_conn
         except Exception as e:
-            self.logger.error(f"Error creating coaching plan: {e}")
-            return {
-                "error": str(e),
-                "rep_id": rep_id
-            }
-    
-    async def analyze_team_performance(self, team_id: str, time_period: str = "last_30_days") -> Dict[str, Any]:
-        """Analyze team performance based on call data"""
-        if not self.initialized:
-            await self.initialize()
-        
-        try:
-            # Get team members
-            team_members = await self._get_team_members(team_id)
-            
-            if not team_members:
-                return {
-                    "error": "No team members found",
-                    "team_id": team_id
-                }
-            
-            # Create coaching plans for each team member
-            coaching_plans = []
-            for member in team_members:
-                plan = await self.create_coaching_plan(member["rep_id"], time_period)
-                if "error" not in plan:
-                    coaching_plans.append(plan)
-            
-            if not coaching_plans:
-                return {
-                    "error": "Failed to create coaching plans for any team members",
-                    "team_id": team_id
-                }
-            
-            # Create agent for team analysis
-            team_analyst_config = SophiaAgentConfig(
-                name="team_analyst",
-                role="Sales Team Performance Analyst",
-                goal="Analyze team performance and identify trends and opportunities",
-                backstory="You are a sales team performance analyst who specializes in identifying team-wide trends, comparing individual performance, and recommending team-level improvements.",
-                memory=self.memory,
-                tools=["crm_query"],
-                llm_config={
-                    "model": "gpt-4-turbo",
-                    "temperature": 0.3
-                }
-            )
-            
-            await self.crew_orchestrator.create_agent(team_analyst_config)
-            
-            # Create task for team analysis
-            team_analysis_task_config = SophiaTaskConfig(
-                description=f"Analyze the performance of sales team {team_id} based on individual coaching plans. Identify team-wide trends, strengths, and areas for improvement. Compare individual performance and recommend team-level training and development opportunities.",
-                expected_output="A comprehensive team performance analysis with specific recommendations for team-wide improvements, training programs, and individual development paths.",
-                agent_name="team_analyst",
-                context=json.dumps({
-                    "team_id": team_id,
-                    "time_period": time_period,
-                    "team_members": team_members,
-                    "coaching_plans": coaching_plans
-                }),
-                async_execution=True,
-                tools=["crm_query"]
-            )
-            
-            task = await self.crew_orchestrator.create_task(team_analysis_task_config)
-            
-            # Find task ID
-            task_id = None
-            for tid, t in self.crew_orchestrator.tasks.items():
-                if t == task:
-                    task_id = tid
-                    break
-            
-            if not task_id:
-                raise ValueError("Failed to get task ID")
-            
-            # Run task
-            task_result = await self.crew_orchestrator.run_task(task_id)
-            
-            # Process result
-            team_analysis = self._process_team_analysis(task_result["result"], team_id, team_members, coaching_plans)
-            
-            # Save to memory
-            await self.memory.add_user_message(f"Request to analyze team performance for team {team_id}")
-            await self.memory.add_ai_message(f"Provided team performance analysis for team {team_id}")
-            
-            return team_analysis
-            
-        except Exception as e:
-            self.logger.error(f"Error analyzing team performance: {e}")
-            return {
-                "error": str(e),
-                "team_id": team_id
-            }
-    
-    async def generate_call_summary(self, call_id: str) -> Dict[str, Any]:
-        """Generate a summary of a call for sharing with stakeholders"""
-        if not self.initialized:
-            await self.initialize()
-        
-        try:
-            # Execute Gong call analysis tool
-            analysis_result = await self.resource_orchestrator.execute_tool(
-                "gong_call_analysis",
-                {
-                    "call_id": call_id,
-                    "analysis_type": "detailed",
-                    "include_transcript": True
-                }
-            )
-            
-            # Check for errors
-            if "error" in analysis_result:
-                raise ValueError(f"Error analyzing call: {analysis_result['error']}")
-            
-            # Create agent for call summary
-            summarizer_config = SophiaAgentConfig(
-                name="call_summarizer",
-                role="Sales Call Summarizer",
-                goal="Create concise, actionable summaries of sales calls",
-                backstory="You are an expert at distilling complex sales conversations into clear, actionable summaries that highlight key points, next steps, and important customer information.",
-                memory=self.memory,
-                tools=["gong_transcript_extraction"],
-                llm_config={
-                    "model": "gpt-4-turbo",
-                    "temperature": 0.3
-                }
-            )
-            
-            await self.crew_orchestrator.create_agent(summarizer_config)
-            
-            # Create task for call summary
-            summary_task_config = SophiaTaskConfig(
-                description=f"Create a concise, actionable summary of the sales call with ID {call_id}. Focus on key discussion points, customer needs, objections raised, commitments made, and clear next steps.",
-                expected_output="A professional call summary suitable for sharing with stakeholders, including key points, action items, and follow-up timeline.",
-                agent_name="call_summarizer",
-                context=json.dumps(analysis_result),
-                async_execution=True,
-                tools=["gong_transcript_extraction"]
-            )
-            
-            task = await self.crew_orchestrator.create_task(summary_task_config)
-            
-            # Find task ID
-            task_id = None
-            for tid, t in self.crew_orchestrator.tasks.items():
-                if t == task:
-                    task_id = tid
-                    break
-            
-            if not task_id:
-                raise ValueError("Failed to get task ID")
-            
-            # Run task
-            task_result = await self.crew_orchestrator.run_task(task_id)
-            
-            # Process result
-            call_summary = self._process_call_summary(task_result["result"], analysis_result)
-            
-            # Save to memory
-            await self.memory.add_user_message(f"Request to summarize call {call_id}")
-            await self.memory.add_ai_message(f"Provided summary for call {call_id}")
-            
-            return call_summary
-            
-        except Exception as e:
-            self.logger.error(f"Error generating call summary: {e}")
-            return {
-                "error": str(e),
-                "call_id": call_id
-            }
-    
-    def _process_coaching_report(self, report: str, analysis_result: Dict[str, Any]) -> Dict[str, Any]:
-        """Process the coaching report from the agent"""
-        # Extract metadata from analysis result
-        metadata = analysis_result.get("metadata", {})
-        
-        # Create structured coaching report
-        coaching_report = {
-            "call_id": analysis_result.get("call_id"),
-            "call_date": metadata.get("call_date"),
-            "duration_seconds": metadata.get("duration_seconds"),
-            "participants": metadata.get("participants", []),
-            "coaching_report": report,
-            "analysis_type": analysis_result.get("analysis_type"),
-            "generated_at": datetime.now().isoformat()
-        }
-        
-        return coaching_report
-    
-    def _process_coaching_plan(self, plan: str, rep_id: str, call_analyses: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Process the coaching plan from the agent"""
-        # Create structured coaching plan
-        coaching_plan = {
-            "rep_id": rep_id,
-            "call_count": len(call_analyses),
-            "time_period": "last_30_days",  # This would come from the actual request
-            "coaching_plan": plan,
-            "generated_at": datetime.now().isoformat()
-        }
-        
-        return coaching_plan
-    
-    def _process_team_analysis(self, analysis: str, team_id: str, team_members: List[Dict[str, Any]], coaching_plans: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Process the team analysis from the agent"""
-        # Create structured team analysis
-        team_analysis = {
-            "team_id": team_id,
-            "member_count": len(team_members),
-            "time_period": "last_30_days",  # This would come from the actual request
-            "team_analysis": analysis,
-            "generated_at": datetime.now().isoformat()
-        }
-        
-        return team_analysis
-    
-    def _process_call_summary(self, summary: str, analysis_result: Dict[str, Any]) -> Dict[str, Any]:
-        """Process the call summary from the agent"""
-        # Extract metadata from analysis result
-        metadata = analysis_result.get("metadata", {})
-        
-        # Create structured call summary
-        call_summary = {
-            "call_id": analysis_result.get("call_id"),
-            "call_date": metadata.get("call_date"),
-            "duration_seconds": metadata.get("duration_seconds"),
-            "participants": metadata.get("participants", []),
-            "summary": summary,
-            "generated_at": datetime.now().isoformat()
-        }
-        
-        return call_summary
-    
-    async def _get_recent_calls(self, rep_id: str, time_period: str) -> List[Dict[str, Any]]:
-        """Get recent calls for a sales rep"""
-        # This would typically come from a CRM query or Gong API
-        # For now, we'll return mock data
+            logger.error(f"Failed to connect to Snowflake: {e}")
+            return None
+
+    async def get_capabilities(self) -> List[AgentCapability]:
         return [
-            {
-                "call_id": f"call_{uuid.uuid4().hex[:8]}",
-                "call_date": (datetime.now() - timedelta(days=i)).isoformat(),
-                "duration_seconds": 1800 + (i * 100),
-                "customer": f"Customer {i+1}"
-            }
-            for i in range(3)  # Mock 3 recent calls
+            AgentCapability(
+                name="analyze_gong_call",
+                description="Analyzes a specific Gong call for sales coaching insights.",
+                input_types=["gong_call_id"],
+                output_types=["coaching_report"],
+                estimated_duration=60.0
+            )
         ]
-    
-    async def _get_team_members(self, team_id: str) -> List[Dict[str, Any]]:
-        """Get members of a sales team"""
-        # This would typically come from a CRM query
-        # For now, we'll return mock data
-        return [
-            {
-                "rep_id": f"rep_{uuid.uuid4().hex[:8]}",
-                "name": f"Sales Rep {i+1}",
-                "role": "Account Executive",
-                "experience_years": 1 + i
+
+    async def _get_coaching_report_data(self, gong_call_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Queries Snowflake for all data related to a Gong call to build a coaching report.
+        """
+        conn = await self._get_snowflake_connection()
+        if not conn:
+            return None
+
+        try:
+            with conn.cursor(snowflake.connector.DictCursor) as cursor:
+                # 1. Get base call info
+                cursor.execute("SELECT * FROM GONG_CALLS WHERE conversation_id = %s", (gong_call_id,))
+                call_info = cursor.fetchone()
+                if not call_info:
+                    return None
+
+                conversation_key = call_info['CONVERSATION_KEY']
+
+                # 2. Get participants and talk ratios
+                cursor.execute("SELECT * FROM GONG_PARTICIPANTS WHERE conversation_key = %s", (conversation_key,))
+                participants = cursor.fetchall()
+
+                # 3. Get trackers and their sentiment
+                cursor.execute("SELECT * FROM GONG_CONVERSATION_TRACKERS WHERE conversation_key = %s", (conversation_key,))
+                trackers = cursor.fetchall()
+                
+                # 4. Get transcript text
+                cursor.execute("SELECT transcript_text FROM GONG_CALL_TRANSCRIPTS WHERE conversation_key = %s", (conversation_key,))
+                transcript = cursor.fetchone()
+
+                return {
+                    "call_info": call_info,
+                    "participants": participants,
+                    "trackers": trackers,
+                    "transcript": transcript['TRANSCRIPT_TEXT'] if transcript else ""
+                }
+        except Exception as e:
+            logger.error(f"Failed to query coaching data for call {gong_call_id}: {e}")
+            return None
+        
+
+    def _analyze_report_data(self, report_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyzes the raw data to produce coaching insights."""
+        analysis = {}
+        
+        # Calculate talk/listen ratio for the owner
+        owner_id = report_data["call_info"]["OWNER_ID"]
+        owner_talk_time = 0
+        total_talk_time = 0
+        for p in report_data["participants"]:
+            if p["TALK_TIME_PERCENTAGE"]:
+                total_talk_time += p["TALK_TIME_PERCENTAGE"]
+                if p["PARTICIPANT_ID"] == owner_id:
+                    owner_talk_time = p["TALK_TIME_PERCENTAGE"]
+        
+        analysis["talk_listen_ratio"] = f"{owner_talk_time}% / {100-owner_talk_time}%" if total_talk_time > 0 else "N/A"
+
+        # Summarize trackers
+        analysis["positive_topics"] = [t["TRACKER_NAME"] for t in report_data["trackers"] if t["TRACKER_SENTIMENT"] == 'positive']
+        analysis["negative_topics"] = [t["TRACKER_NAME"] for t in report_data["trackers"] if t["TRACKER_SENTIMENT"] == 'negative']
+
+        # Other metrics
+        analysis["question_count"] = report_data["call_info"].get("QUESTION_COMPANY_COUNT", 0) + report_data["call_info"].get("QUESTION_NON_COMPANY_COUNT", 0)
+        analysis["spotlight_summary"] = report_data["call_info"].get("CALL_SPOTLIGHT_BRIEF")
+
+        return analysis
+
+
+    async def process_task(self, task: Task) -> Dict[str, Any]:
+        """
+        Processes a task to analyze a Gong call.
+        """
+        if task.task_type == "analyze_gong_call":
+            gong_call_id = task.task_data.get("gong_call_id")
+            if not gong_call_id:
+                return await create_agent_response(False, error="gong_call_id is required.")
+
+            raw_data = await self._get_coaching_report_data(gong_call_id)
+            if not raw_data:
+                return await create_agent_response(False, error=f"Could not retrieve data for call_id {gong_call_id}")
+            
+            # Analyze the data to generate insights
+            analysis = self._analyze_report_data(raw_data)
+
+            # Assemble the final report
+            report = {
+                "gong_call_id": gong_call_id,
+                "call_url": raw_data["call_info"]["CALL_URL"],
+                "summary": analysis["spotlight_summary"],
+                "metrics": {
+                    "talk_listen_ratio": analysis["talk_listen_ratio"],
+                    "question_count": analysis["question_count"],
+                },
+                "positive_topics_discussed": analysis["positive_topics"],
+                "negative_topics_discussed": analysis["negative_topics"]
             }
-            for i in range(5)  # Mock 5 team members
-        ]
+
+            return await create_agent_response(True, data=report)
+        else:
+            return await create_agent_response(False, error=f"Unknown task type: {task.task_type}")

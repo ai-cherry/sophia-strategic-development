@@ -4,23 +4,20 @@ Handles the storage and retrieval of text embeddings (vectors) using Pinecone.
 """
 import logging
 import asyncio
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone, ServerlessSpec
 
 from backend.knowledge_base.chunking import Chunk
 from infrastructure.esc.pinecone_secrets import pinecone_secret_manager
-from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
-
 
 logger = logging.getLogger(__name__)
 
 class VectorStore:
-    """
-    An abstraction for Pinecone's vector database.
-    """
+    """An abstraction for Pinecone's vector database."""
     INDEX_NAME = "sophia-knowledge-base"
+    NAMESPACE = "default" # Add a default namespace
 
     def __init__(self, embedding_model_name: str = 'all-MiniLM-L6-v2'):
         logger.info(f"Initializing vector store with model: {embedding_model_name}")
@@ -48,7 +45,6 @@ class VectorStore:
                     metric='cosine',
                     spec=ServerlessSpec(cloud='aws', region='us-west-2')
                 )
-                logger.info("Pinecone index created successfully.")
             else:
                 logger.info(f"Found existing Pinecone index: '{self.INDEX_NAME}'")
 
@@ -60,114 +56,85 @@ class VectorStore:
             raise
 
     def embed_chunks(self, chunks: List[Chunk]) -> List[np.ndarray]:
-        logger.info(f"Embedding {len(chunks)} chunks...")
+        """Embeds a list of Chunks."""
         contents = [chunk.content for chunk in chunks]
-        embeddings = self.model.encode(contents, show_progress_bar=True)
-        logger.info("Finished embedding chunks.")
-        return embeddings
+        return self.model.encode(contents)
 
     async def upsert(self, chunks: List[Chunk]):
+        """Upserts a list of Chunks into the vector store."""
         if not self.index:
             await self.initialize()
         if not chunks:
             return
-            
+
         embeddings = self.embed_chunks(chunks)
         vectors_to_upsert = []
         for i, chunk in enumerate(chunks):
             document_id = chunk.metadata.get('document_id', 'unknown_doc')
             chunk_id = f"{document_id}_{chunk.metadata.get('chunk_index', i)}"
             
-            # Pinecone metadata must have string, number, or boolean values
             pinecone_metadata = {k: v for k, v in chunk.metadata.items() if isinstance(v, (str, int, float, bool, list))}
-            
+            # Crucially, store the original text content in the metadata for retrieval
+            pinecone_metadata['content'] = chunk.content
+
             vectors_to_upsert.append({
                 "id": chunk_id,
                 "values": embeddings[i].tolist(),
                 "metadata": pinecone_metadata
             })
         
-        self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=vectors=vectors_to_upsert))
+        await asyncio.to_thread(self.index.upsert, vectors=vectors_to_upsert, namespace=self.NAMESPACE)
         logger.info(f"Upserted {len(chunks)} vectors into Pinecone index '{self.INDEX_NAME}'.")
 
     async def query(self, query_text: str, top_k: int = 5, filter_dict: Dict = None) -> List[Dict[str, Any]]:
         if not self.index:
             await self.initialize()
             
-        logger.info(f"Executing query: '{query_text}' with filter: {filter_dict}")
         query_embedding = self.model.encode(query_text).tolist()
         
-        results = self.index.query(
+        results = await asyncio.to_thread(
+            self.index.query,
             vector=query_embedding,
             top_k=top_k,
             include_metadata=True,
-            filter=filter_dict
+            filter=filter_dict,
+            namespace=self.NAMESPACE
         )
         
         processed_results = []
         for match in results.get('matches', []):
             processed_results.append({
                 "score": match['score'],
-                "content": match['metadata'].get('content', ''), # Assuming content is stored in metadata
+                "content": match['metadata'].get('content', ''),
                 "metadata": match['metadata']
             })
-            
-        logger.info(f"Query returned {len(processed_results)} results from Pinecone.")
         return processed_results
-
 
 async def main():
     """A simple main function to test the VectorStore with Pinecone."""
     logging.basicConfig(level=logging.INFO)
     
-    # This requires PINECONE_API_KEY to be in the environment for fallback
-    # or Pulumi ESC to be configured correctly.
     try:
         store = VectorStore()
         await store.initialize()
     except Exception as e:
         logger.error(f"Failed to run main test: {e}")
-        logger.info("Please ensure PINECONE_API_KEY is set in your environment or Pulumi ESC is configured.")
         return
 
-    # Create some dummy chunks
     chunks = [
-        Chunk(content="Sophia AI is an orchestrator for Pay Ready.", metadata={"document_id": "doc1", "chunk_index": 0, "type": "tech"}),
-        Chunk(content="Pay Ready focuses on business intelligence and automation.", metadata={"document_id": "doc1", "chunk_index": 1, "type": "business"}),
-        Chunk(content="The primary CRM integration is with HubSpot.", metadata={"document_id": "doc2", "chunk_index": 0, "type": "tech"}),
-        Chunk(content="Gong.io is used for call analysis.", metadata={"document_id": "doc2", "chunk_index": 1, "type": "tech"}),
+        Chunk(content="Sophia AI is an orchestrator.", metadata={"document_id": "doc1", "chunk_index": 0, "type": "tech"}),
+        Chunk(content="Pay Ready focuses on automation.", metadata={"document_id": "doc1", "chunk_index": 1, "type": "business"}),
     ]
-    # Add content to metadata for retrieval
-    for chunk in chunks:
-        chunk.metadata['content'] = chunk.content
-
-    # Upsert the chunks
-    await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=chunks))
     
-    # Give Pinecone a moment to index
+    await store.upsert(chunks)
     await asyncio.sleep(5)
 
-    # Perform a query
-    query = "What is the main focus of the company?"
-    results = await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=query, top_k=2))
+    query = "What is Sophia AI?"
+    results = await store.query(query, top_k=1)
     
     print(f"\n--- Query Results for '{query}' ---")
     for res in results:
-        print(f"Score: {res['score']:.4f}")
-        print(f"Content: '{res['content']}'")
-        print(f"Metadata: {res['metadata']}")
-        print("-" * 20)
+        print(f"Score: {res['score']:.4f}\nContent: '{res['content']}'\nMetadata: {res['metadata']}\n---")
 
-    # Perform a filtered query
-    filtered_query = "What tools are used?"
-    results_filtered = await await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.RETRIEVE, query=filtered_query, top_k=2, filter_dict={"type": "tech"}))
-    
-    print(f"\n--- Filtered Query Results for '{filtered_query}' (type=tech) ---")
-    for res in results_filtered:
-        print(f"Score: {res['score']:.4f}")
-        print(f"Content: '{res['content']}'")
-        print(f"Metadata: {res['metadata']}")
-        print("-" * 20)
-        
 if __name__ == "__main__":
     asyncio.run(main()) 

@@ -30,6 +30,7 @@ class MemoryRequest:
     """Memory operation request"""
     operation: MemoryOperationType
     agent_id: str
+    user_role: str = "default"
     content: Optional[str] = None
     memory_id: Optional[str] = None
     query: Optional[str] = None
@@ -99,6 +100,7 @@ class ComprehensiveMemoryManager:
         
         metadata = {
             "agent_id": request.agent_id,
+            "user_role": request.user_role,
             "content": request.content,
             "created_timestamp": datetime.now().isoformat(),
             **(request.metadata or {})
@@ -109,14 +111,16 @@ class ComprehensiveMemoryManager:
         await self.vector_integration.index_content(
             content_id=memory_id,
             text=request.content,
-            metadata=metadata
+            metadata=metadata,
+            namespace=request.user_role
         )
         
         await self.persistent_memory.store_memory(
             agent_id=request.agent_id,
             memory_type="vector_link",
             content={"vector_id": memory_id, "text_preview": request.content[:100]},
-            metadata=metadata
+            metadata=metadata,
+            role_partition=request.user_role
         )
         
         return {"memory_id": memory_id, "status": "stored"}
@@ -128,13 +132,15 @@ class ComprehensiveMemoryManager:
         vector_memories = await self.vector_integration.search_pinecone(
             query=request.query,
             top_k=10,
-            filter_metadata={"agent_id": request.agent_id}
+            filter_metadata={"agent_id": request.agent_id},
+            namespace=request.user_role
         )
         
         persistent_memories = await self.persistent_memory.retrieve_memories(
             agent_id=request.agent_id,
             query=request.query,
-            limit=10
+            limit=10,
+            role_partition=request.user_role
         )
         
         return {
@@ -146,7 +152,10 @@ class ComprehensiveMemoryManager:
         if not request.memory_id:
             raise ValueError("Memory ID is required for delete operation")
         
-        await self.vector_integration.delete_content(request.memory_id)
+        await self.vector_integration.delete_content(
+            content_id=request.memory_id,
+            namespace=request.user_role
+        )
         # Note: Deleting from the simple file-based persistent store is more complex
         # and is omitted in this simplified version.
         

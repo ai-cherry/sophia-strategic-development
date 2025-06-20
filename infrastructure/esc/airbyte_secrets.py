@@ -19,7 +19,7 @@ class AirbyteSecretManager(EnhancedPulumiESC):
     """Handles getting and setting Airbyte secrets via Pulumi ESC."""
     
     def __init__(self):
-        super().__init__(env_file_name="airbyte.env")
+        super().__init__()
 
     async def get_airbyte_api_key(self) -> str:
         """Retrieves the Airbyte API key."""

@@ -7,7 +7,7 @@ class LLMGatewaySecretManager(EnhancedPulumiESC):
     """Handles getting and setting API keys for LLM gateways."""
     
     def __init__(self):
-        super().__init__(env_file_name="llm_gateway.env")
+        super().__init__()
 
     async def get_portkey_api_key(self) -> str:
         """Retrieves the Portkey API key."""

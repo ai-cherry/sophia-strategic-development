@@ -124,11 +124,7 @@ class VectorIntegration:
                 )
                 self.logger.info(f"Created Pinecone index: {self.pinecone_index_name}")
             
-            self.# Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: pinecone_index = pinecone.Index(self.pinecone_index_name)
-pinecone_index = comprehensive_memory_manager
-pinecone_index = comprehensive_memory_manager
+            self.pinecone_index = pinecone.Index(self.pinecone_index_name)
             self.logger.info("Pinecone connection established")
             
         except Exception as e:
@@ -238,7 +234,7 @@ pinecone_index = comprehensive_memory_manager
             self.logger.error(f"Embedding generation failed: {str(e)}")
             return [] if isinstance(texts, list) else []
     
-    async def index_content_pinecone(self, content_id: str, text: str, metadata: Dict[str, Any]) -> bool:
+    async def index_content_pinecone(self, content_id: str, text: str, metadata: Dict[str, Any], namespace: str = "default") -> bool:
         """Index content in Pinecone"""
         if not self.initialized:
             await self.initialize()
@@ -262,17 +258,18 @@ pinecone_index = comprehensive_memory_manager
             
             # Upsert to Pinecone
             self.pinecone_index.upsert(
-                vectors=[(content_id, embedding, safe_metadata)]
+                vectors=[(content_id, embedding, safe_metadata)],
+                namespace=namespace
             )
             
-            self.logger.info(f"Indexed content {content_id} in Pinecone")
+            self.logger.info(f"Indexed content {content_id} in Pinecone namespace '{namespace}'")
             return True
             
         except Exception as e:
             self.logger.error(f"Pinecone indexing failed for {content_id}: {str(e)}")
             return False
     
-    async def index_content_weaviate(self, content_id: str, text: str, metadata: Dict[str, Any]) -> bool:
+    async def index_content_weaviate(self, content_id: str, text: str, metadata: Dict[str, Any], namespace: str = "default") -> bool:
         """Index content in Weaviate"""
         if not self.initialized:
             await self.initialize()
@@ -281,6 +278,9 @@ pinecone_index = comprehensive_memory_manager
             return False
         
         try:
+            # Weaviate uses class names for namespacing. We can prepend the namespace.
+            class_name = f"{namespace.capitalize()}_SophiaPayReady"
+
             data_object = {
                 "content": text,
                 "title": metadata.get("title", ""),
@@ -293,30 +293,30 @@ pinecone_index = comprehensive_memory_manager
             # Add to Weaviate
             self.weaviate_client.data_object.create(
                 data_object=data_object,
-                class_name="SophiaPayReady",
+                class_name=class_name,
                 uuid=content_id
             )
             
-            self.logger.info(f"Indexed content {content_id} in Weaviate")
+            self.logger.info(f"Indexed content {content_id} in Weaviate class '{class_name}'")
             return True
             
         except Exception as e:
             self.logger.error(f"Weaviate indexing failed for {content_id}: {str(e)}")
             return False
     
-    async def index_content(self, content_id: str, text: str, metadata: Dict[str, Any]) -> Dict[str, bool]:
+    async def index_content(self, content_id: str, text: str, metadata: Dict[str, Any], namespace: str = "default") -> Dict[str, bool]:
         """Index content in both vector databases"""
         if not self.initialized:
             await self.initialize()
             
         results = {
-            "pinecone": await self.index_content_pinecone(content_id, text, metadata),
-            "weaviate": await self.index_content_weaviate(content_id, text, metadata)
+            "pinecone": await self.index_content_pinecone(content_id, text, metadata, namespace),
+            "weaviate": await self.index_content_weaviate(content_id, text, metadata, namespace)
         }
         
         return results
     
-    async def batch_index_content(self, content_batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def batch_index_content(self, content_batch: List[Dict[str, Any]], namespace: str = "default") -> Dict[str, Any]:
         """Batch index multiple content items"""
         if not self.initialized:
             await self.initialize()
@@ -336,7 +336,7 @@ pinecone_index = comprehensive_memory_manager
                 text = item["text"]
                 metadata = item.get("metadata", {})
                 
-                index_results = await self.index_content(content_id, text, metadata)
+                index_results = await self.index_content(content_id, text, metadata, namespace)
                 
                 if index_results["pinecone"]:
                     results["pinecone_success"] += 1
@@ -355,7 +355,7 @@ pinecone_index = comprehensive_memory_manager
         self.logger.info(f"Batch indexing completed: {results['successful']}/{results['total']} successful")
         return results
     
-    async def search_pinecone(self, query: str, top_k: int = 10, filter_metadata: Optional[Dict] = None) -> List[Dict]:
+    async def search_pinecone(self, query: str, top_k: int = 10, filter_metadata: Optional[Dict] = None, namespace: str = "default") -> List[Dict]:
         """Search content in Pinecone"""
         if not self.initialized:
             await self.initialize()
@@ -374,7 +374,8 @@ pinecone_index = comprehensive_memory_manager
                 vector=query_embedding,
                 top_k=top_k,
                 filter=filter_metadata,
-                include_metadata=True
+                include_metadata=True,
+                namespace=namespace
             )
             
             # Format results
@@ -393,7 +394,7 @@ pinecone_index = comprehensive_memory_manager
             self.logger.error(f"Pinecone search failed: {str(e)}")
             return []
     
-    async def search_weaviate(self, query: str, top_k: int = 10, category_filter: Optional[str] = None) -> List[Dict]:
+    async def search_weaviate(self, query: str, top_k: int = 10, category_filter: Optional[str] = None, namespace: str = "default") -> List[Dict]:
         """Search content in Weaviate"""
         if not self.initialized:
             await self.initialize()
@@ -402,6 +403,9 @@ pinecone_index = comprehensive_memory_manager
             return []
         
         try:
+            # Weaviate uses class names for namespacing
+            class_name = f"{namespace.capitalize()}_SophiaPayReady"
+
             # Build query
             where_filter = None
             if category_filter:
@@ -414,7 +418,7 @@ pinecone_index = comprehensive_memory_manager
             # Search Weaviate
             search_results = (
                 self.weaviate_client.query
-                .get("SophiaPayReady", ["content", "title", "category", "source", "timestamp", "metadata"])
+                .get(class_name, ["content", "title", "category", "source", "timestamp", "metadata"])
                 .with_near_text({"concepts": [query]})
                 .with_limit(top_k)
                 .with_additional(["certainty"])
@@ -427,8 +431,8 @@ pinecone_index = comprehensive_memory_manager
             
             # Format results
             results = []
-            if "data" in results_data and "Get" in results_data["data"]:
-                for item in results_data["data"]["Get"]["SophiaPayReady"]:
+            if "data" in results_data and "Get" in results_data["data"] and class_name in results_data['data']['Get']:
+                for item in results_data["data"]["Get"][class_name]:
                     results.append({
                         "content": item.get("content", ""),
                         "title": item.get("title", ""),
@@ -445,7 +449,7 @@ pinecone_index = comprehensive_memory_manager
             self.logger.error(f"Weaviate search failed: {str(e)}")
             return []
     
-    async def hybrid_search(self, query: str, top_k: int = 10, category_filter: Optional[str] = None) -> List[Dict]:
+    async def hybrid_search(self, query: str, top_k: int = 10, category_filter: Optional[str] = None, namespace: str = "default") -> List[Dict]:
         """Perform hybrid search across both vector databases"""
         if not self.initialized:
             await self.initialize()
@@ -453,8 +457,8 @@ pinecone_index = comprehensive_memory_manager
         start_time = datetime.now()
         
         # Search both databases
-        pinecone_results = await self.search_pinecone(query, top_k)
-        weaviate_results = await self.search_weaviate(query, top_k, category_filter)
+        pinecone_results = await self.search_pinecone(query, top_k, namespace=namespace)
+        weaviate_results = await self.search_weaviate(query, top_k, category_filter, namespace=namespace)
         
         # Merge and deduplicate results
         all_results = pinecone_results + weaviate_results
@@ -502,6 +506,27 @@ pinecone_index = comprehensive_memory_manager
         except Exception as e:
             self.logger.error(f"Semantic similarity calculation failed: {str(e)}")
             return 0.0
+
+    async def delete_content(self, content_id: str, namespace: str = "default"):
+        """Deletes content from vector databases."""
+        if not self.initialized:
+            await self.initialize()
+
+        if self.pinecone_index:
+            try:
+                self.pinecone_index.delete(ids=[content_id], namespace=namespace)
+                self.logger.info(f"Deleted {content_id} from Pinecone namespace '{namespace}'")
+            except Exception as e:
+                self.logger.error(f"Failed to delete {content_id} from Pinecone: {e}")
+
+        if self.weaviate_client:
+            try:
+                # Weaviate deletes by UUID across all classes if class not specified.
+                # Be cautious with this, ensure IDs are unique across namespaces.
+                self.weaviate_client.data_object.delete(content_id)
+                self.logger.info(f"Attempted to delete {content_id} from Weaviate.")
+            except Exception as e:
+                self.logger.error(f"Failed to delete {content_id} from Weaviate: {e}")
 
 # Create singleton instance
 vector_integration = VectorIntegration()

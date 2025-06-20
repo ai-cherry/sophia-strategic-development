@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Optional
 import snowflake.connector
 import pinecone
 from ..integrations.gong.enhanced_gong_integration import EnhancedGongIntegration
+from ..integrations.slack.slack_integration import SlackIntegration, SlackNotification
 from ..core.secret_manager import secret_manager
 from backend.core.comprehensive_memory_manager import comprehensive_memory_manager, MemoryRequest, MemoryOperationType
 
@@ -19,12 +20,17 @@ class GongSnowflakePipeline:
         self.sf_conn = None
         self.pinecone_index = None
         self.openai_client = None
+        self.slack_client = None
         
     async def setup_connections(self):
         """Initialize all connections"""
         # Gong connection
         self.gong_client = EnhancedGongIntegration()
         await self.gong_client.setup()
+        
+        # Slack connection
+        self.slack_client = SlackIntegration()
+        await self.slack_client.initialize()
         
         # Snowflake connection
         sf_config = {
@@ -40,13 +46,12 @@ class GongSnowflakePipeline:
         # Pinecone connection
         pinecone_key = await secret_manager.get_secret("api_key", "pinecone")
         # Replaced pinecone.init with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.init with ComprehensiveMemoryManager
-# Original: pinecone.init(api_key=pinecone_key, environment="us-east1-gcp")
-        self.# Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
-# Original: pinecone_index = pinecone.Index("sophia-interactions")
-pinecone_index = comprehensive_memory_manager
-pinecone_index = comprehensive_memory_manager
+        # Original: # Replaced pinecone.init with ComprehensiveMemoryManager
+        # Original: pinecone.init(api_key=pinecone_key, environment="us-east1-gcp")
+        # Replaced pinecone.Index with ComprehensiveMemoryManager
+        # Original: # Replaced pinecone.Index with ComprehensiveMemoryManager
+        # Original: pinecone_index = pinecone.Index("sophia-interactions")
+        self.pinecone_index = comprehensive_memory_manager
         
         # OpenAI for embeddings
         try:
@@ -75,6 +80,10 @@ pinecone_index = comprehensive_memory_manager
         # 3. Generate embeddings and load to Pinecone
         if self.openai_client:
             await self._embed_and_store_conversations(conversations)
+            
+        # 4. Send Slack notifications for new calls
+        if self.slack_client:
+            await self._send_slack_notifications(conversations)
         
     async def _load_conversations_to_snowflake(self, conversations: List[Dict[str, Any]]):
         """Load conversations to Snowflake with proper normalization"""
@@ -125,6 +134,9 @@ pinecone_index = comprehensive_memory_manager
         """Insert call-specific data"""
         conversation_key = call_data.get("conversationKey", f"call_{call_data['id']}")
         
+        # This will be updated with the Slack message TS later
+        slack_ts = call_data.get("slack_notification_ts")
+
         cursor.execute("""
             INSERT INTO GONG_CALLS 
             (conversation_key, conversation_id, call_url, direction, disposition,
@@ -134,13 +146,14 @@ pinecone_index = comprehensive_memory_manager
              call_spotlight_next_steps, call_spotlight_outcome,
              call_spotlight_type, question_company_count, 
              question_non_company_count, presentation_duration_sec,
-             browser_duration_sec, webcam_non_company_duration_sec)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+             browser_duration_sec, webcam_non_company_duration_sec, slack_notification_ts)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (conversation_key) DO UPDATE SET
             call_spotlight_brief = EXCLUDED.call_spotlight_brief,
             call_spotlight_key_points = EXCLUDED.call_spotlight_key_points,
             call_spotlight_next_steps = EXCLUDED.call_spotlight_next_steps,
-            call_spotlight_outcome = EXCLUDED.call_spotlight_outcome
+            call_spotlight_outcome = EXCLUDED.call_spotlight_outcome,
+            slack_notification_ts = EXCLUDED.slack_notification_ts
         """, (
             conversation_key,
             call_data["id"],
@@ -163,7 +176,8 @@ pinecone_index = comprehensive_memory_manager
             call_data.get("questionNonCompanyCount"),
             call_data.get("presentationDurationSec"),
             call_data.get("browserDurationSec"),
-            call_data.get("webcamNonCompanyDurationSec")
+            call_data.get("webcamNonCompanyDurationSec"),
+            slack_ts
         ))
         
         # Insert transcript if available
@@ -185,6 +199,59 @@ pinecone_index = comprehensive_memory_manager
                 call_data["transcript"].get("language"),
                 call_data.get("durationSeconds")
             ))
+
+    async def _send_slack_notifications(self, conversations: List[Dict[str, Any]]):
+        """Send Slack notifications for new calls and update Snowflake with the message TS."""
+        for conv in conversations:
+            if conv.get("conversation_type") != "call":
+                continue
+
+            try:
+                # 1. Format notification
+                notification = SlackNotification(
+                    type='call_completed',
+                    priority='medium',
+                    data={
+                        "participants": ", ".join([p.get('name', 'Unknown') for p in conv.get('participants', [])]),
+                        "duration": round(conv.get('durationSeconds', 0) / 60, 1),
+                        "call_title": conv.get('title', 'Sales Call'),
+                        "crm_link": "https://example.com/crm", # Placeholder
+                        "transcript_link": conv.get('url') # Link to Gong call
+                    }
+                )
+
+                # 2. Send notification
+                response = await self.slack_client.send_notification(notification)
+                
+                if response and response.get('ok'):
+                    message_ts = response['ts']
+                    channel_id = response['channel']
+                    conversation_key = conv.get("conversationKey", f"call_{conv['id']}")
+
+                    # 3. Update the call record and create the thread link in Snowflake
+                    cursor = self.sf_conn.cursor()
+                    
+                    # Update GONG_CALLS with slack_notification_ts
+                    cursor.execute("""
+                        UPDATE GONG_CALLS 
+                        SET slack_notification_ts = %s 
+                        WHERE conversation_key = %s
+                    """, (message_ts, conversation_key))
+
+                    # Create a record in SLACK_CONVERSATIONS
+                    cursor.execute("""
+                        INSERT INTO SLACK_CONVERSATIONS (thread_ts, gong_conversation_key, channel_id)
+                        VALUES (%s, %s, %s)
+                        ON CONFLICT (thread_ts) DO NOTHING
+                    """, (message_ts, conversation_key, channel_id))
+                    
+                    self.sf_conn.commit()
+                    cursor.close()
+                    
+                    self.logger.info(f"Sent notification for call {conv['id']} and linked to Slack thread {message_ts}")
+
+            except Exception as e:
+                self.logger.error(f"Failed to send Slack notification for call {conv['id']}: {e}")
     
     async def _insert_email_data(self, cursor, email_data: Dict[str, Any]):
         """Insert email-specific data"""
@@ -338,5 +405,5 @@ pinecone_index = comprehensive_memory_manager
         
         # Batch upsert to Pinecone
         if vectors_to_upsert:
-            self.await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=vectors=vectors_to_upsert))
+            await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.STORE, content=vectors_to_upsert))
             self.logger.info(f"Upserted {len(vectors_to_upsert)} conversation embeddings to Pinecone")

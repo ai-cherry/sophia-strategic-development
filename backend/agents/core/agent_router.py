@@ -10,6 +10,13 @@ from enum import Enum
 import asyncio
 from datetime import datetime
 
+# Agent Imports
+from ..specialized.sales_coach_agent import SalesCoachAgent
+from ..specialized.client_health_agent import ClientHealthAgent
+from ..specialized.marketing_agent import MarketingAgent
+from ..specialized.hr_agent import HRAgent
+from .base_agent import AgentConfig
+
 logger = logging.getLogger(__name__)
 
 class AgentCapability(Enum):
@@ -20,6 +27,10 @@ class AgentCapability(Enum):
     GONG = "gong"
     SLACK = "slack"
     GENERAL = "general"
+    SALES_COACHING = "sales_coaching"
+    CLIENT_HEALTH = "client_health"
+    MARKETING_INTELLIGENCE = "marketing_intelligence"
+    HR_ANALYTICS = "hr_analytics"
 
 @dataclass
 class AgentRegistration:
@@ -40,9 +51,63 @@ class CentralizedAgentRouter:
     
     def __init__(self):
         self.agents: Dict[str, AgentRegistration] = {}
+        self.agent_instances: Dict[str, Any] = {}
         self.routing_history: List[Dict[str, Any]] = []
         self.context_manager = None  # Will be set during initialization
         
+        # Initialize and register agents
+        self._register_specialized_agents()
+        
+    def _register_specialized_agents(self):
+        """Initializes and registers all specialized agents."""
+        # This would typically be driven by a config file
+        agent_configs = {
+            "sales_coach": AgentConfig(agent_id="sales_coach_01", agent_type="specialized", specialization="Sales Coaching"),
+            "client_health": AgentConfig(agent_id="client_health_01", agent_type="specialized", specialization="Client Health"),
+            "marketing": AgentConfig(agent_id="marketing_01", agent_type="specialized", specialization="Marketing Intelligence"),
+            "hr": AgentConfig(agent_id="hr_01", agent_type="specialized", specialization="HR Analytics"),
+        }
+
+        # Sales Coach
+        sales_coach = SalesCoachAgent(agent_configs["sales_coach"])
+        self.agent_instances['sales_coach'] = sales_coach
+        self.register_agent(AgentRegistration(
+            name="sales_coach",
+            capabilities=[AgentCapability.SALES_COACHING, AgentCapability.GONG],
+            handler=sales_coach.process_task,
+            description="Analyzes sales calls to provide coaching and performance insights."
+        ))
+
+        # Client Health
+        client_health = ClientHealthAgent(agent_configs["client_health"])
+        self.agent_instances['client_health'] = client_health
+        self.register_agent(AgentRegistration(
+            name="client_health",
+            capabilities=[AgentCapability.CLIENT_HEALTH],
+            handler=client_health.process_task,
+            description="Monitors client health and predicts churn risk."
+        ))
+
+        # Marketing
+        marketing = MarketingAgent(agent_configs["marketing"])
+        self.agent_instances['marketing'] = marketing
+        self.register_agent(AgentRegistration(
+            name="marketing",
+            capabilities=[AgentCapability.MARKETING_INTELLIGENCE],
+            handler=marketing.process_task,
+            description="Synthesizes market intelligence from internal and external sources."
+        ))
+
+        # HR
+        hr = HRAgent(agent_configs["hr"])
+        self.agent_instances['hr'] = hr
+        self.register_agent(AgentRegistration(
+            name="hr",
+            capabilities=[AgentCapability.HR_ANALYTICS, AgentCapability.SLACK],
+            handler=hr.process_task,
+            description="Analyzes team communication patterns for engagement insights."
+        ))
+
     def register_agent(self, registration: AgentRegistration):
         """Register an agent with its capabilities"""
         self.agents[registration.name] = registration
@@ -116,27 +181,40 @@ class CentralizedAgentRouter:
         
         # Docker-related keywords
         if any(keyword in command_lower for keyword in ["docker", "container", "image"]):
-            return "docker_agent"
+            return {"agent": "docker_agent"}
         
         # Pulumi/Infrastructure keywords
         elif any(keyword in command_lower for keyword in ["pulumi", "iac", "deploy", "stack"]):
-            return "pulumi_agent"
+            return {"agent": "pulumi_agent"}
         
         # Claude/AI assistance keywords
         elif any(keyword in command_lower for keyword in ["claude", "review", "generate", "analyze", "refactor"]):
-            return "claude_agent"
+            return {"agent": "claude_agent"}
+
+        # Specialized Agent keywords
+        elif any(keyword in command_lower for keyword in ["coach", "sales call", "performance review"]):
+            return {"agent": "sales_coach", "task_type": "analyze_gong_call"}
+
+        elif any(keyword in command_lower for keyword in ["client health", "churn risk", "at-risk"]):
+            return {"agent": "client_health", "task_type": "calculate_health_score"}
+        
+        elif any(keyword in command_lower for keyword in ["competitor", "market analysis", "marketing insight"]):
+            return {"agent": "marketing", "task_type": "generate_competitive_analysis"}
+
+        elif any(keyword in command_lower for keyword in ["hr", "team engagement", "communication patterns"]):
+            return {"agent": "hr", "task_type": "analyze_team_communication"}
         
         # Gong/CRM keywords
         elif any(keyword in command_lower for keyword in ["gong", "call", "meeting", "crm", "sales"]):
-            return {"primary_capability": AgentCapability.GONG, "confidence": 0.9}
+            return {"agent": "gong_agent"} # Placeholder for a more generic Gong agent
         
         # Slack/Communication keywords
         elif any(keyword in command_lower for keyword in ["slack", "notify", "message", "channel"]):
-            return {"primary_capability": AgentCapability.SLACK, "confidence": 0.9}
+            return {"agent": "slack_agent"} # Placeholder for a more generic Slack agent
         
         # Knowledge base keywords
         elif any(keyword in command_lower for keyword in ["knowledge", "search", "ingest", "document", "ask"]):
-            return "knowledge_agent"
+            return {"agent": "knowledge_agent"}
         
         # Hugging Face keywords
         elif any(keyword in command_lower for keyword in ["huggingface", "hf", "model", "dataset", "paper", "space"]):
@@ -159,30 +237,15 @@ class CentralizedAgentRouter:
         # Default to Brain agent for general and complex queries
         else:
             logger.info(f"No specific agent found for command, defaulting to Brain agent.")
-            return "brain_agent"
+            return {"agent": "brain_agent"}
     
     def _select_agent(self, intent_analysis: Dict[str, Any], context: Optional[Dict[str, Any]]) -> Optional[AgentRegistration]:
         """Select the best agent based on intent analysis"""
-        required_capability = intent_analysis.get("primary_capability")
+        agent_name = intent_analysis.get("agent")
+        if agent_name in self.agents:
+            return self.agents[agent_name]
         
-        # Find agents with the required capability
-        suitable_agents = [
-            agent for agent in self.agents.values()
-            if required_capability in agent.capabilities
-        ]
-        
-        # If multiple agents match, prefer the one with higher specificity
-        if suitable_agents:
-            # For now, return the first match. In future, could use confidence scores
-            return suitable_agents[0]
-        
-        # Fallback to general agent if available
-        general_agents = [
-            agent for agent in self.agents.values()
-            if AgentCapability.GENERAL in agent.capabilities
-        ]
-        
-        return general_agents[0] if general_agents else None
+        return None
     
     def _check_context_requirements(self, requirements: List[str], context: Optional[Dict[str, Any]]) -> List[str]:
         """Check if all required context fields are present"""

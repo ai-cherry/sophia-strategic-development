@@ -24,7 +24,7 @@ class HuggingFaceSecretManager(EnhancedPulumiESC):
     """Manages Hugging Face secrets using Pulumi ESC."""
 
     def __init__(self):
-        super().__init__(env_file_name="huggingface.env")
+        super().__init__()
 
     async def get_api_key(self) -> str:
         """

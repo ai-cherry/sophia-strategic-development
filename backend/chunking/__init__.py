@@ -1,17 +1,12 @@
 """
-Sophia AI - Advanced Chunking Module
-Comprehensive metadata extraction and chunking for business intelligence
+Sophia AI Chunking System
 """
-
-from .sophia_chunking_pipeline import SophiaChunkingPipeline, SophiaEnhancedMetadata
-from .speaker_boundary_chunker import SpeakerBoundaryChunker
-from .business_intelligence_extractor import BusinessIntelligenceExtractor
-from .ai_agent_integration import AIAgentIntegration
+from .document_chunker import DocumentChunker
+from .semantic_chunker import SemanticChunker
+from .sophia_chunking_pipeline import SophiaChunkingPipeline
 
 __all__ = [
+    "DocumentChunker",
+    "SemanticChunker",
     "SophiaChunkingPipeline",
-    "SophiaEnhancedMetadata", 
-    "SpeakerBoundaryChunker",
-    "BusinessIntelligenceExtractor",
-    "AIAgentIntegration"
 ] 
