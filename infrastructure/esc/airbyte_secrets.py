@@ -2,7 +2,7 @@
 Pulumi ESC - Airbyte Secret Management
 Manages Airbyte API keys.
 """
-import pulumi_pulumiservice as pulumiservice
+from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 import os
 import logging
 
@@ -15,29 +15,14 @@ PULUMI_STACK = "dev"
 if PULUMI_ORG == "your-pulumi-org":
     raise ValueError("Please set the PULUMI_ORG environment variable.")
 
-class AirbyteSecretManager:
-    """Manages Airbyte secrets using Pulumi ESC."""
-
-    def __init__(self, org: str = PULUMI_ORG, project: str = PULUMI_PROJECT, stack: str = PULUMI_STACK):
-        self.org = org
-        self.environment_name = f"{project}-{stack}"
+class AirbyteSecretManager(EnhancedPulumiESC):
+    """Handles getting and setting Airbyte secrets via Pulumi ESC."""
+    
+    def __init__(self):
+        super().__init__(env_file_name="airbyte.env")
 
     async def get_airbyte_api_key(self) -> str:
-        """
-        Retrieves the Airbyte API key from the Pulumi ESC environment.
-        """
-        try:
-            opened_env = await pulumiservice.open_environment(
-                name=self.environment_name,
-                organization=self.org
-            )
-            return opened_env.get("sophia.airbyte.apiKey")
-        except Exception as e:
-            logger.error(f"Failed to retrieve Airbyte API key from Pulumi ESC: {e}")
-            api_key = os.getenv("AIRBYTE_API_KEY")
-            if api_key:
-                logger.warning("Falling back to AIRBYTE_API_KEY environment variable.")
-                return api_key
-            raise ConnectionError("Could not retrieve Airbyte API key.")
+        """Retrieves the Airbyte API key."""
+        return await self.get_secret("AIRBYTE_API_KEY")
 
 airbyte_secret_manager = AirbyteSecretManager() 
