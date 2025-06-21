@@ -3,6 +3,8 @@ pulumi-aws
 pulumi-docker
 pulumi-pulumiservice
 pulumi-command
+pulumi-kubernetes
+pulumi-eks
 pulumiverse-vercel
 pulumi-github
 pulumi-snowflake
@@ -29,3 +31,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 prometheus-client
 tenacity
+jinja2
