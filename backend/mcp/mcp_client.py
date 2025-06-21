@@ -7,24 +7,36 @@ import aiohttp
 
 logger = logging.getLogger(__name__)
 
-# The service discovery gateway, now updated with our new specialist servers.
+# The definitive service discovery gateway for the Sophia AI Platform.
 MCP_GATEWAY_ENDPOINTS = {
-    # Infrastructure & Ops
+    # Core Business Operations
+    "gong": "http://gong-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "hubspot": "http://hubspot-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "snowflake": "http://snowflake-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "apollo": "http://apollo-io-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "looker": "https://zapier.com/mcp/looker",  # Accessed via Zapier webhook
+    # Content & Knowledge Management
+    "notion": "http://notion-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "slidespeak": "http://slidespeak-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "cognee": "http://cognee-local-service:7777",  # For local dev via Cline
+    # Project & Team Management
+    "slack": "http://slack-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "asana": "http://asana-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "github": "http://github-mcp-service.mcp-servers.svc.cluster.local:9000",
+    # Infrastructure & Code Intelligence
     "pulumi": "http://pulumi-mcp-service.mcp-servers.svc.cluster.local:9000",
     "kubernetes": "http://k8s-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "github": "http://github-mcp-service.mcp-servers.svc.cluster.local:9000",
-    # Data & Analytics
-    "database": "http://database-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "snowflake": "http://snowflake-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "pinecone": "http://pinecone-mcp-service.mcp-servers.svc.cluster.local:9000",
-    # Code & Research
     "consult7": "http://consult7-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "tavily": "http://tavily-mcp-service.mcp-servers.svc.cluster.local:9000",
-    # Observability & UI
-    "grafana": "http://grafana-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "portkey_admin": "http://portkey-admin-mcp-service.mcp-servers.svc.cluster.local:9000",
-    # Web & Browser
+    "llama": "http://llama-mcp-service.mcp-servers.svc.cluster.local:9000",
+    # Web Search & Automation
+    "apify": "http://apify-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "exa": "http://exa-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "serpapi": "http://serpapi-mcp-service.mcp-servers.svc.cluster.local:9000",
     "playwright": "http://playwright-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "zenrows": "https://mcp.pipedream.com/app/zenrows",  # Accessed via Pipedream webhook
+    "pipedream": "https://mcp.pipedream.com/app/pipedream",  # Generic
+    "zapier": "https://zapier.com/mcp/zapier",  # Generic
+    "n8n": "https://n8n.io/mcp",  # Generic
 }
 
 
