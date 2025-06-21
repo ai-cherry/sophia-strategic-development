@@ -27,6 +27,7 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
 - [ ] Complete security checklist (see SECURITY_DEPLOYMENT_CHECKLIST.md)
 - [ ] Rotate all API keys and secrets
 - [ ] Update Pulumi ESC with new secrets
+- [ ] Confirm containers load secrets from Pulumi ESC at runtime
 - [ ] Verify JWT configuration
 - [ ] Check CORS settings
 
