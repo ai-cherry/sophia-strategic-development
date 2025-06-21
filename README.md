@@ -16,6 +16,11 @@ A comprehensive AI platform with MCP (Model Context Protocol) integration, deplo
 git clone https://github.com/ai-cherry/sophia-main.git
 cd sophia-main
 
+# Install Python dependencies
+pip install -r requirements.txt
+# Or use the optional setup script
+# ./setup.sh
+
 # Deploy the platform
 ./deploy_sophia_platform.sh
 ```
@@ -75,6 +80,8 @@ External APIs → Airbyte → Snowflake → Vector Processing → Pinecone → A
 ```bash
 # Install dependencies
 pip install -r requirements.txt
+# Or run the helper script which installs Python packages for you
+# ./setup.sh
 npm install
 
 # Configure environment
