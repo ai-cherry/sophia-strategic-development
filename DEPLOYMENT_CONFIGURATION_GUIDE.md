@@ -76,6 +76,7 @@ pulumi up --yes
 - `SNOWFLAKE_*`: Data warehouse credentials
 - `PINECONE_API_KEY`: Vector database access
 - `DOCKER_PERSONAL_ACCESS_TOKEN`: Container registry access
+- `DOCKER_USER_NAME`: Docker Hub username
 - `LAMBDA_API_KEY`: Lambda Labs API access
 - `PULUMI_ACCESS_TOKEN`: Infrastructure management
 
