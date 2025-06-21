@@ -1,0 +1,258 @@
+# Sophia AI Service Optimization Configuration
+# Centralized configuration for all integrated services
+
+# AI Services Configuration
+ai_services:
+  arize:
+    optimization_level: standard
+    performance_targets:
+      response_time_ms: 500
+      uptime_percentage: 99.9
+    cost_targets:
+      monthly_budget_usd: 500
+      cost_per_prediction: 0.001
+    monitoring:
+      enabled: true
+      interval: 60
+      metrics:
+        - prediction_accuracy
+        - drift_detection
+        - performance_degradation
+    features:
+      - model_monitoring
+      - drift_detection
+      - performance_tracking
+
+  openrouter:
+    optimization_level: aggressive
+    performance_targets:
+      response_time_ms: 1000
+      uptime_percentage: 99.5
+    cost_targets:
+      monthly_budget_usd: 1000
+      cost_per_request: 0.01
+    routing_strategy:
+      primary_models:
+        - gpt-4-turbo
+        - claude-3-opus
+      fallback_models:
+        - gpt-3.5-turbo
+        - claude-3-haiku
+    features:
+      - model_routing
+      - cost_optimization
+      - unified_api
+
+  portkey:
+    optimization_level: aggressive
+    performance_targets:
+      response_time_ms: 800
+      cache_hit_rate: 0.6
+    cost_targets:
+      monthly_budget_usd: 800
+      cache_savings_target: 0.4
+    caching:
+      semantic_threshold: 0.92
+      ttl_hours: 12
+      max_cache_size_gb: 10
+    features:
+      - smart_routing
+      - semantic_caching
+      - observability
+      - load_balancing
+
+# Data Services Configuration
+data_services:
+  snowflake:
+    optimization_level: standard
+    performance_targets:
+      query_time_ms: 100
+      concurrent_queries: 50
+    cost_targets:
+      monthly_budget_usd: 2000
+      compute_credits: 1000
+    connection_pool:
+      min_connections: 5
+      max_connections: 20
+      timeout_seconds: 30
+
+  pinecone:
+    optimization_level: aggressive
+    performance_targets:
+      query_time_ms: 50
+      index_size_limit_gb: 100
+    cost_targets:
+      monthly_budget_usd: 500
+      queries_per_month: 1000000
+    index_config:
+      dimension: 1536
+      metric: cosine
+      pods: 1
+      replicas: 1
+
+  apify:
+    optimization_level: moderate
+    performance_targets:
+      scraping_concurrency: 10
+      success_rate: 0.95
+    cost_targets:
+      monthly_budget_usd: 300
+      actor_compute_units: 1000
+    rate_limiting:
+      requests_per_minute: 60
+      retry_attempts: 3
+      backoff_multiplier: 2
+
+# Infrastructure Services Configuration
+infrastructure_services:
+  lambda_labs:
+    optimization_level: moderate
+    performance_targets:
+      gpu_utilization: 0.8
+      uptime_percentage: 99.5
+    cost_targets:
+      monthly_budget_usd: 3000
+      hourly_rate_limit: 10
+    auto_scaling:
+      enabled: true
+      min_instances: 1
+      max_instances: 5
+      scale_up_threshold: 0.8
+      scale_down_threshold: 0.2
+
+  docker:
+    optimization_level: standard
+    performance_targets:
+      container_startup_time_s: 30
+      memory_limit_gb: 4
+    registry:
+      cleanup_policy: 30d
+      max_image_size_gb: 5
+
+  pulumi:
+    optimization_level: standard
+    deployment:
+      parallel_operations: 10
+      preview_before_deploy: true
+      auto_rollback: true
+    state_management:
+      backend: s3
+      encryption: true
+      versioning: true
+
+# Business Services Configuration
+business_services:
+  retool:
+    optimization_level: standard
+    performance_targets:
+      dashboard_load_time_ms: 2000
+      api_response_time_ms: 500
+    usage_limits:
+      monthly_api_calls: 100000
+      concurrent_users: 50
+
+  gong:
+    optimization_level: moderate
+    performance_targets:
+      call_processing_time_m: 5
+      insight_generation_time_m: 10
+    cost_targets:
+      monthly_budget_usd: 1000
+      calls_per_month: 10000
+    data_retention:
+      call_recordings_days: 90
+      transcripts_days: 365
+      insights_days: 365
+
+  slack:
+    optimization_level: standard
+    performance_targets:
+      message_delivery_time_ms: 100
+      webhook_response_time_ms: 3000
+    rate_limits:
+      messages_per_minute: 60
+      api_calls_per_minute: 100
+
+# Global Optimization Settings
+global_settings:
+  cost_optimization:
+    total_monthly_budget_usd: 10000
+    alert_threshold_percentage: 80
+    cost_allocation:
+      ai_services: 0.4
+      data_services: 0.3
+      infrastructure: 0.2
+      business_services: 0.1
+
+  performance_optimization:
+    global_sla_uptime: 99.5
+    global_response_time_p95_ms: 2000
+    error_rate_threshold: 0.001
+
+  caching_strategy:
+    global_cache_enabled: true
+    cache_providers:
+      - redis
+      - portkey
+    cache_invalidation_strategy: ttl_based
+
+  monitoring:
+    providers:
+      - arize
+      - prometheus
+      - grafana
+    alert_channels:
+      - slack
+      - email
+    metrics_retention_days: 90
+
+# Service Routing Rules
+routing_rules:
+  ai_model_selection:
+    - condition: "prompt_tokens < 1000 AND complexity == 'simple'"
+      model: "llama-3-70b"
+      provider: "together_ai"
+      cost_per_token: 0.0009
+
+    - condition: "prompt_tokens < 5000 AND complexity == 'medium'"
+      model: "claude-3-haiku"
+      provider: "anthropic"
+      cost_per_token: 0.00025
+
+    - condition: "prompt_tokens >= 5000 OR complexity == 'complex'"
+      model: "gpt-4-turbo"
+      provider: "openai"
+      cost_per_token: 0.03
+
+    - condition: "task_type == 'code_generation'"
+      model: "deepseek-coder-33b"
+      provider: "together_ai"
+      cost_per_token: 0.0008
+
+  data_source_selection:
+    - condition: "data_type == 'structured' AND size < '1GB'"
+      source: "snowflake"
+      query_engine: "standard"
+
+    - condition: "data_type == 'embeddings'"
+      source: "pinecone"
+      index: "sophia-main"
+
+    - condition: "data_type == 'web_content'"
+      source: "apify"
+      scraper: "universal"
+
+# Feature Flags
+feature_flags:
+  enable_semantic_caching: true
+  enable_auto_scaling: true
+  enable_cost_alerts: true
+  enable_performance_monitoring: true
+  enable_security_scanning: true
+  enable_automated_optimization: false
+  enable_predictive_scaling: false
+  enable_multi_region: false
+
+# Version
+version: "1.0.0"
+last_updated: "2025-01-21"

@@ -1,0 +1,165 @@
+{
+  "mcpServers": {
+    "sophia-ai-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "ai-intelligence",
+        "MCP_SERVER_PORT": "8091"
+      },
+      "description": "AI model routing, monitoring, and optimization",
+      "services": [
+        "arize",
+        "openrouter",
+        "portkey",
+        "huggingface",
+        "together_ai",
+        "claude"
+      ],
+      "features": [
+        "model_routing",
+        "cost_optimization",
+        "semantic_caching",
+        "performance_monitoring",
+        "drift_detection"
+      ]
+    },
+    "sophia-data-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "data-intelligence",
+        "MCP_SERVER_PORT": "8092"
+      },
+      "description": "Data collection, storage, and pipeline management",
+      "services": [
+        "snowflake",
+        "pinecone",
+        "apify",
+        "tavily",
+        "airbyte",
+        "estuary"
+      ],
+      "features": [
+        "data_warehousing",
+        "vector_search",
+        "web_scraping",
+        "etl_pipelines",
+        "real_time_sync"
+      ]
+    },
+    "sophia-infrastructure": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "infrastructure",
+        "MCP_SERVER_PORT": "8093"
+      },
+      "description": "Infrastructure management and deployment",
+      "services": [
+        "lambda_labs",
+        "docker",
+        "pulumi",
+        "github"
+      ],
+      "features": [
+        "gpu_orchestration",
+        "container_management",
+        "infrastructure_as_code",
+        "ci_cd_automation"
+      ]
+    },
+    "sophia-business-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "business-intelligence",
+        "MCP_SERVER_PORT": "8094"
+      },
+      "description": "Business tools and communication platforms",
+      "services": [
+        "retool",
+        "linear",
+        "slack",
+        "gong",
+        "intercom",
+        "hubspot"
+      ],
+      "features": [
+        "dashboard_creation",
+        "project_management",
+        "team_communication",
+        "sales_intelligence",
+        "customer_support",
+        "crm_integration"
+      ]
+    }
+  },
+  "globalSettings": {
+    "defaultTimeout": 30000,
+    "maxRetries": 3,
+    "healthCheckInterval": 60000,
+    "enableMetrics": true,
+    "enableTracing": true,
+    "logLevel": "info"
+  },
+  "routing": {
+    "strategy": "intelligent",
+    "rules": [
+      {
+        "pattern": "ai.*",
+        "server": "sophia-ai-intelligence"
+      },
+      {
+        "pattern": "data.*",
+        "server": "sophia-data-intelligence"
+      },
+      {
+        "pattern": "infra.*",
+        "server": "sophia-infrastructure"
+      },
+      {
+        "pattern": "business.*",
+        "server": "sophia-business-intelligence"
+      }
+    ]
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "port": 9090,
+      "path": "/metrics"
+    },
+    "grafana": {
+      "enabled": true,
+      "port": 3001,
+      "dashboards": [
+        "mcp-overview",
+        "service-health",
+        "performance-metrics"
+      ]
+    }
+  },
+  "security": {
+    "authentication": {
+      "enabled": true,
+      "type": "jwt",
+      "secretSource": "pulumi-esc"
+    },
+    "rateLimit": {
+      "enabled": true,
+      "requestsPerMinute": 100,
+      "burstSize": 200
+    },
+    "encryption": {
+      "enabled": true,
+      "algorithm": "AES-256-GCM"
+    }
+  },
+  "version": "2.0.0",
+  "lastUpdated": "2025-01-21T12:30:00Z"
+}
