@@ -6,7 +6,9 @@
     "secret_keys": ["user", "password"],
     "rotation_schedule": "90d",
     "owner": "data-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "high"
   },
   "pinecone": {
     "type": "vector_database",
@@ -15,7 +17,9 @@
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "ai-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "high"
   },
   "openai": {
     "type": "ai_provider",
@@ -24,7 +28,9 @@
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "ai-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "high"
   },
   "anthropic": {
     "type": "ai_provider",
@@ -33,7 +39,9 @@
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "ai-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "high"
   },
   "estuary": {
     "type": "data_pipeline",
@@ -42,43 +50,202 @@
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "data-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "medium"
   },
   "airbyte": {
     "type": "data_pipeline",
     "description": "Airbyte Cloud data pipeline integration",
     "config_keys": ["api_url", "workspace_id"],
-    "secret_keys": ["api_key", "bearer_token"],
+    "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "data-team",
-    "dependencies": []
+    "dependencies": [],
+    "status": "active",
+    "priority": "medium"
+  },
+  "arize": {
+    "type": "ai_monitoring",
+    "description": "Arize AI monitoring and observability platform",
+    "config_keys": ["space_id"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["model_monitoring", "drift_detection", "performance_tracking"],
+    "cost_tier": "enterprise"
+  },
+  "openrouter": {
+    "type": "ai_gateway",
+    "description": "OpenRouter unified AI model access gateway",
+    "config_keys": ["base_url", "referer", "title"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["model_routing", "cost_optimization", "unified_api"],
+    "cost_tier": "pay_per_use"
+  },
+  "portkey": {
+    "type": "ai_gateway",
+    "description": "Portkey AI gateway with advanced routing and caching",
+    "config_keys": ["config_id", "base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["smart_routing", "semantic_caching", "observability", "load_balancing"],
+    "cost_tier": "enterprise"
+  },
+  "apify": {
+    "type": "data_collection",
+    "description": "Apify web scraping and automation platform",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_token"],
+    "rotation_schedule": "90d",
+    "owner": "data-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["web_scraping", "automation", "data_extraction", "proxy_rotation"],
+    "cost_tier": "pay_per_use"
+  },
+  "phantombuster": {
+    "type": "data_collection",
+    "description": "PhantomBuster automation and lead generation platform",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "data-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "medium",
+    "features": ["social_automation", "lead_generation", "data_extraction"],
+    "cost_tier": "subscription"
+  },
+  "twingly": {
+    "type": "data_collection",
+    "description": "Twingly news monitoring and blog search service",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "data-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "medium",
+    "features": ["news_monitoring", "blog_search", "content_discovery"],
+    "cost_tier": "subscription"
+  },
+  "tavily": {
+    "type": "data_collection",
+    "description": "Tavily AI-powered search and research platform",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["ai_search", "research_automation", "content_synthesis"],
+    "cost_tier": "pay_per_use"
+  },
+  "zenrows": {
+    "type": "data_collection",
+    "description": "ZenRows web scraping with proxy rotation",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "data-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "medium",
+    "features": ["web_scraping", "proxy_rotation", "js_rendering", "captcha_solving"],
+    "cost_tier": "pay_per_use"
+  },
+  "huggingface": {
+    "type": "ai_provider",
+    "description": "HuggingFace model hub and inference API",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_token"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["model_inference", "embeddings", "classification", "local_models"],
+    "cost_tier": "freemium"
+  },
+  "together_ai": {
+    "type": "ai_provider",
+    "description": "Together AI optimized model inference platform",
+    "config_keys": ["base_url"],
+    "secret_keys": ["api_key"],
+    "rotation_schedule": "90d",
+    "owner": "ai-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "high",
+    "features": ["fast_inference", "code_generation", "chat_completion", "streaming"],
+    "cost_tier": "pay_per_use"
+  },
+  "docker": {
+    "type": "infrastructure",
+    "description": "Docker container registry and deployment",
+    "config_keys": ["registry_url"],
+    "secret_keys": ["username", "personal_access_token"],
+    "rotation_schedule": "90d",
+    "owner": "devops-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "critical",
+    "features": ["container_registry", "image_management", "deployment"],
+    "cost_tier": "freemium"
   },
   "lambda_labs": {
-    "type": "compute",
-    "description": "Lambda Labs compute integration",
-    "config_keys": ["api_url", "region", "instance_type"],
-    "secret_keys": ["api_key", "jupyter_password", "ssh_public_key", "ssh_private_key"],
-    "rotation_schedule": "90d",
-    "owner": "infra-team",
-    "dependencies": []
+    "type": "infrastructure",
+    "description": "Lambda Labs GPU cloud computing platform",
+    "config_keys": ["control_plane_ip", "ssh_key_name"],
+    "secret_keys": ["api_key", "ssh_private_key"],
+    "rotation_schedule": "180d",
+    "owner": "devops-team",
+    "dependencies": ["docker"],
+    "status": "active",
+    "priority": "critical",
+    "features": ["gpu_compute", "ssh_access", "instance_management"],
+    "cost_tier": "pay_per_hour"
   },
-  "vercel": {
-    "type": "deployment",
-    "description": "Vercel deployment integration",
-    "config_keys": ["team_id", "project_id"],
-    "secret_keys": ["token"],
+  "pulumi": {
+    "type": "infrastructure",
+    "description": "Pulumi Infrastructure as Code platform",
+    "config_keys": ["org", "project"],
+    "secret_keys": ["access_token"],
     "rotation_schedule": "90d",
-    "owner": "infra-team",
-    "dependencies": []
+    "owner": "devops-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "critical",
+    "features": ["infrastructure_as_code", "secret_management", "deployment_automation"],
+    "cost_tier": "enterprise"
   },
-  "gong": {
-    "type": "api",
-    "description": "Gong API integration",
-    "config_keys": ["api_url"],
-    "secret_keys": ["access_key", "client_secret"],
+  "github": {
+    "type": "development",
+    "description": "GitHub source code management and CI/CD",
+    "config_keys": ["org", "repo"],
+    "secret_keys": ["personal_access_token"],
     "rotation_schedule": "90d",
-    "owner": "sales-team",
-    "dependencies": []
+    "owner": "devops-team",
+    "dependencies": [],
+    "status": "active",
+    "priority": "critical",
+    "features": ["source_control", "ci_cd", "secret_management", "actions"],
+    "cost_tier": "enterprise"
   }
 }
 

@@ -6,7 +6,7 @@ It checks for the required environment variables, validates the Docker Compose
 configuration, and starts the MCP servers using Docker Compose.
 
 Usage:
-    python start_mcp_servers.py [--config mcp_config.json] [--compose docker-compose.mcp.yml]
+    python start_mcp_servers.py [--config mcp_config.json] [--compose docker compose.mcp.yml]
 """
 
 import argparse
@@ -40,7 +40,7 @@ def validate_docker_compose(compose_path: str) -> bool:
     """Validate the Docker Compose configuration"""
     try:
         result = subprocess.run(
-            ["docker-compose", "-f", compose_path, "config"],
+            ["docker", "compose", "-f", compose_path, "config"],
             capture_output=True,
             text=True,
         )
@@ -76,7 +76,7 @@ def check_docker_compose_installed() -> bool:
     """Check if Docker Compose is installed"""
     try:
         result = subprocess.run(
-            ["docker-compose", "--version"], capture_output=True, text=True
+            ["docker", "compose", "--version"], capture_output=True, text=True
         )
 
         if result.returncode != 0:
@@ -146,14 +146,14 @@ def start_mcp_servers(compose_path: str) -> bool:
     try:
         # Stop any running containers first
         subprocess.run(
-            ["docker-compose", "-f", compose_path, "down"],
+            ["docker", "compose", "-f", compose_path, "down"],
             capture_output=True,
             text=True,
         )
 
         # Start the containers
         result = subprocess.run(
-            ["docker-compose", "-f", compose_path, "up", "-d"],
+            ["docker", "compose", "-f", compose_path, "up", "-d"],
             capture_output=True,
             text=True,
         )
@@ -174,7 +174,7 @@ def check_mcp_servers_health(compose_path: str) -> Tuple[bool, Dict[str, str]]:
     try:
         # Get the list of running containers
         result = subprocess.run(
-            ["docker-compose", "-f", compose_path, "ps"], capture_output=True, text=True
+            ["docker", "compose", "-f", compose_path, "ps"], capture_output=True, text=True
         )
 
         if result.returncode != 0:
@@ -219,8 +219,8 @@ def main():
     )
     parser.add_argument(
         "--compose",
-        default="docker-compose.mcp.yml",
-        help="Path to Docker Compose file (default: docker-compose.mcp.yml)",
+        default="docker compose.mcp.yml",
+        help="Path to Docker Compose file (default: docker compose.mcp.yml)",
     )
 
     args = parser.parse_args()
@@ -303,11 +303,11 @@ def main():
 
     print("\n===== MCP Server Starter Complete =====")
     print("\nTo check the status of the MCP servers:")
-    print(f"   docker-compose -f {args.compose} ps")
+    print(f"   docker compose -f {args.compose} ps")
     print("\nTo view the logs of the MCP servers:")
-    print(f"   docker-compose -f {args.compose} logs")
+    print(f"   docker compose -f {args.compose} logs")
     print("\nTo stop the MCP servers:")
-    print(f"   docker-compose -f {args.compose} down")
+    print(f"   docker compose -f {args.compose} down")
 
 
 if __name__ == "__main__":
