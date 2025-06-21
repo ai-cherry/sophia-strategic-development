@@ -15,16 +15,25 @@ import pulumi_command as command
 import pulumi_pulumiservice as pulumiservice
 import pulumi_kubernetes as k8s
 from pulumi_kubernetes.helm.v3 import Release, ReleaseArgs, RepositoryOptsArgs
+import pulumi_esc as esc
 import json
 
 # --- 1. Get Required Configuration from Pulumi ESC ---
 # This ensures all necessary secrets and configs are available.
-esc_config = pulumi.Config()
-lambda_api_key = esc_config.require_secret("LAMBDA_API_KEY")
-ssh_private_key = esc_config.require_secret("LAMBDA_SSH_PRIVATE_KEY")
-ssh_key_name = esc_config.require("LAMBDA_SSH_KEY_NAME")
-pulumi_org = esc_config.require("PULUMI_ORG")
-control_plane_ip = esc_config.require("LAMBDA_CONTROL_PLANE_IP") # The static IP of the existing server
+config = pulumi.Config()
+esc_env = esc.Environment.get("sophia-ai-production")
+
+lambda_config = {
+    "api_key": esc_env.values["infrastructure"]["lambda_labs"]["api_key"],
+    "control_plane_ip": esc_env.values["infrastructure"]["lambda_labs"]["control_plane_ip"],
+    "ssh_key_name": esc_env.values["infrastructure"]["lambda_labs"]["ssh_key_name"]
+}
+
+lambda_api_key = lambda_config["api_key"]
+ssh_private_key = config.require_secret("LAMBDA_SSH_PRIVATE_KEY")
+ssh_key_name = lambda_config["ssh_key_name"]
+pulumi_org = esc_env.values["infrastructure"]["pulumi"]["org"]
+control_plane_ip = lambda_config["control_plane_ip"]
 
 # --- 2. Install Kubernetes on the Existing Lambda Labs Instance ---
 connection = command.remote.ConnectionArgs(
