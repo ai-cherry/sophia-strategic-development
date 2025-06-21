@@ -1,4 +1,5 @@
-"""Claude Integration for Sophia AI
+"""Claude Integration for Sophia AI.
+
 Provides unified interface for Claude API operations and "Claude as Code" functionality
 """
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ClaudeMessage:
-    """Claude message data structure"""
+    """Claude message data structure."""
 
     role: str  # "user", "assistant", "system"
     content: str
@@ -29,9 +30,8 @@ class ClaudeMessage:
 
 @dataclass
 class ClaudeConversation:
-    """Claude conversation data structure"""
+    """Claude conversation data structure."""id: str.
 
-    id: str
     messages: List[ClaudeMessage]
     model: str
     created_at: str
@@ -42,9 +42,8 @@ class ClaudeConversation:
 
 @dataclass
 class ClaudeCodeGeneration:
-    """Claude code generation result"""
+    """Claude code generation result."""id: str.
 
-    id: str
     prompt: str
     generated_code: str
     language: str
@@ -55,13 +54,12 @@ class ClaudeCodeGeneration:
 
 
 class ClaudeIntegration:
-    """Claude Integration for Sophia AI
+    """Claude Integration for Sophia AI.
 
-    Provides unified interface for Claude API operations, code generation,
-    and "Claude as Code" functionality through the Anthropic API.
-    """
+            Provides unified interface for Claude API operations, code generation,
+            and "Claude as Code" functionality through the Anthropic API.
+    """def __init__(self):.
 
-    def __init__(self):
         self.api_base_url = "https://api.anthropic.com/v1"
         self.default_model = "claude-3-5-sonnet-20241022"
         self.max_tokens = 4096
@@ -76,8 +74,8 @@ class ClaudeIntegration:
         self.token_usage = []
 
     async def initialize(self) -> bool:
-        """Initialize Claude integration with authentication"""
-        try:
+        """Initialize Claude integration with authentication."""try:.
+
             # Get Claude configuration from Pulumi ESC
             self._config = await self._get_claude_config()
 
@@ -110,8 +108,8 @@ class ClaudeIntegration:
             return False
 
     async def _get_claude_config(self) -> Optional[Dict[str, Any]]:
-        """Get Claude configuration from Pulumi ESC or environment variables"""
-        try:
+        """Get Claude configuration from Pulumi ESC or environment variables."""try:.
+
             # Try Pulumi ESC first
             try:
                 config = await pulumi_esc_client.get_configuration("claude")
@@ -149,8 +147,8 @@ class ClaudeIntegration:
             return None
 
     async def _test_authentication(self) -> bool:
-        """Test Claude API authentication"""
-        try:
+        """Test Claude API authentication."""try:.
+
             if not self._session:
                 return False
 
@@ -176,8 +174,7 @@ class ClaudeIntegration:
             return False
 
     async def _check_rate_limits(self, estimated_tokens: int = 1000) -> bool:
-        """Check if request is within rate limits"""
-        current_time = time.time()
+        """Check if request is within rate limits."""current_time = time.time().
 
         # Clean old timestamps (older than 1 minute)
         self.request_timestamps = [
@@ -201,8 +198,8 @@ class ClaudeIntegration:
         return True
 
     async def _record_usage(self, tokens_used: int):
-        """Record API usage for rate limiting"""
-        current_time = time.time()
+        """Record API usage for rate limiting."""current_time = time.time().
+
         self.request_timestamps.append(current_time)
         self.token_usage.append((current_time, tokens_used))
 
@@ -216,8 +213,8 @@ class ClaudeIntegration:
         max_tokens: Optional[int] = None,
         system_prompt: Optional[str] = None,
     ) -> Optional[ClaudeMessage]:
-        """Send a message to Claude and get response"""
-        try:
+        """Send a message to Claude and get response."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -273,10 +270,10 @@ class ClaudeIntegration:
     async def generate_code(
         self, prompt: str, language: str = "python", context: Optional[str] = None
     ) -> Optional[ClaudeCodeGeneration]:
-        """Generate code using Claude"""
-        try:
+        """Generate code using Claude."""try:.
+
             # Construct code generation prompt
-            system_prompt = f"""You are an expert {language} developer. Generate clean, well-documented, production-ready code based on the user's requirements. 
+            system_prompt = f"""You are an expert {language} developer. Generate clean, well-documented, production-ready code based on the user's requirements.
 
 Guidelines:
 1. Write clean, readable code with proper comments
@@ -291,9 +288,8 @@ Format your response as:
 ```
 
 Explanation:
-[brief explanation of the code]"""
+[brief explanation of the code]"""if context:.
 
-            if context:
                 system_prompt += f"\n\nAdditional context: {context}"
 
             # Generate code
@@ -352,8 +348,8 @@ Explanation:
     async def analyze_code(
         self, code: str, language: str = "python", analysis_type: str = "review"
     ) -> Optional[ClaudeMessage]:
-        """Analyze code using Claude"""
-        try:
+        """Analyze code using Claude."""try:.
+
             analysis_prompts = {
                 "review": f"Please review this {language} code and provide feedback on:\n1. Code quality and best practices\n2. Potential bugs or issues\n3. Performance considerations\n4. Security concerns\n5. Suggestions for improvement",
                 "explain": f"Please explain this {language} code in detail, including:\n1. What the code does\n2. How it works\n3. Key components and their purpose\n4. Any notable patterns or techniques used",
@@ -376,8 +372,8 @@ Explanation:
         language: str = "python",
         refactor_goal: str = "improve readability",
     ) -> Optional[ClaudeCodeGeneration]:
-        """Refactor code using Claude"""
-        try:
+        """Refactor code using Claude."""try:.
+
             system_prompt = f"""You are an expert {language} developer. Refactor the provided code to {refactor_goal}.
 
 Guidelines:
@@ -393,9 +389,7 @@ Provide the refactored code in this format:
 ```
 
 Explanation:
-[explanation of changes made and improvements]"""
-
-            prompt = f"Please refactor this {language} code to {refactor_goal}:\n\n```{language}\n{code}\n```"
+[explanation of changes made and improvements]"""prompt = f"Please refactor this {language} code to {refactor_goal}:\n\n```{language}\n{code}\n```".
 
             response = await self.send_message(
                 message=prompt, system_prompt=system_prompt, max_tokens=4096
@@ -440,8 +434,8 @@ Explanation:
     async def generate_documentation(
         self, code: str, language: str = "python", doc_type: str = "api"
     ) -> Optional[ClaudeMessage]:
-        """Generate documentation for code using Claude"""
-        try:
+        """Generate documentation for code using Claude."""try:.
+
             doc_prompts = {
                 "api": f"Generate comprehensive API documentation for this {language} code including:\n1. Function/class descriptions\n2. Parameters and return values\n3. Usage examples\n4. Error handling",
                 "readme": f"Generate a README.md file for this {language} code including:\n1. Project description\n2. Installation instructions\n3. Usage examples\n4. API reference\n5. Contributing guidelines",
@@ -460,8 +454,8 @@ Explanation:
     async def generate_tests(
         self, code: str, language: str = "python", test_framework: str = "pytest"
     ) -> Optional[ClaudeCodeGeneration]:
-        """Generate tests for code using Claude"""
-        try:
+        """Generate tests for code using Claude."""try:.
+
             system_prompt = f"""You are an expert {language} developer specializing in testing. Generate comprehensive tests for the provided code using {test_framework}.
 
 Guidelines:
@@ -477,9 +471,7 @@ Format your response as:
 ```
 
 Explanation:
-[explanation of test strategy and coverage]"""
-
-            prompt = f"Generate comprehensive tests for this {language} code using {test_framework}:\n\n```{language}\n{code}\n```"
+[explanation of test strategy and coverage]"""prompt = f"Generate comprehensive tests for this {language} code using {test_framework}:\n\n```{language}\n{code}\n```".
 
             response = await self.send_message(
                 message=prompt, system_prompt=system_prompt, max_tokens=4096
@@ -524,8 +516,8 @@ Explanation:
     # Utility Methods
 
     async def get_health_status(self) -> Dict[str, Any]:
-        """Get Claude integration health status"""
-        try:
+        """Get Claude integration health status."""try:.
+
             health_status = {
                 "service": "Claude Integration",
                 "status": "healthy" if self._authenticated else "unhealthy",
@@ -559,8 +551,8 @@ Explanation:
             }
 
     async def cleanup(self):
-        """Cleanup resources"""
-        if self._session:
+        """Cleanup resources."""if self._session:.
+
             await self._session.close()
             self._session = None
         self._authenticated = False
@@ -572,40 +564,35 @@ claude_integration = ClaudeIntegration()
 
 # Convenience functions for easy access
 async def send_message(message: str, **kwargs) -> Optional[ClaudeMessage]:
-    """Send a message to Claude"""
-    return await claude_integration.send_message(message, **kwargs)
+    """Send a message to Claude."""return await claude_integration.send_message(message, **kwargs).
 
 
 async def generate_code(
     prompt: str, language: str = "python", **kwargs
 ) -> Optional[ClaudeCodeGeneration]:
-    """Generate code using Claude"""
-    return await claude_integration.generate_code(prompt, language, **kwargs)
+    """Generate code using Claude."""return await claude_integration.generate_code(prompt, language, **kwargs).
 
 
 async def analyze_code(
     code: str, language: str = "python", analysis_type: str = "review"
 ) -> Optional[ClaudeMessage]:
-    """Analyze code using Claude"""
-    return await claude_integration.analyze_code(code, language, analysis_type)
+    """Analyze code using Claude."""return await claude_integration.analyze_code(code, language, analysis_type).
 
 
 async def refactor_code(
     code: str, language: str = "python", refactor_goal: str = "improve readability"
 ) -> Optional[ClaudeCodeGeneration]:
-    """Refactor code using Claude"""
-    return await claude_integration.refactor_code(code, language, refactor_goal)
+    """Refactor code using Claude."""return await claude_integration.refactor_code(code, language, refactor_goal).
 
 
 async def generate_documentation(
     code: str, language: str = "python", doc_type: str = "api"
 ) -> Optional[ClaudeMessage]:
-    """Generate documentation for code"""
-    return await claude_integration.generate_documentation(code, language, doc_type)
+    """Generate documentation for code."""return await claude_integration.generate_documentation(code, language, doc_type).
 
 
 async def generate_tests(
     code: str, language: str = "python", test_framework: str = "pytest"
 ) -> Optional[ClaudeCodeGeneration]:
-    """Generate tests for code"""
+    """Generate tests for code."""
     return await claude_integration.generate_tests(code, language, test_framework)

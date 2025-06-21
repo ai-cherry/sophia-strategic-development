@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Test Permanent Solution
+"""Sophia AI - Test Permanent Solution.
+
 Tests the GitHub Organization Secrets → Pulumi ESC integration
 WITHOUT EXPOSING ANY CREDENTIALS
 """
@@ -19,15 +20,15 @@ logger = logging.getLogger(__name__)
 
 
 class PermanentSolutionTester:
-    """Test the permanent solution without exposing credentials"""
+    """Test the permanent solution without exposing credentials."""
 
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
         self.test_results = {}
 
     def run_command(self, cmd: str, check: bool = True) -> subprocess.CompletedProcess:
-        """Run shell command with proper error handling"""
-        logger.info(f"Testing: {cmd}")
+        """Run shell command with proper error handling."""logger.info(f"Testing: {cmd}").
+
         result = subprocess.run(
             cmd, shell=True, capture_output=True, text=True, check=False
         )
@@ -39,8 +40,7 @@ class PermanentSolutionTester:
         return result
 
     def test_gitignore_security(self):
-        """Test that .gitignore properly protects secrets"""
-        logger.info("🔒 Testing .gitignore security...")
+        """Test that .gitignore properly protects secrets."""logger.info("🔒 Testing .gitignore security...").
 
         gitignore_path = self.project_root / ".gitignore"
         if not gitignore_path.exists():
@@ -77,8 +77,7 @@ class PermanentSolutionTester:
             logger.info("✅ .gitignore properly protects secrets")
 
     def test_no_exposed_secrets(self):
-        """Test that no secrets are exposed in the repository"""
-        logger.info("🔍 Testing for exposed secrets...")
+        """Test that no secrets are exposed in the repository."""logger.info("🔍 Testing for exposed secrets...").
 
         # Search for potential secret patterns in tracked files
         dangerous_patterns = [
@@ -105,8 +104,7 @@ class PermanentSolutionTester:
             logger.info("✅ No secrets exposed in repository")
 
     def test_pulumi_esc_environments(self):
-        """Test that Pulumi ESC environments are properly configured"""
-        logger.info("🏗️ Testing Pulumi ESC environments...")
+        """Test that Pulumi ESC environments are properly configured."""logger.info("🏗️ Testing Pulumi ESC environments...").
 
         # Test if we can list environments (without exposing tokens)
         result = self.run_command("pulumi env ls", check=False)
@@ -137,8 +135,7 @@ class PermanentSolutionTester:
             logger.info("✅ Pulumi ESC environments configured")
 
     def test_github_workflow(self):
-        """Test that GitHub Actions workflow is properly configured"""
-        logger.info("🚀 Testing GitHub Actions workflow...")
+        """Test that GitHub Actions workflow is properly configured."""logger.info("🚀 Testing GitHub Actions workflow...").
 
         workflow_path = (
             self.project_root
@@ -188,8 +185,7 @@ class PermanentSolutionTester:
             logger.info("✅ GitHub Actions workflow properly configured")
 
     def test_sync_script(self):
-        """Test that the sync script is properly configured"""
-        logger.info("🔄 Testing sync script...")
+        """Test that the sync script is properly configured."""logger.info("🔄 Testing sync script...").
 
         sync_script_path = self.project_root / "scripts" / "sync_github_to_pulumi.sh"
 
@@ -242,8 +238,7 @@ class PermanentSolutionTester:
             logger.info("✅ Sync script properly configured")
 
     def test_backend_integration(self):
-        """Test that backend integration is properly configured"""
-        logger.info("🧪 Testing backend integration...")
+        """Test that backend integration is properly configured."""logger.info("🧪 Testing backend integration...").
 
         config_path = self.project_root / "backend" / "core" / "auto_esc_config.py"
 
@@ -289,8 +284,7 @@ class PermanentSolutionTester:
             logger.info("✅ Backend integration properly configured")
 
     def test_documentation(self):
-        """Test that documentation is complete"""
-        logger.info("📚 Testing documentation...")
+        """Test that documentation is complete."""logger.info("📚 Testing documentation...").
 
         doc_path = self.project_root / "PERMANENT_GITHUB_ORG_SECRETS_SOLUTION.md"
 
@@ -327,8 +321,7 @@ class PermanentSolutionTester:
             logger.info("✅ Documentation complete")
 
     def run_all_tests(self):
-        """Run all tests and generate report"""
-        logger.info("🧪 Running comprehensive permanent solution tests...")
+        """Run all tests and generate report."""logger.info("🧪 Running comprehensive permanent solution tests...").
 
         tests = [
             self.test_gitignore_security,
@@ -351,8 +344,7 @@ class PermanentSolutionTester:
         self.generate_report()
 
     def generate_report(self):
-        """Generate comprehensive test report"""
-        logger.info("📊 Generating test report...")
+        """Generate comprehensive test report."""logger.info("📊 Generating test report...").
 
         total_tests = len(self.test_results)
         passed_tests = sum(
@@ -424,7 +416,7 @@ class PermanentSolutionTester:
 
 
 def main():
-    """Main test function"""
+    """Main test function."""
     try:
         tester = PermanentSolutionTester()
         tester.run_all_tests()

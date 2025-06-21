@@ -12,8 +12,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         self.mixpanel_client = self._init_mixpanel_client()
 
     async def setup(self):
-        """Register BI tools."""
-        self.register_tool(
+        """Register BI tools."""self.register_tool(.
+
             Tool(
                 name="bi_execute_query",
                 description="Execute a SQL query on Snowflake for business intelligence reporting",
@@ -63,8 +63,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         )
 
     async def bi_execute_query(self, query: str):
-        """Run a query against Snowflake."""
-        # Query Snowflake data warehouse
+        """Run a query against Snowflake."""# Query Snowflake data warehouse.
+
         # Documentation outlines using Snowflake for analytics and reporting
         # (see docs/API_CAPABILITIES_FOR_AI_AGENTS.md)
         if self.snowflake_client:
@@ -72,20 +72,25 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         return None
 
     async def bi_semantic_search(self, query: str, top_k: int = 5):
-        """Search Pinecone vector DB for insights."""
-        # Vector search using Pinecone integration
+        """Search Pinecone vector DB for insights."""# Vector search using Pinecone integration.
+
         if self.pinecone_client:
             pass
         return None
 
     async def generate_bi_report(
-        self, report_type: str, start_date: str | None = None, end_date: str | None = None
+        self,
+        report_type: str,
+        start_date: str | None = None,
+        end_date: str | None = None,
     ):
-        """Generate a BI report using analytics tools."""
-        # Use Looker or Mixpanel APIs to produce analytics reports
+        """Generate a BI report using analytics tools."""# Use Looker or Mixpanel APIs to produce analytics reports.
+
         pass
 
-    async def create_dashboard(self, dashboard_name: str, data_sources: list | None = None):
+    async def create_dashboard(
+        self, dashboard_name: str, data_sources: list | None = None
+    ):
         """Create or update an analytics dashboard."""
         # Dashboard generation leveraging BI analytics tools
         pass

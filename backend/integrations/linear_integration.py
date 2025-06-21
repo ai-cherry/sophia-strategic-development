@@ -1,4 +1,5 @@
-"""Linear Integration for Sophia AI
+"""Linear Integration for Sophia AI.
+
 Provides unified interface for Linear project management operations
 """
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class LinearIssue:
-    """Linear issue data structure"""
+    """Linear issue data structure."""
 
     id: str
     title: str
@@ -31,9 +32,8 @@ class LinearIssue:
 
 @dataclass
 class LinearProject:
-    """Linear project data structure"""
+    """Linear project data structure."""id: str.
 
-    id: str
     name: str
     description: str
     status: str
@@ -45,9 +45,8 @@ class LinearProject:
 
 @dataclass
 class LinearTeam:
-    """Linear team data structure"""
+    """Linear team data structure."""id: str.
 
-    id: str
     name: str
     description: str
     members: Optional[List[str]] = None
@@ -55,21 +54,20 @@ class LinearTeam:
 
 
 class LinearIntegration:
-    """Linear Integration for Sophia AI
+    """Linear Integration for Sophia AI.
 
-    Provides unified interface for Linear project management operations
-    through the Linear MCP server and direct API access.
-    """
+            Provides unified interface for Linear project management operations
+            through the Linear MCP server and direct API access.
+    """def __init__(self):.
 
-    def __init__(self):
         self.mcp_server_url = "https://mcp.linear.app/sse"
         self.api_base_url = "https://api.linear.app/graphql"
         self._config = None
         self._authenticated = False
 
     async def initialize(self) -> bool:
-        """Initialize Linear integration with authentication"""
-        try:
+        """Initialize Linear integration with authentication."""try:.
+
             # Get Linear configuration from Pulumi ESC
             self._config = await self._get_linear_config()
 
@@ -92,8 +90,8 @@ class LinearIntegration:
             return False
 
     async def _get_linear_config(self) -> Optional[Dict[str, Any]]:
-        """Get Linear configuration from Pulumi ESC"""
-        try:
+        """Get Linear configuration from Pulumi ESC."""try:.
+
             config = await pulumi_esc_client.get_configuration("linear")
             return config
         except Exception as e:
@@ -101,8 +99,8 @@ class LinearIntegration:
             return None
 
     async def _test_authentication(self) -> bool:
-        """Test Linear API authentication"""
-        try:
+        """Test Linear API authentication."""try:.
+
             # This would test the Linear API connection
             # For now, return True if we have the required config
             required_fields = ["api_token"]
@@ -120,8 +118,7 @@ class LinearIntegration:
             return False
 
     async def test_connection(self) -> bool:
-        """Test Linear API connection"""
-        return self._authenticated
+        """Test Linear API connection."""return self._authenticated.
 
     # Issue Management Methods
 
@@ -134,8 +131,8 @@ class LinearIntegration:
         priority: Optional[str] = None,
         labels: Optional[List[str]] = None,
     ) -> Optional[LinearIssue]:
-        """Create a new Linear issue"""
-        try:
+        """Create a new Linear issue."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -179,8 +176,8 @@ class LinearIntegration:
         status: Optional[str] = None,
         limit: int = 50,
     ) -> List[LinearIssue]:
-        """Get Linear issues with optional filters"""
-        try:
+        """Get Linear issues with optional filters."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -237,8 +234,8 @@ class LinearIntegration:
     async def update_issue(
         self, issue_id: str, updates: Dict[str, Any]
     ) -> Optional[LinearIssue]:
-        """Update an existing Linear issue"""
-        try:
+        """Update an existing Linear issue."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -265,8 +262,8 @@ class LinearIntegration:
             return None
 
     async def delete_issue(self, issue_id: str) -> bool:
-        """Delete a Linear issue"""
-        try:
+        """Delete a Linear issue."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -283,8 +280,8 @@ class LinearIntegration:
     async def create_project(
         self, name: str, description: str, team_id: Optional[str] = None
     ) -> Optional[LinearProject]:
-        """Create a new Linear project"""
-        try:
+        """Create a new Linear project."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -307,8 +304,8 @@ class LinearIntegration:
             return None
 
     async def list_projects(self, team_id: Optional[str] = None) -> List[LinearProject]:
-        """List Linear projects"""
-        try:
+        """List Linear projects."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -345,8 +342,8 @@ class LinearIntegration:
     async def update_project(
         self, project_id: str, updates: Dict[str, Any]
     ) -> Optional[LinearProject]:
-        """Update a Linear project"""
-        try:
+        """Update a Linear project."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -370,8 +367,8 @@ class LinearIntegration:
     # Team Management Methods
 
     async def get_teams(self) -> List[LinearTeam]:
-        """Get Linear teams"""
-        try:
+        """Get Linear teams."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -394,8 +391,8 @@ class LinearIntegration:
     # Utility Methods
 
     async def search_issues(self, query: str, limit: int = 20) -> List[LinearIssue]:
-        """Search Linear issues by query"""
-        try:
+        """Search Linear issues by query."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -417,8 +414,8 @@ class LinearIntegration:
             return []
 
     async def get_issue_by_id(self, issue_id: str) -> Optional[LinearIssue]:
-        """Get a specific Linear issue by ID"""
-        try:
+        """Get a specific Linear issue by ID."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -436,8 +433,8 @@ class LinearIntegration:
             return None
 
     async def get_project_by_id(self, project_id: str) -> Optional[LinearProject]:
-        """Get a specific Linear project by ID"""
-        try:
+        """Get a specific Linear project by ID."""try:.
+
             if not self._authenticated:
                 await self.initialize()
 
@@ -454,8 +451,8 @@ class LinearIntegration:
             return None
 
     async def get_health_status(self) -> Dict[str, Any]:
-        """Get Linear integration health status"""
-        try:
+        """Get Linear integration health status."""try:.
+
             health_status = {
                 "service": "Linear Integration",
                 "status": "healthy" if self._authenticated else "unhealthy",
@@ -488,37 +485,31 @@ linear_integration = LinearIntegration()
 
 # Convenience functions for easy access
 async def create_issue(title: str, description: str, **kwargs) -> Optional[LinearIssue]:
-    """Create a Linear issue"""
-    return await linear_integration.create_issue(title, description, **kwargs)
+    """Create a Linear issue."""return await linear_integration.create_issue(title, description, **kwargs).
 
 
 async def get_issues(**kwargs) -> List[LinearIssue]:
-    """Get Linear issues"""
-    return await linear_integration.get_issues(**kwargs)
+    """Get Linear issues."""return await linear_integration.get_issues(**kwargs).
 
 
 async def update_issue(issue_id: str, updates: Dict[str, Any]) -> Optional[LinearIssue]:
-    """Update a Linear issue"""
-    return await linear_integration.update_issue(issue_id, updates)
+    """Update a Linear issue."""return await linear_integration.update_issue(issue_id, updates).
 
 
 async def create_project(
     name: str, description: str, **kwargs
 ) -> Optional[LinearProject]:
-    """Create a Linear project"""
-    return await linear_integration.create_project(name, description, **kwargs)
+    """Create a Linear project."""return await linear_integration.create_project(name, description, **kwargs).
 
 
 async def get_projects(**kwargs) -> List[LinearProject]:
-    """Get Linear projects"""
-    return await linear_integration.list_projects(**kwargs)
+    """Get Linear projects."""return await linear_integration.list_projects(**kwargs).
 
 
 async def list_projects(**kwargs) -> List[LinearProject]:
-    """List Linear projects"""
-    return await linear_integration.list_projects(**kwargs)
+    """List Linear projects."""return await linear_integration.list_projects(**kwargs).
 
 
 async def search_issues(query: str, **kwargs) -> List[LinearIssue]:
-    """Search Linear issues"""
+    """Search Linear issues."""
     return await linear_integration.search_issues(query, **kwargs)

@@ -1,4 +1,5 @@
-"""Architectural Parsers for the Codebase Awareness System
+"""Architectural Parsers for the Codebase Awareness System.
+
 Handles extracting structured information from various components of the codebase,
 such as API routes, MCP tool definitions, and database schemas.
 """
@@ -12,22 +13,23 @@ logger = logging.getLogger(__name__)
 
 
 class ArchitectureParser:
-    """A class containing static methods to parse different architectural
-    components of the Sophia AI codebase.
+    """A class containing static methods to parse different architectural.
+
+            components of the Sophia AI codebase.
     """
 
     @staticmethod
     def parse_fastapi_routes(file_content: str, file_path: str) -> List[Dict[str, Any]]:
         """Parses a Python file to find FastAPI route definitions.
 
-        Args:
-            file_content: The content of the Python file.
-            file_path: The path of the file, for context.
+                        Args:
+                            file_content: The content of the Python file.
+                            file_path: The path of the file, for context.
 
-        Returns:
-            A list of dictionaries, each representing a discovered API endpoint.
-        """
-        endpoints = []
+                        Returns:
+                            A list of dictionaries, each representing a discovered API endpoint.
+        """endpoints = []
+
         try:
             tree = ast.parse(file_content)
             for node in ast.walk(tree):
@@ -65,14 +67,14 @@ class ArchitectureParser:
     def parse_mcp_tools(file_content: str, file_path: str) -> List[Dict[str, Any]]:
         """Parses a Python file to find MCP Tool definitions.
 
-        Args:
-            file_content: The content of the Python file.
-            file_path: The path of the file, for context.
+                        Args:
+                            file_content: The content of the Python file.
+                            file_path: The path of the file, for context.
 
-        Returns:
-            A list of dictionaries, each representing a discovered MCP tool.
-        """
-        tools = []
+                        Returns:
+                            A list of dictionaries, each representing a discovered MCP tool.
+        """tools = []
+
         try:
             tree = ast.parse(file_content)
             for node in ast.walk(tree):
@@ -99,14 +101,14 @@ class ArchitectureParser:
     def parse_db_schema(file_content: str, file_path: str) -> List[Dict[str, Any]]:
         """Parses a SQL file to find table definitions.
 
-        Args:
-            file_content: The content of the SQL file.
-            file_path: The path of the file, for context.
+                        Args:
+                            file_content: The content of the SQL file.
+                            file_path: The path of the file, for context.
 
-        Returns:
-            A list of dictionaries, each representing a discovered database table.
-        """
-        tables = []
+                        Returns:
+                            A list of dictionaries, each representing a discovered database table.
+        """tables = []
+
         # A simple regex to find CREATE TABLE statements and their columns.
         # A real implementation might use a more robust SQL parsing library.
         table_pattern = re.compile(
@@ -137,12 +139,12 @@ class ArchitectureParser:
     def parse_python_code(file_content: str, file_path: str) -> List[Dict[str, Any]]:
         """Parses a Python file to extract classes and functions.
 
-        Args:
-            file_content: The content of the Python file.
-            file_path: The path of the file, for context.
+                        Args:
+                            file_content: The content of the Python file.
+                            file_path: The path of the file, for context.
 
-        Returns:
-            A list of dictionaries, each representing a class or function.
+                        Returns:
+                            A list of dictionaries, each representing a class or function.
         """
         items = []
         try:

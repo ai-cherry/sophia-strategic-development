@@ -1,4 +1,5 @@
-"""Knowledge Base Integration Module
+"""Knowledge Base Integration Module.
+
 Handles integration with existing admin website and deployment
 """
 
@@ -11,8 +12,8 @@ from backend.knowledge.knowledge_api import knowledge_bp
 admin_kb_bp = Blueprint("admin_knowledge", __name__, url_prefix="/admin/knowledge")
 
 # Admin interface HTML template
-ADMIN_INTERFACE_TEMPLATE = """
-<!DOCTYPE html>
+ADMIN_INTERFACE_TEMPLATE = """<!DOCTYPE html>.
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -280,19 +281,18 @@ ADMIN_INTERFACE_TEMPLATE = """
     </script>
 </body>
 </html>
-"""
+"""@admin_kb_bp.route("/").
 
-
-@admin_kb_bp.route("/")
 def admin_interface():
-    """Serve the knowledge base admin interface"""
+"""Serve the knowledge base admin interface."""
+
     return render_template_string(ADMIN_INTERFACE_TEMPLATE)
 
 
 @admin_kb_bp.route("/api/status")
 def api_status():
-    """Get knowledge base system status"""
-    return jsonify(
+    """Get knowledge base system status."""return jsonify(.
+
         {
             "status": "operational",
             "databases": {
@@ -314,8 +314,8 @@ def api_status():
 
 @admin_kb_bp.route("/api/workflows")
 def list_workflows():
-    """List all workflow tasks"""
-    # This would integrate with the actual workflow manager
+    """List all workflow tasks."""# This would integrate with the actual workflow manager.
+
     workflows = [
         {
             "id": "notion_sync_daily",
@@ -339,8 +339,7 @@ def list_workflows():
 
 @admin_kb_bp.route("/api/workflows", methods=["POST"])
 def create_workflow():
-    """Create a new workflow"""
-    data = request.get_json()
+    """Create a new workflow."""data = request.get_json().
 
     # Validate required fields
     required_fields = ["name", "source", "metadata"]
@@ -366,8 +365,8 @@ def create_workflow():
 
 
 def create_admin_app():
-    """Create Flask app with knowledge base admin interface"""
-    app = Flask(__name__)
+    """Create Flask app with knowledge base admin interface."""app = Flask(__name__).
+
     CORS(app)
 
     # Register blueprints
@@ -378,12 +377,12 @@ def create_admin_app():
 
 
 def integrate_with_existing_admin(existing_app):
-    """Integrate knowledge base admin with existing admin website
+    """Integrate knowledge base admin with existing admin website.
 
-    Args:
-        existing_app: Existing Flask application instance
-    """
-    # Register the knowledge base blueprint
+            Args:
+                existing_app: Existing Flask application instance
+    """# Register the knowledge base blueprint.
+
     existing_app.register_blueprint(admin_kb_bp)
     existing_app.register_blueprint(knowledge_bp)
 
@@ -403,14 +402,13 @@ def integrate_with_existing_admin(existing_app):
 
 # Deployment configuration
 class KnowledgeBaseDeployment:
-    """Handles deployment configuration for knowledge base admin"""
+    """Handles deployment configuration for knowledge base admin."""def __init__(self, config):.
 
-    def __init__(self, config):
         self.config = config
 
     def deploy_to_vercel(self):
-        """Deploy the React admin interface to Vercel"""
-        vercel_config = {
+        """Deploy the React admin interface to Vercel."""vercel_config = {.
+
             "name": "sophia-knowledge-admin",
             "version": 2,
             "builds": [
@@ -437,8 +435,8 @@ class KnowledgeBaseDeployment:
         return vercel_config
 
     def deploy_to_lambda_labs(self):
-        """Deploy the backend API to Lambda Labs"""
-        docker_config = {
+        """Deploy the backend API to Lambda Labs."""docker_config = {.
+
             "FROM": "python:3.11-slim",
             "WORKDIR": "/app",
             "COPY": ["requirements.txt", "."],
@@ -451,8 +449,8 @@ class KnowledgeBaseDeployment:
         return docker_config
 
     def generate_nginx_config(self):
-        """Generate Nginx configuration for production deployment"""
-        nginx_config = r"""
+        """Generate Nginx configuration for production deployment."""nginx_config = r"""
+
 server {
     listen 80;
     server_name sophia-admin.payready.com;

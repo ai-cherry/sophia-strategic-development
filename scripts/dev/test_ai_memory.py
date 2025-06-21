@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Test AI Memory MCP Server
+"""Test AI Memory MCP Server.
+
 Verify that the AI Memory system is working for Cursor AI integration
 """
 
@@ -14,7 +15,8 @@ sys.path.insert(0, str(project_root))
 
 
 async def test_ai_memory_server():
-    """Test the AI Memory MCP server functionality"""
+    """Test the AI Memory MCP server functionality."""
+
     print("🧠 Testing AI Memory MCP Server...")
 
     try:
@@ -86,8 +88,7 @@ async def test_ai_memory_server():
 
 
 async def test_cursor_ai_integration():
-    """Test integration patterns for Cursor AI"""
-    print("\n🎯 Testing Cursor AI Integration Patterns...")
+    """Test integration patterns for Cursor AI."""print("\n🎯 Testing Cursor AI Integration Patterns...").
 
     # Simulate how Cursor AI would use the memory system
     conversation_examples = [
@@ -174,8 +175,7 @@ async def test_cursor_ai_integration():
 
 
 async def generate_cursor_ai_config():
-    """Generate configuration for Cursor AI to use AI Memory"""
-    print("\n⚙️ Generating Cursor AI Configuration...")
+    """Generate configuration for Cursor AI to use AI Memory."""print("\n⚙️ Generating Cursor AI Configuration...").
 
     config = {
         "ai_memory_integration": {
@@ -225,7 +225,7 @@ async def generate_cursor_ai_config():
 
 
 async def main():
-    """Main test function"""
+    """Main test function."""
     print("🧠 AI MEMORY MCP SERVER TEST SUITE")
     print("=" * 50)
 

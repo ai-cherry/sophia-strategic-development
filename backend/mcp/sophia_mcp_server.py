@@ -1,4 +1,5 @@
-"""Sophia Main MCP Server
+"""Sophia Main MCP Server.
+
 Central orchestrator MCP server for the Sophia AI system
 """
 
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class SophiaMCPServer(BaseMCPServer):
-    """Main Sophia MCP Server - Central orchestrator for all Sophia AI functionality"""
+    """Main Sophia MCP Server - Central orchestrator for all Sophia AI functionality."""
 
     def __init__(self):
         super().__init__("sophia")
@@ -31,8 +32,7 @@ class SophiaMCPServer(BaseMCPServer):
         self.available_tools = {}
 
     async def initialize_integration(self):
-        """Initialize the main Sophia MCP server"""
-        self.logger.info("Initializing Sophia Main MCP Server...")
+        """Initialize the main Sophia MCP server."""self.logger.info("Initializing Sophia Main MCP Server...").
 
         # Initialize core components
         await self._initialize_core_services()
@@ -43,8 +43,8 @@ class SophiaMCPServer(BaseMCPServer):
         self.logger.info("Sophia Main MCP Server initialized successfully")
 
     async def _initialize_core_services(self):
-        """Initialize core Sophia services"""
-        # This would initialize core Sophia components
+        """Initialize core Sophia services."""# This would initialize core Sophia components.
+
         # For now, we'll keep it simple
         self.integration_client = {
             "status": "initialized",
@@ -57,8 +57,8 @@ class SophiaMCPServer(BaseMCPServer):
         }
 
     async def _discover_sub_servers(self):
-        """Discover and catalog available sub-servers"""
-        self.sub_servers = {
+        """Discover and catalog available sub-servers."""self.sub_servers = {.
+
             "ai_memory": {
                 "description": "AI Memory and conversation storage",
                 "status": "available",
@@ -92,8 +92,8 @@ class SophiaMCPServer(BaseMCPServer):
         }
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """List available Sophia resources"""
-        resources = [
+        """List available Sophia resources."""resources = [.
+
             Resource(
                 uri="sophia://status",
                 name="Sophia System Status",
@@ -116,8 +116,7 @@ class SophiaMCPServer(BaseMCPServer):
         return resources
 
     async def read_resource(self, request: ReadResourceRequest) -> str:
-        """Read Sophia resources"""
-        uri = request.params.uri
+        """Read Sophia resources."""uri = request.params.uri.
 
         if uri == "sophia://status":
             status = {
@@ -141,8 +140,8 @@ class SophiaMCPServer(BaseMCPServer):
             return json.dumps({"error": f"Resource not found: {uri}"})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """List available Sophia tools"""
-        tools = [
+        """List available Sophia tools."""tools = [.
+
             Tool(
                 name="get_system_status",
                 description="Get comprehensive status of the Sophia AI system",
@@ -241,8 +240,8 @@ class SophiaMCPServer(BaseMCPServer):
         return tools
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handle Sophia tool calls"""
-        tool_name = request.params.name
+        """Handle Sophia tool calls."""tool_name = request.params.name.
+
         arguments = request.params.arguments or {}
 
         try:
@@ -264,8 +263,7 @@ class SophiaMCPServer(BaseMCPServer):
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     async def _get_system_status(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Get comprehensive system status"""
-        include_details = args.get("include_details", False)
+        """Get comprehensive system status."""include_details = args.get("include_details", False).
 
         status = {
             "sophia_main": {
@@ -288,8 +286,8 @@ class SophiaMCPServer(BaseMCPServer):
         return status
 
     async def _orchestrate_task(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Orchestrate a complex task across multiple services"""
-        task_description = args.get("task_description", "")
+        """Orchestrate a complex task across multiple services."""task_description = args.get("task_description", "").
+
         required_services = args.get("required_services", [])
         priority = args.get("priority", "medium")
 
@@ -323,8 +321,8 @@ class SophiaMCPServer(BaseMCPServer):
         }
 
     async def _query_knowledge(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Query across all knowledge sources"""
-        query = args.get("query", "")
+        """Query across all knowledge sources."""query = args.get("query", "").
+
         sources = args.get("sources", [])
         limit = args.get("limit", 10)
 
@@ -353,8 +351,8 @@ class SophiaMCPServer(BaseMCPServer):
         return results
 
     async def _analyze_conversation(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze conversation using Sophia AI capabilities"""
-        conversation_text = args.get("conversation_text", "")
+        """Analyze conversation using Sophia AI capabilities."""conversation_text = args.get("conversation_text", "").
+
         analysis_type = args.get("analysis_type", "comprehensive")
         store_results = args.get("store_results", True)
 
@@ -382,7 +380,7 @@ class SophiaMCPServer(BaseMCPServer):
 
 
 async def main():
-    """Main entry point for the Sophia MCP server"""
+    """Main entry point for the Sophia MCP server."""
     setup_logging()
     server = SophiaMCPServer()
     await server.run()

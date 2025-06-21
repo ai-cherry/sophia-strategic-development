@@ -117,7 +117,7 @@ async def test_gong_data_flow_to_snowflake(self, mock_gong_client, mock_snowflak
     # Send test data to Gong
     test_data = {"call_id": "test-123", "duration": 300}
     mock_gong_client.send_test_data(test_data)
-    
+
     # Verify data in Snowflake
     result = mock_snowflake_client.query(
         f"SELECT * FROM gong_calls WHERE call_id = '{test_data['call_id']}'"
@@ -203,7 +203,7 @@ class TestNewComponent:
         with pulumi_mock.mocked_provider():
             component = NewComponent("test-component")
             # Add assertions
-    
+
     def test_component_outputs(self, pulumi_mock, mock_pulumi_config):
         """Test component outputs"""
         with pulumi_mock.mocked_provider():

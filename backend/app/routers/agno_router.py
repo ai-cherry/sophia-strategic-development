@@ -1,4 +1,5 @@
 """API Router for all Agno-based agent interactions.
+
 This is the single entry point for any user- or system-initiated agent tasks.
 """
 
@@ -24,9 +25,8 @@ class AgentTaskRequest(BaseModel):
 
 
 class AgentTaskResponse(BaseModel):
-    """Defines the structure for a response from an agent task."""
+    """Defines the structure for a response from an agent task."""task_id: str.
 
-    task_id: str
     status: str
     message: str
     result: Optional[Dict[str, Any]] = None
@@ -37,9 +37,10 @@ class AgentTaskResponse(BaseModel):
 )
 async def execute_agent_task(request: AgentTaskRequest):
     """Receives a task, validates it, and forwards it to the specified Agno agent.
-    This endpoint is the primary interaction point with the agent framework.
-    """
-    if not agent_framework.is_initialized:
+
+            This endpoint is the primary interaction point with the agent framework.
+    """if not agent_framework.is_initialized:.
+
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="The Agent Framework is not initialized. Please try again later.",

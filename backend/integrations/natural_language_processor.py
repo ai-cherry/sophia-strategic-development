@@ -1,4 +1,5 @@
-"""Natural Language Processor for AI Agent Control
+"""Natural Language Processor for AI Agent Control.
+
 Converts natural language commands into structured agent requests
 """
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class IntentType(Enum):
-    """Types of intents the system can recognize"""
+    """Types of intents the system can recognize."""
 
     DEPLOY_INFRASTRUCTURE = "deploy_infrastructure"
     SCALE_RESOURCES = "scale_resources"
@@ -47,9 +48,8 @@ class IntentType(Enum):
 
 @dataclass
 class ParsedIntent:
-    """Parsed natural language intent"""
+    """Parsed natural language intent."""intent: IntentType.
 
-    intent: IntentType
     entities: Dict[str, Any]
     confidence: float
     original_text: str
@@ -59,9 +59,8 @@ class ParsedIntent:
 
 
 class NaturalLanguageProcessor:
-    """Advanced NLP processor for AI agent control"""
+    """Advanced NLP processor for AI agent control."""def __init__(self):.
 
-    def __init__(self):
         # Initialize OpenAI client
         self.openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -138,8 +137,8 @@ class NaturalLanguageProcessor:
     async def process_natural_language(
         self, text: str, context: Optional[Dict[str, Any]] = None
     ) -> ParsedIntent:
-        """Process natural language input and extract intent"""
-        try:
+        """Process natural language input and extract intent."""try:.
+
             # Clean and normalize input
             cleaned_text = self._clean_text(text)
 
@@ -184,8 +183,8 @@ class NaturalLanguageProcessor:
             )
 
     def _clean_text(self, text: str) -> str:
-        """Clean and normalize input text"""
-        # Remove extra whitespace
+        """Clean and normalize input text."""# Remove extra whitespace.
+
         text = re.sub(r"\s+", " ", text.strip())
 
         # Convert to lowercase for processing
@@ -197,8 +196,8 @@ class NaturalLanguageProcessor:
         return text
 
     async def _extract_intent(self, text: str) -> IntentType:
-        """Extract intent from text using pattern matching and AI"""
-        # First try pattern matching for quick results
+        """Extract intent from text using pattern matching and AI."""# First try pattern matching for quick results.
+
         for intent_type, patterns in self.intent_patterns.items():
             for pattern in patterns:
                 if re.search(pattern, text, re.IGNORECASE):
@@ -224,31 +223,29 @@ class NaturalLanguageProcessor:
             - manage_agents: Manage AI agents
 
             Return only the intent name.
-            """
+            """response = self.openai_client.chat.completions.create(.
 
-            response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=50,
-                temperature=0.1,
-            )
+                                        model="gpt-3.5-turbo",
+                                        messages=[{"role": "user", "content": prompt}],
+                                        max_tokens=50,
+                                        temperature=0.1,
+                                    )
 
-            intent_str = response.choices[0].message.content.strip().lower()
+                                    intent_str = response.choices[0].message.content.strip().lower()
 
-            # Map response to IntentType
-            for intent_type in IntentType:
-                if intent_type.value in intent_str:
-                    return intent_type
+                                    # Map response to IntentType
+                                    for intent_type in IntentType:
+                                        if intent_type.value in intent_str:
+                                            return intent_type
 
-        except Exception as e:
-            logger.error(f"AI intent extraction failed: {e}")
+                                except Exception as e:
+                                    logger.error(f"AI intent extraction failed: {e}")
 
-        # Default to manage_agents if nothing else matches
-        return IntentType.MANAGE_AGENTS
+                                # Default to manage_agents if nothing else matches
+                                return IntentType.MANAGE_AGENTS
 
-    async def _extract_entities(self, text: str, intent: IntentType) -> Dict[str, Any]:
-        """Extract entities from text"""
-        entities = {}
+                            async def _extract_entities(self, text: str, intent: IntentType) -> Dict[str, Any]:
+            """Extract entities from text."""entities = {}.
 
         # Pattern-based entity extraction
         for entity_type, pattern in self.entity_patterns.items():
@@ -301,8 +298,7 @@ class NaturalLanguageProcessor:
     async def _calculate_confidence(
         self, text: str, intent: IntentType, entities: Dict[str, Any]
     ) -> float:
-        """Calculate confidence score for the parsed intent"""
-        confidence = 0.5  # Base confidence
+        """Calculate confidence score for the parsed intent."""confidence = 0.5  # Base confidence.
 
         # Increase confidence if pattern matched
         for pattern in self.intent_patterns.get(intent, []):
@@ -324,8 +320,8 @@ class NaturalLanguageProcessor:
     async def _generate_suggested_actions(
         self, intent: IntentType, entities: Dict[str, Any]
     ) -> List[str]:
-        """Generate suggested actions based on intent and entities"""
-        if intent == IntentType.DEPLOY_INFRASTRUCTURE:
+        """Generate suggested actions based on intent and entities."""if intent == IntentType.DEPLOY_INFRASTRUCTURE:.
+
             actions = [
                 "generate_infrastructure_code",
                 "estimate_costs",
@@ -373,8 +369,8 @@ class NaturalLanguageProcessor:
         return actions
 
     def _get_required_parameters(self, intent: IntentType) -> List[str]:
-        """Get required parameters for each intent type"""
-        parameter_map = {
+        """Get required parameters for each intent type."""parameter_map = {.
+
             IntentType.DEPLOY_INFRASTRUCTURE: ["service_type", "environment"],
             IntentType.SCALE_RESOURCES: ["resource_id", "scale_direction"],
             IntentType.MONITOR_PERFORMANCE: ["time_range"],
@@ -392,8 +388,7 @@ class NaturalLanguageProcessor:
     async def convert_to_agent_requests(
         self, parsed_intent: ParsedIntent
     ) -> List[AgentRequest]:
-        """Convert parsed intent to specific agent requests"""
-        requests = []
+        """Convert parsed intent to specific agent requests."""requests = [].
 
         try:
             if parsed_intent.intent == IntentType.DEPLOY_INFRASTRUCTURE:
@@ -530,8 +525,8 @@ class NaturalLanguageProcessor:
     async def process_and_execute(
         self, text: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Process natural language and execute corresponding agent requests"""
-        try:
+        """Process natural language and execute corresponding agent requests."""try:.
+
             # Parse the natural language input
             parsed_intent = await self.process_natural_language(text, context)
 
@@ -582,8 +577,8 @@ class NaturalLanguageProcessor:
     def _generate_summary(
         self, parsed_intent: ParsedIntent, results: List[Dict[str, Any]]
     ) -> str:
-        """Generate a human-readable summary of the execution"""
-        successful_results = [r for r in results if r["success"]]
+        """Generate a human-readable summary of the execution."""successful_results = [r for r in results if r["success"]].
+
         failed_results = [r for r in results if not r["success"]]
 
         summary = f"Processed request with {parsed_intent.confidence:.0%} confidence. "
@@ -607,8 +602,8 @@ nlp_bp = Blueprint("nlp", __name__, url_prefix="/api/nlp")
 
 @nlp_bp.route("/process", methods=["POST"])
 async def process_natural_language():
-    """Process natural language input"""
-    try:
+    """Process natural language input."""try:.
+
         data = request.get_json()
         text = data.get("text", "")
         context = data.get("context")
@@ -625,8 +620,8 @@ async def process_natural_language():
 
 @nlp_bp.route("/parse", methods=["POST"])
 async def parse_intent():
-    """Parse natural language intent without execution"""
-    try:
+    """Parse natural language intent without execution."""try:.
+
         data = request.get_json()
         text = data.get("text", "")
         context = data.get("context")
@@ -652,7 +647,7 @@ async def parse_intent():
 
 
 def create_nlp_app():
-    """Create Flask app with NLP integration"""
+    """Create Flask app with NLP integration."""
     app = Flask(__name__)
     CORS(app, origins="*")
 

@@ -1,6 +1,6 @@
-"""Hierarchical 3-Tier Caching System
+"""Hierarchical 3-Tier Caching System.
 
-Implements L1 (Memory), L2 (Redis), and L3 (Database) caching for optimal performance.
+Implements L1 (Memory), L2 (Redis), and L3 (Database) caching for optimal performance
 """
 
 import asyncio
@@ -19,7 +19,7 @@ from backend.monitoring.observability import logger
 
 
 class CacheTier(str, Enum):
-    """Cache tier levels"""
+    """Cache tier levels."""
 
     L1_MEMORY = "l1_memory"
     L2_REDIS = "l2_redis"
@@ -27,17 +27,18 @@ class CacheTier(str, Enum):
 
 
 class CacheStrategy(str, Enum):
-    """Cache strategies"""
+    """Cache strategies."""
 
     WRITE_THROUGH = "write_through"
+
     WRITE_BACK = "write_back"
     WRITE_AROUND = "write_around"
 
 
 class CacheMetrics(BaseModel):
-    """Cache performance metrics"""
+    """Cache performance metrics."""
+hits: int = 0
 
-    hits: int = 0
     misses: int = 0
     evictions: int = 0
     writes: int = 0
@@ -51,9 +52,9 @@ class CacheMetrics(BaseModel):
 
 
 class CacheEntry(BaseModel):
-    """Cache entry with metadata"""
+    """Cache entry with metadata."""
+key: str.
 
-    key: str
     value: Any
     tier: CacheTier
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -64,16 +65,17 @@ class CacheEntry(BaseModel):
 
     def is_expired(self) -> bool:
         """Check if entry is expired."""
-        if self.ttl_seconds is None:
+if self.ttl_seconds is None:
+
             return False
         expiry = self.created_at + timedelta(seconds=self.ttl_seconds)
         return datetime.utcnow() > expiry
 
 
 class HierarchicalCache:
-    """3-tier hierarchical caching system"""
+    """3-tier hierarchical caching system."""
+def __init__(.
 
-    def __init__(
         self,
         l1_max_size: int = 1000,
         l1_ttl_seconds: int = 300,  # 5 minutes
@@ -106,7 +108,9 @@ class HierarchicalCache:
 
     async def initialize(self):
         """Initialize cache components."""
-        if self._initialized:
+
+    if self._initialized:
+
             return
 
         # Initialize Redis connection
@@ -127,8 +131,8 @@ class HierarchicalCache:
         fetch_fn: Optional[Callable] = None,
         ttl_override: Optional[Dict[CacheTier, int]] = None,
     ) -> Optional[Any]:
-        """Get value from cache with hierarchical lookup"""
-        await self.initialize()
+        """Get value from cache with hierarchical lookup."""
+await self.initialize()
 
         start_time = time.time()
 
@@ -176,8 +180,8 @@ class HierarchicalCache:
         ttl_override: Optional[Dict[CacheTier, int]] = None,
         tags: Optional[List[str]] = None,
     ):
-        """Set value in cache based on strategy"""
-        await self.initialize()
+        """Set value in cache based on strategy."""
+await self.initialize()
 
         ttls = ttl_override or {}
 
@@ -197,16 +201,16 @@ class HierarchicalCache:
             await self._set_l3(key, value, ttls.get(CacheTier.L3_DATABASE), tags)
 
     async def invalidate(self, key: str):
-        """Invalidate entry across all tiers"""
-        await self.initialize()
+        """Invalidate entry across all tiers."""
+await self.initialize()
 
         await asyncio.gather(
             self._invalidate_l1(key), self._invalidate_l2(key), self._invalidate_l3(key)
         )
 
     async def invalidate_by_tag(self, tag: str):
-        """Invalidate all entries with a specific tag"""
-        await self.initialize()
+        """Invalidate all entries with a specific tag."""
+await self.initialize()
 
         # Get all keys with tag from L3
         keys = await self._get_keys_by_tag(tag)
@@ -219,8 +223,9 @@ class HierarchicalCache:
         await asyncio.gather(*tasks)
 
     async def warm_cache(self, keys: List[str], fetch_fn: Callable):
-        """Pre-warm cache with specific keys"""
-        await self.initialize()
+        """Pre-warm cache with specific keys."""
+
+    await self.initialize()
 
         tasks = []
         for key in keys:
@@ -232,7 +237,8 @@ class HierarchicalCache:
 
     async def get_metrics(self) -> Dict[str, Any]:
         """Get cache performance metrics."""
-        metrics = {}
+
+    metrics = {}
 
         for tier, metric in self.metrics.items():
             metrics[tier.value] = {
@@ -259,8 +265,10 @@ class HierarchicalCache:
 
     # L1 Operations
     async def _get_l1(self, key: str) -> Optional[Any]:
-        """Get from L1 memory cache"""
-        try:
+        """Get from L1 memory cache."""
+try:
+except Exception:
+    pass
             value = self.l1_cache.get(key)
             if value is not None:
                 return json.loads(value) if isinstance(value, str) else value
@@ -269,8 +277,11 @@ class HierarchicalCache:
         return None
 
     async def _set_l1(self, key: str, value: Any, ttl: Optional[int] = None):
-        """Set in L1 memory cache"""
-        try:
+        """Set in L1 memory cache."""
+
+    try:
+    except Exception:
+        pass
             serialized = json.dumps(value) if not isinstance(value, str) else value
             self.l1_cache[key] = serialized
             self.metrics[CacheTier.L1_MEMORY].writes += 1
@@ -278,8 +289,10 @@ class HierarchicalCache:
             logger.error(f"L1 set error: {e}")
 
     async def _invalidate_l1(self, key: str):
-        """Invalidate L1 entry"""
-        try:
+        """Invalidate L1 entry."""
+try:
+except Exception:
+    pass
             del self.l1_cache[key]
             self.metrics[CacheTier.L1_MEMORY].evictions += 1
         except KeyError:
@@ -287,11 +300,15 @@ class HierarchicalCache:
 
     # L2 Operations
     async def _get_l2(self, key: str) -> Optional[Any]:
-        """Get from L2 Redis cache"""
-        if not self.l2_client:
+        """Get from L2 Redis cache."""
+
+    if not self.l2_client:
+
             return None
 
         try:
+        except Exception:
+            pass
             value = await self.l2_client.get(f"cache:{key}")
             if value:
                 return json.loads(value)
@@ -300,11 +317,15 @@ class HierarchicalCache:
         return None
 
     async def _set_l2(self, key: str, value: Any, ttl: Optional[int] = None):
-        """Set in L2 Redis cache"""
-        if not self.l2_client:
+        """Set in L2 Redis cache."""
+
+    if not self.l2_client:
+
             return
 
         try:
+        except Exception:
+            pass
             serialized = json.dumps(value)
             ttl = ttl or self.l2_ttl
             await self.l2_client.setex(f"cache:{key}", ttl, serialized)
@@ -313,11 +334,15 @@ class HierarchicalCache:
             logger.error(f"L2 set error: {e}")
 
     async def _invalidate_l2(self, key: str):
-        """Invalidate L2 entry"""
-        if not self.l2_client:
+        """Invalidate L2 entry."""
+
+    if not self.l2_client:
+
             return
 
         try:
+        except Exception:
+            pass
             await self.l2_client.delete(f"cache:{key}")
             self.metrics[CacheTier.L2_REDIS].evictions += 1
         except Exception as e:
@@ -325,9 +350,8 @@ class HierarchicalCache:
 
     # L3 Operations (placeholder - actual implementation in database layer)
     async def _get_l3(self, key: str) -> Optional[Any]:
-        """Get from L3 database cache"""
-        # This would be implemented by the database layer
-        # For now, return None
+        """Get from L3 database cache."""  # This would be implemented by the database layer.
+# For now, return None
         return None
 
     async def _set_l3(
@@ -337,24 +361,22 @@ class HierarchicalCache:
         ttl: Optional[int] = None,
         tags: Optional[List[str]] = None,
     ):
-        """Set in L3 database cache"""
-        # This would be implemented by the database layer
-        self.metrics[CacheTier.L3_DATABASE].writes += 1
+        """Set in L3 database cache."""  # This would be implemented by the database layer.
+self.metrics[CacheTier.L3_DATABASE].writes += 1
 
     async def _invalidate_l3(self, key: str):
-        """Invalidate L3 entry"""
-        # This would be implemented by the database layer
-        self.metrics[CacheTier.L3_DATABASE].evictions += 1
+        """Invalidate L3 entry."""  # This would be implemented by the database layer.
+self.metrics[CacheTier.L3_DATABASE].evictions += 1
 
     async def _get_keys_by_tag(self, tag: str) -> List[str]:
-        """Get all keys with a specific tag from L3"""
-        # This would be implemented by the database layer
-        return []
+        """Get all keys with a specific tag from L3."""  # This would be implemented by the database layer.
+return []
 
     # Helper methods
     def _track_access(self, key: str):
-        """Track access patterns for optimization"""
-        now = time.time()
+        """Track access patterns for optimization."""
+now = time.time()
+
         if key not in self._access_patterns:
             self._access_patterns[key] = []
         self._access_patterns[key].append(now)
@@ -366,16 +388,18 @@ class HierarchicalCache:
         ]
 
     def _record_hit(self, tier: CacheTier, latency: float):
-        """Record cache hit metrics"""
-        metrics = self.metrics[tier]
+        """Record cache hit metrics."""
+metrics = self.metrics[tier].
+
         metrics.hits += 1
         metrics.avg_latency_ms = (
             metrics.avg_latency_ms * (metrics.hits - 1) + latency * 1000
         ) / metrics.hits
 
     def _record_miss(self, latency: float):
-        """Record cache miss metrics"""
-        for metrics in self.metrics.values():
+        """Record cache miss metrics."""
+for metrics in self.metrics.values():
+
             metrics.misses += 1
 
     async def _write_back(
@@ -385,8 +409,9 @@ class HierarchicalCache:
         ttls: Dict[CacheTier, int],
         tags: Optional[List[str]],
     ):
-        """Background write to L2 and L3"""
-        await asyncio.sleep(0.1)  # Small delay to batch writes
+        """Background write to L2 and L3."""
+await asyncio.sleep(0.1)  # Small delay to batch writes.
+
         await asyncio.gather(
             self._set_l2(key, value, ttls.get(CacheTier.L2_REDIS)),
             self._set_l3(key, value, ttls.get(CacheTier.L3_DATABASE), tags),
@@ -394,7 +419,9 @@ class HierarchicalCache:
 
     async def _monitor_performance(self):
         """Monitor cache performance and adjust parameters."""
-        while True:
+
+    while True:
+
             await asyncio.sleep(60)  # Check every minute
 
             # Update memory usage
@@ -410,7 +437,9 @@ class HierarchicalCache:
 
     async def _adaptive_optimization(self):
         """Adaptively optimize cache based on access patterns."""
-        while True:
+
+    while True:
+
             await asyncio.sleep(300)  # Run every 5 minutes
 
             # Identify hot keys
@@ -444,7 +473,7 @@ def cached(
     key_prefix: str = "",
     tags: Optional[List[str]] = None,
 ):
-    """Decorator for automatic method caching"""
+    """Decorator for automatic method caching."""
 
     def decorator(func: Callable):
         async def wrapper(*args, **kwargs):

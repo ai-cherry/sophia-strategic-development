@@ -1,6 +1,8 @@
-"""Pulumi ESC - HubSpot Secret Management
+"""Pulumi ESC - HubSpot Secret Management.
+
 Manages HubSpot API keys.
 """
+
 import logging
 import os
 

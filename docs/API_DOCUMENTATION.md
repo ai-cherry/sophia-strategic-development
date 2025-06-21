@@ -284,4 +284,3 @@ const health = await client.health.check();
 - **Rate Limits**: 1000 requests/hour for free tier, 10000/hour for pro
 - **Support**: support@sophia.ai
 - **Status Page**: https://status.sophia.ai
-

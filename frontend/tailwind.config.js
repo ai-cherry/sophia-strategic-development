@@ -14,7 +14,7 @@ export default {
         // Dark theme backgrounds
         'slate': {
           900: '#0f172a', // Background Primary
-          800: '#1e293b', // Background Secondary  
+          800: '#1e293b', // Background Secondary
           700: '#334155', // Background Tertiary
           600: '#475569',
           500: '#64748b',
@@ -130,4 +130,4 @@ export default {
     require('@tailwindcss/typography'),
     animate,
   ],
-} 
+}

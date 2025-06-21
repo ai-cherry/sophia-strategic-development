@@ -1,4 +1,5 @@
-"""Sophia AI - Production Monitoring System
+"""Sophia AI - Production Monitoring System.
+
 Alternative implementation using Python-based monitoring
 """
 
@@ -56,7 +57,8 @@ class SophiaMonitoring:
         self.running = False
 
     def start_monitoring(self):
-        """Start the monitoring system"""
+        """Start the monitoring system."""
+
         logger.info("🚀 Starting Sophia AI Monitoring System...")
 
         # Start Prometheus metrics server
@@ -73,8 +75,8 @@ class SophiaMonitoring:
         logger.info("✅ All monitoring threads started")
 
     def _monitor_system_metrics(self):
-        """Monitor system performance metrics"""
-        while self.running:
+        """Monitor system performance metrics."""while self.running:.
+
             try:
                 # CPU usage
                 cpu_percent = psutil.cpu_percent(interval=1)
@@ -104,8 +106,8 @@ class SophiaMonitoring:
                 time.sleep(60)
 
     def _monitor_business_metrics(self):
-        """Monitor business intelligence metrics"""
-        while self.running:
+        """Monitor business intelligence metrics."""while self.running:.
+
             try:
                 # Simulate business metrics collection
                 # In production, this would connect to actual business databases
@@ -133,8 +135,8 @@ class SophiaMonitoring:
                 time.sleep(600)
 
     def _health_check_services(self):
-        """Perform health checks on critical services"""
-        while self.running:
+        """Perform health checks on critical services."""while self.running:.
+
             try:
                 services = {
                     "database": os.getenv(
@@ -183,22 +185,21 @@ class SophiaMonitoring:
                 time.sleep(300)
 
     def record_api_request(self, method, endpoint, duration):
-        """Record API request metrics"""
-        self.api_requests.labels(method=method, endpoint=endpoint).inc()
+        """Record API request metrics."""self.api_requests.labels(method=method, endpoint=endpoint).inc().
+
         self.api_duration.observe(duration)
 
     def record_bi_query(self):
-        """Record business intelligence query"""
-        self.bi_queries.inc()
+        """Record business intelligence query."""self.bi_queries.inc().
 
     def stop_monitoring(self):
-        """Stop the monitoring system"""
-        self.running = False
+        """Stop the monitoring system."""self.running = False.
+
         logger.info("🛑 Monitoring system stopped")
 
 
 def main():
-    """Main monitoring function"""
+    """Main monitoring function."""
     monitor = SophiaMonitoring()
 
     try:

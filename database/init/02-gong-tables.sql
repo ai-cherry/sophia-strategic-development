@@ -74,4 +74,4 @@ CREATE TABLE IF NOT EXISTS sophia_competitive_intelligence (
     win_probability_impact FLOAT,
     created_at TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(),
     updated_at TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP()
-); 
+);

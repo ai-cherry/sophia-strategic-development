@@ -28,4 +28,3 @@ ENV MCP_SERVER_MODULE=${MCP_SERVER_MODULE}
 
 # Command to run the specified MCP server
 CMD ["sh", "-c", "python -m ${MCP_SERVER_MODULE}"]
-

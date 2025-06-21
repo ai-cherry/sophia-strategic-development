@@ -1,4 +1,5 @@
-"""Enhanced Agno Integration with Ultra-Fast Performance
+"""Enhanced Agno Integration with Ultra-Fast Performance.
+
 Implements 3μs agent instantiation, 6.5KB memory usage, and 1000+ concurrent agents
 """
 
@@ -28,9 +29,8 @@ class AgentPoolConfig:
 
 @dataclass
 class PerformanceMetrics:
-    """Performance metrics for agents."""
+    """Performance metrics for agents."""instantiation_time_us: float.
 
-    instantiation_time_us: float
     memory_usage_kb: float
     request_count: int
     last_used: float
@@ -38,13 +38,11 @@ class PerformanceMetrics:
 
 
 class UltraFastAgent:
-    """Ultra-fast agent with 3μs instantiation and 6.5KB memory footprint."""
-
-    __slots__ = ["agent_id", "config", "metrics", "state", "_weak_ref"]
+    """Ultra-fast agent with 3μs instantiation and 6.5KB memory footprint."""__slots__ = ["agent_id", "config", "metrics", "state", "_weak_ref"].
 
     def __init__(self, agent_id: str, config: Dict[str, Any]):
-        """Initialize ultra-fast agent with minimal memory footprint."""
-        self.agent_id = agent_id
+        """Initialize ultra-fast agent with minimal memory footprint."""self.agent_id = agent_id.
+
         self.config = config
         self.metrics = PerformanceMetrics(
             instantiation_time_us=0.0,
@@ -57,8 +55,8 @@ class UltraFastAgent:
         self._weak_ref = weakref.ref(self)
 
     def get_memory_usage(self) -> float:
-        """Get current memory usage in KB."""
-        # Estimate memory usage based on object size
+        """Get current memory usage in KB."""# Estimate memory usage based on object size.
+
         import sys
 
         size_bytes = sys.getsizeof(self)
@@ -68,8 +66,8 @@ class UltraFastAgent:
         return size_bytes / 1024.0
 
     def update_metrics(self, instantiation_time_us: float = None):
-        """Update performance metrics."""
-        if instantiation_time_us:
+        """Update performance metrics."""if instantiation_time_us:.
+
             self.metrics.instantiation_time_us = instantiation_time_us
         self.metrics.memory_usage_kb = self.get_memory_usage()
         self.metrics.request_count += 1
@@ -77,11 +75,9 @@ class UltraFastAgent:
 
 
 class AgentPool:
-    """High-performance agent pool with pre-warming and memory optimization."""
+    """High-performance agent pool with pre-warming and memory optimization."""def __init__(self, config: AgentPoolConfig):.
 
-    def __init__(self, config: AgentPoolConfig):
-        """Initialize agent pool."""
-        self.config = config
+        """Initialize agent pool."""self.config = config.
         self.agents: List[UltraFastAgent] = []
         self.available_agents: asyncio.Queue = asyncio.Queue()
         self.busy_agents: Dict[str, UltraFastAgent] = {}
@@ -95,8 +91,8 @@ class AgentPool:
         }
 
     async def initialize(self):
-        """Initialize and pre-warm the agent pool."""
-        if self.config.pre_warm:
+        """Initialize and pre-warm the agent pool."""if self.config.pre_warm:.
+
             logger.info(
                 f"Pre-warming {self.config.size} agents for {self.config.specialization}"
             )
@@ -129,8 +125,8 @@ class AgentPool:
             self.stats["avg_instantiation_us"] = avg_time
 
     async def _create_agent(self, agent_id: str) -> Optional[UltraFastAgent]:
-        """Create a new ultra-fast agent."""
-        try:
+        """Create a new ultra-fast agent."""try:.
+
             start_time = time.perf_counter()
 
             # Create agent with minimal configuration
@@ -168,8 +164,7 @@ class AgentPool:
             return None
 
     async def get_agent(self) -> Optional[UltraFastAgent]:
-        """Get an available agent from the pool (target: 3μs)."""
-        start_time = time.perf_counter()
+        """Get an available agent from the pool (target: 3μs)."""start_time = time.perf_counter().
 
         try:
             # Try to get pre-warmed agent first
@@ -226,8 +221,8 @@ class AgentPool:
             return None
 
     async def return_agent(self, agent: UltraFastAgent):
-        """Return an agent to the pool."""
-        try:
+        """Return an agent to the pool."""try:.
+
             async with self.lock:
                 if agent.agent_id in self.busy_agents:
                     del self.busy_agents[agent.agent_id]
@@ -244,8 +239,8 @@ class AgentPool:
             logger.error(f"Failed to return agent {agent.agent_id}: {e}")
 
     def get_stats(self) -> Dict[str, Any]:
-        """Get pool statistics."""
-        total_memory = sum(agent.metrics.memory_usage_kb for agent in self.agents)
+        """Get pool statistics."""total_memory = sum(agent.metrics.memory_usage_kb for agent in self.agents).
+
         avg_memory = total_memory / len(self.agents) if self.agents else 0
 
         return {
@@ -264,11 +259,9 @@ class AgentPool:
 
 
 class EnhancedAgnoIntegration:
-    """Enhanced Agno integration with ultra-fast performance targets."""
+    """Enhanced Agno integration with ultra-fast performance targets."""def __init__(self):.
 
-    def __init__(self):
-        """Initialize enhanced Agno integration."""
-        self.initialized = False
+        """Initialize enhanced Agno integration."""self.initialized = False.
         self.api_key = None
         self.config = {}
         self.agent_pools: Dict[str, AgentPool] = {}
@@ -281,8 +274,8 @@ class EnhancedAgnoIntegration:
         self.target_concurrent = 1000
 
     async def initialize(self):
-        """Initialize the enhanced Agno integration."""
-        if self.initialized:
+        """Initialize the enhanced Agno integration."""if self.initialized:.
+
             return
 
         try:
@@ -327,8 +320,8 @@ class EnhancedAgnoIntegration:
     async def get_ultra_fast_agent(
         self, pool_name: str = "general_assistant"
     ) -> Optional[UltraFastAgent]:
-        """Get an ultra-fast agent from the specified pool."""
-        if not self.initialized:
+        """Get an ultra-fast agent from the specified pool."""if not self.initialized:.
+
             await self.initialize()
 
         if pool_name not in self.agent_pools:
@@ -341,15 +334,14 @@ class EnhancedAgnoIntegration:
     async def return_agent(
         self, agent: UltraFastAgent, pool_name: str = "general_assistant"
     ):
-        """Return an agent to the specified pool."""
-        if pool_name in self.agent_pools:
+        """Return an agent to the specified pool."""if pool_name in self.agent_pools:.
+
             await self.agent_pools[pool_name].return_agent(agent)
 
     async def process_ultra_fast_request(
         self, request: str, pool_name: str = "general_assistant", stream: bool = True
     ) -> Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]:
-        """Process a request with ultra-fast performance."""
-        start_time = time.perf_counter()
+        """Process a request with ultra-fast performance."""start_time = time.perf_counter().
 
         # Get agent
         agent = await self.get_ultra_fast_agent(pool_name)
@@ -369,8 +361,8 @@ class EnhancedAgnoIntegration:
     async def _get_ultra_fast_response(
         self, agent: UltraFastAgent, request: str, start_time: float
     ) -> Dict[str, Any]:
-        """Get ultra-fast response."""
-        # Simulate ultra-fast processing
+        """Get ultra-fast response."""# Simulate ultra-fast processing.
+
         await asyncio.sleep(0.001)  # 1ms processing time
 
         processing_time = (time.perf_counter() - start_time) * 1000  # milliseconds
@@ -394,8 +386,8 @@ class EnhancedAgnoIntegration:
     async def _stream_ultra_fast_response(
         self, agent: UltraFastAgent, request: str, start_time: float
     ) -> AsyncGenerator[Dict[str, Any], None]:
-        """Stream ultra-fast response."""
-        # Initial response
+        """Stream ultra-fast response."""# Initial response.
+
         initial_time = (time.perf_counter() - start_time) * 1000
         yield {
             "type": "start",
@@ -432,8 +424,8 @@ class EnhancedAgnoIntegration:
         }
 
     async def _monitor_performance(self):
-        """Monitor performance metrics."""
-        while self.initialized:
+        """Monitor performance metrics."""while self.initialized:.
+
             try:
                 # Collect performance metrics
                 total_agents = sum(
@@ -468,8 +460,8 @@ class EnhancedAgnoIntegration:
                 await asyncio.sleep(60)
 
     def get_performance_stats(self) -> Dict[str, Any]:
-        """Get comprehensive performance statistics."""
-        pool_stats = {}
+        """Get comprehensive performance statistics."""pool_stats = {}.
+
         for pool_name, pool in self.agent_pools.items():
             pool_stats[pool_name] = pool.get_stats()
 
@@ -504,8 +496,7 @@ class EnhancedAgnoIntegration:
         }
 
     async def validate_performance_targets(self) -> Dict[str, Any]:
-        """Validate that performance targets are being met."""
-        stats = self.get_performance_stats()
+        """Validate that performance targets are being met."""stats = self.get_performance_stats().
 
         validation_results = {
             "instantiation_target_met": stats["overall"]["avg_instantiation_us"]
@@ -531,8 +522,7 @@ class EnhancedAgnoIntegration:
     def _get_performance_recommendations(
         self, validation: Dict[str, Any], stats: Dict[str, Any]
     ) -> List[str]:
-        """Get performance optimization recommendations."""
-        recommendations = []
+        """Get performance optimization recommendations."""recommendations = [].
 
         if not validation["instantiation_target_met"]:
             recommendations.append(

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simple Backend Starter for Sophia AI
+"""Simple Backend Starter for Sophia AI.
+
 Starts a minimal backend without Pulumi dependencies
 """
 
@@ -19,7 +20,8 @@ RESET = "\033[0m"
 
 
 def check_backend_exists():
-    """Check if simplified backend exists"""
+    """Check if simplified backend exists."""
+
     backend_path = Path(__file__).parent.parent / "backend" / "main_simple.py"
     if not backend_path.exists():
         print(f"{YELLOW}⚠ Simplified backend not found. Creating it...{RESET}")
@@ -28,16 +30,17 @@ def check_backend_exists():
 
 
 def create_simplified_backend():
-    """Create a simplified backend file"""
-    backend_dir = Path(__file__).parent.parent / "backend"
+    """Create a simplified backend file."""
+
+    backend_dir = Path(__file__).parent.parent / "backend".
+
     backend_dir.mkdir(exist_ok=True)
 
     simplified_backend = '''"""
 Simplified Sophia AI Backend
 Minimal FastAPI backend without Pulumi dependencies
-"""
+"""import os.
 
-import os
 import logging
 from datetime import datetime
 from typing import Dict, Any, List
@@ -67,16 +70,20 @@ app.add_middleware(
 
 # Simple auth check
 def verify_admin_key(x_admin_key: str = Header(None)):
-    """Verify admin key"""
-    expected_key = os.getenv("SOPHIA_ADMIN_KEY", "sophia_admin_2024")
+"""Verify admin key."""
+
+    expected_key = os.getenv("SOPHIA_ADMIN_KEY", "sophia_admin_2024").
+
     if x_admin_key != expected_key:
         raise HTTPException(status_code=401, detail="Invalid admin key")
     return True
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
-    return {
+    """Root endpoint."""
+
+    return {.
+
         "message": "Sophia AI Executive Dashboard API",
         "status": "operational",
         "timestamp": datetime.now().isoformat(),
@@ -91,8 +98,10 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {
+    """Health check endpoint."""
+
+    return {.
+
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "services": {
@@ -104,8 +113,9 @@ async def health_check():
 
 @app.get("/api/executive/summary")
 async def get_executive_summary(x_admin_key: str = Header(None)):
-    """Get executive summary data"""
-    verify_admin_key(x_admin_key)
+    """Get executive summary data."""
+
+    verify_admin_key(x_admin_key).
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -138,8 +148,9 @@ async def get_executive_summary(x_admin_key: str = Header(None)):
 
 @app.get("/api/executive/metrics")
 async def get_executive_metrics(x_admin_key: str = Header(None)):
-    """Get detailed metrics"""
-    verify_admin_key(x_admin_key)
+    """Get detailed metrics."""
+
+    verify_admin_key(x_admin_key).
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -197,8 +208,9 @@ async def get_executive_metrics(x_admin_key: str = Header(None)):
 
 @app.get("/api/executive/alerts")
 async def get_executive_alerts(x_admin_key: str = Header(None)):
-    """Get executive alerts"""
-    verify_admin_key(x_admin_key)
+    """Get executive alerts."""
+
+    verify_admin_key(x_admin_key).
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -241,8 +253,9 @@ async def get_executive_alerts(x_admin_key: str = Header(None)):
 
 @app.get("/api/executive/insights")
 async def get_executive_insights(x_admin_key: str = Header(None)):
-    """Get AI-generated insights"""
-    verify_admin_key(x_admin_key)
+    """Get AI-generated insights."""
+
+    verify_admin_key(x_admin_key).
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -297,8 +310,9 @@ if __name__ == "__main__":
 
 
 def check_port_available(port=8000):
-    """Check if port is available"""
-    import socket
+    """Check if port is available."""
+
+    import socket.
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     result = sock.connect_ex(("localhost", port))
@@ -307,9 +321,9 @@ def check_port_available(port=8000):
 
 
 def start_backend():
-    """Start the backend server"""
-    print(f"\n{BLUE}=== Starting Sophia AI Backend ==={RESET}")
+    """Start the backend server."""
 
+    print(f"\n{BLUE}=== Starting Sophia AI Backend ==={RESET}")
     # Check if backend exists
     check_backend_exists()
 
@@ -340,6 +354,8 @@ def start_backend():
         time.sleep(1)
         print(".", end="", flush=True)
         try:
+        except Exception:
+            pass
             response = requests.get("http://localhost:8000/health")
             if response.status_code == 200:
                 print(f"\n{GREEN}✓ Backend server is running!{RESET}")
@@ -352,9 +368,9 @@ def start_backend():
 
 
 def test_endpoints():
-    """Test backend endpoints"""
-    print(f"\n{BLUE}=== Testing Backend Endpoints ==={RESET}")
+    """Test backend endpoints."""
 
+    print(f"\n{BLUE}=== Testing Backend Endpoints ==={RESET}")
     endpoints = [
         ("Health Check", "http://localhost:8000/health", None),
         ("Root", "http://localhost:8000/", None),
@@ -383,6 +399,8 @@ def test_endpoints():
     all_passed = True
     for name, url, headers in endpoints:
         try:
+        except Exception:
+            pass
             response = requests.get(url, headers=headers, timeout=5)
             if response.status_code == 200:
                 print(f"{GREEN}✓ {name}: OK{RESET}")
@@ -397,41 +415,41 @@ def test_endpoints():
 
 
 def print_usage():
-    """Print usage information"""
-    print(f"\n{BLUE}=== Backend is Running! ==={RESET}")
+    """Print usage information."""
+
+    print(f"\n{BLUE}=== Backend is Running! ==={RESET}").
+
     print(
-        """
-API Endpoints:
-- Health: http://localhost:8000/health
-- Docs: http://localhost:8000/docs
-- Executive Summary: http://localhost:8000/api/executive/summary
-- Executive Metrics: http://localhost:8000/api/executive/metrics
-- Executive Alerts: http://localhost:8000/api/executive/alerts
-- Executive Insights: http://localhost:8000/api/executive/insights
+        """API Endpoints:
 
-Authentication:
-- Header: X-Admin-Key
-- Value: sophia_admin_2024
+        - Health: http://localhost:8000/health
+        - Docs: http://localhost:8000/docs
+        - Executive Summary: http://localhost:8000/api/executive/summary
+        - Executive Metrics: http://localhost:8000/api/executive/metrics
+        - Executive Alerts: http://localhost:8000/api/executive/alerts
+        - Executive Insights: http://localhost:8000/api/executive/insights
 
-Test with curl:
-curl -H "X-Admin-Key: sophia_admin_2024" http://localhost:8000/api/executive/summary
+        Authentication:
+        - Header: X-Admin-Key
+        - Value: sophia_admin_2024
 
-Next Steps:
-1. Open Retool and create a new app
-2. Add REST API resource:
-   - Base URL: http://localhost:8000
-   - Headers: X-Admin-Key = sophia_admin_2024
-3. Build your dashboard!
+        Test with curl:
+        curl -H "X-Admin-Key: sophia_admin_2024" http://localhost:8000/api/executive/summary
 
-To stop the server:
-- Press Ctrl+C in this terminal
-- Or run: kill $(lsof -t -i:8000)
-"""
-    )
+        Next Steps:
+        1. Open Retool and create a new app
+        2. Add REST API resource:
+           - Base URL: http://localhost:8000
+           - Headers: X-Admin-Key = sophia_admin_2024
+        3. Build your dashboard!
 
+        To stop the server:
+        - Press Ctrl+C in this terminal
+        - Or run: kill $(lsof -t -i:8000)
+        """).
 
 def main():
-    """Main function"""
+    """Main function."""
     print(f"{BLUE}{'=' * 60}{RESET}")
     print(f"{BLUE}Sophia AI Simple Backend Starter{RESET}")
     print(f"{BLUE}{'=' * 60}{RESET}")
@@ -448,6 +466,8 @@ def main():
         # Keep running
         print(f"\n{YELLOW}Backend is running. Press Ctrl+C to stop.{RESET}")
         try:
+        except Exception:
+            pass
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:

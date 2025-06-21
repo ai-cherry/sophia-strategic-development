@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Corrected Sophia Admin API - Using Actual Database Schema"""
+"""Corrected Sophia Admin API - Using Actual Database Schema."""
 
 import asyncio
 import logging
@@ -22,14 +22,13 @@ DATABASE_URL = "postgresql://ubuntu:password@localhost:5432/sophia_enhanced"
 
 
 class SophiaDatabase:
-    """Database connection and query manager"""
+    """Database connection and query manager."""def __init__(self):.
 
-    def __init__(self):
         self.connection = None
 
     async def connect(self):
-        """Connect to PostgreSQL database"""
-        try:
+        """Connect to PostgreSQL database."""try:.
+
             self.connection = await asyncpg.connect(DATABASE_URL)
             return True
         except Exception as e:
@@ -37,15 +36,15 @@ class SophiaDatabase:
             return False
 
     async def close(self):
-        """Close database connection"""
-        if self.connection:
+        """Close database connection."""if self.connection:.
+
             await self.connection.close()
 
     async def search_conversations(
         self, query: str = "", limit: int = 50, offset: int = 0
     ) -> Dict[str, Any]:
-        """Search conversations with natural language query using actual schema"""
-        try:
+        """Search conversations with natural language query using actual schema."""try:.
+
             # Base query with actual column names
             base_sql = """
             SELECT
@@ -66,170 +65,169 @@ class SophiaDatabase:
             FROM gong_calls c
             LEFT JOIN gong_participants p ON c.call_id = p.call_id
             WHERE 1=1
+            """params = [].
+
+                        param_count = 0
+
+                        # Natural language query processing
+                        if query:
+                            query_lower = query.lower()
+
+                            # Check for specific queries
+                            if any(
+                                term in query_lower
+                                for term in ["pay ready", "team", "members", "employees", "staff"]
+                            ):
+                                # Show Pay Ready team members
+                                base_sql += " AND EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.email_address LIKE '%@payready.%')"
+
+                            elif "greystar" in query_lower:
+                                param_count += 1
+                                base_sql += f" AND (c.title ILIKE ${param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.company_name ILIKE ${param_count}))"
+                                params.append("%greystar%")
+
+                            elif any(
+                                term in query_lower
+                                for term in ["top", "performers", "performance", "best"]
+                            ):
+                                # Show high-value calls
+                                base_sql += " AND c.business_value > 5000"
+
+                            elif any(
+                                term in query_lower for term in ["high value", "deals", "valuable"]
+                            ):
+                                # Show high business value calls
+                                base_sql += " AND c.business_value > 10000"
+
+                            else:
+                                # General search
+                                param_count += 1
+                                base_sql += f" AND (c.title ILIKE ${param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND (gp.company_name ILIKE ${param_count} OR gp.name ILIKE ${param_count})))"
+                                params.append(f"%{query}%")
+
+                        # Group by and order
+                        base_sql +=
             """
-
-            params = []
-            param_count = 0
-
-            # Natural language query processing
-            if query:
-                query_lower = query.lower()
-
-                # Check for specific queries
-                if any(
-                    term in query_lower
-                    for term in ["pay ready", "team", "members", "employees", "staff"]
-                ):
-                    # Show Pay Ready team members
-                    base_sql += " AND EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.email_address LIKE '%@payready.%')"
-
-                elif "greystar" in query_lower:
-                    param_count += 1
-                    base_sql += f" AND (c.title ILIKE ${param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.company_name ILIKE ${param_count}))"
-                    params.append("%greystar%")
-
-                elif any(
-                    term in query_lower
-                    for term in ["top", "performers", "performance", "best"]
-                ):
-                    # Show high-value calls
-                    base_sql += " AND c.business_value > 5000"
-
-                elif any(
-                    term in query_lower for term in ["high value", "deals", "valuable"]
-                ):
-                    # Show high business value calls
-                    base_sql += " AND c.business_value > 10000"
-
-                else:
-                    # General search
-                    param_count += 1
-                    base_sql += f" AND (c.title ILIKE ${param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND (gp.company_name ILIKE ${param_count} OR gp.name ILIKE ${param_count})))"
-                    params.append(f"%{query}%")
-
-            # Group by and order
-            base_sql += """
             GROUP BY c.call_id, c.title, c.started, c.duration_seconds, c.direction,
                      c.apartment_relevance, c.business_value, c.sentiment_score,
                      c.success_probability, c.deal_stage, c.call_outcome
             ORDER BY c.started DESC
+            """# Add pagination.
+
+                        param_count += 1
+                        base_sql += f" LIMIT ${param_count}"
+                        params.append(limit)
+
+                        param_count += 1
+                        base_sql += f" OFFSET ${param_count}"
+                        params.append(offset)
+
+                        # Execute query
+                        rows = await self.connection.fetch(base_sql, *params)
+
+                        # Get total count
+                        count_sql =
             """
-
-            # Add pagination
-            param_count += 1
-            base_sql += f" LIMIT ${param_count}"
-            params.append(limit)
-
-            param_count += 1
-            base_sql += f" OFFSET ${param_count}"
-            params.append(offset)
-
-            # Execute query
-            rows = await self.connection.fetch(base_sql, *params)
-
-            # Get total count
-            count_sql = """
             SELECT COUNT(DISTINCT c.call_id)
             FROM gong_calls c
             LEFT JOIN gong_participants p ON c.call_id = p.call_id
             WHERE 1=1
-            """
+            """count_params = [].
 
-            count_params = []
-            count_param_count = 0
+                        count_param_count = 0
 
-            if query:
-                query_lower = query.lower()
+                        if query:
+                            query_lower = query.lower()
 
-                if any(
-                    term in query_lower
-                    for term in ["pay ready", "team", "members", "employees", "staff"]
-                ):
-                    count_sql += " AND EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.email_address LIKE '%@payready.%')"
+                            if any(
+                                term in query_lower
+                                for term in ["pay ready", "team", "members", "employees", "staff"]
+                            ):
+                                count_sql += " AND EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.email_address LIKE '%@payready.%')"
 
-                elif "greystar" in query_lower:
-                    count_param_count += 1
-                    count_sql += f" AND (c.title ILIKE ${count_param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.company_name ILIKE ${count_param_count}))"
-                    count_params.append("%greystar%")
+                            elif "greystar" in query_lower:
+                                count_param_count += 1
+                                count_sql += f" AND (c.title ILIKE ${count_param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND gp.company_name ILIKE ${count_param_count}))"
+                                count_params.append("%greystar%")
 
-                elif any(
-                    term in query_lower
-                    for term in ["top", "performers", "performance", "best"]
-                ):
-                    count_sql += " AND c.business_value > 5000"
+                            elif any(
+                                term in query_lower
+                                for term in ["top", "performers", "performance", "best"]
+                            ):
+                                count_sql += " AND c.business_value > 5000"
 
-                elif any(
-                    term in query_lower for term in ["high value", "deals", "valuable"]
-                ):
-                    count_sql += " AND c.business_value > 10000"
+                            elif any(
+                                term in query_lower for term in ["high value", "deals", "valuable"]
+                            ):
+                                count_sql += " AND c.business_value > 10000"
 
-                else:
-                    count_param_count += 1
-                    count_sql += f" AND (c.title ILIKE ${count_param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND (gp.company_name ILIKE ${count_param_count} OR gp.name ILIKE ${count_param_count})))"
-                    count_params.append(f"%{query}%")
+                            else:
+                                count_param_count += 1
+                                count_sql += f" AND (c.title ILIKE ${count_param_count} OR EXISTS (SELECT 1 FROM gong_participants gp WHERE gp.call_id = c.call_id AND (gp.company_name ILIKE ${count_param_count} OR gp.name ILIKE ${count_param_count})))"
+                                count_params.append(f"%{query}%")
 
-            total_count = await self.connection.fetchval(count_sql, *count_params)
+                        total_count = await self.connection.fetchval(count_sql, *count_params)
 
-            # Format results
-            conversations = []
-            for row in rows:
-                conversations.append(
-                    {
-                        "call_id": row["call_id"],
-                        "title": row["title"],
-                        "started": (
-                            row["started"].isoformat() if row["started"] else None
-                        ),
-                        "duration_minutes": (
-                            round(row["duration_seconds"] / 60)
-                            if row["duration_seconds"]
-                            else 0
-                        ),
-                        "direction": row["direction"],
-                        "apartment_relevance": (
-                            float(row["apartment_relevance"])
-                            if row["apartment_relevance"]
-                            else 0
-                        ),
-                        "business_value": (
-                            int(row["business_value"]) if row["business_value"] else 0
-                        ),
-                        "sentiment_score": (
-                            float(row["sentiment_score"])
-                            if row["sentiment_score"]
-                            else 0
-                        ),
-                        "success_probability": (
-                            float(row["success_probability"])
-                            if row["success_probability"]
-                            else 0
-                        ),
-                        "deal_stage": row["deal_stage"],
-                        "call_outcome": row["call_outcome"],
-                        "companies": row["companies"] if row["companies"] else [],
-                        "participants": (
-                            row["participants"] if row["participants"] else []
-                        ),
-                        "has_pay_ready_participants": bool(row["pay_ready_emails"]),
-                    }
-                )
+                        # Format results
+                        conversations = []
+                        for row in rows:
+                            conversations.append(
+                                {
+                                    "call_id": row["call_id"],
+                                    "title": row["title"],
+                                    "started": (
+                                        row["started"].isoformat() if row["started"] else None
+                                    ),
+                                    "duration_minutes": (
+                                        round(row["duration_seconds"] / 60)
+                                        if row["duration_seconds"]
+                                        else 0
+                                    ),
+                                    "direction": row["direction"],
+                                    "apartment_relevance": (
+                                        float(row["apartment_relevance"])
+                                        if row["apartment_relevance"]
+                                        else 0
+                                    ),
+                                    "business_value": (
+                                        int(row["business_value"]) if row["business_value"] else 0
+                                    ),
+                                    "sentiment_score": (
+                                        float(row["sentiment_score"])
+                                        if row["sentiment_score"]
+                                        else 0
+                                    ),
+                                    "success_probability": (
+                                        float(row["success_probability"])
+                                        if row["success_probability"]
+                                        else 0
+                                    ),
+                                    "deal_stage": row["deal_stage"],
+                                    "call_outcome": row["call_outcome"],
+                                    "companies": row["companies"] if row["companies"] else [],
+                                    "participants": (
+                                        row["participants"] if row["participants"] else []
+                                    ),
+                                    "has_pay_ready_participants": bool(row["pay_ready_emails"]),
+                                }
+                            )
 
-            return {
-                "conversations": conversations,
-                "total_count": total_count,
-                "page_size": limit,
-                "offset": offset,
-                "has_more": (offset + limit) < total_count,
-                "query_processed": query,
-            }
+                        return {
+                            "conversations": conversations,
+                            "total_count": total_count,
+                            "page_size": limit,
+                            "offset": offset,
+                            "has_more": (offset + limit) < total_count,
+                            "query_processed": query,
+                        }
 
-        except Exception as e:
-            logger.error(f"Search conversations error: {e}")
-            return {"error": str(e)}
+                    except Exception as e:
+                        logger.error(f"Search conversations error: {e}")
+                        return {"error": str(e)}
 
-    async def get_dashboard_stats(self) -> Dict[str, Any]:
-        """Get real dashboard statistics using actual schema"""
-        try:
+                async def get_dashboard_stats(self) -> Dict[str, Any]:
+            """Get real dashboard statistics using actual schema."""try:.
+
             stats = {}
 
             # Total counts
@@ -287,21 +285,22 @@ class SophiaDatabase:
 
             # Top performers (Pay Ready team members)
             top_performers = await self.connection.fetch(
-                """
-                SELECT
-                    p.name,
-                    p.email_address,
-                    COUNT(DISTINCT c.call_id) as call_count,
-                    AVG(c.apartment_relevance) as avg_relevance,
-                    SUM(c.business_value) as total_value,
-                    COUNT(CASE WHEN c.started > $1 THEN 1 END) as recent_calls
-                FROM gong_participants p
-                JOIN gong_calls c ON p.call_id = c.call_id
-                WHERE p.email_address LIKE '%@payready.%'
-                GROUP BY p.name, p.email_address
-                ORDER BY total_value DESC
-                LIMIT 5
-            """,
+                """SELECT.
+
+                                    p.name,
+                                    p.email_address,
+                                    COUNT(DISTINCT c.call_id) as call_count,
+                                    AVG(c.apartment_relevance) as avg_relevance,
+                                    SUM(c.business_value) as total_value,
+                                    COUNT(CASE WHEN c.started > $1 THEN 1 END) as recent_calls
+                                FROM gong_participants p
+                                JOIN gong_calls c ON p.call_id = c.call_id
+                                WHERE p.email_address LIKE '%@payready.%'
+                                GROUP BY p.name, p.email_address
+                                ORDER BY total_value DESC
+                                LIMIT 5
+                """,.
+
                 month_ago,
             )
 
@@ -323,23 +322,24 @@ class SophiaDatabase:
 
             # Recent calls
             recent_calls = await self.connection.fetch(
-                """
-                SELECT
-                    c.call_id,
-                    c.title,
-                    c.started,
-                    c.apartment_relevance,
-                    c.business_value,
-                    c.call_outcome,
-                    c.success_probability,
-                    array_agg(DISTINCT p.name) FILTER (WHERE p.email_address LIKE '%@payready.%') as pay_ready_participants
-                FROM gong_calls c
-                LEFT JOIN gong_participants p ON c.call_id = p.call_id
-                WHERE c.started > $1
-                GROUP BY c.call_id, c.title, c.started, c.apartment_relevance, c.business_value, c.call_outcome, c.success_probability
-                ORDER BY c.started DESC
-                LIMIT 3
-            """,
+                """SELECT.
+
+                                    c.call_id,
+                                    c.title,
+                                    c.started,
+                                    c.apartment_relevance,
+                                    c.business_value,
+                                    c.call_outcome,
+                                    c.success_probability,
+                                    array_agg(DISTINCT p.name) FILTER (WHERE p.email_address LIKE '%@payready.%') as pay_ready_participants
+                                FROM gong_calls c
+                                LEFT JOIN gong_participants p ON c.call_id = p.call_id
+                                WHERE c.started > $1
+                                GROUP BY c.call_id, c.title, c.started, c.apartment_relevance, c.business_value, c.call_outcome, c.success_probability
+                                ORDER BY c.started DESC
+                                LIMIT 3
+                """,.
+
                 datetime.utcnow() - timedelta(days=7),
             )
 
@@ -418,8 +418,8 @@ def health():
 
 @app.route("/api/stats", methods=["GET"])
 def stats():
-    """Get dashboard statistics"""
-    try:
+    """Get dashboard statistics."""try:.
+
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
@@ -439,7 +439,7 @@ def stats():
 
 @app.route("/api/search", methods=["POST"])
 def search():
-    """Natural language search"""
+    """Natural language search."""
     try:
         data = request.get_json()
         query = data.get("query", "") if data else ""

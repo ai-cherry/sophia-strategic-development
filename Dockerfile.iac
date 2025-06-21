@@ -27,4 +27,4 @@ COPY . .
 RUN pip3 install -r requirements.txt
 
 # Keep the container running
-CMD ["tail", "-f", "/dev/null"] 
+CMD ["tail", "-f", "/dev/null"]

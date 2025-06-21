@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Eleven Labs.
-"""
+"""Pulumi ESC Secret Manager for Eleven Labs."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

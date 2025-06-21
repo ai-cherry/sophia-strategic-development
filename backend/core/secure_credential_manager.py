@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Secure Credential Manager for Sophia AI
+"""Secure Credential Manager for Sophia AI.
+
 Centralized secure access to all API keys and credentials via environment variables
 """
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CredentialConfig:
-    """Configuration for a credential with validation"""
+    """Configuration for a credential with validation."""
 
     name: str
     env_var: str
@@ -23,11 +24,10 @@ class CredentialConfig:
 
 
 class SecureCredentialManager:
-    """Centralized secure credential management for Sophia AI
-    All credentials loaded from environment variables only
-    """
+    """Centralized secure credential management for Sophia AI.
 
-    # Define all required credentials
+            All credentials loaded from environment variables only
+    """# Define all required credentials.
     CREDENTIALS = {
         # Core Infrastructure
         "PULUMI_ACCESS_TOKEN": CredentialConfig(
@@ -130,13 +130,12 @@ class SecureCredentialManager:
     }
 
     def __init__(self):
-        """Initialize credential manager"""
-        self._credentials_cache = {}
+        """Initialize credential manager."""self._credentials_cache = {}.
+
         self._load_credentials()
 
     def _load_credentials(self):
-        """Load all credentials from environment variables"""
-        missing_required = []
+        """Load all credentials from environment variables."""missing_required = [].
 
         for key, config in self.CREDENTIALS.items():
             value = os.getenv(config.env_var)
@@ -157,8 +156,8 @@ class SecureCredentialManager:
             # Don't raise exception - allow graceful degradation
 
     def get_credential(self, key: str) -> Optional[str]:
-        """Get a credential value securely"""
-        if key not in self.CREDENTIALS:
+        """Get a credential value securely."""if key not in self.CREDENTIALS:.
+
             logger.error(f"Unknown credential key: {key}")
             return None
 
@@ -173,16 +172,16 @@ class SecureCredentialManager:
         return value
 
     def get_gong_credentials(self) -> Dict[str, str]:
-        """Get Gong.io API credentials"""
-        return {
+        """Get Gong.io API credentials."""return {.
+
             "access_key": self.get_credential("GONG_ACCESS_KEY") or "",
             "client_secret": self.get_credential("GONG_CLIENT_SECRET") or "",
             "base_url": "https://us-70092.api.gong.io/v2",
         }
 
     def get_snowflake_credentials(self) -> Dict[str, str]:
-        """Get Snowflake credentials"""
-        return {
+        """Get Snowflake credentials."""return {.
+
             "account": self.get_credential("SNOWFLAKE_ACCOUNT") or "",
             "user": self.get_credential("SNOWFLAKE_USER") or "",
             "password": self.get_credential("SNOWFLAKE_PASSWORD") or "",
@@ -192,13 +191,12 @@ class SecureCredentialManager:
         }
 
     def get_database_url(self) -> str:
-        """Get PostgreSQL database URL"""
-        password = self.get_credential("POSTGRES_PASSWORD") or "password"
+        """Get PostgreSQL database URL."""password = self.get_credential("POSTGRES_PASSWORD") or "password".
+
         return f"postgresql://postgres:{password}@localhost:5432/sophia_enhanced"
 
     def validate_credentials(self) -> Dict[str, bool]:
-        """Validate all credentials are available"""
-        validation_results = {}
+        """Validate all credentials are available."""validation_results = {}.
 
         for key, config in self.CREDENTIALS.items():
             value = self.get_credential(key)
@@ -213,16 +211,16 @@ class SecureCredentialManager:
         return validation_results
 
     def get_missing_credentials(self) -> List[str]:
-        """Get list of missing required credentials"""
-        missing = []
+        """Get list of missing required credentials."""missing = [].
+
         for key, config in self.CREDENTIALS.items():
             if config.required and not self.get_credential(key):
                 missing.append(config.name)
         return missing
 
     def get_credential_status(self) -> Dict[str, Dict[str, Any]]:
-        """Get status of all credentials"""
-        status = {}
+        """Get status of all credentials."""status = {}.
+
         for key, config in self.CREDENTIALS.items():
             value = self.get_credential(key)
             status[key] = {
@@ -240,22 +238,19 @@ credential_manager = SecureCredentialManager()
 
 
 def get_credential(key: str) -> Optional[str]:
-    """Convenience function to get a credential"""
-    return credential_manager.get_credential(key)
+    """Convenience function to get a credential."""return credential_manager.get_credential(key).
 
 
 def get_gong_credentials() -> Dict[str, str]:
-    """Convenience function to get Gong credentials"""
-    return credential_manager.get_gong_credentials()
+    """Convenience function to get Gong credentials."""return credential_manager.get_gong_credentials().
 
 
 def get_snowflake_credentials() -> Dict[str, str]:
-    """Convenience function to get Snowflake credentials"""
-    return credential_manager.get_snowflake_credentials()
+    """Convenience function to get Snowflake credentials."""return credential_manager.get_snowflake_credentials().
 
 
 def validate_all_credentials() -> bool:
-    """Validate all required credentials are available"""
+    """Validate all required credentials are available."""
     validation_results = credential_manager.validate_credentials()
     return all(validation_results.values())
 

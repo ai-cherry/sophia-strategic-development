@@ -1,9 +1,8 @@
 """Sophia AI System - Production Deployment Script using MCP.
 
 This script deploys the Sophia AI system to production using the MCP federation model.
-"""
+"""import asyncio
 
-import asyncio
 import json
 import logging
 import os
@@ -40,14 +39,14 @@ class ProductionDeployer:
         ]
 
     async def initialize(self):
-        """Connect to the MCP gateway."""
-        await self._wait_for_gateway()
+        """Connect to the MCP gateway."""await self._wait_for_gateway().
+
         await self.mcp_client.connect()
         logger.info("MCP Client connected.")
 
     async def _wait_for_gateway(self, timeout: int = 60):
-        """Polls the MCP gateway's health endpoint until it's ready."""
-        start_time = asyncio.get_event_loop().time()
+        """Polls the MCP gateway's health endpoint until it's ready."""start_time = asyncio.get_event_loop().time().
+
         health_url = f"{self.mcp_client.gateway_url}/health"
         logger.info(f"Waiting for MCP gateway to be healthy at {health_url}...")
 
@@ -66,13 +65,13 @@ class ProductionDeployer:
             await asyncio.sleep(5)
 
     async def close(self):
-        """Close the MCP client connection."""
-        await self.mcp_client.close()
+        """Close the MCP client connection."""await self.mcp_client.close().
+
         logger.info("MCP Client disconnected.")
 
     def verify_environment_variables(self) -> bool:
-        """Verify that all required environment variables are set."""
-        missing_vars = []
+        """Verify that all required environment variables are set."""missing_vars = [].
+
         for var in self.required_vars:
             if not os.environ.get(var):
                 missing_vars.append(var)
@@ -91,8 +90,8 @@ class ProductionDeployer:
         return True
 
     async def deploy(self) -> Dict[str, Any]:
-        """Deploy the Sophia AI system to production."""
-        # Display banner
+        """Deploy the Sophia AI system to production."""# Display banner.
+
         logger.info("==================================================")
         logger.info("SOPHIA AI System - Production Deployment")
         logger.info("==================================================")

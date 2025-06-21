@@ -2,9 +2,8 @@
 """Sophia AI Infrastructure Validation Script.
 
 Tests all critical components for deployment readiness.
-"""
+"""import logging
 
-import logging
 import os
 import sys
 from typing import Any, Dict
@@ -24,8 +23,7 @@ class InfrastructureValidator:
         self.results = {}
 
     def test_python_imports(self) -> bool:
-        """Test critical Python imports."""
-        logger.info("Testing Python imports...")
+        """Test critical Python imports."""logger.info("Testing Python imports...").
 
         critical_imports = [
             "fastapi",
@@ -58,8 +56,7 @@ class InfrastructureValidator:
         return success
 
     def test_backend_structure(self) -> bool:
-        """Test backend module structure."""
-        logger.info("Testing backend structure...")
+        """Test backend module structure."""logger.info("Testing backend structure...").
 
         required_modules = [
             "backend.core.secure_credential_manager",
@@ -86,8 +83,7 @@ class InfrastructureValidator:
         return success
 
     def test_credential_manager(self) -> bool:
-        """Test secure credential manager."""
-        logger.info("Testing credential manager...")
+        """Test secure credential manager."""logger.info("Testing credential manager...").
 
         try:
             from backend.core.secure_credential_manager import credential_manager
@@ -114,8 +110,7 @@ class InfrastructureValidator:
             return False
 
     def test_fastapi_app_creation(self) -> bool:
-        """Test FastAPI app creation without running event loop."""
-        logger.info("Testing FastAPI app creation...")
+        """Test FastAPI app creation without running event loop."""logger.info("Testing FastAPI app creation...").
 
         try:
             # Import without triggering async initialization
@@ -155,8 +150,7 @@ class InfrastructureValidator:
             return False
 
     def test_deployment_scripts(self) -> bool:
-        """Test deployment script syntax."""
-        logger.info("Testing deployment scripts...")
+        """Test deployment script syntax."""logger.info("Testing deployment scripts...").
 
         scripts = [
             "scripts/deploy_production_mcp.py",

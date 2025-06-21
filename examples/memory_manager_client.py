@@ -1,4 +1,5 @@
-"""Memory Manager Client Example
+"""Memory Manager Client Example.
+
 This script demonstrates how to use the ComprehensiveMemoryManager
 instead of directly accessing vector stores.
 """
@@ -23,8 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 class MemoryManagerClient:
-    """Client for the ComprehensiveMemoryManager that demonstrates how to use it
-    instead of directly accessing vector stores.
+    """Client for the ComprehensiveMemoryManager that demonstrates how to use it.
+
+        instead of directly accessing vector stores.
     """
 
     def __init__(self):
@@ -32,14 +34,15 @@ class MemoryManagerClient:
 
     async def initialize(self):
         """Initialize the memory manager."""
+
         await self.memory_manager.initialize()
         logger.info("Memory manager initialized.")
 
     async def store_memory(
         self, agent_id: str, content: str, metadata: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Store a memory using the ComprehensiveMemoryManager."""
-        try:
+        """Store a memory using the ComprehensiveMemoryManager."""try:.
+
             request = MemoryRequest(
                 operation=MemoryOperationType.STORE,
                 agent_id=agent_id,
@@ -65,8 +68,8 @@ class MemoryManagerClient:
             return {"success": False, "error": str(e)}
 
     async def retrieve_memory(self, agent_id: str, query: str) -> Dict[str, Any]:
-        """Retrieve memories using the ComprehensiveMemoryManager."""
-        try:
+        """Retrieve memories using the ComprehensiveMemoryManager."""try:.
+
             request = MemoryRequest(
                 operation=MemoryOperationType.RETRIEVE, agent_id=agent_id, query=query
             )
@@ -92,8 +95,8 @@ class MemoryManagerClient:
             return {"success": False, "error": str(e)}
 
     async def delete_memory(self, agent_id: str, memory_id: str) -> Dict[str, Any]:
-        """Delete a memory using the ComprehensiveMemoryManager."""
-        try:
+        """Delete a memory using the ComprehensiveMemoryManager."""try:.
+
             request = MemoryRequest(
                 operation=MemoryOperationType.DELETE,
                 agent_id=agent_id,
@@ -123,10 +126,11 @@ class MemoryManagerClient:
         self, agent_id: str, query: str, top_k: int = 5
     ) -> Dict[str, Any]:
         """Perform a semantic search using the ComprehensiveMemoryManager.
-        This is a higher-level function that demonstrates how to use the retrieve operation
-        to perform a semantic search.
-        """
-        try:
+
+                This is a higher-level function that demonstrates how to use the retrieve operation
+                to perform a semantic search.
+        """try:.
+
             # Use the retrieve operation to perform a semantic search
             result = await self.retrieve_memory(agent_id, query)
 

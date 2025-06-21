@@ -144,7 +144,7 @@ esc_environment = esc.Environment("sophia-ai-production",
       }
     },
     "sophia_business_intelligence": {
-      "command": "python", 
+      "command": "python",
       "args": ["-m", "sophia_business_intelligence_mcp_server"],
       "env": {
         "SNOWFLAKE_ACCOUNT": "${ESC_SNOWFLAKE_ACCOUNT}",
@@ -181,7 +181,7 @@ sophia_k8s_cluster = lambda_k8s.Cluster("sophia-ai-cluster",
             }
         ),
         lambda_k8s.NodePoolArgs(
-            name="data-intelligence-pool", 
+            name="data-intelligence-pool",
             instance_type="cpu_4x_large",
             min_nodes=1,
             max_nodes=2,
@@ -192,7 +192,7 @@ sophia_k8s_cluster = lambda_k8s.Cluster("sophia-ai-cluster",
         ),
         lambda_k8s.NodePoolArgs(
             name="business-intelligence-pool",
-            instance_type="cpu_8x_large", 
+            instance_type="cpu_8x_large",
             min_nodes=1,
             max_nodes=2,
             labels={
@@ -221,30 +221,30 @@ class SophiaAIInfrastructureManager:
             project_name=self.project_name,
             program=self.sophia_pulumi_program
         )
-    
+
     def sophia_pulumi_program(self):
         config = Config()
-        
+
         # Deploy AI intelligence services
         if config.get_bool("deploy_ai_intelligence"):
             self.deploy_ai_intelligence_services()
-        
+
         # Deploy data intelligence services
         if config.get_bool("deploy_data_intelligence"):
             self.deploy_data_intelligence_services()
-            
+
         # Deploy business intelligence services
         if config.get_bool("deploy_business_intelligence"):
             self.deploy_business_intelligence_services()
-    
+
     def scale_ai_workloads(self, workload_type: str, scale_factor: float):
         """Scale AI workloads based on business intelligence demands"""
         current_config = self.stack.get_config(f"{workload_type}_replicas")
         new_replicas = int(float(current_config.value) * scale_factor)
-        
+
         self.stack.set_config(f"{workload_type}_replicas", auto.ConfigValue(str(new_replicas)))
         self.stack.up(on_output=print)
-        
+
         return f"Scaled {workload_type} to {new_replicas} replicas"
 ```
 
@@ -270,12 +270,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Python for Sophia AI
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          
+
       - name: Configure Sophia AI Pulumi ESC
         uses: pulumi/esc-action@v1
         with:
@@ -283,12 +283,12 @@ jobs:
           format: dotenv
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          
+
       - name: Validate Sophia AI Configuration
         run: |
           python scripts/validate_sophia_config.py
           python scripts/test_mcp_servers.py
-          
+
       - name: Sophia AI Infrastructure Preview
         if: github.event_name == 'pull_request'
         uses: pulumi/actions@v6
@@ -299,7 +299,7 @@ jobs:
           work-dir: infrastructure
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          
+
       - name: Deploy Sophia AI Infrastructure
         if: github.ref == 'refs/heads/main'
         uses: pulumi/actions@v6
@@ -309,7 +309,7 @@ jobs:
           work-dir: infrastructure
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          
+
       - name: Deploy Sophia AI MCP Servers
         if: github.ref == 'refs/heads/main'
         run: |
@@ -374,4 +374,3 @@ jobs:
 3. Advanced monitoring and observability
 
 This analysis provides a clear roadmap for enhancing Sophia AI with the most valuable ideas from the uploaded document, prioritized by impact and aligned with the current architecture and user preferences.
-

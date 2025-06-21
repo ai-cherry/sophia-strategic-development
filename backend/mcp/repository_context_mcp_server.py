@@ -14,11 +14,10 @@ logging.basicConfig(
 class RepositoryContextMCPServer:
     """Provides vectorized, constantly updated repository intelligence to AI coders.
 
-    This is a scaffold based on the user's design. The methods will be
-    implemented to query the vectorized data stored by the ingestion pipeline.
-    """
+            This is a scaffold based on the user's design. The methods will be
+            implemented to query the vectorized data stored by the ingestion pipeline.
+    """def __init__(self):
 
-    def __init__(self):
         # self.vector_store = VectorStoreClient()
         logging.info("RepositoryContextMCPServer initialized.")
 
@@ -27,14 +26,14 @@ class RepositoryContextMCPServer:
     ) -> Dict[str, Any]:
         """Retrieve relevant repository context based on AI coder query.
 
-        Args:
-            query (str): The search query from the AI coder.
-            context_type (str): The type of context to search for.
+                        Args:
+                            query (str): The search query from the AI coder.
+                            context_type (str): The type of context to search for.
 
-        Returns:
-            Dict[str, Any]: The search results.
-        """
-        logging.info(f"Received context query: '{query}' with type: '{context_type}'")
+                        Returns:
+                            Dict[str, Any]: The search results.
+        """logging.info(f"Received context query: '{query}' with type: '{context_type}'")
+
         # Placeholder implementation
         # In a real implementation, this would query the vector store
         return {
@@ -50,6 +49,7 @@ class RepositoryContextMCPServer:
         self, file_type: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get relevant coding standards and patterns for specific file types."""
+
         logging.info(f"Received coding standards query for file_type: '{file_type}'")
         # Placeholder implementation
         return {
@@ -62,8 +62,8 @@ class RepositoryContextMCPServer:
         }
 
     async def get_recent_decisions(self, days: int = 30) -> Dict[str, Any]:
-        """Retrieve recent architectural and coding decisions with context."""
-        logging.info(f"Received request for recent decisions within {days} days.")
+        """Retrieve recent architectural and coding decisions with context."""logging.info(f"Received request for recent decisions within {days} days.").
+
         # Placeholder implementation
         return {
             "days": days,
@@ -76,9 +76,9 @@ class RepositoryContextMCPServer:
     async def update_repository_vectors(self):
         """Trigger background update of repository vectors.
 
-        This would likely trigger the scripts/ingest_codebase.py pipeline.
-        """
-        logging.info("Triggering background update of repository vectors.")
+                        This would likely trigger the scripts/ingest_codebase.py pipeline.
+        """logging.info("Triggering background update of repository vectors.").
+
         # In a real system, this could be a call to a CI/CD pipeline
         # or a direct call to the ingestion service.
         # For example:

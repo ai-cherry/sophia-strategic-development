@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run a quick MCP server test using the infrastructure test suite."""
+
 import subprocess
 import sys
 from pathlib import Path

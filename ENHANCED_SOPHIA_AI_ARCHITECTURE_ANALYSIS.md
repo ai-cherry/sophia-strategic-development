@@ -54,7 +54,7 @@ Sophia AI Platform (ai-cherry/sophia-main)
 
 **Current Challenge**: Manual management of 19+ service API keys across:
 - AI Services: Arize, OpenRouter, Portkey, HuggingFace, Together AI
-- Data Collection: Apify, PhantomBuster, Twingly, Tavily, ZenRows  
+- Data Collection: Apify, PhantomBuster, Twingly, Tavily, ZenRows
 - Infrastructure: Lambda Labs, Docker, Pulumi
 - Business Intelligence: Snowflake, Pinecone
 
@@ -80,13 +80,13 @@ jobs:
     steps:
       - name: Install ESC CLI
         uses: pulumi/esc-action@v1
-      
+
       - name: Authenticate with Pulumi Cloud
         uses: pulumi/auth-actions@v1
         with:
           organization: scoobyjava-org
           requested-token-type: urn:pulumi:token-type:access_token:organization
-      
+
       - name: Export Sophia AI secrets to ESC
         run: |
           esc env get sophia-ai/production || esc env init sophia-ai/production
@@ -96,8 +96,8 @@ jobs:
           sophia_config = {
             "values": {
               "ai_intelligence": {
-                name.lower().replace("_", "-"): {"fn::secret": value} 
-                for name, value in j.items() 
+                name.lower().replace("_", "-"): {"fn::secret": value}
+                for name, value in j.items()
                 if name.startswith(("ARIZE_", "OPENROUTER_", "PORTKEY_", "HUGGINGFACE_", "TOGETHER_"))
               },
               "data_intelligence": {
@@ -152,19 +152,19 @@ class SophiaAICopilotManager:
                 "business_intelligence_focus": True
             }
         )
-        
+
     def optimize_sophia_infrastructure(self):
         """Use Copilot to optimize Sophia AI infrastructure for BI workloads"""
         recommendations = self.copilot.analyze_infrastructure(
             focus_areas=["cost", "performance", "business_intelligence", "ai_workloads"],
             current_stack="sophia-prod-on-lambda"
         )
-        
+
         return self.copilot.generate_optimization_plan(
             recommendations=recommendations,
             business_context="sophia-ai-business-intelligence"
         )
-        
+
     def scale_for_business_intelligence(self, demand_forecast):
         """AI-powered scaling based on business intelligence demand"""
         scaling_plan = self.copilot.generate_scaling_strategy(
@@ -173,7 +173,7 @@ class SophiaAICopilotManager:
             workload_characteristics="mixed-ai-data-processing",
             cost_constraints={"monthly_budget": 1000, "cost_optimization": True}
         )
-        
+
         return scaling_plan
 ```
 
@@ -206,7 +206,7 @@ class SophiaAICopilotManager:
       }
     },
     "sophia-data-intelligence": {
-      "type": "stdio", 
+      "type": "stdio",
       "command": "python",
       "args": ["-m", "mcp-servers.sophia_data_intelligence.main"],
       "cwd": "/home/ubuntu/sophia-main",
@@ -234,7 +234,7 @@ class SophiaAICopilotManager:
     },
     "sophia-business-intelligence": {
       "type": "stdio",
-      "command": "python", 
+      "command": "python",
       "args": ["-m", "mcp-servers.sophia_business_intelligence.main"],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
@@ -276,7 +276,7 @@ import pulumi_docker as docker
 class SophiaAIContainerArchitecture:
     def __init__(self):
         self.namespace = "sophia-ai-production"
-        
+
     def create_ai_intelligence_service(self):
         """Containerized AI intelligence microservice"""
         return k8s.apps.v1.Deployment("sophia-ai-intelligence",
@@ -319,7 +319,7 @@ class SophiaAIContainerArchitecture:
                 )
             )
         )
-        
+
     def create_data_intelligence_service(self):
         """Containerized data intelligence microservice"""
         return k8s.apps.v1.Deployment("sophia-data-intelligence",
@@ -341,7 +341,7 @@ class SophiaAIContainerArchitecture:
                 )
             )
         )
-        
+
     def create_business_intelligence_service(self):
         """GPU-optimized business intelligence microservice"""
         return k8s.apps.v1.Deployment("sophia-business-intelligence",
@@ -384,75 +384,75 @@ class SophiaAIAutomationManager:
     def __init__(self):
         self.project_name = "sophia-ai"
         self.organization = "scoobyjava-org"
-        
+
     def create_sophia_stack(self, environment: str, config: Dict[str, Any]):
         """Create and configure Sophia AI stack programmatically"""
         stack_name = f"sophia-{environment}"
-        
+
         stack = auto.create_or_select_stack(
             stack_name=stack_name,
             project_name=self.project_name,
             program=lambda: self.sophia_infrastructure_program(environment, config)
         )
-        
+
         # Configure ESC environment
         stack.set_config("esc:environment", auto.ConfigValue(f"sophia-ai/{environment}"))
-        
+
         # Environment-specific configuration
         for key, value in config.items():
             stack.set_config(key, auto.ConfigValue(str(value)))
-            
+
         return stack
-        
+
     def sophia_infrastructure_program(self, environment: str, config: Dict[str, Any]):
         """Sophia AI infrastructure program"""
         import pulumi
-        
+
         # Deploy based on environment and configuration
         if config.get("deploy_ai_intelligence", True):
             self.deploy_ai_intelligence_services(environment)
-            
+
         if config.get("deploy_data_intelligence", True):
             self.deploy_data_intelligence_services(environment)
-            
+
         if config.get("deploy_business_intelligence", True):
             self.deploy_business_intelligence_services(environment)
-            
+
         if config.get("deploy_infrastructure", True):
             self.deploy_infrastructure_services(environment)
-    
+
     def scale_sophia_workloads(self, workload_type: str, scale_factor: float):
         """Scale Sophia AI workloads programmatically"""
         stack = auto.select_stack(
             stack_name="sophia-production",
             project_name=self.project_name
         )
-        
+
         current_replicas = int(stack.get_config(f"{workload_type}_replicas").value)
         new_replicas = max(1, int(current_replicas * scale_factor))
-        
+
         stack.set_config(f"{workload_type}_replicas", auto.ConfigValue(str(new_replicas)))
-        
+
         result = stack.up(on_output=print)
         return f"Scaled {workload_type} from {current_replicas} to {new_replicas} replicas"
-        
+
     def optimize_costs_for_business_intelligence(self):
         """AI-powered cost optimization for business intelligence workloads"""
         stack = auto.select_stack(
-            stack_name="sophia-production", 
+            stack_name="sophia-production",
             project_name=self.project_name
         )
-        
+
         # Analyze current resource usage
         current_state = stack.export_stack()
-        
+
         # Generate optimization recommendations
         optimizations = self.analyze_sophia_usage_patterns(current_state)
-        
+
         # Apply optimizations
         for optimization in optimizations:
             stack.set_config(optimization["key"], auto.ConfigValue(optimization["value"]))
-            
+
         result = stack.up(on_output=print)
         return optimizations
 ```
@@ -493,4 +493,3 @@ class SophiaAIAutomationManager:
 3. **Pulumi Copilot Integration** - AI-powered infrastructure optimization
 
 This analysis provides a clear roadmap for enhancing Sophia AI with the most valuable ideas from the uploaded documents, prioritized by impact and risk, while maintaining alignment with the current architecture and user preferences for production-first deployment.
-

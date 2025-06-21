@@ -48,6 +48,7 @@ gong_tool = MockGongTool()
 # --- 2. The "LLM-as-a-Judge" Implementation ---
 def evaluate_response_with_llm_judge(query: str, response: str, prediction_id: str):
     """Uses an LLM to evaluate the quality of an agent's response."""
+
     with tracer.start_as_current_span("LLM-as-a-Judge Evaluation") as judge_span:
         logging.info(f"Evaluating response for prediction_id: {prediction_id}")
 
@@ -57,34 +58,33 @@ def evaluate_response_with_llm_judge(query: str, response: str, prediction_id: s
         Response: "{response}"
         Criteria: Correctness (0-5), Relevance (0-5), Conciseness (0-5).
         Provide an overall score (0-10) and a one-sentence rationale.
-        """
+        """judge_response = portkey_client.call_llm(.
 
-        judge_response = portkey_client.call_llm(
-            evaluation_prompt, model="anthropic/claude-3-sonnet"
-        )
+                    evaluation_prompt, model="anthropic/claude-3-sonnet"
+                )
 
-        # In a real implementation, you would parse the score and rationale.
-        judge_score = 8
-        judge_rationale = "The answer is correct and concise."
+                # In a real implementation, you would parse the score and rationale.
+                judge_score = 8
+                judge_rationale = "The answer is correct and concise."
 
-        judge_span.set_attribute("evaluation.score", judge_score)
-        judge_span.set_attribute("evaluation.rationale", judge_rationale)
+                judge_span.set_attribute("evaluation.score", judge_score)
+                judge_span.set_attribute("evaluation.rationale", judge_rationale)
 
-        logging.info(
-            f"Evaluation complete. Score: {judge_score}, Rationale: '{judge_rationale}'"
-        )
+                logging.info(
+                    f"Evaluation complete. Score: {judge_score}, Rationale: '{judge_rationale}'"
+                )
 
-        # This is where you would log the evaluation to Arize, associating
-        # it with the original prediction_id.
-        # arize.log(prediction_id=prediction_id, tags={"judge_score": judge_score, ...})
-        logging.info(
-            f"[Arize LOG] prediction_id: {prediction_id}, judge_score: {judge_score}"
-        )
+                # This is where you would log the evaluation to Arize, associating
+                # it with the original prediction_id.
+                # arize.log(prediction_id=prediction_id, tags={"judge_score": judge_score, ...})
+                logging.info(
+                    f"[Arize LOG] prediction_id: {prediction_id}, judge_score: {judge_score}"
+                )
 
 
-# --- 3. Example of a Multi-Step, Multi-Agent Workflow with Tracing ---
-def process_sales_inquiry_workflow(query: str, call_id: str):
-    """A simulated workflow demonstrating end-to-end tracing."""
+        # --- 3. Example of a Multi-Step, Multi-Agent Workflow with Tracing ---
+        def process_sales_inquiry_workflow(query: str, call_id: str):
+        """A simulated workflow demonstrating end-to-end tracing."""
     # This root span ties the entire workflow together.
     with tracer.start_as_current_span(
         "Workflow: Sales Inquiry", attributes={"user.query": query}

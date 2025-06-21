@@ -175,7 +175,7 @@ const CoStarDataManager = () => {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Upload CoStar Data File</h2>
-              
+
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                 <div className="text-center">
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
@@ -204,8 +204,8 @@ const CoStarDataManager = () => {
               {/* Upload Status */}
               {uploadStatus && (
                 <div className={`mt-4 p-4 rounded-md ${
-                  uploadStatus.status === 'success' 
-                    ? 'bg-green-50 border border-green-200' 
+                  uploadStatus.status === 'success'
+                    ? 'bg-green-50 border border-green-200'
                     : 'bg-red-50 border border-red-200'
                 }`}>
                   <div className="flex">
@@ -455,4 +455,3 @@ const CoStarDataManager = () => {
 };
 
 export default CoStarDataManager;
-

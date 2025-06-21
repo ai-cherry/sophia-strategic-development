@@ -173,4 +173,3 @@ To add a new service to the workflow:
 4. **Documentation**: Keep documentation up to date:
    - Update this document when making changes to the workflow
    - Document new services and their secrets
-

@@ -1,4 +1,5 @@
-"""Sophia AI - Complete Integration Registry
+"""Sophia AI - Complete Integration Registry.
+
 Registry for all integrations with the Sophia AI platform with full implementation
 """
 
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IntegrationMetadata:
-    """Metadata for an integration"""
+    """Metadata for an integration."""
 
     name: str
     version: str
@@ -39,9 +40,8 @@ class IntegrationMetadata:
 
 
 class IntegrationRegistry:
-    """Comprehensive registry for all integrations with the Sophia AI platform"""
+    """Comprehensive registry for all integrations with the Sophia AI platform."""def __init__(self):.
 
-    def __init__(self):
         self.integrations: Dict[str, Type[Integration]] = {}
         self.instances: Dict[str, Integration] = {}
         self.metadata: Dict[str, IntegrationMetadata] = {}
@@ -52,8 +52,8 @@ class IntegrationRegistry:
         self.health_status: Dict[str, bool] = {}
 
     async def initialize(self) -> bool:
-        """Initialize the integration registry"""
-        if self.initialized:
+        """Initialize the integration registry."""if self.initialized:.
+
             return True
 
         async with self._lock:
@@ -85,8 +85,8 @@ class IntegrationRegistry:
         integration_class: Type[Integration],
         metadata: IntegrationMetadata = None,
     ) -> None:
-        """Register an integration with optional metadata"""
-        if not issubclass(integration_class, Integration):
+        """Register an integration with optional metadata."""if not issubclass(integration_class, Integration):.
+
             raise IntegrationError(
                 "Integration class must inherit from Integration base class"
             )
@@ -110,8 +110,8 @@ class IntegrationRegistry:
         logger.info(f"Registered integration for {service_name}")
 
     def unregister(self, service_name: str) -> bool:
-        """Unregister an integration"""
-        if service_name not in self.integrations:
+        """Unregister an integration."""if service_name not in self.integrations:.
+
             logger.warning(f"Integration {service_name} not found for unregistration")
             return False
 
@@ -135,12 +135,11 @@ class IntegrationRegistry:
         return True
 
     def get_integration_class(self, service_name: str) -> Optional[Type[Integration]]:
-        """Get an integration class"""
-        return self.integrations.get(service_name)
+        """Get an integration class."""return self.integrations.get(service_name).
 
     async def get_integration(self, service_name: str) -> Optional[Integration]:
-        """Get an integration instance, creating it if necessary"""
-        if service_name in self.instances:
+        """Get an integration instance, creating it if necessary."""if service_name in self.instances:.
+
             return self.instances[service_name]
 
         integration_class = self.get_integration_class(service_name)
@@ -171,32 +170,28 @@ class IntegrationRegistry:
             return None
 
     async def get_client(self, service_name: str) -> Optional[Any]:
-        """Get a client for a service"""
-        integration = await self.get_integration(service_name)
+        """Get a client for a service."""integration = await self.get_integration(service_name).
+
         if not integration:
             return None
 
         return await integration.get_client()
 
     def list_integrations(self) -> List[str]:
-        """List all registered integrations"""
-        return list(self.integrations.keys())
+        """List all registered integrations."""return list(self.integrations.keys()).
 
     def list_active_integrations(self) -> List[str]:
-        """List all active (instantiated) integrations"""
-        return list(self.instances.keys())
+        """List all active (instantiated) integrations."""return list(self.instances.keys()).
 
     def get_metadata(self, service_name: str) -> Optional[IntegrationMetadata]:
-        """Get metadata for an integration"""
-        return self.metadata.get(service_name)
+        """Get metadata for an integration."""return self.metadata.get(service_name).
 
     def list_metadata(self) -> Dict[str, IntegrationMetadata]:
-        """Get metadata for all integrations"""
-        return self.metadata.copy()
+        """Get metadata for all integrations."""return self.metadata.copy().
 
     async def validate_integration(self, service_name: str) -> bool:
-        """Validate an integration configuration and dependencies"""
-        if service_name not in self.integrations:
+        """Validate an integration configuration and dependencies."""if service_name not in self.integrations:.
+
             logger.error(f"Integration {service_name} not registered")
             return False
 
@@ -238,16 +233,16 @@ class IntegrationRegistry:
             return False
 
     async def validate_all_integrations(self) -> Dict[str, bool]:
-        """Validate all registered integrations"""
-        results = {}
+        """Validate all registered integrations."""results = {}.
+
         for service_name in self.integrations:
             results[service_name] = await self.validate_integration(service_name)
 
         return results
 
     async def health_check(self, service_name: str) -> bool:
-        """Perform health check for a specific integration"""
-        integration = await self.get_integration(service_name)
+        """Perform health check for a specific integration."""integration = await self.get_integration(service_name).
+
         if not integration:
             return False
 
@@ -261,24 +256,22 @@ class IntegrationRegistry:
             return False
 
     async def health_check_all(self) -> Dict[str, bool]:
-        """Perform health check for all active integrations"""
-        results = {}
+        """Perform health check for all active integrations."""results = {}.
+
         for service_name in self.instances:
             results[service_name] = await self.health_check(service_name)
 
         return results
 
     def get_health_status(self, service_name: str) -> Optional[bool]:
-        """Get cached health status for a service"""
-        return self.health_status.get(service_name)
+        """Get cached health status for a service."""return self.health_status.get(service_name).
 
     def get_all_health_status(self) -> Dict[str, bool]:
-        """Get cached health status for all services"""
-        return self.health_status.copy()
+        """Get cached health status for all services."""return self.health_status.copy().
 
     async def _auto_discover_integrations(self) -> None:
-        """Auto-discover integrations in the integrations directory"""
-        try:
+        """Auto-discover integrations in the integrations directory."""try:.
+
             # Get list of services from config manager
             services = await self.config_manager.list_services()
 
@@ -309,8 +302,8 @@ class IntegrationRegistry:
             logger.error(f"Error during auto-discovery: {e}")
 
     async def _start_health_monitoring(self) -> None:
-        """Start background health monitoring for all integrations"""
-        for service_name in self.integrations:
+        """Start background health monitoring for all integrations."""for service_name in self.integrations:.
+
             metadata = self.get_metadata(service_name)
             interval = metadata.health_check_interval if metadata else 300
 
@@ -320,8 +313,8 @@ class IntegrationRegistry:
             self.health_check_tasks[service_name] = task
 
     async def _health_monitor_loop(self, service_name: str, interval: int) -> None:
-        """Background health monitoring loop for a service"""
-        while True:
+        """Background health monitoring loop for a service."""while True:.
+
             try:
                 await asyncio.sleep(interval)
                 await self.health_check(service_name)
@@ -332,8 +325,8 @@ class IntegrationRegistry:
                 logger.error(f"Error in health monitoring for {service_name}: {e}")
 
     async def refresh_integration(self, service_name: str) -> bool:
-        """Refresh an integration (recreate instance)"""
-        if service_name in self.instances:
+        """Refresh an integration (recreate instance)."""if service_name in self.instances:.
+
             del self.instances[service_name]
 
         # Refresh config cache
@@ -344,16 +337,16 @@ class IntegrationRegistry:
         return integration is not None
 
     async def refresh_all_integrations(self) -> Dict[str, bool]:
-        """Refresh all integrations"""
-        results = {}
+        """Refresh all integrations."""results = {}.
+
         for service_name in list(self.instances.keys()):
             results[service_name] = await self.refresh_integration(service_name)
 
         return results
 
     def get_integration_stats(self) -> Dict[str, Any]:
-        """Get statistics about the integration registry"""
-        return {
+        """Get statistics about the integration registry."""return {.
+
             "total_registered": len(self.integrations),
             "total_active": len(self.instances),
             "health_status": self.health_status.copy(),
@@ -365,8 +358,7 @@ class IntegrationRegistry:
         }
 
     async def shutdown(self) -> None:
-        """Shutdown the integration registry"""
-        logger.info("Shutting down integration registry")
+        """Shutdown the integration registry."""logger.info("Shutting down integration registry").
 
         # Cancel all health monitoring tasks
         for task in self.health_check_tasks.values():
@@ -390,14 +382,13 @@ class IntegrationRegistry:
 
 
 class SnowflakeIntegration(Integration):
-    """Snowflake database integration"""
+    """Snowflake database integration."""def __init__(self, service_name: str = "snowflake"):.
 
-    def __init__(self, service_name: str = "snowflake"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create a Snowflake client"""
-        try:
+        """Create a Snowflake client."""try:.
+
             import snowflake.connector
 
             conn = snowflake.connector.connect(
@@ -419,8 +410,8 @@ class SnowflakeIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Snowflake health check"""
-        try:
+        """Perform Snowflake health check."""try:.
+
             cursor = self.client.cursor()
             cursor.execute("SELECT 1")
             result = cursor.fetchone()
@@ -432,14 +423,13 @@ class SnowflakeIntegration(Integration):
 
 
 class PineconeIntegration(Integration):
-    """Pinecone vector database integration"""
+    """Pinecone vector database integration."""def __init__(self, service_name: str = "pinecone"):.
 
-    def __init__(self, service_name: str = "pinecone"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create a Pinecone client"""
-        try:
+        """Create a Pinecone client."""try:.
+
             import pinecone
 
             pinecone.init(
@@ -456,8 +446,8 @@ class PineconeIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Pinecone health check"""
-        try:
+        """Perform Pinecone health check."""try:.
+
             # List indexes to verify connection
             indexes = self.client.list_indexes()
             return True
@@ -467,14 +457,13 @@ class PineconeIntegration(Integration):
 
 
 class WeaviateIntegration(Integration):
-    """Weaviate vector database integration"""
+    """Weaviate vector database integration."""def __init__(self, service_name: str = "weaviate"):.
 
-    def __init__(self, service_name: str = "weaviate"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create a Weaviate client"""
-        try:
+        """Create a Weaviate client."""try:.
+
             import weaviate
 
             client = weaviate.Client(
@@ -493,8 +482,8 @@ class WeaviateIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Weaviate health check"""
-        try:
+        """Perform Weaviate health check."""try:.
+
             # Check if Weaviate is ready
             return self.client.is_ready()
         except Exception as e:
@@ -503,14 +492,13 @@ class WeaviateIntegration(Integration):
 
 
 class OpenAIIntegration(Integration):
-    """OpenAI API integration"""
+    """OpenAI API integration."""def __init__(self, service_name: str = "openai"):.
 
-    def __init__(self, service_name: str = "openai"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create an OpenAI client"""
-        try:
+        """Create an OpenAI client."""try:.
+
             import openai
 
             openai.api_key = config.get_secret("api_key")
@@ -523,8 +511,8 @@ class OpenAIIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform OpenAI health check"""
-        try:
+        """Perform OpenAI health check."""try:.
+
             # List models to verify API key
             models = self.client.Model.list()
             return len(models.data) > 0
@@ -534,14 +522,13 @@ class OpenAIIntegration(Integration):
 
 
 class AnthropicIntegration(Integration):
-    """Anthropic API integration"""
+    """Anthropic API integration."""def __init__(self, service_name: str = "anthropic"):.
 
-    def __init__(self, service_name: str = "anthropic"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create an Anthropic client"""
-        try:
+        """Create an Anthropic client."""try:.
+
             import anthropic
 
             client = anthropic.Anthropic(api_key=config.get_secret("api_key"))
@@ -554,8 +541,8 @@ class AnthropicIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Anthropic health check"""
-        try:
+        """Perform Anthropic health check."""try:.
+
             # Try a simple completion to verify API key
             response = self.client.messages.create(
                 model="claude-3-haiku-20240307",
@@ -569,14 +556,13 @@ class AnthropicIntegration(Integration):
 
 
 class EstuaryIntegration(Integration):
-    """Estuary Flow integration"""
+    """Estuary Flow integration."""def __init__(self, service_name: str = "estuary"):.
 
-    def __init__(self, service_name: str = "estuary"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create an Estuary client"""
-        try:
+        """Create an Estuary client."""try:.
+
             from ..integrations.estuary_flow_integration_updated import (
                 EstuaryFlowClient,
             )
@@ -592,8 +578,8 @@ class EstuaryIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Estuary health check"""
-        try:
+        """Perform Estuary health check."""try:.
+
             # Check if client is properly initialized
             return (
                 self.client.initialized if hasattr(self.client, "initialized") else True
@@ -604,14 +590,13 @@ class EstuaryIntegration(Integration):
 
 
 class AirbyteIntegration(Integration):
-    """Airbyte integration"""
+    """Airbyte integration."""def __init__(self, service_name: str = "airbyte"):.
 
-    def __init__(self, service_name: str = "airbyte"):
         super().__init__(service_name)
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
-        """Create an Airbyte client"""
-        try:
+        """Create an Airbyte client."""try:.
+
             from ..integrations.airbyte_cloud_integration import AirbyteCloudClient
 
             client = AirbyteCloudClient()
@@ -625,8 +610,8 @@ class AirbyteIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Airbyte health check"""
-        try:
+        """Perform Airbyte health check."""try:.
+
             # Check if client is properly initialized
             return (
                 self.client.initialized if hasattr(self.client, "initialized") else True
@@ -642,8 +627,8 @@ integration_registry = IntegrationRegistry()
 
 # Auto-register built-in integrations
 def register_builtin_integrations():
-    """Register all built-in integrations"""
-    integrations = [
+    """Register all built-in integrations."""integrations = [.
+
         (
             "snowflake",
             SnowflakeIntegration,
@@ -740,30 +725,25 @@ register_builtin_integrations()
 
 # Convenience functions
 async def get_integration(service_name: str) -> Optional[Integration]:
-    """Get an integration instance"""
-    return await integration_registry.get_integration(service_name)
+    """Get an integration instance."""return await integration_registry.get_integration(service_name).
 
 
 async def get_client(service_name: str) -> Optional[Any]:
-    """Get a client for a service"""
-    return await integration_registry.get_client(service_name)
+    """Get a client for a service."""return await integration_registry.get_client(service_name).
 
 
 async def health_check(service_name: str) -> bool:
-    """Perform health check for a service"""
-    return await integration_registry.health_check(service_name)
+    """Perform health check for a service."""return await integration_registry.health_check(service_name).
 
 
 async def validate_integration(service_name: str) -> bool:
-    """Validate an integration"""
-    return await integration_registry.validate_integration(service_name)
+    """Validate an integration."""return await integration_registry.validate_integration(service_name).
 
 
 def list_integrations() -> List[str]:
-    """List all registered integrations"""
-    return integration_registry.list_integrations()
+    """List all registered integrations."""return integration_registry.list_integrations().
 
 
 def get_integration_stats() -> Dict[str, Any]:
-    """Get integration registry statistics"""
+    """Get integration registry statistics."""
     return integration_registry.get_integration_stats()

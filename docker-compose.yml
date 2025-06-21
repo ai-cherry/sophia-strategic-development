@@ -257,14 +257,14 @@ services:
       args:
         MCP_SERVER_MODULE: backend.mcp.retool_mcp_server
     container_name: sophia-retool-mcp
-  
+
   docker-mcp:
     <<: *base-mcp-service
     build:
       args:
         MCP_SERVER_MODULE: backend.mcp.docker_mcp_server
     container_name: sophia-docker-mcp
-    
+
   agno-mcp:
     <<: *base-mcp-service
     build:

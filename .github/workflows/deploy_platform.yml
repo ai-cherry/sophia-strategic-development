@@ -28,7 +28,7 @@ jobs:
       - name: Install Dependencies
         working-directory: ./infrastructure
         run: pip install -r requirements.txt
-        
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

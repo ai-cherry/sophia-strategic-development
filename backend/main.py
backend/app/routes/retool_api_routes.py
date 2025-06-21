@@ -1,7 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect
 
-from backend.app.routes import (executive_routes, retool_api_routes,
-                                system_intel_routes)
+from backend.app.routes import executive_routes, retool_api_routes, system_intel_routes
 from backend.app.websockets import manager
 
 app.include_router(executive_routes.router, prefix="/executive", tags=["Executive Intelligence"])
@@ -21,4 +20,4 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         manager.disconnect(client_id)
 
 @app.get("/", tags=["Root"])
-# ... existing code ... 
+# ... existing code ...

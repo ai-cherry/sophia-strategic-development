@@ -2,12 +2,22 @@ import logging
 from typing import Any, Dict, List
 
 from ..core.base_agent import AgentCapability, BaseAgent, Task, create_agent_response
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
 
 class HRAgent(BaseAgent):
-    """Analyzes team communication patterns to provide insights on engagement and organizational health."""
+    """Analyzes team communication patterns to provide insights on engagement and organizational health. Integrated with AgnoPerformanceOptimizer."""
+
+    @classmethod
+    async def pooled(cls, config: AgentConfig) -> 'HRAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        await optimizer.register_agent_class('hr', cls)
+        agent = await optimizer.get_or_create_agent('hr', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided HRAgent instance (pooled or new)")
+        return agent
 
     async def get_capabilities(self) -> List[AgentCapability]:
         return [

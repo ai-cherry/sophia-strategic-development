@@ -45,14 +45,14 @@ if [ "$(check_backend)" == "200" ]; then
     echo -e "${GREEN}✅ Backend is already running!${NC}"
 else
     echo -e "${YELLOW}⚠️  Backend is not running. Starting it now...${NC}"
-    
+
     # Start backend in background with proper Python path
     export PYTHONPATH="${PYTHONPATH}:$(pwd)"
     cd backend
     python3 main.py > ../backend.log 2>&1 &
     BACKEND_PID=$!
     cd ..
-    
+
     # Wait for backend to start
     echo -n "   Waiting for backend to start"
     for i in {1..30}; do
@@ -63,7 +63,7 @@ else
         echo -n "."
         sleep 1
     done
-    
+
     if [ "$(check_backend)" != "200" ]; then
         echo -e "\n${RED}❌ Backend failed to start. Check backend.log for errors.${NC}"
         exit 1

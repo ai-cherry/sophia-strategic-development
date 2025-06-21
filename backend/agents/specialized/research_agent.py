@@ -14,10 +14,9 @@ logger = logging.getLogger(__name__)
 
 class ResearchAgent(Agent, BaseAgent):
     """An agent specialized in conducting web research on a given topic.
-    It breaks down a topic, executes web searches, and synthesizes the results.
-    """
 
-    def __init__(self, config: AgentConfig):
+            It breaks down a topic, executes web searches, and synthesizes the results.
+    """def __init__(self, config: AgentConfig):.
         Agent.__init__(self)
         BaseAgent.__init__(self, config)
         self.mcp_client = MCPClient(
@@ -31,8 +30,8 @@ class ResearchAgent(Agent, BaseAgent):
 
     @state(initial=True)
     async def deconstruct_topic(self, topic: str):
-        """Breaks a broad topic into specific, searchable queries using an LLM."""
-        logger.info(f"[State: DECONSTRUCT_TOPIC] for topic: {topic}")
+        """Breaks a broad topic into specific, searchable queries using an LLM."""logger.info(f"[State: DECONSTRUCT_TOPIC] for topic: {topic}").
+
         self.research_data = {"original_topic": topic}
 
         system_prompt = """You are a master research analyst. Your task is to take a high-level research topic and break it down into a series of 3-5 specific, effective Google search queries. Return ONLY a JSON-formatted list of strings.
@@ -46,9 +45,8 @@ Example Output:
     "top AI-powered property management software 2024",
     "future of AI in real estate market analysis"
 ]
-"""
+"""llm_response = await self.portkey_client.llm_call(.
 
-        llm_response = await self.portkey_client.llm_call(
             prompt=f"Research Topic: {topic}", system_prompt=system_prompt
         )
 
@@ -76,8 +74,8 @@ Example Output:
 
     @state
     async def execute_search(self):
-        """Calls the Apify MCP server to perform web searches."""
-        queries = self.research_data.get("search_queries", [])
+"""Calls the Apify MCP server to perform web searches."""queries = self.research_data.get("search_queries", []).
+
         logger.info(f"[State: EXECUTE_SEARCH] for {len(queries)} queries.")
 
         search_result = await self.mcp_client.call_tool(
@@ -92,8 +90,7 @@ Example Output:
 
     @state
     async def synthesize_findings(self):
-        """Summarizes all the scraped content into a single brief."""
-        logger.info("[State: SYNTHESIZE_FINDINGS]")
+        """Summarizes all the scraped content into a single brief."""logger.info("[State: SYNTHESIZE_FINDINGS]").
 
         # In a real implementation, we would pass all the scraped text to an LLM
         # with a prompt like "Summarize the following research into a coherent brief..."
@@ -112,8 +109,8 @@ Example Output:
 
     @state(terminal=True)
     def done(self):
-        """Terminal state, returns the final research brief."""
-        logger.info("[State: DONE]")
+        """Terminal state, returns the final research brief."""logger.info("[State: DONE]").
+
         return TaskResult(
             status="success",
             output=self.research_data.get("final_brief", "No brief generated."),

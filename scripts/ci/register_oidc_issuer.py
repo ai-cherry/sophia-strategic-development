@@ -1,12 +1,16 @@
-"""
-A script to programmatically register the GitHub OIDC issuer with Pulumi Cloud.
+"""A script to programmatically register the GitHub OIDC issuer with Pulumi Cloud.
+
 This uses a provided Pulumi Access Token for direct authentication.
 """
-import os
-import requests
-import logging
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+import logging
+import os
+
+import requests
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 PULUMI_ORG = "scoobyjava-org"
@@ -21,9 +25,7 @@ TLS_THUMBPRINT = "6938fd4d98bab03faadb97b34396831e3780aea1"
 
 
 def register_github_oidc_issuer(api_token: str):
-    """
-    Makes a direct API call to Pulumi to register the GitHub OIDC issuer.
-    """
+    """Makes a direct API call to Pulumi to register the GitHub OIDC issuer."""
     if not api_token:
         logger.error("Pulumi API token is missing.")
         return
@@ -31,26 +33,30 @@ def register_github_oidc_issuer(api_token: str):
     headers = {
         "Authorization": f"token {api_token}",
         "Content-Type": "application/json",
-        "Accept": "application/vnd.pulumi+8"
+        "Accept": "application/vnd.pulumi+8",
     }
 
     payload = {
         "name": ISSUER_NAME,
         "url": ISSUER_URL,
         "tlsCertificateThumbprints": [TLS_THUMBPRINT],
-        "type": "public" # For public providers like GitHub
+        "type": "public",  # For public providers like GitHub
     }
 
-    logger.info(f"Registering OIDC issuer '{ISSUER_NAME}' for organization '{PULUMI_ORG}'...")
+    logger.info(
+        f"Registering OIDC issuer '{ISSUER_NAME}' for organization '{PULUMI_ORG}'..."
+    )
 
     try:
         response = requests.post(PULUMI_API_URL, headers=headers, json=payload)
-        
+
         # Check for success or if it already exists
         if response.status_code == 201:
             logger.info("✅ Successfully registered GitHub OIDC issuer.")
-        elif response.status_code == 409: # Conflict
-             logger.warning("⚠️ OIDC issuer with this URL or name already exists. No action needed.")
+        elif response.status_code == 409:  # Conflict
+            logger.warning(
+                "⚠️ OIDC issuer with this URL or name already exists. No action needed."
+            )
         else:
             response.raise_for_status()
 
@@ -59,6 +65,7 @@ def register_github_oidc_issuer(api_token: str):
         if e.response:
             logger.error(f"Response Body: {e.response.text}")
         raise
+
 
 if __name__ == "__main__":
     pulumi_token = os.getenv("PULUMI_ACCESS_TOKEN")

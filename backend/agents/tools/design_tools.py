@@ -2,9 +2,8 @@
 
 These tools allow a specialized agent to programmatically create and modify
 frontend components, enabling an AI-driven design and development workflow.
-"""
+"""import logging
 
-import logging
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -17,13 +16,13 @@ SAFE_COMPONENTS_DIR = Path("sophia-dashboard/src/components/generated")
 def create_react_component(component_name: str, jsx_code: str) -> str:
     """Creates a new React component file in the sandboxed 'generated' directory.
 
-    This is a powerful tool. In a production environment, it should have
-    strict security controls and require human approval before code is merged.
+            This is a powerful tool. In a production environment, it should have
+            strict security controls and require human approval before code is merged.
 
-    :param component_name: The name of the component (e.g., 'KpiCardRevenue').
-                           This will be used to create the filename.
-    :param jsx_code: A string containing the full, valid JSX code for the component.
-    :return: A confirmation message with the path to the created file.
+            :param component_name: The name of the component (e.g., 'KpiCardRevenue').
+                                   This will be used to create the filename.
+            :param jsx_code: A string containing the full, valid JSX code for the component.
+            :return: A confirmation message with the path to the created file.
     """
     if ".." in component_name or "/" in component_name:
         raise ValueError(

@@ -3,12 +3,12 @@ import { cn } from '@/lib/utils';
 import { Bell, Search, Settings, User, Menu } from 'lucide-react';
 import Button from '../buttons/Button';
 
-const Header = ({ 
+const Header = ({
   title = "Sophia AI",
   user,
   onMenuClick,
   showSearch = true,
-  className 
+  className
 }) => {
   return (
     <header className={cn(
@@ -26,7 +26,7 @@ const Header = ({
           >
             <Menu className="w-5 h-5 text-gray-400" />
           </button>
-          
+
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">S</span>
@@ -88,4 +88,4 @@ const Header = ({
   );
 };
 
-export default Header; 
+export default Header;

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simple MCP Infrastructure Check
+"""Simple MCP Infrastructure Check.
+
 Basic health check for MCP servers and infrastructure
 """
 
@@ -13,7 +14,8 @@ import requests
 
 
 def check_docker_status():
-    """Check Docker containers status"""
+    """Check Docker containers status."""
+
     print("🐳 Checking Docker containers...")
 
     try:
@@ -69,8 +71,7 @@ def check_docker_status():
 
 
 def check_mcp_gateway():
-    """Check MCP Gateway health"""
-    print("\n🚪 Checking MCP Gateway...")
+    """Check MCP Gateway health."""print("\n🚪 Checking MCP Gateway...").
 
     gateway_url = "http://localhost:8090"
 
@@ -96,8 +97,7 @@ def check_mcp_gateway():
 
 
 def check_environment_variables():
-    """Check required environment variables"""
-    print("\n🔐 Checking environment variables...")
+    """Check required environment variables."""print("\n🔐 Checking environment variables...").
 
     required_vars = [
         "PINECONE_API_KEY",
@@ -121,8 +121,7 @@ def check_environment_variables():
 
 
 def check_mcp_config():
-    """Check MCP configuration"""
-    print("\n⚙️ Checking MCP configuration...")
+    """Check MCP configuration."""print("\n⚙️ Checking MCP configuration...").
 
     project_root = Path(__file__).parent.parent.parent
     mcp_config_path = project_root / "mcp_config.json"
@@ -156,8 +155,7 @@ def check_mcp_config():
 
 
 def check_external_services():
-    """Check external service connectivity"""
-    print("\n🌐 Checking external services...")
+    """Check external service connectivity."""print("\n🌐 Checking external services...").
 
     services = [
         ("Pinecone", "https://api.pinecone.io"),
@@ -178,8 +176,8 @@ def check_external_services():
 
 
 def generate_recommendations():
-    """Generate quick recommendations"""
-    print("\n💡 Quick Recommendations:")
+    """Generate quick recommendations."""print("\n💡 Quick Recommendations:").
+
     print("  1. Fix restarting containers:")
     print("     docker-compose down && docker-compose up -d")
     print("  2. Check container logs:")
@@ -193,7 +191,7 @@ def generate_recommendations():
 
 
 def main():
-    """Main check function"""
+    """Main check function."""
     print("🔍 MCP INFRASTRUCTURE QUICK CHECK")
     print("=" * 50)
 

@@ -119,32 +119,30 @@ Buzz leverages Sophia's intelligence on a per-resident, per-interaction basis to
 As Sophia becomes more sophisticated, Buzz's capabilities will expand, allowing for more autonomous and nuanced interactions.
 
 This distinction allows Pay Ready to articulate a powerful narrative: a deep, learning intelligence (Sophia) constantly working behind the scenes to make the tangible, interactive AI solution (Buzz) smarter, more effective, and more valuable to both operators and residents. It signifies a commitment to not just using AI, but to building a truly intelligent financial operating system for the multifamily industry.
-"""
+"""def get_tags_from_context(chunk: str) -> List[str]:."""Determines strategic tags based on the content of the text chunk.
 
-
-def get_tags_from_context(chunk: str) -> List[str]:
-    """Determines strategic tags based on the content of the text chunk.
     This is a simple rule-based implementation for demonstration.
-    """
-    tags = ["pay_ready_kb", "foundational_document"]
-    content_lower = chunk.lower()
+    """tags = ["pay_ready_kb", "foundational_document"].
 
-    if "sophia" in content_lower or "internal ai master persona" in content_lower:
-        tags.extend(["sophia", "architecture", "internal_ai"])
-    if "buzz" in content_lower or "resident-facing" in content_lower:
-        tags.extend(["buzz", "product", "resident_experience"])
-    if "compliance" in content_lower or "fdcpa" in content_lower:
-        tags.extend(["compliance", "legal", "risk_management"])
-    if "marketplace" in content_lower or "third-party" in content_lower:
-        tags.extend(["collections", "marketplace", "partners"])
-    if "propensity-to-pay" in content_lower or "risk scoring" in content_lower:
-        tags.extend(["data_science", "predictive_analytics"])
+        content_lower = chunk.lower()
 
-    return list(set(tags))
+        if "sophia" in content_lower or "internal ai master persona" in content_lower:
+            tags.extend(["sophia", "architecture", "internal_ai"])
+        if "buzz" in content_lower or "resident-facing" in content_lower:
+            tags.extend(["buzz", "product", "resident_experience"])
+        if "compliance" in content_lower or "fdcpa" in content_lower:
+            tags.extend(["compliance", "legal", "risk_management"])
+        if "marketplace" in content_lower or "third-party" in content_lower:
+            tags.extend(["collections", "marketplace", "partners"])
+        if "propensity-to-pay" in content_lower or "risk scoring" in content_lower:
+            tags.extend(["data_science", "predictive_analytics"])
+
+        return list(set(tags))
 
 
-async def seed_knowledge_base():
-    """Chunks the foundational text and ingests it into the knowledge base
+    async def seed_knowledge_base():
+    """Chunks the foundational text and ingests it into the knowledge base.
+
     by running the server logic directly in-process.
     """
     chunker = SophiaChunkingPipeline(max_chunk_size=1024, overlap=100)

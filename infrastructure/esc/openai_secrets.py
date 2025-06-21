@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""OpenAI Secrets Management for Pulumi ESC"""
+"""OpenAI Secrets Management for Pulumi ESC."""
 
 import logging
 import os
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def setup_openai_secrets():
-    """Set up OpenAI secrets in Pulumi ESC"""
+    """Set up OpenAI secrets in Pulumi ESC."""
     # Check if PULUMI_ORG is set
     pulumi_org = os.getenv("PULUMI_ORG")
     if not pulumi_org:

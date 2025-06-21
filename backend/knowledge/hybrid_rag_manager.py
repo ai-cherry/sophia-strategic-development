@@ -1,4 +1,5 @@
-"""Hybrid RAG Manager for Sophia AI
+"""Hybrid RAG Manager for Sophia AI.
+
 Orchestrates Retrieval-Augmented Generation (RAG) queries across
 structured (SQL) and unstructured (vector) data sources.
 """
@@ -29,8 +30,8 @@ class HybridRAGManager:
         self.initialized = False
 
     async def initialize(self):
-        """Initializes connections to Pinecone and Snowflake."""
-        if self.initialized:
+        """Initializes connections to Pinecone and Snowflake."""if self.initialized:.
+
             return
 
         logger.info("Initializing Hybrid RAG Manager...")
@@ -61,8 +62,8 @@ class HybridRAGManager:
     async def answer_complex_question(
         self, query: str, top_k: int = 5
     ) -> Dict[str, Any]:
-        """Answers a complex question by performing a hybrid RAG query."""
-        if not self.initialized:
+        """Answers a complex question by performing a hybrid RAG query."""if not self.initialized:.
+
             return {"error": "RAG Manager not initialized."}
 
         logger.info(f"Performing hybrid RAG query for: '{query}'")

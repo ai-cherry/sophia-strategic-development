@@ -1,12 +1,11 @@
-"""Pulumi ESC Secret Manager for Pinecone.
-"""
+"""Pulumi ESC Secret Manager for Pinecone."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 
 class PineconeSecretManager(EnhancedPulumiESC):
-    """Handles getting and setting Pinecone secrets via Pulumi ESC."""
+    """Handles getting and setting Pinecone secrets via Pulumi ESC."""def __init__(self):.
 
-    def __init__(self):
         super().__init__()
 
     async def get_pinecone_api_key(self) -> str:

@@ -1,8 +1,10 @@
-"""Enhanced Embedding Manager for Sophia AI
-Manages text embeddings with caching and multiple model support.
+"""Enhanced Embedding Manager for Sophia AI.
+
+Manages text embeddings with caching and multiple model support
 """
 
-import asyncio
+    import asyncio
+
 import hashlib
 import logging
 from dataclasses import dataclass
@@ -13,6 +15,8 @@ import numpy as np
 
 # Import with fallback for optional dependencies
 try:
+except Exception:
+    pass
     from sentence_transformers import SentenceTransformer
 
     SENTENCE_TRANSFORMERS_AVAILABLE = True
@@ -21,6 +25,8 @@ except ImportError:
     SentenceTransformer = None
 
 try:
+except Exception:
+    pass
     import openai
 
     OPENAI_AVAILABLE = True
@@ -35,9 +41,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class EmbeddingMetadata:
-    """Metadata for an embedding"""
-
-    model: str
+    """Metadata for an embedding."""
+model: str
     dimension: int
     content_hash: str
     created_at: datetime
@@ -46,22 +51,23 @@ class EmbeddingMetadata:
 
 @dataclass
 class EmbeddingResult:
-    """Result of embedding generation"""
+    """Result of embedding generation."""
+embedding: List[float]
 
-    embedding: List[float]
     metadata: EmbeddingMetadata
 
 
 class EmbeddingCache:
-    """Simple in-memory cache for embeddings"""
+    """Simple in-memory cache for embeddings."""
+def __init__(self, ttl_seconds: int = 3600):
 
-    def __init__(self, ttl_seconds: int = 3600):
         self.cache: Dict[str, Tuple[List[float], EmbeddingMetadata, datetime]] = {}
         self.ttl = timedelta(seconds=ttl_seconds)
 
     def get(self, key: str) -> Optional[EmbeddingResult]:
-        """Get embedding from cache if not expired"""
-        if key in self.cache:
+        """Get embedding from cache if not expired."""
+if key in self.cache:
+
             embedding, metadata, cached_at = self.cache[key]
             if datetime.now() - cached_at < self.ttl:
                 return EmbeddingResult(embedding=embedding, metadata=metadata)
@@ -71,18 +77,19 @@ class EmbeddingCache:
         return None
 
     def set(self, key: str, result: EmbeddingResult):
-        """Store embedding in cache"""
-        self.cache[key] = (result.embedding, result.metadata, datetime.now())
+        """Store embedding in cache."""
+self.cache[key] = (result.embedding, result.metadata, datetime.now())
 
     def clear(self):
-        """Clear all cached embeddings"""
-        self.cache.clear()
+        """Clear all cached embeddings."""
+self.cache.clear()
 
 
 class EnhancedEmbeddingManager:
-    """Manages embeddings with multiple model support and caching"""
+    """Manages embeddings with multiple model support and caching."""
 
     def __init__(self):
+
         self.sentence_transformer = None
         self.openai_client = None
         self.cache = EmbeddingCache()
@@ -90,8 +97,9 @@ class EnhancedEmbeddingManager:
         self.initialized = False
 
     async def initialize(self):
-        """Initialize embedding models"""
+        """Initialize embedding models."""
         if self.initialized:
+
             return
 
         logger.info("Initializing enhanced embedding manager...")
@@ -99,6 +107,8 @@ class EnhancedEmbeddingManager:
         # Initialize sentence transformers if available
         if SENTENCE_TRANSFORMERS_AVAILABLE:
             try:
+            except Exception:
+                pass
                 self.sentence_transformer = SentenceTransformer(self.default_model)
                 logger.info(f"Initialized sentence transformer: {self.default_model}")
             except Exception as e:
@@ -107,6 +117,8 @@ class EnhancedEmbeddingManager:
         # Initialize OpenAI if available
         if OPENAI_AVAILABLE:
             try:
+            except Exception:
+                pass
                 api_key = await config.get_secret("OPENAI_API_KEY")
                 if api_key:
                     openai.api_key = api_key
@@ -119,14 +131,15 @@ class EnhancedEmbeddingManager:
         logger.info("Enhanced embedding manager initialized")
 
     def _compute_content_hash(self, text: str) -> str:
-        """Compute hash of text content"""
-        return hashlib.sha256(text.encode()).hexdigest()
+        """Compute hash of text content."""
+return hashlib.sha256(text.encode()).hexdigest()
 
     async def generate_text_embedding(
         self, text: str, model: Optional[str] = None, use_cache: bool = True
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding for text with caching"""
+        """Generate embedding for text with caching."""
         if not self.initialized:
+
             await self.initialize()
 
         # Use default model if not specified
@@ -164,8 +177,10 @@ class EnhancedEmbeddingManager:
     async def _generate_sentence_transformer_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding using sentence transformers"""
+        """Generate embedding using sentence transformers."""
         try:
+        except Exception:
+            pass
             # Generate embedding
             embedding = self.sentence_transformer.encode(text)
             embedding_list = embedding.tolist()
@@ -188,8 +203,10 @@ class EnhancedEmbeddingManager:
     async def _generate_openai_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding using OpenAI"""
+        """Generate embedding using OpenAI."""
         try:
+        except Exception:
+            pass
             # Create embedding
             response = await asyncio.to_thread(
                 self.openai_client.Embedding.create, input=text, model=model
@@ -215,8 +232,9 @@ class EnhancedEmbeddingManager:
     async def _generate_random_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate random embedding for testing"""
+        """Generate random embedding for testing."""
         logger.warning(
+
             "Using random embeddings - install sentence-transformers for real embeddings"
         )
 
@@ -242,8 +260,8 @@ class EnhancedEmbeddingManager:
     async def generate_batch_embeddings(
         self, texts: List[str], model: Optional[str] = None, use_cache: bool = True
     ) -> List[Tuple[List[float], EmbeddingMetadata]]:
-        """Generate embeddings for multiple texts"""
-        results = []
+        """Generate embeddings for multiple texts."""
+results = []
 
         for text in texts:
             embedding, metadata = await self.generate_text_embedding(
@@ -254,12 +272,13 @@ class EnhancedEmbeddingManager:
         return results
 
     def clear_cache(self):
-        """Clear the embedding cache"""
+        """Clear the embedding cache."""
         self.cache.clear()
+
         logger.info("Cleared embedding cache")
 
     async def get_available_models(self) -> List[str]:
-        """Get list of available embedding models"""
+        """Get list of available embedding models."""
         models = []
 
         if self.sentence_transformer:
@@ -274,8 +293,9 @@ class EnhancedEmbeddingManager:
         return models
 
     async def get_model_info(self, model: str) -> Dict[str, any]:
-        """Get information about a specific model"""
+        """Get information about a specific model."""
         info = {
+
             "model": model,
             "available": False,
             "dimension": None,
@@ -304,7 +324,7 @@ enhanced_embedding_manager = EnhancedEmbeddingManager()
 
 # Example usage
 async def main():
-    """Example usage of enhanced embedding manager"""
+    """Example usage of enhanced embedding manager."""
     manager = enhanced_embedding_manager
     await manager.initialize()
 

@@ -1,4 +1,5 @@
-"""Enhanced MCP Federation Layer
+"""Enhanced MCP Federation Layer.
+
 Provides parallel federated queries across all MCP servers with intelligent routing
 """
 
@@ -36,9 +37,8 @@ class MCPServerInfo:
 
 @dataclass
 class FederatedQueryResult:
-    """Result from a federated query."""
+    """Result from a federated query."""server_name: str.
 
-    server_name: str
     success: bool
     data: Any
     execution_time_ms: float
@@ -47,11 +47,9 @@ class FederatedQueryResult:
 
 
 class QueryClassifier:
-    """Classifies queries to determine which MCP servers to use."""
+    """Classifies queries to determine which MCP servers to use."""def __init__(self):.
 
-    def __init__(self):
-        """Initialize query classifier."""
-        self.server_keywords = {
+        """Initialize query classifier."""self.server_keywords = {.
             "gong": [
                 "call",
                 "meeting",
@@ -145,14 +143,14 @@ class QueryClassifier:
     ) -> Dict[str, Any]:
         """Classify a query to determine optimal MCP server routing.
 
-        Args:
-            query: The query string
-            context: Additional context for classification
+                        Args:
+                            query: The query string
+                            context: Additional context for classification
 
-        Returns:
-            Dict containing classification results
-        """
-        query_lower = query.lower()
+                        Returns:
+                            Dict containing classification results
+        """query_lower = query.lower().
+
         context = context or {}
 
         # Score servers based on keyword matches
@@ -202,8 +200,8 @@ class QueryClassifier:
         }
 
     def _get_timeout_for_query_type(self, query_type: str) -> int:
-        """Get timeout based on query type."""
-        timeouts = {
+        """Get timeout based on query type."""timeouts = {.
+
             "data_retrieval": 5000,  # 5 seconds
             "data_modification": 10000,  # 10 seconds
             "analysis": 15000,  # 15 seconds
@@ -213,11 +211,9 @@ class QueryClassifier:
 
 
 class ResultAggregator:
-    """Aggregates and ranks results from multiple MCP servers."""
+    """Aggregates and ranks results from multiple MCP servers."""def __init__(self):.
 
-    def __init__(self):
-        """Initialize result aggregator."""
-        self.ranking_weights = {
+        """Initialize result aggregator."""self.ranking_weights = {.
             "execution_time": 0.3,
             "confidence_score": 0.4,
             "data_quality": 0.3,
@@ -226,13 +222,13 @@ class ResultAggregator:
     def aggregate_results(self, results: List[FederatedQueryResult]) -> Dict[str, Any]:
         """Aggregate results from multiple MCP servers.
 
-        Args:
-            results: List of federated query results
+                        Args:
+                            results: List of federated query results
 
-        Returns:
-            Dict containing aggregated results
-        """
-        successful_results = [r for r in results if r.success]
+                        Returns:
+                            Dict containing aggregated results
+        """successful_results = [r for r in results if r.success].
+
         failed_results = [r for r in results if not r.success]
 
         if not successful_results:
@@ -284,9 +280,8 @@ class ResultAggregator:
     def _rank_results(
         self, results: List[FederatedQueryResult]
     ) -> List[FederatedQueryResult]:
-        """Rank results based on multiple criteria."""
+        """Rank results based on multiple criteria."""def calculate_score(result: FederatedQueryResult) -> float:.
 
-        def calculate_score(result: FederatedQueryResult) -> float:
             # Normalize execution time (lower is better)
             max_time = max(r.execution_time_ms for r in results)
             time_score = (
@@ -312,8 +307,8 @@ class ResultAggregator:
         return sorted(results, key=calculate_score, reverse=True)
 
     def _calculate_data_quality(self, data: Any) -> float:
-        """Calculate data quality score."""
-        if not data:
+        """Calculate data quality score."""if not data:.
+
             return 0.0
 
         if isinstance(data, dict):
@@ -339,8 +334,8 @@ class ResultAggregator:
     def _combine_data(
         self, ranked_results: List[FederatedQueryResult]
     ) -> Dict[str, Any]:
-        """Combine data from multiple results."""
-        if not ranked_results:
+        """Combine data from multiple results."""if not ranked_results:.
+
             return {}
 
         # Use the highest-ranked result as primary
@@ -360,11 +355,9 @@ class ResultAggregator:
 
 
 class MCPFederation:
-    """Enhanced MCP Federation layer for parallel queries across all MCP servers."""
+    """Enhanced MCP Federation layer for parallel queries across all MCP servers."""def __init__(self):.
 
-    def __init__(self):
-        """Initialize MCP federation."""
-        self.servers: Dict[str, MCPServerInfo] = {}
+        """Initialize MCP federation."""self.servers: Dict[str, MCPServerInfo] = {}.
         self.query_classifier = QueryClassifier()
         self.result_aggregator = ResultAggregator()
         self.executor = ThreadPoolExecutor(max_workers=10)
@@ -382,8 +375,8 @@ class MCPFederation:
         }
 
     async def initialize(self):
-        """Initialize the MCP federation."""
-        if self.initialized:
+        """Initialize the MCP federation."""if self.initialized:.
+
             return
 
         try:
@@ -483,15 +476,15 @@ class MCPFederation:
     ) -> Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]:
         """Execute a federated query across relevant MCP servers.
 
-        Args:
-            query: The query string
-            context: Additional context for the query
-            stream: Whether to stream results
+                        Args:
+                            query: The query string
+                            context: Additional context for the query
+                            stream: Whether to stream results
 
-        Returns:
-            Aggregated results from MCP servers
-        """
-        if not self.initialized:
+                        Returns:
+                            Aggregated results from MCP servers
+        """if not self.initialized:.
+
             await self.initialize()
 
         start_time = time.perf_counter()
@@ -547,8 +540,7 @@ class MCPFederation:
         context: Dict[str, Any],
         classification: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Execute queries in parallel across target servers."""
-        start_time = time.perf_counter()
+        """Execute queries in parallel across target servers."""start_time = time.perf_counter().
 
         # Create tasks for parallel execution
         tasks = []
@@ -626,8 +618,8 @@ class MCPFederation:
         context: Dict[str, Any],
         classification: Dict[str, Any],
     ) -> FederatedQueryResult:
-        """Query a single MCP server."""
-        start_time = time.perf_counter()
+        """Query a single MCP server."""start_time = time.perf_counter().
+
         server_info = self.servers[server_name]
 
         try:
@@ -674,8 +666,8 @@ class MCPFederation:
             )
 
     def _get_tool_for_query(self, server_name: str, query_type: str) -> str:
-        """Get appropriate tool name for server and query type."""
-        tool_mapping = {
+        """Get appropriate tool name for server and query type."""tool_mapping = {.
+
             "gong": {
                 "data_retrieval": "search_calls",
                 "analysis": "analyze_calls",
@@ -703,8 +695,8 @@ class MCPFederation:
     async def _generic_server_query(
         self, server_instance: Any, query: str, context: Dict[str, Any]
     ) -> Any:
-        """Generic query method for servers without specific tools."""
-        # This is a fallback method - in practice, each server should have specific tools
+        """Generic query method for servers without specific tools."""# This is a fallback method - in practice, each server should have specific tools.
+
         if hasattr(server_instance, "query"):
             return await server_instance.query(query, context)
         elif hasattr(server_instance, "search"):
@@ -715,8 +707,7 @@ class MCPFederation:
     def _calculate_confidence_score(
         self, result: Any, server_name: str, classification: Dict[str, Any]
     ) -> float:
-        """Calculate confidence score for a result."""
-        base_confidence = classification.get("confidence", 0.5)
+        """Calculate confidence score for a result."""base_confidence = classification.get("confidence", 0.5).
 
         # Adjust based on server relevance
         server_score = classification.get("server_scores", {}).get(server_name, 0)
@@ -747,8 +738,7 @@ class MCPFederation:
         context: Dict[str, Any],
         classification: Dict[str, Any],
     ) -> AsyncGenerator[Dict[str, Any], None]:
-        """Stream federated results as they become available."""
-        start_time = time.perf_counter()
+        """Stream federated results as they become available."""start_time = time.perf_counter().
 
         # Initial response
         yield {
@@ -822,8 +812,8 @@ class MCPFederation:
             }
 
     def _get_healthy_servers(self, priority_servers: List[str]) -> List[str]:
-        """Get list of healthy servers from priority list."""
-        healthy_servers = []
+        """Get list of healthy servers from priority list."""healthy_servers = [].
+
         for server_name in priority_servers:
             if server_name in self.servers:
                 server_info = self.servers[server_name]
@@ -835,8 +825,8 @@ class MCPFederation:
         return healthy_servers
 
     async def _monitor_server_health(self):
-        """Monitor health of all MCP servers."""
-        while self.initialized:
+        """Monitor health of all MCP servers."""while self.initialized:.
+
             try:
                 for server_name, server_info in self.servers.items():
                     try:
@@ -868,8 +858,8 @@ class MCPFederation:
     def _update_performance_metrics(
         self, execution_time_ms: float, servers: List[str], success: bool
     ):
-        """Update performance metrics."""
-        # Update average response time
+        """Update performance metrics."""# Update average response time.
+
         total_queries = self.metrics["total_queries"]
         current_avg = self.metrics["avg_response_time_ms"]
         self.metrics["avg_response_time_ms"] = (
@@ -889,8 +879,8 @@ class MCPFederation:
                 self.metrics["server_success_rates"][server]["successful"] += 1
 
     def get_federation_stats(self) -> Dict[str, Any]:
-        """Get comprehensive federation statistics."""
-        server_stats = {}
+        """Get comprehensive federation statistics."""server_stats = {}.
+
         for server_name, server_info in self.servers.items():
             success_data = self.metrics["server_success_rates"].get(
                 server_name, {"total": 0, "successful": 0}

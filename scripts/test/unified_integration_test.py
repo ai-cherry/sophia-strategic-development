@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified Integration Test Script for Sophia AI
+"""Unified Integration Test Script for Sophia AI.
 
 This script tests the connectivity and functionality of all integrations:
 - Snowflake
@@ -11,9 +11,8 @@ This script tests the connectivity and functionality of all integrations:
 Usage:
     python unified_integration_test.py --tests all --output test_results.json
     python unified_integration_test.py --tests snowflake,gong --output snowflake_gong_results.json
-"""
+"""import argparse
 
-import argparse
 import asyncio
 import json
 import logging
@@ -47,7 +46,7 @@ SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 
 class IntegrationTest:
-    """Base class for all integration tests"""
+    """Base class for all integration tests."""
 
     def __init__(self, name: str):
         self.name = name
@@ -58,12 +57,11 @@ class IntegrationTest:
         self.duration = None
 
     async def setup(self) -> bool:
-        """Setup the test environment"""
-        return True
+        """Setup the test environment."""return True.
 
     async def run(self) -> bool:
-        """Run the integration test"""
-        self.start_time = time.time()
+        """Run the integration test."""self.start_time = time.time().
+
         try:
             result = await self._run_test()
             self.status = "success" if result else "failure"
@@ -78,16 +76,14 @@ class IntegrationTest:
             self.duration = self.end_time - self.start_time
 
     async def _run_test(self) -> bool:
-        """Implement the actual test logic in subclasses"""
-        raise NotImplementedError("Subclasses must implement _run_test")
+        """Implement the actual test logic in subclasses."""raise NotImplementedError("Subclasses must implement _run_test").
 
     async def teardown(self) -> bool:
-        """Clean up after the test"""
-        return True
+        """Clean up after the test."""return True.
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert test results to dictionary"""
-        return {
+        """Convert test results to dictionary."""return {.
+
             "name": self.name,
             "status": self.status,
             "duration": self.duration,
@@ -97,9 +93,8 @@ class IntegrationTest:
 
 
 class SnowflakeTest(IntegrationTest):
-    """Test Snowflake connectivity and functionality"""
+    """Test Snowflake connectivity and functionality."""def __init__(self):.
 
-    def __init__(self):
         super().__init__("snowflake")
         self.details = {
             "account": os.getenv("SNOWFLAKE_ACCOUNT", ""),
@@ -111,8 +106,8 @@ class SnowflakeTest(IntegrationTest):
         }
 
     async def _run_test(self) -> bool:
-        """Test Snowflake connectivity and functionality"""
-        try:
+        """Test Snowflake connectivity and functionality."""try:.
+
             # Import here to avoid dependency issues if not testing Snowflake
             import snowflake.connector
 
@@ -169,9 +164,8 @@ class SnowflakeTest(IntegrationTest):
 
 
 class GongTest(IntegrationTest):
-    """Test Gong API connectivity and functionality"""
+    """Test Gong API connectivity and functionality."""def __init__(self):.
 
-    def __init__(self):
         super().__init__("gong")
         self.details = {
             "api_key": bool(os.getenv("GONG_API_KEY", "")),
@@ -179,8 +173,8 @@ class GongTest(IntegrationTest):
         }
 
     async def _run_test(self) -> bool:
-        """Test Gong API connectivity and functionality"""
-        try:
+        """Test Gong API connectivity and functionality."""try:.
+
             import base64
 
             import requests
@@ -225,9 +219,8 @@ class GongTest(IntegrationTest):
 
 
 class VercelTest(IntegrationTest):
-    """Test Vercel API connectivity and functionality"""
+    """Test Vercel API connectivity and functionality."""def __init__(self):.
 
-    def __init__(self):
         super().__init__("vercel")
         self.details = {
             "api_token": bool(os.getenv("VERCEL_API_TOKEN", "")),
@@ -236,8 +229,8 @@ class VercelTest(IntegrationTest):
         }
 
     async def _run_test(self) -> bool:
-        """Test Vercel API connectivity and functionality"""
-        try:
+        """Test Vercel API connectivity and functionality."""try:.
+
             import requests
 
             # Check if credentials are provided
@@ -289,9 +282,8 @@ class VercelTest(IntegrationTest):
 
 
 class EstuaryTest(IntegrationTest):
-    """Test Estuary API connectivity and functionality"""
+    """Test Estuary API connectivity and functionality."""def __init__(self):.
 
-    def __init__(self):
         super().__init__("estuary")
         self.details = {
             "api_key": bool(os.getenv("ESTUARY_API_KEY", "")),
@@ -299,8 +291,8 @@ class EstuaryTest(IntegrationTest):
         }
 
     async def _run_test(self) -> bool:
-        """Test Estuary API connectivity and functionality"""
-        try:
+        """Test Estuary API connectivity and functionality."""try:.
+
             import requests
 
             # Create a session with SSL verification using certifi
@@ -352,15 +344,14 @@ class EstuaryTest(IntegrationTest):
 
 
 class MCPTest(IntegrationTest):
-    """Test MCP connectivity and functionality"""
+    """Test MCP connectivity and functionality."""def __init__(self):.
 
-    def __init__(self):
         super().__init__("mcp")
         self.details = {"config_path": os.getenv("MCP_CONFIG_PATH", "mcp_config.json")}
 
     async def _run_test(self) -> bool:
-        """Test MCP connectivity and functionality"""
-        try:
+        """Test MCP connectivity and functionality."""try:.
+
             # Check if config file exists
             config_path = os.getenv("MCP_CONFIG_PATH", "mcp_config.json")
             if not os.path.exists(config_path):
@@ -404,8 +395,8 @@ class MCPTest(IntegrationTest):
 async def run_tests(
     test_names: List[str], output_file: Optional[str] = None
 ) -> Dict[str, Any]:
-    """Run the specified integration tests"""
-    # Map test names to test classes
+    """Run the specified integration tests."""# Map test names to test classes.
+
     test_classes = {
         "snowflake": SnowflakeTest,
         "gong": GongTest,
@@ -487,8 +478,8 @@ async def run_tests(
 
 
 def parse_args():
-    """Parse command line arguments"""
-    parser = argparse.ArgumentParser(description="Run integration tests for Sophia AI")
+    """Parse command line arguments."""parser = argparse.ArgumentParser(description="Run integration tests for Sophia AI").
+
     parser.add_argument(
         "--tests",
         type=str,
@@ -504,7 +495,7 @@ def parse_args():
 
 
 async def main():
-    """Main entry point"""
+    """Main entry point."""
     args = parse_args()
 
     # Set log level

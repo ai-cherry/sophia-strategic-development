@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Pipedream.
-"""
+"""Pulumi ESC Secret Manager for Pipedream."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

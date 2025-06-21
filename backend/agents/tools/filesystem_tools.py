@@ -1,4 +1,5 @@
-"""Filesystem Tools for AI Agents
+"""Filesystem Tools for AI Agents.
+
 Provides safe, encapsulated tools for agents to read and write files
 within the project directory.
 """
@@ -16,10 +17,10 @@ class FilesystemTools:
         self.project_root = project_root.resolve()
 
     def _is_path_safe(self, path_to_check: Path) -> bool:
-        """Ensures the path is within the project directory to prevent
-        the agent from accessing arbitrary files on the system.
-        """
-        resolved_path = path_to_check.resolve()
+        """Ensures the path is within the project directory to prevent.
+
+                        the agent from accessing arbitrary files on the system.
+        """resolved_path = path_to_check.resolve().
         return (
             self.project_root in resolved_path.parents
             or self.project_root == resolved_path
@@ -28,13 +29,13 @@ class FilesystemTools:
     def read_file(self, file_path: str) -> str:
         """Reads the content of a file.
 
-        Args:
-            file_path: The relative path to the file from the project root.
+                        Args:
+                            file_path: The relative path to the file from the project root.
 
-        Returns:
-            The content of the file as a string, or an error message.
-        """
-        try:
+                        Returns:
+                            The content of the file as a string, or an error message.
+        """try:.
+
             full_path = self.project_root / file_path
             if not self._is_path_safe(full_path):
                 logger.error(f"Path traversal attempt blocked: {file_path}")
@@ -53,13 +54,13 @@ class FilesystemTools:
     def write_to_file(self, file_path: str, content: str, append: bool = False) -> str:
         """Writes content to a file.
 
-        Args:
-            file_path: The relative path to the file from the project root.
-            content: The content to write to the file.
-            append: If True, appends to the file. Otherwise, overwrites.
+                        Args:
+                            file_path: The relative path to the file from the project root.
+                            content: The content to write to the file.
+                            append: If True, appends to the file. Otherwise, overwrites.
 
-        Returns:
-            A success or error message.
+                        Returns:
+                            A success or error message.
         """
         try:
             full_path = self.project_root / file_path

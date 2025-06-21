@@ -1,4 +1,5 @@
-"""Sophia AI - Call Analysis Agent
+"""Sophia AI - Call Analysis Agent.
+
 Specialized agent for analyzing sales calls and extracting business insights
 
 This agent processes Gong.io call data to provide actionable insights for the sales team.
@@ -7,7 +8,9 @@ This agent processes Gong.io call data to provide actionable insights for the sa
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+import snowflake.connector
 
 from ..core.base_agent import (
     AgentCapability,
@@ -19,29 +22,40 @@ from ..core.base_agent import (
 )
 from ..integrations.gong.gong_integration import GongConfig, GongIntegration
 from ..integrations.hubspot.hubspot_integration import HubSpotConfig, HubSpotIntegration
+from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
 
 class CallAnalysisAgent(BaseAgent):
-    """Specialized agent for analyzing sales calls and extracting insights"""
+    """Specialized agent for analyzing sales calls and extracting insights.
+
+            Integrated with AgnoPerformanceOptimizer for ultra-fast instantiation and pooling.
+    """
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.gong_integration = None
         self.hubspot_integration = None
 
-    async def start(self):
-        """Start the agent and initialize integrations"""
-        await super().start()
+    @classmethod
+    async def pooled(cls, config: AgentConfig) -> 'CallAnalysisAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        # Register class if not already registered
+        await optimizer.register_agent_class('call_analysis', cls)
+        agent = await optimizer.get_or_create_agent('call_analysis', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided CallAnalysisAgent instance (pooled or new)")
+        return agent
 
+    async def start(self):
+        """Start the agent and initialize integrations."""
+        await super().start()
         # Initialize integrations
         gong_config = GongConfig()
         self.gong_integration = GongIntegration(gong_config)
-
         hubspot_config = HubSpotConfig()
         self.hubspot_integration = HubSpotIntegration(hubspot_config)
-
         logger.info("Call Analysis Agent started with integrations")
 
     async def get_capabilities(self) -> List[AgentCapability]:
@@ -85,10 +99,11 @@ class CallAnalysisAgent(BaseAgent):
         ]
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process assigned task based on type"""
+        """Process assigned task based on type."""
         try:
+        except Exception:
+            pass
             task_type = task.task_type
-
             if task_type == "analyze_call":
                 return await self._analyze_single_call(task)
             elif task_type == "batch_call_analysis":
@@ -99,14 +114,15 @@ class CallAnalysisAgent(BaseAgent):
                 return await self._analyze_for_coaching(task)
             else:
                 raise ValueError(f"Unknown task type: {task_type}")
-
         except Exception as e:
             logger.error(f"Call Analysis Agent task failed: {str(e)}")
             return await create_agent_response(False, error=str(e))
 
     async def _analyze_single_call(self, task: Task) -> Dict[str, Any]:
-        """Analyze a single call for insights"""
+        """Analyze a single call for insights."""
         try:
+        except Exception:
+            pass
             # Validate required fields
             if not await validate_task_data(task, ["call_id"]):
                 raise ValueError("Missing required field: call_id")
@@ -151,8 +167,10 @@ class CallAnalysisAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _analyze_multiple_calls(self, task: Task) -> Dict[str, Any]:
-        """Analyze multiple calls for trends and patterns"""
+        """Analyze multiple calls for trends and patterns."""
         try:
+        except Exception:
+            pass
             # Validate required fields
             if not await validate_task_data(task, ["date_range"]):
                 raise ValueError("Missing required field: date_range")
@@ -213,8 +231,10 @@ class CallAnalysisAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _sync_call_to_crm(self, task: Task) -> Dict[str, Any]:
-        """Sync call insights to CRM system"""
+        """Sync call insights to CRM system."""
         try:
+        except Exception:
+            pass
             # Validate required fields
             if not await validate_task_data(task, ["call_insights", "contact_email"]):
                 raise ValueError(
@@ -234,14 +254,18 @@ class CallAnalysisAgent(BaseAgent):
                     # Create new contact
                     contact_data = {
                         "email": contact_email,
-                        "firstname": call_insights.get("contact_name", "").split(" ")[0]
-                        if call_insights.get("contact_name")
-                        else "",
-                        "lastname": " ".join(
-                            call_insights.get("contact_name", "").split(" ")[1:]
-                        )
-                        if call_insights.get("contact_name")
-                        else "",
+                        "firstname": (
+                            call_insights.get("contact_name", "").split(" ")[0]
+                            if call_insights.get("contact_name")
+                            else ""
+                        ),
+                        "lastname": (
+                            " ".join(
+                                call_insights.get("contact_name", "").split(" ")[1:]
+                            )
+                            if call_insights.get("contact_name")
+                            else ""
+                        ),
                         "company": call_insights.get("company_name", ""),
                         "lifecyclestage": "lead",
                     }
@@ -299,8 +323,10 @@ class CallAnalysisAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _analyze_for_coaching(self, task: Task) -> Dict[str, Any]:
-        """Analyze call for coaching opportunities"""
+        """Analyze call for coaching opportunities."""
         try:
+        except Exception:
+            pass
             # Validate required fields
             if not await validate_task_data(task, ["call_id", "rep_email"]):
                 raise ValueError("Missing required fields: call_id, rep_email")
@@ -346,8 +372,10 @@ class CallAnalysisAgent(BaseAgent):
     async def _enhance_call_insights(
         self, call_insights: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Enhance call insights with additional business context"""
+        """Enhance call insights with additional business context."""
         try:
+        except Exception:
+            pass
             enhanced = call_insights.copy()
 
             # Add business intelligence
@@ -375,10 +403,12 @@ class CallAnalysisAgent(BaseAgent):
     async def _generate_call_recommendations(
         self, insights: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Generate actionable recommendations based on call insights"""
+        """Generate actionable recommendations based on call insights."""
         recommendations = []
 
         try:
+        except Exception:
+            pass
             # Analyze pain points for recommendations
             if insights.get("pain_points"):
                 for pain_point in insights["pain_points"]:
@@ -444,8 +474,10 @@ class CallAnalysisAgent(BaseAgent):
             return []
 
     async def _prepare_crm_updates(self, insights: Dict[str, Any]) -> Dict[str, Any]:
-        """Prepare CRM updates based on call insights"""
+        """Prepare CRM updates based on call insights."""
         try:
+        except Exception:
+            pass
             updates = {
                 "contact_updates": {},
                 "deal_updates": {},
@@ -491,7 +523,7 @@ class CallAnalysisAgent(BaseAgent):
             return {}
 
     def _format_call_note(self, insights: Dict[str, Any]) -> str:
-        """Format call insights as CRM note"""
+        """Format call insights as CRM note."""
         note_parts = [f"Call Analysis - {datetime.now().strftime('%Y-%m-%d %H:%M')}"]
 
         if insights.get("key_topics"):
@@ -511,7 +543,7 @@ class CallAnalysisAgent(BaseAgent):
         return "\n".join(note_parts)
 
     def _calculate_deal_priority(self, insights: Dict[str, Any]) -> str:
-        """Calculate deal priority based on insights"""
+        """Calculate deal priority based on insights."""
         score = 0
 
         # High-value indicators
@@ -535,8 +567,9 @@ class CallAnalysisAgent(BaseAgent):
             return "low"
 
     def _estimate_revenue_potential(self, insights: Dict[str, Any]) -> int:
-        """Estimate revenue potential from call insights"""
-        # This would integrate with actual pricing models
+        """Estimate revenue potential from call insights."""
+        # This would integrate with actual pricing models.
+
         base_value = 50000  # Default base value
 
         # Adjust based on company size indicators
@@ -550,7 +583,7 @@ class CallAnalysisAgent(BaseAgent):
         return int(base_value)
 
     def _estimate_close_probability(self, insights: Dict[str, Any]) -> int:
-        """Estimate close probability based on insights"""
+        """Estimate close probability based on insights."""
         probability = insights.get("success_probability", 50)
 
         # Adjust based on additional factors
@@ -566,7 +599,7 @@ class CallAnalysisAgent(BaseAgent):
         return max(0, min(100, probability))
 
     def _assess_competitive_risk(self, insights: Dict[str, Any]) -> str:
-        """Assess competitive risk level"""
+        """Assess competitive risk level."""
         if insights.get("competitor_mentions"):
             return "high"
         elif insights.get("objections"):
@@ -575,9 +608,8 @@ class CallAnalysisAgent(BaseAgent):
             return "low"
 
     def _calculate_urgency_score(self, insights: Dict[str, Any]) -> int:
-        """Calculate urgency score (0-100)"""
+        """Calculate urgency score (0-100)."""
         score = 50  # Base score
-
         if insights.get("urgency_level") == "high":
             score += 30
         elif insights.get("urgency_level") == "medium":
@@ -594,8 +626,8 @@ class CallAnalysisAgent(BaseAgent):
         return min(100, score)
 
     def _calculate_confidence_score(self, insights: Dict[str, Any]) -> float:
-        """Calculate confidence score for the analysis"""
-        score = 0.5  # Base confidence
+        """Calculate confidence score for the analysis."""
+        score = 0.5  # Base confidence.
 
         # Increase confidence based on data quality
         if insights.get("key_topics"):
@@ -615,7 +647,7 @@ class CallAnalysisAgent(BaseAgent):
     async def _analyze_call_trends(
         self, call_analyses: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Analyze trends across multiple calls"""
+        """Analyze trends across multiple calls."""
         if not call_analyses:
             return {}
 
@@ -666,7 +698,7 @@ class CallAnalysisAgent(BaseAgent):
     async def _generate_team_insights(
         self, call_analyses: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Generate team-level insights from call analyses"""
+        """Generate team-level insights from call analyses."""
         insights = {
             "team_performance": {
                 "average_call_quality": 0,
@@ -697,7 +729,7 @@ class CallAnalysisAgent(BaseAgent):
     async def _identify_coaching_opportunities(
         self, call_analyses: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Identify coaching opportunities from call analyses"""
+        """Identify coaching opportunities from call analyses."""
         opportunities = []
 
         # This would analyze patterns across calls to identify coaching needs
@@ -724,7 +756,7 @@ class CallAnalysisAgent(BaseAgent):
     async def _perform_coaching_analysis(
         self, call_insights: Dict[str, Any], sentiment_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Perform detailed coaching analysis"""
+        """Perform detailed coaching analysis."""
         analysis = {
             "strengths": [],
             "improvement_areas": [],
@@ -760,7 +792,7 @@ class CallAnalysisAgent(BaseAgent):
     async def _generate_improvement_plan(
         self, coaching_analysis: Dict[str, Any], rep_email: str
     ) -> Dict[str, Any]:
-        """Generate personalized improvement plan"""
+        """Generate personalized improvement plan."""
         plan = {
             "rep_email": rep_email,
             "focus_areas": coaching_analysis.get("improvement_areas", []),
@@ -788,8 +820,9 @@ class CallAnalysisAgent(BaseAgent):
 
     # Helper methods for business context
     async def _get_industry_context(self, insights: Dict[str, Any]) -> List[str]:
-        """Get relevant industry context"""
-        # This would integrate with industry databases
+        """Get relevant industry context."""
+        # This would integrate with industry databases.
+
         return [
             "Industry trend: Increased focus on automation",
             "Market condition: High demand for efficiency tools",
@@ -798,12 +831,13 @@ class CallAnalysisAgent(BaseAgent):
     async def _find_similar_deals(
         self, insights: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Find similar deals for context"""
-        # This would query CRM for similar deals
+        """Find similar deals for context."""
+        # This would query CRM for similar deals.
+
         return [{"deal_id": "example", "similarity_score": 0.85, "outcome": "won"}]
 
     async def _get_best_practices(self, insights: Dict[str, Any]) -> List[str]:
-        """Get relevant best practices"""
+        """Get relevant best practices."""
         return [
             "Follow up within 24 hours",
             "Send relevant case studies",
@@ -811,7 +845,7 @@ class CallAnalysisAgent(BaseAgent):
         ]
 
     def _map_deal_stage_to_lifecycle(self, deal_stage: str) -> str:
-        """Map deal stage to HubSpot lifecycle stage"""
+        """Map deal stage to HubSpot lifecycle stage."""
         mapping = {
             "discovery": "lead",
             "demo": "marketingqualifiedlead",
@@ -832,7 +866,7 @@ if __name__ == "__main__":
             specialization="call_analysis",
         )
 
-        agent = CallAnalysisAgent(config)
+        agent = await CallAnalysisAgent.pooled(config)
         await agent.start()
 
         # Keep running

@@ -1,4 +1,5 @@
-"""Agno MCP Server
+"""Agno MCP Server.
+
 Provides MCP tools for interacting with Agno's ultra-fast agent platform
 """
 
@@ -14,17 +15,16 @@ logger = logging.getLogger(__name__)
 
 class AgnoMCPServer(BaseMCPServer):
     """MCP server for Agno integration.
-    Provides tools for interacting with Agno's ultra-fast agent platform.
-    """
 
-    def __init__(self):
-        """Initialize the Agno MCP server."""
+            Provides tools for interacting with Agno's ultra-fast agent platform.
+    """def __init__(self):."""Initialize the Agno MCP server."""
+
         super().__init__("agno")
         self.initialized = False
 
     async def initialize(self):
-        """Initialize the Agno MCP server."""
-        if self.initialized:
+        """Initialize the Agno MCP server."""if self.initialized:.
+
             return
 
         try:
@@ -124,15 +124,15 @@ class AgnoMCPServer(BaseMCPServer):
     ) -> Dict[str, Any]:
         """Create a new agent in the Agno platform.
 
-        Args:
-            agent_id: The unique identifier for this agent
-            instructions: The instructions for the agent
-            model: The model to use for this agent
+                        Args:
+                            agent_id: The unique identifier for this agent
+                            instructions: The instructions for the agent
+                            model: The model to use for this agent
 
-        Returns:
-            Dict[str, Any]: The created agent
-        """
-        if not self.initialized:
+                        Returns:
+                            Dict[str, Any]: The created agent
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -157,15 +157,15 @@ class AgnoMCPServer(BaseMCPServer):
     ) -> Dict[str, Any]:
         """Process a request with an agent.
 
-        Args:
-            agent_id: The unique identifier for the agent
-            request: The request to process
-            stream: Whether to stream the response
+                        Args:
+                            agent_id: The unique identifier for the agent
+                            request: The request to process
+                            stream: Whether to stream the response
 
-        Returns:
-            Dict[str, Any]: The response
-        """
-        if not self.initialized:
+                        Returns:
+                            Dict[str, Any]: The response
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -195,10 +195,10 @@ class AgnoMCPServer(BaseMCPServer):
     async def get_pool_stats(self) -> Dict[str, Any]:
         """Get statistics about the agent pool.
 
-        Returns:
-            Dict[str, Any]: Statistics about the agent pool
-        """
-        if not self.initialized:
+                        Returns:
+                            Dict[str, Any]: Statistics about the agent pool
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -216,15 +216,15 @@ class AgnoMCPServer(BaseMCPServer):
     ) -> Dict[str, Any]:
         """Register a new tool for Agno agents.
 
-        Args:
-            name: The name of the tool
-            description: The description of the tool
-            parameters: The parameters for the tool
+                        Args:
+                            name: The name of the tool
+                            description: The description of the tool
+                            parameters: The parameters for the tool
 
-        Returns:
-            Dict[str, Any]: The result of the registration
-        """
-        if not self.initialized:
+                        Returns:
+                            Dict[str, Any]: The result of the registration
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -245,8 +245,8 @@ class AgnoMCPServer(BaseMCPServer):
     async def health_check(self) -> Dict[str, Any]:
         """Perform a health check.
 
-        Returns:
-            Dict[str, Any]: The health check result
+                        Returns:
+                            Dict[str, Any]: The health check result
         """
         try:
             # Check if Agno integration is initialized

@@ -2,32 +2,76 @@
 
 A comprehensive AI platform with MCP (Model Context Protocol) integration, deployed on Lambda Labs infrastructure.
 
-## Quick Start
+## 🚀 AI-First Codebase: Optimized for AI Coding Agents
 
-### Prerequisites
-- Docker installed and configured
-- Pulumi CLI with access token
-- SSH access to Lambda Labs server
-- GitHub organization access for secrets
+**This repository is designed for AI-first development.**
+- All core logic, agent orchestration, and performance monitoring are structured for seamless collaboration between human and AI coders.
+- The codebase is fully integrated with AgnoPerformanceOptimizer and supports ultra-fast, pooled agent instantiation.
+- Live agent performance metrics are available via API and the CEO dashboard.
 
-### Deployment
-```bash
-# Clone the repository
-git clone https://github.com/ai-cherry/sophia-main.git
-cd sophia-main
-# Set Pulumi token (required for all setup scripts)
-export PULUMI_ACCESS_TOKEN=your_token_here
+## 🧠 Quickstart for AI Coders
 
-# Install Python dependencies
-pip install -r requirements.txt
-# Or use the optional setup script
-# ./setup.sh
+- **Agent Instantiation:**
+  - Use the `pooled` classmethod for all major agents (e.g., `await SalesCoachAgent.pooled(config)`).
+  - All agents are registered with AgnoPerformanceOptimizer for pooling and performance tracking.
+- **Performance Metrics:**
+  - Access live metrics at `/api/metrics/agno-performance` (see CEO dashboard for visualization).
+- **Code Structure:**
+  - Feature-based, vertical slice architecture for easy navigation by AI tools.
+  - All business logic, integrations, and workflows are grouped by feature.
+- **API Integration:**
+  - All endpoints are documented with clear input/output schemas.
+  - Use the FastAPI OpenAPI docs at `/docs` for live API exploration.
 
-# Deploy the platform
-./deploy_sophia_platform.sh
-```
+## 🏗️ Agent Pooling & Performance
 
-## Current Infrastructure
+- **AgnoPerformanceOptimizer:**
+  - Provides ultra-fast (~3μs) agent instantiation and memory pooling.
+  - All agents are pooled by type for high concurrency and efficiency.
+  - Performance metrics (instantiation time, pool size, memory usage) are tracked and available via API.
+- **How to Use:**
+  - Register new agent classes with the optimizer for pooling.
+  - Use the `pooled` classmethod for all agent instantiation in orchestrators, routers, and tests.
+
+## 📊 Live Monitoring & CEO Dashboard
+
+- **CEO Dashboard:**
+  - View live agent performance metrics, business KPIs, and system health in one place.
+  - Accessible at `/ceo-dashboard` (see frontend for details).
+- **API Metrics:**
+  - `/api/metrics/agno-performance` returns real-time agent performance data for dashboards and monitoring tools.
+
+## 📚 Documentation for AI & Human Developers
+
+- **AI-First Documentation:**
+  - All docstrings, comments, and guides are structured for easy parsing by AI coding agents.
+  - Key integration points, agent APIs, and performance hooks are clearly marked.
+- **Human-Friendly Guides:**
+  - See `docs/AGNO_VSA_IMPLEMENTATION_PLAN.md` and `docs/AGNO_VSA_IMPLEMENTATION_ROADMAP.md` for architecture and migration details.
+  - All configuration files are YAML/JSON and include inline comments for clarity.
+- **API Reference:**
+  - FastAPI OpenAPI docs at `/docs`.
+  - Agent pooling and performance API at `/api/metrics/agno-performance`.
+
+## 📝 Contributing (AI & Human)
+
+- All code contributions should use the pooled agent pattern and follow the vertical slice architecture.
+- Document new agents, endpoints, and performance hooks with clear, AI-readable docstrings and comments.
+- Use the CEO dashboard and API metrics to monitor performance impact of changes.
+
+## 🛡️ Security & Best Practices
+
+- All secrets and credentials are managed via Pulumi ESC and GitHub Organization Secrets.
+- Never hardcode secrets or credentials in code or configuration files.
+- See `backend/core/auto_esc_config.py` for secure secret loading patterns.
+
+## 📦 Deployment & Rollout
+
+- All changes are feature-flagged and can be rolled out safely.
+- Use the deployment checklist in `docs/AGNO_VSA_IMPLEMENTATION_ROADMAP.md` before going live.
+- Monitor live metrics and system health via the CEO dashboard during and after deployment.
+
+## 📚 Current Infrastructure
 
 ### Server Configuration
 - **Provider**: Lambda Labs
@@ -43,7 +87,7 @@ pip install -r requirements.txt
 - **AI Models**: Anthropic Claude, OpenAI GPT
 - **Monitoring**: Comprehensive logging and metrics
 
-## Architecture
+## 📋 Architecture
 
 ### MCP Integration
 The platform uses Model Context Protocol (MCP) for standardized AI-tool communication:
@@ -62,7 +106,7 @@ External APIs → Airbyte → Snowflake → Vector Processing → Pinecone → A
 - **Communication**: Slack for team collaboration
 - **Analytics**: Arize for AI model monitoring
 
-## Configuration Management
+## 📋 Configuration Management
 
 ### Secret Management
 - **Primary**: GitHub Organization Secrets (158 configured)
@@ -76,7 +120,7 @@ External APIs → Airbyte → Snowflake → Vector Processing → Pinecone → A
 - `PINECONE_API_KEY`: Vector database
 - `LAMBDA_API_KEY`: Infrastructure management
 
-## Development
+## 📋 Development
 
 ### Local Setup
 ```bash
@@ -100,7 +144,7 @@ cd mcp-servers/[server-name]
 python main.py
 ```
 
-## Deployment
+## 📋 Deployment
 
 ### Infrastructure Deployment
 ```bash
@@ -117,7 +161,7 @@ Applications are automatically deployed via Kubernetes manifests when infrastruc
 - **Metrics**: Prometheus + Grafana
 - **Alerts**: Automated alerting for critical issues
 
-## Security
+## 📋 Security
 
 ### Access Control
 - SSH key-based authentication
@@ -131,7 +175,7 @@ Applications are automatically deployed via Kubernetes manifests when infrastruc
 - Regular security updates
 - Audit logging
 
-## Performance
+## 📋 Performance
 
 ### Current Capacity
 - **AI Workloads**: Up to 24GB GPU memory
@@ -144,7 +188,7 @@ Applications are automatically deployed via Kubernetes manifests when infrastruc
 - **Horizontal**: Multi-instance deployment
 - **Auto-scaling**: Kubernetes HPA
 
-## Troubleshooting
+## 📋 Troubleshooting
 
 ### Common Issues
 1. **SSH Connection Failed**: Verify SSH key configuration
@@ -157,7 +201,7 @@ Applications are automatically deployed via Kubernetes manifests when infrastruc
 - **Issues**: GitHub Issues
 - **Emergency**: Contact platform team
 
-## Contributing
+## 📋 Contributing
 
 ### Development Workflow
 1. Fork the repository
@@ -172,7 +216,7 @@ Applications are automatically deployed via Kubernetes manifests when infrastruc
 - Infrastructure: Pulumi best practices
 - Documentation: Markdown with clear examples
 
-## License
+## 📋 License
 
 This project is proprietary to AI-Cherry organization.
 
@@ -183,4 +227,3 @@ This project is proprietary to AI-Cherry organization.
 **Maintained By**: Sophia AI Platform Team
 
 For detailed configuration information, see [DEPLOYMENT_CONFIGURATION_GUIDE.md](./DEPLOYMENT_CONFIGURATION_GUIDE.md)
-

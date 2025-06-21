@@ -17,7 +17,7 @@ from .persistent_memory import PersistentMemory
 
 @dataclass
 class SophiaAgentConfig:
-    """Configuration for a SOPHIA agent"""
+    """Configuration for a SOPHIA agent."""
 
     name: str
     role: str
@@ -33,9 +33,8 @@ class SophiaAgentConfig:
 
 @dataclass
 class SophiaTaskConfig:
-    """Configuration for a SOPHIA task"""
+    """Configuration for a SOPHIA task."""description: str.
 
-    description: str
     expected_output: str
     agent_name: str
     context: Optional[str] = None
@@ -44,9 +43,8 @@ class SophiaTaskConfig:
 
 
 class CrewOrchestrator:
-    """Orchestrator for CrewAI agents"""
+    """Orchestrator for CrewAI agents."""def __init__(self):.
 
-    def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.resource_orchestrator = SophiaResourceOrchestrator()
         self.agents: Dict[str, Agent] = {}
@@ -55,8 +53,8 @@ class CrewOrchestrator:
         self.initialized = False
 
     async def initialize(self):
-        """Initialize the CrewAI orchestrator"""
-        if self.initialized:
+        """Initialize the CrewAI orchestrator."""if self.initialized:.
+
             return
 
         try:
@@ -74,8 +72,8 @@ class CrewOrchestrator:
             raise
 
     async def create_agent(self, config: SophiaAgentConfig) -> Agent:
-        """Create a CrewAI agent"""
-        if not self.initialized:
+        """Create a CrewAI agent."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -130,8 +128,8 @@ class CrewOrchestrator:
             raise
 
     async def create_task(self, config: SophiaTaskConfig) -> Task:
-        """Create a CrewAI task"""
-        if not self.initialized:
+        """Create a CrewAI task."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -181,8 +179,8 @@ class CrewOrchestrator:
         process: Process = Process.sequential,
         verbose: bool = True,
     ) -> Crew:
-        """Create a CrewAI crew"""
-        if not self.initialized:
+        """Create a CrewAI crew."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -217,8 +215,8 @@ class CrewOrchestrator:
     async def run_crew(
         self, name: str, inputs: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Run a CrewAI crew"""
-        if not self.initialized:
+        """Run a CrewAI crew."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -257,8 +255,8 @@ class CrewOrchestrator:
     async def run_task(
         self, task_id: str, context: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Run a single CrewAI task"""
-        if not self.initialized:
+        """Run a single CrewAI task."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -302,8 +300,8 @@ class CrewOrchestrator:
         manager_task_config: SophiaTaskConfig,
         worker_task_configs: List[SophiaTaskConfig],
     ) -> Dict[str, Any]:
-        """Create a hierarchical crew with a manager and workers"""
-        if not self.initialized:
+        """Create a hierarchical crew with a manager and workers."""if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -368,7 +366,7 @@ class CrewOrchestrator:
             raise
 
     def _convert_mcp_tool_to_langchain(self, mcp_tool: Dict[str, Any]) -> BaseTool:
-        """Convert an MCP tool to a LangChain tool"""
+        """Convert an MCP tool to a LangChain tool."""
         # Create a LangChain tool that wraps the MCP tool
         tool_name = mcp_tool["name"]
         tool_description = mcp_tool["description"]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Claude MCP Integration for Sophia AI
+"""Claude MCP Integration for Sophia AI.
+
 Secure implementation with environment variables only
 """
 
@@ -14,16 +15,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ClaudeCredentials:
-    """Claude API credentials"""
+    """Claude API credentials."""
 
     api_key: str
 
 
 @dataclass
 class GitHubCredentials:
-    """GitHub credentials for MCP integration"""
-
-    token: Optional[str] = None
+    """GitHub credentials for MCP integration."""token: Optional[str] = None.
 
     def __post_init__(self):
         if not self.token:
@@ -31,11 +30,10 @@ class GitHubCredentials:
 
 
 class ClaudeMCPServer:
-    """Claude MCP (Model Context Protocol) Server
-    Provides secure integration with Claude AI for Pay Ready
-    """
+    """Claude MCP (Model Context Protocol) Server.
 
-    def __init__(
+            Provides secure integration with Claude AI for Pay Ready
+    """def __init__(.
         self, claude_creds: ClaudeCredentials, github_creds: GitHubCredentials
     ):
         self.claude_creds = claude_creds
@@ -43,8 +41,8 @@ class ClaudeMCPServer:
         self._validate_credentials()
 
     def _validate_credentials(self):
-        """Validate that all required credentials are present"""
-        if not self.claude_creds.api_key:
+        """Validate that all required credentials are present."""if not self.claude_creds.api_key:.
+
             raise ValueError("Claude API key is required")
 
         if not self.claude_creds.api_key.startswith("sk-ant-"):
@@ -53,8 +51,8 @@ class ClaudeMCPServer:
         logger.info("Claude MCP credentials validated successfully")
 
     async def initialize_mcp_server(self) -> bool:
-        """Initialize the MCP server with secure configuration"""
-        try:
+        """Initialize the MCP server with secure configuration."""try:.
+
             logger.info("Initializing Claude MCP server...")
 
             # MCP server initialization logic would go here
@@ -68,8 +66,8 @@ class ClaudeMCPServer:
             return False
 
     async def process_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        """Process an MCP request securely"""
-        try:
+        """Process an MCP request securely."""try:.
+
             # Request processing logic would go here
             response = {
                 "status": "success",
@@ -88,8 +86,8 @@ class ClaudeMCPServer:
             }
 
     def get_server_status(self) -> Dict[str, Any]:
-        """Get MCP server status"""
-        return {
+        """Get MCP server status."""return {.
+
             "status": "running",
             "claude_api_configured": bool(self.claude_creds.api_key),
             "github_configured": bool(self.github_creds.token),
@@ -98,18 +96,18 @@ class ClaudeMCPServer:
 
 
 class PayReadyMCPIntegration:
-    """Pay Ready specific MCP integration
-    Handles apartment industry specific AI workflows
-    """
+    """Pay Ready specific MCP integration.
 
-    def __init__(self, mcp_server: ClaudeMCPServer):
+            Handles apartment industry specific AI workflows
+    """def __init__(self, mcp_server: ClaudeMCPServer):.
+
         self.mcp_server = mcp_server
 
     async def analyze_apartment_conversation(
         self, conversation_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Analyze apartment-related conversations using Claude MCP"""
-        try:
+        """Analyze apartment-related conversations using Claude MCP."""try:.
+
             # Apartment conversation analysis logic
             analysis_request = {
                 "type": "conversation_analysis",
@@ -127,8 +125,8 @@ class PayReadyMCPIntegration:
     async def generate_lease_insights(
         self, lease_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Generate insights for lease management"""
-        try:
+        """Generate insights for lease management."""try:.
+
             # Lease insights generation logic
             insights_request = {
                 "type": "lease_analysis",
@@ -146,8 +144,8 @@ class PayReadyMCPIntegration:
     async def process_maintenance_request(
         self, maintenance_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Process maintenance requests using AI"""
-        try:
+        """Process maintenance requests using AI."""try:.
+
             # Maintenance request processing logic
             maintenance_request = {
                 "type": "maintenance_analysis",
@@ -164,8 +162,8 @@ class PayReadyMCPIntegration:
 
 
 async def setup_claude_mcp_integration():
-    """Main function to set up Claude MCP integration for Pay Ready"""
-    # Initialize Claude credentials from environment
+    """Main function to set up Claude MCP integration for Pay Ready."""# Initialize Claude credentials from environment.
+
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY environment variable is required")
@@ -196,7 +194,7 @@ async def setup_claude_mcp_integration():
 
 
 def get_mcp_configuration() -> Dict[str, Any]:
-    """Get MCP configuration for Pay Ready"""
+    """Get MCP configuration for Pay Ready."""
     return {
         "claude_api_required": True,
         "github_token_optional": True,

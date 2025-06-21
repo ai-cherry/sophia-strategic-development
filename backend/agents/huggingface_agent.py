@@ -1,4 +1,5 @@
-"""Hugging Face Agent for Sophia AI
+"""Hugging Face Agent for Sophia AI.
+
 Handles interaction with the Hugging Face ecosystem via the HuggingFaceIntegration.
 """
 
@@ -12,8 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class HuggingFaceAgent(BaseAgent):
-    """An agent that specializes in using the Hugging Face Hub to find models,
-    datasets, papers, and run Spaces.
+    """An agent that specializes in using the Hugging Face Hub to find models,.
+
+            datasets, papers, and run Spaces.
     """
 
     def __init__(self, config: AgentConfig, hf_integration: HuggingFaceIntegration):
@@ -21,14 +23,15 @@ class HuggingFaceAgent(BaseAgent):
         self.hf_integration = hf_integration
 
     async def execute_task(self, task: Task) -> TaskResult:
-        """Executes a task by interpreting the natural language command and calling
-        the appropriate method on the HuggingFaceIntegration.
+        """Executes a task by interpreting the natural language command and calling.
 
-        Args:
-            task: The task to execute.
+                        the appropriate method on the HuggingFaceIntegration.
 
-        Returns:
-            A TaskResult with the status and formatted output.
+                        Args:
+                            task: The task to execute.
+
+                        Returns:
+                            A TaskResult with the status and formatted output.
         """
         command = task.command.lower()
 
@@ -68,6 +71,7 @@ class HuggingFaceAgent(BaseAgent):
 
     def _extract_query(self, command: str, keyword: str) -> str:
         """A simple helper to extract the search query from a command."""
+
         try:
             # e.g., "search for models about text generation" -> "text generation"
             return command.split("about")[-1].strip()
@@ -75,13 +79,13 @@ class HuggingFaceAgent(BaseAgent):
             return command  # fallback
 
     def _extract_paper_id(self, command: str) -> str:
-        """Finds an arXiv-style ID in the command string."""
-        match = re.search(r"\d{4}\.\d{5}", command)
+        """Finds an arXiv-style ID in the command string."""match = re.search(r"\d{4}\.\d{5}", command).
+
         return match.group(0) if match else None
 
     def _format_model_results(self, models: list) -> str:
-        """Formats a list of models into a readable string."""
-        if not models or "error" in models[0]:
+        """Formats a list of models into a readable string."""if not models or "error" in models[0]:.
+
             return "Could not find any matching models."
 
         lines = ["Found the following models on Hugging Face:"]

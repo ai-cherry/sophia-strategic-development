@@ -1,4 +1,5 @@
-"""Master Data Workflow Runner
+"""Master Data Workflow Runner.
+
 This script provides a command-line interface to trigger the various data
 transformation and vectorization workflows within the Sophia AI system.
 """
@@ -22,8 +23,8 @@ logger = logging.getLogger(__name__)
 async def run_workflow(workflow_name: str):
     """Selects and runs the specified data processing workflow.
 
-    Args:
-        workflow_name: The name of the workflow to run ('gong' or 'slack').
+        Args:
+            workflow_name: The name of the workflow to run ('gong' or 'slack').
     """
     logger.info(f"--- Triggering '{workflow_name}' Data Workflow ---")
 

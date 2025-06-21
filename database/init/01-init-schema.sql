@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 );
 
 -- Insert Pay Ready company data
-INSERT INTO companies (name, industry, founded_date, headquarters, website, description) 
+INSERT INTO companies (name, industry, founded_date, headquarters, website, description)
 VALUES (
     'Pay Ready',
     'Financial Technology',
@@ -124,7 +124,7 @@ VALUES (
 
 -- Insert sample financial metrics for Pay Ready
 INSERT INTO financial_metrics (company_id, metric_date, revenue, profit, expenses, growth_rate, market_share)
-SELECT 
+SELECT
     c.id,
     DATE '2024-01-01' + (interval '1 month' * generate_series(0, 5)),
     45000 + (generate_series(0, 5) * 3000) + (random() * 5000)::int,
@@ -136,7 +136,7 @@ FROM companies c WHERE c.name = 'Pay Ready';
 
 -- Insert sample customer metrics
 INSERT INTO customer_metrics (company_id, metric_date, total_customers, new_customers, churned_customers, retention_rate, acquisition_cost, lifetime_value)
-SELECT 
+SELECT
     c.id,
     DATE '2024-01-01' + (interval '1 month' * generate_series(0, 5)),
     120 + (generate_series(0, 5) * 25) + (random() * 10)::int,
@@ -149,7 +149,7 @@ FROM companies c WHERE c.name = 'Pay Ready';
 
 -- Insert sample strategic initiatives
 INSERT INTO strategic_initiatives (company_id, title, description, status, priority, start_date, target_date, progress_percentage, budget, owner)
-SELECT 
+SELECT
     c.id,
     initiative.title,
     initiative.description,
@@ -160,9 +160,9 @@ SELECT
     initiative.progress,
     initiative.budget,
     initiative.owner
-FROM companies c 
+FROM companies c
 CROSS JOIN (
-    VALUES 
+    VALUES
     ('Market Expansion', 'Expand into new geographic markets', 'in_progress', 'high', '2024-01-01', '2024-12-31', 75, 500000, 'CEO'),
     ('Product Innovation', 'Develop next-generation payment platform', 'in_progress', 'high', '2024-02-01', '2024-10-31', 60, 750000, 'CTO'),
     ('Customer Retention', 'Implement advanced customer success program', 'in_progress', 'medium', '2024-03-01', '2024-09-30', 85, 200000, 'VP Customer Success')
@@ -177,4 +177,3 @@ CREATE INDEX IF NOT EXISTS idx_competitive_analysis_company ON competitive_analy
 CREATE INDEX IF NOT EXISTS idx_operational_metrics_company_date ON operational_metrics(company_id, metric_date);
 CREATE INDEX IF NOT EXISTS idx_ai_insights_company ON ai_insights(company_id);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(session_token);
-

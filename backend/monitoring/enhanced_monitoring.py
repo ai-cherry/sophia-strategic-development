@@ -1,4 +1,5 @@
-"""Sophia AI - Enhanced Monitoring System
+"""Sophia AI - Enhanced Monitoring System.
+
 Production-grade monitoring with business intelligence metrics
 
 This module provides comprehensive monitoring for:
@@ -45,7 +46,7 @@ class MonitoringConfig:
 
 
 class SophiaMonitoringSystem:
-    """Enhanced monitoring system for Sophia AI platform"""
+    """Enhanced monitoring system for Sophia AI platform."""
 
     def __init__(self, config: MonitoringConfig = None):
         self.config = config or MonitoringConfig()
@@ -67,8 +68,8 @@ class SophiaMonitoringSystem:
         }
 
     async def start(self):
-        """Start the monitoring system"""
-        try:
+        """Start the monitoring system."""try:.
+
             # Connect to Redis
             self.redis_client = redis.from_url(self.config.redis_url)
 
@@ -89,8 +90,8 @@ class SophiaMonitoringSystem:
             raise
 
     async def stop(self):
-        """Stop the monitoring system"""
-        try:
+        """Stop the monitoring system."""try:.
+
             self.is_running = False
 
             # Cancel monitoring tasks
@@ -110,8 +111,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Error stopping monitoring system: {str(e)}")
 
     async def _monitor_system_metrics(self):
-        """Monitor system performance metrics"""
-        while self.is_running:
+        """Monitor system performance metrics."""while self.is_running:.
+
             try:
                 # Collect system metrics
                 metrics = await self._collect_system_metrics()
@@ -132,8 +133,8 @@ class SophiaMonitoringSystem:
                 await asyncio.sleep(self.config.monitoring_interval)
 
     async def _monitor_business_metrics(self):
-        """Monitor business intelligence metrics"""
-        while self.is_running:
+        """Monitor business intelligence metrics."""while self.is_running:.
+
             try:
                 # Collect business metrics
                 metrics = await self._collect_business_metrics()
@@ -151,8 +152,8 @@ class SophiaMonitoringSystem:
                 await asyncio.sleep(self.config.business_metrics_interval)
 
     async def _monitor_agent_performance(self):
-        """Monitor AI agent performance"""
-        while self.is_running:
+        """Monitor AI agent performance."""while self.is_running:.
+
             try:
                 # Collect agent metrics
                 metrics = await self._collect_agent_metrics()
@@ -170,8 +171,8 @@ class SophiaMonitoringSystem:
                 await asyncio.sleep(self.config.monitoring_interval)
 
     async def _monitor_integration_health(self):
-        """Monitor health of external integrations"""
-        while self.is_running:
+        """Monitor health of external integrations."""while self.is_running:.
+
             try:
                 # Check integration health
                 health_status = await self._check_integration_health()
@@ -191,8 +192,8 @@ class SophiaMonitoringSystem:
                 await asyncio.sleep(self.config.monitoring_interval * 2)
 
     async def _collect_system_metrics(self) -> Dict[str, Any]:
-        """Collect system performance metrics"""
-        try:
+        """Collect system performance metrics."""try:.
+
             # CPU metrics
             cpu_percent = psutil.cpu_percent(interval=1)
             cpu_count = psutil.cpu_count()
@@ -242,8 +243,8 @@ class SophiaMonitoringSystem:
             return {}
 
     async def _collect_business_metrics(self) -> Dict[str, Any]:
-        """Collect business intelligence metrics"""
-        try:
+        """Collect business intelligence metrics."""try:.
+
             # In a real implementation, these would come from:
             # - HubSpot API for deals and revenue
             # - Database queries for customer counts
@@ -283,8 +284,8 @@ class SophiaMonitoringSystem:
             return {}
 
     async def _collect_agent_metrics(self) -> Dict[str, Any]:
-        """Collect AI agent performance metrics"""
-        try:
+        """Collect AI agent performance metrics."""try:.
+
             # In a real implementation, this would query agent activity logs
             # and performance databases
 
@@ -323,8 +324,7 @@ class SophiaMonitoringSystem:
             return {}
 
     async def _check_integration_health(self) -> Dict[str, Any]:
-        """Check health of external integrations"""
-        health_status = {"timestamp": datetime.now().isoformat()}
+        """Check health of external integrations."""health_status = {"timestamp": datetime.now().isoformat()}.
 
         # Check HubSpot
         try:
@@ -385,8 +385,8 @@ class SophiaMonitoringSystem:
         return health_status
 
     async def _store_metrics(self, metric_type: str, metrics: Dict[str, Any]):
-        """Store metrics in Redis with expiration"""
-        try:
+        """Store metrics in Redis with expiration."""try:.
+
             if not metrics:
                 return
 
@@ -412,8 +412,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Failed to store {metric_type} metrics: {str(e)}")
 
     async def _check_system_thresholds(self, metrics: Dict[str, Any]):
-        """Check system metrics against thresholds and generate alerts"""
-        try:
+        """Check system metrics against thresholds and generate alerts."""try:.
+
             alerts = []
 
             # Check CPU usage
@@ -463,8 +463,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Failed to check system thresholds: {str(e)}")
 
     async def _check_agent_thresholds(self, metrics: Dict[str, Any]):
-        """Check agent performance thresholds"""
-        try:
+        """Check agent performance thresholds."""try:.
+
             alerts = []
 
             for agent_name, agent_metrics in metrics.items():
@@ -496,8 +496,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Failed to check agent thresholds: {str(e)}")
 
     async def _check_integration_alerts(self, health_status: Dict[str, Any]):
-        """Check integration health and generate alerts"""
-        try:
+        """Check integration health and generate alerts."""try:.
+
             alerts = []
 
             for integration, status in health_status.items():
@@ -523,8 +523,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Failed to check integration alerts: {str(e)}")
 
     async def _generate_alert(self, alert: Dict[str, Any]):
-        """Generate and store alert"""
-        try:
+        """Generate and store alert."""try:.
+
             alert["timestamp"] = datetime.now().isoformat()
             alert["id"] = f"alert_{int(time.time())}_{alert['type']}"
 
@@ -554,8 +554,8 @@ class SophiaMonitoringSystem:
             logger.error(f"Failed to generate alert: {str(e)}")
 
     async def _process_alerts(self):
-        """Process and manage alerts"""
-        while self.is_running:
+        """Process and manage alerts."""while self.is_running:.
+
             try:
                 # This would implement alert processing logic:
                 # - Deduplication
@@ -571,8 +571,8 @@ class SophiaMonitoringSystem:
 
     # Public API methods
     async def get_current_metrics(self) -> Dict[str, Any]:
-        """Get current system metrics"""
-        return {
+        """Get current system metrics."""return {.
+
             "system": self.current_metrics,
             "business": self.business_metrics,
             "timestamp": datetime.now().isoformat(),
@@ -581,8 +581,8 @@ class SophiaMonitoringSystem:
     async def get_metrics_history(
         self, metric_type: str, hours: int = 24
     ) -> List[Dict[str, Any]]:
-        """Get historical metrics"""
-        try:
+        """Get historical metrics."""try:.
+
             end_time = int(time.time())
             start_time = end_time - (hours * 3600)
 
@@ -605,11 +605,10 @@ class SophiaMonitoringSystem:
             return []
 
     async def get_recent_alerts(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Get recent alerts"""
-        return self.alert_history[-limit:] if self.alert_history else []
+        """Get recent alerts."""return self.alert_history[-limit:] if self.alert_history else [].
 
     async def health_check(self) -> Dict[str, Any]:
-        """Perform monitoring system health check"""
+        """Perform monitoring system health check."""
         try:
             health = {
                 "status": "healthy",
@@ -628,9 +627,11 @@ class SophiaMonitoringSystem:
             # Check monitoring tasks
             running_tasks = sum(1 for task in self.monitoring_tasks if not task.done())
             health["components"]["monitoring_tasks"] = {
-                "status": "healthy"
-                if running_tasks == len(self.monitoring_tasks)
-                else "degraded",
+                "status": (
+                    "healthy"
+                    if running_tasks == len(self.monitoring_tasks)
+                    else "degraded"
+                ),
                 "running": running_tasks,
                 "total": len(self.monitoring_tasks),
             }

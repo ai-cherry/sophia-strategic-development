@@ -19,31 +19,31 @@ jobs:
   security-validation:
     runs-on: ubuntu-latest
     name: Security Validation
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Security scan
       run: |
         echo "🔒 Running security validation..."
-        
+
         # Check for hardcoded secrets (critical security check)
         if grep -r "sk-ant-api03-" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded Anthropic API keys found!"
           exit 1
         fi
-        
+
         if grep -r "Huskers1983" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded passwords found!"
           exit 1
         fi
-        
+
         if grep -r "FP71296" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded Snowflake credentials found!"
           exit 1
         fi
-        
+
         echo "✅ Security validation passed"
 
   deploy-production:
@@ -51,42 +51,42 @@ jobs:
     name: Deploy to Production
     needs: security-validation
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Validate secrets availability
       run: |
         echo "🔑 Validating deployment secrets..."
-        
+
         # Check critical secrets
         MISSING_SECRETS=()
-        
+
         if [ -z "${{ secrets.LAMBDA_LABS_API_KEY }}" ]; then
           MISSING_SECRETS+=("LAMBDA_LABS_API_KEY")
         fi
-        
+
         if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
           MISSING_SECRETS+=("ANTHROPIC_API_KEY")
         fi
-        
+
         if [ -z "${{ secrets.PULUMI_ACCESS_TOKEN }}" ]; then
           MISSING_SECRETS+=("PULUMI_ACCESS_TOKEN")
         fi
-        
+
         if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
           echo "⚠️ Missing optional secrets: ${MISSING_SECRETS[*]}"
           echo "Deployment will continue with available secrets"
         else
           echo "✅ All deployment secrets available"
         fi
-    
+
     - name: Deploy Lambda Labs Infrastructure
       env:
         LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
@@ -95,19 +95,19 @@ jobs:
         LAMBDA_LABS_SSH_KEY_NAME: sophia-ai-key
       run: |
         echo "🚀 Deploying to Lambda Labs..."
-        
+
         if [ -n "$LAMBDA_LABS_API_KEY" ]; then
           # Install deployment dependencies
           pip install aiohttp python-dotenv
-          
+
           # Run Lambda Labs deployment
           ./deploy_lambda_labs.sh
-          
+
           echo "✅ Lambda Labs deployment completed"
         else
           echo "⚠️ LAMBDA_LABS_API_KEY not available - skipping Lambda Labs deployment"
         fi
-    
+
     - name: Deploy with Pulumi ESC
       env:
         PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -120,43 +120,43 @@ jobs:
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
       run: |
         echo "🏗️ Deploying with Pulumi ESC..."
-        
+
         if [ -n "$PULUMI_ACCESS_TOKEN" ]; then
           # Install Pulumi
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          
+
           # Install Python dependencies
           pip install pulumi pulumi-aws pulumi-gcp
-          
+
           cd infrastructure
-          
+
           # Deploy infrastructure
           pulumi stack select ai-cherry/sophia-ai-production || pulumi stack init ai-cherry/sophia-ai-production
           pulumi up --yes --skip-preview
-          
+
           echo "✅ Pulumi ESC deployment completed"
         else
           echo "⚠️ PULUMI_ACCESS_TOKEN not available - skipping Pulumi deployment"
         fi
-    
+
     - name: Build and push Docker image
       run: |
         echo "🐳 Building and pushing Docker image..."
-        
+
         # Login to GitHub Container Registry
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-        
+
         # Build image
         docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
         docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-        
+
         # Push images
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-        
+
         echo "✅ Docker images pushed successfully"
-    
+
     - name: Deploy Frontend to Vercel
       env:
         VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
@@ -164,25 +164,25 @@ jobs:
         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       run: |
         echo "🌐 Deploying frontend to Vercel..."
-        
+
         if [ -n "$VERCEL_ACCESS_TOKEN" ]; then
           cd frontend
-          
+
           # Install Node.js dependencies
           npm ci
-          
+
           # Install Vercel CLI
           npm install -g vercel
-          
+
           # Build and deploy
           npm run build
           vercel --prod --token=$VERCEL_ACCESS_TOKEN --yes
-          
+
           echo "✅ Frontend deployed to Vercel"
         else
           echo "⚠️ VERCEL_ACCESS_TOKEN not available - skipping Vercel deployment"
         fi
-    
+
     - name: Post-deployment validation
       env:
         LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
@@ -190,19 +190,19 @@ jobs:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
         echo "🏥 Running post-deployment validation..."
-        
+
         # Install validation dependencies
         pip install aiohttp python-dotenv
-        
+
         # Run comprehensive health checks
         python -c "
         import asyncio
         import json
         import os
-        
+
         async def validate_deployment():
             results = {'services': {}, 'overall': 'unknown'}
-            
+
             # Validate Lambda Labs
             if os.getenv('LAMBDA_LABS_API_KEY'):
                 try:
@@ -214,7 +214,7 @@ jobs:
                 except Exception as e:
                     results['services']['lambda_labs'] = f'error: {str(e)}'
                     print(f'Lambda Labs: error - {str(e)}')
-            
+
             # Validate Pulumi ESC
             if os.getenv('PULUMI_ACCESS_TOKEN'):
                 try:
@@ -226,7 +226,7 @@ jobs:
                 except Exception as e:
                     results['services']['pulumi_esc'] = f'error: {str(e)}'
                     print(f'Pulumi ESC: error - {str(e)}')
-            
+
             # Validate Claude integration
             if os.getenv('ANTHROPIC_API_KEY'):
                 try:
@@ -238,11 +238,11 @@ jobs:
                 except Exception as e:
                     results['services']['claude'] = f'error: {str(e)}'
                     print(f'Claude: error - {str(e)}')
-            
+
             # Determine overall health
             healthy_count = sum(1 for status in results['services'].values() if status == 'healthy')
             total_count = len(results['services'])
-            
+
             if total_count == 0:
                 results['overall'] = 'no_services'
                 print('⚠️ No services configured for validation')
@@ -255,16 +255,16 @@ jobs:
             else:
                 results['overall'] = 'unhealthy'
                 print('❌ All services unhealthy')
-            
+
             return results['overall'] in ['healthy', 'partial', 'no_services']
-        
+
         import sys
         result = asyncio.run(validate_deployment())
         sys.exit(0 if result else 1)
         "
-        
+
         echo "✅ Post-deployment validation completed"
-    
+
     - name: Deployment summary
       if: always()
       run: |
@@ -289,4 +289,4 @@ jobs:
         echo "  1. Verify services are running correctly"
         echo "  2. Test API endpoints and integrations"
         echo "  3. Monitor application logs"
-        echo "  4. Configure monitoring and alerting" 
+        echo "  4. Configure monitoring and alerting"

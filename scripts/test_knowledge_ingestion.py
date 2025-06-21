@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Test script for Knowledge Ingestion and Curation System
+"""Test script for Knowledge Ingestion and Curation System.
+
 Demonstrates the complete workflow from document upload to proactive discovery
 """
 
@@ -25,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 
 async def test_document_ingestion():
-    """Test basic document ingestion"""
+    """Test basic document ingestion."""
+
     logger.info("=== Testing Document Ingestion ===")
 
     # Initialize components
@@ -52,13 +54,15 @@ Core Values:
 - Customer Focus: Every decision starts with our customers' success in mind
 - Integrity: Building trust through transparency and reliability
 - Excellence: Delivering exceptional quality in everything we do
-""",
+""",.
+
             "type": "company_core",
             "tags": ["mission", "values", "company"],
         },
         {
             "filename": "product_pricing.txt",
-            "content": """Pay Ready Product Pricing Guide
+            "content":
+"""Pay Ready Product Pricing Guide
 
 Enterprise Tier: $60,000 per year
 - Unlimited users
@@ -79,13 +83,15 @@ Starter Tier: $12,000 per year
 - Email support
 
 Note: All prices effective as of January 2024. Volume discounts available.
-""",
+""",.
+
             "type": "pricing",
             "tags": ["pricing", "products", "tiers"],
         },
         {
             "filename": "competitor_analysis.txt",
-            "content": """Competitive Landscape Analysis
+            "content":
+"""Competitive Landscape Analysis
 
 Primary Competitors:
 1. Entrata - Strong in property management, weak in payment processing
@@ -98,7 +104,8 @@ Our Advantages:
 - User-friendly interface
 - Competitive pricing
 - Rapid implementation
-""",
+""",.
+
             "type": "competitive_intel",
             "tags": ["competitors", "market_analysis", "strategy"],
         },
@@ -143,8 +150,7 @@ Our Advantages:
 
 
 async def test_proactive_discovery():
-    """Test proactive insight discovery from Gong transcripts"""
-    logger.info("\n=== Testing Proactive Discovery ===")
+"""Test proactive insight discovery from Gong transcripts."""logger.info("\n=== Testing Proactive Discovery ===").
 
     # Initialize insight extraction agent
     agent_config = AgentConfig(name="InsightExtractionAgent")
@@ -169,9 +175,8 @@ Sales Rep: That's great to hear about the compliance use case. Regarding the exp
 Customer: The API sounds good, but honestly, the $60,000 price tag for the Enterprise tier is a bit steep for us right now. Is there any flexibility there?
 
 Sales Rep: Let me discuss with my manager about potential options for you...
-"""
+"""# Create a mock task to analyze this transcript.
 
-    # Create a mock task to analyze this transcript
     # In production, this would be triggered by webhook or scheduled job
     insights = await insight_agent._extract_insights_with_llm(
         mock_transcript,
@@ -192,8 +197,7 @@ Sales Rep: Let me discuss with my manager about potential options for you...
 
 
 async def test_curation_workflow(insights):
-    """Test the curation workflow with feedback"""
-    logger.info("\n=== Testing Curation Workflow ===")
+"""Test the curation workflow with feedback."""logger.info("\n=== Testing Curation Workflow ===").
 
     if not insights:
         logger.info("No insights to curate")
@@ -227,8 +231,7 @@ async def test_curation_workflow(insights):
 
 
 async def test_knowledge_chat():
-    """Test the knowledge curation chat interface"""
-    logger.info("\n=== Testing Knowledge Curation Chat ===")
+    """Test the knowledge curation chat interface."""logger.info("\n=== Testing Knowledge Curation Chat ===").
 
     # Initialize vector store for querying
     vector_store = VectorStore()
@@ -270,7 +273,7 @@ async def test_knowledge_chat():
 
 
 async def main():
-    """Run all tests"""
+    """Run all tests."""
     logger.info("Starting Knowledge Ingestion and Curation System Test")
     logger.info("=" * 60)
 

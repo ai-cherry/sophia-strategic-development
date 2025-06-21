@@ -21,4 +21,4 @@ ENV MCP_SERVER_NAME=snowflake-mcp
 ENV PYTHONUNBUFFERED=1
 
 # Run the MCP server
-CMD ["python", "snowflake_mcp_server.py"] 
+CMD ["python", "snowflake_mcp_server.py"]

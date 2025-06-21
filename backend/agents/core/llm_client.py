@@ -1,8 +1,8 @@
-"""Unified LLM Client for Sophia AI Agents
-Automatically uses the configured gateway or falls back to direct APIs
-"""
+"""Unified LLM Client for Sophia AI Agents.
 
-import logging
+Automatically uses the configured gateway or falls back to direct APIs
+"""import logging
+
 from typing import Dict, List, Optional
 
 from backend.config.settings import settings
@@ -12,16 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 class LLMClient:
-    """Unified LLM client that abstracts the underlying provider
-    Uses Portkey gateway when available, falls back to direct APIs
-    """
+    """Unified LLM client that abstracts the underlying provider.
 
-    def __init__(self):
+            Uses Portkey gateway when available, falls back to direct APIs
+    """def __init__(self):
+
         self.gateway = None
         self._setup_client()
 
     def _setup_client(self):
-        """Set up the appropriate LLM client based on configuration"""
+        """Set up the appropriate LLM client based on configuration."""
+
         # Try to use Portkey gateway first
         if (
             settings.api_keys.llm_gateway == "portkey"
@@ -48,8 +49,8 @@ class LLMClient:
             )
 
     def _setup_openai(self):
-        """Set up direct OpenAI client"""
-        try:
+        """Set up direct OpenAI client."""try:.
+
             import openai
 
             openai.api_key = settings.api_keys.openai_api_key
@@ -59,8 +60,8 @@ class LLMClient:
             raise
 
     def _setup_anthropic(self):
-        """Set up direct Anthropic client"""
-        try:
+        """Set up direct Anthropic client."""try:.
+
             import anthropic
 
             self.anthropic_client = anthropic.Anthropic(
@@ -79,18 +80,18 @@ class LLMClient:
         max_tokens: int = 4096,
         **kwargs,
     ) -> str:
-        """Get completion from LLM
+        """Get completion from LLM.
 
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-            model: Optional model name (auto-selected if not provided)
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
+                        Args:
+                            messages: List of message dicts with 'role' and 'content'
+                            model: Optional model name (auto-selected if not provided)
+                            temperature: Sampling temperature
+                            max_tokens: Maximum tokens to generate
 
-        Returns:
-            Generated text content
-        """
-        # Use gateway if available
+                        Returns:
+                            Generated text content
+        """# Use gateway if available.
+
         if self.gateway:
             response = await self.gateway.complete(
                 messages=messages,
@@ -116,8 +117,7 @@ class LLMClient:
     async def _complete_openai(
         self, messages, model, temperature, max_tokens, **kwargs
     ):
-        """Direct OpenAI completion"""
-        import openai
+        """Direct OpenAI completion."""import openai.
 
         response = await openai.ChatCompletion.acreate(
             model=model or "gpt-4-turbo-preview",
@@ -132,8 +132,8 @@ class LLMClient:
     async def _complete_anthropic(
         self, messages, model, temperature, max_tokens, **kwargs
     ):
-        """Direct Anthropic completion"""
-        # Convert messages to Anthropic format
+        """Direct Anthropic completion."""# Convert messages to Anthropic format.
+
         system_message = ""
         conversation = []
 
@@ -161,17 +161,16 @@ class LLMClient:
         system_prompt: Optional[str] = None,
         **kwargs,
     ) -> str:
-        """Convenience method for completion with context
+        """Convenience method for completion with context.
 
-        Args:
-            prompt: User prompt
-            context: Additional context to include
-            system_prompt: System message (uses default if not provided)
+                        Args:
+                            prompt: User prompt
+                            context: Additional context to include
+                            system_prompt: System message (uses default if not provided)
 
-        Returns:
-            Generated response
-        """
-        messages = []
+                        Returns:
+                            Generated response
+        """messages = [].
 
         # System prompt
         if system_prompt:
@@ -195,8 +194,8 @@ class LLMClient:
         return await self.complete(messages, **kwargs)
 
     def get_available_models(self) -> List[str]:
-        """Get list of available models"""
-        if self.gateway:
+        """Get list of available models."""if self.gateway:.
+
             return self.gateway.get_available_models()
 
         if self.provider == "openai":
@@ -212,8 +211,8 @@ _llm_client: Optional[LLMClient] = None
 
 
 def get_llm_client() -> LLMClient:
-    """Get or create the LLM client singleton"""
-    global _llm_client
+    """Get or create the LLM client singleton."""global _llm_client.
+
     if _llm_client is None:
         _llm_client = LLMClient()
     return _llm_client
@@ -221,14 +220,14 @@ def get_llm_client() -> LLMClient:
 
 # Example usage for agents
 async def analyze_text(text: str, analysis_type: str = "general") -> str:
-    """Example function showing how agents can use the LLM client
+    """Example function showing how agents can use the LLM client.
 
-    Args:
-        text: Text to analyze
-        analysis_type: Type of analysis (general, sentiment, summary, etc.)
+            Args:
+                text: Text to analyze
+                analysis_type: Type of analysis (general, sentiment, summary, etc.)
 
-    Returns:
-        Analysis result
+            Returns:
+                Analysis result
     """
     client = get_llm_client()
 

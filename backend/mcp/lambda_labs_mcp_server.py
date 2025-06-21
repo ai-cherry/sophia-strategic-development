@@ -1,4 +1,5 @@
-"""Lambda Labs MCP Server
+"""Lambda Labs MCP Server.
+
 MCP server for Lambda Labs GPU cloud integration, refactored to use the BaseMCPServer.
 """
 
@@ -27,13 +28,13 @@ class LambdaLabsMCPServer(BaseMCPServer):
         super().__init__("lambda-labs")
 
     async def initialize_integration(self):
-        """Initializes the LambdaLabsIntegration client."""
-        self.integration_client = LambdaLabsIntegration()
+        """Initializes the LambdaLabsIntegration client."""self.integration_client = LambdaLabsIntegration().
+
         await self.integration_client.initialize()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Lambda Labs resources."""
-        return [
+        """Lists available Lambda Labs resources."""return [.
+
             Resource(
                 uri="lambdalabs://health",
                 name="Lambda Labs Health Status",
@@ -49,8 +50,8 @@ class LambdaLabsMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Lambda Labs resource."""
-        if request.uri == "lambdalabs://health":
+        """Gets a specific Lambda Labs resource."""if request.uri == "lambdalabs://health":.
+
             health_status = await self.integration_client.get_health_status()
             return json.dumps(health_status, indent=2)
         elif request.uri == "lambdalabs://instances":
@@ -62,8 +63,8 @@ class LambdaLabsMCPServer(BaseMCPServer):
             return json.dumps({"error": f"Unknown resource: {request.uri}"})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Lambda Labs tools."""
-        return [
+        """Lists available Lambda Labs tools."""return [.
+
             Tool(
                 name="launch_instance",
                 description="Launch a new GPU instance",
@@ -107,8 +108,8 @@ class LambdaLabsMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Lambda Labs tool call."""
-        tool_name = request.params.name
+        """Handles a Lambda Labs tool call."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
 
         if tool_name == "launch_instance":

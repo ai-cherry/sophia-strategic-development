@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Test script to verify unified secret management is working
-"""
+"""Test script to verify unified secret management is working."""
 
 import json
 import os
@@ -8,8 +7,8 @@ import subprocess
 
 
 def test_env_file():
-    """Test if .env file exists and has secrets"""
-    print("=== Testing .env file ===")
+    """Test if .env file exists and has secrets."""print("=== Testing .env file ===").
+
     if os.path.exists(".env"):
         print("✓ .env file exists")
         with open(".env", "r") as f:
@@ -25,8 +24,8 @@ def test_env_file():
 
 
 def test_mcp_config():
-    """Test if MCP config has proper env references"""
-    print("=== Testing MCP Configuration ===")
+    """Test if MCP config has proper env references."""print("=== Testing MCP Configuration ===").
+
     try:
         with open("mcp_config.json", "r") as f:
             config = json.load(f)
@@ -49,8 +48,7 @@ def test_mcp_config():
 
 
 def test_pulumi_esc():
-    """Test if Pulumi ESC has secrets"""
-    print("=== Testing Pulumi ESC ===")
+    """Test if Pulumi ESC has secrets."""print("=== Testing Pulumi ESC ===").
 
     # Check if Pulumi is installed
     try:
@@ -98,7 +96,7 @@ def test_pulumi_esc():
 
 
 def test_github_workflow():
-    """Test if GitHub workflow exists"""
+    """Test if GitHub workflow exists."""
     print("=== Testing GitHub Workflow ===")
     workflow_path = ".github/workflows/unified-secret-sync.yml"
     if os.path.exists(workflow_path):

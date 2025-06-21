@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Secret Rotation Framework
+"""Sophia AI - Secret Rotation Framework.
+
 This script provides a framework for automated secret rotation for various services.
 """
 
@@ -12,6 +13,7 @@ import random
 import string
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple
+
 import pulumi
 
 # Configure logging
@@ -22,8 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class SecretRotator(ABC):
-    """Abstract base class for secret rotators
-    """
+    """Abstract base class for secret rotators."""
 
     def __init__(self, service_name: str, config: Dict[str, Any]):
         self.service_name = service_name
@@ -37,8 +38,8 @@ class SecretRotator(ABC):
         self.next_rotation = {}
 
     def should_rotate(self, key: str) -> bool:
-        """Check if a secret should be rotated"""
-        # Get last rotation time
+        """Check if a secret should be rotated."""# Get last rotation time.
+
         last_rotation = self.last_rotation.get(key)
         if not last_rotation:
             # If no last rotation time, assume it should be rotated
@@ -63,16 +64,15 @@ class SecretRotator(ABC):
         return datetime.datetime.now() >= next_rotation
 
     def generate_password(self, length: int = 32, include_special: bool = True) -> str:
-        """Generate a secure random password"""
-        chars = string.ascii_letters + string.digits
+        """Generate a secure random password."""chars = string.ascii_letters + string.digits.
+
         if include_special:
             chars += "!@#$%^&*()-_=+[]{}|;:,.<>?"
 
         return "".join(random.choice(chars) for _ in range(length))
 
     def generate_api_key(self, length: int = 40, prefix: str = "") -> str:
-        """Generate a secure random API key"""
-        chars = string.ascii_letters + string.digits
+        """Generate a secure random API key."""chars = string.ascii_letters + string.digits.
 
         if prefix:
             return prefix + "".join(
@@ -83,16 +83,15 @@ class SecretRotator(ABC):
 
     @abstractmethod
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a secret
+        """Rotate a secret.
 
-        Returns:
-            Tuple[bool, Optional[str]]: (success, new_value)
-        """
-        pass
+                Returns:
+                    Tuple[bool, Optional[str]]: (success, new_value)
+        """pass.
 
     def rotate_all_secrets(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Rotate all secrets for this service"""
-        results = {
+        """Rotate all secrets for this service."""results = {.
+
             "service": self.service_name,
             "timestamp": datetime.datetime.now().isoformat(),
             "dry_run": dry_run,
@@ -142,8 +141,8 @@ class SecretRotator(ABC):
         return results
 
     def update_secret_stores(self, key: str, value: str) -> bool:
-        """Update Pulumi ESC and GitHub with new secret value"""
-        try:
+        """Update Pulumi ESC and GitHub with new secret value."""try:.
+
             # Update Pulumi ESC
             pulumi_key = f"{self.service_name}_{key}"
             group = "api-keys"
@@ -168,14 +167,13 @@ class SecretRotator(ABC):
 
 
 class SnowflakeRotator(SecretRotator):
-    """Rotator for Snowflake credentials"""
+    """Rotator for Snowflake credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("snowflake", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Snowflake secret"""
-        try:
+        """Rotate a Snowflake secret."""try:.
+
             if key == "password":
                 # Generate a new password
                 new_password = self.generate_password(length=24, include_special=True)
@@ -193,14 +191,13 @@ class SnowflakeRotator(SecretRotator):
 
 
 class GongRotator(SecretRotator):
-    """Rotator for Gong API credentials"""
+    """Rotator for Gong API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("gong", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Gong secret"""
-        try:
+        """Rotate a Gong secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="gong_")
@@ -226,14 +223,13 @@ class GongRotator(SecretRotator):
 
 
 class VercelRotator(SecretRotator):
-    """Rotator for Vercel API credentials"""
+    """Rotator for Vercel API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("vercel", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Vercel secret"""
-        try:
+        """Rotate a Vercel secret."""try:.
+
             if key == "token":
                 # Generate a new token
                 new_token = self.generate_api_key(length=32, prefix="vercel_")
@@ -251,14 +247,13 @@ class VercelRotator(SecretRotator):
 
 
 class EstuaryRotator(SecretRotator):
-    """Rotator for Estuary API credentials"""
+    """Rotator for Estuary API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("estuary", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Estuary secret"""
-        try:
+        """Rotate an Estuary secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="est_")
@@ -276,14 +271,13 @@ class EstuaryRotator(SecretRotator):
 
 
 class PineconeRotator(SecretRotator):
-    """Rotator for Pinecone API credentials"""
+    """Rotator for Pinecone API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("pinecone", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Pinecone secret"""
-        try:
+        """Rotate a Pinecone secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="pinecone_")
@@ -301,14 +295,13 @@ class PineconeRotator(SecretRotator):
 
 
 class AirbyteRotator(SecretRotator):
-    """Rotator for Airbyte API credentials"""
+    """Rotator for Airbyte API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("airbyte", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Airbyte secret"""
-        try:
+        """Rotate an Airbyte secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="airbyte_")
@@ -334,14 +327,13 @@ class AirbyteRotator(SecretRotator):
 
 
 class LambdaLabsRotator(SecretRotator):
-    """Rotator for Lambda Labs API credentials"""
+    """Rotator for Lambda Labs API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("lambda_labs", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Lambda Labs secret"""
-        try:
+        """Rotate a Lambda Labs secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="lambda_")
@@ -373,14 +365,13 @@ class LambdaLabsRotator(SecretRotator):
 
 
 class OpenAIRotator(SecretRotator):
-    """Rotator for OpenAI API credentials"""
+    """Rotator for OpenAI API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("openai", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an OpenAI secret"""
-        try:
+        """Rotate an OpenAI secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="sk-")
@@ -398,14 +389,13 @@ class OpenAIRotator(SecretRotator):
 
 
 class AnthropicRotator(SecretRotator):
-    """Rotator for Anthropic API credentials"""
+    """Rotator for Anthropic API credentials."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         super().__init__("anthropic", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Anthropic secret"""
-        try:
+        """Rotate an Anthropic secret."""try:.
+
             if key == "api_key":
                 # Generate a new API key
                 new_api_key = self.generate_api_key(length=40, prefix="sk-ant-")
@@ -423,17 +413,15 @@ class AnthropicRotator(SecretRotator):
 
 
 class RotationManager:
-    """Manages secret rotation for all services
-    """
+    """Manages secret rotation for all services."""def __init__(self):.
 
-    def __init__(self):
         self.rotators = {}
         self.service_registry = self._load_service_registry()
         self._initialize_rotators()
 
     def _load_service_registry(self) -> Dict[str, Dict[str, Any]]:
-        """Load service registry"""
-        try:
+        """Load service registry."""try:.
+
             registry_path = os.environ.get(
                 "SERVICE_REGISTRY_PATH",
                 "/home/ubuntu/github/sophia-main/infrastructure/service_registry.json",
@@ -453,8 +441,8 @@ class RotationManager:
             return {}
 
     def _initialize_rotators(self):
-        """Initialize rotators for all services"""
-        for service, config in self.service_registry.items():
+        """Initialize rotators for all services."""for service, config in self.service_registry.items():.
+
             try:
                 if service == "snowflake":
                     self.rotators[service] = SnowflakeRotator(config)
@@ -483,8 +471,8 @@ class RotationManager:
     def rotate_service_secrets(
         self, service: str, dry_run: bool = False
     ) -> Dict[str, Any]:
-        """Rotate secrets for a specific service"""
-        if service not in self.rotators:
+        """Rotate secrets for a specific service."""if service not in self.rotators:.
+
             return {
                 "service": service,
                 "timestamp": datetime.datetime.now().isoformat(),
@@ -495,8 +483,8 @@ class RotationManager:
         return self.rotators[service].rotate_all_secrets(dry_run)
 
     def rotate_all_secrets(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Rotate secrets for all services"""
-        results = {
+        """Rotate secrets for all services."""results = {.
+
             "timestamp": datetime.datetime.now().isoformat(),
             "dry_run": dry_run,
             "services": {},
@@ -508,8 +496,7 @@ class RotationManager:
         return results
 
     def get_rotation_schedule(self) -> Dict[str, Any]:
-        """Get rotation schedule for all services"""
-        schedule = {"timestamp": datetime.datetime.now().isoformat(), "services": {}}
+        """Get rotation schedule for all services."""schedule = {"timestamp": datetime.datetime.now().isoformat(), "services": {}}.
 
         for service, rotator in self.rotators.items():
             schedule["services"][service] = {
@@ -529,7 +516,7 @@ class RotationManager:
 
 
 def main():
-    """Main function"""
+    """Main function."""
     parser = argparse.ArgumentParser(description="Rotate secrets")
     parser.add_argument(
         "--service", "-s", help="Service to rotate secrets for (default: all)"

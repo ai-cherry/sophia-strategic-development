@@ -1,4 +1,5 @@
-"""Sophia AI - Enhanced Configuration Manager
+"""Sophia AI - Enhanced Configuration Manager.
+
 Centralized configuration management for all integrations with improved error handling and validation
 """
 
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ServiceConfig:
-    """Service configuration container"""
+    """Service configuration container."""
 
     service_name: str
     config: Dict[str, Any]
@@ -29,9 +30,8 @@ class ServiceConfig:
 
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
-    """Decorator for retrying failed operations"""
+    """Decorator for retrying failed operations."""def decorator(func):.
 
-    def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             for attempt in range(max_retries):
@@ -52,9 +52,8 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class ConfigManager:
-    """Enhanced centralized configuration manager for all integrations"""
+    """Enhanced centralized configuration manager for all integrations."""def __init__(self):.
 
-    def __init__(self):
         self.configs = {}
         self.secrets = {}
         self.esc_client = None
@@ -68,8 +67,8 @@ class ConfigManager:
 
     @retry_on_failure(max_retries=3)
     async def initialize(self) -> bool:
-        """Initialize the configuration manager with retry logic"""
-        if self.initialized:
+        """Initialize the configuration manager with retry logic."""if self.initialized:.
+
             return True
 
         async with self._lock:
@@ -102,15 +101,15 @@ class ConfigManager:
                 return False
 
     async def _initialize_fallback_mode(self) -> None:
-        """Initialize in fallback mode using environment variables"""
-        logger.warning("Initializing configuration manager in fallback mode")
+        """Initialize in fallback mode using environment variables."""logger.warning("Initializing configuration manager in fallback mode").
+
         self.esc_client = None
         await self._load_service_registry()
         self.initialized = True
 
     async def _load_service_registry(self) -> None:
-        """Load service registry from Pulumi ESC or local file with validation"""
-        try:
+        """Load service registry from Pulumi ESC or local file with validation."""try:.
+
             # Try to load from Pulumi ESC first
             if self.esc_client:
                 try:
@@ -153,8 +152,8 @@ class ConfigManager:
             self.configs = {}
 
     def _validate_service_registry(self, registry: Dict[str, Any]) -> bool:
-        """Validate service registry structure"""
-        if not isinstance(registry, dict):
+        """Validate service registry structure."""if not isinstance(registry, dict):.
+
             logger.error("Service registry must be a dictionary")
             return False
 
@@ -176,8 +175,8 @@ class ConfigManager:
         return True
 
     def _create_default_registry(self) -> Dict[str, Any]:
-        """Create default service registry with comprehensive service definitions"""
-        return {
+        """Create default service registry with comprehensive service definitions."""return {.
+
             "snowflake": {
                 "type": "database",
                 "config_keys": ["account", "warehouse", "database", "schema", "role"],
@@ -275,8 +274,8 @@ class ConfigManager:
 
     @retry_on_failure(max_retries=2)
     async def get_service_config(self, service_name: str) -> Optional[ServiceConfig]:
-        """Get configuration for a specific service with enhanced error handling"""
-        if not self.initialized:
+        """Get configuration for a specific service with enhanced error handling."""if not self.initialized:.
+
             await self.initialize()
 
         if service_name not in self.configs:
@@ -327,8 +326,7 @@ class ConfigManager:
             return None
 
     async def _get_config_value(self, service_name: str, key: str) -> Optional[Any]:
-        """Get a configuration value from ESC or environment"""
-        config_key = f"{service_name}_{key}"
+        """Get a configuration value from ESC or environment."""config_key = f"{service_name}_{key}".
 
         # Try Pulumi ESC first
         if self.esc_client:
@@ -344,8 +342,7 @@ class ConfigManager:
         return os.environ.get(env_key)
 
     async def _get_secret_value(self, service_name: str, key: str) -> Optional[str]:
-        """Get a secret value from ESC or environment"""
-        secret_key = f"{service_name}_{key}"
+        """Get a secret value from ESC or environment."""secret_key = f"{service_name}_{key}".
 
         # Try Pulumi ESC first
         if self.esc_client:
@@ -363,8 +360,7 @@ class ConfigManager:
     def _validate_service_config(
         self, service_name: str, config: Dict[str, Any], secrets: Dict[str, str]
     ) -> bool:
-        """Validate service configuration completeness"""
-        service_meta = self.configs[service_name]
+        """Validate service configuration completeness."""service_meta = self.configs[service_name].
 
         # Check required config keys
         for key in service_meta.get("config_keys", []):
@@ -380,24 +376,24 @@ class ConfigManager:
         return True
 
     async def get_config_value(self, service_name: str, key: str) -> Optional[Any]:
-        """Get a specific configuration value"""
-        service_config = await self.get_service_config(service_name)
+        """Get a specific configuration value."""service_config = await self.get_service_config(service_name).
+
         if not service_config:
             return None
 
         return service_config.config.get(key)
 
     async def get_secret_value(self, service_name: str, key: str) -> Optional[str]:
-        """Get a specific secret value"""
-        service_config = await self.get_service_config(service_name)
+        """Get a specific secret value."""service_config = await self.get_service_config(service_name).
+
         if not service_config:
             return None
 
         return service_config.secrets.get(key)
 
     async def get_connection_string(self, service_name: str) -> Optional[str]:
-        """Get connection string for a service with enhanced validation"""
-        service_config = await self.get_service_config(service_name)
+        """Get connection string for a service with enhanced validation."""service_config = await self.get_service_config(service_name).
+
         if not service_config:
             return None
 
@@ -443,8 +439,8 @@ class ConfigManager:
             return None
 
     async def get_api_client(self, service_name: str) -> Optional[Any]:
-        """Get API client for a service with enhanced error handling"""
-        service_config = await self.get_service_config(service_name)
+        """Get API client for a service with enhanced error handling."""service_config = await self.get_service_config(service_name).
+
         if not service_config:
             return None
 
@@ -495,8 +491,8 @@ class ConfigManager:
             return None
 
     async def health_check(self, service_name: str) -> bool:
-        """Perform health check for a service"""
-        service_config = await self.get_service_config(service_name)
+        """Perform health check for a service."""service_config = await self.get_service_config(service_name).
+
         if not service_config:
             return False
 
@@ -580,15 +576,15 @@ class ConfigManager:
             return False
 
     async def list_services(self) -> List[str]:
-        """List all registered services"""
-        if not self.initialized:
+        """List all registered services."""if not self.initialized:.
+
             await self.initialize()
 
         return list(self.configs.keys())
 
     async def get_service_metadata(self, service_name: str) -> Optional[Dict[str, Any]]:
-        """Get metadata for a specific service"""
-        if not self.initialized:
+        """Get metadata for a specific service."""if not self.initialized:.
+
             await self.initialize()
 
         if service_name not in self.configs:
@@ -598,8 +594,8 @@ class ConfigManager:
         return self.configs[service_name]
 
     async def refresh_cache(self, service_name: str = None) -> None:
-        """Refresh configuration cache for a service or all services"""
-        if service_name:
+        """Refresh configuration cache for a service or all services."""if service_name:.
+
             if service_name in self.last_refresh:
                 del self.last_refresh[service_name]
             if service_name in self.config_cache:
@@ -619,35 +615,29 @@ config_manager = ConfigManager()
 
 
 async def get_config(service_name: str) -> Optional[ServiceConfig]:
-    """Get configuration for a service"""
-    return await config_manager.get_service_config(service_name)
+    """Get configuration for a service."""return await config_manager.get_service_config(service_name).
 
 
 async def get_secret(service_name: str, key: str) -> Optional[str]:
-    """Get a secret value"""
-    return await config_manager.get_secret_value(service_name, key)
+    """Get a secret value."""return await config_manager.get_secret_value(service_name, key).
 
 
 async def get_connection_string(service_name: str) -> Optional[str]:
-    """Get connection string for a service"""
-    return await config_manager.get_connection_string(service_name)
+    """Get connection string for a service."""return await config_manager.get_connection_string(service_name).
 
 
 async def get_api_client(service_name: str) -> Optional[Any]:
-    """Get API client for a service"""
-    return await config_manager.get_api_client(service_name)
+    """Get API client for a service."""return await config_manager.get_api_client(service_name).
 
 
 async def health_check(service_name: str) -> bool:
-    """Perform health check for a service"""
-    return await config_manager.health_check(service_name)
+    """Perform health check for a service."""return await config_manager.health_check(service_name).
 
 
 async def list_services() -> List[str]:
-    """List all registered services"""
-    return await config_manager.list_services()
+    """List all registered services."""return await config_manager.list_services().
 
 
 async def refresh_cache(service_name: str = None) -> None:
-    """Refresh configuration cache"""
+    """Refresh configuration cache."""
     return await config_manager.refresh_cache(service_name)

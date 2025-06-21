@@ -62,7 +62,7 @@ MCP_SERVICES = {
         "data_flow": "requests → routing → inference → monitoring → results"
     },
     "data_intelligence": {
-        "port": 8092, 
+        "port": 8092,
         "services": ["apify", "phantombuster", "twingly", "tavily", "zenrows"],
         "primary_function": "Data collection, research, and web intelligence",
         "data_flow": "queries → collection → processing → storage → analysis"
@@ -92,7 +92,7 @@ MCP_SERVICES = {
 # mcp-servers/ai_intelligence/ai_intelligence_mcp_server.py
 class AIIntelligenceMCPServer(MCPServer):
     """Unified AI intelligence server combining all AI services"""
-    
+
     def __init__(self):
         super().__init__("ai_intelligence")
         self.arize_client = ArizeService()
@@ -101,7 +101,7 @@ class AIIntelligenceMCPServer(MCPServer):
         self.huggingface_client = HuggingFaceService()
         self.together_client = TogetherAIService()
         self.model_router = SophiaModelIntegrationManager()
-        
+
     async def setup(self):
         """Setup all AI services and register unified tools"""
         # Register intelligent routing tools
@@ -116,7 +116,7 @@ class AIIntelligenceMCPServer(MCPServer):
             },
             handler=self.intelligent_generate
         ))
-        
+
         # Register monitoring tools
         self.register_tool(Tool(
             name="log_ai_interaction",
@@ -139,7 +139,7 @@ class AIIntelligenceMCPServer(MCPServer):
 # mcp-servers/data_intelligence/data_intelligence_mcp_server.py
 class DataIntelligenceMCPServer(MCPServer):
     """Unified data intelligence server for all data collection services"""
-    
+
     def __init__(self):
         super().__init__("data_intelligence")
         self.apify_client = ApifyService()
@@ -148,7 +148,7 @@ class DataIntelligenceMCPServer(MCPServer):
         self.twingly_client = TwinglyService()
         self.phantombuster_client = PhantomBusterService()
         self.data_pipeline = DataCollectionPipeline()
-        
+
     async def setup(self):
         """Setup all data services and register unified tools"""
         # Register intelligent data collection
@@ -173,7 +173,7 @@ class DataIntelligenceMCPServer(MCPServer):
 # mcp-servers/infrastructure_intelligence/infrastructure_intelligence_mcp_server.py
 class InfrastructureIntelligenceMCPServer(MCPServer):
     """Unified infrastructure intelligence server"""
-    
+
     def __init__(self):
         super().__init__("infrastructure_intelligence")
         self.lambda_client = LambdaLabsService()
@@ -181,7 +181,7 @@ class InfrastructureIntelligenceMCPServer(MCPServer):
         self.pulumi_client = PulumiService()
         self.github_client = GitHubService()
         self.infrastructure_optimizer = InfrastructureOptimizer()
-        
+
     async def setup(self):
         """Setup infrastructure services and register IaC tools"""
         # Register infrastructure management tools
@@ -203,31 +203,31 @@ class InfrastructureIntelligenceMCPServer(MCPServer):
 # backend/data/sophia_data_pipeline.py
 class SophiaDataPipeline:
     """Unified data pipeline for all MCP services"""
-    
+
     def __init__(self):
         self.airbyte_client = AirbyteClient()
         self.postgres_client = PostgreSQLClient()
         self.redis_client = RedisClient()
         self.pinecone_client = PineconeClient()
         self.weaviate_client = WeaviateClient()
-        
+
     async def process_mcp_data(self, source_service: str, data: Dict[str, Any]):
         """Process data from any MCP service through unified pipeline"""
         # 1. Validate and normalize data
         normalized_data = await self.normalize_data(source_service, data)
-        
+
         # 2. Store in PostgreSQL for structured analysis
         await self.postgres_client.upsert_data(normalized_data)
-        
+
         # 3. Cache in Redis for real-time access
         await self.redis_client.cache_data(normalized_data)
-        
+
         # 4. Generate embeddings and store in vector databases
         if self.should_vectorize(normalized_data):
             embeddings = await self.generate_embeddings(normalized_data)
             await self.pinecone_client.upsert_vectors(embeddings)
             await self.weaviate_client.store_objects(normalized_data, embeddings)
-        
+
         # 5. Trigger real-time analytics
         await self.trigger_analytics(normalized_data)
 ```
@@ -239,25 +239,25 @@ class SophiaDataPipeline:
 # backend/optimization/sophia_optimization_engine.py
 class SophiaOptimizationEngine:
     """Cross-service optimization engine for all MCP services"""
-    
+
     def __init__(self):
         self.cost_optimizer = CostOptimizer()
         self.performance_optimizer = PerformanceOptimizer()
         self.reliability_optimizer = ReliabilityOptimizer()
         self.service_registry = MCPServiceRegistry()
-        
+
     async def optimize_request_routing(self, request_type: str, requirements: Dict[str, Any]):
         """Intelligently route requests across MCP services"""
         # Analyze requirements
         cost_priority = requirements.get("cost_priority", "medium")
         performance_priority = requirements.get("performance_priority", "medium")
         reliability_priority = requirements.get("reliability_priority", "high")
-        
+
         # Get optimal service routing
         routing_plan = await self.calculate_optimal_routing(
             request_type, cost_priority, performance_priority, reliability_priority
         )
-        
+
         return routing_plan
 ```
 
@@ -306,7 +306,7 @@ mcp_services = [
         "resources": {"cpu": "2", "memory": "4Gi", "gpu": "1"}
     },
     {
-        "name": "data-intelligence", 
+        "name": "data-intelligence",
         "port": 8092,
         "replicas": 1,
         "resources": {"cpu": "1", "memory": "2Gi"}
@@ -357,21 +357,21 @@ for service in mcp_services:
 # backend/monitoring/sophia_monitoring.py
 class SophiaMonitoringSystem:
     """Unified monitoring for all MCP services"""
-    
+
     def __init__(self):
         self.arize_client = ArizeClient()
         self.metrics_collector = MetricsCollector()
         self.alert_manager = AlertManager()
-        
+
     async def monitor_mcp_service(self, service_name: str, metrics: Dict[str, Any]):
         """Monitor individual MCP service performance"""
         # Log to Arize for AI-specific monitoring
         if service_name in ["ai_intelligence"]:
             await self.arize_client.log_service_metrics(service_name, metrics)
-        
+
         # Collect general performance metrics
         await self.metrics_collector.collect_metrics(service_name, metrics)
-        
+
         # Check for alerts
         await self.alert_manager.check_thresholds(service_name, metrics)
 ```
@@ -409,4 +409,3 @@ class SophiaMonitoringSystem:
 - Real-time cost monitoring and alerts
 
 This strategy provides a production-ready, optimized MCP architecture that aligns with all user preferences while delivering maximum value for the Sophia AI platform.
-

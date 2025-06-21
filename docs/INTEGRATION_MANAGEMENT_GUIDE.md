@@ -147,7 +147,7 @@ def get_vercel_deployments():
     params = {}
     if os.environ.get("VERCEL_TEAM_ID"):
         params["teamId"] = os.environ.get("VERCEL_TEAM_ID")
-    
+
     response = requests.get(
         "https://api.vercel.com/v6/deployments",
         headers=headers,

@@ -1,4 +1,5 @@
-"""Apollo.io MCP Server
+"""Apollo.io MCP Server.
+
 Provides company and contact enrichment capabilities
 """
 
@@ -25,7 +26,8 @@ logger = logging.getLogger(__name__)
 
 class ApolloMCPServer(BaseMCPServer):
     """MCP Server for Apollo.io integration.
-    Provides B2B data enrichment and prospecting capabilities.
+
+            Provides B2B data enrichment and prospecting capabilities.
     """
 
     def __init__(self):
@@ -33,12 +35,13 @@ class ApolloMCPServer(BaseMCPServer):
 
     async def initialize_integration(self):
         """Initializes the Apollo integration."""
+
         self.integration_client = apollo_integration
         await self.integration_client.initialize()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Apollo resources."""
-        return [
+        """Lists available Apollo resources."""return [.
+
             Resource(
                 uri="apollo://health",
                 name="Apollo Health Status",
@@ -54,8 +57,7 @@ class ApolloMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: any) -> str:
-        """Gets a specific Apollo resource."""
-        uri = request.uri
+        """Gets a specific Apollo resource."""uri = request.uri.
 
         if uri == "apollo://health":
             try:
@@ -88,8 +90,8 @@ class ApolloMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Apollo tools."""
-        return [
+        """Lists available Apollo tools."""return [.
+
             Tool(
                 name="enrich_company",
                 description="Enrich company data using domain or company name",
@@ -189,8 +191,8 @@ class ApolloMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Apollo tool calls."""
-        tool_name = request.params.name
+        """Handles Apollo tool calls."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
 
         try:

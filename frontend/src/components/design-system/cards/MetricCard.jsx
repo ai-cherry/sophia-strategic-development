@@ -31,7 +31,7 @@ const MetricCard = ({
           </div>
         )}
       </div>
-      
+
       {loading ? (
         <div className="space-y-2">
           <div className="h-8 bg-slate-700 rounded animate-pulse" />
@@ -63,4 +63,4 @@ const MetricCard = ({
   );
 };
 
-export default MetricCard; 
+export default MetricCard;

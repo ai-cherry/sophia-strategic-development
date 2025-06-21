@@ -9,17 +9,27 @@ import openai
 from ...core.config_manager import get_secret
 from ..core.agent_router import agent_router
 from ..core.base_agent import AgentConfig, BaseAgent, Task, create_agent_response
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
 
 class ExecutiveAgent(BaseAgent):
-    """Serves as the CEO's dedicated interface for strategic intelligence and orchestration."""
+    """Serves as the CEO's dedicated interface for strategic intelligence and orchestration. Integrated with AgnoPerformanceOptimizer."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.agent_router = agent_router
         self.openai_client = None
+
+    @classmethod
+    async def pooled(cls, config: AgentConfig) -> 'ExecutiveAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        await optimizer.register_agent_class('executive', cls)
+        agent = await optimizer.get_or_create_agent('executive', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided ExecutiveAgent instance (pooled or new)")
+        return agent
 
     async def _initialize_llm(self):
         if not self.openai_client:
@@ -31,8 +41,8 @@ class ExecutiveAgent(BaseAgent):
                 logger.error(f"Failed to initialize OpenAI client: {e}")
 
     async def _get_deal_info_from_crm(self, deal_name: str) -> Dict[str, Any]:
-        """Mocks a CRM lookup to get IDs associated with a deal."""
-        logger.info(f"Mock CRM lookup for deal: {deal_name}")
+        """Mocks a CRM lookup to get IDs associated with a deal."""logger.info(f"Mock CRM lookup for deal: {deal_name}").
+
         # In a real system, this would query your CRM (e.g., HubSpot)
         # to find the company, associated calls, etc.
         return {
@@ -43,8 +53,8 @@ class ExecutiveAgent(BaseAgent):
         }
 
     async def _decompose_strategic_question(self, question: str) -> List[Task]:
-        """Decomposes a high-level strategic question into a sequence of tasks."""
-        logger.info(f"Decomposing strategic question: {question}")
+        """Decomposes a high-level strategic question into a sequence of tasks."""logger.info(f"Decomposing strategic question: {question}").
+
         tasks = []
         question_lower = question.lower()
 
@@ -90,8 +100,8 @@ class ExecutiveAgent(BaseAgent):
     async def _synthesize_results_with_llm(
         self, question: str, results: List[Dict]
     ) -> str:
-        """Uses an LLM to synthesize agent results into a narrative briefing."""
-        if not self.openai_client:
+        """Uses an LLM to synthesize agent results into a narrative briefing."""if not self.openai_client:.
+
             await self._initialize_llm()
         if not self.openai_client:
             return "Error: LLM client not available for synthesis."
@@ -103,13 +113,14 @@ class ExecutiveAgent(BaseAgent):
 
         Sophia's specialized AI agents have gathered the following intelligence:
         ---
-        """
-        for res in results:
-            if res.get("success"):
-                prompt += f"\n**Source Agent: {res.get('agent_id', 'Unknown')}**\n"
-                prompt += f"```json\n{json.dumps(res.get('data'), indent=2)}\n```\n---"
+        """for res in results:.
 
-        prompt += """
+                            if res.get("success"):
+                                prompt += f"\n**Source Agent: {res.get('agent_id', 'Unknown')}**\n"
+                                prompt += f"```json\n{json.dumps(res.get('data'), indent=2)}\n```\n---"
+
+                        prompt +=
+        """
         Your Task:
         As Sophia's central intelligence, synthesize all the provided data into a concise, insightful, and actionable executive briefing.
         Structure your response with the following sections:
@@ -117,19 +128,19 @@ class ExecutiveAgent(BaseAgent):
         2.  **Key Contributing Factors:** A bulleted list of the primary reasons for the outcome.
         3.  **Supporting Evidence:** A brief summary of the key data points from the agent reports that support your analysis.
         4.  **Strategic Recommendations:** A numbered list of 2-3 actionable recommendations for the executive team.
-        """
-        try:
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.5,
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"LLM synthesis failed: {e}")
-            return f"Error during synthesis: {e}"
+        """try:.
 
-    async def process_task(self, task: Task) -> Dict[str, Any]:
+                            response = await self.openai_client.chat.completions.create(
+                                model="gpt-4-turbo",
+                                messages=[{"role": "user", "content": prompt}],
+                                temperature=0.5,
+                            )
+                            return response.choices[0].message.content
+                        except Exception as e:
+                            logger.error(f"LLM synthesis failed: {e}")
+                            return f"Error during synthesis: {e}"
+
+                    async def process_task(self, task: Task) -> Dict[str, Any]:
         """Processes a strategic query by decomposing it, routing sub-tasks, and synthesizing the results."""
         if task.task_type == "strategic_synthesis_query":
             strategic_question = task.task_data.get("strategic_question")

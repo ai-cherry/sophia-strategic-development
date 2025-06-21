@@ -1,6 +1,8 @@
-"""Pulumi ESC - Hugging Face Secret Management
+"""Pulumi ESC - Hugging Face Secret Management.
+
 Manages Hugging Face API keys.
 """
+
 import logging
 import os
 
@@ -27,8 +29,7 @@ class HuggingFaceSecretManager(EnhancedPulumiESC):
         super().__init__()
 
     async def get_api_key(self) -> str:
-        """Retrieves the Hugging Face API key from the Pulumi ESC environment.
-        """
+        """Retrieves the Hugging Face API key from the Pulumi ESC environment."""
         try:
             opened_env = await pulumiservice.open_environment(
                 name=ENVIRONMENT_NAME, organization=PULUMI_ORG

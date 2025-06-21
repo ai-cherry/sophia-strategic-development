@@ -1,4 +1,5 @@
 """Pulumi script for setting up Snowflake resources for Sophia AI.
+
 This includes the database, warehouse, schemas, and roles.
 """
 

@@ -1,6 +1,6 @@
-"""Real-Time Streaming Infrastructure
+"""Real-Time Streaming Infrastructure.
 
-Implements streaming data processing for Snowflake and other data sources.
+Implements streaming data processing for Snowflake and other data sources
 """
 
 import asyncio
@@ -20,7 +20,7 @@ from backend.monitoring.observability import logger
 
 
 class StreamType(str, Enum):
-    """Types of data streams"""
+    """Types of data streams."""
 
     GONG_CALLS = "gong_calls"
     SLACK_MESSAGES = "slack_messages"
@@ -30,18 +30,17 @@ class StreamType(str, Enum):
 
 
 class StreamStatus(str, Enum):
-    """Stream processing status"""
-
+    """Stream processing status."""
     ACTIVE = "active"
+
     PAUSED = "paused"
     ERROR = "error"
     INITIALIZING = "initializing"
 
 
 class StreamEvent(BaseModel):
-    """Real-time stream event"""
-
-    id: str = Field(default_factory=lambda: str(uuid4()))
+    """Real-time stream event."""
+id: str = Field(default_factory=lambda: str(uuid4()))
     stream_type: StreamType
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     data: Dict[str, Any]
@@ -50,17 +49,17 @@ class StreamEvent(BaseModel):
 
 
 class StreamProcessor:
-    """Base class for stream processors"""
+    """Base class for stream processors."""
+def __init__(self, stream_type: StreamType):
 
-    def __init__(self, stream_type: StreamType):
         self.stream_type = stream_type
         self.handlers: List[Callable] = []
         self.filters: List[Callable] = []
         self.status = StreamStatus.INITIALIZING
 
     async def process(self, event: StreamEvent) -> Any:
-        """Process a stream event"""
-        # Apply filters
+        """Process a stream event."""
+# Apply filters
         for filter_fn in self.filters:
             if not await filter_fn(event):
                 return None
@@ -74,18 +73,15 @@ class StreamProcessor:
         return results
 
     def add_handler(self, handler: Callable):
-        """Add event handler"""
-        self.handlers.append(handler)
-
+        """Add event handler."""
+self.handlers.append(handler)
     def add_filter(self, filter_fn: Callable):
-        """Add event filter"""
-        self.filters.append(filter_fn)
-
-
+        """Add event filter."""
+self.filters.append(filter_fn)
 class RealTimeStreaming:
-    """Real-time streaming infrastructure"""
+    """Real-time streaming infrastructure."""
+def __init__(self):
 
-    def __init__(self):
         self.redis_client: Optional[aioredis.Redis] = None
         self.snowflake: Optional[SnowflakeIntegration] = None
         self.processors: Dict[StreamType, StreamProcessor] = {}
@@ -95,7 +91,9 @@ class RealTimeStreaming:
 
     async def initialize(self):
         """Initialize streaming infrastructure."""
-        if self._initialized:
+
+    if self._initialized:
+
             return
 
         # Initialize Redis for pub/sub
@@ -121,53 +119,49 @@ class RealTimeStreaming:
 
     async def _setup_snowflake_streams(self):
         """Set up Snowflake streams and tasks."""
-        try:
+try:
+except Exception:
+    pass
             # Create stream for Gong calls
             await self.snowflake.execute_query(
-                """
-                CREATE STREAM IF NOT EXISTS gong_call_stream
-                ON TABLE gong_raw_data
-                APPEND_ONLY = FALSE
-                SHOW_INITIAL_ROWS = TRUE;
-            """
-            )
+                """CREATE STREAM IF NOT EXISTS gong_call_stream.
 
-            # Create stream for CRM updates
-            await self.snowflake.execute_query(
-                """
-                CREATE STREAM IF NOT EXISTS crm_update_stream
-                ON TABLE hubspot_contacts
-                APPEND_ONLY = FALSE;
-            """
-            )
+                                                ON TABLE gong_raw_data
+                                                APPEND_ONLY = FALSE
+                                                SHOW_INITIAL_ROWS = TRUE;
+                """)
 
-            # Create task for real-time processing
-            await self.snowflake.execute_query(
-                """
-                CREATE OR REPLACE TASK process_real_time_data
-                WAREHOUSE = COMPUTE_WH
-                SCHEDULE = '1 minute'
-                WHEN SYSTEM$STREAM_HAS_DATA('gong_call_stream')
-                AS
-                    CALL process_stream_data();
-            """
-            )
+                # Create stream for CRM updates
+                    await self.snowflake.execute_query(
+                """CREATE STREAM IF NOT EXISTS crm_update_stream.
 
-            # Resume task
-            await self.snowflake.execute_query(
-                """
-                ALTER TASK process_real_time_data RESUME;
-            """
-            )
+                                                ON TABLE hubspot_contacts
+                                                APPEND_ONLY = FALSE;
+                """)
 
-            logger.info("Snowflake streams and tasks configured")
+                # Create task for real-time processing
+                    await self.snowflake.execute_query(
+                """CREATE OR REPLACE TASK process_real_time_data.
 
-        except Exception as e:
-            logger.error(f"Error setting up Snowflake streams: {e}")
+                                                WAREHOUSE = COMPUTE_WH
+                                                SCHEDULE = '1 minute'
+                                                WHEN SYSTEM$STREAM_HAS_DATA('gong_call_stream')
+                                                AS
+                                                    CALL process_stream_data();
+                """)
+                    # Resume task
+                    await self.snowflake.execute_query(
+                "ALTER TASK process_real_time_data RESUME;"
+                    )
 
-    def _setup_processors(self):
+                    logger.info("Snowflake streams and tasks configured")
+
+                    except Exception as e:
+                    logger.error(f"Error setting up Snowflake streams: {e}")
+
+                    def _setup_processors(self):
         """Set up stream processors."""
-        # Gong call processor
+# Gong call processor
         gong_processor = StreamProcessor(StreamType.GONG_CALLS)
         gong_processor.add_handler(self._process_gong_call)
         gong_processor.add_filter(self._filter_important_calls)
@@ -184,9 +178,9 @@ class RealTimeStreaming:
         self.processors[StreamType.CRM_UPDATES] = crm_processor
 
     async def start_stream(self, stream_type: StreamType):
-        """Start processing a stream"""
-        await self.initialize()
+        """Start processing a stream."""
 
+    await self.initialize()
         stream_id = f"{stream_type}:{datetime.utcnow().isoformat()}"
         self.active_streams.add(stream_id)
 
@@ -206,8 +200,9 @@ class RealTimeStreaming:
         logger.info(f"Started stream: {stream_id}")
 
     async def stop_stream(self, stream_type: StreamType):
-        """Stop processing a stream"""
-        streams_to_remove = [
+        """Stop processing a stream."""
+    streams_to_remove = [
+
             s for s in self.active_streams if s.startswith(stream_type)
         ]
         for stream_id in streams_to_remove:
@@ -216,9 +211,8 @@ class RealTimeStreaming:
         logger.info(f"Stopped {len(streams_to_remove)} streams of type {stream_type}")
 
     async def publish_event(self, event: StreamEvent):
-        """Publish event to stream"""
-        await self.initialize()
-
+        """Publish event to stream."""
+    await self.initialize()
         # Publish to Redis
         channel = f"stream:{event.stream_type}"
         await self.redis_client.publish(channel, event.json())
@@ -231,64 +225,62 @@ class RealTimeStreaming:
     async def _consume_snowflake_stream(
         self, stream_name: str, stream_type: StreamType
     ):
-        """Consume data from Snowflake stream"""
-        processor = self.processors.get(stream_type)
+        """Consume data from Snowflake stream."""
+    processor = self.processors.get(stream_type)
         if not processor:
             logger.error(f"No processor for stream type: {stream_type}")
             return
 
         while f"{stream_type}:{datetime.utcnow().isoformat()}" in self.active_streams:
             try:
+            except Exception:
+                pass
                 # Query stream for new data
-                query = f"""  # nosec B608  # nosec B608 - Stream name is validated
-                    SELECT * FROM {stream_name}
+                query = f"""# nosec B608  # nosec B608 - Stream name is validated
+SELECT * FROM {stream_name}
                     WHERE METADATA$ACTION IN ('INSERT', 'UPDATE')
                     AND METADATA$ISUPDATE = FALSE
                     LIMIT 100;
-                """
+                """results = await self.snowflake.execute_query(query).
 
-                results = await self.snowflake.execute_query(query)
+                                                for row in results:
+                                                    # Convert row to event
+                                                    event = StreamEvent(
+                                                        stream_type=stream_type,
+                                                        data=dict(row),
+                                                        metadata={
+                                                            "source": "snowflake",
+                                                            "stream": stream_name,
+                                                            "action": row.get("METADATA$ACTION"),
+                                                        },
+                                                    )
 
-                for row in results:
-                    # Convert row to event
-                    event = StreamEvent(
-                        stream_type=stream_type,
-                        data=dict(row),
-                        metadata={
-                            "source": "snowflake",
-                            "stream": stream_name,
-                            "action": row.get("METADATA$ACTION"),
-                        },
-                    )
+                                                    # Process event
+                                                    await processor.process(event)
 
-                    # Process event
-                    await processor.process(event)
+                                                    # Cache processed data
+                                                    await hierarchical_cache.set(
+                                                        f"stream:{stream_type}:{event.id}",
+                                                        event.dict(),
+                                                        ttl_override={CacheTier.L1_MEMORY: 300},  # 5 min in L1
+                                                    )
 
-                    # Cache processed data
-                    await hierarchical_cache.set(
-                        f"stream:{stream_type}:{event.id}",
-                        event.dict(),
-                        ttl_override={CacheTier.L1_MEMORY: 300},  # 5 min in L1
-                    )
+                                                # Mark stream offset
+                                                if results:
+                                                    await self.snowflake.execute_query(
+                                                        f"SELECT SYSTEM$STREAM_GET_TABLE_TIMESTAMP('{stream_name}') as stream_offset;"
+                                                    )
 
-                # Mark stream offset
-                if results:
-                    await self.snowflake.execute_query(
-                        f"""
-                        SELECT SYSTEM$STREAM_GET_TABLE_TIMESTAMP('{stream_name}') as stream_offset;
-                    """
-                    )
+                                                # Wait before next poll
+                                                await asyncio.sleep(5)  # Poll every 5 seconds
 
-                # Wait before next poll
-                await asyncio.sleep(5)  # Poll every 5 seconds
+                                                    except Exception as e:
+                                                logger.error(f"Error consuming Snowflake stream {stream_name}: {e}")
+                                                await asyncio.sleep(30)  # Back off on error
 
-            except Exception as e:
-                logger.error(f"Error consuming Snowflake stream {stream_name}: {e}")
-                await asyncio.sleep(30)  # Back off on error
-
-    async def _consume_redis_stream(self, stream_key: str, stream_type: StreamType):
-        """Consume data from Redis stream"""
-        processor = self.processors.get(stream_type)
+                                                    async def _consume_redis_stream(self, stream_key: str, stream_type: StreamType):
+                """Consume data from Redis stream"""
+    processor = self.processors.get(stream_type)
         if not processor:
             logger.error(f"No processor for stream type: {stream_type}")
             return
@@ -298,6 +290,8 @@ class RealTimeStreaming:
 
         while f"{stream_type}:{datetime.utcnow().isoformat()}" in self.active_streams:
             try:
+            except Exception:
+                pass
                 # Read from stream
                 messages = await self.redis_client.xread(
                     {stream_key: last_id},
@@ -330,9 +324,8 @@ class RealTimeStreaming:
                 await asyncio.sleep(30)  # Back off on error
 
     async def _process_gong_call(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process Gong call event"""
-        call_data = event.data
-
+        """Process Gong call event."""
+    call_data = event.data
         # Extract key information
         result = {
             "call_id": call_data.get("id"),
@@ -353,9 +346,8 @@ class RealTimeStreaming:
         return result
 
     async def _process_slack_message(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process Slack message event"""
-        message_data = event.data
-
+        """Process Slack message event."""
+    message_data = event.data
         # Extract and analyze
         result = {
             "message_id": message_data.get("ts"),
@@ -373,9 +365,8 @@ class RealTimeStreaming:
         return result
 
     async def _process_crm_update(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process CRM update event"""
-        update_data = event.data
-
+        """Process CRM update event."""
+    update_data = event.data
         # Track changes
         result = {
             "entity_type": update_data.get("object_type"),
@@ -392,9 +383,8 @@ class RealTimeStreaming:
         return result
 
     async def _filter_important_calls(self, event: StreamEvent) -> bool:
-        """Filter for important calls only"""
-        call_data = event.data
-
+        """Filter for important calls only."""
+    call_data = event.data
         # Check various importance criteria
         if call_data.get("duration", 0) > 1800:  # Longer than 30 minutes
             return True
@@ -406,7 +396,7 @@ class RealTimeStreaming:
         return False
 
     async def _extract_topics(self, transcript: str) -> List[str]:
-        """Extract key topics from transcript"""
+        """Extract key topics from transcript."""
         # This would use NLP/LLM for topic extraction
         # Placeholder implementation
         topics = []
@@ -417,14 +407,13 @@ class RealTimeStreaming:
         return topics
 
     async def _analyze_sentiment(self, text: str) -> float:
-        """Analyze sentiment of text"""
-        # This would use sentiment analysis
+        """Analyze sentiment of text."""
+# This would use sentiment analysis
         # Placeholder: return neutral sentiment
         return 0.5
 
     async def _extract_action_items(self, transcript: str) -> List[str]:
-        """Extract action items from transcript"""
-        # This would use NLP to extract action items
+        """Extract action items from transcript."""# This would use NLP to extract action items
         # Placeholder implementation
         action_items = []
         action_phrases = ["will follow up", "need to", "action item", "next step"]
@@ -434,15 +423,14 @@ class RealTimeStreaming:
         return action_items
 
     def _extract_mentions(self, text: str) -> List[str]:
-        """Extract mentions from text"""
+        """Extract mentions from text."""
         import re
-
         mentions = re.findall(r"@(\w+)", text)
         return mentions
 
     async def _assess_urgency(self, text: str) -> float:
-        """Assess message urgency"""
-        urgent_keywords = ["urgent", "asap", "immediately", "critical", "emergency"]
+        """Assess message urgency."""
+    urgent_keywords = ["urgent", "asap", "immediately", "critical", "emergency"]
         text_lower = text.lower()
 
         urgency_score = 0.0
@@ -453,7 +441,7 @@ class RealTimeStreaming:
         return min(urgency_score, 1.0)
 
     async def _assess_crm_impact(self, update_data: Dict[str, Any]) -> float:
-        """Assess impact of CRM update"""
+        """Assess impact of CRM update."""
         # High impact changes
         high_impact_fields = ["deal_stage", "amount", "close_date", "status"]
 
@@ -467,8 +455,9 @@ class RealTimeStreaming:
         return min(impact_score, 1.0)
 
     async def _send_alert(self, alert_type: str, data: Dict[str, Any]):
-        """Send real-time alert"""
-        alert = {
+        """Send real-time alert."""
+    alert = {
+
             "type": alert_type,
             "timestamp": datetime.utcnow().isoformat(),
             "data": data,
@@ -480,18 +469,19 @@ class RealTimeStreaming:
         logger.info(f"Sent alert: {alert_type}")
 
     async def _route_urgent_message(self, message: Dict[str, Any]):
-        """Route urgent message to appropriate handler"""
+        """Route urgent message to appropriate handler."""
         # This would integrate with notification system
         logger.info(f"Routing urgent message: {message['message_id']}")
 
     async def _update_dashboards(self, update: Dict[str, Any]):
-        """Update dashboards with real-time data"""
+        """Update dashboards with real-time data."""
         # Publish to WebSocket channel for dashboard updates
         await self.redis_client.publish("dashboard:updates", json.dumps(update))
 
     async def _monitor_streams(self):
         """Monitor stream health and performance."""
         while True:
+
             await asyncio.sleep(60)  # Check every minute
 
             metrics = {

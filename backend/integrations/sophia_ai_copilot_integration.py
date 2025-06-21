@@ -1,4 +1,4 @@
-"""Sophia AI Copilot Integration
+"""Sophia AI Copilot Integration.
 
 This module analyzes BI workloads across Snowflake, Pinecone and AI services.
 It provides predictive scaling recommendations based on historical demand and
@@ -27,9 +27,8 @@ class WorkloadRecord:
 
 @dataclass
 class CostConfig:
-    """Configuration for cost tracking."""
+    """Configuration for cost tracking."""budget: float = 1000.0.
 
-    budget: float = 1000.0
     snowflake_cost_per_query: float = 0.0005
     pinecone_cost_per_query: float = 0.0001
     ai_cost_per_call: float = 0.0002
@@ -37,9 +36,7 @@ class CostConfig:
 
 @dataclass
 class WorkloadMetrics:
-    """Stores historical workload records."""
-
-    history: List[WorkloadRecord] = field(default_factory=list)
+    """Stores historical workload records."""history: List[WorkloadRecord] = field(default_factory=list).
 
     def add_record(self, record: WorkloadRecord) -> None:
         logger.debug("Adding workload record: %s", record)
@@ -60,9 +57,8 @@ class WorkloadMetrics:
 
 
 class CostTracker:
-    """Tracks cost of workloads and validates budget."""
+    """Tracks cost of workloads and validates budget."""def __init__(self, config: CostConfig | None = None) -> None:.
 
-    def __init__(self, config: CostConfig | None = None) -> None:
         self.config = config or CostConfig()
         self.monthly_cost = 0.0
 
@@ -95,7 +91,9 @@ class PredictiveScaler:
     def scaling_recommendation(self, current_capacity: int) -> int:
         predicted = self.predict_demand()
         logger.debug(
-            "Predicted demand %.2f with current capacity %d", predicted, current_capacity
+            "Predicted demand %.2f with current capacity %d",
+            predicted,
+            current_capacity,
         )
         if predicted > current_capacity * self.threshold:
             return current_capacity + 1

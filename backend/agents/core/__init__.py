@@ -1,4 +1,5 @@
-"""Core Agent System Initialization
+"""Core Agent System Initialization.
+
 Registers all agents and initializes core components
 """
 
@@ -27,10 +28,11 @@ logger = logging.getLogger(__name__)
 
 
 async def initialize_agent_system():
-    """Initialize the complete agent system
-    - Register all agents
-    - Initialize context manager
-    - Set up integrations
+    """Initialize the complete agent system.
+
+            - Register all agents
+            - Initialize context manager
+            - Set up integrations
     """
     try:
         # Initialize context manager
@@ -106,7 +108,7 @@ async def initialize_agent_system():
 
 
 async def shutdown_agent_system():
-    """Gracefully shutdown the agent system"""
+    """Gracefully shutdown the agent system."""
     try:
         # Shutdown context manager
         await context_manager.shutdown()

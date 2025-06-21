@@ -75,7 +75,7 @@ Examples:
   - Action: Show
   - Object: Sales data
   - Parameters: Q2 2025
-  
+
 - "Schedule a meeting with the client success team tomorrow at 2pm"
   - Action: Schedule
   - Object: Meeting
@@ -223,24 +223,24 @@ class NLCommandAgent(BaseAgent):
         self.entity_extractor = EntityExtractor()
         self.context_manager = ContextManager()
         self.command_router = CommandRouter()
-        
+
     async def execute_task(self, task: Task) -> TaskResult:
         try:
             # Parse natural language input
             nl_input = task.input.get("text", "")
-            
+
             # Recognize intent
             intent = self.intent_recognizer.recognize(nl_input)
-            
+
             # Extract entities
             entities = self.entity_extractor.extract(nl_input)
-            
+
             # Update context
             context = self.context_manager.update(task.context, intent, entities)
-            
+
             # Route command
             result = await self.command_router.route(intent, entities, context)
-            
+
             return TaskResult(
                 status="success",
                 output=result,
@@ -263,18 +263,18 @@ The Intent Recognizer identifies the user's intention from natural language inpu
 class IntentRecognizer:
     def __init__(self):
         self.model = self._load_model()
-        
+
     def _load_model(self):
         # Load intent recognition model
         # This could be a fine-tuned language model
         pass
-        
+
     def recognize(self, text: str) -> Intent:
         # Recognize intent from text
         intent_type = self._classify_intent_type(text)
         action = self._extract_action(text)
         object_type = self._extract_object(text)
-        
+
         return Intent(
             type=intent_type,
             action=action,
@@ -290,26 +290,26 @@ The Entity Extractor identifies relevant entities in the user's input:
 class EntityExtractor:
     def __init__(self):
         self.model = self._load_model()
-        
+
     def _load_model(self):
         # Load entity extraction model
         # This could be a named entity recognition model
         pass
-        
+
     def extract(self, text: str) -> List[Entity]:
         # Extract entities from text
         entities = []
-        
+
         # Extract dates, times, names, etc.
         dates = self._extract_dates(text)
         times = self._extract_times(text)
         names = self._extract_names(text)
-        
+
         # Add extracted entities to list
         entities.extend(dates)
         entities.extend(times)
         entities.extend(names)
-        
+
         return entities
 ```
 
@@ -321,26 +321,26 @@ The Context Manager maintains conversation context:
 class ContextManager:
     def __init__(self):
         self.max_history = 10
-        
+
     def update(self, current_context: Dict, intent: Intent, entities: List[Entity]) -> Dict:
         # Update context with new intent and entities
         new_context = current_context.copy()
-        
+
         # Add current intent to history
         if "intent_history" not in new_context:
             new_context["intent_history"] = []
-        
+
         new_context["intent_history"].append(intent)
-        
+
         # Limit history size
         if len(new_context["intent_history"]) > self.max_history:
             new_context["intent_history"] = new_context["intent_history"][-self.max_history:]
-        
+
         # Update entity references
         self._update_entity_references(new_context, entities)
-        
+
         return new_context
-        
+
     def _update_entity_references(self, context: Dict, entities: List[Entity]):
         # Update entity references in context
         # This allows resolving pronouns and references
@@ -355,7 +355,7 @@ The Command Router directs commands to the appropriate handlers:
 class CommandRouter:
     def __init__(self):
         self.handlers = self._register_handlers()
-        
+
     def _register_handlers(self) -> Dict[str, CommandHandler]:
         # Register command handlers
         return {
@@ -365,16 +365,16 @@ class CommandRouter:
             "system_control": SystemControlHandler(),
             "agent_interaction": AgentInteractionHandler()
         }
-        
+
     async def route(self, intent: Intent, entities: List[Entity], context: Dict) -> Dict:
         # Route command to appropriate handler
         handler = self._get_handler(intent)
-        
+
         if handler:
             return await handler.handle(intent, entities, context)
         else:
             raise ValueError(f"No handler found for intent: {intent.type}")
-            
+
     def _get_handler(self, intent: Intent) -> CommandHandler:
         # Get appropriate handler for intent
         return self.handlers.get(intent.type)

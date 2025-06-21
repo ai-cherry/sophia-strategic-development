@@ -1,4 +1,5 @@
-"""Lambda Labs Infrastructure Setup
+"""Lambda Labs Infrastructure Setup.
+
 Pulumi script to provision Lambda Labs GPU compute resources
 """
 
@@ -20,8 +21,8 @@ region = lambda_labs_config.get("region") or "us-west-2"
 # This uses the Lambda Labs CLI to provision resources
 lambda_instance = command.local.Command(
     "lambda-instance",
-    create=f"""
-    # Install Lambda Labs CLI if not present
+    create=f"""# Install Lambda Labs CLI if not present.
+
     if ! command -v lambda &> /dev/null; then
         pip install lambda-labs
     fi
@@ -34,10 +35,10 @@ lambda_instance = command.local.Command(
         --name sophia-ai-compute \
         --region {region} \
         --ssh-key-name sophia-key
-    """,
-    delete="""
-    lambda terminate sophia-ai-compute
-    """,
+    """,.
+
+        delete=
+    """lambda terminate sophia-ai-compute.""",
     opts=pulumi.ResourceOptions(additional_secret_outputs=["create", "delete"]),
 )
 

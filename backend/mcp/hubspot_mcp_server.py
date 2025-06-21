@@ -1,4 +1,4 @@
-"""HubSpot MCP Server - Placeholder"""
+"""HubSpot MCP Server - Placeholder."""
 
 import json
 from typing import List

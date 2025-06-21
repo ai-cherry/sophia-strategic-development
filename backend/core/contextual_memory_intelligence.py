@@ -1,6 +1,6 @@
-"""Contextual Memory Intelligence (CMI) Framework
+"""Contextual Memory Intelligence (CMI) Framework.
 
-Tracks decisions with full context and rationale for institutional knowledge retention.
+Tracks decisions with full context and rationale for institutional knowledge retention
 """
 
 import asyncio
@@ -25,7 +25,7 @@ Base = declarative_base()
 
 
 class DecisionType(str, Enum):
-    """Types of decisions tracked by CMI"""
+    """Types of decisions tracked by CMI."""
 
     ARCHITECTURE = "architecture"
     BUSINESS = "business"
@@ -35,18 +35,18 @@ class DecisionType(str, Enum):
 
 
 class DecisionImpact(str, Enum):
-    """Impact levels of decisions"""
-
+    """Impact levels of decisions."""
     LOW = "low"
+
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
 
 class ContextualDecision(BaseModel):
-    """Model for a decision with full context"""
+    """Model for a decision with full context."""
+id: str = Field(default_factory=lambda: str(uuid4()))
 
-    id: str = Field(default_factory=lambda: str(uuid4()))
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     decision_type: DecisionType
     impact_level: DecisionImpact
@@ -63,8 +63,7 @@ class ContextualDecision(BaseModel):
 
 
 class DecisionRecord(Base):
-    """SQLAlchemy model for decision storage"""
-
+    """SQLAlchemy model for decision storage."""
     __tablename__ = "contextual_decisions"
 
     id = Column(String, primary_key=True)
@@ -85,9 +84,9 @@ class DecisionRecord(Base):
 
 
 class ContextualMemoryIntelligence:
-    """CMI system for tracking and retrieving decisions with context"""
+    """CMI system for tracking and retrieving decisions with context."""
+def __init__(self):
 
-    def __init__(self):
         self.redis_client = None
         self.db_engine = None
         self.async_session = None
@@ -98,6 +97,7 @@ class ContextualMemoryIntelligence:
     async def initialize(self):
         """Initialize CMI components."""
         if self._initialized:
+
             return
 
         # Initialize Redis for caching
@@ -125,8 +125,8 @@ class ContextualMemoryIntelligence:
     async def record_decision(
         self, decision: ContextualDecision, auto_link: bool = True
     ) -> str:
-        """Record a new decision with full context"""
-        await self.initialize()
+        """Record a new decision with full context."""
+    await self.initialize()
 
         # Generate embedding for the decision
         decision_text = f"{decision.title} {decision.description} {decision.rationale}"
@@ -181,8 +181,8 @@ class ContextualMemoryIntelligence:
         return decision.id
 
     async def retrieve_decision(self, decision_id: str) -> Optional[ContextualDecision]:
-        """Retrieve a decision by ID"""
-        await self.initialize()
+        """Retrieve a decision by ID."""
+await self.initialize()
 
         # Check cache first
         cached = await self._get_cached_decision(decision_id)
@@ -222,8 +222,8 @@ class ContextualMemoryIntelligence:
         tags: Optional[List[str]] = None,
         limit: int = 10,
     ) -> List[ContextualDecision]:
-        """Search decisions using semantic search and filters"""
-        await self.initialize()
+        """Search decisions using semantic search and filters."""
+    await self.initialize()
 
         # Generate embedding for query
         query_embedding = await self.embedding_manager.generate_embedding(query)
@@ -258,8 +258,8 @@ class ContextualMemoryIntelligence:
         end_date: Optional[datetime] = None,
         decision_type: Optional[DecisionType] = None,
     ) -> List[ContextualDecision]:
-        """Get decisions in chronological order"""
-        await self.initialize()
+        """Get decisions in chronological order."""
+await self.initialize()
 
         async with self.async_session() as session:
             query = session.query(DecisionRecord)
@@ -299,8 +299,8 @@ class ContextualMemoryIntelligence:
             return decisions
 
     async def analyze_decision_impact(self, decision_id: str) -> Dict[str, Any]:
-        """Analyze the impact and outcomes of a decision"""
-        await self.initialize()
+        """Analyze the impact and outcomes of a decision."""
+    await self.initialize()
 
         decision = await self.retrieve_decision(decision_id)
         if not decision:
@@ -344,8 +344,9 @@ class ContextualMemoryIntelligence:
     async def _find_related_decisions(
         self, decision: ContextualDecision, embedding: List[float]
     ) -> List[Dict[str, Any]]:
-        """Find decisions related to the current one"""
-        # Search for similar decisions
+        """Find decisions related to the current one."""
+        # Search for similar decisions.
+
         results = await self.vector_integration.search_similar(
             embedding=embedding,
             metadata_filter={"type": "decision", "decision_id": {"$ne": decision.id}},
@@ -366,32 +367,35 @@ class ContextualMemoryIntelligence:
         return related
 
     async def _cache_decision(self, decision: ContextualDecision):
-        """Cache decision in Redis"""
-        key = f"cmi:decision:{decision.id}"
+        """Cache decision in Redis."""
+    key = f"cmi:decision:{decision.id}".
+
         value = decision.json()
         await self.redis_client.setex(key, 3600, value)  # 1 hour TTL
 
     async def _get_cached_decision(
         self, decision_id: str
     ) -> Optional[ContextualDecision]:
-        """Get decision from cache"""
-        key = f"cmi:decision:{decision_id}"
+        """Get decision from cache."""
+    key = f"cmi:decision:{decision_id}"
+
         value = await self.redis_client.get(key)
         if value:
             return ContextualDecision.parse_raw(value)
         return None
 
     async def _analyze_decision_patterns(self, decision: ContextualDecision):
-        """Analyze patterns in decision-making"""
-        # This runs asynchronously to identify patterns
+        """Analyze patterns in decision-making."""
+# This runs asynchronously to identify patterns.
+
         # Implementation would include pattern recognition, trend analysis, etc.
         pass
 
     async def _generate_decision_insights(
         self, decision: ContextualDecision, related_decisions: List[ContextualDecision]
     ) -> Dict[str, Any]:
-        """Generate AI insights about the decision"""
-        # This would use LLM to generate insights
+        """Generate AI insights about the decision."""  # This would use LLM to generate insights.
+
         # For now, return structured analysis
         return {
             "pattern_detected": "Similar decisions tend to have positive outcomes",
@@ -403,7 +407,7 @@ class ContextualMemoryIntelligence:
     async def export_decision_history(
         self, format: str = "json", filters: Optional[Dict[str, Any]] = None
     ) -> Union[str, bytes]:
-        """Export decision history for analysis or backup"""
+        """Export decision history for analysis or backup."""
         await self.initialize()
 
         # Retrieve decisions based on filters

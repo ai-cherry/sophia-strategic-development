@@ -1,4 +1,5 @@
-"""Airbyte MCP Server
+"""Airbyte MCP Server.
+
 Exposes the Airbyte integration to the Sophia AI system via MCP.
 """
 
@@ -19,23 +20,22 @@ class AirbyteMCPServer(BaseMCPServer):
         super().__init__("airbyte")
 
     async def initialize_integration(self):
-        """Initializes the Airbyte integration client."""
-        self.integration_client = airbyte_integration
+        """Initializes the Airbyte integration client."""self.integration_client = airbyte_integration.
+
         await self.integration_client.initialize()
 
     async def list_resources(self, request: any) -> List[Resource]:
-        """Airbyte server is tool-focused."""
-        return []
+        """Airbyte server is tool-focused."""return [].
 
     async def get_resource(self, request: any) -> str:
-        """Airbyte server is tool-focused."""
-        return json.dumps(
+        """Airbyte server is tool-focused."""return json.dumps(.
+
             {"error": "This server does not provide resources, only tools."}
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists the available Airbyte tools."""
-        return [
+        """Lists the available Airbyte tools."""return [.
+
             Tool(
                 name="trigger_sync",
                 description="Triggers a data synchronization job for a specific connection.",
@@ -67,8 +67,8 @@ class AirbyteMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles an Airbyte tool call."""
-        tool_name = request.params.name
+        """Handles an Airbyte tool call."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
         result = None
 

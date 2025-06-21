@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - GitHub Secrets Inventory
+"""Sophia AI - GitHub Secrets Inventory.
+
 This script inventories all secrets in a GitHub organization and outputs them in a format
 that can be used by the GitHub secrets synchronization script.
 """
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitHubSecretInventory:
-    """Inventories all secrets in a GitHub organization"""
+    """Inventories all secrets in a GitHub organization."""
 
     def __init__(self, organization: str, token: str = None):
         self.organization = organization
@@ -34,8 +35,8 @@ class GitHubSecretInventory:
         os.environ["GITHUB_TOKEN"] = self.token
 
     def get_organization_secrets(self) -> List[Dict[str, Any]]:
-        """Get all organization secrets"""
-        try:
+        """Get all organization secrets."""try:.
+
             # Run GitHub CLI command to list secrets
             result = subprocess.run(
                 [
@@ -66,8 +67,8 @@ class GitHubSecretInventory:
             return []
 
     def get_repository_secrets(self, repository: str) -> List[Dict[str, Any]]:
-        """Get all repository secrets"""
-        try:
+        """Get all repository secrets."""try:.
+
             # Run GitHub CLI command to list secrets
             result = subprocess.run(
                 [
@@ -104,8 +105,8 @@ class GitHubSecretInventory:
             return []
 
     def get_repositories(self) -> List[str]:
-        """Get all repositories in the organization"""
-        try:
+        """Get all repositories in the organization."""try:.
+
             # Run GitHub CLI command to list repositories
             result = subprocess.run(
                 [
@@ -138,8 +139,8 @@ class GitHubSecretInventory:
             return []
 
     def map_secret_to_service(self, secret_name: str) -> Dict[str, str]:
-        """Map GitHub secret name to service and key"""
-        # Try to infer mapping from name
+        """Map GitHub secret name to service and key."""# Try to infer mapping from name.
+
         if secret_name.startswith("SNOWFLAKE_"):
             service = "snowflake"
             key = secret_name[len("SNOWFLAKE_") :].lower()
@@ -209,8 +210,8 @@ class GitHubSecretInventory:
         return {"service": service, "key": key, "group": group}
 
     def create_inventory(self, output_file: str = None) -> Dict[str, Any]:
-        """Create inventory of all GitHub secrets"""
-        inventory = {
+        """Create inventory of all GitHub secrets."""inventory = {.
+
             "organization": self.organization,
             "timestamp": datetime.datetime.now().isoformat(),
             "organization_secrets": [],
@@ -261,7 +262,7 @@ class GitHubSecretInventory:
 
 
 def main():
-    """Main function"""
+    """Main function."""
     parser = argparse.ArgumentParser(description="Inventory GitHub secrets")
     parser.add_argument(
         "--organization", "-o", required=True, help="GitHub organization name"

@@ -1,13 +1,13 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-const GlassCard = ({ 
-  children, 
+const GlassCard = ({
+  children,
   className,
   hover = true,
   gradient = false,
   padding = 'default',
-  ...props 
+  ...props
 }) => {
   const paddingSizes = {
     none: '',
@@ -41,4 +41,4 @@ const GlassCard = ({
   );
 };
 
-export default GlassCard; 
+export default GlassCard;

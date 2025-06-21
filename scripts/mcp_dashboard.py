@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""MCP Monitoring Dashboard for Sophia AI
+"""MCP Monitoring Dashboard for Sophia AI.
+
 Real-time monitoring of MCP server health and metrics
 """
 
@@ -21,22 +22,22 @@ st.set_page_config(
 
 # Custom CSS
 st.markdown(
-    """
-<style>
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-    }
-    .status-healthy {
-        color: #28a745;
-    }
-    .status-unhealthy {
-        color: #dc3545;
-    }
-</style>
-""",
+    """<style>.
+
+        .metric-card {
+            background-color: #f0f2f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .status-healthy {
+            color: #28a745;
+        }
+        .status-unhealthy {
+            color: #dc3545;
+        }
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
@@ -60,7 +61,8 @@ with st.sidebar:
 
 # Main dashboard
 async def fetch_server_status(session, url):
-    """Fetch status of all MCP servers"""
+    """Fetch status of all MCP servers."""
+
     try:
         async with session.get(f"{url}/servers") as response:
             if response.status == 200:
@@ -72,8 +74,8 @@ async def fetch_server_status(session, url):
 
 
 async def fetch_server_metrics(session, url, server_name):
-    """Fetch metrics for a specific server"""
-    try:
+    """Fetch metrics for a specific server."""try:.
+
         async with session.get(f"{url}/servers/{server_name}/metrics") as response:
             if response.status == 200:
                 return await response.json()
@@ -83,7 +85,7 @@ async def fetch_server_metrics(session, url, server_name):
 
 
 async def main():
-    """Main dashboard loop"""
+    """Main dashboard loop."""
     # Create layout
     col1, col2, col3 = st.columns(3)
 

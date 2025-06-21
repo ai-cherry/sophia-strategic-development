@@ -72,7 +72,7 @@ if ! pulumi whoami &> /dev/null; then
     echo "PULUMI_ACCESS_TOKEN is not set. Please set it before running this script."
     exit 1
   fi
-  
+
   echo "Logging in to Pulumi..."
   pulumi login
 fi
@@ -108,19 +108,19 @@ fi
 # Process each service
 for SERVICE in $SERVICES; do
   echo "Processing service: $SERVICE"
-  
+
   # Get secret keys for the service
   SECRET_KEYS=$(jq -r ".[\"$SERVICE\"].secret_keys[]" "$REGISTRY_FILE" 2>/dev/null || echo "")
-  
+
   if [ -z "$SECRET_KEYS" ]; then
     echo "No secret keys found for service: $SERVICE"
     continue
   fi
-  
+
   # Get each secret and inject it into the environment
   for KEY in $SECRET_KEYS; do
     echo "Getting secret: ${SERVICE}_${KEY}"
-    
+
     # Get the secret using the Python script
     SECRET_VALUE=$(python3 "$PROJECT_ROOT/infrastructure/esc/get_secret.py" \
       --service "$SERVICE" \
@@ -128,17 +128,17 @@ for SERVICE in $SERVICES; do
       --organization "$ORGANIZATION" \
       --project "$PROJECT" \
       --environment "$ENVIRONMENT" 2>/dev/null || echo "")
-    
+
     if [ -z "$SECRET_VALUE" ]; then
       echo "Secret not found: ${SERVICE}_${KEY}"
       continue
     fi
-    
+
     # Inject the secret into the GitHub environment
     ENV_VAR_NAME="${SERVICE}_${KEY}"
     echo "Injecting secret: $ENV_VAR_NAME"
     echo "$ENV_VAR_NAME=$SECRET_VALUE" >> "$GITHUB_ENV_FILE"
-    
+
     # Add to output file if specified
     if [ -n "$OUTPUT_FILE" ]; then
       # Update the JSON file with the new secret (masked)
@@ -147,19 +147,19 @@ for SERVICE in $SERVICES; do
       mv "${OUTPUT_FILE}.tmp" "$OUTPUT_FILE"
     fi
   done
-  
+
   # Get config keys for the service
   CONFIG_KEYS=$(jq -r ".[\"$SERVICE\"].config_keys[]" "$REGISTRY_FILE" 2>/dev/null || echo "")
-  
+
   if [ -z "$CONFIG_KEYS" ]; then
     echo "No config keys found for service: $SERVICE"
     continue
   fi
-  
+
   # Get each config and inject it into the environment
   for KEY in $CONFIG_KEYS; do
     echo "Getting config: ${SERVICE}_${KEY}"
-    
+
     # Get the config using the Python script
     CONFIG_VALUE=$(python3 "$PROJECT_ROOT/infrastructure/esc/get_secret.py" \
       --service "$SERVICE" \
@@ -168,17 +168,17 @@ for SERVICE in $SERVICES; do
       --project "$PROJECT" \
       --environment "$ENVIRONMENT" \
       --config 2>/dev/null || echo "")
-    
+
     if [ -z "$CONFIG_VALUE" ]; then
       echo "Config not found: ${SERVICE}_${KEY}"
       continue
     fi
-    
+
     # Inject the config into the GitHub environment
     ENV_VAR_NAME="${SERVICE}_${KEY}"
     echo "Injecting config: $ENV_VAR_NAME"
     echo "$ENV_VAR_NAME=$CONFIG_VALUE" >> "$GITHUB_ENV_FILE"
-    
+
     # Add to output file if specified
     if [ -n "$OUTPUT_FILE" ]; then
       # Update the JSON file with the new config
@@ -190,4 +190,3 @@ for SERVICE in $SERVICES; do
 done
 
 echo "Secrets and configs injected successfully."
-

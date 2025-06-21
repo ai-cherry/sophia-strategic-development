@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  DollarSign, 
-  Users, 
-  TrendingUp, 
+import {
+  DollarSign,
+  Users,
+  TrendingUp,
   Activity,
   BarChart3,
   Building2,
@@ -47,11 +47,11 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      <Header 
+      <Header
         title="Sophia AI Dashboard"
         user={{ name: 'Admin User', role: 'Administrator' }}
       />
-      
+
       <main className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {error && (
@@ -135,20 +135,20 @@ const OverviewTab = ({ metrics, loading }) => {
           </div>
         </GlassCard>
       </div>
-      
+
       <div className="space-y-6">
         <GlassCard>
           <h3 className="text-h4 font-medium mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               className="w-full"
               icon={BarChart3}
             >
               Generate Report
             </Button>
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               className="w-full"
               icon={Building2}
             >
@@ -156,7 +156,7 @@ const OverviewTab = ({ metrics, loading }) => {
             </Button>
           </div>
         </GlassCard>
-        
+
         <GlassCard>
           <h3 className="text-h4 font-medium mb-4">AI Insights</h3>
           <div className="space-y-3">
@@ -243,7 +243,7 @@ const OperationsTab = () => {
           </div>
         </div>
       </GlassCard>
-      
+
       <GlassCard>
         <h3 className="text-h3 font-semibold mb-4">Active Workflows</h3>
         <div className="space-y-3">
@@ -302,4 +302,4 @@ const InsightsTab = () => {
   );
 };
 
-export default DashboardLayout; 
+export default DashboardLayout;

@@ -53,7 +53,7 @@ jobs:
       deploy_frontend: ${{ steps.set-env.outputs.deploy_frontend }}
       rotate_secrets: ${{ steps.set-env.outputs.rotate_secrets }}
       service_to_rotate: ${{ steps.set-env.outputs.service_to_rotate }}
-    
+
     steps:
       - name: Set environment variables
         id: set-env
@@ -75,14 +75,14 @@ jobs:
             ROTATE_SECRETS="false"
             SERVICE_TO_ROTATE=""
           fi
-          
+
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
           echo "deploy_infrastructure=$DEPLOY_INFRASTRUCTURE" >> $GITHUB_OUTPUT
           echo "deploy_backend=$DEPLOY_BACKEND" >> $GITHUB_OUTPUT
           echo "deploy_frontend=$DEPLOY_FRONTEND" >> $GITHUB_OUTPUT
           echo "rotate_secrets=$ROTATE_SECRETS" >> $GITHUB_OUTPUT
           echo "service_to_rotate=$SERVICE_TO_ROTATE" >> $GITHUB_OUTPUT
-          
+
           echo "Environment: $ENVIRONMENT"
           echo "Deploy Infrastructure: $DEPLOY_INFRASTRUCTURE"
           echo "Deploy Backend: $DEPLOY_BACKEND"
@@ -96,19 +96,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Run Security Scan
         run: |
           # Python security scan
           pip install bandit safety
           bandit -r backend/ || true
           safety check -r requirements.txt || true
-          
+
           # JavaScript security scan
           cd frontend && npm audit --audit-level moderate || true
 
@@ -117,21 +117,21 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       esc_initialized: ${{ steps.init-esc.outputs.initialized }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pulumi requests
-      
+
       - name: Setup Pulumi ESC
         id: init-esc
         env:
@@ -142,7 +142,7 @@ jobs:
           cd infrastructure/esc
           chmod +x setup_esc.sh
           ./setup_esc.sh --environment ${{ needs.initialize.outputs.environment }}
-          
+
           if [ $? -eq 0 ]; then
             echo "initialized=true" >> $GITHUB_OUTPUT
           else
@@ -156,17 +156,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install pytest pytest-cov
-      
+
       - name: Inject secrets from Pulumi ESC
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -174,7 +174,7 @@ jobs:
           cd infrastructure/esc
           chmod +x inject_secrets.sh
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
-      
+
       - name: Run backend tests
         run: |
           # Create basic test structure if not exists
@@ -182,7 +182,7 @@ jobs:
           echo "# Basic test placeholder" > backend/tests/__init__.py
           echo "def test_basic(): assert True" > backend/tests/test_basic.py
           pytest backend/tests/ -v --cov=backend --cov-report=xml || true
-      
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
@@ -196,24 +196,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm ci
-      
+
       - name: Run frontend tests
         run: |
           cd frontend
           npm test -- --coverage --watchAll=false || true
-      
+
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
@@ -228,17 +228,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests pulumi
-      
+
       - name: Rotate secrets
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -256,15 +256,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install Pulumi CLI
         uses: pulumi/actions@v4
-      
+
       - name: Deploy infrastructure
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -280,12 +280,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Inject secrets from Pulumi ESC
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -293,7 +293,7 @@ jobs:
           cd infrastructure/esc
           chmod +x inject_secrets.sh
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
-      
+
       - name: Deploy to Lambda Labs
         env:
           LAMBDA_LABS_API_KEY: ${{ env.LAMBDA_LABS_API_KEY }}
@@ -309,24 +309,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install dependencies
         run: |
           cd frontend
           npm ci
-      
+
       - name: Build frontend
         run: |
           cd frontend
           npm run build
-      
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:
@@ -345,4 +345,3 @@ jobs:
         run: |
           echo "Deployment completed with status: ${{ job.status }}"
           # Add Slack notification or other notification logic here
-

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Check for import issues in the codebase."""
-
 import ast
 import sys
 from pathlib import Path
@@ -8,9 +7,11 @@ from pathlib import Path
 
 def check_python_file(filepath):
     """Check a Python file for import issues."""
-    issues = []
 
+    issues = []
     try:
+    except Exception:
+        pass
         with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
 

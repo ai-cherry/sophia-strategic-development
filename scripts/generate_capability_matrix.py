@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-"""Sophia AI - Generate Capability Matrix for AI Agents
+"""Sophia AI - Generate Capability Matrix for AI Agents.
 
 This script automatically generates a capability matrix based on available
 GitHub organization secrets and their validation status.
 
 Usage:
     python scripts/generate_capability_matrix.py
-"""
+"""import json
 
-import json
 import os
 from datetime import datetime
 from typing import Any, Dict
 
 
 def load_secret_definitions() -> Dict[str, Any]:
-    """Load secret definitions from the test script"""
+    """Load secret definitions from the test script."""
+
     # Import the secret definitions from the test script
     try:
         import sys
@@ -61,8 +61,8 @@ def load_secret_definitions() -> Dict[str, Any]:
 
 
 def check_secret_availability() -> Dict[str, bool]:
-    """Check which secrets are available in the environment"""
-    secret_definitions = load_secret_definitions()
+    """Check which secrets are available in the environment."""secret_definitions = load_secret_definitions().
+
     availability = {}
 
     for secret_name in secret_definitions.keys():
@@ -72,8 +72,8 @@ def check_secret_availability() -> Dict[str, bool]:
 
 
 def generate_capability_matrix() -> Dict[str, Any]:
-    """Generate the capability matrix"""
-    secret_definitions = load_secret_definitions()
+    """Generate the capability matrix."""secret_definitions = load_secret_definitions().
+
     availability = check_secret_availability()
 
     matrix = {
@@ -159,8 +159,8 @@ def generate_capability_matrix() -> Dict[str, Any]:
 
 
 def save_capability_matrix(matrix: Dict[str, Any]):
-    """Save the capability matrix to files"""
-    # Ensure docs directory exists
+    """Save the capability matrix to files."""# Ensure docs directory exists.
+
     os.makedirs("docs", exist_ok=True)
 
     # Save JSON version for AI agents
@@ -178,8 +178,7 @@ def save_capability_matrix(matrix: Dict[str, Any]):
 
 
 def generate_markdown_summary(matrix: Dict[str, Any]) -> str:
-    """Generate a markdown summary of capabilities"""
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+    """Generate a markdown summary of capabilities."""timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC").
 
     content = f"""# Sophia AI - Capability Summary
 
@@ -188,40 +187,61 @@ def generate_markdown_summary(matrix: Dict[str, Any]) -> str:
 
 ## 📊 Service Categories
 
-"""
+"""for category, info in matrix["categories"].items():.
 
-    for category, info in matrix["categories"].items():
+
         available = info["available_count"]
+
         total = info["total_count"]
+
         percentage = (available / total * 100) if total > 0 else 0
 
+
         content += f"### {category}\n"
+
         content += f"**Available**: {available}/{total} ({percentage:.0f}%)\n\n"
 
+
         for service in info["services"]:
+
             status = "✅" if service["available"] else "❌"
+
             content += f"- {status} **{service['name']}**: {service['building_use']}\n"
+
 
         content += "\n"
 
+
     content += "## 🎯 Available Capabilities\n\n"
+
     for capability, services in matrix["capabilities"].items():
+
         if services:
+
             content += (
+
                 f"- **{capability.replace('_', ' ').title()}**: {', '.join(services)}\n"
+
             )
 
+
     content += "\n## 🤖 AI Agent Recommendations\n\n"
+
     for task, service in matrix["ai_agent_guidance"]["primary_recommendations"].items():
+
         content += f"- **{task.replace('_', ' ').title()}**: Use `{service}`\n"
 
+
     content += f"\n## 🔄 Last Updated\n{timestamp}\n"
+
 
     return content
 
 
+
 def main():
-    """Main function"""
+
+"""Main function."""
     print("🔍 Generating capability matrix for AI agents...")
 
     # Generate the matrix

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check that key AI service credentials are available."""
+
 import os
 
 REQUIRED_VARS = [
@@ -15,6 +16,7 @@ def main() -> None:
         print("❌ Missing AI service credentials:", ", ".join(missing))
     else:
         print("✅ All required AI service credentials present")
+
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Figma.
-"""
+"""Pulumi ESC Secret Manager for Figma."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

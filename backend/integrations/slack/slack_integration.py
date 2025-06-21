@@ -1,4 +1,5 @@
-"""Sophia AI - Slack Integration
+"""Sophia AI - Slack Integration.
+
 Team communication and intelligent notification system
 
 This module provides comprehensive Slack integration for Sophia AI,
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class SlackConfig(BaseModel):
-    """Slack integration configuration"""
+    """Slack integration configuration."""
 
     bot_token: str = Field(default_factory=lambda: os.getenv("SLACK_BOT_TOKEN", ""))
     app_token: str = Field(default_factory=lambda: os.getenv("SLACK_APP_TOKEN", ""))
@@ -37,9 +38,8 @@ class SlackConfig(BaseModel):
 
 
 class SlackMessage(BaseModel):
-    """Structured Slack message"""
+    """Structured Slack message."""channel: str.
 
-    channel: str
     text: str
     blocks: Optional[List[Dict[str, Any]]] = None
     thread_ts: Optional[str] = None
@@ -49,9 +49,8 @@ class SlackMessage(BaseModel):
 
 
 class SlackNotification(BaseModel):
-    """Notification configuration"""
+    """Notification configuration."""type: str  # 'call_completed', 'deal_update', 'task_reminder', etc.
 
-    type: str  # 'call_completed', 'deal_update', 'task_reminder', etc.
     priority: str  # 'low', 'medium', 'high', 'urgent'
     channel: Optional[str] = None
     mentions: List[str] = []
@@ -59,9 +58,8 @@ class SlackNotification(BaseModel):
 
 
 class SlackIntegration:
-    """Comprehensive Slack integration for Sophia AI"""
+    """Comprehensive Slack integration for Sophia AI."""def __init__(self, config: SlackConfig = None):.
 
-    def __init__(self, config: SlackConfig = None):
         self.config = config or SlackConfig()
         self.client = AsyncWebClient(token=self.config.bot_token)
         self.webhook_client = (
@@ -76,8 +74,8 @@ class SlackIntegration:
         self._user_cache: Dict[str, Dict[str, Any]] = {}
 
     async def initialize(self):
-        """Initialize Slack integration and test connection"""
-        try:
+        """Initialize Slack integration and test connection."""try:.
+
             # Test authentication
             response = await self.client.auth_test()
             logger.info(f"Slack connection successful. Bot name: {response['user']}")
@@ -94,8 +92,8 @@ class SlackIntegration:
             return False
 
     async def _cache_channels(self):
-        """Cache channel list for quick lookups"""
-        try:
+        """Cache channel list for quick lookups."""try:.
+
             response = await self.client.conversations_list(
                 types="public_channel,private_channel"
             )
@@ -111,8 +109,8 @@ class SlackIntegration:
 
     # Message Sending
     async def send_message(self, message: SlackMessage) -> Optional[Dict[str, Any]]:
-        """Send message to Slack channel"""
-        try:
+        """Send message to Slack channel."""try:.
+
             # Rate limiting
             await self._rate_limit()
 
@@ -147,8 +145,8 @@ class SlackIntegration:
         text: str,
         blocks: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
-        """Send ephemeral message visible only to specific user"""
-        try:
+        """Send ephemeral message visible only to specific user."""try:.
+
             await self._rate_limit()
 
             channel_id = await self._resolve_channel(channel)
@@ -173,8 +171,8 @@ class SlackIntegration:
         text: str,
         blocks: Optional[List[Dict[str, Any]]] = None,
     ) -> bool:
-        """Update existing message"""
-        try:
+        """Update existing message."""try:.
+
             channel_id = await self._resolve_channel(channel)
 
             kwargs = {"channel": channel_id, "ts": ts, "text": text}
@@ -191,8 +189,8 @@ class SlackIntegration:
 
     # Notification System
     async def send_notification(self, notification: SlackNotification) -> bool:
-        """Send intelligent notification based on type and priority"""
-        try:
+        """Send intelligent notification based on type and priority."""try:.
+
             # Determine channel
             channel = notification.channel or self._get_channel_for_notification(
                 notification
@@ -233,8 +231,8 @@ class SlackIntegration:
     async def _format_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format notification based on type"""
-        formatters = {
+        """Format notification based on type."""formatters = {.
+
             "call_completed": self._format_call_notification,
             "deal_update": self._format_deal_notification,
             "task_reminder": self._format_task_notification,
@@ -248,8 +246,7 @@ class SlackIntegration:
     async def _format_call_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format call completion notification"""
-        data = notification.data
+        """Format call completion notification."""data = notification.data.
 
         blocks = [
             {
@@ -345,8 +342,7 @@ class SlackIntegration:
     async def _format_deal_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format deal update notification"""
-        data = notification.data
+        """Format deal update notification."""data = notification.data.
 
         # Determine emoji based on update type
         emoji_map = {
@@ -409,8 +405,7 @@ class SlackIntegration:
     async def _format_task_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format task reminder notification"""
-        data = notification.data
+        """Format task reminder notification."""data = notification.data.
 
         urgency_emoji = {"overdue": "🚨", "today": "⏰", "upcoming": "📅"}
         emoji = urgency_emoji.get(data.get("urgency", ""), "📌")
@@ -449,8 +444,7 @@ class SlackIntegration:
     async def _format_insight_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format business insight notification"""
-        data = notification.data
+        """Format business insight notification."""data = notification.data.
 
         return {
             "text": f"💡 Business Insight: {data.get('title', 'New Insight')}",
@@ -480,8 +474,7 @@ class SlackIntegration:
     async def _format_system_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format system alert notification"""
-        data = notification.data
+        """Format system alert notification."""data = notification.data.
 
         severity_emoji = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
         emoji = severity_emoji.get(data.get("severity", "info"), "ℹ️")
@@ -504,8 +497,8 @@ class SlackIntegration:
     async def _format_generic_notification(
         self, notification: SlackNotification
     ) -> Dict[str, Any]:
-        """Format generic notification"""
-        return {
+        """Format generic notification."""return {.
+
             "text": notification.data.get("message", "Sophia AI Notification"),
             "blocks": [
                 {
@@ -521,8 +514,8 @@ class SlackIntegration:
         }
 
     def _get_channel_for_notification(self, notification: SlackNotification) -> str:
-        """Determine appropriate channel based on notification type and priority"""
-        channel_map = {
+        """Determine appropriate channel based on notification type and priority."""channel_map = {.
+
             "urgent": "#sophia-urgent",
             "deal_update": "#sales-updates",
             "call_completed": "#call-insights",
@@ -539,8 +532,8 @@ class SlackIntegration:
 
     # Channel and User Management
     async def _resolve_channel(self, channel: str) -> str:
-        """Resolve channel name to ID"""
-        if channel.startswith("C") or channel.startswith("D"):
+        """Resolve channel name to ID."""if channel.startswith("C") or channel.startswith("D"):.
+
             return channel  # Already an ID
 
         channel_name = channel.lstrip("#")
@@ -554,8 +547,8 @@ class SlackIntegration:
         return self._channel_cache.get(channel_name, channel)
 
     async def _resolve_user(self, user: str) -> str:
-        """Resolve user email or name to ID"""
-        if user.startswith("U"):
+        """Resolve user email or name to ID."""if user.startswith("U"):.
+
             return user  # Already an ID
 
         # Check cache first
@@ -582,8 +575,8 @@ class SlackIntegration:
         return user  # Return as-is if can't resolve
 
     async def get_user_info(self, user_id: str) -> Optional[Dict[str, Any]]:
-        """Get detailed user information"""
-        try:
+        """Get detailed user information."""try:.
+
             response = await self.client.users_info(user=user_id)
             return response["user"]
         except SlackApiError as e:
@@ -591,8 +584,8 @@ class SlackIntegration:
             return None
 
     async def get_channel_info(self, channel_id: str) -> Optional[Dict[str, Any]]:
-        """Get detailed channel information"""
-        try:
+        """Get detailed channel information."""try:.
+
             response = await self.client.conversations_info(channel=channel_id)
             return response["channel"]
         except SlackApiError as e:
@@ -607,8 +600,8 @@ class SlackIntegration:
         text: str,
         blocks: Optional[List[Dict[str, Any]]] = None,
     ) -> Optional[Dict[str, Any]]:
-        """Reply to existing thread"""
-        message = SlackMessage(
+        """Reply to existing thread."""message = SlackMessage(.
+
             channel=channel, text=text, thread_ts=thread_ts, blocks=blocks
         )
         return await self.send_message(message)
@@ -616,8 +609,8 @@ class SlackIntegration:
     async def create_thread_with_replies(
         self, channel: str, initial_message: str, replies: List[str]
     ) -> Optional[str]:
-        """Create thread with multiple replies"""
-        try:
+        """Create thread with multiple replies."""try:.
+
             # Send initial message
             message = SlackMessage(channel=channel, text=initial_message)
             response = await self.send_message(message)
@@ -640,8 +633,8 @@ class SlackIntegration:
 
     # Interactive Components
     async def handle_interaction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle interactive component interactions (buttons, select menus, etc.)"""
-        try:
+        """Handle interactive component interactions (buttons, select menus, etc.)."""try:.
+
             action_type = payload.get("type")
 
             if action_type == "block_actions":
@@ -659,8 +652,7 @@ class SlackIntegration:
             return {"response_action": "clear"}
 
     async def _handle_block_action(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle block action (button click, etc.)"""
-        actions = payload.get("actions", [])
+        """Handle block action (button click, etc.)."""actions = payload.get("actions", []).
 
         for action in actions:
             action_id = action.get("action_id", "")
@@ -675,8 +667,8 @@ class SlackIntegration:
         return {"response_action": "update"}
 
     async def _complete_task(self, task_id: str, payload: Dict[str, Any]):
-        """Handle task completion"""
-        user = payload["user"]["id"]
+        """Handle task completion."""user = payload["user"]["id"].
+
         channel = payload["channel"]["id"]
 
         # Update message to show task completed
@@ -696,8 +688,8 @@ class SlackIntegration:
         )
 
     async def _snooze_task(self, task_id: str, payload: Dict[str, Any]):
-        """Handle task snooze"""
-        # Open modal for snooze duration selection
+        """Handle task snooze."""# Open modal for snooze duration selection.
+
         await self.client.views_open(
             trigger_id=payload["trigger_id"],
             view={
@@ -743,8 +735,8 @@ class SlackIntegration:
     async def handle_slash_command(
         self, command: str, text: str, user_id: str, channel_id: str
     ) -> Dict[str, Any]:
-        """Handle slash commands"""
-        handlers = {
+        """Handle slash commands."""handlers = {.
+
             "/sophia": self._handle_sophia_command,
             "/sophia-search": self._handle_search_command,
             "/sophia-insight": self._handle_insight_command,
@@ -760,8 +752,8 @@ class SlackIntegration:
     async def _handle_sophia_command(
         self, text: str, user_id: str, channel_id: str
     ) -> Dict[str, Any]:
-        """Handle main /sophia command"""
-        if not text:
+        """Handle main /sophia command."""if not text:.
+
             return {
                 "response_type": "ephemeral",
                 "text": "Hi! I'm Sophia, your AI assistant. Try:\n"
@@ -788,23 +780,22 @@ class SlackIntegration:
 
     # Rate Limiting
     async def _rate_limit(self):
-        """Implement rate limiting for Slack API"""
-        elapsed = (datetime.now() - self.last_message_time).total_seconds()
+        """Implement rate limiting for Slack API."""elapsed = (datetime.now() - self.last_message_time).total_seconds().
+
         if elapsed < self.config.rate_limit_delay:
             await asyncio.sleep(self.config.rate_limit_delay - elapsed)
         self.last_message_time = datetime.now()
 
     # Webhook Verification
     def verify_webhook(self, timestamp: str, signature: str, body: str) -> bool:
-        """Verify Slack webhook signature"""
-        return self.signature_verifier.is_valid(
+        """Verify Slack webhook signature."""return self.signature_verifier.is_valid(.
+
             body=body, timestamp=timestamp, signature=signature
         )
 
     # Event Handling
     async def handle_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle Slack events"""
-        event_type = event.get("type")
+        """Handle Slack events."""event_type = event.get("type").
 
         handlers = {
             "message": self._handle_message_event,
@@ -819,8 +810,8 @@ class SlackIntegration:
         return {"status": "ok"}
 
     async def _handle_message_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle message events"""
-        # Skip bot messages to avoid loops
+        """Handle message events."""# Skip bot messages to avoid loops.
+
         if event.get("bot_id"):
             return {"status": "ok"}
 
@@ -842,8 +833,8 @@ class SlackIntegration:
         return {"status": "ok"}
 
     async def _handle_mention_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle app mentions"""
-        text = event.get("text", "")
+        """Handle app mentions."""text = event.get("text", "").
+
         channel = event.get("channel")
         user = event.get("user")
         thread_ts = event.get("thread_ts") or event.get("ts")
@@ -862,7 +853,7 @@ class SlackIntegration:
         return {"status": "ok"}
 
     async def _process_mention_request(self, text: str, user_id: str) -> str:
-        """Process request from mention"""
+        """Process request from mention."""
         # This would integrate with Sophia's AI capabilities
         # For now, return a helpful response
 

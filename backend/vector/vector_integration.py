@@ -1,6 +1,7 @@
-"""Unified Vector Integration for Sophia AI
+"""Unified Vector Integration for Sophia AI.
+
 Provides a consistent interface for vector database operations across Pinecone and Weaviate.
-This module consolidates all vector database interactions to avoid duplication.
+This module consolidates all vector database interactions to avoid duplication
 """
 
 import asyncio
@@ -15,6 +16,8 @@ import numpy as np
 
 # Import with fallback for optional dependencies
 try:
+except Exception:
+    pass
     import pinecone
     from pinecone import Pinecone, ServerlessSpec
 
@@ -26,6 +29,8 @@ except ImportError:
     ServerlessSpec = None
 
 try:
+except Exception:
+    pass
     import weaviate
     from weaviate import Client as WeaviateClient
 
@@ -36,6 +41,8 @@ except ImportError:
     WeaviateClient = None
 
 try:
+except Exception:
+    pass
     from sentence_transformers import SentenceTransformer
 
     SENTENCE_TRANSFORMERS_AVAILABLE = True
@@ -49,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 
 class VectorDBType(Enum):
-    """Supported vector database types"""
+    """Supported vector database types."""
 
     PINECONE = "pinecone"
     WEAVIATE = "weaviate"
@@ -58,9 +65,10 @@ class VectorDBType(Enum):
 
 @dataclass
 class VectorConfig:
-    """Configuration for vector database"""
+    """Configuration for vector database."""
 
     db_type: VectorDBType
+
     index_name: str
     dimension: int = 384  # Default for all-MiniLM-L6-v2
     metric: str = "cosine"
@@ -73,21 +81,20 @@ class VectorConfig:
 
 @dataclass
 class VectorSearchResult:
-    """Result from vector search"""
+    """Result from vector search."""
+id: str
 
-    id: str
     score: float
     metadata: Dict[str, Any]
     text: Optional[str] = None
 
 
 class VectorDBInterface(ABC):
-    """Abstract interface for vector databases"""
-
-    @abstractmethod
+    """Abstract interface for vector databases."""
+@abstractmethod
     async def initialize(self) -> None:
-        """Initialize the vector database connection"""
-        pass
+        """Initialize the vector database connection."""
+pass.
 
     @abstractmethod
     async def index_content(
@@ -97,8 +104,8 @@ class VectorDBInterface(ABC):
         metadata: Dict[str, Any],
         namespace: Optional[str] = None,
     ) -> bool:
-        """Index content with embedding and metadata"""
-        pass
+        """Index content with embedding and metadata."""
+pass.
 
     @abstractmethod
     async def search(
@@ -108,38 +115,40 @@ class VectorDBInterface(ABC):
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[VectorSearchResult]:
-        """Search for similar vectors"""
-        pass
+        """Search for similar vectors."""
+pass
 
     @abstractmethod
     async def delete_content(
         self, content_id: str, namespace: Optional[str] = None
     ) -> bool:
-        """Delete content by ID"""
-        pass
-
+        """Delete content by ID."""
+pass
     @abstractmethod
     async def health_check(self) -> Dict[str, Any]:
-        """Check health of the vector database"""
-        pass
+        """Check health of the vector database."""
+pass.
 
 
 class PineconeVectorDB(VectorDBInterface):
-    """Pinecone vector database implementation"""
+    """Pinecone vector database implementation."""
+def __init__(self, config: VectorConfig):
 
-    def __init__(self, config: VectorConfig):
         self.config = config
         self.client = None
         self.index = None
 
     async def initialize(self) -> None:
-        """Initialize Pinecone connection"""
+        """Initialize Pinecone connection."""
         if not PINECONE_AVAILABLE:
+
             raise ImportError(
                 "Pinecone is not available. Please install pinecone-client."
             )
 
         try:
+        except Exception:
+            pass
             # Get API key from config or environment
             api_key = self.config.api_key or await config.get_secret("PINECONE_API_KEY")
             if not api_key:
@@ -173,8 +182,11 @@ class PineconeVectorDB(VectorDBInterface):
         metadata: Dict[str, Any],
         namespace: Optional[str] = None,
     ) -> bool:
-        """Index content in Pinecone"""
-        try:
+        """Index content in Pinecone."""
+
+    try:
+    except Exception:
+        pass
             namespace = namespace or self.config.namespace
             self.index.upsert(
                 vectors=[(content_id, embedding, metadata)], namespace=namespace
@@ -191,8 +203,11 @@ class PineconeVectorDB(VectorDBInterface):
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[VectorSearchResult]:
-        """Search in Pinecone"""
-        try:
+        """Search in Pinecone."""
+
+    try:
+    except Exception:
+        pass
             namespace = namespace or self.config.namespace
             results = self.index.query(
                 vector=query_embedding,
@@ -218,8 +233,11 @@ class PineconeVectorDB(VectorDBInterface):
     async def delete_content(
         self, content_id: str, namespace: Optional[str] = None
     ) -> bool:
-        """Delete content from Pinecone"""
-        try:
+        """Delete content from Pinecone."""
+
+    try:
+    except Exception:
+        pass
             namespace = namespace or self.config.namespace
             self.index.delete(ids=[content_id], namespace=namespace)
             return True
@@ -228,8 +246,11 @@ class PineconeVectorDB(VectorDBInterface):
             return False
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check Pinecone health"""
-        try:
+        """Check Pinecone health."""
+
+    try:
+    except Exception:
+        pass
             stats = self.index.describe_index_stats()
             return {
                 "status": "healthy",
@@ -242,21 +263,26 @@ class PineconeVectorDB(VectorDBInterface):
 
 
 class WeaviateVectorDB(VectorDBInterface):
-    """Weaviate vector database implementation"""
+    """Weaviate vector database implementation."""
 
     def __init__(self, config: VectorConfig):
+
         self.config = config
         self.client = None
         self.class_name = "SophiaContent"
 
     async def initialize(self) -> None:
-        """Initialize Weaviate connection"""
-        if not WEAVIATE_AVAILABLE:
+        """Initialize Weaviate connection."""
+
+    if not WEAVIATE_AVAILABLE:
+
             raise ImportError(
                 "Weaviate is not available. Please install weaviate-client."
             )
 
         try:
+        except Exception:
+            pass
             # Get URL from config or use default
             url = self.config.url or "http://localhost:8080"
 
@@ -297,8 +323,11 @@ class WeaviateVectorDB(VectorDBInterface):
         metadata: Dict[str, Any],
         namespace: Optional[str] = None,
     ) -> bool:
-        """Index content in Weaviate"""
-        try:
+        """Index content in Weaviate."""
+
+    try:
+    except Exception:
+        pass
             import json
 
             data_object = {
@@ -322,8 +351,11 @@ class WeaviateVectorDB(VectorDBInterface):
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[VectorSearchResult]:
-        """Search in Weaviate"""
-        try:
+        """Search in Weaviate."""
+
+    try:
+    except Exception:
+        pass
             import json
 
             near_vector = {"vector": query_embedding}
@@ -373,8 +405,11 @@ class WeaviateVectorDB(VectorDBInterface):
     async def delete_content(
         self, content_id: str, namespace: Optional[str] = None
     ) -> bool:
-        """Delete content from Weaviate"""
-        try:
+        """Delete content from Weaviate."""
+
+    try:
+    except Exception:
+        pass
             where_filter = {
                 "path": ["content_id"],
                 "operator": "Equal",
@@ -390,8 +425,11 @@ class WeaviateVectorDB(VectorDBInterface):
             return False
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check Weaviate health"""
-        try:
+        """Check Weaviate health."""
+
+    try:
+    except Exception:
+        pass
             if self.client.is_ready():
                 # Get object count
                 result = (
@@ -411,16 +449,17 @@ class WeaviateVectorDB(VectorDBInterface):
 
 
 class MemoryVectorDB(VectorDBInterface):
-    """In-memory vector database for testing"""
+    """In-memory vector database for testing."""
+def __init__(self, config: VectorConfig):
 
-    def __init__(self, config: VectorConfig):
         self.config = config
         self.vectors = {}
         self.metadata = {}
 
     async def initialize(self) -> None:
-        """Initialize in-memory storage"""
-        logger.info("Initialized in-memory vector database")
+        """Initialize in-memory storage."""
+
+    logger.info("Initialized in-memory vector database")
 
     async def index_content(
         self,
@@ -429,8 +468,10 @@ class MemoryVectorDB(VectorDBInterface):
         metadata: Dict[str, Any],
         namespace: Optional[str] = None,
     ) -> bool:
-        """Store content in memory"""
-        key = f"{namespace or 'default'}:{content_id}"
+        """Store content in memory."""
+
+    key = f"{namespace or 'default'}:{content_id}"
+
         self.vectors[key] = np.array(embedding)
         self.metadata[key] = metadata
         return True
@@ -442,8 +483,10 @@ class MemoryVectorDB(VectorDBInterface):
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[VectorSearchResult]:
-        """Search in memory using cosine similarity"""
-        query_vec = np.array(query_embedding)
+        """Search in memory using cosine similarity."""
+
+    query_vec = np.array(query_embedding)
+
         results = []
 
         for key, vec in self.vectors.items():
@@ -483,8 +526,10 @@ class MemoryVectorDB(VectorDBInterface):
     async def delete_content(
         self, content_id: str, namespace: Optional[str] = None
     ) -> bool:
-        """Delete content from memory"""
-        key = f"{namespace or 'default'}:{content_id}"
+        """Delete content from memory."""
+
+    key = f"{namespace or 'default'}:{content_id}"
+
         if key in self.vectors:
             del self.vectors[key]
             del self.metadata[key]
@@ -492,8 +537,10 @@ class MemoryVectorDB(VectorDBInterface):
         return False
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check memory database health"""
-        return {
+        """Check memory database health."""
+
+    return {.
+
             "status": "healthy",
             "total_vectors": len(self.vectors),
             "type": "memory",
@@ -501,17 +548,17 @@ class MemoryVectorDB(VectorDBInterface):
 
 
 class VectorIntegration:
-    """Main vector integration class that manages different vector databases"""
+    """Main vector integration class that manages different vector databases."""
+def __init__(self, config: Optional[VectorConfig] = None):
 
-    def __init__(self, config: Optional[VectorConfig] = None):
         self.config = config or self._get_default_config()
         self.db: Optional[VectorDBInterface] = None
         self.encoder = None
         self.initialized = False
 
     def _get_default_config(self) -> VectorConfig:
-        """Get default configuration based on environment"""
-        # Check which vector DB is configured
+        """Get default configuration based on environment."""# Check which vector DB is configured
+
         if os.getenv("PINECONE_API_KEY"):
             return VectorConfig(
                 db_type=VectorDBType.PINECONE,
@@ -532,11 +579,15 @@ class VectorIntegration:
             )
 
     async def initialize(self) -> None:
-        """Initialize the vector database and encoder"""
-        if self.initialized:
+        """Initialize the vector database and encoder."""
+
+    if self.initialized:
+
             return
 
         try:
+        except Exception:
+            pass
             # Initialize the appropriate vector database
             if self.config.db_type == VectorDBType.PINECONE:
                 self.db = PineconeVectorDB(self.config)
@@ -566,8 +617,10 @@ class VectorIntegration:
             raise
 
     async def generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text"""
-        if not self.encoder:
+        """Generate embedding for text."""
+
+    if not self.encoder:
+
             raise RuntimeError("Encoder not available - install sentence-transformers")
 
         embedding = self.encoder.encode(text)
@@ -580,11 +633,15 @@ class VectorIntegration:
         metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> bool:
-        """Index content with automatic embedding generation"""
-        if not self.initialized:
+        """Index content with automatic embedding generation."""
+
+    if not self.initialized:
+
             await self.initialize()
 
         try:
+        except Exception:
+            pass
             # Generate embedding
             embedding = await self.generate_embedding(text)
 
@@ -611,11 +668,15 @@ class VectorIntegration:
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[VectorSearchResult]:
-        """Search for similar content"""
-        if not self.initialized:
+        """Search for similar content."""
+
+    if not self.initialized:
+
             await self.initialize()
 
         try:
+        except Exception:
+            pass
             # Generate query embedding
             query_embedding = await self.generate_embedding(query)
 
@@ -633,15 +694,18 @@ class VectorIntegration:
     async def delete_content(
         self, content_id: str, namespace: Optional[str] = None
     ) -> bool:
-        """Delete content by ID"""
-        if not self.initialized:
+        """Delete content by ID."""
+if not self.initialized:
+
             await self.initialize()
 
         return await self.db.delete_content(content_id=content_id, namespace=namespace)
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check health of the vector integration"""
-        if not self.initialized:
+        """Check health of the vector integration."""
+
+    if not self.initialized:
+
             return {"status": "uninitialized", "db_type": self.config.db_type.value}
 
         health = await self.db.health_check()
@@ -653,8 +717,8 @@ class VectorIntegration:
     async def index_content_pinecone(
         self, content_id: str, text: str, metadata: Dict[str, Any]
     ) -> bool:
-        """Compatibility method for Pinecone indexing"""
-        return await self.index_content(content_id, text, metadata)
+        """Compatibility method for Pinecone indexing."""
+return await self.index_content(content_id, text, metadata)
 
     async def search_pinecone(
         self,
@@ -663,8 +727,10 @@ class VectorIntegration:
         filter_metadata: Optional[Dict[str, Any]] = None,
         namespace: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Compatibility method for Pinecone search"""
-        results = await self.search(query, top_k, filter_metadata, namespace)
+        """Compatibility method for Pinecone search."""
+
+    results = await self.search(query, top_k, filter_metadata, namespace)
+
         return [
             {"id": r.id, "score": r.score, "metadata": r.metadata, "text": r.text}
             for r in results
@@ -673,14 +739,16 @@ class VectorIntegration:
     async def index_content_weaviate(
         self, content_id: str, text: str, metadata: Dict[str, Any]
     ) -> bool:
-        """Compatibility method for Weaviate indexing"""
-        return await self.index_content(content_id, text, metadata)
+        """Compatibility method for Weaviate indexing."""
+return await self.index_content(content_id, text, metadata)
 
     async def search_weaviate(
         self, query: str, top_k: int = 10, category_filter: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        """Compatibility method for Weaviate search"""
-        filter_metadata = {"category": category_filter} if category_filter else None
+        """Compatibility method for Weaviate search."""
+
+    filter_metadata = {"category": category_filter} if category_filter else None
+
         results = await self.search(query, top_k, filter_metadata)
         return [
             {"id": r.id, "score": r.score, "metadata": r.metadata, "text": r.text}
@@ -690,13 +758,15 @@ class VectorIntegration:
     def batch_index_content(
         self, vector_data_items: List[Tuple[str, List[float], Dict[str, Any]]]
     ) -> Dict[str, Any]:
-        """Synchronous batch indexing for compatibility"""
+        """Synchronous batch indexing for compatibility."""
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         success_count = 0
         for content_id, embedding, metadata in vector_data_items:
             try:
+            except Exception:
+                pass
                 result = loop.run_until_complete(
                     self.db.index_content(content_id, embedding, metadata)
                 )

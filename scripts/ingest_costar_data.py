@@ -1,4 +1,5 @@
-"""CoStar Data Ingestion Script
+"""CoStar Data Ingestion Script.
+
 This script provides a simple command-line interface to ingest CoStar data files
 (e.g., .xlsx, .csv) into the Sophia AI Knowledge Base.
 """
@@ -27,12 +28,12 @@ logger = logging.getLogger(__name__)
 async def ingest_costar_file(file_path: Path, market_area: str, data_year: int):
     """Initializes the ingestion pipeline and processes a single CoStar data file.
 
-    Args:
-        file_path: The path to the CoStar data file.
-        market_area: The primary market area for the data (e.g., 'austin', 'national').
-        data_year: The year the data represents (e.g., 2023).
-    """
-    if not file_path.exists():
+        Args:
+            file_path: The path to the CoStar data file.
+            market_area: The primary market area for the data (e.g., 'austin', 'national').
+            data_year: The year the data represents (e.g., 2023).
+    """if not file_path.exists():
+
         logger.error(f"File not found: {file_path}")
         return
 

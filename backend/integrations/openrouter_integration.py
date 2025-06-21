@@ -1,8 +1,8 @@
-"""OpenRouter Integration for Dynamic Model Selection
-Provides access to all OpenRouter models with real-time discovery
-"""
+"""OpenRouter Integration for Dynamic Model Selection.
 
-import json
+Provides access to all OpenRouter models with real-time discovery
+"""import json
+
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpenRouterClient:
-    """Client for OpenRouter API with dynamic model discovery"""
+    """Client for OpenRouter API with dynamic model discovery."""
 
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -23,8 +23,8 @@ class OpenRouterClient:
         self.cache_duration = timedelta(hours=1)
 
     async def get_models(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
-        """Get available models with caching"""
-        # Check cache
+        """Get available models with caching."""# Check cache.
+
         if (
             not force_refresh
             and self.models_cache
@@ -61,8 +61,10 @@ class OpenRouterClient:
         stream: bool = False,
         **kwargs,
     ) -> Dict[str, Any]:
-        """Create a chat completion with the specified model"""
-        async with aiohttp.ClientSession() as session:
+        """Create a chat completion with the specified model."""
+
+        async with aiohttp.ClientSession() as session:.
+
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
@@ -104,8 +106,9 @@ class OpenRouterClient:
         headers: Dict[str, str],
         payload: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Handle streaming chat completion"""
-        payload["stream"] = True
+        """Handle streaming chat completion."""
+        payload["stream"] = True.
+
         full_content = ""
 
         async with session.post(
@@ -134,16 +137,18 @@ class OpenRouterClient:
         return {"content": full_content, "model": payload["model"], "stream": True}
 
     async def get_model_details(self, model_id: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific model"""
-        models = await self.get_models()
+        """Get detailed information about a specific model."""
+
+        models = await self.get_models().
+
         for model in models:
             if model.get("id") == model_id:
                 return model
         return None
 
     def categorize_model(self, model: Dict[str, Any]) -> str:
-        """Categorize a model based on its capabilities"""
-        model_id = model.get("id", "").lower()
+        """Categorize a model based on its capabilities."""
+        model_id = model.get("id", "").lower().
 
         # Advanced reasoning models
         if any(x in model_id for x in ["o1-preview", "o1-mini"]):
@@ -173,8 +178,10 @@ class OpenRouterClient:
             return "general_purpose"
 
     def get_model_capabilities(self, model: Dict[str, Any]) -> List[str]:
-        """Extract capabilities from model metadata"""
-        capabilities = []
+        """Extract capabilities from model metadata."""
+
+        capabilities = [].
+
         model_id = model.get("id", "").lower()
 
         # Check for specific capabilities
@@ -211,7 +218,7 @@ class OpenRouterClient:
         require_vision: bool = False,
         max_cost_per_token: Optional[float] = None,
     ) -> str:
-        """Intelligently select the best model for a given task"""
+        """Intelligently select the best model for a given task."""
         models = await self.get_models()
 
         # Filter models based on requirements

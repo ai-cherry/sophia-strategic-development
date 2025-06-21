@@ -1,4 +1,5 @@
-"""Base MCP Server
+"""Base MCP Server.
+
 Provides a standardized, class-based implementation for all MCP servers in Sophia AI.
 """
 
@@ -23,15 +24,14 @@ from mcp.types import (
 class BaseMCPServer(ABC):
     """Abstract base class for all Sophia AI MCP servers.
 
-    This class provides a standardized structure for:
-    - Initialization
-    - Handler registration
-    - State management (for integration clients)
-    - Error handling
-    - Consistent server startup logic
-    """
+            This class provides a standardized structure for:
+            - Initialization
+            - Handler registration
+            - State management (for integration clients)
+            - Error handling
+            - Consistent server startup logic
+    """def __init__(self, server_name: str, server_version: str = "1.0.0"):
 
-    def __init__(self, server_name: str, server_version: str = "1.0.0"):
         self.server_name = server_name
         self.server_version = server_version
         self.server = Server(server_name)
@@ -42,38 +42,38 @@ class BaseMCPServer(ABC):
     @abstractmethod
     async def initialize_integration(self):
         """Abstract method to initialize the specific integration client for the server.
-        This method should create and assign the client to self.integration_client.
+
+                        This method should create and assign the client to self.integration_client.
         """
         pass
 
     @abstractmethod
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
         """Abstract method to list available resources for this server."""
+
         pass
 
     @abstractmethod
     async def get_resource(self, request: ReadResourceRequest) -> str:
         """Abstract method to get a specific resource.
-        Should return a JSON string of the resource content.
-        """
-        pass
+
+                        Should return a JSON string of the resource content.
+        """pass.
 
     @abstractmethod
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Abstract method to list available tools for this server."""
-        pass
+        """Abstract method to list available tools for this server."""pass.
 
     @abstractmethod
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
         """Abstract method to handle tool calls.
-        Should return a list of TextContent objects.
-        """
-        pass
+
+                        Should return a list of TextContent objects.
+        """pass.
 
     def _setup_handlers(self):
-        """Sets up the standard MCP handlers for this server."""
+        """Sets up the standard MCP handlers for this server."""# Register handlers using the server's handler decorators.
 
-        # Register handlers using the server's handler decorators
         @self.server.list_resources()
         async def handle_list_resources(
             request: ListResourcesRequest,
@@ -93,8 +93,7 @@ class BaseMCPServer(ABC):
             return await self.call_tool(request)
 
     async def run(self):
-        """Initializes the integration and runs the MCP server."""
-        self.logger.info(f"Starting {self.server_name} MCP Server...")
+        """Initializes the integration and runs the MCP server."""self.logger.info(f"Starting {self.server_name} MCP Server...").
 
         try:
             await self.initialize_integration()

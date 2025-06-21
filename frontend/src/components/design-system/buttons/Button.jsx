@@ -52,16 +52,16 @@ const Button = React.forwardRef(({
           iconPosition === 'left' ? "mr-2" : "ml-2"
         )} />
       )}
-      
+
       {!loading && Icon && iconPosition === 'left' && (
         <Icon className={cn(
           size === 'small' ? "w-3 h-3" : "w-4 h-4",
           "mr-2"
         )} />
       )}
-      
+
       {children}
-      
+
       {!loading && Icon && iconPosition === 'right' && (
         <Icon className={cn(
           size === 'small' ? "w-3 h-3" : "w-4 h-4",
@@ -74,4 +74,4 @@ const Button = React.forwardRef(({
 
 Button.displayName = 'Button';
 
-export default Button; 
+export default Button;

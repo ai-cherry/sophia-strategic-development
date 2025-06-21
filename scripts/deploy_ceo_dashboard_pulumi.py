@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Deploy CEO Dashboard using Pulumi IaC and MCP Architecture
+"""Deploy CEO Dashboard using Pulumi IaC and MCP Architecture.
+
 This is the PROPER way to deploy the dashboard, not a simplified version
 """
 
@@ -26,15 +27,14 @@ RESET = "\033[0m"
 
 
 class CEODashboardPulumiDeployer:
-    """Deploy CEO Dashboard using proper IaC approach"""
+    """Deploy CEO Dashboard using proper IaC approach."""
 
     def __init__(self):
         self.mcp_client = None
         self.retool_integration = None
 
     async def initialize(self):
-        """Initialize MCP client and integrations"""
-        print(f"\n{BLUE}=== Initializing Sophia AI Infrastructure ==={RESET}")
+        """Initialize MCP client and integrations."""print(f"\n{BLUE}=== Initializing Sophia AI Infrastructure ==={RESET}").
 
         # Initialize MCP Client
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -47,8 +47,7 @@ class CEODashboardPulumiDeployer:
         print(f"{GREEN}✓ Retool Integration initialized{RESET}")
 
     async def check_infrastructure_health(self) -> Dict[str, Any]:
-        """Check health of all infrastructure components"""
-        print(f"\n{BLUE}=== Checking Infrastructure Health ==={RESET}")
+        """Check health of all infrastructure components."""print(f"\n{BLUE}=== Checking Infrastructure Health ==={RESET}").
 
         health_status = {}
 
@@ -78,8 +77,7 @@ class CEODashboardPulumiDeployer:
         return health_status
 
     async def deploy_retool_dashboard_via_pulumi(self) -> Dict[str, Any]:
-        """Deploy Retool dashboard using Pulumi IaC"""
-        print(f"\n{BLUE}=== Deploying CEO Dashboard via Pulumi ==={RESET}")
+        """Deploy Retool dashboard using Pulumi IaC."""print(f"\n{BLUE}=== Deploying CEO Dashboard via Pulumi ==={RESET}").
 
         # Use Pulumi MCP server to deploy
         deployment_config = {
@@ -104,8 +102,7 @@ class CEODashboardPulumiDeployer:
             return await self.deploy_retool_dashboard_direct()
 
     async def deploy_retool_dashboard_direct(self) -> Dict[str, Any]:
-        """Deploy Retool dashboard directly via API"""
-        print(f"\n{YELLOW}⚠ Using direct Retool API deployment{RESET}")
+        """Deploy Retool dashboard directly via API."""print(f"\n{YELLOW}⚠ Using direct Retool API deployment{RESET}").
 
         # Create the dashboard app
         app_result = await self.retool_integration.create_app(
@@ -129,8 +126,7 @@ class CEODashboardPulumiDeployer:
         }
 
     async def _create_dashboard_components(self, app_id: str) -> List[Dict]:
-        """Create all dashboard components"""
-        components = []
+        """Create all dashboard components."""components = [].
 
         # Executive Summary Container
         summary_container = await self.retool_integration.add_component_to_app(
@@ -190,8 +186,7 @@ class CEODashboardPulumiDeployer:
         return components
 
     async def configure_retool_resources(self, app_id: str) -> Dict[str, Any]:
-        """Configure Retool resources and queries"""
-        print(f"\n{BLUE}=== Configuring Retool Resources ==={RESET}")
+        """Configure Retool resources and queries."""print(f"\n{BLUE}=== Configuring Retool Resources ==={RESET}").
 
         # Get backend URL from config
         backend_config = await get_config("backend")
@@ -219,8 +214,7 @@ class CEODashboardPulumiDeployer:
         return {"status": "configured", "app_id": app_id}
 
     async def test_dashboard_endpoints(self) -> Dict[str, bool]:
-        """Test all dashboard API endpoints"""
-        print(f"\n{BLUE}=== Testing Dashboard Endpoints ==={RESET}")
+        """Test all dashboard API endpoints."""print(f"\n{BLUE}=== Testing Dashboard Endpoints ==={RESET}").
 
         backend_config = await get_config("backend")
         backend_url = backend_config.get("url", "http://localhost:8000")
@@ -263,8 +257,8 @@ class CEODashboardPulumiDeployer:
     async def generate_deployment_report(
         self, deployment_results: Dict[str, Any]
     ) -> str:
-        """Generate comprehensive deployment report"""
-        report = f"""
+        """Generate comprehensive deployment report."""report = f"""
+
 # Sophia AI CEO Dashboard Deployment Report
 
 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
@@ -272,18 +266,16 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 ## Infrastructure Status
 
 ### MCP Servers
-"""
+"""health_status = deployment_results.get("health_status", {}).
 
-        health_status = deployment_results.get("health_status", {})
         for server, status in health_status.items():
             if status.get("status") == "healthy":
                 report += f"- ✅ **{server.upper()}**: Operational\n"
             else:
                 report += f"- ❌ **{server.upper()}**: {status.get('error', 'Unknown error')}\n"
 
-        report += f"""
-
-## Dashboard Deployment
+        report += f
+"""## Dashboard Deployment.
 
 - **App ID**: {deployment_results.get("app_id", "Not deployed")}
 - **App URL**: {deployment_results.get("app_url", "Not available")}
@@ -291,18 +283,23 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## API Endpoints
 
-"""
+"""endpoint_results = deployment_results.get("endpoint_tests", {}).
 
-        endpoint_results = deployment_results.get("endpoint_tests", {})
+
         for endpoint, success in endpoint_results.items():
+
             if success:
+
                 report += f"- ✅ `{endpoint}`\n"
+
             else:
+
                 report += f"- ❌ `{endpoint}`\n"
 
-        report += f"""
 
-## Access Instructions
+        report += f
+
+"""## Access Instructions.
 
 1. **Retool Dashboard**: {deployment_results.get("app_url", "https://retool.com/apps")}
 2. **Backend API**: {deployment_results.get("backend_url", "http://localhost:8000")}
@@ -335,12 +332,10 @@ Unlike a "simplified backend", this deployment uses:
 5. **Hybrid Intelligence**: Internal data + external AI services
 
 This is the production-ready Sophia AI system, not a demo!
-"""
-
-        return report
+"""return report.
 
     async def deploy(self):
-        """Run full CEO Dashboard deployment"""
+"""Run full CEO Dashboard deployment."""
         print(f"{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Sophia AI CEO Dashboard - Pulumi IaC Deployment{RESET}")
         print(f"{BLUE}{'=' * 60}{RESET}")

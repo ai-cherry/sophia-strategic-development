@@ -1,8 +1,10 @@
-"""Base Integration Class for Sophia AI Platform
+"""Base Integration Class for Sophia AI Platform.
+
 Standardizes error handling, credential validation, and common patterns
 """
 
-import asyncio
+    import asyncio
+
 import logging
 import os
 from abc import ABC, abstractmethod
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class IntegrationError(Exception):
-    """Base exception for integration errors"""
+    """Base exception for integration errors."""
 
     def __init__(
         self,
@@ -41,33 +43,28 @@ class IntegrationError(Exception):
 
 
 class ConfigurationError(IntegrationError):
-    """Configuration-related errors"""
+    """Configuration-related errors."""
 
-    pass
+    class AuthenticationError(IntegrationError):
 
-
-class AuthenticationError(IntegrationError):
-    """Authentication-related errors"""
+    """Authentication-related errors."""
 
     pass
 
 
 class RateLimitError(IntegrationError):
-    """Rate limit errors"""
+    """Rate limit errors."""
 
     pass
-
-
 class ServiceUnavailableError(IntegrationError):
-    """Service unavailable errors"""
+    """Service unavailable errors."""
 
     pass
-
-
 class IntegrationMetrics(BaseModel):
-    """Metrics for integration performance"""
+    """Metrics for integration performance."""
 
     total_requests: int = 0
+
     successful_requests: int = 0
     failed_requests: int = 0
     total_latency_ms: float = 0
@@ -88,11 +85,11 @@ class IntegrationMetrics(BaseModel):
 
 
 class BaseIntegration(ABC):
-    """Base class for all service integrations
-    Provides standardized patterns for error handling, retries, and monitoring
-    """
+    """Base class for all service integrations.
 
-    # Error code mappings
+            Provides standardized patterns for error handling, retries, and monitoring
+    """# Error code mappings.
+
     ERROR_CODES = {
         "missing_credential": "E_MISSING_CREDENTIAL",
         "invalid_credential": "E_INVALID_CREDENTIAL",
@@ -112,8 +109,10 @@ class BaseIntegration(ABC):
         self._initialized = False
 
     async def initialize(self):
-        """Initialize the integration"""
-        if self._initialized:
+        """Initialize the integration."""
+
+    if self._initialized:
+
             return
 
         # Load service configuration
@@ -138,17 +137,19 @@ class BaseIntegration(ABC):
 
     @abstractmethod
     async def _service_initialize(self):
-        """Service-specific initialization logic"""
-        pass
+        """Service-specific initialization logic."""
+pass.
 
     @abstractmethod
     def _get_required_credentials(self) -> List[str]:
-        """Get list of required credential keys"""
-        pass
+        """Get list of required credential keys."""
+pass.
 
     def _validate_credentials(self):
-        """Validate that all required credentials are present"""
-        required_keys = self._get_required_credentials()
+        """Validate that all required credentials are present."""
+
+    required_keys = self._get_required_credentials()
+
         missing_keys = []
 
         for key in required_keys:
@@ -169,8 +170,8 @@ class BaseIntegration(ABC):
             )
 
     def _get_credential(self, key: str) -> Optional[str]:
-        """Get credential from environment or ESC config"""
-        # Try environment variable first
+        """Get credential from environment or ESC config."""# Try environment variable first
+
         env_key = f"{self.service_name.upper()}_{key.upper()}"
         value = os.getenv(env_key)
 
@@ -189,13 +190,20 @@ class BaseIntegration(ABC):
     async def _make_request(
         self, method: str, url: str, headers: Optional[Dict[str, str]] = None, **kwargs
     ) -> Dict[str, Any]:
-        """Make HTTP request with retry logic"""
-        if not self.session:
+        """Make HTTP request with retry logic."""
+
+    if self.session is None:
+
             await self.initialize()
 
         start_time = datetime.now()
 
         try:
+        except Exception:
+            pass
+            if self.session is None:
+                raise RuntimeError("Session not initialized")
+
             async with self.session.request(
                 method, url, headers=headers, **kwargs
             ) as response:
@@ -263,8 +271,10 @@ class BaseIntegration(ABC):
             raise
 
     def handle_error(self, error: Exception) -> Dict[str, Any]:
-        """Standardized error handling"""
-        if isinstance(error, IntegrationError):
+        """Standardized error handling."""
+
+    if isinstance(error, IntegrationError):
+
             return {
                 "success": False,
                 "error_code": error.error_code,
@@ -284,8 +294,8 @@ class BaseIntegration(ABC):
             }
 
     def _sanitize_error_message(self, message: str) -> str:
-        """Remove sensitive information from error messages"""
-        # Remove potential API keys or tokens
+        """Remove sensitive information from error messages."""# Remove potential API keys or tokens.
+
         import re
 
         # Pattern to match common API key formats
@@ -302,8 +312,11 @@ class BaseIntegration(ABC):
         return sanitized
 
     async def health_check(self) -> Dict[str, Any]:
-        """Perform health check for the service"""
-        try:
+        """Perform health check for the service."""
+
+    try:
+    except Exception:
+        pass
             # Service-specific health check
             result = await self._service_health_check()
 
@@ -324,12 +337,14 @@ class BaseIntegration(ABC):
 
     @abstractmethod
     async def _service_health_check(self) -> bool:
-        """Service-specific health check logic"""
-        pass
+        """Service-specific health check logic."""
+pass.
 
     def get_metrics(self) -> Dict[str, Any]:
-        """Get current metrics for the integration"""
-        return {
+        """Get current metrics for the integration."""
+
+    return {.
+
             "service": self.service_name,
             "metrics": self.metrics.dict(),
             "success_rate": self.metrics.success_rate,
@@ -337,19 +352,21 @@ class BaseIntegration(ABC):
         }
 
     async def close(self):
-        """Cleanup resources"""
-        if self.session:
+        """Cleanup resources."""
+if self.session:
+
             await self.session.close()
             self.session = None
         self._initialized = False
 
     async def __aenter__(self):
-        """Async context manager entry"""
-        await self.initialize()
+        """Async context manager entry."""
+await self.initialize()
+
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit"""
+        """Async context manager exit."""
         await self.close()
 
     def __repr__(self):

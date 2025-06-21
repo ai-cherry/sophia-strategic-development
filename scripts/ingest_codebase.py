@@ -59,8 +59,8 @@ class RepositoryIntelligenceService:
         )
 
     def scan_repository(self) -> List[Path]:
-        """Scans the repository for relevant files to ingest."""
-        logging.info("Scanning repository for relevant files...")
+        """Scans the repository for relevant files to ingest."""logging.info("Scanning repository for relevant files...").
+
         relevant_files = []
         for path in self.root_path.rglob("*"):
             if any(part in EXCLUDED_DIRECTORIES for part in path.parts):
@@ -79,10 +79,10 @@ class RepositoryIntelligenceService:
     def chunk_file(self, file_path: Path) -> List[Dict[str, Any]]:
         """Chunk a single file into processable segments with metadata.
 
-        This is a simple chunking strategy. More advanced strategies could use
-        tree-sitter for code or specific markdown parsers.
-        """
-        try:
+                This is a simple chunking strategy. More advanced strategies could use
+                tree-sitter for code or specific markdown parsers.
+        """try:.
+
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
         except Exception as e:
@@ -114,8 +114,8 @@ class RepositoryIntelligenceService:
         return chunks
 
     async def process_repository(self) -> List[Dict[str, Any]]:
-        """Processes all relevant files in the repository."""
-        files = self.scan_repository()
+        """Processes all relevant files in the repository."""files = self.scan_repository().
+
         all_chunks = []
 
         for file_path in files:

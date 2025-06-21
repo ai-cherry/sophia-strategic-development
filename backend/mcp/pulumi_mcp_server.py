@@ -1,4 +1,5 @@
-"""Pulumi MCP Server
+"""Pulumi MCP Server.
+
 Exposes Pulumi automation as a tool for AI agents.
 """
 
@@ -23,8 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 class PulumiMCPServer(BaseMCPServer):
-    """MCP Server for Pulumi. Enables AI agents to deploy and manage
-    infrastructure by running Pulumi scripts.
+    """MCP Server for Pulumi. Enables AI agents to deploy and manage.
+
+            infrastructure by running Pulumi scripts.
     """
 
     def __init__(self):
@@ -34,14 +36,15 @@ class PulumiMCPServer(BaseMCPServer):
 
     async def initialize_integration(self):
         """No external integration to initialize for this server."""
+
         logger.info(
             "Pulumi MCP Server initialized. It will execute commands in the iac-toolkit container."
         )
         pass
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Pulumi stacks as resources."""
-        # In a real scenario, this could list .py files in infrastructure/pulumi/
+        """Lists available Pulumi stacks as resources."""# In a real scenario, this could list .py files in infrastructure/pulumi/.
+
         return [
             Resource(uri="pulumi://stack/dev", name="dev", mimeType="application/json"),
             Resource(
@@ -50,8 +53,7 @@ class PulumiMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets the status of a specific Pulumi stack."""
-        stack_name = request.uri.split("/")[-1]
+        """Gets the status of a specific Pulumi stack."""stack_name = request.uri.split("/")[-1].
 
         # This is a conceptual implementation. A real one would use `pulumi stack export`.
         return json.dumps(
@@ -63,8 +65,8 @@ class PulumiMCPServer(BaseMCPServer):
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Pulumi tools."""
-        return [
+        """Lists available Pulumi tools."""return [.
+
             Tool(
                 name="run_pulumi_up",
                 description="Runs 'pulumi up' for a specific IaC script to deploy or update infrastructure.",
@@ -87,8 +89,8 @@ class PulumiMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Pulumi tool calls."""
-        tool_name = request.params.name
+        """Handles Pulumi tool calls."""tool_name = request.params.name.
+
         arguments = request.params.arguments or {}
 
         if tool_name == "run_pulumi_up":

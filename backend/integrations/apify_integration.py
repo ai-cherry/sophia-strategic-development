@@ -1,4 +1,5 @@
-"""Apify Integration for Sophia AI
+"""Apify Integration for Sophia AI.
+
 Provides a client to interact with the Apify API for running actors.
 """
 
@@ -21,8 +22,8 @@ class ApifyIntegration:
         self.initialized = False
 
     async def initialize(self):
-        """Initializes the Apify client."""
-        if self.initialized:
+        """Initializes the Apify client."""if self.initialized:.
+
             return
 
         logger.info("Initializing Apify integration...")
@@ -39,8 +40,8 @@ class ApifyIntegration:
             self.initialized = False
 
     async def list_actors(self) -> List[Dict[str, Any]]:
-        """Lists all actors available to the user."""
-        if not self.initialized:
+        """Lists all actors available to the user."""if not self.initialized:.
+
             await self.initialize()
 
         actor_list = self.client.actors().list()
@@ -52,8 +53,8 @@ class ApifyIntegration:
     async def run_actor_and_get_results(
         self, actor_id: str, run_input: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Runs an Apify actor and waits for it to finish, then retrieves the results."""
-        if not self.initialized:
+        """Runs an Apify actor and waits for it to finish, then retrieves the results."""if not self.initialized:.
+
             await self.initialize()
 
         logger.info(f"Running Apify actor '{actor_id}'...")

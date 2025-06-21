@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""AI Memory MCP Deployment Test Suite
+"""AI Memory MCP Deployment Test Suite.
+
 Comprehensive testing to ensure AI Memory MCP is deployed, working, and discoverable.
 """
 
@@ -36,8 +37,8 @@ class AIMemoryDeploymentTester:
         }
 
     async def run_all_tests(self) -> Dict[str, Any]:
-        """Run all deployment tests."""
-        print("🧪 AI Memory MCP Deployment Test Suite")
+        """Run all deployment tests."""print("🧪 AI Memory MCP Deployment Test Suite").
+
         print("=" * 60)
 
         # Test sequence
@@ -93,8 +94,8 @@ class AIMemoryDeploymentTester:
         return self.test_results
 
     async def test_config_validation(self) -> Dict[str, Any]:
-        """Test MCP configuration includes AI Memory server."""
-        try:
+        """Test MCP configuration includes AI Memory server."""try:.
+
             config_path = "mcp_config.json"
             if not os.path.exists(config_path):
                 return {"passed": False, "message": "MCP config file not found"}
@@ -120,8 +121,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_server_startup(self) -> Dict[str, Any]:
-        """Test that AI Memory MCP server can start."""
-        try:
+        """Test that AI Memory MCP server can start."""try:.
+
             server_path = "backend/mcp/ai_memory_mcp_server.py"
             if not os.path.exists(server_path):
                 return {
@@ -155,8 +156,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_dependencies(self) -> Dict[str, Any]:
-        """Test required dependencies are available."""
-        try:
+        """Test required dependencies are available."""try:.
+
             missing_deps = []
             warnings = []
 
@@ -202,8 +203,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_cursor_integration(self) -> Dict[str, Any]:
-        """Test Cursor AI integration readiness."""
-        try:
+        """Test Cursor AI integration readiness."""try:.
+
             warnings = []
 
             # Check .cursorrules file
@@ -251,8 +252,8 @@ class AIMemoryDeploymentTester:
             }
 
     def save_test_results(self, filename: str = "ai_memory_test_results.json"):
-        """Save test results to file."""
-        try:
+        """Save test results to file."""try:.
+
             with open(filename, "w") as f:
                 json.dump(self.test_results, f, indent=2)
             print(f"\n💾 Test results saved to {filename}")

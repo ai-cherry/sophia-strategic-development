@@ -1,4 +1,5 @@
-"""Sophia AI - Estuary Flow Integration
+"""Sophia AI - Estuary Flow Integration.
+
 Client for Estuary Flow real-time data streaming platform
 """
 
@@ -14,7 +15,7 @@ from ..core.config_manager import get_config, get_secret
 
 
 class EstuaryFlowClient:
-    """Client for Estuary Flow real-time data streaming platform"""
+    """Client for Estuary Flow real-time data streaming platform."""
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -24,8 +25,8 @@ class EstuaryFlowClient:
         self.initialized = False
 
     async def setup(self):
-        """Initialize the Estuary Flow client"""
-        if self.initialized:
+        """Initialize the Estuary Flow client."""if self.initialized:.
+
             return
 
         try:
@@ -56,8 +57,8 @@ class EstuaryFlowClient:
             raise
 
     async def close(self):
-        """Close the Estuary Flow client"""
-        if self.session:
+        """Close the Estuary Flow client."""if self.session:.
+
             await self.session.close()
             self.session = None
             self.initialized = False
@@ -65,8 +66,8 @@ class EstuaryFlowClient:
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
     ) -> Dict[str, Any]:
-        """Make a request to the Estuary Flow API"""
-        if not self.initialized:
+        """Make a request to the Estuary Flow API."""if not self.initialized:.
+
             await self.setup()
 
         url = f"{self.base_url}{endpoint}"
@@ -95,23 +96,20 @@ class EstuaryFlowClient:
     async def create_capture(
         self, name: str, connector_type: str, config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Create a new capture (data source)"""
-        payload = {"name": name, "connector_type": connector_type, "config": config}
+        """Create a new capture (data source)."""payload = {"name": name, "connector_type": connector_type, "config": config}.
 
         return await self._make_request("POST", "/v1/captures", json=payload)
 
     async def list_captures(self) -> List[Dict[str, Any]]:
-        """List all captures"""
-        response = await self._make_request("GET", "/v1/captures")
+        """List all captures."""response = await self._make_request("GET", "/v1/captures").
+
         return response.get("captures", [])
 
     async def get_capture(self, capture_id: str) -> Dict[str, Any]:
-        """Get details of a specific capture"""
-        return await self._make_request("GET", f"/v1/captures/{capture_id}")
+        """Get details of a specific capture."""return await self._make_request("GET", f"/v1/captures/{capture_id}").
 
     async def delete_capture(self, capture_id: str) -> Dict[str, Any]:
-        """Delete a capture"""
-        return await self._make_request("DELETE", f"/v1/captures/{capture_id}")
+        """Delete a capture."""return await self._make_request("DELETE", f"/v1/captures/{capture_id}").
 
     async def create_materialization(
         self,
@@ -120,8 +118,8 @@ class EstuaryFlowClient:
         config: Dict[str, Any],
         bindings: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
-        """Create a new materialization (data destination)"""
-        payload = {
+        """Create a new materialization (data destination)."""payload = {.
+
             "name": name,
             "connector_type": connector_type,
             "config": config,
@@ -131,48 +129,44 @@ class EstuaryFlowClient:
         return await self._make_request("POST", "/v1/materializations", json=payload)
 
     async def list_materializations(self) -> List[Dict[str, Any]]:
-        """List all materializations"""
-        response = await self._make_request("GET", "/v1/materializations")
+        """List all materializations."""response = await self._make_request("GET", "/v1/materializations").
+
         return response.get("materializations", [])
 
     async def get_materialization(self, materialization_id: str) -> Dict[str, Any]:
-        """Get details of a specific materialization"""
-        return await self._make_request(
+        """Get details of a specific materialization."""return await self._make_request(.
+
             "GET", f"/v1/materializations/{materialization_id}"
         )
 
     async def delete_materialization(self, materialization_id: str) -> Dict[str, Any]:
-        """Delete a materialization"""
-        return await self._make_request(
+        """Delete a materialization."""return await self._make_request(.
+
             "DELETE", f"/v1/materializations/{materialization_id}"
         )
 
     async def create_collection(
         self, name: str, schema: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Create a new collection (data stream)"""
-        payload = {"name": name, "schema": schema}
+        """Create a new collection (data stream)."""payload = {"name": name, "schema": schema}.
 
         return await self._make_request("POST", "/v1/collections", json=payload)
 
     async def list_collections(self) -> List[Dict[str, Any]]:
-        """List all collections"""
-        response = await self._make_request("GET", "/v1/collections")
+        """List all collections."""response = await self._make_request("GET", "/v1/collections").
+
         return response.get("collections", [])
 
     async def get_collection(self, collection_name: str) -> Dict[str, Any]:
-        """Get details of a specific collection"""
-        return await self._make_request("GET", f"/v1/collections/{collection_name}")
+        """Get details of a specific collection."""return await self._make_request("GET", f"/v1/collections/{collection_name}").
 
     async def delete_collection(self, collection_name: str) -> Dict[str, Any]:
-        """Delete a collection"""
-        return await self._make_request("DELETE", f"/v1/collections/{collection_name}")
+        """Delete a collection."""return await self._make_request("DELETE", f"/v1/collections/{collection_name}").
 
     async def publish_events(
         self, collection_name: str, events: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Publish events to a collection"""
-        payload = {"events": events}
+        """Publish events to a collection."""payload = {"events": events}.
 
         return await self._make_request(
             "POST", f"/v1/collections/{collection_name}/publish", json=payload
@@ -185,8 +179,8 @@ class EstuaryFlowClient:
         target_collection: str,
         transform_sql: str,
     ) -> Dict[str, Any]:
-        """Create a new derivation (transformation)"""
-        payload = {
+        """Create a new derivation (transformation)."""payload = {.
+
             "name": name,
             "source_collection": source_collection,
             "target_collection": target_collection,
@@ -196,42 +190,37 @@ class EstuaryFlowClient:
         return await self._make_request("POST", "/v1/derivations", json=payload)
 
     async def list_derivations(self) -> List[Dict[str, Any]]:
-        """List all derivations"""
-        response = await self._make_request("GET", "/v1/derivations")
+        """List all derivations."""response = await self._make_request("GET", "/v1/derivations").
+
         return response.get("derivations", [])
 
     async def get_derivation(self, derivation_id: str) -> Dict[str, Any]:
-        """Get details of a specific derivation"""
-        return await self._make_request("GET", f"/v1/derivations/{derivation_id}")
+        """Get details of a specific derivation."""return await self._make_request("GET", f"/v1/derivations/{derivation_id}").
 
     async def delete_derivation(self, derivation_id: str) -> Dict[str, Any]:
-        """Delete a derivation"""
-        return await self._make_request("DELETE", f"/v1/derivations/{derivation_id}")
+        """Delete a derivation."""return await self._make_request("DELETE", f"/v1/derivations/{derivation_id}").
 
     async def create_task(self, name: str, spec: Dict[str, Any]) -> Dict[str, Any]:
-        """Create a new task (scheduled job)"""
-        payload = {"name": name, "spec": spec}
+        """Create a new task (scheduled job)."""payload = {"name": name, "spec": spec}.
 
         return await self._make_request("POST", "/v1/tasks", json=payload)
 
     async def list_tasks(self) -> List[Dict[str, Any]]:
-        """List all tasks"""
-        response = await self._make_request("GET", "/v1/tasks")
+        """List all tasks."""response = await self._make_request("GET", "/v1/tasks").
+
         return response.get("tasks", [])
 
     async def get_task(self, task_id: str) -> Dict[str, Any]:
-        """Get details of a specific task"""
-        return await self._make_request("GET", f"/v1/tasks/{task_id}")
+        """Get details of a specific task."""return await self._make_request("GET", f"/v1/tasks/{task_id}").
 
     async def delete_task(self, task_id: str) -> Dict[str, Any]:
-        """Delete a task"""
-        return await self._make_request("DELETE", f"/v1/tasks/{task_id}")
+        """Delete a task."""return await self._make_request("DELETE", f"/v1/tasks/{task_id}").
 
     async def create_snowflake_materialization(
         self, name: str, snowflake_config: Dict[str, Any], collections: List[str]
     ) -> Dict[str, Any]:
-        """Create a Snowflake materialization for the specified collections"""
-        # Prepare bindings
+        """Create a Snowflake materialization for the specified collections."""# Prepare bindings.
+
         bindings = []
         for collection in collections:
             binding = {
@@ -251,8 +240,8 @@ class EstuaryFlowClient:
     async def create_postgres_materialization(
         self, name: str, postgres_config: Dict[str, Any], collections: List[str]
     ) -> Dict[str, Any]:
-        """Create a PostgreSQL materialization for the specified collections"""
-        # Prepare bindings
+        """Create a PostgreSQL materialization for the specified collections."""# Prepare bindings.
+
         bindings = []
         for collection in collections:
             binding = {
@@ -272,8 +261,8 @@ class EstuaryFlowClient:
     async def create_hubspot_capture(
         self, name: str, hubspot_config: Dict[str, Any], entity_types: List[str]
     ) -> Dict[str, Any]:
-        """Create a HubSpot capture for the specified entity types"""
-        # Add entity types to config
+        """Create a HubSpot capture for the specified entity types."""# Add entity types to config.
+
         config = {**hubspot_config, "entity_types": entity_types}
 
         # Create capture
@@ -284,8 +273,8 @@ class EstuaryFlowClient:
     async def create_salesforce_capture(
         self, name: str, salesforce_config: Dict[str, Any], objects: List[str]
     ) -> Dict[str, Any]:
-        """Create a Salesforce capture for the specified objects"""
-        # Add objects to config
+        """Create a Salesforce capture for the specified objects."""# Add objects to config.
+
         config = {**salesforce_config, "objects": objects}
 
         # Create capture
@@ -296,8 +285,8 @@ class EstuaryFlowClient:
     async def create_gong_capture(
         self, name: str, gong_config: Dict[str, Any], entity_types: List[str]
     ) -> Dict[str, Any]:
-        """Create a Gong capture for the specified entity types"""
-        # Add entity types to config
+        """Create a Gong capture for the specified entity types."""# Add entity types to config.
+
         config = {**gong_config, "entity_types": entity_types}
 
         # Create capture
@@ -311,7 +300,7 @@ class EstuaryFlowClient:
         transform_sql: Optional[str],
         destination_config: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Set up a complete real-time data pipeline"""
+        """Set up a complete real-time data pipeline."""
         try:
             # 1. Create source capture
             capture_response = await self.create_capture(

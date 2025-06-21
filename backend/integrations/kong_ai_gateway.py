@@ -1,4 +1,5 @@
-"""Kong AI Gateway Integration for Natural Language Agent Control
+"""Kong AI Gateway Integration for Natural Language Agent Control.
+
 Provides unified API management and routing for all AI agents across platforms
 """
 
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgentType(Enum):
-    """Types of AI agents supported by the system"""
+    """Types of AI agents supported by the system."""
 
     GONG_CONVERSATION = "gong_conversation"
     HUBSPOT_BREEZE = "hubspot_breeze"
@@ -34,9 +35,8 @@ class AgentType(Enum):
 
 @dataclass
 class AgentRequest:
-    """Standardized agent request structure"""
+    """Standardized agent request structure."""agent_type: AgentType.
 
-    agent_type: AgentType
     action: str
     parameters: Dict[str, Any]
     context: Optional[Dict[str, Any]] = None
@@ -47,9 +47,8 @@ class AgentRequest:
 
 @dataclass
 class AgentResponse:
-    """Standardized agent response structure"""
+    """Standardized agent response structure."""success: bool.
 
-    success: bool
     data: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     agent_type: Optional[AgentType] = None
@@ -58,9 +57,8 @@ class AgentResponse:
 
 
 class KongAIGateway:
-    """Kong AI Gateway integration for unified agent management"""
+    """Kong AI Gateway integration for unified agent management."""def __init__(self):.
 
-    def __init__(self):
         self.kong_token = os.getenv("KONG_ACCESS_TOKEN", "")
         self.kong_base_url = os.getenv("KONG_BASE_URL", "https://api.konghq.com")
         self.redis_client = redis.Redis(
@@ -85,14 +83,14 @@ class KongAIGateway:
         self._initialized = False
 
     async def ensure_initialized(self):
-        """Ensure Kong AI Gateway is initialized"""
-        if not self._initialized:
+        """Ensure Kong AI Gateway is initialized."""if not self._initialized:.
+
             await self._initialize_kong_gateway()
             self._initialized = True
 
     async def _initialize_kong_gateway(self):
-        """Initialize Kong AI Gateway with AI-specific configurations"""
-        try:
+        """Initialize Kong AI Gateway with AI-specific configurations."""try:.
+
             # Configure AI Gateway with semantic caching
             gateway_config = {
                 "name": "sophia-ai-gateway",
@@ -124,8 +122,8 @@ class KongAIGateway:
             logger.error(f"Failed to initialize Kong AI Gateway: {e}")
 
     async def _register_ai_providers(self):
-        """Register all AI providers with Kong Gateway"""
-        providers = [
+        """Register all AI providers with Kong Gateway."""providers = [.
+
             {
                 "name": "openai",
                 "config": {
@@ -161,14 +159,14 @@ class KongAIGateway:
                 logger.error(f"Failed to register provider {provider['name']}: {e}")
 
     async def _register_provider(self, provider: Dict[str, Any]):
-        """Register individual AI provider with Kong"""
-        # Implementation would depend on Kong's specific API
+        """Register individual AI provider with Kong."""# Implementation would depend on Kong's specific API.
+
         # This is a placeholder for the actual Kong API calls
         pass
 
     def register_agent(self, agent_type: AgentType, config: Dict[str, Any]):
-        """Register an AI agent with the gateway"""
-        self.agent_registry[agent_type] = {
+        """Register an AI agent with the gateway."""self.agent_registry[agent_type] = {.
+
             "config": config,
             "status": "active",
             "last_health_check": datetime.now(),
@@ -183,8 +181,7 @@ class KongAIGateway:
         logger.info(f"Registered agent: {agent_type.value}")
 
     async def route_request(self, request: AgentRequest) -> AgentResponse:
-        """Route request to appropriate agent through Kong Gateway"""
-        start_time = datetime.now()
+        """Route request to appropriate agent through Kong Gateway."""start_time = datetime.now().
 
         try:
             # Ensure initialization
@@ -219,8 +216,8 @@ class KongAIGateway:
             )
 
     async def _route_to_agent(self, request: AgentRequest) -> AgentResponse:
-        """Route request to specific agent implementation"""
-        if request.agent_type == AgentType.GONG_CONVERSATION:
+        """Route request to specific agent implementation."""if request.agent_type == AgentType.GONG_CONVERSATION:.
+
             return await self._handle_gong_request(request)
         elif request.agent_type == AgentType.HUBSPOT_BREEZE:
             return await self._handle_hubspot_request(request)
@@ -240,8 +237,8 @@ class KongAIGateway:
             )
 
     async def _handle_gong_request(self, request: AgentRequest) -> AgentResponse:
-        """Handle Gong.io conversation intelligence requests"""
-        try:
+        """Handle Gong.io conversation intelligence requests."""try:.
+
             # Implement Gong.io API integration
             gong_api_key = os.getenv("GONG_API_KEY")
 
@@ -295,8 +292,8 @@ class KongAIGateway:
             )
 
     async def _handle_hubspot_request(self, request: AgentRequest) -> AgentResponse:
-        """Handle HubSpot Breeze AI requests"""
-        try:
+        """Handle HubSpot Breeze AI requests."""try:.
+
             hubspot_api_key = os.getenv("HUBSPOT_API_KEY")
 
             if request.action == "update_contact":
@@ -344,8 +341,8 @@ class KongAIGateway:
             )
 
     async def _handle_bardeen_request(self, request: AgentRequest) -> AgentResponse:
-        """Handle Bardeen workflow automation requests"""
-        try:
+        """Handle Bardeen workflow automation requests."""try:.
+
             bardeen_api_key = os.getenv("BARDEEN_API_KEY")
 
             if request.action == "trigger_workflow":
@@ -396,8 +393,8 @@ class KongAIGateway:
             )
 
     async def _handle_arize_request(self, request: AgentRequest) -> AgentResponse:
-        """Handle Arize AI evaluation requests"""
-        try:
+        """Handle Arize AI evaluation requests."""try:.
+
             arize_api_key = os.getenv("ARIZE_API_KEY")
 
             if request.action == "evaluate_agent":
@@ -453,8 +450,8 @@ class KongAIGateway:
             )
 
     async def _handle_pulumi_request(self, request: AgentRequest) -> AgentResponse:
-        """Handle Pulumi AI infrastructure requests"""
-        try:
+        """Handle Pulumi AI infrastructure requests."""try:.
+
             if request.action == "generate_infrastructure":
                 # Generate infrastructure from natural language
                 description = request.parameters.get("description")
@@ -483,9 +480,8 @@ igw = aws.ec2.InternetGateway("main-igw",
 
 # Export VPC ID
 pulumi.export("vpc_id", vpc.id)
-"""
+"""response_data = {.
 
-                response_data = {
                     "description": description,
                     "language": language,
                     "generated_code": generated_code,
@@ -531,8 +527,8 @@ pulumi.export("vpc_id", vpc.id)
     async def _handle_natural_language_request(
         self, request: AgentRequest
     ) -> AgentResponse:
-        """Handle natural language processing requests"""
-        try:
+"""Handle natural language processing requests."""try:.
+
             if request.action == "parse_intent":
                 # Parse natural language intent
                 text = request.parameters.get("text")
@@ -594,8 +590,8 @@ pulumi.export("vpc_id", vpc.id)
     async def _update_agent_metrics(
         self, agent_type: AgentType, execution_time: float, success: bool
     ):
-        """Update agent performance metrics"""
-        try:
+        """Update agent performance metrics."""try:.
+
             if agent_type in self.agent_registry:
                 agent_info = self.agent_registry[agent_type]
                 agent_info["request_count"] += 1
@@ -636,8 +632,8 @@ pulumi.export("vpc_id", vpc.id)
     def get_agent_metrics(
         self, agent_type: Optional[AgentType] = None
     ) -> Dict[str, Any]:
-        """Get performance metrics for agents"""
-        try:
+        """Get performance metrics for agents."""try:.
+
             if agent_type:
                 # Get metrics for specific agent
                 metrics_data = self.redis_client.hget("agent_metrics", agent_type.value)
@@ -658,8 +654,8 @@ pulumi.export("vpc_id", vpc.id)
             return {}
 
     async def health_check(self) -> Dict[str, Any]:
-        """Perform health check on all registered agents"""
-        health_status = {
+        """Perform health check on all registered agents."""health_status = {.
+
             "gateway_status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "agents": {},
@@ -698,8 +694,8 @@ kong_gateway = None
 
 
 def get_kong_gateway():
-    """Get Kong AI Gateway instance (lazy initialization)"""
-    global kong_gateway
+    """Get Kong AI Gateway instance (lazy initialization)."""global kong_gateway.
+
     if kong_gateway is None:
         kong_gateway = KongAIGateway()
     return kong_gateway
@@ -711,8 +707,8 @@ kong_bp = Blueprint("kong_gateway", __name__, url_prefix="/api/kong")
 
 @kong_bp.route("/agents/register", methods=["POST"])
 def register_agent():
-    """Register a new AI agent"""
-    try:
+    """Register a new AI agent."""try:.
+
         data = request.get_json()
         agent_type = AgentType(data["agent_type"])
         config = data["config"]
@@ -732,8 +728,8 @@ def register_agent():
 
 @kong_bp.route("/agents/request", methods=["POST"])
 async def route_agent_request():
-    """Route request to appropriate agent"""
-    try:
+    """Route request to appropriate agent."""try:.
+
         data = request.get_json()
 
         agent_request = AgentRequest(
@@ -755,8 +751,8 @@ async def route_agent_request():
 
 @kong_bp.route("/agents/metrics", methods=["GET"])
 def get_agent_metrics():
-    """Get agent performance metrics"""
-    try:
+    """Get agent performance metrics."""try:.
+
         agent_type_param = request.args.get("agent_type")
         agent_type = AgentType(agent_type_param) if agent_type_param else None
 
@@ -770,8 +766,8 @@ def get_agent_metrics():
 
 @kong_bp.route("/health", methods=["GET"])
 async def health_check():
-    """Get system health status"""
-    try:
+    """Get system health status."""try:.
+
         health_status = await get_kong_gateway().health_check()
         return jsonify(health_status)
 
@@ -780,7 +776,7 @@ async def health_check():
 
 
 def create_kong_app():
-    """Create Flask app with Kong AI Gateway integration"""
+    """Create Flask app with Kong AI Gateway integration."""
     app = Flask(__name__)
     CORS(app, origins="*")
 

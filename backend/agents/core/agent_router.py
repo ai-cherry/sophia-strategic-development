@@ -1,4 +1,5 @@
-"""Centralized Agent Router for Sophia AI
+"""Centralized Agent Router for Sophia AI.
+
 Handles all natural language commands and routes to appropriate agents
 """
 
@@ -7,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
+import asyncio
 
 from ..specialized.client_health_agent import ClientHealthAgent
 from ..specialized.hr_agent import HRAgent
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgentCapability(Enum):
-    """Types of capabilities agents can have"""
+    """Types of capabilities agents can have."""
 
     DOCKER = "docker"
     PULUMI = "pulumi"
@@ -36,9 +38,8 @@ class AgentCapability(Enum):
 
 @dataclass
 class AgentRegistration:
-    """Registration info for an agent"""
+    """Registration info for an agent."""name: str.
 
-    name: str
     capabilities: List[AgentCapability]
     handler: Callable
     description: str
@@ -46,13 +47,13 @@ class AgentRegistration:
 
 
 class CentralizedAgentRouter:
-    """Central router for all agent commands
-    - Maintains agent registry
-    - Routes based on intent and context
-    - Logs all routing decisions
-    """
+    """Central router for all agent commands.
 
-    def __init__(self):
+            - Maintains agent registry
+            - Routes based on intent and context
+            - Logs all routing decisions
+    """def __init__(self):.
+
         self.agents: Dict[str, AgentRegistration] = {}
         self.agent_instances: Dict[str, Any] = {}
         self.routing_history: List[Dict[str, Any]] = []
@@ -63,7 +64,7 @@ class CentralizedAgentRouter:
 
     def _register_specialized_agents(self):
         """Initializes and registers all specialized agents."""
-        # This would typically be driven by a config file
+        # This would typically be driven by a config file.
         agent_configs = {
             "sales_coach": AgentConfig(
                 agent_id="sales_coach_01",
@@ -87,8 +88,10 @@ class CentralizedAgentRouter:
             ),
         }
 
+        loop = asyncio.get_event_loop()
+
         # Sales Coach
-        sales_coach = SalesCoachAgent(agent_configs["sales_coach"])
+        sales_coach = loop.run_until_complete(SalesCoachAgent.pooled(agent_configs["sales_coach"]))
         self.agent_instances["sales_coach"] = sales_coach
         self.register_agent(
             AgentRegistration(
@@ -100,7 +103,7 @@ class CentralizedAgentRouter:
         )
 
         # Client Health
-        client_health = ClientHealthAgent(agent_configs["client_health"])
+        client_health = loop.run_until_complete(ClientHealthAgent.pooled(agent_configs["client_health"]))
         self.agent_instances["client_health"] = client_health
         self.register_agent(
             AgentRegistration(
@@ -124,7 +127,7 @@ class CentralizedAgentRouter:
         )
 
         # HR
-        hr = HRAgent(agent_configs["hr"])
+        hr = loop.run_until_complete(HRAgent.pooled(agent_configs["hr"]))
         self.agent_instances["hr"] = hr
         self.register_agent(
             AgentRegistration(
@@ -136,8 +139,8 @@ class CentralizedAgentRouter:
         )
 
     def register_agent(self, registration: AgentRegistration):
-        """Register an agent with its capabilities"""
-        self.agents[registration.name] = registration
+        """Register an agent with its capabilities."""self.agents[registration.name] = registration.
+
         logger.info(
             f"Registered agent: {registration.name} with capabilities: {registration.capabilities}"
         )
@@ -145,10 +148,10 @@ class CentralizedAgentRouter:
     async def route_command(
         self, command: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Route a command to the appropriate agent
-        Returns the result and logs the routing decision
-        """
-        start_time = datetime.utcnow()
+        """Route a command to the appropriate agent.
+
+                        Returns the result and logs the routing decision
+        """start_time = datetime.utcnow().
 
         try:
             # Analyze command to determine intent and target agent
@@ -198,8 +201,7 @@ class CentralizedAgentRouter:
             return {"status": "error", "message": str(e), "command": command}
 
     def _analyze_command(self, command: str) -> Dict[str, Any]:
-        """Analyze command to determine intent and required capabilities"""
-        command_lower = command.lower()
+        """Analyze command to determine intent and required capabilities."""command_lower = command.lower().
 
         # Docker-related keywords
         if any(
@@ -307,8 +309,8 @@ class CentralizedAgentRouter:
     def _select_agent(
         self, intent_analysis: Dict[str, Any], context: Optional[Dict[str, Any]]
     ) -> Optional[AgentRegistration]:
-        """Select the best agent based on intent analysis"""
-        agent_name = intent_analysis.get("agent")
+        """Select the best agent based on intent analysis."""agent_name = intent_analysis.get("agent").
+
         if agent_name in self.agents:
             return self.agents[agent_name]
 
@@ -317,19 +319,18 @@ class CentralizedAgentRouter:
     def _check_context_requirements(
         self, requirements: List[str], context: Optional[Dict[str, Any]]
     ) -> List[str]:
-        """Check if all required context fields are present"""
-        if not context:
+        """Check if all required context fields are present."""if not context:.
+
             return requirements
 
         missing = [req for req in requirements if req not in context]
         return missing
 
     def get_routing_history(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get recent routing history for debugging and monitoring"""
-        return self.routing_history[-limit:]
+        """Get recent routing history for debugging and monitoring."""return self.routing_history[-limit:].
 
     def get_registered_agents(self) -> Dict[str, Dict[str, Any]]:
-        """Get information about all registered agents"""
+        """Get information about all registered agents."""
         return {
             name: {
                 "capabilities": [cap.value for cap in agent.capabilities],

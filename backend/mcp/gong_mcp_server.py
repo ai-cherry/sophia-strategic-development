@@ -1,4 +1,5 @@
-"""Gong MCP Server
+"""Gong MCP Server.
+
 MCP server for Gong CRM integration, refactored to use the BaseMCPServer.
 """
 
@@ -28,13 +29,13 @@ class GongMCPServer(BaseMCPServer):
         super().__init__("gong")
 
     async def initialize_integration(self):
-        """Initializes the GongIntegration client."""
-        self.integration_client = GongIntegration()
+        """Initializes the GongIntegration client."""self.integration_client = GongIntegration().
+
         await self.integration_client.initialize()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Gong resources."""
-        return [
+        """Lists available Gong resources."""return [.
+
             Resource(
                 uri="gong://health",
                 name="Gong Health Status",
@@ -44,16 +45,16 @@ class GongMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Gong resource."""
-        if request.uri == "gong://health":
+        """Gets a specific Gong resource."""if request.uri == "gong://health":.
+
             health_status = await self.integration_client.get_health_status()
             return json.dumps(health_status, indent=2)
         else:
             return json.dumps({"error": f"Unknown resource: {request.uri}"})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Gong tools."""
-        return [
+        """Lists available Gong tools."""return [.
+
             Tool(
                 name="get_calls",
                 description="Get calls from Gong within a date range",
@@ -114,8 +115,8 @@ class GongMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Gong tool call."""
-        tool_name = request.params.name
+        """Handles a Gong tool call."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
 
         if tool_name == "get_calls":

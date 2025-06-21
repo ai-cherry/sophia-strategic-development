@@ -5,30 +5,30 @@ values:
   # Organization Configuration
   organization: "scoobyjava-org"
   project: "sophia-ai"
-  
+
   # Common Infrastructure Settings
   infrastructure:
     region: "us-east-1"
     availability_zones: ["us-east-1a", "us-east-1b", "us-east-1c"]
-    
+
   # Security Policies
   security:
     encryption_at_rest: true
     encryption_in_transit: true
     backup_retention_days: 30
-    
+
   # Monitoring Configuration
   monitoring:
     enable_cloudwatch: true
     enable_xray: true
     log_retention_days: 30
-    
+
   # Networking
   networking:
     vpc_cidr: "10.0.0.0/16"
     public_subnet_cidrs: ["10.0.1.0/24", "10.0.2.0/24"]
     private_subnet_cidrs: ["10.0.10.0/24", "10.0.20.0/24"]
-    
+
   # Tags
   tags:
     Project: "Sophia AI"
@@ -36,4 +36,3 @@ values:
     ManagedBy: "Pulumi"
     Owner: "AI-Cherry"
     CostCenter: "Engineering"
-

@@ -1,4 +1,5 @@
-"""Gong MCP Client Example
+"""Gong MCP Client Example.
+
 This script demonstrates how to use the MCP client to call the Gong MCP server
 instead of making direct API calls to Gong.
 """
@@ -26,18 +27,18 @@ class GongMCPClient:
         self.server_name = "gong"
 
     async def initialize(self):
-        """Connect to the MCP gateway."""
-        await self.mcp_client.connect()
+        """Connect to the MCP gateway."""await self.mcp_client.connect().
+
         logger.info("MCP Client connected.")
 
     async def close(self):
-        """Close the MCP client connection."""
-        await self.mcp_client.close()
+        """Close the MCP client connection."""await self.mcp_client.close().
+
         logger.info("MCP Client disconnected.")
 
     async def extract_all_available_data(self) -> Dict[str, Any]:
-        """Extract all available data using the Gong MCP server."""
-        extraction_results = {
+        """Extract all available data using the Gong MCP server."""extraction_results = {.
+
             "timestamp": datetime.utcnow().isoformat(),
             "extraction_summary": {},
             "errors": [],
@@ -100,8 +101,8 @@ class GongMCPClient:
             return extraction_results
 
     async def extract_users(self) -> Dict[str, Any]:
-        """Extract users using the Gong MCP server."""
-        try:
+        """Extract users using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(self.server_name, "get_users", {})
 
             if result.get("success", False):
@@ -135,8 +136,8 @@ class GongMCPClient:
             return {"success": False, "error": str(e), "users": []}
 
     async def extract_workspaces(self) -> Dict[str, Any]:
-        """Extract workspaces using the Gong MCP server."""
-        try:
+        """Extract workspaces using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(
                 self.server_name, "get_workspaces", {}
             )
@@ -159,8 +160,8 @@ class GongMCPClient:
             return {"success": False, "error": str(e), "workspaces": []}
 
     async def extract_calls(self) -> Dict[str, Any]:
-        """Extract calls using the Gong MCP server."""
-        try:
+        """Extract calls using the Gong MCP server."""try:.
+
             from_date = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
             to_date = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -201,8 +202,8 @@ class GongMCPClient:
             return {"success": False, "error": str(e), "calls": []}
 
     async def extract_library_data(self) -> Dict[str, Any]:
-        """Extract library data using the Gong MCP server."""
-        try:
+        """Extract library data using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(
                 self.server_name, "get_library", {}
             )
@@ -220,8 +221,8 @@ class GongMCPClient:
             return {"success": False, "error": str(e), "library_data": {}}
 
     async def extract_settings(self) -> Dict[str, Any]:
-        """Extract settings using the Gong MCP server."""
-        try:
+        """Extract settings using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(
                 self.server_name, "get_settings", {}
             )
@@ -239,8 +240,8 @@ class GongMCPClient:
             return {"success": False, "error": str(e), "settings": {}}
 
     async def extract_stats(self) -> Dict[str, Any]:
-        """Extract stats using the Gong MCP server."""
-        try:
+        """Extract stats using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(self.server_name, "get_stats", {})
 
             if result.get("success", False):
@@ -258,8 +259,8 @@ class GongMCPClient:
     async def store_all_data(
         self, extraction_results: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Store all extracted data using the Gong MCP server."""
-        try:
+        """Store all extracted data using the Gong MCP server."""try:.
+
             result = await self.mcp_client.call_tool(
                 self.server_name, "store_data", {"data": extraction_results}
             )
@@ -292,8 +293,7 @@ class GongMCPClient:
             }
 
     def calculate_user_apartment_relevance(self, user: Dict[str, Any]) -> float:
-        """Calculate apartment industry relevance for a user."""
-        relevance_score = 0.0
+        """Calculate apartment industry relevance for a user."""relevance_score = 0.0.
 
         try:
             # Check user title/role
@@ -340,8 +340,8 @@ class GongMCPClient:
         return min(relevance_score, 1.0)
 
     def generate_user_sophia_profile(self, user: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate Sophia-specific user profile."""
-        profile = {
+        """Generate Sophia-specific user profile."""profile = {.
+
             "role_category": "unknown",
             "influence_level": "low",
             "apartment_focus": False,
@@ -385,8 +385,7 @@ class GongMCPClient:
         return profile
 
     def calculate_call_apartment_relevance(self, call: Dict[str, Any]) -> float:
-        """Calculate apartment industry relevance for a call."""
-        relevance_score = 0.0
+        """Calculate apartment industry relevance for a call."""relevance_score = 0.0.
 
         try:
             # Check call title
@@ -433,8 +432,8 @@ class GongMCPClient:
         return min(relevance_score, 1.0)
 
     def generate_call_insights(self, call: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate insights for a call."""
-        insights = {
+        """Generate insights for a call."""insights = {.
+
             "business_value": "low",
             "follow_up_priority": "normal",
             "deal_stage": "unknown",
@@ -467,8 +466,7 @@ class GongMCPClient:
         return insights
 
     def get_working_endpoints(self, extraction_results: Dict[str, Any]) -> List[str]:
-        """Get list of working endpoints."""
-        working_endpoints = []
+        """Get list of working endpoints."""working_endpoints = [].
 
         if extraction_results.get("users", {}).get("success", False):
             working_endpoints.append("users")
@@ -491,8 +489,7 @@ class GongMCPClient:
         return working_endpoints
 
     def calculate_data_quality_score(self, extraction_results: Dict[str, Any]) -> float:
-        """Calculate overall data quality score."""
-        score = 0.0
+        """Calculate overall data quality score."""score = 0.0.
 
         # Users (40% weight)
         if extraction_results.get("users", {}).get("success", False):

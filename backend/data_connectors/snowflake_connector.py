@@ -1,9 +1,8 @@
 """Snowflake Data Connector.
 
 Handles all interactions with the Snowflake data warehouse.
-"""
+"""import os
 
-import os
 from typing import Any, Dict, List
 
 

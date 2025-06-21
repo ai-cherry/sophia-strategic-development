@@ -1,8 +1,8 @@
-"""Deployment Validator for CI/CD
-Performs pre-deployment checks for security and performance.
-"""
+"""Deployment Validator for CI/CD.
 
-import asyncio
+Performs pre-deployment checks for security and performance.
+"""import asyncio
+
 import logging
 from typing import Any, Dict
 
@@ -18,8 +18,7 @@ class DeploymentValidator:
     async def pre_deployment_validation(
         self, deployment_config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Runs all pre-deployment validation checks."""
-        logger.info("Starting pre-deployment validation...")
+        """Runs all pre-deployment validation checks."""logger.info("Starting pre-deployment validation...").
 
         security_check = await self._validate_security(deployment_config)
         performance_check = await self._validate_performance(deployment_config)
@@ -56,8 +55,8 @@ class DeploymentValidator:
         }
 
     async def _validate_security(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Placeholder for security validation."""
-        logger.info("Running security validation placeholder...")
+        """Placeholder for security validation."""logger.info("Running security validation placeholder...").
+
         await asyncio.sleep(1)
         return {"status": "passed", "reason": "Placeholder scan found no issues."}
 

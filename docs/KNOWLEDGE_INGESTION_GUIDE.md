@@ -288,4 +288,4 @@ curl http://localhost:8000/api/knowledge/analytics/stats
 For assistance or questions:
 - Technical Issues: sophia-tech@payready.com
 - Feature Requests: Submit via Linear (SOPH project)
-- Documentation: See `/docs` directory 
+- Documentation: See `/docs` directory

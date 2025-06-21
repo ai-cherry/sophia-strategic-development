@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Airbyte Cloud Integration for Pay Ready Multi-Source Data Pipeline
+"""Airbyte Cloud Integration for Pay Ready Multi-Source Data Pipeline.
+
 Integrates Gong, Salesforce, HubSpot, Slack data into unified Sophia database
 """
 
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AirbyteCredentials:
-    """Airbyte Cloud API credentials"""
+    """Airbyte Cloud API credentials."""
 
     access_token: str
     client_id: str
@@ -30,9 +31,8 @@ class AirbyteCredentials:
 
 @dataclass
 class DataSourceConfig:
-    """Configuration for each data source"""
+    """Configuration for each data source."""name: str.
 
-    name: str
     source_type: str
     destination_id: str
     connection_config: Dict[str, Any]
@@ -41,9 +41,8 @@ class DataSourceConfig:
 
 
 class AirbyteCloudManager:
-    """Manages Airbyte Cloud connections and data synchronization"""
+    """Manages Airbyte Cloud connections and data synchronization."""def __init__(self, credentials: AirbyteCredentials):.
 
-    def __init__(self, credentials: AirbyteCredentials):
         self.credentials = credentials
         self.session = requests.Session()
         self.session.headers.update(
@@ -55,8 +54,8 @@ class AirbyteCloudManager:
         )
 
     def decode_token_info(self) -> Dict[str, Any]:
-        """Decode JWT token to get user and workspace information"""
-        try:
+        """Decode JWT token to get user and workspace information."""try:.
+
             # Decode without verification for inspection (token is already validated by Airbyte)
             decoded = jwt.decode(
                 self.credentials.access_token, options={"verify_signature": False}
@@ -73,8 +72,8 @@ class AirbyteCloudManager:
             return {}
 
     async def get_workspaces(self) -> List[Dict[str, Any]]:
-        """Get all available workspaces"""
-        try:
+        """Get all available workspaces."""try:.
+
             response = self.session.get(f"{self.credentials.base_url}/workspaces")
             response.raise_for_status()
             return response.json().get("data", [])
@@ -83,8 +82,8 @@ class AirbyteCloudManager:
             return []
 
     async def get_sources(self, workspace_id: str) -> List[Dict[str, Any]]:
-        """Get all sources in a workspace"""
-        try:
+        """Get all sources in a workspace."""try:.
+
             response = self.session.get(
                 f"{self.credentials.base_url}/sources",
                 params={"workspaceId": workspace_id},
@@ -96,8 +95,8 @@ class AirbyteCloudManager:
             return []
 
     async def get_destinations(self, workspace_id: str) -> List[Dict[str, Any]]:
-        """Get all destinations in a workspace"""
-        try:
+        """Get all destinations in a workspace."""try:.
+
             response = self.session.get(
                 f"{self.credentials.base_url}/destinations",
                 params={"workspaceId": workspace_id},
@@ -111,8 +110,8 @@ class AirbyteCloudManager:
     async def create_gong_source(
         self, workspace_id: str, gong_credentials: Dict[str, str]
     ) -> Optional[str]:
-        """Create Gong source connector"""
-        source_config = {
+        """Create Gong source connector."""source_config = {.
+
             "name": "Pay Ready Gong Source",
             "workspaceId": workspace_id,
             "configuration": {
@@ -138,8 +137,8 @@ class AirbyteCloudManager:
     async def create_postgres_destination(
         self, workspace_id: str, db_config: Dict[str, str]
     ) -> Optional[str]:
-        """Create PostgreSQL destination for Sophia database"""
-        destination_config = {
+        """Create PostgreSQL destination for Sophia database."""destination_config = {.
+
             "name": "Sophia Unified Database",
             "workspaceId": workspace_id,
             "configuration": {
@@ -175,8 +174,8 @@ class AirbyteCloudManager:
         workspace_id: str,
         sync_frequency: str = "hourly",
     ) -> Optional[str]:
-        """Create connection between source and destination"""
-        connection_config = {
+        """Create connection between source and destination."""connection_config = {.
+
             "name": "Gong to Sophia Database",
             "sourceId": source_id,
             "destinationId": destination_id,
@@ -197,9 +196,9 @@ class AirbyteCloudManager:
             },
             "schedule": {
                 "scheduleType": "cron",
-                "cronExpression": "0 * * * *"
-                if sync_frequency == "hourly"
-                else "0 0 * * *",
+                "cronExpression": (
+                    "0 * * * *" if sync_frequency == "hourly" else "0 0 * * *"
+                ),
             },
         }
 
@@ -216,8 +215,8 @@ class AirbyteCloudManager:
             return None
 
     async def trigger_sync(self, connection_id: str) -> bool:
-        """Trigger manual sync for a connection"""
-        try:
+        """Trigger manual sync for a connection."""try:.
+
             response = self.session.post(
                 f"{self.credentials.base_url}/jobs",
                 json={"connectionId": connection_id, "jobType": "sync"},
@@ -232,17 +231,16 @@ class AirbyteCloudManager:
 
 
 class DataDictionaryManager:
-    """Manages central data dictionary and field mappings"""
+    """Manages central data dictionary and field mappings."""def __init__(self):.
 
-    def __init__(self):
         self.data_dictionary = {}
         self.field_mappings = {}
 
     def load_data_dictionary(
         self, file_path: str = "/home/ubuntu/data_dictionary.json"
     ):
-        """Load existing data dictionary"""
-        try:
+        """Load existing data dictionary."""try:.
+
             with open(file_path, "r") as f:
                 self.data_dictionary = json.load(f)
             logger.info(
@@ -255,14 +253,14 @@ class DataDictionaryManager:
     def save_data_dictionary(
         self, file_path: str = "/home/ubuntu/data_dictionary.json"
     ):
-        """Save data dictionary to file"""
-        with open(file_path, "w") as f:
+        """Save data dictionary to file."""with open(file_path, "w") as f:.
+
             json.dump(self.data_dictionary, f, indent=2)
         logger.info(f"Saved data dictionary with {len(self.data_dictionary)} fields")
 
     def add_field_definition(self, field_name: str, definition: Dict[str, Any]):
-        """Add or update field definition"""
-        self.data_dictionary[field_name] = {
+        """Add or update field definition."""self.data_dictionary[field_name] = {.
+
             "description": definition.get("description", ""),
             "data_type": definition.get("data_type", "VARCHAR"),
             "source_systems": definition.get("source_systems", []),
@@ -276,8 +274,8 @@ class DataDictionaryManager:
         }
 
     def get_field_mappings(self, source_system: str) -> Dict[str, str]:
-        """Get field mappings for a specific source system"""
-        mappings = {}
+        """Get field mappings for a specific source system."""mappings = {}.
+
         for standard_field, definition in self.data_dictionary.items():
             source_systems = definition.get("source_systems", [])
             for system in source_systems:
@@ -287,7 +285,7 @@ class DataDictionaryManager:
 
 
 async def setup_pay_ready_data_pipeline():
-    """Main function to set up Pay Ready's multi-source data pipeline"""
+    """Main function to set up Pay Ready's multi-source data pipeline."""
     # Initialize Airbyte credentials
     credentials = AirbyteCredentials(
         access_token="eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF6dHJERTBDSEJHZDB2MVh0Vnk0In0.eyJleHAiOjE3NTAxNzA0MTcsImlhdCI6MTc1MDE2OTUxNywianRpIjoiYzAxMDRmODItOTQ3MC00NDJkLThiZDAtNDlmZDIzMDk5NTM0IiwiaXNzIjoiaHR0cHM6Ly9jbG91ZC5haXJieXRlLmNvbS9hdXRoL3JlYWxtcy9fYWlyYnl0ZS1hcHBsaWNhdGlvbi1jbGllbnRzIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjkwNzJmYzI0LTE0MjUtNDBlNy05ZmU4LTg0ZWYxM2I2M2Q4MCIsInR5cCI6IkJlYXJlciIsImF6cCI6ImQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtX2FpcmJ5dGUtYXBwbGljYXRpb24tY2xpZW50cyJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImNsaWVudEhvc3QiOiIxNzIuMjMuMC4yNDMiLCJ1c2VyX2lkIjoiOTA3MmZjMjQtMTQyNS00MGU3LTlmZTgtODRlZjEzYjYzZDgwIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VydmljZS1hY2NvdW50LWQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImNsaWVudEFkZHJlc3MiOiIxNzIuMjMuMC4yNDMiLCJjbGllbnRfaWQiOiJkNzhjYWQzNi1lODAwLTQ4YzktODU3MS0xZGFjYmQxYjIxN2MifQ.P8qAiLkkEO05MPEZJ1JfiE41aMQHxr7IoUxam-X66GtnSv_SvqUMgyxTg61Gmee6y7OU2EEcXaEmWzKPaqDFIXimXKrInn9DiOfMqB2gGfDiZmDmLT6rU9a5yHydflGNb8Z8V2hCvZDdpX48SmGtUUv-QEIytElP_LaYzaB20-fGXPwYCHzUEWZchC1N97xSWdYm-SneB_wNwNmAvoBZ3MYB9Il0LIwNAIJjihc6bnI9ka2Mlvxa1JbVp55vwmEDAOE86DAe6arJkOIz4xgjy6fvcSyqLQAPzcArdHHZJZe1WhJI2AZW64hzBXvUxuWooPH3eW-YGb6Vr2vSeOuHCQ",

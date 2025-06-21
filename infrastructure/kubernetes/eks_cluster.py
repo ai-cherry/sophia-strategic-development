@@ -1,4 +1,5 @@
-"""Provisions a production-ready Amazon EKS (Elastic Kubernetes Service) cluster
+"""Provisions a production-ready Amazon EKS (Elastic Kubernetes Service) cluster.
+
 using the high-level Pulumi EKS component.
 """
 

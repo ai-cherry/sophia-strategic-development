@@ -1,4 +1,5 @@
 """A simple, standalone script to provision a Lambda Labs instance using the REST API.
+
 This script has minimal dependencies and is designed to be run locally to bypass
 complex environment issues.
 """
@@ -18,6 +19,7 @@ REGION = "us-east-1"
 
 def check_ssh_key():
     """Checks if the specified SSH key exists in the Lambda Labs account."""
+
     print(f"Verifying SSH key '{SSH_KEY_NAME}' exists...")
     url = "https://cloud.lambda.ai/api/v1/ssh-keys"
     response = requests.get(url, auth=(API_KEY, ""))
@@ -34,8 +36,8 @@ def check_ssh_key():
 
 
 def provision_server():
-    """Provisions the server and returns the instance data."""
-    print(f"Launching instance '{SERVER_NAME}' of type '{INSTANCE_TYPE}'...")
+    """Provisions the server and returns the instance data."""print(f"Launching instance '{SERVER_NAME}' of type '{INSTANCE_TYPE}'...").
+
     url = "https://cloud.lambda.ai/api/v1/instance-operations/launch"
     payload = {
         "region_name": REGION,
@@ -52,8 +54,8 @@ def provision_server():
 
 
 def get_instance_details(instance_id):
-    """Waits for the instance to get an IP address and returns its details."""
-    print("Waiting for instance to be assigned an IP address...")
+    """Waits for the instance to get an IP address and returns its details."""print("Waiting for instance to be assigned an IP address...").
+
     url = f"https://cloud.lambda.ai/api/v1/instances/{instance_id}"
 
     for _ in range(20):  # Try for 10 minutes (20 * 30s)

@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Estuary.
-"""
+"""Pulumi ESC Secret Manager for Estuary."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

@@ -1,6 +1,8 @@
-"""Pulumi ESC - Vercel Secret Management
+"""Pulumi ESC - Vercel Secret Management.
+
 Manages Vercel Access Tokens and Team IDs.
 """
+
 import logging
 import os
 
@@ -29,8 +31,7 @@ class VercelSecretManager:
         self.environment_name = f"{project}-{stack}"
 
     async def get_vercel_secrets(self) -> dict:
-        """Retrieves Vercel secrets from the Pulumi ESC environment.
-        """
+        """Retrieves Vercel secrets from the Pulumi ESC environment."""
         try:
             opened_env = await pulumiservice.open_environment(
                 name=self.environment_name, organization=self.org

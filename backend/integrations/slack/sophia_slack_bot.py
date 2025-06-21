@@ -1,4 +1,5 @@
-"""Sophia AI - Comprehensive Slack Bot Implementation
+"""Sophia AI - Comprehensive Slack Bot Implementation.
+
 Replaces admin website with intelligent Slack interface integrated with MCP architecture
 """
 
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class SlackCommandType(Enum):
-    """Types of Slack commands supported"""
+    """Types of Slack commands supported."""
 
     DASHBOARD = "dashboard"
     QUERY = "query"
@@ -36,9 +37,8 @@ class SlackCommandType(Enum):
 
 @dataclass
 class SlackCommand:
-    """Structured Slack command"""
+    """Structured Slack command."""command: str.
 
-    command: str
     user_id: str
     channel_id: str
     text: str
@@ -49,11 +49,11 @@ class SlackCommand:
 
 
 class SophiaSlackBot:
-    """Comprehensive Slack bot that replaces the admin website
-    Integrates with MCP architecture for natural language processing
-    """
+    """Comprehensive Slack bot that replaces the admin website.
 
-    def __init__(self):
+            Integrates with MCP architecture for natural language processing
+    """def __init__(self):.
+
         self.app = AsyncApp(
             token=os.getenv("SLACK_BOT_TOKEN"),
             signing_secret=os.getenv("SLACK_SIGNING_SECRET"),
@@ -69,9 +69,8 @@ class SophiaSlackBot:
         self._setup_message_handlers()
 
     def _setup_command_handlers(self):
-        """Setup Slack slash command handlers"""
+        """Setup Slack slash command handlers."""@self.app.command("/sophia").
 
-        @self.app.command("/sophia")
         async def handle_sophia_command(ack, command, client, logger):
             await ack()
             await self._process_sophia_command(command, client)
@@ -102,9 +101,8 @@ class SophiaSlackBot:
             await self._handle_deploy_command(command, client)
 
     def _setup_event_handlers(self):
-        """Setup Slack event handlers"""
+        """Setup Slack event handlers."""@self.app.event("app_mention").
 
-        @self.app.event("app_mention")
         async def handle_app_mention(event, client, logger):
             await self._handle_mention(event, client)
 
@@ -115,9 +113,8 @@ class SophiaSlackBot:
                 await self._handle_direct_message(event, client)
 
     def _setup_message_handlers(self):
-        """Setup interactive message handlers"""
+        """Setup interactive message handlers."""@self.app.action("dashboard_refresh").
 
-        @self.app.action("dashboard_refresh")
         async def handle_dashboard_refresh(ack, action, client):
             await ack()
             await self._refresh_dashboard(action, client)
@@ -135,8 +132,8 @@ class SophiaSlackBot:
     async def _process_sophia_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Process main /sophia command with subcommands"""
-        text = command.get("text", "").strip()
+        """Process main /sophia command with subcommands."""text = command.get("text", "").strip().
+
         channel_id = command["channel_id"]
         user_id = command["user_id"]
 
@@ -169,16 +166,16 @@ class SophiaSlackBot:
     async def _handle_dashboard_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated dashboard command"""
-        await self._handle_dashboard_request(
+        """Handle dedicated dashboard command."""await self._handle_dashboard_request(.
+
             command["channel_id"], client, command["user_id"]
         )
 
     async def _handle_query_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated query command"""
-        query = command.get("text", "").strip()
+        """Handle dedicated query command."""query = command.get("text", "").strip().
+
         await self._handle_natural_language_query(
             command["channel_id"], client, query, command["user_id"]
         )
@@ -186,8 +183,8 @@ class SophiaSlackBot:
     async def _handle_search_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated search command"""
-        search_params = command.get("text", "").strip()
+        """Handle dedicated search command."""search_params = command.get("text", "").strip().
+
         await self._handle_conversation_search(
             command["channel_id"], client, search_params, command["user_id"]
         )
@@ -195,16 +192,16 @@ class SophiaSlackBot:
     async def _handle_health_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated health command"""
-        await self._handle_system_health(
+        """Handle dedicated health command."""await self._handle_system_health(.
+
             command["channel_id"], client, command["user_id"]
         )
 
     async def _handle_deploy_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated deploy command"""
-        deploy_params = command.get("text", "").strip()
+        """Handle dedicated deploy command."""deploy_params = command.get("text", "").strip().
+
         await self._handle_deployment_request(
             command["channel_id"], client, deploy_params, command["user_id"]
         )
@@ -212,8 +209,8 @@ class SophiaSlackBot:
     async def _handle_dashboard_request(
         self, channel_id: str, client: AsyncWebClient, user_id: str
     ):
-        """Handle dashboard statistics request"""
-        try:
+        """Handle dashboard statistics request."""try:.
+
             # Fetch dashboard stats from admin API
             async with aiohttp.ClientSession() as session:
                 async with session.get(
@@ -246,8 +243,8 @@ class SophiaSlackBot:
     async def _handle_natural_language_query(
         self, channel_id: str, client: AsyncWebClient, query: str, user_id: str
     ):
-        """Handle natural language queries via MCP integration"""
-        if not query:
+        """Handle natural language queries via MCP integration."""if not query:.
+
             await client.chat_postMessage(
                 channel=channel_id,
                 text="Please provide a query. Example: `/sophia query show me recent apartment deals`",
@@ -283,8 +280,8 @@ class SophiaSlackBot:
     async def _handle_conversation_search(
         self, channel_id: str, client: AsyncWebClient, search_params: str, user_id: str
     ):
-        """Handle conversation search requests"""
-        try:
+        """Handle conversation search requests."""try:.
+
             # Parse search parameters
             params = self._parse_search_params(search_params)
 
@@ -322,8 +319,8 @@ class SophiaSlackBot:
     async def _handle_system_health(
         self, channel_id: str, client: AsyncWebClient, user_id: str
     ):
-        """Handle system health check requests"""
-        try:
+        """Handle system health check requests."""try:.
+
             # Get health status from integration registry
             health_status = await integration_registry.health_check_all()
             stats = integration_registry.get_integration_stats()
@@ -348,8 +345,8 @@ class SophiaSlackBot:
     async def _handle_deployment_request(
         self, channel_id: str, client: AsyncWebClient, deploy_params: str, user_id: str
     ):
-        """Handle deployment requests"""
-        try:
+        """Handle deployment requests."""try:.
+
             # Parse deployment parameters
             if not deploy_params:
                 await client.chat_postMessage(
@@ -380,8 +377,8 @@ class SophiaSlackBot:
     async def _handle_integration_stats(
         self, channel_id: str, client: AsyncWebClient, user_id: str
     ):
-        """Handle integration statistics requests"""
-        try:
+        """Handle integration statistics requests."""try:.
+
             stats = integration_registry.get_integration_stats()
             blocks = self._create_integration_stats_blocks(stats)
 
@@ -401,8 +398,8 @@ class SophiaSlackBot:
             )
 
     async def _handle_mention(self, event: Dict[str, Any], client: AsyncWebClient):
-        """Handle app mentions"""
-        text = event.get("text", "")
+        """Handle app mentions."""text = event.get("text", "").
+
         channel = event["channel"]
         user = event["user"]
 
@@ -417,8 +414,8 @@ class SophiaSlackBot:
     async def _handle_direct_message(
         self, event: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle direct messages to the bot"""
-        text = event.get("text", "")
+        """Handle direct messages to the bot."""text = event.get("text", "").
+
         channel = event["channel"]
         user = event["user"]
 
@@ -426,8 +423,8 @@ class SophiaSlackBot:
             await self._handle_natural_language_query(channel, client, text, user)
 
     async def _process_query_via_mcp(self, query: str) -> Dict[str, Any]:
-        """Process query via MCP server"""
-        try:
+        """Process query via MCP server."""try:.
+
             # Use MCP server's natural language processing
             # This would integrate with the sophia_mcp_server
             result = {
@@ -442,8 +439,8 @@ class SophiaSlackBot:
             return await self._process_query_via_api(query)
 
     async def _process_query_via_api(self, query: str) -> Dict[str, Any]:
-        """Process query via direct API call"""
-        async with aiohttp.ClientSession() as session:
+        """Process query via direct API call."""async with aiohttp.ClientSession() as session:.
+
             async with session.post(
                 f"{self.admin_api_base}/natural-query", json={"query": query}
             ) as response:
@@ -453,8 +450,7 @@ class SophiaSlackBot:
                     return {"error": "Failed to process query", "query": query}
 
     def _parse_search_params(self, search_params: str) -> Dict[str, str]:
-        """Parse search parameters from text"""
-        params = {}
+        """Parse search parameters from text."""params = {}.
 
         # Simple parameter parsing
         if "from:" in search_params:
@@ -480,8 +476,8 @@ class SophiaSlackBot:
         return params
 
     def _create_dashboard_blocks(self, stats: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Create Slack blocks for dashboard display"""
-        blocks = [
+        """Create Slack blocks for dashboard display."""blocks = [.
+
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": "📊 Sophia AI Dashboard"},
@@ -524,8 +520,8 @@ class SophiaSlackBot:
     def _create_query_result_blocks(
         self, query: str, result: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Create Slack blocks for query results"""
-        blocks = [
+        """Create Slack blocks for query results."""blocks = [.
+
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": f"🔍 Query: {query[:50]}..."},
@@ -571,8 +567,8 @@ class SophiaSlackBot:
     def _create_search_result_blocks(
         self, results: Dict[str, Any], search_params: str
     ) -> List[Dict[str, Any]]:
-        """Create Slack blocks for search results"""
-        blocks = [
+        """Create Slack blocks for search results."""blocks = [.
+
             {
                 "type": "header",
                 "text": {
@@ -611,8 +607,8 @@ class SophiaSlackBot:
     def _create_health_status_blocks(
         self, health_status: Dict[str, bool], stats: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Create Slack blocks for health status"""
-        blocks = [
+        """Create Slack blocks for health status."""blocks = [.
+
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": "🏥 System Health Status"},
@@ -658,8 +654,8 @@ class SophiaSlackBot:
     def _create_deployment_confirmation_blocks(
         self, deploy_params: str
     ) -> List[Dict[str, Any]]:
-        """Create Slack blocks for deployment confirmation"""
-        return [
+        """Create Slack blocks for deployment confirmation."""return [.
+
             {
                 "type": "header",
                 "text": {
@@ -696,8 +692,8 @@ class SophiaSlackBot:
     def _create_integration_stats_blocks(
         self, stats: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Create Slack blocks for integration statistics"""
-        return [
+        """Create Slack blocks for integration statistics."""return [.
+
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": "📈 Integration Statistics"},
@@ -726,8 +722,8 @@ class SophiaSlackBot:
         ]
 
     async def _send_help_message(self, channel_id: str, client: AsyncWebClient):
-        """Send help message with available commands"""
-        blocks = [
+        """Send help message with available commands."""blocks = [.
+
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": "🤖 Sophia AI Bot Help"},
@@ -757,8 +753,8 @@ class SophiaSlackBot:
         )
 
     async def start(self):
-        """Start the Slack bot"""
-        try:
+        """Start the Slack bot."""try:.
+
             # Initialize integrations
             await integration_registry.initialize()
 
@@ -784,8 +780,8 @@ class SophiaSlackBot:
             raise
 
     async def stop(self):
-        """Stop the Slack bot"""
-        if self.socket_client:
+        """Stop the Slack bot."""if self.socket_client:.
+
             await self.socket_client.disconnect()
         logger.info("Sophia Slack Bot stopped")
 
@@ -795,7 +791,7 @@ sophia_slack_bot = SophiaSlackBot()
 
 
 async def main():
-    """Main entry point"""
+    """Main entry point."""
     await sophia_slack_bot.start()
 
 

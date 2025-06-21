@@ -1,4 +1,5 @@
-"""Pay Ready Specialized AI Agents Implementation
+"""Pay Ready Specialized AI Agents Implementation.
+
 Business Intelligence Agents for B2B Apartment Industry Operations
 """
 
@@ -19,12 +20,13 @@ from backend.integrations.natural_language_processor import NaturalLanguageProce
 
 # Use stub knowledge base to avoid import errors
 from backend.knowledge.knowledge_base_stub import SophiaKnowledgeBase
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
 
 class AgentPriority(Enum):
-    """Priority levels for agent tasks"""
+    """Priority levels for agent tasks."""
 
     CRITICAL = "critical"
     HIGH = "high"
@@ -33,9 +35,8 @@ class AgentPriority(Enum):
 
 
 class AgentStatus(Enum):
-    """Agent operational status"""
+    """Agent operational status."""ACTIVE = "active".
 
-    ACTIVE = "active"
     IDLE = "idle"
     PROCESSING = "processing"
     ERROR = "error"
@@ -44,9 +45,8 @@ class AgentStatus(Enum):
 
 @dataclass
 class AgentTask:
-    """Represents a task for an AI agent"""
+    """Represents a task for an AI agent."""id: str.
 
-    id: str
     agent_type: str
     task_type: str
     priority: AgentPriority
@@ -66,9 +66,8 @@ class AgentTask:
 
 @dataclass
 class AgentResult:
-    """Result from an AI agent task"""
+    """Result from an AI agent task."""task_id: str.
 
-    task_id: str
     agent_type: str
     success: bool
     data: Dict[str, Any]
@@ -83,9 +82,8 @@ class AgentResult:
 
 
 class BasePayReadyAgent:
-    """Base class for all Pay Ready specialized agents"""
+    """Base class for all Pay Ready specialized agents."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.agent_type = self.__class__.__name__.lower().replace("agent", "")
         self.status = AgentStatus.IDLE
@@ -104,8 +102,8 @@ class BasePayReadyAgent:
         logger.info(f"{self.agent_type} agent initialized")
 
     async def process_task(self, task: AgentTask) -> AgentResult:
-        """Process a task and return results"""
-        start_time = datetime.utcnow()
+        """Process a task and return results."""start_time = datetime.utcnow().
+
         self.status = AgentStatus.PROCESSING
         self.total_requests += 1
 
@@ -159,14 +157,13 @@ class BasePayReadyAgent:
             )
 
     async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Override in specific agent implementations"""
-        raise NotImplementedError("Subclasses must implement _execute_task")
+        """Override in specific agent implementations."""raise NotImplementedError("Subclasses must implement _execute_task").
 
     async def _generate_insights(
         self, task: AgentTask, result_data: Dict[str, Any]
     ) -> List[str]:
-        """Generate insights from task results"""
-        # Use NLP processor to generate contextual insights
+        """Generate insights from task results."""# Use NLP processor to generate contextual insights.
+
         prompt = f"""
         Analyze the following {self.agent_type} agent results and generate 3-5 key business insights:
 
@@ -174,37 +171,36 @@ class BasePayReadyAgent:
         Results: {json.dumps(result_data, indent=2)}
 
         Focus on actionable insights for Pay Ready's B2B apartment industry operations.
-        """
+        """insights_response = await self.nlp_processor.process_request(.
 
-        insights_response = await self.nlp_processor.process_request(
-            prompt, context={"agent_type": self.agent_type, "task": task.to_dict()}
-        )
+                            prompt, context={"agent_type": self.agent_type, "task": task.to_dict()}
+                        )
 
-        return insights_response.get("insights", [])
+                        return insights_response.get("insights", [])
 
-    async def _generate_recommendations(
-        self, task: AgentTask, result_data: Dict[str, Any]
-    ) -> List[str]:
-        """Generate recommendations from task results"""
-        prompt = f"""
+                    async def _generate_recommendations(
+                        self, task: AgentTask, result_data: Dict[str, Any]
+                    ) -> List[str]:
+        """Generate recommendations from task results."""prompt = f"""
+
         Based on the following {self.agent_type} agent analysis, provide 3-5 specific recommendations:
 
         Task: {task.task_type}
         Results: {json.dumps(result_data, indent=2)}
 
         Provide actionable recommendations for Pay Ready's business operations and growth.
-        """
+        """recommendations_response = await self.nlp_processor.process_request(.
 
-        recommendations_response = await self.nlp_processor.process_request(
-            prompt, context={"agent_type": self.agent_type, "task": task.to_dict()}
-        )
+                            prompt, context={"agent_type": self.agent_type, "task": task.to_dict()}
+                        )
 
-        return recommendations_response.get("recommendations", [])
+                        return recommendations_response.get("recommendations", [])
 
-    async def _calculate_confidence(
-        self, task: AgentTask, result_data: Dict[str, Any]
-    ) -> float:
-        """Calculate confidence score for the results"""
+                    async def _calculate_confidence(
+                        self, task: AgentTask, result_data: Dict[str, Any]
+                    ) -> float:
+        """Calculate confidence score for the results."""
+
         # Base confidence calculation - can be overridden by specific agents
         factors = []
 
@@ -231,8 +227,8 @@ class BasePayReadyAgent:
         return sum(factors) / len(factors)
 
     def get_performance_metrics(self) -> Dict[str, Any]:
-        """Get agent performance metrics"""
-        success_rate = (
+        """Get agent performance metrics."""success_rate = (.
+
             self.successful_requests / self.total_requests
             if self.total_requests > 0
             else 0.0
@@ -252,10 +248,8 @@ class BasePayReadyAgent:
 
 
 class ClientHealthAgent(BasePayReadyAgent):
-    """Monitors Pay Ready's client portfolio health and identifies opportunities"""
+    """Monitors Pay Ready's client portfolio health and identifies opportunities."""async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:."""Execute client health monitoring tasks"""
 
-    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Execute client health monitoring tasks"""
         task_type = task.task_type
 
         if task_type == "analyze_client_health":
@@ -270,27 +264,25 @@ class ClientHealthAgent(BasePayReadyAgent):
             raise ValueError(f"Unknown task type: {task_type}")
 
     async def _analyze_client_health(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze overall client portfolio health"""
-        session = self.Session()
+        """Analyze overall client portfolio health."""session = self.Session().
 
         try:
             # Get client usage metrics
             usage_query = text(
-                """
-                SELECT
-                    client_id,
-                    client_name,
-                    monthly_revenue,
-                    usage_score,
-                    support_tickets,
-                    last_login,
-                    feature_adoption_rate,
-                    payment_status
-                FROM client_metrics
-                WHERE active = true
-                ORDER BY monthly_revenue DESC
-            """
-            )
+                """SELECT.
+
+                                                    client_id,
+                                                    client_name,
+                                                    monthly_revenue,
+                                                    usage_score,
+                                                    support_tickets,
+                                                    last_login,
+                                                    feature_adoption_rate,
+                                                    payment_status
+                                                FROM client_metrics
+                                                WHERE active = true
+                                                ORDER BY monthly_revenue DESC
+                """).
 
             clients_df = pd.read_sql(usage_query, session.bind)
 
@@ -312,31 +304,29 @@ class ClientHealthAgent(BasePayReadyAgent):
             session.close()
 
     async def _identify_churn_risk(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Identify clients at risk of churning"""
-        session = self.Session()
+        """Identify clients at risk of churning."""session = self.Session().
 
         try:
             # Advanced churn risk analysis
             churn_query = text(
-                """
-                SELECT
-                    c.*,
-                    CASE
-                        WHEN usage_score < 0.3 AND support_tickets > 5 THEN 'high'
-                        WHEN usage_score < 0.5 AND last_login < NOW() - INTERVAL '30 days' THEN 'medium'
-                        WHEN payment_status = 'overdue' THEN 'high'
-                        ELSE 'low'
-                    END as churn_risk_level
-                FROM client_metrics c
-                WHERE active = true
-                ORDER BY
-                    CASE churn_risk_level
-                        WHEN 'high' THEN 1
-                        WHEN 'medium' THEN 2
-                        ELSE 3
-                    END
-            """
-            )
+                """SELECT.
+
+                                                    c.*,
+                                                    CASE
+                                                        WHEN usage_score < 0.3 AND support_tickets > 5 THEN 'high'
+                                                        WHEN usage_score < 0.5 AND last_login < NOW() - INTERVAL '30 days' THEN 'medium'
+                                                        WHEN payment_status = 'overdue' THEN 'high'
+                                                        ELSE 'low'
+                                                    END as churn_risk_level
+                                                FROM client_metrics c
+                                                WHERE active = true
+                                                ORDER BY
+                                                    CASE churn_risk_level
+                                                        WHEN 'high' THEN 1
+                                                        WHEN 'medium' THEN 2
+                                                        ELSE 3
+                                                    END
+                """).
 
             risk_df = pd.read_sql(churn_query, session.bind)
 
@@ -371,29 +361,27 @@ class ClientHealthAgent(BasePayReadyAgent):
     async def _find_expansion_opportunities(
         self, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Find upsell and expansion opportunities"""
-        session = self.Session()
+        """Find upsell and expansion opportunities."""session = self.Session().
 
         try:
             expansion_query = text(
-                """
-                SELECT
-                    c.*,
-                    p.plan_name,
-                    p.max_units,
-                    c.current_units,
-                    (c.current_units::float / p.max_units) as utilization_rate
-                FROM client_metrics c
-                JOIN subscription_plans p ON c.plan_id = p.id
-                WHERE c.active = true
-                AND (
-                    c.usage_score > 0.8
-                    OR (c.current_units::float / p.max_units) > 0.85
-                    OR c.feature_adoption_rate > 0.9
-                )
-                ORDER BY c.monthly_revenue DESC
-            """
-            )
+                """SELECT.
+
+                                                    c.*,
+                                                    p.plan_name,
+                                                    p.max_units,
+                                                    c.current_units,
+                                                    (c.current_units::float / p.max_units) as utilization_rate
+                                                FROM client_metrics c
+                                                JOIN subscription_plans p ON c.plan_id = p.id
+                                                WHERE c.active = true
+                                                AND (
+                                                    c.usage_score > 0.8
+                                                    OR (c.current_units::float / p.max_units) > 0.85
+                                                    OR c.feature_adoption_rate > 0.9
+                                                )
+                                                ORDER BY c.monthly_revenue DESC
+                """).
 
             expansion_df = pd.read_sql(expansion_query, session.bind)
 
@@ -420,8 +408,7 @@ class ClientHealthAgent(BasePayReadyAgent):
             session.close()
 
     def _identify_risk_factors(self, clients_df: pd.DataFrame) -> List[Dict[str, Any]]:
-        """Identify common risk factors across client base"""
-        risk_factors = []
+        """Identify common risk factors across client base."""risk_factors = [].
 
         # Low usage patterns
         low_usage = clients_df[clients_df["usage_score"] < 0.4]
@@ -450,8 +437,8 @@ class ClientHealthAgent(BasePayReadyAgent):
         return risk_factors
 
     def _calculate_growth_metrics(self, clients_df: pd.DataFrame) -> Dict[str, Any]:
-        """Calculate client growth and retention metrics"""
-        return {
+        """Calculate client growth and retention metrics."""return {.
+
             "revenue_per_client": clients_df["monthly_revenue"].mean(),
             "median_usage_score": clients_df["usage_score"].median(),
             "feature_adoption_rate": clients_df["feature_adoption_rate"].mean(),
@@ -469,10 +456,8 @@ class ClientHealthAgent(BasePayReadyAgent):
 
 
 class SalesIntelligenceAgent(BasePayReadyAgent):
-    """Optimizes Pay Ready's sales performance and competitive positioning"""
+    """Optimizes Pay Ready's sales performance and competitive positioning."""async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:."""Execute sales intelligence tasks"""
 
-    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Execute sales intelligence tasks"""
         task_type = task.task_type
 
         if task_type == "analyze_sales_performance":
@@ -487,28 +472,26 @@ class SalesIntelligenceAgent(BasePayReadyAgent):
             raise ValueError(f"Unknown task type: {task_type}")
 
     async def _analyze_sales_performance(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze sales team performance and metrics"""
-        session = self.Session()
+        """Analyze sales team performance and metrics."""session = self.Session().
 
         try:
             # Sales performance query
             performance_query = text(
-                """
-                SELECT
-                    s.sales_rep_id,
-                    s.sales_rep_name,
-                    COUNT(o.id) as total_opportunities,
-                    COUNT(CASE WHEN o.stage = 'closed_won' THEN 1 END) as won_deals,
-                    SUM(CASE WHEN o.stage = 'closed_won' THEN o.value ELSE 0 END) as revenue,
-                    AVG(o.days_in_pipeline) as avg_sales_cycle,
-                    AVG(o.demo_score) as avg_demo_score
-                FROM sales_reps s
-                LEFT JOIN opportunities o ON s.sales_rep_id = o.assigned_rep
-                WHERE o.created_date >= NOW() - INTERVAL '90 days'
-                GROUP BY s.sales_rep_id, s.sales_rep_name
-                ORDER BY revenue DESC
-            """
-            )
+                """SELECT.
+
+                                                    s.sales_rep_id,
+                                                    s.sales_rep_name,
+                                                    COUNT(o.id) as total_opportunities,
+                                                    COUNT(CASE WHEN o.stage = 'closed_won' THEN 1 END) as won_deals,
+                                                    SUM(CASE WHEN o.stage = 'closed_won' THEN o.value ELSE 0 END) as revenue,
+                                                    AVG(o.days_in_pipeline) as avg_sales_cycle,
+                                                    AVG(o.demo_score) as avg_demo_score
+                                                FROM sales_reps s
+                                                LEFT JOIN opportunities o ON s.sales_rep_id = o.assigned_rep
+                                                WHERE o.created_date >= NOW() - INTERVAL '90 days'
+                                                GROUP BY s.sales_rep_id, s.sales_rep_name
+                                                ORDER BY revenue DESC
+                """).
 
             performance_df = pd.read_sql(performance_query, session.bind)
 
@@ -546,8 +529,8 @@ class SalesIntelligenceAgent(BasePayReadyAgent):
             session.close()
 
     async def _competitive_analysis(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze competitive landscape and positioning"""
-        # Get competitive intelligence from knowledge base
+        """Analyze competitive landscape and positioning."""# Get competitive intelligence from knowledge base.
+
         competitors = ["Yardi", "RealPage", "AppFolio", "Buildium", "Rent Manager"]
 
         competitive_data = {}
@@ -578,23 +561,21 @@ class SalesIntelligenceAgent(BasePayReadyAgent):
         }
 
     async def _pipeline_optimization(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Optimize sales pipeline and forecasting"""
-        session = self.Session()
+        """Optimize sales pipeline and forecasting."""session = self.Session().
 
         try:
             pipeline_query = text(
-                """
-                SELECT
-                    o.*,
-                    c.company_size,
-                    c.industry_segment,
-                    c.current_solution
-                FROM opportunities o
-                JOIN companies c ON o.company_id = c.id
-                WHERE o.stage NOT IN ('closed_won', 'closed_lost')
-                ORDER BY o.expected_close_date
-            """
-            )
+                """SELECT.
+
+                                                    o.*,
+                                                    c.company_size,
+                                                    c.industry_segment,
+                                                    c.current_solution
+                                                FROM opportunities o
+                                                JOIN companies c ON o.company_id = c.id
+                                                WHERE o.stage NOT IN ('closed_won', 'closed_lost')
+                                                ORDER BY o.expected_close_date
+                """).
 
             pipeline_df = pd.read_sql(pipeline_query, session.bind)
 
@@ -625,11 +606,9 @@ class SalesIntelligenceAgent(BasePayReadyAgent):
 
 
 class MarketResearchAgent(BasePayReadyAgent):
-    """Provides apartment industry intelligence and market research for Pay Ready"""
+    """Provides apartment industry intelligence and market research for Pay Ready."""async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:.
 
-    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Execute market research tasks"""
-        task_type = task.task_type
+        """Execute market research tasks."""task_type = task.task_type.
 
         if task_type == "industry_trends_analysis":
             return await self._analyze_industry_trends(task.data)
@@ -643,8 +622,8 @@ class MarketResearchAgent(BasePayReadyAgent):
             raise ValueError(f"Unknown task type: {task_type}")
 
     async def _analyze_industry_trends(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze apartment industry trends and opportunities"""
-        # Search knowledge base for industry trends
+        """Analyze apartment industry trends and opportunities."""# Search knowledge base for industry trends.
+
         trend_searches = [
             "apartment industry trends 2024 2025",
             "multifamily technology adoption",
@@ -684,8 +663,7 @@ class MarketResearchAgent(BasePayReadyAgent):
         }
 
     async def _prospect_research(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Research potential prospects and target accounts"""
-        target_criteria = data.get("criteria", {})
+        """Research potential prospects and target accounts."""target_criteria = data.get("criteria", {}).
 
         # Search for companies matching criteria
         prospect_data = await self._search_prospects(target_criteria)
@@ -717,8 +695,8 @@ class MarketResearchAgent(BasePayReadyAgent):
         }
 
     async def _fetch_market_data(self) -> Dict[str, Any]:
-        """Fetch external market data from various sources"""
-        # This would integrate with external APIs for market data
+        """Fetch external market data from various sources."""# This would integrate with external APIs for market data.
+
         # For now, return simulated data
         return {
             "market_size": "$47.1B by 2030",
@@ -729,10 +707,20 @@ class MarketResearchAgent(BasePayReadyAgent):
 
 
 class ComplianceMonitoringAgent(BasePayReadyAgent):
-    """Monitors regulatory compliance for Pay Ready's products and operations"""
+    """Monitors regulatory compliance for Pay Ready's products and operations. Integrated with AgnoPerformanceOptimizer."""
+
+    @classmethod
+    async def pooled(cls, config: Dict[str, Any]) -> 'ComplianceMonitoringAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        await optimizer.register_agent_class('compliance_monitoring', cls)
+        agent = await optimizer.get_or_create_agent('compliance_monitoring', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided ComplianceMonitoringAgent instance (pooled or new)")
+        return agent
 
     async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Execute compliance monitoring tasks"""
+        """Execute compliance monitoring tasks."""
+
         task_type = task.task_type
 
         if task_type == "regulatory_compliance_check":
@@ -749,7 +737,8 @@ class ComplianceMonitoringAgent(BasePayReadyAgent):
     async def _check_regulatory_compliance(
         self, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Check compliance across all regulatory requirements"""
+        """Check compliance across all regulatory requirements."""
+
         compliance_areas = [
             "fair_housing_act",
             "fdcpa_debt_collection",
@@ -780,8 +769,10 @@ class ComplianceMonitoringAgent(BasePayReadyAgent):
         }
 
     async def _fair_housing_audit(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Conduct Fair Housing Act compliance audit"""
-        # Audit AI communication patterns
+        """Conduct Fair Housing Act compliance audit."""
+
+        # Audit AI communication patterns.
+
         communication_audit = await self._audit_ai_communications()
 
         # Review screening criteria
@@ -806,11 +797,9 @@ class ComplianceMonitoringAgent(BasePayReadyAgent):
 
 
 class WorkflowAutomationAgent(BasePayReadyAgent):
-    """Manages and optimizes CRM workflows and business process automation"""
+    """Manages and optimizes CRM workflows and business process automation."""async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:.
 
-    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
-        """Execute workflow automation tasks"""
-        task_type = task.task_type
+        """Execute workflow automation tasks."""task_type = task.task_type.
 
         if task_type == "optimize_workflows":
             return await self._optimize_workflows(task.data)
@@ -824,28 +813,26 @@ class WorkflowAutomationAgent(BasePayReadyAgent):
             raise ValueError(f"Unknown task type: {task_type}")
 
     async def _optimize_workflows(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Optimize existing workflows for better performance"""
-        session = self.Session()
+        """Optimize existing workflows for better performance."""session = self.Session().
 
         try:
             # Get workflow performance data
             workflow_query = text(
-                """
-                SELECT
-                    w.workflow_id,
-                    w.workflow_name,
-                    w.workflow_type,
-                    COUNT(e.execution_id) as total_executions,
-                    AVG(e.execution_time) as avg_execution_time,
-                    COUNT(CASE WHEN e.status = 'success' THEN 1 END) as successful_executions,
-                    COUNT(CASE WHEN e.status = 'failed' THEN 1 END) as failed_executions
-                FROM workflows w
-                LEFT JOIN workflow_executions e ON w.workflow_id = e.workflow_id
-                WHERE e.executed_at >= NOW() - INTERVAL '30 days'
-                GROUP BY w.workflow_id, w.workflow_name, w.workflow_type
-                ORDER BY total_executions DESC
-            """
-            )
+                """SELECT.
+
+                                                    w.workflow_id,
+                                                    w.workflow_name,
+                                                    w.workflow_type,
+                                                    COUNT(e.execution_id) as total_executions,
+                                                    AVG(e.execution_time) as avg_execution_time,
+                                                    COUNT(CASE WHEN e.status = 'success' THEN 1 END) as successful_executions,
+                                                    COUNT(CASE WHEN e.status = 'failed' THEN 1 END) as failed_executions
+                                                FROM workflows w
+                                                LEFT JOIN workflow_executions e ON w.workflow_id = e.workflow_id
+                                                WHERE e.executed_at >= NOW() - INTERVAL '30 days'
+                                                GROUP BY w.workflow_id, w.workflow_name, w.workflow_type
+                                                ORDER BY total_executions DESC
+                """).
 
             workflows_df = pd.read_sql(workflow_query, session.bind)
 
@@ -870,9 +857,8 @@ class WorkflowAutomationAgent(BasePayReadyAgent):
 
 
 class PayReadyAgentOrchestrator:
-    """Orchestrates all Pay Ready specialized agents"""
+    """Orchestrates all Pay Ready specialized agents."""def __init__(self, config: Dict[str, Any]):.
 
-    def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.agents = {
             "client_health": ClientHealthAgent(config),
@@ -899,8 +885,8 @@ class PayReadyAgentOrchestrator:
         priority: AgentPriority = AgentPriority.MEDIUM,
         context: Optional[Dict[str, Any]] = None,
     ) -> str:
-        """Submit a task to a specific agent"""
-        if agent_type not in self.agents:
+        """Submit a task to a specific agent."""if agent_type not in self.agents:.
+
             raise ValueError(f"Unknown agent type: {agent_type}")
 
         task_id = f"{agent_type}_{task_type}_{datetime.utcnow().timestamp()}"
@@ -921,8 +907,8 @@ class PayReadyAgentOrchestrator:
         return task_id
 
     async def process_tasks(self):
-        """Process tasks from the queue"""
-        while True:
+        """Process tasks from the queue."""while True:.
+
             try:
                 task = await self.task_queue.get()
                 agent = self.agents[task.agent_type]
@@ -947,14 +933,13 @@ class PayReadyAgentOrchestrator:
                 self.task_queue.task_done()
 
     async def get_task_result(self, task_id: str) -> Optional[AgentResult]:
-        """Get the result of a completed task"""
-        return self.completed_tasks.get(task_id)
+        """Get the result of a completed task."""return self.completed_tasks.get(task_id).
 
     async def get_agent_status(
         self, agent_type: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Get status of agents"""
-        if agent_type:
+        """Get status of agents."""if agent_type:.
+
             if agent_type in self.agents:
                 return self.agents[agent_type].get_performance_metrics()
             else:
@@ -968,6 +953,6 @@ class PayReadyAgentOrchestrator:
         return status
 
     async def start_processing(self):
-        """Start the task processing loop"""
+        """Start the task processing loop."""
         logger.info("Starting Pay Ready Agent Orchestrator task processing")
         await self.process_tasks()

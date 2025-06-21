@@ -1,21 +1,18 @@
-"""
-Sophia AI - Centralized MCP-Native Agent Framework
+"""Sophia AI - Centralized MCP-Native Agent Framework.
+
 This framework is the single source of truth for all AI agent initialization,
 management, and interaction via the Model Context Protocol (MCP).
-"""
-
-class MCPOrchestrator:
-    """
+"""class MCPOrchestrator:."""
     The central nervous system for Sophia's AI agents.
 
     It manages agent sessions and funnels all tool interactions through the single,
     universal mcp_client.
-    """
-    def __init__(self):
-        # ...
+    """def __init__(self):
 
-    async def ask_agent(self, session_id: str, request: str) -> Dict:
-        """
+                # ...
+
+            async def ask_agent(self, session_id: str, request: str) -> Dict:
+    """
         Primary method for interacting with an agent.
 
         Simulates the agent receiving a request and using an MCP tool to respond.

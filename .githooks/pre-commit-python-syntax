@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""Pre-commit hook to check Python syntax issues before committing."""
+
+import subprocess
+import sys
+import os
+from pathlib import Path
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Import our validator
+from scripts.python_syntax_validator import PythonSyntaxValidator
+
+
+def get_staged_python_files():
+    """Get list of staged Python files."""
+    result = subprocess.run(
+        ['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+        capture_output=True,
+        text=True
+    )
+    
+    files = []
+    for file in result.stdout.strip().split('\n'):
+        if file.endswith('.py') and os.path.exists(file):
+            files.append(Path(file))
+    
+    return files
+
+
+def main():
+    """Main pre-commit hook logic."""
+    staged_files = get_staged_python_files()
+    
+    if not staged_files:
+        return 0
+    
+    print("🔍 Checking Python syntax in staged files...")
+    
+    validator = PythonSyntaxValidator()
+    all_issues = []
+    
+    for file_path in staged_files:
+        issues = validator.validate_file(file_path)
+        all_issues.extend(issues)
+    
+    # Filter for errors only
+    errors = [i for i in all_issues if i.severity == 'error']
+    
+    if errors:
+        print("\n❌ Python syntax errors found! Please fix before committing:\n")
+        
+        # Group by file
+        by_file = {}
+        for issue in errors:
+            if issue.file_path not in by_file:
+                by_file[issue.file_path] = []
+            by_file[issue.file_path].append(issue)
+        
+        for file_path, file_issues in by_file.items():
+            print(f"\n📄 {file_path}:")
+            for issue in sorted(file_issues, key=lambda x: x.line_number):
+                print(f"  ❌ Line {issue.line_number}: {issue.description}")
+        
+        print("\n💡 Tip: Run 'python scripts/python_syntax_validator.py --fix' to auto-fix issues")
+        return 1
+    
+    # Show warnings but don't block commit
+    warnings = [i for i in all_issues if i.severity == 'warning']
+    if warnings:
+        print("\n⚠️  Python syntax warnings found (not blocking commit):")
+        
+        by_file = {}
+        for issue in warnings:
+            if issue.file_path not in by_file:
+                by_file[issue.file_path] = []
+            by_file[issue.file_path].append(issue)
+        
+        for file_path, file_issues in by_file.items():
+            print(f"\n📄 {file_path}:")
+            for issue in sorted(file_issues, key=lambda x: x.line_number):
+                print(f"  ⚠️  Line {issue.line_number}: {issue.description}")
+    
+    print("\n✅ No blocking syntax errors found!")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

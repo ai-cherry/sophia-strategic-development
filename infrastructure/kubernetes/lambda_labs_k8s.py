@@ -1,4 +1,5 @@
 """Connects to an EXISTING Lambda Labs instance and installs k3s.
+
 This version reads the SSH key directly from the local filesystem path
 to ensure a successful connection.
 """

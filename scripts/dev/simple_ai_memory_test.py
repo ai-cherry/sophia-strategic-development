@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simple AI Memory Test
+"""Simple AI Memory Test.
+
 Test AI Memory functionality without complex dependencies
 """
 
@@ -10,15 +11,15 @@ from typing import Any, Dict
 
 
 class SimpleAIMemory:
-    """Simple AI Memory implementation for testing"""
+    """Simple AI Memory implementation for testing."""
 
     def __init__(self):
         self.memories = {}  # In-memory storage for testing
         self.encoder = None
 
     async def initialize(self):
-        """Initialize the simple AI memory"""
-        try:
+        """Initialize the simple AI memory."""try:.
+
             from sentence_transformers import SentenceTransformer
 
             self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
@@ -39,8 +40,8 @@ class SimpleAIMemory:
         category: str = "conversation",
         tags: list = None,
     ) -> Dict[str, Any]:
-        """Store a conversation in memory"""
-        if not conversation_text:
+        """Store a conversation in memory."""if not conversation_text:.
+
             return {"error": "conversation_text is required"}
 
         try:
@@ -77,8 +78,8 @@ class SimpleAIMemory:
             return {"error": f"Failed to store conversation: {e}"}
 
     async def recall_memory(self, query: str, top_k: int = 5) -> Dict[str, Any]:
-        """Recall memories based on query"""
-        if not query:
+        """Recall memories based on query."""if not query:.
+
             return {"error": "query is required"}
 
         try:
@@ -125,8 +126,8 @@ class SimpleAIMemory:
             return {"error": f"Failed to recall memories: {e}"}
 
     async def delete_memory(self, memory_id: str) -> Dict[str, Any]:
-        """Delete a memory by ID"""
-        if not memory_id:
+        """Delete a memory by ID."""if not memory_id:.
+
             return {"error": "memory_id is required"}
 
         if memory_id in self.memories:
@@ -141,8 +142,7 @@ class SimpleAIMemory:
 
 
 async def test_simple_ai_memory():
-    """Test the simple AI memory implementation"""
-    print("🧠 Testing Simple AI Memory Implementation...")
+    """Test the simple AI memory implementation."""print("🧠 Testing Simple AI Memory Implementation...").
 
     # Initialize
     memory = SimpleAIMemory()
@@ -225,8 +225,7 @@ async def test_simple_ai_memory():
 
 
 async def test_cursor_ai_workflow():
-    """Test workflow patterns for Cursor AI integration"""
-    print("\n🎯 Testing Cursor AI Integration Workflow...")
+    """Test workflow patterns for Cursor AI integration."""print("\n🎯 Testing Cursor AI Integration Workflow...").
 
     memory = SimpleAIMemory()
     await memory.initialize()
@@ -273,7 +272,7 @@ async def test_cursor_ai_workflow():
 
 
 async def main():
-    """Main test function"""
+    """Main test function."""
     print("🧠 SIMPLE AI MEMORY TEST SUITE")
     print("=" * 50)
 

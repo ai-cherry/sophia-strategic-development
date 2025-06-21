@@ -35,7 +35,7 @@ async def generate_infrastructure(params: Dict[str, Any]):
     language = params.get("language", "python")
     provider = params.get("provider", "aws")
     # Placeholder: In production, call Pulumi AI API or use LLM
-    code = f"""# Pulumi {language} code for: {prompt}\n# Provider: {provider}\n"""
+    code = f"""# Pulumi {language} code for: {prompt}\n# Provider: {provider}\n."""
     return {"success": True, "code": code, "language": language, "provider": provider}
 
 

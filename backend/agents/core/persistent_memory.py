@@ -15,10 +15,13 @@ logger = logging.getLogger(__name__)
 
 class PersistentMemory:
     """A simple file-based persistent memory store for agents.
-    Each agent's memory is stored in a separate JSON file.
-    """
 
+            Each agent's memory is stored in a separate JSON file
+    """
+    
     def __init__(self, storage_path: str = "./agent_memory"):
+        """Initialize persistent memory storage."""
+
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(exist_ok=True)
         self.lock = asyncio.Lock()
@@ -27,6 +30,7 @@ class PersistentMemory:
         self, agent_id: str, role_partition: str = "default"
     ) -> Path:
         """Gets the memory file path for a given agent, partitioned by role."""
+
         partition_path = self.storage_path / role_partition
         partition_path.mkdir(exist_ok=True)
         return partition_path / f"{agent_id}_memory.json"
@@ -42,6 +46,8 @@ class PersistentMemory:
         async with self.lock:
             with open(memory_file, "r") as f:
                 try:
+                except Exception:
+                    pass
                     return json.load(f)
                 except json.JSONDecodeError:
                     return {}
@@ -84,9 +90,10 @@ class PersistentMemory:
         role_partition: str = "default",
     ) -> List[Dict[str, Any]]:
         """Retrieves memories. This is a simple implementation that returns the latest memories.
-        A real implementation would have more sophisticated querying.
+
+                        A real implementation would have more sophisticated querying
         """
-        memory_data = await self._read_memory(agent_id, role_partition)
+    memory_data = await self._read_memory(agent_id, role_partition)
         all_memories = []
         for mem_type in memory_data:
             all_memories.extend(memory_data[mem_type])
@@ -95,10 +102,11 @@ class PersistentMemory:
         return all_memories[-limit:]
 
 
-class Mem0PersistentMemory(PersistentMemory):
-    """Persistent memory using mem0 for long-term context"""
-
+            class Mem0PersistentMemory(PersistentMemory):
+    """Persistent memory using mem0 for long-term context."""
+    
     def __init__(
+
         self,
         agent_id: str,
         memory_type: str = "buffer",
@@ -106,16 +114,16 @@ class Mem0PersistentMemory(PersistentMemory):
         ttl: int = 86400,
         mem0_url: Optional[str] = None,
     ):
-        """Initialize mem0 persistent memory
+        """Initialize mem0 persistent memory.
 
-        Args:
-            agent_id: Unique identifier for the agent
-            memory_type: Type of memory to use ("buffer" or "summary")
-            redis_url: Redis URL for persistent storage (if None, will use environment variable)
-            ttl: Time to live for memory in seconds (default: 24 hours)
-            mem0_url: mem0 API URL (if None, will use environment variable)
-        """
-        super().__init__()  # Parent class only takes storage_path
+                        Args:
+                            agent_id: Unique identifier for the agent
+                            memory_type: Type of memory to use ("buffer" or "summary")
+                            redis_url: Redis URL for persistent storage (if None, will use environment variable)
+                            ttl: Time to live for memory in seconds (default: 24 hours)
+                            mem0_url: mem0 API URL (if None, will use environment variable)
+        """super().__init__()  # Parent class only takes storage_path
+
         self.agent_id = agent_id
         self.memory_type = memory_type
         self.redis_url = redis_url
@@ -124,9 +132,11 @@ class Mem0PersistentMemory(PersistentMemory):
         self.mem0_client = None
         self.logger = logging.getLogger(__name__)
 
-    async def initialize(self):
-        """Initialize the memory"""
+            async def initialize(self):
+        """Initialize the memory."""
         try:
+        except Exception:
+            pass
             # Get mem0 URL if not provided
             if not self.mem0_url:
                 self.mem0_url = os.environ.get("MEM0_URL")
@@ -134,6 +144,8 @@ class Mem0PersistentMemory(PersistentMemory):
                 if not self.mem0_url:
                     # Try to get from secret manager
                     try:
+                    except Exception:
+                        pass
                         self.mem0_url = await secret_manager.get_secret(
                             "mem0_url", "memory"
                         )
@@ -159,14 +171,16 @@ class Mem0PersistentMemory(PersistentMemory):
             raise
 
     async def close(self):
-        """Close the memory"""
-        if self.mem0_client:
+        """Close the memory."""
+if self.mem0_client:
+
             await self.mem0_client.close()
             self.mem0_client = None
 
     async def add_user_message(self, message: str):
-        """Add a user message to the memory"""
+        """Add a user message to the memory."""
         # Store in file-based memory
+
         await self.store_memory(
             self.agent_id, "conversation", {"role": "user", "content": message}
         )
@@ -175,8 +189,9 @@ class Mem0PersistentMemory(PersistentMemory):
         await self._add_to_mem0("user", message)
 
     async def add_ai_message(self, message: str):
-        """Add an AI message to the memory"""
+        """Add an AI message to the memory."""
         # Store in file-based memory
+
         await self.store_memory(
             self.agent_id, "conversation", {"role": "ai", "content": message}
         )
@@ -185,11 +200,14 @@ class Mem0PersistentMemory(PersistentMemory):
         await self._add_to_mem0("ai", message)
 
     async def _add_to_mem0(self, role: str, message: str):
-        """Add a message to mem0"""
+        """Add a message to mem0."""
         if not self.mem0_client:
+
             return
 
         try:
+        except Exception:
+            pass
             # Prepare payload
             payload = {
                 "agent_id": self.agent_id,
@@ -212,11 +230,14 @@ class Mem0PersistentMemory(PersistentMemory):
             self.logger.error(f"Error adding message to mem0: {e}")
 
     async def search_memory(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
-        """Search memory for relevant messages"""
+        """Search memory for relevant messages."""
         if not self.mem0_client:
+
             await self.initialize()
 
         try:
+        except Exception:
+            pass
             # Prepare payload
             payload = {"agent_id": self.agent_id, "query": query, "limit": limit}
 
@@ -239,9 +260,8 @@ class Mem0PersistentMemory(PersistentMemory):
             return []
 
     async def get_relevant_context(self, query: str, limit: int = 5) -> str:
-        """Get relevant context for a query"""
+        """Get relevant context for a query."""
         results = await self.search_memory(query, limit)
-
         if not results:
             return ""
 
@@ -265,11 +285,13 @@ class Mem0PersistentMemory(PersistentMemory):
         return context
 
     async def load_memory_variables(self) -> Dict[str, Any]:
-        """Load memory variables"""
+        """Load memory variables."""
         variables = {}
 
         # Add mem0 context
         try:
+        except Exception:
+            pass
             # Get most recent messages as context
             recent_context = await self.get_relevant_context("recent", 3)
 
@@ -283,9 +305,10 @@ class Mem0PersistentMemory(PersistentMemory):
 
 
 class VectorPersistentMemory(PersistentMemory):
-    """Persistent memory using vector database for long-term context"""
-
+    """Persistent memory using vector database for long-term context."""
+    
     def __init__(
+
         self,
         agent_id: str,
         memory_type: str = "buffer",
@@ -294,17 +317,16 @@ class VectorPersistentMemory(PersistentMemory):
         vector_db: str = "pinecone",
         collection: Optional[str] = None,
     ):
-        """Initialize vector persistent memory
+        """Initialize vector persistent memory.
 
-        Args:
-            agent_id: Unique identifier for the agent
-            memory_type: Type of memory to use ("buffer" or "summary")
-            redis_url: Redis URL for persistent storage (if None, will use environment variable)
-            ttl: Time to live for memory in seconds (default: 24 hours)
-            vector_db: Vector database to use ("pinecone" or "weaviate")
-            collection: Collection or namespace to use (if None, will use agent_id)
-        """
-        super().__init__()  # Parent class only takes storage_path
+                        Args:
+                            agent_id: Unique identifier for the agent
+                            memory_type: Type of memory to use ("buffer" or "summary")
+                            redis_url: Redis URL for persistent storage (if None, will use environment variable)
+                            ttl: Time to live for memory in seconds (default: 24 hours)
+                            vector_db: Vector database to use ("pinecone" or "weaviate")
+                            collection: Collection or namespace to use (if None, will use agent_id)
+        """super().__init__()  # Parent class only takes storage_path
         self.agent_id = agent_id
         self.memory_type = memory_type
         self.redis_url = redis_url
@@ -314,9 +336,11 @@ class VectorPersistentMemory(PersistentMemory):
         self.vector_client = vector_integration  # Use the singleton
         self.logger = logging.getLogger(__name__)
 
-    async def initialize(self):
-        """Initialize the memory"""
+            async def initialize(self):
+        """Initialize the memory."""
         try:
+        except Exception:
+            pass
             # The vector_integration singleton handles its own initialization
             if not self.vector_client.initialized:
                 await self.vector_client.initialize()
@@ -329,8 +353,9 @@ class VectorPersistentMemory(PersistentMemory):
             raise
 
     async def add_user_message(self, message: str):
-        """Add a user message to the memory"""
+        """Add a user message to the memory."""
         # Store in file-based memory
+
         await self.store_memory(
             self.agent_id, "conversation", {"role": "user", "content": message}
         )
@@ -339,8 +364,9 @@ class VectorPersistentMemory(PersistentMemory):
         await self._add_to_vector_db("user", message)
 
     async def add_ai_message(self, message: str):
-        """Add an AI message to the memory"""
+        """Add an AI message to the memory."""
         # Store in file-based memory
+
         await self.store_memory(
             self.agent_id, "conversation", {"role": "ai", "content": message}
         )
@@ -349,8 +375,10 @@ class VectorPersistentMemory(PersistentMemory):
         await self._add_to_vector_db("ai", message)
 
     async def _add_to_vector_db(self, role: str, message: str):
-        """Add a message to vector database"""
+        """Add a message to vector database."""
         try:
+        except Exception:
+            pass
             item_id = str(uuid.uuid4())
             metadata = {
                 "agent_id": self.agent_id,
@@ -373,8 +401,10 @@ class VectorPersistentMemory(PersistentMemory):
             self.logger.error(f"Error adding message to vector database: {e}")
 
     async def search_memory(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
-        """Search memory for relevant messages"""
+        """Search memory for relevant messages."""
         try:
+        except Exception:
+            pass
             if self.vector_db == "pinecone":
                 # Pinecone filter needs to be adjusted based on VectorIntegration's expectation
                 pinecone_filter = {"collection": self.collection}
@@ -394,9 +424,8 @@ class VectorPersistentMemory(PersistentMemory):
             return []
 
     async def get_relevant_context(self, query: str, limit: int = 5) -> str:
-        """Get relevant context for a query"""
+        """Get relevant context for a query."""
         results = await self.search_memory(query, limit)
-
         if not results:
             return ""
 
@@ -420,11 +449,13 @@ class VectorPersistentMemory(PersistentMemory):
         return context
 
     async def load_memory_variables(self) -> Dict[str, Any]:
-        """Load memory variables"""
+        """Load memory variables."""
         variables = {}
 
         # Add vector context
         try:
+        except Exception:
+            pass
             # Get most recent messages as context
             recent_context = await self.get_relevant_context("recent", 3)
 

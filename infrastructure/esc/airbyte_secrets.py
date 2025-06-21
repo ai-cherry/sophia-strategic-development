@@ -1,6 +1,8 @@
-"""Pulumi ESC - Airbyte Secret Management
+"""Pulumi ESC - Airbyte Secret Management.
+
 Manages Airbyte API keys.
 """
+
 import logging
 import os
 

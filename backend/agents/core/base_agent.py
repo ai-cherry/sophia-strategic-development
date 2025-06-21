@@ -1,4 +1,5 @@
-"""Sophia AI - Base Agent Class
+"""Sophia AI - Base Agent Class.
+
 Foundation for all specialized agents in the Pay Ready ecosystem
 
 This module provides the base agent class that all specialized agents inherit from,
@@ -36,7 +37,7 @@ class AgentConfig:
 
 @dataclass
 class TaskResult:
-    """Result of task execution"""
+    """Result of task execution."""
 
     status: str
     output: Any
@@ -45,7 +46,7 @@ class TaskResult:
 
 
 class BaseAgent(ABC):
-    """Base class for all Sophia AI agents"""
+    """Base class for all Sophia AI agents."""
 
     def __init__(self, config: AgentConfig):
         self.config = config
@@ -74,16 +75,16 @@ class BaseAgent(ABC):
 
     @abstractmethod
     async def get_capabilities(self) -> List[AgentCapability]:
-        """Return list of agent capabilities"""
+        """Return list of agent capabilities."""
         pass
 
     @abstractmethod
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process assigned task and return result"""
+        """Process assigned task and return result."""
         pass
 
     async def start(self):
-        """Start the agent and register with orchestrator"""
+        """Start the agent and register with orchestrator."""
         try:
             self.is_running = True
             self.status = AgentStatus.ACTIVE
@@ -105,7 +106,7 @@ class BaseAgent(ABC):
             raise
 
     async def stop(self):
-        """Stop the agent gracefully"""
+        """Stop the agent gracefully."""
         self.is_running = False
         self.status = AgentStatus.INACTIVE
 
@@ -116,7 +117,7 @@ class BaseAgent(ABC):
         logger.info(f"Agent {self.agent_id} stopped")
 
     async def _register_with_orchestrator(self):
-        """Register agent with the orchestrator"""
+        """Register agent with the orchestrator."""
         try:
             capabilities = await self.get_capabilities()
 
@@ -153,8 +154,9 @@ class BaseAgent(ABC):
             raise
 
     async def _task_processing_loop(self):
-        """Main task processing loop"""
+        """Main task processing loop."""
         pubsub = self.redis_client.pubsub()
+
         channel = f"sophia:agent:{self.agent_id}:tasks"
         await pubsub.subscribe(channel)
 
@@ -177,7 +179,7 @@ class BaseAgent(ABC):
             await pubsub.unsubscribe(channel)
 
     async def _handle_task_assignment(self, task_data: Dict[str, Any]):
-        """Handle new task assignment"""
+        """Handle new task assignment."""
         try:
             # Check if we can accept more tasks
             if len(self.current_tasks) >= self.config.max_concurrent_tasks:
@@ -223,7 +225,7 @@ class BaseAgent(ABC):
             logger.error(f"Failed to handle task assignment: {str(e)}")
 
     async def _execute_task(self, task: Task):
-        """Execute task and handle result"""
+        """Execute task and handle result."""
         start_time = datetime.now()
 
         try:
@@ -261,7 +263,7 @@ class BaseAgent(ABC):
             logger.error(f"Agent {self.agent_id} failed task {task.task_id}: {str(e)}")
 
     async def _complete_task(self, task_id: str, result: Dict[str, Any], success: bool):
-        """Complete task and notify orchestrator"""
+        """Complete task and notify orchestrator."""
         try:
             if task_id not in self.current_tasks:
                 logger.warning(f"Task {task_id} not found in current tasks")
@@ -299,7 +301,7 @@ class BaseAgent(ABC):
             logger.error(f"Failed to complete task {task_id}: {str(e)}")
 
     def _update_performance_metrics(self, duration: float, success: bool):
-        """Update agent performance metrics"""
+        """Update agent performance metrics."""
         if success:
             self.performance_metrics["tasks_completed"] += 1
         else:
@@ -321,7 +323,7 @@ class BaseAgent(ABC):
         )
 
     async def _health_reporting_loop(self):
-        """Report health status to orchestrator"""
+        """Report health status to orchestrator."""
         while self.is_running:
             try:
                 health_data = {
@@ -346,7 +348,7 @@ class BaseAgent(ABC):
     async def send_message_to_agent(
         self, target_agent_id: str, message: Dict[str, Any]
     ):
-        """Send message to another agent"""
+        """Send message to another agent."""
         try:
             message_data = {
                 "from_agent": self.agent_id,
@@ -366,7 +368,7 @@ class BaseAgent(ABC):
     async def get_business_context(
         self, entity_type: str, entity_id: str
     ) -> Optional[Dict[str, Any]]:
-        """Get business context from context manager"""
+        """Get business context from context manager."""
         try:
             cache_key = f"sophia:context:business:{entity_type}:{entity_id}"
             cached_data = await self.redis_client.get(cache_key)
@@ -380,7 +382,7 @@ class BaseAgent(ABC):
     async def store_business_context(
         self, entity_type: str, entity_id: str, context: Dict[str, Any]
     ):
-        """Store business context"""
+        """Store business context."""
         try:
             cache_key = f"sophia:context:business:{entity_type}:{entity_id}"
             await self.redis_client.setex(
@@ -392,15 +394,16 @@ class BaseAgent(ABC):
 
 
 class AgentHealthMonitor:
-    """Monitor agent health and performance"""
+    """Monitor agent health and performance."""
 
     def __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
         self.agent_health: Dict[str, Dict[str, Any]] = {}
 
     async def start_monitoring(self):
-        """Start health monitoring"""
+        """Start health monitoring."""
         pubsub = self.redis_client.pubsub()
+
         await pubsub.subscribe("sophia:agents:health")
 
         async for message in pubsub.listen():
@@ -419,7 +422,7 @@ class AgentHealthMonitor:
     async def _check_agent_performance(
         self, agent_id: str, health_data: Dict[str, Any]
     ):
-        """Check agent performance and alert if needed"""
+        """Check agent performance and alert if needed."""
         try:
             metrics = health_data.get("performance_metrics", {})
             success_rate = metrics.get("success_rate", 1.0)
@@ -437,11 +440,11 @@ class AgentHealthMonitor:
             logger.error(f"Error checking agent performance: {str(e)}")
 
     def get_agent_health(self, agent_id: str) -> Optional[Dict[str, Any]]:
-        """Get health data for specific agent"""
+        """Get health data for specific agent."""
         return self.agent_health.get(agent_id)
 
     def get_all_agent_health(self) -> Dict[str, Dict[str, Any]]:
-        """Get health data for all agents"""
+        """Get health data for all agents."""
         return self.agent_health.copy()
 
 
@@ -449,7 +452,7 @@ class AgentHealthMonitor:
 async def create_agent_response(
     success: bool, data: Any = None, error: str = None, metadata: Dict[str, Any] = None
 ) -> Dict[str, Any]:
-    """Create standardized agent response"""
+    """Create standardized agent response."""
     response = {
         "success": success,
         "timestamp": datetime.now().isoformat(),
@@ -461,7 +464,7 @@ async def create_agent_response(
 
 
 async def validate_task_data(task: Task, required_fields: List[str]) -> bool:
-    """Validate that task data contains required fields"""
+    """Validate that task data contains required fields."""
     try:
         for field in required_fields:
             if field not in task.task_data:
@@ -475,9 +478,10 @@ async def validate_task_data(task: Task, required_fields: List[str]) -> bool:
 
 # Example specialized agent implementation
 class ExampleSpecializedAgent(BaseAgent):
-    """Example implementation of a specialized agent"""
+    """Example implementation of a specialized agent."""
 
     async def get_capabilities(self) -> List[AgentCapability]:
+        """Return list of agent capabilities."""
         return [
             AgentCapability(
                 name="example_processing",
@@ -489,7 +493,7 @@ class ExampleSpecializedAgent(BaseAgent):
         ]
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process example task"""
+        """Process example task."""
         try:
             # Validate required fields
             if not await validate_task_data(task, ["input_text"]):

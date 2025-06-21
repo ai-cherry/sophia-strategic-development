@@ -1,4 +1,5 @@
-"""Slack MCP Server
+"""Slack MCP Server.
+
 MCP server for Slack integration, refactored to use the BaseMCPServer.
 """
 
@@ -32,8 +33,8 @@ class SlackMCPServer(BaseMCPServer):
         self.http_session = None
 
     async def initialize_integration(self):
-        """Initializes the Slack bot and HTTP session."""
-        self.integration_client = self.slack_bot  # For base class compatibility
+        """Initializes the Slack bot and HTTP session."""self.integration_client = self.slack_bot  # For base class compatibility.
+
         if not self.slack_bot.socket_client:
             # The bot is designed to be run separately, so we just check for its client.
             self.logger.warning(
@@ -42,8 +43,8 @@ class SlackMCPServer(BaseMCPServer):
         self.http_session = aiohttp.ClientSession()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Slack resources."""
-        return [
+        """Lists available Slack resources."""return [.
+
             Resource(
                 uri="slack://channels",
                 name="Slack Channels",
@@ -57,8 +58,8 @@ class SlackMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Slack resource."""
-        uri = request.uri
+        """Gets a specific Slack resource."""uri = request.uri.
+
         if uri == "slack://channels":
             channels = await self.slack_bot.client.conversations_list()
             data = {
@@ -76,8 +77,8 @@ class SlackMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Slack tools."""
-        return [
+        """Lists available Slack tools."""return [.
+
             Tool(
                 name="send_message",
                 description="Send a message to a Slack channel.",
@@ -102,8 +103,8 @@ class SlackMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Slack tool call."""
-        tool_name = request.params.name
+        """Handles a Slack tool call."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
         result = None
 

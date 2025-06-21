@@ -1,4 +1,5 @@
-"""Docker MCP Server
+"""Docker MCP Server.
+
 Exposes Docker daemon management as tools for AI agents.
 """
 
@@ -22,8 +23,9 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class DockerMCPServer(BaseMCPServer):
-    """MCP Server for Docker. Enables AI agents to inspect and manage
-    the Docker environment they are running in.
+    """MCP Server for Docker. Enables AI agents to inspect and manage.
+
+            the Docker environment they are running in.
     """
 
     def __init__(self):
@@ -32,6 +34,7 @@ class DockerMCPServer(BaseMCPServer):
 
     async def initialize_integration(self):
         """Initializes the Docker client."""
+
         try:
             # Connect to the Docker daemon via the Unix socket
             self.docker_client = docker.from_env()
@@ -47,8 +50,8 @@ class DockerMCPServer(BaseMCPServer):
         self.integration_client = self.docker_client
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists Docker resources like containers and images."""
-        return [
+        """Lists Docker resources like containers and images."""return [.
+
             Resource(
                 uri="docker://containers",
                 name="Docker Containers",
@@ -64,8 +67,8 @@ class DockerMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets a specific Docker resource."""
-        uri = request.uri
+        """Gets a specific Docker resource."""uri = request.uri.
+
         try:
             if uri == "docker://containers":
                 containers = self.docker_client.containers.list()
@@ -89,8 +92,8 @@ class DockerMCPServer(BaseMCPServer):
             return json.dumps({"error": str(e)})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Docker tools."""
-        return [
+        """Lists available Docker tools."""return [.
+
             Tool(
                 name="list_containers",
                 description="Lists all containers, optionally including stopped ones.",
@@ -155,8 +158,8 @@ class DockerMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Docker tool calls."""
-        tool_name = request.params.name
+        """Handles Docker tool calls."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
 
         try:
@@ -209,9 +212,8 @@ class DockerMCPServer(BaseMCPServer):
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     def _safe_json_dumps(self, data: Any) -> str:
-        """Safely dumps data to JSON, handling non-serializable objects."""
+        """Safely dumps data to JSON, handling non-serializable objects."""def default_serializer(o):.
 
-        def default_serializer(o):
             if isinstance(o, (bytes, bytearray)):
                 return o.decode("utf-8", errors="ignore")
             return f"<non-serializable: {type(o).__name__}>"

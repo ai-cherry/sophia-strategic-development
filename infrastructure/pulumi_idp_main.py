@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Sophia AI - Pulumi IDP Main Infrastructure
+"""Sophia AI - Pulumi IDP Main Infrastructure.
 
 Replaces Retool with AI-powered dashboard platform
-"""
+"""import pulumi
 
-import pulumi
 from components.dashboard_platform import DashboardPlatform, DashboardPlatformArgs
 from pulumi import Config, export
 
@@ -72,8 +71,7 @@ export(
 )
 
 print(
-    f"""
-🚀 Sophia AI - Pulumi IDP Dashboard Platform Deployment
+    f"""🚀 Sophia AI - Pulumi IDP Dashboard Platform Deployment.
 
 Stack: {stack_name}
 Environment: {environment}

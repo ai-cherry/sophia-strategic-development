@@ -1,4 +1,4 @@
-"""Router module for hybrid_rag_router"""
+"""Router module for hybrid_rag_router."""
 
 from fastapi import APIRouter
 

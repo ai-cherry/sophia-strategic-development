@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Linear Integration Test Script
+"""Linear Integration Test Script.
+
 Tests Linear MCP integration functionality
 """
 
@@ -17,7 +18,8 @@ from infrastructure.esc.linear_secrets import linear_secret_manager
 
 
 async def test_linear_integration():
-    """Test Linear integration functionality"""
+    """Test Linear integration functionality."""
+
     print("🧪 Testing Linear Integration...")
 
     # Test 1: Initialize integration
@@ -105,8 +107,7 @@ async def test_linear_integration():
 
 
 async def test_secret_management():
-    """Test Linear secret management"""
-    print("\n🔐 Testing Linear Secret Management...")
+    """Test Linear secret management."""print("\n🔐 Testing Linear Secret Management...").
 
     # Test 1: Validate configuration
     print("\n1. Testing configuration validation...")
@@ -134,8 +135,7 @@ async def test_secret_management():
 
 
 def test_mcp_config():
-    """Test MCP configuration"""
-    print("\n⚙️  Testing MCP Configuration...")
+    """Test MCP configuration."""print("\n⚙️  Testing MCP Configuration...").
 
     # Test 1: Check MCP config file
     print("\n1. Testing MCP config file...")
@@ -162,8 +162,7 @@ def test_mcp_config():
 
 
 def test_docker_config():
-    """Test Docker configuration"""
-    print("\n🐳 Testing Docker Configuration...")
+    """Test Docker configuration."""print("\n🐳 Testing Docker Configuration...").
 
     # Test 1: Check Docker Compose file
     print("\n1. Testing Docker Compose configuration...")
@@ -190,7 +189,7 @@ def test_docker_config():
 
 
 async def main():
-    """Main test runner"""
+    """Main test runner."""
     print("🚀 Linear MCP Integration Test Suite")
     print("=" * 50)
 

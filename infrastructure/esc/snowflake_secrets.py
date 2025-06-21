@@ -1,6 +1,8 @@
-"""Pulumi ESC - Snowflake Secret Management
+"""Pulumi ESC - Snowflake Secret Management.
+
 Manages Snowflake connection credentials.
 """
+
 import logging
 import os
 from dataclasses import dataclass
@@ -41,8 +43,7 @@ class SnowflakeSecretManager:
         self.environment_name = f"{project}-{stack}"
 
     async def get_snowflake_credentials(self) -> SnowflakeCredentials:
-        """Retrieves Snowflake credentials from the Pulumi ESC environment.
-        """
+        """Retrieves Snowflake credentials from the Pulumi ESC environment."""
         try:
             opened_env = await pulumiservice.open_environment(
                 name=self.environment_name, organization=self.org

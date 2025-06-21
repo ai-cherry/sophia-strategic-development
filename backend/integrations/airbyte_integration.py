@@ -1,4 +1,5 @@
-"""Airbyte Integration for Sophia AI
+"""Airbyte Integration for Sophia AI.
+
 Provides a client to interact with the Airbyte API to manage and trigger data syncs.
 """
 
@@ -21,8 +22,8 @@ class AirbyteIntegration:
         self.headers = {}
 
     async def initialize(self):
-        """Initializes the aiohttp session and retrieves the API key."""
-        if self.session:
+        """Initializes the aiohttp session and retrieves the API key."""if self.session:.
+
             return
 
         logger.info("Initializing Airbyte integration...")
@@ -42,20 +43,20 @@ class AirbyteIntegration:
             raise
 
     async def close(self):
-        """Closes the aiohttp session."""
-        if self.session:
+        """Closes the aiohttp session."""if self.session:.
+
             await self.session.close()
 
     async def trigger_sync(self, connection_id: str) -> Optional[Dict[str, Any]]:
         """Triggers a new synchronization job for a given Airbyte connection.
 
-        Args:
-            connection_id: The ID of the Airbyte connection to sync.
+                        Args:
+                            connection_id: The ID of the Airbyte connection to sync.
 
-        Returns:
-            A dictionary containing the job information, or None on failure.
-        """
-        if not self.session:
+                        Returns:
+                            A dictionary containing the job information, or None on failure.
+        """if not self.session:.
+
             await self.initialize()
 
         url = f"{self.api_base_url}jobs"
@@ -79,11 +80,11 @@ class AirbyteIntegration:
     async def get_job_status(self, job_id: int) -> Optional[Dict[str, Any]]:
         """Checks the status of a specific Airbyte job.
 
-        Args:
-            job_id: The ID of the job to check.
+                        Args:
+                            job_id: The ID of the job to check.
 
-        Returns:
-            A dictionary containing the job status information, or None on failure.
+                        Returns:
+                            A dictionary containing the job status information, or None on failure.
         """
         if not self.session:
             await self.initialize()

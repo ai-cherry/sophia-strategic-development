@@ -1,4 +1,5 @@
-"""Sophia AI - OpenRouter Integration Infrastructure as Code
+"""Sophia AI - OpenRouter Integration Infrastructure as Code.
+
 This module defines OpenRouter API resources using Pulumi
 """
 

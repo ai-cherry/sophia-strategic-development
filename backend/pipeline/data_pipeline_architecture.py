@@ -1,4 +1,5 @@
-"""Sophia AI - Data Pipeline Architecture
+"""Sophia AI - Data Pipeline Architecture.
+
 Orchestrates data flow from various sources to PostgreSQL, Redis, and Vector Databases
 """
 
@@ -55,7 +56,8 @@ class PipelineConfig:
 
 class DataPipeline:
     """Manages the data pipeline for Sophia AI Pay Ready platform.
-    Integrates Airbyte, PostgreSQL, Redis, and Vector Databases.
+
+            Integrates Airbyte, PostgreSQL, Redis, and Vector Databases
     """
 
     def __init__(self, config: PipelineConfig):
@@ -82,7 +84,8 @@ class DataPipeline:
         return psycopg2.connect(self.config.database_url)
 
     async def run_pipeline(self):
-        """Main method to run the entire data pipeline flow"""
+        """Main method to run the entire data pipeline flow."""
+
         if self.pipeline_status == "running":
             self.logger.warning("Pipeline is already running. Skipping this run.")
             return
@@ -99,6 +102,8 @@ class DataPipeline:
         }
 
         try:
+        except Exception:
+            pass
             # Step 1: Trigger Airbyte Syncs (if configured)
             airbyte_summary = await self.sync_airbyte_sources()
             run_summary["steps"].append(
@@ -176,8 +181,9 @@ class DataPipeline:
         return run_summary
 
     async def sync_airbyte_sources(self) -> Dict[str, Any]:
-        """Trigger and monitor Airbyte sync jobs"""
-        summary = {
+        """Trigger and monitor Airbyte sync jobs."""
+    summary = {
+
             "triggered_syncs": 0,
             "successful_syncs": 0,
             "failed_syncs": 0,
@@ -194,6 +200,8 @@ class DataPipeline:
                 f"Triggering Airbyte sync for {source_name} (connection: {connection_id})"
             )
             try:
+            except Exception:
+                pass
                 triggered = self.airbyte_client.trigger_sync(connection_id)
                 if triggered:
                     summary["triggered_syncs"] += 1
@@ -236,8 +244,9 @@ class DataPipeline:
         return summary
 
     async def process_source_data(self) -> Dict[str, Any]:
-        """Placeholder for processing data from various sources"""
+        """Placeholder for processing data from various sources."""
         self.logger.info("Processing data from sources...")
+
         # This is highly dependent on the actual data sources and transformation logic
         # For demo, returning a mock structure
         await asyncio.sleep(2)  # Simulate processing time
@@ -290,8 +299,9 @@ class DataPipeline:
     async def ingest_to_postgresql(
         self, data_items: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Ingest processed data into PostgreSQL"""
-        summary = {"inserted_records": 0, "updated_records": 0, "errors": 0}
+        """Ingest processed data into PostgreSQL."""
+    summary = {"inserted_records": 0, "updated_records": 0, "errors": 0}
+
         if not data_items:
             return summary
 
@@ -304,6 +314,8 @@ class DataPipeline:
                     # This would involve constructing dynamic SQL for insert/update
                     # For demo, just logging and incrementing count
                     try:
+                    except Exception:
+                        pass
                         # Example: cursor.execute(f"INSERT INTO {table_name} ... VALUES ...")
                         self.logger.debug(
                             f"Simulating ingestion into {table_name}: {record_data}"
@@ -323,12 +335,15 @@ class DataPipeline:
     async def update_redis_cache(
         self, cache_items: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Update Redis cache with new data"""
-        summary = {"updated_keys": 0, "errors": 0}
+        """Update Redis cache with new data."""
+    summary = {"updated_keys": 0, "errors": 0}
+
         if not cache_items:
             return summary
 
         try:
+        except Exception:
+            pass
             pipe = self.redis_client.pipeline()
             for item in cache_items:
                 pipe.set(
@@ -345,8 +360,9 @@ class DataPipeline:
     async def index_in_vector_databases(
         self, vector_data_items: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Index data in Pinecone and Weaviate"""
+        """Index data in Pinecone and Weaviate."""
         if not vector_data_items:
+
             return {"indexed_items": 0, "errors": 0}
 
         self.logger.info(
@@ -357,10 +373,11 @@ class DataPipeline:
         return results
 
     def log_pipeline_run(self, run_summary: Dict[str, Any]):
-        """Log pipeline run summary to a persistent store (e.g., database or log file)"""
-        # For demo, logging to console and storing in memory
+        """Log pipeline run summary to a persistent store (e.g., database or log file)."""
+        # For demo, logging to console and storing in memory.
+
         self.logger.info("Pipeline Run Summary: %s", json.dumps(run_summary, indent=2))
-        # In a real system, this would write to a `pipeline_runs` table or structured log.
+        # In a real system, this would write to a `pipeline_runs` table or structured log
 
     def get_pipeline_status(self) -> Dict[str, Any]:
         return {
@@ -370,7 +387,7 @@ class DataPipeline:
         }
 
     async def schedule_pipeline_runs(self):
-        """Periodically run the pipeline based on configured interval"""
+        """Periodically run the pipeline based on configured interval."""
         while True:
             self.logger.info(
                 f"Next pipeline run scheduled in {self.config.processing_interval_seconds} seconds."

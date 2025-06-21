@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Apify.
-"""
+"""Pulumi ESC Secret Manager for Apify."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

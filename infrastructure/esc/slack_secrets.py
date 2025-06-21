@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Slack.
-"""
+"""Pulumi ESC Secret Manager for Slack."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

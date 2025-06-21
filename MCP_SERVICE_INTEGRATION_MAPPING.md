@@ -47,7 +47,7 @@ sophia-main/
 class ArizeMCPServer(MCPServer):
     tools = [
         "log_prediction",
-        "log_actual", 
+        "log_actual",
         "get_model_metrics",
         "create_monitor",
         "get_drift_analysis"
@@ -174,7 +174,7 @@ class SophiaMCPServer(BaseMCPServer):
         super().__init__("sophia")
         self.service_domains = {
             "ai_services": ["arize", "ai_gateway", "model_inference"],
-            "data_services": ["web_intelligence", "research_intelligence"], 
+            "data_services": ["web_intelligence", "research_intelligence"],
             "infrastructure": ["infrastructure", "pulumi"],
             "existing": ["snowflake", "gong", "slack", "claude"]
         }
@@ -203,13 +203,13 @@ class MCPServiceRegistry:
         self.services = {}
         self.health_checks = {}
         self.load_balancing = {}
-    
+
     async def register_service(self, name, url, health_endpoint):
         """Register a new MCP service"""
-        
+
     async def discover_services(self):
         """Auto-discover available MCP services"""
-        
+
     async def route_request(self, service_type, tool_name, params):
         """Intelligently route requests to optimal service"""
 ```
@@ -223,7 +223,7 @@ class BaseMCPServer:
     def __init__(self):
         self.cost_tracker = CostTracker()
         self.optimization_config = OptimizationConfig()
-    
+
     async def execute_tool_with_optimization(self, tool_name, params):
         """Execute tool with cost and performance optimization"""
 ```
@@ -234,7 +234,7 @@ class BaseMCPServer:
 class MCPPerformanceMonitor:
     def __init__(self, arize_client):
         self.arize = arize_client
-    
+
     async def log_tool_execution(self, server, tool, duration, success):
         """Log tool execution metrics to Arize"""
 ```
@@ -245,7 +245,7 @@ class MCPPerformanceMonitor:
 class MCPIntelligentRouter:
     def __init__(self, ai_gateway_client):
         self.gateway = ai_gateway_client
-    
+
     async def select_optimal_model(self, task_type, requirements):
         """Select optimal model based on cost/performance requirements"""
 ```
@@ -295,4 +295,3 @@ class MCPIntelligentRouter:
 - Simplified deployment and updates
 
 This mapping provides a clear path for integrating all service optimizations into the existing MCP architecture while maintaining consistency and enabling advanced orchestration capabilities.
-

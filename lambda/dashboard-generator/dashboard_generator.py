@@ -16,7 +16,7 @@ ec2_client = boto3.client("ec2")
 
 
 class AIDashboardGenerator:
-    """AI-powered dashboard generator using natural language""".
+    """AI-powered dashboard generator using natural language."""
 
     def __init__(self):
         self.cluster_name = os.environ.get("ECS_CLUSTER_NAME")
@@ -24,7 +24,8 @@ class AIDashboardGenerator:
         self.subnet_ids = os.environ.get("SUBNET_IDS", "").split(",")
 
     async def generate_dashboard(self, request: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate a dashboard from natural language description""".
+        """Generate a dashboard from natural language description."""
+
         try:
             description = request.get("description", "")
             dashboard_type = request.get("type", "custom")
@@ -73,7 +74,8 @@ class AIDashboardGenerator:
     async def _analyze_requirements(
         self, description: str, data_sources: List[str], features: List[str]
     ) -> Dict[str, Any]:
-        """Analyze natural language requirements using Claude""".
+        """Analyze natural language requirements using Claude."""
+
         prompt = f"""
         Analyze this dashboard requirement and extract structured information:
 
@@ -93,22 +95,22 @@ class AIDashboardGenerator:
 
         Context: This is for Sophia AI, a business intelligence platform for Pay Ready company.
         Available integrations: Gong, Snowflake, HubSpot, Slack, Linear, GitHub, OpenAI, Pinecone
-        """
+        """response = await anthropic_client.messages.create(.
 
-        response = await anthropic_client.messages.create(
-            model="claude-3-sonnet-20240229",
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}],
-        )
+                    model="claude-3-sonnet-20240229",
+                    max_tokens=2000,
+                    messages=[{"role": "user", "content": prompt}],
+                )
 
-        try:
-            return json.loads(response.content[0].text)
-        except json.JSONDecodeError:
-            # Fallback parsing if JSON is not perfect
-            return self._parse_requirements_fallback(response.content[0].text)
+                try:
+                    return json.loads(response.content[0].text)
+                except json.JSONDecodeError:
+                    # Fallback parsing if JSON is not perfect
+                    return self._parse_requirements_fallback(response.content[0].text)
 
-    async def _generate_react_component(self, requirements: Dict[str, Any]) -> str:
-        """Generate React dashboard component using OpenAI""".
+            async def _generate_react_component(self, requirements: Dict[str, Any]) -> str:
+        """Generate React dashboard component using OpenAI."""
+
         prompt = f"""
         Generate a complete React dashboard component based on these requirements:
 
@@ -126,25 +128,25 @@ class AIDashboardGenerator:
 
         Generate a complete, production-ready component that can be deployed immediately.
         Include imports, interfaces, and the main component.
-        """
+        """response = await openai_client.chat.completions.create(.
 
-        response = await openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert React developer creating production-ready dashboard components.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=3000,
-            temperature=0.1,
-        )
+                    model="gpt-4-turbo-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert React developer creating production-ready dashboard components.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                    max_tokens=3000,
+                    temperature=0.1,
+                )
 
-        return response.choices[0].message.content
+                return response.choices[0].message.content
 
-    async def _generate_api_endpoints(self, requirements: Dict[str, Any]) -> str:
-        """Generate FastAPI backend endpoints""".
+            async def _generate_api_endpoints(self, requirements: Dict[str, Any]) -> str:
+        """Generate FastAPI backend endpoints."""
+
         prompt = f"""
         Generate FastAPI backend endpoints for this dashboard:
 
@@ -164,25 +166,25 @@ class AIDashboardGenerator:
         - Sophia AI backend architecture
         - Existing data sources (Snowflake, Gong, etc.)
         - Authentication system
-        """
+        """response = await openai_client.chat.completions.create(.
 
-        response = await openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert Python FastAPI developer creating production-ready APIs.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=3000,
-            temperature=0.1,
-        )
+                    model="gpt-4-turbo-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert Python FastAPI developer creating production-ready APIs.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                    max_tokens=3000,
+                    temperature=0.1,
+                )
 
-        return response.choices[0].message.content
+                return response.choices[0].message.content
 
-    async def _generate_infrastructure_code(self, requirements: Dict[str, Any]) -> str:
-        """Generate Pulumi infrastructure code""".
+            async def _generate_infrastructure_code(self, requirements: Dict[str, Any]) -> str:
+        """Generate Pulumi infrastructure code."""
+
         prompt = f"""
         Generate Pulumi infrastructure code (Python) for this dashboard:
 
@@ -199,31 +201,31 @@ class AIDashboardGenerator:
         8. Include backup and disaster recovery
 
         Generate complete Pulumi code that integrates with existing Sophia AI infrastructure.
-        """
+        """response = await openai_client.chat.completions.create(.
 
-        response = await openai_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert DevOps engineer creating production-ready Pulumi infrastructure.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=3000,
-            temperature=0.1,
-        )
+                    model="gpt-4-turbo-preview",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert DevOps engineer creating production-ready Pulumi infrastructure.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                    max_tokens=3000,
+                    temperature=0.1,
+                )
 
-        return response.choices[0].message.content
+                return response.choices[0].message.content
 
-    async def _deploy_dashboard(
-        self,
-        dashboard_type: str,
-        react_code: str,
-        api_code: str,
-        infrastructure_code: str,
-    ) -> Dict[str, Any]:
-        """Deploy the generated dashboard""".
+            async def _deploy_dashboard(
+                self,
+                dashboard_type: str,
+                react_code: str,
+                api_code: str,
+                infrastructure_code: str,
+            ) -> Dict[str, Any]:
+        """Deploy the generated dashboard."""
+
         dashboard_id = (
             f"ai-generated-{dashboard_type}-{int(datetime.utcnow().timestamp())}"
         )
@@ -283,7 +285,8 @@ class AIDashboardGenerator:
     async def _create_task_definition(
         self, dashboard_id: str, dashboard_type: str
     ) -> Dict[str, Any]:
-        """Create ECS task definition for the dashboard""".
+        """Create ECS task definition for the dashboard."""
+
         task_definition = {
             "family": f"sophia-ai-dashboard-{dashboard_id}",
             "networkMode": "awsvpc",
@@ -321,7 +324,8 @@ class AIDashboardGenerator:
     async def _create_ecs_service(
         self, dashboard_id: str, task_definition_arn: str
     ) -> Dict[str, Any]:
-        """Create ECS service for the dashboard""".
+        """Create ECS service for the dashboard."""
+
         service_definition = {
             "serviceName": f"sophia-ai-dashboard-{dashboard_id}",
             "cluster": self.cluster_name,
@@ -341,7 +345,8 @@ class AIDashboardGenerator:
         return response
 
     async def _get_security_group_id(self) -> str:
-        """Get security group ID for dashboard services""".
+        """Get security group ID for dashboard services."""
+
         response = ec2_client.describe_security_groups(
             Filters=[
                 {"Name": "group-name", "Values": ["sophia-dashboard-sg"]},
@@ -355,7 +360,8 @@ class AIDashboardGenerator:
             raise Exception("Dashboard security group not found")
 
     def _parse_requirements_fallback(self, text: str) -> Dict[str, Any]:
-        """Fallback parser for requirements if JSON parsing fails""".
+        """Fallback parser for requirements if JSON parsing fails."""
+
         return {
             "dashboard_purpose": "Custom AI-generated dashboard",
             "target_users": ["business users"],
@@ -369,7 +375,7 @@ class AIDashboardGenerator:
 
 
 def lambda_handler(event, context):
-    """AWS Lambda handler for dashboard generation""".
+    """AWS Lambda handler for dashboard generation."""
     try:
         # Parse request
         if "body" in event:

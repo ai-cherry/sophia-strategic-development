@@ -1,4 +1,5 @@
-"""Context Management Layer for Sophia AI
+"""Context Management Layer for Sophia AI.
+
 Maintains and manages context across all agents and sessions
 """
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SessionContext:
-    """Context for a single user session"""
+    """Context for a single user session."""
 
     session_id: str
     user_id: str
@@ -32,8 +33,8 @@ class SessionContext:
     command_history: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization"""
-        return {
+        """Convert to dictionary for serialization."""return {.
+
             "session_id": self.session_id,
             "user_id": self.user_id,
             "user_role": self.user_role,
@@ -49,27 +50,27 @@ class SessionContext:
 
 
 class ContextManager:
-    """Centralized context management for all agents
-    - Maintains session contexts
-    - Provides context persistence
-    - Handles context expiration
-    - Thread-safe operations
-    """
+    """Centralized context management for all agents.
 
-    def __init__(self, ttl_minutes: int = 60):
+            - Maintains session contexts
+            - Provides context persistence
+            - Handles context expiration
+            - Thread-safe operations
+    """def __init__(self, ttl_minutes: int = 60):.
+
         self.sessions: Dict[str, SessionContext] = {}
         self.ttl = timedelta(minutes=ttl_minutes)
         self._lock = asyncio.Lock()
         self._cleanup_task = None
 
     async def initialize(self):
-        """Initialize context manager and start cleanup task"""
-        self._cleanup_task = asyncio.create_task(self._cleanup_expired_sessions())
+        """Initialize context manager and start cleanup task."""self._cleanup_task = asyncio.create_task(self._cleanup_expired_sessions()).
+
         logger.info("Context manager initialized")
 
     async def shutdown(self):
-        """Shutdown context manager and cleanup"""
-        if self._cleanup_task:
+        """Shutdown context manager and cleanup."""if self._cleanup_task:.
+
             self._cleanup_task.cancel()
             try:
                 await self._cleanup_task
@@ -80,8 +81,8 @@ class ContextManager:
     async def get_or_create_session(
         self, session_id: str, user_id: str, user_role: str = "viewer"
     ) -> SessionContext:
-        """Get existing session or create new one"""
-        async with self._lock:
+        """Get existing session or create new one."""async with self._lock:.
+
             if session_id in self.sessions:
                 session = self.sessions[session_id]
                 session.last_accessed = datetime.utcnow()
@@ -96,8 +97,8 @@ class ContextManager:
             return session
 
     async def get_session(self, session_id: str) -> Optional[SessionContext]:
-        """Get session by ID"""
-        async with self._lock:
+        """Get session by ID."""async with self._lock:.
+
             session = self.sessions.get(session_id)
             if session:
                 session.last_accessed = datetime.utcnow()
@@ -110,8 +111,8 @@ class ContextManager:
         image: Optional[str] = None,
         **kwargs,
     ):
-        """Update Docker-specific context"""
-        session = await self.get_session(session_id)
+        """Update Docker-specific context."""session = await self.get_session(session_id).
+
         if not session:
             logger.warning(f"Session not found: {session_id}")
             return
@@ -137,8 +138,8 @@ class ContextManager:
         project: Optional[str] = None,
         **kwargs,
     ):
-        """Update Pulumi-specific context"""
-        session = await self.get_session(session_id)
+        """Update Pulumi-specific context."""session = await self.get_session(session_id).
+
         if not session:
             logger.warning(f"Session not found: {session_id}")
             return
@@ -165,8 +166,8 @@ class ContextManager:
         last_model: Optional[str] = None,
         **kwargs,
     ):
-        """Update Claude-specific context"""
-        session = await self.get_session(session_id)
+        """Update Claude-specific context."""session = await self.get_session(session_id).
+
         if not session:
             logger.warning(f"Session not found: {session_id}")
             return
@@ -185,8 +186,8 @@ class ContextManager:
         )
 
     async def add_command_to_history(self, session_id: str, command: str):
-        """Add command to session history"""
-        session = await self.get_session(session_id)
+        """Add command to session history."""session = await self.get_session(session_id).
+
         if not session:
             logger.warning(f"Session not found: {session_id}")
             return
@@ -198,8 +199,8 @@ class ContextManager:
                 session.command_history = session.command_history[-50:]
 
     async def get_full_context(self, session_id: str) -> Dict[str, Any]:
-        """Get complete context for a session"""
-        session = await self.get_session(session_id)
+        """Get complete context for a session."""session = await self.get_session(session_id).
+
         if not session:
             return {}
 
@@ -219,8 +220,8 @@ class ContextManager:
         }
 
     async def clear_context(self, session_id: str, context_type: Optional[str] = None):
-        """Clear specific context or all contexts for a session"""
-        session = await self.get_session(session_id)
+        """Clear specific context or all contexts for a session."""session = await self.get_session(session_id).
+
         if not session:
             logger.warning(f"Session not found: {session_id}")
             return
@@ -242,16 +243,16 @@ class ContextManager:
         logger.info(f"Cleared {context_type or 'all'} context for session {session_id}")
 
     async def export_session(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """Export session context for persistence"""
-        session = await self.get_session(session_id)
+        """Export session context for persistence."""session = await self.get_session(session_id).
+
         if not session:
             return None
 
         return session.to_dict()
 
     async def import_session(self, session_data: Dict[str, Any]) -> SessionContext:
-        """Import session context from persistence"""
-        session = SessionContext(
+        """Import session context from persistence."""session = SessionContext(.
+
             session_id=session_data["session_id"],
             user_id=session_data["user_id"],
             user_role=session_data.get("user_role", "viewer"),
@@ -272,8 +273,8 @@ class ContextManager:
         return session
 
     async def _cleanup_expired_sessions(self):
-        """Background task to cleanup expired sessions"""
-        while True:
+        """Background task to cleanup expired sessions."""while True:.
+
             try:
                 await asyncio.sleep(300)  # Check every 5 minutes
 
@@ -296,11 +297,10 @@ class ContextManager:
                 logger.error(f"Error in session cleanup: {e}")
 
     def get_active_sessions_count(self) -> int:
-        """Get count of active sessions"""
-        return len(self.sessions)
+        """Get count of active sessions."""return len(self.sessions).
 
     def get_sessions_by_user(self, user_id: str) -> List[SessionContext]:
-        """Get all sessions for a specific user"""
+        """Get all sessions for a specific user."""
         return [
             session for session in self.sessions.values() if session.user_id == user_id
         ]

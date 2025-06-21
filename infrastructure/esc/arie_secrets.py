@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Arie.
-"""
+"""Pulumi ESC Secret Manager for Arie."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

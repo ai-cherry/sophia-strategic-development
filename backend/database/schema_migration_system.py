@@ -1,4 +1,5 @@
-"""Sophia AI - Dynamic Schema Migration System
+"""Sophia AI - Dynamic Schema Migration System.
+
 Automatically evolves database tables based on incoming data structures
 """
 
@@ -15,7 +16,8 @@ from psycopg2.extras import RealDictCursor
 
 class SchemaMigrationSystem:
     """Dynamic schema migration system for Sophia AI Pay Ready platform.
-    Handles automatic table evolution based on incoming data structures.
+
+            Handles automatic table evolution based on incoming data structures.
     """
 
     def __init__(self, database_url: str):
@@ -25,42 +27,41 @@ class SchemaMigrationSystem:
         self.setup_migration_tracking()
 
     def setup_logging(self):
-        """Setup logging for migration tracking"""
+        """Setup logging for migration tracking."""
+
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
 
     def get_connection(self):
-        """Get database connection"""
-        return psycopg2.connect(self.database_url)
+        """Get database connection."""return psycopg2.connect(self.database_url).
 
     def setup_migration_tracking(self):
-        """Create migration tracking table if it doesn't exist"""
-        with self.get_connection() as conn:
+        """Create migration tracking table if it doesn't exist."""with self.get_connection() as conn:.
+
             with conn.cursor() as cursor:
                 cursor.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS schema_migrations (
-                        id SERIAL PRIMARY KEY,
-                        table_name VARCHAR(255) NOT NULL,
-                        migration_type VARCHAR(50) NOT NULL,
-                        column_changes JSONB,
-                        data_sample JSONB,
-                        data_quality_score FLOAT,
-                        migration_hash VARCHAR(64) UNIQUE,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        applied_at TIMESTAMP,
-                        rollback_sql TEXT,
-                        status VARCHAR(20) DEFAULT 'pending'
-                    )
-                """
-                )
+                    """CREATE TABLE IF NOT EXISTS schema_migrations (.
+
+                                                                id SERIAL PRIMARY KEY,
+                                                                table_name VARCHAR(255) NOT NULL,
+                                                                migration_type VARCHAR(50) NOT NULL,
+                                                                column_changes JSONB,
+                                                                data_sample JSONB,
+                                                                data_quality_score FLOAT,
+                                                                migration_hash VARCHAR(64) UNIQUE,
+                                                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                                                applied_at TIMESTAMP,
+                                                                rollback_sql TEXT,
+                                                                status VARCHAR(20) DEFAULT 'pending'
+                                                            )
+                    """).
+
                 conn.commit()
 
     def analyze_data_structure(self, data: Dict[str, Any]) -> Dict[str, str]:
-        """Analyze data structure and infer column types"""
-        column_types = {}
+        """Analyze data structure and infer column types."""column_types = {}.
 
         for key, value in data.items():
             if value is None:
@@ -89,15 +90,16 @@ class SchemaMigrationSystem:
         return column_types
 
     def get_existing_columns(self, table_name: str) -> Dict[str, str]:
-        """Get existing columns and their types for a table"""
-        with self.get_connection() as conn:
+        """Get existing columns and their types for a table."""with self.get_connection() as conn:.
+
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
-                    """
-                    SELECT column_name, data_type, character_maximum_length
-                    FROM information_schema.columns
-                    WHERE table_name = %s AND table_schema = 'public'
-                """,
+                    """SELECT column_name, data_type, character_maximum_length.
+
+                                                            FROM information_schema.columns
+                                                            WHERE table_name = %s AND table_schema = 'public'
+                    """,.
+
                     (table_name,),
                 )
 
@@ -111,23 +113,24 @@ class SchemaMigrationSystem:
                 return columns
 
     def table_exists(self, table_name: str) -> bool:
-        """Check if table exists"""
-        with self.get_connection() as conn:
+        """Check if table exists."""with self.get_connection() as conn:.
+
             with conn.cursor() as cursor:
                 cursor.execute(
-                    """
-                    SELECT EXISTS (
-                        SELECT FROM information_schema.tables
-                        WHERE table_schema = 'public' AND table_name = %s
-                    )
-                """,
+                    """SELECT EXISTS (.
+
+                                                                SELECT FROM information_schema.tables
+                                                                WHERE table_schema = 'public' AND table_name = %s
+                                                            )
+                    """,.
+
                     (table_name,),
                 )
                 return cursor.fetchone()[0]
 
     def create_table(self, table_name: str, column_types: Dict[str, str]) -> str:
-        """Create new table with specified columns"""
-        columns_sql = []
+        """Create new table with specified columns."""columns_sql = [].
+
         for col_name, col_type in column_types.items():
             columns_sql.append(f"{col_name} {col_type}")
 
@@ -144,19 +147,17 @@ class SchemaMigrationSystem:
             CREATE TABLE {table_name} (
                 {", ".join(columns_sql)}
             )
-        """
+        """with self.get_connection() as conn:.
 
-        with self.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(create_sql)
-                conn.commit()
+                            with conn.cursor() as cursor:
+                                cursor.execute(create_sql)
+                                conn.commit()
 
-        self.logger.info(f"Created table {table_name} with {len(column_types)} columns")
-        return create_sql
+                        self.logger.info(f"Created table {table_name} with {len(column_types)} columns")
+                        return create_sql
 
-    def add_columns(self, table_name: str, new_columns: Dict[str, str]) -> List[str]:
-        """Add new columns to existing table"""
-        alter_statements = []
+                    def add_columns(self, table_name: str, new_columns: Dict[str, str]) -> List[str]:
+        """Add new columns to existing table."""alter_statements = [].
 
         with self.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -175,8 +176,8 @@ class SchemaMigrationSystem:
         return alter_statements
 
     def calculate_data_quality_score(self, data: Dict[str, Any]) -> float:
-        """Calculate data quality score based on completeness and consistency"""
-        total_fields = len(data)
+        """Calculate data quality score based on completeness and consistency."""total_fields = len(data).
+
         if total_fields == 0:
             return 0.0
 
@@ -196,8 +197,8 @@ class SchemaMigrationSystem:
         return round(quality_score, 3)
 
     def generate_migration_hash(self, table_name: str, changes: Dict) -> str:
-        """Generate unique hash for migration"""
-        migration_data = {
+        """Generate unique hash for migration."""migration_data = {.
+
             "table": table_name,
             "changes": changes,
             "timestamp": datetime.now().isoformat(),
@@ -215,8 +216,8 @@ class SchemaMigrationSystem:
         quality_score: float,
         sql_statements: List[str],
     ) -> str:
-        """Record migration in tracking table"""
-        migration_hash = self.generate_migration_hash(table_name, column_changes)
+        """Record migration in tracking table."""migration_hash = self.generate_migration_hash(table_name, column_changes).
+
         rollback_sql = self.generate_rollback_sql(
             migration_type, table_name, column_changes
         )
@@ -224,13 +225,14 @@ class SchemaMigrationSystem:
         with self.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    """
-                    INSERT INTO schema_migrations
-                    (table_name, migration_type, column_changes, data_sample,
-                     data_quality_score, migration_hash, applied_at, rollback_sql, status)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (migration_hash) DO NOTHING
-                """,
+                    """INSERT INTO schema_migrations.
+
+                                                            (table_name, migration_type, column_changes, data_sample,
+                                                             data_quality_score, migration_hash, applied_at, rollback_sql, status)
+                                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                                            ON CONFLICT (migration_hash) DO NOTHING
+                    """,.
+
                     (
                         table_name,
                         migration_type,
@@ -250,8 +252,8 @@ class SchemaMigrationSystem:
     def generate_rollback_sql(
         self, migration_type: str, table_name: str, changes: Dict
     ) -> str:
-        """Generate rollback SQL for migration"""
-        if migration_type == "create_table":
+        """Generate rollback SQL for migration."""if migration_type == "create_table":.
+
             return f"DROP TABLE IF EXISTS {table_name};"
         elif migration_type == "add_columns":
             rollback_statements = []
@@ -263,10 +265,11 @@ class SchemaMigrationSystem:
         return ""
 
     def migrate_schema(self, table_name: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Main method to migrate schema based on incoming data
-        Returns migration summary
-        """
-        try:
+        """Main method to migrate schema based on incoming data.
+
+                        Returns migration summary
+        """try:.
+
             # Analyze incoming data structure
             required_columns = self.analyze_data_structure(data)
             quality_score = self.calculate_data_quality_score(data)
@@ -331,16 +334,17 @@ class SchemaMigrationSystem:
             raise
 
     def rollback_migration(self, migration_hash: str) -> bool:
-        """Rollback a specific migration"""
-        try:
+        """Rollback a specific migration."""try:.
+
             with self.get_connection() as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                     # Get migration details
                     cursor.execute(
-                        """
-                        SELECT * FROM schema_migrations
-                        WHERE migration_hash = %s AND status = 'completed'
-                    """,
+                        """SELECT * FROM schema_migrations.
+
+                                                                        WHERE migration_hash = %s AND status = 'completed'
+                        """,.
+
                         (migration_hash,),
                     )
 
@@ -357,11 +361,12 @@ class SchemaMigrationSystem:
 
                         # Update migration status
                         cursor.execute(
-                            """
-                            UPDATE schema_migrations
-                            SET status = 'rolled_back'
-                            WHERE migration_hash = %s
-                        """,
+                            """UPDATE schema_migrations.
+
+                                                                                    SET status = 'rolled_back'
+                                                                                    WHERE migration_hash = %s
+                            """,.
+
                             (migration_hash,),
                         )
 
@@ -378,31 +383,31 @@ class SchemaMigrationSystem:
             return False
 
     def get_migration_history(self, table_name: Optional[str] = None) -> List[Dict]:
-        """Get migration history for a table or all tables"""
-        with self.get_connection() as conn:
+        """Get migration history for a table or all tables."""with self.get_connection() as conn:.
+
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 if table_name:
                     cursor.execute(
-                        """
-                        SELECT * FROM schema_migrations
-                        WHERE table_name = %s
-                        ORDER BY created_at DESC
-                    """,
+                        """SELECT * FROM schema_migrations.
+
+                                                                        WHERE table_name = %s
+                                                                        ORDER BY created_at DESC
+                        """,.
+
                         (table_name,),
                     )
                 else:
                     cursor.execute(
-                        """
-                        SELECT * FROM schema_migrations
-                        ORDER BY created_at DESC
-                    """
-                    )
+                        """SELECT * FROM schema_migrations.
+
+                                                                        ORDER BY created_at DESC
+                        """).
 
                 return [dict(row) for row in cursor.fetchall()]
 
     def optimize_table_indexes(self, table_name: str, data_sample: Dict[str, Any]):
-        """Create optimized indexes based on data patterns"""
-        with self.get_connection() as conn:
+        """Create optimized indexes based on data patterns."""with self.get_connection() as conn:.
+
             with conn.cursor() as cursor:
                 # Create indexes for commonly queried fields
                 index_candidates = []

@@ -1,8 +1,8 @@
-"""Apollo.io Integration
-B2B data enrichment and prospecting platform integration
-"""
+"""Apollo.io Integration.
 
-import asyncio
+B2B data enrichment and prospecting platform integration
+"""import asyncio
+
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 
 class ApolloIntegration:
     """Apollo.io integration for B2B data enrichment.
-    Provides company and contact enrichment capabilities.
-    """
 
-    def __init__(self):
+            Provides company and contact enrichment capabilities.
+    """def __init__(self):
+
         self.api_key = None
         self.base_url = "https://api.apollo.io/v1"
         self.session: Optional[aiohttp.ClientSession] = None
@@ -26,6 +26,7 @@ class ApolloIntegration:
 
     async def initialize(self):
         """Initialize the Apollo integration."""
+
         if self.initialized:
             return
 
@@ -54,7 +55,9 @@ class ApolloIntegration:
         self, method: str, endpoint: str, **kwargs
     ) -> Dict[str, Any]:
         """Make a request to the Apollo API."""
-        if not self.initialized:
+
+        if not self.initialized:.
+
             await self.initialize()
 
         url = f"{self.base_url}/{endpoint}"
@@ -80,7 +83,8 @@ class ApolloIntegration:
 
     async def check_health(self) -> bool:
         """Check if the Apollo integration is healthy."""
-        try:
+        try:.
+
             # Use the account endpoint to verify API key
             result = await self._make_request("GET", "auth/health")
             return result.get("status") == "success"
@@ -89,7 +93,8 @@ class ApolloIntegration:
 
     async def enrich_company_by_domain(self, domain: str) -> Dict[str, Any]:
         """Enrich company data using domain."""
-        logger.info(f"Enriching company by domain: {domain}")
+
+        logger.info(f"Enriching company by domain: {domain}").
 
         result = await self._make_request(
             "POST", "organizations/enrich", json={"domain": domain}
@@ -99,7 +104,7 @@ class ApolloIntegration:
 
     async def enrich_company_by_name(self, company_name: str) -> Dict[str, Any]:
         """Enrich company data using company name."""
-        logger.info(f"Enriching company by name: {company_name}")
+        logger.info(f"Enriching company by name: {company_name}").
 
         # First search for the company
         search_result = await self._make_request(
@@ -124,7 +129,8 @@ class ApolloIntegration:
         limit: int = 10,
     ) -> Dict[str, Any]:
         """Find contacts at a specific company."""
-        logger.info(f"Finding contacts at {company_name}")
+
+        logger.info(f"Finding contacts at {company_name}").
 
         search_params = {"organization_name": company_name, "per_page": limit}
 
@@ -148,7 +154,7 @@ class ApolloIntegration:
 
     async def enrich_contact(self, email: str) -> Dict[str, Any]:
         """Enrich contact information using email."""
-        logger.info(f"Enriching contact: {email}")
+        logger.info(f"Enriching contact: {email}").
 
         result = await self._make_request(
             "POST", "people/enrich", json={"email": email}
@@ -169,7 +175,8 @@ class ApolloIntegration:
         limit: int = 25,
     ) -> Dict[str, Any]:
         """Search for companies based on criteria."""
-        logger.info("Searching for companies with filters")
+
+        logger.info("Searching for companies with filters").
 
         search_params = {"per_page": limit}
 
@@ -201,7 +208,8 @@ class ApolloIntegration:
 
     def _format_company_data(self, company: Dict[str, Any]) -> Dict[str, Any]:
         """Format company data for consistent output."""
-        return {
+        return {.
+
             "name": company.get("name"),
             "domain": company.get("primary_domain"),
             "description": company.get("short_description"),
@@ -228,7 +236,9 @@ class ApolloIntegration:
 
     def _format_contact_data(self, contact: Dict[str, Any]) -> Dict[str, Any]:
         """Format contact data for consistent output."""
-        return {
+
+        return {.
+
             "name": contact.get("name"),
             "title": contact.get("title"),
             "email": contact.get("email"),

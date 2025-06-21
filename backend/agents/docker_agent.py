@@ -1,4 +1,5 @@
-"""Docker Agent for Sophia AI
+"""Docker Agent for Sophia AI.
+
 Handles all Docker operations with natural language support
 """
 
@@ -18,11 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 class DockerAgent(BaseAgent):
-    """Docker agent with natural language support
-    - Container management
-    - Image operations
-    - Context-aware commands
-    - Dev container support
+    """Docker agent with natural language support.
+
+            - Container management
+            - Image operations
+            - Context-aware commands
+            - Dev container support
     """
 
     def __init__(self):
@@ -36,7 +38,8 @@ class DockerAgent(BaseAgent):
         self._initialize_client()
 
     def _initialize_client(self):
-        """Initialize Docker client"""
+        """Initialize Docker client."""
+
         try:
             self.client = docker.from_env()
             logger.info("Docker client initialized successfully")
@@ -45,8 +48,8 @@ class DockerAgent(BaseAgent):
             self.client = None
 
     async def execute(self, command: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Docker command based on natural language input"""
-        if not self.client:
+        """Execute Docker command based on natural language input."""if not self.client:.
+
             return {"status": "error", "message": "Docker client not initialized"}
 
         command_lower = command.lower()
@@ -99,8 +102,8 @@ class DockerAgent(BaseAgent):
             return {"status": "error", "message": str(e)}
 
     async def _list_containers(self, session_id: str) -> Dict[str, Any]:
-        """List all containers"""
-        try:
+        """List all containers."""try:.
+
             containers = self.client.containers.list(all=True)
             container_info = []
 
@@ -129,8 +132,8 @@ class DockerAgent(BaseAgent):
             }
 
     async def _run_in_container(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Run command in a container"""
-        # Parse command to extract container name and command to run
+        """Run command in a container."""# Parse command to extract container name and command to run.
+
         parts = command.split("in")
         if len(parts) < 2:
             return {
@@ -183,8 +186,8 @@ class DockerAgent(BaseAgent):
             }
 
     async def _build_image(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Build Docker image"""
-        # Extract image name from command
+        """Build Docker image."""# Extract image name from command.
+
         image_name = "my-app"  # Default
         if "as" in command:
             parts = command.split("as")
@@ -224,8 +227,8 @@ class DockerAgent(BaseAgent):
             return {"status": "error", "message": f"Failed to build image: {str(e)}"}
 
     async def _stop_container(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Stop a container"""
-        # Extract container name
+        """Stop a container."""# Extract container name.
+
         container_name = command.replace("stop", "").replace("container", "").strip()
 
         # Check context if not specified
@@ -257,8 +260,8 @@ class DockerAgent(BaseAgent):
             return {"status": "error", "message": f"Failed to stop container: {str(e)}"}
 
     async def _start_container(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Start a container"""
-        # Extract container name
+        """Start a container."""# Extract container name.
+
         container_name = command.replace("start", "").replace("container", "").strip()
 
         # Check context if not specified
@@ -298,8 +301,8 @@ class DockerAgent(BaseAgent):
             }
 
     async def _switch_context(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Switch Docker context"""
-        # Extract target from command
+        """Switch Docker context."""# Extract target from command.
+
         target = command.replace("switch to", "").replace("use", "").strip()
 
         if "container" in target:
@@ -332,8 +335,8 @@ class DockerAgent(BaseAgent):
     async def _docker_compose_operation(
         self, command: str, session_id: str
     ) -> Dict[str, Any]:
-        """Handle docker-compose operations"""
-        # This is a simplified implementation
+        """Handle docker-compose operations."""# This is a simplified implementation.
+
         # In production, you'd use docker-compose Python API
 
         if "up" in command or "deploy" in command:
@@ -352,8 +355,7 @@ class DockerAgent(BaseAgent):
     async def _dev_container_operation(
         self, command: str, session_id: str
     ) -> Dict[str, Any]:
-        """Handle dev container operations"""
-        import os
+        """Handle dev container operations."""import os.
 
         # Check for devcontainer.json
         devcontainer_path = ".devcontainer/devcontainer.json"
@@ -415,8 +417,8 @@ class DockerAgent(BaseAgent):
     async def _execute_direct_command(
         self, command: str, session_id: str
     ) -> Dict[str, Any]:
-        """Execute direct Docker command"""
-        # This is a fallback for commands not matched by other handlers
+        """Execute direct Docker command."""# This is a fallback for commands not matched by other handlers.
+
         return {
             "status": "info",
             "message": f"Direct Docker command execution not implemented for: {command}",
@@ -424,14 +426,14 @@ class DockerAgent(BaseAgent):
         }
 
     async def process_task(self, task) -> Dict[str, Any]:
-        """Process task - required by BaseAgent"""
-        # Delegate to execute method
+        """Process task - required by BaseAgent."""# Delegate to execute method.
+
         return await self.execute(
             task.task_data.get("command", ""), task.task_data.get("context", {})
         )
 
     async def get_capabilities(self) -> List[OrchCapability]:
-        """Get list of capabilities"""
+        """Get list of capabilities."""
         return [
             OrchCapability(
                 name="list_containers",

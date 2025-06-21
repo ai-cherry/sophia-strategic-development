@@ -1,4 +1,5 @@
-"""AI Memory MCP Server
+"""AI Memory MCP Server.
+
 MCP server for AI coding assistant memory system, refactored to use the BaseMCPServer.
 """
 
@@ -49,7 +50,8 @@ except ImportError:
 
 class AIMemoryMCPServer(BaseMCPServer):
     """MCP Server for AI coding assistant memory system.
-    Provides persistent memory storage and retrieval for development context.
+
+            Provides persistent memory storage and retrieval for development context.
     """
 
     def __init__(self):
@@ -62,6 +64,7 @@ class AIMemoryMCPServer(BaseMCPServer):
 
     async def initialize_integration(self):
         """Initializes the Pinecone and SentenceTransformer integration."""
+
         if not PINECONE_AVAILABLE:
             raise ImportError(
                 "Pinecone is not available. Please install pinecone-client."
@@ -107,8 +110,8 @@ class AIMemoryMCPServer(BaseMCPServer):
             raise
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available AI Memory resources."""
-        return [
+        """Lists available AI Memory resources."""return [.
+
             Resource(
                 uri="ai_memory://health",
                 name="AI Memory Health Status",
@@ -124,8 +127,7 @@ class AIMemoryMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets a specific AI Memory resource."""
-        uri = request.uri
+        """Gets a specific AI Memory resource."""uri = request.uri.
 
         if uri == "ai_memory://health":
             health_status = {
@@ -158,8 +160,8 @@ class AIMemoryMCPServer(BaseMCPServer):
             return json.dumps({"error": f"Unknown resource: {uri}"})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available AI Memory tools."""
-        return [
+        """Lists available AI Memory tools."""return [.
+
             Tool(
                 name="store_conversation",
                 description="Store a conversation or development context in AI memory for future reference",
@@ -252,8 +254,8 @@ class AIMemoryMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles AI Memory tool calls."""
-        tool_name = request.params.name
+        """Handles AI Memory tool calls."""tool_name = request.params.name.
+
         arguments = request.params.arguments or {}
 
         try:
@@ -273,8 +275,8 @@ class AIMemoryMCPServer(BaseMCPServer):
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     async def _store_conversation(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Store a conversation in AI memory."""
-        conversation_text = args.get("conversation_text", "")
+        """Store a conversation in AI memory."""conversation_text = args.get("conversation_text", "").
+
         context = args.get("context", "")
         tags = args.get("tags", [])
         category = args.get("category", "conversation")
@@ -323,8 +325,8 @@ class AIMemoryMCPServer(BaseMCPServer):
             return {"error": f"Failed to store conversation: {e}"}
 
     async def _recall_memory(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Recall memories from AI memory."""
-        query = args.get("query", "")
+        """Recall memories from AI memory."""query = args.get("query", "").
+
         category = args.get("category")
         tags = args.get("tags", [])
         top_k = args.get("top_k", 5)
@@ -383,8 +385,7 @@ class AIMemoryMCPServer(BaseMCPServer):
             return {"error": f"Failed to recall memories: {e}"}
 
     async def _delete_memory(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Delete a memory by ID."""
-        memory_id = args.get("memory_id", "")
+        """Delete a memory by ID."""memory_id = args.get("memory_id", "").
 
         if not memory_id:
             return {"error": "memory_id is required"}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Trigger the GitHub Actions workflow to sync secrets from GitHub org to Pulumi ESC.
+
 This uses the existing workflow without requiring any manual secret entry.
 """
 
@@ -10,7 +11,8 @@ import requests
 
 
 def get_github_token():
-    """Get GitHub token from environment or Pulumi ESC"""
+    """Get GitHub token from environment or Pulumi ESC."""
+
     # Try environment first
     token = os.environ.get("GITHUB_TOKEN")
     if token:
@@ -38,8 +40,8 @@ def get_github_token():
 
 
 def trigger_workflow():
-    """Trigger the unified-secret-sync workflow"""
-    token = get_github_token()
+    """Trigger the unified-secret-sync workflow."""token = get_github_token().
+
     if not token:
         print("ERROR: No GitHub token found!")
         print("\nTo fix this:")
@@ -80,7 +82,7 @@ def trigger_workflow():
 
 
 def check_workflow_status():
-    """Check if the workflow is already running"""
+    """Check if the workflow is already running."""
     token = get_github_token()
     if not token:
         return None

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { 
-  Search, 
-  Plus, 
-  FileText, 
-  BarChart3, 
-  Settings, 
+import {
+  Search,
+  Plus,
+  FileText,
+  BarChart3,
+  Settings,
   Database,
   Brain,
   BookOpen,
@@ -149,7 +149,7 @@ const mockProactiveInsights = [
 // Navigation Component
 function Navigation() {
   const location = useLocation();
-  
+
   const navItems = [
     { path: '/', label: 'Documents', icon: FileText },
     { path: '/discovery', label: 'Discovery Queue', icon: Lightbulb, badge: 2 },
@@ -301,7 +301,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
             aria-required="true"
           />
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="contentType">Content Type</Label>
@@ -318,7 +318,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label htmlFor="status">Status</Label>
             <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
@@ -334,7 +334,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
             </Select>
           </div>
         </div>
-        
+
         <div>
           <Label htmlFor="tags">Tags (comma-separated)</Label>
           <Input
@@ -344,7 +344,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
             placeholder="tag1, tag2, tag3"
           />
         </div>
-        
+
         <div>
           <Label htmlFor="content">Content</Label>
           <Textarea
@@ -357,7 +357,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
             aria-required="true"
           />
         </div>
-        
+
         <div className="flex space-x-2">
           <Button type="submit">
             <Save className="h-4 w-4 mr-2" />
@@ -513,7 +513,7 @@ function DocumentsPage() {
                     </p>
                   </label>
                 </div>
-                
+
                 {selectedFiles.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Selected files:</p>
@@ -525,17 +525,17 @@ function DocumentsPage() {
                     ))}
                   </div>
                 )}
-                
+
                 {isUploading && (
                   <div className="space-y-2">
                     <Progress value={uploadProgress} />
                     <p className="text-sm text-center text-gray-600">Uploading... {uploadProgress}%</p>
                   </div>
                 )}
-                
+
                 <div className="flex space-x-2">
-                  <Button 
-                    onClick={handleUpload} 
+                  <Button
+                    onClick={handleUpload}
                     disabled={selectedFiles.length === 0 || isUploading}
                     className="flex-1"
                   >
@@ -548,7 +548,7 @@ function DocumentsPage() {
               </div>
             </DialogContent>
           </Dialog>
-          
+
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button>
@@ -645,8 +645,8 @@ function DocumentsPage() {
           <DialogHeader>
             <DialogTitle>{viewingDocument?.title}</DialogTitle>
             <DialogDescription>
-              {contentTypes.find(ct => ct.value === viewingDocument?.contentType)?.label} • 
-              Version {viewingDocument?.version} • 
+              {contentTypes.find(ct => ct.value === viewingDocument?.contentType)?.label} •
+              Version {viewingDocument?.version} •
               Updated {viewingDocument?.updatedAt}
             </DialogDescription>
           </DialogHeader>
@@ -675,7 +675,7 @@ function AnalyticsPage() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Knowledge Base Analytics</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -689,7 +689,7 @@ function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Published</CardTitle>
@@ -702,7 +702,7 @@ function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Searches</CardTitle>
@@ -715,7 +715,7 @@ function AnalyticsPage() {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
@@ -795,11 +795,11 @@ function SearchPage() {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+
     setIsSearching(true);
     // Simulate API call
     setTimeout(() => {
-      const results = mockDocuments.filter(doc => 
+      const results = mockDocuments.filter(doc =>
         doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doc.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doc.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -815,7 +815,7 @@ function SearchPage() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Knowledge Base Search</h2>
-      
+
       <div className="max-w-2xl mx-auto mb-8">
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Input
@@ -888,7 +888,7 @@ function SettingsPage() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Knowledge Base Settings</h2>
-      
+
       <Tabs defaultValue="general" className="space-y-6">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
@@ -896,7 +896,7 @@ function SettingsPage() {
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="backup">Backup</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="general" className="space-y-6">
           <Card>
             <CardHeader>
@@ -919,7 +919,7 @@ function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="search" className="space-y-6">
           <Card>
             <CardHeader>
@@ -944,7 +944,7 @@ function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="integrations" className="space-y-6">
           <Card>
             <CardHeader>
@@ -976,7 +976,7 @@ function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="backup" className="space-y-6">
           <Card>
             <CardHeader>
@@ -1029,12 +1029,12 @@ function DiscoveryQueuePage() {
   const [filterType, setFilterType] = useState('all');
 
   const pendingInsights = insights.filter(i => i.status === 'pending');
-  const filteredInsights = filterType === 'all' 
-    ? insights 
+  const filteredInsights = filterType === 'all'
+    ? insights
     : insights.filter(i => i.type === filterType);
 
   const handleApprove = (insight) => {
-    setInsights(insights.map(i => 
+    setInsights(insights.map(i =>
       i.id === insight.id ? { ...i, status: 'approved' } : i
     ));
   };
@@ -1045,9 +1045,9 @@ function DiscoveryQueuePage() {
   };
 
   const handleSaveEdit = () => {
-    setInsights(insights.map(i => 
-      i.id === selectedInsight.id 
-        ? { ...i, insight: editedContent, status: 'approved' } 
+    setInsights(insights.map(i =>
+      i.id === selectedInsight.id
+        ? { ...i, insight: editedContent, status: 'approved' }
         : i
     ));
     setSelectedInsight(null);
@@ -1055,7 +1055,7 @@ function DiscoveryQueuePage() {
   };
 
   const handleReject = (insight) => {
-    setInsights(insights.map(i => 
+    setInsights(insights.map(i =>
       i.id === insight.id ? { ...i, status: 'rejected' } : i
     ));
   };
@@ -1121,9 +1121,9 @@ function DiscoveryQueuePage() {
                   <div>
                     <CardTitle className="text-lg">{insight.insight}</CardTitle>
                     <CardDescription className="mt-1">
-                      <a 
-                        href={insight.sourceUrl} 
-                        target="_blank" 
+                      <a
+                        href={insight.sourceUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline"
                       >
@@ -1138,8 +1138,8 @@ function DiscoveryQueuePage() {
                   <Badge variant="outline">
                     {Math.round(insight.confidence * 100)}% confidence
                   </Badge>
-                  <Badge 
-                    variant={insight.status === 'pending' ? 'default' : 
+                  <Badge
+                    variant={insight.status === 'pending' ? 'default' :
                             insight.status === 'approved' ? 'success' : 'secondary'}
                   >
                     {insight.status}
@@ -1151,32 +1151,32 @@ function DiscoveryQueuePage() {
               <div className="bg-gray-50 p-3 rounded-md mb-4">
                 <p className="text-sm text-gray-700">{insight.context}</p>
               </div>
-              
+
               <div className="bg-blue-50 p-3 rounded-md mb-4">
                 <p className="text-sm font-medium text-blue-900 mb-1">Sophia asks:</p>
                 <p className="text-sm text-blue-700">{insight.question}</p>
               </div>
-              
+
               {insight.status === 'pending' && (
                 <div className="flex space-x-2">
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => handleApprove(insight)}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <ThumbsUp className="h-4 w-4 mr-1" />
                     Approve
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleApproveWithEdit(insight)}
                   >
                     <Edit className="h-4 w-4 mr-1" />
                     Approve with Edit
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => handleReject(insight)}
                     className="text-red-600 hover:text-red-700"
@@ -1184,8 +1184,8 @@ function DiscoveryQueuePage() {
                     <ThumbsDown className="h-4 w-4 mr-1" />
                     Reject
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="ghost"
                   >
                     <Clock className="h-4 w-4 mr-1" />
@@ -1307,7 +1307,7 @@ function CurationChatPage() {
               <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-2xl ${message.type === 'user' ? 'order-2' : ''}`}>
                   <div className={`rounded-lg p-3 ${
-                    message.type === 'user' ? 'bg-blue-100 text-blue-900' : 
+                    message.type === 'user' ? 'bg-blue-100 text-blue-900' :
                     message.type === 'system' ? 'bg-green-100 text-green-900' :
                     'bg-gray-100 text-gray-900'
                   }`}>
@@ -1316,7 +1316,7 @@ function CurationChatPage() {
                       <p className="text-xs mt-2 opacity-75">Source: {message.source}</p>
                     )}
                   </div>
-                  
+
                   {message.needsFeedback && (
                     <div className="mt-2 flex items-center space-x-2">
                       <Button
@@ -1356,7 +1356,7 @@ function CurationChatPage() {
                       </Dialog>
                     </div>
                   )}
-                  
+
                   {message.feedback && (
                     <div className="mt-2">
                       <Badge variant={message.feedback === 'correct' ? 'success' : 'destructive'}>
@@ -1367,7 +1367,7 @@ function CurationChatPage() {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-gray-100 rounded-lg p-3">
@@ -1381,7 +1381,7 @@ function CurationChatPage() {
             )}
           </div>
         </CardContent>
-        
+
         <div className="border-t p-4">
           <div className="flex space-x-2">
             <Input
@@ -1421,4 +1421,3 @@ function App() {
 }
 
 export default App;
-

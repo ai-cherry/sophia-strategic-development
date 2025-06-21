@@ -1,4 +1,5 @@
-"""Codebase Awareness Agent for Sophia AI
+"""Codebase Awareness Agent for Sophia AI.
+
 Handles interaction with the Codebase Awareness MCP Server.
 """
 
@@ -11,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class CodebaseAwarenessAgent(BaseAgent):
-    """An agent that specializes in using the CodebaseAwarenessMCPServer
-    to answer questions about the project's architecture and code.
+    """An agent that specializes in using the CodebaseAwarenessMCPServer.
+
+            to answer questions about the project's architecture and code.
     """
 
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):

@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Together AI.
-"""
+"""Pulumi ESC Secret Manager for Together AI."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

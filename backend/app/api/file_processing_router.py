@@ -1,4 +1,4 @@
-"""Router module for file_processing_router"""
+"""Router module for file_processing_router."""
 
 from fastapi import APIRouter
 

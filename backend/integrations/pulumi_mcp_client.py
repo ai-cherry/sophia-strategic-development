@@ -1,4 +1,5 @@
-"""Pulumi MCP Server Client for Sophia AI
+"""Pulumi MCP Server Client for Sophia AI.
+
 Infrastructure automation via Model Context Protocol
 """
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PulumiMCPConfig:
-    """Configuration for Pulumi MCP Server"""
+    """Configuration for Pulumi MCP Server."""
 
     base_url: str = "http://pulumi-mcp-server:9001"
     api_token: str = ""
@@ -28,14 +29,13 @@ class PulumiMCPConfig:
 
 
 class PulumiMCPClient:
-    """Client for Pulumi MCP Server
-    - Infrastructure queries and management
-    - RBAC enforcement
-    - Audit logging
-    - Safe operations only (no destroy without explicit approval)
-    """
+    """Client for Pulumi MCP Server.
 
-    def __init__(self, config_path: str = "config/pulumi-mcp.json"):
+            - Infrastructure queries and management
+            - RBAC enforcement
+            - Audit logging
+            - Safe operations only (no destroy without explicit approval)
+    """def __init__(self, config_path: str = "config/pulumi-mcp.json"):.
         self.config = self._load_config(config_path)
         if not self.config.api_token:
             raise ValueError("PULUMI_ACCESS_TOKEN environment variable is required")
@@ -43,8 +43,8 @@ class PulumiMCPClient:
         self.audit_logger = self._setup_audit_logger()
 
     def _load_config(self, config_path: str) -> PulumiMCPConfig:
-        """Load configuration from file or environment"""
-        config_data = {
+        """Load configuration from file or environment."""config_data = {.
+
             "base_url": os.getenv("PULUMI_MCP_URL", "http://pulumi-mcp-server:9001"),
             "api_token": os.getenv("PULUMI_ACCESS_TOKEN"),
             "organization": os.getenv("PULUMI_ORG", "sophia-ai"),
@@ -61,8 +61,7 @@ class PulumiMCPClient:
         return PulumiMCPConfig(**config_data)
 
     def _setup_audit_logger(self) -> logging.Logger:
-        """Setup separate audit logger for infrastructure operations"""
-        audit_logger = logging.getLogger("pulumi-mcp-audit")
+        """Setup separate audit logger for infrastructure operations."""audit_logger = logging.getLogger("pulumi-mcp-audit").
 
         try:
             # Ensure logs directory exists
@@ -89,22 +88,23 @@ class PulumiMCPClient:
         return audit_logger
 
     async def __aenter__(self):
-        """Async context manager entry"""
-        self.session = aiohttp.ClientSession()
+        """Async context manager entry."""self.session = aiohttp.ClientSession().
+
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit"""
-        if self.session:
+        """Async context manager exit."""if self.session:.
+
             await self.session.close()
 
     async def list_resources(
         self, stack: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """List resources in a stack
-        Safe read-only operation
-        """
-        # RBAC check
+        """List resources in a stack.
+
+                        Safe read-only operation
+        """# RBAC check.
+
         if not self._check_permission(user_context, "read", stack):
             return {
                 "status": "error",
@@ -148,10 +148,11 @@ class PulumiMCPClient:
         preview_only: bool = True,
         parameters: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Deploy or preview a stack deployment
-        Requires explicit approval for actual deployment
-        """
-        # RBAC check
+        """Deploy or preview a stack deployment.
+
+                        Requires explicit approval for actual deployment
+        """# RBAC check.
+
         permission_needed = "preview" if preview_only else "deploy"
         if not self._check_permission(user_context, permission_needed, stack):
             return {
@@ -210,10 +211,11 @@ class PulumiMCPClient:
     async def get_stack_outputs(
         self, stack: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Get stack outputs
-        Safe read-only operation
-        """
-        # RBAC check
+        """Get stack outputs.
+
+                        Safe read-only operation
+        """# RBAC check.
+
         if not self._check_permission(user_context, "read", stack):
             return {
                 "status": "error",
@@ -253,10 +255,11 @@ class PulumiMCPClient:
     async def refresh_stack(
         self, stack: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Refresh stack state
-        Updates state to match actual cloud resources
-        """
-        # RBAC check
+        """Refresh stack state.
+
+                        Updates state to match actual cloud resources
+        """# RBAC check.
+
         if not self._check_permission(user_context, "refresh", stack):
             return {
                 "status": "error",
@@ -296,10 +299,11 @@ class PulumiMCPClient:
     def _check_permission(
         self, user_context: Dict[str, Any], action: str, stack: str
     ) -> bool:
-        """Check if user has permission for action on stack
-        Implement RBAC logic here
-        """
-        if not self.config.rbac_enabled:
+        """Check if user has permission for action on stack.
+
+                        Implement RBAC logic here
+        """if not self.config.rbac_enabled:.
+
             return True
 
         # Check if stack is allowed
@@ -322,8 +326,8 @@ class PulumiMCPClient:
     def _audit_log(
         self, user_context: Dict[str, Any], action: str, details: Dict[str, Any]
     ):
-        """Log infrastructure operations for audit trail"""
-        audit_entry = {
+        """Log infrastructure operations for audit trail."""audit_entry = {.
+
             "timestamp": datetime.utcnow().isoformat(),
             "user": user_context.get("user_id", "unknown"),
             "role": user_context.get("role", "unknown"),
@@ -335,8 +339,9 @@ class PulumiMCPClient:
     async def get_copilot_suggestions(
         self, error_message: str, stack_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Get AI-Copilot suggestions for errors
-        Uses Pulumi's AI-Copilot feature
+        """Get AI-Copilot suggestions for errors.
+
+                        Uses Pulumi's AI-Copilot feature
         """
         try:
             if not self.session:

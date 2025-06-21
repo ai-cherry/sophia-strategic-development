@@ -1,0 +1,258 @@
+agno_integration:
+  enabled: true
+  bridge_mode: "hybrid"  # hybrid, agno_preferred, traditional_only
+  
+  # Default configuration for all Agno agents
+  default_agent_config:
+    use_agno: true
+    performance_mode: "standard"  # standard, high_performance, team_coordination
+    memory_limit_mb: 50
+    response_timeout_ms: 200
+    team_eligible: false
+    use_memory: false
+    use_knowledge: false
+    show_tool_calls: true
+    markdown: true
+    add_state_in_messages: true
+  
+  # Agent-specific overrides for optimal performance
+  agent_overrides:
+    sales_coach:
+      performance_mode: "high_performance"
+      response_timeout_ms: 100
+      team_eligible: true
+      use_memory: true
+      use_knowledge: true
+      performance_critical: true
+      high_frequency: true
+      mcp_services: ["gong", "hubspot", "slack", "snowflake"]
+      model:
+        type: "claude"
+        id: "claude-sonnet-4-20250514"
+      knowledge:
+        type: "pinecone"
+        index_name: "sales-intelligence"
+        num_documents: 15
+    
+    gong_intelligence:
+      performance_mode: "high_performance"
+      memory_limit_mb: 75
+      response_timeout_ms: 150
+      team_eligible: true
+      use_memory: true
+      performance_critical: true
+      mcp_services: ["gong", "snowflake", "pinecone"]
+      model:
+        type: "claude"
+        id: "claude-sonnet-4-20250514"
+      knowledge:
+        type: "weaviate"
+        num_documents: 12
+    
+    slack_orchestrator:
+      performance_mode: "high_performance"
+      response_timeout_ms: 100
+      team_eligible: true
+      high_frequency: true
+      mcp_services: ["slack", "hubspot", "linear"]
+      model:
+        type: "openai"
+        id: "gpt-4o"
+    
+    hubspot_crm:
+      performance_mode: "standard"
+      team_eligible: true
+      use_memory: true
+      mcp_services: ["hubspot", "snowflake"]
+      model:
+        type: "claude"
+        id: "claude-sonnet-4-20250514"
+    
+    executive_knowledge:
+      performance_mode: "team_coordination"
+      memory_limit_mb: 100
+      response_timeout_ms: 300
+      team_eligible: true
+      use_memory: true
+      use_knowledge: true
+      requires_teams: true
+      mcp_services: ["snowflake", "hubspot", "gong", "linear"]
+      model:
+        type: "claude"
+        id: "claude-sonnet-4-20250514"
+      knowledge:
+        type: "pinecone"
+        index_name: "executive-knowledge"
+        num_documents: 20
+  
+  # Team coordination configurations
+  team_configs:
+    business_intelligence:
+      coordination_mode: "coordinate"  # route, coordinate, collaborate
+      max_team_size: 4
+      shared_memory: true
+      success_criteria: "Comprehensive BI analysis with <500ms response time"
+      performance_target_ms: 500
+      instructions: |
+        Coordinate business intelligence analysis across all data sources.
+        - Gong agent: Handle call analysis and sales insights
+        - HubSpot agent: Manage CRM data and pipeline analysis  
+        - Slack agent: Handle team communication and notifications
+        - Snowflake agent: Provide data warehouse insights
+        Synthesize insights from all sources for comprehensive BI reporting.
+      members:
+        - name: "gong_intelligence"
+          role: "call_analysis_specialist"
+        - name: "hubspot_crm"
+          role: "crm_specialist"
+        - name: "slack_orchestrator"
+          role: "communication_specialist"
+    
+    executive_knowledge:
+      coordination_mode: "collaborate"
+      max_team_size: 3
+      shared_memory: true
+      success_criteria: "Validated executive insights with team consensus"
+      performance_target_ms: 1000
+      instructions: |
+        Collaborate on executive knowledge management and strategic insights.
+        All members analyze information and provide consensus recommendations.
+        Focus on high-level strategic decision support and executive briefings.
+      members:
+        - name: "executive_knowledge"
+          role: "strategic_analyst"
+        - name: "sales_coach"
+          role: "sales_intelligence"
+        - name: "gong_intelligence"
+          role: "market_intelligence"
+    
+    sales_intelligence:
+      coordination_mode: "route"
+      max_team_size: 3
+      shared_memory: false
+      success_criteria: "Route sales queries to most appropriate specialist"
+      performance_target_ms: 300
+      instructions: |
+        Route sales-related queries to the most appropriate specialist agent.
+        Optimize for quick, accurate responses to sales team inquiries.
+      members:
+        - name: "sales_coach"
+          role: "sales_coaching"
+        - name: "gong_intelligence"
+          role: "call_analysis"
+        - name: "hubspot_crm"
+          role: "pipeline_management"
+  
+  # Performance monitoring and optimization
+  performance_monitoring:
+    enabled: true
+    metrics_collection: true
+    dashboard_integration: true
+    alerting_enabled: true
+    
+    # Performance thresholds for alerting
+    thresholds:
+      agent_response_time_ms: 500
+      team_response_time_ms: 1000
+      memory_usage_mb: 200
+      error_rate_percent: 5
+      
+    # Metrics to track
+    metrics:
+      - agent_instantiation_time
+      - agent_response_time
+      - memory_usage
+      - tool_call_latency
+      - error_rates
+      - request_throughput
+      - team_coordination_time
+  
+  # Fallback and error handling
+  fallback_strategy: "graceful"  # graceful, immediate, disabled
+  
+  fallback_config:
+    graceful:
+      retry_attempts: 3
+      retry_delay_ms: 100
+      fallback_to_traditional: true
+      timeout_ms: 5000
+    
+    immediate:
+      fallback_to_traditional: true
+      timeout_ms: 1000
+    
+    disabled:
+      fallback_to_traditional: false
+  
+  # Resource management
+  resource_management:
+    max_concurrent_agents: 1000
+    max_concurrent_teams: 50
+    memory_pool_mb: 10240  # 10GB shared memory pool
+    agent_cleanup_interval_minutes: 30
+    team_cleanup_interval_minutes: 60
+  
+  # A/B testing configuration
+  ab_testing:
+    enabled: true
+    agno_traffic_percentage: 50  # Start with 50% traffic to Agno agents
+    test_duration_hours: 168  # 1 week
+    success_metrics:
+      - response_time_improvement
+      - memory_efficiency
+      - user_satisfaction
+      - error_rate_reduction
+  
+  # Security and compliance
+  security:
+    inherit_permissions: true
+    audit_logging: true
+    data_encryption: true
+    secure_memory: true
+    
+    # Access control for teams
+    team_access_control:
+      business_intelligence:
+        required_roles: ["sales_team", "management"]
+        data_classification: "internal"
+      
+      executive_knowledge:
+        required_roles: ["executive", "c_suite"]
+        data_classification: "confidential"
+      
+      sales_intelligence:
+        required_roles: ["sales_team", "sales_management"]
+        data_classification: "internal"
+  
+  # Integration with existing systems
+  integration:
+    mcp_client: "backend.mcp.mcp_client"
+    agent_router: "backend.agents.core.agent_router"
+    config_system: "backend.core.config_loader"
+    monitoring: "backend.monitoring.enhanced_monitoring"
+    
+  # Feature flags for gradual rollout
+  feature_flags:
+    enable_agno_agents: true
+    enable_team_coordination: true
+    enable_performance_optimization: true
+    enable_predictive_allocation: false  # Future feature
+    enable_auto_scaling: false  # Future feature
+    enable_advanced_memory: true
+    enable_knowledge_sharing: true
+  
+  # Development and debugging
+  development:
+    debug_mode: false
+    verbose_logging: false
+    performance_profiling: true
+    agent_inspection: true
+    team_visualization: true
+
+# Version and metadata
+version: "1.0.0"
+last_updated: "2025-01-21T12:00:00Z"
+schema_version: "2.0"
+compatibility:
+  min_agno_version: "0.1.0"
+  min_sophia_version: "2.0.0" 

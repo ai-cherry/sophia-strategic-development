@@ -70,4 +70,4 @@ All secrets are managed via Pulumi ESC and the scripts in `infrastructure/esc/`.
 *   **Solution:** Check the detailed error message in the Pulumi console. It often points to a misconfigured secret or an invalid API key. Use `pulumi preview` to see the planned changes before running `pulumi up`.
 
 **Common Error: `test_deployment.py` fails.**
-*   **Solution:** Check the output of the script to see which component failed. This usually indicates a problem with network connectivity (firewalls, security groups) or incorrect credentials. 
+*   **Solution:** Check the output of the script to see which component failed. This usually indicates a problem with network connectivity (firewalls, security groups) or incorrect credentials.

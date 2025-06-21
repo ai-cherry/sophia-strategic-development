@@ -8,7 +8,7 @@ import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 /**
  * AG-UI Retool Embed Component
- * 
+ *
  * Embeds the Agno UI within a Retool dashboard
  */
 const AgUIRetoolEmbed = ({
@@ -39,7 +39,7 @@ const AgUIRetoolEmbed = ({
       try {
         setLoading(true);
         setError(null);
-        
+
         // Check if agent exists or create it
         const response = await fetch(`${apiEndpoint}/agents`, {
           method: 'POST',
@@ -51,17 +51,17 @@ const AgUIRetoolEmbed = ({
             instructions: defaultInstructions
           }),
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to initialize agent: ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         console.log('Agent initialized:', data);
-        
+
         // Get agent stats
         await fetchAgentStats();
-        
+
         setLoading(false);
       } catch (err) {
         console.error('Error initializing agent:', err);
@@ -69,15 +69,15 @@ const AgUIRetoolEmbed = ({
         setLoading(false);
       }
     };
-    
+
     initializeAgent();
-    
+
     // Cleanup function
     return () => {
       // Any cleanup needed
     };
   }, [agentId, apiEndpoint]);
-  
+
   // Fetch agent stats
   const fetchAgentStats = async () => {
     try {
@@ -85,7 +85,7 @@ const AgUIRetoolEmbed = ({
       if (!response.ok) {
         throw new Error(`Failed to fetch agent stats: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       setAgentStats(data.stats);
     } catch (err) {
@@ -93,7 +93,7 @@ const AgUIRetoolEmbed = ({
       // Don't set error state here to avoid disrupting the UI
     }
   };
-  
+
   // Handle refresh
   const handleRefresh = () => {
     if (iframeRef.current) {
@@ -101,7 +101,7 @@ const AgUIRetoolEmbed = ({
     }
     fetchAgentStats();
   };
-  
+
   // Handle fullscreen toggle
   const toggleFullscreen = () => {
     if (!isFullscreen) {
@@ -128,7 +128,7 @@ const AgUIRetoolEmbed = ({
       setIsFullscreen(false);
     }
   };
-  
+
   // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -139,12 +139,12 @@ const AgUIRetoolEmbed = ({
         document.msFullscreenElement
       );
     };
-    
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('msfullscreenchange', handleFullscreenChange);
-    
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
@@ -152,10 +152,10 @@ const AgUIRetoolEmbed = ({
       document.removeEventListener('msfullscreenchange', handleFullscreenChange);
     };
   }, []);
-  
+
   // Construct the iframe URL
   const iframeUrl = `/ag-ui/?agent=${encodeURIComponent(agentId)}&theme=${darkMode ? 'dark' : 'light'}`;
-  
+
   return (
     <Paper
       ref={containerRef}
@@ -184,7 +184,7 @@ const AgUIRetoolEmbed = ({
           <Typography variant="h6" component="div">
             {title}
           </Typography>
-          
+
           <Box sx={{ display: 'flex', gap: 1 }}>
             {agentStats && (
               <Tooltip title={`Agent pool: ${agentStats.pool_size}/${agentStats.max_pool_size}`}>
@@ -193,19 +193,19 @@ const AgUIRetoolEmbed = ({
                 </Typography>
               </Tooltip>
             )}
-            
+
             <Tooltip title="Refresh">
               <IconButton onClick={handleRefresh} size="small" color="inherit">
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title="Settings">
               <IconButton size="small" color="inherit">
                 <SettingsIcon />
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
               <IconButton onClick={toggleFullscreen} size="small" color="inherit">
                 {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
@@ -214,7 +214,7 @@ const AgUIRetoolEmbed = ({
           </Box>
         </Box>
       )}
-      
+
       <Box sx={{ flexGrow: 1, position: 'relative' }}>
         {loading ? (
           <Box

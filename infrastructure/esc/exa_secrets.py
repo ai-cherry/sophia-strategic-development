@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Exa.
-"""
+"""Pulumi ESC Secret Manager for Exa."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

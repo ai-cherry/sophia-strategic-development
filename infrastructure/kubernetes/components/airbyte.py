@@ -5,8 +5,9 @@ from .base_component import BaseComponent
 
 
 class AirbyteConnectionComponent(ComponentResource):
-    """A Pulumi component that represents an Airbyte connection, source,
-    and destination. This simplifies creating new data pipelines.
+    """A Pulumi component that represents an Airbyte connection, source,.
+
+        and destination. This simplifies creating new data pipelines.
     """
 
     def __init__(

@@ -1,4 +1,4 @@
-"""HubSpot Agent for Sophia AI - Placeholder"""
+"""HubSpot Agent for Sophia AI - Placeholder."""
 
 import logging
 

@@ -47,4 +47,4 @@ CREATE TABLE IF NOT EXISTS RELATIONSHIPS (
 );
 
 COMMENT ON TABLE RELATIONSHIPS IS 'Defines the links between entities, e.g., Contact A "works for" Company B.';
-COMMENT ON COLUMN RELATIONSHIPS.relationship_type IS 'The nature of the relationship, e.g., "works_for", "is_subsidiary_of".'; 
+COMMENT ON COLUMN RELATIONSHIPS.relationship_type IS 'The nature of the relationship, e.g., "works_for", "is_subsidiary_of".';

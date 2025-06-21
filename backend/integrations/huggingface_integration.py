@@ -1,4 +1,5 @@
-"""Hugging Face Integration for Sophia AI
+"""Hugging Face Integration for Sophia AI.
+
 Connects to the official Hugging Face MCP Server to provide access to models,
 datasets, Spaces, and papers.
 """
@@ -23,8 +24,8 @@ class HuggingFaceIntegration:
         self.initialized = False
 
     async def initialize(self):
-        """Initializes the connection to the Hugging Face MCP server."""
-        if self.initialized:
+        """Initializes the connection to the Hugging Face MCP server."""if self.initialized:.
+
             return
 
         logger.info("Initializing Hugging Face integration...")
@@ -52,15 +53,15 @@ class HuggingFaceIntegration:
     ) -> List[Dict[str, Any]]:
         """Searches for models on the Hugging Face Hub.
 
-        Args:
-            query: The natural language search query.
-            top_k: The number of models to return.
-            tags: A list of tags to filter by (e.g., 'text-generation').
+                        Args:
+                            query: The natural language search query.
+                            top_k: The number of models to return.
+                            tags: A list of tags to filter by (e.g., 'text-generation').
 
-        Returns:
-            A list of dictionaries, each representing a found model.
-        """
-        if not self.initialized:
+                        Returns:
+                            A list of dictionaries, each representing a found model.
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -77,13 +78,13 @@ class HuggingFaceIntegration:
     async def get_paper_details(self, paper_id: str) -> Dict[str, Any]:
         """Gets details for a paper, typically from arXiv.
 
-        Args:
-            paper_id: The ID of the paper (e.g., '2404.19756').
+                        Args:
+                            paper_id: The ID of the paper (e.g., '2404.19756').
 
-        Returns:
-            A dictionary containing the paper's details.
-        """
-        if not self.initialized:
+                        Returns:
+                            A dictionary containing the paper's details.
+        """if not self.initialized:.
+
             await self.initialize()
 
         try:
@@ -96,12 +97,12 @@ class HuggingFaceIntegration:
     async def run_space_tool(self, space_id: str, **kwargs) -> Any:
         """Executes a tool hosted in a Hugging Face Space.
 
-        Args:
-            space_id: The ID of the Space (e.g., 'espnet/siddhant_multi_ling_tts').
-            **kwargs: The parameters to pass to the Space's tool.
+                        Args:
+                            space_id: The ID of the Space (e.g., 'espnet/siddhant_multi_ling_tts').
+                            **kwargs: The parameters to pass to the Space's tool.
 
-        Returns:
-            The output from the Space tool.
+                        Returns:
+                            The output from the Space tool.
         """
         if not self.initialized:
             await self.initialize()

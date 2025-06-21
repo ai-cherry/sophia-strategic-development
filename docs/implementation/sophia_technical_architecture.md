@@ -71,12 +71,12 @@ class AgentMessageBus:
             'crm_updates': 'sophia:crm:updates',
             'call_analysis': 'sophia:gong:analysis'
         }
-    
+
     async def publish_task(self, agent_id: str, task: dict):
         """Publish task to specific agent"""
         channel = f"sophia:agent:{agent_id}:tasks"
         await self.redis_client.publish(channel, json.dumps(task))
-    
+
     async def subscribe_to_results(self, callback):
         """Subscribe to agent results"""
         pubsub = self.redis_client.pubsub()
@@ -92,8 +92,8 @@ class AgentRegistry:
         self.agents = {}
         self.capabilities = {}
         self.performance_metrics = {}
-    
-    def register_agent(self, agent_id: str, capabilities: list, 
+
+    def register_agent(self, agent_id: str, capabilities: list,
                       endpoint: str, specialization: str):
         """Register new agent with capabilities"""
         self.agents[agent_id] = {
@@ -104,17 +104,17 @@ class AgentRegistry:
             'last_seen': datetime.now(),
             'performance_score': 1.0
         }
-    
+
     def find_agent_for_task(self, task_type: str, context: dict = None):
         """Find best agent for specific task"""
         candidates = [
             agent_id for agent_id, agent in self.agents.items()
             if task_type in agent['capabilities'] and agent['status'] == 'active'
         ]
-        
+
         # Sort by performance score and specialization match
-        return sorted(candidates, 
-                     key=lambda x: self.agents[x]['performance_score'], 
+        return sorted(candidates,
+                     key=lambda x: self.agents[x]['performance_score'],
                      reverse=True)[0] if candidates else None
 ```
 
@@ -124,13 +124,13 @@ class ContextManager:
     def __init__(self):
         self.redis_client = redis.Redis(host=os.getenv('REDIS_HOST', 'localhost'), port=6379)
         self.postgres_client = self.get_postgres_connection()
-    
-    async def store_conversation_context(self, user_id: str, 
+
+    async def store_conversation_context(self, user_id: str,
                                        conversation_id: str, context: dict):
         """Store conversation context for continuity"""
         key = f"sophia:context:{user_id}:{conversation_id}"
         await self.redis_client.setex(key, 3600, json.dumps(context))
-    
+
     async def get_business_context(self, entity_type: str, entity_id: str):
         """Retrieve business context from CRM/databases"""
         if entity_type == 'contact':
@@ -139,8 +139,8 @@ class ContextManager:
             return await self.get_hubspot_deal_context(entity_id)
         elif entity_type == 'call':
             return await self.get_gong_call_context(entity_id)
-    
-    async def update_learning_context(self, interaction_id: str, 
+
+    async def update_learning_context(self, interaction_id: str,
                                     outcome: dict, feedback: dict):
         """Update learning context based on outcomes"""
         learning_data = {
@@ -165,18 +165,18 @@ class CallAnalysisAgent:
         self.agent_id = "call_analysis_agent"
         self.capabilities = [
             "call_transcription_analysis",
-            "sentiment_analysis", 
+            "sentiment_analysis",
             "key_insights_extraction",
             "next_steps_identification",
             "objection_detection"
         ]
-    
+
     async def analyze_call(self, call_id: str):
         """Comprehensive call analysis"""
         # Get call data from Gong.io
         call_data = await self.gong_client.get_call_details(call_id)
         transcript = await self.gong_client.get_call_transcript(call_id)
-        
+
         # AI-powered analysis
         analysis = await self.openai_client.chat.completions.create(
             model="gpt-4",
@@ -185,16 +185,16 @@ class CallAnalysisAgent:
                 {"role": "user", "content": f"Transcript: {transcript}"}
             ]
         )
-        
+
         # Extract structured insights
         insights = self.parse_analysis_results(analysis.choices[0].message.content)
-        
+
         # Store results and trigger follow-up actions
         await self.store_call_insights(call_id, insights)
         await self.trigger_follow_up_actions(call_id, insights)
-        
+
         return insights
-    
+
     def get_analysis_prompt(self):
         return """
         Analyze this sales call transcript and provide:
@@ -206,7 +206,7 @@ class CallAnalysisAgent:
         6. Deal stage assessment
         7. Risk factors or red flags
         8. Coaching opportunities for the sales rep
-        
+
         Format as structured JSON for easy processing.
         """
 ```
@@ -225,14 +225,14 @@ class CRMSyncAgent:
             "data_synchronization",
             "duplicate_detection"
         ]
-    
+
     async def sync_call_insights_to_crm(self, call_id: str, insights: dict):
         """Sync call analysis results to HubSpot"""
         # Get associated contact/deal from call metadata
         call_metadata = await self.get_call_metadata(call_id)
         contact_id = call_metadata.get('hubspot_contact_id')
         deal_id = call_metadata.get('hubspot_deal_id')
-        
+
         # Update contact with call insights
         if contact_id:
             await self.hubspot_client.update_contact(contact_id, {
@@ -240,7 +240,7 @@ class CRMSyncAgent:
                 'last_call_date': insights['call_date'],
                 'last_call_summary': insights['summary']
             })
-        
+
         # Update deal with progression insights
         if deal_id:
             await self.hubspot_client.update_deal(deal_id, {
@@ -248,7 +248,7 @@ class CRMSyncAgent:
                 'next_steps': insights['next_steps'],
                 'risk_factors': insights['risk_factors']
             })
-        
+
         # Log activity
         await self.hubspot_client.create_activity({
             'type': 'call_analysis',
@@ -257,7 +257,7 @@ class CRMSyncAgent:
             'details': insights['summary'],
             'timestamp': insights['call_date']
         })
-    
+
     async def get_selective_salesforce_data(self, criteria: dict):
         """Get specific data from Salesforce when needed"""
         # Only pull specific data types as needed
@@ -281,35 +281,35 @@ class SlackInterfaceAgent:
             "proactive_notifications",
             "command_processing"
         ]
-    
+
     async def process_user_query(self, user_id: str, message: str, channel: str):
         """Process natural language query from Slack"""
         # Understand user intent
         intent = await self.recognize_intent(message)
-        
+
         # Get relevant context
         context = await self.get_user_context(user_id)
         business_context = await self.get_relevant_business_context(intent, context)
-        
+
         # Generate response
         response = await self.generate_response(intent, message, business_context)
-        
+
         # Execute any required actions
         if intent['requires_action']:
             await self.execute_action(intent['action'], intent['parameters'])
-        
+
         # Send response to Slack
         await self.slack_client.client.chat_postMessage(
             channel=channel,
             text=response['text'],
             blocks=response.get('blocks', [])
         )
-    
-    async def send_proactive_notification(self, notification_type: str, 
+
+    async def send_proactive_notification(self, notification_type: str,
                                         data: dict, target_users: list):
         """Send proactive notifications to relevant team members"""
         message = await self.format_notification(notification_type, data)
-        
+
         for user_id in target_users:
             channel = await self.get_user_dm_channel(user_id)
             await self.slack_client.client.chat_postMessage(
@@ -317,7 +317,7 @@ class SlackInterfaceAgent:
                 text=message['text'],
                 blocks=message.get('blocks', [])
             )
-    
+
     def setup_slack_commands(self):
         """Setup Slack slash commands"""
         @self.slack_client.command("/sophia-deals")
@@ -325,7 +325,7 @@ class SlackInterfaceAgent:
             await ack()
             deals = await self.get_deals_summary(command['text'])
             await self.send_deals_summary(command['channel_id'], deals)
-        
+
         @self.slack_client.command("/sophia-calls")
         async def handle_calls_command(ack, command):
             await ack()
@@ -344,7 +344,7 @@ class HubSpotIntegration:
         self.api_key = os.getenv('HUBSPOT_API_KEY')
         self.base_url = "https://api.hubapi.com"
         self.rate_limiter = RateLimiter(100, 10)  # 100 requests per 10 seconds
-    
+
     async def get_contact_details(self, contact_id: str):
         """Get comprehensive contact information"""
         async with self.rate_limiter:
@@ -359,7 +359,7 @@ class HubSpotIntegration:
                 }
             )
             return response
-    
+
     async def get_deal_pipeline(self, deal_stage: str = None):
         """Get deals in pipeline with optional stage filter"""
         params = {
@@ -372,16 +372,16 @@ class HubSpotIntegration:
             params['filters'] = [
                 {'propertyName': 'dealstage', 'operator': 'EQ', 'value': deal_stage}
             ]
-        
+
         async with self.rate_limiter:
-            response = await self.make_request("/crm/v3/objects/deals/search", 
+            response = await self.make_request("/crm/v3/objects/deals/search",
                                              method="POST", json=params)
             return response
-    
+
     async def create_task(self, task_data: dict):
         """Create follow-up task in HubSpot"""
         async with self.rate_limiter:
-            response = await self.make_request("/crm/v3/objects/tasks", 
+            response = await self.make_request("/crm/v3/objects/tasks",
                                              method="POST", json=task_data)
             return response
 ```
@@ -393,11 +393,11 @@ class GongIntegration:
         self.api_key = os.getenv('GONG_API_KEY')
         self.base_url = "https://api.gong.io/v2"
         self.rate_limiter = RateLimiter(50, 60)  # 50 requests per minute
-    
+
     async def get_recent_calls(self, days: int = 7):
         """Get recent calls for analysis"""
         from_date = (datetime.now() - timedelta(days=days)).isoformat()
-        
+
         async with self.rate_limiter:
             response = await self.make_request("/calls", params={
                 'fromDateTime': from_date,
@@ -410,13 +410,13 @@ class GongIntegration:
                 }
             })
             return response
-    
+
     async def get_call_transcript(self, call_id: str):
         """Get call transcript for analysis"""
         async with self.rate_limiter:
             response = await self.make_request(f"/calls/{call_id}/transcript")
             return response
-    
+
     async def get_call_analytics(self, call_id: str):
         """Get Gong's built-in analytics for a call"""
         async with self.rate_limiter:
@@ -512,14 +512,14 @@ class VectorDatabaseManager:
     def __init__(self):
         self.pinecone_client = self.setup_pinecone()
         self.weaviate_client = self.setup_weaviate()
-        
+
     def setup_pinecone(self):
         """Configure Pinecone for business intelligence search"""
         pinecone.init(
             api_key=os.getenv("PINECONE_API_KEY"),
             environment=os.getenv("PINECONE_ENVIRONMENT", "us-west1-gcp")
         )
-        
+
         # Create indexes for different data types
         indexes = {
             'call-insights': {
@@ -537,9 +537,9 @@ class VectorDatabaseManager:
                 }
             }
         }
-        
+
         return pinecone
-    
+
     def setup_weaviate(self):
         """Configure Weaviate for contextual business search"""
         client = weaviate.Client(
@@ -548,7 +548,7 @@ class VectorDatabaseManager:
                 api_key=os.getenv("WEAVIATE_API_KEY")
             )
         )
-        
+
         # Define schema for business entities
         schema = {
             "classes": [
@@ -577,7 +577,7 @@ class VectorDatabaseManager:
                 }
             ]
         }
-        
+
         return client
 ```
 
@@ -596,24 +596,24 @@ class CacheManager:
             'user_context': 1800,  # 30 minutes
             'business_insights': 900 # 15 minutes
         }
-    
+
     async def get_cached_crm_data(self, entity_type: str, entity_id: str):
         """Get cached CRM data with fallback to API"""
         cache_key = f"crm:{entity_type}:{entity_id}"
         cached_data = await self.redis_client.get(cache_key)
-        
+
         if cached_data:
             return json.loads(cached_data)
-        
+
         # Fallback to API call
         fresh_data = await self.fetch_from_crm(entity_type, entity_id)
         await self.redis_client.setex(
-            cache_key, 
-            self.cache_ttl['crm_data'], 
+            cache_key,
+            self.cache_ttl['crm_data'],
             json.dumps(fresh_data)
         )
         return fresh_data
-    
+
     async def invalidate_cache(self, pattern: str):
         """Invalidate cache entries matching pattern"""
         keys = await self.redis_client.keys(pattern)
@@ -627,18 +627,18 @@ class AgentLoadBalancer:
     def __init__(self):
         self.agent_registry = AgentRegistry()
         self.performance_monitor = PerformanceMonitor()
-    
+
     async def route_task(self, task_type: str, task_data: dict):
         """Route task to best available agent"""
         # Get available agents for task type
         candidates = self.agent_registry.get_agents_by_capability(task_type)
-        
+
         # Filter by current load and performance
         available_agents = []
         for agent_id in candidates:
             load = await self.performance_monitor.get_agent_load(agent_id)
             performance = await self.performance_monitor.get_agent_performance(agent_id)
-            
+
             if load < 0.8 and performance > 0.7:  # Load < 80%, Performance > 70%
                 available_agents.append({
                     'agent_id': agent_id,
@@ -646,7 +646,7 @@ class AgentLoadBalancer:
                     'performance': performance,
                     'score': performance * (1 - load)  # Combined score
                 })
-        
+
         # Route to best available agent
         if available_agents:
             best_agent = max(available_agents, key=lambda x: x['score'])
@@ -666,7 +666,7 @@ class SecurityManager:
     def __init__(self):
         self.jwt_secret = os.getenv('JWT_SECRET_KEY')
         self.api_keys = self.load_encrypted_api_keys()
-    
+
     def generate_user_token(self, user_id: str, permissions: list):
         """Generate JWT token for user authentication"""
         payload = {
@@ -676,7 +676,7 @@ class SecurityManager:
             'iat': datetime.utcnow()
         }
         return jwt.encode(payload, self.jwt_secret, algorithm='HS256')
-    
+
     def validate_api_access(self, endpoint: str, user_permissions: list):
         """Validate user access to specific endpoints"""
         endpoint_permissions = {
@@ -685,10 +685,10 @@ class SecurityManager:
             '/crm/*': ['crm_access'],
             '/slack/*': ['slack_access']
         }
-        
+
         required_permissions = endpoint_permissions.get(endpoint, [])
         return any(perm in user_permissions for perm in required_permissions)
-    
+
     async def audit_log(self, user_id: str, action: str, resource: str, result: str):
         """Log all user actions for audit trail"""
         audit_entry = {
@@ -708,7 +708,7 @@ class MonitoringSystem:
     def __init__(self):
         self.prometheus_client = PrometheusClient()
         self.alert_manager = AlertManager()
-        
+
     def setup_metrics(self):
         """Setup Prometheus metrics for agent monitoring"""
         self.metrics = {
@@ -733,7 +733,7 @@ class MonitoringSystem:
                 ['interaction_type', 'success']
             )
         }
-    
+
     async def check_agent_health(self):
         """Monitor agent health and performance"""
         for agent_id in self.agent_registry.get_all_agents():
@@ -742,12 +742,12 @@ class MonitoringSystem:
                 self.metrics['agent_response_time'].labels(
                     agent_id=agent_id, task_type='health_check'
                 ).observe(response_time)
-                
+
                 if response_time > 5.0:  # Alert if response time > 5 seconds
                     await self.alert_manager.send_alert(
                         f"Agent {agent_id} slow response: {response_time}s"
                     )
-                    
+
             except Exception as e:
                 await self.alert_manager.send_alert(
                     f"Agent {agent_id} health check failed: {str(e)}"
@@ -784,14 +784,14 @@ services:
     depends_on:
       - redis
       - postgres
-  
+
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-  
+
   postgres:
     image: postgres:14
     environment:
@@ -800,7 +800,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+
   prometheus:
     image: prom/prometheus
     ports:
@@ -814,4 +814,3 @@ volumes:
 ```
 
 This technical architecture provides a robust, scalable foundation for Sophia AI's evolution into your company's AI assistant orchestrator, with specific focus on the HubSpot + Gong.io + Slack integration that will deliver immediate business value.
-

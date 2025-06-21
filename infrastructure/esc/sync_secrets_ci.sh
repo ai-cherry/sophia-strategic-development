@@ -90,4 +90,3 @@ else
   echo "Synchronization failed"
   exit 1
 fi
-

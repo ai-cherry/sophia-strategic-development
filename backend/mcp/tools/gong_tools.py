@@ -7,7 +7,7 @@ from ..sophia_mcp_server import MCPTool
 
 
 class GongCallAnalysisTool(MCPTool):
-    """Tool for analyzing Gong call recordings"""
+    """Tool for analyzing Gong call recordings."""
 
     def __init__(self):
         super().__init__(
@@ -38,8 +38,8 @@ class GongCallAnalysisTool(MCPTool):
         self.gong_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters"""
-        # Get parameters
+        """Execute the tool with the provided parameters."""# Get parameters.
+
         call_id = parameters["call_id"]
         analysis_type = parameters.get("analysis_type", "detailed")
         include_transcript = parameters.get("include_transcript", False)
@@ -116,8 +116,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_basic_analysis(
         self, call_detail: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Perform basic analysis of a call"""
-        # Extract basic information
+        """Perform basic analysis of a call."""# Extract basic information.
+
         call_date = call_detail.get("dateTime")
         duration_seconds = call_detail.get("durationSeconds")
         direction = call_detail.get("direction")
@@ -138,9 +138,9 @@ class GongCallAnalysisTool(MCPTool):
         analysis = {
             "summary": {
                 "call_date": call_date,
-                "duration_minutes": round(duration_seconds / 60, 1)
-                if duration_seconds
-                else None,
+                "duration_minutes": (
+                    round(duration_seconds / 60, 1) if duration_seconds else None
+                ),
                 "direction": direction,
                 "customer_count": len(customer_participants),
                 "internal_count": len(internal_participants),
@@ -167,8 +167,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_detailed_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform detailed analysis of a call"""
-        # Get basic analysis
+        """Perform detailed analysis of a call."""# Get basic analysis.
+
         basic_analysis = await self._perform_basic_analysis(call_detail)
 
         # Extract additional information
@@ -203,8 +203,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_coaching_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform coaching analysis of a call"""
-        # Get detailed analysis
+        """Perform coaching analysis of a call."""# Get detailed analysis.
+
         detailed_analysis = await self._perform_detailed_analysis(
             call_detail, transcript_text
         )
@@ -273,8 +273,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_sentiment_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform sentiment analysis of a call"""
-        # Get basic analysis
+        """Perform sentiment analysis of a call."""# Get basic analysis.
+
         basic_analysis = await self._perform_basic_analysis(call_detail)
 
         # Analyze transcript for sentiment
@@ -381,8 +381,8 @@ class GongCallAnalysisTool(MCPTool):
         return analysis
 
     async def _analyze_transcript(self, transcript_text: str) -> Dict[str, Any]:
-        """Analyze transcript text"""
-        if not transcript_text:
+        """Analyze transcript text."""if not transcript_text:.
+
             return {"error": "No transcript available for analysis"}
 
         # Split transcript by speaker
@@ -439,9 +439,8 @@ class GongCallAnalysisTool(MCPTool):
 
 
 class GongTranscriptExtractionTool(MCPTool):
-    """Tool for extracting and processing Gong call transcripts"""
+    """Tool for extracting and processing Gong call transcripts."""def __init__(self):.
 
-    def __init__(self):
         super().__init__(
             name="gong_transcript_extraction",
             description="Extract and process transcripts from Gong call recordings",
@@ -470,8 +469,8 @@ class GongTranscriptExtractionTool(MCPTool):
         self.gong_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters"""
-        # Get parameters
+        """Execute the tool with the provided parameters."""# Get parameters.
+
         call_id = parameters["call_id"]
         format_type = parameters.get("format", "clean")
         include_metadata = parameters.get("include_metadata", True)
@@ -543,8 +542,7 @@ class GongTranscriptExtractionTool(MCPTool):
     async def _extract_structured_transcript(
         self, transcript_raw: Any
     ) -> List[Dict[str, Any]]:
-        """Extract structured transcript from raw transcript"""
-        structured_transcript = []
+        """Extract structured transcript from raw transcript."""structured_transcript = [].
 
         # Process transcript based on its structure
         if isinstance(transcript_raw, list):
@@ -563,7 +561,7 @@ class GongTranscriptExtractionTool(MCPTool):
     async def _generate_transcript_summary(
         self, transcript_text: str
     ) -> Dict[str, Any]:
-        """Generate a summary of the transcript"""
+        """Generate a summary of the transcript."""
         if not transcript_text:
             return {"error": "No transcript text available for summarization"}
 

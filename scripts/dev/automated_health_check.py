@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Automated Health Check Runner
+"""Sophia AI - Automated Health Check Runner.
+
 Comprehensive system validation and monitoring
 """
 
@@ -25,15 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 class HealthCheckRunner:
-    """Automated health check runner for all Sophia AI components"""
+    """Automated health check runner for all Sophia AI components."""
 
     def __init__(self):
         self.results = {}
         self.start_time = datetime.utcnow()
 
     async def run_all_checks(self) -> Dict[str, Any]:
-        """Run all health checks and return comprehensive results"""
-        logger.info("Starting comprehensive health check...")
+        """Run all health checks and return comprehensive results."""logger.info("Starting comprehensive health check...").
 
         checks = [
             ("System Resources", self.check_system_resources),
@@ -92,8 +92,8 @@ class HealthCheckRunner:
         }
 
     async def check_system_resources(self) -> Dict[str, Any]:
-        """Check system resource usage"""
-        try:
+        """Check system resource usage."""try:.
+
             # CPU usage
             cpu_result = subprocess.run(["top", "-bn1"], capture_output=True, text=True)
             cpu_line = [
@@ -132,8 +132,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_docker_services(self) -> Dict[str, Any]:
-        """Check Docker services status"""
-        try:
+        """Check Docker services status."""try:.
+
             result = subprocess.run(
                 [
                     "docker-compose",
@@ -175,8 +175,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_mcp_servers(self) -> Dict[str, Any]:
-        """Check MCP servers health"""
-        try:
+        """Check MCP servers health."""try:.
+
             import aiohttp
 
             mcp_servers = [
@@ -228,8 +228,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_pulumi_esc(self) -> Dict[str, Any]:
-        """Check Pulumi ESC connectivity"""
-        try:
+        """Check Pulumi ESC connectivity."""try:.
+
             result = subprocess.run(
                 ["pulumi", "whoami"], capture_output=True, text=True
             )
@@ -258,8 +258,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_database_connections(self) -> Dict[str, Any]:
-        """Check database connectivity"""
-        try:
+        """Check database connectivity."""try:.
+
             from backend.core.config_manager import config_manager
 
             # Test Snowflake connection
@@ -279,8 +279,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_api_endpoints(self) -> Dict[str, Any]:
-        """Check API endpoint health"""
-        try:
+        """Check API endpoint health."""try:.
+
             import aiohttp
 
             endpoints = [
@@ -322,8 +322,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_secret_access(self) -> Dict[str, Any]:
-        """Check secret access through Pulumi ESC"""
-        try:
+        """Check secret access through Pulumi ESC."""try:.
+
             from backend.core.pulumi_esc import pulumi_esc_client
 
             # Test secret retrieval
@@ -340,8 +340,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_claude_integration(self) -> Dict[str, Any]:
-        """Check Claude API integration"""
-        try:
+        """Check Claude API integration."""try:.
+
             from backend.integrations.claude_integration import claude_integration
 
             # Test Claude API
@@ -357,8 +357,8 @@ class HealthCheckRunner:
             return {"success": False, "error": str(e)}
 
     async def check_configuration(self) -> Dict[str, Any]:
-        """Check configuration validity"""
-        try:
+        """Check configuration validity."""try:.
+
             # Check MCP config
             mcp_config_path = project_root / "mcp_config.json"
             if not mcp_config_path.exists():
@@ -394,7 +394,7 @@ class HealthCheckRunner:
 
 
 async def main():
-    """Main entry point"""
+    """Main entry point."""
     health_checker = HealthCheckRunner()
     results = await health_checker.run_all_checks()
 

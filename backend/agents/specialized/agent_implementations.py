@@ -1,8 +1,8 @@
-"""Sophia AI - New Agent Type Implementations
-Detailed implementations for Research, Prospecting, Marketing, Business Strategy, and Database agents
-"""
+"""Sophia AI - New Agent Type Implementations.
 
-import json
+Detailed implementations for Research, Prospecting, Marketing, Business Strategy, and Database agents
+"""import json
+
 import logging
 from datetime import datetime
 from typing import Any, Dict, List
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 class ResearchIntelligenceAgent(BaseAgent):
-    """AI-powered research and competitive intelligence agent"""
+    """AI-powered research and competitive intelligence agent."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
@@ -43,8 +43,10 @@ class ResearchIntelligenceAgent(BaseAgent):
         return self.research_capabilities
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process research intelligence tasks"""
-        try:
+        """Process research intelligence tasks."""
+
+        try:.
+
             if task.task_type == "web_research":
                 return await self._conduct_web_research(task.task_data)
             elif task.task_type == "competitive_analysis":
@@ -62,8 +64,9 @@ class ResearchIntelligenceAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _conduct_web_research(self, task_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Conduct comprehensive web research on a topic"""
-        topic = task_data.get("topic")
+        """Conduct comprehensive web research on a topic."""
+        topic = task_data.get("topic").
+
         depth = task_data.get("depth", "standard")
 
         # Generate search queries using AI
@@ -92,8 +95,10 @@ class ResearchIntelligenceAgent(BaseAgent):
         )
 
     async def _generate_search_queries(self, topic: str, depth: str) -> List[str]:
-        """Generate AI-powered search queries for research"""
-        system_prompt = f"""Generate {5 if depth == "standard" else 10} specific search queries for: {topic}
+        """Generate AI-powered search queries for research."""
+
+        system_prompt = f"""Generate {5 if depth == "standard" else 10} specific search queries for: {topic}.
+
         Return only a JSON array of search query strings."""
 
         response = await self.portkey_client.llm_call(
@@ -111,7 +116,7 @@ class ResearchIntelligenceAgent(BaseAgent):
 
 
 class ProspectingAgent(BaseAgent):
-    """Intelligent lead discovery and qualification agent"""
+    """Intelligent lead discovery and qualification agent."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
@@ -130,8 +135,10 @@ class ProspectingAgent(BaseAgent):
         return self.prospecting_capabilities
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process prospecting tasks"""
-        try:
+        """Process prospecting tasks."""
+
+        try:.
+
             if task.task_type == "discover_leads":
                 return await self._discover_leads(task.task_data)
             elif task.task_type == "qualify_leads":
@@ -145,8 +152,8 @@ class ProspectingAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _discover_leads(self, task_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Discover new leads based on criteria"""
-        criteria = task_data.get("criteria", {})
+        """Discover new leads based on criteria."""
+        criteria = task_data.get("criteria", {}).
 
         # Framework implementation for lead discovery
         return await create_agent_response(
@@ -159,9 +166,10 @@ class ProspectingAgent(BaseAgent):
 
 
 class MarketingIntelligenceAgent(BaseAgent):
-    """Advanced marketing strategy and analytics agent"""
+    """Advanced marketing strategy and analytics agent."""
 
-    def __init__(self, config: AgentConfig):
+    def __init__(self, config: AgentConfig):.
+
         super().__init__(config)
         self.portkey_client = PortkeyClient()
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -178,16 +186,18 @@ class MarketingIntelligenceAgent(BaseAgent):
         return self.marketing_capabilities
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process marketing intelligence tasks"""
-        return await create_agent_response(
+        """Process marketing intelligence tasks."""
+        return await create_agent_response(.
+
             True, data={"message": "Marketing Intelligence Agent framework ready"}
         )
 
 
 class BusinessStrategyAgent(BaseAgent):
-    """Strategic business intelligence and planning agent"""
+    """Strategic business intelligence and planning agent."""
 
-    def __init__(self, config: AgentConfig):
+    def __init__(self, config: AgentConfig):.
+
         super().__init__(config)
         self.portkey_client = PortkeyClient()
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -204,16 +214,18 @@ class BusinessStrategyAgent(BaseAgent):
         return self.strategy_capabilities
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process business strategy tasks"""
-        return await create_agent_response(
+        """Process business strategy tasks."""
+        return await create_agent_response(.
+
             True, data={"message": "Business Strategy Agent framework ready"}
         )
 
 
 class DatabaseIntelligenceAgent(BaseAgent):
-    """Database optimization and intelligence agent"""
+    """Database optimization and intelligence agent."""
 
-    def __init__(self, config: AgentConfig):
+    def __init__(self, config: AgentConfig):.
+
         super().__init__(config)
         self.mcp_client = MCPClient("http://localhost:8090")
         self.database_capabilities = [
@@ -229,8 +241,9 @@ class DatabaseIntelligenceAgent(BaseAgent):
         return self.database_capabilities
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process database intelligence tasks"""
-        return await create_agent_response(
+        """Process database intelligence tasks."""
+        return await create_agent_response(.
+
             True, data={"message": "Database Intelligence Agent framework ready"}
         )
 
@@ -239,9 +252,10 @@ class DatabaseIntelligenceAgent(BaseAgent):
 
 
 class KnowledgeIngestionAgent(AgnoAgent):
-    """Agno-based proactive knowledge ingestion agent"""
+    """Agno-based proactive knowledge ingestion agent."""
 
-    def __init__(self):
+    def __init__(self):.
+
         super().__init__()
         self.portkey_client = PortkeyClient()
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -249,8 +263,8 @@ class KnowledgeIngestionAgent(AgnoAgent):
 
     @state(initial=True)
     async def scan_data_sources(self):
-        """Scan available data sources for new content"""
-        logger.info("[State: SCAN_DATA_SOURCES]")
+        """Scan available data sources for new content."""
+        logger.info("[State: SCAN_DATA_SOURCES]").
 
         # Framework implementation for data source scanning
         self.knowledge_data = {
@@ -262,8 +276,9 @@ class KnowledgeIngestionAgent(AgnoAgent):
 
     @state
     async def analyze_content(self):
-        """Analyze content and generate proactive questions"""
-        logger.info("[State: ANALYZE_CONTENT]")
+        """Analyze content and generate proactive questions."""
+
+        logger.info("[State: ANALYZE_CONTENT]").
 
         # Framework implementation for content analysis
         self.knowledge_data["analysis_complete"] = True
@@ -272,16 +287,18 @@ class KnowledgeIngestionAgent(AgnoAgent):
 
     @state
     async def categorize_knowledge(self):
-        """Categorize and store knowledge with vector embeddings"""
-        logger.info("[State: CATEGORIZE_KNOWLEDGE]")
+        """Categorize and store knowledge with vector embeddings."""
+        logger.info("[State: CATEGORIZE_KNOWLEDGE]").
 
         # Framework implementation for knowledge categorization
         return self.done
 
     @state(terminal=True)
     def done(self):
-        """Terminal state - knowledge ingestion complete"""
-        return TaskResult(
+        """Terminal state - knowledge ingestion complete."""
+
+        return TaskResult(.
+
             status="success",
             output={
                 "message": "Knowledge Ingestion Agent framework ready",
@@ -291,9 +308,9 @@ class KnowledgeIngestionAgent(AgnoAgent):
 
 
 class KnowledgeSearchAgent(AgnoAgent):
-    """Agno-based intelligent knowledge search agent"""
+    """Agno-based intelligent knowledge search agent."""
+    def __init__(self):.
 
-    def __init__(self):
         super().__init__()
         self.portkey_client = PortkeyClient()
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -301,8 +318,9 @@ class KnowledgeSearchAgent(AgnoAgent):
 
     @state(initial=True)
     async def understand_query(self, query: str):
-        """Understand search intent and context"""
-        logger.info(f"[State: UNDERSTAND_QUERY] for: {query}")
+        """Understand search intent and context."""
+
+        logger.info(f"[State: UNDERSTAND_QUERY] for: {query}").
 
         self.search_data = {
             "original_query": query,
@@ -313,24 +331,26 @@ class KnowledgeSearchAgent(AgnoAgent):
 
     @state
     async def semantic_search(self):
-        """Perform semantic search across knowledge bases"""
-        logger.info("[State: SEMANTIC_SEARCH]")
+        """Perform semantic search across knowledge bases."""
+        logger.info("[State: SEMANTIC_SEARCH]").
 
         # Framework implementation for semantic search
         return self.contextualize_results
 
     @state
     async def contextualize_results(self):
-        """Add context and generate insights from search results"""
-        logger.info("[State: CONTEXTUALIZE_RESULTS]")
+        """Add context and generate insights from search results."""
+
+        logger.info("[State: CONTEXTUALIZE_RESULTS]").
 
         # Framework implementation for result contextualization
         return self.done
 
     @state(terminal=True)
     def done(self):
-        """Terminal state - return search results with context"""
-        return TaskResult(
+        """Terminal state - return search results with context."""
+        return TaskResult(.
+
             status="success",
             output={
                 "message": "Knowledge Search Agent framework ready",
@@ -340,9 +360,10 @@ class KnowledgeSearchAgent(AgnoAgent):
 
 
 class ExecutiveKnowledgeAgent(AgnoAgent):
-    """Agno-based executive knowledge agent with enhanced security"""
+    """Agno-based executive knowledge agent with enhanced security."""
 
-    def __init__(self):
+    def __init__(self):.
+
         super().__init__()
         self.portkey_client = PortkeyClient()
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -351,8 +372,8 @@ class ExecutiveKnowledgeAgent(AgnoAgent):
 
     @state(initial=True)
     async def validate_access(self, user_context: Dict[str, Any]):
-        """Validate executive access permissions"""
-        logger.info("[State: VALIDATE_ACCESS]")
+        """Validate executive access permissions."""
+        logger.info("[State: VALIDATE_ACCESS]").
 
         # Framework implementation for access validation
         self.executive_data["user_context"] = user_context
@@ -362,23 +383,24 @@ class ExecutiveKnowledgeAgent(AgnoAgent):
 
     @state
     async def analyze_executive_data(self):
-        """Analyze confidential executive data"""
-        logger.info("[State: ANALYZE_EXECUTIVE_DATA]")
+        """Analyze confidential executive data."""
+
+        logger.info("[State: ANALYZE_EXECUTIVE_DATA]").
 
         # Framework implementation for executive data analysis
         return self.generate_insights
 
     @state
     async def generate_insights(self):
-        """Generate executive insights and recommendations"""
-        logger.info("[State: GENERATE_INSIGHTS]")
+        """Generate executive insights and recommendations."""
+        logger.info("[State: GENERATE_INSIGHTS]").
 
         # Framework implementation for insight generation
         return self.done
 
     @state(terminal=True)
     def done(self):
-        """Terminal state - return executive analysis"""
+        """Terminal state - return executive analysis."""
         return TaskResult(
             status="success",
             output={

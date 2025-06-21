@@ -1,8 +1,8 @@
-"""Agno Integration Module
-Provides integration with Agno's ultra-fast agent platform
-"""
+"""Agno Integration Module.
 
-import asyncio
+Provides integration with Agno's ultra-fast agent platform
+"""import asyncio
+
 import logging
 import time
 from typing import Any, AsyncGenerator, Dict, List, Union
@@ -18,11 +18,11 @@ class AgnoAgent:
     def __init__(self, agent_id: str, agent_data: Dict[str, Any]):
         """Initialize an Agno agent.
 
-        Args:
-            agent_id: The unique identifier for this agent
-            agent_data: The agent data from Agno
-        """
-        self.agent_id = agent_id
+                        Args:
+                            agent_id: The unique identifier for this agent
+                            agent_data: The agent data from Agno
+        """self.agent_id = agent_id.
+
         self.agent_data = agent_data
         self.created_at = time.time()
         self.last_used = time.time()
@@ -31,10 +31,10 @@ class AgnoAgent:
     def to_dict(self) -> Dict[str, Any]:
         """Convert the agent to a dictionary.
 
-        Returns:
-            Dict[str, Any]: The agent as a dictionary
-        """
-        return {
+                        Returns:
+                            Dict[str, Any]: The agent as a dictionary
+        """return {.
+
             "agent_id": self.agent_id,
             "created_at": self.created_at,
             "last_used": self.last_used,
@@ -44,14 +44,16 @@ class AgnoAgent:
 
     def update_usage(self):
         """Update the agent usage statistics."""
-        self.last_used = time.time()
+
+        self.last_used = time.time().
+
         self.request_count += 1
 
 
 class AgnoTool:
     """Represents a tool that can be used by an Agno agent."""
+    def __init__(.
 
-    def __init__(
         self,
         name: str,
         description: str,
@@ -60,13 +62,13 @@ class AgnoTool:
     ):
         """Initialize an Agno tool.
 
-        Args:
-            name: The name of the tool
-            description: The description of the tool
-            parameters: The parameters for the tool
-            function: The function to call when the tool is used
-        """
-        self.name = name
+                        Args:
+                            name: The name of the tool
+                            description: The description of the tool
+                            parameters: The parameters for the tool
+                            function: The function to call when the tool is used
+        """self.name = name.
+
         self.description = description
         self.parameters = parameters
         self.function = function
@@ -74,10 +76,10 @@ class AgnoTool:
     def to_dict(self) -> Dict[str, Any]:
         """Convert the tool to a dictionary.
 
-        Returns:
-            Dict[str, Any]: The tool as a dictionary
-        """
-        return {
+                        Returns:
+                            Dict[str, Any]: The tool as a dictionary
+        """return {.
+
             "name": self.name,
             "description": self.description,
             "parameters": self.parameters,
@@ -85,10 +87,8 @@ class AgnoTool:
 
 
 class AgnoIntegration:
-    """Integration with Agno's ultra-fast agent platform."""
+    """Integration with Agno's ultra-fast agent platform."""def __init__(self):."""Initialize the Agno integration."""
 
-    def __init__(self):
-        """Initialize the Agno integration."""
         self.initialized = False
         self.api_key = None
         self.config = {}
@@ -99,7 +99,9 @@ class AgnoIntegration:
 
     async def initialize(self):
         """Initialize the Agno integration."""
-        if self.initialized:
+
+        if self.initialized:.
+
             return
 
         try:
@@ -130,15 +132,15 @@ class AgnoIntegration:
     ) -> AgnoAgent:
         """Get or create an agent.
 
-        Args:
-            agent_id: The unique identifier for this agent
-            instructions: The instructions for the agent
-            model: The model to use for this agent
+                        Args:
+                            agent_id: The unique identifier for this agent
+                            instructions: The instructions for the agent
+                            model: The model to use for this agent
 
-        Returns:
-            AgnoAgent: The agent
-        """
-        if not self.initialized:
+                        Returns:
+                            AgnoAgent: The agent
+        """if not self.initialized:.
+
             await self.initialize()
 
         # Check if agent exists and is not expired
@@ -181,8 +183,8 @@ class AgnoIntegration:
             raise
 
     def _cleanup_agents(self):
-        """Clean up old agents."""
-        # Sort agents by last used time
+        """Clean up old agents."""# Sort agents by last used time.
+
         sorted_agents = sorted(self.agents.items(), key=lambda x: x[1].last_used)
 
         # Remove oldest agents until we're under the pool size
@@ -194,10 +196,10 @@ class AgnoIntegration:
     def get_pool_stats(self) -> Dict[str, Any]:
         """Get statistics about the agent pool.
 
-        Returns:
-            Dict[str, Any]: Statistics about the agent pool
-        """
-        return {
+                        Returns:
+                            Dict[str, Any]: Statistics about the agent pool
+        """return {.
+
             "pool_size": len(self.agents),
             "max_pool_size": self.agent_pool_size,
             "agents": {
@@ -219,16 +221,16 @@ class AgnoIntegration:
     ) -> Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]:
         """Process a request with an agent.
 
-        Args:
-            agent_id: The unique identifier for the agent
-            request: The request to process
-            tools: The tools available to the agent
-            stream: Whether to stream the response
+                        Args:
+                            agent_id: The unique identifier for the agent
+                            request: The request to process
+                            tools: The tools available to the agent
+                            stream: Whether to stream the response
 
-        Returns:
-            Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]: The response
-        """
-        if not self.initialized:
+                        Returns:
+                            Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]: The response
+        """if not self.initialized:.
+
             await self.initialize()
 
         # Get or create agent
@@ -260,14 +262,14 @@ class AgnoIntegration:
     ) -> Dict[str, Any]:
         """Get a simulated response.
 
-        Args:
-            request: The request to process
-            tools: The tools available to the agent
+                        Args:
+                            request: The request to process
+                            tools: The tools available to the agent
 
-        Returns:
-            Dict[str, Any]: The response
-        """
-        # Simulate processing time
+                        Returns:
+                            Dict[str, Any]: The response
+        """# Simulate processing time.
+
         await asyncio.sleep(0.5)
 
         # Create response
@@ -292,14 +294,14 @@ class AgnoIntegration:
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """Stream a simulated response.
 
-        Args:
-            request: The request to process
-            tools: The tools available to the agent
+                        Args:
+                            request: The request to process
+                            tools: The tools available to the agent
 
-        Returns:
-            AsyncGenerator[Dict[str, Any], None]: The response chunks
-        """
-        # Simulate streaming response
+                        Returns:
+                            AsyncGenerator[Dict[str, Any], None]: The response chunks
+        """# Simulate streaming response.
+
         response_text = f"This is a simulated response to: {request}"
         words = response_text.split()
 

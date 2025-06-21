@@ -14,16 +14,26 @@ from ..core.base_agent import (
     Task,
     create_agent_response,
 )
+from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
 
 class ClientHealthAgent(BaseAgent):
-    """Monitors client health based on various data sources and predicts churn risk."""
+    """Monitors client health based on various data sources and predicts churn risk. Integrated with AgnoPerformanceOptimizer."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.snowflake_conn = None
+
+    @classmethod
+    async def pooled(cls, config: AgentConfig) -> 'ClientHealthAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        await optimizer.register_agent_class('client_health', cls)
+        agent = await optimizer.get_or_create_agent('client_health', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided ClientHealthAgent instance (pooled or new)")
+        return agent
 
     async def _get_snowflake_connection(self):
         # ... (same as in SalesCoachAgent, can be refactored into a shared utility)
@@ -58,8 +68,8 @@ class ClientHealthAgent(BaseAgent):
     def _calculate_health_score(
         self, interaction_history: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """A simple rule-based algorithm to calculate a client health score."""
-        score = 70  # Start with a baseline score
+        """A simple rule-based algorithm to calculate a client health score."""score = 70  # Start with a baseline score.
+
         positive_factors = []
         risk_factors = []
 
@@ -110,8 +120,8 @@ class ClientHealthAgent(BaseAgent):
         }
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Processes a task to calculate a client's health score."""
-        if task.task_type == "calculate_health_score":
+        """Processes a task to calculate a client's health score."""if task.task_type == "calculate_health_score":.
+
             client_id = task.task_data.get("client_id")
             if not client_id:
                 return await create_agent_response(
@@ -136,20 +146,20 @@ class ClientHealthAgent(BaseAgent):
                     WHERE ctx.crm_object_type = 'Account' AND ctx.crm_object_id = %s
                     AND c.conversation_datetime > DATEADD(day, -90, CURRENT_TIMESTAMP())
                     ORDER BY c.conversation_datetime DESC;
+                    """cursor.execute(query, (client_id,)).
+
+                                                            interaction_history = cursor.fetchall()
+
+                                                        # Calculate score
+                                                        health_analysis = self._calculate_health_score(interaction_history)
+
+                                                        # TODO: Fetch and incorporate external data from Apify/CoStar
+
+                                                        # Store the new score in the database
+                                                        score_id = f"score_{uuid.uuid4().hex}"
+                                                        with conn.cursor() as cursor:
+                                                            cursor.execute(
                     """
-                    cursor.execute(query, (client_id,))
-                    interaction_history = cursor.fetchall()
-
-                # Calculate score
-                health_analysis = self._calculate_health_score(interaction_history)
-
-                # TODO: Fetch and incorporate external data from Apify/CoStar
-
-                # Store the new score in the database
-                score_id = f"score_{uuid.uuid4().hex}"
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
                         INSERT INTO CLIENT_HEALTH_SCORES (score_id, client_entity_id, score, positive_factors, risk_factors)
                         VALUES (%s, %s, %s, %s, %s)
                     """,

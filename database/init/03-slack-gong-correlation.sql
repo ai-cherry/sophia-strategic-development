@@ -14,4 +14,4 @@ COMMENT ON COLUMN GONG_CALLS.slack_notification_ts IS 'Timestamp of the initial 
 COMMENT ON TABLE SLACK_CONVERSATIONS IS 'Stores mapping between Slack conversation threads and Gong conversations.';
 COMMENT ON COLUMN SLACK_CONVERSATIONS.thread_ts IS 'The timestamp of the parent message in a Slack thread, acts as the thread identifier.';
 COMMENT ON COLUMN SLACK_CONVERSATIONS.gong_conversation_key IS 'Foreign key linking to the GONG_CONVERSATIONS table.';
-COMMENT ON COLUMN SLACK_CONVERSATIONS.channel_id IS 'The Slack channel ID where the conversation is taking place.'; 
+COMMENT ON COLUMN SLACK_CONVERSATIONS.channel_id IS 'The Slack channel ID where the conversation is taking place.';

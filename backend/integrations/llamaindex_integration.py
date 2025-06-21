@@ -1,11 +1,10 @@
-"""LlamaIndex Integration for Sophia AI
+"""LlamaIndex Integration for Sophia AI.
 
 This module provides document intelligence capabilities using LlamaIndex.
 It enables advanced document processing, chunking, and indexing for the
 Hybrid RAG Architecture.
-"""
+""""""import logging.
 
-import logging
 import os
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Union
@@ -30,11 +29,10 @@ logger = logging.getLogger(__name__)
 
 
 class BusinessEntityExtractor:
-    """Extract business entities from document nodes."""
+    """Extract business entities from document nodes."""async def aextract(self, nodes):.
 
-    async def aextract(self, nodes):
-        """Extract business entities asynchronously."""
-        # This is a placeholder for actual implementation
+        """Extract business entities asynchronously."""# This is a placeholder for actual implementation.
+
         # In a real implementation, this would use NER or other techniques
         for node in nodes:
             node.metadata["business_entities"] = ["Pay Ready", "Apartment", "Lease"]
@@ -42,22 +40,16 @@ class BusinessEntityExtractor:
 
 
 class ComplianceExtractor:
-    """Extract compliance-related information from document nodes."""
+    """Extract compliance-related information from document nodes."""async def aextract(self, nodes):."""Extract compliance information asynchronously."""# This is a placeholder for actual implementation.
 
-    async def aextract(self, nodes):
-        """Extract compliance information asynchronously."""
-        # This is a placeholder for actual implementation
         for node in nodes:
             node.metadata["compliance_topics"] = ["Fair Housing", "ADA Compliance"]
         return nodes
 
 
 class FinancialDataExtractor:
-    """Extract financial data from document nodes."""
+    """Extract financial data from document nodes."""async def aextract(self, nodes):."""Extract financial data asynchronously."""# This is a placeholder for actual implementation.
 
-    async def aextract(self, nodes):
-        """Extract financial data asynchronously."""
-        # This is a placeholder for actual implementation
         for node in nodes:
             node.metadata["financial_data"] = {
                 "contains_financial_info": True,
@@ -70,13 +62,13 @@ class FinancialDataExtractor:
 class LlamaIndexProcessor:
     """Process documents with LlamaIndex for advanced document intelligence.
 
-    This class provides document processing, chunking, indexing, and querying
-    capabilities using LlamaIndex. It integrates with Sophia AI's existing
-    vector stores and knowledge base.
-    """
+            This class provides document processing, chunking, indexing, and querying
+            capabilities using LlamaIndex. It integrates with Sophia AI's existing
+            vector stores and knowledge base.
+    """def __init__(self):."""
 
-    def __init__(self):
-        """Initialize the LlamaIndex processor."""
+    Initialize the LlamaIndex processor."""
+
         # Get secrets from Pulumi ESC
         self.secrets = get_llamaindex_secrets()
 
@@ -99,7 +91,9 @@ class LlamaIndexProcessor:
 
     def _setup_pinecone(self) -> PineconeVectorStore:
         """Setup Pinecone vector store."""
-        try:
+
+        try:.
+
             import pinecone
 
             # Initialize Pinecone with API key from Pulumi ESC if available
@@ -132,7 +126,8 @@ class LlamaIndexProcessor:
 
     def _setup_weaviate(self) -> WeaviateVectorStore:
         """Setup Weaviate vector store."""
-        try:
+        try:.
+
             import weaviate
 
             # Create Weaviate client with API key from Pulumi ESC if available
@@ -141,9 +136,9 @@ class LlamaIndexProcessor:
             )
             client = weaviate.Client(
                 url=settings.vector_db.weaviate_url,
-                auth_client_secret=weaviate.AuthApiKey(api_key=api_key)
-                if api_key
-                else None,
+                auth_client_secret=(
+                    weaviate.AuthApiKey(api_key=api_key) if api_key else None
+                ),
             )
 
             # Create vector store
@@ -158,7 +153,9 @@ class LlamaIndexProcessor:
 
     def _setup_document_parser(self):
         """Setup advanced document parsing with LlamaIndex."""
-        return SentenceSplitter(
+
+        return SentenceSplitter(.
+
             chunk_size=1024,
             chunk_overlap=200,
             paragraph_separator="\n\n",
@@ -167,7 +164,8 @@ class LlamaIndexProcessor:
 
     def _setup_extractors(self):
         """Setup metadata extractors."""
-        return [
+        return [.
+
             TitleExtractor(nodes=5),
             QuestionsAnsweredExtractor(questions=3),
             BusinessEntityExtractor(),
@@ -180,14 +178,13 @@ class LlamaIndexProcessor:
     ) -> Dict[str, Any]:
         """Process document with full LlamaIndex pipeline.
 
-        Args:
-            document: The document to process. Can be a string, Document object, or dict.
-            context: Additional context for processing.
+                        Args:
+                            document: The document to process. Can be a string, Document object, or dict.
+                            context: Additional context for processing.
 
-        Returns:
-            Dict containing processing results and metadata.
-        """
-        context = context or {}
+                        Returns:
+                            Dict containing processing results and metadata.
+        """context = context or {}.
 
         try:
             # Convert to Document if needed
@@ -243,8 +240,8 @@ class LlamaIndexProcessor:
             return {"status": "error", "error": str(e)}
 
     async def _store_in_knowledge_base(self, nodes, context: Dict[str, Any]):
-        """Store processed nodes in the knowledge base."""
-        # This is a placeholder for actual implementation
+        """Store processed nodes in the knowledge base."""# This is a placeholder for actual implementation.
+
         # In a real implementation, this would store the nodes in the knowledge base
         logger.info(f"Storing {len(nodes)} nodes in knowledge base")
         return True
@@ -254,14 +251,13 @@ class LlamaIndexProcessor:
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """Query documents using LlamaIndex retrieval.
 
-        Args:
-            query: The query string.
-            context: Additional context for querying.
+                        Args:
+                            query: The query string.
+                            context: Additional context for querying.
 
-        Yields:
-            Dict containing query results.
-        """
-        context = context or {}
+                        Yields:
+                            Dict containing query results.
+        """context = context or {}.
 
         try:
             # Query Pinecone
@@ -291,8 +287,8 @@ class LlamaIndexProcessor:
     async def _query_pinecone_index(
         self, query: str, context: Dict[str, Any]
     ) -> List[Dict]:
-        """Query Pinecone index."""
-        # This is a placeholder for actual implementation
+        """Query Pinecone index."""# This is a placeholder for actual implementation.
+
         # In a real implementation, this would query the Pinecone index
         return [
             {
@@ -312,8 +308,8 @@ class LlamaIndexProcessor:
     async def _query_weaviate_index(
         self, query: str, context: Dict[str, Any]
     ) -> List[Dict]:
-        """Query Weaviate index."""
-        # This is a placeholder for actual implementation
+        """Query Weaviate index."""# This is a placeholder for actual implementation.
+
         # In a real implementation, this would query the Weaviate index
         return [
             {

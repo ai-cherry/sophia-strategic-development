@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""LlamaIndex Secrets Management for Sophia AI
+"""LlamaIndex Secrets Management for Sophia AI.
 
 This script manages LlamaIndex API keys and other secrets using Pulumi ESC.
 It syncs secrets between GitHub and Pulumi ESC, and provides utilities for
@@ -7,9 +7,8 @@ accessing these secrets in the application.
 
 Usage:
     python infrastructure/esc/llamaindex_secrets.py [--sync-secrets]
-"""
+"""import argparse
 
-import argparse
 import logging
 import os
 import sys
@@ -44,6 +43,7 @@ LLAMAINDEX_SECRETS = [
 
 def setup_llamaindex_secrets():
     """Set up LlamaIndex secrets in Pulumi ESC."""
+
     logger.info("Setting up LlamaIndex secrets in Pulumi ESC")
 
     # Check if secrets exist
@@ -77,8 +77,7 @@ def setup_llamaindex_secrets():
 
 
 def get_llamaindex_secrets() -> Dict[str, str]:
-    """Get all LlamaIndex secrets from Pulumi ESC."""
-    logger.info("Getting LlamaIndex secrets from Pulumi ESC")
+    """Get all LlamaIndex secrets from Pulumi ESC."""logger.info("Getting LlamaIndex secrets from Pulumi ESC").
 
     secrets = {}
     for secret_name in LLAMAINDEX_SECRETS:
@@ -92,8 +91,7 @@ def get_llamaindex_secrets() -> Dict[str, str]:
 
 
 def update_env_file():
-    """Update the .env file with LlamaIndex secrets."""
-    logger.info("Updating .env file with LlamaIndex secrets")
+    """Update the .env file with LlamaIndex secrets."""logger.info("Updating .env file with LlamaIndex secrets").
 
     # Get secrets
     secrets = get_llamaindex_secrets()
@@ -117,9 +115,11 @@ def update_env_file():
             # Update existing secret
             env_content = "\n".join(
                 [
-                    line
-                    if not line.startswith(f"{secret_name}=")
-                    else f"{secret_name}={secret_value}"
+                    (
+                        line
+                        if not line.startswith(f"{secret_name}=")
+                        else f"{secret_name}={secret_value}"
+                    )
                     for line in env_content.split("\n")
                 ]
             )

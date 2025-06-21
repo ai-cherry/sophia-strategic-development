@@ -1,4 +1,5 @@
-"""LLM Gateway Integration using Portkey
+"""LLM Gateway Integration using Portkey.
+
 Provides unified access to multiple LLM providers with automatic fallbacks
 """
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMProvider(Enum):
-    """Supported LLM providers through Portkey"""
+    """Supported LLM providers through Portkey."""
 
     OPENROUTER = "openrouter"
     OPENAI = "openai"
@@ -26,9 +27,8 @@ class LLMProvider(Enum):
 
 @dataclass
 class LLMConfig:
-    """Configuration for LLM Gateway"""
+    """Configuration for LLM Gateway."""portkey_api_key: str.
 
-    portkey_api_key: str
     openrouter_api_key: Optional[str] = None
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
@@ -49,12 +49,11 @@ class LLMConfig:
 
 
 class PortkeyGateway:
-    """Unified LLM Gateway using Portkey.ai
-    Provides automatic fallbacks, load balancing, and monitoring
-    """
+    """Unified LLM Gateway using Portkey.ai.
 
-    def __init__(self, config: Optional[LLMConfig] = None):
-        """Initialize the gateway with configuration"""
+            Provides automatic fallbacks, load balancing, and monitoring
+    """def __init__(self, config: Optional[LLMConfig] = None):."""Initialize the gateway with configuration"""
+
         if config is None:
             config = LLMConfig(
                 portkey_api_key=os.getenv("PORTKEY_API_KEY", ""),
@@ -76,8 +75,7 @@ class PortkeyGateway:
         self._setup_virtual_keys()
 
     def _setup_virtual_keys(self):
-        """Set up virtual keys for each provider in Portkey"""
-        self.virtual_keys = {}
+        """Set up virtual keys for each provider in Portkey."""self.virtual_keys = {}.
 
         # OpenRouter as primary
         if self.config.openrouter_api_key:
@@ -101,8 +99,8 @@ class PortkeyGateway:
             logger.info("Anthropic configured as fallback provider")
 
     def _create_portkey_config(self) -> Dict[str, Any]:
-        """Create Portkey configuration with fallbacks"""
-        config = {
+        """Create Portkey configuration with fallbacks."""config = {.
+
             "retry": {
                 "attempts": self.config.max_retries,
             },
@@ -149,19 +147,19 @@ class PortkeyGateway:
         max_tokens: int = 4096,
         **kwargs,
     ) -> Dict[str, Any]:
-        """Send completion request through Portkey gateway
+        """Send completion request through Portkey gateway.
 
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-            model: Optional model override (defaults to config.default_model)
-            temperature: Sampling temperature
-            max_tokens: Maximum tokens to generate
-            **kwargs: Additional parameters
+                        Args:
+                            messages: List of message dicts with 'role' and 'content'
+                            model: Optional model override (defaults to config.default_model)
+                            temperature: Sampling temperature
+                            max_tokens: Maximum tokens to generate
+                            **kwargs: Additional parameters
 
-        Returns:
-            Response from the LLM
-        """
-        # Create Portkey config
+                        Returns:
+                            Response from the LLM
+        """# Create Portkey config.
+
         portkey_config = self._create_portkey_config()
 
         # Add config to headers
@@ -214,11 +212,11 @@ class PortkeyGateway:
         temperature: float = 0.7,
         **kwargs,
     ):
-        """Stream completion through Portkey gateway
+        """Stream completion through Portkey gateway.
 
-        Yields chunks of the response as they arrive
-        """
-        portkey_config = self._create_portkey_config()
+                        Yields chunks of the response as they arrive
+        """portkey_config = self._create_portkey_config().
+
         self.headers["x-portkey-config"] = json.dumps(portkey_config)
 
         data = {
@@ -242,8 +240,7 @@ class PortkeyGateway:
                                 yield json.loads(chunk)
 
     def get_available_models(self) -> List[str]:
-        """Get list of available models based on configured providers"""
-        models = []
+        """Get list of available models based on configured providers."""models = [].
 
         if "openrouter" in self.virtual_keys:
             models.extend(
@@ -278,8 +275,8 @@ _gateway_instance: Optional[PortkeyGateway] = None
 
 
 def get_llm_gateway() -> PortkeyGateway:
-    """Get or create the LLM gateway singleton"""
-    global _gateway_instance
+    """Get or create the LLM gateway singleton."""global _gateway_instance.
+
     if _gateway_instance is None:
         _gateway_instance = PortkeyGateway()
     return _gateway_instance
@@ -287,14 +284,14 @@ def get_llm_gateway() -> PortkeyGateway:
 
 # Convenience function for quick completions
 async def complete(prompt: str, **kwargs) -> str:
-    """Simple completion function using the default gateway
+    """Simple completion function using the default gateway.
 
-    Args:
-        prompt: The prompt text
-        **kwargs: Additional parameters for the completion
+            Args:
+                prompt: The prompt text
+                **kwargs: Additional parameters for the completion
 
-    Returns:
-        The generated text
+            Returns:
+                The generated text
     """
     gateway = get_llm_gateway()
 

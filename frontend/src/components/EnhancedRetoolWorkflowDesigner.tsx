@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Workflow, 
-  Plus, 
-  Save, 
-  Play, 
-  Pause, 
+import {
+  Workflow,
+  Plus,
+  Save,
+  Play,
+  Pause,
   RotateCcw,
   Share2,
   Users,
@@ -268,14 +268,14 @@ const useWorkflowDesigner = () => {
   }, []);
 
   const updateNode = useCallback((nodeId: string, updates: Partial<WorkflowNode>) => {
-    setNodes(prev => prev.map(node => 
+    setNodes(prev => prev.map(node =>
       node.id === nodeId ? { ...node, ...updates } : node
     ));
   }, []);
 
   const deleteNode = useCallback((nodeId: string) => {
     setNodes(prev => prev.filter(node => node.id !== nodeId));
-    setConnections(prev => prev.filter(conn => 
+    setConnections(prev => prev.filter(conn =>
       conn.source !== nodeId && conn.target !== nodeId
     ));
   }, []);
@@ -335,10 +335,10 @@ const useCollaboration = (workflowId: string) => {
   useEffect(() => {
     // WebSocket connection for real-time collaboration
     const ws = new WebSocket(`ws://localhost:8000/api/v1/workflows/${workflowId}/collaborate`);
-    
+
     ws.onopen = () => setIsConnected(true);
     ws.onclose = () => setIsConnected(false);
-    
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.type === 'cursor_update') {
@@ -407,10 +407,10 @@ const TemplateLibrary: React.FC<{
   onSelectTemplate: (template: WorkflowTemplate) => void;
 }> = ({ onSelectTemplate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  
+
   const categories = ['All', ...Array.from(new Set(WorkflowTemplates.map(t => t.category)))];
-  const filteredTemplates = selectedCategory === 'All' 
-    ? WorkflowTemplates 
+  const filteredTemplates = selectedCategory === 'All'
+    ? WorkflowTemplates
     : WorkflowTemplates.filter(t => t.category === selectedCategory);
 
   return (
@@ -427,7 +427,7 @@ const TemplateLibrary: React.FC<{
           </Button>
         ))}
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredTemplates.map(template => (
           <Card key={template.id} className="cursor-pointer hover:shadow-lg transition-shadow">
@@ -487,15 +487,15 @@ const CollaborationPanel: React.FC<{
         <h3 className="text-sm font-semibold">Collaboration</h3>
         <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
       </div>
-      
+
       {collaborators.length === 0 ? (
         <p className="text-xs text-gray-500">No other users online</p>
       ) : (
         <div className="space-y-1">
           {collaborators.map(collaborator => (
             <div key={collaborator.userId} className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
+              <div
+                className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: collaborator.color }}
               />
               <span className="text-xs">{collaborator.userName}</span>
@@ -524,12 +524,12 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
     loadTemplate,
     setSelectedNode
   } = useWorkflowDesigner();
-  
+
   const { collaborators, isConnected, updateCursor } = useCollaboration(workflowId);
-  
+
   const [activeTab, setActiveTab] = useState('designer');
   const [showTemplates, setShowTemplates] = useState(false);
-  
+
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
@@ -541,9 +541,9 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
   const handleAddNodeToCanvas = useCallback((type: keyof typeof NodeTypes) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (rect) {
-      addNode(type, { 
-        x: Math.random() * (rect.width - 200), 
-        y: Math.random() * (rect.height - 100) 
+      addNode(type, {
+        x: Math.random() * (rect.width - 200),
+        y: Math.random() * (rect.height - 100)
       });
     }
   }, [addNode]);
@@ -563,7 +563,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
               {collaborators.length + 1} online
             </Badge>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)}>
               <Plus className="w-4 h-4 mr-1" />
@@ -573,8 +573,8 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
               <Save className="w-4 h-4 mr-1" />
               Save
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={executeWorkflow}
               disabled={isExecuting || nodes.length === 0}
             >
@@ -595,12 +595,12 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
         <div className="w-64 bg-white border-r p-4 space-y-6">
           <NodePalette onAddNode={handleAddNodeToCanvas} />
           <CollaborationPanel collaborators={collaborators} isConnected={isConnected} />
-          
+
           {selectedNode && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold">Properties</h3>
               <div className="space-y-2">
-                <Input 
+                <Input
                   placeholder="Node label"
                   value={nodes.find(n => n.id === selectedNode)?.data.label || ''}
                   onChange={(e) => {
@@ -612,9 +612,9 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                     }
                   }}
                 />
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
+                <Button
+                  variant="destructive"
+                  size="sm"
                   className="w-full"
                   onClick={() => {
                     deleteNode(selectedNode);
@@ -638,13 +638,13 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
             </TabsList>
 
             <TabsContent value="designer" className="flex-1 mt-4">
-              <div 
+              <div
                 ref={canvasRef}
                 className="relative h-full bg-gray-100 mx-6 mb-6 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden"
                 onClick={handleCanvasClick}
               >
                 {/* Grid Background */}
-                <div 
+                <div
                   className="absolute inset-0 opacity-20"
                   style={{
                     backgroundImage: `
@@ -654,7 +654,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                     backgroundSize: '20px 20px'
                   }}
                 />
-                
+
                 {/* Nodes */}
                 {nodes.map(node => (
                   <NodeComponent
@@ -665,7 +665,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                     onUpdate={(updates) => updateNode(node.id, updates)}
                   />
                 ))}
-                
+
                 {/* Collaboration Cursors */}
                 {collaborators.map(collaborator => (
                   <div
@@ -678,7 +678,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                     }}
                   >
                     <div className="flex items-center gap-1">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: collaborator.color }}
                       />
@@ -688,7 +688,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Empty State */}
                 {nodes.length === 0 && (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -777,7 +777,7 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
                 Close
               </Button>
             </div>
-            <TemplateLibrary 
+            <TemplateLibrary
               onSelectTemplate={(template) => {
                 loadTemplate(template);
                 setShowTemplates(false);
@@ -791,4 +791,3 @@ const EnhancedRetoolWorkflowDesigner: React.FC = () => {
 };
 
 export default EnhancedRetoolWorkflowDesigner;
-

@@ -8,12 +8,12 @@ from pathlib import Path
 
 def fix_docstring_content(content: str) -> str:
     """Fix the content of a docstring.
-    
-    Args:
-        content: The docstring content (without quotes)
-        
-    Returns:
-        The fixed content
+
+        Args:
+            content: The docstring content (without quotes)
+
+        Returns:
+            The fixed content
     """
     if not content:
         return content
@@ -57,12 +57,12 @@ def fix_docstring_content(content: str) -> str:
 
 def process_file(filepath: Path) -> bool:
     """Process a single Python file to fix docstrings.
-    
-    Args:
-        filepath: Path to the file to process
-        
-    Returns:
-        True if changes were made, False otherwise
+
+        Args:
+            filepath: Path to the file to process
+
+        Returns:
+            True if changes were made, False otherwise
     """
     try:
         with open(filepath, 'r', encoding='utf-8') as f:

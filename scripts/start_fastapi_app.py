@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start the FastAPI application"""
+"""Start the FastAPI application."""
 
 import logging
 import os

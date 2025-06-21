@@ -21,3 +21,8 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+export const fetchAgnoPerformanceMetrics = async () => {
+  const response = await apiClient.get('/metrics/agno-performance');
+  return response.data;
+};

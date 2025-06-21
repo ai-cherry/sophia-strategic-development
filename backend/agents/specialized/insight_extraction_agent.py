@@ -14,6 +14,7 @@ from backend.agents.core.base_agent import (
 )
 from backend.integrations.gong.gong_integration import GongIntegration
 from backend.integrations.portkey_client import PortkeyClient
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +45,22 @@ class ProactiveInsight:
 
 
 class InsightExtractionAgent(BaseAgent):
-    """Analyzes Gong transcripts and other data sources to proactively extract
-    insights that should be added to the knowledge base.
-    """
+    """Analyzes Gong transcripts and other data sources to proactively extract insights for the knowledge base. Integrated with AgnoPerformanceOptimizer."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.gong_integration = GongIntegration()
         self.portkey_client = PortkeyClient()
         self.pending_insights: List[ProactiveInsight] = []
+
+    @classmethod
+    async def pooled(cls, config: AgentConfig) -> 'InsightExtractionAgent':
+        """Get a pooled or new instance using AgnoPerformanceOptimizer."""
+        optimizer = AgnoPerformanceOptimizer()
+        await optimizer.register_agent_class('insight_extraction', cls)
+        agent = await optimizer.get_or_create_agent('insight_extraction', {'config': config})
+        logger.info(f"[AgnoPerformanceOptimizer] Provided InsightExtractionAgent instance (pooled or new)")
+        return agent
 
     async def get_capabilities(self) -> List[AgentCapability]:
         return [
@@ -87,7 +95,8 @@ class InsightExtractionAgent(BaseAgent):
         ]
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Process insight extraction tasks"""
+        """Process insight extraction tasks."""
+
         if task.task_type == "analyze_transcript_for_insights":
             return await self._analyze_single_transcript(task)
         elif task.task_type == "batch_analyze_recent_calls":
@@ -102,8 +111,9 @@ class InsightExtractionAgent(BaseAgent):
             )
 
     async def _analyze_single_transcript(self, task: Task) -> Dict[str, Any]:
-        """Analyze a single call transcript for insights"""
+        """Analyze a single call transcript for insights."""
         call_id = task.task_data.get("call_id")
+
         if not call_id:
             return await create_agent_response(False, error="call_id is required")
 
@@ -146,8 +156,7 @@ class InsightExtractionAgent(BaseAgent):
     async def _extract_insights_with_llm(
         self, transcript_text: str, call_details: Dict[str, Any], call_id: str
     ) -> List[ProactiveInsight]:
-        """Use LLM to extract insights from transcript"""
-        # Prepare the prompt
+        """Use LLM to extract insights from transcript."""
         prompt = f"""
         Analyze this sales call transcript and identify any novel information that should be added to our knowledge base.
         Focus on:
@@ -170,51 +179,50 @@ class InsightExtractionAgent(BaseAgent):
         {transcript_text[:8000]}  # Limit to avoid token limits
 
         Return the results as a JSON array. If no insights found, return empty array.
-        """
+        """try:
 
-        try:
-            response = await self.portkey_client.llm_call(
-                prompt=prompt, model="claude-3-5-sonnet-20241022", temperature=0.3
-            )
+                            response = await self.portkey_client.llm_call(
+                                prompt=prompt, model="claude-3-5-sonnet-20241022", temperature=0.3
+                            )
 
-            # Parse the response
-            response_content = (
-                response.get("choices", [{}])[0].get("message", {}).get("content", "[]")
-            )
-            insights_data = json.loads(response_content)
+                            # Parse the response
+                            response_content = (
+                                response.get("choices", [{}])[0].get("message", {}).get("content", "[]")
+                            )
+                            insights_data = json.loads(response_content)
 
-            # Convert to ProactiveInsight objects
-            insights = []
-            for idx, insight_data in enumerate(insights_data):
-                insight = ProactiveInsight(
-                    id=f"insight_{call_id}_{idx}_{datetime.now().timestamp()}",
-                    type=InsightType(insight_data.get("type", "use_case")),
-                    source=f"Gong Call - {call_details.get('title', 'Unknown')}",
-                    source_url=call_details.get(
-                        "url", f"https://app.gong.io/call/{call_id}"
-                    ),
-                    insight=insight_data.get("insight", ""),
-                    question=insight_data.get(
-                        "question", "Should I add this to the knowledge base?"
-                    ),
-                    context=insight_data.get("context", ""),
-                    confidence=float(insight_data.get("confidence", 0.7)),
-                    timestamp=datetime.now(),
-                    metadata={
-                        "call_id": call_id,
-                        "participants": call_details.get("participants", []),
-                    },
-                )
-                insights.append(insight)
+                            # Convert to ProactiveInsight objects
+                            insights = []
+                            for idx, insight_data in enumerate(insights_data):
+                                insight = ProactiveInsight(
+                                    id=f"insight_{call_id}_{idx}_{datetime.now().timestamp()}",
+                                    type=InsightType(insight_data.get("type", "use_case")),
+                                    source=f"Gong Call - {call_details.get('title', 'Unknown')}",
+                                    source_url=call_details.get(
+                                        "url", f"https://app.gong.io/call/{call_id}"
+                                    ),
+                                    insight=insight_data.get("insight", ""),
+                                    question=insight_data.get(
+                                        "question", "Should I add this to the knowledge base?"
+                                    ),
+                                    context=insight_data.get("context", ""),
+                                    confidence=float(insight_data.get("confidence", 0.7)),
+                                    timestamp=datetime.now(),
+                                    metadata={
+                                        "call_id": call_id,
+                                        "participants": call_details.get("participants", []),
+                                    },
+                                )
+                                insights.append(insight)
 
-            return insights
+                            return insights
 
-        except Exception as e:
-            logger.error(f"Error extracting insights with LLM: {e}")
-            return []
+                        except Exception as e:
+                            logger.error(f"Error extracting insights with LLM: {e}")
+                            return []
 
-    async def _batch_analyze_calls(self, task: Task) -> Dict[str, Any]:
-        """Analyze recent calls in batch"""
+                    async def _batch_analyze_calls(self, task: Task) -> Dict[str, Any]:
+        """Analyze recent calls in batch."""
         hours_back = task.task_data.get("hours_back", 24)
 
         try:
@@ -271,7 +279,7 @@ class InsightExtractionAgent(BaseAgent):
             return await create_agent_response(False, error=str(e))
 
     async def _get_pending_insights(self) -> Dict[str, Any]:
-        """Get all pending insights"""
+        """Get all pending insights."""
         pending = [i for i in self.pending_insights if i.status == "pending"]
 
         return await create_agent_response(
@@ -283,8 +291,9 @@ class InsightExtractionAgent(BaseAgent):
         )
 
     async def _update_insight_status(self, task: Task) -> Dict[str, Any]:
-        """Update the status of an insight"""
+        """Update the status of an insight."""
         insight_id = task.task_data.get("insight_id")
+
         new_status = task.task_data.get("status")
         edited_content = task.task_data.get("edited_content")
 
@@ -319,7 +328,7 @@ class InsightExtractionAgent(BaseAgent):
         )
 
     def _insight_to_dict(self, insight: ProactiveInsight) -> Dict[str, Any]:
-        """Convert insight to dictionary for serialization"""
+        """Convert insight to dictionary for serialization."""
         return {
             "id": insight.id,
             "type": insight.type.value,

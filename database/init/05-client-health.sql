@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS CLIENT_HEALTH_SCORES (
     positive_factors JSONB,
     risk_factors JSONB,
     calculation_timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (client_entity_id) REFERENCES ENTITIES(entity_id)
 );
 
@@ -18,4 +18,4 @@ COMMENT ON TABLE CLIENT_HEALTH_SCORES IS 'Stores a historical record of calculat
 COMMENT ON COLUMN CLIENT_HEALTH_SCORES.score IS 'The calculated health score, typically from 0 to 100.';
 COMMENT ON COLUMN CLIENT_HEALTH_SCORES.trend IS 'The trend of the health score, e.g., "improving", "stable", "declining".';
 COMMENT ON COLUMN CLIENT_HEALTH_SCORES.positive_factors IS 'A JSON object detailing the factors that contributed positively to the score.';
-COMMENT ON COLUMN CLIENT_HEALTH_SCORES.risk_factors IS 'A JSON object detailing the factors that contributed negatively to the score.'; 
+COMMENT ON COLUMN CLIENT_HEALTH_SCORES.risk_factors IS 'A JSON object detailing the factors that contributed negatively to the score.';

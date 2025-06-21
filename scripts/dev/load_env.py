@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load environment variables from .env file"""
+"""Load environment variables from .env file."""
 
 import os
 import sys
@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def load_env_file(env_file=".env"):
-    """Load environment variables from .env file"""
+    """Load environment variables from .env file."""
     env_path = Path(env_file)
     if not env_path.exists():
         print(f"Error: {env_file} not found")

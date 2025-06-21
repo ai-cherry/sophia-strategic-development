@@ -23,7 +23,7 @@ jobs:
 
       - name: Run tests
         run: pytest
-        
+
       - name: Run LlamaIndex integration test
         run: ./scripts/run_llamaindex_integration_test.sh
         env:

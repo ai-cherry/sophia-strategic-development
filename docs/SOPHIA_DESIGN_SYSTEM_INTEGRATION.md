@@ -41,9 +41,9 @@ const metrics = await api.getCompanyMetrics();
 const insights = await api.getAIInsights();
 
 // Search property units
-const units = await api.searchUnits({ 
-  bedrooms: 2, 
-  maxRent: 3000 
+const units = await api.searchUnits({
+  bedrooms: 2,
+  maxRent: 3000
 });
 ```
 
@@ -144,7 +144,7 @@ const PropertyDashboard = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
@@ -275,14 +275,14 @@ import MetricCard from '@/components/design-system/cards/MetricCard';
 
 test('renders metric card with value', () => {
   render(
-    <MetricCard 
-      title="Revenue" 
-      value="$100K" 
-      change="+15%" 
-      trend="up" 
+    <MetricCard
+      title="Revenue"
+      value="$100K"
+      change="+15%"
+      trend="up"
     />
   );
-  
+
   expect(screen.getByText('$100K')).toBeInTheDocument();
   expect(screen.getByText('+15%')).toBeInTheDocument();
 });
@@ -359,4 +359,4 @@ Sentry.init({
 
 The Sophia AI design system provides a cohesive, modern interface that seamlessly integrates with the powerful backend infrastructure. By following these patterns and best practices, you can extend the platform while maintaining consistency and performance.
 
-For questions or contributions, please refer to the main project documentation or contact the development team. 
+For questions or contributions, please refer to the main project documentation or contact the development team.

@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Gong.
-"""
+"""Pulumi ESC Secret Manager for Gong."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

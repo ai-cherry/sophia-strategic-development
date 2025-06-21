@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Claude as Code Integration Test Script
+"""Claude as Code Integration Test Script.
+
 Tests Claude MCP integration functionality with real Anthropic API
 """
 
@@ -18,7 +19,8 @@ from infrastructure.esc.claude_secrets import claude_secret_manager
 
 
 async def test_claude_secret_management():
-    """Test Claude secret management"""
+    """Test Claude secret management."""
+
     print("🔐 Testing Claude Secret Management...")
 
     # Test 1: Setup secrets
@@ -71,8 +73,7 @@ async def test_claude_secret_management():
 
 
 async def test_claude_integration():
-    """Test Claude integration functionality"""
-    print("\n🤖 Testing Claude Integration...")
+    """Test Claude integration functionality."""print("\n🤖 Testing Claude Integration...").
 
     # Test 1: Initialize integration
     print("\n1. Testing Claude integration initialization...")
@@ -128,8 +129,7 @@ async def test_claude_integration():
 
 
 async def test_claude_code_generation():
-    """Test Claude code generation capabilities"""
-    print("\n💻 Testing Claude Code Generation...")
+    """Test Claude code generation capabilities."""print("\n💻 Testing Claude Code Generation...").
 
     # Test 1: Generate Python function
     print("\n1. Testing Python code generation...")
@@ -160,14 +160,14 @@ async def test_claude_code_generation():
     # Test 2: Analyze code
     print("\n2. Testing code analysis...")
     try:
-        test_code = """
-def factorial(n):
+        test_code = """def factorial(n):
+
     if n == 0:
         return 1
     else:
         return n * factorial(n-1)
-"""
-        response = await claude_integration.analyze_code(
+"""response = await claude_integration.analyze_code(.
+
             code=test_code, language="python", analysis_type="review"
         )
         if response:
@@ -186,19 +186,18 @@ def factorial(n):
 
 
 async def test_claude_advanced_features():
-    """Test Claude advanced features"""
-    print("\n🚀 Testing Claude Advanced Features...")
+"""Test Claude advanced features."""print("\n🚀 Testing Claude Advanced Features...").
 
     # Test 1: Generate documentation
     print("\n1. Testing documentation generation...")
     try:
-        test_code = """
-def calculate_fibonacci(n):
+        test_code = """def calculate_fibonacci(n):
+
     if n <= 1:
         return n
     return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
-"""
-        response = await claude_integration.generate_documentation(
+"""response = await claude_integration.generate_documentation(.
+
             code=test_code, language="python", doc_type="api"
         )
         if response:
@@ -216,11 +215,12 @@ def calculate_fibonacci(n):
     # Test 2: Generate tests
     print("\n2. Testing test generation...")
     try:
-        test_code = """
-def add_numbers(a, b):
+        test_code =
+"""def add_numbers(a, b):
+
     return a + b
-"""
-        result = await claude_integration.generate_tests(
+"""result = await claude_integration.generate_tests(.
+
             code=test_code, language="python", test_framework="pytest"
         )
         if result:
@@ -248,8 +248,7 @@ def add_numbers(a, b):
 
 
 async def test_claude_connection():
-    """Test Claude API connection"""
-    print("\n🔗 Testing Claude API Connection...")
+"""Test Claude API connection."""print("\n🔗 Testing Claude API Connection...").
 
     try:
         test_result = await claude_secret_manager.test_claude_connection()
@@ -273,8 +272,7 @@ async def test_claude_connection():
 
 
 def test_mcp_config():
-    """Test MCP configuration"""
-    print("\n⚙️  Testing MCP Configuration...")
+    """Test MCP configuration."""print("\n⚙️  Testing MCP Configuration...").
 
     # Test 1: Check MCP config file
     print("\n1. Testing MCP config file...")
@@ -309,8 +307,7 @@ def test_mcp_config():
 
 
 def test_docker_config():
-    """Test Docker configuration"""
-    print("\n🐳 Testing Docker Configuration...")
+    """Test Docker configuration."""print("\n🐳 Testing Docker Configuration...").
 
     # Test 1: Check Docker Compose file
     print("\n1. Testing Docker Compose configuration...")
@@ -344,7 +341,7 @@ def test_docker_config():
 
 
 async def main():
-    """Main test runner"""
+    """Main test runner."""
     print("🚀 Claude as Code Integration Test Suite")
     print("=" * 60)
 

@@ -1,4 +1,5 @@
-"""Hugging Face MCP Server Integration for Sophia AI
+"""Hugging Face MCP Server Integration for Sophia AI.
+
 Provides access to HF models, datasets, and community tools
 """
 
@@ -40,8 +41,9 @@ class HFDataset:
 
 
 class HuggingFaceMCPServer:
-    """Hugging Face MCP Server integration for Sophia AI
-    Provides access to models, datasets, and semantic search capabilities
+    """Hugging Face MCP Server integration for Sophia AI.
+
+            Provides access to models, datasets, and semantic search capabilities
     """
 
     def __init__(self, api_token: str):
@@ -55,7 +57,8 @@ class HuggingFaceMCPServer:
     async def search_models(
         self, query: str, limit: int = 10, filter_tags: Optional[List[str]] = None
     ) -> List[HFModel]:
-        """Search for models on Hugging Face Hub"""
+        """Search for models on Hugging Face Hub."""
+
         try:
             params = {
                 "search": query,
@@ -98,8 +101,8 @@ class HuggingFaceMCPServer:
     async def search_datasets(
         self, query: str, limit: int = 10, task_categories: Optional[List[str]] = None
     ) -> List[HFDataset]:
-        """Search for datasets on Hugging Face Hub"""
-        try:
+        """Search for datasets on Hugging Face Hub."""try:.
+
             params = {
                 "search": query,
                 "limit": limit,
@@ -140,8 +143,8 @@ class HuggingFaceMCPServer:
     async def semantic_search_papers(
         self, query: str, limit: int = 10
     ) -> List[Dict[str, Any]]:
-        """Perform semantic search on research papers"""
-        try:
+        """Perform semantic search on research papers."""try:.
+
             # This would use HF's semantic search API for papers
             # For now, we'll simulate the response structure
             papers = [
@@ -166,8 +169,8 @@ class HuggingFaceMCPServer:
             return []
 
     async def get_model_info(self, model_id: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific model"""
-        try:
+        """Get detailed information about a specific model."""try:.
+
             response = requests.get(
                 f"{self.base_url}/models/{model_id}", headers=self.headers
             )
@@ -199,8 +202,8 @@ class HuggingFaceMCPServer:
             return None
 
     async def get_dataset_info(self, dataset_id: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific dataset"""
-        try:
+        """Get detailed information about a specific dataset."""try:.
+
             response = requests.get(
                 f"{self.base_url}/datasets/{dataset_id}", headers=self.headers
             )
@@ -233,8 +236,8 @@ class HuggingFaceMCPServer:
     async def list_spaces(
         self, query: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, Any]]:
-        """List Hugging Face Spaces (Gradio apps)"""
-        try:
+        """List Hugging Face Spaces (Gradio apps)."""try:.
+
             params = {"limit": limit, "sort": "likes", "direction": -1}
 
             if query:
@@ -272,8 +275,8 @@ class HuggingFaceMCPServer:
     async def recommend_models_for_task(
         self, task: str, business_context: str = ""
     ) -> List[HFModel]:
-        """Recommend models based on business task and context"""
-        try:
+        """Recommend models based on business task and context."""try:.
+
             # Map business tasks to HF pipeline tags
             task_mapping = {
                 "text_analysis": ["text-classification", "sentiment-analysis"],
@@ -316,9 +319,8 @@ class HuggingFaceMCPServer:
 
 
 class SophiaHFIntegration:
-    """Integration layer between Sophia AI and Hugging Face MCP Server"""
+    """Integration layer between Sophia AI and Hugging Face MCP Server."""def __init__(self, hf_api_token: str):.
 
-    def __init__(self, hf_api_token: str):
         self.hf_server = HuggingFaceMCPServer(hf_api_token)
         self.integration_config = {
             "business_tasks": {
@@ -334,8 +336,8 @@ class SophiaHFIntegration:
     async def enhance_knowledge_base_with_models(
         self, business_domain: str
     ) -> Dict[str, Any]:
-        """Enhance Sophia's knowledge base with relevant HF models"""
-        try:
+        """Enhance Sophia's knowledge base with relevant HF models."""try:.
+
             # Get business-relevant models
             task = self.integration_config["business_tasks"].get(
                 business_domain, "text_analysis"
@@ -388,8 +390,7 @@ class SophiaHFIntegration:
             return {}
 
     async def get_model_recommendations_for_sophia(self) -> Dict[str, List[HFModel]]:
-        """Get model recommendations specifically for Sophia AI capabilities"""
-        recommendations = {}
+        """Get model recommendations specifically for Sophia AI capabilities."""recommendations = {}.
 
         sophia_capabilities = [
             "revenue_analysis",
@@ -422,8 +423,8 @@ sophia_hf = SophiaHFIntegration(HF_API_TOKEN) if HF_API_TOKEN else None
 
 @hf_mcp_bp.route("/search/models")
 async def search_models():
-    """Search for models on Hugging Face Hub"""
-    if not sophia_hf:
+    """Search for models on Hugging Face Hub."""if not sophia_hf:.
+
         return jsonify({"error": "HF API token not configured"}), 500
 
     query = request.args.get("query", "")
@@ -454,8 +455,8 @@ async def search_models():
 
 @hf_mcp_bp.route("/search/datasets")
 async def search_datasets():
-    """Search for datasets on Hugging Face Hub"""
-    if not sophia_hf:
+    """Search for datasets on Hugging Face Hub."""if not sophia_hf:.
+
         return jsonify({"error": "HF API token not configured"}), 500
 
     query = request.args.get("query", "")
@@ -483,8 +484,8 @@ async def search_datasets():
 
 @hf_mcp_bp.route("/recommendations")
 async def get_recommendations():
-    """Get model recommendations for Sophia AI"""
-    if not sophia_hf:
+    """Get model recommendations for Sophia AI."""if not sophia_hf:.
+
         return jsonify({"error": "HF API token not configured"}), 500
 
     recommendations = await sophia_hf.get_model_recommendations_for_sophia()
@@ -493,8 +494,8 @@ async def get_recommendations():
 
 @hf_mcp_bp.route("/enhance/<domain>")
 async def enhance_domain(domain):
-    """Enhance knowledge base for specific business domain"""
-    if not sophia_hf:
+    """Enhance knowledge base for specific business domain."""if not sophia_hf:.
+
         return jsonify({"error": "HF API token not configured"}), 500
 
     enhancement_data = await sophia_hf.enhance_knowledge_base_with_models(domain)
@@ -503,7 +504,7 @@ async def enhance_domain(domain):
 
 # Example usage
 async def main():
-    """Example usage of HF MCP integration"""
+    """Example usage of HF MCP integration."""
     api_token = os.getenv("HUGGINGFACE_API_TOKEN", "your_token_here")
     sophia_hf = SophiaHFIntegration(api_token)
 

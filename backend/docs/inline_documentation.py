@@ -1,4 +1,5 @@
-"""Inline Documentation System for Sophia AI
+"""Inline Documentation System for Sophia AI.
+
 Provides real-time help and examples within Cursor IDE
 """
 
@@ -8,7 +9,7 @@ from typing import Dict, List, Optional, Tuple
 
 @dataclass
 class CommandExample:
-    """Example of a command with expected output"""
+    """Example of a command with expected output."""
 
     command: str
     description: str
@@ -18,9 +19,8 @@ class CommandExample:
 
 @dataclass
 class AgentDocumentation:
-    """Documentation for an agent"""
+    """Documentation for an agent."""name: str.
 
-    name: str
     description: str
     capabilities: List[str]
     command_patterns: List[str]
@@ -30,16 +30,15 @@ class AgentDocumentation:
 
 
 class InlineDocumentationSystem:
-    """Provides context-aware documentation and help within Cursor IDE"""
+    """Provides context-aware documentation and help within Cursor IDE."""def __init__(self):.
 
-    def __init__(self):
         self.agent_docs = self._initialize_agent_documentation()
         self.workflow_docs = self._initialize_workflow_documentation()
         self.quick_reference = self._initialize_quick_reference()
 
     def _initialize_agent_documentation(self) -> Dict[str, AgentDocumentation]:
-        """Initialize documentation for all agents"""
-        return {
+        """Initialize documentation for all agents."""return {.
+
             "docker_agent": AgentDocumentation(
                 name="Docker Agent",
                 description="Manages Docker containers, images, and development environments",
@@ -211,8 +210,8 @@ class InlineDocumentationSystem:
         }
 
     def _initialize_workflow_documentation(self) -> Dict[str, Dict[str, Any]]:
-        """Initialize documentation for workflows"""
-        return {
+        """Initialize documentation for workflows."""return {.
+
             "deployment": {
                 "name": "Deployment Workflow",
                 "description": "Complete deployment pipeline from build to production",
@@ -246,8 +245,8 @@ class InlineDocumentationSystem:
         }
 
     def _initialize_quick_reference(self) -> Dict[str, List[str]]:
-        """Initialize quick reference commands"""
-        return {
+        """Initialize quick reference commands."""return {.
+
             "docker": [
                 "build [image] from [dockerfile]",
                 "run [container] from [image]",
@@ -278,8 +277,7 @@ class InlineDocumentationSystem:
         }
 
     def get_help(self, query: str) -> Dict[str, Any]:
-        """Get context-aware help based on query"""
-        query_lower = query.lower()
+        """Get context-aware help based on query."""query_lower = query.lower().
 
         # Determine which agent or topic
         if any(word in query_lower for word in ["docker", "container", "image"]):
@@ -324,16 +322,16 @@ class InlineDocumentationSystem:
         }
 
     def _find_relevant_commands(self, query: str, patterns: List[str]) -> List[str]:
-        """Find command patterns relevant to query"""
-        relevant = []
+        """Find command patterns relevant to query."""relevant = [].
+
         for pattern in patterns:
             if any(word in pattern.lower() for word in query.split()):
                 relevant.append(pattern)
         return relevant[:5]
 
     def _get_general_help(self) -> Dict[str, Any]:
-        """Get general help information"""
-        return {
+        """Get general help information."""return {.
+
             "title": "Sophia AI Help",
             "description": "Natural language interface for development operations",
             "available_agents": [
@@ -354,8 +352,8 @@ class InlineDocumentationSystem:
         }
 
     def get_inline_suggestion(self, partial_command: str) -> List[Dict[str, str]]:
-        """Get inline suggestions based on partial command"""
-        suggestions = []
+        """Get inline suggestions based on partial command."""suggestions = [].
+
         partial_lower = partial_command.lower()
 
         # Check all command patterns
@@ -385,8 +383,7 @@ class InlineDocumentationSystem:
         return suggestions[:5]  # Return top 5 suggestions
 
     def get_error_help(self, error_message: str) -> Optional[Dict[str, Any]]:
-        """Get help for specific error messages"""
-        error_lower = error_message.lower()
+        """Get help for specific error messages."""error_lower = error_message.lower().
 
         for agent_name, doc in self.agent_docs.items():
             for error, solution in doc.common_errors:
@@ -403,8 +400,7 @@ class InlineDocumentationSystem:
         return None
 
     def format_for_cursor(self, help_data: Dict[str, Any]) -> str:
-        """Format help data for display in Cursor IDE"""
-        lines = []
+        """Format help data for display in Cursor IDE."""lines = [].
 
         if "agent" in help_data:
             lines.append(f"## {help_data['agent']}")
@@ -439,19 +435,19 @@ inline_docs = InlineDocumentationSystem()
 
 # Helper functions for Cursor integration
 def get_help(query: str) -> str:
-    """Get formatted help for a query"""
-    help_data = inline_docs.get_help(query)
+    """Get formatted help for a query."""help_data = inline_docs.get_help(query).
+
     return inline_docs.format_for_cursor(help_data)
 
 
 def suggest_completions(partial: str) -> List[str]:
-    """Get command completions"""
-    suggestions = inline_docs.get_inline_suggestion(partial)
+    """Get command completions."""suggestions = inline_docs.get_inline_suggestion(partial).
+
     return [s["completion"] for s in suggestions]
 
 
 def help_with_error(error: str) -> Optional[str]:
-    """Get help for an error"""
+    """Get help for an error."""
     error_help = inline_docs.get_error_help(error)
     if error_help:
         return f"Error: {error_help['error']}\nSolution: {error_help['solution']}"

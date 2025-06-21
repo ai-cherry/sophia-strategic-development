@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Simple check for Lambda Labs connectivity."""
+
 import os
+
 import requests
+
 
 def main() -> None:
     api_key = os.getenv("LAMBDA_LABS_API_KEY")
@@ -16,6 +19,7 @@ def main() -> None:
             print(f"❌ Lambda Labs API returned {resp.status_code}")
     except Exception as exc:
         print(f"❌ Lambda Labs API check failed: {exc}")
+
 
 if __name__ == "__main__":
     main()

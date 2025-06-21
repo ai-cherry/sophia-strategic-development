@@ -1,4 +1,5 @@
-"""Knowledge Base Management API for Sophia AI
+"""Knowledge Base Management API for Sophia AI.
+
 RESTful endpoints for managing Pay Ready company knowledge
 """
 
@@ -38,16 +39,16 @@ except Exception as e:
 @knowledge_bp.route("/search", methods=["POST"])
 @jwt_required()
 def search_knowledge():
-    """Search the knowledge base using semantic similarity
+    """Search the knowledge base using semantic similarity.
 
-    POST /api/knowledge/search
-    {
-        "query": "What is Pay Ready's mission?",
-        "content_types": ["company_core", "data_dictionary"],
-        "limit": 10
-    }
-    """
-    try:
+            POST /api/knowledge/search
+            {
+                "query": "What is Pay Ready's mission?",
+                "content_types": ["company_core", "data_dictionary"],
+                "limit": 10
+            }
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -86,11 +87,11 @@ def search_knowledge():
 @knowledge_bp.route("/documents", methods=["GET"])
 @jwt_required()
 def list_documents():
-    """List all documents in the knowledge base
+    """List all documents in the knowledge base.
 
-    GET /api/knowledge/documents?content_type=company_core&status=published&limit=50
-    """
-    try:
+            GET /api/knowledge/documents?content_type=company_core&status=published&limit=50
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -123,11 +124,11 @@ def list_documents():
 @knowledge_bp.route("/documents/<document_id>", methods=["GET"])
 @jwt_required()
 def get_document(document_id: str):
-    """Get a specific document by ID
+    """Get a specific document by ID.
 
-    GET /api/knowledge/documents/company_mission
-    """
-    try:
+            GET /api/knowledge/documents/company_mission
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -146,18 +147,18 @@ def get_document(document_id: str):
 @knowledge_bp.route("/documents", methods=["POST"])
 @jwt_required()
 def create_document():
-    """Create a new document in the knowledge base
+    """Create a new document in the knowledge base.
 
-    POST /api/knowledge/documents
-    {
-        "title": "New Company Policy",
-        "content": "Policy content here...",
-        "content_type": "operations",
-        "tags": ["policy", "operations"],
-        "metadata": {"department": "HR"}
-    }
-    """
-    try:
+            POST /api/knowledge/documents
+            {
+                "title": "New Company Policy",
+                "content": "Policy content here...",
+                "content_type": "operations",
+                "tags": ["policy", "operations"],
+                "metadata": {"department": "HR"}
+            }
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -213,16 +214,16 @@ def create_document():
 @knowledge_bp.route("/documents/<document_id>", methods=["PUT"])
 @jwt_required()
 def update_document(document_id: str):
-    """Update an existing document
+    """Update an existing document.
 
-    PUT /api/knowledge/documents/company_mission
-    {
-        "title": "Updated Mission Statement",
-        "content": "Updated content...",
-        "status": "published"
-    }
-    """
-    try:
+            PUT /api/knowledge/documents/company_mission
+            {
+                "title": "Updated Mission Statement",
+                "content": "Updated content...",
+                "status": "published"
+            }
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -272,22 +273,22 @@ def update_document(document_id: str):
 @knowledge_bp.route("/bulk-import", methods=["POST"])
 @jwt_required()
 def bulk_import():
-    """Bulk import documents from JSON
+    """Bulk import documents from JSON.
 
-    POST /api/knowledge/bulk-import
-    {
-        "documents": [
+            POST /api/knowledge/bulk-import
             {
-                "title": "Document 1",
-                "content": "Content 1",
-                "content_type": "company_core",
-                "tags": ["tag1"]
-            },
-            ...
-        ]
-    }
-    """
-    try:
+                "documents": [
+                    {
+                        "title": "Document 1",
+                        "content": "Content 1",
+                        "content_type": "company_core",
+                        "tags": ["tag1"]
+                    },
+                    ...
+                ]
+            }
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -315,11 +316,11 @@ def bulk_import():
 @knowledge_bp.route("/statistics", methods=["GET"])
 @jwt_required()
 def get_statistics():
-    """Get knowledge base statistics
+    """Get knowledge base statistics.
 
-    GET /api/knowledge/statistics
-    """
-    try:
+            GET /api/knowledge/statistics
+    """try:
+
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
 
@@ -340,11 +341,11 @@ def get_statistics():
 
 @knowledge_bp.route("/content-types", methods=["GET"])
 def get_content_types():
-    """Get available content types
+    """Get available content types.
 
-    GET /api/knowledge/content-types
-    """
-    return jsonify(
+            GET /api/knowledge/content-types
+    """return jsonify(
+
         {
             "content_types": [
                 {
@@ -359,7 +360,8 @@ def get_content_types():
 
 
 def _get_content_type_description(content_type: ContentType) -> str:
-    """Get human-readable description for content types"""
+    """Get human-readable description for content types."""
+
     descriptions = {
         ContentType.COMPANY_CORE: "Mission, vision, values, and organizational information",
         ContentType.PRODUCTS_SERVICES: "Product descriptions, features, and service offerings",
@@ -378,7 +380,7 @@ def _get_content_type_description(content_type: ContentType) -> str:
 # Health check endpoint
 @knowledge_bp.route("/health", methods=["GET"])
 def health_check():
-    """Knowledge base health check"""
+    """Knowledge base health check."""
     try:
         if not knowledge_base:
             return (

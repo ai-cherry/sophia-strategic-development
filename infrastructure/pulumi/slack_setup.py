@@ -7,11 +7,9 @@ from infrastructure.esc.slack_secrets import slack_secret_manager
 
 
 class SlackChannelProvider(pulumi.dynamic.ResourceProvider):
-    """A dynamic provider to manage a Slack channel via the REST API."""
+    """A dynamic provider to manage a Slack channel via the REST API."""def create(self, props):.
 
-    def create(self, props):
-        """Creates a new Slack channel."""
-        token = props["token"]
+        """Creates a new Slack channel."""token = props["token"].
         channel_name = props["name"]
 
         response = requests.post(
@@ -31,8 +29,8 @@ class SlackChannelProvider(pulumi.dynamic.ResourceProvider):
         )
 
     def delete(self, id, props):
-        """Archives a Slack channel."""
-        token = props["token"]
+        """Archives a Slack channel."""token = props["token"].
+
         requests.post(
             "https://slack.com/api/conversations.archive",
             headers={"Authorization": f"Bearer {token}"},

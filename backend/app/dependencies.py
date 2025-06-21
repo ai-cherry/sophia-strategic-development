@@ -1,4 +1,5 @@
 """Simple dependencies module for backend app.
+
 Provides basic dependency injection for FastAPI.
 """
 
@@ -18,8 +19,8 @@ class RateLimiter:
         self.requests = {}
 
     def is_allowed(self, key: str) -> bool:
-        """Check if request is allowed."""
-        now = time.time()
+        """Check if request is allowed."""now = time.time().
+
         window_start = now - self.window_seconds
 
         # Clean old requests
@@ -39,13 +40,11 @@ class RateLimiter:
 
 
 async def get_current_user() -> Dict[str, Any]:
-    """Get current user (placeholder)."""
-    return {"user_id": "admin", "role": "admin", "name": "Admin User"}
+    """Get current user (placeholder)."""return {"user_id": "admin", "role": "admin", "name": "Admin User"}.
 
 
 async def get_database():
-    """Get database connection (placeholder)."""
-    return None
+    """Get database connection (placeholder)."""return None.
 
 
 async def get_redis():

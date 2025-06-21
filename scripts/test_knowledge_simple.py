@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simple demonstration of the Knowledge Ingestion and Curation System
+"""Simple demonstration of the Knowledge Ingestion and Curation System.
+
 Shows the workflow without requiring all backend dependencies
 """
 
@@ -21,7 +22,7 @@ class MockInsight:
 
 
 def demonstrate_workflow():
-    """Demonstrate the complete knowledge ingestion workflow"""
+    """Demonstrate the complete knowledge ingestion workflow."""
     print("=" * 70)
     print("SOPHIA AI - KNOWLEDGE INGESTION & CURATION SYSTEM DEMONSTRATION")
     print("=" * 70)

@@ -45,8 +45,8 @@ class MultiDatabaseManager:
     # Query routing
     # ------------------------------------------------------------------
     async def query(self, text: str) -> List[Dict[str, Any]]:
-        """Route query to vector DBs and Postgres."""
-        results = []
+        """Route query to vector DBs and Postgres."""results = [].
+
         try:
             vec = await self._vector_search(text)
             results.extend(vec)

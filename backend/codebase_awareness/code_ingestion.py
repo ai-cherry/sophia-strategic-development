@@ -1,4 +1,5 @@
-"""Ingestion Pipeline for the Codebase Awareness System
+"""Ingestion Pipeline for the Codebase Awareness System.
+
 Scans the codebase, applies the appropriate architectural parsers,
 and prepares the structured data for vectorization and storage.
 """
@@ -19,8 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 class CodebaseIngestionPipeline:
-    """Orchestrates the process of scanning and ingesting the entire codebase
-    to build the architectural awareness knowledge base.
+    """Orchestrates the process of scanning and ingesting the entire codebase.
+
+            to build the architectural awareness knowledge base.
     """
 
     def __init__(
@@ -37,12 +39,13 @@ class CodebaseIngestionPipeline:
         self.parser = ArchitectureParser()
 
     def scan_and_parse_project(self) -> List[Dict[str, Any]]:
-        """Scans the entire project directory and uses the specialized parsers
-        to extract structured architectural information.
+        """Scans the entire project directory and uses the specialized parsers.
 
-        Returns:
-            A flat list of all discovered architectural items (functions, classes,
-            API endpoints, MCP tools, DB tables).
+                        to extract structured architectural information.
+
+                        Returns:
+                            A flat list of all discovered architectural items (functions, classes,
+                            API endpoints, MCP tools, DB tables).
         """
         all_items = []
 
@@ -89,6 +92,7 @@ class CodebaseIngestionPipeline:
 
     async def ingest_codebase(self):
         """Performs a full scan and ingestion of the project codebase."""
+
         logger.info("Starting full codebase ingestion...")
 
         architectural_items = self.scan_and_parse_project()
@@ -118,9 +122,10 @@ class CodebaseIngestionPipeline:
 
     def _create_embedding_content(self, item: Dict[str, Any]) -> str:
         """Creates a single string from a structured item to be used for embedding.
-        This string should contain all the semantically important information.
-        """
-        item_type = item.get("type")
+
+                        This string should contain all the semantically important information.
+        """item_type = item.get("type").
+
         if item_type == "python_function":
             return f"Function Name: {item.get('name')}\nDocstring: {item.get('docstring')}\nCode:\n{item.get('code')}"
         elif item_type == "python_class":
@@ -137,8 +142,8 @@ class CodebaseIngestionPipeline:
             return str(item)
 
     def _should_ignore(self, path: Path) -> bool:
-        """Determines if a file or directory should be ignored during scanning."""
-        ignored_dirs = ["__pycache__", ".git", "node_modules", "venv", "sophia_venv"]
+        """Determines if a file or directory should be ignored during scanning."""ignored_dirs = ["__pycache__", ".git", "node_modules", "venv", "sophia_venv"].
+
         ignored_parts = set(path.parts).intersection(ignored_dirs)
         return bool(ignored_parts)
 

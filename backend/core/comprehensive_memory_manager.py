@@ -1,9 +1,11 @@
-"""Comprehensive Memory Management System
-Orchestrates memory components for optimal performance.
-This is a simplified version focusing on a robust two-tiered memory system.
+"""Comprehensive Memory Management System.
+
+Orchestrates memory components for optimal performance
+This is a simplified version focusing on a robust two-tiered memory system
 """
 
 import logging
+
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -17,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class MemoryOperationType(Enum):
-    """Types of memory operations"""
+    """Types of memory operations."""
 
     STORE = "store"
     RETRIEVE = "retrieve"
@@ -28,9 +30,9 @@ class MemoryOperationType(Enum):
 
 @dataclass
 class MemoryRequest:
-    """Memory operation request"""
-
+    """Memory operation request."""
     operation: MemoryOperationType
+
     agent_id: str
     user_role: str = "default"
     content: Optional[str] = None
@@ -41,9 +43,9 @@ class MemoryRequest:
 
 @dataclass
 class MemoryResponse:
-    """Memory operation response"""
+    """Memory operation response."""
+success: bool
 
-    success: bool
     operation: MemoryOperationType
     data: Any
     processing_time: float
@@ -52,8 +54,8 @@ class MemoryResponse:
 
 class ComprehensiveMemoryManager:
     """Manages a two-tiered memory system: a Vector Store and a Persistent KV Store."""
+def __init__(self):
 
-    def __init__(self):
         self.logger = logging.getLogger(__name__)
 
         # Core components
@@ -64,8 +66,9 @@ class ComprehensiveMemoryManager:
         self.initialized = False
 
     async def initialize(self):
-        """Initialize all memory components"""
+        """Initialize all memory components."""
         if self.initialized:
+
             return
 
         self.logger.info("Initializing comprehensive memory manager...")
@@ -75,9 +78,12 @@ class ComprehensiveMemoryManager:
         self.logger.info("Comprehensive memory manager initialized successfully")
 
     async def process_memory_request(self, request: MemoryRequest) -> MemoryResponse:
-        """Process a memory operation request"""
-        start_time = datetime.now()
+        """Process a memory operation request."""
+    start_time = datetime.now()
+
         try:
+        except Exception:
+            pass
             handler_map = {
                 MemoryOperationType.STORE: self._handle_store_request,
                 MemoryOperationType.RETRIEVE: self._handle_retrieve_request,

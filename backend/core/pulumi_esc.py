@@ -1,4 +1,4 @@
-"""Sophia AI - Enhanced Pulumi ESC Client (LEGACY)
+"""Sophia AI - Enhanced Pulumi ESC Client (LEGACY).
 
 🔐 IMPORTANT: This file is now LEGACY - Use backend/core/auto_esc_config.py instead!
 
@@ -9,9 +9,8 @@ For new code, use:
 from backend.core.auto_esc_config import config
 
 Client for interacting with Pulumi ESC API with improved error handling and security
-"""
+"""import asyncio
 
-import asyncio
 import logging
 import os
 import time
@@ -31,7 +30,7 @@ logger.warning(
 
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
-    """Decorator for retrying failed operations"""
+    """Decorator for retrying failed operations."""
 
     def decorator(func):
         @wraps(func)
@@ -54,9 +53,8 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class ESCClient:
-    """Enhanced client for interacting with Pulumi ESC API"""
+    """Enhanced client for interacting with Pulumi ESC API."""def __init__(.
 
-    def __init__(
         self, organization: str = None, project: str = None, stack: str = None
     ):
         self.organization = organization or os.environ.get(
@@ -79,8 +77,8 @@ class ESCClient:
             raise ValueError("PULUMI_ACCESS_TOKEN environment variable is required")
 
     async def _ensure_session(self) -> None:
-        """Ensure aiohttp session is created with proper error handling"""
-        if self.session is None or self.session.closed:
+        """Ensure aiohttp session is created with proper error handling."""if self.session is None or self.session.closed:.
+
             if not self.access_token:
                 raise ValueError("Pulumi access token is required")
 
@@ -95,26 +93,24 @@ class ESCClient:
             )
 
     async def close(self) -> None:
-        """Close the aiohttp session"""
-        if self.session and not self.session.closed:
+        """Close the aiohttp session."""if self.session and not self.session.closed:.
+
             await self.session.close()
             self.session = None
 
     async def __aenter__(self):
-        """Async context manager entry"""
-        await self._ensure_session()
+        """Async context manager entry."""await self._ensure_session().
+
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit"""
-        await self.close()
+        """Async context manager exit."""await self.close().
 
     @retry_on_failure(max_retries=3)
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
     ) -> Optional[Dict[str, Any]]:
-        """Make HTTP request with retry logic and error handling"""
-        await self._ensure_session()
+        """Make HTTP request with retry logic and error handling."""await self._ensure_session().
 
         url = f"{self.api_url}{endpoint}"
 
@@ -144,14 +140,14 @@ class ESCClient:
 
     @retry_on_failure(max_retries=2)
     async def get_environment(self) -> Optional[Dict[str, Any]]:
-        """Get Pulumi ESC environment details"""
-        endpoint = f"/api/environments/{self.organization}/{self.environment}"
+        """Get Pulumi ESC environment details."""endpoint = f"/api/environments/{self.organization}/{self.environment}".
+
         return await self._make_request("GET", endpoint)
 
     @retry_on_failure(max_retries=2)
     async def get_configuration(self, key: str) -> Optional[Any]:
-        """Get configuration value from Pulumi ESC"""
-        # Check cache first
+        """Get configuration value from Pulumi ESC."""# Check cache first.
+
         cache_key = f"config_{key}"
         if cache_key in self.config_cache:
             cached_time = self.last_refresh.get(cache_key, 0)
@@ -183,8 +179,8 @@ class ESCClient:
 
     @retry_on_failure(max_retries=2)
     async def get_secret(self, key: str) -> Optional[str]:
-        """Get secret value from Pulumi ESC"""
-        # Check cache first
+        """Get secret value from Pulumi ESC."""# Check cache first.
+
         cache_key = f"secret_{key}"
         if cache_key in self.secret_cache:
             cached_time = self.last_refresh.get(cache_key, 0)
@@ -216,8 +212,8 @@ class ESCClient:
         return None
 
     def _get_nested_value(self, data: Dict[str, Any], key: str) -> Optional[Any]:
-        """Get value from nested dictionary structure"""
-        # Try direct key access first
+        """Get value from nested dictionary structure."""# Try direct key access first.
+
         if key in data:
             return data[key]
 
@@ -254,8 +250,8 @@ class ESCClient:
         return None
 
     async def set_configuration(self, key: str, value: Any) -> bool:
-        """Set configuration value in Pulumi ESC"""
-        try:
+        """Set configuration value in Pulumi ESC."""try:.
+
             endpoint = (
                 f"/api/environments/{self.organization}/{self.environment}/values"
             )
@@ -290,8 +286,8 @@ class ESCClient:
         return False
 
     async def set_secret(self, key: str, value: str) -> bool:
-        """Set secret value in Pulumi ESC"""
-        try:
+        """Set secret value in Pulumi ESC."""try:.
+
             endpoint = (
                 f"/api/environments/{self.organization}/{self.environment}/values"
             )
@@ -329,8 +325,8 @@ class ESCClient:
         return False
 
     def _set_nested_value(self, data: Dict[str, Any], key: str, value: Any) -> None:
-        """Set value in nested dictionary structure"""
-        parts = key.split("_", 1)
+        """Set value in nested dictionary structure."""parts = key.split("_", 1).
+
         if len(parts) == 2:
             service, field = parts
             if service not in data:
@@ -340,8 +336,8 @@ class ESCClient:
             data[key] = value
 
     async def list_environments(self) -> List[str]:
-        """List all Pulumi ESC environments for the organization"""
-        try:
+        """List all Pulumi ESC environments for the organization."""try:.
+
             endpoint = f"/api/environments/{self.organization}"
             response = await self._make_request("GET", endpoint)
 
@@ -354,8 +350,8 @@ class ESCClient:
         return []
 
     async def validate_connection(self) -> bool:
-        """Validate connection to Pulumi ESC"""
-        try:
+        """Validate connection to Pulumi ESC."""try:.
+
             environments = await self.list_environments()
             if self.environment in environments:
                 logger.info(
@@ -372,15 +368,15 @@ class ESCClient:
             return False
 
     async def clear_cache(self) -> None:
-        """Clear all cached values"""
-        async with self._lock:
+        """Clear all cached values."""async with self._lock:.
+
             self.config_cache.clear()
             self.secret_cache.clear()
             self.last_refresh.clear()
         logger.info("Cleared Pulumi ESC cache")
 
     async def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache statistics"""
+        """Get cache statistics."""
         return {
             "config_cache_size": len(self.config_cache),
             "secret_cache_size": len(self.secret_cache),

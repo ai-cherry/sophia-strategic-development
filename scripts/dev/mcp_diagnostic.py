@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""MCP Infrastructure Diagnostic Tool
+"""MCP Infrastructure Diagnostic Tool.
+
 Comprehensive analysis and fixing of MCP server issues
 """
 
@@ -52,7 +53,8 @@ class MCPDiagnostic:
         }
 
     async def run_full_diagnostic(self) -> Dict[str, Any]:
-        """Run comprehensive MCP infrastructure diagnostic"""
+        """Run comprehensive MCP infrastructure diagnostic."""
+
         logger.info("🔍 Starting MCP Infrastructure Diagnostic...")
 
         # Phase 1: Infrastructure Assessment
@@ -75,8 +77,7 @@ class MCPDiagnostic:
         return self.results
 
     async def _check_docker_infrastructure(self):
-        """Check Docker infrastructure status"""
-        logger.info("📋 Checking Docker infrastructure...")
+        """Check Docker infrastructure status."""logger.info("📋 Checking Docker infrastructure...").
 
         try:
             if self.docker_client:
@@ -118,8 +119,7 @@ class MCPDiagnostic:
             logger.error(f"Docker infrastructure check failed: {e}")
 
     async def _check_container_status(self):
-        """Check status of all MCP-related containers"""
-        logger.info("🐳 Checking MCP container status...")
+        """Check status of all MCP-related containers."""logger.info("🐳 Checking MCP container status...").
 
         try:
             if not self.docker_client:
@@ -165,8 +165,7 @@ class MCPDiagnostic:
             logger.error(f"Container status check failed: {e}")
 
     async def _check_network_connectivity(self):
-        """Check network connectivity between containers and external services"""
-        logger.info("🌐 Checking network connectivity...")
+        """Check network connectivity between containers and external services."""logger.info("🌐 Checking network connectivity...").
 
         if not aiohttp:
             self.results["network"]["error"] = (
@@ -219,8 +218,7 @@ class MCPDiagnostic:
             logger.error(f"Network connectivity check failed: {e}")
 
     async def _validate_configurations(self):
-        """Validate MCP and Docker configurations"""
-        logger.info("⚙️ Validating configurations...")
+        """Validate MCP and Docker configurations."""logger.info("⚙️ Validating configurations...").
 
         try:
             # Check mcp_config.json
@@ -263,8 +261,7 @@ class MCPDiagnostic:
     def _validate_server_config(
         self, server_name: str, config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Validate individual server configuration"""
-        validation = {"server": server_name, "issues": []}
+        """Validate individual server configuration."""validation = {"server": server_name, "issues": []}.
 
         # Check required fields
         if "command" not in config and "uri" not in config:
@@ -301,8 +298,7 @@ class MCPDiagnostic:
         return validation
 
     async def _check_environment_variables(self):
-        """Check required environment variables"""
-        logger.info("🔐 Checking environment variables...")
+        """Check required environment variables."""logger.info("🔐 Checking environment variables...").
 
         import os
 
@@ -327,8 +323,7 @@ class MCPDiagnostic:
         self.results["configuration"]["environment_variables"] = env_status
 
     async def _validate_secrets(self):
-        """Validate secret management setup"""
-        logger.info("🔒 Validating secrets...")
+        """Validate secret management setup."""logger.info("🔒 Validating secrets...").
 
         # Check Pulumi ESC setup
         try:
@@ -351,8 +346,7 @@ class MCPDiagnostic:
             }
 
     async def _check_mcp_gateway_health(self):
-        """Check MCP Gateway health and functionality"""
-        logger.info("🚪 Checking MCP Gateway health...")
+        """Check MCP Gateway health and functionality."""logger.info("🚪 Checking MCP Gateway health...").
 
         if not aiohttp:
             self.results["network"]["gateway_health"] = {
@@ -408,8 +402,7 @@ class MCPDiagnostic:
             }
 
     async def _check_individual_servers(self):
-        """Check individual MCP server health"""
-        logger.info("🔍 Checking individual MCP servers...")
+        """Check individual MCP server health."""logger.info("🔍 Checking individual MCP servers...").
 
         server_health = {}
         for container_name, container_info in self.results["containers"].items():
@@ -427,8 +420,7 @@ class MCPDiagnostic:
         self.results["network"]["server_health"] = server_health
 
     async def _generate_recommendations(self):
-        """Generate recommendations based on diagnostic results"""
-        logger.info("💡 Generating recommendations...")
+        """Generate recommendations based on diagnostic results."""logger.info("💡 Generating recommendations...").
 
         recommendations = []
 
@@ -489,8 +481,8 @@ class MCPDiagnostic:
         self.results["recommendations"] = recommendations
 
     def print_summary(self):
-        """Print diagnostic summary"""
-        print("\n" + "=" * 80)
+        """Print diagnostic summary."""print("\n" + "=" * 80).
+
         print("🔍 MCP INFRASTRUCTURE DIAGNOSTIC SUMMARY")
         print("=" * 80)
 
@@ -548,7 +540,7 @@ class MCPDiagnostic:
 
 
 async def main():
-    """Main diagnostic function"""
+    """Main diagnostic function."""
     diagnostic = MCPDiagnostic()
 
     try:

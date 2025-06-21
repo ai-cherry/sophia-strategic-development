@@ -1,9 +1,8 @@
 """Gong Data Connector.
 
 Handles all interactions with the Gong.io API for sales intelligence.
-"""
+"""import os
 
-import os
 from typing import Any, Dict, List
 
 
@@ -16,6 +15,7 @@ class GongDataConnector:
 
     async def get_sales_calls(self, limit: int = 20) -> List[Dict[str, Any]]:
         """Fetch a list of recent sales calls from Gong."""
+
         print(f"Fetching last {limit} sales calls from Gong...")
         # Placeholder data - this would be a real API call
         return [

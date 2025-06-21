@@ -4,9 +4,8 @@
 Inspired by composable agent frameworks like `lastmile-ai/mcp-agent`, this
 orchestrator manages agent sessions and funnels all tool and service
 interactions through the universal Model Context Protocol (MCP).
-"""
+"""import logging
 
-import logging
 from typing import Dict
 
 from backend.mcp.mcp_client import mcp_client
@@ -23,10 +22,10 @@ class MCPSession:
         logger.info(f"MCP Session '{self.session_id}' created.")
 
     async def ask(self, agent_persona: Dict, request: str) -> Dict:
-        """The primary method for interacting with an agent. It simulates the
-        agent receiving a request, using its tools (via MCP), and returning a response.
-        """
-        self.history.append({"role": "user", "content": request})
+        """The primary method for interacting with an agent. It simulates the.
+
+                        agent receiving a request, using its tools (via MCP), and returning a response.
+        """self.history.append({"role": "user", "content": request}).
 
         # In a real scenario, the agent's LLM would decide which tool to call.
         # Here, we simulate the agent deciding it needs to talk to Pulumi.
@@ -49,9 +48,8 @@ class MCPSession:
 
 
 class MCPOrchestrator:
-    """Manages all MCP sessions and provides a clean interface for the application."""
+    """Manages all MCP sessions and provides a clean interface for the application."""def __init__(self):.
 
-    def __init__(self):
         self.sessions: Dict[str, MCPSession] = {}
 
     def create_session(self, session_id: str) -> MCPSession:

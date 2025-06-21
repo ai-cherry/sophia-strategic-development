@@ -1,4 +1,5 @@
-"""Enhanced Pulumi ESC Secret Management
+"""Enhanced Pulumi ESC Secret Management.
+
 Provides centralized, secure secret management with GitHub integration
 """
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SecretMetadata:
-    """Metadata for a secret"""
+    """Metadata for a secret."""
 
     name: str
     source: str  # github, pulumi, manual
@@ -31,15 +32,14 @@ class SecretMetadata:
 
 
 class EnhancedPulumiESC:
-    """Enhanced Pulumi ESC (Environment, Secrets, and Configuration) client
-    Provides secure, centralized secret management with GitHub integration
-    """
+    """Enhanced Pulumi ESC (Environment, Secrets, and Configuration) client.
 
-    def __init__(
+            Provides secure, centralized secret management with GitHub integration
+    """def __init__(.
         self, access_token: Optional[str] = None, organization: str = "ai-cherry"
     ):
-        """Initialize Pulumi ESC client"""
-        self.access_token = access_token or os.getenv("PULUMI_ACCESS_TOKEN")
+        """Initialize Pulumi ESC client."""self.access_token = access_token or os.getenv("PULUMI_ACCESS_TOKEN").
+
         if not self.access_token:
             raise ValueError("PULUMI_ACCESS_TOKEN environment variable is required")
 
@@ -55,14 +55,14 @@ class EnhancedPulumiESC:
         self._metadata: Dict[str, SecretMetadata] = {}
 
     def _get_cache_key(self, secret_name: str) -> str:
-        """Generate cache key for secret"""
-        return hashlib.sha256(
+        """Generate cache key for secret."""return hashlib.sha256(.
+
             f"{self.organization}:{self.environment}:{secret_name}".encode()
         ).hexdigest()
 
     def _is_cache_valid(self, cache_entry: Dict[str, Any]) -> bool:
-        """Check if cache entry is still valid"""
-        if not cache_entry:
+        """Check if cache entry is still valid."""if not cache_entry:.
+
             return False
 
         cached_at = cache_entry.get("cached_at", 0)
@@ -71,8 +71,7 @@ class EnhancedPulumiESC:
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
     ) -> Dict[str, Any]:
-        """Make authenticated API request to Pulumi"""
-        import aiohttp
+        """Make authenticated API request to Pulumi."""import aiohttp.
 
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = {
@@ -97,8 +96,7 @@ class EnhancedPulumiESC:
     async def get_secret(
         self, secret_name: str, use_cache: bool = True
     ) -> Optional[str]:
-        """Get secret value with caching"""
-        cache_key = self._get_cache_key(secret_name)
+        """Get secret value with caching."""cache_key = self._get_cache_key(secret_name).
 
         # Check cache first
         if use_cache and cache_key in self._secret_cache:
@@ -143,8 +141,8 @@ class EnhancedPulumiESC:
     def _extract_secret_value(
         self, values: Dict[str, Any], secret_name: str
     ) -> Optional[str]:
-        """Extract secret value from nested Pulumi ESC response"""
-        # Try direct access first
+        """Extract secret value from nested Pulumi ESC response."""# Try direct access first.
+
         if secret_name in values:
             return str(values[secret_name])
 
@@ -168,8 +166,8 @@ class EnhancedPulumiESC:
     async def set_secret(
         self, secret_name: str, secret_value: str, tags: List[str] = None
     ) -> bool:
-        """Set secret value in Pulumi ESC"""
-        try:
+        """Set secret value in Pulumi ESC."""try:.
+
             # Get current environment configuration
             endpoint = f"/preview/environments/{self.organization}/{self.environment}"
             current_config = await self._make_request("GET", endpoint)
@@ -210,8 +208,8 @@ class EnhancedPulumiESC:
     def _update_yaml_with_secret(
         self, yaml_content: str, secret_name: str, secret_value: str
     ) -> str:
-        """Update YAML content with new secret (simplified implementation)"""
-        # This is a simplified implementation
+        """Update YAML content with new secret (simplified implementation)."""# This is a simplified implementation.
+
         # In production, use proper YAML parsing with ruamel.yaml or similar
 
         if not yaml_content.strip():
@@ -235,8 +233,8 @@ class EnhancedPulumiESC:
         return yaml_content
 
     async def rotate_secret(self, secret_name: str, new_value: str) -> bool:
-        """Rotate a secret with proper versioning"""
-        try:
+        """Rotate a secret with proper versioning."""try:.
+
             # Store old value as backup
             old_value = await self.get_secret(secret_name, use_cache=False)
             if old_value:
@@ -261,8 +259,7 @@ class EnhancedPulumiESC:
     async def sync_from_github_secrets(
         self, github_secrets: Dict[str, str]
     ) -> Dict[str, bool]:
-        """Sync secrets from GitHub to Pulumi ESC"""
-        results = {}
+        """Sync secrets from GitHub to Pulumi ESC."""results = {}.
 
         for secret_name, secret_value in github_secrets.items():
             try:
@@ -283,8 +280,8 @@ class EnhancedPulumiESC:
         return results
 
     async def get_all_secrets(self) -> Dict[str, str]:
-        """Get all secrets from Pulumi ESC"""
-        try:
+        """Get all secrets from Pulumi ESC."""try:.
+
             endpoint = (
                 f"/preview/environments/{self.organization}/{self.environment}/values"
             )
@@ -316,8 +313,8 @@ class EnhancedPulumiESC:
             return {}
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check Pulumi ESC health and connectivity"""
-        try:
+        """Check Pulumi ESC health and connectivity."""try:.
+
             # Test API connectivity
             endpoint = f"/preview/environments/{self.organization}"
             response = await self._make_request("GET", endpoint)
@@ -350,34 +347,32 @@ class EnhancedPulumiESC:
             }
 
     def clear_cache(self):
-        """Clear secret cache"""
-        self._secret_cache.clear()
+        """Clear secret cache."""self._secret_cache.clear().
+
         logger.info("Cleared Pulumi ESC secret cache")
 
     def get_metadata(self, secret_name: str) -> Optional[SecretMetadata]:
-        """Get metadata for a secret"""
-        return self._metadata.get(secret_name)
+        """Get metadata for a secret."""return self._metadata.get(secret_name).
 
     def list_secrets_metadata(self) -> List[SecretMetadata]:
-        """List all secret metadata"""
-        return list(self._metadata.values())
+        """List all secret metadata."""return list(self._metadata.values()).
 
 
 # Convenience functions
 async def get_sophia_secret(secret_name: str) -> Optional[str]:
-    """Get a Sophia AI secret"""
-    esc = EnhancedPulumiESC()
+    """Get a Sophia AI secret."""esc = EnhancedPulumiESC().
+
     return await esc.get_secret(secret_name)
 
 
 async def set_sophia_secret(secret_name: str, secret_value: str) -> bool:
-    """Set a Sophia AI secret"""
-    esc = EnhancedPulumiESC()
+    """Set a Sophia AI secret."""esc = EnhancedPulumiESC().
+
     return await esc.set_secret(secret_name, secret_value)
 
 
 async def rotate_sophia_secret(secret_name: str, new_value: str) -> bool:
-    """Rotate a Sophia AI secret"""
+    """Rotate a Sophia AI secret."""
     esc = EnhancedPulumiESC()
     return await esc.rotate_secret(secret_name, new_value)
 

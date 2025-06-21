@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for n8n.
-"""
+"""Pulumi ESC Secret Manager for n8n."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

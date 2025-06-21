@@ -109,13 +109,13 @@ services:
 ```python
 class UnifiedServiceGateway:
     """Central gateway for all service interactions"""
-    
+
     def __init__(self):
         self.ai_gateway = PortkeyGateway()  # Primary AI gateway
         self.data_gateway = DataServiceGateway()
         self.infra_gateway = InfrastructureGateway()
         self.business_gateway = BusinessServiceGateway()
-        
+
     async def route_request(self, service: str, operation: str, **kwargs):
         """Intelligent request routing with fallback"""
         gateway = self._select_gateway(service)
@@ -128,12 +128,12 @@ class UnifiedServiceGateway:
 ```python
 class BaseIntegration:
     """Base class for all service integrations"""
-    
+
     def __init__(self, service_name: str):
         self.service_name = service_name
         self.config = self._load_config()
         self._validate_credentials()
-        
+
     def _validate_credentials(self):
         """Standardized credential validation"""
         required_keys = self.config.get('secret_keys', [])
@@ -144,7 +144,7 @@ class BaseIntegration:
                     error_code="E_MISSING_CREDENTIAL",
                     service=self.service_name
                 )
-    
+
     def handle_error(self, error: Exception) -> Dict[str, Any]:
         """Standardized error handling"""
         return {
@@ -164,22 +164,22 @@ class BaseIntegration:
 ```python
 class UnifiedCacheManager:
     """Centralized cache management across all services"""
-    
+
     def __init__(self):
         self.semantic_cache = SemanticCache(threshold=0.92)
         self.exact_cache = ExactMatchCache()
         self.result_cache = ResultCache(ttl_hours=12)
-        
+
     async def get_or_compute(self, key: str, compute_func, cache_type="semantic"):
         """Smart caching with fallback"""
         # Try caches in order of efficiency
         if cached := await self.exact_cache.get(key):
             return cached
-            
+
         if cache_type == "semantic":
             if cached := await self.semantic_cache.get_similar(key):
                 return cached
-                
+
         # Compute and cache
         result = await compute_func()
         await self._cache_result(key, result, cache_type)
@@ -192,17 +192,17 @@ class UnifiedCacheManager:
 ```python
 class BatchProcessor:
     """Batch similar requests for efficiency"""
-    
+
     def __init__(self, batch_size=32, timeout_seconds=5):
         self.batch_size = batch_size
         self.timeout = timeout_seconds
         self.queues = defaultdict(list)
-        
+
     async def process_request(self, request_type: str, request_data: Dict):
         """Queue request for batch processing"""
         queue = self.queues[request_type]
         queue.append(request_data)
-        
+
         if len(queue) >= self.batch_size:
             return await self._process_batch(request_type)
         else:
@@ -229,11 +229,11 @@ jobs:
         uses: ./.github/actions/rotate-secrets
         with:
           services: ${{ secrets.ROTATION_SERVICES }}
-          
+
       - name: Update Pulumi ESC
         run: |
           python scripts/sync_rotated_secrets.py
-          
+
       - name: Notify Team
         uses: ./.github/actions/notify-rotation
 ```
@@ -244,23 +244,23 @@ jobs:
 ```python
 class SecurityMiddleware:
     """Comprehensive security layer"""
-    
+
     def __init__(self):
         self.rate_limiter = RateLimiter(requests_per_minute=100)
         self.input_validator = InputValidator()
         self.audit_logger = AuditLogger()
-        
+
     async def process_request(self, request):
         # Rate limiting
         if not await self.rate_limiter.check(request.client_id):
             raise RateLimitExceeded()
-            
+
         # Input validation
         validated_input = self.input_validator.validate(request.data)
-        
+
         # Audit logging
         await self.audit_logger.log_request(request)
-        
+
         return validated_input
 ```
 
@@ -306,17 +306,17 @@ spec:
 ```python
 class LambdaLabsAutoScaler:
     """Auto-scaling for Lambda Labs GPU instances"""
-    
+
     def __init__(self):
         self.min_instances = 1
         self.max_instances = 5
         self.scale_up_threshold = 80
         self.scale_down_threshold = 20
-        
+
     async def check_and_scale(self):
         """Monitor and scale based on metrics"""
         metrics = await self.get_current_metrics()
-        
+
         if metrics.cpu_usage > self.scale_up_threshold:
             await self.scale_up()
         elif metrics.cpu_usage < self.scale_down_threshold:
@@ -400,7 +400,7 @@ The phased approach ensures minimal disruption while delivering continuous impro
 
 ---
 
-*Plan Created: January 2025*  
-*Target Completion: April 2025*  
-*Budget Allocation: Engineering resources + $10,000 infrastructure*  
+*Plan Created: January 2025*
+*Target Completion: April 2025*
+*Budget Allocation: Engineering resources + $10,000 infrastructure*
 *ROI Expected: 300% within 12 months*

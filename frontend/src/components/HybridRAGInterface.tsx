@@ -11,12 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  MessageCircle, 
-  Zap, 
-  Brain, 
-  Database, 
-  FileText, 
+import {
+  MessageCircle,
+  Zap,
+  Brain,
+  Database,
+  FileText,
   Activity,
   Send,
   Mic,
@@ -200,9 +200,9 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`max-w-[80%] rounded-lg p-3 ${
-        isUser 
-          ? 'bg-blue-500 text-white' 
-          : isSystem 
+        isUser
+          ? 'bg-blue-500 text-white'
+          : isSystem
             ? 'bg-gray-100 text-gray-800 border'
             : 'bg-white border shadow-sm'
       }`}>
@@ -320,10 +320,10 @@ const HybridRAGInterface: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [activeWorkflow, setActiveWorkflow] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('chat');
-  
+
   const { connectionStatus, events, sendEvent } = useWebSocket(sessionId);
   const { stats, loading: statsLoading, refetch: refetchStats } = useSystemStats();
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize session
@@ -360,7 +360,7 @@ const HybridRAGInterface: React.FC = () => {
             workflow_id: event.payload.workflow_id
           }]);
           break;
-        
+
         case 'workflow_start':
           setActiveWorkflow({
             id: event.payload.workflow_id,
@@ -369,7 +369,7 @@ const HybridRAGInterface: React.FC = () => {
             current_step: null
           });
           break;
-        
+
         case 'workflow_progress':
           setActiveWorkflow(prev => prev?.id === event.payload.workflow_id ? {
             ...prev,
@@ -377,11 +377,11 @@ const HybridRAGInterface: React.FC = () => {
             current_step: event.payload.current_step
           } : prev);
           break;
-        
+
         case 'workflow_complete':
           setActiveWorkflow(null);
           break;
-        
+
         case 'error':
           setMessages(prev => [...prev, {
             id: event.event_id,
@@ -410,7 +410,7 @@ const HybridRAGInterface: React.FC = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
-    
+
     // Send via WebSocket
     sendEvent('user_message', {
       message: inputValue,
@@ -563,4 +563,3 @@ const HybridRAGInterface: React.FC = () => {
 };
 
 export default HybridRAGInterface;
-

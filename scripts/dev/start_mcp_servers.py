@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sophia AI MCP Server Starter
+"""Sophia AI MCP Server Starter.
 
 This script starts the MCP servers defined in the mcp_config.json file.
 It checks for the required environment variables, validates the Docker Compose
@@ -7,9 +7,8 @@ configuration, and starts the MCP servers using Docker Compose.
 
 Usage:
     python start_mcp_servers.py [--config mcp_config.json] [--compose docker compose.mcp.yml]
-"""
+"""import argparse
 
-import argparse
 import json
 import logging
 import os
@@ -26,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def load_mcp_config(config_path: str) -> Dict[str, Any]:
-    """Load the MCP configuration from the specified file"""
+    """Load the MCP configuration from the specified file."""
+
     try:
         with open(config_path, "r") as f:
             config = json.load(f)
@@ -37,8 +37,8 @@ def load_mcp_config(config_path: str) -> Dict[str, Any]:
 
 
 def validate_docker_compose(compose_path: str) -> bool:
-    """Validate the Docker Compose configuration"""
-    try:
+    """Validate the Docker Compose configuration."""try:.
+
         result = subprocess.run(
             ["docker", "compose", "-f", compose_path, "config"],
             capture_output=True,
@@ -57,8 +57,8 @@ def validate_docker_compose(compose_path: str) -> bool:
 
 
 def check_docker_installed() -> bool:
-    """Check if Docker is installed and running"""
-    try:
+    """Check if Docker is installed and running."""try:.
+
         result = subprocess.run(["docker", "info"], capture_output=True, text=True)
 
         if result.returncode != 0:
@@ -73,8 +73,8 @@ def check_docker_installed() -> bool:
 
 
 def check_docker_compose_installed() -> bool:
-    """Check if Docker Compose is installed"""
-    try:
+    """Check if Docker Compose is installed."""try:.
+
         result = subprocess.run(
             ["docker", "compose", "--version"], capture_output=True, text=True
         )
@@ -91,8 +91,8 @@ def check_docker_compose_installed() -> bool:
 
 
 def check_required_env_vars(config: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Check if all required environment variables are set"""
-    required_vars = set()
+    """Check if all required environment variables are set."""required_vars = set().
+
     missing_vars = []
 
     # Extract required environment variables from the MCP configuration
@@ -118,8 +118,8 @@ def check_required_env_vars(config: Dict[str, Any]) -> Tuple[bool, List[str]]:
 
 
 def fix_docker_compose_file(compose_path: str) -> bool:
-    """Fix common issues in the Docker Compose file"""
-    try:
+    """Fix common issues in the Docker Compose file."""try:.
+
         with open(compose_path, "r") as f:
             content = f.read()
 
@@ -142,8 +142,8 @@ def fix_docker_compose_file(compose_path: str) -> bool:
 
 
 def start_mcp_servers(compose_path: str) -> bool:
-    """Start the MCP servers using Docker Compose"""
-    try:
+    """Start the MCP servers using Docker Compose."""try:.
+
         # Stop any running containers first
         subprocess.run(
             ["docker", "compose", "-f", compose_path, "down"],
@@ -170,11 +170,13 @@ def start_mcp_servers(compose_path: str) -> bool:
 
 
 def check_mcp_servers_health(compose_path: str) -> Tuple[bool, Dict[str, str]]:
-    """Check the health of the MCP servers"""
+    """Check the health of the MCP servers."""
     try:
         # Get the list of running containers
         result = subprocess.run(
-            ["docker", "compose", "-f", compose_path, "ps"], capture_output=True, text=True
+            ["docker", "compose", "-f", compose_path, "ps"],
+            capture_output=True,
+            text=True,
         )
 
         if result.returncode != 0:

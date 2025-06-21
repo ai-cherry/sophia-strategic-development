@@ -1,4 +1,5 @@
-"""Apify MCP Server
+"""Apify MCP Server.
+
 Exposes Apify's web scraping and automation capabilities as tools for AI agents.
 """
 
@@ -32,13 +33,13 @@ class ApifyMCPServer(BaseMCPServer):
         super().__init__("apify")
 
     async def initialize_integration(self):
-        """Initializes the Apify integration client."""
-        await apify_integration.initialize()
+        """Initializes the Apify integration client."""await apify_integration.initialize().
+
         self.integration_client = apify_integration
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Apify Actors as resources."""
-        actors = await apify_integration.list_actors()
+        """Lists available Apify Actors as resources."""actors = await apify_integration.list_actors().
+
         return [
             Resource(
                 uri=f"apify://actor/{actor.get('id')}",
@@ -50,14 +51,14 @@ class ApifyMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets details about a specific Apify Actor run."""
-        run_id = request.uri.split("/")[-1]
+        """Gets details about a specific Apify Actor run."""run_id = request.uri.split("/")[-1].
+
         run_details = await apify_integration.get_actor_run(run_id)
         return json.dumps(run_details, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Apify tools."""
-        return [
+        """Lists available Apify tools."""return [.
+
             Tool(
                 name="google_search_and_scrape",
                 description="Performs a Google search and scrapes the content from the top results. Ideal for general research.",

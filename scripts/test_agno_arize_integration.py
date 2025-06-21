@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Comprehensive Agno & Arize Integration Test
+"""Sophia AI - Comprehensive Agno & Arize Integration Test.
+
 Test all components of the integrated system to ensure everything works
 """
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class ComprehensiveIntegrationTest:
-    """Test all aspects of the Agno/Arize integration"""
+    """Test all aspects of the Agno/Arize integration."""
 
     def __init__(self):
         self.test_results = {
@@ -37,8 +38,7 @@ class ComprehensiveIntegrationTest:
         os.environ["PULUMI_ORG"] = "scoobyjava-org"
 
     async def test_pulumi_esc_access(self):
-        """Test Pulumi ESC environment access"""
-        logger.info("🔐 Testing Pulumi ESC access...")
+        """Test Pulumi ESC environment access."""logger.info("🔐 Testing Pulumi ESC access...").
 
         try:
             from backend.core.auto_esc_config import config
@@ -84,8 +84,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ Pulumi ESC access failed: {e}")
 
     async def test_agno_integration(self):
-        """Test Agno agent framework integration"""
-        logger.info("🤖 Testing Agno integration...")
+        """Test Agno agent framework integration."""logger.info("🤖 Testing Agno integration...").
 
         try:
             # Test Agno API access (simulated)
@@ -122,8 +121,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ Agno integration failed: {e}")
 
     async def test_arize_integration(self):
-        """Test Arize observability integration"""
-        logger.info("📊 Testing Arize integration...")
+        """Test Arize observability integration."""logger.info("📊 Testing Arize integration...").
 
         try:
             # Test Arize configuration (simulated)
@@ -162,8 +160,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ Arize integration failed: {e}")
 
     async def test_mcp_integration(self):
-        """Test MCP server integration"""
-        logger.info("🔗 Testing MCP server integration...")
+        """Test MCP server integration."""logger.info("🔗 Testing MCP server integration...").
 
         try:
             # Test MCP server configurations
@@ -193,8 +190,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ MCP integration failed: {e}")
 
     async def test_vector_databases(self):
-        """Test vector database integration"""
-        logger.info("🗄️ Testing vector database integration...")
+        """Test vector database integration."""logger.info("🗄️ Testing vector database integration...").
 
         try:
             # Test vector database configurations
@@ -218,8 +214,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ Vector database test failed: {e}")
 
     async def test_business_intelligence(self):
-        """Test business intelligence integrations"""
-        logger.info("📈 Testing business intelligence integrations...")
+        """Test business intelligence integrations."""logger.info("📈 Testing business intelligence integrations...").
 
         try:
             # Test BI service integrations
@@ -245,8 +240,7 @@ class ComprehensiveIntegrationTest:
             logger.error(f"❌ Business intelligence test failed: {e}")
 
     async def run_comprehensive_test(self):
-        """Run all integration tests"""
-        logger.info("🚀 Starting comprehensive integration test...")
+        """Run all integration tests."""logger.info("🚀 Starting comprehensive integration test...").
 
         start_time = time.time()
 
@@ -294,8 +288,8 @@ class ComprehensiveIntegrationTest:
         logger.info(f"💾 Test results saved to {results_file}")
 
     def print_test_summary(self):
-        """Print comprehensive test summary"""
-        print("\n" + "=" * 100)
+        """Print comprehensive test summary."""print("\n" + "=" * 100).
+
         print("🎉 SOPHIA AI - COMPREHENSIVE AGNO & ARIZE INTEGRATION TEST RESULTS")
         print("=" * 100)
 
@@ -373,7 +367,7 @@ class ComprehensiveIntegrationTest:
 
 
 async def main():
-    """Main execution"""
+    """Main execution."""
     test_suite = ComprehensiveIntegrationTest()
     await test_suite.run_comprehensive_test()
 

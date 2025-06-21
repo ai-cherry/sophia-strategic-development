@@ -1,4 +1,5 @@
-"""Admin Agent for Sophia AI
+"""Admin Agent for Sophia AI.
+
 Handles interaction with the Admin MCP Server for system management tasks.
 """
 
@@ -11,8 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class AdminAgent(BaseAgent):
-    """An agent that specializes in using the AdminMCPServer to perform
-    system-level checks and administrative actions.
+    """An agent that specializes in using the AdminMCPServer to perform.
+
+            system-level checks and administrative actions.
     """
 
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):

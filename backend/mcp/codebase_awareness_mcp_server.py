@@ -1,4 +1,5 @@
-"""Codebase Awareness MCP Server
+"""Codebase Awareness MCP Server.
+
 Provides tools for AI assistants to understand the Sophia codebase architecture.
 """
 
@@ -26,8 +27,8 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
         self.ingestion_pipeline = None
 
     async def initialize_integration(self):
-        """Initializes the components for codebase awareness."""
-        self.vector_store = VectorStore()
+        """Initializes the components for codebase awareness."""self.vector_store = VectorStore().
+
         self.vector_store.INDEX_NAME = self.CODEBASE_INDEX_NAME
 
         # This server doesn't need a persistent metadata store for now,
@@ -52,8 +53,8 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists the specialized tools for codebase awareness."""
-        return [
+        """Lists the specialized tools for codebase awareness."""return [.
+
             Tool(
                 name="find_relevant_code",
                 description="Performs semantic search for code components (functions, classes, APIs, etc.).",
@@ -90,8 +91,8 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a tool call for codebase awareness."""
-        tool_name = request.params.name
+        """Handles a tool call for codebase awareness."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
         result = None
 

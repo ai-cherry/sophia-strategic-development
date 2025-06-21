@@ -1,9 +1,8 @@
 """Pay Ready AI Agent Orchestrator - Main Entry Point.
 
 Centralized orchestration for all Pay Ready specialized AI agents, powered by Agno.
-"""
+"""import asyncio
 
-import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -27,6 +26,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage the application's lifespan, starting and stopping services."""
+
     logger.info("Initializing Pay Ready AI Agent System with Agno Framework...")
     try:
         # The agent_framework will initialize itself using the auto_esc_config
@@ -79,8 +79,8 @@ app.include_router(api_v1_router.router, prefix="/api/v1", tags=["Dashboard API 
 # --- Health and Status Endpoints ---
 @app.get("/", tags=["Status"])
 async def root():
-    """Return the root endpoint message."""
-    return {
+    """Return the root endpoint message."""return {.
+
         "message": "Sophia AI - Agno-Powered Agent System",
         "status": "operational",
         "version": app.version,

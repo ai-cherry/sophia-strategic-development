@@ -1,4 +1,4 @@
-"""Validate Sophia AI configuration before deployment"""
+"""Validate Sophia AI configuration before deployment."""
 
 import json
 import os
@@ -6,9 +6,8 @@ from pathlib import Path
 
 
 def validate_sophia_ai_config():
-    """Validate all Sophia AI configuration requirements"""
+    """Validate all Sophia AI configuration requirements."""# Validate ESC environment.
 
-    # Validate ESC environment
     validate_esc_environment()
 
     # Validate Lambda Labs connection
@@ -25,11 +24,23 @@ def validate_sophia_ai_config():
 
 
 def validate_service_integrations():
-    """Validate all 19 Sophia AI service integrations"""
-    services = [
-        "arize", "openrouter", "portkey", "huggingface", "together_ai",
-        "apify", "phantombuster", "twingly", "tavily", "zenrows",
-        "lambda_labs", "docker", "pulumi", "snowflake", "pinecone"
+    """Validate all 19 Sophia AI service integrations."""services = [.
+
+        "arize",
+        "openrouter",
+        "portkey",
+        "huggingface",
+        "together_ai",
+        "apify",
+        "phantombuster",
+        "twingly",
+        "tavily",
+        "zenrows",
+        "lambda_labs",
+        "docker",
+        "pulumi",
+        "snowflake",
+        "pinecone",
     ]
 
     for service in services:
@@ -38,9 +49,9 @@ def validate_service_integrations():
 
 # Placeholder validation helpers
 
+
 def validate_esc_environment() -> bool:
-    """Ensure Pulumi ESC environment variables are properly defined."""
-    required_vars = ["PULUMI_ACCESS_TOKEN", "PULUMI_ORG", "PULUMI_ESC_ENV"]
+    """Ensure Pulumi ESC environment variables are properly defined."""required_vars = ["PULUMI_ACCESS_TOKEN", "PULUMI_ORG", "PULUMI_ESC_ENV"].
 
     missing = [var for var in required_vars if not os.getenv(var)]
     if missing:
@@ -54,8 +65,8 @@ def validate_esc_environment() -> bool:
 
 
 def validate_lambda_labs_config() -> bool:
-    """Validate Lambda Labs configuration."""
-    api_key = os.getenv("LAMBDA_LABS_API_KEY")
+    """Validate Lambda Labs configuration."""api_key = os.getenv("LAMBDA_LABS_API_KEY").
+
     if not api_key:
         raise EnvironmentError("LAMBDA_LABS_API_KEY is not set")
     if api_key.startswith("your_"):
@@ -64,8 +75,8 @@ def validate_lambda_labs_config() -> bool:
 
 
 def validate_mcp_servers() -> list[dict]:
-    """Validate MCP server configuration file."""
-    path = Path("mcp-config/mcp_servers.json")
+    """Validate MCP server configuration file."""path = Path("mcp-config/mcp_servers.json").
+
     if not path.exists():
         raise FileNotFoundError(f"{path} not found")
 
@@ -94,8 +105,8 @@ def validate_mcp_servers() -> list[dict]:
 
 
 def validate_business_intelligence_pipeline() -> bool:
-    """Validate environment for the business intelligence pipeline."""
-    required_env = [
+    """Validate environment for the business intelligence pipeline."""required_env = [.
+
         "POSTGRES_HOST",
         "POSTGRES_PASSWORD",
         "REDIS_HOST",

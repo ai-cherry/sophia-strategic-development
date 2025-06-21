@@ -1,4 +1,5 @@
-"""Sophia AI - Pay Ready Company Assistant
+"""Sophia AI - Pay Ready Company Assistant.
+
 Main Flask Application
 
 Dedicated business intelligence platform for Pay Ready company operations.
@@ -42,6 +43,7 @@ from backend.config.settings import Config, settings
 
 def check_database() -> bool:
     """Return True if the configured PostgreSQL database is reachable."""
+
     try:
         conn = psycopg2.connect(
             settings.database.postgres_url,
@@ -55,8 +57,8 @@ def check_database() -> bool:
 
 
 def check_redis() -> bool:
-    """Return True if the configured Redis cache is reachable."""
-    try:
+    """Return True if the configured Redis cache is reachable."""try:.
+
         client = redis.Redis.from_url(
             settings.database.redis_url,
             socket_connect_timeout=1,
@@ -70,8 +72,8 @@ def check_redis() -> bool:
 
 
 def create_app(config_class=Config):
-    """Create and configure the Flask application"""
-    app = Flask(__name__)
+    """Create and configure the Flask application."""app = Flask(__name__).
+
     app.config.from_object(config_class)
 
     # Initialize extensions
@@ -121,8 +123,8 @@ def create_app(config_class=Config):
     # Health check endpoint
     @app.route("/api/health")
     def health_check():
-        """Comprehensive health check for Sophia AI - Pay Ready Assistant"""
-        health_status = {
+        """Comprehensive health check for Sophia AI - Pay Ready Assistant."""health_status = {.
+
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
             "service": "Sophia AI - Pay Ready Company Assistant",
@@ -160,7 +162,7 @@ def create_app(config_class=Config):
     # Root endpoint
     @app.route("/")
     def index():
-        """Sophia AI - Pay Ready Company Assistant welcome endpoint"""
+        """Sophia AI - Pay Ready Company Assistant welcome endpoint."""
         return jsonify(
             {
                 "service": "Sophia AI - Pay Ready Company Assistant",

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI Integration Connectivity Test Script
+"""Sophia AI Integration Connectivity Test Script.
+
 Tests connectivity to Snowflake, Gong, Vercel, and Estuary
 """
 
@@ -32,7 +33,7 @@ except ImportError as e:
 
 
 class IntegrationTester:
-    """Tests connectivity to various integrations"""
+    """Tests connectivity to various integrations."""
 
     def __init__(self):
         self.results = {
@@ -44,8 +45,8 @@ class IntegrationTester:
         self.ssl_context = None
 
     async def setup(self):
-        """Initialize HTTP session with proper SSL context"""
-        # Create SSL context with certifi certificates
+        """Initialize HTTP session with proper SSL context."""# Create SSL context with certifi certificates.
+
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
 
         # Create connector with SSL context
@@ -56,13 +57,13 @@ class IntegrationTester:
         logger.info("Initialized HTTP session with SSL certificate verification")
 
     async def close(self):
-        """Close HTTP session"""
-        if self.session:
+        """Close HTTP session."""if self.session:.
+
             await self.session.close()
 
     async def test_all_integrations(self):
-        """Run all integration tests"""
-        try:
+        """Run all integration tests."""try:.
+
             await self.setup()
 
             # Test each integration
@@ -92,8 +93,8 @@ class IntegrationTester:
         return self.results
 
     async def test_gong_integration(self):
-        """Test Gong API connectivity"""
-        service_name = "gong"
+        """Test Gong API connectivity."""service_name = "gong".
+
         logger.info(f"Testing {service_name} integration...")
 
         result = {"status": "unknown", "details": {}, "error": None}
@@ -148,8 +149,8 @@ class IntegrationTester:
         logger.info(f"{service_name} test result: {result['status']}")
 
     async def test_snowflake_integration(self):
-        """Test Snowflake connectivity"""
-        service_name = "snowflake"
+        """Test Snowflake connectivity."""service_name = "snowflake".
+
         logger.info(f"Testing {service_name} integration...")
 
         result = {"status": "unknown", "details": {}, "error": None}
@@ -218,8 +219,8 @@ class IntegrationTester:
         logger.info(f"{service_name} test result: {result['status']}")
 
     async def test_estuary_integration(self):
-        """Test Estuary Flow connectivity"""
-        service_name = "estuary"
+        """Test Estuary Flow connectivity."""service_name = "estuary".
+
         logger.info(f"Testing {service_name} integration...")
 
         result = {"status": "unknown", "details": {}, "error": None}
@@ -268,8 +269,8 @@ class IntegrationTester:
         logger.info(f"{service_name} test result: {result['status']}")
 
     async def test_vercel_integration(self):
-        """Test Vercel API connectivity"""
-        service_name = "vercel"
+        """Test Vercel API connectivity."""service_name = "vercel".
+
         logger.info(f"Testing {service_name} integration...")
 
         result = {"status": "unknown", "details": {}, "error": None}
@@ -338,7 +339,7 @@ class IntegrationTester:
 
 
 async def main():
-    """Main execution function"""
+    """Main execution function."""
     print("\n" + "=" * 80)
     print("SOPHIA AI INTEGRATION CONNECTIVITY TEST")
     print("=" * 80)

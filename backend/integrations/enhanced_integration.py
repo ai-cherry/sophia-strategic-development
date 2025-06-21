@@ -1,4 +1,5 @@
-"""Enhanced Sophia AI Integration Module
+"""Enhanced Sophia AI Integration Module.
+
 Bardeen + Arize + Enhanced Portkey Integration
 """
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IntegrationConfig:
-    """Configuration for enhanced integrations"""
+    """Configuration for enhanced integrations."""
 
     bardeen_id: str
     arize_api_key: str
@@ -27,9 +28,8 @@ class IntegrationConfig:
 
 
 class BardeenWorkflowManager:
-    """Bardeen automation workflow management"""
+    """Bardeen automation workflow management."""def __init__(self, bardeen_id: str):.
 
-    def __init__(self, bardeen_id: str):
         self.bardeen_id = bardeen_id
         self.base_url = "https://api.bardeen.ai/v1"
         self.session = requests.Session()
@@ -43,8 +43,8 @@ class BardeenWorkflowManager:
     async def execute_workflow(
         self, workflow_name: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Execute a Bardeen workflow with provided data"""
-        try:
+        """Execute a Bardeen workflow with provided data."""try:.
+
             payload = {
                 "workflow": workflow_name,
                 "data": data,
@@ -65,8 +65,8 @@ class BardeenWorkflowManager:
             raise
 
     async def sync_gong_to_hubspot(self, call_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Sync Gong.io call data to HubSpot"""
-        workflow_data = {
+        """Sync Gong.io call data to HubSpot."""workflow_data = {.
+
             "call_id": call_data.get("call_id"),
             "participants": call_data.get("participants", []),
             "duration": call_data.get("duration"),
@@ -82,8 +82,8 @@ class BardeenWorkflowManager:
     async def automate_lead_enrichment(
         self, lead_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Automate lead enrichment process"""
-        enrichment_data = {
+        """Automate lead enrichment process."""enrichment_data = {.
+
             "email": lead_data.get("email"),
             "company": lead_data.get("company"),
             "name": lead_data.get("name"),
@@ -103,8 +103,8 @@ class BardeenWorkflowManager:
     async def slack_team_notification(
         self, notification_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Send automated Slack notifications to team"""
-        slack_data = {
+        """Send automated Slack notifications to team."""slack_data = {.
+
             "channel": notification_data.get("channel", "#sales-team"),
             "message": notification_data.get("message"),
             "priority": notification_data.get("priority", "normal"),
@@ -116,9 +116,8 @@ class BardeenWorkflowManager:
 
 
 class ArizeMonitoringManager:
-    """Arize AI monitoring and observability management"""
+    """Arize AI monitoring and observability management."""def __init__(self, api_key: str):.
 
-    def __init__(self, api_key: str):
         self.api_key = api_key
         self.base_url = "https://api.arize.com/v1"
         self.session = requests.Session()
@@ -129,8 +128,8 @@ class ArizeMonitoringManager:
     async def log_model_prediction(
         self, model_id: str, prediction_data: Dict[str, Any]
     ) -> bool:
-        """Log model prediction for monitoring"""
-        try:
+        """Log model prediction for monitoring."""try:.
+
             payload = {
                 "model_id": model_id,
                 "prediction_id": prediction_data.get("prediction_id"),
@@ -154,8 +153,8 @@ class ArizeMonitoringManager:
             return False
 
     async def track_sophia_ai_response(self, response_data: Dict[str, Any]) -> bool:
-        """Track Sophia AI response quality and performance"""
-        prediction_data = {
+        """Track Sophia AI response quality and performance."""prediction_data = {.
+
             "prediction_id": response_data.get("request_id"),
             "features": {
                 "prompt_length": len(response_data.get("prompt", "")),
@@ -176,8 +175,8 @@ class ArizeMonitoringManager:
         return await self.log_model_prediction("sophia_ai_responses", prediction_data)
 
     async def monitor_business_intelligence(self, insight_data: Dict[str, Any]) -> bool:
-        """Monitor business intelligence quality and accuracy"""
-        prediction_data = {
+        """Monitor business intelligence quality and accuracy."""prediction_data = {.
+
             "prediction_id": insight_data.get("insight_id"),
             "features": {
                 "data_sources": insight_data.get("data_sources", []),
@@ -200,8 +199,8 @@ class ArizeMonitoringManager:
         )
 
     async def create_performance_alert(self, alert_config: Dict[str, Any]) -> bool:
-        """Create performance monitoring alert"""
-        try:
+        """Create performance monitoring alert."""try:.
+
             payload = {
                 "alert_name": alert_config.get("name"),
                 "model_id": alert_config.get("model_id"),
@@ -223,9 +222,8 @@ class ArizeMonitoringManager:
 
 
 class EnhancedPortkeyGateway:
-    """Enhanced Portkey gateway with Arize monitoring integration"""
+    """Enhanced Portkey gateway with Arize monitoring integration."""def __init__(self, portkey_api_key: str, arize_manager: ArizeMonitoringManager):.
 
-    def __init__(self, portkey_api_key: str, arize_manager: ArizeMonitoringManager):
         self.portkey_api_key = portkey_api_key
         self.arize_manager = arize_manager
         self.base_url = "https://api.portkey.ai/v1"
@@ -240,8 +238,8 @@ class EnhancedPortkeyGateway:
     async def enhanced_completion(
         self, prompt: str, model: str = "gpt-4", **kwargs
     ) -> Dict[str, Any]:
-        """Enhanced completion with monitoring and optimization"""
-        start_time = datetime.utcnow()
+        """Enhanced completion with monitoring and optimization."""start_time = datetime.utcnow().
+
         request_id = f"req_{int(start_time.timestamp())}"
 
         try:
@@ -292,8 +290,8 @@ class EnhancedPortkeyGateway:
             raise
 
     async def get_usage_analytics(self, time_range: str = "24h") -> Dict[str, Any]:
-        """Get usage analytics from Portkey"""
-        try:
+        """Get usage analytics from Portkey."""try:.
+
             response = self.session.get(
                 f"{self.base_url}/analytics/usage", params={"time_range": time_range}
             )
@@ -307,9 +305,8 @@ class EnhancedPortkeyGateway:
 
 
 class SophiaAIEnhancedIntegration:
-    """Main integration manager for enhanced Sophia AI capabilities"""
+    """Main integration manager for enhanced Sophia AI capabilities."""def __init__(self, config: IntegrationConfig):.
 
-    def __init__(self, config: IntegrationConfig):
         self.config = config
         self.bardeen_manager = BardeenWorkflowManager(config.bardeen_id)
         self.arize_manager = ArizeMonitoringManager(config.arize_api_key)
@@ -321,8 +318,8 @@ class SophiaAIEnhancedIntegration:
         asyncio.create_task(self._setup_monitoring_alerts())
 
     async def _setup_monitoring_alerts(self):
-        """Setup initial monitoring alerts"""
-        alerts = [
+        """Setup initial monitoring alerts."""alerts = [.
+
             {
                 "name": "Sophia AI Response Time Alert",
                 "model_id": "sophia_ai_responses",
@@ -355,8 +352,8 @@ class SophiaAIEnhancedIntegration:
     async def process_gong_call_analysis(
         self, call_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Process Gong.io call analysis with enhanced AI and automation"""
-        try:
+        """Process Gong.io call analysis with enhanced AI and automation."""try:.
+
             # Generate AI insights from call data
             ai_prompt = f"""
             Analyze this sales call data and provide business intelligence insights:
@@ -372,61 +369,60 @@ class SophiaAIEnhancedIntegration:
             3. Next best actions
             4. Risk factors
             5. Opportunity assessment
-            """
+            """# Get AI analysis.
 
-            # Get AI analysis
-            ai_response = await self.portkey_gateway.enhanced_completion(
-                prompt=ai_prompt,
-                model="gpt-4",
-                business_domain="sales_intelligence",
-                user_context={"call_id": call_data.get("call_id")},
-            )
+                                    ai_response = await self.portkey_gateway.enhanced_completion(
+                                        prompt=ai_prompt,
+                                        model="gpt-4",
+                                        business_domain="sales_intelligence",
+                                        user_context={"call_id": call_data.get("call_id")},
+                                    )
 
-            # Sync to HubSpot via Bardeen
-            hubspot_sync = await self.bardeen_manager.sync_gong_to_hubspot(call_data)
+                                    # Sync to HubSpot via Bardeen
+                                    hubspot_sync = await self.bardeen_manager.sync_gong_to_hubspot(call_data)
 
-            # Send Slack notification if high priority
-            if call_data.get("sentiment_score", 0) < 0.3:  # Low sentiment
-                await self.bardeen_manager.slack_team_notification(
-                    {
-                        "channel": "#sales-alerts",
-                        "message": f"🚨 Low sentiment call detected: {call_data.get('call_id')}",
-                        "priority": "high",
-                        "mention_users": ["@sales-manager"],
-                    }
-                )
+                                    # Send Slack notification if high priority
+                                    if call_data.get("sentiment_score", 0) < 0.3:  # Low sentiment
+                                        await self.bardeen_manager.slack_team_notification(
+                                            {
+                                                "channel": "#sales-alerts",
+                                                "message": f"🚨 Low sentiment call detected: {call_data.get('call_id')}",
+                                                "priority": "high",
+                                                "mention_users": ["@sales-manager"],
+                                            }
+                                        )
 
-            # Track business intelligence quality
-            await self.arize_manager.monitor_business_intelligence(
-                {
-                    "insight_id": f"call_analysis_{call_data.get('call_id')}",
-                    "data_sources": ["gong.io"],
-                    "analysis_type": "call_intelligence",
-                    "insight": ai_response.get("response"),
-                    "business_context": {
-                        "call_id": call_data.get("call_id"),
-                        "deal_stage": call_data.get("deal_stage"),
-                        "customer_segment": call_data.get("customer_segment"),
-                    },
-                }
-            )
+                                    # Track business intelligence quality
+                                    await self.arize_manager.monitor_business_intelligence(
+                                        {
+                                            "insight_id": f"call_analysis_{call_data.get('call_id')}",
+                                            "data_sources": ["gong.io"],
+                                            "analysis_type": "call_intelligence",
+                                            "insight": ai_response.get("response"),
+                                            "business_context": {
+                                                "call_id": call_data.get("call_id"),
+                                                "deal_stage": call_data.get("deal_stage"),
+                                                "customer_segment": call_data.get("customer_segment"),
+                                            },
+                                        }
+                                    )
 
-            return {
-                "ai_insights": ai_response.get("response"),
-                "hubspot_sync_status": hubspot_sync.get("status"),
-                "processing_time": ai_response.get("response_time"),
-                "call_id": call_data.get("call_id"),
-            }
+                                    return {
+                                        "ai_insights": ai_response.get("response"),
+                                        "hubspot_sync_status": hubspot_sync.get("status"),
+                                        "processing_time": ai_response.get("response_time"),
+                                        "call_id": call_data.get("call_id"),
+                                    }
 
-        except Exception as e:
-            logger.error(f"Failed to process Gong call analysis: {str(e)}")
-            raise
+                                except Exception as e:
+                                    logger.error(f"Failed to process Gong call analysis: {str(e)}")
+                                    raise
 
-    async def automated_lead_processing(
-        self, lead_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Automated lead processing with enrichment and scoring"""
-        try:
+                            async def automated_lead_processing(
+                                self, lead_data: Dict[str, Any]
+                            ) -> Dict[str, Any]:
+            """Automated lead processing with enrichment and scoring."""try:.
+
             # Enrich lead data via Bardeen
             enriched_data = await self.bardeen_manager.automate_lead_enrichment(
                 lead_data
@@ -448,40 +444,39 @@ class SophiaAIEnhancedIntegration:
             3. Recommended next actions
             4. Priority level
             5. Estimated deal size
-            """
+            """scoring_response = await self.portkey_gateway.enhanced_completion(.
 
-            scoring_response = await self.portkey_gateway.enhanced_completion(
-                prompt=scoring_prompt,
-                model="gpt-4",
-                business_domain="lead_scoring",
-                user_context={"lead_email": lead_data.get("email")},
-            )
+                                        prompt=scoring_prompt,
+                                        model="gpt-4",
+                                        business_domain="lead_scoring",
+                                        user_context={"lead_email": lead_data.get("email")},
+                                    )
 
-            # Send notification for high-value leads
-            if "Hot" in scoring_response.get("response", {}).get("choices", [{}])[
-                0
-            ].get("message", {}).get("content", ""):
-                await self.bardeen_manager.slack_team_notification(
-                    {
-                        "channel": "#sales-team",
-                        "message": f"🔥 Hot lead detected: {lead_data.get('email')}",
-                        "priority": "high",
-                    }
-                )
+                                    # Send notification for high-value leads
+                                    if "Hot" in scoring_response.get("response", {}).get("choices", [{}])[
+                                        0
+                                    ].get("message", {}).get("content", ""):
+                                        await self.bardeen_manager.slack_team_notification(
+                                            {
+                                                "channel": "#sales-team",
+                                                "message": f"🔥 Hot lead detected: {lead_data.get('email')}",
+                                                "priority": "high",
+                                            }
+                                        )
 
-            return {
-                "enriched_data": enriched_data,
-                "ai_scoring": scoring_response.get("response"),
-                "processing_status": "completed",
-            }
+                                    return {
+                                        "enriched_data": enriched_data,
+                                        "ai_scoring": scoring_response.get("response"),
+                                        "processing_status": "completed",
+                                    }
 
-        except Exception as e:
-            logger.error(f"Failed to process lead: {str(e)}")
-            raise
+                                except Exception as e:
+                                    logger.error(f"Failed to process lead: {str(e)}")
+                                    raise
 
-    async def get_performance_dashboard(self) -> Dict[str, Any]:
-        """Get comprehensive performance dashboard data"""
-        try:
+                            async def get_performance_dashboard(self) -> Dict[str, Any]:
+            """Get comprehensive performance dashboard data."""try:.
+
             # Get Portkey usage analytics
             portkey_analytics = await self.portkey_gateway.get_usage_analytics("24h")
 
@@ -511,8 +506,8 @@ class SophiaAIEnhancedIntegration:
 
 # Configuration and initialization
 def create_enhanced_integration() -> SophiaAIEnhancedIntegration:
-    """Create enhanced integration instance with environment configuration"""
-    config = IntegrationConfig(
+    """Create enhanced integration instance with environment configuration."""config = IntegrationConfig(.
+
         bardeen_id=os.getenv(
             "BARDEEN_ID",
             "4519f8fe2a6d1416201c3653dbd9a3d20641f93ca7c05b852a6f7db29059d1e7",
@@ -530,7 +525,7 @@ def create_enhanced_integration() -> SophiaAIEnhancedIntegration:
 
 # Example usage
 async def main():
-    """Example usage of enhanced integration"""
+    """Example usage of enhanced integration."""
     integration = create_enhanced_integration()
 
     # Example: Process Gong call analysis

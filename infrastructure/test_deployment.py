@@ -5,6 +5,7 @@ from pinecone import Pinecone
 
 def test_deployment():
     """Validates the deployed infrastructure by checking connectivity and resource state."""
+
     print("--- Starting Infrastructure Deployment Validation ---")
     validation_results = {}
 
@@ -50,8 +51,8 @@ def test_deployment():
 
 
 def validate_lambda_labs(lambda_outputs):
-    """Validates the Lambda Labs instance by attempting an SSH connection."""
-    if not lambda_outputs:
+    """Validates the Lambda Labs instance by attempting an SSH connection."""if not lambda_outputs:.
+
         print("Lambda Labs outputs not found. Skipping validation.")
         return False
 
@@ -70,8 +71,8 @@ def validate_lambda_labs(lambda_outputs):
 
 
 def validate_snowflake(snowflake_outputs):
-    """Validates the Snowflake deployment by connecting and running a query."""
-    if not snowflake_outputs:
+    """Validates the Snowflake deployment by connecting and running a query."""if not snowflake_outputs:.
+
         print("Snowflake outputs not found. Skipping validation.")
         return False
 

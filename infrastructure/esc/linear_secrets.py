@@ -1,4 +1,5 @@
-"""Linear Secret Management for Pulumi ESC
+"""Linear Secret Management for Pulumi ESC.
+
 Manages Linear API credentials and configuration
 """
 
@@ -13,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 class LinearSecretManager:
-    """Manages Linear secrets in Pulumi ESC"""
+    """Manages Linear secrets in Pulumi ESC."""
 
     def __init__(self):
         self.environment_name = "linear"
 
     async def setup_linear_secrets(self) -> bool:
-        """Setup Linear secrets in Pulumi ESC"""
-        try:
+        """Setup Linear secrets in Pulumi ESC."""try:.
+
             # Check for required environment variables
             required_vars = ["LINEAR_API_TOKEN", "LINEAR_WORKSPACE_ID"]
 
@@ -61,8 +62,8 @@ class LinearSecretManager:
             return False
 
     async def get_linear_config(self) -> Optional[Dict[str, Any]]:
-        """Get Linear configuration from Pulumi ESC"""
-        try:
+        """Get Linear configuration from Pulumi ESC."""try:.
+
             config = await pulumi_esc_client.get_configuration("linear")
 
             if not config:
@@ -85,8 +86,8 @@ class LinearSecretManager:
             return None
 
     async def update_linear_secret(self, key: str, value: str) -> bool:
-        """Update a specific Linear secret"""
-        try:
+        """Update a specific Linear secret."""try:.
+
             await pulumi_esc_client.set_secret(f"linear.{key}", value)
             logger.info(f"Updated Linear secret: {key}")
             return True
@@ -96,8 +97,8 @@ class LinearSecretManager:
             return False
 
     async def rotate_linear_token(self, new_token: str) -> bool:
-        """Rotate Linear API token"""
-        try:
+        """Rotate Linear API token."""try:.
+
             # Update token in Pulumi ESC
             success = await self.update_linear_secret("api_token", new_token)
 
@@ -113,8 +114,8 @@ class LinearSecretManager:
             return False
 
     async def validate_linear_config(self) -> Dict[str, Any]:
-        """Validate Linear configuration"""
-        try:
+        """Validate Linear configuration."""try:.
+
             config = await self.get_linear_config()
 
             if not config:
@@ -157,8 +158,8 @@ class LinearSecretManager:
             return {"valid": False, "error": str(e)}
 
     async def get_environment_variables(self) -> Dict[str, str]:
-        """Get Linear environment variables for local development"""
-        try:
+        """Get Linear environment variables for local development."""try:.
+
             config = await self.get_linear_config()
 
             if not config:
@@ -195,27 +196,23 @@ linear_secret_manager = LinearSecretManager()
 
 # Convenience functions
 async def setup_linear_secrets() -> bool:
-    """Setup Linear secrets in Pulumi ESC"""
-    return await linear_secret_manager.setup_linear_secrets()
+    """Setup Linear secrets in Pulumi ESC."""return await linear_secret_manager.setup_linear_secrets().
 
 
 async def get_linear_config() -> Optional[Dict[str, Any]]:
-    """Get Linear configuration from Pulumi ESC"""
-    return await linear_secret_manager.get_linear_config()
+    """Get Linear configuration from Pulumi ESC."""return await linear_secret_manager.get_linear_config().
 
 
 async def validate_linear_config() -> Dict[str, Any]:
-    """Validate Linear configuration"""
-    return await linear_secret_manager.validate_linear_config()
+    """Validate Linear configuration."""return await linear_secret_manager.validate_linear_config().
 
 
 async def rotate_linear_token(new_token: str) -> bool:
-    """Rotate Linear API token"""
-    return await linear_secret_manager.rotate_linear_token(new_token)
+    """Rotate Linear API token."""return await linear_secret_manager.rotate_linear_token(new_token).
 
 
 async def main():
-    """Main entry point for Linear secret management"""
+    """Main entry point for Linear secret management."""
     print("Setting up Linear secrets...")
 
     success = await setup_linear_secrets()

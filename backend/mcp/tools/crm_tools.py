@@ -7,7 +7,7 @@ from ..sophia_mcp_server import MCPTool
 
 
 class CrmSyncTool(MCPTool):
-    """Tool for synchronizing data with CRM systems"""
+    """Tool for synchronizing data with CRM systems."""
 
     def __init__(self):
         super().__init__(
@@ -50,8 +50,8 @@ class CrmSyncTool(MCPTool):
         self.salesforce_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters"""
-        # Get parameters
+        """Execute the tool with the provided parameters."""# Get parameters.
+
         crm_type = parameters["crm_type"]
         entity_type = parameters["entity_type"]
         data = parameters["data"]
@@ -107,8 +107,8 @@ class CrmSyncTool(MCPTool):
         operation: str,
         external_id: Optional[str],
     ) -> Dict[str, Any]:
-        """Sync data with HubSpot"""
-        if not self.hubspot_client:
+        """Sync data with HubSpot."""if not self.hubspot_client:.
+
             import hubspot
 
             api_key = await secret_manager.get_secret("api_key", "hubspot")
@@ -179,8 +179,8 @@ class CrmSyncTool(MCPTool):
         operation: str,
         external_id: Optional[str],
     ) -> Dict[str, Any]:
-        """Sync data with Salesforce"""
-        if not self.salesforce_client:
+        """Sync data with Salesforce."""if not self.salesforce_client:.
+
             from simple_salesforce import Salesforce
 
             username = await secret_manager.get_secret("username", "salesforce")
@@ -270,8 +270,8 @@ class CrmSyncTool(MCPTool):
     def _prepare_hubspot_data(
         self, entity_type: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Prepare data for HubSpot API"""
-        # HubSpot expects properties as a flat object
+        """Prepare data for HubSpot API."""# HubSpot expects properties as a flat object.
+
         properties = {}
 
         for key, value in data.items():
@@ -287,8 +287,8 @@ class CrmSyncTool(MCPTool):
     def _prepare_salesforce_data(
         self, entity_type: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Prepare data for Salesforce API"""
-        # Map common field names to Salesforce field names
+        """Prepare data for Salesforce API."""# Map common field names to Salesforce field names.
+
         field_map = {
             "contact": {
                 "email": "Email",
@@ -340,9 +340,8 @@ class CrmSyncTool(MCPTool):
 
 
 class CrmQueryTool(MCPTool):
-    """Tool for querying data from CRM systems"""
+    """Tool for querying data from CRM systems."""def __init__(self):.
 
-    def __init__(self):
         super().__init__(
             name="crm_query",
             description="Query data from CRM systems (HubSpot, Salesforce)",
@@ -383,8 +382,8 @@ class CrmQueryTool(MCPTool):
         self.salesforce_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters"""
-        # Get parameters
+        """Execute the tool with the provided parameters."""# Get parameters.
+
         crm_type = parameters["crm_type"]
         entity_type = parameters["entity_type"]
         query_type = parameters["query_type"]
@@ -437,8 +436,8 @@ class CrmQueryTool(MCPTool):
         query_params: Dict[str, Any],
         limit: int,
     ) -> Any:
-        """Query data from HubSpot"""
-        if not self.hubspot_client:
+        """Query data from HubSpot."""if not self.hubspot_client:.
+
             import hubspot
 
             api_key = await secret_manager.get_secret("api_key", "hubspot")
@@ -530,7 +529,7 @@ class CrmQueryTool(MCPTool):
         query_params: Dict[str, Any],
         limit: int,
     ) -> Any:
-        """Query data from Salesforce"""
+        """Query data from Salesforce."""
         if not self.salesforce_client:
             from simple_salesforce import Salesforce
 

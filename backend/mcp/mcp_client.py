@@ -42,19 +42,18 @@ MCP_GATEWAY_ENDPOINTS = {
 
 
 class MCPClient:
-    """A single client to rule them all. An agent uses this client to talk
-    to any MCP-compliant server via the gateway.
-    """
+    """A single client to rule them all. An agent uses this client to talk.
 
-    async def get_context(
+            to any MCP-compliant server via the gateway.
+    """async def get_context(.
         self, service_name: str, request: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Sends a request to a specified MCP server to get context.
 
-        :param service_name: The name of the service to contact (e.g., 'kubernetes').
-        :param request: The natural language request for the MCP server.
-        :param context: Optional dictionary with additional context for the request.
-        :return: The structured context response from the MCP server.
+                        :param service_name: The name of the service to contact (e.g., 'kubernetes').
+                        :param request: The natural language request for the MCP server.
+                        :param context: Optional dictionary with additional context for the request.
+                        :return: The structured context response from the MCP server.
         """
         if service_name not in MCP_GATEWAY_ENDPOINTS:
             raise ValueError(f"Service '{service_name}' not found in MCP Gateway.")

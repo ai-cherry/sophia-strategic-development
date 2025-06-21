@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simple test script for Snowflake MCP Server
+"""Simple test script for Snowflake MCP Server.
+
 Tests basic connectivity and operations
 """
 
@@ -13,7 +14,8 @@ from backend.mcp.mcp_client import MCPClient
 
 
 async def test_snowflake_mcp():
-    """Test Snowflake MCP server functionality"""
+    """Test Snowflake MCP server functionality."""
+
     print("🧪 Testing Snowflake MCP Server")
     print("=" * 50)
 
@@ -84,8 +86,8 @@ async def test_snowflake_mcp():
 
 
 async def test_mcp_workflow():
-    """Test a multi-step MCP workflow"""
-    print("\n\n🔄 Testing MCP Workflow Execution")
+    """Test a multi-step MCP workflow."""print("\n\n🔄 Testing MCP Workflow Execution").
+
     print("=" * 50)
 
     client = MCPClient("http://localhost:8090")
@@ -129,7 +131,7 @@ async def test_mcp_workflow():
 
 
 async def main():
-    """Main test execution"""
+    """Main test execution."""
     # Basic connectivity test
     await test_snowflake_mcp()
 

@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for GitHub.
-"""
+"""Pulumi ESC Secret Manager for GitHub."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

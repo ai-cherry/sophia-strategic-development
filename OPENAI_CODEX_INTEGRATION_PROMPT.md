@@ -48,7 +48,7 @@ class ServiceMCPServer(MCPServer):
     def __init__(self):
         super().__init__("service_name")
         # Initialize service clients
-        
+
     async def setup(self):
         # Register tools following this pattern
         self.register_tool(Tool(
@@ -59,7 +59,7 @@ class ServiceMCPServer(MCPServer):
             },
             handler=self.tool_handler
         ))
-        
+
     async def tool_handler(self, **kwargs):
         # Implement tool logic with error handling
         try:
@@ -94,7 +94,7 @@ class ServiceMCPServer(MCPServer):
 - `monitor_ai_usage`: Log AI interactions to Arize for monitoring
 - `optimize_routing`: Analyze and optimize model routing decisions
 
-### Task 2: Create Data Intelligence MCP Server  
+### Task 2: Create Data Intelligence MCP Server
 **File**: `mcp-servers/data_intelligence/data_intelligence_mcp_server.py`
 **Services**: Apify, PhantomBuster, Twingly, Tavily, ZenRows
 **Key Tools**:
@@ -270,4 +270,3 @@ class ServiceMCPServer(MCPServer):
 Implement this integration with the highest standards of software engineering. Focus on production readiness, optimal performance, and cost efficiency. Ensure all code follows the existing patterns while introducing the necessary optimizations and enhancements. The result should be a robust, scalable, and cost-effective AI platform that serves as the foundation for Sophia AI's business intelligence capabilities.
 
 Remember: This is a production deployment with no sandbox environments. Every line of code must be production-ready and thoroughly tested. The integration should enhance the existing architecture while maintaining backward compatibility and operational stability.
-

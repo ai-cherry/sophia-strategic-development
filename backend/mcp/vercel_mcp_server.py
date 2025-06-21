@@ -1,4 +1,5 @@
-"""Vercel MCP Server
+"""Vercel MCP Server.
+
 MCP server for Vercel deployment integration
 """
 
@@ -27,7 +28,8 @@ vercel_integration = None
 
 @server.list_tools()
 async def handle_list_tools() -> List[Tool]:
-    """List available Vercel tools"""
+    """List available Vercel tools."""
+
     return [
         Tool(
             name="get_projects",
@@ -180,8 +182,7 @@ async def handle_list_tools() -> List[Tool]:
 
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
-    """Handle Vercel tool calls"""
-    global vercel_integration
+    """Handle Vercel tool calls."""global vercel_integration.
 
     try:
         # Initialize integration if needed
@@ -426,7 +427,7 @@ async def handle_call_tool(name: str, arguments: Dict[str, Any]) -> List[TextCon
 
 
 async def main():
-    """Main entry point for the Vercel MCP server"""
+    """Main entry point for the Vercel MCP server."""
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,

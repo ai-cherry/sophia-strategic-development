@@ -1,4 +1,4 @@
-"""Intercom Integration for Sophia AI - Placeholder"""
+"""Intercom Integration for Sophia AI - Placeholder."""
 
 import logging
 

@@ -49,11 +49,8 @@ Lambda Labs is your AI buddy, offering Docker images with GPU power for deep lea
 Docker's cloud features, like Build Cloud, work with AI tools like Model Runner for local LLM packaging and MCP Catalog for secure AI agent integration. It's a mess of shiny toys, but they're still young—expect sharp edges.
 
 ---
-"""
+"""def get_tags(chunk: str) -> list[str]:."""Determines tags based on chunk content."""
 
-
-def get_tags(chunk: str) -> list[str]:
-    """Determines tags based on chunk content."""
     tags = ["iac_strategy", "docker"]
     content_lower = chunk.lower()
     if "local docker" in content_lower:

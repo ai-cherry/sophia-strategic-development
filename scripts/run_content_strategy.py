@@ -17,10 +17,9 @@ logger = logging.getLogger(__name__)
 async def run_content_creation_task(topic: str):
     """Orchestrates a content creation task from research to final draft.
 
-    Args:
-        topic: The high-level topic for the content (e.g., a blog post title).
-    """
-    logger.info(f"--- Starting Content Creation Workflow for: '{topic}' ---")
+        Args:
+            topic: The high-level topic for the content (e.g., a blog post title).
+    """logger.info(f"--- Starting Content Creation Workflow for: '{topic}' ---").
 
     # In a real system, the BrainAgent would be a long-running service.
     # Here, we instantiate it for this specific task.
@@ -49,8 +48,8 @@ async def run_content_creation_task(topic: str):
 
     # Step 2: BrainAgent uses the research to generate a blog post draft.
     logger.info("[BRAIN] Generating blog post draft from research...")
-    drafting_prompt = f"""
-    You are a world-class content strategist for Pay Ready, a leader in the property management technology space.
+    drafting_prompt = f"""You are a world-class content strategist for Pay Ready, a leader in the property management technology space.
+
     Your task is to write a compelling, insightful, and SEO-optimized blog post based on the research brief provided.
     The title of the post is: "{topic}"
     The tone should be authoritative, helpful, and clearly articulate Pay Ready's unique advantages.

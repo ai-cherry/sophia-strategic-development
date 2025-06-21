@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Check Secret Rotation Status
+"""Sophia AI - Check Secret Rotation Status.
+
 This script checks the rotation status of all secrets and generates a report.
 """
 
@@ -20,15 +21,15 @@ logger = logging.getLogger(__name__)
 
 
 class RotationStatusChecker:
-    """Checks the rotation status of all secrets"""
+    """Checks the rotation status of all secrets."""
 
     def __init__(self):
         self.service_registry = self._load_service_registry()
         self.rotation_history = self._load_rotation_history()
 
     def _load_service_registry(self) -> Dict[str, Dict[str, Any]]:
-        """Load service registry"""
-        try:
+        """Load service registry."""try:.
+
             registry_path = os.environ.get(
                 "SERVICE_REGISTRY_PATH",
                 "/home/ubuntu/github/sophia-main/infrastructure/service_registry.json",
@@ -48,8 +49,8 @@ class RotationStatusChecker:
             return {}
 
     def _load_rotation_history(self) -> Dict[str, Dict[str, Any]]:
-        """Load rotation history"""
-        try:
+        """Load rotation history."""try:.
+
             history_path = os.environ.get(
                 "ROTATION_HISTORY_PATH",
                 "/home/ubuntu/github/sophia-main/infrastructure/esc/rotation_history.json",
@@ -71,8 +72,8 @@ class RotationStatusChecker:
             return {"services": {}}
 
     def _save_rotation_history(self, history: Dict[str, Any]):
-        """Save rotation history"""
-        try:
+        """Save rotation history."""try:.
+
             history_path = os.environ.get(
                 "ROTATION_HISTORY_PATH",
                 "/home/ubuntu/github/sophia-main/infrastructure/esc/rotation_history.json",
@@ -86,8 +87,8 @@ class RotationStatusChecker:
             logger.error(f"Failed to save rotation history: {e}")
 
     def _parse_rotation_schedule(self, schedule: str) -> datetime.timedelta:
-        """Parse rotation schedule"""
-        if schedule.endswith("d"):
+        """Parse rotation schedule."""if schedule.endswith("d"):.
+
             days = int(schedule[:-1])
             return datetime.timedelta(days=days)
         elif schedule.endswith("h"):
@@ -98,8 +99,8 @@ class RotationStatusChecker:
             return datetime.timedelta(days=90)
 
     def check_rotation_status(self) -> Dict[str, Any]:
-        """Check rotation status of all secrets"""
-        now = datetime.datetime.now()
+        """Check rotation status of all secrets."""now = datetime.datetime.now().
+
         status = {"timestamp": now.isoformat(), "services": {}}
 
         for service, config in self.service_registry.items():
@@ -166,8 +167,8 @@ class RotationStatusChecker:
         return status
 
     def generate_report(self, status: Dict[str, Any], format: str = "text") -> str:
-        """Generate a report of rotation status"""
-        if format == "json":
+        """Generate a report of rotation status."""if format == "json":.
+
             return json.dumps(status, indent=2)
 
         # Generate text report
@@ -239,8 +240,8 @@ class RotationStatusChecker:
         return "\n".join(report)
 
     def update_rotation_history(self, service: str, key: str, timestamp: str = None):
-        """Update rotation history for a secret"""
-        if timestamp is None:
+        """Update rotation history for a secret."""if timestamp is None:.
+
             timestamp = datetime.datetime.now().isoformat()
 
         # Ensure service exists in history
@@ -263,7 +264,7 @@ class RotationStatusChecker:
 
 
 def main():
-    """Main function"""
+    """Main function."""
     parser = argparse.ArgumentParser(description="Check secret rotation status")
     parser.add_argument(
         "--format", "-f", choices=["text", "json"], default="text", help="Output format"

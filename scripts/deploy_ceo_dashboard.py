@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Deploy and validate CEO Dashboard for immediate use
+"""Deploy and validate CEO Dashboard for immediate use.
+
 Ensures all backend APIs are running and creates Retool configuration
 """
 
@@ -25,7 +26,7 @@ RESET = "\033[0m"
 
 
 class CEODashboardDeployer:
-    """Deploy and validate CEO Dashboard"""
+    """Deploy and validate CEO Dashboard."""
 
     def __init__(self):
         self.backend_url = BACKEND_URL
@@ -33,8 +34,7 @@ class CEODashboardDeployer:
         self.test_results = []
 
     async def validate_backend_health(self) -> bool:
-        """Check if backend is running and healthy"""
-        print(f"\n{BLUE}=== Validating Backend Health ==={RESET}")
+        """Check if backend is running and healthy."""print(f"\n{BLUE}=== Validating Backend Health ==={RESET}").
 
         try:
             async with aiohttp.ClientSession() as session:
@@ -56,8 +56,7 @@ class CEODashboardDeployer:
             return False
 
     async def test_executive_endpoints(self) -> Dict[str, bool]:
-        """Test all executive API endpoints"""
-        print(f"\n{BLUE}=== Testing Executive API Endpoints ==={RESET}")
+        """Test all executive API endpoints."""print(f"\n{BLUE}=== Testing Executive API Endpoints ==={RESET}").
 
         endpoints = [
             {
@@ -114,8 +113,7 @@ class CEODashboardDeployer:
         return results
 
     async def test_strategic_chat(self) -> bool:
-        """Test strategic chat functionality"""
-        print(f"\n{BLUE}=== Testing Strategic Chat ==={RESET}")
+        """Test strategic chat functionality."""print(f"\n{BLUE}=== Testing Strategic Chat ==={RESET}").
 
         test_queries = [
             {
@@ -158,8 +156,7 @@ class CEODashboardDeployer:
         return False
 
     async def test_system_endpoints(self) -> Dict[str, bool]:
-        """Test system intelligence endpoints"""
-        print(f"\n{BLUE}=== Testing System Intelligence Endpoints ==={RESET}")
+        """Test system intelligence endpoints."""print(f"\n{BLUE}=== Testing System Intelligence Endpoints ==={RESET}").
 
         endpoints = [
             {"name": "Agent Status", "path": "/api/system/agents"},
@@ -191,8 +188,8 @@ class CEODashboardDeployer:
         return results
 
     def generate_retool_config(self) -> Dict[str, Any]:
-        """Generate Retool application configuration"""
-        return {
+        """Generate Retool application configuration."""return {.
+
             "name": "Sophia CEO Dashboard",
             "description": "Executive command center for Pay Ready AI",
             "resources": [
@@ -254,16 +251,15 @@ class CEODashboardDeployer:
         }
 
     def generate_deployment_guide(self, test_results: Dict[str, Any]) -> str:
-        """Generate deployment guide based on test results"""
-        guide = f"""
+        """Generate deployment guide based on test results."""guide = f"""
+
 {BLUE}=== CEO Dashboard Deployment Guide ==={RESET}
 
 Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 {BLUE}1. Backend Status:{RESET}
-"""
+"""if test_results.get("backend_healthy"):
 
-        if test_results.get("backend_healthy"):
             guide += f"{GREEN}✓ Backend is running at {self.backend_url}{RESET}\n"
         else:
             guide += f"{RED}✗ Backend is not running. Start it with:{RESET}\n"
@@ -291,7 +287,9 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         guide += "# Test dashboard summary\n"
         guide += f'curl -H "X-Admin-Key: {self.admin_key}" {self.backend_url}/api/retool/executive/dashboard-summary\n\n'
         guide += "# Test strategic chat\n"
-        guide += f"""curl -X POST -H "X-Admin-Key: {self.admin_key}" -H "Content-Type: application/json" \\
+        guide += f
+"""curl -X POST -H "X-Admin-Key: {self.admin_key}" -H "Content-Type: application/json" \\.
+
      -d '{{"message": "What is our client health status?", "mode": "internal"}}' \\
      {self.backend_url}/api/retool/executive/strategic-chat\n"""
 
@@ -306,7 +304,7 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         return guide
 
     async def deploy(self):
-        """Run full deployment validation"""
+        """Run full deployment validation."""
         print(f"{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Sophia AI CEO Dashboard Deployment Tool{RESET}")
         print(f"{BLUE}{'=' * 60}{RESET}")

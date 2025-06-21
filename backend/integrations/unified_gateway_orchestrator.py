@@ -1,8 +1,8 @@
-"""Sophia AI - Unified API Gateway Orchestrator
-Intelligent routing and management across multiple API gateways
-"""
+"""Sophia AI - Unified API Gateway Orchestrator.
 
-import asyncio
+Intelligent routing and management across multiple API gateways
+"""import asyncio
+
 import json
 import logging
 from dataclasses import dataclass, field
@@ -17,7 +17,7 @@ from backend.core.auto_esc_config import config
 
 
 class GatewayType(Enum):
-    """Available gateway types"""
+    """Available gateway types."""
 
     KONG = "kong"
     PORTKEY = "portkey"
@@ -27,9 +27,10 @@ class GatewayType(Enum):
 
 
 class ServiceCategory(Enum):
-    """Service categories for routing"""
+    """Service categories for routing."""
 
-    LLM = "llm"
+    LLM = "llm".
+
     VECTOR_DB = "vector_db"
     BUSINESS_INTELLIGENCE = "business_intelligence"
     PROPERTY_MANAGEMENT = "property_management"
@@ -40,9 +41,9 @@ class ServiceCategory(Enum):
 
 @dataclass
 class GatewayRoute:
-    """Configuration for a gateway route"""
+    """Configuration for a gateway route."""
+    service_name: str.
 
-    service_name: str
     category: ServiceCategory
     gateway_type: GatewayType
     endpoint: str
@@ -58,9 +59,10 @@ class GatewayRoute:
 
 @dataclass
 class GatewayMetrics:
-    """Metrics for gateway performance"""
+    """Metrics for gateway performance."""
 
-    total_requests: int = 0
+    total_requests: int = 0.
+
     successful_requests: int = 0
     failed_requests: int = 0
     total_latency: float = 0.0
@@ -82,11 +84,11 @@ class GatewayMetrics:
 
 
 class UnifiedGatewayOrchestrator:
-    """Unified API Gateway Orchestrator
-    Manages routing, failover, and optimization across all API gateways
-    """
+    """Unified API Gateway Orchestrator.
 
-    def __init__(self):
+            Manages routing, failover, and optimization across all API gateways
+    """def __init__(self):.
+
         self.logger = logging.getLogger(__name__)
         self.config = config
         self.redis_client = redis.Redis.from_url(
@@ -106,8 +108,8 @@ class UnifiedGatewayOrchestrator:
         asyncio.create_task(self._metrics_aggregation_loop())
 
     def _initialize_routes(self):
-        """Initialize all gateway routes"""
-        # LLM Routes
+        """Initialize all gateway routes."""# LLM Routes.
+
         self._add_llm_routes()
 
         # Vector Database Routes
@@ -130,8 +132,9 @@ class UnifiedGatewayOrchestrator:
         )
 
     def _add_llm_routes(self):
-        """Add LLM service routes"""
-        llm_routes = []
+        """Add LLM service routes."""
+
+        llm_routes = [].
 
         # Portkey Gateway (Primary)
         if self.config.ai_services and self.config.ai_services.portkey_api_key:
@@ -198,8 +201,8 @@ class UnifiedGatewayOrchestrator:
         self.routes["llm"] = llm_routes
 
     def _add_vector_db_routes(self):
-        """Add vector database routes"""
-        vector_routes = []
+        """Add vector database routes."""
+        vector_routes = [].
 
         # Pinecone
         if (
@@ -239,8 +242,9 @@ class UnifiedGatewayOrchestrator:
         self.routes["vector_db"] = vector_routes
 
     def _add_business_intelligence_routes(self):
-        """Add business intelligence service routes"""
-        bi_routes = []
+        """Add business intelligence service routes."""
+
+        bi_routes = [].
 
         # HubSpot
         if (
@@ -297,8 +301,8 @@ class UnifiedGatewayOrchestrator:
         self.routes["business_intelligence"] = bi_routes
 
     def _add_property_management_routes(self):
-        """Add property management service routes"""
-        pm_routes = []
+        """Add property management service routes."""
+        pm_routes = [].
 
         # Yardi
         if (
@@ -371,8 +375,9 @@ class UnifiedGatewayOrchestrator:
         self.routes["property_management"] = pm_routes
 
     def _add_analytics_routes(self):
-        """Add analytics service routes"""
-        analytics_routes = []
+        """Add analytics service routes."""
+
+        analytics_routes = [].
 
         # Arize AI (through Kong)
         if (
@@ -412,8 +417,8 @@ class UnifiedGatewayOrchestrator:
         self.routes["analytics"] = analytics_routes
 
     def _add_communication_routes(self):
-        """Add communication service routes"""
-        comm_routes = []
+        """Add communication service routes."""
+        comm_routes = [].
 
         # Slack
         if self.config.communication and self.config.communication.slack_bot_token:
@@ -454,20 +459,20 @@ class UnifiedGatewayOrchestrator:
         headers: Optional[Dict[str, str]] = None,
         prefer_gateway: Optional[GatewayType] = None,
     ) -> Dict[str, Any]:
-        """Route a request through the optimal gateway
+        """Route a request through the optimal gateway.
 
-        Args:
-            service_name: Name of the service to route to
-            method: HTTP method
-            path: API path
-            data: Request data
-            headers: Additional headers
-            prefer_gateway: Preferred gateway type
+                        Args:
+                            service_name: Name of the service to route to
+                            method: HTTP method
+                            path: API path
+                            data: Request data
+                            headers: Additional headers
+                            prefer_gateway: Preferred gateway type
 
-        Returns:
-            Response data
-        """
-        # Get available routes for service
+                        Returns:
+                            Response data
+        """# Get available routes for service.
+
         available_routes = self._get_available_routes(service_name, prefer_gateway)
 
         if not available_routes:
@@ -512,8 +517,9 @@ class UnifiedGatewayOrchestrator:
     def _get_available_routes(
         self, service_name: str, prefer_gateway: Optional[GatewayType] = None
     ) -> List[GatewayRoute]:
-        """Get available routes for a service"""
-        routes = []
+        """Get available routes for a service."""
+
+        routes = [].
 
         # Check all route categories
         for category_routes in self.routes.values():
@@ -536,9 +542,9 @@ class UnifiedGatewayOrchestrator:
     def _sort_routes_by_performance(
         self, routes: List[GatewayRoute]
     ) -> List[GatewayRoute]:
-        """Sort routes by performance metrics"""
+        """Sort routes by performance metrics."""
+        def route_score(route: GatewayRoute) -> float:.
 
-        def route_score(route: GatewayRoute) -> float:
             metrics = self.metrics.get(
                 f"{route.service_name}:{route.gateway_type.value}", GatewayMetrics()
             )
@@ -560,8 +566,10 @@ class UnifiedGatewayOrchestrator:
         return sorted(routes, key=route_score, reverse=True)
 
     async def _check_rate_limit(self, route: GatewayRoute) -> bool:
-        """Check if route is within rate limit"""
-        key = f"rate_limit:{route.service_name}:{route.gateway_type.value}"
+        """Check if route is within rate limit."""
+
+        key = f"rate_limit:{route.service_name}:{route.gateway_type.value}".
+
         current = self.redis_client.incr(key)
 
         if current == 1:
@@ -577,8 +585,8 @@ class UnifiedGatewayOrchestrator:
         data: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
-        """Execute request through gateway"""
-        start_time = datetime.now()
+        """Execute request through gateway."""
+        start_time = datetime.now().
 
         # Build URL
         url = f"{route.endpoint}{path}"
@@ -628,8 +636,9 @@ class UnifiedGatewayOrchestrator:
         latency: float = 0,
         error: Optional[str] = None,
     ):
-        """Update route metrics"""
-        key = f"{route.service_name}:{route.gateway_type.value}"
+        """Update route metrics."""
+
+        key = f"{route.service_name}:{route.gateway_type.value}".
 
         if key not in self.metrics:
             self.metrics[key] = GatewayMetrics()
@@ -663,8 +672,9 @@ class UnifiedGatewayOrchestrator:
         )
 
     async def _health_check_loop(self):
-        """Background task to check gateway health"""
-        while True:
+        """Background task to check gateway health."""
+        while True:.
+
             try:
                 await asyncio.sleep(300)  # Check every 5 minutes
 
@@ -695,8 +705,10 @@ class UnifiedGatewayOrchestrator:
                 self.logger.error(f"Health check error: {str(e)}")
 
     async def _metrics_aggregation_loop(self):
-        """Background task to aggregate and report metrics"""
-        while True:
+        """Background task to aggregate and report metrics."""
+
+        while True:.
+
             try:
                 await asyncio.sleep(3600)  # Aggregate hourly
 
@@ -740,8 +752,9 @@ class UnifiedGatewayOrchestrator:
                 self.logger.error(f"Metrics aggregation error: {str(e)}")
 
     def get_gateway_status(self) -> Dict[str, Any]:
-        """Get current gateway status and metrics"""
-        return {
+        """Get current gateway status and metrics."""
+        return {.
+
             "configured_routes": {
                 category: len(routes) for category, routes in self.routes.items()
             },
@@ -766,7 +779,9 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_portkey(self) -> Optional[Any]:
         """Initializes the Portkey client."""
-        if self.config.ai_services and self.config.ai_services.portkey_api_key:
+
+        if self.config.ai_services and self.config.ai_services.portkey_api_key:.
+
             from portkey_ai import Portkey
 
             self.logger.info("Portkey client initialized.")
@@ -776,7 +791,8 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_openrouter(self) -> Optional[Any]:
         """Initializes the OpenRouter client."""
-        if self.config.ai_services and self.config.ai_services.openrouter_api_key:
+        if self.config.ai_services and self.config.ai_services.openrouter_api_key:.
+
             import openrouter
 
             self.logger.info("OpenRouter client initialized.")
@@ -786,7 +802,9 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_openai(self) -> Optional[Any]:
         """Initializes the OpenAI client."""
-        if self.config.ai_services and self.config.ai_services.openai_api_key:
+
+        if self.config.ai_services and self.config.ai_services.openai_api_key:.
+
             from openai import OpenAI
 
             self.logger.info("OpenAI client initialized.")
@@ -796,7 +814,8 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_anthropic(self) -> Optional[Any]:
         """Initializes the Anthropic client."""
-        if self.config.ai_services and self.config.ai_services.anthropic_api_key:
+        if self.config.ai_services and self.config.ai_services.anthropic_api_key:.
+
             from anthropic import Anthropic
 
             self.logger.info("Anthropic client initialized.")
@@ -806,7 +825,9 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_pinecone(self) -> Optional[Any]:
         """Initializes the Pinecone client."""
-        if (
+
+        if (.
+
             self.config.vector_databases
             and self.config.vector_databases.pinecone_api_key
         ):
@@ -819,7 +840,8 @@ class UnifiedGatewayOrchestrator:
 
     def _initialize_arize(self) -> Optional[Any]:
         """Initializes the Arize client."""
-        if (
+        if (.
+
             self.config.observability
             and self.config.observability.arize_api_key
             and self.config.observability.arize_space_id
@@ -836,7 +858,9 @@ class UnifiedGatewayOrchestrator:
 
     async def get_client_for_route(self, route: GatewayRoute) -> Optional[Any]:
         """Gets the appropriate client for a given route."""
-        client = getattr(self, route.api_key_name, None)
+
+        client = getattr(self, route.api_key_name, None).
+
         if client:
             return client
 
@@ -862,7 +886,7 @@ _orchestrator: Optional[UnifiedGatewayOrchestrator] = None
 
 
 def get_gateway_orchestrator() -> UnifiedGatewayOrchestrator:
-    """Get or create the gateway orchestrator singleton"""
+    """Get or create the gateway orchestrator singleton."""
     global _orchestrator
     if _orchestrator is None:
         _orchestrator = UnifiedGatewayOrchestrator()

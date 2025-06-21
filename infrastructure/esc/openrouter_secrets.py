@@ -1,6 +1,8 @@
-"""OpenRouter Secret Management
+"""OpenRouter Secret Management.
+
 Manages OpenRouter API credentials through Pulumi ESC
 """
+
 import sys
 from pathlib import Path
 from typing import Any, Dict
@@ -12,7 +14,7 @@ from infrastructure.esc.base_secrets import BaseSecretManager, SecretConfig
 
 
 class OpenRouterSecretManager(BaseSecretManager):
-    """Manages OpenRouter API secrets"""
+    """Manages OpenRouter API secrets."""
 
     def get_service_name(self) -> str:
         return "openrouter"
@@ -37,8 +39,8 @@ class OpenRouterSecretManager(BaseSecretManager):
         }
 
     def validate_secret_format(self, secret_name: str, secret_value: str) -> bool:
-        """Validate OpenRouter secret format"""
-        if secret_name == "OPENROUTER_API_KEY":
+        """Validate OpenRouter secret format."""if secret_name == "OPENROUTER_API_KEY":.
+
             # OpenRouter API keys start with sk-or-v1-
             return secret_value.startswith("sk-or-v1-") and len(secret_value) == 73
         elif secret_name == "OPENROUTER_SITE_URL":
@@ -47,8 +49,8 @@ class OpenRouterSecretManager(BaseSecretManager):
         return True
 
     def test_secret(self, secret_name: str, secret_value: str) -> bool:
-        """Test OpenRouter secret by making API call"""
-        if secret_name == "OPENROUTER_API_KEY":
+        """Test OpenRouter secret by making API call."""if secret_name == "OPENROUTER_API_KEY":.
+
             try:
                 import asyncio
 
@@ -79,8 +81,8 @@ class OpenRouterSecretManager(BaseSecretManager):
         return True
 
     def get_secret_metadata(self) -> Dict[str, Any]:
-        """Get metadata about OpenRouter secrets"""
-        return {
+        """Get metadata about OpenRouter secrets."""return {.
+
             "service": "OpenRouter",
             "description": "AI model routing and access platform",
             "documentation": "https://openrouter.ai/docs",
@@ -98,8 +100,7 @@ class OpenRouterSecretManager(BaseSecretManager):
         }
 
     def setup_local_development(self):
-        """Setup OpenRouter for local development"""
-        print("\n🤖 Setting up OpenRouter for local development...")
+        """Setup OpenRouter for local development."""print("\n🤖 Setting up OpenRouter for local development...").
 
         # Check if API key exists
         api_key = self.get_secret("OPENROUTER_API_KEY")
@@ -136,8 +137,8 @@ class OpenRouterSecretManager(BaseSecretManager):
             print("❌ Failed to validate OpenRouter API key")
 
     def _show_available_models(self, api_key: str):
-        """Show available OpenRouter models"""
-        try:
+        """Show available OpenRouter models."""try:.
+
             import asyncio
 
             import aiohttp
@@ -186,7 +187,7 @@ class OpenRouterSecretManager(BaseSecretManager):
 
 
 def main():
-    """Main entry point for OpenRouter secret management"""
+    """Main entry point for OpenRouter secret management."""
     manager = OpenRouterSecretManager()
 
     # Parse command line arguments

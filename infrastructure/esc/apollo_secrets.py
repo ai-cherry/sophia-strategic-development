@@ -1,5 +1,5 @@
-"""Pulumi ESC Secret Manager for Apollo.io.
-"""
+"""Pulumi ESC Secret Manager for Apollo.io."""
+
 from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 

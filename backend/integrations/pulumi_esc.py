@@ -1,4 +1,5 @@
-"""Sophia AI - Pulumi ESC Integration Module
+"""Sophia AI - Pulumi ESC Integration Module.
+
 Centralized secrets and configuration management for Pay Ready operations
 """
 
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ESCConfig:
-    """Configuration for Pulumi ESC integration"""
+    """Configuration for Pulumi ESC integration."""
 
     environment_name: str = "sophia-ai/sophia-production"
     project_name: str = "sophia-ai"
@@ -20,19 +21,18 @@ class ESCConfig:
 
 
 class SophiaESCManager:
-    """Pulumi ESC integration for Sophia AI
-    Provides centralized secrets and configuration management
-    """
+    """Pulumi ESC integration for Sophia AI.
 
-    def __init__(self, config: ESCConfig = None):
+            Provides centralized secrets and configuration management
+    """def __init__(self, config: ESCConfig = None):.
         self.config = config or ESCConfig()
         self.environment_path = (
             f"{self.config.organization}/{self.config.environment_name}"
         )
 
     def get_environment_values(self) -> Dict[str, Any]:
-        """Retrieve all environment values from Pulumi ESC"""
-        try:
+        """Retrieve all environment values from Pulumi ESC."""try:.
+
             result = subprocess.run(
                 ["esc", "env", "get", self.environment_path],
                 capture_output=True,
@@ -72,12 +72,12 @@ class SophiaESCManager:
             return {}
 
     def get_secret(self, key_path: str) -> Optional[str]:
-        """Get a specific secret value from the environment
+        """Get a specific secret value from the environment.
 
-        Args:
-            key_path: Dot-separated path to the secret (e.g., 'database.password')
-        """
-        try:
+                        Args:
+                            key_path: Dot-separated path to the secret (e.g., 'database.password')
+        """try:.
+
             values = self.get_environment_values()
 
             # Navigate through nested dictionary
@@ -96,13 +96,13 @@ class SophiaESCManager:
             return None
 
     def get_database_config(self) -> Dict[str, Any]:
-        """Get database configuration from ESC"""
-        values = self.get_environment_values()
+        """Get database configuration from ESC."""values = self.get_environment_values().
+
         return values.get("database", {})
 
     def get_ai_service_config(self) -> Dict[str, Any]:
-        """Get AI service configuration (OpenAI, Anthropic, HuggingFace)"""
-        values = self.get_environment_values()
+        """Get AI service configuration (OpenAI, Anthropic, HuggingFace)."""values = self.get_environment_values().
+
         return {
             "openai": values.get("openai", {}),
             "anthropic": values.get("anthropic", {}),
@@ -110,8 +110,8 @@ class SophiaESCManager:
         }
 
     def get_business_integration_config(self) -> Dict[str, Any]:
-        """Get business integration configuration (Gong, Salesforce, Slack)"""
-        values = self.get_environment_values()
+        """Get business integration configuration (Gong, Salesforce, Slack)."""values = self.get_environment_values().
+
         return {
             "gong": values.get("gong", {}),
             "salesforce": values.get("salesforce", {}),
@@ -119,20 +119,20 @@ class SophiaESCManager:
         }
 
     def get_vector_database_config(self) -> Dict[str, Any]:
-        """Get vector database configuration (Pinecone, Weaviate)"""
-        values = self.get_environment_values()
+        """Get vector database configuration (Pinecone, Weaviate)."""values = self.get_environment_values().
+
         return {
             "pinecone": values.get("pinecone", {}),
             "weaviate": values.get("weaviate", {}),
         }
 
     def run_with_environment(self, command: list) -> subprocess.CompletedProcess:
-        """Run a command with ESC environment variables injected
+        """Run a command with ESC environment variables injected.
 
-        Args:
-            command: Command to run as a list of strings
-        """
-        try:
+                        Args:
+                            command: Command to run as a list of strings
+        """try:.
+
             # Use esc run to inject environment variables
             esc_command = ["esc", "run", self.environment_path, "--"] + command
 
@@ -148,10 +148,11 @@ class SophiaESCManager:
             raise
 
     def update_local_env_file(self, env_file_path: str = ".env") -> bool:
-        """Update local .env file with values from ESC environment
-        Useful for development and testing
-        """
-        try:
+        """Update local .env file with values from ESC environment.
+
+                        Useful for development and testing
+        """try:.
+
             values = self.get_environment_values()
 
             # Flatten the nested configuration for .env format
@@ -177,8 +178,7 @@ class SophiaESCManager:
     def _flatten_config(
         self, config: Dict[str, Any], prefix: str = ""
     ) -> Dict[str, Any]:
-        """Flatten nested configuration dictionary for .env format"""
-        flattened = {}
+        """Flatten nested configuration dictionary for .env format."""flattened = {}.
 
         for key, value in config.items():
             new_key = f"{prefix}_{key}".upper() if prefix else key.upper()
@@ -193,8 +193,7 @@ class SophiaESCManager:
         return flattened
 
     def validate_environment(self) -> Dict[str, bool]:
-        """Validate that all required configuration is present"""
-        validation_results = {}
+        """Validate that all required configuration is present."""validation_results = {}.
 
         try:
             values = self.get_environment_values()
@@ -249,8 +248,8 @@ sophia_esc = SophiaESCManager()
 
 @esc_bp.route("/config")
 def get_config():
-    """Get non-sensitive configuration values"""
-    try:
+    """Get non-sensitive configuration values."""try:.
+
         values = sophia_esc.get_environment_values()
 
         # Remove sensitive data before returning
@@ -275,8 +274,8 @@ def get_config():
 
 @esc_bp.route("/validate")
 def validate_environment():
-    """Validate environment configuration"""
-    try:
+    """Validate environment configuration."""try:.
+
         validation_results = sophia_esc.validate_environment()
 
         all_valid = all(validation_results.values())
@@ -291,8 +290,8 @@ def validate_environment():
 
 @esc_bp.route("/health")
 def esc_health():
-    """Check ESC integration health"""
-    try:
+    """Check ESC integration health."""try:.
+
         # Test basic ESC connectivity
         values = sophia_esc.get_environment_values()
 
@@ -311,7 +310,7 @@ def esc_health():
 
 # Example usage
 def main():
-    """Example usage of Sophia ESC integration"""
+    """Example usage of Sophia ESC integration."""
     esc_manager = SophiaESCManager()
 
     # Get database configuration

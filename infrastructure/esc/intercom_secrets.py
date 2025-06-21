@@ -1,6 +1,8 @@
-"""Pulumi ESC - Intercom Secret Management
+"""Pulumi ESC - Intercom Secret Management.
+
 Manages Intercom API keys.
 """
+
 import logging
 import os
 

@@ -1,4 +1,5 @@
-"""Provisions a remote development server on Lambda Labs, configured as a Docker host,
+"""Provisions a remote development server on Lambda Labs, configured as a Docker host,.
+
 using the Lambda Labs REST API directly via a dynamic Pulumi provider.
 """
 
@@ -16,8 +17,7 @@ class LambdaLabsProvider(pulumi.dynamic.ResourceProvider):
     """A dynamic provider to manage a Lambda Labs instance via their REST API."""
 
     def create(self, props):
-        """Provisions a new Lambda Labs instance."""
-        api_key = props["api_key"]
+        """Provisions a new Lambda Labs instance."""api_key = props["api_key"].
 
         url = "https://cloud.lambda.ai/api/v1/instance-operations/launch"
         payload = {
@@ -46,8 +46,7 @@ class LambdaLabsProvider(pulumi.dynamic.ResourceProvider):
         )
 
     def delete(self, id, props):
-        """Terminates a Lambda Labs instance."""
-        api_key = props["api_key"]
+        """Terminates a Lambda Labs instance."""api_key = props["api_key"].
 
         url = "https://cloud.lambda.ai/api/v1/instance-operations/terminate"
         payload = {"instance_ids": [id]}

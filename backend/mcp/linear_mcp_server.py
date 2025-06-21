@@ -1,4 +1,5 @@
-"""Linear MCP Server
+"""Linear MCP Server.
+
 MCP server for Linear project management integration, refactored to use the BaseMCPServer.
 """
 
@@ -29,12 +30,11 @@ class LinearMCPServer(BaseMCPServer):
         self.integration_client = linear_integration
 
     async def initialize_integration(self):
-        """Initializes the Linear integration."""
-        await self.integration_client.initialize()
+        """Initializes the Linear integration."""await self.integration_client.initialize().
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Linear resources."""
-        return [
+        """Lists available Linear resources."""return [.
+
             Resource(
                 uri="linear://health", name="Linear Health", mimeType="application/json"
             ),
@@ -52,8 +52,8 @@ class LinearMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Linear resource."""
-        uri = request.uri
+        """Gets a specific Linear resource."""uri = request.uri.
+
         data = None
         if uri == "linear://health":
             data = await self.integration_client.get_health_status()
@@ -72,8 +72,8 @@ class LinearMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2, default=str)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Linear tools."""
-        return [
+        """Lists available Linear tools."""return [.
+
             Tool(
                 name="create_issue",
                 description="Create a new Linear issue.",
@@ -116,8 +116,8 @@ class LinearMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Linear tool call."""
-        tool_name = request.params.name
+        """Handles a Linear tool call."""tool_name = request.params.name.
+
         args = request.params.arguments or {}
         result = None
 

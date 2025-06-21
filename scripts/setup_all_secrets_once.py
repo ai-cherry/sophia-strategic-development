@@ -11,13 +11,17 @@ import subprocess
 import sys
 from pathlib import Path
 
-DEFAULT_ENV = f"{os.getenv('PULUMI_ORG', 'scoobyjava-org')}/default/sophia-ai-production"
+DEFAULT_ENV = (
+    f"{os.getenv('PULUMI_ORG', 'scoobyjava-org')}/default/sophia-ai-production"
+)
 
 
 def require_pulumi_token() -> str:
     token = os.getenv("PULUMI_ACCESS_TOKEN")
     if not token:
-        sys.stderr.write("Error: PULUMI_ACCESS_TOKEN environment variable is required\n")
+        sys.stderr.write(
+            "Error: PULUMI_ACCESS_TOKEN environment variable is required\n"
+        )
         sys.exit(1)
     return token
 

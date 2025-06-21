@@ -3,9 +3,8 @@
 
 This script demonstrates how to use the LlamaIndex integration for document
 processing and querying. It processes a sample document and performs a query.
-"""
+"""import asyncio
 
-import asyncio
 import logging
 import os
 import sys
@@ -26,8 +25,7 @@ logger = logging.getLogger(__name__)
 from backend.integrations.llamaindex_integration import LlamaIndexProcessor
 
 # Sample document for testing
-SAMPLE_DOCUMENT = """
-# Pay Ready Apartment Lease Agreement
+SAMPLE_DOCUMENT = """# Pay Ready Apartment Lease Agreement.
 
 ## LEASE AGREEMENT
 
@@ -50,9 +48,8 @@ NOW, THEREFORE, for and in consideration of the covenants and obligations contai
 3. DAMAGE DEPOSIT. Upon the due execution of this Agreement, Tenant shall deposit with Landlord the sum of TWO THOUSAND DOLLARS ($2,000.00) receipt of which is hereby acknowledged by Landlord, as security for any damage caused to the Premises during the term hereof. Such deposit shall be returned to Tenant, without interest, and less any set off for damages to the Premises upon the termination of this Agreement.
 
 4. USE OF PREMISES. The Premises shall be used and occupied by Tenant and Tenant's immediate family, consisting of JOHN DOE, JANE DOE, and JIMMY DOE, exclusively, as a private single-family dwelling, and no part of the Premises shall be used at any time during the term of this Agreement by Tenant for the purpose of carrying on any business, profession, or trade of any kind, or for any purpose other than as a private single-family dwelling.
-"""
+"""# Sample queries for testing.
 
-# Sample queries for testing
 SAMPLE_QUERIES = [
     "What is the monthly rent amount?",
     "How long is the lease term?",
@@ -63,7 +60,8 @@ SAMPLE_QUERIES = [
 
 
 async def process_document():
-    """Process the sample document with LlamaIndex."""
+"""Process the sample document with LlamaIndex."""
+
     logger.info("Initializing LlamaIndex processor")
     processor = LlamaIndexProcessor()
 
@@ -77,8 +75,8 @@ async def process_document():
 
 
 async def query_document():
-    """Query the processed document with sample queries."""
-    logger.info("Initializing LlamaIndex processor")
+    """Query the processed document with sample queries."""logger.info("Initializing LlamaIndex processor").
+
     processor = LlamaIndexProcessor()
 
     logger.info("Running sample queries")

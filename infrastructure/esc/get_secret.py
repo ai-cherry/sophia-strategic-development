@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Sophia AI - Get Secret from Pulumi ESC
+"""Sophia AI - Get Secret from Pulumi ESC.
+
 This script retrieves a secret from Pulumi ESC for use in GitHub Actions workflows.
 """
 
@@ -26,7 +27,7 @@ try:
 except ImportError:
     # Fallback implementation if the module is not available
     class ESCClient:
-        """Fallback implementation of ESCClient"""
+        """Fallback implementation of ESCClient."""
 
         def __init__(self, organization: str, project: str, stack: str):
             self.organization = organization
@@ -35,8 +36,7 @@ except ImportError:
             self.initialized = False
 
         async def initialize(self) -> bool:
-            """Initialize the client"""
-            import subprocess
+            """Initialize the client."""import subprocess.
 
             try:
                 # Check if pulumi is installed
@@ -53,8 +53,8 @@ except ImportError:
                 return False
 
         async def get_secret(self, key: str) -> Optional[str]:
-            """Get a secret from Pulumi ESC"""
-            import json
+            """Get a secret from Pulumi ESC."""import json.
+
             import subprocess
 
             if not self.initialized:
@@ -83,8 +83,8 @@ except ImportError:
                 return None
 
         async def get_configuration(self, key: str) -> Optional[str]:
-            """Get a configuration value from Pulumi ESC"""
-            import json
+            """Get a configuration value from Pulumi ESC."""import json.
+
             import subprocess
 
             if not self.initialized:
@@ -120,8 +120,8 @@ async def get_secret(
     project: str = "sophia",
     environment: str = "production",
 ) -> Optional[str]:
-    """Get a secret from Pulumi ESC"""
-    try:
+    """Get a secret from Pulumi ESC."""try:.
+
         # Initialize ESC client
         esc_client = ESCClient(
             organization=organization, project=project, stack=environment
@@ -144,8 +144,8 @@ async def get_config(
     project: str = "sophia",
     environment: str = "production",
 ) -> Optional[str]:
-    """Get a configuration value from Pulumi ESC"""
-    try:
+    """Get a configuration value from Pulumi ESC."""try:.
+
         # Initialize ESC client
         esc_client = ESCClient(
             organization=organization, project=project, stack=environment
@@ -167,8 +167,8 @@ async def get_service_secrets(
     project: str = "sophia",
     environment: str = "production",
 ) -> Dict[str, str]:
-    """Get all secrets for a service from Pulumi ESC"""
-    try:
+    """Get all secrets for a service from Pulumi ESC."""try:.
+
         # Initialize ESC client
         esc_client = ESCClient(
             organization=organization, project=project, stack=environment
@@ -208,7 +208,7 @@ async def get_service_secrets(
 
 
 async def main():
-    """Main function"""
+    """Main function."""
     parser = argparse.ArgumentParser(description="Get a secret from Pulumi ESC")
     parser.add_argument("--service", "-s", required=True, help="Service name")
     parser.add_argument(

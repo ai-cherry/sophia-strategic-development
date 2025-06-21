@@ -45,3 +45,13 @@ repos:
           "types-redis",
           "types-psycopg2"
         ]
+
+  - repo: local
+    hooks:
+      - id: python-syntax-validator
+        name: Python Syntax Validator
+        entry: python scripts/python_syntax_validator.py
+        language: system
+        types: [python]
+        pass_filenames: false
+        args: ["--severity", "error"]

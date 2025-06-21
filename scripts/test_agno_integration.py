@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Test script for Agno integration
+"""Test script for Agno integration.
+
 Tests the Agno MCP server, Agno integration, and AG-UI components
 """
 
@@ -38,6 +39,7 @@ TEST_REQUEST = "What is the current status of our Gong integration? Please check
 
 async def test_agno_integration():
     """Test the Agno integration."""
+
     logger.info("Testing Agno integration...")
 
     try:
@@ -70,8 +72,7 @@ async def test_agno_integration():
 
 
 async def test_agno_bridge():
-    """Test the MCP-to-Agno bridge."""
-    logger.info("Testing MCP-to-Agno bridge...")
+    """Test the MCP-to-Agno bridge."""logger.info("Testing MCP-to-Agno bridge...").
 
     try:
         # Initialize MCP client
@@ -104,8 +105,7 @@ async def test_agno_bridge():
 
 
 async def test_agent_request():
-    """Test an agent request."""
-    logger.info("Testing agent request...")
+    """Test an agent request."""logger.info("Testing agent request...").
 
     try:
         # Initialize MCP client
@@ -142,8 +142,7 @@ async def test_agent_request():
 
 
 async def test_mcp_server():
-    """Test the Agno MCP server via MCP client."""
-    logger.info("Testing Agno MCP server...")
+    """Test the Agno MCP server via MCP client."""logger.info("Testing Agno MCP server...").
 
     try:
         # Initialize MCP client
