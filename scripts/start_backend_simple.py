@@ -106,7 +106,7 @@ async def health_check():
 async def get_executive_summary(x_admin_key: str = Header(None)):
     """Get executive summary data"""
     verify_admin_key(x_admin_key)
-    
+
     return {
         "timestamp": datetime.now().isoformat(),
         "company": "Pay Ready",
@@ -140,7 +140,7 @@ async def get_executive_summary(x_admin_key: str = Header(None)):
 async def get_executive_metrics(x_admin_key: str = Header(None)):
     """Get detailed metrics"""
     verify_admin_key(x_admin_key)
-    
+
     return {
         "timestamp": datetime.now().isoformat(),
         "kpis": [
@@ -199,7 +199,7 @@ async def get_executive_metrics(x_admin_key: str = Header(None)):
 async def get_executive_alerts(x_admin_key: str = Header(None)):
     """Get executive alerts"""
     verify_admin_key(x_admin_key)
-    
+
     return {
         "timestamp": datetime.now().isoformat(),
         "alerts": [
@@ -243,7 +243,7 @@ async def get_executive_alerts(x_admin_key: str = Header(None)):
 async def get_executive_insights(x_admin_key: str = Header(None)):
     """Get AI-generated insights"""
     verify_admin_key(x_admin_key)
-    
+
     return {
         "timestamp": datetime.now().isoformat(),
         "insights": [
@@ -432,9 +432,9 @@ To stop the server:
 
 def main():
     """Main function"""
-    print(f"{BLUE}{'='*60}{RESET}")
+    print(f"{BLUE}{'=' * 60}{RESET}")
     print(f"{BLUE}Sophia AI Simple Backend Starter{RESET}")
-    print(f"{BLUE}{'='*60}{RESET}")
+    print(f"{BLUE}{'=' * 60}{RESET}")
 
     # Start backend
     if start_backend():

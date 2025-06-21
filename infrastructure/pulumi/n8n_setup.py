@@ -1,5 +1,5 @@
-"""Pulumi script for setting up n8n resources.
-"""
+"""Pulumi script for setting up n8n resources."""
+
 import pulumi
 
 from infrastructure.esc.n8n_secrets import n8n_secret_manager

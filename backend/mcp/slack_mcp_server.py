@@ -24,8 +24,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class SlackMCPServer(BaseMCPServer):
-    """MCP Server for Slack integration.
-    """
+    """MCP Server for Slack integration."""
 
     def __init__(self):
         super().__init__("slack")

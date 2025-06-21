@@ -120,7 +120,7 @@ async def test_mcp_workflow():
         print(f"\nWorkflow completed with {len(results)} steps")
         for i, result in enumerate(results):
             status = "✅" if result.get("success") else "❌"
-            print(f"Step {i+1}: {status}")
+            print(f"Step {i + 1}: {status}")
 
     except Exception as e:
         print(f"\n❌ Workflow test failed: {e}")

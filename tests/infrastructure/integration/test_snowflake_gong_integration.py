@@ -1,5 +1,4 @@
-"""Integration tests for Snowflake and Gong components
-"""
+"""Integration tests for Snowflake and Gong components"""
 
 import os
 import sys
@@ -25,16 +24,14 @@ class TestSnowflakeGongIntegration:
     """
 
     def setup_method(self):
-        """Set up the test environment before each test.
-        """
+        """Set up the test environment before each test."""
         self.env_manager = pytest.importorskip(
             "tests.infrastructure.conftest"
         ).TestEnvironmentManager()
         self.test_stack = self.env_manager.create_test_stack("snowflake-gong-test")
 
     def teardown_method(self):
-        """Clean up the test environment after each test.
-        """
+        """Clean up the test environment after each test."""
         self.env_manager.cleanup_test_stack(self.test_stack)
 
     @pytest.mark.asyncio
@@ -98,9 +95,9 @@ class TestSnowflakeGongIntegration:
         # Assert that the data was received
         assert len(result) == 1, "Data was not found in Snowflake"
         assert result[0]["duration"] == test_data["duration"], "Duration does not match"
-        assert (
-            result[0]["transcript"] == test_data["transcript"]
-        ), "Transcript does not match"
+        assert result[0]["transcript"] == test_data["transcript"], (
+            "Transcript does not match"
+        )
 
     @pytest.mark.asyncio
     async def test_gong_webhook_configuration(self, mock_gong_client):
@@ -136,9 +133,9 @@ class TestSnowflakeGongIntegration:
 
         # Assert that the webhook URL is configured
         assert "webhook_url" in gong_outputs, "Webhook URL not found in outputs"
-        assert gong_outputs["webhook_url"].startswith(
-            "https://"
-        ), "Webhook URL is not HTTPS"
+        assert gong_outputs["webhook_url"].startswith("https://"), (
+            "Webhook URL is not HTTPS"
+        )
 
     @pytest.mark.asyncio
     async def test_snowflake_schema_for_gong_data(self, mock_snowflake_client):
@@ -189,6 +186,6 @@ class TestSnowflakeGongIntegration:
         column_names = [column["name"] for column in columns]
         expected_columns = ["CALL_ID", "DURATION", "TIMESTAMP", "PARTICIPANTS"]
         for column in expected_columns:
-            assert (
-                column in column_names
-            ), f"{column} column not found in GONG_CALLS table"
+            assert column in column_names, (
+                f"{column} column not found in GONG_CALLS table"
+            )

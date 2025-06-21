@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class HybridRAGManager:
-    """Manages complex RAG queries by combining vector search with structured data lookups.
-    """
+    """Manages complex RAG queries by combining vector search with structured data lookups."""
 
     def __init__(self):
         self.vector_store = None
@@ -30,8 +29,7 @@ class HybridRAGManager:
         self.initialized = False
 
     async def initialize(self):
-        """Initializes connections to Pinecone and Snowflake.
-        """
+        """Initializes connections to Pinecone and Snowflake."""
         if self.initialized:
             return
 
@@ -63,8 +61,7 @@ class HybridRAGManager:
     async def answer_complex_question(
         self, query: str, top_k: int = 5
     ) -> Dict[str, Any]:
-        """Answers a complex question by performing a hybrid RAG query.
-        """
+        """Answers a complex question by performing a hybrid RAG query."""
         if not self.initialized:
             return {"error": "RAG Manager not initialized."}
 

@@ -1,5 +1,4 @@
-"""Performance tests for infrastructure components
-"""
+"""Performance tests for infrastructure components"""
 
 import asyncio
 import logging
@@ -27,8 +26,7 @@ class TestPerformance:
     """
 
     def setup_method(self):
-        """Set up the test environment before each test.
-        """
+        """Set up the test environment before each test."""
         self.performance_thresholds = {
             "snowflake_query": 2.0,  # seconds
             "pinecone_search": 0.1,  # seconds
@@ -39,8 +37,7 @@ class TestPerformance:
 
     @pytest.mark.asyncio
     async def test_snowflake_query_performance(self, mock_snowflake_client):
-        """Test Snowflake query performance under various loads.
-        """
+        """Test Snowflake query performance under various loads."""
         # Generate test data
         logger.info("Generating test data for Snowflake performance test...")
         mock_snowflake_client.insert_data(
@@ -59,9 +56,9 @@ class TestPerformance:
         single_query_time = time.time() - start_time
 
         logger.info(f"Single query completed in {single_query_time:.3f} seconds")
-        assert (
-            single_query_time < self.performance_thresholds["snowflake_query"]
-        ), f"Query took {single_query_time:.3f}s, exceeding threshold of {self.performance_thresholds['snowflake_query']}s"
+        assert single_query_time < self.performance_thresholds["snowflake_query"], (
+            f"Query took {single_query_time:.3f}s, exceeding threshold of {self.performance_thresholds['snowflake_query']}s"
+        )
 
         # Test concurrent query performance
         concurrent_queries = 10
@@ -83,9 +80,9 @@ class TestPerformance:
         )
 
         # Even under load, queries should complete within reasonable time
-        assert (
-            max_query_time < self.performance_thresholds["snowflake_query"] * 2
-        ), f"Max query time {max_query_time:.3f}s exceeds acceptable threshold"
+        assert max_query_time < self.performance_thresholds["snowflake_query"] * 2, (
+            f"Max query time {max_query_time:.3f}s exceeds acceptable threshold"
+        )
 
         self.test_results["snowflake_query"] = {
             "single_query_time": single_query_time,
@@ -95,8 +92,7 @@ class TestPerformance:
 
     @pytest.mark.asyncio
     async def test_pinecone_vector_search_performance(self, mock_pinecone_client):
-        """Test Pinecone vector search performance.
-        """
+        """Test Pinecone vector search performance."""
         # Generate test vectors
         logger.info("Generating test vectors for Pinecone performance test...")
         vector_count = 10000
@@ -114,9 +110,9 @@ class TestPerformance:
         single_search_time = time.time() - start_time
 
         logger.info(f"Single search completed in {single_search_time:.3f} seconds")
-        assert (
-            single_search_time < self.performance_thresholds["pinecone_search"]
-        ), f"Search took {single_search_time:.3f}s, exceeding threshold of {self.performance_thresholds['pinecone_search']}s"
+        assert single_search_time < self.performance_thresholds["pinecone_search"], (
+            f"Search took {single_search_time:.3f}s, exceeding threshold of {self.performance_thresholds['pinecone_search']}s"
+        )
 
         # Test batch search performance
         batch_size = 100
@@ -142,9 +138,9 @@ class TestPerformance:
         )
 
         # 95th percentile should still be within acceptable range
-        assert (
-            p95_search_time < self.performance_thresholds["pinecone_search"] * 3
-        ), f"P95 search time {p95_search_time:.3f}s exceeds acceptable threshold"
+        assert p95_search_time < self.performance_thresholds["pinecone_search"] * 3, (
+            f"P95 search time {p95_search_time:.3f}s exceeds acceptable threshold"
+        )
 
         self.test_results["pinecone_search"] = {
             "single_search_time": single_search_time,
@@ -154,8 +150,7 @@ class TestPerformance:
 
     @pytest.mark.asyncio
     async def test_gong_webhook_processing_performance(self, mock_gong_client):
-        """Test Gong webhook processing performance.
-        """
+        """Test Gong webhook processing performance."""
         # Test single webhook processing
         test_payload = {
             "call_id": "perf-test-001",
@@ -169,9 +164,9 @@ class TestPerformance:
         single_webhook_time = time.time() - start_time
 
         logger.info(f"Single webhook processed in {single_webhook_time:.3f} seconds")
-        assert (
-            single_webhook_time < self.performance_thresholds["gong_webhook"]
-        ), f"Webhook processing took {single_webhook_time:.3f}s, exceeding threshold"
+        assert single_webhook_time < self.performance_thresholds["gong_webhook"], (
+            f"Webhook processing took {single_webhook_time:.3f}s, exceeding threshold"
+        )
 
         # Test webhook burst performance
         burst_size = 50
@@ -195,9 +190,9 @@ class TestPerformance:
         )
 
         # System should handle bursts gracefully
-        assert (
-            max_webhook_time < self.performance_thresholds["gong_webhook"] * 5
-        ), f"Max webhook time {max_webhook_time:.3f}s during burst exceeds acceptable threshold"
+        assert max_webhook_time < self.performance_thresholds["gong_webhook"] * 5, (
+            f"Max webhook time {max_webhook_time:.3f}s during burst exceeds acceptable threshold"
+        )
 
         self.test_results["gong_webhook"] = {
             "single_webhook_time": single_webhook_time,
@@ -209,8 +204,7 @@ class TestPerformance:
     async def test_end_to_end_data_pipeline_performance(
         self, mock_gong_client, mock_snowflake_client
     ):
-        """Test end-to-end data pipeline performance from Gong to Snowflake.
-        """
+        """Test end-to-end data pipeline performance from Gong to Snowflake."""
         # Measure time from Gong webhook to data availability in Snowflake
         test_call_id = f"e2e-perf-{int(time.time())}"
         test_data = {
@@ -246,9 +240,9 @@ class TestPerformance:
         logger.info(f"End-to-end pipeline completed in {end_to_end_time:.3f} seconds")
 
         # End-to-end should complete within reasonable time
-        assert (
-            end_to_end_time < 5.0
-        ), f"Pipeline took {end_to_end_time:.3f}s, exceeding 5s threshold"
+        assert end_to_end_time < 5.0, (
+            f"Pipeline took {end_to_end_time:.3f}s, exceeding 5s threshold"
+        )
 
         self.test_results["e2e_pipeline"] = {"pipeline_time": end_to_end_time}
 
@@ -256,8 +250,7 @@ class TestPerformance:
     async def test_scalability_limits(
         self, mock_snowflake_client, mock_pinecone_client
     ):
-        """Test infrastructure scalability limits.
-        """
+        """Test infrastructure scalability limits."""
         logger.info("Testing infrastructure scalability limits...")
 
         # Test Snowflake with large dataset
@@ -321,13 +314,10 @@ class TestPerformance:
 
         # Assert reasonable performance even at scale
         assert large_query_time < 10.0, "Large dataset query exceeded 10s threshold"
-        assert (
-            large_index_search_time < 1.0
-        ), "Large index search exceeded 1s threshold"
+        assert large_index_search_time < 1.0, "Large index search exceeded 1s threshold"
 
     def test_generate_performance_report(self):
-        """Generate a comprehensive performance test report.
-        """
+        """Generate a comprehensive performance test report."""
         if not self.test_results:
             pytest.skip("No performance test results to report")
 

@@ -1,6 +1,7 @@
 """AI Memory MCP Auto-Discovery System
 Ensures AI coding assistants automatically discover and use the AI Memory MCP server.
 """
+
 import asyncio
 import json
 import logging
@@ -12,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class AIMemoryAutoDiscovery:
-    """Auto-discovery system that helps AI coders find and use the AI Memory MCP server.
-    """
+    """Auto-discovery system that helps AI coders find and use the AI Memory MCP server."""
 
     def __init__(self):
         self.mcp_client = None
@@ -123,7 +123,7 @@ class AIMemoryAutoDiscovery:
         return """
 AI MEMORY SYSTEM INTEGRATION:
 
-You have access to an AI Memory MCP server that provides persistent memory for coding assistance. 
+You have access to an AI Memory MCP server that provides persistent memory for coding assistance.
 
 AUTOMATIC USAGE RULES:
 1. ALWAYS store significant conversations using 'ai_memory.store_conversation' after:

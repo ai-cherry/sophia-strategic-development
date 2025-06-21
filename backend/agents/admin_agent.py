@@ -1,6 +1,7 @@
 """Admin Agent for Sophia AI
 Handles interaction with the Admin MCP Server for system management tasks.
 """
+
 import logging
 
 from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult
@@ -19,8 +20,7 @@ class AdminAgent(BaseAgent):
         self.mcp_client = mcp_client
 
     async def execute_task(self, task: Task) -> TaskResult:
-        """Executes a task by calling the appropriate tool on the Admin MCP Server.
-        """
+        """Executes a task by calling the appropriate tool on the Admin MCP Server."""
         command = task.command
         params = task.parameters
 

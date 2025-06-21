@@ -121,7 +121,7 @@ class SalesCoachAgent(BaseAgent):
                     owner_talk_time = p["TALK_TIME_PERCENTAGE"]
 
         analysis["talk_listen_ratio"] = (
-            f"{owner_talk_time}% / {100-owner_talk_time}%"
+            f"{owner_talk_time}% / {100 - owner_talk_time}%"
             if total_talk_time > 0
             else "N/A"
         )

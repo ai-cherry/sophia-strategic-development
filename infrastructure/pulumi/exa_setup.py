@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Exa resources.
-"""
+"""Pulumi script for setting up Exa resources."""
+
 import pulumi
 
 from infrastructure.esc.exa_secrets import exa_secret_manager

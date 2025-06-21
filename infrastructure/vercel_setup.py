@@ -1,5 +1,5 @@
-"""Pulumi script to configure the Vercel project via `vercel.json`.
-"""
+"""Pulumi script to configure the Vercel project via `vercel.json`."""
+
 import json
 
 import pulumi

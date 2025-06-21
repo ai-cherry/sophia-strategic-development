@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Apify resources using the bridged Terraform provider.
-"""
+"""Pulumi script for setting up Apify resources using the bridged Terraform provider."""
+
 import pulumi
 from pulumi_terraform import state
 

@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArchitectureMigration:
-    """Automates the architecture migration process.
-    """
+    """Automates the architecture migration process."""
 
     def __init__(self, root_dir: str = "."):
         self.root_dir = root_dir
@@ -285,8 +284,7 @@ class ArchitectureMigration:
 
 
 async def main():
-    """Main function to run the architecture migration.
-    """
+    """Main function to run the architecture migration."""
     root_dir = "."
     if len(sys.argv) > 1:
         root_dir = sys.argv[1]

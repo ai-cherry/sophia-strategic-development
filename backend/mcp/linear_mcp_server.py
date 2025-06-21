@@ -21,8 +21,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class LinearMCPServer(BaseMCPServer):
-    """MCP Server for Linear project management integration.
-    """
+    """MCP Server for Linear project management integration."""
 
     def __init__(self):
         super().__init__("linear")

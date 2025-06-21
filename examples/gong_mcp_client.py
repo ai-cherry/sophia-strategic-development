@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class GongMCPClient:
-    """Gong client that uses the MCP federation model instead of making direct API calls.
-    """
+    """Gong client that uses the MCP federation model instead of making direct API calls."""
 
     def __init__(self, mcp_gateway_url: str = "http://localhost:8090"):
         self.mcp_client = MCPClient(mcp_gateway_url)
@@ -111,9 +110,9 @@ class GongMCPClient:
                 # Enhance users with apartment industry analysis
                 enhanced_users = []
                 for user in users:
-                    user[
-                        "apartment_relevance"
-                    ] = self.calculate_user_apartment_relevance(user)
+                    user["apartment_relevance"] = (
+                        self.calculate_user_apartment_relevance(user)
+                    )
                     user["sophia_profile"] = self.generate_user_sophia_profile(user)
                     enhanced_users.append(user)
 
@@ -180,9 +179,9 @@ class GongMCPClient:
                 # Enhance calls with apartment analysis
                 enhanced_calls = []
                 for call in calls:
-                    call[
-                        "apartment_relevance"
-                    ] = self.calculate_call_apartment_relevance(call)
+                    call["apartment_relevance"] = (
+                        self.calculate_call_apartment_relevance(call)
+                    )
                     call["sophia_insights"] = self.generate_call_insights(call)
                     enhanced_calls.append(call)
 
@@ -520,8 +519,7 @@ class GongMCPClient:
 
 
 async def main():
-    """Main function to run the Gong MCP client.
-    """
+    """Main function to run the Gong MCP client."""
     # NOTE: This assumes the MCP Gateway and the Gong MCP server are running.
     # You can start them with `docker-compose up mcp-gateway gong-mcp`
 

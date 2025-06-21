@@ -71,8 +71,7 @@ class BaseMCPServer(ABC):
         pass
 
     def _setup_handlers(self):
-        """Sets up the standard MCP handlers for this server.
-        """
+        """Sets up the standard MCP handlers for this server."""
 
         # Register handlers using the server's handler decorators
         @self.server.list_resources()
@@ -94,8 +93,7 @@ class BaseMCPServer(ABC):
             return await self.call_tool(request)
 
     async def run(self):
-        """Initializes the integration and runs the MCP server.
-        """
+        """Initializes the integration and runs the MCP server."""
         self.logger.info(f"Starting {self.server_name} MCP Server...")
 
         try:
@@ -126,8 +124,7 @@ class BaseMCPServer(ABC):
 
 
 def setup_logging(level: int = logging.INFO):
-    """Sets up logging for MCP servers.
-    """
+    """Sets up logging for MCP servers."""
     logging.basicConfig(
         level=level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

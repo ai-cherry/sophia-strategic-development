@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive test runner for infrastructure testing framework
-"""
+"""Comprehensive test runner for infrastructure testing framework"""
 
 import argparse
 import json
@@ -23,8 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class InfrastructureTestRunner:
-    """Orchestrates the execution of all infrastructure tests
-    """
+    """Orchestrates the execution of all infrastructure tests"""
 
     def __init__(self, args):
         self.args = args
@@ -44,11 +42,10 @@ class InfrastructureTestRunner:
     def run_test_suite(
         self, suite_name: str, test_path: str, markers: List[str] = None
     ) -> Dict[str, Any]:
-        """Run a specific test suite and capture results
-        """
-        logger.info(f"\n{'='*60}")
+        """Run a specific test suite and capture results"""
+        logger.info(f"\n{'=' * 60}")
         logger.info(f"Running {suite_name} tests...")
-        logger.info(f"{'='*60}")
+        logger.info(f"{'=' * 60}")
 
         # Build pytest command
         cmd = ["pytest", test_path, "-v", "--tb=short"]
@@ -92,8 +89,7 @@ class InfrastructureTestRunner:
         return suite_results
 
     def run_unit_tests(self):
-        """Run unit tests for individual components
-        """
+        """Run unit tests for individual components"""
         if self.args.skip_unit:
             logger.info("Skipping unit tests")
             return
@@ -106,8 +102,7 @@ class InfrastructureTestRunner:
         self.test_results["test_suites"]["unit"] = results
 
     def run_integration_tests(self):
-        """Run integration tests for component interactions
-        """
+        """Run integration tests for component interactions"""
         if self.args.skip_integration:
             logger.info("Skipping integration tests")
             return
@@ -120,8 +115,7 @@ class InfrastructureTestRunner:
         self.test_results["test_suites"]["integration"] = results
 
     def run_e2e_tests(self):
-        """Run end-to-end tests for complete infrastructure
-        """
+        """Run end-to-end tests for complete infrastructure"""
         if self.args.skip_e2e:
             logger.info("Skipping end-to-end tests")
             return
@@ -132,8 +126,7 @@ class InfrastructureTestRunner:
         self.test_results["test_suites"]["e2e"] = results
 
     def run_performance_tests(self):
-        """Run performance tests
-        """
+        """Run performance tests"""
         if self.args.skip_performance:
             logger.info("Skipping performance tests")
             return
@@ -146,8 +139,7 @@ class InfrastructureTestRunner:
         self.test_results["test_suites"]["performance"] = results
 
     def run_security_tests(self):
-        """Run security and compliance tests
-        """
+        """Run security and compliance tests"""
         if not self.args.security:
             logger.info("Skipping security tests (use --security to enable)")
             return
@@ -166,11 +158,11 @@ class TestSecurity:
     def test_secret_management(self):
         # Test that secrets are properly managed
         pass
-    
+
     def test_network_security(self):
         # Test network security configurations
         pass
-    
+
     def test_access_controls(self):
         # Test access control implementations
         pass
@@ -183,8 +175,7 @@ class TestSecurity:
         self.test_results["test_suites"]["security"] = results
 
     def generate_report(self):
-        """Generate comprehensive test report
-        """
+        """Generate comprehensive test report"""
         # Calculate summary
         total_duration = time.time() - self.start_time
         self.test_results["summary"]["duration"] = total_duration
@@ -200,9 +191,9 @@ class TestSecurity:
             self.test_results["summary"]["skipped"] += suite_results["skipped"]
 
         # Display summary
-        logger.info(f"\n{'='*60}")
+        logger.info(f"\n{'=' * 60}")
         logger.info("INFRASTRUCTURE TEST SUMMARY")
-        logger.info(f"{'='*60}")
+        logger.info(f"{'=' * 60}")
         logger.info(f"Total Duration: {total_duration:.2f}s")
         logger.info(f"Total Tests: {self.test_results['summary']['total_tests']}")
         logger.info(f"Passed: {self.test_results['summary']['passed']}")
@@ -227,8 +218,7 @@ class TestSecurity:
         return 0 if self.test_results["summary"]["failed"] == 0 else 1
 
     def run(self):
-        """Run all test suites
-        """
+        """Run all test suites"""
         logger.info("Starting Infrastructure Test Suite")
         logger.info(f"Test configuration: {vars(self.args)}")
 
@@ -244,8 +234,7 @@ class TestSecurity:
 
 
 def main():
-    """Main entry point for test runner
-    """
+    """Main entry point for test runner"""
     parser = argparse.ArgumentParser(
         description="Run infrastructure tests with various options"
     )

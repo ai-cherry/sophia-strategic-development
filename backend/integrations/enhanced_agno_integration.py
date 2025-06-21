@@ -38,8 +38,7 @@ class PerformanceMetrics:
 
 
 class UltraFastAgent:
-    """Ultra-fast agent with 3μs instantiation and 6.5KB memory footprint.
-    """
+    """Ultra-fast agent with 3μs instantiation and 6.5KB memory footprint."""
 
     __slots__ = ["agent_id", "config", "metrics", "state", "_weak_ref"]
 
@@ -78,8 +77,7 @@ class UltraFastAgent:
 
 
 class AgentPool:
-    """High-performance agent pool with pre-warming and memory optimization.
-    """
+    """High-performance agent pool with pre-warming and memory optimization."""
 
     def __init__(self, config: AgentPoolConfig):
         """Initialize agent pool."""
@@ -266,8 +264,7 @@ class AgentPool:
 
 
 class EnhancedAgnoIntegration:
-    """Enhanced Agno integration with ultra-fast performance targets.
-    """
+    """Enhanced Agno integration with ultra-fast performance targets."""
 
     def __init__(self):
         """Initialize enhanced Agno integration."""
@@ -497,9 +494,11 @@ class EnhancedAgnoIntegration:
                 "target_instantiation_us": self.target_instantiation_us,
                 "target_memory_kb": self.target_memory_kb,
                 "target_concurrent": self.target_concurrent,
-                "performance_ratio": self.target_instantiation_us / avg_instantiation
-                if avg_instantiation > 0
-                else 0,
+                "performance_ratio": (
+                    self.target_instantiation_us / avg_instantiation
+                    if avg_instantiation > 0
+                    else 0
+                ),
             },
             "pools": pool_stats,
         }
@@ -514,9 +513,11 @@ class EnhancedAgnoIntegration:
             "concurrent_capacity": len(self.agent_pools)
             * 200,  # Estimate based on pool sizes
             "memory_efficiency": True,  # All agents under 6.5KB
-            "overall_performance": "excellent"
-            if stats["overall"]["performance_ratio"] > 0.5
-            else "needs_optimization",
+            "overall_performance": (
+                "excellent"
+                if stats["overall"]["performance_ratio"] > 0.5
+                else "needs_optimization"
+            ),
         }
 
         return {

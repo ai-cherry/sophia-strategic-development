@@ -1,5 +1,5 @@
-"""Pulumi script for managing Hugging Face resources using the `huggingface-cli`.
-"""
+"""Pulumi script for managing Hugging Face resources using the `huggingface-cli`."""
+
 import pulumi
 import pulumi_command as command
 

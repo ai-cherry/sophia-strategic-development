@@ -84,4 +84,4 @@ This document outlines our strategy for adopting and leveraging Pulumi Insights.
 
 ## Conclusion: A Fully Autonomous Platform
 
-By integrating Pulumi Insights, we elevate Sophia AI from a business intelligence tool to a self-aware, self-governing platform. This strategy provides complete visibility, enforces security and compliance, and leverages our own AI agents to automate cloud operations, creating a powerful competitive advantage. 
+By integrating Pulumi Insights, we elevate Sophia AI from a business intelligence tool to a self-aware, self-governing platform. This strategy provides complete visibility, enforces security and compliance, and leverages our own AI agents to automate cloud operations, creating a powerful competitive advantage.

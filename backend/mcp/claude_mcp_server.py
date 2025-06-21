@@ -23,8 +23,7 @@ from infrastructure.esc.claude_secrets import claude_secret_manager
 
 
 class ClaudeMCPServer(BaseMCPServer):
-    """MCP Server for Claude/Anthropic API integration.
-    """
+    """MCP Server for Claude/Anthropic API integration."""
 
     def __init__(self):
         super().__init__("claude")

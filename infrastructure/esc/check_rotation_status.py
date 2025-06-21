@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class RotationStatusChecker:
-    """Checks the rotation status of all secrets
-    """
+    """Checks the rotation status of all secrets"""
 
     def __init__(self):
         self.service_registry = self._load_service_registry()
@@ -154,9 +153,9 @@ class RotationStatusChecker:
                 # Store secret status
                 service_status["secrets"][key] = {
                     "last_rotation": last_rotation_str,
-                    "next_rotation": next_rotation.isoformat()
-                    if next_rotation
-                    else None,
+                    "next_rotation": (
+                        next_rotation.isoformat() if next_rotation else None
+                    ),
                     "days_until_rotation": days_until_rotation,
                     "status": status_text,
                 }

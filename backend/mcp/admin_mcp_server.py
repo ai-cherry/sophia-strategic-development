@@ -2,6 +2,7 @@
 Provides administrative tools for managing the Sophia AI system itself,
 including secret synchronization and health checks.
 """
+
 import asyncio
 import json
 from typing import List
@@ -16,8 +17,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class AdminMCPServer(BaseMCPServer):
-    """MCP Server for administrative tasks.
-    """
+    """MCP Server for administrative tasks."""
 
     def __init__(self):
         super().__init__("admin")

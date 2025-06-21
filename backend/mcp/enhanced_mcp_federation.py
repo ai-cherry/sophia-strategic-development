@@ -192,9 +192,11 @@ class QueryClassifier:
             "query_type": query_type,
             "priority_servers": priority_servers,
             "server_scores": server_scores,
-            "confidence": max(server_scores.values()) / len(self.server_keywords)
-            if server_scores
-            else 0.1,
+            "confidence": (
+                max(server_scores.values()) / len(self.server_keywords)
+                if server_scores
+                else 0.1
+            ),
             "parallel_execution": len(priority_servers) > 1,
             "timeout_ms": self._get_timeout_for_query_type(query_type),
         }
@@ -266,9 +268,9 @@ class ResultAggregator:
                 "total_servers_queried": len(results),
                 "successful_servers": len(successful_results),
                 "failed_servers": len(failed_results),
-                "avg_execution_time_ms": statistics.mean(execution_times)
-                if execution_times
-                else 0,
+                "avg_execution_time_ms": (
+                    statistics.mean(execution_times) if execution_times else 0
+                ),
                 "min_execution_time_ms": min(execution_times) if execution_times else 0,
                 "max_execution_time_ms": max(execution_times) if execution_times else 0,
             },
@@ -358,8 +360,7 @@ class ResultAggregator:
 
 
 class MCPFederation:
-    """Enhanced MCP Federation layer for parallel queries across all MCP servers.
-    """
+    """Enhanced MCP Federation layer for parallel queries across all MCP servers."""
 
     def __init__(self):
         """Initialize MCP federation."""

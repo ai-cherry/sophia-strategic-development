@@ -81,9 +81,9 @@ class PortkeyGateway:
 
         # OpenRouter as primary
         if self.config.openrouter_api_key:
-            self.headers[
-                "x-portkey-virtual-key-openrouter"
-            ] = self.config.openrouter_api_key
+            self.headers["x-portkey-virtual-key-openrouter"] = (
+                self.config.openrouter_api_key
+            )
             self.virtual_keys["openrouter"] = True
             logger.info("OpenRouter configured as primary LLM provider")
 
@@ -94,9 +94,9 @@ class PortkeyGateway:
             logger.info("OpenAI configured as fallback provider")
 
         if self.config.anthropic_api_key:
-            self.headers[
-                "x-portkey-virtual-key-anthropic"
-            ] = self.config.anthropic_api_key
+            self.headers["x-portkey-virtual-key-anthropic"] = (
+                self.config.anthropic_api_key
+            )
             self.virtual_keys["anthropic"] = True
             logger.info("Anthropic configured as fallback provider")
 

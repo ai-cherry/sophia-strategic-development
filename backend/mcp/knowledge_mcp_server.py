@@ -16,8 +16,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class KnowledgeMCPServer(BaseMCPServer):
-    """MCP Server for Sophia's Knowledge Base.
-    """
+    """MCP Server for Sophia's Knowledge Base."""
 
     def __init__(self):
         super().__init__("knowledge")  # Renamed for clarity
@@ -111,12 +110,12 @@ class KnowledgeMCPServer(BaseMCPServer):
         extraction_prompt = f"""
         From the following text, extract up to 5 key entities (people, companies, locations, or specific topics).
         Return ONLY a JSON-formatted list of strings.
-        
+
         Text:
         ---
-        {content[:2000]} 
+        {content[:2000]}
         ---
-        
+
         Example Output:
         ["Entrata", "RealPage", "Leasing Automation", "Tenant Screening"]
         """

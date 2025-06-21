@@ -7,7 +7,7 @@ const KnowledgeDashboard = () => {
       <h1>Knowledge Base Admin Panel</h1>
       <p>Manage and monitor the data being ingested into the AI's knowledge base.</p>
 
-      {/* 
+      {/*
         This dashboard will contain several key functional components:
 
         1.  **File Ingestion Component:**
@@ -39,4 +39,4 @@ const KnowledgeDashboard = () => {
   );
 };
 
-export default KnowledgeDashboard; 
+export default KnowledgeDashboard;

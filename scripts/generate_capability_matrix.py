@@ -184,7 +184,7 @@ def generate_markdown_summary(matrix: Dict[str, Any]) -> str:
     content = f"""# Sophia AI - Capability Summary
 
 **Generated**: {timestamp}
-**Available Secrets**: {matrix['available_secrets']}/{matrix['total_secrets']}
+**Available Secrets**: {matrix["available_secrets"]}/{matrix["total_secrets"]}
 
 ## 📊 Service Categories
 

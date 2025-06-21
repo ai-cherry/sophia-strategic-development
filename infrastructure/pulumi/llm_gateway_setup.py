@@ -1,5 +1,5 @@
-"""Pulumi script for managing OpenRouter resources using its CLI.
-"""
+"""Pulumi script for managing OpenRouter resources using its CLI."""
+
 import pulumi
 import pulumi_command as command
 

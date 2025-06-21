@@ -2,6 +2,7 @@
 Scans the codebase, applies the appropriate architectural parsers,
 and prepares the structured data for vectorization and storage.
 """
+
 import logging
 import uuid
 from pathlib import Path
@@ -87,8 +88,7 @@ class CodebaseIngestionPipeline:
         return all_items
 
     async def ingest_codebase(self):
-        """Performs a full scan and ingestion of the project codebase.
-        """
+        """Performs a full scan and ingestion of the project codebase."""
         logger.info("Starting full codebase ingestion...")
 
         architectural_items = self.scan_and_parse_project()

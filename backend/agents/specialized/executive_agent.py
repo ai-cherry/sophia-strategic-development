@@ -8,19 +8,13 @@ import openai
 
 from ...core.config_manager import get_secret
 from ..core.agent_router import agent_router
-from ..core.base_agent import (
-    AgentConfig,
-    BaseAgent,
-    Task,
-    create_agent_response,
-)
+from ..core.base_agent import AgentConfig, BaseAgent, Task, create_agent_response
 
 logger = logging.getLogger(__name__)
 
 
 class ExecutiveAgent(BaseAgent):
-    """Serves as the CEO's dedicated interface for strategic intelligence and orchestration.
-    """
+    """Serves as the CEO's dedicated interface for strategic intelligence and orchestration."""
 
     def __init__(self, config: AgentConfig):
         super().__init__(config)
@@ -49,8 +43,7 @@ class ExecutiveAgent(BaseAgent):
         }
 
     async def _decompose_strategic_question(self, question: str) -> List[Task]:
-        """Decomposes a high-level strategic question into a sequence of tasks.
-        """
+        """Decomposes a high-level strategic question into a sequence of tasks."""
         logger.info(f"Decomposing strategic question: {question}")
         tasks = []
         question_lower = question.lower()
@@ -137,8 +130,7 @@ class ExecutiveAgent(BaseAgent):
             return f"Error during synthesis: {e}"
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Processes a strategic query by decomposing it, routing sub-tasks, and synthesizing the results.
-        """
+        """Processes a strategic query by decomposing it, routing sub-tasks, and synthesizing the results."""
         if task.task_type == "strategic_synthesis_query":
             strategic_question = task.task_data.get("strategic_question")
             if not strategic_question:

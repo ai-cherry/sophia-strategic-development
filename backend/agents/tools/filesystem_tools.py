@@ -2,6 +2,7 @@
 Provides safe, encapsulated tools for agents to read and write files
 within the project directory.
 """
+
 import logging
 from pathlib import Path
 
@@ -9,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class FilesystemTools:
-    """A toolkit for safe file operations, restricted to the project root.
-    """
+    """A toolkit for safe file operations, restricted to the project root."""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root.resolve()

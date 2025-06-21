@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Corrected Sophia Admin API - Using Actual Database Schema
-"""
+"""Corrected Sophia Admin API - Using Actual Database Schema"""
 
 import asyncio
 import logging
@@ -49,7 +48,7 @@ class SophiaDatabase:
         try:
             # Base query with actual column names
             base_sql = """
-            SELECT 
+            SELECT
                 c.call_id,
                 c.title,
                 c.started,
@@ -111,7 +110,7 @@ class SophiaDatabase:
             # Group by and order
             base_sql += """
             GROUP BY c.call_id, c.title, c.started, c.duration_seconds, c.direction,
-                     c.apartment_relevance, c.business_value, c.sentiment_score, 
+                     c.apartment_relevance, c.business_value, c.sentiment_score,
                      c.success_probability, c.deal_stage, c.call_outcome
             ORDER BY c.started DESC
             """
@@ -178,31 +177,39 @@ class SophiaDatabase:
                     {
                         "call_id": row["call_id"],
                         "title": row["title"],
-                        "started": row["started"].isoformat()
-                        if row["started"]
-                        else None,
-                        "duration_minutes": round(row["duration_seconds"] / 60)
-                        if row["duration_seconds"]
-                        else 0,
+                        "started": (
+                            row["started"].isoformat() if row["started"] else None
+                        ),
+                        "duration_minutes": (
+                            round(row["duration_seconds"] / 60)
+                            if row["duration_seconds"]
+                            else 0
+                        ),
                         "direction": row["direction"],
-                        "apartment_relevance": float(row["apartment_relevance"])
-                        if row["apartment_relevance"]
-                        else 0,
-                        "business_value": int(row["business_value"])
-                        if row["business_value"]
-                        else 0,
-                        "sentiment_score": float(row["sentiment_score"])
-                        if row["sentiment_score"]
-                        else 0,
-                        "success_probability": float(row["success_probability"])
-                        if row["success_probability"]
-                        else 0,
+                        "apartment_relevance": (
+                            float(row["apartment_relevance"])
+                            if row["apartment_relevance"]
+                            else 0
+                        ),
+                        "business_value": (
+                            int(row["business_value"]) if row["business_value"] else 0
+                        ),
+                        "sentiment_score": (
+                            float(row["sentiment_score"])
+                            if row["sentiment_score"]
+                            else 0
+                        ),
+                        "success_probability": (
+                            float(row["success_probability"])
+                            if row["success_probability"]
+                            else 0
+                        ),
                         "deal_stage": row["deal_stage"],
                         "call_outcome": row["call_outcome"],
                         "companies": row["companies"] if row["companies"] else [],
-                        "participants": row["participants"]
-                        if row["participants"]
-                        else [],
+                        "participants": (
+                            row["participants"] if row["participants"] else []
+                        ),
                         "has_pay_ready_participants": bool(row["pay_ready_emails"]),
                     }
                 )
@@ -281,7 +288,7 @@ class SophiaDatabase:
             # Top performers (Pay Ready team members)
             top_performers = await self.connection.fetch(
                 """
-                SELECT 
+                SELECT
                     p.name,
                     p.email_address,
                     COUNT(DISTINCT c.call_id) as call_count,
@@ -303,9 +310,9 @@ class SophiaDatabase:
                     "name": row["name"],
                     "email_address": row["email_address"],
                     "call_count": row["call_count"],
-                    "avg_relevance": float(row["avg_relevance"])
-                    if row["avg_relevance"]
-                    else 0,
+                    "avg_relevance": (
+                        float(row["avg_relevance"]) if row["avg_relevance"] else 0
+                    ),
                     "total_value": int(row["total_value"]) if row["total_value"] else 0,
                     "recent_calls": row["recent_calls"],
                     "apartment_expertise": 85.0,
@@ -317,7 +324,7 @@ class SophiaDatabase:
             # Recent calls
             recent_calls = await self.connection.fetch(
                 """
-                SELECT 
+                SELECT
                     c.call_id,
                     c.title,
                     c.started,
@@ -340,19 +347,25 @@ class SophiaDatabase:
                 {
                     "title": row["title"],
                     "started": row["started"].isoformat() if row["started"] else None,
-                    "apartment_relevance": float(row["apartment_relevance"])
-                    if row["apartment_relevance"]
-                    else 0,
-                    "business_value": int(row["business_value"])
-                    if row["business_value"]
-                    else 0,
+                    "apartment_relevance": (
+                        float(row["apartment_relevance"])
+                        if row["apartment_relevance"]
+                        else 0
+                    ),
+                    "business_value": (
+                        int(row["business_value"]) if row["business_value"] else 0
+                    ),
                     "call_outcome": row["call_outcome"] or "qualified",
-                    "success_probability": float(row["success_probability"])
-                    if row["success_probability"]
-                    else 0.7,
-                    "account_executive": row["pay_ready_participants"][0]
-                    if row["pay_ready_participants"]
-                    else "Unknown",
+                    "success_probability": (
+                        float(row["success_probability"])
+                        if row["success_probability"]
+                        else 0.7
+                    ),
+                    "account_executive": (
+                        row["pay_ready_participants"][0]
+                        if row["pay_ready_participants"]
+                        else "Unknown"
+                    ),
                 }
                 for row in recent_calls
             ]
@@ -460,17 +473,24 @@ def search():
                                 seen_names.add(participant)
                                 team_members.append(
                                     {
-                                        "first_name": participant.split()[0]
-                                        if participant
-                                        else "Unknown",
-                                        "last_name": participant.split()[-1]
-                                        if participant and len(participant.split()) > 1
-                                        else "",
+                                        "first_name": (
+                                            participant.split()[0]
+                                            if participant
+                                            else "Unknown"
+                                        ),
+                                        "last_name": (
+                                            participant.split()[-1]
+                                            if participant
+                                            and len(participant.split()) > 1
+                                            else ""
+                                        ),
                                         "name": participant,
                                         "title": "Team Member",
-                                        "email_address": f"{participant.lower().replace(' ', '.')}@payready.com"
-                                        if participant
-                                        else "",
+                                        "email_address": (
+                                            f"{participant.lower().replace(' ', '.')}@payready.com"
+                                            if participant
+                                            else ""
+                                        ),
                                         "call_count": 1,
                                         "total_value": conv["business_value"],
                                         "apartment_expertise": 85.0,

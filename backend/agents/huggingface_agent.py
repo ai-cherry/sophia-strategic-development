@@ -1,6 +1,7 @@
 """Hugging Face Agent for Sophia AI
 Handles interaction with the Hugging Face ecosystem via the HuggingFaceIntegration.
 """
+
 import logging
 import re
 

@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Pipedream resources.
-"""
+"""Pulumi script for setting up Pipedream resources."""
+
 import pulumi
 
 from infrastructure.esc.pipedream_secrets import pipedream_secret_manager

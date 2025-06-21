@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Pulumi resources.
-"""
+"""Pulumi script for setting up Pulumi resources."""
+
 import pulumi
 
 from infrastructure.esc.pulumi_secrets import pulumi_secret_manager

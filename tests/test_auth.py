@@ -34,7 +34,6 @@ for name, bp_name, path in [
     sys.modules[name] = mod
 
 
-
 from backend.app.main import app
 from backend.app.routes import auth_routes
 from backend.config.settings import settings

@@ -1,4 +1,3 @@
-
 import pulumi_command as command
 from pulumi import Config, Output, ResourceOptions
 
@@ -38,7 +37,7 @@ class EstuaryComponent(BaseComponent):
                 estuary_api_key,
                 "' ",
                 f'-d \'{{"name": "{self.collection_name}", "description": "Sophia AI data collection for {env}"}}\'',
-            )
+            ),
             # update and delete commands would be similar
         )
 

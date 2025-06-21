@@ -45,8 +45,7 @@ class WorkflowTask:
 
 
 class KnowledgeBaseWorkflowManager:
-    """Manages automated workflows for knowledge base content updates
-    """
+    """Manages automated workflows for knowledge base content updates"""
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -391,8 +390,7 @@ class KnowledgeBaseWorkflowManager:
 
 
 class ScheduledWorkflowManager:
-    """Manages scheduled and recurring workflow tasks
-    """
+    """Manages scheduled and recurring workflow tasks"""
 
     def __init__(self, workflow_manager: KnowledgeBaseWorkflowManager):
         self.workflow_manager = workflow_manager

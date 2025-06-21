@@ -34,4 +34,3 @@ class PulumiESCManager:
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check."""
         return {"status": "healthy", "initialized": self.initialized}
-

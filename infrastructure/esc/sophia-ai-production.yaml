@@ -118,37 +118,37 @@ environmentVariables:
   HUGGINGFACE_API_TOKEN: ${ai_services.huggingface_api_token}
   PORTKEY_API_KEY: ${ai_services.portkey_api_key}
   PORTKEY_CONFIG_ID: ${ai_services.portkey_config_id}
-  
+
   # Observability
   ARIZE_API_KEY: ${observability.arize_api_key}
   ARIZE_SPACE_ID: ${observability.arize_space_id}
-  
+
   # Vector Databases
   PINECONE_API_KEY: ${vector_databases.pinecone_api_key}
   PINECONE_ENVIRONMENT: ${vector_databases.pinecone_environment}
   WEAVIATE_API_KEY: ${vector_databases.weaviate_api_key}
   WEAVIATE_URL: ${vector_databases.weaviate_url}
-  
+
   # Business Intelligence
   GONG_ACCESS_KEY: ${business_intelligence.gong_access_key}
   GONG_CLIENT_SECRET: ${business_intelligence.gong_client_secret}
   HUBSPOT_ACCESS_TOKEN: ${business_intelligence.hubspot_access_token}
   LINEAR_API_KEY: ${business_intelligence.linear_api_key}
-  
+
   # Communication
   SLACK_BOT_TOKEN: ${communication.slack_bot_token}
   SLACK_APP_TOKEN: ${communication.slack_app_token}
-  
+
   # Data Infrastructure
   SNOWFLAKE_ACCOUNT: ${data_infrastructure.snowflake_account}
   SNOWFLAKE_USER: ${data_infrastructure.snowflake_user}
   DATABASE_URL: ${data_infrastructure.database_url}
-  
+
   # Research Tools
   APIFY_API_TOKEN: ${research_tools.apify_api_token}
   SERP_API_KEY: ${research_tools.serp_api_key}
   TAVILY_API_KEY: ${research_tools.tavily_api_key}
-  
+
   # Security
   JWT_SECRET: ${security.jwt_secret}
   ENCRYPTION_KEY: ${security.encryption_key}

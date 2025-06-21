@@ -87,8 +87,7 @@ def mock_portkey_client():
 async def test_iac_manager_agent_full_execution(
     mock_filesystem, mock_agent_router, mock_portkey_client
 ):
-    """Tests the full end-to-end execution flow of the IaCManagerAgent.
-    """
+    """Tests the full end-to-end execution flow of the IaCManagerAgent."""
     # 1. Setup
     agent_config = AgentConfig(name="iac_manager_agent", version="1.0")
     # In a real test, the portkey_client would be a real or more sophisticated mock

@@ -1,5 +1,5 @@
-"""Builds the initial Pay Ready Knowledge Base using the ResearchAgent.
-"""
+"""Builds the initial Pay Ready Knowledge Base using the ResearchAgent."""
+
 import asyncio
 import logging
 import tempfile
@@ -26,8 +26,7 @@ RESEARCH_TOPICS = [
 
 
 async def run_knowledge_base_build():
-    """Orchestrates the creation of the mini Pay Ready knowledge base.
-    """
+    """Orchestrates the creation of the mini Pay Ready knowledge base."""
     research_agent = ResearchAgent(AgentConfig(name="ResearchAgent"))
     mcp_client = MCPClient("http://localhost:8090")
 

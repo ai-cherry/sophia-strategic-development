@@ -7,8 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class EnrichmentAgent(BaseAgent):
-    """Enriches internal data with information from external sources.
-    """
+    """Enriches internal data with information from external sources."""
 
     async def get_capabilities(self) -> List[AgentCapability]:
         return [
@@ -22,8 +21,7 @@ class EnrichmentAgent(BaseAgent):
         ]
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
-        """Processes a task to enrich data.
-        """
+        """Processes a task to enrich data."""
         if task.task_type == "enrich_company_data":
             company_name = task.task_data.get("company_name")
             if not company_name:

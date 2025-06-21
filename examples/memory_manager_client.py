@@ -179,8 +179,7 @@ class MemoryManagerClient:
 
 
 async def main():
-    """Main function to demonstrate the MemoryManagerClient.
-    """
+    """Main function to demonstrate the MemoryManagerClient."""
     client = MemoryManagerClient()
     try:
         await client.initialize()

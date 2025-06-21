@@ -22,8 +22,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class GongMCPServer(BaseMCPServer):
-    """MCP Server for Gong.io integration.
-    """
+    """MCP Server for Gong.io integration."""
 
     def __init__(self):
         super().__init__("gong")

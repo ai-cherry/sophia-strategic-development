@@ -316,8 +316,7 @@ class HuggingFaceMCPServer:
 
 
 class SophiaHFIntegration:
-    """Integration layer between Sophia AI and Hugging Face MCP Server
-    """
+    """Integration layer between Sophia AI and Hugging Face MCP Server"""
 
     def __init__(self, hf_api_token: str):
         self.hf_server = HuggingFaceMCPServer(hf_api_token)

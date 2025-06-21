@@ -21,8 +21,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class LambdaLabsMCPServer(BaseMCPServer):
-    """MCP Server for Lambda Labs integration.
-    """
+    """MCP Server for Lambda Labs integration."""
 
     def __init__(self):
         super().__init__("lambda-labs")

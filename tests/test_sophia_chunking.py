@@ -1,6 +1,4 @@
-"""Tests for Sophia AI Chunking Pipeline
-"""
-
+"""Tests for Sophia AI Chunking Pipeline"""
 
 import pytest
 
@@ -39,8 +37,8 @@ Sarah Johnson: Absolutely! I'll have that sent to you by end of day. We're excit
 def sample_slack_message():
     """Sample Slack message for testing"""
     return """
-Urgent: Client Acme Corp is having issues with the API integration. 
-They're getting 500 errors and need immediate support. 
+Urgent: Client Acme Corp is having issues with the API integration.
+They're getting 500 errors and need immediate support.
 This is a $50k account that we can't afford to lose.
 """
 

@@ -536,7 +536,10 @@ class SophiaSlackBot:
             blocks.append(
                 {
                     "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"❌ *Error:* {result['error']}"},
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"❌ *Error:* {result['error']}",
+                    },
                 }
             )
         else:
@@ -558,7 +561,7 @@ class SophiaSlackBot:
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*{i+1}.* {item.get('summary', 'No summary available')}",
+                            "text": f"*{i + 1}.* {item.get('summary', 'No summary available')}",
                         },
                     }
                 )

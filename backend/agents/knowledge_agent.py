@@ -1,6 +1,7 @@
 """Knowledge Agent for Sophia AI
 Handles interacting with the Knowledge Base MCP Server.
 """
+
 import logging
 
 from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult

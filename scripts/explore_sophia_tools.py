@@ -209,7 +209,8 @@ class SophiaToolExplorer:
             progress.update(
                 task,
                 advance=1,
-                description="Checking API key... " + ("✅" if api_key_present else "❌"),
+                description="Checking API key... "
+                + ("✅" if api_key_present else "❌"),
             )
 
             # Check MCP server

@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Slack resources using a dynamic provider.
-"""
+"""Pulumi script for setting up Slack resources using a dynamic provider."""
+
 import pulumi
 import requests
 

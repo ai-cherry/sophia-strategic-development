@@ -1,5 +1,5 @@
-"""Demonstrates a high-level content strategy workflow using Sophia's agents.
-"""
+"""Demonstrates a high-level content strategy workflow using Sophia's agents."""
+
 import asyncio
 import logging
 
@@ -26,7 +26,8 @@ async def run_content_creation_task(topic: str):
     # Here, we instantiate it for this specific task.
     # The PortkeyClient would also be properly initialized.
     brain_agent = BrainAgent(
-        AgentConfig(name="BrainAgent"), portkey_client=PortkeyClient()  # Placeholder
+        AgentConfig(name="BrainAgent"),
+        portkey_client=PortkeyClient(),  # Placeholder
     )
 
     # This is a conceptual plan that the BrainAgent would generate and execute.
@@ -53,12 +54,12 @@ async def run_content_creation_task(topic: str):
     Your task is to write a compelling, insightful, and SEO-optimized blog post based on the research brief provided.
     The title of the post is: "{topic}"
     The tone should be authoritative, helpful, and clearly articulate Pay Ready's unique advantages.
-    
+
     Research Brief:
     ---
     {research_brief}
     ---
-    
+
     Please produce the full blog post in markdown format.
     """
 

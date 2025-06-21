@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class VectorStoreMigrator:
-    """Migrates direct vector store access to use the ComprehensiveMemoryManager.
-    """
+    """Migrates direct vector store access to use the ComprehensiveMemoryManager."""
 
     def __init__(self, root_dir: str = "."):
         self.root_dir = root_dir
@@ -201,8 +200,7 @@ class VectorStoreMigrator:
 
 
 async def main():
-    """Main function to run the vector store migrator.
-    """
+    """Main function to run the vector store migrator."""
     root_dir = "."
     if len(sys.argv) > 1:
         root_dir = sys.argv[1]

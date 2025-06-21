@@ -26,8 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class ApifyMCPServer(BaseMCPServer):
-    """MCP Server for Apify. Enables AI agents to run actors for web scraping and data extraction.
-    """
+    """MCP Server for Apify. Enables AI agents to run actors for web scraping and data extraction."""
 
     def __init__(self):
         super().__init__("apify")

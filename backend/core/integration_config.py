@@ -95,8 +95,7 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class IntegrationConfig:
-    """Enhanced centralized configuration manager for all integrations
-    """
+    """Enhanced centralized configuration manager for all integrations"""
 
     def __init__(self):
         self.configs = {}

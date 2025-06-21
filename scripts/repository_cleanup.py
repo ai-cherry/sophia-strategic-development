@@ -333,9 +333,9 @@ class RepositoryCleanup:
             logger.info(f"Cleanup report saved to {report_path}")
 
         # Print summary
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"REPOSITORY CLEANUP {'SIMULATION' if self.dry_run else 'SUMMARY'}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Directories created: {self.cleanup_report['directories_created']}")
         print(f"Files moved: {self.cleanup_report['files_moved']}")
         print(f"Files deleted: {self.cleanup_report['files_deleted']}")

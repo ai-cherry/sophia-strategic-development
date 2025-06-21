@@ -1,5 +1,4 @@
-"""Unit tests for the Snowflake infrastructure component
-"""
+"""Unit tests for the Snowflake infrastructure component"""
 
 import os
 
@@ -21,8 +20,7 @@ class TestSnowflakeComponent:
     """
 
     def test_database_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates a Snowflake database with the correct parameters.
-        """
+        """Test that the component creates a Snowflake database with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = SnowflakeComponent("test-snowflake")
@@ -37,8 +35,7 @@ class TestSnowflakeComponent:
             )
 
     def test_warehouse_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates a Snowflake warehouse with the correct parameters.
-        """
+        """Test that the component creates a Snowflake warehouse with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = SnowflakeComponent("test-snowflake")
@@ -57,8 +54,7 @@ class TestSnowflakeComponent:
             )
 
     def test_schema_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates a Snowflake schema with the correct parameters.
-        """
+        """Test that the component creates a Snowflake schema with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = SnowflakeComponent("test-snowflake")
@@ -73,8 +69,7 @@ class TestSnowflakeComponent:
             )
 
     def test_role_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates a Snowflake role with the correct parameters.
-        """
+        """Test that the component creates a Snowflake role with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = SnowflakeComponent("test-snowflake")
@@ -89,8 +84,7 @@ class TestSnowflakeComponent:
             )
 
     def test_component_outputs(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component exports the expected outputs.
-        """
+        """Test that the component exports the expected outputs."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = SnowflakeComponent("test-snowflake")
@@ -102,8 +96,7 @@ class TestSnowflakeComponent:
             assert "role_name" in component.outputs
 
     def test_environment_specific_naming(self, pulumi_mock):
-        """Test that the component uses environment-specific naming for resources.
-        """
+        """Test that the component uses environment-specific naming for resources."""
         # Test with different environments
         environments = ["dev", "staging", "production"]
 

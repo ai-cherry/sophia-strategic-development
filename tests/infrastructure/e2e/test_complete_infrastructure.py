@@ -1,5 +1,4 @@
-"""End-to-end tests for the complete infrastructure deployment
-"""
+"""End-to-end tests for the complete infrastructure deployment"""
 
 import asyncio
 import logging
@@ -42,8 +41,7 @@ class TestCompleteInfrastructure:
     """
 
     def setup_method(self):
-        """Set up the test environment before each test.
-        """
+        """Set up the test environment before each test."""
         self.env_manager = pytest.importorskip(
             "tests.infrastructure.conftest"
         ).TestEnvironmentManager()
@@ -51,8 +49,7 @@ class TestCompleteInfrastructure:
         self.deployment_results = {}
 
     def teardown_method(self):
-        """Clean up the test environment after each test.
-        """
+        """Clean up the test environment after each test."""
         self.env_manager.cleanup_test_stack(self.test_stack)
 
     @pytest.mark.asyncio
@@ -146,8 +143,7 @@ class TestCompleteInfrastructure:
 
     @pytest.mark.asyncio
     async def test_snowflake_connectivity(self, mock_snowflake_client):
-        """Test that Snowflake is accessible and configured correctly.
-        """
+        """Test that Snowflake is accessible and configured correctly."""
         if "snowflake" not in self.deployment_results:
             pytest.skip("Snowflake not deployed")
 
@@ -168,8 +164,7 @@ class TestCompleteInfrastructure:
 
     @pytest.mark.asyncio
     async def test_pinecone_connectivity(self, mock_pinecone_client):
-        """Test that Pinecone is accessible and configured correctly.
-        """
+        """Test that Pinecone is accessible and configured correctly."""
         if "pinecone" not in self.deployment_results:
             pytest.skip("Pinecone not deployed")
 
@@ -190,8 +185,7 @@ class TestCompleteInfrastructure:
     async def test_gong_to_snowflake_data_flow(
         self, mock_gong_client, mock_snowflake_client
     ):
-        """Test end-to-end data flow from Gong to Snowflake.
-        """
+        """Test end-to-end data flow from Gong to Snowflake."""
         if (
             "gong" not in self.deployment_results
             or "snowflake" not in self.deployment_results
@@ -222,8 +216,7 @@ class TestCompleteInfrastructure:
 
     @pytest.mark.asyncio
     async def test_ai_agent_vector_storage(self, mock_pinecone_client):
-        """Test that AI agents can store and retrieve vectors from Pinecone.
-        """
+        """Test that AI agents can store and retrieve vectors from Pinecone."""
         if "pinecone" not in self.deployment_results:
             pytest.skip("Pinecone not deployed")
 
@@ -243,8 +236,7 @@ class TestCompleteInfrastructure:
 
     @pytest.mark.asyncio
     async def test_mcp_server_connectivity(self):
-        """Test that MCP servers are accessible and functioning.
-        """
+        """Test that MCP servers are accessible and functioning."""
         if "mcp" not in self.deployment_results:
             pytest.skip("MCP not deployed")
 
@@ -262,8 +254,7 @@ class TestCompleteInfrastructure:
 
     @pytest.mark.asyncio
     async def test_complete_system_health(self):
-        """Test the overall health of the deployed system.
-        """
+        """Test the overall health of the deployed system."""
         health_status = {
             "snowflake": False,
             "pinecone": False,

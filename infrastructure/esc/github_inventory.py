@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitHubSecretInventory:
-    """Inventories all secrets in a GitHub organization
-    """
+    """Inventories all secrets in a GitHub organization"""
 
     def __init__(self, organization: str, token: str = None):
         self.organization = organization

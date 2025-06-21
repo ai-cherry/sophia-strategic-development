@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProductionDeployer:
-    """Deploys the Sophia AI system to production using the MCP federation model.
-    """
+    """Deploys the Sophia AI system to production using the MCP federation model."""
 
     def __init__(self, mcp_gateway_url: str = "http://localhost:8090"):
         self.mcp_client = MCPClient(mcp_gateway_url)
@@ -330,8 +329,7 @@ class ProductionDeployer:
 
 
 async def main():
-    """Main function to run the production deployer.
-    """
+    """Main function to run the production deployer."""
     # NOTE: This assumes the MCP Gateway and the Docker/Pulumi/Retool MCP servers are running.
     # You can start them with `docker-compose up mcp-gateway docker-mcp pulumi-mcp retool-mcp`
 

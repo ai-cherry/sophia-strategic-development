@@ -1,4 +1,3 @@
-
 import pulumi_airbyte as airbyte
 from pulumi import ComponentResource, Config, Output, ResourceOptions
 

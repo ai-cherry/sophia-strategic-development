@@ -42,8 +42,8 @@ async def test_document_ingestion():
         {
             "filename": "pay_ready_mission.txt",
             "content": """Pay Ready Mission Statement
-            
-Pay Ready is dedicated to revolutionizing business intelligence and payment processing 
+
+Pay Ready is dedicated to revolutionizing business intelligence and payment processing
 for the modern enterprise. Our mission is to empower businesses with real-time insights,
 seamless payment solutions, and intelligent automation that drives growth and efficiency.
 
@@ -203,7 +203,7 @@ async def test_curation_workflow(insights):
     logger.info("\nSimulating user review of insights...")
 
     for i, insight in enumerate(insights[:2]):  # Review first 2 insights
-        logger.info(f"\nReviewing insight {i+1}:")
+        logger.info(f"\nReviewing insight {i + 1}:")
         logger.info(f"- {insight.insight}")
 
         # Simulate different user actions

@@ -6,6 +6,7 @@ This script orchestrates the following:
 2. Provisioning core infrastructure like databases and caches.
 3. Deploying the application services as managed containers.
 """
+
 import json
 
 import pulumi

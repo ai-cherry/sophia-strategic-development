@@ -1,4 +1,5 @@
 """Production database configuration for Sophia AI Pay Ready Platform."""
+
 from __future__ import annotations
 
 import logging

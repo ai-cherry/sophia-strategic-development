@@ -26,11 +26,11 @@ function App() {
 
   return (
     <div>
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        padding: '1rem', 
-        backgroundColor: '#fff', 
+      <header style={{
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '1rem',
+        backgroundColor: '#fff',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         borderBottom: '1px solid #ddd'
       }}>

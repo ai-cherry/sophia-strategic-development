@@ -130,7 +130,7 @@ async def main():
 
                 total_servers.metric("Total Servers", total)
                 healthy_servers.metric(
-                    "Healthy Servers", healthy, delta=f"{healthy/total*100:.0f}%"
+                    "Healthy Servers", healthy, delta=f"{healthy / total * 100:.0f}%"
                 )
 
                 # Server status table
@@ -143,9 +143,11 @@ async def main():
                         status_data.append(
                             {
                                 "Server": server["name"],
-                                "Status": "🟢 Healthy"
-                                if server.get("status") == "healthy"
-                                else "🔴 Unhealthy",
+                                "Status": (
+                                    "🟢 Healthy"
+                                    if server.get("status") == "healthy"
+                                    else "🔴 Unhealthy"
+                                ),
                                 "Uptime": server.get("uptime", "Unknown"),
                                 "CPU %": metrics.get("cpu_percent", 0),
                                 "Memory MB": metrics.get("memory_mb", 0),

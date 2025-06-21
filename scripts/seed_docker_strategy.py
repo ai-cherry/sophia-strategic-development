@@ -1,5 +1,5 @@
-"""Seeds the Knowledge Base with the strategic document on Docker vs. Cloud.
-"""
+"""Seeds the Knowledge Base with the strategic document on Docker vs. Cloud."""
+
 import asyncio
 import logging
 
@@ -92,7 +92,7 @@ async def seed_docker_strategy():
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
-            logger.info(f"Ingesting chunk {i+1}/{len(chunks)} with tags: {tags}")
+            logger.info(f"Ingesting chunk {i + 1}/{len(chunks)} with tags: {tags}")
 
             ingest_args = {
                 "file_path": str(temp_file_path),
@@ -107,10 +107,10 @@ async def seed_docker_strategy():
 
             if not ingest_result.get("success"):
                 logger.error(
-                    f"Failed to ingest chunk {i+1}. Reason: {ingest_result.get('error')}"
+                    f"Failed to ingest chunk {i + 1}. Reason: {ingest_result.get('error')}"
                 )
             else:
-                logger.info(f"Successfully ingested chunk {i+1}.")
+                logger.info(f"Successfully ingested chunk {i + 1}.")
 
             Path(temp_file_path).unlink()
             await asyncio.sleep(1)

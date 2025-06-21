@@ -18,8 +18,7 @@ class DeploymentValidator:
     async def pre_deployment_validation(
         self, deployment_config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Runs all pre-deployment validation checks.
-        """
+        """Runs all pre-deployment validation checks."""
         logger.info("Starting pre-deployment validation...")
 
         security_check = await self._validate_security(deployment_config)

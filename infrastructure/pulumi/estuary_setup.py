@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Estuary resources.
-"""
+"""Pulumi script for setting up Estuary resources."""
+
 import pulumi
 
 from infrastructure.esc.estuary_secrets import estuary_secret_manager

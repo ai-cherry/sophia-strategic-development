@@ -604,7 +604,7 @@ class DataTransformationPipeline:
 
             create_sql = f"""
             CREATE TABLE IF NOT EXISTS {schema}.{table_name.upper()} (
-                {', '.join(columns)},
+                {", ".join(columns)},
                 INGESTION_TIMESTAMP TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
             )
             """

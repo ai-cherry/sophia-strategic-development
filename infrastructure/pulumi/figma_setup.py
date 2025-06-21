@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Figma resources.
-"""
+"""Pulumi script for setting up Figma resources."""
+
 import pulumi
 
 from infrastructure.esc.figma_secrets import figma_secret_manager

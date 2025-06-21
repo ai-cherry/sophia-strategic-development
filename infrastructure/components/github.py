@@ -50,7 +50,7 @@ class GitHubComponent(BaseComponent):
         # A real implementation would have a more dynamic way to manage secrets
         secrets_to_create = {
             "PULUMI_ACCESS_TOKEN": config.require_secret("pulumi_access_token"),
-            "SNOWFLAKE_PASSWORD": config.require_secret("snowflake_password")
+            "SNOWFLAKE_PASSWORD": config.require_secret("snowflake_password"),
             # ... and so on for all other secrets
         }
 

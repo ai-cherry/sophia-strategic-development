@@ -220,12 +220,12 @@ class InfrastructureValidator:
         logger.info("🎯 VALIDATION SUMMARY")
         logger.info("=" * 60)
         logger.info(f"Tests Passed: {passed}/{total}")
-        logger.info(f"Success Rate: {(passed/total)*100:.1f}%")
+        logger.info(f"Success Rate: {(passed / total) * 100:.1f}%")
 
         if passed == total:
             logger.info("🎉 ALL TESTS PASSED - SYSTEM READY FOR DEPLOYMENT!")
         else:
-            logger.warning(f"⚠️  {total-passed} TESTS FAILED - SYSTEM NEEDS FIXES")
+            logger.warning(f"⚠️  {total - passed} TESTS FAILED - SYSTEM NEEDS FIXES")
 
         self.results["summary"] = {
             "passed": passed,

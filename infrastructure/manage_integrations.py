@@ -28,8 +28,7 @@ from backend.core.integration_registry import discover_integrations, registry
 
 
 class IntegrationManager:
-    """Manager for integrations with the Sophia AI platform
-    """
+    """Manager for integrations with the Sophia AI platform"""
 
     def __init__(self):
         self.registry = registry
@@ -150,9 +149,11 @@ class IntegrationManager:
             return {
                 "service_name": service_name,
                 "status": "ok" if integration.initialized else "initialization_failed",
-                "error": None
-                if integration.initialized
-                else "Failed to initialize integration",
+                "error": (
+                    None
+                    if integration.initialized
+                    else "Failed to initialize integration"
+                ),
                 "metadata": metadata,
                 "config_keys": list(config_keys),
                 "secret_keys": list(secret_keys),

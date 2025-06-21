@@ -1,12 +1,10 @@
-
 import pulumi.automation as auto
 import snowflake.connector
 from pinecone import Pinecone
 
 
 def test_deployment():
-    """Validates the deployed infrastructure by checking connectivity and resource state.
-    """
+    """Validates the deployed infrastructure by checking connectivity and resource state."""
     print("--- Starting Infrastructure Deployment Validation ---")
     validation_results = {}
 

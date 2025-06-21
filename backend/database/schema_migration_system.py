@@ -117,7 +117,7 @@ class SchemaMigrationSystem:
                 cursor.execute(
                     """
                     SELECT EXISTS (
-                        SELECT FROM information_schema.tables 
+                        SELECT FROM information_schema.tables
                         WHERE table_schema = 'public' AND table_name = %s
                     )
                 """,
@@ -142,7 +142,7 @@ class SchemaMigrationSystem:
 
         create_sql = f"""
             CREATE TABLE {table_name} (
-                {', '.join(columns_sql)}
+                {", ".join(columns_sql)}
             )
         """
 
@@ -225,8 +225,8 @@ class SchemaMigrationSystem:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    INSERT INTO schema_migrations 
-                    (table_name, migration_type, column_changes, data_sample, 
+                    INSERT INTO schema_migrations
+                    (table_name, migration_type, column_changes, data_sample,
                      data_quality_score, migration_hash, applied_at, rollback_sql, status)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (migration_hash) DO NOTHING
@@ -338,7 +338,7 @@ class SchemaMigrationSystem:
                     # Get migration details
                     cursor.execute(
                         """
-                        SELECT * FROM schema_migrations 
+                        SELECT * FROM schema_migrations
                         WHERE migration_hash = %s AND status = 'completed'
                     """,
                         (migration_hash,),
@@ -358,8 +358,8 @@ class SchemaMigrationSystem:
                         # Update migration status
                         cursor.execute(
                             """
-                            UPDATE schema_migrations 
-                            SET status = 'rolled_back' 
+                            UPDATE schema_migrations
+                            SET status = 'rolled_back'
                             WHERE migration_hash = %s
                         """,
                             (migration_hash,),
@@ -384,8 +384,8 @@ class SchemaMigrationSystem:
                 if table_name:
                     cursor.execute(
                         """
-                        SELECT * FROM schema_migrations 
-                        WHERE table_name = %s 
+                        SELECT * FROM schema_migrations
+                        WHERE table_name = %s
                         ORDER BY created_at DESC
                     """,
                         (table_name,),
@@ -393,7 +393,7 @@ class SchemaMigrationSystem:
                 else:
                     cursor.execute(
                         """
-                        SELECT * FROM schema_migrations 
+                        SELECT * FROM schema_migrations
                         ORDER BY created_at DESC
                     """
                     )
@@ -430,7 +430,7 @@ class SchemaMigrationSystem:
                         index_name = f"idx_{table_name}_{col_name}"
                         cursor.execute(
                             f"""
-                            CREATE INDEX IF NOT EXISTS {index_name} 
+                            CREATE INDEX IF NOT EXISTS {index_name}
                             ON {table_name} ({col_name})
                         """
                         )

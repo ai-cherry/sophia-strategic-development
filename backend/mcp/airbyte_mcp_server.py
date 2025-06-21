@@ -1,6 +1,7 @@
 """Airbyte MCP Server
 Exposes the Airbyte integration to the Sophia AI system via MCP.
 """
+
 import asyncio
 import json
 from typing import List
@@ -12,8 +13,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class AirbyteMCPServer(BaseMCPServer):
-    """MCP Server for Airbyte.
-    """
+    """MCP Server for Airbyte."""
 
     def __init__(self):
         super().__init__("airbyte")

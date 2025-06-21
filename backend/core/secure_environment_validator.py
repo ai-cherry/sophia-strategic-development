@@ -318,17 +318,17 @@ class SecureEnvironmentValidator:
             if rule.min_length and len(value) < rule.min_length:
                 result["valid"] = False
                 result["invalid_format"] = True
-                result[
-                    "error"
-                ] = f"Value too short (minimum {rule.min_length} characters)"
+                result["error"] = (
+                    f"Value too short (minimum {rule.min_length} characters)"
+                )
                 return result
 
             if rule.max_length and len(value) > rule.max_length:
                 result["valid"] = False
                 result["invalid_format"] = True
-                result[
-                    "error"
-                ] = f"Value too long (maximum {rule.max_length} characters)"
+                result["error"] = (
+                    f"Value too long (maximum {rule.max_length} characters)"
+                )
                 return result
 
         # Validate allowed values
@@ -336,9 +336,9 @@ class SecureEnvironmentValidator:
             if value not in rule.allowed_values:
                 result["valid"] = False
                 result["invalid_format"] = True
-                result[
-                    "error"
-                ] = f"Value must be one of: {', '.join(rule.allowed_values)}"
+                result["error"] = (
+                    f"Value must be one of: {', '.join(rule.allowed_values)}"
+                )
                 return result
 
         # Security checks for secrets

@@ -53,7 +53,7 @@ ADMIN_INTERFACE_TEMPLATE = """
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Sophia AI Knowledge Base</h1>
             <p class="text-gray-600">Manage your company's knowledge base and AI training data</p>
         </header>
-        
+
         <nav class="mb-6">
             <div class="flex border-b">
                 <button class="tab-button active" onclick="showTab('documents')">Documents</button>
@@ -62,7 +62,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                 <button class="tab-button" onclick="showTab('settings')">Settings</button>
             </div>
         </nav>
-        
+
         <!-- Documents Tab -->
         <div id="documents" class="tab-content active">
             <div class="bg-white rounded-lg shadow p-6">
@@ -72,12 +72,12 @@ ADMIN_INTERFACE_TEMPLATE = """
                         Add Document
                     </button>
                 </div>
-                
+
                 <div class="mb-4">
-                    <input type="text" placeholder="Search documents..." 
+                    <input type="text" placeholder="Search documents..."
                            class="w-full p-3 border border-gray-300 rounded-lg">
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="border border-gray-200 rounded-lg p-4">
                         <h3 class="font-semibold mb-2">Company Mission Statement</h3>
@@ -87,7 +87,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             <span class="text-xs text-gray-500">v2 • 2024-01-20</span>
                         </div>
                     </div>
-                    
+
                     <div class="border border-gray-200 rounded-lg p-4">
                         <h3 class="font-semibold mb-2">Product Catalog</h3>
                         <p class="text-gray-600 text-sm mb-3">Complete product and service offerings...</p>
@@ -96,7 +96,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             <span class="text-xs text-gray-500">v3 • 2024-01-18</span>
                         </div>
                     </div>
-                    
+
                     <div class="border border-gray-200 rounded-lg p-4">
                         <h3 class="font-semibold mb-2">Sales Process</h3>
                         <p class="text-gray-600 text-sm mb-3">Step-by-step sales methodology...</p>
@@ -108,7 +108,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                 </div>
             </div>
         </div>
-        
+
         <!-- Analytics Tab -->
         <div id="analytics" class="tab-content">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -117,26 +117,26 @@ ADMIN_INTERFACE_TEMPLATE = """
                     <p class="text-3xl font-bold text-gray-900">47</p>
                     <p class="text-sm text-green-600">+3 from last month</p>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-sm font-medium text-gray-500 mb-2">Published</h3>
                     <p class="text-3xl font-bold text-gray-900">42</p>
                     <p class="text-sm text-gray-600">5 in draft</p>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-sm font-medium text-gray-500 mb-2">Total Searches</h3>
                     <p class="text-3xl font-bold text-gray-900">1,247</p>
                     <p class="text-sm text-green-600">+12% from last week</p>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="text-sm font-medium text-gray-500 mb-2">Avg Response Time</h3>
                     <p class="text-3xl font-bold text-gray-900">185ms</p>
                     <p class="text-sm text-green-600">-15ms improvement</p>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-semibold mb-4">Knowledge Base Performance</h2>
                 <div class="h-64 bg-gray-100 rounded flex items-center justify-center">
@@ -144,7 +144,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                 </div>
             </div>
         </div>
-        
+
         <!-- Workflows Tab -->
         <div id="workflows" class="tab-content">
             <div class="bg-white rounded-lg shadow p-6">
@@ -154,7 +154,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                         Create Workflow
                     </button>
                 </div>
-                
+
                 <div class="space-y-4">
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex justify-between items-center">
@@ -168,7 +168,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex justify-between items-center">
                             <div>
@@ -181,7 +181,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex justify-between items-center">
                             <div>
@@ -197,7 +197,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                 </div>
             </div>
         </div>
-        
+
         <!-- Settings Tab -->
         <div id="settings" class="tab-content">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -206,24 +206,24 @@ ADMIN_INTERFACE_TEMPLATE = """
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Knowledge Base Name</label>
-                            <input type="text" value="Pay Ready Knowledge Base" 
+                            <input type="text" value="Pay Ready Knowledge Base"
                                    class="w-full p-3 border border-gray-300 rounded-lg">
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Auto-save Interval (minutes)</label>
-                            <input type="number" value="5" 
+                            <input type="number" value="5"
                                    class="w-full p-3 border border-gray-300 rounded-lg">
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Versions per Document</label>
-                            <input type="number" value="10" 
+                            <input type="number" value="10"
                                    class="w-full p-3 border border-gray-300 rounded-lg">
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-xl font-semibold mb-4">Vector Database Status</h2>
                     <div class="space-y-4">
@@ -234,7 +234,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             </div>
                             <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Connected</span>
                         </div>
-                        
+
                         <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
                             <div>
                                 <h3 class="font-medium">Weaviate</h3>
@@ -242,7 +242,7 @@ ADMIN_INTERFACE_TEMPLATE = """
                             </div>
                             <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Connected</span>
                         </div>
-                        
+
                         <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                             <div>
                                 <h3 class="font-medium">Redis Cache</h3>
@@ -255,24 +255,24 @@ ADMIN_INTERFACE_TEMPLATE = """
             </div>
         </div>
     </div>
-    
+
     <script>
         function showTab(tabName) {
             // Hide all tab contents
             const tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(content => content.classList.remove('active'));
-            
+
             // Remove active class from all buttons
             const tabButtons = document.querySelectorAll('.tab-button');
             tabButtons.forEach(button => button.classList.remove('active'));
-            
+
             // Show selected tab content
             document.getElementById(tabName).classList.add('active');
-            
+
             // Add active class to clicked button
             event.target.classList.add('active');
         }
-        
+
         // Initialize with documents tab active
         document.addEventListener('DOMContentLoaded', function() {
             showTab('documents');
@@ -403,8 +403,7 @@ def integrate_with_existing_admin(existing_app):
 
 # Deployment configuration
 class KnowledgeBaseDeployment:
-    """Handles deployment configuration for knowledge base admin
-    """
+    """Handles deployment configuration for knowledge base admin"""
 
     def __init__(self, config):
         self.config = config
@@ -457,7 +456,7 @@ class KnowledgeBaseDeployment:
 server {
     listen 80;
     server_name sophia-admin.payready.com;
-    
+
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -465,23 +464,23 @@ server {
 server {
     listen 443 ssl http2;
     server_name sophia-admin.payready.com;
-    
+
     # SSL configuration
     ssl_certificate /etc/ssl/certs/sophia-admin.crt;
     ssl_certificate_key /etc/ssl/private/sophia-admin.key;
-    
+
     # Frontend (React app)
     location / {
         root /var/www/sophia-admin/dist;
         try_files $uri $uri/ /index.html;
-        
+
         # Cache static assets
         location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
     }
-    
+
     # Backend API
     location /api/ {
         proxy_pass http://localhost:5000;
@@ -489,13 +488,13 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # CORS headers
         add_header Access-Control-Allow-Origin *;
         add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS";
         add_header Access-Control-Allow-Headers "Content-Type, Authorization";
     }
-    
+
     # Knowledge base admin interface
     location /admin/knowledge/ {
         proxy_pass http://localhost:5000;

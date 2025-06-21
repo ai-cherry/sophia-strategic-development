@@ -2,6 +2,7 @@
 This script provides a command-line interface to trigger the various data
 transformation and vectorization workflows within the Sophia AI system.
 """
+
 import argparse
 import asyncio
 import logging

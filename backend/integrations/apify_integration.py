@@ -1,6 +1,7 @@
 """Apify Integration for Sophia AI
 Provides a client to interact with the Apify API for running actors.
 """
+
 import asyncio
 import logging
 from typing import Any, Dict, List

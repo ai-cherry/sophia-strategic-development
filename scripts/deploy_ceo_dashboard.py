@@ -258,7 +258,7 @@ class CEODashboardDeployer:
         guide = f"""
 {BLUE}=== CEO Dashboard Deployment Guide ==={RESET}
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 {BLUE}1. Backend Status:{RESET}
 """
@@ -307,9 +307,9 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
     async def deploy(self):
         """Run full deployment validation"""
-        print(f"{BLUE}{'='*60}{RESET}")
+        print(f"{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Sophia AI CEO Dashboard Deployment Tool{RESET}")
-        print(f"{BLUE}{'='*60}{RESET}")
+        print(f"{BLUE}{'=' * 60}{RESET}")
 
         # Test backend health
         backend_healthy = await self.validate_backend_health()
@@ -364,7 +364,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             + (1 if chat_working else 0)
         )
 
-        print(f"\n{BLUE}{'='*60}{RESET}")
+        print(f"\n{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Deployment Summary:{RESET}")
         print(f"Tests Passed: {passed_tests}/{total_tests}")
 

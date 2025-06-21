@@ -1,4 +1,3 @@
-
 import pulumi_command as command
 from pulumi import Config, Output, ResourceOptions
 
@@ -34,7 +33,7 @@ class GongComponent(BaseComponent):
                 gong_api_secret,
                 "' ",
                 f'-d \'{{"name": "Sophia AI Integration - {env}", "url": "{self.webhook_url}", "events": ["call.done"]}}\'',
-            )
+            ),
             # update and delete commands would be similar
         )
 

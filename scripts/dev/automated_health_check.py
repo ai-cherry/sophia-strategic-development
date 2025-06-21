@@ -400,7 +400,7 @@ async def main():
 
     # Print results
     print("\n🏥 Sophia AI Health Check Report")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
     print(
         f"Overall Status: {'✅ HEALTHY' if results['overall_status'] == 'healthy' else '⚠️ DEGRADED' if results['overall_status'] == 'degraded' else '❌ UNHEALTHY'}"
     )
@@ -411,7 +411,7 @@ async def main():
     print(f"Timestamp: {results['timestamp']}")
 
     print("\n📊 Detailed Results:")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
 
     for check_name, check_result in results["checks"].items():
         status_icon = "✅" if check_result["status"] == "healthy" else "❌"

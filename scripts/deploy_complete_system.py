@@ -378,11 +378,11 @@ class SophiaDeploymentManager:
         deployment_results = {}
 
         for service_name, service_config in sorted_services:
-            logger.info(f"\n{'='*60}")
+            logger.info(f"\n{'=' * 60}")
             logger.info(
                 f"Deploying {service_name} (Priority {service_config['priority']})"
             )
-            logger.info(f"{'='*60}")
+            logger.info(f"{'=' * 60}")
 
             result = await self.deploy_service(service_name)
             deployment_results[service_name] = result
@@ -409,7 +409,7 @@ class SophiaDeploymentManager:
         report.append(f"- Successful: {successful_services}")
         report.append(f"- Failed: {failed_services}")
         report.append(
-            f"- Success Rate: {(successful_services/total_services)*100:.1f}%"
+            f"- Success Rate: {(successful_services / total_services) * 100:.1f}%"
         )
         report.append("")
 

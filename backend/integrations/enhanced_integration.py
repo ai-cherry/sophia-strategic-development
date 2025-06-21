@@ -360,12 +360,12 @@ class SophiaAIEnhancedIntegration:
             # Generate AI insights from call data
             ai_prompt = f"""
             Analyze this sales call data and provide business intelligence insights:
-            
-            Call Duration: {call_data.get('duration', 'Unknown')}
-            Participants: {', '.join(call_data.get('participants', []))}
-            Key Topics: {', '.join(call_data.get('key_topics', []))}
-            Sentiment Score: {call_data.get('sentiment_score', 'Unknown')}
-            
+
+            Call Duration: {call_data.get("duration", "Unknown")}
+            Participants: {", ".join(call_data.get("participants", []))}
+            Key Topics: {", ".join(call_data.get("key_topics", []))}
+            Sentiment Score: {call_data.get("sentiment_score", "Unknown")}
+
             Provide insights on:
             1. Deal progression likelihood
             2. Customer health score
@@ -435,13 +435,13 @@ class SophiaAIEnhancedIntegration:
             # Generate AI-powered lead scoring
             scoring_prompt = f"""
             Score this lead based on the enriched data:
-            
-            Company: {enriched_data.get('company', 'Unknown')}
-            Industry: {enriched_data.get('industry', 'Unknown')}
-            Company Size: {enriched_data.get('company_size', 'Unknown')}
-            Revenue: {enriched_data.get('revenue', 'Unknown')}
-            Technologies: {', '.join(enriched_data.get('technologies', []))}
-            
+
+            Company: {enriched_data.get("company", "Unknown")}
+            Industry: {enriched_data.get("industry", "Unknown")}
+            Company Size: {enriched_data.get("company_size", "Unknown")}
+            Revenue: {enriched_data.get("revenue", "Unknown")}
+            Technologies: {", ".join(enriched_data.get("technologies", []))}
+
             Provide:
             1. Lead score (0-100)
             2. Qualification status (Hot/Warm/Cold)

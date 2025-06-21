@@ -30,8 +30,7 @@ class AgentDocumentation:
 
 
 class InlineDocumentationSystem:
-    """Provides context-aware documentation and help within Cursor IDE
-    """
+    """Provides context-aware documentation and help within Cursor IDE"""
 
     def __init__(self):
         self.agent_docs = self._initialize_agent_documentation()

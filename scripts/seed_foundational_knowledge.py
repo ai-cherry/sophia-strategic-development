@@ -1,5 +1,5 @@
-"""Seeds the Sophia AI Knowledge Base with foundational documents about Pay Ready.
-"""
+"""Seeds the Sophia AI Knowledge Base with foundational documents about Pay Ready."""
+
 import asyncio
 import logging
 
@@ -169,7 +169,7 @@ async def seed_knowledge_base():
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
-            logger.info(f"Ingesting chunk {i+1}/{len(chunks)} with tags: {tags}")
+            logger.info(f"Ingesting chunk {i + 1}/{len(chunks)} with tags: {tags}")
 
             # Call the server's internal ingestion method directly
             ingest_args = {
@@ -186,7 +186,7 @@ async def seed_knowledge_base():
 
             if not ingest_result.get("success"):
                 logger.error(
-                    f"Failed to ingest chunk {i+1}. Reason: {ingest_result.get('error')}"
+                    f"Failed to ingest chunk {i + 1}. Reason: {ingest_result.get('error')}"
                 )
 
             Path(temp_file_path).unlink()

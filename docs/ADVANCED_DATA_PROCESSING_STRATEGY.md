@@ -138,4 +138,4 @@ By adopting this strategy, we replace our old, rigid data pipelines with a dynam
 -   **More Powerful:** Leverages LLM reasoning for tasks that were previously handled by complex code.
 -   **Simpler to Maintain:** Business logic is concentrated in agent personas and prompts, not sprawling scripts.
 
-This represents the final and most critical step in truly modernizing the Sophia AI platform. 
+This represents the final and most critical step in truly modernizing the Sophia AI platform.

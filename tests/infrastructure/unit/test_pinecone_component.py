@@ -1,5 +1,4 @@
-"""Unit tests for the Pinecone infrastructure component
-"""
+"""Unit tests for the Pinecone infrastructure component"""
 
 import os
 
@@ -21,8 +20,7 @@ class TestPineconeComponent:
     """
 
     def test_knowledge_base_index_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates a knowledge base index with the correct parameters.
-        """
+        """Test that the component creates a knowledge base index with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = PineconeComponent("test-pinecone")
@@ -44,8 +42,7 @@ class TestPineconeComponent:
             assert "name" in kb_index["inputs"], "Index name not specified"
 
     def test_ai_memory_index_creation(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component creates an AI memory index with the correct parameters.
-        """
+        """Test that the component creates an AI memory index with the correct parameters."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = PineconeComponent("test-pinecone")
@@ -61,14 +58,13 @@ class TestPineconeComponent:
                     break
 
             assert memory_index is not None, "AI memory index was not created"
-            assert (
-                "dimension" in memory_index["inputs"]
-            ), "Index dimension not specified"
+            assert "dimension" in memory_index["inputs"], (
+                "Index dimension not specified"
+            )
             assert "name" in memory_index["inputs"], "Index name not specified"
 
     def test_component_outputs(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component exports the expected outputs.
-        """
+        """Test that the component exports the expected outputs."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = PineconeComponent("test-pinecone")
@@ -78,8 +74,7 @@ class TestPineconeComponent:
             assert "ai_memory_index" in component.outputs
 
     def test_environment_specific_naming(self, pulumi_mock):
-        """Test that the component uses environment-specific naming for resources.
-        """
+        """Test that the component uses environment-specific naming for resources."""
         # Test with different environments
         environments = ["dev", "staging", "production"]
 
@@ -102,13 +97,12 @@ class TestPineconeComponent:
                     # Check that index names include the environment
                     for resource in resources:
                         if "name" in resource["inputs"]:
-                            assert (
-                                env in resource["inputs"]["name"].lower()
-                            ), f"Environment '{env}' not found in index name: {resource['inputs']['name']}"
+                            assert env in resource["inputs"]["name"].lower(), (
+                                f"Environment '{env}' not found in index name: {resource['inputs']['name']}"
+                            )
 
     def test_index_dimension_configuration(self, pulumi_mock, mock_pulumi_config):
-        """Test that the component configures the correct vector dimensions for indices.
-        """
+        """Test that the component configures the correct vector dimensions for indices."""
         with pulumi_mock.mocked_provider():
             # Create the component
             component = PineconeComponent("test-pinecone")
@@ -117,10 +111,10 @@ class TestPineconeComponent:
             resources = pulumi_mock.get_resources_by_type("sophia:pinecone:Index")
 
             for resource in resources:
-                assert (
-                    "dimension" in resource["inputs"]
-                ), "Index dimension not specified"
+                assert "dimension" in resource["inputs"], (
+                    "Index dimension not specified"
+                )
                 # Typical embedding dimensions are 768, 1024, 1536, etc.
-                assert (
-                    resource["inputs"]["dimension"] >= 128
-                ), "Index dimension is too small"
+                assert resource["inputs"]["dimension"] >= 128, (
+                    "Index dimension is too small"
+                )

@@ -1,46 +1,42 @@
-"""
-A generic client for interacting with any Model Context Protocol (MCP) server.
-"""
+"""A generic client for interacting with any Model Context Protocol (MCP) server."""
 
 import logging
-import aiohttp
 from typing import Any, Dict, Optional
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
-# The service discovery gateway, now updated with our new capabilities.
+# The service discovery gateway, now updated with our new specialist servers.
 MCP_GATEWAY_ENDPOINTS = {
     # Infrastructure & Ops
     "pulumi": "http://pulumi-mcp-service.mcp-servers.svc.cluster.local:9000",
     "kubernetes": "http://k8s-mcp-service.mcp-servers.svc.cluster.local:9000",
     "github": "http://github-mcp-service.mcp-servers.svc.cluster.local:9000",
-    "portkey_admin": "http://portkey-admin-mcp-service.mcp-servers.svc.cluster.local:9000",
-    
-    # Observability
-    "grafana": "http://grafana-mcp-service.mcp-servers.svc.cluster.local:9000",
-    
-    # Data & Search
+    # Data & Analytics
     "database": "http://database-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "snowflake": "http://snowflake-mcp-service.mcp-servers.svc.cluster.local:9000",
     "pinecone": "http://pinecone-mcp-service.mcp-servers.svc.cluster.local:9000",
+    # Code & Research
+    "consult7": "http://consult7-mcp-service.mcp-servers.svc.cluster.local:9000",
     "tavily": "http://tavily-mcp-service.mcp-servers.svc.cluster.local:9000",
-
+    # Observability & UI
+    "grafana": "http://grafana-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "portkey_admin": "http://portkey-admin-mcp-service.mcp-servers.svc.cluster.local:9000",
     # Web & Browser
     "playwright": "http://playwright-mcp-service.mcp-servers.svc.cluster.local:9000",
 }
 
+
 class MCPClient:
-    """
-    A single client to rule them all. An agent uses this client to talk
+    """A single client to rule them all. An agent uses this client to talk
     to any MCP-compliant server via the gateway.
     """
+
     async def get_context(
-        self, 
-        service_name: str, 
-        request: str,
-        context: Optional[Dict[str, Any]] = None
+        self, service_name: str, request: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """
-        Sends a request to a specified MCP server to get context.
+        """Sends a request to a specified MCP server to get context.
 
         :param service_name: The name of the service to contact (e.g., 'kubernetes').
         :param request: The natural language request for the MCP server.
@@ -55,7 +51,7 @@ class MCPClient:
             "request": request,
             "context": context or {},
         }
-        
+
         logger.info(f"Sending MCP request to '{service_name}': '{request}'")
 
         async with aiohttp.ClientSession() as session:
@@ -66,6 +62,7 @@ class MCPClient:
             except aiohttp.ClientError as e:
                 logger.error(f"MCP request to '{service_name}' failed: {e}")
                 raise
+
 
 # Singleton instance for easy use across the application
 mcp_client = MCPClient()

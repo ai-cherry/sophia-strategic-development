@@ -114,4 +114,4 @@ This `esc run` workflow is now the **official and required** method for local de
 -   **Perfect parity** between local and production configuration.
 -   **Enhanced security** by keeping secrets off local disks.
 
-This allows every developer to be productive within minutes, confident that their local environment is a perfect replica of the secure, configured production environment. 
+This allows every developer to be productive within minutes, confident that their local environment is a perfect replica of the secure, configured production environment.

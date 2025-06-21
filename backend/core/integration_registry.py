@@ -39,8 +39,7 @@ class IntegrationMetadata:
 
 
 class IntegrationRegistry:
-    """Comprehensive registry for all integrations with the Sophia AI platform
-    """
+    """Comprehensive registry for all integrations with the Sophia AI platform"""
 
     def __init__(self):
         self.integrations: Dict[str, Type[Integration]] = {}

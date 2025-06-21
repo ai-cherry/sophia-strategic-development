@@ -1,15 +1,13 @@
-"""
-AI Memory MCP Server
+"""AI Memory MCP Server
 MCP server for AI coding assistant memory system, refactored to use the BaseMCPServer.
 """
 
 import asyncio
 import json
-import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from mcp.types import (
     CallToolRequest,
@@ -32,6 +30,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 try:
     import pinecone
     from pinecone import Pinecone, ServerlessSpec
+
     PINECONE_AVAILABLE = True
 except ImportError:
     PINECONE_AVAILABLE = False
@@ -41,14 +40,15 @@ except ImportError:
 
 try:
     from sentence_transformers import SentenceTransformer
+
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
     SentenceTransformer = None
 
+
 class AIMemoryMCPServer(BaseMCPServer):
-    """
-    MCP Server for AI coding assistant memory system.
+    """MCP Server for AI coding assistant memory system.
     Provides persistent memory storage and retrieval for development context.
     """
 
@@ -63,10 +63,14 @@ class AIMemoryMCPServer(BaseMCPServer):
     async def initialize_integration(self):
         """Initializes the Pinecone and SentenceTransformer integration."""
         if not PINECONE_AVAILABLE:
-            raise ImportError("Pinecone is not available. Please install pinecone-client.")
+            raise ImportError(
+                "Pinecone is not available. Please install pinecone-client."
+            )
 
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
-            raise ImportError("SentenceTransformers is not available. Please install sentence-transformers.")
+            raise ImportError(
+                "SentenceTransformers is not available. Please install sentence-transformers."
+            )
 
         try:
             # Initialize Pinecone
@@ -84,10 +88,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                         name=self.index_name,
                         dimension=self.dimension,
                         metric="cosine",
-                        spec=ServerlessSpec(
-                            cloud="aws",
-                            region="us-east-1"
-                        )
+                        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
                     )
                     self.logger.info(f"Created Pinecone index: {self.index_name}")
 
@@ -95,7 +96,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 self.logger.info(f"Connected to Pinecone index: {self.index_name}")
 
             # Initialize sentence transformer
-            self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
+            self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
             self.logger.info("Initialized SentenceTransformer encoder")
 
             # Set integration client for base class compatibility
@@ -112,14 +113,14 @@ class AIMemoryMCPServer(BaseMCPServer):
                 uri="ai_memory://health",
                 name="AI Memory Health Status",
                 description="Current health and status of the AI Memory system.",
-                mimeType="application/json"
+                mimeType="application/json",
             ),
             Resource(
                 uri="ai_memory://stats",
                 name="AI Memory Statistics",
                 description="Statistics about stored memories and usage.",
-                mimeType="application/json"
-            )
+                mimeType="application/json",
+            ),
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
@@ -132,7 +133,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "pinecone_connected": self.index is not None,
                 "encoder_loaded": self.encoder is not None,
                 "index_name": self.index_name,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
             return json.dumps(health_status)
 
@@ -140,12 +141,14 @@ class AIMemoryMCPServer(BaseMCPServer):
             if self.index:
                 try:
                     stats = self.index.describe_index_stats()
-                    return json.dumps({
-                        "total_vectors": stats.total_vector_count,
-                        "index_fullness": stats.index_fullness,
-                        "dimension": self.dimension,
-                        "timestamp": datetime.now().isoformat()
-                    })
+                    return json.dumps(
+                        {
+                            "total_vectors": stats.total_vector_count,
+                            "index_fullness": stats.index_fullness,
+                            "dimension": self.dimension,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
                 except Exception as e:
                     return json.dumps({"error": f"Failed to get stats: {e}"})
             else:
@@ -165,25 +168,34 @@ class AIMemoryMCPServer(BaseMCPServer):
                     "properties": {
                         "conversation_text": {
                             "type": "string",
-                            "description": "The conversation or context text to store"
+                            "description": "The conversation or context text to store",
                         },
                         "context": {
                             "type": "string",
-                            "description": "Additional context about the conversation (e.g., 'bug fix', 'architecture decision')"
+                            "description": "Additional context about the conversation (e.g., 'bug fix', 'architecture decision')",
                         },
                         "tags": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "Tags to categorize the memory (e.g., ['python', 'debugging', 'api'])"
+                            "description": "Tags to categorize the memory (e.g., ['python', 'debugging', 'api'])",
                         },
                         "category": {
                             "type": "string",
-                            "enum": ["conversation", "code_decision", "bug_solution", "architecture", "workflow", "requirement", "pattern", "api_usage"],
-                            "description": "Category of the memory"
-                        }
+                            "enum": [
+                                "conversation",
+                                "code_decision",
+                                "bug_solution",
+                                "architecture",
+                                "workflow",
+                                "requirement",
+                                "pattern",
+                                "api_usage",
+                            ],
+                            "description": "Category of the memory",
+                        },
                     },
-                    "required": ["conversation_text"]
-                }
+                    "required": ["conversation_text"],
+                },
             ),
             Tool(
                 name="recall_memory",
@@ -193,26 +205,35 @@ class AIMemoryMCPServer(BaseMCPServer):
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "Search query to find relevant memories"
+                            "description": "Search query to find relevant memories",
                         },
                         "category": {
                             "type": "string",
-                            "enum": ["conversation", "code_decision", "bug_solution", "architecture", "workflow", "requirement", "pattern", "api_usage"],
-                            "description": "Filter by category (optional)"
+                            "enum": [
+                                "conversation",
+                                "code_decision",
+                                "bug_solution",
+                                "architecture",
+                                "workflow",
+                                "requirement",
+                                "pattern",
+                                "api_usage",
+                            ],
+                            "description": "Filter by category (optional)",
                         },
                         "tags": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "Filter by tags (optional)"
+                            "description": "Filter by tags (optional)",
                         },
                         "top_k": {
                             "type": "integer",
                             "description": "Number of memories to return (default: 5)",
-                            "default": 5
-                        }
+                            "default": 5,
+                        },
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             ),
             Tool(
                 name="delete_memory",
@@ -222,12 +243,12 @@ class AIMemoryMCPServer(BaseMCPServer):
                     "properties": {
                         "memory_id": {
                             "type": "string",
-                            "description": "ID of the memory to delete"
+                            "description": "ID of the memory to delete",
                         }
                     },
-                    "required": ["memory_id"]
-                }
-            )
+                    "required": ["memory_id"],
+                },
+            ),
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
@@ -276,20 +297,25 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "tags": tags,
                 "category": category,
                 "timestamp": datetime.now().isoformat(),
-                "source": "ai_memory_mcp"
+                "source": "ai_memory_mcp",
             }
 
             # Store in Pinecone if available
             if self.index:
-                memory_request = MemoryRequest(operation=MemoryOperationType.STORE, content=[(memory_id, embedding, metadata)])
-                await comprehensive_memory_manager.process_memory_request(memory_request)
+                memory_request = MemoryRequest(
+                    operation=MemoryOperationType.STORE,
+                    content=[(memory_id, embedding, metadata)],
+                )
+                await comprehensive_memory_manager.process_memory_request(
+                    memory_request
+                )
 
             return {
                 "success": True,
                 "memory_id": memory_id,
                 "category": category,
                 "tags": tags,
-                "timestamp": metadata["timestamp"]
+                "timestamp": metadata["timestamp"],
             }
 
         except Exception as e:
@@ -328,7 +354,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 vector=query_embedding,
                 top_k=top_k,
                 include_metadata=True,
-                filter=filter_dict if filter_dict else None
+                filter=filter_dict if filter_dict else None,
             )
 
             # Format results
@@ -341,7 +367,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                     "context": match.metadata.get("context", ""),
                     "category": match.metadata.get("category", ""),
                     "tags": match.metadata.get("tags", []),
-                    "timestamp": match.metadata.get("timestamp", "")
+                    "timestamp": match.metadata.get("timestamp", ""),
                 }
                 memories.append(memory)
 
@@ -349,7 +375,7 @@ class AIMemoryMCPServer(BaseMCPServer):
                 "success": True,
                 "query": query,
                 "count": len(memories),
-                "memories": memories
+                "memories": memories,
             }
 
         except Exception as e:
@@ -367,11 +393,13 @@ class AIMemoryMCPServer(BaseMCPServer):
             return {"error": "Pinecone index not available"}
 
         try:
-            await comprehensive_memory_manager.process_memory_request(MemoryRequest(operation=MemoryOperationType.DELETE, ids=[memory_id]))
+            await comprehensive_memory_manager.process_memory_request(
+                MemoryRequest(operation=MemoryOperationType.DELETE, ids=[memory_id])
+            )
             return {
                 "success": True,
                 "memory_id": memory_id,
-                "message": "Memory deleted successfully"
+                "message": "Memory deleted successfully",
             }
 
         except Exception as e:

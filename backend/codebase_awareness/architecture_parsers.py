@@ -2,6 +2,7 @@
 Handles extracting structured information from various components of the codebase,
 such as API routes, MCP tool definitions, and database schemas.
 """
+
 import ast
 import logging
 import re

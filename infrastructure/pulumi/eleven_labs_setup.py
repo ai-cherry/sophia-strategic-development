@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Eleven Labs resources.
-"""
+"""Pulumi script for setting up Eleven Labs resources."""
+
 import pulumi
 
 from infrastructure.esc.eleven_labs_secrets import eleven_labs_secret_manager

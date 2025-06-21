@@ -1,5 +1,4 @@
-"""Shared fixtures and utilities for infrastructure testing
-"""
+"""Shared fixtures and utilities for infrastructure testing"""
 
 import uuid
 from typing import Any, Dict, List
@@ -72,12 +71,12 @@ class PulumiMock:
             if resource["type"] == resource_type:
                 inputs = resource["inputs"]
                 for key, value in expected_inputs.items():
-                    assert (
-                        key in inputs
-                    ), f"Expected input '{key}' not found in resource inputs"
-                    assert (
-                        inputs[key] == value
-                    ), f"Expected input '{key}' to be '{value}', got '{inputs[key]}'"
+                    assert key in inputs, (
+                        f"Expected input '{key}' not found in resource inputs"
+                    )
+                    assert inputs[key] == value, (
+                        f"Expected input '{key}' to be '{value}', got '{inputs[key]}'"
+                    )
                 return
 
         raise AssertionError(f"No resource of type '{resource_type}' was created")
@@ -152,8 +151,7 @@ class TestEnvironmentManager:
                 print(f"Error cleaning up stack {stack_name}: {e}")
 
     def __del__(self):
-        """Ensures all test stacks are cleaned up when the manager is garbage collected.
-        """
+        """Ensures all test stacks are cleaned up when the manager is garbage collected."""
         for stack_name in list(self.stacks):
             self.cleanup_test_stack(stack_name)
 
@@ -163,15 +161,13 @@ class TestEnvironmentManager:
 
 @pytest.fixture
 def pulumi_mock():
-    """Fixture that provides a PulumiMock instance for unit testing.
-    """
+    """Fixture that provides a PulumiMock instance for unit testing."""
     return PulumiMock()
 
 
 @pytest.fixture
 def test_env_manager():
-    """Fixture that provides a TestEnvironmentManager instance for integration testing.
-    """
+    """Fixture that provides a TestEnvironmentManager instance for integration testing."""
     manager = TestEnvironmentManager()
     yield manager
     # Cleanup is handled by the manager's __del__ method
@@ -179,8 +175,7 @@ def test_env_manager():
 
 @pytest.fixture
 def mock_pulumi_config():
-    """Fixture that mocks the Pulumi Config class for testing.
-    """
+    """Fixture that mocks the Pulumi Config class for testing."""
     with patch("pulumi.Config") as mock_config:
         # Set up the mock to return test values
         config_instance = MagicMock()
@@ -196,8 +191,7 @@ def mock_pulumi_config():
 
 @pytest.fixture
 def mock_snowflake_client():
-    """Fixture that provides a mock Snowflake client for testing.
-    """
+    """Fixture that provides a mock Snowflake client for testing."""
 
     class MockSnowflakeClient:
         def __init__(self, connection_string=None):
@@ -244,8 +238,7 @@ def mock_snowflake_client():
 
 @pytest.fixture
 def mock_pinecone_client():
-    """Fixture that provides a mock Pinecone client for testing.
-    """
+    """Fixture that provides a mock Pinecone client for testing."""
 
     class MockPineconeClient:
         def __init__(self, api_key=None):
@@ -315,8 +308,7 @@ def mock_pinecone_client():
 
 @pytest.fixture
 def mock_gong_client():
-    """Fixture that provides a mock Gong client for testing.
-    """
+    """Fixture that provides a mock Gong client for testing."""
 
     class MockGongClient:
         def __init__(self, api_key=None):

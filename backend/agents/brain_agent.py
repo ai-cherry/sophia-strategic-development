@@ -1,6 +1,7 @@
 """Brain Agent for Sophia AI
 The central reasoning and planning agent for the Sophia AI system.
 """
+
 import json
 import logging
 
@@ -72,7 +73,7 @@ class BrainAgent(BaseAgent):
                     summary_prompt = f"""You are Sophia, an AI data analyst for Pay Ready.
                     You have just executed the SQL query: '{sql_query}'
                     And received the following data: {json.dumps(query_results, indent=2)}
-                    
+
                     Based on this data, provide a clear, natural language answer to the original user request: '{task.command}'
                     """
                     summary_response = await self.portkey.llm_call(summary_prompt)
@@ -152,10 +153,10 @@ class BrainAgent(BaseAgent):
         # This would be expanded to include details about all available tools.
         prompt = """You are a master planner and orchestrator AI.
         Your job is to take a user's request and create a JSON object that represents the single best tool call to answer the request.
-        
+
         Available Tools:
         - snowflake.query(sql: str): Executes a SQL query against the Pay Ready data warehouse. Use this for any questions about specific data, metrics, revenue, clients, etc.
-        
+
         Based on the user's request, provide a JSON object with two keys: "tool" and "parameters".
         Example Request: "What were our top 5 clients by revenue last quarter?"
         Example JSON Output:

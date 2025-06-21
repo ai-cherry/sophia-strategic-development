@@ -1,6 +1,7 @@
 """Codebase Awareness Agent for Sophia AI
 Handles interaction with the Codebase Awareness MCP Server.
 """
+
 import logging
 
 from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult
@@ -19,8 +20,7 @@ class CodebaseAwarenessAgent(BaseAgent):
         self.mcp_client = mcp_client
 
     async def execute_task(self, task: Task) -> TaskResult:
-        """Executes a task by calling the appropriate tool on the Codebase Awareness MCP Server.
-        """
+        """Executes a task by calling the appropriate tool on the Codebase Awareness MCP Server."""
         command = task.command
         params = task.parameters
 

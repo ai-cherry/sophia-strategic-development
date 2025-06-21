@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Gong resources.
-"""
+"""Pulumi script for setting up Gong resources."""
+
 import pulumi
 
 from infrastructure.esc.gong_secrets import gong_secret_manager

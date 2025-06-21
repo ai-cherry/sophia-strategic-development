@@ -1,5 +1,5 @@
-"""Intercom Agent for Sophia AI - Placeholder
-"""
+"""Intercom Agent for Sophia AI - Placeholder"""
+
 import logging
 
 from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult

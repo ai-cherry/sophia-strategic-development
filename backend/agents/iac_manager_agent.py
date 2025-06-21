@@ -1,6 +1,7 @@
 """Infrastructure as Code (IaC) Manager Agent for Sophia AI
 Handles the generation and deployment of infrastructure configurations via natural language.
 """
+
 import asyncio
 import json
 import logging
@@ -31,8 +32,7 @@ class IaCManagerAgent(BaseAgent):
         }
 
     async def execute_task(self, task: Task) -> TaskResult:
-        """Executes an IaC management task by generating and then executing a plan.
-        """
+        """Executes an IaC management task by generating and then executing a plan."""
         logger.info(f"IaCManagerAgent received task: {task.command}")
 
         # 1. Generate the plan

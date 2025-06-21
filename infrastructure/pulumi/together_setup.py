@@ -1,5 +1,5 @@
-"""Pulumi script for setting up Together AI resources.
-"""
+"""Pulumi script for setting up Together AI resources."""
+
 import pulumi
 
 from infrastructure.esc.together_secrets import together_secret_manager

@@ -2,6 +2,7 @@
 This script provides a simple command-line interface to ingest CoStar data files
 (e.g., .xlsx, .csv) into the Sophia AI Knowledge Base.
 """
+
 import argparse
 import asyncio
 import logging
@@ -71,8 +72,7 @@ async def ingest_costar_file(file_path: Path, market_area: str, data_year: int):
 
 
 def main():
-    """Main function to parse command-line arguments and run the ingestion.
-    """
+    """Main function to parse command-line arguments and run the ingestion."""
     parser = argparse.ArgumentParser(
         description="Ingest CoStar data files into the Sophia AI Knowledge Base."
     )

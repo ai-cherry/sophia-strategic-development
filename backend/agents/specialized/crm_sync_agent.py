@@ -379,9 +379,9 @@ class CRMSyncAgent(BaseAgent):
 
         # Update notes about interests
         if call_data.get("interests"):
-            updates[
-                "notes_last_contacted"
-            ] = f"Interested in: {', '.join(call_data['interests'])}"
+            updates["notes_last_contacted"] = (
+                f"Interested in: {', '.join(call_data['interests'])}"
+            )
 
         return updates
 

@@ -1,7 +1,6 @@
 """Simple integration tests for new modules."""
 
 
-
 def test_imports():
     import backend.agents.nl_command_agent as n
     import backend.integrations.browser_automation as b

@@ -1,5 +1,5 @@
-"""Pulumi script for setting up GitHub resources using the native Pulumi provider.
-"""
+"""Pulumi script for setting up GitHub resources using the native Pulumi provider."""
+
 import pulumi
 import pulumi_github as github
 

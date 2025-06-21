@@ -1,5 +1,5 @@
-"""Builds the main "Sophia AI Command Center" Retool application shell.
-"""
+"""Builds the main "Sophia AI Command Center" Retool application shell."""
+
 import asyncio
 import json
 import logging
@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 async def build_command_center():
-    """Uses the Retool MCP to create the main command center app.
-    """
+    """Uses the Retool MCP to create the main command center app."""
     dashboard_name = "sophia_ai_command_center"
     logger.info(f"Attempting to build Retool App: {dashboard_name}")
 

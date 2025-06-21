@@ -1,5 +1,5 @@
-"""Specialized Research Agent for Sophia AI.
-"""
+"""Specialized Research Agent for Sophia AI."""
+
 import json
 import logging
 

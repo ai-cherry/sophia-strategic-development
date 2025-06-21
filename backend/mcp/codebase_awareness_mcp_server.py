@@ -1,6 +1,7 @@
 """Codebase Awareness MCP Server
 Provides tools for AI assistants to understand the Sophia codebase architecture.
 """
+
 import asyncio
 import json
 from pathlib import Path
@@ -15,8 +16,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 
 class CodebaseAwarenessMCPServer(BaseMCPServer):
-    """MCP Server that provides structured, searchable access to the codebase itself.
-    """
+    """MCP Server that provides structured, searchable access to the codebase itself."""
 
     CODEBASE_INDEX_NAME = "sophia-codebase-awareness"
 

@@ -1,6 +1,7 @@
 """Integration tests for Strategic Chat Architecture
 Tests dynamic model selection, hybrid search, and performance
 """
+
 import asyncio
 from datetime import datetime
 from unittest.mock import AsyncMock, patch

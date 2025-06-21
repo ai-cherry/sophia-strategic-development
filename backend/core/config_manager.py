@@ -52,8 +52,7 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class ConfigManager:
-    """Enhanced centralized configuration manager for all integrations
-    """
+    """Enhanced centralized configuration manager for all integrations"""
 
     def __init__(self):
         self.configs = {}
@@ -567,9 +566,9 @@ class ConfigManager:
                 ) as session:
                     headers = {}
                     if "api_key" in service_config.secrets:
-                        headers[
-                            "Authorization"
-                        ] = f"Bearer {service_config.secrets['api_key']}"
+                        headers["Authorization"] = (
+                            f"Bearer {service_config.secrets['api_key']}"
+                        )
 
                     async with session.get(
                         f"{base_url}{health_endpoint}", headers=headers

@@ -1,6 +1,7 @@
 """Snowflake Integration for Sophia AI
 Provides a secure and efficient way to connect to and query the Snowflake data warehouse.
 """
+
 import asyncio
 import json
 import logging
@@ -15,16 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 class SnowflakeIntegration:
-    """Handles the connection and querying logic for Snowflake.
-    """
+    """Handles the connection and querying logic for Snowflake."""
 
     def __init__(self):
         self.connection = None
         self.credentials = None
 
     async def initialize(self):
-        """Initializes the connection to Snowflake using credentials from the secret manager.
-        """
+        """Initializes the connection to Snowflake using credentials from the secret manager."""
         if self.connection:
             return
 

@@ -267,7 +267,7 @@ class CEODashboardPulumiDeployer:
         report = f"""
 # Sophia AI CEO Dashboard Deployment Report
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## Infrastructure Status
 
@@ -285,9 +285,9 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Dashboard Deployment
 
-- **App ID**: {deployment_results.get('app_id', 'Not deployed')}
-- **App URL**: {deployment_results.get('app_url', 'Not available')}
-- **Deployment Method**: {deployment_results.get('method', 'Unknown')}
+- **App ID**: {deployment_results.get("app_id", "Not deployed")}
+- **App URL**: {deployment_results.get("app_url", "Not available")}
+- **Deployment Method**: {deployment_results.get("method", "Unknown")}
 
 ## API Endpoints
 
@@ -304,15 +304,15 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Access Instructions
 
-1. **Retool Dashboard**: {deployment_results.get('app_url', 'https://retool.com/apps')}
-2. **Backend API**: {deployment_results.get('backend_url', 'http://localhost:8000')}
+1. **Retool Dashboard**: {deployment_results.get("app_url", "https://retool.com/apps")}
+2. **Backend API**: {deployment_results.get("backend_url", "http://localhost:8000")}
 3. **MCP Gateway**: http://localhost:8090
 
 ## Architecture Overview
 
 The CEO Dashboard is now integrated with:
 
-- **MCP Servers**: {len([s for s in health_status.values() if s.get('status') == 'healthy'])}/{len(health_status)} operational
+- **MCP Servers**: {len([s for s in health_status.values() if s.get("status") == "healthy"])}/{len(health_status)} operational
 - **AI Agents**: Executive, Client Health, Sales Coach, Research, etc.
 - **Data Sources**: Snowflake, Pinecone, Gong, HubSpot
 - **Intelligence**: OpenRouter models, Claude, AI Memory
@@ -341,9 +341,9 @@ This is the production-ready Sophia AI system, not a demo!
 
     async def deploy(self):
         """Run full CEO Dashboard deployment"""
-        print(f"{BLUE}{'='*60}{RESET}")
+        print(f"{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Sophia AI CEO Dashboard - Pulumi IaC Deployment{RESET}")
-        print(f"{BLUE}{'='*60}{RESET}")
+        print(f"{BLUE}{'=' * 60}{RESET}")
 
         deployment_results = {}
 
@@ -392,7 +392,7 @@ This is the production-ready Sophia AI system, not a demo!
             )
             total_servers = len(health_status)
 
-            print(f"\n{BLUE}{'='*60}{RESET}")
+            print(f"\n{BLUE}{'=' * 60}{RESET}")
             print(f"{BLUE}Deployment Summary:{RESET}")
             print(f"MCP Servers: {healthy_servers}/{total_servers} operational")
             print(
@@ -406,7 +406,9 @@ This is the production-ready Sophia AI system, not a demo!
                 print(f"\n{GREEN}✅ CEO Dashboard successfully deployed!{RESET}")
                 print(f"Access at: {deployment_results.get('app_url', 'Check Retool')}")
             else:
-                print(f"\n{RED}❌ Dashboard deployment failed. Check logs above.{RESET}")
+                print(
+                    f"\n{RED}❌ Dashboard deployment failed. Check logs above.{RESET}"
+                )
 
         except Exception as e:
             print(f"\n{RED}Deployment error: {e}{RESET}")

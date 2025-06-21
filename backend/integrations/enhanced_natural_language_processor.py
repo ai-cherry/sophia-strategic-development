@@ -110,8 +110,7 @@ class NLPResponse:
 
 
 class EnhancedNaturalLanguageProcessor:
-    """Enhanced NLP processor with business context understanding
-    """
+    """Enhanced NLP processor with business context understanding"""
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -423,7 +422,7 @@ class EnhancedNaturalLanguageProcessor:
         """Use AI to classify intent when pattern matching fails"""
         prompt = f"""
         Classify the following user query into one of these business intent categories:
-        
+
         Categories:
         - business_intelligence: Requests for metrics, reports, dashboards, performance analysis
         - client_management: Client health, churn risk, account management, client satisfaction
@@ -435,11 +434,11 @@ class EnhancedNaturalLanguageProcessor:
         - market_research: Industry trends, market analysis, prospect research
         - system_administration: System settings, user management, configuration
         - general_query: General questions not fitting other categories
-        
+
         User Query: "{query}"
-        
-        Context: {json.dumps(context) if context else 'None'}
-        
+
+        Context: {json.dumps(context) if context else "None"}
+
         Respond with just the category name and confidence score (0.0-1.0) in format: "category_name,confidence"
         """
 
@@ -648,21 +647,21 @@ class EnhancedNaturalLanguageProcessor:
         """Generate a natural language response"""
         prompt = f"""
         You are an AI assistant for Pay Ready, a B2B technology company that sells AI-powered solutions to apartment owners and property managers.
-        
+
         User Query: "{query}"
         Detected Intent: {intent.intent_type.value}
         Confidence: {intent.confidence:.2f}
         Extracted Entities: {[e.value for e in intent.entities]}
         Parameters: {intent.parameters}
-        
-        Context: {json.dumps(context) if context else 'None'}
-        
+
+        Context: {json.dumps(context) if context else "None"}
+
         Generate a helpful, professional response that:
         1. Acknowledges the user's request
         2. Explains what actions will be taken
         3. Provides relevant business context
         4. Offers next steps or additional help
-        
+
         Keep the response concise but informative, focusing on Pay Ready's business operations.
         """
 

@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgnoAgent:
-    """Represents an agent in the Agno platform.
-    """
+    """Represents an agent in the Agno platform."""
 
     def __init__(self, agent_id: str, agent_data: Dict[str, Any]):
         """Initialize an Agno agent.
@@ -50,8 +49,7 @@ class AgnoAgent:
 
 
 class AgnoTool:
-    """Represents a tool that can be used by an Agno agent.
-    """
+    """Represents a tool that can be used by an Agno agent."""
 
     def __init__(
         self,
@@ -87,8 +85,7 @@ class AgnoTool:
 
 
 class AgnoIntegration:
-    """Integration with Agno's ultra-fast agent platform.
-    """
+    """Integration with Agno's ultra-fast agent platform."""
 
     def __init__(self):
         """Initialize the Agno integration."""

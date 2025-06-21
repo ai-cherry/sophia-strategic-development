@@ -1,5 +1,5 @@
-"""Pulumi script for building and publishing Sophia AI's Docker images.
-"""
+"""Pulumi script for building and publishing Sophia AI's Docker images."""
+
 import pulumi
 import pulumi_docker as docker
 

@@ -1,5 +1,5 @@
-"""Intercom MCP Server - Placeholder
-"""
+"""Intercom MCP Server - Placeholder"""
+
 import json
 from typing import List
 

@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArchitectureConsistencyChecker:
-    """Checks for architecture inconsistencies in the codebase.
-    """
+    """Checks for architecture inconsistencies in the codebase."""
 
     def __init__(self, root_dir: str = "."):
         self.root_dir = root_dir
@@ -286,8 +285,7 @@ class ArchitectureConsistencyChecker:
 
 
 async def main():
-    """Main function to run the architecture consistency checker.
-    """
+    """Main function to run the architecture consistency checker."""
     root_dir = "."
     if len(sys.argv) > 1:
         root_dir = sys.argv[1]

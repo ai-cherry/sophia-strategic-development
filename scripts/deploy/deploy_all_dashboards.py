@@ -737,9 +737,9 @@ All dashboards use a consistent design system:
 
     async def deploy_all(self):
         """Main deployment orchestration"""
-        print(f"\n{MAGENTA}{'='*60}{RESET}")
+        print(f"\n{MAGENTA}{'=' * 60}{RESET}")
         print(f"{MAGENTA}Sophia AI Complete Dashboard Deployment{RESET}")
-        print(f"{MAGENTA}{'='*60}{RESET}")
+        print(f"{MAGENTA}{'=' * 60}{RESET}")
 
         # Check prerequisites
         prereq_status = await self.check_prerequisites()
@@ -779,9 +779,9 @@ All dashboards use a consistent design system:
         )
 
         # Print summary
-        print(f"\n{BLUE}{'='*60}{RESET}")
+        print(f"\n{BLUE}{'=' * 60}{RESET}")
         print(f"{BLUE}Deployment Summary{RESET}")
-        print(f"{BLUE}{'='*60}{RESET}")
+        print(f"{BLUE}{'=' * 60}{RESET}")
 
         # Prerequisites
         prereq_count = sum(

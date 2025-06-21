@@ -1,6 +1,7 @@
 """Airbyte Integration for Sophia AI
 Provides a client to interact with the Airbyte API to manage and trigger data syncs.
 """
+
 import logging
 from typing import Any, Dict, Optional
 
@@ -12,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class AirbyteIntegration:
-    """Handles communication with the Airbyte API.
-    """
+    """Handles communication with the Airbyte API."""
 
     def __init__(self, api_base_url: str = "https://api.airbyte.com/v1/"):
         self.api_base_url = api_base_url
@@ -21,8 +21,7 @@ class AirbyteIntegration:
         self.headers = {}
 
     async def initialize(self):
-        """Initializes the aiohttp session and retrieves the API key.
-        """
+        """Initializes the aiohttp session and retrieves the API key."""
         if self.session:
             return
 

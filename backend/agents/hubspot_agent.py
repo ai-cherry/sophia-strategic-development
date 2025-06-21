@@ -1,5 +1,5 @@
-"""HubSpot Agent for Sophia AI - Placeholder
-"""
+"""HubSpot Agent for Sophia AI - Placeholder"""
+
 import logging
 
 from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task, TaskResult

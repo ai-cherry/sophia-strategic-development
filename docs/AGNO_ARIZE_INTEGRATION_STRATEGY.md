@@ -11,7 +11,7 @@ graph TB
     subgraph "GitHub Organization Secrets (157 keys)"
         GOS[All AI/Business/Infrastructure Secrets]
     end
-    
+
     subgraph "Pulumi ESC (Centralized Secret Management)"
         ESC[scoobyjava-org/default/sophia-ai-production]
         ESC --> AI[AI Services]
@@ -19,7 +19,7 @@ graph TB
         ESC --> VDB[Vector Databases]
         ESC --> BI[Business Intelligence]
     end
-    
+
     subgraph "Agno Multi-Agent Framework"
         KIA[Knowledge Ingestion Agent]
         RIA[Research Intelligence Agent]
@@ -29,21 +29,21 @@ graph TB
         BSA[Business Strategy Agent]
         DIA[Database Intelligence Agent]
     end
-    
+
     subgraph "Arize Observability Platform"
         AT[Agent Tracing]
         AE[Agent Evaluation]
         AP[Performance Monitoring]
         AG[Guardrails]
     end
-    
+
     subgraph "Existing Sophia Infrastructure"
         MCP[MCP Servers]
         PK[Portkey Gateway]
         VD[Vector Databases]
         EX[Existing Agents]
     end
-    
+
     GOS --> ESC
     ESC --> Agno
     ESC --> Arize
@@ -329,4 +329,4 @@ With 157 integrated services, Agno's multi-agent framework, and Arize's comprehe
 
 **The infrastructure is ready. The agents are designed. The observability is configured.**
 
-**Time to deploy and revolutionize business intelligence! 🚀** 
+**Time to deploy and revolutionize business intelligence! 🚀**
