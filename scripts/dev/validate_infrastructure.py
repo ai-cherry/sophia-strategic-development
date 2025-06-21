@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Sophia AI Infrastructure Validation Script
-Tests all critical components for deployment readiness
+"""Sophia AI Infrastructure Validation Script.
+
+Tests all critical components for deployment readiness.
 """
 
 import logging
@@ -17,13 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class InfrastructureValidator:
-    """Validates Sophia AI infrastructure components"""
+    """Validate Sophia AI infrastructure components."""
 
     def __init__(self):
         self.results = {}
 
     def test_python_imports(self) -> bool:
-        """Test critical Python imports"""
+        """Test critical Python imports."""
         logger.info("Testing Python imports...")
 
         critical_imports = [
@@ -57,7 +58,7 @@ class InfrastructureValidator:
         return success
 
     def test_backend_structure(self) -> bool:
-        """Test backend module structure"""
+        """Test backend module structure."""
         logger.info("Testing backend structure...")
 
         required_modules = [
@@ -85,7 +86,7 @@ class InfrastructureValidator:
         return success
 
     def test_credential_manager(self) -> bool:
-        """Test secure credential manager"""
+        """Test secure credential manager."""
         logger.info("Testing credential manager...")
 
         try:
@@ -113,7 +114,7 @@ class InfrastructureValidator:
             return False
 
     def test_fastapi_app_creation(self) -> bool:
-        """Test FastAPI app creation without running event loop"""
+        """Test FastAPI app creation without running event loop."""
         logger.info("Testing FastAPI app creation...")
 
         try:
@@ -154,11 +155,11 @@ class InfrastructureValidator:
             return False
 
     def test_deployment_scripts(self) -> bool:
-        """Test deployment script syntax"""
+        """Test deployment script syntax."""
         logger.info("Testing deployment scripts...")
 
         scripts = [
-            "deploy_production.sh",
+            "scripts/deploy_production_mcp.py",
             "quick_setup.sh",
             "scripts/start_ceo_dashboard.sh",
         ]
@@ -166,8 +167,13 @@ class InfrastructureValidator:
         failed_scripts = []
         for script in scripts:
             if os.path.exists(script):
-                # Test bash syntax
-                result = os.system(f"bash -n {script} 2>/dev/null")
+                if script.endswith(".sh"):
+                    result = os.system(f"bash -n {script} 2>/dev/null")  # nosec B605
+                elif script.endswith(".py"):
+                    result = os.system(f"python -m py_compile {script} 2>/dev/null")  # nosec B605
+                else:
+                    logger.warning(f"Unknown script type for {script}")
+                    result = 1
                 if result == 0:
                     logger.info(f"✅ {script}")
                 else:
@@ -186,7 +192,7 @@ class InfrastructureValidator:
         return success
 
     def run_validation(self) -> Dict[str, Any]:
-        """Run complete infrastructure validation"""
+        """Run complete infrastructure validation."""
         logger.info("🚀 Starting Sophia AI Infrastructure Validation")
         logger.info("=" * 60)
 
