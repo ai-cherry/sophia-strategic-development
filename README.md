@@ -18,6 +18,11 @@ cd sophia-main
 # Set Pulumi token (required for all setup scripts)
 export PULUMI_ACCESS_TOKEN=your_token_here
 
+# Install Python dependencies
+pip install -r requirements.txt
+# Or use the optional setup script
+# ./setup.sh
+
 # Deploy the platform
 ./deploy_sophia_platform.sh
 ```
@@ -77,6 +82,8 @@ External APIs → Airbyte → Snowflake → Vector Processing → Pinecone → A
 ```bash
 # Install dependencies
 pip install -r requirements.txt
+# Or run the helper script which installs Python packages for you
+# ./setup.sh
 npm install
 
 # Configure environment
