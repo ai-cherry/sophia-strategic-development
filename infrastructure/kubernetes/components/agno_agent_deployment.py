@@ -14,7 +14,7 @@ import pulumi_aws as aws
 class AgnoAgentDeployment(pulumi.ComponentResource):
     """A Pulumi component that provisions a complete, production-ready.
 
-        environment for a single Agno agent on AWS ECS Fargate.
+    environment for a single Agno agent on AWS ECS Fargate.
     """
 
     def __init__(
@@ -30,12 +30,12 @@ class AgnoAgentDeployment(pulumi.ComponentResource):
     ):
         """:param name: The unique name for the agent deployment (e.g., 'analyst-agent').
 
-                :param image_uri: The URI of the Docker image for the agent.
-                :param persona: A string describing the agent's persona or system prompt.
-                :param tools: A list of tool names the agent has access to (e.g., ['gong_tools']).
-                :param knowledge_bases: A list of knowledge base names the agent can query.
-                :param cluster_arn: The ARN of the ECS cluster to deploy into.
-                :param vpc_subnets: A list of VPC subnet IDs for the ECS service.
+        :param image_uri: The URI of the Docker image for the agent.
+        :param persona: A string describing the agent's persona or system prompt.
+        :param tools: A list of tool names the agent has access to (e.g., ['gong_tools']).
+        :param knowledge_bases: A list of knowledge base names the agent can query.
+        :param cluster_arn: The ARN of the ECS cluster to deploy into.
+        :param vpc_subnets: A list of VPC subnet IDs for the ECS service.
         """
         super().__init__("custom:res:AgnoAgentDeployment", name, None, opts)
 

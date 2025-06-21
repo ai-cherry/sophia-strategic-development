@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class CodebaseAwarenessAgent(BaseAgent):
     """An agent that specializes in using the CodebaseAwarenessMCPServer.
 
-            to answer questions about the project's architecture and code.
+    to answer questions about the project's architecture and code.
     """
 
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):

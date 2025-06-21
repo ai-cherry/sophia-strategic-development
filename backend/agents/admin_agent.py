@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class AdminAgent(BaseAgent):
     """An agent that specializes in using the AdminMCPServer to perform.
 
-            system-level checks and administrative actions.
+    system-level checks and administrative actions.
     """
 
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):

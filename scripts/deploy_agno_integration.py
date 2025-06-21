@@ -4,15 +4,14 @@
 This script safely deploys the Agno framework integration with comprehensive
 testing, monitoring, and rollback capabilities.
 """
-import asyncio
 
-import json
+import asyncio
 import logging
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -22,7 +21,9 @@ from backend.agents.core.enhanced_agent_framework import enhanced_agent_framewor
 from backend.core.config_loader import get_config_loader
 from backend.monitoring.enhanced_monitoring import SophiaMonitoringSystem
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -119,7 +120,7 @@ class AgnoDeploymentManager:
                 agent = await enhanced_agent_framework.create_agent(
                     agent_name=agent_name,
                     agent_config=agent_config["config"],
-                    force_type="agno"
+                    force_type="agno",
                 )
 
                 # Test agent functionality
@@ -131,7 +132,9 @@ class AgnoDeploymentManager:
             except Exception as e:
                 logger.error(f"❌ Failed to deploy agent {agent_name}: {e}")
                 # Continue with other agents but track the failure
-                self.rollback_data["failed_agents"] = self.rollback_data.get("failed_agents", [])
+                self.rollback_data["failed_agents"] = self.rollback_data.get(
+                    "failed_agents", []
+                )
                 self.rollback_data["failed_agents"].append(agent_name)
 
         if not deployed_agents:
@@ -180,7 +183,9 @@ class AgnoDeploymentManager:
 
             current_percentage += increment
 
-        logger.info(f"✅ Phase 5 completed: Traffic migration to {current_percentage-increment}%")
+        logger.info(
+            f"✅ Phase 5 completed: Traffic migration to {current_percentage-increment}%"
+        )
 
     async def _phase_6_final_validation(self):
         """Phase 6: Final validation and cleanup."""
@@ -245,8 +250,8 @@ class AgnoDeploymentManager:
             "pre_deployment_state": {
                 "agents": {},  # Current agent states
                 "configuration": {},  # Current configuration
-                "traffic_allocation": 0  # Current Agno traffic percentage
-            }
+                "traffic_allocation": 0,  # Current Agno traffic percentage
+            },
         }
 
         logger.info("✅ Rollback snapshot created")
@@ -280,7 +285,7 @@ class AgnoDeploymentManager:
             "average_response_time_ms": 145,
             "memory_usage_mb": 48,
             "throughput_requests_per_second": 850,
-            "error_rate_percent": 0.1
+            "error_rate_percent": 0.1,
         }
 
         logger.info("✅ Performance tests completed")
@@ -290,22 +295,26 @@ class AgnoDeploymentManager:
         """Validate that performance meets targets."""
         targets = {
             "agent_instantiation_time_ms": 10,  # <10ms target
-            "average_response_time_ms": 200,    # <200ms target
-            "memory_usage_mb": 100,             # <100MB target
+            "average_response_time_ms": 200,  # <200ms target
+            "memory_usage_mb": 100,  # <100MB target
             "throughput_requests_per_second": 500,  # >500 req/s target
-            "error_rate_percent": 5             # <5% error rate
+            "error_rate_percent": 5,  # <5% error rate
         }
 
         for metric, target in targets.items():
-            actual = results.get(metric, float('inf'))
+            actual = results.get(metric, float("inf"))
 
             if metric == "throughput_requests_per_second":
                 if actual < target:
-                    logger.error(f"Performance target not met: {metric} = {actual} < {target}")
+                    logger.error(
+                        f"Performance target not met: {metric} = {actual} < {target}"
+                    )
                     return False
             else:
                 if actual > target:
-                    logger.error(f"Performance target not met: {metric} = {actual} > {target}")
+                    logger.error(
+                        f"Performance target not met: {metric} = {actual} > {target}"
+                    )
                     return False
 
         return True
@@ -329,7 +338,7 @@ class AgnoDeploymentManager:
             "healthy": True,
             "agents_healthy": True,
             "mcp_servers_healthy": True,
-            "performance_within_targets": True
+            "performance_within_targets": True,
         }
 
     async def _comprehensive_health_check(self) -> Dict[str, Any]:
@@ -342,16 +351,16 @@ class AgnoDeploymentManager:
         system_health = await self._check_system_health()
 
         overall_healthy = (
-            bridge_health["status"] == "healthy" and
-            framework_health["status"] == "healthy" and
-            system_health["healthy"]
+            bridge_health["status"] == "healthy"
+            and framework_health["status"] == "healthy"
+            and system_health["healthy"]
         )
 
         return {
             "overall_healthy": overall_healthy,
             "bridge_health": bridge_health,
             "framework_health": framework_health,
-            "system_health": system_health
+            "system_health": system_health,
         }
 
     async def _generate_performance_report(self) -> Dict[str, Any]:
@@ -362,10 +371,10 @@ class AgnoDeploymentManager:
                 "instantiation_speed": "33x faster",
                 "memory_usage": "75% reduction",
                 "response_time": "27% improvement",
-                "throughput": "70% increase"
+                "throughput": "70% increase",
             },
             "system_status": "healthy",
-            "deployment_time": str(datetime.now() - self.start_time)
+            "deployment_time": str(datetime.now() - self.start_time),
         }
 
     async def _emergency_rollback(self):
@@ -384,7 +393,9 @@ class AgnoDeploymentManager:
         except Exception as e:
             logger.error(f"Rollback failed: {e}")
 
-    async def _generate_deployment_report(self, success: bool, error: Optional[str] = None) -> Dict[str, Any]:
+    async def _generate_deployment_report(
+        self, success: bool, error: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Generate final deployment report."""
         deployment_time = datetime.now() - self.start_time
 
@@ -393,25 +404,24 @@ class AgnoDeploymentManager:
             "status": "success" if success else "failed",
             "deployment_time": str(deployment_time),
             "start_time": self.start_time.isoformat(),
-            "end_time": datetime.now().isoformat()
+            "end_time": datetime.now().isoformat(),
         }
 
         if success:
-            report.update({
-                "performance_metrics": await enhanced_agent_framework.get_performance_metrics(),
-                "bridge_metrics": await agno_mcp_bridge.get_performance_metrics(),
-                "improvements": {
-                    "instantiation_speed": "33x faster",
-                    "memory_efficiency": "75% reduction",
-                    "response_time": "<200ms achieved",
-                    "backward_compatibility": "100% maintained"
+            report.update(
+                {
+                    "performance_metrics": await enhanced_agent_framework.get_performance_metrics(),
+                    "bridge_metrics": await agno_mcp_bridge.get_performance_metrics(),
+                    "improvements": {
+                        "instantiation_speed": "33x faster",
+                        "memory_efficiency": "75% reduction",
+                        "response_time": "<200ms achieved",
+                        "backward_compatibility": "100% maintained",
+                    },
                 }
-            })
+            )
         else:
-            report.update({
-                "error": error,
-                "rollback_data": self.rollback_data
-            })
+            report.update({"error": error, "rollback_data": self.rollback_data})
 
         return report
 
@@ -432,8 +442,8 @@ async def main():
                     "team_eligible": True,
                     "mcp_services": ["gong", "snowflake", "pinecone"],
                     "use_memory": True,
-                    "use_knowledge": True
-                }
+                    "use_knowledge": True,
+                },
             },
             {
                 "name": "sales_coach_agno",
@@ -442,16 +452,16 @@ async def main():
                     "requires_teams": True,
                     "mcp_services": ["gong", "hubspot", "slack"],
                     "use_memory": True,
-                    "use_knowledge": True
-                }
-            }
+                    "use_knowledge": True,
+                },
+            },
         ],
         "traffic_migration": {
             "initial_percentage": 10,
             "max_percentage": 50,  # Conservative rollout
             "increment": 10,
-            "monitoring_interval": 30
-        }
+            "monitoring_interval": 30,
+        },
     }
 
     # Create deployment manager
@@ -463,7 +473,7 @@ async def main():
 
         if result["status"] == "success":
             print("\n✅ Deployment Successful!")
-            print(f"📊 Performance Improvements:")
+            print("📊 Performance Improvements:")
             for key, value in result["improvements"].items():
                 print(f"   • {key.replace('_', ' ').title()}: {value}")
 

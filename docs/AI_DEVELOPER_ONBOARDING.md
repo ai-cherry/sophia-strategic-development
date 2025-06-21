@@ -70,4 +70,4 @@ Welcome to the Sophia AI codebase! This guide is designed for both AI coding age
 
 ---
 
-Welcome to the team—AI or human! If you have questions, check the CEO dashboard, the live metrics API, or the docs directory for answers. 
+Welcome to the team—AI or human! If you have questions, check the CEO dashboard, the live metrics API, or the docs directory for answers.

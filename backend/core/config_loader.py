@@ -250,7 +250,7 @@ await self.load_all_configs()
 
     def _evaluate_condition(self, condition: str, context: Dict[str, Any]) -> bool:
         """Evaluate a simple condition string."""# This is a simplified implementation.
-# In production, use a proper expression evaluator
+duction, use a proper expression evaluator
         import ast
 
         try:

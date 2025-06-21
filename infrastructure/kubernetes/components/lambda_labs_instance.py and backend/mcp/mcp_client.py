@@ -31,7 +31,7 @@ class LambdaLabsInstanceProvider(ResourceProvider):
 class MCPClient:
     """A single client to rule them all.
 
-        An agent uses this client to talk to any MCP-compliant server via the gateway.
+    An agent uses this client to talk to any MCP-compliant server via the gateway.
     """
 
     # ...

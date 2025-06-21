@@ -5,14 +5,14 @@
 vertical_slice_architecture:
   enabled: true
   base_path: "features"
-  
+
   # Feature slices configuration
   feature_slices:
     sales_intelligence:
       description: "Complete sales coaching and performance intelligence"
       agents:
         - call_analysis_agent
-        - coaching_agent  
+        - coaching_agent
         - performance_agent
         - prospecting_agent
       integrations:
@@ -31,7 +31,7 @@ vertical_slice_architecture:
         - call_to_crm_sync
         - coaching_pipeline
         - performance_tracking
-    
+
     client_success:
       description: "Client health monitoring and expansion intelligence"
       agents:
@@ -55,7 +55,7 @@ vertical_slice_architecture:
         - health_monitoring
         - intervention_triggers
         - expansion_pipeline
-    
+
     business_intelligence:
       description: "Executive insights and strategic intelligence"
       agents:
@@ -79,7 +79,7 @@ vertical_slice_architecture:
         - executive_reporting
         - competitive_monitoring
         - strategic_analysis
-    
+
     marketing_intelligence:
       description: "Marketing automation and campaign optimization"
       agents:
@@ -103,7 +103,7 @@ vertical_slice_architecture:
         - campaign_optimization
         - content_generation
         - lead_attribution
-    
+
     knowledge_management:
       description: "AI-powered knowledge discovery and management"
       agents:
@@ -142,7 +142,7 @@ agentic_levels:
       max_tool_calls_per_session: 50
       enable_tool_caching: true
       tool_performance_monitoring: true
-  
+
   # Level 2: Agents with Knowledge and Storage
   level_2:
     description: "Knowledge-enhanced agents with persistent storage"
@@ -156,7 +156,7 @@ agentic_levels:
       knowledge_cache_ttl_minutes: 60
       storage_retention_days: 90
       enable_knowledge_versioning: true
-  
+
   # Level 3: Agents with Memory and Reasoning
   level_3:
     description: "Memory-enabled agents with reasoning capabilities"
@@ -170,7 +170,7 @@ agentic_levels:
       reasoning_depth_limit: 5
       context_window_size: 8000
       enable_memory_compression: true
-  
+
   # Level 4: Agent Teams
   level_4:
     description: "Multi-agent collaboration and coordination"
@@ -184,26 +184,26 @@ agentic_levels:
       coordination_timeout_seconds: 120
       consensus_threshold: 0.75
       enable_team_memory: true
-    
+
     team_modes:
       route:
         description: "Route tasks to most appropriate team member"
         enabled: true
         routing_strategy: "capability_match"
         fallback_agent: "generalist_agent"
-      
-      collaborate:  
+
+      collaborate:
         description: "All team members work together"
         enabled: true
         collaboration_strategy: "parallel_processing"
         synthesis_agent: "coordinator_agent"
-      
+
       coordinate:
         description: "Hierarchical task delegation"
         enabled: true
         coordination_strategy: "task_decomposition"
         coordinator_agent: "team_lead_agent"
-  
+
   # Level 5: Agentic Workflows
   level_5:
     description: "Deterministic multi-agent workflows"
@@ -225,19 +225,19 @@ agno_performance:
     enable_agent_pooling: true
     pool_size_per_type: 10
     pool_warmup_enabled: true
-    
+
   memory_optimization:
     target_memory_per_agent_kib: 6.5
     enable_memory_pooling: true
     garbage_collection_interval_minutes: 15
     memory_limit_enforcement: true
-    
+
   concurrent_execution:
     max_concurrent_agents: 1000
     max_concurrent_teams: 50
     execution_queue_size: 10000
     priority_queue_enabled: true
-    
+
   response_optimization:
     target_response_time_ms: 200
     enable_response_caching: true
@@ -253,14 +253,14 @@ agentic_rag:
       namespace_strategy: "feature_based"
       embedding_model: "text-embedding-3-large"
       similarity_threshold: 0.8
-    
+
     weaviate:
       enabled: true
       url: "http://localhost:8080"
       schema_version: "v1"
       hybrid_search_enabled: true
       reranking_enabled: true
-  
+
   knowledge_discovery:
     proactive_discovery: true
     discovery_triggers:
@@ -268,7 +268,7 @@ agentic_rag:
       - knowledge_gap_detected
       - user_question_complexity
     discovery_confidence_threshold: 0.75
-    
+
   search_optimization:
     hybrid_search_enabled: true
     search_result_limit: 20
@@ -282,19 +282,19 @@ agno_monitoring:
     monitoring_server_url: "https://monitoring.sophia.ai"
     session_tracking: true
     performance_profiling: true
-    
+
   business_metrics:
     sales_impact_tracking: true
     client_health_monitoring: true
     knowledge_discovery_metrics: true
     workflow_success_rates: true
-    
+
   observability:
     transparent_reasoning: true
     tool_call_logging: true
     agent_decision_tracking: true
     error_trace_analysis: true
-    
+
   alerting:
     performance_degradation_alerts: true
     error_rate_threshold: 0.05
@@ -307,14 +307,14 @@ feature_flags:
   enable_vertical_slice_architecture: true
   enable_feature_isolation: true
   enable_cross_feature_communication: true
-  
-  # Agno Features  
+
+  # Agno Features
   enable_agno_agents: true
   enable_five_level_progression: true
   enable_performance_optimization: true
   enable_agentic_rag: true
   enable_advanced_monitoring: true
-  
+
   # Experimental Features
   enable_predictive_agent_allocation: false
   enable_auto_agent_scaling: false
@@ -323,18 +323,18 @@ feature_flags:
 
 # ===== INTEGRATION SETTINGS =====
 integrations:
-  # Existing MCP Integration  
+  # Existing MCP Integration
   mcp_client:
     enabled: true
     bridge_mode: "hybrid"  # Bridge between MCP and Agno
     fallback_to_mcp: true
-    
+
   # Performance Monitoring
   performance_monitoring:
     enabled: true
     metrics_collection_interval_seconds: 60
     performance_baseline_enabled: true
-    
+
   # Security and Compliance
   security:
     role_based_access_control: true
@@ -349,28 +349,28 @@ migration:
   traffic_split_percentage: 50
   rollback_enabled: true
   migration_monitoring: true
-  
+
   migration_phases:
     - name: "feature_structure_setup"
       duration_days: 3
       description: "Create new feature-based directory structure"
-      
+
     - name: "sales_intelligence_migration"
       duration_days: 7
       description: "Migrate sales intelligence vertical slice"
-      
-    - name: "client_success_migration" 
+
+    - name: "client_success_migration"
       duration_days: 7
       description: "Migrate client success vertical slice"
-      
+
     - name: "performance_optimization"
       duration_days: 7
       description: "Implement Agno performance optimizations"
-      
+
     - name: "knowledge_enhancement"
       duration_days: 7
       description: "Implement agentic RAG system"
-      
+
     - name: "final_validation"
       duration_days: 5
       description: "Final validation and cleanup"
@@ -385,4 +385,4 @@ compatibility:
   required_dependencies:
     - "agno>=0.1.0"
     - "pinecone-client>=2.0.0"
-    - "weaviate-client>=3.0.0" 
+    - "weaviate-client>=3.0.0"

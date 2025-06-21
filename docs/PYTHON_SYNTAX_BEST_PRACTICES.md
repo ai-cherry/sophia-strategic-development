@@ -12,11 +12,11 @@ This guide documents common Python syntax issues encountered in the Sophia AI co
 # ❌ Bad
 def my_function():
     """This is a docstring."""self.value = 10
-    
+
 # ✅ Good
 def my_function():
     """This is a docstring."""
-    
+
     self.value = 10
 ```
 

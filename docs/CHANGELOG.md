@@ -56,4 +56,4 @@ This changelog tracks major architectural changes, migration steps, and upgrade 
 
 ---
 
-For more details, see the onboarding guide, performance playbook, and CEO dashboard for live upgrade status. 
+For more details, see the onboarding guide, performance playbook, and CEO dashboard for live upgrade status.

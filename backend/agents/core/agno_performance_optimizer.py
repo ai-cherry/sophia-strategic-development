@@ -6,20 +6,22 @@ Integrates with Agno framework and supports both traditional and Agno agents.
 
 import asyncio
 import logging
-from typing import Any, Dict, Optional, Type
 from collections import defaultdict, deque
 from datetime import datetime
+from typing import Any, Dict, Optional, Type
 
 logger = logging.getLogger(__name__)
+
 
 class AgnoPerformanceOptimizer:
     """Optimizes agent performance using Agno's lightweight architecture.
 
-            - Ultra-fast agent instantiation (~3μs)
-            - Memory pooling and optimization
-            - Agent pooling for high concurrency
-            - Performance metrics tracking
+    - Ultra-fast agent instantiation (~3μs)
+    - Memory pooling and optimization
+    - Agent pooling for high concurrency
+    - Performance metrics tracking
     """
+
     _instance = None
     _lock = asyncio.Lock()
 
@@ -29,7 +31,9 @@ class AgnoPerformanceOptimizer:
         return cls._instance
 
     def __init__(self, pool_size_per_type: int = 10):
-        self.agent_pools: Dict[str, deque] = defaultdict(lambda: deque(maxlen=pool_size_per_type))
+        self.agent_pools: Dict[str, deque] = defaultdict(
+            lambda: deque(maxlen=pool_size_per_type)
+        )
         self.agent_classes: Dict[str, Type] = {}
         self.performance_metrics: Dict[str, Dict[str, Any]] = defaultdict(dict)
         self.pool_size_per_type = pool_size_per_type
@@ -53,8 +57,10 @@ class AgnoPerformanceOptimizer:
             start_time = datetime.now()
             agent = agent_class(**config)
             duration_us = (datetime.now() - start_time).total_seconds() * 1e6
-            self._track_performance(agent_type, 'instantiation_us', duration_us)
-            logger.info(f"Instantiated new agent for type: {agent_type} in {duration_us:.2f}μs")
+            self._track_performance(agent_type, "instantiation_us", duration_us)
+            logger.info(
+                f"Instantiated new agent for type: {agent_type} in {duration_us:.2f}μs"
+            )
         return agent
 
     async def release_agent(self, agent_type: str, agent: Any):
@@ -87,4 +93,4 @@ class AgnoPerformanceOptimizer:
     def clear_metrics(self):
         """Clear all performance metrics."""
         self.performance_metrics.clear()
-        logger.info("Cleared all performance metrics.") 
+        logger.info("Cleared all performance metrics.")

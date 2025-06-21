@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 import snowflake.connector
 
 from ...core.config_manager import get_secret
+from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 from ..core.base_agent import (
     AgentCapability,
     AgentConfig,
@@ -11,7 +12,6 @@ from ..core.base_agent import (
     Task,
     create_agent_response,
 )
-from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +24,14 @@ class SalesCoachAgent(BaseAgent):
         self.snowflake_conn = None
 
     @classmethod
-    async def pooled(cls, config: AgentConfig) -> 'SalesCoachAgent':
+    async def pooled(cls, config: AgentConfig) -> "SalesCoachAgent":
         """Get a pooled or new instance using AgnoPerformanceOptimizer."""
         optimizer = AgnoPerformanceOptimizer()
-        await optimizer.register_agent_class('sales_coach', cls)
-        agent = await optimizer.get_or_create_agent('sales_coach', {'config': config})
-        logger.info(f"[AgnoPerformanceOptimizer] Provided SalesCoachAgent instance (pooled or new)")
+        await optimizer.register_agent_class("sales_coach", cls)
+        agent = await optimizer.get_or_create_agent("sales_coach", {"config": config})
+        logger.info(
+            "[AgnoPerformanceOptimizer] Provided SalesCoachAgent instance (pooled or new)"
+        )
         return agent
 
     async def _get_snowflake_connection(self):

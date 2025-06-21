@@ -30,9 +30,9 @@ logger = logging.getLogger(__name__)
 async def initialize_agent_system():
     """Initialize the complete agent system.
 
-            - Register all agents
-            - Initialize context manager
-            - Set up integrations
+    - Register all agents
+    - Initialize context manager
+    - Set up integrations
     """
     try:
         # Initialize context manager

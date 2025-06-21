@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 import snowflake.connector
 
 from ...core.config_manager import get_secret
+from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 from ..core.base_agent import (
     AgentCapability,
     AgentConfig,
@@ -14,7 +15,6 @@ from ..core.base_agent import (
     Task,
     create_agent_response,
 )
-from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 

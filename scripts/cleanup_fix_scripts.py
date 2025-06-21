@@ -40,7 +40,7 @@ def cleanup_fix_scripts():
         "scripts/fix_docstring_manual.py",
         "scripts/fix_remaining_syntax_issues.py",
     ]
-    
+
     removed_count = 0
     for script_path in scripts_to_remove:
         path = Path(script_path)
@@ -53,9 +53,9 @@ def cleanup_fix_scripts():
                 print(f"❌ Error removing {script_path}: {e}")
         else:
             print(f"⏭️  Already removed: {script_path}")
-    
+
     print(f"\n✨ Cleanup complete. Removed {removed_count} temporary fix scripts.")
-    
+
     # Keep the comprehensive fix script for future use
     print("\n📌 Keeping scripts/fix_all_syntax_comprehensive.py for future use.")
 

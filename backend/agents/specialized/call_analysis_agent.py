@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 import snowflake.connector
 
+from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 from ..core.base_agent import (
     AgentCapability,
     AgentConfig,
@@ -22,7 +23,6 @@ from ..core.base_agent import (
 )
 from ..integrations.gong.gong_integration import GongConfig, GongIntegration
 from ..integrations.hubspot.hubspot_integration import HubSpotConfig, HubSpotIntegration
-from ..core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 

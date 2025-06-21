@@ -2,8 +2,8 @@
 
 FastAPI Application - Dedicated business intelligence platform for Pay Ready company operations
 """
-import logging
 
+import logging
 import os
 from datetime import datetime
 
@@ -42,10 +42,10 @@ except ImportError:
 
 from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
+
 # Database connection utilities
 def check_database() -> bool:
     """Return True if the configured PostgreSQL database is reachable."""
-
     try:
         import psycopg2
 
@@ -65,7 +65,6 @@ def check_database() -> bool:
 def check_redis() -> bool:
     """Return True if the configured Redis cache is reachable."""
     try:
-
         import redis
 
         from backend.config.settings import settings
@@ -157,7 +156,6 @@ except ImportError as e:
 async def health_check():
     """Comprehensive health check for Sophia AI - Pay Ready Assistant."""
     health_status = {
-
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "service": "Sophia AI - Pay Ready Company Assistant",
@@ -207,17 +205,19 @@ async def agno_performance_metrics():
     # Optionally, add summary stats
     summary = {}
     for agent_type, data in metrics.items():
-        inst_times = data.get('instantiation_us', [])
+        inst_times = data.get("instantiation_us", [])
         summary[agent_type] = {
-            'avg_instantiation_us': round(sum(inst_times)/len(inst_times), 2) if inst_times else None,
-            'pool_size': len(optimizer.agent_pools.get(agent_type, [])),
-            'pool_max': optimizer.pool_size_per_type,
-            'instantiation_samples': len(inst_times),
+            "avg_instantiation_us": (
+                round(sum(inst_times) / len(inst_times), 2) if inst_times else None
+            ),
+            "pool_size": len(optimizer.agent_pools.get(agent_type, [])),
+            "pool_max": optimizer.pool_size_per_type,
+            "instantiation_samples": len(inst_times),
         }
     return {
-        'metrics': metrics,
-        'summary': summary,
-        'last_updated': datetime.utcnow().isoformat(),
+        "metrics": metrics,
+        "summary": summary,
+        "last_updated": datetime.utcnow().isoformat(),
     }
 
 

@@ -1,7 +1,7 @@
 agno_integration:
   enabled: true
   bridge_mode: "hybrid"  # hybrid, agno_preferred, traditional_only
-  
+
   # Default configuration for all Agno agents
   default_agent_config:
     use_agno: true
@@ -14,7 +14,7 @@ agno_integration:
     show_tool_calls: true
     markdown: true
     add_state_in_messages: true
-  
+
   # Agent-specific overrides for optimal performance
   agent_overrides:
     sales_coach:
@@ -33,7 +33,7 @@ agno_integration:
         type: "pinecone"
         index_name: "sales-intelligence"
         num_documents: 15
-    
+
     gong_intelligence:
       performance_mode: "high_performance"
       memory_limit_mb: 75
@@ -48,7 +48,7 @@ agno_integration:
       knowledge:
         type: "weaviate"
         num_documents: 12
-    
+
     slack_orchestrator:
       performance_mode: "high_performance"
       response_timeout_ms: 100
@@ -58,7 +58,7 @@ agno_integration:
       model:
         type: "openai"
         id: "gpt-4o"
-    
+
     hubspot_crm:
       performance_mode: "standard"
       team_eligible: true
@@ -67,7 +67,7 @@ agno_integration:
       model:
         type: "claude"
         id: "claude-sonnet-4-20250514"
-    
+
     executive_knowledge:
       performance_mode: "team_coordination"
       memory_limit_mb: 100
@@ -84,7 +84,7 @@ agno_integration:
         type: "pinecone"
         index_name: "executive-knowledge"
         num_documents: 20
-  
+
   # Team coordination configurations
   team_configs:
     business_intelligence:
@@ -96,7 +96,7 @@ agno_integration:
       instructions: |
         Coordinate business intelligence analysis across all data sources.
         - Gong agent: Handle call analysis and sales insights
-        - HubSpot agent: Manage CRM data and pipeline analysis  
+        - HubSpot agent: Manage CRM data and pipeline analysis
         - Slack agent: Handle team communication and notifications
         - Snowflake agent: Provide data warehouse insights
         Synthesize insights from all sources for comprehensive BI reporting.
@@ -107,7 +107,7 @@ agno_integration:
           role: "crm_specialist"
         - name: "slack_orchestrator"
           role: "communication_specialist"
-    
+
     executive_knowledge:
       coordination_mode: "collaborate"
       max_team_size: 3
@@ -125,7 +125,7 @@ agno_integration:
           role: "sales_intelligence"
         - name: "gong_intelligence"
           role: "market_intelligence"
-    
+
     sales_intelligence:
       coordination_mode: "route"
       max_team_size: 3
@@ -142,21 +142,21 @@ agno_integration:
           role: "call_analysis"
         - name: "hubspot_crm"
           role: "pipeline_management"
-  
+
   # Performance monitoring and optimization
   performance_monitoring:
     enabled: true
     metrics_collection: true
     dashboard_integration: true
     alerting_enabled: true
-    
+
     # Performance thresholds for alerting
     thresholds:
       agent_response_time_ms: 500
       team_response_time_ms: 1000
       memory_usage_mb: 200
       error_rate_percent: 5
-      
+
     # Metrics to track
     metrics:
       - agent_instantiation_time
@@ -166,24 +166,24 @@ agno_integration:
       - error_rates
       - request_throughput
       - team_coordination_time
-  
+
   # Fallback and error handling
   fallback_strategy: "graceful"  # graceful, immediate, disabled
-  
+
   fallback_config:
     graceful:
       retry_attempts: 3
       retry_delay_ms: 100
       fallback_to_traditional: true
       timeout_ms: 5000
-    
+
     immediate:
       fallback_to_traditional: true
       timeout_ms: 1000
-    
+
     disabled:
       fallback_to_traditional: false
-  
+
   # Resource management
   resource_management:
     max_concurrent_agents: 1000
@@ -191,7 +191,7 @@ agno_integration:
     memory_pool_mb: 10240  # 10GB shared memory pool
     agent_cleanup_interval_minutes: 30
     team_cleanup_interval_minutes: 60
-  
+
   # A/B testing configuration
   ab_testing:
     enabled: true
@@ -202,35 +202,35 @@ agno_integration:
       - memory_efficiency
       - user_satisfaction
       - error_rate_reduction
-  
+
   # Security and compliance
   security:
     inherit_permissions: true
     audit_logging: true
     data_encryption: true
     secure_memory: true
-    
+
     # Access control for teams
     team_access_control:
       business_intelligence:
         required_roles: ["sales_team", "management"]
         data_classification: "internal"
-      
+
       executive_knowledge:
         required_roles: ["executive", "c_suite"]
         data_classification: "confidential"
-      
+
       sales_intelligence:
         required_roles: ["sales_team", "sales_management"]
         data_classification: "internal"
-  
+
   # Integration with existing systems
   integration:
     mcp_client: "backend.mcp.mcp_client"
     agent_router: "backend.agents.core.agent_router"
     config_system: "backend.core.config_loader"
     monitoring: "backend.monitoring.enhanced_monitoring"
-    
+
   # Feature flags for gradual rollout
   feature_flags:
     enable_agno_agents: true
@@ -240,7 +240,7 @@ agno_integration:
     enable_auto_scaling: false  # Future feature
     enable_advanced_memory: true
     enable_knowledge_sharing: true
-  
+
   # Development and debugging
   development:
     debug_mode: false
@@ -255,4 +255,4 @@ last_updated: "2025-01-21T12:00:00Z"
 schema_version: "2.0"
 compatibility:
   min_agno_version: "0.1.0"
-  min_sophia_version: "2.0.0" 
+  min_sophia_version: "2.0.0"

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List
 
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 from backend.agents.core.base_agent import (
     AgentCapability,
     AgentConfig,
@@ -14,7 +15,6 @@ from backend.agents.core.base_agent import (
 )
 from backend.integrations.gong.gong_integration import GongIntegration
 from backend.integrations.portkey_client import PortkeyClient
-from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 

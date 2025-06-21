@@ -26,17 +26,17 @@ async def create_stack(
 ) -> auto.UpResult | auto.PreviewResult:
     """Create or select a Pulumi stack and optionally deploy it.
 
-        The stack will automatically be configured with values fetched from Pulumi
-        ESC if available. Additional configuration can be supplied via ``config``.
+    The stack will automatically be configured with values fetched from Pulumi
+    ESC if available. Additional configuration can be supplied via ``config``.
 
-        Args:
-            stack_name: Name of the stack to create or select.
-            program: Pulumi program to run.
-            config: Additional configuration values.
-            preview: If ``True`` run ``preview`` instead of ``up``.
+    Args:
+        stack_name: Name of the stack to create or select.
+        program: Pulumi program to run.
+        config: Additional configuration values.
+        preview: If ``True`` run ``preview`` instead of ``up``.
 
-        Returns:
-            The result of ``stack.up()`` or ``stack.preview()``.
+    Returns:
+        The result of ``stack.up()`` or ``stack.preview()``.
     """
     logger.info("Creating stack '%s'", stack_name)
 
@@ -69,8 +69,8 @@ async def create_stack(
 async def scale_stack(stack_name: str, *, replicas: int) -> auto.UpResult:
     """Dynamically scale stack resources.
 
-        The implementation assumes the stack respects a ``replicas`` configuration
-        value. This value is updated and the stack is deployed.
+    The implementation assumes the stack respects a ``replicas`` configuration
+    value. This value is updated and the stack is deployed.
     """
     logger.info("Scaling stack '%s' to %s replicas", stack_name, replicas)
 
@@ -84,8 +84,8 @@ async def scale_stack(stack_name: str, *, replicas: int) -> auto.UpResult:
 async def optimize_costs(stack_name: str) -> auto.UpResult:
     """Apply cost optimisation settings to the stack and deploy.
 
-        This sets a ``cost_optimization`` flag in stack configuration which can be
-        consumed by the Pulumi program to adjust resources.
+    This sets a ``cost_optimization`` flag in stack configuration which can be
+    consumed by the Pulumi program to adjust resources.
     """
     logger.info("Enabling cost optimisation for stack '%s'", stack_name)
 

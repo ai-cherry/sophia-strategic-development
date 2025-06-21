@@ -3,12 +3,12 @@
 Handles all natural language commands and routes to appropriate agents
 """
 
+import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
-import asyncio
 
 from ..specialized.client_health_agent import ClientHealthAgent
 from ..specialized.hr_agent import HRAgent

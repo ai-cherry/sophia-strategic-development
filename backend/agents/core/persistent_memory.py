@@ -18,7 +18,7 @@ class PersistentMemory:
 
             Each agent's memory is stored in a separate JSON file
     """
-    
+
     def __init__(self, storage_path: str = "./agent_memory"):
         """Initialize persistent memory storage."""
 
@@ -104,7 +104,7 @@ class PersistentMemory:
 
             class Mem0PersistentMemory(PersistentMemory):
     """Persistent memory using mem0 for long-term context."""
-    
+
     def __init__(
 
         self,
@@ -306,7 +306,7 @@ if self.mem0_client:
 
 class VectorPersistentMemory(PersistentMemory):
     """Persistent memory using vector database for long-term context."""
-    
+
     def __init__(
 
         self,

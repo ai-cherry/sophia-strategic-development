@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class KnowledgeAgent(BaseAgent):
     """An agent that specializes in interacting with the knowledge base.
 
-            It uses the MCPClient to communicate with the KnowledgeMCPServer.
+    It uses the MCPClient to communicate with the KnowledgeMCPServer.
     """
 
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):
@@ -24,11 +24,11 @@ class KnowledgeAgent(BaseAgent):
     async def execute_task(self, task: Task) -> TaskResult:
         """Executes a task by calling the appropriate tool on the Knowledge MCP Server.
 
-                        Args:
-                            task: The task to execute, containing the command and parameters.
+        Args:
+            task: The task to execute, containing the command and parameters.
 
-                        Returns:
-                            A TaskResult with the status and output of the operation.
+        Returns:
+            A TaskResult with the status and output of the operation.
         """
         command = task.command
         params = task.parameters

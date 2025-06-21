@@ -6,10 +6,11 @@ from typing import Any, Dict, List
 
 import openai
 
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
+
 from ...core.config_manager import get_secret
 from ..core.agent_router import agent_router
 from ..core.base_agent import AgentConfig, BaseAgent, Task, create_agent_response
-from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 

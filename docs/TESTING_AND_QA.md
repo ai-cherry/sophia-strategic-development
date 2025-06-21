@@ -63,4 +63,4 @@ This guide provides best practices and patterns for testing and quality assuranc
 
 ---
 
-For more details, see the onboarding guide, performance playbook, and CEO dashboard for live QA and test status. 
+For more details, see the onboarding guide, performance playbook, and CEO dashboard for live QA and test status.

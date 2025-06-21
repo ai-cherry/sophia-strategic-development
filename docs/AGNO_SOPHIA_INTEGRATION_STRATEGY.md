@@ -59,25 +59,25 @@ from backend.agents.core.agent_framework import agent_framework
 
 class AgnoMCPBridge:
     """Bridge between Agno agents and MCP tool ecosystem"""
-    
+
     def __init__(self):
         self.mcp_client = mcp_client
         self.agent_framework = agent_framework
-        
+
     async def create_agno_agent_with_mcp_tools(
-        self, 
+        self,
         agent_name: str,
         model_config: dict,
         mcp_services: List[str]
     ) -> Agent:
         """Create Agno agent with MCP tool access"""
-        
+
         # Create MCP tool wrapper functions
         mcp_tools = []
         for service in mcp_services:
             tool_func = self._create_mcp_tool_wrapper(service)
             mcp_tools.append(tool_func)
-        
+
         # Create high-performance Agno agent
         agent = Agent(
             name=agent_name,
@@ -91,9 +91,9 @@ class AgnoMCPBridge:
             show_tool_calls=True,
             markdown=True
         )
-        
+
         return agent
-    
+
     def _create_mcp_tool_wrapper(self, service_name: str):
         """Create tool wrapper for MCP service"""
         async def mcp_tool(request: str) -> str:
@@ -102,7 +102,7 @@ class AgnoMCPBridge:
                 request=request
             )
             return response
-        
+
         mcp_tool.__name__ = f"mcp_{service_name}"
         return mcp_tool
 ```
@@ -119,12 +119,12 @@ from backend.agents.core.agno_mcp_bridge import AgnoMCPBridge
 
 class EnhancedAgentFramework:
     """Enhanced framework supporting both traditional and Agno agents"""
-    
+
     def __init__(self):
         self.mcp_orchestrator = agent_framework
         self.agno_bridge = AgnoMCPBridge()
         self.hybrid_agents: Dict[str, Union[BaseAgent, AgnoAgent]] = {}
-        
+
     async def create_hybrid_agent(
         self,
         agent_type: str,
@@ -132,26 +132,26 @@ class EnhancedAgentFramework:
         use_agno: bool = True
     ) -> Union[BaseAgent, AgnoAgent]:
         """Create agent using optimal framework"""
-        
+
         if use_agno and self._should_use_agno(agent_config):
             # High-performance Agno agent for performance-critical tasks
             return await self._create_agno_agent(agent_type, agent_config)
         else:
             # Traditional BaseAgent for complex integrations
             return await self._create_base_agent(agent_type, agent_config)
-    
+
     def _should_use_agno(self, config: dict) -> bool:
         """Determine if Agno is optimal for this agent"""
         performance_critical = config.get('performance_critical', False)
         requires_teams = config.get('requires_teams', False)
         high_frequency = config.get('high_frequency', False)
-        
+
         return performance_critical or requires_teams or high_frequency
-    
+
     async def _create_agno_agent(self, agent_type: str, config: dict) -> AgnoAgent:
         """Create Agno-enhanced agent"""
         mcp_services = config.get('mcp_services', [])
-        
+
         return await self.agno_bridge.create_agno_agent_with_mcp_tools(
             agent_name=agent_type,
             model_config=config.get('model', {}),
@@ -170,19 +170,19 @@ from backend.agents.core.agent_router import agent_router
 
 class AgnoTeamCoordinator:
     """Coordinate Agno teams with existing agent routing"""
-    
+
     def __init__(self):
         self.agent_router = agent_router
         self.active_teams: Dict[str, Team] = {}
-        
+
     async def create_business_intelligence_team(self) -> Team:
         """Create coordinated team for business intelligence"""
-        
+
         # Create specialized agents for team
         gong_agent = await self._create_gong_intelligence_agent()
         hubspot_agent = await self._create_hubspot_agent()
         slack_agent = await self._create_slack_orchestrator()
-        
+
         # Create coordinated team
         bi_team = Team(
             mode="coordinate",
@@ -197,26 +197,26 @@ class AgnoTeamCoordinator:
             """,
             success_criteria="Comprehensive business intelligence with <200ms response time"
         )
-        
+
         self.active_teams["business_intelligence"] = bi_team
         return bi_team
-    
+
     async def route_to_team_or_agent(self, request: str, context: dict) -> dict:
         """Intelligent routing between teams and individual agents"""
-        
+
         # Check if request requires team coordination
         if self._requires_team_coordination(request, context):
             team_name = self._determine_best_team(request, context)
             if team_name in self.active_teams:
                 return await self.active_teams[team_name].run(request)
-        
+
         # Fallback to existing agent routing
         return await self.agent_router.route_command(request, context)
-    
+
     def _requires_team_coordination(self, request: str, context: dict) -> bool:
         """Determine if request benefits from team coordination"""
         coordination_keywords = [
-            "comprehensive analysis", "cross-platform insights", 
+            "comprehensive analysis", "cross-platform insights",
             "multi-source data", "complete picture", "integrated view"
         ]
         return any(keyword in request.lower() for keyword in coordination_keywords)
@@ -345,27 +345,27 @@ class AgnoIntegrationConfig(BaseModel):
 agno_integration:
   enabled: true
   bridge_mode: "hybrid"
-  
+
   default_agent_config:
     use_agno: true
     performance_mode: "standard"
     memory_limit_mb: 50
     response_timeout_ms: 200
     team_eligible: false
-  
+
   agent_overrides:
     sales_coach:
       performance_mode: "high_performance"
       response_timeout_ms: 100
       team_eligible: true
       mcp_services: ["gong", "hubspot", "slack"]
-    
+
     gong_intelligence:
       performance_mode: "high_performance"
       memory_limit_mb: 75
       team_eligible: true
       mcp_services: ["gong", "snowflake"]
-  
+
   team_configs:
     business_intelligence:
       coordination_mode: "coordinate"
@@ -373,14 +373,14 @@ agno_integration:
       shared_memory: true
       success_criteria: "Comprehensive BI analysis with <500ms response"
       performance_target_ms: 500
-    
+
     executive_knowledge:
       coordination_mode: "collaborate"
       max_team_size: 3
       shared_memory: true
       success_criteria: "Validated executive insights with team consensus"
       performance_target_ms: 1000
-  
+
   performance_monitoring:
     enabled: true
     metrics_collection: true
@@ -421,11 +421,11 @@ from agno.monitoring import AgnoMonitor
 
 class AgnoSophiaMonitoring:
     """Integrated monitoring for Agno-Sophia hybrid architecture"""
-    
+
     def __init__(self):
         self.sophia_monitor = SophiaMonitoringSystem()
         self.agno_monitor = AgnoMonitor()
-    
+
     async def track_hybrid_performance(self):
         """Track performance across hybrid architecture"""
         return {
@@ -508,4 +508,4 @@ class AgnoSophiaMonitoring:
 
 ---
 
-*This integration strategy ensures Sophia AI maintains its robust MCP architecture while gaining Agno's performance advantages, creating a best-of-both-worlds solution that enhances existing capabilities without disruption.* 
+*This integration strategy ensures Sophia AI maintains its robust MCP architecture while gaining Agno's performance advantages, creating a best-of-both-worlds solution that enhances existing capabilities without disruption.*

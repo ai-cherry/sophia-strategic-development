@@ -11,11 +11,11 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List
 
+from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 from backend.agents.core.base_agent import BaseAgent, Task, TaskResult
 from backend.integrations.linear_integration import linear_integration
 from backend.integrations.slack.slack_integration import slack_integration
 from backend.mcp.mcp_client import MCPClient
-from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimizer
 
 logger = logging.getLogger(__name__)
 
