@@ -1,0 +1,160 @@
+# Pulumi ESC Environment Configuration for Sophia AI
+# This file sets up the Pulumi ESC environment for centralized secret management
+
+import:
+  - sophia-ai-base
+
+values:
+  # Core Application Secrets
+  sophia:
+    core:
+      secret_key:
+        fn::secret: ${SECRET_KEY}
+      jwt_secret:
+        fn::secret: ${JWT_SECRET}
+    
+    # AI Services
+    ai:
+      openai:
+        api_key:
+          fn::secret: ${OPENAI_API_KEY}
+      anthropic:
+        api_key:
+          fn::secret: ${ANTHROPIC_API_KEY}
+    
+    # Business Intelligence Integrations
+    business:
+      gong:
+        access_key:
+          fn::secret: ${GONG_ACCESS_KEY}
+        client_secret:
+          fn::secret: ${GONG_CLIENT_SECRET}
+        url: "https://us-70092.app.gong.io"
+      hubspot:
+        api_token:
+          fn::secret: ${HUBSPOT_API_TOKEN}
+      slack:
+        bot_token:
+          fn::secret: ${SLACK_BOT_TOKEN}
+    
+    # Data Infrastructure
+    data:
+      snowflake:
+        account: ${SNOWFLAKE_ACCOUNT}
+        user: ${SNOWFLAKE_USER}
+        password:
+          fn::secret: ${SNOWFLAKE_PASSWORD}
+        warehouse: "COMPUTE_WH"
+        database: "SOPHIA_AI"
+        schema: "PUBLIC"
+      pinecone:
+        api_key:
+          fn::secret: ${PINECONE_API_KEY}
+      weaviate:
+        api_key:
+          fn::secret: ${WEAVIATE_API_KEY}
+        url: ${WEAVIATE_URL}
+    
+    # Cloud Services
+    cloud:
+      lambda_labs:
+        api_key:
+          fn::secret: ${LAMBDA_LABS_API_KEY}
+      vercel:
+        access_token:
+          fn::secret: ${VERCEL_ACCESS_TOKEN}
+      pulumi:
+        access_token:
+          fn::secret: ${PULUMI_ACCESS_TOKEN}
+    
+    # Development Tools
+    tools:
+      retool:
+        api_token:
+          fn::secret: ${RETOOL_API_TOKEN}
+    
+    # Database
+    database:
+      postgres:
+        host: ${POSTGRES_HOST:-localhost}
+        port: ${POSTGRES_PORT:-5432}
+        user: ${POSTGRES_USER:-postgres}
+        password:
+          fn::secret: ${POSTGRES_PASSWORD}
+        database: ${POSTGRES_DB:-sophia_enhanced}
+    
+    # Monitoring & Security
+    monitoring:
+      sentry:
+        dsn:
+          fn::secret: ${SENTRY_DSN}
+      datadog:
+        api_key:
+          fn::secret: ${DATADOG_API_KEY}
+    
+    # Application Configuration
+    config:
+      cors_origins: ${CORS_ORIGINS:-"http://localhost:3000"}
+      allowed_hosts: ${ALLOWED_HOSTS:-"localhost,127.0.0.1"}
+      debug: ${DEBUG:-false}
+      log_level: ${LOG_LEVEL:-INFO}
+      environment: ${ENVIRONMENT:-production}
+      redis_url: ${REDIS_URL:-"redis://localhost:6379"}
+      elasticsearch_url: ${ELASTICSEARCH_URL:-"http://localhost:9200"}
+
+# Environment Variables for Application Runtime
+environmentVariables:
+  # Core Application
+  SECRET_KEY: ${sophia.core.secret_key}
+  JWT_SECRET: ${sophia.core.jwt_secret}
+  
+  # AI Services
+  OPENAI_API_KEY: ${sophia.ai.openai.api_key}
+  ANTHROPIC_API_KEY: ${sophia.ai.anthropic.api_key}
+  
+  # Business Integrations
+  GONG_ACCESS_KEY: ${sophia.business.gong.access_key}
+  GONG_CLIENT_SECRET: ${sophia.business.gong.client_secret}
+  GONG_URL: ${sophia.business.gong.url}
+  HUBSPOT_API_TOKEN: ${sophia.business.hubspot.api_token}
+  SLACK_BOT_TOKEN: ${sophia.business.slack.bot_token}
+  
+  # Data Infrastructure
+  SNOWFLAKE_ACCOUNT: ${sophia.data.snowflake.account}
+  SNOWFLAKE_USER: ${sophia.data.snowflake.user}
+  SNOWFLAKE_PASSWORD: ${sophia.data.snowflake.password}
+  SNOWFLAKE_WAREHOUSE: ${sophia.data.snowflake.warehouse}
+  SNOWFLAKE_DATABASE: ${sophia.data.snowflake.database}
+  SNOWFLAKE_SCHEMA: ${sophia.data.snowflake.schema}
+  PINECONE_API_KEY: ${sophia.data.pinecone.api_key}
+  WEAVIATE_API_KEY: ${sophia.data.weaviate.api_key}
+  WEAVIATE_URL: ${sophia.data.weaviate.url}
+  
+  # Cloud Services
+  LAMBDA_LABS_API_KEY: ${sophia.cloud.lambda_labs.api_key}
+  VERCEL_ACCESS_TOKEN: ${sophia.cloud.vercel.access_token}
+  PULUMI_ACCESS_TOKEN: ${sophia.cloud.pulumi.access_token}
+  
+  # Development Tools
+  RETOOL_API_TOKEN: ${sophia.tools.retool.api_token}
+  
+  # Database
+  POSTGRES_HOST: ${sophia.database.postgres.host}
+  POSTGRES_PORT: ${sophia.database.postgres.port}
+  POSTGRES_USER: ${sophia.database.postgres.user}
+  POSTGRES_PASSWORD: ${sophia.database.postgres.password}
+  POSTGRES_DB: ${sophia.database.postgres.database}
+  
+  # Monitoring
+  SENTRY_DSN: ${sophia.monitoring.sentry.dsn}
+  DATADOG_API_KEY: ${sophia.monitoring.datadog.api_key}
+  
+  # Configuration
+  CORS_ORIGINS: ${sophia.config.cors_origins}
+  ALLOWED_HOSTS: ${sophia.config.allowed_hosts}
+  DEBUG: ${sophia.config.debug}
+  LOG_LEVEL: ${sophia.config.log_level}
+  ENVIRONMENT: ${sophia.config.environment}
+  REDIS_URL: ${sophia.config.redis_url}
+  ELASTICSEARCH_URL: ${sophia.config.elasticsearch_url}
+
