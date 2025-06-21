@@ -1,24 +1,16 @@
-import React, { useState, useEffect } from 'react';
-// import { getDashboardMetrics } from '../../services/api_v1';
+import React from 'react';
+import useMetrics from '../../hooks/use-metrics';
 
 const KPIMetrics: React.FC = () => {
-    // const [metrics, setMetrics] = useState(null);
+    const { data: metrics, loading, error } = useMetrics();
 
-    // useEffect(() => {
-    //     const fetchMetrics = async () => {
-    //         const data = await getDashboardMetrics();
-    //         setMetrics(data);
-    //     };
-    //     fetchMetrics();
-    // }, []);
+    if (loading) {
+        return <p>Loading metrics...</p>;
+    }
 
-    // Placeholder data until API service is created
-    const metrics = {
-        revenue_growth: 15.3,
-        client_health_score: 87.5,
-        sales_efficiency: 92.1,
-        ai_task_completion_rate: 98.9,
-    };
+    if (error || !metrics) {
+        return <p className="text-red-500">Failed to load metrics</p>;
+    }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -1,142 +1,100 @@
-// API Service Layer for Sophia AI
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+import apiClient from './apiClient.js';
 
 class ApiService {
-  constructor() {
-    this.baseURL = API_BASE_URL;
-    this.token = localStorage.getItem('auth_token');
+  async request(method, endpoint, data = null, config = {}) {
+    const response = await apiClient({ url: endpoint, method, data, ...config });
+    return response.data;
   }
 
-  // Helper method for API requests
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    const config = {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    };
-
-    // Add auth token if available
-    if (this.token) {
-      config.headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API Request failed:', error);
-      throw error;
-    }
-  }
-
-  // Authentication
   async login(email, password) {
-    const response = await this.request('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    
-    if (response.token) {
-      this.token = response.token;
-      localStorage.setItem('auth_token', response.token);
+    const data = await this.request('post', '/auth/login', { email, password });
+    if (data.token) {
+      localStorage.setItem('auth_token', data.token);
     }
-    
-    return response;
+    return data;
   }
 
   async logout() {
-    this.token = null;
     localStorage.removeItem('auth_token');
   }
 
   // Company Metrics
-  async getCompanyMetrics() {
-    return this.request('/company/metrics');
+  getCompanyMetrics() {
+    return this.request('get', '/company/metrics');
   }
 
-  async getRevenueData(period = 'monthly') {
-    return this.request(`/company/revenue?period=${period}`);
+  getDashboardMetrics() {
+    return this.request('get', '/dashboard/metrics');
   }
 
-  async getCustomerMetrics() {
-    return this.request('/company/customers');
+  getRevenueData(period = 'monthly') {
+    return this.request('get', `/company/revenue?period=${period}`);
   }
 
-  async getHealthScore() {
-    return this.request('/company/health-score');
+  getCustomerMetrics() {
+    return this.request('get', '/company/customers');
+  }
+
+  getHealthScore() {
+    return this.request('get', '/company/health-score');
   }
 
   // Strategy
-  async getStrategyInsights() {
-    return this.request('/strategy/insights');
+  getStrategyInsights() {
+    return this.request('get', '/strategy/insights');
   }
 
-  async getGrowthOpportunities() {
-    return this.request('/strategy/growth-opportunities');
+  getGrowthOpportunities() {
+    return this.request('get', '/strategy/growth-opportunities');
   }
 
-  async getMarketAnalysis() {
-    return this.request('/strategy/market-analysis');
+  getMarketAnalysis() {
+    return this.request('get', '/strategy/market-analysis');
   }
 
   // Operations
-  async getOperationalMetrics() {
-    return this.request('/operations/metrics');
+  getOperationalMetrics() {
+    return this.request('get', '/operations/metrics');
   }
 
-  async getWorkflows() {
-    return this.request('/operations/workflows');
+  getWorkflows() {
+    return this.request('get', '/operations/workflows');
   }
 
-  async getSystemStatus() {
-    return this.request('/operations/status');
+  getSystemStatus() {
+    return this.request('get', '/operations/status');
   }
 
   // AI Insights
-  async getAIInsights() {
-    return this.request('/ai/insights');
+  getAIInsights() {
+    return this.request('get', '/ai/insights');
   }
 
-  async getPredictions() {
-    return this.request('/ai/predictions');
+  getPredictions() {
+    return this.request('get', '/ai/predictions');
   }
 
-  async getRecommendations() {
-    return this.request('/ai/recommendations');
+  getRecommendations() {
+    return this.request('get', '/ai/recommendations');
   }
 
   // Property Management
-  async getPropertyData() {
-    return this.request('/property/units');
+  getPropertyData() {
+    return this.request('get', '/property/units');
   }
 
-  async searchUnits(filters) {
-    return this.request('/property/search', {
-      method: 'POST',
-      body: JSON.stringify(filters),
-    });
+  searchUnits(filters) {
+    return this.request('post', '/property/search', filters);
   }
 
   // Knowledge Base
-  async searchKnowledge(query) {
-    return this.request('/knowledge/search', {
-      method: 'POST',
-      body: JSON.stringify({ query }),
-    });
+  searchKnowledge(query) {
+    return this.request('post', '/knowledge/search', { query });
   }
 
-  async getKnowledgeStats() {
-    return this.request('/knowledge/stats');
+  getKnowledgeStats() {
+    return this.request('get', '/knowledge/stats');
   }
 }
 
-// Export singleton instance
-export default new ApiService(); 
+export default new ApiService();
