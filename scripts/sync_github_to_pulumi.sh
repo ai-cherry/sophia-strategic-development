@@ -41,7 +41,7 @@ echo "📋 Syncing secrets to: $ENV_NAME"
 # Sync each secret
 for github_secret in "${!GITHUB_SECRETS[@]}"; do
     pulumi_path="${GITHUB_SECRETS[$github_secret]}"
-    
+
     if [ ! -z "${!github_secret}" ]; then
         echo "🔑 Syncing: $github_secret → $pulumi_path"
         pulumi env set "$ENV_NAME" "values.$pulumi_path" "${!github_secret}" --secret

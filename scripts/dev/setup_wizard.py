@@ -104,15 +104,15 @@ class SetupWizard:
 
     async def setup_environment_variables(self) -> bool:
         """Setup environment variables - LEGACY METHOD
-        
+
         🔐 PERMANENT SOLUTION AVAILABLE:
         Use the permanent GitHub organization secrets solution instead:
-        
+
         1. git clone https://github.com/ai-cherry/sophia-main.git
-        2. export PULUMI_ORG=scoobyjava-org  
+        2. export PULUMI_ORG=scoobyjava-org
         3. python scripts/setup_permanent_secrets_solution.py
         4. python scripts/test_permanent_solution.py
-        
+
         This method is kept for backward compatibility only.
         """
         print("🚨 LEGACY SETUP DETECTED")
@@ -126,7 +126,7 @@ class SetupWizard:
         print("")
         print("All secrets managed automatically via GitHub organization!")
         print("=" * 50)
-        
+
         if not self.ask_yes_no("Continue with legacy manual setup?", False):
             print("✅ Recommended: Use the permanent solution instead!")
             return False
@@ -214,7 +214,7 @@ class SetupWizard:
 
         print("\n🚨 IMPORTANT: Consider migrating to the permanent solution!")
         print("Run: python scripts/setup_permanent_secrets_solution.py")
-        
+
         return True
 
     async def setup_pulumi(self) -> bool:

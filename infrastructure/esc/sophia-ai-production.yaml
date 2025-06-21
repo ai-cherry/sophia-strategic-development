@@ -1,0 +1,154 @@
+values:
+  # AI Services
+  ai_services:
+    openai_api_key:
+      fn::secret: "${OPENAI_API_KEY}"
+    anthropic_api_key:
+      fn::secret: "${ANTHROPIC_API_KEY}"
+    agno_api_key:
+      fn::secret: "${AGNO_API_KEY}"
+    huggingface_api_token:
+      fn::secret: "${HUGGINGFACE_API_TOKEN}"
+    langchain_api_key:
+      fn::secret: "${LANGCHAIN_API_KEY}"
+    portkey_api_key:
+      fn::secret: "${PORTKEY_API_KEY}"
+    portkey_config_id:
+      fn::secret: "${PORTKEY_CONFIG_ID}"
+    openrouter_api_key:
+      fn::secret: "${OPENROUTER_API_KEY}"
+    perplexity_api_key:
+      fn::secret: "${PERPLEXITY_API_KEY}"
+    mistral_api_key:
+      fn::secret: "${MISTRAL_API_KEY}"
+    deepseek_api_key:
+      fn::secret: "${DEEPSEEK_API_KEY}"
+    codestral_api_key:
+      fn::secret: "${CODESTRAL_API_KEY}"
+    togetherai_api_key:
+      fn::secret: "${TOGETHERAI_API_KEY}"
+    xai_api_key:
+      fn::secret: "${XAI_API_KEY}"
+    venice_ai_api_key:
+      fn::secret: "${VENICE_AI_API_KEY}"
+    llama_api_key:
+      fn::secret: "${LLAMA_API_KEY}"
+
+  # Observability & Monitoring
+  observability:
+    arize_api_key:
+      fn::secret: "${ARIZE_API_KEY}"
+    arize_space_id:
+      fn::secret: "${ARIZE_SPACE_ID}"
+    grafana_url:
+      fn::secret: "${GRAFANA_URL}"
+    grafana_username:
+      fn::secret: "${GRAFANA_USERNAME}"
+    grafana_password:
+      fn::secret: "${GRAFANA_PASSWORD}"
+    prometheus_url:
+      fn::secret: "${PROMETHEUS_URL}"
+
+  # Vector Databases
+  vector_databases:
+    pinecone_api_key:
+      fn::secret: "${PINECONE_API_KEY}"
+    pinecone_environment:
+      fn::secret: "${PINECONE_ENVIRONMENT}"
+    pinecone_index_name:
+      fn::secret: "${PINECONE_INDEX_NAME}"
+    weaviate_api_key:
+      fn::secret: "${WEAVIATE_API_KEY}"
+    weaviate_url:
+      fn::secret: "${WEAVIATE_URL}"
+
+  # Business Intelligence
+  business_intelligence:
+    gong_access_key:
+      fn::secret: "${GONG_ACCESS_KEY}"
+    gong_client_secret:
+      fn::secret: "${GONG_CLIENT_SECRET}"
+    hubspot_access_token:
+      fn::secret: "${HUBSPOT_ACCESS_TOKEN}"
+    linear_api_key:
+      fn::secret: "${LINEAR_API_KEY}"
+    notion_api_key:
+      fn::secret: "${NOTION_API_KEY}"
+
+  # Communication
+  communication:
+    slack_bot_token:
+      fn::secret: "${SLACK_BOT_TOKEN}"
+    slack_app_token:
+      fn::secret: "${SLACK_APP_TOKEN}"
+    slack_signing_secret:
+      fn::secret: "${SLACK_SIGNING_SECRET}"
+
+  # Data Infrastructure
+  data_infrastructure:
+    snowflake_account:
+      fn::secret: "${SNOWFLAKE_ACCOUNT}"
+    snowflake_user:
+      fn::secret: "${SNOWFLAKE_USER}"
+    database_url:
+      fn::secret: "${DATABASE_URL}"
+
+  # Research Tools
+  research_tools:
+    apify_api_token:
+      fn::secret: "${APIFY_API_TOKEN}"
+    serp_api_key:
+      fn::secret: "${SERP_API_KEY}"
+    tavily_api_key:
+      fn::secret: "${TAVILY_API_KEY}"
+
+  # Security
+  security:
+    jwt_secret:
+      fn::secret: "${JWT_SECRET}"
+    encryption_key:
+      fn::secret: "${ENCRYPTION_KEY}"
+
+# Environment variables exposed to applications
+environmentVariables:
+  # AI Services
+  OPENAI_API_KEY: ${ai_services.openai_api_key}
+  ANTHROPIC_API_KEY: ${ai_services.anthropic_api_key}
+  AGNO_API_KEY: ${ai_services.agno_api_key}
+  HUGGINGFACE_API_TOKEN: ${ai_services.huggingface_api_token}
+  PORTKEY_API_KEY: ${ai_services.portkey_api_key}
+  PORTKEY_CONFIG_ID: ${ai_services.portkey_config_id}
+  
+  # Observability
+  ARIZE_API_KEY: ${observability.arize_api_key}
+  ARIZE_SPACE_ID: ${observability.arize_space_id}
+  
+  # Vector Databases
+  PINECONE_API_KEY: ${vector_databases.pinecone_api_key}
+  PINECONE_ENVIRONMENT: ${vector_databases.pinecone_environment}
+  WEAVIATE_API_KEY: ${vector_databases.weaviate_api_key}
+  WEAVIATE_URL: ${vector_databases.weaviate_url}
+  
+  # Business Intelligence
+  GONG_ACCESS_KEY: ${business_intelligence.gong_access_key}
+  GONG_CLIENT_SECRET: ${business_intelligence.gong_client_secret}
+  HUBSPOT_ACCESS_TOKEN: ${business_intelligence.hubspot_access_token}
+  LINEAR_API_KEY: ${business_intelligence.linear_api_key}
+  
+  # Communication
+  SLACK_BOT_TOKEN: ${communication.slack_bot_token}
+  SLACK_APP_TOKEN: ${communication.slack_app_token}
+  
+  # Data Infrastructure
+  SNOWFLAKE_ACCOUNT: ${data_infrastructure.snowflake_account}
+  SNOWFLAKE_USER: ${data_infrastructure.snowflake_user}
+  DATABASE_URL: ${data_infrastructure.database_url}
+  
+  # Research Tools
+  APIFY_API_TOKEN: ${research_tools.apify_api_token}
+  SERP_API_KEY: ${research_tools.serp_api_key}
+  TAVILY_API_KEY: ${research_tools.tavily_api_key}
+  
+  # Security
+  JWT_SECRET: ${security.jwt_secret}
+  ENCRYPTION_KEY: ${security.encryption_key}

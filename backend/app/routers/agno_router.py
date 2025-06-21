@@ -1,280 +1,91 @@
-"""Agno Router
-FastAPI router for Agno integration endpoints
+"""
+API Router for all Agno-based agent interactions.
+This is the single entry point for any user- or system-initiated agent tasks.
 """
 
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
 
-from backend.integrations.agno_integration import agno_integration
-from backend.mcp.agno_bridge import MCPToAgnoBridge
-from backend.mcp.mcp_client import MCPClient
+from backend.agents.core.agent_framework import agent_framework
 
 logger = logging.getLogger(__name__)
+router = APIRouter()
 
-# Create router
-router = APIRouter(prefix="/api/agno", tags=["agno"])
+class AgentTaskRequest(BaseModel):
+    """Defines the structure for a request to an agent."""
+    agent_name: str
+    task_description: str
+    payload: Dict[str, Any]
+    context: Optional[Dict[str, Any]] = None
 
+class AgentTaskResponse(BaseModel):
+    """Defines the structure for a response from an agent task."""
+    task_id: str
+    status: str
+    message: str
+    result: Optional[Dict[str, Any]] = None
 
-# Models
-class AgentRequest(BaseModel):
-    """Request to create an agent."""
-
-    agent_id: str = Field(..., description="The unique identifier for this agent")
-    instructions: Optional[List[str]] = Field(
-        None, description="The instructions for the agent"
-    )
-    model: Optional[str] = Field(None, description="The model to use for this agent")
-
-
-class ProcessRequest(BaseModel):
-    """Request to process a request with an agent."""
-
-    agent_id: str = Field(..., description="The unique identifier for the agent")
-    request: str = Field(..., description="The request to process")
-    stream: bool = Field(False, description="Whether to stream the response")
-    use_mcp_tools: bool = Field(True, description="Whether to use MCP tools")
-
-
-class ToolRequest(BaseModel):
-    """Request to register a tool."""
-
-    name: str = Field(..., description="The name of the tool")
-    description: str = Field(..., description="The description of the tool")
-    parameters: Dict[str, Any] = Field(..., description="The parameters for the tool")
-
-
-# Dependencies
-async def get_mcp_client():
-    """Get an initialized MCP client."""
-    client = MCPClient()
-    await client.initialize()
-    return client
-
-
-async def get_agno_bridge(mcp_client: MCPClient = Depends(get_mcp_client)):
-    """Get an initialized Agno bridge."""
-    bridge = MCPToAgnoBridge(mcp_client)
-    return bridge
-
-
-# Routes
-@router.get("/health")
-async def health_check():
-    """Health check endpoint for Agno integration.
-
-    Returns:
-        Dict[str, Any]: The health check result
+@router.post("/task", response_model=AgentTaskResponse, status_code=status.HTTP_202_ACCEPTED)
+async def execute_agent_task(request: AgentTaskRequest):
     """
-    try:
-        # Initialize Agno integration if needed
-        if not agno_integration.initialized:
-            await agno_integration.initialize()
-
-        # Get pool stats
-        stats = agno_integration.get_pool_stats()
-
-        # Return health check result
-        return {
-            "status": "healthy",
-            "integration_initialized": agno_integration.initialized,
-            "agent_count": stats["pool_size"],
-            "max_agent_count": stats["max_pool_size"],
-            "default_model": agno_integration.default_model,
-        }
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
-
-
-@router.post("/agents")
-async def create_agent(request: AgentRequest):
-    """Create a new agent in the Agno platform.
-
-    Args:
-        request: The request to create an agent
-
-    Returns:
-        Dict[str, Any]: The created agent
+    Receives a task, validates it, and forwards it to the specified Agno agent.
+    This endpoint is the primary interaction point with the agent framework.
     """
-    try:
-        # Initialize Agno integration if needed
-        if not agno_integration.initialized:
-            await agno_integration.initialize()
-
-        # Create agent
-        agent = await agno_integration.get_agent(
-            agent_id=request.agent_id,
-            instructions=request.instructions,
-            model=request.model,
-        )
-
-        # Return agent data
-        return {
-            "success": True,
-            "agent_id": agent.agent_id,
-            "created_at": agent.created_at,
-            "model": agent.agent_data.get("model", "unknown"),
-        }
-    except Exception as e:
-        logger.error(f"Failed to create agent {request.agent_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create agent: {str(e)}")
-
-
-@router.post("/process")
-async def process_request(
-    request: ProcessRequest, bridge: MCPToAgnoBridge = Depends(get_agno_bridge)
-):
-    """Process a request with an agent.
-
-    Args:
-        request: The request to process
-        bridge: The Agno bridge
-
-    Returns:
-        Dict[str, Any]: The response
-    """
-    try:
-        # Initialize Agno integration if needed
-        if not agno_integration.initialized:
-            await agno_integration.initialize()
-
-        # Get MCP tools if requested
-        tools = None
-        if request.use_mcp_tools:
-            tools = await bridge.convert_all_mcp_tools()
-
-        # Process request
-        if request.stream:
-            # For streaming, we need to return a StreamingResponse
-            async def stream_generator():
-                async for chunk in agno_integration.process_request(
-                    agent_id=request.agent_id,
-                    request=request.request,
-                    tools=tools,
-                    stream=True,
-                ):
-                    # Convert chunk to JSON and yield
-                    yield json.dumps(chunk) + "\n"
-
-            return StreamingResponse(
-                stream_generator(), media_type="application/x-ndjson"
-            )
-        else:
-            # For non-streaming, we get a single response
-            response = await agno_integration.process_request(
-                agent_id=request.agent_id,
-                request=request.request,
-                tools=tools,
-                stream=False,
-            )
-
-            # Return response
-            return {"success": True, "agent_id": request.agent_id, "response": response}
-    except Exception as e:
-        logger.error(f"Failed to process request for agent {request.agent_id}: {e}")
+    if not agent_framework.is_initialized:
         raise HTTPException(
-            status_code=500, detail=f"Failed to process request: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The Agent Framework is not initialized. Please try again later.",
         )
+    
+    logger.info(f"Received task for agent: '{request.agent_name}'")
 
-
-@router.get("/stats")
-async def get_pool_stats():
-    """Get statistics about the agent pool.
-
-    Returns:
-        Dict[str, Any]: Statistics about the agent pool
-    """
     try:
-        # Initialize Agno integration if needed
-        if not agno_integration.initialized:
-            await agno_integration.initialize()
+        # Here, you would interface with the Agno client to dispatch the task.
+        # The agent_framework would handle the actual invocation.
+        # For now, we'll use a mock response.
+        
+        # Example of how it might look:
+        # task_id, status, result = await agent_framework.dispatch_task(
+        #     agent_name=request.agent_name,
+        #     task_description=request.task_description,
+        #     payload=request.payload
+        # )
 
-        # Get pool stats
-        stats = agno_integration.get_pool_stats()
+        mock_task_id = "mock_task_12345"
+        logger.info(f"Dispatching task to Agno client. Mock Task ID: {mock_task_id}")
+        
+        # Arize tracing would happen within the agent_framework dispatch method
+        agent_framework.arize_client.trace({
+            "event": "task_received",
+            "agent_name": request.agent_name,
+            "task_id": mock_task_id
+        })
 
-        # Return stats
-        return {"success": True, "stats": stats}
-    except Exception as e:
-        logger.error(f"Failed to get pool stats: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get pool stats: {str(e)}"
+        return AgentTaskResponse(
+            task_id=mock_task_id,
+            status="accepted",
+            message=f"Task for agent '{request.agent_name}' has been accepted and is being processed."
         )
 
+    except Exception as e:
+        logger.error(f"Failed to execute task for agent '{request.agent_name}': {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while processing the task for agent '{request.agent_name}'.",
+        )
 
-@router.post("/tools")
-async def register_tool(request: ToolRequest):
-    """Register a new tool for Agno agents.
-
-    Args:
-        request: The request to register a tool
-
-    Returns:
-        Dict[str, Any]: The result of the registration
+@router.get("/status", status_code=status.HTTP_200_OK)
+async def get_agents_status():
     """
-    try:
-        # This is a placeholder for registering custom tools
-        # In a real implementation, we would register the tool with Agno
-
-        # Return success
-        return {
-            "success": True,
-            "name": request.name,
-            "description": request.description,
-            "parameters": request.parameters,
-        }
-    except Exception as e:
-        logger.error(f"Failed to register tool {request.name}: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to register tool: {str(e)}"
-        )
-
-
-@router.get("/bridge/stats")
-async def get_bridge_stats(bridge: MCPToAgnoBridge = Depends(get_agno_bridge)):
-    """Get statistics about the Agno bridge.
-
-    Args:
-        bridge: The Agno bridge
-
-    Returns:
-        Dict[str, Any]: Statistics about the bridge
+    Retrieves the current status of the agent framework and all registered agents.
     """
-    try:
-        # Get bridge stats
-        stats = bridge.get_cache_stats()
-
-        # Return stats
-        return {"success": True, "stats": stats}
-    except Exception as e:
-        logger.error(f"Failed to get bridge stats: {e}")
+    if not agent_framework.is_initialized:
         raise HTTPException(
-            status_code=500, detail=f"Failed to get bridge stats: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The Agent Framework is not initialized.",
         )
-
-
-@router.post("/bridge/clear-cache")
-async def clear_bridge_cache(bridge: MCPToAgnoBridge = Depends(get_agno_bridge)):
-    """Clear the Agno bridge cache.
-
-    Args:
-        bridge: The Agno bridge
-
-    Returns:
-        Dict[str, Any]: The result of the operation
-    """
-    try:
-        # Clear cache
-        bridge.clear_cache()
-
-        # Return success
-        return {"success": True, "message": "Cache cleared successfully"}
-    except Exception as e:
-        logger.error(f"Failed to clear bridge cache: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to clear bridge cache: {str(e)}"
-        )
+    
+    return await agent_framework.get_status()

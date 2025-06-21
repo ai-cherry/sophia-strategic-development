@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 import redis
 
-from ..config.secure_config import get_secure_config
+from backend.core.auto_esc_config import config
 
 
 class GatewayType(Enum):
@@ -88,7 +88,7 @@ class UnifiedGatewayOrchestrator:
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.secure_config = get_secure_config()
+        self.config = config
         self.redis_client = redis.Redis.from_url(
             "redis://localhost:6379/0", decode_responses=True
         )
@@ -134,7 +134,7 @@ class UnifiedGatewayOrchestrator:
         llm_routes = []
 
         # Portkey Gateway (Primary)
-        if self.secure_config.portkey_api_key:
+        if self.config.ai_services and self.config.ai_services.portkey_api_key:
             llm_routes.append(
                 GatewayRoute(
                     service_name="llm",
@@ -150,7 +150,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # OpenRouter (Secondary)
-        if self.secure_config.openrouter_api_key:
+        if self.config.ai_services and self.config.ai_services.openrouter_api_key:
             llm_routes.append(
                 GatewayRoute(
                     service_name="llm",
@@ -165,7 +165,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Direct OpenAI
-        if self.secure_config.openai_api_key:
+        if self.config.ai_services and self.config.ai_services.openai_api_key:
             llm_routes.append(
                 GatewayRoute(
                     service_name="llm",
@@ -180,7 +180,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Direct Anthropic
-        if self.secure_config.anthropic_api_key:
+        if self.config.ai_services and self.config.ai_services.anthropic_api_key:
             llm_routes.append(
                 GatewayRoute(
                     service_name="llm",
@@ -202,7 +202,7 @@ class UnifiedGatewayOrchestrator:
         vector_routes = []
 
         # Pinecone
-        if self.secure_config.pinecone_api_key:
+        if self.config.vector_databases and self.config.vector_databases.pinecone_api_key:
             vector_routes.append(
                 GatewayRoute(
                     service_name="pinecone",
@@ -216,13 +216,13 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Weaviate
-        if self.secure_config.weaviate_api_key:
+        if self.config.vector_databases and self.config.vector_databases.weaviate_api_key:
             vector_routes.append(
                 GatewayRoute(
                     service_name="weaviate",
                     category=ServiceCategory.VECTOR_DB,
                     gateway_type=GatewayType.DIRECT,
-                    endpoint=self.secure_config.weaviate_url or "https://weaviate.io",
+                    endpoint=self.config.vector_databases.weaviate_url or "https://weaviate.io",
                     api_key_name="weaviate_api_key",
                     rate_limit=1000,
                     priority=1,
@@ -236,7 +236,7 @@ class UnifiedGatewayOrchestrator:
         bi_routes = []
 
         # HubSpot
-        if self.secure_config.hubspot_api_key:
+        if self.config.business_intelligence and self.config.business_intelligence.hubspot_api_key:
             bi_routes.append(
                 GatewayRoute(
                     service_name="hubspot",
@@ -250,7 +250,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Gong.io
-        if self.secure_config.gong_api_key:
+        if self.config.business_intelligence and self.config.business_intelligence.gong_api_key:
             bi_routes.append(
                 GatewayRoute(
                     service_name="gong",
@@ -265,7 +265,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Salesforce
-        if self.secure_config.salesforce_api_key:
+        if self.config.business_intelligence and self.config.business_intelligence.salesforce_api_key:
             bi_routes.append(
                 GatewayRoute(
                     service_name="salesforce",
@@ -285,7 +285,7 @@ class UnifiedGatewayOrchestrator:
         pm_routes = []
 
         # Yardi
-        if self.secure_config.yardi_api_key:
+        if self.config.property_management and self.config.property_management.yardi_api_key:
             pm_routes.append(
                 GatewayRoute(
                     service_name="yardi",
@@ -299,7 +299,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # RealPage
-        if self.secure_config.realpage_api_key:
+        if self.config.property_management and self.config.property_management.realpage_api_key:
             pm_routes.append(
                 GatewayRoute(
                     service_name="realpage",
@@ -313,7 +313,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # AppFolio
-        if self.secure_config.appfolio_api_key:
+        if self.config.property_management and self.config.property_management.appfolio_api_key:
             pm_routes.append(
                 GatewayRoute(
                     service_name="appfolio",
@@ -327,7 +327,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # CoStar
-        if self.secure_config.costar_api_key:
+        if self.config.property_management and self.config.property_management.costar_api_key:
             pm_routes.append(
                 GatewayRoute(
                     service_name="costar",
@@ -347,7 +347,7 @@ class UnifiedGatewayOrchestrator:
         analytics_routes = []
 
         # Arize AI (through Kong)
-        if self.secure_config.arize_api_key and self.secure_config.kong_access_token:
+        if self.config.observability and self.config.observability.arize_api_key and self.config.observability.arize_space_id:
             analytics_routes.append(
                 GatewayRoute(
                     service_name="arize",
@@ -355,14 +355,14 @@ class UnifiedGatewayOrchestrator:
                     gateway_type=GatewayType.KONG,
                     endpoint="https://api.konghq.com/arize",
                     api_key_name="kong_access_token",
-                    headers={"X-Arize-Api-Key": self.secure_config.arize_api_key},
+                    headers={"X-Arize-Api-Key": self.config.observability.arize_api_key},
                     rate_limit=100,
                     priority=1,
                 )
             )
 
         # Google Analytics
-        if self.secure_config.google_analytics_key:
+        if self.config.observability and self.config.observability.google_analytics_key:
             analytics_routes.append(
                 GatewayRoute(
                     service_name="google_analytics",
@@ -382,7 +382,7 @@ class UnifiedGatewayOrchestrator:
         comm_routes = []
 
         # Slack
-        if self.secure_config.slack_bot_token:
+        if self.config.communication and self.config.communication.slack_bot_token:
             comm_routes.append(
                 GatewayRoute(
                     service_name="slack",
@@ -396,7 +396,7 @@ class UnifiedGatewayOrchestrator:
             )
 
         # Twilio
-        if self.secure_config.twilio_account_sid:
+        if self.config.communication and self.config.communication.twilio_account_sid:
             comm_routes.append(
                 GatewayRoute(
                     service_name="twilio",
@@ -487,7 +487,7 @@ class UnifiedGatewayOrchestrator:
                 if route.service_name == service_name:
                     # Check if API key is configured
                     if route.api_key_name:
-                        api_key = getattr(self.secure_config, route.api_key_name, None)
+                        api_key = getattr(self.config, route.api_key_name, None)
                         if not api_key:
                             continue
 
@@ -556,7 +556,7 @@ class UnifiedGatewayOrchestrator:
 
         # Add authentication
         if route.api_key_name:
-            api_key = getattr(self.secure_config, route.api_key_name)
+            api_key = getattr(self.config, route.api_key_name)
             if route.gateway_type == GatewayType.PORTKEY:
                 request_headers["x-portkey-api-key"] = api_key
             elif route.gateway_type == GatewayType.OPENROUTER:
@@ -729,6 +729,83 @@ class UnifiedGatewayOrchestrator:
                 for key, metrics in self.metrics.items()
             },
         }
+
+    def _initialize_portkey(self) -> Optional[Any]:
+        """Initializes the Portkey client."""
+        if self.config.ai_services and self.config.ai_services.portkey_api_key:
+            from portkey_ai import Portkey
+            self.logger.info("Portkey client initialized.")
+            return Portkey(api_key=self.config.ai_services.portkey_api_key)
+        self.logger.warning("Portkey API key not found, client not initialized.")
+        return None
+
+    def _initialize_openrouter(self) -> Optional[Any]:
+        """Initializes the OpenRouter client."""
+        if self.config.ai_services and self.config.ai_services.openrouter_api_key:
+            import openrouter
+            self.logger.info("OpenRouter client initialized.")
+            return openrouter.Client(api_key=self.config.ai_services.openrouter_api_key)
+        self.logger.warning("OpenRouter API key not found, client not initialized.")
+        return None
+        
+    def _initialize_openai(self) -> Optional[Any]:
+        """Initializes the OpenAI client."""
+        if self.config.ai_services and self.config.ai_services.openai_api_key:
+            from openai import OpenAI
+            self.logger.info("OpenAI client initialized.")
+            return OpenAI(api_key=self.config.ai_services.openai_api_key)
+        self.logger.warning("OpenAI API key not found, client not initialized.")
+        return None
+
+    def _initialize_anthropic(self) -> Optional[Any]:
+        """Initializes the Anthropic client."""
+        if self.config.ai_services and self.config.ai_services.anthropic_api_key:
+            from anthropic import Anthropic
+            self.logger.info("Anthropic client initialized.")
+            return Anthropic(api_key=self.config.ai_services.anthropic_api_key)
+        self.logger.warning("Anthropic API key not found, client not initialized.")
+        return None
+
+    def _initialize_pinecone(self) -> Optional[Any]:
+        """Initializes the Pinecone client."""
+        if self.config.vector_databases and self.config.vector_databases.pinecone_api_key:
+            from pinecone import Pinecone
+            self.logger.info("Pinecone client initialized.")
+            return Pinecone(api_key=self.config.vector_databases.pinecone_api_key)
+        self.logger.warning("Pinecone API key not found, client not initialized.")
+        return None
+
+    def _initialize_arize(self) -> Optional[Any]:
+        """Initializes the Arize client."""
+        if self.config.observability and self.config.observability.arize_api_key and self.config.observability.arize_space_id:
+            from arize.api import Client
+            self.logger.info("Arize client initialized.")
+            return Client(
+                space_key=self.config.observability.arize_space_id,
+                api_key=self.config.observability.arize_api_key
+            )
+        self.logger.warning("Arize credentials not found, client not initialized.")
+        return None
+        
+    async def get_client_for_route(self, route: GatewayRoute) -> Optional[Any]:
+        """Gets the appropriate client for a given route."""
+        client = getattr(self, route.api_key_name, None)
+        if client:
+            return client
+            
+        path_parts = route.api_key_name.split('.')
+        api_key = self.config
+        for part in path_parts:
+            api_key = getattr(api_key, part, None)
+            if api_key is None:
+                break
+        
+        if not api_key:
+            self.logger.warning(f"API key '{route.api_key_name}' not found for route '{route.service_name}'.")
+            return None
+        
+        self.logger.info(f"Using generic handler for route '{route.service_name}'.")
+        return {"api_key": api_key}
 
 
 # Global orchestrator instance

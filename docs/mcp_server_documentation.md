@@ -183,10 +183,10 @@ from backend.core.auto_esc_config import config
 async def gong_call_analysis(call_id: str) -> Dict[str, any]:
     """
     Analyze a Gong call using the Gong API.
-    
+
     Args:
         call_id: The ID of the call to analyze
-        
+
     Returns:
         Analysis results
     """
@@ -195,7 +195,7 @@ async def gong_call_analysis(call_id: str) -> Dict[str, any]:
         access_key=config.gong_access_key,
         client_secret=config.gong_client_secret
     )
-    
+
     # Implementation logic here
     return analysis_results
 ```
@@ -242,23 +242,23 @@ class HubspotContactsResource(Resource):
     """
     Resource for accessing HubSpot contacts.
     """
-    
+
     def __init__(self, config_dict: Dict[str, any]):
         super().__init__(config_dict)
         # Automatically uses secrets from ESC
         self.hubspot_client = self._create_hubspot_client()
-    
+
     def _create_hubspot_client(self):
         """Create HubSpot client with automatic secret access"""
         return HubSpotClient(api_token=config.hubspot_api_token)
-    
+
     async def get(self, request: ResourceRequest) -> Dict[str, any]:
         """
         Get HubSpot contacts based on the request parameters.
-        
+
         Args:
             request: The resource request
-            
+
         Returns:
             Contact data
         """
@@ -409,7 +409,7 @@ from backend.core.auto_esc_config import config
 class SlackMessageInput(BaseModel):
     channel: str = Field(..., description="The Slack channel to send the message to")
     message: str = Field(..., description="The message content")
-    
+
 class SlackMessageOutput(BaseModel):
     success: bool = Field(..., description="Whether the message was sent successfully")
     message_id: str = Field(..., description="The ID of the sent message")
@@ -417,22 +417,22 @@ class SlackMessageOutput(BaseModel):
 async def send_slack_message(input_data: SlackMessageInput) -> SlackMessageOutput:
     """
     Send a message to a Slack channel.
-    
+
     Args:
         input_data: The message input data
-        
+
     Returns:
         The result of sending the message
     """
     # Automatically uses secrets from ESC
     slack_client = SlackClient(token=config.slack_bot_token)
-    
+
     try:
         response = await slack_client.send_message(
             channel=input_data.channel,
             message=input_data.message
         )
-        
+
         return SlackMessageOutput(
             success=True,
             message_id=response["message"]["ts"]
@@ -481,32 +481,32 @@ class SlackChannelsResource(Resource):
     """
     Resource for accessing Slack channels.
     """
-    
+
     def __init__(self, config_dict: Dict[str, any]):
         super().__init__(config_dict)
         # Automatically uses secrets from ESC
         self.slack_client = SlackClient(token=config.slack_bot_token)
-    
+
     async def get(self, request: ResourceRequest) -> Dict[str, any]:
         """
         Get Slack channels based on the request parameters.
-        
+
         Args:
             request: The resource request
-            
+
         Returns:
             Channel data
         """
         try:
             channels = await self.slack_client.list_channels()
-            
+
             # Filter channels based on query parameters
             if request.query_params.get("name"):
                 channels = [
-                    channel for channel in channels 
+                    channel for channel in channels
                     if request.query_params["name"] in channel["name"]
                 ]
-            
+
             return {
                 "channels": channels,
                 "count": len(channels)

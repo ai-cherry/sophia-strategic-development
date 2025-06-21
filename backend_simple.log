@@ -1,7 +1,0 @@
-2025-06-20 12:58:32,638 - __main__ - WARNING - Could not import executive_routes: No module named 'flask_cors'
-2025-06-20 12:58:32,638 - __main__ - WARNING - Could not import retool_api_routes: No module named 'flask_cors'
-2025-06-20 12:58:32,639 - __main__ - WARNING - Could not import system_intel_routes: No module named 'flask_cors'
-2025-06-20 12:58:32,639 - __main__ - WARNING - Could not import agno_router: No module named 'infrastructure.pulumi_esc'
-2025-06-20 12:58:32,640 - __main__ - WARNING - Could not import llamaindex_router: No module named 'infrastructure.pulumi_esc'
-INFO:     Will watch for changes in these directories: ['/Users/lynnmusil/Desktop/sophia/sophia-main']
-ERROR:    [Errno 48] Address already in use

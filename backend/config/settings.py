@@ -43,7 +43,8 @@ class DatabaseSettings(BaseSettings):
         return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
     model_config = ConfigDict(
-        env_prefix="SOPHIA_", extra="ignore"  # Allow extra environment variables
+        env_prefix="SOPHIA_",
+        extra="ignore",  # Allow extra environment variables
     )
 
 
@@ -72,18 +73,19 @@ class SecuritySettings(BaseSettings):
         return v
 
     model_config = ConfigDict(
-        env_prefix="SOPHIA_", extra="ignore"  # Allow extra environment variables
+        env_prefix="SOPHIA_",
+        extra="ignore",  # Allow extra environment variables
     )
 
 
 class APIKeysSettings(BaseSettings):
     """LEGACY: External API keys configuration
-    
+
     🔐 PERMANENT SOLUTION AVAILABLE:
     Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
-    
+
     This class is kept for backward compatibility only.
-    
+
     For new code, use:
     from backend.core.auto_esc_config import config
     """
@@ -178,7 +180,8 @@ class AgentSettings(BaseSettings):
     )
 
     model_config = ConfigDict(
-        env_prefix="SOPHIA_", extra="ignore"  # Allow extra environment variables
+        env_prefix="SOPHIA_",
+        extra="ignore",  # Allow extra environment variables
     )
 
 
@@ -201,7 +204,8 @@ class MonitoringSettings(BaseSettings):
     alert_email: Optional[str] = Field(default=None, env="ALERT_EMAIL")
 
     model_config = ConfigDict(
-        env_prefix="SOPHIA_", extra="ignore"  # Allow extra environment variables
+        env_prefix="SOPHIA_",
+        extra="ignore",  # Allow extra environment variables
     )
 
 
@@ -229,7 +233,8 @@ class ServerSettings(BaseSettings):
         return v
 
     model_config = ConfigDict(
-        env_prefix="SOPHIA_", extra="ignore"  # Allow extra environment variables
+        env_prefix="SOPHIA_",
+        extra="ignore",  # Allow extra environment variables
     )
 
 

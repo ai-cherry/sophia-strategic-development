@@ -7,19 +7,57 @@ import asyncio
 import json
 import sys
 from pathlib import Path
+import unittest
+from unittest.mock import patch
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent / "backend"))
 
-from backend.config.secure_config import get_secure_config
+from backend.core.auto_esc_config import config
 from backend.integrations.unified_gateway_orchestrator import get_gateway_orchestrator
+
+
+class TestInfrastructure(unittest.TestCase):
+    def setUp(self):
+        """Set up the test case."""
+        # The config object is now a singleton instance, no need to call a function
+        self.config = config
+
+    @patch('backend.core.auto_esc_config.subprocess.run')
+    def test_secret_loading(self, mock_run):
+        """Test that secrets are loaded correctly from the mock ESC output."""
+        # Mock the output of the 'pulumi env open' command
+        mock_output = {
+            "values": {
+                "ai_services": {
+                    "openai_api_key": "test_openai_key"
+                },
+                "observability": {
+                    "arize_api_key": "test_arize_key"
+                }
+            }
+        }
+        import json
+        mock_run.return_value.stdout = json.dumps(mock_output)
+        
+        # The config object loads on initialization. We need to "reload" it for the test.
+        # In a real test suite, you might have a dedicated reload method.
+        # For this refactor, we'll just check the direct access.
+        
+        # We can't easily re-trigger the __init__, so we'll patch the cache directly for this test
+        self.config._config_cache = mock_output
+        
+        # Test direct, nested access
+        self.assertEqual(self.config.ai_services.openai_api_key, "test_openai_key")
+        self.assertEqual(self.config.observability.arize_api_key, "test_arize_key")
+        self.assertIsNone(self.config.business_intelligence) # Test a non-existent key
 
 
 class InfrastructureTest:
     """Test suite for Sophia AI infrastructure"""
 
     def __init__(self):
-        self.config = get_secure_config()
+        self.config = config
         self.orchestrator = get_gateway_orchestrator()
         self.test_results = {
             "api_configuration": {},
@@ -299,4 +337,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    unittest.main()

@@ -54,8 +54,7 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class ESCClient:
-    """Enhanced client for interacting with Pulumi ESC API
-    """
+    """Enhanced client for interacting with Pulumi ESC API"""
 
     def __init__(
         self, organization: str = None, project: str = None, stack: str = None

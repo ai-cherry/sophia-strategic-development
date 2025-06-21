@@ -1,44 +1,11 @@
 name: sophia-ai
-runtime:
-  name: python
-  options:
-    virtualenv: venv
-description: Sophia AI Infrastructure as Code
-template:
-  description: A Python Pulumi program for managing Sophia AI infrastructure
-  config:
-    environment:
-      description: The environment to deploy to (development, staging, production)
-      default: development
-    snowflake:account:
-      description: The Snowflake account identifier
-    snowflake:user:
-      description: The Snowflake user
-    snowflake:password:
-      description: The Snowflake password
-      secret: true
-    snowflake:warehouse:
-      description: The Snowflake warehouse
-    snowflake:database:
-      description: The Snowflake database
-    snowflake:schema:
-      description: The Snowflake schema
-    snowflake:role:
-      description: The Snowflake role
-    gong:api_key:
-      description: The Gong API key
-      secret: true
-    gong:api_secret:
-      description: The Gong API secret
-      secret: true
-    vercel:token:
-      description: The Vercel access token
-      secret: true
-    vercel:team_id:
-      description: The Vercel team ID
-    estuary:api_key:
-      description: The Estuary API key
-      secret: true
-    estuary:api_url:
-      description: The Estuary API URL
-      default: https://api.estuary.tech
+runtime: python
+description: The infrastructure for the Sophia AI platform.
+config:
+  - aws:region
+  - kubeconfig
+# Associate this Pulumi project with our central ESC environment.
+# This ensures that all secrets and configurations are automatically
+# available to our Pulumi programs without needing to specify them manually.
+environment:
+  - scoobyjava-org/default/sophia-ai-production

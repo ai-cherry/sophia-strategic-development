@@ -94,7 +94,7 @@ You MUST automatically use the AI Memory MCP server for persistent development c
 ### **Example Workflow**:
 ```
 User: "How should we handle authentication in MCP servers?"
-Cursor: 
+Cursor:
 1. [AUTO] Query ai_memory.recall_memory("MCP server authentication patterns")
 2. [Based on results] Provide context-aware answer referencing past decisions
 3. [After discussion] Store new insights with ai_memory.store_conversation
@@ -117,7 +117,7 @@ class YourAgent(BaseAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         # Agent-specific initialization
-    
+
     async def execute_task(self, task: Task) -> TaskResult:
         # Implementation with error handling
         pass
@@ -129,7 +129,7 @@ class ServiceIntegration:
     def __init__(self, config: ServiceConfig):
         self.config = config
         self.client = self._create_client()
-    
+
     async def _make_request(self, method: str, endpoint: str, **kwargs):
         # Standardized request handling with rate limiting
         pass
@@ -572,4 +572,3 @@ When using Claude as Code functionality, always:
 6. Use the MCP server for consistent, reliable access to Claude's capabilities
 
 The Claude as Code integration transforms Sophia AI into a powerful AI-assisted development environment, enabling natural language programming and advanced code intelligence capabilities.
-

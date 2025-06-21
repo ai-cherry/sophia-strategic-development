@@ -443,9 +443,9 @@ slack_token = config.slack_bot_token
 # Test all secrets
 python scripts/test_all_github_org_secrets.py
 
-# Sync to Pulumi ESC  
+# Sync to Pulumi ESC
 python scripts/sync_validated_secrets_to_esc.py
 
 # Validate setup
 python scripts/test_permanent_solution.py
-``` 
+```
