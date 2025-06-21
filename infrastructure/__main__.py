@@ -16,6 +16,8 @@ import pulumi_pulumiservice as pulumiservice
 import pulumi_kubernetes as k8s
 from pulumi_kubernetes.helm.v3 import Release, ReleaseArgs, RepositoryOptsArgs
 import pulumi_esc as esc
+import yaml
+import os
 import json
 from typing import Any, Iterable
 
@@ -40,7 +42,11 @@ def _require_esc_value(env: dict, path: Iterable[str]) -> Any:
 # --- 1. Get Required Configuration from Pulumi ESC ---
 # This ensures all necessary secrets and configs are available.
 config = pulumi.Config()
-esc_env = esc.Environment.get("sophia-ai-production")
+yaml_path = os.path.join(os.path.dirname(__file__), "esc", "sophia-ai-production.yaml")
+with open(yaml_path, "r") as f:
+    esc_definition = yaml.safe_load(f)
+
+esc_env = esc.Environment("sophia-ai-production", definition=esc_definition)
 
 # Validate required secrets before continuing
 required_paths = [
