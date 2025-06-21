@@ -69,16 +69,16 @@ The deployment workflow will automatically report which features are enabled bas
 graph TD
     A[GitHub Actions] -->|Deploy Frontend| B[Vercel]
     A -->|Deploy Backend| C[Lambda Labs]
-    
+
     C --> D[Portkey Gateway]
     D --> E[OpenRouter<br/>100+ LLM Models]
     D --> F[Direct APIs<br/>Fallback]
-    
+
     C --> G[PostgreSQL]
     C --> H[Redis]
-    
+
     B -->|API Calls| C
-    
+
     I[Optional Services] --> C
     I --> J[HubSpot CRM]
     I --> K[Gong.io]
@@ -129,11 +129,16 @@ OPENROUTER_API_KEY=your-key
 ```
 
 ### Environment Variables
-Create `.env` from the minimal template:
+Create `.env` from the provided example:
 ```bash
-cp env.minimal.example .env
+cp .env.example .env
 # Add your API keys
 ```
+
+### Pulumi ESC Secret Loading
+All GitHub organization secrets are automatically synchronized to **Pulumi ESC**.
+During deployment the containers load these secrets at runtime, so manual secret
+management is not required.
 
 ### Feature Flags
 Features auto-enable based on available API keys:
@@ -207,4 +212,4 @@ To update Sophia:
 
 ---
 
-**Note**: This guide assumes you're using GitHub organization secrets. For personal repos, add secrets to repository settings instead. 
+**Note**: This guide assumes you're using GitHub organization secrets. For personal repos, add secrets to repository settings instead.

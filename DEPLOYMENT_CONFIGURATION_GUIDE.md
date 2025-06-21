@@ -30,7 +30,7 @@ This document provides comprehensive configuration details for the Sophia AI pla
 1. **cherry-ai-key** (ACTIVE)
    - Currently deployed on sophia-ai-production server
    - Used by Pulumi for deployment automation
-   
+
 2. **sophia-deployment-key-20250621** (AVAILABLE)
    - Added to Lambda Labs account (ID: 8562fdb75c544db39c04d23addef2dfd)
    - Ready for future deployments or manual server updates
@@ -83,7 +83,8 @@ pulumi up --yes
 1. **Primary Storage**: GitHub Organization Secrets
 2. **Distribution**: Pulumi ESC for deployment
 3. **Runtime Access**: Environment variables in containers
-4. **Rotation**: Automated through GitHub Actions
+4. **Automatic Loading**: Containers pull secrets from Pulumi ESC at startup
+5. **Rotation**: Automated through GitHub Actions
 
 ## MCP Server Integrations
 
@@ -125,7 +126,7 @@ The current gpu_1x_a10 instance provides:
 1. **gpu_1x_gh200** ($1.49/hour)
    - 64 vCPUs, 432 GiB RAM, 96GB GPU
    - 2x cost, 4x performance improvement
-   
+
 2. **gpu_4x_h100_sxm5** ($12.36/hour)
    - 104 vCPUs, 900 GiB RAM, 4x 80GB GPUs
    - 16x cost, 10x+ performance for AI workloads
@@ -213,4 +214,3 @@ The current gpu_1x_a10 instance provides:
 **Last Updated**: June 21, 2025
 **Version**: 1.0
 **Maintained By**: Sophia AI Platform Team
-
