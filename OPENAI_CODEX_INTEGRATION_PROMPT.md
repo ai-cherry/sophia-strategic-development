@@ -1,272 +1,304 @@
-# Comprehensive OpenAI Codex Prompt for Sophia AI MCP Service Integration
+# OpenAI Codex Implementation Prompt for Sophia AI Codebase Cleanup
 
-## Context and Objective
+## Context
+You are tasked with cleaning up and optimizing the Sophia AI codebase, which is a centralized AI platform for orchestrating agents and business integrations for Pay Ready company. The codebase has accumulated technical debt through rapid development, resulting in duplicate code, conflicting patterns, and architectural inconsistencies.
 
-You are an expert AI software architect tasked with implementing a comprehensive service integration for the Sophia AI platform. Your goal is to integrate 19 AI and data services into the existing Model Context Protocol (MCP) architecture while maintaining production-ready code quality, optimal performance, and cost efficiency.
+## Repository Information
+- **Repository**: https://github.com/ai-cherry/sophia-ai
+- **Primary Language**: Python 3.11 with FastAPI
+- **Frontend**: React/Vite with TypeScript
+- **Infrastructure**: Pulumi ESC for secrets, Docker, Lambda Labs deployment
+- **Secret Management**: GitHub Organization Secrets → Pulumi ESC (PERMANENT solution)
 
-## Project Overview
+## Critical Issues to Address
 
-**Platform**: Sophia AI - Business Intelligence AI Platform
-**Architecture**: MCP-based microservices on Lambda Labs GPU infrastructure
-**Deployment**: Direct to production (no sandbox environments)
-**Infrastructure**: Infrastructure as Code with Pulumi
-**Secret Management**: GitHub Organization Secrets → Pulumi ESC → Runtime
+### 1. Remove Vendored Dependencies (High Priority)
+**Issue**: Large vendored directories committed to Git
+- `frontend/node_modules/` (~202 MB)
+- `sophia_admin_api/venv/` (~24 MB)
+- `.npm` cache files in Git history
 
-## Current Architecture Analysis
+**Actions**:
+```bash
+# Remove from Git tracking
+git rm -r --cached frontend/node_modules
+git rm -r --cached sophia_admin_api/venv
+git rm -r --cached **/.npm
 
-### Existing MCP Structure
+# Add to .gitignore
+echo "node_modules/" >> .gitignore
+echo "venv/" >> .gitignore
+echo ".npm/" >> .gitignore
+echo "**/venv/" >> .gitignore
+echo "**/node_modules/" >> .gitignore
 ```
-sophia-main/
-├── mcp-servers/
-│   ├── snowflake/ (existing - data warehouse)
-│   └── pulumi/ (existing - infrastructure)
-├── backend/mcp/
-│   ├── sophia_mcp_server.py (central orchestrator)
-│   └── mcp_client.py (client interface)
-└── backend/agents/core/
-    └── mcp_crew_orchestrator.py (CrewAI integration)
-```
 
-### Services to Integrate
-**AI Services**: Arize (monitoring), OpenRouter (gateway), Portkey (caching), HuggingFace (models), Together AI (inference)
-**Data Services**: Apify (scraping), PhantomBuster (automation), Twingly (news), Tavily (AI search), ZenRows (scraping)
-**Infrastructure**: Lambda Labs (compute), Docker (containers), GitHub (CI/CD)
+### 2. Consolidate Main Entry Points
+**Issue**: Multiple main.py files with overlapping functionality
+- `backend/main.py` - Keep as primary
+- `backend/main_simple.py` - Remove
+- `backend/main_dashboard.py` - Remove
+- `backend/main_simplified.py` - Remove
 
-## Implementation Requirements
+**Actions**:
+1. Merge functionality into `backend/main.py` with environment-based configuration
+2. Use environment variables to control features:
+   ```python
+   # backend/main.py
+   import os
+   from backend.core.auto_esc_config import config
+   
+   # Feature flags from environment
+   ENABLE_DASHBOARD = os.getenv("ENABLE_DASHBOARD", "true").lower() == "true"
+   ENABLE_MCP = os.getenv("ENABLE_MCP", "true").lower() == "true"
+   ```
 
-### 1. MCP Server Architecture Requirements
-- **Inherit from existing base class**: Use `mcp-servers/snowflake/mcp_base.py` as foundation
-- **Domain-based organization**: Group related services into unified MCP servers
-- **Consistent tool registration**: Follow existing pattern for tool and resource registration
-- **Error handling**: Implement comprehensive error handling and logging
-- **HTTP and stdin interfaces**: Support both communication methods
+### 3. Fix Duplicate Integrations
+**Consolidate these duplicates**:
 
-### 2. Service Integration Patterns
+#### Gong Integration
+- Keep: `backend/integrations/gong_integration.py`
+- Remove: `backend/integrations/gong/enhanced_gong_integration.py`
+- Remove: `backend/analytics/gong_analytics.py`
+
+#### Vector Store Integration  
+- Keep: `backend/vector/vector_integration.py`
+- Remove: `backend/vector/vector_integration_updated.py`
+
+### 4. Standardize Secret Management
+**Keep ONLY**:
+- `backend/core/auto_esc_config.py` - Primary config loader
+- `infrastructure/esc/` - ESC secret definitions
+
+**Remove**:
+- `backend/core/pulumi_esc.py` - Legacy
+- `backend/config/secure_config.py` - Legacy
+- Any direct environment variable usage
+
+### 5. Fix Directory Structure Issues
+**Rename/Fix**:
+- `backend/agents/core/agent_framework.py and infrastructure` → Fix this malformed directory name
+- Remove any directories with spaces or special characters in names
+
+### 6. Unify Dependency Management
+**Decision**: Use Poetry (pyproject.toml)
+- Remove `requirements.txt`
+- Update `pyproject.toml` with correct versions
+- Generate lock file: `poetry lock`
+
+### 7. Consolidate API Routes
+**Move all routes to**: `backend/app/routes/`
+- Remove `backend/app/routers/` directory
+- Remove `backend/api/` directory
+- Update all imports
+
+### 8. Standardize MCP Servers
+**Pattern to enforce**:
 ```python
-# Required MCP Server Structure
-class ServiceMCPServer(MCPServer):
-    def __init__(self):
-        super().__init__("service_name")
-        # Initialize service clients
+# All MCP servers must inherit from base
+from backend.mcp.base_mcp_server import BaseMCPServer
 
-    async def setup(self):
-        # Register tools following this pattern
-        self.register_tool(Tool(
-            name="tool_name",
-            description="Clear description",
-            parameters={
-                "param": {"type": "string", "required": True, "description": "..."}
-            },
-            handler=self.tool_handler
-        ))
-
-    async def tool_handler(self, **kwargs):
-        # Implement tool logic with error handling
-        try:
-            result = await self.service_client.operation(**kwargs)
-            return {"success": True, "result": result}
-        except Exception as e:
-            self.logger.error(f"Error: {e}")
-            return {"error": str(e)}
+class YourMCPServer(BaseMCPServer):
+    async def initialize(self):
+        # Implementation
+        pass
 ```
 
-### 3. Optimization Integration Requirements
-- **Cost tracking**: Implement cost monitoring for all service calls
-- **Performance monitoring**: Log execution times and success rates
-- **Intelligent routing**: Route requests to optimal services based on cost/performance
-- **Caching**: Implement semantic caching where appropriate
-- **Rate limiting**: Respect API limits and implement backoff strategies
+### 9. Clean Up Scripts Directory
+**Evaluate and categorize**:
+- `scripts/dev/` - Development utilities (keep)
+- `scripts/ci/` - CI/CD scripts (keep)
+- `scripts/fix_*.py` - Remove after fixes applied
+- `scripts/test_*.py` - Move to `tests/`
 
-### 4. Data Pipeline Integration
-- **Unified data flow**: All services feed into Airbyte → PostgreSQL → Redis → Vector DBs
-- **Real-time processing**: Support both batch and real-time data processing
-- **Schema adaptation**: Dynamic schema updates for new data sources
-- **Vector embeddings**: Generate and store embeddings for semantic search
+### 10. Consolidate Documentation
+**Structure**:
+```
+docs/
+├── README.md (main documentation)
+├── api/
+│   └── API_REFERENCE.md
+├── architecture/
+│   ├── SYSTEM_DESIGN.md
+│   └── AGENT_ARCHITECTURE.md
+├── deployment/
+│   ├── DEPLOYMENT_GUIDE.md
+│   └── INFRASTRUCTURE.md
+└── development/
+    ├── SETUP_GUIDE.md
+    └── CONTRIBUTING.md
+```
 
-## Specific Implementation Tasks
+## Implementation Steps
 
-### Task 1: Create AI Intelligence MCP Server
-**File**: `mcp-servers/ai_intelligence/ai_intelligence_mcp_server.py`
-**Services**: Arize, OpenRouter, Portkey, HuggingFace, Together AI
-**Key Tools**:
-- `intelligent_generate`: Smart text generation with optimal model routing
-- `get_embeddings`: Generate embeddings using best available model
-- `monitor_ai_usage`: Log AI interactions to Arize for monitoring
-- `optimize_routing`: Analyze and optimize model routing decisions
+### Phase 1: Critical Cleanup (Immediate)
+1. Remove vendored dependencies
+2. Fix `.gitignore`
+3. Consolidate main entry points
+4. Fix malformed directory names
 
-### Task 2: Create Data Intelligence MCP Server
-**File**: `mcp-servers/data_intelligence/data_intelligence_mcp_server.py`
-**Services**: Apify, PhantomBuster, Twingly, Tavily, ZenRows
-**Key Tools**:
-- `intelligent_research`: Multi-source research with AI-powered synthesis
-- `scrape_website`: Intelligent web scraping with fallback options
-- `monitor_news`: Real-time news monitoring and analysis
-- `extract_leads`: Lead generation and contact discovery
+### Phase 2: Architecture Standardization (Short-term)
+1. Unify secret management
+2. Consolidate duplicate integrations
+3. Standardize MCP server implementations
+4. Fix API route organization
 
-### Task 3: Create Infrastructure Intelligence MCP Server
-**File**: `mcp-servers/infrastructure_intelligence/infrastructure_intelligence_mcp_server.py`
-**Services**: Lambda Labs, Docker, GitHub (enhanced existing Pulumi server)
-**Key Tools**:
-- `optimize_infrastructure`: Analyze and optimize resource usage
-- `manage_deployments`: Handle container deployments and scaling
-- `monitor_costs`: Track and optimize infrastructure costs
-- `automate_scaling`: Implement intelligent auto-scaling
+### Phase 3: Documentation & Testing (Medium-term)
+1. Reorganize documentation
+2. Set up comprehensive test structure
+3. Clean up scripts directory
+4. Update README with accurate information
 
-### Task 4: Enhance Central Orchestrator
-**File**: `backend/mcp/sophia_mcp_server.py`
-**Enhancements**:
-- Service discovery and health monitoring
-- Intelligent request routing across MCP servers
-- Cross-service optimization and coordination
-- Unified monitoring and alerting
+## Git Workflow
 
-### Task 5: Update Integration Registry
-**File**: `infrastructure/integration_registry.json`
-**Updates**:
-- Add all new service configurations
-- Include optimization parameters
-- Define service dependencies and priorities
-- Set monitoring and alerting thresholds
+### Branch Strategy
+```bash
+# Create feature branch
+git checkout -b feature/codebase-cleanup
 
-## Code Quality Requirements
+# Make changes in logical commits
+git add -p  # Stage changes selectively
+git commit -m "chore: remove vendored dependencies"
+git commit -m "refactor: consolidate main entry points"
+git commit -m "refactor: unify secret management"
+# ... etc
+```
 
-### 1. Production Standards
-- **Type hints**: Use comprehensive type annotations
-- **Error handling**: Implement try-catch blocks with specific error types
-- **Logging**: Use structured logging with appropriate levels
-- **Documentation**: Include docstrings for all classes and methods
-- **Testing**: Include unit tests for critical functionality
+### Pull Request Structure
+**Title**: "Major Codebase Cleanup: Remove Duplicates and Standardize Architecture"
 
-### 2. Performance Optimization
-- **Async/await**: Use async programming for all I/O operations
-- **Connection pooling**: Implement connection reuse for external services
-- **Caching**: Add intelligent caching layers where beneficial
-- **Rate limiting**: Implement proper rate limiting and backoff
+**Description**:
+```markdown
+## Summary
+This PR addresses technical debt accumulated during rapid development by:
+- Removing vendored dependencies (reduces repo size by ~226MB)
+- Consolidating duplicate code and conflicting patterns
+- Standardizing architecture according to best practices
+- Implementing the permanent GitHub Org → Pulumi ESC secret solution
 
-### 3. Security Best Practices
-- **Secret management**: Use environment variables and Pulumi ESC
-- **Input validation**: Validate all input parameters
-- **Error sanitization**: Don't expose sensitive information in errors
-- **Authentication**: Implement proper API authentication
+## Changes
+### Removed
+- [ ] Vendored dependencies (node_modules, venv)
+- [ ] Duplicate main.py files
+- [ ] Legacy secret management code
+- [ ] Duplicate integration files
 
-## Intelligent Review Criteria
+### Consolidated
+- [ ] Single main.py with environment-based configuration
+- [ ] Unified secret management through auto_esc_config
+- [ ] Standardized MCP server implementations
+- [ ] API routes under backend/app/routes/
 
-### Code Review Checklist
-1. **Architecture Compliance**
-   - [ ] Follows existing MCP server patterns
-   - [ ] Properly inherits from base classes
-   - [ ] Implements required interfaces
-   - [ ] Maintains consistent error handling
+### Added
+- [ ] Comprehensive .gitignore
+- [ ] Updated documentation structure
+- [ ] Proper test organization
 
-2. **Service Integration Quality**
-   - [ ] All 19 services properly integrated
-   - [ ] Service clients properly initialized
-   - [ ] API calls handle rate limits and errors
-   - [ ] Fallback mechanisms implemented
+## Testing
+- [ ] All existing tests pass
+- [ ] Manual testing of consolidated features
+- [ ] Deployment verification
 
-3. **Optimization Implementation**
-   - [ ] Cost tracking implemented for all services
-   - [ ] Performance monitoring in place
-   - [ ] Intelligent routing logic implemented
-   - [ ] Caching strategies applied appropriately
+## Breaking Changes
+- Import paths updated for consolidated modules
+- Environment variables standardized
+- Some deprecated APIs removed
 
-4. **Data Pipeline Integration**
-   - [ ] Data flows into unified pipeline
-   - [ ] Schema adaptation implemented
-   - [ ] Vector embeddings generated where appropriate
-   - [ ] Real-time processing supported
+## Migration Guide
+See `docs/MIGRATION_GUIDE.md` for details on updating existing code.
+```
 
-5. **Production Readiness**
-   - [ ] Comprehensive error handling
-   - [ ] Proper logging and monitoring
-   - [ ] Security best practices followed
-   - [ ] Performance optimized
+## Code Quality Checks
 
-### Optimization Review Criteria
-1. **Cost Efficiency**
-   - [ ] Intelligent model routing reduces AI costs by 25-30%
-   - [ ] Caching reduces redundant API calls by 20-40%
-   - [ ] Resource optimization saves 15-25% on infrastructure
-   - [ ] Rate limiting prevents cost overruns
+### Pre-commit Hooks
+Ensure these pass:
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        language_version: python3.11
+  
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        args: ['--max-line-length=88']
+  
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ['--profile', 'black']
+```
 
-2. **Performance Excellence**
-   - [ ] Response times under 2 seconds for AI operations
-   - [ ] Data collection jobs complete within target timeframes
-   - [ ] Cache hit rates above 30% where implemented
-   - [ ] Concurrent operations properly handled
+### Validation Script
+Create `scripts/validate_cleanup.py`:
+```python
+#!/usr/bin/env python3
+"""Validate codebase cleanup was successful."""
 
-3. **Reliability Standards**
-   - [ ] Error rates below 1% for critical operations
-   - [ ] Proper fallback mechanisms in place
-   - [ ] Circuit breakers prevent cascade failures
-   - [ ] Health checks and monitoring implemented
+import os
+import sys
+from pathlib import Path
 
-## Implementation Strategy
+def check_no_vendored_deps():
+    """Ensure no vendored dependencies exist."""
+    vendored = [
+        "frontend/node_modules",
+        "sophia_admin_api/venv",
+    ]
+    for path in vendored:
+        if Path(path).exists():
+            print(f"ERROR: Vendored dependency still exists: {path}")
+            return False
+    return True
 
-### Phase 1: Core AI Services (Priority 1)
-1. Implement AI Intelligence MCP Server
-2. Integrate Arize monitoring
-3. Set up intelligent routing with OpenRouter/Portkey
-4. Add HuggingFace and Together AI model access
+def check_single_main():
+    """Ensure only one main.py exists."""
+    main_files = list(Path("backend").glob("main*.py"))
+    if len(main_files) != 1:
+        print(f"ERROR: Multiple main files found: {main_files}")
+        return False
+    return True
 
-### Phase 2: Data Collection Services (Priority 2)
-1. Implement Data Intelligence MCP Server
-2. Integrate all data collection services
-3. Set up unified data pipeline
-4. Implement intelligent research capabilities
+def check_no_duplicate_integrations():
+    """Check for duplicate integration files."""
+    # Add checks for known duplicates
+    pass
 
-### Phase 3: Infrastructure Enhancement (Priority 3)
-1. Implement Infrastructure Intelligence MCP Server
-2. Enhance existing Pulumi integration
-3. Add Lambda Labs and Docker management
-4. Implement cost optimization features
+if __name__ == "__main__":
+    checks = [
+        check_no_vendored_deps,
+        check_single_main,
+        check_no_duplicate_integrations,
+    ]
+    
+    all_passed = all(check() for check in checks)
+    sys.exit(0 if all_passed else 1)
+```
 
-### Phase 4: Integration and Optimization (Priority 4)
-1. Enhance central orchestrator
-2. Implement cross-service optimization
-3. Add comprehensive monitoring
-4. Optimize performance and costs
+## Success Criteria
+1. Repository size reduced by at least 200MB
+2. No duplicate functionality
+3. All tests passing
+4. Clear, consistent architecture
+5. Single source of truth for configuration
+6. Standardized patterns throughout codebase
 
-## Expected Deliverables
+## Notes for Implementation
+- Preserve all business logic during consolidation
+- Maintain backward compatibility where possible
+- Document all breaking changes
+- Test thoroughly before merging
+- Consider using feature flags for gradual rollout
 
-### Code Files
-1. `mcp-servers/ai_intelligence/ai_intelligence_mcp_server.py`
-2. `mcp-servers/data_intelligence/data_intelligence_mcp_server.py`
-3. `mcp-servers/infrastructure_intelligence/infrastructure_intelligence_mcp_server.py`
-4. Enhanced `backend/mcp/sophia_mcp_server.py`
-5. Updated `infrastructure/integration_registry.json`
-6. Service client implementations for all 19 services
-7. Optimization engine implementations
-8. Data pipeline integration code
+## Additional Considerations
+- After cleanup, set up GitHub Actions to prevent vendored dependencies
+- Implement size limits for pull requests
+- Add architecture decision records (ADRs) for future changes
+- Create developer onboarding documentation
 
-### Configuration Files
-1. Docker configurations for each MCP server
-2. Pulumi deployment configurations
-3. Environment variable templates
-4. Monitoring and alerting configurations
-
-### Documentation
-1. API documentation for all new tools
-2. Deployment and configuration guides
-3. Optimization and monitoring documentation
-4. Troubleshooting and maintenance guides
-
-## Success Metrics
-
-### Technical Metrics
-- All 19 services successfully integrated and operational
-- Response times meet performance targets (<2s for AI, <30s for data collection)
-- Error rates below 1% for critical operations
-- Cost optimization targets achieved (25-30% AI cost reduction)
-
-### Business Metrics
-- Unified interface for all AI and data operations
-- Real-time business intelligence capabilities
-- Scalable architecture supporting 10x growth
-- Production-ready deployment with comprehensive monitoring
-
-## Final Instructions
-
-Implement this integration with the highest standards of software engineering. Focus on production readiness, optimal performance, and cost efficiency. Ensure all code follows the existing patterns while introducing the necessary optimizations and enhancements. The result should be a robust, scalable, and cost-effective AI platform that serves as the foundation for Sophia AI's business intelligence capabilities.
-
-Remember: This is a production deployment with no sandbox environments. Every line of code must be production-ready and thoroughly tested. The integration should enhance the existing architecture while maintaining backward compatibility and operational stability.
+This cleanup will transform Sophia AI into a maintainable, scalable platform ready for continued development and deployment.

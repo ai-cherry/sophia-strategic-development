@@ -1,0 +1,13 @@
+{
+  "venv_directories_found": 5,
+  "custom_files_found": 0,
+  "files_moved": 0,
+  "venv_dirs": [
+    "/Users/lynnmusil/Desktop/sophia/sophia-main/venv",
+    "/Users/lynnmusil/Desktop/sophia/sophia-main/sophia_admin_api/venv",
+    "/Users/lynnmusil/Desktop/sophia/sophia-main/sophia_admin_api/venv",
+    "/Users/lynnmusil/Desktop/sophia/sophia-main/sophia_venv",
+    "/Users/lynnmusil/Desktop/sophia/sophia-main/frontend/node_modules"
+  ],
+  "moved_files": []
+}

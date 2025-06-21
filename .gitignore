@@ -1,39 +1,47 @@
-*.pyc
-venv/
-# Pulumi state files
-Pulumi.yaml
-Pulumi.*.yaml
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-venv/
 env/
+venv/
 ENV/
-env.bak/
-venv.bak/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Virtual Environments
 sophia_venv/
+sophia_admin_api/venv/
+*/venv/
+*/env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+*.tsbuildinfo
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
 
 # IDE
 .vscode/
@@ -41,6 +49,12 @@ sophia_venv/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
 # OS
 .DS_Store
@@ -51,227 +65,144 @@ sophia_venv/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-*.log
-logs/
-*.log.*
-
-# Environment variables
+# Environment
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+.env.development
+.env.test
+.env.production
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Node modules
-node_modules/
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
 
 # Build outputs
 dist/
 build/
-*.tgz
-*.tar.gz
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
 
-# Testing
-.coverage
-.pytest_cache/
-.tox/
-.nox/
-htmlcov/
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
 
-# pyenv
-.python-version
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets (should never be committed)
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
 
 # Pulumi
 .pulumi/
-
-# Backup files
-backup_*/
-*.backup
-*.bak
-
-# Temporary development files
-temp/
-tmp/
-scratch/
-playground/
-
-# One-time scripts and artifacts (prevent future clutter)
-*_temp.py
-*_test_*.py
-*_demo_*.py
-*_prototype_*.py
-*_scratch.py
-*_backup.py
-quick_*.py
-temp_*.py
-test_temp_*.py
-fix_temp_*.py
-debug_*.py
-
-# Development artifacts
-*_report_*.json
-*_results_*.json
-*_output_*.json
-*_test_*.json
-*_demo_*.json
-*_analysis_*.json
-
-# Temporary documentation
-*_temp.md
-*_scratch.md
-*_notes.md
-*_draft.md
-TEMP_*.md
-DRAFT_*.md
-NOTES_*.md
-
-# Cache directories
-.cache/
-.ruff_cache/
-.mypy_cache/
-
-# Local configuration overrides
-local_config.py
-local_settings.py
-dev_config.py
-
-# Retool exports (prevent re-accumulation)
-retool_export_*.json
-retool_backup_*.json
-retool_temp_*.json
-
-# Migration artifacts (prevent re-accumulation)
-migration_backup_*
-migration_temp_*
-migration_report_*
-
-# Validation artifacts (prevent re-accumulation)
-validation_temp_*
-validation_backup_*
-validation_report_*
-
-# Cleanup reports
-cleanup_report.json
-cleanup_backup_*/
-
-# SECURITY: NEVER COMMIT THESE FILES
-.env
-.env.*
-*.env
-**/secrets/**
-**/secret/**
-**/*secret*
-**/*token*
-**/*key*
-pulumi-access-token*
-PULUMI_ACCESS_TOKEN*
-!scripts/setup_all_secrets_once.py
-
-# Pulumi state and config (may contain secrets)
 Pulumi.*.yaml
-.pulumi/
 
-# Temporary files that might contain secrets
-/tmp/*secret*
-/tmp/*token*
-/tmp/*key*
-
-# Backup files that might contain secrets
-*.bak
-*.backup
-*~
-
-# IDE and editor files that might cache secrets
-.vscode/settings.json
-.idea/
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-venv/
-sophia_venv/
-ENV/
-env/
-.venv/
-
-# Testing
-.coverage
-.pytest_cache/
-.tox/
-.nox/
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
+# Docker
+.dockerignore
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # pyenv
 .python-version
 
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# pipenv
+Pipfile.lock
 
-# Logs
-*.log
-logs/
+# Poetry
+poetry.lock
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# Celery
+celerybeat-schedule
+celerybeat.pid
 
-# Frontend configuration that may contain credentials
-frontend/.config/
-frontend/**/state-sync/
-**/state-sync-config.yaml
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mkdocs documentation
+/site
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# PyBuilder
+target/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Rope project settings
+.ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+
+# Pycharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject

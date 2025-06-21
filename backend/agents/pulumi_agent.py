@@ -18,13 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class PulumiAgent(BaseAgent):
-    """
-Pulumi agent with natural language support.
+    """Pulumi agent with natural language support.
 
-            - Stack management
-            - Resource operations
-            - Context-aware commands
-            - AI-Copilot error handling
+    - Stack management
+    - Resource operations
+    - Context-aware commands
+    - AI-Copilot error handling
     """
 
     def __init__(self):
@@ -39,7 +38,6 @@ Pulumi agent with natural language support.
 
     def _validate_environment(self):
         """Validate Pulumi environment"""
-
         try:
             # Check if Pulumi CLI is available
             result = subprocess.run(
@@ -155,8 +153,7 @@ Pulumi agent with natural language support.
         return result
 
     async def _create_stack(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Create a new Pulumi stack"""# Extract stack name from command
-
+        """Create a new Pulumi stack"""  # Extract stack name from command
         parts = command.split()
         stack_name = None
 
@@ -197,8 +194,7 @@ Pulumi agent with natural language support.
             return {"status": "error", "message": f"Failed to create stack: {str(e)}"}
 
     async def _select_stack(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Select/switch to a different stack"""# Extract stack name.
-
+        """Select/switch to a different stack"""  # Extract stack name.
         stack_name = command.split()[-1]
 
         try:
@@ -245,7 +241,6 @@ Pulumi agent with natural language support.
     async def _list_stacks(self, session_id: str) -> Dict[str, Any]:
         """List all stacks"""
         try:
-
             result = subprocess.run(
                 ["pulumi", "stack", "ls", "--json"], capture_output=True, text=True
             )
@@ -298,8 +293,7 @@ Pulumi agent with natural language support.
         return result
 
     async def _update_config(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Update stack configuration"""# Parse config command.
-
+        """Update stack configuration"""  # Parse config command.
         # Example: "set aws:region to us-west-2"
         if "set" in command and "to" in command:
             parts = command.split("to")
@@ -340,8 +334,7 @@ Pulumi agent with natural language support.
         }
 
     async def _generate_code(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Generate Pulumi code based on description"""# Extract what to generate.
-
+        """Generate Pulumi code based on description"""  # Extract what to generate.
         description = command.replace("generate", "").replace("create", "").strip()
 
         # Basic code generation examples
@@ -449,8 +442,7 @@ pulumi.export("deployment_name", deployment.metadata.name)""",
     async def _execute_direct_command(
         self, command: str, session_id: str
     ) -> Dict[str, Any]:
-        """Execute direct Pulumi command"""# Map common commands.
-
+        """Execute direct Pulumi command"""  # Map common commands.
         command_map = {
             "up": ["pulumi", "up", "--yes"],
             "destroy": ["pulumi", "destroy", "--yes"],
@@ -503,8 +495,7 @@ pulumi.export("deployment_name", deployment.metadata.name)""",
     async def _get_stack_from_command_or_context(
         self, command: str, session_id: str
     ) -> str:
-        """Get stack name from command or context"""# Try to extract from command
-
+        """Get stack name from command or context"""  # Try to extract from command
         words = command.split()
         for i, word in enumerate(words):
             if word == "stack" and i + 1 < len(words):
@@ -521,8 +512,7 @@ pulumi.export("deployment_name", deployment.metadata.name)""",
         return stack
 
     async def process_task(self, task) -> Dict[str, Any]:
-        """Process task - required by BaseAgent"""# Delegate to execute method.
-
+        """Process task - required by BaseAgent"""  # Delegate to execute method.
         return await self.execute(
             task.task_data.get("command", ""), task.task_data.get("context", {})
         )

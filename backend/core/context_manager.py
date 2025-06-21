@@ -35,7 +35,6 @@ class SessionContext:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization"""
         return {
-
             "session_id": self.session_id,
             "user_id": self.user_id,
             "user_role": self.user_role,
@@ -53,13 +52,13 @@ class SessionContext:
 class ContextManager:
     """Centralized context management for all agents.
 
-            - Maintains session contexts
-            - Provides context persistence
-            - Handles context expiration
-            - Thread-safe operations
+    - Maintains session contexts
+    - Provides context persistence
+    - Handles context expiration
+    - Thread-safe operations
     """
-    def __init__(self, ttl_minutes: int = 60):
 
+    def __init__(self, ttl_minutes: int = 60):
         self.sessions: Dict[str, SessionContext] = {}
         self.ttl = timedelta(minutes=ttl_minutes)
         self._lock = asyncio.Lock()

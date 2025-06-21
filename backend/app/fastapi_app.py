@@ -29,8 +29,8 @@ except ImportError:
 
 # Import routers
 from backend.app.routers.agno_router import router as agno_router
-from backend.app.routers.llamaindex_router import router as llamaindex_router
 from backend.app.routers.chat_router import router as chat_router
+from backend.app.routers.llamaindex_router import router as llamaindex_router
 
 # Import WebSocket manager
 try:

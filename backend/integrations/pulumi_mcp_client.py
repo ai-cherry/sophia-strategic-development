@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PulumiMCPConfig:
-    """
-Configuration for Pulumi MCP Server"""
+    """Configuration for Pulumi MCP Server"""
 
     base_url: str = "http://pulumi-mcp-server:9001"
     api_token: str = ""
@@ -32,11 +31,12 @@ Configuration for Pulumi MCP Server"""
 class PulumiMCPClient:
     """Client for Pulumi MCP Server.
 
-            - Infrastructure queries and management
-            - RBAC enforcement
-            - Audit logging
-            - Safe operations only (no destroy without explicit approval)
+    - Infrastructure queries and management
+    - RBAC enforcement
+    - Audit logging
+    - Safe operations only (no destroy without explicit approval)
     """
+
     def __init__(self, config_path: str = "config/pulumi-mcp.json"):
         self.config = self._load_config(config_path)
         if not self.config.api_token:
@@ -47,7 +47,6 @@ class PulumiMCPClient:
     def _load_config(self, config_path: str) -> PulumiMCPConfig:
         """Load configuration from file or environment"""
         config_data = {
-
             "base_url": os.getenv("PULUMI_MCP_URL", "http://pulumi-mcp-server:9001"),
             "api_token": os.getenv("PULUMI_ACCESS_TOKEN"),
             "organization": os.getenv("PULUMI_ORG", "sophia-ai"),
@@ -106,7 +105,7 @@ class PulumiMCPClient:
     ) -> Dict[str, Any]:
         """List resources in a stack.
 
-                        Safe read-only operation
+        Safe read-only operation
         """
         # RBAC check
         if not self._check_permission(user_context, "read", stack):
@@ -154,7 +153,7 @@ class PulumiMCPClient:
     ) -> Dict[str, Any]:
         """Deploy or preview a stack deployment.
 
-                        Requires explicit approval for actual deployment
+        Requires explicit approval for actual deployment
         """
         # RBAC check
         permission_needed = "preview" if preview_only else "deploy"
@@ -217,7 +216,7 @@ class PulumiMCPClient:
     ) -> Dict[str, Any]:
         """Get stack outputs.
 
-                        Safe read-only operation
+        Safe read-only operation
         """
         # RBAC check
         if not self._check_permission(user_context, "read", stack):
@@ -261,7 +260,7 @@ class PulumiMCPClient:
     ) -> Dict[str, Any]:
         """Refresh stack state.
 
-                        Updates state to match actual cloud resources
+        Updates state to match actual cloud resources
         """
         # RBAC check
         if not self._check_permission(user_context, "refresh", stack):
@@ -305,7 +304,7 @@ class PulumiMCPClient:
     ) -> bool:
         """Check if user has permission for action on stack.
 
-                        Implement RBAC logic here
+        Implement RBAC logic here
         """
         if not self.config.rbac_enabled:
             return True
@@ -345,7 +344,7 @@ class PulumiMCPClient:
     ) -> Dict[str, Any]:
         """Get AI-Copilot suggestions for errors.
 
-                        Uses Pulumi's AI-Copilot feature
+        Uses Pulumi's AI-Copilot feature
         """
         try:
             if not self.session:

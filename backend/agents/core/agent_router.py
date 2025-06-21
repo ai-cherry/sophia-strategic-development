@@ -39,6 +39,7 @@ class AgentCapability(Enum):
 @dataclass
 class AgentRegistration:
     """Registration info for an agent"""
+
     name: str
 
     capabilities: List[AgentCapability]
@@ -50,12 +51,12 @@ class AgentRegistration:
 class CentralizedAgentRouter:
     """Central router for all agent commands.
 
-            - Maintains agent registry
-            - Routes based on intent and context
-            - Logs all routing decisions
+    - Maintains agent registry
+    - Routes based on intent and context
+    - Logs all routing decisions
     """
-    def __init__(self):
 
+    def __init__(self):
         self.agents: Dict[str, AgentRegistration] = {}
         self.agent_instances: Dict[str, Any] = {}
         self.routing_history: List[Dict[str, Any]] = []
@@ -93,7 +94,9 @@ class CentralizedAgentRouter:
         loop = asyncio.get_event_loop()
 
         # Sales Coach
-        sales_coach = loop.run_until_complete(SalesCoachAgent.pooled(agent_configs["sales_coach"]))
+        sales_coach = loop.run_until_complete(
+            SalesCoachAgent.pooled(agent_configs["sales_coach"])
+        )
         self.agent_instances["sales_coach"] = sales_coach
         self.register_agent(
             AgentRegistration(
@@ -105,7 +108,9 @@ class CentralizedAgentRouter:
         )
 
         # Client Health
-        client_health = loop.run_until_complete(ClientHealthAgent.pooled(agent_configs["client_health"]))
+        client_health = loop.run_until_complete(
+            ClientHealthAgent.pooled(agent_configs["client_health"])
+        )
         self.agent_instances["client_health"] = client_health
         self.register_agent(
             AgentRegistration(
@@ -153,7 +158,7 @@ class CentralizedAgentRouter:
     ) -> Dict[str, Any]:
         """Route a command to the appropriate agent.
 
-                        Returns the result and logs the routing decision
+        Returns the result and logs the routing decision
         """
         start_time = datetime.utcnow()
 
@@ -327,7 +332,6 @@ class CentralizedAgentRouter:
     ) -> List[str]:
         """Check if all required context fields are present"""
         if not context:
-
             return requirements
 
         missing = [req for req in requirements if req not in context]
