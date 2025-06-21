@@ -208,13 +208,14 @@ function Navigation() {
 function DocumentCard({ document, onEdit, onDelete, onView }) {
   const contentType = contentTypes.find(ct => ct.value === document.contentType);
   const statusColor = document.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+  const titleId = `doc-title-${document.id}`;
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow" tabIndex="0" role="region" aria-labelledby={titleId}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-900 mb-1">
+            <CardTitle id={titleId} className="text-lg font-semibold text-gray-900 mb-1">
               {document.title}
             </CardTitle>
             <CardDescription className="text-sm text-gray-600 line-clamp-2">
@@ -222,13 +223,13 @@ function DocumentCard({ document, onEdit, onDelete, onView }) {
             </CardDescription>
           </div>
           <div className="flex space-x-1 ml-4">
-            <Button variant="ghost" size="sm" onClick={() => onView(document)}>
+            <Button variant="ghost" size="sm" onClick={() => onView(document)} aria-label="View document">
               <Eye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => onEdit(document)}>
+            <Button variant="ghost" size="sm" onClick={() => onEdit(document)} aria-label="Edit document">
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => onDelete(document)}>
+            <Button variant="ghost" size="sm" onClick={() => onDelete(document)} aria-label="Delete document">
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
           </div>
@@ -297,10 +298,11 @@ function DocumentEditor({ document, onSave, onCancel }) {
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Document title"
             required
+            aria-required="true"
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="contentType">Content Type</Label>
             <Select value={formData.contentType} onValueChange={(value) => setFormData({ ...formData, contentType: value })}>
@@ -352,6 +354,7 @@ function DocumentEditor({ document, onSave, onCancel }) {
             placeholder="Document content..."
             rows={12}
             required
+            aria-required="true"
           />
         </div>
         
@@ -570,13 +573,14 @@ function DocumentsPage() {
       </div>
 
       <div className="mb-6">
-        <div className="flex space-x-4 mb-4">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4 mb-4">
           <div className="flex-1">
             <Input
               placeholder="Search documents..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
+              aria-label="Search documents"
             />
           </div>
           <Select value={filterType} onValueChange={setFilterType}>
@@ -813,13 +817,14 @@ function SearchPage() {
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Knowledge Base Search</h2>
       
       <div className="max-w-2xl mx-auto mb-8">
-        <div className="flex space-x-2">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
           <Input
             placeholder="Search the knowledge base..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             className="flex-1"
+            aria-label="Search knowledge base"
           />
           <Button onClick={handleSearch} disabled={isSearching}>
             <Search className="h-4 w-4 mr-2" />
@@ -980,10 +985,10 @@ function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Automatic Backup</Label>
+                <Label htmlFor="auto-backup">Automatic Backup</Label>
                 <div className="flex items-center space-x-2 mt-2">
-                  <input type="checkbox" defaultChecked />
-                  <span className="text-sm">Enable daily backups</span>
+                  <input id="auto-backup" type="checkbox" defaultChecked aria-label="Enable daily backups" />
+                  <Label htmlFor="auto-backup" className="text-sm">Enable daily backups</Label>
                 </div>
               </div>
               <div className="flex space-x-2">
