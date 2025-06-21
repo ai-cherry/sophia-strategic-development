@@ -33,7 +33,7 @@
       "env": {
         "LAMBDA_LABS_API_KEY": "${ESC_LAMBDA_LABS_API_KEY}",
         "PULUMI_ACCESS_TOKEN": "${ESC_PULUMI_ACCESS_TOKEN}",
-        "DOCKER_USERNAME": "${ESC_DOCKER_USERNAME}",
+        "DOCKER_USERNAME": "${ESC_DOCKER_USER_NAME}",
         "DOCKER_TOKEN": "${ESC_DOCKER_TOKEN}"
       }
     },
