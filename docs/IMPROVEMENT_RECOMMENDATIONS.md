@@ -1,77 +1,213 @@
-# Sophia AI - Codebase Improvement Recommendations
+# Sophia AI Improvement Recommendations
 
-**Date:** December 20, 2024
-**Status:** Post-Consolidation Action Plan
+## Overview
+Based on the codebase review, here are actionable recommendations to improve code quality, reduce redundancy, and resolve conflicts.
 
-This document outlines specific, actionable recommendations for further improving the Sophia AI codebase following the major consolidation of agent frameworks and secret management.
+## Phase 1: Critical Fixes (Week 1)
 
----
+### 1.1 Fix Syntax Errors
+**Files to fix:**
+- `backend/app/routes/retool_api_routes.py` (line 24)
+- `backend/mcp/tools/vector_tools.py` (line 131)
+- `backend/agents/core/agent_framework.py and infrastructure/kubernetes/developer_tools_mcp_stack.py`
 
-## 1. Complete the Transition to Agno-Native Tools
+**Action:** Review and fix syntax errors, likely caused by merge conflicts or incomplete edits.
 
-**Current State:** The `unified_gateway_orchestrator.py` still contains logic to manage direct API calls to services like Gong, HubSpot, etc. While it now uses the central config, this pattern is a holdover from the previous architecture.
+### 1.2 Fix Import Issues
+**Script to run:**
+```bash
+python scripts/fix_imports.py
+```
 
-**Recommendation:**
-Refactor all external service integrations (Gong, HubSpot, Snowflake, etc.) into Agno-compatible **Tools**. The Agno framework is designed to manage these tools natively, providing better observability, error handling, and composition within agent workflows.
+**Manual fixes needed for:**
+- Replace all `from ...core.secret_manager` with `from backend.core.auto_esc_config`
+- Replace all `from ..integrations.*` with `from backend.integrations.*`
+- Replace all `from ..agents.*` with `from backend.agents.*`
 
-**Action Items:**
--   For each service in `backend/integrations/`, create a corresponding `Tool` definition in `backend/agents/tools/`.
--   Example: Create `gong_tools.py` with tools like `get_call_transcript(call_id: str)` and `search_calls(query: str)`.
--   Deprecate the service-specific client initialization in `unified_gateway_orchestrator.py` and have the `agent_framework` register all tools with Agno.
--   Update agents to call these tools via Agno's `use_tool()` function instead of making direct API requests.
+### 1.3 Resolve Filename Conflict
+**Issue:** `backend/agents/core/agent_framework.py and infrastructure/kubernetes/developer_tools_mcp_stack.py`
+**Action:** This appears to be two files merged into one name. Separate them properly.
 
-**Benefit:** This will unify all agent actions under a single paradigm, making the system more modular, easier to test, and fully observable through Arize.
+## Phase 2: Consolidation (Week 2)
 
----
-
-## 2. Consolidate Vector Store Management
-
-**Current State:** The codebase has logic for handling vector stores in `backend/vector/` and `backend/knowledge_base/`, and the new Agno framework also has its own knowledge base capabilities.
-
-**Recommendation:**
-Deprecate the custom vector store management code in `backend/vector/` and `backend/knowledge_base/`. Use Agno's built-in knowledge base and RAG capabilities as the single, authoritative source for all vector operations.
-
-**Action Items:**
--   Migrate any existing vector indexes (if applicable) to a format compatible with Agno's knowledge providers.
--   Refactor any code that uses the `VectorDB` or `HybridRAG` classes to instead use the knowledge base methods provided by an Agno agent.
--   Delete the `backend/vector/` and `backend/knowledge_base/` directories once all functionality has been migrated.
-
-**Benefit:** Simplifies the architecture, reduces maintenance overhead, and ensures all RAG and search operations are automatically traced by Arize.
-
----
-
-## 3. Refactor Workflow Engine
-
-**Current State:** The `backend/workflows/langgraph_workflow.py` file suggests the use of LangGraph for building stateful, multi-agent workflows.
+### 2.1 Consolidate Main Entry Points
+**Current state:**
+- `backend/main.py`
+- `backend/main_simple.py`
+- `backend/main_dashboard.py`
 
 **Recommendation:**
-Evaluate and integrate Agno's multi-agent orchestration and coordination features. If Agno can natively handle the required stateful interactions and agent collaboration, consider using it as the primary workflow engine to maintain a unified toolset. If LangGraph offers unique, indispensable features, ensure it uses Agno agents as the nodes in the graph.
+Create a single `backend/main.py` with environment-based configuration:
+```python
+import os
+from backend.core.auto_esc_config import config
 
-**Action Items:**
--   Analyze the complexity of existing or planned workflows.
--   Create a proof-of-concept workflow using only Agno's built-in multi-agent capabilities.
--   If LangGraph is still required, create a wrapper that allows an Agno agent to be used as a LangGraph `node`.
--   Ensure all state transitions and agent handoffs are traced to Arize.
+app_mode = os.getenv("APP_MODE", "full")  # full, simple, dashboard
 
-**Benefit:** Prevents the introduction of another complex framework if its features are already covered by Agno, reducing complexity and maintaining a single observability standard.
+if app_mode == "simple":
+    # Load simple configuration
+elif app_mode == "dashboard":
+    # Load dashboard configuration
+else:
+    # Load full configuration
+```
 
----
+### 2.2 Merge Duplicate Integrations
+**Gong Integration:**
+- Keep: `backend/integrations/gong/enhanced_gong_integration.py`
+- Remove: `backend/integrations/gong_integration.py`
+- Update all imports
 
-## 4. Finalize Codebase Cleanup
+**Vector Integration:**
+- Keep: `backend/vector/vector_integration_updated.py` (rename to `vector_integration.py`)
+- Remove: `backend/vector/vector_integration.py`
 
-**Current State:** Several directories and files were part of the older architecture and may now be fully or partially redundant.
+**Estuary Integration:**
+- Keep: `backend/integrations/estuary_flow_integration_updated.py` (rename to `estuary_integration.py`)
+- Remove: `backend/integrations/estuary_flow_integration.py`
 
-**Recommendation:**
-Perform a final review and cleanup of the following areas:
+### 2.3 Consolidate Retool Routes
+**Action:** Merge all Retool endpoints into a single router:
+```python
+# backend/app/routes/retool_routes.py
+from fastapi import APIRouter
 
--   **`backend/analytics/`**: The logic in `gong_analytics.py` and `real_time_business_intelligence.py` should be converted into Agno agents or tools.
--   **`backend/chunking/`**: This logic should be superseded by Agno's knowledge base ingestion features. Review for any unique, business-specific chunking logic that needs to be preserved as a custom ingestion processor.
--   **`backend/api/` and `backend/app/routes/`**: Many of the routers (`file_processing_router`, `hybrid_rag_router`, `executive_routes`, etc.) are now obsolete. Their functionality should be exposed through the single `/agno/task` endpoint. Delete these files and remove their inclusion from `main.py`.
--   **Documentation**: Review all Markdown files in `docs/` and `archive/` to remove outdated architectural diagrams, setup guides, and reports.
+router = APIRouter(prefix="/api/retool", tags=["retool"])
 
-**Action Items:**
--   Create a backlog of refactoring tasks for each of the components listed above.
--   Systematically move the logic into the Agno framework.
--   Delete the old files and directories once their functionality is fully migrated and tested.
+# Include all Retool endpoints here
+# Executive dashboard endpoints
+# Standard API endpoints
+# WebSocket endpoints
+```
 
-**Benefit:** A leaner, more maintainable codebase that is easier for new developers to understand and contributes to long-term stability.
+## Phase 3: Standardization (Week 3)
+
+### 3.1 Migrate to New Agent Framework
+**Current agents using old base class:**
+- `backend/agents/specialized/hr_agent.py`
+- `backend/agents/specialized/marketing_agent.py`
+- `backend/agents/specialized/client_health_agent.py`
+- `backend/agents/specialized/sales_coach_agent.py`
+- `backend/agents/specialized/enrichment_agent.py`
+
+**Action:** Update all agents to inherit from `AgentFramework` instead of `BaseAgent`
+
+### 3.2 Merge Data Connectors into Integrations
+**Move files:**
+- `backend/data_connectors/gong_connector.py` → `backend/integrations/gong/connector.py`
+- `backend/data_connectors/slack_connector.py` → `backend/integrations/slack/connector.py`
+- `backend/data_connectors/snowflake_connector.py` → `backend/integrations/snowflake/connector.py`
+
+**Remove:** `backend/data_connectors/` directory
+
+### 3.3 Standardize Configuration
+**Use only:**
+```python
+from backend.core.auto_esc_config import config
+
+# Access all configuration through this single interface
+api_key = config.get_secret("service_name", "api_key")
+```
+
+**Remove references to:**
+- Direct environment variable access
+- `backend.core.secret_manager`
+- `backend.core.config_manager` (unless it wraps auto_esc_config)
+
+## Phase 4: Architecture Improvements (Week 4)
+
+### 4.1 Implement Dependency Injection
+**Create:** `backend/core/dependencies.py`
+```python
+from typing import Annotated
+from fastapi import Depends
+
+def get_gong_integration():
+    from backend.integrations.gong.enhanced_gong_integration import GongIntegration
+    return GongIntegration()
+
+def get_agent_framework():
+    from backend.agents.core.agent_framework import AgentFramework
+    return AgentFramework()
+
+# Use in routes:
+# def route(gong: Annotated[GongIntegration, Depends(get_gong_integration)]):
+```
+
+### 4.2 Create Service Registry
+**Create:** `backend/core/service_registry.py`
+```python
+class ServiceRegistry:
+    """Central registry for all services and integrations."""
+
+    _services = {}
+
+    @classmethod
+    def register(cls, name: str, service_class):
+        cls._services[name] = service_class
+
+    @classmethod
+    def get(cls, name: str):
+        return cls._services.get(name)
+```
+
+### 4.3 Standardize File Naming
+**Convention:**
+- Integration files: `{service}_integration.py`
+- Agent files: `{function}_agent.py`
+- MCP servers: `{service}_mcp_server.py`
+- No version suffixes (use git for versioning)
+
+## Phase 5: Testing and Documentation (Ongoing)
+
+### 5.1 Add Type Hints
+**Priority files:**
+- All files in `backend/core/`
+- All files in `backend/agents/core/`
+- All integration base classes
+
+### 5.2 Create Integration Tests
+**For each consolidated component:**
+- Test that old imports still work (with deprecation warnings)
+- Test that new structure maintains functionality
+- Test configuration access patterns
+
+### 5.3 Update Documentation
+**Create/Update:**
+- `docs/ARCHITECTURE.md` - Current architecture after cleanup
+- `docs/MIGRATION_GUIDE.md` - For developers updating their code
+- `docs/API_CHANGES.md` - Breaking changes and deprecations
+
+## Implementation Checklist
+
+- [ ] Fix all syntax errors
+- [ ] Run import fix script
+- [ ] Resolve filename conflicts
+- [ ] Consolidate main.py files
+- [ ] Merge duplicate integrations
+- [ ] Consolidate Retool routes
+- [ ] Migrate agents to new framework
+- [ ] Merge data_connectors into integrations
+- [ ] Standardize configuration access
+- [ ] Implement dependency injection
+- [ ] Create service registry
+- [ ] Standardize file naming
+- [ ] Add type hints to core modules
+- [ ] Create integration tests
+- [ ] Update documentation
+
+## Success Metrics
+
+1. **Import Health:** Zero deep relative imports (level > 1)
+2. **No Duplicates:** Single implementation for each service
+3. **Consistent Patterns:** All agents use same base class
+4. **Clean Structure:** Clear separation of concerns
+5. **Test Coverage:** All critical paths have tests
+
+## Notes
+
+- Keep backward compatibility where possible
+- Add deprecation warnings for removed patterns
+- Document all breaking changes
+- Test thoroughly before removing old code
+- Consider using feature flags for gradual rollout

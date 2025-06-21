@@ -12,12 +12,10 @@ from typing import Any, Dict, List, Optional
 import psycopg2
 import redis
 
+from backend.vector.vector_integration import VectorConfig, VectorIntegration
+
 from .database.schema_migration_system import (
     SchemaMigrationSystem,  # Assuming SchemaMigrationSystem is in a sub-module
-)
-from .vector.vector_integration import (  # Assuming VectorIntegration is in a sub-module
-    VectorConfig,
-    VectorIntegration,
 )
 
 

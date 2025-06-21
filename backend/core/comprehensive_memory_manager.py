@@ -9,9 +9,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from ..agents.core.persistent_memory import PersistentMemory
-from ..vector.vector_integration_updated import VectorIntegration
-from .enhanced_embedding_manager import enhanced_embedding_manager
+from backend.agents.core.persistent_memory import PersistentMemory
+from backend.core.enhanced_embedding_manager import enhanced_embedding_manager
+from backend.vector.vector_integration import VectorIntegration
 
 logger = logging.getLogger(__name__)
 

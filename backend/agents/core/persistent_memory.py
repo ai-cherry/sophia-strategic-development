@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from ...core.secret_manager import secret_manager
-from ...vector.vector_integration_updated import vector_integration
+from backend.core.secret_manager import secret_manager
+from backend.vector.vector_integration import vector_integration
 
 logger = logging.getLogger(__name__)
 
@@ -115,14 +115,17 @@ class Mem0PersistentMemory(PersistentMemory):
             ttl: Time to live for memory in seconds (default: 24 hours)
             mem0_url: mem0 API URL (if None, will use environment variable)
         """
-        super().__init__(agent_id, memory_type, redis_url, ttl)
+        super().__init__()  # Parent class only takes storage_path
+        self.agent_id = agent_id
+        self.memory_type = memory_type
+        self.redis_url = redis_url
+        self.ttl = ttl
         self.mem0_url = mem0_url
         self.mem0_client = None
+        self.logger = logging.getLogger(__name__)
 
     async def initialize(self):
         """Initialize the memory"""
-        await super().initialize()
-
         try:
             # Get mem0 URL if not provided
             if not self.mem0_url:
@@ -163,14 +166,20 @@ class Mem0PersistentMemory(PersistentMemory):
 
     async def add_user_message(self, message: str):
         """Add a user message to the memory"""
-        await super().add_user_message(message)
+        # Store in file-based memory
+        await self.store_memory(
+            self.agent_id, "conversation", {"role": "user", "content": message}
+        )
 
         # Also add to mem0
         await self._add_to_mem0("user", message)
 
     async def add_ai_message(self, message: str):
         """Add an AI message to the memory"""
-        await super().add_ai_message(message)
+        # Store in file-based memory
+        await self.store_memory(
+            self.agent_id, "conversation", {"role": "ai", "content": message}
+        )
 
         # Also add to mem0
         await self._add_to_mem0("ai", message)
@@ -257,7 +266,7 @@ class Mem0PersistentMemory(PersistentMemory):
 
     async def load_memory_variables(self) -> Dict[str, Any]:
         """Load memory variables"""
-        variables = await super().load_memory_variables()
+        variables = {}
 
         # Add mem0 context
         try:
@@ -295,15 +304,18 @@ class VectorPersistentMemory(PersistentMemory):
             vector_db: Vector database to use ("pinecone" or "weaviate")
             collection: Collection or namespace to use (if None, will use agent_id)
         """
-        super().__init__(agent_id, memory_type, redis_url, ttl)
+        super().__init__()  # Parent class only takes storage_path
+        self.agent_id = agent_id
+        self.memory_type = memory_type
+        self.redis_url = redis_url
+        self.ttl = ttl
         self.vector_db = vector_db
         self.collection = collection or f"sophia_memory_{agent_id}"
         self.vector_client = vector_integration  # Use the singleton
+        self.logger = logging.getLogger(__name__)
 
     async def initialize(self):
         """Initialize the memory"""
-        await super().initialize()
-
         try:
             # The vector_integration singleton handles its own initialization
             if not self.vector_client.initialized:
@@ -318,14 +330,20 @@ class VectorPersistentMemory(PersistentMemory):
 
     async def add_user_message(self, message: str):
         """Add a user message to the memory"""
-        await super().add_user_message(message)
+        # Store in file-based memory
+        await self.store_memory(
+            self.agent_id, "conversation", {"role": "user", "content": message}
+        )
 
         # Also add to vector database
         await self._add_to_vector_db("user", message)
 
     async def add_ai_message(self, message: str):
         """Add an AI message to the memory"""
-        await super().add_ai_message(message)
+        # Store in file-based memory
+        await self.store_memory(
+            self.agent_id, "conversation", {"role": "ai", "content": message}
+        )
 
         # Also add to vector database
         await self._add_to_vector_db("ai", message)
@@ -403,7 +421,7 @@ class VectorPersistentMemory(PersistentMemory):
 
     async def load_memory_variables(self) -> Dict[str, Any]:
         """Load memory variables"""
-        variables = await super().load_memory_variables()
+        variables = {}
 
         # Add vector context
         try:
