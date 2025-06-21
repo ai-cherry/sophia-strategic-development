@@ -103,8 +103,36 @@ class SetupWizard:
         return getpass.getpass(f"{prompt}: ")
 
     async def setup_environment_variables(self) -> bool:
-        """Setup required environment variables"""
-        print("Setting up environment variables...")
+        """Setup environment variables - LEGACY METHOD
+        
+        🔐 PERMANENT SOLUTION AVAILABLE:
+        Use the permanent GitHub organization secrets solution instead:
+        
+        1. git clone https://github.com/ai-cherry/sophia-main.git
+        2. export PULUMI_ORG=scoobyjava-org  
+        3. python scripts/setup_permanent_secrets_solution.py
+        4. python scripts/test_permanent_solution.py
+        
+        This method is kept for backward compatibility only.
+        """
+        print("🚨 LEGACY SETUP DETECTED")
+        print("=" * 50)
+        print("🔐 PERMANENT SECRET MANAGEMENT SOLUTION AVAILABLE!")
+        print("")
+        print("Instead of manual setup, use the permanent solution:")
+        print("1. export PULUMI_ORG=scoobyjava-org")
+        print("2. python scripts/setup_permanent_secrets_solution.py")
+        print("3. python scripts/test_permanent_solution.py")
+        print("")
+        print("All secrets managed automatically via GitHub organization!")
+        print("=" * 50)
+        
+        if not self.ask_yes_no("Continue with legacy manual setup?", False):
+            print("✅ Recommended: Use the permanent solution instead!")
+            return False
+
+        print("⚠️  Proceeding with legacy manual environment variable setup...")
+        print("Note: This method is deprecated and will be removed in future versions.")
 
         env_vars = {
             "ANTHROPIC_API_KEY": {
@@ -149,42 +177,44 @@ class SetupWizard:
         else:
             existing_content = ""
 
+        print("\n🔧 Setting up environment variables...")
         for var_name, var_info in env_vars.items():
-            current_value = os.getenv(var_name, "")
-
-            if current_value:
-                print(f"✅ {var_name} is already set")
-                env_content.append(f"{var_name}={current_value}")
+            if var_name in existing_content:
+                print(f"✓ {var_name} already exists in .env file")
                 continue
 
-            print(f"\n📝 {var_info['description']}")
-
             if var_info["required"]:
-                if var_info["secret"]:
-                    value = self.ask_password(f"Enter {var_name}")
-                else:
-                    value = self.ask_input(f"Enter {var_name}")
-
-                if not value:
-                    print(f"❌ {var_name} is required but not provided")
-                    return False
+                print(f"\n📋 Required: {var_name}")
             else:
-                if self.ask_yes_no(f"Do you want to configure {var_name}?", False):
-                    if var_info["secret"]:
-                        value = self.ask_password(f"Enter {var_name}")
-                    else:
-                        value = self.ask_input(f"Enter {var_name}", required=False)
-                else:
-                    continue
+                print(f"\n📋 Optional: {var_name}")
 
-            env_content.append(f"{var_name}={value}")
-            os.environ[var_name] = value
+            print(f"   Description: {var_info['description']}")
 
-        # Write .env file
-        with open(env_file_path, "w") as f:
-            f.write("\n".join(env_content) + "\n")
+            if var_info["secret"]:
+                value = input(f"   Enter {var_name} (will be hidden): ")
+            else:
+                value = input(f"   Enter {var_name}: ")
 
-        print(f"✅ Environment variables saved to {env_file_path}")
+            if value.strip():
+                env_content.append(f"{var_name}={value.strip()}")
+            elif var_info["required"]:
+                print(f"❌ {var_name} is required but not provided")
+                return False
+
+        # Write updated .env file
+        if env_content:
+            with open(env_file_path, "a") as f:
+                if existing_content and not existing_content.endswith("\n"):
+                    f.write("\n")
+                f.write("\n".join(env_content) + "\n")
+
+            print(f"✅ Environment variables written to {env_file_path}")
+        else:
+            print("✅ No new environment variables to add")
+
+        print("\n🚨 IMPORTANT: Consider migrating to the permanent solution!")
+        print("Run: python scripts/setup_permanent_secrets_solution.py")
+        
         return True
 
     async def setup_pulumi(self) -> bool:

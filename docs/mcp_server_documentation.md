@@ -4,6 +4,25 @@
 
 The Model Context Protocol (MCP) server is a critical component of the SOPHIA AI System, providing a standardized way for AI models to access tools and resources. This document outlines the architecture, configuration, and usage of the MCP server in SOPHIA.
 
+## 🔐 **PERMANENT SECRET MANAGEMENT INTEGRATION**
+
+**IMPORTANT**: SOPHIA AI MCP servers now use the **PERMANENT GitHub Organization Secrets → Pulumi ESC** solution for all authentication and configuration. No manual secret management is required.
+
+### **Automatic Secret Loading**
+```python
+# MCP servers automatically load secrets from Pulumi ESC
+from backend.core.auto_esc_config import config
+
+# All API keys are automatically available
+openai_key = config.openai_api_key
+gong_key = config.gong_access_key
+```
+
+### **Configuration Source Priority**
+1. **Pulumi ESC** (Primary) - Automatic loading from `scoobyjava-org/default/sophia-ai-production`
+2. **Environment Variables** (Fallback) - For local development
+3. **Never hardcoded** - All credentials managed centrally
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
@@ -35,6 +54,7 @@ backend/mcp/
 ├── server.py                # Main server implementation
 ├── resource_orchestrator.py # Manages resource access
 ├── tool_orchestrator.py     # Manages tool execution
+├── auto_esc_config.py       # Automatic ESC integration (NEW)
 ├── auth/                    # Authentication modules
 ├── tools/                   # Tool implementations
 │   ├── gong_tools.py        # Gong.io integration tools
@@ -52,12 +72,31 @@ backend/mcp/
 1. **Server**: The main MCP server that handles requests, authentication, and routing.
 2. **Tool Orchestrator**: Manages tool registration, validation, and execution.
 3. **Resource Orchestrator**: Manages resource registration, access, and caching.
-4. **Tools**: Implementations of specific tools that models can use.
-5. **Resources**: Implementations of specific resources that models can access.
+4. **Auto ESC Config**: Automatically loads configuration from Pulumi ESC (NEW)
+5. **Tools**: Implementations of specific tools that models can use.
+6. **Resources**: Implementations of specific resources that models can access.
 
 ## Configuration
 
-The MCP server is configured using the `mcp_config.json` file at the root of the project. This file defines:
+### **Automatic Configuration (Recommended)**
+
+MCP servers automatically load configuration from Pulumi ESC:
+
+```python
+# backend/mcp/base_mcp_server.py
+from backend.core.auto_esc_config import config
+
+class BaseMCPServer:
+    def __init__(self):
+        # Secrets automatically loaded from ESC
+        self.openai_key = config.openai_api_key
+        self.gong_key = config.gong_access_key
+        # ... all other secrets available automatically
+```
+
+### **Manual Configuration (Legacy)**
+
+The MCP server can also be configured using the `mcp_config.json` file at the root of the project. This file defines:
 
 - Server configuration (host, port, etc.)
 - Available tools and their configurations
@@ -66,7 +105,7 @@ The MCP server is configured using the `mcp_config.json` file at the root of the
 - Rate limiting rules
 - Monitoring settings
 
-Example configuration:
+Example configuration with ESC integration:
 
 ```json
 {
@@ -108,6 +147,22 @@ Example configuration:
 }
 ```
 
+### **Environment Variables (Automatic)**
+
+With the permanent solution, environment variables are automatically set from Pulumi ESC:
+
+```bash
+# These are automatically available (no manual setup required)
+export OPENAI_API_KEY=${sophia.ai.openai.api_key}
+export GONG_ACCESS_KEY=${sophia.business.gong.access_key}
+export GONG_CLIENT_SECRET=${sophia.business.gong.client_secret}
+export HUBSPOT_API_TOKEN=${sophia.business.hubspot.api_token}
+export SLACK_BOT_TOKEN=${sophia.business.slack.bot_token}
+export SNOWFLAKE_PASSWORD=${sophia.data.snowflake.password}
+export PINECONE_API_KEY=${sophia.data.pinecone.api_key}
+# ... all other secrets automatically available
+```
+
 ## Tools
 
 Tools are functions that models can execute to perform specific tasks. Each tool has:
@@ -117,87 +172,70 @@ Tools are functions that models can execute to perform specific tasks. Each tool
 - Output schema (return value)
 - Implementation logic
 
-### Tool Definition
+### Tool Definition with Automatic Secret Access
 
-Tools are defined in Python modules under `backend/mcp/tools/`. Each tool is a function with type hints and docstrings that define its behavior.
-
-Example tool definition:
+Tools now automatically access secrets through the ESC integration:
 
 ```python
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field
+from backend.core.auto_esc_config import config
 
-class GongCallAnalysisInput(BaseModel):
-    call_id: str = Field(..., description="The ID of the Gong call to analyze")
-    analysis_type: str = Field(..., description="Type of analysis to perform", enum=["sentiment", "topics", "questions", "next_steps"])
-    
-class GongCallAnalysisOutput(BaseModel):
-    call_id: str
-    analysis_results: Dict[str, any]
-    summary: str
-    
-def gong_call_analysis(input_data: GongCallAnalysisInput) -> GongCallAnalysisOutput:
+async def gong_call_analysis(call_id: str) -> Dict[str, any]:
     """
-    Analyze a Gong call recording and extract insights.
-    
-    This tool connects to the Gong.io API, retrieves the specified call,
-    and performs the requested type of analysis on the call content.
+    Analyze a Gong call using the Gong API.
     
     Args:
-        input_data: The input parameters for the analysis
+        call_id: The ID of the call to analyze
         
     Returns:
-        Analysis results and summary
+        Analysis results
     """
-    # Implementation logic here
-    ...
-    
-    return GongCallAnalysisOutput(
-        call_id=input_data.call_id,
-        analysis_results=results,
-        summary=summary
+    # Automatically uses secrets from ESC
+    gong_client = GongClient(
+        access_key=config.gong_access_key,
+        client_secret=config.gong_client_secret
     )
+    
+    # Implementation logic here
+    return analysis_results
 ```
 
 ### Tool Registration
 
-Tools are automatically registered with the MCP server based on the configuration in `mcp_config.json`. The server scans the specified modules and registers functions that match the names in the configuration.
+Tools are automatically registered with the MCP server based on the configuration in `mcp_config.json`. The server scans the specified modules and registers tools that match the names in the configuration.
 
 ### Tool Usage
 
-Models can use tools by sending a request to the MCP server with:
+Models can execute tools by sending a request to the MCP server with:
 
 - The tool name
-- Input parameters according to the tool's schema
+- Input parameters
 
 Example request:
 
 ```json
 {
   "tool_name": "gong_call_analysis",
-  "input": {
-    "call_id": "call-123456",
-    "analysis_type": "sentiment"
+  "parameters": {
+    "call_id": "12345"
   }
 }
 ```
 
 ## Resources
 
-Resources are data sources that models can access. Each resource has:
+Resources are structured data that models can access. Each resource has:
 
 - A unique URI
-- Access control rules
+- Input schema (query parameters)
+- Output schema (return value)
 - Implementation logic
 
-### Resource Definition
-
-Resources are defined in Python modules under `backend/mcp/resources/`. Each resource is a class that implements the `Resource` interface.
-
-Example resource definition:
+### Resource Definition with Automatic Secret Access
 
 ```python
 from typing import Dict, List, Optional
+from backend.core.auto_esc_config import config
 from backend.mcp.resource import Resource, ResourceRequest
 
 class HubspotContactsResource(Resource):
@@ -205,9 +243,14 @@ class HubspotContactsResource(Resource):
     Resource for accessing HubSpot contacts.
     """
     
-    def __init__(self, config: Dict[str, any]):
-        super().__init__(config)
+    def __init__(self, config_dict: Dict[str, any]):
+        super().__init__(config_dict)
+        # Automatically uses secrets from ESC
         self.hubspot_client = self._create_hubspot_client()
+    
+    def _create_hubspot_client(self):
+        """Create HubSpot client with automatic secret access"""
+        return HubSpotClient(api_token=config.hubspot_api_token)
     
     async def get(self, request: ResourceRequest) -> Dict[str, any]:
         """
@@ -220,8 +263,6 @@ class HubspotContactsResource(Resource):
             Contact data
         """
         # Implementation logic here
-        ...
-        
         return contacts_data
 ```
 
@@ -249,11 +290,25 @@ Example request:
 
 ## Authentication
 
-The MCP server supports JWT-based authentication. Each request must include a valid JWT token in the `Authorization` header.
+### **Automatic JWT Configuration**
 
-### JWT Configuration
+JWT authentication is automatically configured using secrets from Pulumi ESC:
 
-JWT authentication is configured in the `auth` section of `mcp_config.json`:
+```python
+# Automatic JWT configuration
+from backend.core.auto_esc_config import config
+
+jwt_config = {
+    "enabled": True,
+    "jwt_secret": config.jwt_secret,  # Automatically from ESC
+    "jwt_algorithm": "HS256",
+    "token_expiration": 86400
+}
+```
+
+### **Manual JWT Configuration (Legacy)**
+
+JWT authentication can also be configured in the `auth` section of `mcp_config.json`:
 
 ```json
 "auth": {
@@ -334,10 +389,10 @@ The server logs events to both console and file, with structured logging in JSON
 
 ## Development Guide
 
-### Adding a New Tool
+### Adding a New Tool with Automatic Secret Access
 
 1. Create a new Python module in `backend/mcp/tools/` or add to an existing module
-2. Define the tool function with input/output schemas
+2. Define the tool function with automatic secret access
 3. Add comprehensive docstrings
 4. Add the tool to `mcp_config.json`
 5. Write tests for the tool
@@ -349,37 +404,48 @@ Example:
 
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
+from backend.core.auto_esc_config import config
 
 class SlackMessageInput(BaseModel):
     channel: str = Field(..., description="The Slack channel to send the message to")
     message: str = Field(..., description="The message content")
     
 class SlackMessageOutput(BaseModel):
-    channel: str
-    message_id: str
-    timestamp: str
-    
-def slack_send_message(input_data: SlackMessageInput) -> SlackMessageOutput:
+    success: bool = Field(..., description="Whether the message was sent successfully")
+    message_id: str = Field(..., description="The ID of the sent message")
+
+async def send_slack_message(input_data: SlackMessageInput) -> SlackMessageOutput:
     """
     Send a message to a Slack channel.
     
     Args:
-        input_data: The input parameters for the message
+        input_data: The message input data
         
     Returns:
-        Details of the sent message
+        The result of sending the message
     """
-    # Implementation logic here
-    ...
+    # Automatically uses secrets from ESC
+    slack_client = SlackClient(token=config.slack_bot_token)
     
-    return SlackMessageOutput(
-        channel=input_data.channel,
-        message_id=message_id,
-        timestamp=timestamp
-    )
+    try:
+        response = await slack_client.send_message(
+            channel=input_data.channel,
+            message=input_data.message
+        )
+        
+        return SlackMessageOutput(
+            success=True,
+            message_id=response["message"]["ts"]
+        )
+    except Exception as e:
+        logger.error(f"Failed to send Slack message: {e}")
+        return SlackMessageOutput(
+            success=False,
+            message_id=""
+        )
 ```
 
-Then add to `mcp_config.json`:
+2. Add the tool to `mcp_config.json`:
 
 ```json
 "tools": [
@@ -388,16 +454,16 @@ Then add to `mcp_config.json`:
     "module": "backend.mcp.tools.slack_tools",
     "enabled": true,
     "functions": [
-      "slack_send_message"
+      "send_slack_message"
     ]
   }
 ]
 ```
 
-### Adding a New Resource
+### Adding a New Resource with Automatic Secret Access
 
 1. Create a new Python module in `backend/mcp/resources/` or add to an existing module
-2. Define the resource class implementing the `Resource` interface
+2. Define the resource class with automatic secret access
 3. Add comprehensive docstrings
 4. Add the resource to `mcp_config.json`
 5. Write tests for the resource
@@ -408,6 +474,7 @@ Example:
 # backend/mcp/resources/slack_resources.py
 
 from typing import Dict, List, Optional
+from backend.core.auto_esc_config import config
 from backend.mcp.resource import Resource, ResourceRequest
 
 class SlackChannelsResource(Resource):
@@ -415,9 +482,10 @@ class SlackChannelsResource(Resource):
     Resource for accessing Slack channels.
     """
     
-    def __init__(self, config: Dict[str, any]):
-        super().__init__(config)
-        self.slack_client = self._create_slack_client()
+    def __init__(self, config_dict: Dict[str, any]):
+        super().__init__(config_dict)
+        # Automatically uses secrets from ESC
+        self.slack_client = SlackClient(token=config.slack_bot_token)
     
     async def get(self, request: ResourceRequest) -> Dict[str, any]:
         """
@@ -429,13 +497,26 @@ class SlackChannelsResource(Resource):
         Returns:
             Channel data
         """
-        # Implementation logic here
-        ...
-        
-        return channels_data
+        try:
+            channels = await self.slack_client.list_channels()
+            
+            # Filter channels based on query parameters
+            if request.query_params.get("name"):
+                channels = [
+                    channel for channel in channels 
+                    if request.query_params["name"] in channel["name"]
+                ]
+            
+            return {
+                "channels": channels,
+                "count": len(channels)
+            }
+        except Exception as e:
+            logger.error(f"Failed to get Slack channels: {e}")
+            return {"channels": [], "count": 0, "error": str(e)}
 ```
 
-Then add to `mcp_config.json`:
+2. Add the resource to `mcp_config.json`:
 
 ```json
 "resources": [
@@ -479,6 +560,31 @@ If authentication fails, check:
 1. The JWT token is included in the `Authorization` header
 2. The token is valid and not expired
 3. The JWT secret in the server matches the one used to generate the token
+4. **NEW**: Verify Pulumi ESC access with `export PULUMI_ORG=scoobyjava-org && pulumi env ls`
+
+#### Secret Access Issues (NEW)
+
+If secrets are not loading automatically:
+
+1. **Check Pulumi ESC access**:
+   ```bash
+   export PULUMI_ORG=scoobyjava-org
+   pulumi whoami
+   pulumi env ls
+   ```
+
+2. **Verify ESC environment**:
+   ```bash
+   pulumi env open scoobyjava-org/default/sophia-ai-production
+   ```
+
+3. **Test automatic config loading**:
+   ```python
+   from backend.core.auto_esc_config import config
+   print(config.openai_api_key)  # Should not be None
+   ```
+
+4. **Check GitHub organization secrets**: Verify secrets are set at [GitHub ai-cherry org](https://github.com/ai-cherry/settings/secrets/actions)
 
 #### Rate Limit Exceeded
 
@@ -514,4 +620,6 @@ curl http://localhost:8002/metrics
 
 ## Conclusion
 
-The MCP server is a powerful component of the SOPHIA AI System, enabling AI models to interact with business systems in a standardized, secure, and efficient way. By following the guidelines in this documentation, you can extend and customize the MCP server to meet your specific needs.
+The MCP server is a powerful component of the SOPHIA AI System, enabling AI models to interact with business systems in a standardized, secure, and efficient way. With the new **permanent GitHub organization secrets solution**, MCP servers automatically load all required credentials from Pulumi ESC, eliminating manual secret management and ensuring enterprise-grade security.
+
+By following the guidelines in this documentation, you can extend and customize the MCP server to meet your specific needs while leveraging the automatic secret management capabilities.

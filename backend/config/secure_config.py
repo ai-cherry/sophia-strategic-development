@@ -1,5 +1,11 @@
 """Sophia AI - Secure Configuration Management
-Centralized configuration that pulls from environment variables and Pulumi ESC
+🔐 IMPORTANT: This file is now LEGACY - Use backend/core/auto_esc_config.py instead!
+
+The permanent GitHub Organization Secrets → Pulumi ESC solution automatically handles all configuration.
+This file is kept for backward compatibility only.
+
+For new code, use:
+from backend.core.auto_esc_config import config
 """
 
 import logging
@@ -9,10 +15,21 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
+# 🚨 LEGACY WARNING
+logger.warning(
+    "secure_config.py is LEGACY. Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC."
+)
+
 
 @dataclass
 class SecureAPIConfig:
-    """Secure API configuration management"""
+    """LEGACY: Secure API configuration management
+    
+    🔐 PERMANENT SOLUTION AVAILABLE:
+    Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
+    
+    This class is kept for backward compatibility only.
+    """
 
     # AI/ML Services
     openai_api_key: Optional[str] = None
@@ -92,7 +109,18 @@ class SecureAPIConfig:
 
     @classmethod
     def from_environment(cls) -> "SecureAPIConfig":
-        """Load configuration from environment variables"""
+        """LEGACY: Load configuration from environment variables
+        
+        🔐 PERMANENT SOLUTION AVAILABLE:
+        Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
+        
+        This method is kept for backward compatibility only.
+        """
+        logger.warning(
+            "SecureAPIConfig.from_environment() is LEGACY. "
+            "Use 'from backend.core.auto_esc_config import config' for automatic ESC integration."
+        )
+        
         config = cls()
 
         # Map environment variables to config attributes
@@ -172,82 +200,62 @@ class SecureAPIConfig:
 
         return config
 
-    def get_available_apis(self) -> Dict[str, bool]:
-        """Get a dictionary of which APIs are configured"""
-        available = {}
-        for attr_name in dir(self):
-            if not attr_name.startswith("_") and attr_name.endswith("_key"):
-                value = getattr(self, attr_name)
-                api_name = attr_name.replace("_api_key", "").replace("_", " ").title()
-                available[api_name] = bool(value)
-        return available
-
-    def get_api_count(self) -> Dict[str, int]:
-        """Get count of configured vs total APIs"""
-        total = 0
-        configured = 0
-
-        for attr_name in dir(self):
-            if not attr_name.startswith("_") and (
-                attr_name.endswith("_key") or attr_name.endswith("_token")
-            ):
-                total += 1
-                if getattr(self, attr_name):
-                    configured += 1
-
-        return {
-            "total": total,
-            "configured": configured,
-            "percentage": round((configured / total) * 100, 2) if total > 0 else 0,
-        }
-
-    def validate_critical_apis(self) -> Dict[str, Any]:
-        """Validate that critical APIs are configured"""
-        critical_apis = {
-            "ai_provider": any(
-                [
-                    self.openai_api_key,
-                    self.anthropic_api_key,
-                    self.portkey_api_key and self.openrouter_api_key,
-                ]
-            ),
-            "vector_database": any([self.pinecone_api_key, self.weaviate_api_key]),
-            "business_intelligence": any(
-                [self.hubspot_api_key, self.gong_api_key, self.salesforce_api_key]
-            ),
-            "monitoring": any(
-                [self.datadog_api_key, self.sentry_dsn, self.new_relic_api_key]
-            ),
-        }
-
-        all_critical_configured = all(critical_apis.values())
-
-        return {
-            "all_configured": all_critical_configured,
-            "critical_apis": critical_apis,
-            "missing": [k for k, v in critical_apis.items() if not v],
-        }
-
-
-# Global instance
-_secure_config: Optional[SecureAPIConfig] = None
-
-
-def get_secure_config() -> SecureAPIConfig:
-    """Get or create the secure configuration singleton"""
-    global _secure_config
-    if _secure_config is None:
-        _secure_config = SecureAPIConfig.from_environment()
-
-        # Log configuration status
-        api_count = _secure_config.get_api_count()
-        logger.info(
-            f"Secure configuration loaded: {api_count['configured']}/{api_count['total']} APIs configured ({api_count['percentage']}%)"
+    def get_secret(self, key: str) -> Optional[str]:
+        """LEGACY: Get a secret value
+        
+        🔐 PERMANENT SOLUTION AVAILABLE:
+        Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
+        """
+        logger.warning(
+            f"get_secret('{key}') is LEGACY. "
+            "Use 'from backend.core.auto_esc_config import config' for automatic ESC integration."
         )
+        return getattr(self, key, None)
 
-        # Validate critical APIs
-        validation = _secure_config.validate_critical_apis()
-        if not validation["all_configured"]:
-            logger.warning(f"Missing critical API categories: {validation['missing']}")
+    def validate_required_secrets(self) -> Dict[str, Any]:
+        """LEGACY: Validate that required secrets are present
+        
+        🔐 PERMANENT SOLUTION AVAILABLE:
+        Use scripts/test_permanent_solution.py for comprehensive validation.
+        """
+        logger.warning(
+            "validate_required_secrets() is LEGACY. "
+            "Use 'python scripts/test_permanent_solution.py' for comprehensive validation."
+        )
+        
+        required_secrets = [
+            "openai_api_key",
+            "anthropic_api_key", 
+            "pinecone_api_key",
+            "gong_access_key",
+            "slack_bot_token"
+        ]
+        
+        missing = []
+        for secret in required_secrets:
+            if not getattr(self, secret):
+                missing.append(secret)
+        
+        return {
+            "valid": len(missing) == 0,
+            "missing": missing,
+            "total_secrets": len(required_secrets)
+        }
 
-    return _secure_config
+
+# 🚨 LEGACY COMPATIBILITY FUNCTION
+def get_secure_config() -> SecureAPIConfig:
+    """LEGACY: Get secure configuration
+    
+    🔐 PERMANENT SOLUTION AVAILABLE:
+    Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
+    
+    Example:
+    from backend.core.auto_esc_config import config
+    openai_key = config.openai_api_key
+    """
+    logger.warning(
+        "get_secure_config() is LEGACY. "
+        "Use 'from backend.core.auto_esc_config import config' for automatic ESC integration."
+    )
+    return SecureAPIConfig.from_environment()

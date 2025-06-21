@@ -2,6 +2,87 @@
 
 ## 🚨 **Common Issues and Solutions**
 
+## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**
+
+**IMPORTANT**: Sophia AI now uses a **PERMANENT GitHub Organization Secrets → Pulumi ESC** solution. Most secret-related issues are now automatically resolved.
+
+### **✅ What's Automated (No More Manual Fixes)**
+- ❌ No more `.env` file management
+- ❌ No more manual secret configuration
+- ❌ No more environment variable setup
+- ❌ No more API key sharing/copying
+- ✅ All secrets managed in [GitHub ai-cherry organization](https://github.com/ai-cherry)
+- ✅ Automatic synchronization to Pulumi ESC
+- ✅ Backend automatically loads all secrets
+
+### **🔧 New Secret Management Troubleshooting**
+
+#### **Problem:** "Secret not found" or "API key invalid"
+**Root Cause:** Secret not set in GitHub organization or sync failed
+
+**Solutions:**
+1. **Check GitHub Organization Secrets**:
+   - Go to [GitHub ai-cherry organization secrets](https://github.com/ai-cherry/settings/secrets/actions)
+   - Verify the required secret exists and has correct value
+
+2. **Verify Pulumi ESC Access**:
+   ```bash
+   export PULUMI_ORG=scoobyjava-org
+   pulumi whoami
+   pulumi env ls
+   ```
+
+3. **Test ESC Environment**:
+   ```bash
+   pulumi env open scoobyjava-org/default/sophia-ai-production
+   ```
+
+4. **Check Backend Auto-Loading**:
+   ```python
+   from backend.core.auto_esc_config import config
+   print(config.openai_api_key)  # Should not be None
+   ```
+
+5. **Re-run Sync Process**:
+   ```bash
+   python scripts/sync_github_to_pulumi.sh
+   ```
+
+#### **Problem:** "Pulumi ESC access denied"
+**Root Cause:** Invalid or expired `PULUMI_ACCESS_TOKEN`
+
+**Solutions:**
+1. **Update GitHub Organization Secret**:
+   - Update `PULUMI_ACCESS_TOKEN` in [GitHub organization secrets](https://github.com/ai-cherry/settings/secrets/actions)
+   - Use your current Pulumi access token
+
+2. **Test Local Access**:
+   ```bash
+   export PULUMI_ORG=scoobyjava-org
+   pulumi whoami
+   ```
+
+#### **Problem:** Backend fails to start with credential errors
+**Root Cause:** ESC integration not working
+
+**Solutions:**
+1. **Run Permanent Solution Test**:
+   ```bash
+   python scripts/test_permanent_solution.py
+   ```
+
+2. **Check ESC Configuration**:
+   ```bash
+   export PULUMI_ORG=scoobyjava-org
+   python -c "from backend.core.auto_esc_config import config; print('Config loaded successfully' if config else 'Config failed')"
+   ```
+
+3. **Verify GitHub Actions Workflow**:
+   - Check latest workflow run at [GitHub Actions](https://github.com/ai-cherry/sophia-main/actions)
+   - Look for sync workflow failures
+
+---
+
 ### **1. MCP Server Connection Issues**
 
 #### **Problem:** MCP servers not responding or timing out
@@ -15,7 +96,7 @@
 # Check MCP server status
 docker-compose -f docker-compose.mcp.yml ps
 
-# Restart all MCP servers
+# Restart all MCP servers (they will auto-load secrets)
 docker-compose -f docker-compose.mcp.yml restart
 
 # Check individual server logs
@@ -38,359 +119,435 @@ python -c "import json; print(json.load(open('mcp_config.json')))"
 # Restart Cursor IDE with fresh configuration
 # Close Cursor IDE completely and reopen
 
-# Check environment variables
-echo $ANTHROPIC_API_KEY
-echo $LINEAR_API_TOKEN
+# Check automatic secret loading (NEW)
+export PULUMI_ORG=scoobyjava-org
+python -c "from backend.core.auto_esc_config import config; print('Secrets loaded:', bool(config.openai_api_key))"
 ```
 
 ---
 
-### **2. Pulumi ESC Secret Management Issues**
+### **2. Backend Service Issues**
 
-#### **Problem:** Secrets not found or access denied
+#### **Problem:** Backend fails to start
 **Symptoms:**
-- "Secret not found" errors
-- Authentication failures for services
-- Empty configuration values
+- Import errors or missing dependencies
+- Configuration errors
+- Database connection failures
 
 **Solutions:**
 ```bash
-# Check Pulumi ESC connection
-pulumi whoami
-pulumi stack ls
+# Test backend with automatic secret loading
+export PULUMI_ORG=scoobyjava-org
+python backend/main.py
 
-# Test secret retrieval
-python infrastructure/esc/get_secret.py --secret-name snowflake_password
+# Check health endpoint
+curl http://localhost:8000/health
 
-# Validate ESC environment
-pulumi config get --stack production
-
-# Re-sync secrets from GitHub
-python infrastructure/esc/github_sync_bidirectional.py --direction github-to-pulumi
-```
-
-#### **Problem:** Secret rotation failures
-**Symptoms:**
-- Rotation scripts fail with permission errors
-- Services lose access after rotation
-- GitHub Actions workflows fail
-
-**Solutions:**
-```bash
-# Check rotation status
-python infrastructure/esc/check_rotation_status.py
-
-# Manual secret rotation
-python infrastructure/esc/secret_rotation_framework.py --service gong --dry-run
-
-# Validate GitHub secrets
-gh secret list --org ai-cherry
-
-# Re-run failed rotation
-python infrastructure/esc/secret_rotation_framework.py --service gong --force
-```
-
----
-
-### **3. Claude Integration Issues**
-
-#### **Problem:** Claude API calls failing
-**Symptoms:**
-- Code generation requests timeout
-- "Invalid API key" errors
-- Rate limit exceeded messages
-
-**Solutions:**
-```bash
-# Test Claude API key
-export ANTHROPIC_API_KEY="your-key"
-python test_claude_as_code.py
-
-# Check API usage
-curl -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
-     https://api.anthropic.com/v1/messages
-
-# Reset Claude integration
-python start_claude_as_code.py --reset
-
-# Check rate limits
+# Verify all integrations
 python -c "
-from backend.integrations.claude_integration import claude_integration
-import asyncio
-asyncio.run(claude_integration.get_usage_stats())
+from backend.core.auto_esc_config import config
+print('OpenAI:', bool(config.openai_api_key))
+print('Gong:', bool(config.gong_access_key))
+print('Slack:', bool(config.slack_bot_token))
+print('Snowflake:', bool(config.snowflake_password))
 "
 ```
 
-#### **Problem:** Code generation produces poor results
+#### **Problem:** API integration failures
 **Symptoms:**
-- Generated code has syntax errors
-- Code doesn't match requirements
-- Inconsistent code style
+- External API calls fail
+- Authentication errors with third-party services
+- Rate limiting issues
 
 **Solutions:**
 ```bash
-# Update Claude prompts in .cursorrules
-# Add more specific context to requests
-# Use explicit programming language and framework specifications
+# Test specific service integration
+python -c "
+from backend.integrations.gong.gong_integration import GongIntegration
+from backend.core.auto_esc_config import config
+gong = GongIntegration(config)
+print('Gong integration test:', gong.test_connection())
+"
 
-# Example improved prompt:
-"Generate a Python FastAPI endpoint using async/await, 
-with proper error handling, type hints, and Pydantic models"
+# Check service-specific health
+python -c "
+import asyncio
+from backend.core.config_manager import health_check
+services = ['gong', 'hubspot', 'slack', 'snowflake']
+for service in services:
+    result = asyncio.run(health_check(service))
+    print(f'{service}: {result}')
+"
 ```
 
 ---
 
-### **4. Infrastructure Deployment Issues**
+### **3. Frontend Issues**
 
-#### **Problem:** Deployment failures
+#### **Problem:** Frontend won't start or build
 **Symptoms:**
-- GitHub Actions workflows fail
-- Pulumi stack updates fail
-- Services become unavailable
+- npm/yarn errors
+- Build failures
+- Missing dependencies
 
 **Solutions:**
 ```bash
-# Check GitHub Actions status
-gh run list --repo ai-cherry/sophia-main
+# Clean install
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
 
-# View failed workflow logs
-gh run view [run-id] --log
+# Start development server
+npm run dev
 
-# Manual deployment
-cd infrastructure
-pulumi up --stack production --yes
-
-# Rollback if needed
-pulumi stack history
-pulumi cancel  # if stuck
+# Check for build issues
+npm run build
 ```
 
-#### **Problem:** Service health check failures
+#### **Problem:** API connection issues
 **Symptoms:**
-- Health endpoints return 500 errors
-- Services show as unhealthy in monitoring
-- Intermittent connection issues
+- Frontend can't connect to backend
+- CORS errors
+- Network timeouts
 
 **Solutions:**
 ```bash
-# Check service logs
+# Verify backend is running
+curl http://localhost:8000/health
+
+# Check CORS configuration
+curl -H "Origin: http://localhost:5173" \
+     -H "Access-Control-Request-Method: GET" \
+     -H "Access-Control-Request-Headers: X-Requested-With" \
+     -X OPTIONS \
+     http://localhost:8000/api/v1/health
+```
+
+---
+
+### **4. Docker and Container Issues**
+
+#### **Problem:** Docker containers won't start
+**Symptoms:**
+- Container exit codes
+- Port binding errors
+- Volume mounting issues
+
+**Solutions:**
+```bash
+# Check container status
+docker-compose ps
+
+# View container logs
 docker-compose logs [service-name]
 
-# Test individual services
-curl http://localhost:8000/snowflake/health
-curl http://localhost:8000/gong/health
-
-# Restart unhealthy services
+# Restart specific service
 docker-compose restart [service-name]
 
-# Check resource usage
-docker stats
+# Clean rebuild
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+#### **Problem:** MCP Docker containers failing
+**Symptoms:**
+- MCP servers not accessible
+- Container startup failures
+- Network connectivity issues
+
+**Solutions:**
+```bash
+# Check MCP container logs
+docker-compose -f docker-compose.mcp.yml logs
+
+# Restart MCP services (auto-loads secrets)
+docker-compose -f docker-compose.mcp.yml restart
+
+# Test MCP connectivity
+curl http://localhost:8000/health
 ```
 
 ---
 
-### **5. Natural Language Command Issues**
+### **5. Development Environment Issues**
 
-#### **Problem:** Commands not recognized
+#### **Problem:** Python environment issues
 **Symptoms:**
-- Cursor IDE doesn't understand commands
-- Commands execute wrong actions
-- No response to natural language input
+- Import errors
+- Version conflicts
+- Missing packages
 
 **Solutions:**
 ```bash
-# Check .cursorrules configuration
-cat .cursorrules | grep -A 5 -B 5 "your-command-pattern"
+# Create fresh virtual environment
+python -m venv sophia_venv
+source sophia_venv/bin/activate  # On Windows: sophia_venv\Scripts\activate
 
-# Update command patterns in .cursorrules
-# Add more specific examples and context
+# Install dependencies
+pip install -r requirements.txt
 
-# Restart Cursor IDE to reload configuration
-# Test with simpler, more explicit commands
+# Verify installation
+python -c "import backend.main; print('Backend imports successful')"
 ```
 
-#### **Problem:** Command execution failures
+#### **Problem:** Database connection issues
 **Symptoms:**
-- Commands are recognized but fail to execute
-- Partial execution with errors
-- Timeout during execution
+- Connection timeouts
+- Authentication failures
+- Schema errors
 
 **Solutions:**
 ```bash
-# Check MCP server logs
-docker-compose -f docker-compose.mcp.yml logs
-
-# Test command routing
+# Test database connection with auto-loaded credentials
 python -c "
-from backend.mcp.sophia_mcp_server import sophia_mcp_server
-# Test specific command routing
+from backend.core.auto_esc_config import config
+print('Database config loaded:', bool(config.postgres_password))
 "
 
-# Validate service configurations
-python backend/core/config_manager.py --validate-all
+# Check database health
+python -c "
+import asyncio
+from backend.core.config_manager import health_check
+result = asyncio.run(health_check('postgres'))
+print('Database health:', result)
+"
 ```
 
 ---
 
 ### **6. Performance Issues**
 
-#### **Problem:** Slow response times
+#### **Problem:** Slow API responses
 **Symptoms:**
-- Commands take longer than 30 seconds
-- API calls timeout
-- UI becomes unresponsive
+- High latency
+- Timeout errors
+- Poor user experience
 
 **Solutions:**
 ```bash
 # Check system resources
 htop
 df -h
-free -m
 
-# Optimize Docker containers
-docker system prune -f
-docker-compose -f docker-compose.mcp.yml restart
+# Monitor API performance
+curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8000/health
 
 # Check database performance
 python -c "
-from backend.core.config_manager import config_manager
 import asyncio
-asyncio.run(config_manager.test_connection('snowflake'))
+from backend.monitoring.enhanced_metrics import get_performance_metrics
+metrics = asyncio.run(get_performance_metrics())
+print('Performance metrics:', metrics)
+"
+```
+
+#### **Problem:** Memory or CPU issues
+**Symptoms:**
+- High resource usage
+- System slowdowns
+- Out of memory errors
+
+**Solutions:**
+```bash
+# Monitor resource usage
+docker stats
+
+# Check for memory leaks
+python -c "
+import psutil
+import os
+process = psutil.Process(os.getpid())
+print('Memory usage:', process.memory_info().rss / 1024 / 1024, 'MB')
 "
 
-# Enable caching
-# Update cache TTL in config_manager.py
+# Optimize configuration
+python -c "
+from backend.core.config_manager import optimize_performance
+optimize_performance()
+"
 ```
 
 ---
 
-### **7. Security Issues**
+### **7. Deployment Issues**
+
+#### **Problem:** GitHub Actions workflow failures
+**Symptoms:**
+- Deployment failures
+- Secret access issues
+- Build errors
+
+**Solutions:**
+```bash
+# Check workflow status
+# Go to: https://github.com/ai-cherry/sophia-main/actions
+
+# Verify organization secrets are set
+# Go to: https://github.com/ai-cherry/settings/secrets/actions
+
+# Test deployment locally
+python scripts/test_permanent_solution.py
+```
+
+#### **Problem:** Pulumi infrastructure issues
+**Symptoms:**
+- Infrastructure deployment failures
+- Resource conflicts
+- State inconsistencies
+
+**Solutions:**
+```bash
+# Check Pulumi status
+export PULUMI_ORG=scoobyjava-org
+pulumi stack ls
+pulumi preview
+
+# Refresh state
+pulumi refresh
+
+# Check ESC environments
+pulumi env ls
+```
+
+---
+
+### **8. Monitoring and Logging**
+
+#### **Problem:** Missing logs or metrics
+**Symptoms:**
+- No log output
+- Missing performance data
+- Monitoring gaps
+
+**Solutions:**
+```bash
+# Check log configuration
+python -c "
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.info('Logging test successful')
+"
+
+# View application logs
+tail -f logs/sophia.log
+
+# Check monitoring metrics
+curl http://localhost:8000/metrics
+```
+
+---
+
+### **9. Security Issues**
 
 #### **Problem:** Authentication failures
 **Symptoms:**
-- "Unauthorized" errors
-- Token expiration issues
+- Login errors
+- Token validation failures
 - Permission denied errors
 
 **Solutions:**
 ```bash
-# Refresh OAuth tokens
-python gong_oauth_application.py --refresh-tokens
-
-# Check token expiration
+# Test JWT token generation
 python -c "
-import os
-from datetime import datetime
-# Check token metadata in Pulumi ESC
+from backend.core.auto_esc_config import config
+print('JWT secret loaded:', bool(config.jwt_secret))
 "
 
-# Rotate compromised secrets
-python infrastructure/esc/secret_rotation_framework.py --emergency-rotation
-
-# Audit access logs
-grep "401\|403" /var/log/sophia/*.log
+# Verify authentication configuration
+python -c "
+from backend.security.enhanced_security import SecurityManager
+security = SecurityManager()
+print('Security configured:', security.is_configured())
+"
 ```
 
 ---
 
-## 🔧 **Diagnostic Commands**
+### **10. Quick Diagnostic Commands**
 
-### **System Health Check**
+#### **System Health Check**
 ```bash
-#!/bin/bash
-# Complete system health check
+# Run comprehensive health check
+python scripts/test_permanent_solution.py
 
-echo "=== Sophia AI System Health Check ==="
-
-# Check Docker services
-echo "Docker Services:"
-docker-compose -f docker-compose.mcp.yml ps
-
-# Check Pulumi ESC
-echo "Pulumi ESC Status:"
-pulumi whoami
-pulumi stack ls
-
-# Check API endpoints
-echo "API Health Checks:"
-curl -s http://localhost:8000/health | jq .
-
-# Check secret access
-echo "Secret Access Test:"
-python infrastructure/esc/get_secret.py --secret-name test_secret --dry-run
-
-# Check Claude integration
-echo "Claude Integration:"
-python test_claude_as_code.py --quick-test
-
-echo "=== Health Check Complete ==="
+# Check all service health
+python -c "
+import asyncio
+from backend.core.config_manager import health_check, list_services
+services = asyncio.run(list_services())
+for service in services:
+    health = asyncio.run(health_check(service))
+    print(f'{service}: {health}')
+"
 ```
 
-### **Performance Monitoring**
+#### **Configuration Validation**
 ```bash
-#!/bin/bash
-# Performance monitoring script
+# Validate all configurations
+python -c "
+from backend.core.auto_esc_config import config
+print('Configuration loaded successfully:', bool(config))
+print('OpenAI configured:', bool(config.openai_api_key))
+print('Gong configured:', bool(config.gong_access_key))
+print('Slack configured:', bool(config.slack_bot_token))
+"
+```
 
-echo "=== Performance Monitoring ==="
+#### **Secret Management Status**
+```bash
+# Check GitHub organization secrets sync status
+python scripts/sync_github_to_pulumi.sh --dry-run
 
-# System resources
-echo "System Resources:"
-echo "CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)%"
-echo "Memory: $(free | grep Mem | awk '{printf "%.1f%%", $3/$2 * 100.0}')"
-echo "Disk: $(df -h / | awk 'NR==2{printf "%s", $5}')"
-
-# Docker stats
-echo "Docker Container Stats:"
-docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
-
-# API response times
-echo "API Response Times:"
-time curl -s http://localhost:8000/health > /dev/null
-
-echo "=== Monitoring Complete ==="
+# Verify ESC environment access
+export PULUMI_ORG=scoobyjava-org
+pulumi env open scoobyjava-org/default/sophia-ai-production
 ```
 
 ---
 
-## 📞 **Getting Help**
+## 🆘 **Emergency Recovery**
 
-### **Log Collection**
+### **Complete System Reset**
 ```bash
-# Collect all relevant logs
-mkdir -p /tmp/sophia-logs
-docker-compose -f docker-compose.mcp.yml logs > /tmp/sophia-logs/mcp-services.log
-cp /var/log/sophia/*.log /tmp/sophia-logs/
-tar -czf sophia-debug-$(date +%Y%m%d-%H%M%S).tar.gz /tmp/sophia-logs/
-```
+# 1. Reset Pulumi ESC access
+export PULUMI_ORG=scoobyjava-org
+pulumi logout
+pulumi login
 
-### **Configuration Backup**
-```bash
-# Backup current configuration
-mkdir -p /tmp/sophia-config
-cp mcp_config.json /tmp/sophia-config/
-cp .cursorrules /tmp/sophia-config/
-cp infrastructure/Pulumi.yaml /tmp/sophia-config/
-tar -czf sophia-config-backup-$(date +%Y%m%d-%H%M%S).tar.gz /tmp/sophia-config/
-```
+# 2. Re-run permanent solution setup
+python scripts/setup_permanent_secrets_solution.py
 
-### **Support Channels**
-- **GitHub Issues**: https://github.com/ai-cherry/sophia-main/issues
-- **Documentation**: https://docs.sophia.ai
-- **Community**: https://discord.gg/sophia-ai
-- **Email**: support@sophia.ai
+# 3. Test the solution
+python scripts/test_permanent_solution.py
 
-### **Emergency Procedures**
-```bash
-# Emergency shutdown
+# 4. Restart all services
+docker-compose down
 docker-compose -f docker-compose.mcp.yml down
-
-# Emergency rollback
-cd infrastructure
-pulumi stack history
-pulumi refresh --stack production
-# Select previous working state
-
-# Emergency secret rotation
-python infrastructure/esc/secret_rotation_framework.py --emergency-rotation --all-services
+docker-compose up -d
+docker-compose -f docker-compose.mcp.yml up -d
 ```
+
+### **Contact Support**
+If issues persist after trying these solutions:
+
+1. **Check GitHub Issues**: [Sophia AI Issues](https://github.com/ai-cherry/sophia-main/issues)
+2. **Review Documentation**: `PERMANENT_GITHUB_ORG_SECRETS_SOLUTION.md`
+3. **Run Diagnostics**: `python scripts/test_permanent_solution.py`
+4. **Collect Logs**: Include output from diagnostic commands
+
+---
+
+## 🎯 **Success Indicators**
+
+When everything is working correctly:
+- ✅ `python scripts/test_permanent_solution.py` passes all tests
+- ✅ Backend starts without credential errors
+- ✅ All MCP servers respond to health checks
+- ✅ Frontend connects to backend successfully
+- ✅ All API integrations work
+- ✅ No manual secret management required
+
+**🔒 PERMANENT SOLUTION GUARANTEE: Once properly configured, the system manages all secrets automatically with zero manual intervention required.**
 

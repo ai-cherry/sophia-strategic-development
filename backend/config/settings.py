@@ -77,7 +77,16 @@ class SecuritySettings(BaseSettings):
 
 
 class APIKeysSettings(BaseSettings):
-    """External API keys configuration"""
+    """LEGACY: External API keys configuration
+    
+    🔐 PERMANENT SOLUTION AVAILABLE:
+    Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC.
+    
+    This class is kept for backward compatibility only.
+    
+    For new code, use:
+    from backend.core.auto_esc_config import config
+    """
 
     # LLM Gateway (Primary)
     llm_gateway: str = Field(

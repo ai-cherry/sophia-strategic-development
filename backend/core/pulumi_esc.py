@@ -1,4 +1,13 @@
-"""Sophia AI - Enhanced Pulumi ESC Client
+"""Sophia AI - Enhanced Pulumi ESC Client (LEGACY)
+
+🔐 IMPORTANT: This file is now LEGACY - Use backend/core/auto_esc_config.py instead!
+
+The permanent GitHub Organization Secrets → Pulumi ESC solution provides automatic configuration.
+This file is kept for backward compatibility and advanced ESC operations only.
+
+For new code, use:
+from backend.core.auto_esc_config import config
+
 Client for interacting with Pulumi ESC API with improved error handling and security
 """
 
@@ -14,6 +23,11 @@ import aiohttp
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# 🚨 LEGACY WARNING
+logger.warning(
+    "pulumi_esc.py is LEGACY. Use backend/core/auto_esc_config.py for automatic secret loading from Pulumi ESC."
+)
 
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):

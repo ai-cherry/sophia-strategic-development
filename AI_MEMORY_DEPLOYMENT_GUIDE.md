@@ -1,154 +1,135 @@
-# AI Memory MCP System - Deployment & Usage Guide
+# 🧠 AI Memory MCP Server - Deployment Guide
 
-## 🎯 Overview
+## 🔐 **PERMANENT SECRET MANAGEMENT INTEGRATION**
 
-The AI Memory MCP system provides persistent memory for AI coding assistants, enabling them to automatically store and recall development conversations, decisions, and context across sessions.
+**IMPORTANT**: The AI Memory MCP Server now uses Sophia AI's **PERMANENT GitHub Organization Secrets → Pulumi ESC** solution. No manual secret configuration is required.
 
-## ✅ System Status
+### **✅ Automatic Configuration**
+- ✅ All API keys automatically loaded from Pulumi ESC
+- ✅ Pinecone credentials managed via GitHub organization
+- ✅ Zero manual configuration required
+- ✅ Enterprise-grade security
 
-**Current Status: DEPLOYED AND READY** ✅
+### **🔑 Secret Access Pattern**
+```python
+# AI Memory automatically accesses secrets
+from backend.core.auto_esc_config import config
 
-All tests passing, dependencies installed, and auto-discovery configured.
-
-## 🚀 Quick Start
-
-### 1. Verify Installation
-```bash
-python test_ai_memory_deployment.py
+# All secrets automatically available
+pinecone_key = config.pinecone_api_key
+openai_key = config.openai_api_key
 ```
 
-### 2. Start MCP Gateway (Optional)
+## 🚀 **Quick Deployment**
+
+### **1. One-Time Setup**
 ```bash
-docker-compose up mcp-gateway
+# Clone and setup permanent solution
+git clone https://github.com/ai-cherry/sophia-main.git
+cd sophia-main
+export PULUMI_ORG=scoobyjava-org
+python scripts/setup_permanent_secrets_solution.py
 ```
 
-### 3. Test AI Memory Server
+### **2. Deploy AI Memory MCP Server**
 ```bash
+# Test the permanent solution
+python scripts/test_permanent_solution.py
+
+# Start AI Memory MCP Server (automatically loads secrets)
 python backend/mcp/ai_memory_mcp_server.py
+
+# All integrations work immediately!
 ```
 
-## 🔧 Configuration
+## Overview
 
-### MCP Configuration
+The AI Memory MCP Server provides persistent memory capabilities for AI coding assistants, enabling them to remember previous conversations, decisions, and solutions across sessions.
+
+## 🎯 Features
+
+### Core Capabilities
+- **Persistent Memory**: Store and retrieve conversation history
+- **Semantic Search**: Find relevant past discussions using vector similarity
+- **Auto-Discovery**: Automatically discover and register memory tools
+- **Category Organization**: Organize memories by type (architecture, bug_solution, etc.)
+- **Context Preservation**: Maintain rich context for better AI responses
+
+### Integration Benefits
+- **Cursor AI Integration**: Seamless integration with Cursor IDE
+- **MCP Protocol**: Standard Model Context Protocol implementation
+- **Vector Storage**: Pinecone-powered semantic search
+- **Automatic Embedding**: SentenceTransformers for text encoding
+
+## 🏗️ **Architecture with Permanent Secrets**
+
+```
+GitHub Organization Secrets (ai-cherry)
+           ↓
+    Pulumi ESC (automatic sync)
+           ↓
+    AI Memory MCP Server (automatic loading)
+           ↓
+    Pinecone Vector Database
+           ↓
+    Cursor AI (persistent memory)
+```
+
+### **Automatic Secret Loading**
+```python
+# backend/mcp/ai_memory_mcp_server.py
+from backend.core.auto_esc_config import config
+
+class AIMemoryMCPServer:
+    def __init__(self):
+        # Secrets automatically loaded from ESC
+        self.pinecone_key = config.pinecone_api_key
+        self.openai_key = config.openai_api_key
+        # No manual configuration needed!
+```
+
+## 🛠️ Installation & Setup
+
+### **Prerequisites (Automatically Handled)**
+- ✅ Pinecone API key (automatically from GitHub org)
+- ✅ Python 3.11+ (standard requirement)
+- ✅ Required packages (auto-installed)
+
+### **Installation Steps**
+```bash
+# 1. Install dependencies (if not already done)
+pip install pinecone sentence-transformers mcp backoff
+
+# 2. Initialize AI Memory MCP Server (automatic secret loading)
+python backend/mcp/ai_memory_mcp_server.py --initialize
+
+# 3. Test the integration
+python scripts/test_ai_memory_deployment.py
+```
+
+### **MCP Configuration**
 The AI Memory server is automatically configured in `mcp_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "ai_memory": {
+    "ai-memory": {
       "command": "python",
       "args": ["backend/mcp/ai_memory_mcp_server.py"],
       "env": {
         "PYTHONPATH": ".",
-        "PINECONE_API_KEY": "${PINECONE_API_KEY}"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     }
   }
 }
 ```
 
-### Environment Variables
-- `PINECONE_API_KEY`: (Optional) For persistent vector storage
-- `PYTHONPATH`: Set to project root
+## 🎮 Usage
 
-## 🤖 Automatic AI Coder Integration
+### **For AI Coders (Automatic)**
+The AI Memory system works automatically with Cursor AI:
 
-### Cursor AI Integration
-The system is automatically integrated with Cursor AI through:
-
-1. **`.cursorrules` Configuration**: Contains AI Memory usage rules
-2. **Auto-Discovery System**: Automatically detects and configures memory tools
-3. **System Prompts**: Built-in instructions for memory usage
-
-### Automatic Behaviors
-AI coders will automatically:
-
-- **Store conversations** after significant discussions
-- **Recall context** before starting similar tasks
-- **Reference past decisions** when making new ones
-- **Build institutional knowledge** over time
-
-## 🛠️ Available Tools
-
-### 1. `store_conversation`
-Stores development conversations and context.
-
-**Parameters:**
-- `conversation_text` (required): The conversation to store
-- `context` (optional): Additional context
-- `tags` (optional): Categorization tags
-- `category` (optional): Memory category
-
-**Example:**
-```json
-{
-  "conversation_text": "We decided to use FastAPI for the API layer because...",
-  "context": "Architecture decision for MCP servers",
-  "tags": ["fastapi", "architecture", "mcp"],
-  "category": "architecture"
-}
-```
-
-### 2. `recall_memory`
-Searches and retrieves relevant memories.
-
-**Parameters:**
-- `query` (required): Search query
-- `category` (optional): Filter by category
-- `tags` (optional): Filter by tags
-- `top_k` (optional): Number of results (default: 5)
-
-**Example:**
-```json
-{
-  "query": "FastAPI MCP server implementation",
-  "category": "architecture",
-  "top_k": 3
-}
-```
-
-### 3. `delete_memory`
-Deletes a specific memory by ID.
-
-**Parameters:**
-- `memory_id` (required): ID of memory to delete
-
-## 📊 Memory Categories
-
-The system supports these memory categories:
-
-- **`conversation`**: General development discussions
-- **`code_decision`**: Specific coding decisions and rationale
-- **`bug_solution`**: Bug fixes and solutions
-- **`architecture`**: System architecture decisions
-- **`workflow`**: Development workflow and processes
-- **`requirement`**: Requirements and specifications
-- **`pattern`**: Code patterns and best practices
-- **`api_usage`**: API usage examples and patterns
-
-## 🔍 Usage Patterns
-
-### For AI Coding Assistants
-
-#### 1. **Context Retrieval Pattern**
-```
-User: "How should we implement authentication in MCP servers?"
-AI: Let me check our previous discussions about this...
-[AUTO] Call ai_memory.recall_memory("MCP server authentication patterns")
-[Provide context-aware answer based on retrieved memories]
-```
-
-#### 2. **Decision Storage Pattern**
-```
-[After architecture discussion]
-[AUTO] Call ai_memory.store_conversation with:
-- Full conversation text
-- Context: "MCP authentication architecture decision"
-- Category: "architecture"
-- Tags: ["mcp", "authentication", "security"]
-```
-
-#### 3. **Problem-Solution Pattern**
 ```
 User: "I'm getting this error with Pinecone..."
 AI: Let me check if we've solved similar issues before...
@@ -219,10 +200,10 @@ AI Coder → MCP Client → AI Memory Server → Pinecone → Search Results →
 pip install pinecone sentence-transformers mcp backoff
 ```
 
-#### 2. Pinecone Connection Issues
+#### 2. Pinecone Connection Issues (Automatic Resolution)
 ```bash
-# Check API key
-echo $PINECONE_API_KEY
+# Check automatic secret loading
+python -c "from backend.core.auto_esc_config import config; print('Pinecone API Key loaded:', bool(config.pinecone_api_key))"
 
 # Test connection
 python -c "import pinecone; print('Pinecone available')"
@@ -230,118 +211,101 @@ python -c "import pinecone; print('Pinecone available')"
 
 #### 3. MCP Server Not Found
 ```bash
-# Verify MCP config
-cat mcp_config.json | grep ai_memory
+# Check MCP configuration
+cat mcp_config.json | grep -A 10 "ai-memory"
 
-# Test server startup
-python backend/mcp/ai_memory_mcp_server.py
+# Restart MCP server
+python backend/mcp/ai_memory_mcp_server.py --restart
+```
+
+#### 4. Secret Access Issues (NEW)
+```bash
+# Run permanent solution test
+python scripts/test_permanent_solution.py
+
+# Check ESC access
+export PULUMI_ORG=scoobyjava-org
+pulumi env open scoobyjava-org/default/sophia-ai-production
+
+# Verify GitHub organization secrets
+# Go to: https://github.com/ai-cherry/settings/secrets/actions
 ```
 
 ### Diagnostic Commands
 ```bash
-# Run full deployment test
-python test_ai_memory_deployment.py
+# Test AI Memory deployment
+python scripts/test_ai_memory_deployment.py
 
-# Test auto-discovery
-python backend/mcp/ai_memory_auto_discovery.py
+# Check MCP server health
+curl http://localhost:8000/ai-memory/health
 
-# Check server health
-python -c "
-from backend.mcp.ai_memory_mcp_server import AIMemoryMCPServer
-import asyncio
-
-async def test():
-    server = AIMemoryMCPServer()
-    await server.initialize_integration()
-    print('Server healthy')
-
-asyncio.run(test())
-"
+# Validate permanent solution
+python scripts/test_permanent_solution.py
 ```
 
-## 📈 Performance
+## 🔧 Advanced Configuration
 
-### Benchmarks
-- **Store Operation**: < 2 seconds
-- **Recall Operation**: < 1 second
-- **Embedding Generation**: < 500ms
-- **Vector Search**: < 100ms
+### Custom Memory Categories
+```python
+MEMORY_CATEGORIES = [
+    "architecture",
+    "bug_solution", 
+    "code_decision",
+    "workflow",
+    "performance",
+    "security"
+]
+```
 
-### Optimization Tips
-1. Use specific queries for better recall
-2. Add relevant tags for faster filtering
-3. Regular cleanup of old memories
-4. Batch operations for multiple memories
+### Memory Retention Policy
+```python
+MEMORY_CONFIG = {
+    "max_memories": 10000,
+    "retention_days": 365,
+    "auto_cleanup": True,
+    "embedding_model": "all-MiniLM-L6-v2"
+}
+```
 
-## 🔄 Maintenance
-
-### Regular Tasks
-1. **Monitor Memory Usage**: Check Pinecone index stats
-2. **Clean Old Memories**: Remove outdated context
-3. **Update Dependencies**: Keep packages current
-4. **Backup Important Memories**: Export critical decisions
+## 📊 Monitoring
 
 ### Health Checks
 ```bash
-# Check system health
+# Check AI Memory server status
+curl http://localhost:8000/ai-memory/health
+
+# Validate memory storage
 python -c "
-import asyncio
 from backend.mcp.ai_memory_mcp_server import AIMemoryMCPServer
-
-async def health_check():
-    server = AIMemoryMCPServer()
-    await server.initialize_integration()
-    
-    # Test store
-    store_result = await server._store_conversation({
-        'conversation_text': 'Health check test',
-        'context': 'System health verification'
-    })
-    
-    # Test recall
-    recall_result = await server._recall_memory({
-        'query': 'health check',
-        'top_k': 1
-    })
-    
-    print(f'Store: {store_result.get(\"success\", False)}')
-    print(f'Recall: {recall_result.get(\"success\", False)}')
-
-asyncio.run(health_check())
+import asyncio
+server = AIMemoryMCPServer()
+print('Health:', asyncio.run(server.health_check()))
 "
 ```
 
-## 🎯 Success Metrics
+### Performance Metrics
+- Memory storage latency
+- Search query response time
+- Vector index size
+- Memory retrieval accuracy
 
-### Deployment Success Indicators
-- ✅ All tests passing in deployment suite
-- ✅ AI Memory server can be instantiated
-- ✅ Cursor AI integration configured
-- ✅ Auto-discovery system working
+## 🎯 **Success Indicators**
 
-### Usage Success Indicators
-- AI coders automatically store conversations
-- Context is recalled before similar tasks
-- Development decisions are preserved
-- Knowledge builds over time
+When AI Memory is working correctly:
+- ✅ MCP server starts without credential errors
+- ✅ Pinecone connection established automatically
+- ✅ Memory storage and retrieval work seamlessly
+- ✅ Cursor AI can access persistent memory
+- ✅ No manual secret management required
+- ✅ All tests pass: `python scripts/test_permanent_solution.py`
 
-## 🚀 Next Steps
+## 🔒 **Security Guarantee**
 
-1. **Start Using**: AI coders will automatically use the memory system
-2. **Monitor Usage**: Check memory growth and recall effectiveness
-3. **Fine-tune**: Adjust categories and tags based on usage patterns
-4. **Scale**: Add more memory servers for different domains
+The permanent solution ensures:
+- **Zero exposed credentials** in AI Memory configuration
+- **Automatic secret synchronization** for Pinecone access
+- **Enterprise-grade security** with encrypted storage
+- **Comprehensive audit trail** for all memory operations
+- **Zero manual intervention** required for secret management
 
-## 📞 Support
-
-For issues or questions:
-1. Run the diagnostic commands above
-2. Check the troubleshooting section
-3. Review system logs for errors
-4. Test individual components
-
----
-
-**Status**: ✅ **DEPLOYED AND READY FOR USE**
-
-The AI Memory MCP system is fully operational and will automatically enhance AI coding assistance with persistent memory and context awareness. 
+**🎯 RESULT: AI MEMORY WITH PERMANENT SECRET MANAGEMENT - PERSISTENT INTELLIGENCE WITHOUT CREDENTIAL HASSLES!** 

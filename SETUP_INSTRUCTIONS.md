@@ -1,392 +1,219 @@
-# Sophia AI Setup Instructions
+# Sophia AI - Setup Instructions
 
-This document provides comprehensive instructions for setting up the Sophia AI system, including environment configuration, secret management, and troubleshooting common issues.
+## 🎯 **PERMANENT SOLUTION: Zero Manual Secret Management**
 
-## Prerequisites
+**IMPORTANT**: Sophia AI now uses a **PERMANENT GitHub Organization Secrets → Pulumi ESC** solution. You no longer need to manually manage `.env` files or configure secrets locally.
 
-Before setting up Sophia AI, ensure you have the following prerequisites installed:
+**📋 Prerequisites**: Ensure you have access to the [ai-cherry GitHub organization](https://github.com/ai-cherry) where all secrets are managed centrally.
 
-1. **Python 3.11+**: Required for running the Sophia AI backend
-2. **Docker**: Required for running the MCP servers
-3. **Docker Compose**: Required for orchestrating the MCP servers
-4. **Git**: Required for version control
-5. **Pulumi CLI**: Required for infrastructure management (optional)
-6. **GitHub CLI**: Required for GitHub integration (optional)
+## 🚀 Quick Start
 
-## Initial Setup
+### 1. Prerequisites
 
-### 1. Clone the Repository
+- Python 3.11+
+- Docker and Docker Compose
+- Access to [ai-cherry GitHub organization](https://github.com/ai-cherry)
+- Pulumi CLI installed
+
+### 2. Clone and Setup
 
 ```bash
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/ai-cherry/sophia-main.git
 cd sophia-main
+
+# Set up Pulumi organization
+export PULUMI_ORG=scoobyjava-org
+
+# Run the permanent solution setup (one-time)
+python scripts/setup_permanent_secrets_solution.py
 ```
 
-### 2. Create a Virtual Environment
+### 3. Verify Setup
 
 ```bash
-python -m venv sophia_venv
-source sophia_venv/bin/activate  # On Windows: sophia_venv\Scripts\activate
+# Test the permanent solution
+python scripts/test_permanent_solution.py
+
+# Start the backend (automatically loads secrets from ESC)
+python backend/main.py
+
+# Start the frontend
+cd frontend && npm run dev
 ```
 
-### 3. Install Dependencies
+## 🔐 **SECRET MANAGEMENT - PERMANENT SOLUTION**
 
-```bash
-pip install -r requirements.txt
+### **How It Works**
+
+```
+GitHub Organization Secrets (ai-cherry)
+           ↓
+    GitHub Actions (automatic sync)
+           ↓
+    Pulumi ESC Environments
+           ↓
+    Sophia AI Backend (automatic loading)
 ```
 
-### 4. Set Up Environment Variables
+### **Required GitHub Organization Secrets**
 
-Create a `.env` file with the required environment variables:
+All secrets are managed in the [ai-cherry GitHub organization](https://github.com/ai-cherry/settings/secrets/actions):
 
+#### **Infrastructure Secrets**
+- `PULUMI_ACCESS_TOKEN` - Pulumi Cloud access token
+- `PULUMI_ORG` - Set to `scoobyjava-org`
+
+#### **AI Service Secrets**
+- `OPENAI_API_KEY` - OpenAI API key (starts with `sk-`)
+- `ANTHROPIC_API_KEY` - Anthropic Claude API key
+
+#### **Business Integration Secrets**
+- `GONG_ACCESS_KEY` - Gong API access key
+- `GONG_CLIENT_SECRET` - Gong API client secret
+- `GONG_URL` - Your Gong instance URL
+- `HUBSPOT_API_TOKEN` - HubSpot API token
+- `SLACK_BOT_TOKEN` - Slack bot token (starts with `xoxb-`)
+
+#### **Data Infrastructure Secrets**
+- `SNOWFLAKE_ACCOUNT` - Snowflake account identifier
+- `SNOWFLAKE_USER` - Snowflake username
+- `SNOWFLAKE_PASSWORD` - Snowflake password
+- `PINECONE_API_KEY` - Pinecone vector database API key
+
+#### **Cloud Service Secrets**
+- `LAMBDA_LABS_API_KEY` - Lambda Labs GPU compute API key
+- `VERCEL_ACCESS_TOKEN` - Vercel deployment token
+
+### **✅ What You DON'T Need to Do Anymore**
+- ❌ Create or manage `.env` files
+- ❌ Manually configure environment variables
+- ❌ Share API keys via chat/email
+- ❌ Update local configurations
+- ❌ Worry about exposed credentials
+
+### **✅ What Happens Automatically**
+- ✅ Secrets sync from GitHub org to Pulumi ESC
+- ✅ Backend automatically loads from ESC
+- ✅ GitHub Actions use organization secrets
+- ✅ All deployments use centralized secrets
+- ✅ Secret rotation via GitHub org updates
+
+## 🧪 **Testing the Setup**
+
+### **Comprehensive Testing**
 ```bash
-# Generate a template .env file
-./secrets_manager.py generate-template
-
-# Edit the template file with your secrets
-cp env.template .env
-nano .env  # or use your preferred editor
+# Run all security and functionality tests
+python scripts/test_permanent_solution.py
 ```
 
-### 5. Fix SSL Certificate Issues
-
-If you encounter SSL certificate verification issues, run the SSL certificate fix script:
-
+### **Backend Testing**
 ```bash
-./fix_ssl_certificates.py
+# Test backend with automatic secret loading
+export PULUMI_ORG=scoobyjava-org
+python backend/main.py
+
+# Check health endpoint
+curl http://localhost:8000/health
 ```
 
-This will:
-- Create a wrapper script (`run_with_ssl_fix.py`) for running Python scripts with SSL certificate verification
-- Update your `.env` file with the SSL certificate path
-- Update your shell profile with the SSL certificate path
-
-### 6. Validate Configuration
-
+### **Frontend Testing**
 ```bash
-./secrets_manager.py validate
+# Start frontend (no secrets needed)
+cd frontend
+npm install
+npm run dev
+
+# Access at http://localhost:5173
 ```
 
-This will check if all required environment variables are set and display a summary of the configuration.
+## 🏗️ **MCP Server Management**
 
-### 7. Start the MCP Servers
-
+### **Starting MCP Servers**
 ```bash
-./start_mcp_servers.py
+# MCP servers automatically use ESC secrets
+docker-compose -f docker-compose.mcp.yml up -d
 ```
 
-This will:
-- Check if Docker and Docker Compose are installed
-- Validate the Docker Compose configuration
-- Fix common issues in the Docker Compose file
-- Start the MCP servers
-- Check the health of the MCP servers
-
-## Secret Management
-
-Sophia AI uses a comprehensive secret management system to handle sensitive information across different environments and repositories.
-
-### Required Environment Variables
-
-The following environment variables are required for Sophia AI to function properly:
-
-#### Core API Keys
-
-- `ANTHROPIC_API_KEY`: Claude API key for AI capabilities
-- `OPENAI_API_KEY`: OpenAI API key for AI capabilities (optional)
-- `PULUMI_ACCESS_TOKEN`: Pulumi access token for infrastructure management
-
-#### Slack Integration
-
-- `SLACK_BOT_TOKEN`: Slack bot token for Slack integration
-- `SLACK_APP_TOKEN`: Slack app token for Slack integration
-- `SLACK_SIGNING_SECRET`: Slack signing secret for Slack integration
-
-#### Linear Integration
-
-- `LINEAR_API_TOKEN`: Linear API token for project management integration
-- `LINEAR_WORKSPACE_ID`: Linear workspace ID for project management integration
-
-#### Gong Integration
-
-- `GONG_CLIENT_ID`: Gong client ID for call analysis integration
-- `GONG_CLIENT_SECRET`: Gong client secret for call analysis integration
-
-#### Database Credentials
-
-- `POSTGRES_USER`: PostgreSQL username
-- `POSTGRES_PASSWORD`: PostgreSQL password
-- `POSTGRES_DB`: PostgreSQL database name
-
-#### Vercel Integration
-
-- `VERCEL_ACCESS_TOKEN`: Vercel access token for deployment integration
-- `VERCEL_TEAM_ID`: Vercel team ID for deployment integration
-
-#### Lambda Labs Integration
-
-- `LAMBDA_LABS_API_KEY`: Lambda Labs API key for compute resources
-
-#### Vector Database Integration
-
-- `PINECONE_API_KEY`: Pinecone API key for vector database
-- `WEAVIATE_API_KEY`: Weaviate API key for vector database
-
-#### Snowflake Integration
-
-- `SNOWFLAKE_ACCOUNT`: Snowflake account identifier
-- `SNOWFLAKE_USER`: Snowflake username
-- `SNOWFLAKE_PASSWORD`: Snowflake password
-- `SNOWFLAKE_DATABASE`: Snowflake database name
-
-#### Estuary Integration
-
-- `ESTUARY_API_KEY`: Estuary API key for data flow management
-
-#### Airbyte Integration
-
-- `AIRBYTE_API_KEY`: Airbyte API key for data integration
-
-#### Environment Configuration
-
-- `SOPHIA_ENVIRONMENT`: Environment name (development, staging, production)
-- `PULUMI_ORGANIZATION`: Pulumi organization name
-- `PULUMI_PROJECT`: Pulumi project name
-
-### Secret Management Commands
-
-#### Detecting Missing Environment Variables
-
+### **Checking MCP Server Status**
 ```bash
-./secrets_manager.py detect-missing
-```
-
-This command will check for missing required environment variables and display them with their descriptions.
-
-#### Importing Secrets from a .env File
-
-```bash
-./secrets_manager.py import-from-env --env-file .env
-```
-
-This command will import environment variables from a .env file and add them to the current environment.
-
-#### Exporting Secrets to a .env File
-
-```bash
-./secrets_manager.py export-to-env --env-file .env.new
-```
-
-This command will export the current environment variables to a .env file, organized by category.
-
-#### Syncing Secrets to Pulumi ESC
-
-```bash
-./secrets_manager.py sync-to-pulumi
-```
-
-This command will sync the current environment variables to Pulumi ESC, making them available to all repositories and environments.
-
-#### Syncing Secrets to GitHub
-
-```bash
-./secrets_manager.py sync-to-github
-```
-
-This command will sync the current environment variables to GitHub Secrets, making them available to GitHub Actions.
-
-#### Validating Secret Configuration
-
-```bash
-./secrets_manager.py validate
-```
-
-This command will validate the current configuration, checking for missing required variables and displaying a summary of the configuration.
-
-#### Generating a Template .env File
-
-```bash
-./secrets_manager.py generate-template --output-file env.template
-```
-
-This command will generate a template .env file with all required and optional variables, with sensitive values masked.
-
-#### Syncing All Secrets
-
-```bash
-./secrets_manager.py sync-all
-```
-
-This command will sync all secrets to all destinations: .env file, Pulumi ESC, and GitHub Secrets.
-
-## MCP Server Management
-
-Sophia AI uses MCP (Model Context Protocol) servers to provide additional capabilities to the system. These servers are managed using Docker Compose.
-
-### Starting MCP Servers
-
-```bash
-./start_mcp_servers.py
-```
-
-This command will start the MCP servers defined in the `mcp_config.json` file.
-
-### Checking MCP Server Status
-
-```bash
+# Check all MCP servers
 docker-compose -f docker-compose.mcp.yml ps
+
+# Test specific server
+curl http://localhost:8000/health
 ```
 
-This command will display the status of the MCP servers.
+## 🔧 **Development Workflow**
 
-### Viewing MCP Server Logs
+### **For New Developers**
+1. **Clone repository**: No secret setup required
+2. **Set PULUMI_ORG**: `export PULUMI_ORG=scoobyjava-org`
+3. **Start backend**: Automatically loads all secrets
+4. **Start developing**: All integrations work immediately
 
+### **For Operations**
+1. **Update secrets**: Change values in GitHub organization secrets
+2. **Automatic sync**: GitHub Actions syncs to Pulumi ESC
+3. **Restart services**: Backend picks up new secrets automatically
+
+### **For Secret Rotation**
+1. **Update in GitHub org**: Change secret value in organization settings
+2. **Automatic deployment**: Next deployment uses new secrets
+3. **Zero downtime**: Seamless secret updates
+
+## 📋 **Troubleshooting**
+
+### **"Secret not found" errors**
+- **Cause**: Secret not set in GitHub organization
+- **Fix**: Add secret at [GitHub organization secrets](https://github.com/ai-cherry/settings/secrets/actions)
+
+### **"Pulumi ESC access denied"**
+- **Cause**: Invalid `PULUMI_ACCESS_TOKEN`
+- **Fix**: Update token in GitHub organization secrets
+
+### **"Backend can't find secrets"**
+- **Cause**: ESC sync failed
+- **Fix**: Check GitHub Actions workflow logs, re-run sync
+
+### **Local development issues**
 ```bash
-docker-compose -f docker-compose.mcp.yml logs
+# Verify Pulumi access
+export PULUMI_ORG=scoobyjava-org
+pulumi whoami
+
+# Test ESC access
+pulumi env ls
+
+# Check environment
+pulumi env open scoobyjava-org/default/sophia-ai-production
 ```
 
-This command will display the logs of the MCP servers.
+## 📚 **Documentation References**
 
-### Stopping MCP Servers
+- **Permanent Solution Guide**: `PERMANENT_GITHUB_ORG_SECRETS_SOLUTION.md`
+- **Setup Success Report**: `PERMANENT_SOLUTION_SUCCESS_REPORT.md`
+- **Pulumi Cloud Setup**: `PULUMI_CLOUD_SETUP_GUIDE.md`
+- **Security Testing**: `scripts/test_permanent_solution.py`
 
-```bash
-docker-compose -f docker-compose.mcp.yml down
-```
+## 🎉 **Success Indicators**
 
-This command will stop the MCP servers.
+When everything is working correctly:
+- ✅ Backend starts without credential errors
+- ✅ All API integrations work
+- ✅ MCP servers connect successfully
+- ✅ GitHub Actions workflows pass
+- ✅ No manual secret management needed
 
-## Troubleshooting
+---
 
-### SSL Certificate Issues
+## 🔒 **SECURITY GUARANTEE**
 
-If you encounter SSL certificate verification issues, run the SSL certificate fix script:
+The permanent solution ensures:
+- **Zero exposed credentials** in the repository
+- **Centralized secret management** via GitHub organization
+- **Automatic secret synchronization** across all environments
+- **Comprehensive audit trail** for all secret access
+- **Enterprise-grade security** with encrypted storage
 
-```bash
-./fix_ssl_certificates.py
-```
-
-This will:
-- Create a wrapper script (`run_with_ssl_fix.py`) for running Python scripts with SSL certificate verification
-- Update your `.env` file with the SSL certificate path
-- Update your shell profile with the SSL certificate path
-
-You can also run Python scripts with the SSL certificate fix applied:
-
-```bash
-./run_with_ssl_fix.py <script> [args...]
-```
-
-For example:
-
-```bash
-./run_with_ssl_fix.py automated_health_check.py
-```
-
-### Missing Environment Variables
-
-If you encounter missing environment variables, use the `detect-missing` command to identify them:
-
-```bash
-./secrets_manager.py detect-missing
-```
-
-Then, add the missing variables to your `.env` file or import them from another source.
-
-### Docker Compose Issues
-
-If you encounter issues with Docker Compose, check the Docker Compose configuration:
-
-```bash
-docker-compose -f docker-compose.mcp.yml config
-```
-
-This will validate the Docker Compose configuration and display any errors.
-
-You can also try to fix common issues in the Docker Compose file:
-
-```bash
-./start_mcp_servers.py
-```
-
-This script will attempt to fix common issues in the Docker Compose file before starting the MCP servers.
-
-### Pulumi ESC Access Issues
-
-If you encounter issues accessing Pulumi ESC, ensure that:
-
-1. The `PULUMI_ACCESS_TOKEN` environment variable is set correctly
-2. The Pulumi CLI is installed and configured
-3. You have the necessary permissions to access the Pulumi organization and project
-
-### GitHub Secrets Access Issues
-
-If you encounter issues accessing GitHub Secrets, ensure that:
-
-1. The GitHub CLI (gh) is installed and authenticated
-2. You have the necessary permissions to access the GitHub repository
-3. The repository URL is correctly configured in Git
-
-### Python Package Compatibility Issues
-
-If you encounter Python package compatibility issues, check your `requirements.txt` for version pins and update as needed.
-
-For example, if you encounter an error like:
-
-```
-ImportError: cannot import name 'eval_type_backport' from 'pydantic._internal._typing_extra'
-```
-
-This is likely due to a version mismatch between your `mcp` package and `pydantic`. You can fix this by upgrading/downgrading `pydantic` and `mcp` to compatible versions.
-
-### Database Connection Issues
-
-If you encounter database connection issues, ensure that:
-
-1. The database credentials are set correctly in your `.env` file
-2. The database server is running and accessible
-3. The database exists and has the correct permissions
-
-### API Endpoint Issues
-
-If you encounter API endpoint issues, ensure that:
-
-1. The API server is running and accessible
-2. The API endpoint URL is correct
-3. You have the necessary permissions to access the API
-
-## Setting Up a New Repository
-
-If you need to set up a new Sophia AI repository, you can use the `setup_new_repo.py` script:
-
-```bash
-./setup_new_repo.py --name sophia-new-repo
-```
-
-This will:
-- Create a new directory for the repository
-- Initialize a Git repository
-- Copy the secrets_manager.py script
-- Set up the necessary configuration files
-- Create a README.md file with setup instructions
-
-You can also import secrets from a master .env file:
-
-```bash
-./setup_new_repo.py --name sophia-new-repo --source-env /path/to/master.env
-```
-
-Or import secrets from Pulumi ESC:
-
-```bash
-./setup_new_repo.py --name sophia-new-repo --from-pulumi
-```
-
-## Additional Resources
-
-For more information, refer to the following resources:
-
-- [Secrets Management Guide](SECRETS_MANAGEMENT_GUIDE.md): Comprehensive guide for managing secrets and environment variables
-- [MCP Server Documentation](docs/mcp_server_documentation.md): Documentation for the MCP servers
-- [API Documentation](docs/API_DOCUMENTATION.md): Documentation for the Sophia AI API
-- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md): Guide for deploying Sophia AI
-- [Troubleshooting Guide](docs/TROUBLESHOOTING_GUIDE.md): Guide for troubleshooting common issues
+**🎯 RESULT: PERMANENT SOLUTION - NO MORE MANUAL SECRET MANAGEMENT EVER!**

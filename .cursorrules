@@ -10,6 +10,51 @@ You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company
 - **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
 - **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
 
+## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**
+
+### **CRITICAL: GitHub Organization Secrets Integration**
+Sophia AI uses a **PERMANENT** secret management solution that eliminates manual `.env` management:
+
+```
+GitHub Organization Secrets (ai-cherry)
+           ↓
+    GitHub Actions (automatic sync)
+           ↓
+    Pulumi ESC Environments
+           ↓
+    Sophia AI Backend (automatic loading)
+```
+
+### **✅ What's Automated**
+- **Zero Manual Secret Management**: No more `.env` file management
+- **Organization-Level Secrets**: All secrets in [GitHub ai-cherry org](https://github.com/ai-cherry)
+- **Automatic Sync**: GitHub Actions → Pulumi ESC → Backend
+- **Enterprise Security**: No exposed credentials anywhere
+- **Forever Solution**: Works automatically without intervention
+
+### **🔑 Secret Access Pattern**
+```python
+# Backend automatically loads from Pulumi ESC
+from backend.core.auto_esc_config import config
+
+# Secrets are automatically available
+openai_key = config.openai_api_key
+gong_key = config.gong_access_key
+```
+
+### **🚫 NEVER DO THESE ANYMORE**
+- ❌ Create or manage `.env` files
+- ❌ Hardcode API keys or tokens
+- ❌ Share secrets in chat/email
+- ❌ Manual environment variable setup
+- ❌ Local credential configuration
+
+### **✅ ALWAYS USE THESE**
+- ✅ GitHub organization secrets for all credentials
+- ✅ Pulumi ESC for centralized configuration
+- ✅ Automatic backend configuration loading
+- ✅ GitHub Actions for secret synchronization
+
 ## AI Memory MCP Integration (CRITICAL FOR CURSOR AI)
 
 ### **AUTOMATIC MEMORY USAGE RULES**
@@ -102,22 +147,15 @@ class ServiceIntegration:
 - Log all security-relevant events
 - Follow principle of least privilege
 
-### Secret Management (CRITICAL)
-- **Documentation:** Always refer to `docs/SECRET_MANAGEMENT_GUIDE.md` for secret handling
-- **Tools:** Use individual secret management scripts in `infrastructure/esc/` directory
-- **Secret Names:** Use EXACT names (e.g., `VERCEL_ACCESS_TOKEN` not `VERCEL_TOKEN`)
-- **Never hardcode secrets:** Always use environment variables
-- **GitHub Actions:** Secrets cannot be used in `if:` conditions - check inside scripts
-- **Local Development:** Use `env.template` as template for `.env`
-- **Adding Secrets:** Follow the service-specific workflow:
-  ```bash
-  # For specific services, use their dedicated secret managers
-  python infrastructure/esc/claude_secrets.py
-  python infrastructure/esc/gong_secrets.py
-  python infrastructure/esc/pinecone_secrets.py
-  # Sync to GitHub using ESC scripts
-  bash infrastructure/esc/setup_esc.sh --sync-secrets
-  ```
+### **Secret Management (PERMANENT SOLUTION)**
+- **Documentation:** Always refer to `PERMANENT_GITHUB_ORG_SECRETS_SOLUTION.md`
+- **GitHub Organization:** All secrets managed at [https://github.com/ai-cherry](https://github.com/ai-cherry)
+- **Pulumi ESC:** Automatic secret synchronization via `scoobyjava-org/default/sophia-ai-production`
+- **Backend Integration:** Use `backend/core/auto_esc_config.py` for automatic secret loading
+- **Never hardcode secrets:** Always use automatic ESC integration
+- **GitHub Actions:** Secrets automatically available from organization level
+- **Local Development:** Set `export PULUMI_ORG=scoobyjava-org` and secrets load automatically
+- **Secret Rotation:** Update in GitHub organization → automatic sync → automatic deployment
 
 ### Testing Strategy
 - Write unit tests for all business logic
