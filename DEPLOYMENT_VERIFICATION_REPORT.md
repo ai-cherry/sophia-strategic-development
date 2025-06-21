@@ -37,6 +37,7 @@ PULUMI_ORG=scoobyjava-org
 - `SNOWFLAKE_*`: Data warehouse credentials ✅
 - `PINECONE_API_KEY`: Vector database access ✅
 - `DOCKER_PERSONAL_ACCESS_TOKEN`: Container registry ✅
+- `DOCKER_USER_NAME`: Docker Hub username ✅
 - `LAMBDA_API_KEY`: Infrastructure management ✅
 - `AIRBYTE_*`: Data pipeline credentials ✅
 - `GONG_*`: Sales intelligence integration ✅
