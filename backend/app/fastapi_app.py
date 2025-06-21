@@ -32,6 +32,15 @@ except ImportError:
 from backend.app.routers.agno_router import router as agno_router
 from backend.app.routers.llamaindex_router import router as llamaindex_router
 
+# Import WebSocket manager
+try:
+    from backend.app.websocket_manager import websocket_endpoint
+
+    WEBSOCKET_AVAILABLE = True
+except ImportError:
+    logger.warning("WebSocket manager not available")
+    WEBSOCKET_AVAILABLE = False
+
 
 # Database connection utilities
 def check_database() -> bool:
@@ -100,6 +109,11 @@ else:
 # Include routers
 app.include_router(agno_router)
 app.include_router(llamaindex_router)
+
+# Add WebSocket endpoint if available
+if WEBSOCKET_AVAILABLE:
+    app.add_api_websocket_route("/ws", websocket_endpoint)
+    logger.info("WebSocket endpoint registered at /ws")
 
 # Try to include other routers if available
 try:
