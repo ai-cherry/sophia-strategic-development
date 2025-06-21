@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   DollarSign, 
   Users, 
@@ -15,6 +15,7 @@ import GlassCard from '../design-system/cards/GlassCard';
 import Button from '../design-system/buttons/Button';
 import { cn } from '@/lib/utils';
 import api from '../../services/api';
+import useCompanyMetrics from '../../hooks/use-company-metrics';
 import NaturalLanguageInterface from '../NaturalLanguageInterface';
 
 // Tab configuration
@@ -27,34 +28,7 @@ const TABS = [
 
 const DashboardLayout = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [metrics, setMetrics] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Fetch metrics from backend
-  useEffect(() => {
-    fetchMetrics();
-  }, []);
-
-  const fetchMetrics = async () => {
-    try {
-      setLoading(true);
-      const data = await api.getCompanyMetrics();
-      setMetrics(data);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      // Use mock data for demonstration
-      setMetrics({
-        revenue: { value: '$331,000', change: '+18.5%', trend: 'up' },
-        customers: { value: '1,247', change: '+12.3%', trend: 'up' },
-        pipeline: { value: '$2.4M', change: '+23.1%', trend: 'up' },
-        healthScore: { value: '92%', change: '+5.2%', trend: 'up' },
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: metrics, loading, error } = useCompanyMetrics();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -80,6 +54,9 @@ const DashboardLayout = () => {
       
       <main className="pt-20">
         <div className="max-w-7xl mx-auto px-6 py-8">
+          {error && (
+            <div className="mb-4 text-red-500">Failed to load metrics</div>
+          )}
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <MetricCard
