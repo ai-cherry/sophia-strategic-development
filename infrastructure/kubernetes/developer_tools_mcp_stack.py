@@ -8,9 +8,10 @@ and engineering platforms.
 import pulumi
 import pulumi_kubernetes as k8s
 
-k8s_provider = k8s.Provider(
-    "k8s-provider", kubeconfig=pulumi.Config("").require_secret("kubeconfig")
-)
+# Get the kubeconfig securely from our central Pulumi ESC environment.
+esc_config = pulumi.Config("scoobyjava-org/default/sophia-ai-production")
+kubeconfig = esc_config.require_secret("LAMBDA_LABS_KUBECONFIG")
+k8s_provider = k8s.Provider("k8s-provider", kubeconfig=kubeconfig)
 mcp_namespace = "mcp-servers"
 
 
@@ -68,6 +69,9 @@ slack_service = create_mcp_deployment(
     "slack-mcp", "ghcr.io/korotovsky/slack-mcp-server:latest"
 )
 asana_service = create_mcp_deployment("asana-mcp", "ghcr.io/asana/mcp-server:latest")
+linear_service = create_mcp_deployment(
+    "linear-mcp", "ghcr.io/linear-app/mcp-server:latest"
+)
 
 # --- Deploy the Research & Prospecting MCP Stack ---
 apify_service = create_mcp_deployment(
@@ -106,6 +110,7 @@ pulumi.export("gong_mcp_service", gong_service.metadata["name"])
 pulumi.export("hubspot_mcp_service", hubspot_service.metadata["name"])
 pulumi.export("slack_mcp_service", slack_service.metadata["name"])
 pulumi.export("asana_mcp_service", asana_service.metadata["name"])
+pulumi.export("linear_mcp_service", linear_service.metadata["name"])
 pulumi.export("apify_mcp_service", apify_service.metadata["name"])
 pulumi.export("apollo_mcp_service", apollo_service.metadata["name"])
 pulumi.export("exa_mcp_service", exa_service.metadata["name"])

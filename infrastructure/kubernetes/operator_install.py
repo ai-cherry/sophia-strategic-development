@@ -4,11 +4,12 @@ import pulumi
 import pulumi_kubernetes as k8s
 from pulumi_kubernetes.helm.v3 import Release, ReleaseArgs, RepositoryOptsArgs
 
-# This program assumes that it is run with a kubeconfig that points to the
-# EKS cluster created in the previous step.
-k8s_provider = k8s.Provider(
-    "k8s-provider", kubeconfig=pulumi.Config("").require_secret("kubeconfig")
-)
+# Get the kubeconfig securely from our central Pulumi ESC environment.
+esc_config = pulumi.Config("scoobyjava-org/default/sophia-ai-production")
+kubeconfig = esc_config.require_secret("LAMBDA_LABS_KUBECONFIG")
+
+# This program now uses the centrally managed kubeconfig.
+k8s_provider = k8s.Provider("k8s-provider", kubeconfig=kubeconfig)
 
 # Install the Pulumi Kubernetes Operator using its Helm chart.
 pulumi_operator_chart = Release(

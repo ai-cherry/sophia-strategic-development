@@ -3,10 +3,10 @@
 import pulumi
 import pulumi_kubernetes as k8s
 
-# Assumes this program is run with a kubeconfig pointing to the EKS cluster
-k8s_provider = k8s.Provider(
-    "k8s-provider", kubeconfig=pulumi.Config("").require_secret("kubeconfig")
-)
+# Get the kubeconfig securely from our central Pulumi ESC environment.
+esc_config = pulumi.Config("scoobyjava-org/default/sophia-ai-production")
+kubeconfig = esc_config.require_secret("LAMBDA_LABS_KUBECONFIG")
+k8s_provider = k8s.Provider("k8s-provider", kubeconfig=kubeconfig)
 
 # --- 1. Namespace for the Agent UI ---
 ui_namespace = k8s.core.v1.Namespace(

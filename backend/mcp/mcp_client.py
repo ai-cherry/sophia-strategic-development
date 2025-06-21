@@ -22,6 +22,7 @@ MCP_GATEWAY_ENDPOINTS = {
     # Project & Team Management
     "slack": "http://slack-mcp-service.mcp-servers.svc.cluster.local:9000",
     "asana": "http://asana-mcp-service.mcp-servers.svc.cluster.local:9000",
+    "linear": "http://linear-mcp-service.mcp-servers.svc.cluster.local:9000",
     "github": "http://github-mcp-service.mcp-servers.svc.cluster.local:9000",
     # Infrastructure & Code Intelligence
     "pulumi": "http://pulumi-mcp-service.mcp-servers.svc.cluster.local:9000",
