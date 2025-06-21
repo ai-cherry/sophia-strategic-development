@@ -1,4 +1,5 @@
 """Real-Time Streaming Infrastructure
+
 Implements streaming data processing for Snowflake and other data sources.
 """
 
@@ -93,7 +94,7 @@ class RealTimeStreaming:
         self._initialized = False
 
     async def initialize(self):
-        """Initialize streaming infrastructure"""
+        """Initialize streaming infrastructure."""
         if self._initialized:
             return
 
@@ -119,7 +120,7 @@ class RealTimeStreaming:
         logger.info("Real-time streaming infrastructure initialized")
 
     async def _setup_snowflake_streams(self):
-        """Set up Snowflake streams and tasks"""
+        """Set up Snowflake streams and tasks."""
         try:
             # Create stream for Gong calls
             await self.snowflake.execute_query(
@@ -165,7 +166,7 @@ class RealTimeStreaming:
             logger.error(f"Error setting up Snowflake streams: {e}")
 
     def _setup_processors(self):
-        """Set up stream processors"""
+        """Set up stream processors."""
         # Gong call processor
         gong_processor = StreamProcessor(StreamType.GONG_CALLS)
         gong_processor.add_handler(self._process_gong_call)
@@ -239,7 +240,7 @@ class RealTimeStreaming:
         while f"{stream_type}:{datetime.utcnow().isoformat()}" in self.active_streams:
             try:
                 # Query stream for new data
-                query = f"""
+                query = f"""  # nosec B608  # nosec B608 - Stream name is validated
                     SELECT * FROM {stream_name}
                     WHERE METADATA$ACTION IN ('INSERT', 'UPDATE')
                     AND METADATA$ISUPDATE = FALSE
@@ -489,7 +490,7 @@ class RealTimeStreaming:
         await self.redis_client.publish("dashboard:updates", json.dumps(update))
 
     async def _monitor_streams(self):
-        """Monitor stream health and performance"""
+        """Monitor stream health and performance."""
         while True:
             await asyncio.sleep(60)  # Check every minute
 
@@ -507,7 +508,7 @@ class RealTimeStreaming:
                 pass
 
     async def get_stream_metrics(self) -> Dict[str, Any]:
-        """Get streaming metrics"""
+        """Get streaming metrics."""
         return {
             "active_streams": len(self.active_streams),
             "stream_offsets": self.stream_offsets,

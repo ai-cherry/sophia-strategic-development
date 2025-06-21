@@ -1,7 +1,6 @@
-"""Sophia AI - Pay Ready Company Assistant
-FastAPI Application
+"""Sophia AI - Pay Ready Company Assistant.
 
-Dedicated business intelligence platform for Pay Ready company operations.
+FastAPI Application - Dedicated business intelligence platform for Pay Ready company operations.
 """
 
 import logging
@@ -153,7 +152,7 @@ except ImportError as e:
 # Health check endpoint
 @app.get("/api/health", tags=["health"])
 async def health_check():
-    """Comprehensive health check for Sophia AI - Pay Ready Assistant"""
+    """Comprehensive health check for Sophia AI - Pay Ready Assistant."""
     health_status = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
@@ -198,7 +197,7 @@ async def health_check():
 # Root endpoint
 @app.get("/", tags=["root"])
 async def index():
-    """Sophia AI - Pay Ready Company Assistant welcome endpoint"""
+    """Sophia AI - Pay Ready Company Assistant welcome endpoint."""
     return {
         "service": "Sophia AI - Pay Ready Company Assistant",
         "company": "Pay Ready",

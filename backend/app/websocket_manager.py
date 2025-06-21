@@ -1,4 +1,5 @@
 """WebSocket Manager for Real-Time Dashboard Updates
+
 Implements WebSocket connections for live data streaming to dashboards.
 """
 
@@ -16,7 +17,7 @@ from backend.core.hierarchical_cache import hierarchical_cache
 from backend.monitoring.observability import logger
 
 
-class WebSocketClient(BaseModel):
+class WebSocketClient(BaseModel, Any):
     """WebSocket client connection"""
 
     id: str = Field(default_factory=lambda: str(uuid4()))
@@ -49,7 +50,7 @@ class WebSocketManager:
         self._update_queue: asyncio.Queue = asyncio.Queue()
 
     async def initialize(self):
-        """Initialize WebSocket manager"""
+        """Initialize WebSocket manager."""
         if self._initialized:
             return
 
@@ -164,7 +165,7 @@ class WebSocketManager:
     async def send_metric_update(
         self,
         metric_name: str,
-        value: any,
+        value: Any,
         dashboard_id: Optional[str] = None,
         widget_id: Optional[str] = None,
     ):
@@ -296,7 +297,7 @@ class WebSocketManager:
         await asyncio.gather(*tasks, return_exceptions=True)
 
     async def _process_updates(self):
-        """Process update queue"""
+        """Process update queue."""
         while True:
             try:
                 update = await self._update_queue.get()
@@ -331,7 +332,7 @@ class WebSocketManager:
                 logger.error(f"Error processing update: {e}")
 
     async def _monitor_connections(self):
-        """Monitor WebSocket connections health"""
+        """Monitor WebSocket connections health."""
         while True:
             await asyncio.sleep(30)  # Check every 30 seconds
 
@@ -351,7 +352,7 @@ class WebSocketManager:
                     await client.websocket.send_json(
                         {"type": "heartbeat", "timestamp": now.isoformat()}
                     )
-                except:
+                except Exception:
                     disconnected.append(client_id)
 
             # Disconnect dead clients
@@ -364,7 +365,7 @@ class WebSocketManager:
             )
 
     async def _subscribe_to_streams(self):
-        """Subscribe to real-time data streams"""
+        """Subscribe to real-time data streams."""
         if not self._redis_client:
             return
 
@@ -435,7 +436,7 @@ class WebSocketManager:
         return []
 
     async def get_connection_stats(self) -> Dict:
-        """Get WebSocket connection statistics"""
+        """Get WebSocket connection statistics."""
         total_subscriptions = sum(
             len(client.subscriptions) for client in self.active_connections.values()
         )

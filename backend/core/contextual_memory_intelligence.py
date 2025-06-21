@@ -1,4 +1,5 @@
 """Contextual Memory Intelligence (CMI) Framework
+
 Tracks decisions with full context and rationale for institutional knowledge retention.
 """
 
@@ -95,7 +96,7 @@ class ContextualMemoryIntelligence:
         self._initialized = False
 
     async def initialize(self):
-        """Initialize CMI components"""
+        """Initialize CMI components."""
         if self._initialized:
             return
 

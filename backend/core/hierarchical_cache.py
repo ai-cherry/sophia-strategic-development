@@ -1,4 +1,5 @@
 """Hierarchical 3-Tier Caching System
+
 Implements L1 (Memory), L2 (Redis), and L3 (Database) caching for optimal performance.
 """
 
@@ -62,7 +63,7 @@ class CacheEntry(BaseModel):
     tags: List[str] = []
 
     def is_expired(self) -> bool:
-        """Check if entry is expired"""
+        """Check if entry is expired."""
         if self.ttl_seconds is None:
             return False
         expiry = self.created_at + timedelta(seconds=self.ttl_seconds)
@@ -104,7 +105,7 @@ class HierarchicalCache:
         self._initialized = False
 
     async def initialize(self):
-        """Initialize cache components"""
+        """Initialize cache components."""
         if self._initialized:
             return
 
@@ -230,7 +231,7 @@ class HierarchicalCache:
         logger.info(f"Warmed cache with {len(keys)} keys")
 
     async def get_metrics(self) -> Dict[str, Any]:
-        """Get cache performance metrics"""
+        """Get cache performance metrics."""
         metrics = {}
 
         for tier, metric in self.metrics.items():
@@ -392,7 +393,7 @@ class HierarchicalCache:
         )
 
     async def _monitor_performance(self):
-        """Monitor cache performance and adjust parameters"""
+        """Monitor cache performance and adjust parameters."""
         while True:
             await asyncio.sleep(60)  # Check every minute
 
@@ -408,7 +409,7 @@ class HierarchicalCache:
             logger.info(f"Cache metrics: {metrics}")
 
     async def _adaptive_optimization(self):
-        """Adaptively optimize cache based on access patterns"""
+        """Adaptively optimize cache based on access patterns."""
         while True:
             await asyncio.sleep(300)  # Run every 5 minutes
 
