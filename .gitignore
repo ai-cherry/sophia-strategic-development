@@ -260,6 +260,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+frontend/.npm/_logs/
 
 # Logs
 *.log
