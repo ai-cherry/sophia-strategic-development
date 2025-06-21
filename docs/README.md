@@ -5,8 +5,7 @@
 This directory contains all technical and operational documentation for the Sophia AI platform. Documents are organized by category for easy navigation.
 
 ## 🔐 Secret Management (CRITICAL)
-- **[SECRET_MANAGEMENT_GUIDE.md](SECRET_MANAGEMENT_GUIDE.md)** - **START HERE** for all secret-related operations
-- **[GITHUB_SECRETS_SETUP.md](GITHUB_SECRETS_SETUP.md)** - GitHub-specific secret configuration
+- **[SECRET_MANAGEMENT_OVERVIEW.md](SECRET_MANAGEMENT_OVERVIEW.md)** - **START HERE** for all secret-related operations
 
 ## 🚀 Deployment & Operations
 - **[DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
