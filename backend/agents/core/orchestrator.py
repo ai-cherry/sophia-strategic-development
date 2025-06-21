@@ -101,8 +101,8 @@ class AgentMessageBus:
         self.subscribers = {}
 
     async def publish_task(self, agent_id: str, task: Task):
-        """Publish task to specific agent."""try:.
-
+        """Publish task to specific agent."""
+        try:
             channel = f"sophia:agent:{agent_id}:tasks"
             message = {
                 "type": "task_assignment",
@@ -116,8 +116,8 @@ class AgentMessageBus:
             raise
 
     async def publish_result(self, task_id: str, agent_id: str, result: Dict[str, Any]):
-        """Publish task result to results channel."""try:.
-
+        """Publish task result to results channel."""
+        try:
             message = {
                 "type": "task_result",
                 "task_id": task_id,
@@ -134,8 +134,8 @@ class AgentMessageBus:
             raise
 
     async def subscribe_to_channel(self, channel: str, callback: Callable):
-        """Subscribe to a specific channel with callback."""try:.
-
+        """Subscribe to a specific channel with callback."""
+        try:
             pubsub = self.redis_client.pubsub()
             await pubsub.subscribe(channel)
 
@@ -154,15 +154,16 @@ class AgentMessageBus:
 
 
 class AgentRegistry:
-    """Central registry for agent discovery and management."""def __init__(self, redis_client: redis.Redis):.
+    """Central registry for agent discovery and management."""
 
+    def __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
         self.agents: Dict[str, AgentInfo] = {}
         self.capabilities_index: Dict[str, List[str]] = {}
 
     async def register_agent(self, agent_info: AgentInfo):
-        """Register new agent with capabilities."""try:.
-
+        """Register new agent with capabilities."""
+        try:
             self.agents[agent_info.agent_id] = agent_info
 
             # Update capabilities index
@@ -189,8 +190,8 @@ class AgentRegistry:
     async def find_agent_for_task(
         self, task_type: str, context: Dict[str, Any] = None
     ) -> Optional[str]:
-        """Find best agent for specific task."""try:.
-
+        """Find best agent for specific task."""
+        try:
             # Get agents with required capability
             candidates = self.capabilities_index.get(task_type, [])
 
@@ -229,8 +230,8 @@ class AgentRegistry:
     async def update_agent_status(
         self, agent_id: str, status: AgentStatus, load: float = None
     ):
-        """Update agent status and load."""try:.
-
+        """Update agent status and load."""
+        try:
             if agent_id in self.agents:
                 self.agents[agent_id].status = status
                 self.agents[agent_id].last_seen = datetime.now()
@@ -250,23 +251,26 @@ class AgentRegistry:
             raise
 
     async def get_all_agents(self) -> List[AgentInfo]:
-        """Get all registered agents."""return list(self.agents.values()).
+        """Get all registered agents."""
+        return list(self.agents.values())
 
     async def get_agents_by_capability(self, capability: str) -> List[str]:
-        """Get agents that have specific capability."""return self.capabilities_index.get(capability, []).
+        """Get agents that have specific capability."""
+        return self.capabilities_index.get(capability, [])
 
 
 class ContextManager:
-    """Manages shared context and memory across agents."""def __init__(self, redis_client: redis.Redis, postgres_connection: str):.
+    """Manages shared context and memory across agents."""
 
+    def __init__(self, redis_client: redis.Redis, postgres_connection: str):
         self.redis_client = redis_client
         self.postgres_connection = postgres_connection
 
     async def store_conversation_context(
         self, user_id: str, conversation_id: str, context: Dict[str, Any]
     ):
-        """Store conversation context for continuity."""try:.
-
+        """Store conversation context for continuity."""
+        try:
             key = f"sophia:context:conversation:{user_id}:{conversation_id}"
             await self.redis_client.setex(key, 3600, json.dumps(context))  # 1 hour TTL
             logger.info(f"Stored conversation context for user {user_id}")
@@ -277,8 +281,8 @@ class ContextManager:
     async def get_conversation_context(
         self, user_id: str, conversation_id: str
     ) -> Optional[Dict[str, Any]]:
-        """Retrieve conversation context."""try:.
-
+        """Retrieve conversation context."""
+        try:
             key = f"sophia:context:conversation:{user_id}:{conversation_id}"
             context_data = await self.redis_client.get(key)
             if context_data:
@@ -291,18 +295,16 @@ class ContextManager:
     async def store_business_context(
         self, entity_type: str, entity_id: str, context: Dict[str, Any]
     ):
-        """Store business context (CRM data, call insights, etc.)."""try:.
-
+        """Store business context (CRM data, call insights, etc.)."""
+        try:
             with psycopg2.connect(self.postgres_connection) as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        """INSERT INTO business_context (entity_type, entity_id, context_data, last_updated).
-
-                                                                        VALUES (%s, %s, %s, %s)
-                                                                        ON CONFLICT (entity_type, entity_id)
-                                                                        DO UPDATE SET context_data = %s, last_updated = %s
-                        """,.
-
+                        """INSERT INTO business_context (entity_type, entity_id, context_data, last_updated)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (entity_type, entity_id)
+                        DO UPDATE SET context_data = %s, last_updated = %s
+                        """,
                         (
                             entity_type,
                             entity_id,
@@ -328,8 +330,8 @@ class ContextManager:
     async def get_business_context(
         self, entity_type: str, entity_id: str
     ) -> Optional[Dict[str, Any]]:
-        """Retrieve business context with Redis cache fallback."""try:.
-
+        """Retrieve business context with Redis cache fallback."""
+        try:
             # Try Redis cache first
             cache_key = f"sophia:context:business:{entity_type}:{entity_id}"
             cached_data = await self.redis_client.get(cache_key)
@@ -340,11 +342,9 @@ class ContextManager:
             with psycopg2.connect(self.postgres_connection) as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        """SELECT context_data FROM business_context.
-
-                                                                        WHERE entity_type = %s AND entity_id = %s
-                        """,.
-
+                        """SELECT context_data FROM business_context
+                        WHERE entity_type = %s AND entity_id = %s
+                        """,
                         (entity_type, entity_id),
                     )
                     result = cur.fetchone()
@@ -365,8 +365,8 @@ class ContextManager:
     async def update_learning_context(
         self, interaction_id: str, outcome: Dict[str, Any], feedback: Dict[str, Any]
     ):
-        """Update learning context based on outcomes and feedback."""try:.
-
+        """Update learning context based on outcomes and feedback."""
+        try:
             learning_data = {
                 "interaction_id": interaction_id,
                 "outcome": outcome,
@@ -377,13 +377,11 @@ class ContextManager:
             with psycopg2.connect(self.postgres_connection) as conn:
                 with conn.cursor() as cur:
                     cur.execute(
-                        """INSERT INTO interaction_history.
-
-                                                                        (interaction_id, user_id, channel, query_text, intent,
-                                                                         response_text, user_feedback, outcome_success, created_at)
-                                                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        """,.
-
+                        """INSERT INTO interaction_history
+                        (interaction_id, user_id, channel, query_text, intent,
+                         response_text, user_feedback, outcome_success, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
                         (
                             interaction_id,
                             outcome.get("user_id"),
@@ -405,8 +403,9 @@ class ContextManager:
 
 
 class TaskRouter:
-    """Routes tasks to appropriate agents and manages task lifecycle."""def __init__(.
+    """Routes tasks to appropriate agents and manages task lifecycle."""
 
+    def __init__(
         self,
         agent_registry: AgentRegistry,
         message_bus: AgentMessageBus,
@@ -424,8 +423,8 @@ class TaskRouter:
         priority: int = 1,
         context: Dict[str, Any] = None,
     ) -> str:
-        """Submit new task for processing."""try:.
-
+        """Submit new task for processing."""
+        try:
             task_id = str(uuid.uuid4())
             task = Task(
                 task_id=task_id,
@@ -472,8 +471,8 @@ class TaskRouter:
     async def complete_task(
         self, task_id: str, result: Dict[str, Any], success: bool = True
     ):
-        """Mark task as completed with result."""try:.
-
+        """Mark task as completed with result."""
+        try:
             if task_id not in self.active_tasks:
                 logger.warning(f"Task {task_id} not found in active tasks")
                 return
@@ -502,15 +501,18 @@ class TaskRouter:
             raise
 
     async def get_task_status(self, task_id: str) -> Optional[Task]:
-        """Get current task status."""return self.active_tasks.get(task_id).
+        """Get current task status."""
+        return self.active_tasks.get(task_id)
 
     async def get_active_tasks(self) -> List[Task]:
-        """Get all active tasks."""return list(self.active_tasks.values()).
+        """Get all active tasks."""
+        return list(self.active_tasks.values())
 
 
 class SophiaOrchestrator:
-    """Main orchestrator class that coordinates all agents and systems."""def __init__(self, redis_host: str = None, postgres_connection: str = None):.
+    """Main orchestrator class that coordinates all agents and systems."""
 
+    def __init__(self, redis_host: str = None, postgres_connection: str = None):
         redis_host = redis_host or os.getenv("REDIS_HOST", "localhost")
         postgres_connection = postgres_connection or os.getenv(
             "POSTGRES_URL", "postgresql://localhost:5432/sophia_payready"
@@ -528,8 +530,8 @@ class SophiaOrchestrator:
         self.is_running = False
 
     async def start(self):
-        """Start the orchestrator and all subsystems."""try:.
-
+        """Start the orchestrator and all subsystems."""
+        try:
             self.is_running = True
             logger.info("Starting Sophia AI Orchestrator...")
 
@@ -546,7 +548,8 @@ class SophiaOrchestrator:
             raise
 
     async def stop(self):
-        """Stop the orchestrator gracefully."""self.is_running = False.
+        """Stop the orchestrator gracefully."""
+        self.is_running = False
 
         logger.info("Sophia AI Orchestrator stopped")
 
@@ -557,17 +560,18 @@ class SophiaOrchestrator:
         priority: int = 1,
         context: Dict[str, Any] = None,
     ) -> str:
-        """Submit task to the orchestrator."""return await self.task_router.submit_task(.
-
+        """Submit task to the orchestrator."""
+        return await self.task_router.submit_task(
             task_type, task_data, priority, context
         )
 
     async def register_agent(self, agent_info: AgentInfo):
-        """Register new agent with the orchestrator."""await self.agent_registry.register_agent(agent_info).
+        """Register new agent with the orchestrator."""
+        await self.agent_registry.register_agent(agent_info)
 
     async def _health_check_loop(self):
-        """Periodic health check for all agents."""while self.is_running:.
-
+        """Periodic health check for all agents."""
+        while self.is_running:
             try:
                 agents = await self.agent_registry.get_all_agents()
                 for agent in agents:

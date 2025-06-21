@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PortkeyConfig:
-    """Configuration for Portkey routing."""
+    """
+Configuration for Portkey routing"""
 
     api_key: str
     default_provider: str = "openrouter"
@@ -34,13 +35,15 @@ class PortkeyClient:
             - Config-driven routing rules
             - Guardrails for input/output validation
             - Automatic fallback on errors
-    """def __init__(self, config_path: str = "config/portkey.json"):.
+    """
+    def __init__(self, config_path: str = "config/portkey.json"):
         self.config = self._load_config(config_path)
         self.session = None
         self._initialize_routing_rules()
 
     def _load_config(self, config_path: str) -> PortkeyConfig:
-        """Load Portkey configuration from file or environment."""config_data = {.
+        """Load Portkey configuration from file or environment"""
+        config_data = {
 
             "api_key": os.getenv("PORTKEY_API_KEY", ""),
             "default_provider": "openrouter",
@@ -81,7 +84,8 @@ class PortkeyClient:
         return PortkeyConfig(**config_data)
 
     def _initialize_routing_rules(self):
-        """Initialize routing rules for quick access."""self.routing_cache = {}.
+        """Initialize routing rules for quick access"""
+        self.routing_cache = {}.
 
         for rule in self.config.routing_rules:
             # Cache rules by key for faster lookup
@@ -96,12 +100,14 @@ class PortkeyClient:
                     self.routing_cache[f"temp_lte:{temp_str[2:]}"] = rule["route_to"]
 
     async def __aenter__(self):
-        """Async context manager entry."""self.session = aiohttp.ClientSession().
+        """Async context manager entry"""
+        self.session = aiohttp.ClientSession().
 
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit."""if self.session:.
+        """Async context manager exit"""
+        if self.session:.
 
             await self.session.close()
 
@@ -117,7 +123,8 @@ class PortkeyClient:
         """Send chat completion request through Portkey.
 
                         Handles routing, guardrails, and fallback
-        """start_time = datetime.utcnow().
+        """
+        start_time = datetime.utcnow().
 
         # Determine model based on routing rules
         if not model:
@@ -204,7 +211,7 @@ class PortkeyClient:
         }
 
     def _determine_model(self, temperature: float, task: Optional[str]) -> str:
-        """Determine which model to use based on routing rules."""# Check task-based routing first.
+        """Determine which model to use based on routing rules"""# Check task-based routing first.
 
         if task and f"task:{task}" in self.routing_cache:
             return self.routing_cache[f"task:{task}"]
@@ -224,7 +231,7 @@ class PortkeyClient:
         return self.config.default_provider
 
     def _validate_input(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
-        """Apply input guardrails."""# Check message length.
+        """Apply input guardrails"""# Check message length.
 
         total_length = sum(len(msg.get("content", "")) for msg in messages)
 
@@ -240,7 +247,7 @@ class PortkeyClient:
         return {"valid": True}
 
     def _validate_output(self, result: Dict[str, Any]) -> Dict[str, Any]:
-        """Apply output guardrails."""# Extract content from response.
+        """Apply output guardrails"""# Extract content from response
 
         try:
             content = result["choices"][0]["message"]["content"]
@@ -266,13 +273,14 @@ class PortkeyClient:
         return {"valid": True}
 
     async def update_routing_rules(self, new_rules: List[Dict[str, Any]]):
-        """Update routing rules dynamically."""self.config.routing_rules = new_rules.
+        """Update routing rules dynamically"""
+        self.config.routing_rules = new_rules.
 
         self._initialize_routing_rules()
         logger.info("Routing rules updated")
 
     def get_config(self) -> Dict[str, Any]:
-        """Get current configuration."""
+        """Get current configuration"""
         return {
             "default_provider": self.config.default_provider,
             "routing_rules": self.config.routing_rules,

@@ -20,7 +20,7 @@ class PersistentMemory:
     """
 
     def __init__(self, storage_path: str = "./agent_memory"):
-        """Initialize persistent memory storage."""
+        """Initialize persistent memory storage"""
 
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(exist_ok=True)
@@ -29,7 +29,7 @@ class PersistentMemory:
     def _get_agent_memory_file(
         self, agent_id: str, role_partition: str = "default"
     ) -> Path:
-        """Gets the memory file path for a given agent, partitioned by role."""
+        """Gets the memory file path for a given agent, partitioned by role"""
 
         partition_path = self.storage_path / role_partition
         partition_path.mkdir(exist_ok=True)
@@ -38,7 +38,7 @@ class PersistentMemory:
     async def _read_memory(
         self, agent_id: str, role_partition: str = "default"
     ) -> Dict[str, Any]:
-        """Reads the entire memory for an agent."""
+        """Reads the entire memory for an agent"""
         memory_file = self._get_agent_memory_file(agent_id, role_partition)
         if not memory_file.exists():
             return {}
@@ -58,7 +58,7 @@ class PersistentMemory:
         memory_data: Dict[str, Any],
         role_partition: str = "default",
     ):
-        """Writes the entire memory for an agent."""
+        """Writes the entire memory for an agent"""
         memory_file = self._get_agent_memory_file(agent_id, role_partition)
         async with self.lock:
             with open(memory_file, "w") as f:
@@ -72,7 +72,7 @@ class PersistentMemory:
         metadata: Optional[Dict[str, Any]] = None,
         role_partition: str = "default",
     ):
-        """Stores a specific piece of memory for an agent."""
+        """Stores a specific piece of memory for an agent"""
         memory_data = await self._read_memory(agent_id, role_partition)
         if memory_type not in memory_data:
             memory_data[memory_type] = []
@@ -103,7 +103,7 @@ class PersistentMemory:
 
 
             class Mem0PersistentMemory(PersistentMemory):
-    """Persistent memory using mem0 for long-term context."""
+    """Persistent memory using mem0 for long-term context"""
 
     def __init__(
 
@@ -133,7 +133,7 @@ class PersistentMemory:
         self.logger = logging.getLogger(__name__)
 
             async def initialize(self):
-        """Initialize the memory."""
+        """Initialize the memory"""
         try:
         except Exception:
             pass
@@ -171,14 +171,14 @@ class PersistentMemory:
             raise
 
     async def close(self):
-        """Close the memory."""
+        """Close the memory"""
 if self.mem0_client:
 
             await self.mem0_client.close()
             self.mem0_client = None
 
     async def add_user_message(self, message: str):
-        """Add a user message to the memory."""
+        """Add a user message to the memory"""
         # Store in file-based memory
 
         await self.store_memory(
@@ -189,7 +189,7 @@ if self.mem0_client:
         await self._add_to_mem0("user", message)
 
     async def add_ai_message(self, message: str):
-        """Add an AI message to the memory."""
+        """Add an AI message to the memory"""
         # Store in file-based memory
 
         await self.store_memory(
@@ -200,7 +200,7 @@ if self.mem0_client:
         await self._add_to_mem0("ai", message)
 
     async def _add_to_mem0(self, role: str, message: str):
-        """Add a message to mem0."""
+        """Add a message to mem0"""
         if not self.mem0_client:
 
             return
@@ -230,7 +230,7 @@ if self.mem0_client:
             self.logger.error(f"Error adding message to mem0: {e}")
 
     async def search_memory(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
-        """Search memory for relevant messages."""
+        """Search memory for relevant messages"""
         if not self.mem0_client:
 
             await self.initialize()
@@ -260,7 +260,7 @@ if self.mem0_client:
             return []
 
     async def get_relevant_context(self, query: str, limit: int = 5) -> str:
-        """Get relevant context for a query."""
+        """Get relevant context for a query"""
         results = await self.search_memory(query, limit)
         if not results:
             return ""
@@ -285,7 +285,7 @@ if self.mem0_client:
         return context
 
     async def load_memory_variables(self) -> Dict[str, Any]:
-        """Load memory variables."""
+        """Load memory variables"""
         variables = {}
 
         # Add mem0 context
@@ -305,7 +305,7 @@ if self.mem0_client:
 
 
 class VectorPersistentMemory(PersistentMemory):
-    """Persistent memory using vector database for long-term context."""
+    """Persistent memory using vector database for long-term context"""
 
     def __init__(
 
@@ -337,7 +337,7 @@ class VectorPersistentMemory(PersistentMemory):
         self.logger = logging.getLogger(__name__)
 
             async def initialize(self):
-        """Initialize the memory."""
+        """Initialize the memory"""
         try:
         except Exception:
             pass
@@ -353,7 +353,7 @@ class VectorPersistentMemory(PersistentMemory):
             raise
 
     async def add_user_message(self, message: str):
-        """Add a user message to the memory."""
+        """Add a user message to the memory"""
         # Store in file-based memory
 
         await self.store_memory(
@@ -364,7 +364,7 @@ class VectorPersistentMemory(PersistentMemory):
         await self._add_to_vector_db("user", message)
 
     async def add_ai_message(self, message: str):
-        """Add an AI message to the memory."""
+        """Add an AI message to the memory"""
         # Store in file-based memory
 
         await self.store_memory(
@@ -375,7 +375,7 @@ class VectorPersistentMemory(PersistentMemory):
         await self._add_to_vector_db("ai", message)
 
     async def _add_to_vector_db(self, role: str, message: str):
-        """Add a message to vector database."""
+        """Add a message to vector database"""
         try:
         except Exception:
             pass
@@ -401,7 +401,7 @@ class VectorPersistentMemory(PersistentMemory):
             self.logger.error(f"Error adding message to vector database: {e}")
 
     async def search_memory(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
-        """Search memory for relevant messages."""
+        """Search memory for relevant messages"""
         try:
         except Exception:
             pass
@@ -424,7 +424,7 @@ class VectorPersistentMemory(PersistentMemory):
             return []
 
     async def get_relevant_context(self, query: str, limit: int = 5) -> str:
-        """Get relevant context for a query."""
+        """Get relevant context for a query"""
         results = await self.search_memory(query, limit)
         if not results:
             return ""
@@ -449,7 +449,7 @@ class VectorPersistentMemory(PersistentMemory):
         return context
 
     async def load_memory_variables(self) -> Dict[str, Any]:
-        """Load memory variables."""
+        """Load memory variables"""
         variables = {}
 
         # Add vector context

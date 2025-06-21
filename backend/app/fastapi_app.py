@@ -30,6 +30,7 @@ except ImportError:
 # Import routers
 from backend.app.routers.agno_router import router as agno_router
 from backend.app.routers.llamaindex_router import router as llamaindex_router
+from backend.app.routers.chat_router import router as chat_router
 
 # Import WebSocket manager
 try:
@@ -110,6 +111,7 @@ else:
 # Include routers
 app.include_router(agno_router)
 app.include_router(llamaindex_router)
+app.include_router(chat_router)
 
 # Add WebSocket endpoint if available
 if WEBSOCKET_AVAILABLE:

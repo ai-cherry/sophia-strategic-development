@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class AgentCapability(Enum):
-    """Types of capabilities agents can have."""
+    """Types of capabilities agents can have"""
 
     DOCKER = "docker"
     PULUMI = "pulumi"
@@ -38,7 +38,8 @@ class AgentCapability(Enum):
 
 @dataclass
 class AgentRegistration:
-    """Registration info for an agent."""name: str.
+    """Registration info for an agent"""
+    name: str
 
     capabilities: List[AgentCapability]
     handler: Callable
@@ -52,7 +53,8 @@ class CentralizedAgentRouter:
             - Maintains agent registry
             - Routes based on intent and context
             - Logs all routing decisions
-    """def __init__(self):.
+    """
+    def __init__(self):
 
         self.agents: Dict[str, AgentRegistration] = {}
         self.agent_instances: Dict[str, Any] = {}
@@ -63,7 +65,7 @@ class CentralizedAgentRouter:
         self._register_specialized_agents()
 
     def _register_specialized_agents(self):
-        """Initializes and registers all specialized agents."""
+        """Initializes and registers all specialized agents"""
         # This would typically be driven by a config file.
         agent_configs = {
             "sales_coach": AgentConfig(
@@ -139,7 +141,8 @@ class CentralizedAgentRouter:
         )
 
     def register_agent(self, registration: AgentRegistration):
-        """Register an agent with its capabilities."""self.agents[registration.name] = registration.
+        """Register an agent with its capabilities"""
+        self.agents[registration.name] = registration
 
         logger.info(
             f"Registered agent: {registration.name} with capabilities: {registration.capabilities}"
@@ -151,7 +154,8 @@ class CentralizedAgentRouter:
         """Route a command to the appropriate agent.
 
                         Returns the result and logs the routing decision
-        """start_time = datetime.utcnow().
+        """
+        start_time = datetime.utcnow()
 
         try:
             # Analyze command to determine intent and target agent
@@ -201,7 +205,8 @@ class CentralizedAgentRouter:
             return {"status": "error", "message": str(e), "command": command}
 
     def _analyze_command(self, command: str) -> Dict[str, Any]:
-        """Analyze command to determine intent and required capabilities."""command_lower = command.lower().
+        """Analyze command to determine intent and required capabilities"""
+        command_lower = command.lower()
 
         # Docker-related keywords
         if any(
@@ -309,7 +314,8 @@ class CentralizedAgentRouter:
     def _select_agent(
         self, intent_analysis: Dict[str, Any], context: Optional[Dict[str, Any]]
     ) -> Optional[AgentRegistration]:
-        """Select the best agent based on intent analysis."""agent_name = intent_analysis.get("agent").
+        """Select the best agent based on intent analysis"""
+        agent_name = intent_analysis.get("agent")
 
         if agent_name in self.agents:
             return self.agents[agent_name]
@@ -319,7 +325,8 @@ class CentralizedAgentRouter:
     def _check_context_requirements(
         self, requirements: List[str], context: Optional[Dict[str, Any]]
     ) -> List[str]:
-        """Check if all required context fields are present."""if not context:.
+        """Check if all required context fields are present"""
+        if not context:
 
             return requirements
 
@@ -327,10 +334,11 @@ class CentralizedAgentRouter:
         return missing
 
     def get_routing_history(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get recent routing history for debugging and monitoring."""return self.routing_history[-limit:].
+        """Get recent routing history for debugging and monitoring"""
+        return self.routing_history[-limit:]
 
     def get_registered_agents(self) -> Dict[str, Dict[str, Any]]:
-        """Get information about all registered agents."""
+        """Get information about all registered agents"""
         return {
             name: {
                 "capabilities": [cap.value for cap in agent.capabilities],

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceTarget(BaseModel):
-    """Performance and cost targets for a service."""
+    """Performance and cost targets for a service"""
 
     response_time_ms: Optional[int] = None
     uptime_percentage: Optional[float] = None
@@ -40,7 +40,7 @@ class ServiceTarget(BaseModel):
 
 
 class ServiceConfig(BaseModel):
-    """Configuration for a single service."""
+    """Configuration for a single service"""
 
     optimization_level: str = Field(..., regex="^(standard|moderate|aggressive)$")
 
@@ -50,13 +50,13 @@ class ServiceConfig(BaseModel):
     enabled: bool = True
 
     class Config:
-        """Pydantic configuration."""
+        """Pydantic configuration"""
 
     extra = "allow"  # Allow additional fields
 
 
 class GlobalSettings(BaseModel):
-    """Global optimization settings."""
+    """Global optimization settings"""
 cost_optimization: Dict[str, Any]
     performance_optimization: Dict[str, Any]
     caching_strategy: Dict[str, Any]
@@ -64,7 +64,7 @@ cost_optimization: Dict[str, Any]
 
 
 class ConfigurationSchema(BaseModel):
-    """Complete configuration schema."""
+    """Complete configuration schema"""
 ai_services: Dict[str, ServiceConfig].
 
     data_services: Dict[str, ServiceConfig]
@@ -78,7 +78,7 @@ ai_services: Dict[str, ServiceConfig].
 
 
 class ConfigFileHandler(FileSystemEventHandler):
-    """Handle configuration file changes for hot-reload."""
+    """Handle configuration file changes for hot-reload"""
 
     def __init__(self, config_loader: "ConfigurationLoader"):
 
@@ -91,7 +91,7 @@ class ConfigFileHandler(FileSystemEventHandler):
 
 
 class ConfigurationLoader:
-    """Centralized configuration loader with validation and hot-reload."""
+    """Centralized configuration loader with validation and hot-reload"""
 
     def __init__(self, config_dir: str = "config/services"):
 
@@ -103,13 +103,13 @@ class ConfigurationLoader:
         self._lock = asyncio.Lock()
 
     async def initialize(self):
-        """Initialize configuration loader."""
+        """Initialize configuration loader"""
 await self.load_all_configs()
 
         self._start_file_watcher()
 
     def _start_file_watcher(self):
-        """Start watching configuration files for changes."""
+        """Start watching configuration files for changes"""
 
     event_handler = ConfigFileHandler(self)
 
@@ -118,7 +118,7 @@ await self.load_all_configs()
         logger.info(f"Started configuration file watcher for {self.config_dir}")
 
     async def load_all_configs(self):
-        """Load all configuration files."""
+        """Load all configuration files"""
 
     async with self._lock:
 
@@ -126,7 +126,7 @@ await self.load_all_configs()
                 await self._load_config_file(config_file)
 
     async def _load_config_file(self, file_path: Path) -> Optional[Dict[str, Any]]:
-        """Load and validate a single configuration file."""
+        """Load and validate a single configuration file"""
 
     try:
     except Exception:
@@ -161,7 +161,7 @@ await self.load_all_configs()
             return None
 
     async def reload_config(self):
-        """Reload all configurations and notify callbacks."""
+        """Reload all configurations and notify callbacks"""
 
     logger.info("Reloading configurations...")
 
@@ -180,7 +180,7 @@ await self.load_all_configs()
                 logger.error(f"Error in configuration reload callback: {e}")
 
     def register_reload_callback(self, callback: "typing.Callable"):
-        """Register a callback to be called on configuration reload."""
+        """Register a callback to be called on configuration reload"""
 
     self.callbacks.append(callback)
 
@@ -190,7 +190,7 @@ await self.load_all_configs()
     def get_service_config(
         self, service_type: str, service_name: str
     ) -> Optional[ServiceConfig]:
-        """Get configuration for a specific service."""
+        """Get configuration for a specific service"""
 
     optimization_config = self.config_cache.get("optimization", {})
 
@@ -202,7 +202,7 @@ await self.load_all_configs()
         return None
 
     def get_global_settings(self) -> Optional[GlobalSettings]:
-        """Get global optimization settings."""
+        """Get global optimization settings"""
 
     optimization_config = self.config_cache.get("optimization", {})
 
@@ -213,7 +213,7 @@ await self.load_all_configs()
         return None
 
     def get_feature_flag(self, flag_name: str, default: bool = False) -> bool:
-        """Get feature flag value."""
+        """Get feature flag value"""
 
     optimization_config = self.config_cache.get("optimization", {})
 
@@ -221,7 +221,7 @@ await self.load_all_configs()
         return feature_flags.get(flag_name, default)
 
     def get_routing_rules(self, rule_type: str) -> List[Dict[str, Any]]:
-        """Get routing rules for a specific type."""
+        """Get routing rules for a specific type"""
 
     optimization_config = self.config_cache.get("optimization", {})
 
@@ -231,7 +231,7 @@ await self.load_all_configs()
     def evaluate_routing_rule(
         self, rule_type: str, context: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Evaluate routing rules and return the first matching rule."""
+        """Evaluate routing rules and return the first matching rule"""
 
     rules = self.get_routing_rules(rule_type)
 
@@ -249,7 +249,7 @@ await self.load_all_configs()
         return None
 
     def _evaluate_condition(self, condition: str, context: Dict[str, Any]) -> bool:
-        """Evaluate a simple condition string."""# This is a simplified implementation.
+        """Evaluate a simple condition string"""# This is a simplified implementation.
 duction, use a proper expression evaluator
         import ast
 
@@ -269,7 +269,7 @@ duction, use a proper expression evaluator
     def get_service_budget(
         self, service_type: str, service_name: str
     ) -> Optional[float]:
-        """Get monthly budget for a service."""
+        """Get monthly budget for a service"""
 service_config = self.get_service_config(service_type, service_name)
 
         if service_config and service_config.cost_targets:
@@ -277,7 +277,7 @@ service_config = self.get_service_config(service_type, service_name)
         return None
 
     def get_total_budget(self) -> float:
-        """Get total monthly budget across all services."""
+        """Get total monthly budget across all services"""
 
     global_settings = self.get_global_settings()
 
@@ -286,7 +286,7 @@ service_config = self.get_service_config(service_type, service_name)
         return 0
 
     def export_config(self, format: str = "json") -> str:
-        """Export current configuration in specified format."""
+        """Export current configuration in specified format"""
 
     if format == "json":
 
@@ -297,7 +297,7 @@ service_config = self.get_service_config(service_type, service_name)
             raise ValueError(f"Unsupported export format: {format}")
 
     def validate_all_configs(self) -> Dict[str, List[str]]:
-        """Validate all loaded configurations and return errors."""
+        """Validate all loaded configurations and return errors"""
 
     errors = {}
 
@@ -319,7 +319,7 @@ service_config = self.get_service_config(service_type, service_name)
         return errors
 
     def __del__(self):
-        """Cleanup file watcher on deletion."""
+        """Cleanup file watcher on deletion"""
 
     if hasattr(self, "observer") and self.observer.is_alive():
 
@@ -332,7 +332,7 @@ _config_loader: Optional[ConfigurationLoader] = None
 
 
 async def get_config_loader() -> ConfigurationLoader:
-    """Get or create the global configuration loader."""
+    """Get or create the global configuration loader"""
 global _config_loader.
 
     if _config_loader is None:
@@ -346,20 +346,20 @@ global _config_loader.
 async def get_service_config(
     service_type: str, service_name: str
 ) -> Optional[ServiceConfig]:
-    """Get configuration for a specific service."""
+    """Get configuration for a specific service"""
 loader = await get_config_loader()
 
     return loader.get_service_config(service_type, service_name)
 
 
 async def get_feature_flag(flag_name: str, default: bool = False) -> bool:
-    """Get feature flag value."""
+    """Get feature flag value"""
 loader = await get_config_loader()
 
     return loader.get_feature_flag(flag_name, default)
 
 
 async def reload_configs():
-    """Manually trigger configuration reload."""
+    """Manually trigger configuration reload"""
     loader = await get_config_loader()
     await loader.reload_config()

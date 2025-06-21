@@ -19,7 +19,7 @@ from backend.monitoring.observability import logger
 
 
 class WebSocketClient(BaseModel, Any):
-    """WebSocket client connection."""
+    """WebSocket client connection"""
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     websocket: WebSocket
@@ -30,7 +30,7 @@ class WebSocketClient(BaseModel, Any):
 
 
 class DashboardUpdate(BaseModel):
-    """Dashboard update message."""
+    """Dashboard update message"""
 
     type: str  # metric, alert, notification, data.
 
@@ -42,7 +42,7 @@ class DashboardUpdate(BaseModel):
 
 
 class WebSocketManager:
-    """Manages WebSocket connections for real-time updates."""
+    """Manages WebSocket connections for real-time updates"""
 def __init__(self):
 
         self.active_connections: Dict[str, WebSocketClient] = {}
@@ -52,7 +52,7 @@ def __init__(self):
         self._update_queue: asyncio.Queue = asyncio.Queue()
 
     async def initialize(self):
-        """Initialize WebSocket manager."""
+        """Initialize WebSocket manager"""
 
     if self._initialized:
 
@@ -76,7 +76,7 @@ def __init__(self):
     async def connect(
         self, websocket: WebSocket, metadata: Optional[Dict] = None
     ) -> str:
-        """Accept WebSocket connection."""
+        """Accept WebSocket connection"""
 
     await self.initialize()
 
@@ -102,7 +102,7 @@ def __init__(self):
         return client.id
 
     async def disconnect(self, client_id: str):
-        """Handle WebSocket disconnection."""
+        """Handle WebSocket disconnection"""
 
     if client_id in self.active_connections:
 
@@ -118,7 +118,7 @@ def __init__(self):
             logger.info(f"WebSocket client disconnected: {client_id}")
 
     async def subscribe(self, client_id: str, subscription: str):
-        """Subscribe client to updates."""
+        """Subscribe client to updates"""
 
     if client_id not in self.active_connections:
 
@@ -145,7 +145,7 @@ def __init__(self):
         logger.info(f"Client {client_id} subscribed to {subscription}")
 
     async def unsubscribe(self, client_id: str, subscription: str):
-        """Unsubscribe client from updates."""
+        """Unsubscribe client from updates"""
 
     if client_id not in self.active_connections:
 
@@ -171,7 +171,7 @@ def __init__(self):
         )
 
     async def broadcast_update(self, update: DashboardUpdate):
-        """Broadcast update to relevant clients."""
+        """Broadcast update to relevant clients"""
 await self._update_queue.put(update)
 
     async def send_metric_update(
@@ -181,7 +181,7 @@ await self._update_queue.put(update)
         dashboard_id: Optional[str] = None,
         widget_id: Optional[str] = None,
     ):
-        """Send metric update to dashboards."""
+        """Send metric update to dashboards"""
 
     update = DashboardUpdate(
 
@@ -203,7 +203,7 @@ await self._update_queue.put(update)
         severity: str = "warning",
         data: Optional[Dict] = None,
     ):
-        """Send alert to dashboards."""
+        """Send alert to dashboards"""
 
     update = DashboardUpdate(
 
@@ -226,7 +226,7 @@ await self._update_queue.put(update)
         notification_type: str = "info",
         actions: Optional[List[Dict]] = None,
     ):
-        """Send notification to dashboards."""
+        """Send notification to dashboards"""
 
     update = DashboardUpdate(
 
@@ -248,7 +248,7 @@ await self._update_queue.put(update)
         dashboard_id: Optional[str] = None,
         widget_id: Optional[str] = None,
     ):
-        """Send data update to dashboards."""
+        """Send data update to dashboards"""
 
     update = DashboardUpdate(
 
@@ -264,7 +264,7 @@ await self._update_queue.put(update)
         await self.broadcast_update(update)
 
     async def handle_client_message(self, client_id: str, message: Dict):
-        """Handle incoming message from client."""
+        """Handle incoming message from client"""
 
     if client_id not in self.active_connections:
 
@@ -292,7 +292,7 @@ await self._update_queue.put(update)
             await self._handle_data_request(client_id, message)
 
     async def _send_to_client(self, client_id: str, message: Dict):
-        """Send message to specific client."""
+        """Send message to specific client"""
 
     if client_id not in self.active_connections:
 
@@ -308,7 +308,7 @@ await self._update_queue.put(update)
             await self.disconnect(client_id)
 
     async def _broadcast_to_subscription(self, subscription: str, message: Dict):
-        """Broadcast message to all clients with subscription."""
+        """Broadcast message to all clients with subscription"""
 if subscription not in self.subscription_map:
 
             return
@@ -324,7 +324,7 @@ if subscription not in self.subscription_map:
         await asyncio.gather(*tasks, return_exceptions=True)
 
     async def _process_updates(self):
-        """Process update queue."""
+        """Process update queue"""
 
     while True:
 
@@ -363,7 +363,7 @@ if subscription not in self.subscription_map:
                 logger.error(f"Error processing update: {e}")
 
     async def _monitor_connections(self):
-        """Monitor WebSocket connections health."""
+        """Monitor WebSocket connections health"""
 
     while True:
 
@@ -400,7 +400,7 @@ if subscription not in self.subscription_map:
             )
 
     async def _subscribe_to_streams(self):
-        """Subscribe to real-time data streams."""
+        """Subscribe to real-time data streams"""
 
     if not self._redis_client:
 
@@ -424,7 +424,7 @@ if subscription not in self.subscription_map:
                 logger.error(f"Error processing stream message: {e}")
 
     async def _handle_data_request(self, client_id: str, message: Dict):
-        """Handle data request from client."""
+        """Handle data request from client"""
 
     request_type = message.get("request_type")
 
@@ -459,7 +459,7 @@ if subscription not in self.subscription_map:
             )
 
     async def _get_current_metrics(self, metric_names: List[str]) -> Dict:
-        """Get current metric values."""
+        """Get current metric values"""
 
     metrics = {}
 
@@ -474,12 +474,12 @@ if subscription not in self.subscription_map:
     async def _get_historical_data(
         self, metric: str, start_time: Optional[str], end_time: Optional[str]
     ) -> List[Dict]:
-        """Get historical data for metric."""# This would query time-series database.
+        """Get historical data for metric"""# This would query time-series database.
 # Placeholder implementation
         return []
 
     async def get_connection_stats(self) -> Dict:
-        """Get WebSocket connection statistics."""
+        """Get WebSocket connection statistics"""
 
     total_subscriptions = sum(
 
@@ -508,7 +508,7 @@ websocket_manager = WebSocketManager()
 
 # WebSocket endpoint handler
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for dashboard connections."""
+    """WebSocket endpoint for dashboard connections"""
     client_id = await websocket_manager.connect(websocket)
 
     try:

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ServiceConfig:
-    """Configuration for a service within a unified MCP server."""
+    """Configuration for a service within a unified MCP server"""
 
     name: str
     integration_class: str
@@ -26,7 +26,7 @@ class ServiceConfig:
 
 
 class UnifiedMCPServer(BaseMCPServer, ABC):
-    """Base class for unified MCP servers."""
+    """Base class for unified MCP servers"""
 
     def __init__(self, server_name: str, services: List[ServiceConfig]):
 
@@ -37,7 +37,7 @@ class UnifiedMCPServer(BaseMCPServer, ABC):
         self._initialize_services()
 
     def _initialize_services(self):
-        """Initialize all services for this MCP server."""
+        """Initialize all services for this MCP server"""
 
     for service in self.services:
 
@@ -60,12 +60,12 @@ class UnifiedMCPServer(BaseMCPServer, ABC):
     async def route_request(
         self, service: str, method: str, params: Dict[str, Any]
     ) -> Any:
-        """Route request to appropriate service."""
+        """Route request to appropriate service"""
 pass.
 
 
 class SophiaAIIntelligence(UnifiedMCPServer):
-    """Unified MCP server for AI model routing, monitoring, and optimization."""
+    """Unified MCP server for AI model routing, monitoring, and optimization"""
 
     def __init__(self):
 
@@ -97,7 +97,7 @@ class SophiaAIIntelligence(UnifiedMCPServer):
     async def route_request(
         self, service: str, method: str, params: Dict[str, Any]
     ) -> Any:
-        """Route AI-related requests."""
+        """Route AI-related requests"""
 
     if service not in self.integrations:
 
@@ -112,7 +112,7 @@ class SophiaAIIntelligence(UnifiedMCPServer):
     async def get_optimal_model(
         self, prompt: str, requirements: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Get optimal model based on requirements."""# Use Portkey for intelligent routing.
+        """Get optimal model based on requirements"""# Use Portkey for intelligent routing.
 
         if "portkey" in self.integrations:
             return await self.integrations["portkey"].route_request(
@@ -125,7 +125,7 @@ class SophiaAIIntelligence(UnifiedMCPServer):
             raise ValueError("No AI gateway available")
 
     async def monitor_prediction(self, prediction_data: Dict[str, Any]) -> None:
-        """Monitor AI predictions with Arize."""
+        """Monitor AI predictions with Arize"""
 
     if "arize" in self.integrations:
 
@@ -133,7 +133,7 @@ class SophiaAIIntelligence(UnifiedMCPServer):
 
 
 class SophiaDataIntelligence(UnifiedMCPServer):
-    """Unified MCP server for data collection, storage, and pipeline management."""
+    """Unified MCP server for data collection, storage, and pipeline management"""
 
     def __init__(self):
 
@@ -164,7 +164,7 @@ class SophiaDataIntelligence(UnifiedMCPServer):
     async def route_request(
         self, service: str, method: str, params: Dict[str, Any]
     ) -> Any:
-        """Route data-related requests."""
+        """Route data-related requests"""
 
     if service not in self.integrations:
 
@@ -177,7 +177,7 @@ class SophiaDataIntelligence(UnifiedMCPServer):
             raise ValueError(f"Method {method} not found in {service}")
 
     async def query_data(self, query: str, source: str = "snowflake") -> Any:
-        """Query data from specified source."""
+        """Query data from specified source"""
 
     if source in self.integrations:
 
@@ -188,7 +188,7 @@ class SophiaDataIntelligence(UnifiedMCPServer):
     async def store_embeddings(
         self, embeddings: List[float], metadata: Dict[str, Any]
     ) -> str:
-        """Store embeddings in vector database."""
+        """Store embeddings in vector database"""
 
     if "pinecone" in self.integrations:
 
@@ -198,7 +198,7 @@ class SophiaDataIntelligence(UnifiedMCPServer):
 
 
 class SophiaInfrastructure(UnifiedMCPServer):
-    """Unified MCP server for infrastructure management and deployment."""
+    """Unified MCP server for infrastructure management and deployment"""
 
     def __init__(self):
 
@@ -222,7 +222,7 @@ class SophiaInfrastructure(UnifiedMCPServer):
     async def route_request(
         self, service: str, method: str, params: Dict[str, Any]
     ) -> Any:
-        """Route infrastructure-related requests."""
+        """Route infrastructure-related requests"""
 
     if service not in self.integrations:
 
@@ -237,7 +237,7 @@ class SophiaInfrastructure(UnifiedMCPServer):
     async def deploy_infrastructure(
         self, stack_name: str, config: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Deploy infrastructure using Pulumi."""
+        """Deploy infrastructure using Pulumi"""
 
     if "pulumi" in self.integrations:
 
@@ -248,7 +248,7 @@ class SophiaInfrastructure(UnifiedMCPServer):
     async def manage_containers(
         self, action: str, container_config: Dict[str, Any]
     ) -> Any:
-        """Manage Docker containers."""
+        """Manage Docker containers"""
 
     if "docker" in self.integrations:
 
@@ -258,7 +258,7 @@ class SophiaInfrastructure(UnifiedMCPServer):
 
 
 class SophiaBusinessIntelligence(UnifiedMCPServer):
-    """Unified MCP server for business tools and communication platforms."""
+    """Unified MCP server for business tools and communication platforms"""
 
     def __init__(self):
 
@@ -288,7 +288,7 @@ class SophiaBusinessIntelligence(UnifiedMCPServer):
     async def route_request(
         self, service: str, method: str, params: Dict[str, Any]
     ) -> Any:
-        """Route business-related requests."""
+        """Route business-related requests"""
 
     if service not in self.integrations:
 
@@ -303,7 +303,7 @@ class SophiaBusinessIntelligence(UnifiedMCPServer):
             raise ValueError(f"Method {method} not found in {service}")
 
     async def send_notification(self, message: str, channel: str = "slack") -> bool:
-        """Send notification through specified channel."""
+        """Send notification through specified channel"""
 
     if channel in self.integrations:
 
@@ -312,7 +312,7 @@ class SophiaBusinessIntelligence(UnifiedMCPServer):
             raise ValueError(f"Communication channel {channel} not available")
 
     async def get_sales_insights(self, date_range: Dict[str, str]) -> Dict[str, Any]:
-        """Get sales insights from Gong."""
+        """Get sales insights from Gong"""
 
     if "gong" in self.integrations:
 
@@ -347,7 +347,7 @@ MCP_SERVERS = {
 
 
 async def start_unified_mcp_servers():
-    """Start all unified MCP servers."""
+    """Start all unified MCP servers"""
     servers = []
 
     for server_name, config in MCP_SERVERS.items():

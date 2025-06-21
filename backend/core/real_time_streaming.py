@@ -20,7 +20,7 @@ from backend.monitoring.observability import logger
 
 
 class StreamType(str, Enum):
-    """Types of data streams."""
+    """Types of data streams"""
 
     GONG_CALLS = "gong_calls"
     SLACK_MESSAGES = "slack_messages"
@@ -30,7 +30,7 @@ class StreamType(str, Enum):
 
 
 class StreamStatus(str, Enum):
-    """Stream processing status."""
+    """Stream processing status"""
     ACTIVE = "active"
 
     PAUSED = "paused"
@@ -39,7 +39,7 @@ class StreamStatus(str, Enum):
 
 
 class StreamEvent(BaseModel):
-    """Real-time stream event."""
+    """Real-time stream event"""
 id: str = Field(default_factory=lambda: str(uuid4()))
     stream_type: StreamType
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -49,7 +49,7 @@ id: str = Field(default_factory=lambda: str(uuid4()))
 
 
 class StreamProcessor:
-    """Base class for stream processors."""
+    """Base class for stream processors"""
 def __init__(self, stream_type: StreamType):
 
         self.stream_type = stream_type
@@ -58,7 +58,7 @@ def __init__(self, stream_type: StreamType):
         self.status = StreamStatus.INITIALIZING
 
     async def process(self, event: StreamEvent) -> Any:
-        """Process a stream event."""
+        """Process a stream event"""
 # Apply filters
         for filter_fn in self.filters:
             if not await filter_fn(event):
@@ -73,13 +73,13 @@ def __init__(self, stream_type: StreamType):
         return results
 
     def add_handler(self, handler: Callable):
-        """Add event handler."""
+        """Add event handler"""
 self.handlers.append(handler)
     def add_filter(self, filter_fn: Callable):
-        """Add event filter."""
+        """Add event filter"""
 self.filters.append(filter_fn)
 class RealTimeStreaming:
-    """Real-time streaming infrastructure."""
+    """Real-time streaming infrastructure"""
 def __init__(self):
 
         self.redis_client: Optional[aioredis.Redis] = None
@@ -90,7 +90,7 @@ def __init__(self):
         self._initialized = False
 
     async def initialize(self):
-        """Initialize streaming infrastructure."""
+        """Initialize streaming infrastructure"""
 
     if self._initialized:
 
@@ -118,7 +118,7 @@ def __init__(self):
         logger.info("Real-time streaming infrastructure initialized")
 
     async def _setup_snowflake_streams(self):
-        """Set up Snowflake streams and tasks."""
+        """Set up Snowflake streams and tasks"""
 try:
 except Exception:
     pass
@@ -160,7 +160,7 @@ except Exception:
                     logger.error(f"Error setting up Snowflake streams: {e}")
 
                     def _setup_processors(self):
-        """Set up stream processors."""
+        """Set up stream processors"""
 # Gong call processor
         gong_processor = StreamProcessor(StreamType.GONG_CALLS)
         gong_processor.add_handler(self._process_gong_call)
@@ -178,7 +178,7 @@ except Exception:
         self.processors[StreamType.CRM_UPDATES] = crm_processor
 
     async def start_stream(self, stream_type: StreamType):
-        """Start processing a stream."""
+        """Start processing a stream"""
 
     await self.initialize()
         stream_id = f"{stream_type}:{datetime.utcnow().isoformat()}"
@@ -200,7 +200,7 @@ except Exception:
         logger.info(f"Started stream: {stream_id}")
 
     async def stop_stream(self, stream_type: StreamType):
-        """Stop processing a stream."""
+        """Stop processing a stream"""
     streams_to_remove = [
 
             s for s in self.active_streams if s.startswith(stream_type)
@@ -211,7 +211,7 @@ except Exception:
         logger.info(f"Stopped {len(streams_to_remove)} streams of type {stream_type}")
 
     async def publish_event(self, event: StreamEvent):
-        """Publish event to stream."""
+        """Publish event to stream"""
     await self.initialize()
         # Publish to Redis
         channel = f"stream:{event.stream_type}"
@@ -225,7 +225,7 @@ except Exception:
     async def _consume_snowflake_stream(
         self, stream_name: str, stream_type: StreamType
     ):
-        """Consume data from Snowflake stream."""
+        """Consume data from Snowflake stream"""
     processor = self.processors.get(stream_type)
         if not processor:
             logger.error(f"No processor for stream type: {stream_type}")
@@ -241,7 +241,8 @@ SELECT * FROM {stream_name}
                     WHERE METADATA$ACTION IN ('INSERT', 'UPDATE')
                     AND METADATA$ISUPDATE = FALSE
                     LIMIT 100;
-                """results = await self.snowflake.execute_query(query).
+                """
+                results = await self.snowflake.execute_query(query).
 
                                                 for row in results:
                                                     # Convert row to event
@@ -324,7 +325,7 @@ SELECT * FROM {stream_name}
                 await asyncio.sleep(30)  # Back off on error
 
     async def _process_gong_call(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process Gong call event."""
+        """Process Gong call event"""
     call_data = event.data
         # Extract key information
         result = {
@@ -346,7 +347,7 @@ SELECT * FROM {stream_name}
         return result
 
     async def _process_slack_message(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process Slack message event."""
+        """Process Slack message event"""
     message_data = event.data
         # Extract and analyze
         result = {
@@ -365,7 +366,7 @@ SELECT * FROM {stream_name}
         return result
 
     async def _process_crm_update(self, event: StreamEvent) -> Dict[str, Any]:
-        """Process CRM update event."""
+        """Process CRM update event"""
     update_data = event.data
         # Track changes
         result = {
@@ -383,7 +384,7 @@ SELECT * FROM {stream_name}
         return result
 
     async def _filter_important_calls(self, event: StreamEvent) -> bool:
-        """Filter for important calls only."""
+        """Filter for important calls only"""
     call_data = event.data
         # Check various importance criteria
         if call_data.get("duration", 0) > 1800:  # Longer than 30 minutes
@@ -396,7 +397,7 @@ SELECT * FROM {stream_name}
         return False
 
     async def _extract_topics(self, transcript: str) -> List[str]:
-        """Extract key topics from transcript."""
+        """Extract key topics from transcript"""
         # This would use NLP/LLM for topic extraction
         # Placeholder implementation
         topics = []
@@ -407,13 +408,13 @@ SELECT * FROM {stream_name}
         return topics
 
     async def _analyze_sentiment(self, text: str) -> float:
-        """Analyze sentiment of text."""
+        """Analyze sentiment of text"""
 # This would use sentiment analysis
         # Placeholder: return neutral sentiment
         return 0.5
 
     async def _extract_action_items(self, transcript: str) -> List[str]:
-        """Extract action items from transcript."""# This would use NLP to extract action items
+        """Extract action items from transcript"""# This would use NLP to extract action items
         # Placeholder implementation
         action_items = []
         action_phrases = ["will follow up", "need to", "action item", "next step"]
@@ -423,13 +424,13 @@ SELECT * FROM {stream_name}
         return action_items
 
     def _extract_mentions(self, text: str) -> List[str]:
-        """Extract mentions from text."""
+        """Extract mentions from text"""
         import re
         mentions = re.findall(r"@(\w+)", text)
         return mentions
 
     async def _assess_urgency(self, text: str) -> float:
-        """Assess message urgency."""
+        """Assess message urgency"""
     urgent_keywords = ["urgent", "asap", "immediately", "critical", "emergency"]
         text_lower = text.lower()
 
@@ -441,7 +442,7 @@ SELECT * FROM {stream_name}
         return min(urgency_score, 1.0)
 
     async def _assess_crm_impact(self, update_data: Dict[str, Any]) -> float:
-        """Assess impact of CRM update."""
+        """Assess impact of CRM update"""
         # High impact changes
         high_impact_fields = ["deal_stage", "amount", "close_date", "status"]
 
@@ -455,7 +456,7 @@ SELECT * FROM {stream_name}
         return min(impact_score, 1.0)
 
     async def _send_alert(self, alert_type: str, data: Dict[str, Any]):
-        """Send real-time alert."""
+        """Send real-time alert"""
     alert = {
 
             "type": alert_type,
@@ -469,17 +470,17 @@ SELECT * FROM {stream_name}
         logger.info(f"Sent alert: {alert_type}")
 
     async def _route_urgent_message(self, message: Dict[str, Any]):
-        """Route urgent message to appropriate handler."""
+        """Route urgent message to appropriate handler"""
         # This would integrate with notification system
         logger.info(f"Routing urgent message: {message['message_id']}")
 
     async def _update_dashboards(self, update: Dict[str, Any]):
-        """Update dashboards with real-time data."""
+        """Update dashboards with real-time data"""
         # Publish to WebSocket channel for dashboard updates
         await self.redis_client.publish("dashboard:updates", json.dumps(update))
 
     async def _monitor_streams(self):
-        """Monitor stream health and performance."""
+        """Monitor stream health and performance"""
         while True:
 
             await asyncio.sleep(60)  # Check every minute
@@ -498,7 +499,7 @@ SELECT * FROM {stream_name}
                 pass
 
     async def get_stream_metrics(self) -> Dict[str, Any]:
-        """Get streaming metrics."""
+        """Get streaming metrics"""
         return {
             "active_streams": len(self.active_streams),
             "stream_offsets": self.stream_offsets,

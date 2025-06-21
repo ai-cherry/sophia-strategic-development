@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class MemoryOperationType(Enum):
-    """Types of memory operations."""
+    """Types of memory operations"""
 
     STORE = "store"
     RETRIEVE = "retrieve"
@@ -29,7 +29,7 @@ class MemoryOperationType(Enum):
 
 @dataclass
 class MemoryRequest:
-    """Memory operation request."""
+    """Memory operation request"""
     operation: MemoryOperationType
 
     agent_id: str
@@ -42,7 +42,7 @@ class MemoryRequest:
 
 @dataclass
 class MemoryResponse:
-    """Memory operation response."""
+    """Memory operation response"""
 success: bool
 
     operation: MemoryOperationType
@@ -52,7 +52,7 @@ success: bool
 
 
 class ComprehensiveMemoryManager:
-    """Manages a two-tiered memory system: a Vector Store and a Persistent KV Store."""
+    """Manages a two-tiered memory system: a Vector Store and a Persistent KV Store"""
 def __init__(self):
 
         self.logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ def __init__(self):
         self.initialized = False
 
     async def initialize(self):
-        """Initialize all memory components."""
+        """Initialize all memory components"""
         if self.initialized:
 
             return
@@ -77,7 +77,7 @@ def __init__(self):
         self.logger.info("Comprehensive memory manager initialized successfully")
 
     async def process_memory_request(self, request: MemoryRequest) -> MemoryResponse:
-        """Process a memory operation request."""
+        """Process a memory operation request"""
     start_time = datetime.now()
 
         try:
@@ -114,7 +114,7 @@ def __init__(self):
             )
 
     async def _handle_store_request(self, request: MemoryRequest) -> Dict[str, Any]:
-        """Handle memory storage request."""
+        """Handle memory storage request"""
         if not request.content:
             raise ValueError("Content is required for store operation")
 

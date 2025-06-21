@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class EmbeddingMetadata:
-    """Metadata for an embedding."""
+    """Metadata for an embedding"""
 model: str
     dimension: int
     content_hash: str
@@ -51,21 +51,21 @@ model: str
 
 @dataclass
 class EmbeddingResult:
-    """Result of embedding generation."""
+    """Result of embedding generation"""
 embedding: List[float]
 
     metadata: EmbeddingMetadata
 
 
 class EmbeddingCache:
-    """Simple in-memory cache for embeddings."""
+    """Simple in-memory cache for embeddings"""
 def __init__(self, ttl_seconds: int = 3600):
 
         self.cache: Dict[str, Tuple[List[float], EmbeddingMetadata, datetime]] = {}
         self.ttl = timedelta(seconds=ttl_seconds)
 
     def get(self, key: str) -> Optional[EmbeddingResult]:
-        """Get embedding from cache if not expired."""
+        """Get embedding from cache if not expired"""
 if key in self.cache:
 
             embedding, metadata, cached_at = self.cache[key]
@@ -77,16 +77,16 @@ if key in self.cache:
         return None
 
     def set(self, key: str, result: EmbeddingResult):
-        """Store embedding in cache."""
+        """Store embedding in cache"""
 self.cache[key] = (result.embedding, result.metadata, datetime.now())
 
     def clear(self):
-        """Clear all cached embeddings."""
+        """Clear all cached embeddings"""
 self.cache.clear()
 
 
 class EnhancedEmbeddingManager:
-    """Manages embeddings with multiple model support and caching."""
+    """Manages embeddings with multiple model support and caching"""
 
     def __init__(self):
 
@@ -97,7 +97,7 @@ class EnhancedEmbeddingManager:
         self.initialized = False
 
     async def initialize(self):
-        """Initialize embedding models."""
+        """Initialize embedding models"""
         if self.initialized:
 
             return
@@ -131,13 +131,13 @@ class EnhancedEmbeddingManager:
         logger.info("Enhanced embedding manager initialized")
 
     def _compute_content_hash(self, text: str) -> str:
-        """Compute hash of text content."""
+        """Compute hash of text content"""
 return hashlib.sha256(text.encode()).hexdigest()
 
     async def generate_text_embedding(
         self, text: str, model: Optional[str] = None, use_cache: bool = True
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding for text with caching."""
+        """Generate embedding for text with caching"""
         if not self.initialized:
 
             await self.initialize()
@@ -177,7 +177,7 @@ return hashlib.sha256(text.encode()).hexdigest()
     async def _generate_sentence_transformer_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding using sentence transformers."""
+        """Generate embedding using sentence transformers"""
         try:
         except Exception:
             pass
@@ -203,7 +203,7 @@ return hashlib.sha256(text.encode()).hexdigest()
     async def _generate_openai_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate embedding using OpenAI."""
+        """Generate embedding using OpenAI"""
         try:
         except Exception:
             pass
@@ -232,7 +232,7 @@ return hashlib.sha256(text.encode()).hexdigest()
     async def _generate_random_embedding(
         self, text: str, model: str
     ) -> Tuple[List[float], EmbeddingMetadata]:
-        """Generate random embedding for testing."""
+        """Generate random embedding for testing"""
         logger.warning(
 
             "Using random embeddings - install sentence-transformers for real embeddings"
@@ -260,7 +260,7 @@ return hashlib.sha256(text.encode()).hexdigest()
     async def generate_batch_embeddings(
         self, texts: List[str], model: Optional[str] = None, use_cache: bool = True
     ) -> List[Tuple[List[float], EmbeddingMetadata]]:
-        """Generate embeddings for multiple texts."""
+        """Generate embeddings for multiple texts"""
 results = []
 
         for text in texts:
@@ -272,13 +272,13 @@ results = []
         return results
 
     def clear_cache(self):
-        """Clear the embedding cache."""
+        """Clear the embedding cache"""
         self.cache.clear()
 
         logger.info("Cleared embedding cache")
 
     async def get_available_models(self) -> List[str]:
-        """Get list of available embedding models."""
+        """Get list of available embedding models"""
         models = []
 
         if self.sentence_transformer:
@@ -293,7 +293,7 @@ results = []
         return models
 
     async def get_model_info(self, model: str) -> Dict[str, any]:
-        """Get information about a specific model."""
+        """Get information about a specific model"""
         info = {
 
             "model": model,
@@ -324,7 +324,7 @@ enhanced_embedding_manager = EnhancedEmbeddingManager()
 
 # Example usage
 async def main():
-    """Example usage of enhanced embedding manager."""
+    """Example usage of enhanced embedding manager"""
     manager = enhanced_embedding_manager
     await manager.initialize()
 

@@ -79,82 +79,74 @@ class BrainAgent(BaseAgent):
                     And received the following data: {json.dumps(query_results, indent=2)}
 
                     Based on this data, provide a clear, natural language answer to the original user request: '{task.command}'
-                    """summary_response = await self.portkey.llm_call(summary_prompt).
+                    """
+                    summary_response = await self.portkey.llm_call(summary_prompt)
 
-                                                            final_answer = (
-                                                                summary_response.get("choices", [{}])[0]
-                                                                .get("message", {})
-                                                                .get("content", "")
-                                                            )
-                                                            return TaskResult(status="success", output=final_answer)
+                    final_answer = (
+                        summary_response.get("choices", [{}])[0]
+                        .get("message", {})
+                        .get("content", "")
+                    )
+                    return TaskResult(status="success", output=final_answer)
 
-                                                    except (json.JSONDecodeError, KeyError):
-                                                        logger.warning(
-                                                            "Could not parse a structured plan. Falling back to direct answer."
-                                                        )
-                                                        # Fallback if the plan isn't structured as expected
-                                                        pass
+                except (json.JSONDecodeError, KeyError):
+                    logger.warning(
+                        "Could not parse a structured plan. Falling back to direct answer."
+                    )
+                    # Fallback if the plan isn't structured as expected
+                    pass
 
-                                                    # Fallback for non-SQL tasks or failed plan parsing
-                                                    final_answer_prompt = f
-                    """You are Sophia, an AI assistant for Pay Ready.
+            except Exception as e:
+                logger.error(
+                    f"Error executing brain task '{task.command}': {e}", exc_info=True
+                )
+                return TaskResult(status="error", output={"error": str(e)})
 
-            Answer the following user request based on your knowledge.
-            User Request: {task.command}
-            """final_answer_response = await self.portkey.llm_call(final_answer_prompt).
+        except Exception as e:
+            logger.error(
+                f"Error executing brain task '{task.command}': {e}", exc_info=True
+            )
+            return TaskResult(status="error", output={"error": str(e)})
 
-                                    final_answer = (
-                                        final_answer_response.get("choices", [{}])[0]
-                                        .get("message", {})
-                                        .get("content", "")
-                                    )
-                                    return TaskResult(status="success", output=final_answer)
-
-                                except Exception as e:
-                                    logger.error(
-                                        f"Error executing brain task '{task.command}': {e}", exc_info=True
-                                    )
-                                    return TaskResult(status="error", output={"error": str(e)})
-
-                            async def generate_code(self, prompt: str) -> TaskResult:
-            """Uses the LLM via Portkey to generate a block of code based on a prompt.
+    async def generate_code(self, prompt: str) -> TaskResult:
+        """Uses the LLM via Portkey to generate a block of code based on a prompt.
 
         Args:
             prompt: A detailed prompt describing the desired code.
 
         Returns:
             A TaskResult containing the generated code.
-        """logger.info("BrainAgent received code generation request.").
+        """
+        logger.info("BrainAgent received code generation request.")
 
-                        system_prompt =
-        """You are an expert Python and Pulumi developer.
+        system_prompt = """You are an expert Python and Pulumi developer.
 
         Your sole task is to generate clean, correct, and readable code based on the user's prompt.
         Do NOT add any explanatory text, conversational filler, or markdown code blocks (```python ... ```).
         Your output must be ONLY the raw code itself.
-        """try:
+        """
+        try:
+            code_response = await self.portkey.llm_call(
+                prompt, system_prompt=system_prompt
+            )
+            generated_code = (
+                code_response.get("choices", [{}])[0]
+                .get("message", {})
+                .get("content", "")
+            )
 
-                            code_response = await self.portkey.llm_call(
-                                prompt, system_prompt=system_prompt
-                            )
-                            generated_code = (
-                                code_response.get("choices", [{}])[0]
-                                .get("message", {})
-                                .get("content", "")
-                            )
+            # Clean up the response to ensure it's just code
+            if "```python" in generated_code:
+                generated_code = generated_code.split("```python\n")[1].split("```")[0]
+            elif "```" in generated_code:
+                generated_code = generated_code.replace("```", "")
 
-                            # Clean up the response to ensure it's just code
-                            if "```python" in generated_code:
-                                generated_code = generated_code.split("```python\n")[1].split("```")[0]
-                            elif "```" in generated_code:
-                                generated_code = generated_code.replace("```", "")
+            return TaskResult(status="success", output=generated_code.strip())
+        except Exception as e:
+            logger.error(f"Error during code generation: {e}", exc_info=True)
+            return TaskResult(status="error", output={"error": str(e)})
 
-                            return TaskResult(status="success", output=generated_code.strip())
-                        except Exception as e:
-                            logger.error(f"Error during code generation: {e}", exc_info=True)
-                            return TaskResult(status="error", output={"error": str(e)})
-
-                    def _create_planning_prompt(self) -> str:
+    def _create_planning_prompt(self) -> str:
         """Creates the system prompt for the planning LLM call."""
         # This would be expanded to include details about all available tools.
         prompt = """You are a master planner and orchestrator AI.

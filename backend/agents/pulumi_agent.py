@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class PulumiAgent(BaseAgent):
-    """Pulumi agent with natural language support.
+    """
+Pulumi agent with natural language support.
 
             - Stack management
             - Resource operations
@@ -37,7 +38,7 @@ class PulumiAgent(BaseAgent):
         self._validate_environment()
 
     def _validate_environment(self):
-        """Validate Pulumi environment."""
+        """Validate Pulumi environment"""
 
         try:
             # Check if Pulumi CLI is available
@@ -52,7 +53,8 @@ class PulumiAgent(BaseAgent):
             logger.error(f"Failed to validate Pulumi environment: {e}")
 
     async def execute(self, command: str, context: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Pulumi command based on natural language input."""command_lower = command.lower().
+        """Execute Pulumi command based on natural language input"""
+        command_lower = command.lower()
 
         session_id = context.get("session_id", "default")
         user_context = {
@@ -116,7 +118,8 @@ class PulumiAgent(BaseAgent):
     async def _deploy_stack(
         self, command: str, session_id: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Deploy a Pulumi stack."""# Extract stack name from command.
+        """Deploy a Pulumi stack"""
+        # Extract stack name from command
 
         stack_name = await self._get_stack_from_command_or_context(command, session_id)
 
@@ -141,7 +144,8 @@ class PulumiAgent(BaseAgent):
     async def _list_resources(
         self, command: str, session_id: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """List resources in a stack."""stack_name = await self._get_stack_from_command_or_context(command, session_id).
+        """List resources in a stack"""
+        stack_name = await self._get_stack_from_command_or_context(command, session_id)
 
         # Use MCP client to list resources
         result = await self.mcp_client.list_resources(
@@ -151,7 +155,7 @@ class PulumiAgent(BaseAgent):
         return result
 
     async def _create_stack(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Create a new Pulumi stack."""# Extract stack name from command.
+        """Create a new Pulumi stack"""# Extract stack name from command
 
         parts = command.split()
         stack_name = None
@@ -193,7 +197,7 @@ class PulumiAgent(BaseAgent):
             return {"status": "error", "message": f"Failed to create stack: {str(e)}"}
 
     async def _select_stack(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Select/switch to a different stack."""# Extract stack name.
+        """Select/switch to a different stack"""# Extract stack name.
 
         stack_name = command.split()[-1]
 
@@ -228,7 +232,8 @@ class PulumiAgent(BaseAgent):
     async def _get_stack_outputs(
         self, command: str, session_id: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Get stack outputs."""stack_name = await self._get_stack_from_command_or_context(command, session_id).
+        """Get stack outputs"""
+        stack_name = await self._get_stack_from_command_or_context(command, session_id)
 
         # Use MCP client to get outputs
         result = await self.mcp_client.get_stack_outputs(
@@ -238,7 +243,8 @@ class PulumiAgent(BaseAgent):
         return result
 
     async def _list_stacks(self, session_id: str) -> Dict[str, Any]:
-        """List all stacks."""try:.
+        """List all stacks"""
+        try:
 
             result = subprocess.run(
                 ["pulumi", "stack", "ls", "--json"], capture_output=True, text=True
@@ -268,7 +274,8 @@ class PulumiAgent(BaseAgent):
     async def _preview_changes(
         self, command: str, session_id: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Preview stack changes."""stack_name = await self._get_stack_from_command_or_context(command, session_id).
+        """Preview stack changes"""
+        stack_name = await self._get_stack_from_command_or_context(command, session_id)
 
         # Use MCP client with preview_only=True
         result = await self.mcp_client.deploy_stack(
@@ -280,7 +287,8 @@ class PulumiAgent(BaseAgent):
     async def _refresh_stack(
         self, command: str, session_id: str, user_context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Refresh stack state."""stack_name = await self._get_stack_from_command_or_context(command, session_id).
+        """Refresh stack state"""
+        stack_name = await self._get_stack_from_command_or_context(command, session_id)
 
         # Use MCP client to refresh
         result = await self.mcp_client.refresh_stack(
@@ -290,7 +298,7 @@ class PulumiAgent(BaseAgent):
         return result
 
     async def _update_config(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Update stack configuration."""# Parse config command.
+        """Update stack configuration"""# Parse config command.
 
         # Example: "set aws:region to us-west-2"
         if "set" in command and "to" in command:
@@ -332,7 +340,7 @@ class PulumiAgent(BaseAgent):
         }
 
     async def _generate_code(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Generate Pulumi code based on description."""# Extract what to generate.
+        """Generate Pulumi code based on description"""# Extract what to generate.
 
         description = command.replace("generate", "").replace("create", "").strip()
 
@@ -349,8 +357,7 @@ bucket = aws.s3.Bucket("my-bucket",
     )
 )
 
-pulumi.export("bucket_name", bucket.id)""",.
-
+pulumi.export("bucket_name", bucket.id)""",
             "ec2 instance": """import pulumi
 import pulumi_aws as aws
 
@@ -364,9 +371,8 @@ instance = aws.ec2.Instance("my-instance",
 )
 
 pulumi.export("instance_id", instance.id)
-pulumi.export("public_ip", instance.public_ip)""",.
+pulumi.export("public_ip", instance.public_ip)""",
             "kubernetes deployment": """import pulumi
-
 import pulumi_kubernetes as k8s
 
 # Create a Kubernetes deployment
@@ -393,7 +399,7 @@ deployment = k8s.apps.v1.Deployment("my-deployment",
     )
 )
 
-pulumi.export("deployment_name", deployment.metadata.name)""",.
+pulumi.export("deployment_name", deployment.metadata.name)""",
         }
 
         # Find matching template
@@ -418,7 +424,8 @@ pulumi.export("deployment_name", deployment.metadata.name)""",.
             }
 
     async def _fix_with_copilot(self, command: str, session_id: str) -> Dict[str, Any]:
-        """Use AI-Copilot to fix errors."""# Extract error message from command or get from context.
+        """Use AI-Copilot to fix errors"""
+        # Extract error message from command or get from context
 
         session_context = await context_manager.get_full_context(session_id)
         pulumi_context = session_context.get("pulumi", {})
@@ -442,7 +449,7 @@ pulumi.export("deployment_name", deployment.metadata.name)""",.
     async def _execute_direct_command(
         self, command: str, session_id: str
     ) -> Dict[str, Any]:
-        """Execute direct Pulumi command."""# Map common commands.
+        """Execute direct Pulumi command"""# Map common commands.
 
         command_map = {
             "up": ["pulumi", "up", "--yes"],
@@ -496,7 +503,7 @@ pulumi.export("deployment_name", deployment.metadata.name)""",.
     async def _get_stack_from_command_or_context(
         self, command: str, session_id: str
     ) -> str:
-        """Get stack name from command or context."""# Try to extract from command.
+        """Get stack name from command or context"""# Try to extract from command
 
         words = command.split()
         for i, word in enumerate(words):
@@ -514,14 +521,14 @@ pulumi.export("deployment_name", deployment.metadata.name)""",.
         return stack
 
     async def process_task(self, task) -> Dict[str, Any]:
-        """Process task - required by BaseAgent."""# Delegate to execute method.
+        """Process task - required by BaseAgent"""# Delegate to execute method.
 
         return await self.execute(
             task.task_data.get("command", ""), task.task_data.get("context", {})
         )
 
     async def get_capabilities(self) -> List[str]:
-        """Get list of capabilities."""
+        """Get list of capabilities"""
         return [
             "deploy stack",
             "preview changes",
