@@ -1,11 +1,18 @@
-"""
-Sophia AI Secure Environment Validator
+"""Validate that required environment variables are present."""
 
-Minimal stub for secure environment validation in Sophia AI backend.
-"""
+from __future__ import annotations
+
+import os
 
 
 class SecureEnvironmentValidator:
-    """Minimal stub for secure environment validator."""
+    """Check runtime environment for required secrets."""
 
-    pass
+    REQUIRED_VARS = ["PULUMI_ORG", "PULUMI_STACK"]
+
+    def validate(self) -> None:
+        """Raise ``RuntimeError`` if mandatory variables are missing."""
+
+        missing = [var for var in self.REQUIRED_VARS if not os.getenv(var)]
+        if missing:
+            raise RuntimeError(f"Missing required env vars: {', '.join(missing)}")

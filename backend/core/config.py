@@ -1,11 +1,26 @@
-"""
-Sophia AI Minimal Config
+"""Configuration utilities for the Sophia AI backend."""
 
-Configuration stub for Sophia AI backend.
-"""
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel
+
+from .auto_esc_config import AutoESCConfig
 
 
-class Config:
-    """Minimal configuration class stub."""
+class Config(BaseModel):
+    """Typed configuration loaded from Pulumi ESC."""
 
-    pass
+    openai_api_key: str | None = None
+    snowflake_account: str | None = None
+
+    @classmethod
+    def from_esc(cls) -> "Config":
+        """Instantiate :class:`Config` using Pulumi ESC values."""
+
+        esc_config = AutoESCConfig()
+        data: dict[str, Any] = {
+            field: esc_config.get(field) for field in cls.model_fields.keys()
+        }
+        return cls(**data)
