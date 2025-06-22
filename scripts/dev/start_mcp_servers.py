@@ -7,7 +7,9 @@ configuration, and starts the MCP servers using Docker Compose.
 
 Usage:
     python start_mcp_servers.py [--config mcp_config.json] [--compose docker compose.mcp.yml]
-"""import argparse
+"""
+
+import argparse
 
 import json
 import logging

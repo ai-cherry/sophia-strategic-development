@@ -5,7 +5,9 @@ the GitHub API to dynamically discover ALL organization-level secrets and
 syncs them to a specified Pulumi ESC environment.
 
 This removes the need to manually list secrets in the workflow file.
-"""import logging
+"""
+
+import logging
 
 import os
 import subprocess

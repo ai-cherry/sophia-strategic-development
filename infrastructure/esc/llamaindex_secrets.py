@@ -7,7 +7,9 @@ accessing these secrets in the application.
 
 Usage:
     python infrastructure/esc/llamaindex_secrets.py [--sync-secrets]
-"""import argparse
+"""
+
+import argparse
 
 import logging
 import os

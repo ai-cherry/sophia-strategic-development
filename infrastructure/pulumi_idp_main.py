@@ -2,7 +2,9 @@
 """Sophia AI - Pulumi IDP Main Infrastructure.
 
 Replaces Retool with AI-powered dashboard platform
-"""import pulumi
+"""
+
+import pulumi
 
 from components.dashboard_platform import DashboardPlatform, DashboardPlatformArgs
 from pulumi import Config, export

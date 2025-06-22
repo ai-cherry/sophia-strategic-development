@@ -36,8 +36,7 @@ class Tool:
 
 class Resource:
     """Represents an MCP resource."""
-    def __init__(.
-
+    def __init__(
         self,
         name: str,
         description: str,
@@ -52,7 +51,7 @@ class Resource:
 
 class MCPServer(ABC):
     """Base class for MCP servers with HTTP support."""
-    def __init__(self, name: str):.
+    def __init__(self, name: str):
 
         self.name = name
         self.logger = logging.getLogger(name)
@@ -73,26 +72,24 @@ class MCPServer(ABC):
 
     def register_tool(self, tool: Tool):
         """Register a tool with the server."""
-        self.tools[tool.name] = tool.
-
+        self.tools[tool.name] = tool
         self.logger.info(f"Registered tool: {tool.name}")
 
     def register_resource(self, resource: Resource):
         """Register a resource with the server."""
-        self.resources[resource.name] = resource.
-
+        self.resources[resource.name] = resource
         self.logger.info(f"Registered resource: {resource.name}")
 
     @abstractmethod
     async def setup(self):
         """Setup the server - must be implemented by subclasses."""
-        pass.
+        pass
 
     async def handle_tool_call(
         self, tool_name: str, parameters: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Handle a tool call request."""
-        if tool_name not in self.tools:.
+        if tool_name not in self.tools:
 
             return {
                 "error": f"Tool '{tool_name}' not found",
@@ -134,7 +131,7 @@ class MCPServer(ABC):
 
     async def handle_resource_request(self, resource_name: str) -> Dict[str, Any]:
         """Handle a resource request."""
-        if resource_name not in self.resources:.
+        if resource_name not in self.resources:
 
             return {
                 "error": f"Resource '{resource_name}' not found",
@@ -154,7 +151,7 @@ class MCPServer(ABC):
 
     async def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Handle incoming MCP requests."""
-        request_type = request.get("type").
+        request_type = request.get("type")
 
         if request_type == "list_tools":
             return {
@@ -194,7 +191,7 @@ class MCPServer(ABC):
 
     async def start(self):
         """Start the MCP server's HTTP interface."""
-        import uvicorn.
+        import uvicorn
 
         self.logger.info(f"Starting {self.name} HTTP server")
         await self.setup()
@@ -209,7 +206,7 @@ class MCPServer(ABC):
 
     async def start_stdin_mode(self, host: str = "0.0.0.0", port: int = 8080):
         """Start the MCP server."""
-        self.logger.info(f"Starting {self.name} on {host}:{port}").
+        self.logger.info(f"Starting {self.name} on {host}:{port}")
 
         # Setup the server
         await self.setup()

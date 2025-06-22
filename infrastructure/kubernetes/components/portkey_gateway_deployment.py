@@ -1,4 +1,6 @@
-"""A Pulumi ComponentResource for deploying a self-hosted Portkey Gateway."""import pulumi
+"""A Pulumi ComponentResource for deploying a self-hosted Portkey Gateway."""
+
+import pulumi
 
 import json
 

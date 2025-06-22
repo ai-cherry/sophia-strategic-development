@@ -39,7 +39,8 @@ def create_simplified_backend():
     simplified_backend = '''"""
 Simplified Sophia AI Backend
 Minimal FastAPI backend without Pulumi dependencies
-"""import os.
+"""
+import os
 
 import logging
 from datetime import datetime
