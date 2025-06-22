@@ -7,7 +7,8 @@ import subprocess
 
 
 def test_env_file():
-    """Test if .env file exists and has secrets."""print("=== Testing .env file ===").
+    """Test if .env file exists and has secrets."""
+    print("=== Testing .env file ===")
 
     if os.path.exists(".env"):
         print("✓ .env file exists")
@@ -24,7 +25,8 @@ def test_env_file():
 
 
 def test_mcp_config():
-    """Test if MCP config has proper env references."""print("=== Testing MCP Configuration ===").
+    """Test if MCP config has proper env references."""
+    print("=== Testing MCP Configuration ===")
 
     try:
         with open("mcp_config.json", "r") as f:
@@ -48,7 +50,8 @@ def test_mcp_config():
 
 
 def test_pulumi_esc():
-    """Test if Pulumi ESC has secrets."""print("=== Testing Pulumi ESC ===").
+    """Test if Pulumi ESC has secrets."""
+    print("=== Testing Pulumi ESC ===")
 
     # Check if Pulumi is installed
     try:
