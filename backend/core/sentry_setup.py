@@ -18,8 +18,17 @@ def init_sentry():
     """Initialize Sentry SDK with proper configuration from Pulumi ESC."""
     
     # Get configuration from Pulumi ESC via auto_esc_config
-    sentry_dsn = config.sentry_dsn if hasattr(config, 'sentry_dsn') else os.getenv("SENTRY_DSN")
-    environment = config.environment if hasattr(config, 'environment') else os.getenv("ENVIRONMENT", "development")
+    sentry_dsn = None
+    environment = "development"
+    
+    # Try to get from observability config first
+    if hasattr(config, 'observability') and config.observability:
+        sentry_dsn = config.observability.sentry_dsn if hasattr(config.observability, 'sentry_dsn') else None
+        environment = config.environment if hasattr(config, 'environment') else os.getenv("ENVIRONMENT", "development")
+    
+    # Fallback to direct config access
+    if not sentry_dsn:
+        sentry_dsn = config.sentry_dsn if hasattr(config, 'sentry_dsn') else os.getenv("SENTRY_DSN")
     
     if not sentry_dsn:
         logger.warning("SENTRY_DSN not configured in Pulumi ESC or environment, Sentry will not be initialized")

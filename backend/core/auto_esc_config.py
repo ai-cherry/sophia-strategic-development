@@ -104,6 +104,11 @@ class AutoESCConfig:
                 "observability": {
                     "arize_api_key": os.getenv("ARIZE_API_KEY"),
                     "arize_space_id": os.getenv("ARIZE_SPACE_ID"),
+                    "sentry_dsn": os.getenv("SENTRY_DSN"),
+                    "sentry_api_token": os.getenv("SENTRY_API_TOKEN"),
+                    "sentry_organization_slug": os.getenv("SENTRY_ORGANIZATION_SLUG"),
+                    "sentry_project_slug": os.getenv("SENTRY_PROJECT_SLUG"),
+                    "sentry_client_secret": os.getenv("SENTRY_CLIENT_SECRET"),
                 },
             }
         }
