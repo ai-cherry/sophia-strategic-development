@@ -35,15 +35,13 @@ logger = logging.getLogger(__name__)
 
 class VectorDBType(Enum):
     """Supported vector database types."""
-
-    MEMORY = "memory"
+        MEMORY = "memory"
 
 
 @dataclass
 class VectorConfig:
     """Configuration for the vector database."""
-
-    db_type: VectorDBType
+        db_type: VectorDBType
     index_name: str
     dimension: int = 384
     metric: str = "cosine"
@@ -53,8 +51,7 @@ class VectorConfig:
 @dataclass
 class VectorSearchResult:
     """Result from a vector search."""
-
-    id: str
+        id: str
     score: float
     metadata: Dict[str, Any]
     text: Optional[str] = None
@@ -100,7 +97,6 @@ class VectorDBInterface(ABC):
 
 class MemoryVectorDB(VectorDBInterface):
     """In-memory vector database used for tests."""
-
     def __init__(self, config: VectorConfig) -> None:
         self.config = config
         self.vectors: Dict[str, np.ndarray] = {}
@@ -179,7 +175,6 @@ class MemoryVectorDB(VectorDBInterface):
 
 class VectorIntegration:
     """Facade that manages vector database operations."""
-
     def __init__(self, config: Optional[VectorConfig] = None) -> None:
         self.config = config or self._get_default_config()
         self.db: Optional[VectorDBInterface] = None

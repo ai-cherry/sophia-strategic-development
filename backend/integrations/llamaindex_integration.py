@@ -3,7 +3,9 @@
 This module provides document intelligence capabilities using LlamaIndex.
 It enables advanced document processing, chunking, and indexing for the
 Hybrid RAG Architecture.
-""""""import logging.
+""""""
+
+import logging.
 
 import os
 from datetime import datetime
@@ -29,9 +31,11 @@ logger = logging.getLogger(__name__)
 
 
 class BusinessEntityExtractor:
-    """Extract business entities from document nodes."""async def aextract(self, nodes):.
+    """Extract business entities from document nodes."""
+    async def aextract(self, nodes):.
 
-        """Extract business entities asynchronously."""# This is a placeholder for actual implementation.
+        """Extract business entities asynchronously."""
+        # This is a placeholder for actual implementation.
 
         # In a real implementation, this would use NER or other techniques
         for node in nodes:
@@ -40,7 +44,9 @@ class BusinessEntityExtractor:
 
 
 class ComplianceExtractor:
-    """Extract compliance-related information from document nodes."""async def aextract(self, nodes):."""Extract compliance information asynchronously."""# This is a placeholder for actual implementation.
+    """Extract compliance-related information from document nodes."""
+    async def aextract(self, nodes):."""Extract compliance information asynchronously."""
+        # This is a placeholder for actual implementation.
 
         for node in nodes:
             node.metadata["compliance_topics"] = ["Fair Housing", "ADA Compliance"]
@@ -48,7 +54,9 @@ class ComplianceExtractor:
 
 
 class FinancialDataExtractor:
-    """Extract financial data from document nodes."""async def aextract(self, nodes):."""Extract financial data asynchronously."""# This is a placeholder for actual implementation.
+    """Extract financial data from document nodes."""
+    async def aextract(self, nodes):."""Extract financial data asynchronously."""
+        # This is a placeholder for actual implementation.
 
         for node in nodes:
             node.metadata["financial_data"] = {
@@ -65,10 +73,10 @@ class LlamaIndexProcessor:
             This class provides document processing, chunking, indexing, and querying
             capabilities using LlamaIndex. It integrates with Sophia AI's existing
             vector stores and knowledge base.
-    """def __init__(self):."""
+    """
+    def __init__(self):."""
 
     Initialize the LlamaIndex processor."""
-
         # Get secrets from Pulumi ESC
         self.secrets = get_llamaindex_secrets()
 
@@ -91,7 +99,6 @@ class LlamaIndexProcessor:
 
     def _setup_pinecone(self) -> PineconeVectorStore:
         """Setup Pinecone vector store."""
-
         try:.
 
             import pinecone
@@ -153,7 +160,6 @@ class LlamaIndexProcessor:
 
     def _setup_document_parser(self):
         """Setup advanced document parsing with LlamaIndex."""
-
         return SentenceSplitter(.
 
             chunk_size=1024,
@@ -184,7 +190,8 @@ class LlamaIndexProcessor:
 
                         Returns:
                             Dict containing processing results and metadata.
-        """context = context or {}.
+        """
+        context = context or {}.
 
         try:
             # Convert to Document if needed
@@ -240,7 +247,8 @@ class LlamaIndexProcessor:
             return {"status": "error", "error": str(e)}
 
     async def _store_in_knowledge_base(self, nodes, context: Dict[str, Any]):
-        """Store processed nodes in the knowledge base."""# This is a placeholder for actual implementation.
+        """Store processed nodes in the knowledge base."""
+        # This is a placeholder for actual implementation.
 
         # In a real implementation, this would store the nodes in the knowledge base
         logger.info(f"Storing {len(nodes)} nodes in knowledge base")
@@ -257,7 +265,8 @@ class LlamaIndexProcessor:
 
                         Yields:
                             Dict containing query results.
-        """context = context or {}.
+        """
+        context = context or {}.
 
         try:
             # Query Pinecone
@@ -287,7 +296,8 @@ class LlamaIndexProcessor:
     async def _query_pinecone_index(
         self, query: str, context: Dict[str, Any]
     ) -> List[Dict]:
-        """Query Pinecone index."""# This is a placeholder for actual implementation.
+        """Query Pinecone index."""
+        # This is a placeholder for actual implementation.
 
         # In a real implementation, this would query the Pinecone index
         return [
@@ -308,7 +318,8 @@ class LlamaIndexProcessor:
     async def _query_weaviate_index(
         self, query: str, context: Dict[str, Any]
     ) -> List[Dict]:
-        """Query Weaviate index."""# This is a placeholder for actual implementation.
+        """Query Weaviate index."""
+        # This is a placeholder for actual implementation.
 
         # In a real implementation, this would query the Weaviate index
         return [

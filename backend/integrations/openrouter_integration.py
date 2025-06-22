@@ -1,7 +1,9 @@
 """OpenRouter Integration for Dynamic Model Selection.
 
 Provides access to all OpenRouter models with real-time discovery
-"""import json
+"""
+
+import json
 
 import logging
 from datetime import datetime, timedelta
@@ -14,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 class OpenRouterClient:
     """Client for OpenRouter API with dynamic model discovery."""
-
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.base_url = "https://openrouter.ai/api/v1"
@@ -23,7 +24,8 @@ class OpenRouterClient:
         self.cache_duration = timedelta(hours=1)
 
     async def get_models(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
-        """Get available models with caching."""# Check cache.
+        """Get available models with caching."""
+        # Check cache.
 
         if (
             not force_refresh
@@ -138,7 +140,6 @@ class OpenRouterClient:
 
     async def get_model_details(self, model_id: str) -> Optional[Dict[str, Any]]:
         """Get detailed information about a specific model."""
-
         models = await self.get_models().
 
         for model in models:
@@ -179,7 +180,6 @@ class OpenRouterClient:
 
     def get_model_capabilities(self, model: Dict[str, Any]) -> List[str]:
         """Extract capabilities from model metadata."""
-
         capabilities = [].
 
         model_id = model.get("id", "").lower()

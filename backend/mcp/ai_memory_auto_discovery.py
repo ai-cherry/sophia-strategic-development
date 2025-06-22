@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class AIMemoryAutoDiscovery:
     """Auto-discovery system that helps AI coders find and use the AI Memory MCP server."""
-
     def __init__(self):
         self.mcp_client = None
         self.memory_tools = {}
@@ -37,7 +36,8 @@ class AIMemoryAutoDiscovery:
         }
 
     async def initialize(self, gateway_url: str = "http://localhost:8090"):
-        """Initialize connection to MCP gateway and discover AI Memory tools."""try:.
+        """Initialize connection to MCP gateway and discover AI Memory tools."""
+        try:.
 
             self.mcp_client = MCPClient(gateway_url)
             await self.mcp_client.connect()
@@ -55,7 +55,8 @@ class AIMemoryAutoDiscovery:
             return False
 
     async def _discover_ai_memory_tools(self):
-        """Discover and catalog AI Memory MCP tools."""try:.
+        """Discover and catalog AI Memory MCP tools."""
+        try:.
 
             # Get all tools for ai_memory server
             ai_memory_tools = self.mcp_client.list_tools("ai_memory")
@@ -72,7 +73,8 @@ class AIMemoryAutoDiscovery:
             logger.error(f"Error discovering AI Memory tools: {e}")
 
     def _generate_usage_hints(self, tool_info: Dict[str, Any]) -> Dict[str, Any]:
-        """Generate usage hints for AI coders."""tool_name = tool_info.get("tool", "").
+        """Generate usage hints for AI coders."""
+        tool_name = tool_info.get("tool", "").
 
         hints = {
             "when_to_use": "",
@@ -110,7 +112,8 @@ class AIMemoryAutoDiscovery:
         return hints
 
     def get_ai_coder_instructions(self) -> Dict[str, Any]:
-        """Get instructions for AI coding assistants on how to use AI Memory."""return {.
+        """Get instructions for AI coding assistants on how to use AI Memory."""
+        return {.
 
             "system_prompt_addition": self._generate_system_prompt(),
             "available_tools": self.memory_tools,
@@ -119,7 +122,8 @@ class AIMemoryAutoDiscovery:
         }
 
     def _generate_system_prompt(self) -> str:
-        """Generate system prompt addition for AI coders."""return """
+        """Generate system prompt addition for AI coders."""
+        return """
 
 AI MEMORY SYSTEM INTEGRATION:
 
@@ -151,7 +155,6 @@ AI: First, let me check if we've discussed this before...
 
 This memory system ensures continuity across coding sessions and helps build institutional knowledge.
 """def _get_usage_patterns(self) -> List[Dict[str, Any]]:."""Get common usage patterns for AI Memory."""
-
         return [
             {
                 "pattern": "conversation_storage",
@@ -174,7 +177,8 @@ This memory system ensures continuity across coding sessions and helps build ins
         ]
 
     async def create_ai_coder_config(self, output_path: str = ".ai_memory_config.json"):
-        """Create configuration file for AI coding assistants."""config = {.
+        """Create configuration file for AI coding assistants."""
+        config = {.
 
             "ai_memory_integration": {
                 "enabled": True,
@@ -199,7 +203,8 @@ This memory system ensures continuity across coding sessions and helps build ins
             return False
 
     async def test_memory_integration(self) -> Dict[str, Any]:
-        """Test the AI Memory integration."""test_results = {.
+        """Test the AI Memory integration."""
+        test_results = {.
 
             "discovery": False,
             "tools_available": False,

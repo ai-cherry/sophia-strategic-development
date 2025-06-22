@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 class EnrichmentAgent(BaseAgent):
     """Enriches internal data with information from external sources."""
-
     async def get_capabilities(self) -> List[AgentCapability]:
         return [
             AgentCapability(

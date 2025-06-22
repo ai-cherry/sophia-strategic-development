@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class NestedConfig:
     """A helper class to allow nested attribute access for the config."""
-
     def __init__(self, data: Dict[str, Any]):
         self._data = data
 
@@ -32,10 +31,10 @@ class NestedConfig:
 
 
 class AutoESCConfig:
-    """Automatically loads the entire configuration from Pulumi ESC and provides.
-
-            dynamic, nested access to all values.
-    """_instance = None.
+    """Automatically loads the entire configuration from Pulumi ESC and provides
+    dynamic, nested access to all values.
+    """
+    _instance = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -54,10 +53,10 @@ class AutoESCConfig:
         self._initialized = True
 
     def _load_esc_config(self):
-        """Loads the entire config structure from Pulumi ESC. It first tries to.
-
-                        get the values, and if that fails, it falls back to environment variables.
-        """logger.info(.
+        """Loads the entire config structure from Pulumi ESC. It first tries to
+        get the values, and if that fails, it falls back to environment variables.
+        """
+        logger.info(
             f"Attempting to load configuration from Pulumi ESC: {self.environment}"
         )
         try:
@@ -95,7 +94,6 @@ class AutoESCConfig:
 
     def _load_config_from_env(self) -> Dict[str, Any]:
         """Provides a basic fallback by reading known keys from env vars."""
-
         # This is a fallback and won't have the nested structure.
         return {
             "values": {
@@ -112,10 +110,9 @@ class AutoESCConfig:
 
     def __getattr__(self, name: str) -> Any:
         """Dynamically provides attribute access to the nested config.
-
-                        e.g., config.ai_services.openai_api_key
-        """# We primarily care about the 'values' block from the ESC output.
-
+        e.g., config.ai_services.openai_api_key
+        """
+        # We primarily care about the 'values' block from the ESC output.
         values = self._config_cache.get("values", {})
         if name in values:
             value = values[name]

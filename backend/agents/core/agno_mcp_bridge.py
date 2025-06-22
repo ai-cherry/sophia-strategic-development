@@ -28,7 +28,6 @@ class AgnoMCPBridge:
     This bridge enables Agno agents to seamlessly use existing MCP services
     while maintaining their performance characteristics (~3μs instantiation).
     """
-
     def __init__(self):
         self.mcp_client = mcp_client
         self.agent_framework = agent_framework
@@ -126,9 +125,9 @@ class AgnoMCPBridge:
         Returns:
             Async callable tool function
         """
-        async def mcp_tool(request: str, **kwargs) -> str:
+    async def mcp_tool(request: str, **kwargs) -> str:
             """Optimized MCP tool wrapper with error handling and caching"""
-            try:
+        try:
                 # Use existing MCP client for service communication
                 response = await self.mcp_client.get_context(
                     service_name=service_name,
@@ -269,11 +268,11 @@ async def create_hybrid_agent(
     mcp_services: List[str]
 ) -> Agent:
     """Create hybrid Agno agent with MCP integration."""
-    return await agno_mcp_bridge.create_agno_agent_with_mcp_tools(
+        return await agno_mcp_bridge.create_agno_agent_with_mcp_tools(
         agent_name, agent_config, mcp_services
     )
 
 
 async def get_bridge_metrics() -> Dict[str, Any]:
     """Get bridge performance metrics."""
-    return await agno_mcp_bridge.get_performance_metrics()
+        return await agno_mcp_bridge.get_performance_metrics()

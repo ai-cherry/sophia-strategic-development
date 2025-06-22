@@ -12,14 +12,14 @@ logger = logging.getLogger(__name__)
 
 class RateLimiter:
     """Simple rate limiter implementation."""
-
     def __init__(self, max_requests: int = 100, window_seconds: int = 60):
         self.max_requests = max_requests
         self.window_seconds = window_seconds
         self.requests = {}
 
     def is_allowed(self, key: str) -> bool:
-        """Check if request is allowed."""now = time.time().
+        """Check if request is allowed."""
+        now = time.time().
 
         window_start = now - self.window_seconds
 
@@ -40,13 +40,15 @@ class RateLimiter:
 
 
 async def get_current_user() -> Dict[str, Any]:
-    """Get current user (placeholder)."""return {"user_id": "admin", "role": "admin", "name": "Admin User"}.
+    """Get current user (placeholder)."""
+        return {"user_id": "admin", "role": "admin", "name": "Admin User"}.
 
 
 async def get_database():
-    """Get database connection (placeholder)."""return None.
+    """Get database connection (placeholder)."""
+        return None.
 
 
 async def get_redis():
     """Get Redis connection (placeholder)."""
-    return None
+        return None

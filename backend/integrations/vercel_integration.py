@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class VercelIntegration(Integration):
     """Complete Vercel deployment integration with full API support."""
-
     def __init__(self, service_name: str = "vercel"):
         super().__init__(service_name)
         self.base_url = "https://api.vercel.com"
@@ -25,7 +24,8 @@ class VercelIntegration(Integration):
     async def _create_client(
         self, config: ServiceConfig
     ) -> Optional[aiohttp.ClientSession]:
-        """Create Vercel API client."""try:.
+        """Create Vercel API client."""
+        try:.
 
             self.team_id = config.get_config("team_id")
 
@@ -48,7 +48,8 @@ class VercelIntegration(Integration):
             return None
 
     async def _perform_health_check(self) -> bool:
-        """Perform Vercel health check."""try:.
+        """Perform Vercel health check."""
+        try:.
 
             async with self.session.get(f"{self.base_url}/v2/user") as response:
                 return response.status == 200
@@ -57,7 +58,8 @@ class VercelIntegration(Integration):
             return False
 
     async def get_projects(self) -> List[Dict[str, Any]]:
-        """Get all projects."""try:.
+        """Get all projects."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -77,7 +79,8 @@ class VercelIntegration(Integration):
             return []
 
     async def get_project(self, project_id: str) -> Optional[Dict[str, Any]]:
-        """Get specific project details."""try:.
+        """Get specific project details."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -98,7 +101,8 @@ class VercelIntegration(Integration):
     async def get_deployments(
         self, project_id: str = None, limit: int = 20
     ) -> List[Dict[str, Any]]:
-        """Get deployments."""try:.
+        """Get deployments."""
+        try:.
 
             params = {"limit": limit}
             if self.team_id:
@@ -120,7 +124,8 @@ class VercelIntegration(Integration):
             return []
 
     async def get_deployment(self, deployment_id: str) -> Optional[Dict[str, Any]]:
-        """Get specific deployment details."""try:.
+        """Get specific deployment details."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -141,7 +146,8 @@ class VercelIntegration(Integration):
     async def create_deployment(
         self, name: str, files: Dict[str, str], project_settings: Dict[str, Any] = None
     ) -> Optional[Dict[str, Any]]:
-        """Create a new deployment."""try:.
+        """Create a new deployment."""
+        try:.
 
             payload = {
                 "name": name,
@@ -171,7 +177,8 @@ class VercelIntegration(Integration):
             return None
 
     async def delete_deployment(self, deployment_id: str) -> bool:
-        """Delete a deployment."""try:.
+        """Delete a deployment."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -186,7 +193,8 @@ class VercelIntegration(Integration):
             return False
 
     async def get_domains(self, project_id: str = None) -> List[Dict[str, Any]]:
-        """Get domains."""try:.
+        """Get domains."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -208,7 +216,8 @@ class VercelIntegration(Integration):
             return []
 
     async def add_domain(self, name: str, project_id: str) -> Optional[Dict[str, Any]]:
-        """Add a domain to a project."""try:.
+        """Add a domain to a project."""
+        try:.
 
             payload = {"name": name, "projectId": project_id}
 
@@ -229,7 +238,8 @@ class VercelIntegration(Integration):
             return None
 
     async def get_environment_variables(self, project_id: str) -> List[Dict[str, Any]]:
-        """Get environment variables for a project."""try:.
+        """Get environment variables for a project."""
+        try:.
 
             params = {}
             if self.team_id:
@@ -253,7 +263,8 @@ class VercelIntegration(Integration):
     async def set_environment_variable(
         self, project_id: str, key: str, value: str, target: List[str] = None
     ) -> Optional[Dict[str, Any]]:
-        """Set an environment variable."""try:.
+        """Set an environment variable."""
+        try:.
 
             payload = {
                 "key": key,
@@ -283,7 +294,8 @@ class VercelIntegration(Integration):
             return None
 
     async def get_logs(self, deployment_id: str) -> List[Dict[str, Any]]:
-        """Get deployment logs."""try:.
+        """Get deployment logs."""
+        try:.
 
             params = {}
             if self.team_id:

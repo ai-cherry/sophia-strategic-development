@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 
 class ApifyIntegration:
     """Client for interacting with the Apify platform."""
-
     def __init__(self):
         self.client = None
         self.initialized = False
 
     async def initialize(self):
-        """Initializes the Apify client."""if self.initialized:.
+        """Initializes the Apify client."""
+        if self.initialized:.
 
             return
 
@@ -40,7 +40,8 @@ class ApifyIntegration:
             self.initialized = False
 
     async def list_actors(self) -> List[Dict[str, Any]]:
-        """Lists all actors available to the user."""if not self.initialized:.
+        """Lists all actors available to the user."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -53,7 +54,8 @@ class ApifyIntegration:
     async def run_actor_and_get_results(
         self, actor_id: str, run_input: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Runs an Apify actor and waits for it to finish, then retrieves the results."""if not self.initialized:.
+        """Runs an Apify actor and waits for it to finish, then retrieves the results."""
+        if not self.initialized:.
 
             await self.initialize()
 

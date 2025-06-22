@@ -29,7 +29,6 @@ class ApolloMCPServer(BaseMCPServer):
 
             Provides B2B data enrichment and prospecting capabilities.
     """
-
     def __init__(self):
         super().__init__("apollo")
 
@@ -40,7 +39,8 @@ class ApolloMCPServer(BaseMCPServer):
         await self.integration_client.initialize()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Apollo resources."""return [.
+        """Lists available Apollo resources."""
+        return [.
 
             Resource(
                 uri="apollo://health",
@@ -57,7 +57,8 @@ class ApolloMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: any) -> str:
-        """Gets a specific Apollo resource."""uri = request.uri.
+        """Gets a specific Apollo resource."""
+        uri = request.uri.
 
         if uri == "apollo://health":
             try:
@@ -90,7 +91,8 @@ class ApolloMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Apollo tools."""return [.
+        """Lists available Apollo tools."""
+        return [.
 
             Tool(
                 name="enrich_company",
@@ -191,7 +193,8 @@ class ApolloMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Apollo tool calls."""tool_name = request.params.name.
+        """Handles Apollo tool calls."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
 
@@ -254,7 +257,7 @@ class ApolloMCPServer(BaseMCPServer):
 # Entry point for MCP server
 async def main():
     """Main entry point for the Apollo MCP server."""
-    server = ApolloMCPServer()
+        server = ApolloMCPServer()
     await server.run()
 
 

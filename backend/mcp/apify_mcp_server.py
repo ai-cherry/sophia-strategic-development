@@ -28,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 class ApifyMCPServer(BaseMCPServer):
     """MCP Server for Apify. Enables AI agents to run actors for web scraping and data extraction."""
-
     def __init__(self):
         super().__init__("apify")
 
@@ -38,7 +37,8 @@ class ApifyMCPServer(BaseMCPServer):
         self.integration_client = apify_integration
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Apify Actors as resources."""actors = await apify_integration.list_actors().
+        """Lists available Apify Actors as resources."""
+        actors = await apify_integration.list_actors().
 
         return [
             Resource(
@@ -51,13 +51,15 @@ class ApifyMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets details about a specific Apify Actor run."""run_id = request.uri.split("/")[-1].
+        """Gets details about a specific Apify Actor run."""
+        run_id = request.uri.split("/")[-1].
 
         run_details = await apify_integration.get_actor_run(run_id)
         return json.dumps(run_details, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Apify tools."""return [.
+        """Lists available Apify tools."""
+        return [.
 
             Tool(
                 name="google_search_and_scrape",

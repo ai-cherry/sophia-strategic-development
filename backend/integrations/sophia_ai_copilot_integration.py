@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WorkloadRecord:
     """Single workload usage record."""
-
-    timestamp: datetime
+        timestamp: datetime
     snowflake_queries: int = 0
     pinecone_queries: int = 0
     ai_calls: int = 0
@@ -27,7 +26,8 @@ class WorkloadRecord:
 
 @dataclass
 class CostConfig:
-    """Configuration for cost tracking."""budget: float = 1000.0.
+    """Configuration for cost tracking."""
+        budget: float = 1000.0.
 
     snowflake_cost_per_query: float = 0.0005
     pinecone_cost_per_query: float = 0.0001
@@ -36,7 +36,8 @@ class CostConfig:
 
 @dataclass
 class WorkloadMetrics:
-    """Stores historical workload records."""history: List[WorkloadRecord] = field(default_factory=list).
+    """Stores historical workload records."""
+        history: List[WorkloadRecord] = field(default_factory=list).
 
     def add_record(self, record: WorkloadRecord) -> None:
         logger.debug("Adding workload record: %s", record)
@@ -57,7 +58,8 @@ class WorkloadMetrics:
 
 
 class CostTracker:
-    """Tracks cost of workloads and validates budget."""def __init__(self, config: CostConfig | None = None) -> None:.
+    """Tracks cost of workloads and validates budget."""
+    def __init__(self, config: CostConfig | None = None) -> None:.
 
         self.config = config or CostConfig()
         self.monthly_cost = 0.0
@@ -80,7 +82,6 @@ class CostTracker:
 
 class PredictiveScaler:
     """Simple predictive scaler using moving average."""
-
     def __init__(self, metrics: WorkloadMetrics, threshold: float = 0.8) -> None:
         self.metrics = metrics
         self.threshold = threshold

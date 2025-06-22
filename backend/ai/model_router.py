@@ -28,8 +28,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelConfig:
     """Configuration describing an AI model."""
-
-    name: str
+        name: str
     provider: str
     cost_per_token: float
     max_tokens: int
@@ -40,15 +39,13 @@ class ModelConfig:
 @dataclass
 class RoutingRule:
     """Rule for routing requests to specific models."""
-
-    condition: str
+        condition: str
     target_model: str
     weight: float = 1.0
 
 
 class OpenRouterClient:
     """Minimal OpenRouter client."""
-
     def __init__(self) -> None:
         self.api_key = os.getenv("OPENROUTER_API_KEY", "")
         self.base_url = "https://openrouter.ai/api/v1"
@@ -75,7 +72,6 @@ class OpenRouterClient:
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Return a dummy completion response."""
-
         model_name = model or self._select_optimal_model(messages, [])
         return {
             "model": model_name,
@@ -93,12 +89,10 @@ class OpenRouterClient:
         self, messages: List[Dict[str, str]], capabilities: List[str]
     ) -> str:
         """Select a model.  The simplified logic just picks the first one."""
-
         return next(iter(self.models.values())).name
 
     async def get_models(self) -> List[Dict[str, Any]]:
         """Return available models."""
-
         return [
             {
                 "id": cfg.name,
@@ -110,7 +104,6 @@ class OpenRouterClient:
 
 class PortkeyGateway:
     """Minimal Portkey gateway wrapper."""
-
     def __init__(self) -> None:
         self.api_key = os.getenv("PORTKEY_API_KEY", "")
         self.base_url = "https://api.portkey.ai/v1"
@@ -126,7 +119,6 @@ class PortkeyGateway:
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Return a dummy completion from Portkey."""
-
         selected_model = model or self._apply_routing_strategy(
             messages, routing_strategy, kwargs
         )
@@ -149,13 +141,11 @@ class PortkeyGateway:
         kwargs: Dict[str, Any],
     ) -> str:
         """Very small routing strategy implementation."""
-
         return "openai/gpt-4-turbo"
 
 
 class SophiaAIModelRouter:
     """Unified router that proxies requests to OpenRouter or Portkey."""
-
     def __init__(self) -> None:
         self.openrouter = OpenRouterClient()
         self.portkey = PortkeyGateway()
@@ -173,7 +163,6 @@ class SophiaAIModelRouter:
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Route a chat completion request."""
-
         provider = provider or self.config["default_provider"]
         if provider == "portkey":
             result = await self.portkey.chat_completion(messages, model, **kwargs)
@@ -192,7 +181,6 @@ class SophiaAIModelRouter:
         model: Optional[str],
     ) -> None:
         """Log a request for basic analytics."""
-
         log_data = {
             "timestamp": datetime.utcnow().isoformat(),
             "provider": provider,
@@ -217,8 +205,7 @@ def get_sophia_router() -> SophiaAIModelRouter:
 
 async def sophia_chat(messages: List[Dict[str, str]], **kwargs: Any) -> Dict[str, Any]:
     """Convenience wrapper around :meth:`SophiaAIModelRouter.chat`."""
-
-    router = get_sophia_router()
+        router = get_sophia_router()
     return await router.chat(messages, **kwargs)
 
 
@@ -226,8 +213,7 @@ async def sophia_analyze(
     text: str, analysis_type: str = "general", **kwargs: Any
 ) -> Dict[str, Any]:
     """Perform a simple analysis request."""
-
-    messages = [
+        messages = [
         {
             "role": "system",
             "content": f"You are Sophia AI, an expert analyst. Perform {analysis_type} analysis.",
@@ -242,8 +228,7 @@ async def sophia_code(
     prompt: str, language: str = "python", **kwargs: Any
 ) -> Dict[str, Any]:
     """Generate code using Sophia AI."""
-
-    messages = [
+        messages = [
         {
             "role": "system",
             "content": f"You are Sophia AI, an expert {language} developer.",

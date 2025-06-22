@@ -18,7 +18,6 @@ class PersistentMemory:
 
             Each agent's memory is stored in a separate JSON file
     """
-
     def __init__(self, storage_path: str = "./agent_memory"):
         """Initialize persistent memory storage"""
 
@@ -30,7 +29,6 @@ class PersistentMemory:
         self, agent_id: str, role_partition: str = "default"
     ) -> Path:
         """Gets the memory file path for a given agent, partitioned by role"""
-
         partition_path = self.storage_path / role_partition
         partition_path.mkdir(exist_ok=True)
         return partition_path / f"{agent_id}_memory.json"
@@ -93,7 +91,7 @@ class PersistentMemory:
 
                         A real implementation would have more sophisticated querying
         """
-    memory_data = await self._read_memory(agent_id, role_partition)
+        memory_data = await self._read_memory(agent_id, role_partition)
         all_memories = []
         for mem_type in memory_data:
             all_memories.extend(memory_data[mem_type])
@@ -104,7 +102,6 @@ class PersistentMemory:
 
             class Mem0PersistentMemory(PersistentMemory):
     """Persistent memory using mem0 for long-term context"""
-
     def __init__(
 
         self,
@@ -172,7 +169,7 @@ class PersistentMemory:
 
     async def close(self):
         """Close the memory"""
-if self.mem0_client:
+        if self.mem0_client:
 
             await self.mem0_client.close()
             self.mem0_client = None
@@ -306,7 +303,6 @@ if self.mem0_client:
 
 class VectorPersistentMemory(PersistentMemory):
     """Persistent memory using vector database for long-term context"""
-
     def __init__(
 
         self,

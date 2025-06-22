@@ -29,7 +29,6 @@ class HubSpotConfig:
 
 class HubSpotIntegration:
     """Comprehensive HubSpot CRM integration."""
-
     def __init__(self, config: HubSpotConfig = None):
         self.config = config or HubSpotConfig()
         self.client = hubspot.Client.create(api_key=self.config.api_key)
@@ -47,7 +46,8 @@ class HubSpotIntegration:
             await self.session.close()
 
     async def _rate_limit_delay(self):
-        """Implement rate limiting to avoid API limits."""elapsed = (datetime.now() - self.last_request_time).total_seconds().
+        """Implement rate limiting to avoid API limits."""
+        elapsed = (datetime.now() - self.last_request_time).total_seconds().
 
         if elapsed < self.config.rate_limit_delay:
             await asyncio.sleep(self.config.rate_limit_delay - elapsed)
@@ -89,7 +89,8 @@ class HubSpotIntegration:
     async def get_contact(
         self, contact_id: str = None, email: str = None
     ) -> Optional[Dict[str, Any]]:
-        """Get contact by ID or email."""try:.
+        """Get contact by ID or email."""
+        try:.
 
             if contact_id:
                 endpoint = f"/crm/v3/objects/contacts/{contact_id}"
@@ -135,7 +136,8 @@ class HubSpotIntegration:
     async def create_contact(
         self, contact_data: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Create new contact in HubSpot."""try:.
+        """Create new contact in HubSpot."""
+        try:.
 
             endpoint = "/crm/v3/objects/contacts"
             data = {"properties": contact_data}
@@ -151,7 +153,8 @@ class HubSpotIntegration:
     async def update_contact(
         self, contact_id: str, updates: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Update existing contact."""try:.
+        """Update existing contact."""
+        try:.
 
             endpoint = f"/crm/v3/objects/contacts/{contact_id}"
             data = {"properties": updates}
@@ -167,7 +170,8 @@ class HubSpotIntegration:
     async def search_contacts(
         self, filters: List[Dict[str, Any]], limit: int = 100
     ) -> List[Dict[str, Any]]:
-        """Search contacts with filters."""try:.
+        """Search contacts with filters."""
+        try:.
 
             endpoint = "/crm/v3/objects/contacts/search"
             data = {
@@ -192,7 +196,8 @@ class HubSpotIntegration:
 
     # Deal Management
     async def get_deal(self, deal_id: str) -> Optional[Dict[str, Any]]:
-        """Get deal by ID."""try:.
+        """Get deal by ID."""
+        try:.
 
             endpoint = f"/crm/v3/objects/deals/{deal_id}"
             params = {
@@ -205,7 +210,8 @@ class HubSpotIntegration:
             return None
 
     async def create_deal(self, deal_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Create new deal."""try:.
+        """Create new deal."""
+        try:.
 
             endpoint = "/crm/v3/objects/deals"
             data = {"properties": deal_data}
@@ -221,7 +227,8 @@ class HubSpotIntegration:
     async def update_deal(
         self, deal_id: str, updates: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Update existing deal."""try:.
+        """Update existing deal."""
+        try:.
 
             endpoint = f"/crm/v3/objects/deals/{deal_id}"
             data = {"properties": updates}
@@ -235,7 +242,8 @@ class HubSpotIntegration:
             return None
 
     async def get_deals_by_contact(self, contact_id: str) -> List[Dict[str, Any]]:
-        """Get all deals associated with a contact."""try:.
+        """Get all deals associated with a contact."""
+        try:.
 
             endpoint = f"/crm/v3/objects/contacts/{contact_id}/associations/deals"
             associations = await self._make_request("GET", endpoint)
@@ -256,7 +264,8 @@ class HubSpotIntegration:
     async def get_company(
         self, company_id: str = None, domain: str = None
     ) -> Optional[Dict[str, Any]]:
-        """Get company by ID or domain."""try:.
+        """Get company by ID or domain."""
+        try:.
 
             if company_id:
                 endpoint = f"/crm/v3/objects/companies/{company_id}"
@@ -302,7 +311,8 @@ class HubSpotIntegration:
     async def create_company(
         self, company_data: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Create new company."""try:.
+        """Create new company."""
+        try:.
 
             endpoint = "/crm/v3/objects/companies"
             data = {"properties": company_data}
@@ -319,7 +329,8 @@ class HubSpotIntegration:
     async def create_note(
         self, contact_id: str, note_content: str, note_type: str = "CALL"
     ) -> Optional[Dict[str, Any]]:
-        """Create note/activity for contact."""try:.
+        """Create note/activity for contact."""
+        try:.
 
             endpoint = "/crm/v3/objects/notes"
             data = {
@@ -357,7 +368,8 @@ class HubSpotIntegration:
         task_body: str,
         due_date: datetime = None,
     ) -> Optional[Dict[str, Any]]:
-        """Create task for contact."""try:.
+        """Create task for contact."""
+        try:.
 
             endpoint = "/crm/v3/objects/tasks"
 
@@ -397,7 +409,8 @@ class HubSpotIntegration:
 
     # Analytics and Reporting
     async def get_contact_analytics(self, contact_id: str) -> Dict[str, Any]:
-        """Get analytics data for contact."""try:.
+        """Get analytics data for contact."""
+        try:.
 
             # Get contact details
             contact = await self.get_contact(contact_id)
@@ -443,7 +456,8 @@ class HubSpotIntegration:
             return {}
 
     async def get_pipeline_analytics(self, pipeline_id: str = None) -> Dict[str, Any]:
-        """Get pipeline performance analytics."""try:.
+        """Get pipeline performance analytics."""
+        try:.
 
             # Get all deals in pipeline
             endpoint = "/crm/v3/objects/deals/search"
@@ -524,7 +538,8 @@ class HubSpotIntegration:
     async def bulk_update_contacts(
         self, updates: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Bulk update multiple contacts."""try:.
+        """Bulk update multiple contacts."""
+        try:.
 
             endpoint = "/crm/v3/objects/contacts/batch/update"
             data = {"inputs": updates}
@@ -540,7 +555,8 @@ class HubSpotIntegration:
     async def export_contacts(
         self, filters: List[Dict[str, Any]] = None, properties: List[str] = None
     ) -> List[Dict[str, Any]]:
-        """Export contacts with optional filters."""try:.
+        """Export contacts with optional filters."""
+        try:.
 
             all_contacts = []
             after = None
@@ -588,13 +604,15 @@ class HubSpotIntegration:
 
 
 class HubSpotWebhookHandler:
-    """Handle HubSpot webhooks for real-time updates."""def __init__(self, webhook_secret: str = None):.
+    """Handle HubSpot webhooks for real-time updates."""
+    def __init__(self, webhook_secret: str = None):.
 
         self.webhook_secret = webhook_secret
         self.handlers = {}
 
     def register_handler(self, event_type: str, handler_func):
-        """Register handler for specific webhook event."""if event_type not in self.handlers:.
+        """Register handler for specific webhook event."""
+        if event_type not in self.handlers:.
 
             self.handlers[event_type] = []
         self.handlers[event_type].append(handler_func)

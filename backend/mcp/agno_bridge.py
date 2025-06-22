@@ -17,7 +17,8 @@ class MCPToAgnoBridge:
     """Bridge between MCP and Agno.
 
             Converts MCP tools to Agno tools.
-    """def __init__(self, mcp_client: MCPClient):."""Initialize the MCP to Agno bridge.
+    """
+    def __init__(self, mcp_client: MCPClient):."""Initialize the MCP to Agno bridge.
 
         Args:
             mcp_client: The MCP client to use
@@ -41,7 +42,8 @@ class MCPToAgnoBridge:
 
         Returns:
             Optional[AgnoTool]: The converted Agno tool, or None if conversion failed
-        """# Check cache.
+        """
+        # Check cache.
 
                         cache_key = f"{server_name}:{tool_name}"
                         if cache_key in self.tool_cache:
@@ -98,7 +100,8 @@ class MCPToAgnoBridge:
 
         Returns:
             List[AgnoTool]: The converted Agno tools
-        """try:
+        """
+        try:
 
                             # Get list of tools from MCP
                             tool_names = self.mcp_client.list_tools(server_name)
@@ -124,7 +127,8 @@ class MCPToAgnoBridge:
 
         Returns:
             List[AgnoTool]: The converted Agno tools
-        """try:
+        """
+        try:
 
                             # Get list of servers from MCP
                             server_names = self.mcp_client.list_servers()
@@ -151,7 +155,8 @@ class MCPToAgnoBridge:
 
         Returns:
             Dict[str, Any]: Statistics about the tool cache
-        """return {.
+        """
+        return {.
 
                             "cache_size": len(self.tool_cache),
                             "cache_ttl": self.cache_ttl,

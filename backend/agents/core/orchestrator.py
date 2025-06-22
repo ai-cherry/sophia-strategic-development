@@ -79,7 +79,6 @@ class Task:
 
 class AgentMessageBus:
     """Redis-based message bus for agent communication."""
-
     def __init__(self, redis_host: str = None, redis_port: int = 6379):
         redis_host = redis_host or os.getenv("REDIS_HOST", "localhost")
         self.redis_client = redis.Redis(
@@ -155,7 +154,6 @@ class AgentMessageBus:
 
 class AgentRegistry:
     """Central registry for agent discovery and management."""
-
     def __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
         self.agents: Dict[str, AgentInfo] = {}
@@ -261,7 +259,6 @@ class AgentRegistry:
 
 class ContextManager:
     """Manages shared context and memory across agents."""
-
     def __init__(self, redis_client: redis.Redis, postgres_connection: str):
         self.redis_client = redis_client
         self.postgres_connection = postgres_connection
@@ -404,7 +401,6 @@ class ContextManager:
 
 class TaskRouter:
     """Routes tasks to appropriate agents and manages task lifecycle."""
-
     def __init__(
         self,
         agent_registry: AgentRegistry,
@@ -511,7 +507,6 @@ class TaskRouter:
 
 class SophiaOrchestrator:
     """Main orchestrator class that coordinates all agents and systems."""
-
     def __init__(self, redis_host: str = None, postgres_connection: str = None):
         redis_host = redis_host or os.getenv("REDIS_HOST", "localhost")
         postgres_connection = postgres_connection or os.getenv(
@@ -590,8 +585,7 @@ class SophiaOrchestrator:
 
     async def _process_results(self):
         """Process task results from agents."""
-
-        async def result_callback(message):
+    async def result_callback(message):
             try:
                 if message["type"] == "task_result":
                     task_id = message["task_id"]

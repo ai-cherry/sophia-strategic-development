@@ -1,7 +1,9 @@
 """Apollo.io Integration.
 
 B2B data enrichment and prospecting platform integration
-"""import asyncio
+"""
+
+import asyncio
 
 import logging
 from typing import Any, Dict, List, Optional, Tuple
@@ -17,7 +19,8 @@ class ApolloIntegration:
     """Apollo.io integration for B2B data enrichment.
 
             Provides company and contact enrichment capabilities.
-    """def __init__(self):
+    """
+    def __init__(self):
 
         self.api_key = None
         self.base_url = "https://api.apollo.io/v1"
@@ -26,7 +29,6 @@ class ApolloIntegration:
 
     async def initialize(self):
         """Initialize the Apollo integration."""
-
         if self.initialized:
             return
 
@@ -55,7 +57,6 @@ class ApolloIntegration:
         self, method: str, endpoint: str, **kwargs
     ) -> Dict[str, Any]:
         """Make a request to the Apollo API."""
-
         if not self.initialized:.
 
             await self.initialize()
@@ -236,7 +237,6 @@ class ApolloIntegration:
 
     def _format_contact_data(self, contact: Dict[str, Any]) -> Dict[str, Any]:
         """Format contact data for consistent output."""
-
         return {.
 
             "name": contact.get("name"),

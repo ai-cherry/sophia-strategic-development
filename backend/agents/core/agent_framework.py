@@ -1,9 +1,10 @@
 """Sophia AI - Centralized MCP-Native Agent Framework.
 
 This framework is the single source of truth for all AI agent initialization,
-management, and interaction via the Model Context Protocol (MCP).
-""""""import logging.
+management, and interaction via the Model Context Protocol (MCP):
+    """"""
 
+import logging
 from datetime import datetime
 from typing import Any, Coroutine, Dict, List, Optional
 
@@ -19,13 +20,14 @@ logger = logging.getLogger(__name__)
 
 
 class MCPOrchestrator:
-    """The central nervous system for Sophia's AI agents.
+    The central nervous system for Sophia's AI agents.
 
             It manages agent sessions and funnels all tool interactions through the single,
-            universal mcp_client.
-    """def __init__(self):."""
+            universal mcp_client:
+                """d"""
+        ef __init__(self):."""
 
-    Initializes the orchestrator."""
+        Initializes the orchestrator."""
 
         self.is_initialized = False
         self.start_time: Optional[datetime] = None
@@ -34,7 +36,6 @@ class MCPOrchestrator:
 
     async def initialize(self):
         """Initializes the framework."""
-
         if self.is_initialized:.
 
             logger.warning("Framework already initialized.")
@@ -47,13 +48,13 @@ class MCPOrchestrator:
         logger.info("✅ MCP-Native Agent Framework Initialized Successfully.")
 
     async def ask_agent(self, session_id: str, request: str) -> Dict:
-        """Primary method for interacting with an agent.
-
-                        Simulates the agent receiving a request and using an MCP tool to respond.
-        """if session_id not in self.sessions:.
+        """Primary method for interacting with an agent:
+                        Simulates the agent receiving a request and using an MCP tool to respond:"""
+        """
+        if session_id not in self.sessions:.
 
             self.sessions[session_id] = []
-
+"""
         self.sessions[session_id].append({"role": "user", "content": request})
 
         logger.info("Agent decided to use the 'pulumi' MCP service.")
@@ -72,9 +73,7 @@ class MCPOrchestrator:
 
     async def get_status(self) -> Dict[str, Any]:
         """Returns the current status of the agent framework."""
-
-        return {.
-
+        return {
             "is_healthy": self.is_initialized,
             "start_time": self.start_time.isoformat() if self.start_time else None,
             "active_sessions": len(self.sessions),
@@ -90,9 +89,8 @@ class MCPOrchestrator:
     async def initialize_tools(self):
         """Loads all defined tools and registers them for agent use."""
 
-        logger.info("Initializing and registering Agno-native tools...").
-
-        all_tools = [
+        logger.info("Initializing and registering Agno-native tools..."):
+            all_tools = [
             gong_tools,
             hubspot_tools,
             custom_chunking_tools,
@@ -119,3 +117,5 @@ class MCPOrchestrator:
 
 # Singleton instance of the framework, now renamed to reflect its purpose
 agent_framework = MCPOrchestrator()
+
+"""

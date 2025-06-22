@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ESCConfig:
     """Enhanced configuration for Pulumi ESC integration."""
-
-    organization: str = "ai-cherry"
+        organization: str = "ai-cherry"
     project_name: str = "sophia-ai"
     environment_name: str = "sophia-production"
     github_org: str = "ai-cherry"
@@ -34,13 +33,15 @@ class EnhancedSophiaESCManager:
     """Enhanced Pulumi ESC integration for Sophia AI.
 
             Provides comprehensive secret management with GitHub org-level integration
-    """def __init__(self, config: ESCConfig = None):.
+    """
+    def __init__(self, config: ESCConfig = None):.
         self.config = config or ESCConfig()
         self.environment_path = self.config.environment_path
         self._validate_esc_cli()
 
     def _validate_esc_cli(self) -> bool:
-        """Validate that Pulumi ESC CLI is installed and configured."""try:.
+        """Validate that Pulumi ESC CLI is installed and configured."""
+        try:.
 
             result = subprocess.run(
                 ["esc", "version"], capture_output=True, text=True, check=True
@@ -54,7 +55,8 @@ class EnhancedSophiaESCManager:
     def create_environment(
         self, environment_file: str = "pulumi-esc-environment.yaml"
     ) -> bool:
-        """Create or update the Pulumi ESC environment."""try:.
+        """Create or update the Pulumi ESC environment."""
+        try:.
 
             # Read the environment configuration
             with open(environment_file, "r") as f:
@@ -90,7 +92,8 @@ class EnhancedSophiaESCManager:
             return False
 
     def get_environment_values(self) -> Dict[str, Any]:
-        """Retrieve all environment values from Pulumi ESC."""try:.
+        """Retrieve all environment values from Pulumi ESC."""
+        try:.
 
             result = subprocess.run(
                 ["esc", "env", "get", self.environment_path, "--format", "json"],
@@ -114,7 +117,8 @@ class EnhancedSophiaESCManager:
 
                         Args:
                             key_path: Dot-separated path to the secret (e.g., 'database.postgres.password')
-        """try:.
+        """
+        try:.
 
             values = self.get_environment_values()
 
@@ -134,7 +138,8 @@ class EnhancedSophiaESCManager:
             return None
 
     def generate_env_file(self, output_path: str = ".env") -> bool:
-        """Generate a .env file from ESC environment values."""try:.
+        """Generate a .env file from ESC environment values."""
+        try:.
 
             values = self.get_environment_values()
 
@@ -313,7 +318,8 @@ class EnhancedSophiaESCManager:
                 file_handle.write(f"{key}={value}\n")
 
     def _write_remaining_sections(self, file_handle, values: Dict[str, Any]):
-        """Write remaining configuration sections."""# Knowledge Services.
+        """Write remaining configuration sections."""
+        # Knowledge Services.
 
         knowledge_config = values.get("knowledge_services", {})
         knowledge_env_vars = {}
@@ -404,7 +410,8 @@ class EnhancedSophiaESCManager:
     def _flatten_config_for_env(
         self, config: Dict[str, Any], prefix: str = ""
     ) -> Dict[str, Any]:
-        """Flatten nested configuration dictionary for .env format."""flattened = {}.
+        """Flatten nested configuration dictionary for .env format."""
+        flattened = {}.
 
         for key, value in config.items():
             new_key = f"{prefix}_{key}".upper() if prefix else key.upper()
@@ -419,12 +426,15 @@ class EnhancedSophiaESCManager:
         return flattened
 
     def _get_timestamp(self) -> str:
-        """Get current timestamp for file generation."""from datetime import datetime.
+        """Get current timestamp for file generation."""
+
+from datetime import datetime.
 
         return datetime.now().isoformat()
 
     def validate_environment(self) -> Dict[str, bool]:
-        """Validate that all required configuration is present."""validation_results = {}.
+        """Validate that all required configuration is present."""
+        validation_results = {}.
 
         try:
             values = self.get_environment_values()
@@ -471,7 +481,8 @@ class EnhancedSophiaESCManager:
     def run_with_environment(
         self, command: List[str], working_dir: str = None
     ) -> subprocess.CompletedProcess:
-        """Run a command with ESC environment variables injected."""try:.
+        """Run a command with ESC environment variables injected."""
+        try:.
 
             # Use esc run to inject environment variables
             esc_command = ["esc", "run", self.environment_path, "--"] + command
@@ -488,7 +499,8 @@ class EnhancedSophiaESCManager:
             raise
 
     def sync_with_github_secrets(self) -> bool:
-        """Sync environment with GitHub organization secrets."""try:.
+        """Sync environment with GitHub organization secrets."""
+        try:.
 
             # This would require GitHub API integration
             # For now, we'll log the requirement
@@ -505,7 +517,7 @@ class EnhancedSophiaESCManager:
 
 def main():
     """Main function to demonstrate ESC integration."""
-    esc_manager = EnhancedSophiaESCManager()
+        esc_manager = EnhancedSophiaESCManager()
 
     print("🔐 Enhanced Sophia AI ESC Integration")
     print("=" * 50)

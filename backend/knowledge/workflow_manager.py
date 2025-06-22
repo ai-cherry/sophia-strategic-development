@@ -47,7 +47,6 @@ class WorkflowTask:
 
 class KnowledgeBaseWorkflowManager:
     """Manages automated workflows for knowledge base content updates."""
-
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.tasks: Dict[str, WorkflowTask] = {}
@@ -56,7 +55,8 @@ class KnowledgeBaseWorkflowManager:
     async def create_workflow(
         self, name: str, source: ContentSource, metadata: Dict[str, Any]
     ) -> str:
-        """Create a new workflow task."""task_id = f"{source.value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}".
+        """Create a new workflow task."""
+        task_id = f"{source.value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}".
 
         workflow_task = WorkflowTask(
             id=task_id,
@@ -73,7 +73,8 @@ class KnowledgeBaseWorkflowManager:
         return task_id
 
     async def execute_workflow(self, task_id: str) -> bool:
-        """Execute a workflow task."""if task_id not in self.tasks:.
+        """Execute a workflow task."""
+        if task_id not in self.tasks:.
 
             logger.error(f"Task {task_id} not found")
             return False
@@ -107,7 +108,8 @@ class KnowledgeBaseWorkflowManager:
             return False
 
     async def _process_notion_sync(self, task: WorkflowTask):
-        """Process Notion workspace synchronization."""notion_config = task.metadata.get("notion_config", {}).
+        """Process Notion workspace synchronization."""
+        notion_config = task.metadata.get("notion_config", {}).
 
         workspace_id = notion_config.get("workspace_id")
         database_id = notion_config.get("database_id")
@@ -151,7 +153,8 @@ class KnowledgeBaseWorkflowManager:
         task.metadata["last_sync"] = datetime.now().isoformat()
 
     async def _process_sharepoint_sync(self, task: WorkflowTask):
-        """Process SharePoint document synchronization."""sharepoint_config = task.metadata.get("sharepoint_config", {}).
+        """Process SharePoint document synchronization."""
+        sharepoint_config = task.metadata.get("sharepoint_config", {}).
 
         site_url = sharepoint_config.get("site_url")
         library_name = sharepoint_config.get("library_name")
@@ -194,7 +197,8 @@ class KnowledgeBaseWorkflowManager:
         task.metadata["last_sync"] = datetime.now().isoformat()
 
     async def _process_bulk_upload(self, task: WorkflowTask):
-        """Process bulk document upload."""upload_config = task.metadata.get("upload_config", {}).
+        """Process bulk document upload."""
+        upload_config = task.metadata.get("upload_config", {}).
 
         file_path = upload_config.get("file_path")
         format_type = upload_config.get("format", "json")
@@ -248,7 +252,8 @@ class KnowledgeBaseWorkflowManager:
         task.metadata["upload_format"] = format_type
 
     async def _process_api_import(self, task: WorkflowTask):
-        """Process API-based content import."""api_config = task.metadata.get("api_config", {}).
+        """Process API-based content import."""
+        api_config = task.metadata.get("api_config", {}).
 
         endpoint = api_config.get("endpoint")
         auth_token = api_config.get("auth_token")
@@ -293,7 +298,8 @@ class KnowledgeBaseWorkflowManager:
         task.metadata["api_endpoint"] = endpoint
 
     async def _process_manual_update(self, task: WorkflowTask):
-        """Process manual content update."""update_config = task.metadata.get("update_config", {}).
+        """Process manual content update."""
+        update_config = task.metadata.get("update_config", {}).
 
         document_id = update_config.get("document_id")
 
@@ -324,7 +330,8 @@ class KnowledgeBaseWorkflowManager:
         tags: List[str],
         source: ContentSource,
     ):
-        """Create or update a document in the knowledge base."""# Generate content hash for change detection.
+        """Create or update a document in the knowledge base."""
+        # Generate content hash for change detection.
 
         content_hash = hashlib.md5(content.encode()).hexdigest()
 
@@ -351,7 +358,8 @@ class KnowledgeBaseWorkflowManager:
     async def _call_knowledge_base_api(
         self, method: str, endpoint: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Make API call to knowledge base."""base_url = self.config.get("knowledge_base_url", "http://localhost:5000").
+        """Make API call to knowledge base."""
+        base_url = self.config.get("knowledge_base_url", "http://localhost:5000").
 
         url = f"{base_url}{endpoint}"
 
@@ -365,18 +373,21 @@ class KnowledgeBaseWorkflowManager:
         return {"status": "success", "message": "Document processed"}
 
     def get_workflow_status(self, task_id: str) -> Optional[WorkflowTask]:
-        """Get the status of a workflow task."""return self.tasks.get(task_id).
+        """Get the status of a workflow task."""
+        return self.tasks.get(task_id).
 
     def list_workflows(
         self, status: Optional[WorkflowStatus] = None
     ) -> List[WorkflowTask]:
-        """List all workflow tasks, optionally filtered by status."""if status:.
+        """List all workflow tasks, optionally filtered by status."""
+        if status:.
 
             return [task for task in self.tasks.values() if task.status == status]
         return list(self.tasks.values())
 
     async def cancel_workflow(self, task_id: str) -> bool:
-        """Cancel a running workflow."""if task_id in self.running_tasks:.
+        """Cancel a running workflow."""
+        if task_id in self.running_tasks:.
 
             self.running_tasks[task_id].cancel()
             del self.running_tasks[task_id]
@@ -389,7 +400,8 @@ class KnowledgeBaseWorkflowManager:
 
 
 class ScheduledWorkflowManager:
-    """Manages scheduled and recurring workflow tasks."""def __init__(self, workflow_manager: KnowledgeBaseWorkflowManager):.
+    """Manages scheduled and recurring workflow tasks."""
+    def __init__(self, workflow_manager: KnowledgeBaseWorkflowManager):.
 
         self.workflow_manager = workflow_manager
         self.scheduled_tasks: Dict[str, Dict[str, Any]] = {}
@@ -402,7 +414,8 @@ class ScheduledWorkflowManager:
         interval_hours: int,
         metadata: Dict[str, Any],
     ) -> str:
-        """Schedule a recurring synchronization task."""schedule_id = (.
+        """Schedule a recurring synchronization task."""
+        schedule_id = (.
 
             f"schedule_{source.value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
@@ -437,7 +450,8 @@ class ScheduledWorkflowManager:
         logger.info("Stopped scheduled workflow manager")
 
     async def _process_scheduled_tasks(self):
-        """Process scheduled tasks that are due."""now = datetime.now().
+        """Process scheduled tasks that are due."""
+        now = datetime.now().
 
         for schedule_id, schedule in self.scheduled_tasks.items():
             if not schedule["enabled"]:
@@ -465,14 +479,16 @@ class ScheduledWorkflowManager:
                     logger.error(f"Scheduled task {schedule_id} failed")
 
     def disable_schedule(self, schedule_id: str) -> bool:
-        """Disable a scheduled task."""if schedule_id in self.scheduled_tasks:.
+        """Disable a scheduled task."""
+        if schedule_id in self.scheduled_tasks:.
 
             self.scheduled_tasks[schedule_id]["enabled"] = False
             return True
         return False
 
     def enable_schedule(self, schedule_id: str) -> bool:
-        """Enable a scheduled task."""if schedule_id in self.scheduled_tasks:.
+        """Enable a scheduled task."""
+        if schedule_id in self.scheduled_tasks:.
 
             self.scheduled_tasks[schedule_id]["enabled"] = True
             return True
@@ -482,7 +498,7 @@ class ScheduledWorkflowManager:
 # Example usage and configuration
 async def main():
     """Example usage of the workflow management system."""
-    # Configuration
+        # Configuration
     config = {
         "knowledge_base_url": "http://localhost:5000",
         "api_token": "your_jwt_token_here",

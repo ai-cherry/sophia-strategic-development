@@ -26,8 +26,7 @@ Base = declarative_base()
 
 class DecisionType(str, Enum):
     """Types of decisions tracked by CMI"""
-
-    ARCHITECTURE = "architecture"
+        ARCHITECTURE = "architecture"
     BUSINESS = "business"
     TECHNICAL = "technical"
     OPERATIONAL = "operational"
@@ -36,7 +35,7 @@ class DecisionType(str, Enum):
 
 class DecisionImpact(str, Enum):
     """Impact levels of decisions"""
-    LOW = "low"
+        LOW = "low"
 
     MEDIUM = "medium"
     HIGH = "high"
@@ -45,7 +44,7 @@ class DecisionImpact(str, Enum):
 
 class ContextualDecision(BaseModel):
     """Model for a decision with full context"""
-id: str = Field(default_factory=lambda: str(uuid4()))
+        id: str = Field(default_factory=lambda: str(uuid4()))
 
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     decision_type: DecisionType
@@ -64,7 +63,7 @@ id: str = Field(default_factory=lambda: str(uuid4()))
 
 class DecisionRecord(Base):
     """SQLAlchemy model for decision storage"""
-    __tablename__ = "contextual_decisions"
+        __tablename__ = "contextual_decisions"
 
     id = Column(String, primary_key=True)
     timestamp = Column(DateTime, nullable=False)
@@ -85,7 +84,7 @@ class DecisionRecord(Base):
 
 class ContextualMemoryIntelligence:
     """CMI system for tracking and retrieving decisions with context"""
-def __init__(self):
+    def __init__(self):
 
         self.redis_client = None
         self.db_engine = None
@@ -368,7 +367,7 @@ await self.initialize()
 
     async def _cache_decision(self, decision: ContextualDecision):
         """Cache decision in Redis"""
-    key = f"cmi:decision:{decision.id}".
+        key = f"cmi:decision:{decision.id}".
 
         value = decision.json()
         await self.redis_client.setex(key, 3600, value)  # 1 hour TTL
@@ -377,7 +376,7 @@ await self.initialize()
         self, decision_id: str
     ) -> Optional[ContextualDecision]:
         """Get decision from cache"""
-    key = f"cmi:decision:{decision_id}"
+        key = f"cmi:decision:{decision_id}"
 
         value = await self.redis_client.get(key)
         if value:
@@ -386,7 +385,7 @@ await self.initialize()
 
     async def _analyze_decision_patterns(self, decision: ContextualDecision):
         """Analyze patterns in decision-making"""
-# This runs asynchronously to identify patterns.
+        # This runs asynchronously to identify patterns.
 
         # Implementation would include pattern recognition, trend analysis, etc.
         pass
@@ -394,7 +393,8 @@ await self.initialize()
     async def _generate_decision_insights(
         self, decision: ContextualDecision, related_decisions: List[ContextualDecision]
     ) -> Dict[str, Any]:
-        """Generate AI insights about the decision"""  # This would use LLM to generate insights.
+        """Generate AI insights about the decision"""
+        # This would use LLM to generate insights.
 
         # For now, return structured analysis
         return {

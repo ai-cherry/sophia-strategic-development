@@ -16,7 +16,6 @@ class KnowledgeAgent(BaseAgent):
 
     It uses the MCPClient to communicate with the KnowledgeMCPServer.
     """
-
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):
         super().__init__(config)
         self.mcp_client = mcp_client

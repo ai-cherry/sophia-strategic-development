@@ -20,7 +20,6 @@ class BrainAgent(BaseAgent):
             and integrations as tools to accomplish these steps. Its primary tool for
             reasoning and planning is the Portkey LLM Gateway.
     """
-
     def __init__(self, config: AgentConfig, portkey_client: PortkeyClient):
         super().__init__(config)
         self.portkey = portkey_client
@@ -80,7 +79,7 @@ class BrainAgent(BaseAgent):
 
                     Based on this data, provide a clear, natural language answer to the original user request: '{task.command}'
                     """
-                    summary_response = await self.portkey.llm_call(summary_prompt)
+        summary_response = await self.portkey.llm_call(summary_prompt)
 
                     final_answer = (
                         summary_response.get("choices", [{}])[0]

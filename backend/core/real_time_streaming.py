@@ -21,8 +21,7 @@ from backend.monitoring.observability import logger
 
 class StreamType(str, Enum):
     """Types of data streams"""
-
-    GONG_CALLS = "gong_calls"
+        GONG_CALLS = "gong_calls"
     SLACK_MESSAGES = "slack_messages"
     CRM_UPDATES = "crm_updates"
     METRICS = "metrics"
@@ -31,7 +30,7 @@ class StreamType(str, Enum):
 
 class StreamStatus(str, Enum):
     """Stream processing status"""
-    ACTIVE = "active"
+        ACTIVE = "active"
 
     PAUSED = "paused"
     ERROR = "error"
@@ -40,7 +39,7 @@ class StreamStatus(str, Enum):
 
 class StreamEvent(BaseModel):
     """Real-time stream event"""
-id: str = Field(default_factory=lambda: str(uuid4()))
+        id: str = Field(default_factory=lambda: str(uuid4()))
     stream_type: StreamType
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     data: Dict[str, Any]
@@ -50,7 +49,7 @@ id: str = Field(default_factory=lambda: str(uuid4()))
 
 class StreamProcessor:
     """Base class for stream processors"""
-def __init__(self, stream_type: StreamType):
+    def __init__(self, stream_type: StreamType):
 
         self.stream_type = stream_type
         self.handlers: List[Callable] = []
@@ -59,7 +58,7 @@ def __init__(self, stream_type: StreamType):
 
     async def process(self, event: StreamEvent) -> Any:
         """Process a stream event"""
-# Apply filters
+        # Apply filters
         for filter_fn in self.filters:
             if not await filter_fn(event):
                 return None
@@ -80,7 +79,7 @@ self.handlers.append(handler)
 self.filters.append(filter_fn)
 class RealTimeStreaming:
     """Real-time streaming infrastructure"""
-def __init__(self):
+    def __init__(self):
 
         self.redis_client: Optional[aioredis.Redis] = None
         self.snowflake: Optional[SnowflakeIntegration] = None
@@ -91,8 +90,7 @@ def __init__(self):
 
     async def initialize(self):
         """Initialize streaming infrastructure"""
-
-    if self._initialized:
+        if self._initialized:
 
             return
 
@@ -119,7 +117,7 @@ def __init__(self):
 
     async def _setup_snowflake_streams(self):
         """Set up Snowflake streams and tasks"""
-try:
+        try:
 except Exception:
     pass
             # Create stream for Gong calls
@@ -161,7 +159,7 @@ except Exception:
 
                     def _setup_processors(self):
         """Set up stream processors"""
-# Gong call processor
+        # Gong call processor
         gong_processor = StreamProcessor(StreamType.GONG_CALLS)
         gong_processor.add_handler(self._process_gong_call)
         gong_processor.add_filter(self._filter_important_calls)
@@ -201,7 +199,7 @@ except Exception:
 
     async def stop_stream(self, stream_type: StreamType):
         """Stop processing a stream"""
-    streams_to_remove = [
+        streams_to_remove = [
 
             s for s in self.active_streams if s.startswith(stream_type)
         ]
@@ -226,7 +224,7 @@ except Exception:
         self, stream_name: str, stream_type: StreamType
     ):
         """Consume data from Snowflake stream"""
-    processor = self.processors.get(stream_type)
+        processor = self.processors.get(stream_type)
         if not processor:
             logger.error(f"No processor for stream type: {stream_type}")
             return
@@ -242,7 +240,7 @@ SELECT * FROM {stream_name}
                     AND METADATA$ISUPDATE = FALSE
                     LIMIT 100;
                 """
-                results = await self.snowflake.execute_query(query).
+        results = await self.snowflake.execute_query(query).
 
                                                 for row in results:
                                                     # Convert row to event
@@ -281,7 +279,7 @@ SELECT * FROM {stream_name}
 
                                                     async def _consume_redis_stream(self, stream_key: str, stream_type: StreamType):
                 """Consume data from Redis stream"""
-    processor = self.processors.get(stream_type)
+        processor = self.processors.get(stream_type)
         if not processor:
             logger.error(f"No processor for stream type: {stream_type}")
             return
@@ -326,7 +324,7 @@ SELECT * FROM {stream_name}
 
     async def _process_gong_call(self, event: StreamEvent) -> Dict[str, Any]:
         """Process Gong call event"""
-    call_data = event.data
+        call_data = event.data
         # Extract key information
         result = {
             "call_id": call_data.get("id"),
@@ -348,7 +346,7 @@ SELECT * FROM {stream_name}
 
     async def _process_slack_message(self, event: StreamEvent) -> Dict[str, Any]:
         """Process Slack message event"""
-    message_data = event.data
+        message_data = event.data
         # Extract and analyze
         result = {
             "message_id": message_data.get("ts"),
@@ -367,7 +365,7 @@ SELECT * FROM {stream_name}
 
     async def _process_crm_update(self, event: StreamEvent) -> Dict[str, Any]:
         """Process CRM update event"""
-    update_data = event.data
+        update_data = event.data
         # Track changes
         result = {
             "entity_type": update_data.get("object_type"),
@@ -385,7 +383,7 @@ SELECT * FROM {stream_name}
 
     async def _filter_important_calls(self, event: StreamEvent) -> bool:
         """Filter for important calls only"""
-    call_data = event.data
+        call_data = event.data
         # Check various importance criteria
         if call_data.get("duration", 0) > 1800:  # Longer than 30 minutes
             return True
@@ -409,12 +407,13 @@ SELECT * FROM {stream_name}
 
     async def _analyze_sentiment(self, text: str) -> float:
         """Analyze sentiment of text"""
-# This would use sentiment analysis
+        # This would use sentiment analysis
         # Placeholder: return neutral sentiment
         return 0.5
 
     async def _extract_action_items(self, transcript: str) -> List[str]:
-        """Extract action items from transcript"""# This would use NLP to extract action items
+        """Extract action items from transcript"""
+        # This would use NLP to extract action items
         # Placeholder implementation
         action_items = []
         action_phrases = ["will follow up", "need to", "action item", "next step"]
@@ -425,13 +424,14 @@ SELECT * FROM {stream_name}
 
     def _extract_mentions(self, text: str) -> List[str]:
         """Extract mentions from text"""
-        import re
+
+import re
         mentions = re.findall(r"@(\w+)", text)
         return mentions
 
     async def _assess_urgency(self, text: str) -> float:
         """Assess message urgency"""
-    urgent_keywords = ["urgent", "asap", "immediately", "critical", "emergency"]
+        urgent_keywords = ["urgent", "asap", "immediately", "critical", "emergency"]
         text_lower = text.lower()
 
         urgency_score = 0.0
@@ -457,7 +457,7 @@ SELECT * FROM {stream_name}
 
     async def _send_alert(self, alert_type: str, data: Dict[str, Any]):
         """Send real-time alert"""
-    alert = {
+        alert = {
 
             "type": alert_type,
             "timestamp": datetime.utcnow().isoformat(),

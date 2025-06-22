@@ -27,7 +27,6 @@ class EnhancedAgentFramework:
     or high-performance Agno agents based on performance requirements,
     while maintaining full backward compatibility.
     """
-
     def __init__(self):
         self.mcp_orchestrator = agent_framework
         self.agno_bridge = agno_mcp_bridge
@@ -333,7 +332,7 @@ async def create_hybrid_agent(
     force_type: Optional[str] = None
 ) -> Union[BaseAgent, AgnoAgent]:
     """Create hybrid agent using enhanced framework."""
-    return await enhanced_agent_framework.create_agent(agent_name, agent_config, force_type)
+        return await enhanced_agent_framework.create_agent(agent_name, agent_config, force_type)
 
 
 async def create_agent_team(
@@ -342,7 +341,7 @@ async def create_agent_team(
     agents: List[Union[str, Dict[str, Any]]]
 ) -> Team:
     """Create agent team using enhanced framework."""
-    return await enhanced_agent_framework.create_agent_team(team_name, team_config, agents)
+        return await enhanced_agent_framework.create_agent_team(team_name, team_config, agents)
 
 
 async def route_intelligent_request(
@@ -351,4 +350,4 @@ async def route_intelligent_request(
     prefer_teams: bool = False
 ) -> Dict[str, Any]:
     """Route request intelligently between agents and teams."""
-    return await enhanced_agent_framework.route_request(request, context, prefer_teams)
+        return await enhanced_agent_framework.route_request(request, context, prefer_teams)

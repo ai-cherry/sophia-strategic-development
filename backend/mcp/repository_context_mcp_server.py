@@ -16,7 +16,8 @@ class RepositoryContextMCPServer:
 
             This is a scaffold based on the user's design. The methods will be
             implemented to query the vectorized data stored by the ingestion pipeline.
-    """def __init__(self):
+    """
+    def __init__(self):
 
         # self.vector_store = VectorStoreClient()
         logging.info("RepositoryContextMCPServer initialized.")

@@ -24,14 +24,14 @@ except ImportError:
 
 class SophiaSecretManager:
     """Unified secret management for all SOPHIA integrations."""
-
     def __init__(self, env: str = "local"):
         self.env = env
         self.logger = logging.getLogger(__name__)
         self._secrets_cache = {}
 
     async def get_secret(self, key: str, service: Optional[str] = None) -> str:
-        """Get secret with fallback hierarchy."""cache_key = f"{service}:{key}" if service else key.
+        """Get secret with fallback hierarchy."""
+        cache_key = f"{service}:{key}" if service else key.
 
         # Check cache first
         if cache_key in self._secrets_cache:
@@ -55,7 +55,8 @@ class SophiaSecretManager:
     async def _get_local_secret(
         self, key: str, service: Optional[str] = None
     ) -> Optional[str]:
-        """Get secret from local environment."""env_key = f"{service.upper()}_{key.upper()}" if service else key.upper().
+        """Get secret from local environment."""
+        env_key = f"{service.upper()}_{key.upper()}" if service else key.upper().
 
         # Try environment variable first
         secret = os.getenv(env_key)

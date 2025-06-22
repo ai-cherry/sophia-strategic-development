@@ -10,7 +10,6 @@ from .core.base_agent import BaseAgent
 
 class NLCommandAgent(BaseAgent):
     """Agent that parses and executes natural language commands."""
-
     def __init__(self, orchestrator: N8nWorkflowOrchestrator) -> None:
         super().__init__(name="nl_command")
         self.orchestrator = orchestrator

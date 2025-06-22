@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 class MarketingAgent(BaseAgent):
     """Synthesizes market intelligence from internal conversations and external research."""
-
     async def get_capabilities(self) -> List[AgentCapability]:
         return [
             AgentCapability(

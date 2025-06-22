@@ -200,7 +200,7 @@ class SophiaMonitoring:
 
 def main():
     """Main monitoring function."""
-    monitor = SophiaMonitoring()
+        monitor = SophiaMonitoring()
 
     try:
         monitor.start_monitoring()

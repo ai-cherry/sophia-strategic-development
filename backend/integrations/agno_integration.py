@@ -1,7 +1,9 @@
 """Agno Integration Module.
 
 Provides integration with Agno's ultra-fast agent platform
-"""import asyncio
+"""
+
+import asyncio
 
 import logging
 import time
@@ -14,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 class AgnoAgent:
     """Represents an agent in the Agno platform."""
-
     def __init__(self, agent_id: str, agent_data: Dict[str, Any]):
         """Initialize an Agno agent.
 
@@ -33,7 +34,8 @@ class AgnoAgent:
 
                         Returns:
                             Dict[str, Any]: The agent as a dictionary
-        """return {.
+        """
+        return {.
 
             "agent_id": self.agent_id,
             "created_at": self.created_at,
@@ -78,7 +80,8 @@ class AgnoTool:
 
                         Returns:
                             Dict[str, Any]: The tool as a dictionary
-        """return {.
+        """
+        return {.
 
             "name": self.name,
             "description": self.description,
@@ -87,7 +90,8 @@ class AgnoTool:
 
 
 class AgnoIntegration:
-    """Integration with Agno's ultra-fast agent platform."""def __init__(self):."""Initialize the Agno integration."""
+    """Integration with Agno's ultra-fast agent platform."""
+    def __init__(self):."""Initialize the Agno integration."""
 
         self.initialized = False
         self.api_key = None
@@ -99,7 +103,6 @@ class AgnoIntegration:
 
     async def initialize(self):
         """Initialize the Agno integration."""
-
         if self.initialized:.
 
             return
@@ -139,7 +142,8 @@ class AgnoIntegration:
 
                         Returns:
                             AgnoAgent: The agent
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -183,7 +187,8 @@ class AgnoIntegration:
             raise
 
     def _cleanup_agents(self):
-        """Clean up old agents."""# Sort agents by last used time.
+        """Clean up old agents."""
+        # Sort agents by last used time.
 
         sorted_agents = sorted(self.agents.items(), key=lambda x: x[1].last_used)
 
@@ -198,7 +203,8 @@ class AgnoIntegration:
 
                         Returns:
                             Dict[str, Any]: Statistics about the agent pool
-        """return {.
+        """
+        return {.
 
             "pool_size": len(self.agents),
             "max_pool_size": self.agent_pool_size,
@@ -229,7 +235,8 @@ class AgnoIntegration:
 
                         Returns:
                             Union[Dict[str, Any], AsyncGenerator[Dict[str, Any], None]]: The response
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -268,7 +275,8 @@ class AgnoIntegration:
 
                         Returns:
                             Dict[str, Any]: The response
-        """# Simulate processing time.
+        """
+        # Simulate processing time.
 
         await asyncio.sleep(0.5)
 
@@ -300,7 +308,8 @@ class AgnoIntegration:
 
                         Returns:
                             AsyncGenerator[Dict[str, Any], None]: The response chunks
-        """# Simulate streaming response.
+        """
+        # Simulate streaming response.
 
         response_text = f"This is a simulated response to: {request}"
         words = response_text.split()

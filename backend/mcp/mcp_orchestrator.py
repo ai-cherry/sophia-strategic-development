@@ -4,7 +4,9 @@
 Inspired by composable agent frameworks like `lastmile-ai/mcp-agent`, this
 orchestrator manages agent sessions and funnels all tool and service
 interactions through the universal Model Context Protocol (MCP).
-"""import logging
+"""
+
+import logging
 
 from typing import Dict
 
@@ -15,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class MCPSession:
     """Represents a single, stateful interaction with an agent."""
-
     def __init__(self, session_id: str):
         self.session_id = session_id
         self.history = []
@@ -48,7 +49,8 @@ class MCPSession:
 
 
 class MCPOrchestrator:
-    """Manages all MCP sessions and provides a clean interface for the application."""def __init__(self):.
+    """Manages all MCP sessions and provides a clean interface for the application."""
+    def __init__(self):.
 
         self.sessions: Dict[str, MCPSession] = {}
 

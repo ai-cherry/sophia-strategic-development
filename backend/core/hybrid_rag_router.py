@@ -22,8 +22,7 @@ logger = logging.getLogger(__name__)
 
 class QueryType(Enum):
     """Types of queries that can be processed."""
-
-    SEMANTIC_SEARCH = "semantic_search"
+        SEMANTIC_SEARCH = "semantic_search"
     STRUCTURED_QUERY = "structured_query"
     HYBRID_WORKFLOW = "hybrid_workflow"
     AGENT_ORCHESTRATION = "agent_orchestration"
@@ -32,8 +31,8 @@ class QueryType(Enum):
 
 @dataclass
 class RoutingDecision:
-    """Decision made by the query router."""query_type: QueryType.
-
+    """Decision made by the query router."""
+        query_type: QueryType
     primary_engine: str
     secondary_engines: List[str]
     confidence: float
@@ -44,8 +43,8 @@ class RoutingDecision:
 
 @dataclass
 class ProcessingResult:
-    """Result from query processing."""success: bool.
-
+    """Result from query processing."""
+        success: bool
     data: Any
     engine: str
     execution_time_ms: float
@@ -55,7 +54,8 @@ class ProcessingResult:
 
 
 class MLQueryClassifier:
-    """Machine learning-based query classifier."""def __init__(self):.
+    """Machine learning-based query classifier."""
+    def __init__(self):.
 
         """Initialize ML query classifier."""self.patterns = {.
             QueryType.SEMANTIC_SEARCH: [
@@ -144,7 +144,8 @@ class MLQueryClassifier:
 
                         Returns:
                             RoutingDecision with optimal routing strategy
-        """query_lower = query.lower().
+        """
+        query_lower = query.lower().
 
         context = context or {}
 
@@ -204,7 +205,8 @@ class MLQueryClassifier:
         )
 
     def _classify_by_context(self, query: str, context: Dict[str, Any]) -> QueryType:
-        """Classify query based on context when patterns don't match."""# Check for document-related context.
+        """Classify query based on context when patterns don't match."""
+        # Check for document-related context.
 
         if context.get("document_context") or "document" in query.lower():
             return QueryType.DOCUMENT_ANALYSIS
@@ -234,7 +236,8 @@ class MLQueryClassifier:
     def _select_engines(
         self, query_type: QueryType, query: str, context: Dict[str, Any]
     ) -> tuple[str, List[str]]:
-        """Select optimal engines for query type."""# Primary engine selection.
+        """Select optimal engines for query type."""
+        # Primary engine selection.
 
         primary_engines = {
             QueryType.SEMANTIC_SEARCH: "vector_search",
@@ -279,7 +282,8 @@ class MLQueryClassifier:
     def _estimate_execution_time(
         self, primary_engine: str, secondary_engines: List[str], parallel: bool
     ) -> int:
-        """Estimate execution time in milliseconds."""base_times = {.
+        """Estimate execution time in milliseconds."""
+        base_times = {.
 
             "vector_search": 100,
             "mcp_federation": 500,
@@ -310,7 +314,8 @@ class MLQueryClassifier:
         secondary_engines: List[str],
         confidence: float,
     ) -> str:
-        """Generate human-readable reasoning for the routing decision."""reasoning_parts = [.
+        """Generate human-readable reasoning for the routing decision."""
+        reasoning_parts = [.
 
             f"Classified as {query_type.value} with {confidence:.1%} confidence",
             f"Primary engine: {primary_engine}",
@@ -330,7 +335,8 @@ class HybridRAGRouter:
     """Intelligent router for hybrid RAG architecture.
 
             Routes queries optimally between vector search, MCP federation, and Agno orchestration.
-    """def __init__(self):."""Initialize hybrid RAG router."""
+    """
+    def __init__(self):."""Initialize hybrid RAG router."""
 
         self.classifier = MLQueryClassifier()
         self.initialized = False
@@ -349,7 +355,8 @@ class HybridRAGRouter:
         self.learning_enabled = True
 
     async def initialize(self):
-        """Initialize the hybrid RAG router."""if self.initialized:.
+        """Initialize the hybrid RAG router."""
+        if self.initialized:.
 
             return
 
@@ -380,7 +387,8 @@ class HybridRAGRouter:
 
                         Returns:
                             Processed results from optimal engines
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -417,7 +425,8 @@ class HybridRAGRouter:
     async def _execute_hybrid_query(
         self, query: str, context: Dict[str, Any], decision: RoutingDecision
     ) -> Dict[str, Any]:
-        """Execute hybrid query based on routing decision."""start_time = time.perf_counter().
+        """Execute hybrid query based on routing decision."""
+        start_time = time.perf_counter().
 
         # Execute primary engine
         primary_result = await self._execute_engine_query(
@@ -473,7 +482,8 @@ class HybridRAGRouter:
     async def _execute_engine_query(
         self, engine: str, query: str, context: Dict[str, Any]
     ) -> ProcessingResult:
-        """Execute query on a specific engine."""start_time = time.perf_counter().
+        """Execute query on a specific engine."""
+        start_time = time.perf_counter().
 
         try:
             if engine == "vector_search":
@@ -532,7 +542,8 @@ class HybridRAGRouter:
         secondary_results: List[ProcessingResult],
         decision: RoutingDecision,
     ) -> Dict[str, Any]:
-        """Combine results from multiple engines."""# Start with primary result.
+        """Combine results from multiple engines."""
+        # Start with primary result.
 
         if not primary_result.success:
             # Primary failed, try to use best secondary result
@@ -611,7 +622,8 @@ class HybridRAGRouter:
     async def _stream_hybrid_results(
         self, query: str, context: Dict[str, Any], decision: RoutingDecision
     ) -> AsyncGenerator[Dict[str, Any], None]:
-        """Stream hybrid results as they become available."""start_time = time.perf_counter().
+        """Stream hybrid results as they become available."""
+        start_time = time.perf_counter().
 
         # Initial routing information
         yield {
@@ -697,7 +709,8 @@ class HybridRAGRouter:
         result: Dict[str, Any],
         execution_time_ms: float,
     ):
-        """Update performance metrics for adaptive learning."""# Update success rate.
+        """Update performance metrics for adaptive learning."""
+        # Update success rate.
 
         success = result.get("success", False)
         total_queries = self.metrics["total_queries"]
@@ -749,7 +762,8 @@ class HybridRAGRouter:
                 ][-100:]
 
     def get_router_stats(self) -> Dict[str, Any]:
-        """Get comprehensive router statistics."""return {.
+        """Get comprehensive router statistics."""
+        return {.
 
             "routing_metrics": self.metrics,
             "performance_history_size": {
@@ -771,7 +785,8 @@ class HybridRAGRouter:
         }
 
     async def optimize_routing(self):
-        """Optimize routing decisions based on performance history."""if not self.learning_enabled or not self.performance_history:.
+        """Optimize routing decisions based on performance history."""
+        if not self.learning_enabled or not self.performance_history:.
 
             return
 

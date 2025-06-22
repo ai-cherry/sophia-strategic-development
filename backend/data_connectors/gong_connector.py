@@ -1,7 +1,9 @@
 """Gong Data Connector.
 
 Handles all interactions with the Gong.io API for sales intelligence.
-"""import os
+"""
+
+import os
 
 from typing import Any, Dict, List
 

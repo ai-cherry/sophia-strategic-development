@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DataCollectionTask:
     """Data collection task configuration."""
-
-    task_id: str
+        task_id: str
     service: str
     task_type: str
     parameters: Dict[str, Any]
@@ -43,7 +42,8 @@ class DataCollectionService(ABC):
 
 
 class ApifyService(DataCollectionService):
-    """Apify web scraping and automation service."""def __init__(self):.
+    """Apify web scraping and automation service."""
+    def __init__(self):.
 
         """Initialize Apify service."""self.api_token = os.getenv("APIFY_API_TOKEN").
         self.base_url = "https://api.apify.com/v2"
@@ -72,7 +72,8 @@ class ApifyService(DataCollectionService):
 
                         Returns:
                             Dict with collection results
-        """try:.
+        """
+        try:.
 
             actor_id = self.actors.get(task.task_type, task.task_type)
 
@@ -114,7 +115,8 @@ class ApifyService(DataCollectionService):
     async def _wait_for_completion(
         self, session: aiohttp.ClientSession, run_id: str, timeout: int = 300
     ) -> Dict[str, Any]:
-        """Wait for Apify run to complete."""start_time = datetime.now().
+        """Wait for Apify run to complete."""
+        start_time = datetime.now().
 
         while (datetime.now() - start_time).seconds < timeout:
             async with session.get(
@@ -141,13 +143,15 @@ class ApifyService(DataCollectionService):
         return {"error": "Timeout waiting for completion"}
 
     async def get_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of an Apify task."""# Implementation would track task IDs to run IDs.
+        """Get status of an Apify task."""
+        # Implementation would track task IDs to run IDs.
 
         return {"status": "unknown", "task_id": task_id}
 
 
 class PhantomBusterService(DataCollectionService):
-    """PhantomBuster automation and data extraction service."""def __init__(self):.
+    """PhantomBuster automation and data extraction service."""
+    def __init__(self):.
 
         """Initialize PhantomBuster service."""self.api_key = os.getenv("PHANTOM_BUSTER_API_KEY").
         self.base_url = "https://api.phantombuster.com/api/v2"
@@ -181,7 +185,8 @@ class PhantomBusterService(DataCollectionService):
 
                         Returns:
                             Dict with collection results
-        """try:.
+        """
+        try:.
 
             # Get phantom ID (would need to be configured)
             phantom_name = self.phantoms.get(task.task_type, task.task_type)
@@ -228,7 +233,8 @@ class PhantomBusterService(DataCollectionService):
     async def _wait_for_phantom_completion(
         self, session: aiohttp.ClientSession, container_id: str, timeout: int = 600
     ) -> Dict[str, Any]:
-        """Wait for PhantomBuster phantom to complete."""start_time = datetime.now().
+        """Wait for PhantomBuster phantom to complete."""
+        start_time = datetime.now().
 
         while (datetime.now() - start_time).seconds < timeout:
             async with session.get(
@@ -246,11 +252,13 @@ class PhantomBusterService(DataCollectionService):
         return {"error": "Timeout waiting for phantom completion"}
 
     async def get_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of a PhantomBuster task."""return {"status": "unknown", "task_id": task_id}.
+        """Get status of a PhantomBuster task."""
+        return {"status": "unknown", "task_id": task_id}.
 
 
 class TwinglyService(DataCollectionService):
-    """Twingly news monitoring and blog search service."""def __init__(self):.
+    """Twingly news monitoring and blog search service."""
+    def __init__(self):.
 
         """Initialize Twingly service."""self.api_key = os.getenv("TWINGLY_API_KEY").
         self.base_url = "https://api.twingly.com/blog/search/api/v3/search"
@@ -268,7 +276,8 @@ class TwinglyService(DataCollectionService):
 
                         Returns:
                             Dict with search results
-        """try:.
+        """
+        try:.
 
             query = task.parameters.get("query", "")
             language = task.parameters.get("language", "en")
@@ -315,11 +324,13 @@ class TwinglyService(DataCollectionService):
             return {"success": False, "error": str(e)}
 
     async def get_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of a Twingly task."""return {"status": "completed", "task_id": task_id}  # Twingly is synchronous.
+        """Get status of a Twingly task."""
+        return {"status": "completed", "task_id": task_id}  # Twingly is synchronous.
 
 
 class TavilyService(DataCollectionService):
-    """Tavily AI-powered search service."""def __init__(self):.
+    """Tavily AI-powered search service."""
+    def __init__(self):.
 
         """Initialize Tavily service."""self.api_key = os.getenv("TAVILY_API_KEY").
         self.base_url = "https://api.tavily.com"
@@ -337,7 +348,8 @@ class TavilyService(DataCollectionService):
 
                         Returns:
                             Dict with search results
-        """try:.
+        """
+        try:.
 
             query = task.parameters.get("query", "")
             search_depth = task.parameters.get("search_depth", "basic")
@@ -386,11 +398,13 @@ class TavilyService(DataCollectionService):
             return {"success": False, "error": str(e)}
 
     async def get_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of a Tavily task."""return {"status": "completed", "task_id": task_id}  # Tavily is synchronous.
+        """Get status of a Tavily task."""
+        return {"status": "completed", "task_id": task_id}  # Tavily is synchronous.
 
 
 class ZenRowsService(DataCollectionService):
-    """ZenRows web scraping service with proxy rotation."""def __init__(self):.
+    """ZenRows web scraping service with proxy rotation."""
+    def __init__(self):.
 
         """Initialize ZenRows service."""self.api_key = os.getenv("ZENROWS_API_KEY").
         self.base_url = "https://api.zenrows.com/v1/"
@@ -408,7 +422,8 @@ class ZenRowsService(DataCollectionService):
 
                         Returns:
                             Dict with scraping results
-        """try:.
+        """
+        try:.
 
             url = task.parameters.get("url", "")
             js_render = task.parameters.get("js_render", False)
@@ -456,11 +471,13 @@ class ZenRowsService(DataCollectionService):
             return {"success": False, "error": str(e)}
 
     async def get_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of a ZenRows task."""return {"status": "completed", "task_id": task_id}  # ZenRows is synchronous.
+        """Get status of a ZenRows task."""
+        return {"status": "completed", "task_id": task_id}  # ZenRows is synchronous.
 
 
 class SophiaDataCollectionOrchestrator:
-    """Orchestrator for all data collection services in Sophia AI."""def __init__(self):.
+    """Orchestrator for all data collection services in Sophia AI."""
+    def __init__(self):.
 
         """Initialize data collection orchestrator."""self.services = {.
             "apify": ApifyService(),
@@ -496,7 +513,8 @@ class SophiaDataCollectionOrchestrator:
 
                         Returns:
                             Dict with execution results
-        """try:.
+        """
+        try:.
 
             if task.service not in self.services:
                 return {"success": False, "error": f"Unknown service: {task.service}"}
@@ -523,7 +541,8 @@ class SophiaDataCollectionOrchestrator:
             return {"success": False, "error": str(e)}
 
     async def get_task_status(self, task_id: str) -> Dict[str, Any]:
-        """Get status of a data collection task."""if task_id in self.active_tasks:.
+        """Get status of a data collection task."""
+        if task_id in self.active_tasks:.
 
             return self.active_tasks[task_id]
         else:
@@ -564,7 +583,8 @@ def get_data_collector() -> SophiaDataCollectionOrchestrator:
 async def scrape_website(
     url: str, js_render: bool = False, service: str = "zenrows"
 ) -> Dict[str, Any]:
-    """Convenience function for website scraping."""collector = get_data_collector().
+    """Convenience function for website scraping."""
+        collector = get_data_collector().
 
     task = DataCollectionTask(
         task_id=f"scrape_{datetime.now().timestamp()}",
@@ -578,7 +598,8 @@ async def scrape_website(
 async def search_news(
     query: str, days_back: int = 7, service: str = "twingly"
 ) -> Dict[str, Any]:
-    """Convenience function for news searching."""collector = get_data_collector().
+    """Convenience function for news searching."""
+        collector = get_data_collector().
 
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days_back)
@@ -600,7 +621,7 @@ async def ai_search(
     query: str, depth: str = "basic", service: str = "tavily"
 ) -> Dict[str, Any]:
     """Convenience function for AI-powered search."""
-    collector = get_data_collector()
+        collector = get_data_collector()
     task = DataCollectionTask(
         task_id=f"search_{datetime.now().timestamp()}",
         service=service,

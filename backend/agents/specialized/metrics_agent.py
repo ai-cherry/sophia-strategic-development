@@ -10,7 +10,6 @@ class MetricsAgent(BaseAgent):
 
     Returns AgnoPerformanceOptimizer metrics and summary.
     """
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.optimizer = AgnoPerformanceOptimizer()

@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 class FilesystemTools:
     """A toolkit for safe file operations, restricted to the project root."""
-
     def __init__(self, project_root: Path):
         self.project_root = project_root.resolve()
 
@@ -20,7 +19,8 @@ class FilesystemTools:
         """Ensures the path is within the project directory to prevent.
 
                         the agent from accessing arbitrary files on the system.
-        """resolved_path = path_to_check.resolve().
+        """
+        resolved_path = path_to_check.resolve().
         return (
             self.project_root in resolved_path.parents
             or self.project_root == resolved_path
@@ -34,7 +34,8 @@ class FilesystemTools:
 
                         Returns:
                             The content of the file as a string, or an error message.
-        """try:.
+        """
+        try:.
 
             full_path = self.project_root / file_path
             if not self._is_path_safe(full_path):

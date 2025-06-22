@@ -4,5 +4,6 @@
   {"name": "ai_memory", "url": "http://ai-memory-mcp:9000"},
   {"name": "retool", "url": "http://retool-mcp:9000"},
   {"name": "docker", "url": "http://docker-mcp:9000"},
-  {"name": "agno", "url": "http://agno-mcp:9000"}
+  {"name": "agno", "url": "http://agno-mcp:9000"},
+  {"name": "sentry", "url": "http://sentry-mcp:9000"}
 ]

@@ -17,7 +17,6 @@ class HuggingFaceAgent(BaseAgent):
 
             datasets, papers, and run Spaces.
     """
-
     def __init__(self, config: AgentConfig, hf_integration: HuggingFaceIntegration):
         super().__init__(config)
         self.hf_integration = hf_integration
@@ -71,7 +70,6 @@ class HuggingFaceAgent(BaseAgent):
 
     def _extract_query(self, command: str, keyword: str) -> str:
         """A simple helper to extract the search query from a command."""
-
         try:
             # e.g., "search for models about text generation" -> "text generation"
             return command.split("about")[-1].strip()
@@ -79,12 +77,14 @@ class HuggingFaceAgent(BaseAgent):
             return command  # fallback
 
     def _extract_paper_id(self, command: str) -> str:
-        """Finds an arXiv-style ID in the command string."""match = re.search(r"\d{4}\.\d{5}", command).
+        """Finds an arXiv-style ID in the command string."""
+        match = re.search(r"\d{4}\.\d{5}", command).
 
         return match.group(0) if match else None
 
     def _format_model_results(self, models: list) -> str:
-        """Formats a list of models into a readable string."""if not models or "error" in models[0]:.
+        """Formats a list of models into a readable string."""
+        if not models or "error" in models[0]:.
 
             return "Could not find any matching models."
 

@@ -27,14 +27,12 @@ class DockerMCPServer(BaseMCPServer):
 
             the Docker environment they are running in.
     """
-
     def __init__(self):
         super().__init__("docker")
         self.docker_client = None
 
     async def initialize_integration(self):
         """Initializes the Docker client."""
-
         try:
             # Connect to the Docker daemon via the Unix socket
             self.docker_client = docker.from_env()
@@ -50,7 +48,8 @@ class DockerMCPServer(BaseMCPServer):
         self.integration_client = self.docker_client
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists Docker resources like containers and images."""return [.
+        """Lists Docker resources like containers and images."""
+        return [.
 
             Resource(
                 uri="docker://containers",
@@ -67,7 +66,8 @@ class DockerMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets a specific Docker resource."""uri = request.uri.
+        """Gets a specific Docker resource."""
+        uri = request.uri.
 
         try:
             if uri == "docker://containers":
@@ -92,7 +92,8 @@ class DockerMCPServer(BaseMCPServer):
             return json.dumps({"error": str(e)})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Docker tools."""return [.
+        """Lists available Docker tools."""
+        return [.
 
             Tool(
                 name="list_containers",
@@ -158,7 +159,8 @@ class DockerMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Docker tool calls."""tool_name = request.params.name.
+        """Handles Docker tool calls."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
 
@@ -212,7 +214,8 @@ class DockerMCPServer(BaseMCPServer):
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     def _safe_json_dumps(self, data: Any) -> str:
-        """Safely dumps data to JSON, handling non-serializable objects."""def default_serializer(o):.
+        """Safely dumps data to JSON, handling non-serializable objects."""
+    def default_serializer(o):.
 
             if isinstance(o, (bytes, bytearray)):
                 return o.decode("utf-8", errors="ignore")

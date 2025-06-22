@@ -1,7 +1,9 @@
 """Sophia AI - New Agent Type Implementations.
 
 Detailed implementations for Research, Prospecting, Marketing, Business Strategy, and Database agents
-"""import json
+"""
+
+import json
 
 import logging
 from datetime import datetime
@@ -25,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 class ResearchIntelligenceAgent(BaseAgent):
     """AI-powered research and competitive intelligence agent."""
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.portkey_client = PortkeyClient()
@@ -44,7 +45,6 @@ class ResearchIntelligenceAgent(BaseAgent):
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
         """Process research intelligence tasks."""
-
         try:.
 
             if task.task_type == "web_research":
@@ -96,7 +96,6 @@ class ResearchIntelligenceAgent(BaseAgent):
 
     async def _generate_search_queries(self, topic: str, depth: str) -> List[str]:
         """Generate AI-powered search queries for research."""
-
         system_prompt = f"""Generate {5 if depth == "standard" else 10} specific search queries for: {topic}.
 
         Return only a JSON array of search query strings."""
@@ -117,7 +116,6 @@ class ResearchIntelligenceAgent(BaseAgent):
 
 class ProspectingAgent(BaseAgent):
     """Intelligent lead discovery and qualification agent."""
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.portkey_client = PortkeyClient()
@@ -136,7 +134,6 @@ class ProspectingAgent(BaseAgent):
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
         """Process prospecting tasks."""
-
         try:.
 
             if task.task_type == "discover_leads":
@@ -167,7 +164,6 @@ class ProspectingAgent(BaseAgent):
 
 class MarketingIntelligenceAgent(BaseAgent):
     """Advanced marketing strategy and analytics agent."""
-
     def __init__(self, config: AgentConfig):.
 
         super().__init__(config)
@@ -195,7 +191,6 @@ class MarketingIntelligenceAgent(BaseAgent):
 
 class BusinessStrategyAgent(BaseAgent):
     """Strategic business intelligence and planning agent."""
-
     def __init__(self, config: AgentConfig):.
 
         super().__init__(config)
@@ -223,7 +218,6 @@ class BusinessStrategyAgent(BaseAgent):
 
 class DatabaseIntelligenceAgent(BaseAgent):
     """Database optimization and intelligence agent."""
-
     def __init__(self, config: AgentConfig):.
 
         super().__init__(config)
@@ -253,7 +247,6 @@ class DatabaseIntelligenceAgent(BaseAgent):
 
 class KnowledgeIngestionAgent(AgnoAgent):
     """Agno-based proactive knowledge ingestion agent."""
-
     def __init__(self):.
 
         super().__init__()
@@ -296,7 +289,6 @@ class KnowledgeIngestionAgent(AgnoAgent):
     @state(terminal=True)
     def done(self):
         """Terminal state - knowledge ingestion complete."""
-
         return TaskResult(.
 
             status="success",
@@ -361,7 +353,6 @@ class KnowledgeSearchAgent(AgnoAgent):
 
 class ExecutiveKnowledgeAgent(AgnoAgent):
     """Agno-based executive knowledge agent with enhanced security."""
-
     def __init__(self):.
 
         super().__init__()

@@ -23,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 class AgentCapability(Enum):
     """Types of capabilities agents can have"""
-
-    DOCKER = "docker"
+        DOCKER = "docker"
     PULUMI = "pulumi"
     CLAUDE = "claude"
     GONG = "gong"
@@ -39,8 +38,7 @@ class AgentCapability(Enum):
 @dataclass
 class AgentRegistration:
     """Registration info for an agent"""
-
-    name: str
+        name: str
 
     capabilities: List[AgentCapability]
     handler: Callable
@@ -55,7 +53,6 @@ class CentralizedAgentRouter:
     - Routes based on intent and context
     - Logs all routing decisions
     """
-
     def __init__(self):
         self.agents: Dict[str, AgentRegistration] = {}
         self.agent_instances: Dict[str, Any] = {}

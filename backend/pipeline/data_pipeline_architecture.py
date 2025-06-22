@@ -59,7 +59,6 @@ class DataPipeline:
 
             Integrates Airbyte, PostgreSQL, Redis, and Vector Databases
     """
-
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.logger = logging.getLogger(__name__)
@@ -85,7 +84,6 @@ class DataPipeline:
 
     async def run_pipeline(self):
         """Main method to run the entire data pipeline flow"""
-
         if self.pipeline_status == "running":
             self.logger.warning("Pipeline is already running. Skipping this run.")
             return
@@ -103,7 +101,7 @@ class DataPipeline:
 
         try:
         except Exception:
-            pass
+                pass
             # Step 1: Trigger Airbyte Syncs (if configured)
             airbyte_summary = await self.sync_airbyte_sources()
             run_summary["steps"].append(
@@ -112,7 +110,7 @@ class DataPipeline:
 
             # Step 2: Process data from sources (PostgreSQL, Slack, Gong, etc.)
             # This is a placeholder. In a real system, this would involve:
-            # - Querying staging tables populated by Airbyte
+                # - Querying staging tables populated by Airbyte
             # - Fetching data from other APIs or internal databases
             # - Transforming and cleaning the data
             processed_data_summary = await self.process_source_data()
@@ -182,7 +180,7 @@ class DataPipeline:
 
     async def sync_airbyte_sources(self) -> Dict[str, Any]:
         """Trigger and monitor Airbyte sync jobs"""
-    summary = {
+        summary = {
 
             "triggered_syncs": 0,
             "successful_syncs": 0,
@@ -201,7 +199,7 @@ class DataPipeline:
             )
             try:
             except Exception:
-                pass
+                    pass
                 triggered = self.airbyte_client.trigger_sync(connection_id)
                 if triggered:
                     summary["triggered_syncs"] += 1
@@ -300,7 +298,7 @@ class DataPipeline:
         self, data_items: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Ingest processed data into PostgreSQL"""
-    summary = {"inserted_records": 0, "updated_records": 0, "errors": 0}
+        summary = {"inserted_records": 0, "updated_records": 0, "errors": 0}
 
         if not data_items:
             return summary
@@ -315,8 +313,8 @@ class DataPipeline:
                     # For demo, just logging and incrementing count
                     try:
                     except Exception:
-                        pass
-                        # Example: cursor.execute(f"INSERT INTO {table_name} ... VALUES ...")
+                            pass
+                        # Example: cursor.execute(f"INSERT INTO {table_name} ... VALUES ")
                         self.logger.debug(
                             f"Simulating ingestion into {table_name}: {record_data}"
                         )
@@ -336,14 +334,14 @@ class DataPipeline:
         self, cache_items: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Update Redis cache with new data"""
-    summary = {"updated_keys": 0, "errors": 0}
+        summary = {"updated_keys": 0, "errors": 0}
 
         if not cache_items:
             return summary
 
         try:
         except Exception:
-            pass
+                pass
             pipe = self.redis_client.pipeline()
             for item in cache_items:
                 pipe.set(

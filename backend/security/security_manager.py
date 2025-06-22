@@ -40,7 +40,6 @@ class SecurityConfig:
 
 class SophiaSecurityManager:
     """Enhanced security manager for Sophia AI platform."""
-
     def __init__(self, config: SecurityConfig = None):
         self.config = config or SecurityConfig()
         self.redis_client = None
@@ -52,7 +51,8 @@ class SophiaSecurityManager:
         self._initialize_encryption()
 
     def _initialize_encryption(self):
-        """Initialize encryption key from master key."""if not self.config.master_key:.
+        """Initialize encryption key from master key."""
+        if not self.config.master_key:.
 
             # Generate a new master key if none exists
             self.config.master_key = base64.urlsafe_b64encode(
@@ -72,7 +72,8 @@ class SophiaSecurityManager:
         self.encryption_key = Fernet(key)
 
     async def start(self):
-        """Start the security manager."""try:.
+        """Start the security manager."""
+        try:.
 
             # Connect to Redis for session and key storage
             self.redis_client = redis.from_url(self.config.redis_url)
@@ -87,7 +88,8 @@ class SophiaSecurityManager:
             raise
 
     async def stop(self):
-        """Stop the security manager."""try:.
+        """Stop the security manager."""
+        try:.
 
             if self.redis_client:
                 await self.redis_client.close()
@@ -101,7 +103,8 @@ class SophiaSecurityManager:
     async def store_api_key(
         self, service_name: str, api_key: str, metadata: Dict[str, Any] = None
     ) -> bool:
-        """Securely store API key with encryption."""try:.
+        """Securely store API key with encryption."""
+        try:.
 
             # Encrypt the API key
             encrypted_key = self.encryption_key.encrypt(api_key.encode())
@@ -142,7 +145,8 @@ class SophiaSecurityManager:
             return False
 
     async def get_api_key(self, service_name: str) -> Optional[str]:
-        """Retrieve and decrypt API key."""try:.
+        """Retrieve and decrypt API key."""
+        try:.
 
             key_id = f"api_key:{service_name}"
             key_data = await self.redis_client.hgetall(key_id)
@@ -173,7 +177,8 @@ class SophiaSecurityManager:
             return None
 
     async def rotate_api_key(self, service_name: str, new_api_key: str) -> bool:
-        """Rotate API key for a service."""try:.
+        """Rotate API key for a service."""
+        try:.
 
             # Store the new key
             success = await self.store_api_key(service_name, new_api_key)
@@ -193,7 +198,8 @@ class SophiaSecurityManager:
             return False
 
     async def list_api_keys(self) -> List[Dict[str, Any]]:
-        """List all stored API keys (without revealing the actual keys)."""try:.
+        """List all stored API keys (without revealing the actual keys)."""
+        try:.
 
             keys = []
             pattern = "api_key:*"
@@ -228,7 +234,8 @@ class SophiaSecurityManager:
     async def create_session(
         self, user_id: str, user_agent: str = None, ip_address: str = None
     ) -> Optional[str]:
-        """Create a new authenticated session."""try:.
+        """Create a new authenticated session."""
+        try:.
 
             # Generate session token
             session_token = secrets.token_urlsafe(32)
@@ -283,7 +290,8 @@ class SophiaSecurityManager:
             return None
 
     async def validate_session(self, session_token: str) -> Optional[Dict[str, Any]]:
-        """Validate session token and return session data."""try:.
+        """Validate session token and return session data."""
+        try:.
 
             session_id = hashlib.sha256(session_token.encode()).hexdigest()
             session_key = f"session:{session_id}"
@@ -320,7 +328,8 @@ class SophiaSecurityManager:
             return None
 
     async def invalidate_session(self, session_token: str) -> bool:
-        """Invalidate a session."""try:.
+        """Invalidate a session."""
+        try:.
 
             session_id = hashlib.sha256(session_token.encode()).hexdigest()
             session_key = f"session:{session_id}"
@@ -345,7 +354,8 @@ class SophiaSecurityManager:
 
     # Access Control
     async def check_permission(self, user_id: str, resource: str, action: str) -> bool:
-        """Check if user has permission for specific action on resource."""try:.
+        """Check if user has permission for specific action on resource."""
+        try:.
 
             # For single-user system, grant all permissions
             # In multi-user system, this would check role-based permissions
@@ -370,7 +380,8 @@ class SophiaSecurityManager:
     async def record_failed_attempt(
         self, identifier: str, attempt_type: str = "login"
     ) -> bool:
-        """Record failed authentication attempt."""try:.
+        """Record failed authentication attempt."""
+        try:.
 
             key = f"failed_attempts:{identifier}"
 
@@ -405,7 +416,8 @@ class SophiaSecurityManager:
             return False
 
     async def clear_failed_attempts(self, identifier: str) -> bool:
-        """Clear failed attempts for identifier."""try:.
+        """Clear failed attempts for identifier."""
+        try:.
 
             key = f"failed_attempts:{identifier}"
             await self.redis_client.delete(key)
@@ -416,7 +428,8 @@ class SophiaSecurityManager:
 
     # Security Monitoring
     async def _initialize_security_monitoring(self):
-        """Initialize security monitoring and alerting."""try:.
+        """Initialize security monitoring and alerting."""
+        try:.
 
             # Set up monitoring tasks
             asyncio.create_task(self._monitor_key_rotations())
@@ -505,7 +518,8 @@ class SophiaSecurityManager:
                 await asyncio.sleep(3600)
 
     async def _schedule_key_rotation(self, service_name: str):
-        """Schedule key rotation for a service."""try:.
+        """Schedule key rotation for a service."""
+        try:.
 
             await self._log_security_event(
                 "key_rotation_scheduled",
@@ -526,7 +540,8 @@ class SophiaSecurityManager:
     async def _handle_security_breach(
         self, identifier: str, attempt_type: str, attempt_count: int
     ):
-        """Handle potential security breach."""try:.
+        """Handle potential security breach."""
+        try:.
 
             # Log security breach
             await self._log_security_event(
@@ -553,7 +568,8 @@ class SophiaSecurityManager:
 
     # Audit Logging
     async def _log_security_event(self, event_type: str, event_data: Dict[str, Any]):
-        """Log security event for audit purposes."""try:.
+        """Log security event for audit purposes."""
+        try:.
 
             event = {
                 "event_type": event_type,
@@ -579,7 +595,8 @@ class SophiaSecurityManager:
     async def get_security_events(
         self, event_type: str = None, limit: int = 100
     ) -> List[Dict[str, Any]]:
-        """Retrieve security events for audit purposes."""try:.
+        """Retrieve security events for audit purposes."""
+        try:.
 
             events = []
             pattern = "security_log:*"

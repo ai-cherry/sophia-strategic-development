@@ -28,7 +28,6 @@ class PulumiMCPServer(BaseMCPServer):
 
             infrastructure by running Pulumi scripts.
     """
-
     def __init__(self):
         super().__init__("pulumi")
         # The 'integration_client' for this server is the ability to run shell commands.
@@ -43,7 +42,8 @@ class PulumiMCPServer(BaseMCPServer):
         pass
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Pulumi stacks as resources."""# In a real scenario, this could list .py files in infrastructure/pulumi/.
+        """Lists available Pulumi stacks as resources."""
+        # In a real scenario, this could list .py files in infrastructure/pulumi/.
 
         return [
             Resource(uri="pulumi://stack/dev", name="dev", mimeType="application/json"),
@@ -53,7 +53,8 @@ class PulumiMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Gets the status of a specific Pulumi stack."""stack_name = request.uri.split("/")[-1].
+        """Gets the status of a specific Pulumi stack."""
+        stack_name = request.uri.split("/")[-1].
 
         # This is a conceptual implementation. A real one would use `pulumi stack export`.
         return json.dumps(
@@ -65,7 +66,8 @@ class PulumiMCPServer(BaseMCPServer):
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Pulumi tools."""return [.
+        """Lists available Pulumi tools."""
+        return [.
 
             Tool(
                 name="run_pulumi_up",
@@ -89,7 +91,8 @@ class PulumiMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Pulumi tool calls."""tool_name = request.params.name.
+        """Handles Pulumi tool calls."""
+        tool_name = request.params.name.
 
         arguments = request.params.arguments or {}
 

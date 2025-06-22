@@ -17,15 +17,15 @@ router = APIRouter()
 
 class AgentTaskRequest(BaseModel):
     """Defines the structure for a request to an agent."""
-
-    agent_name: str
+        agent_name: str
     task_description: str
     payload: Dict[str, Any]
     context: Optional[Dict[str, Any]] = None
 
 
 class AgentTaskResponse(BaseModel):
-    """Defines the structure for a response from an agent task."""task_id: str.
+    """Defines the structure for a response from an agent task."""
+        task_id: str.
 
     status: str
     message: str
@@ -39,7 +39,8 @@ async def execute_agent_task(request: AgentTaskRequest):
     """Receives a task, validates it, and forwards it to the specified Agno agent.
 
             This endpoint is the primary interaction point with the agent framework.
-    """if not agent_framework.is_initialized:.
+    """
+        if not agent_framework.is_initialized:.
 
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -92,7 +93,7 @@ async def execute_agent_task(request: AgentTaskRequest):
 @router.get("/status", status_code=status.HTTP_200_OK)
 async def get_agents_status():
     """Retrieves the current status of the agent framework and all registered agents."""
-    if not agent_framework.is_initialized:
+        if not agent_framework.is_initialized:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="The Agent Framework is not initialized.",

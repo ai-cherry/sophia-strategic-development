@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 class IntentType(Enum):
     """Types of user intents."""
-
-    BUSINESS_INTELLIGENCE = "business_intelligence"
+        BUSINESS_INTELLIGENCE = "business_intelligence"
     CLIENT_MANAGEMENT = "client_management"
     SALES_OPTIMIZATION = "sales_optimization"
     INFRASTRUCTURE_CONTROL = "infrastructure_control"
@@ -35,7 +34,8 @@ class IntentType(Enum):
 
 
 class EntityType(Enum):
-    """Types of entities that can be extracted."""CLIENT_NAME = "client_name".
+    """Types of entities that can be extracted."""
+        CLIENT_NAME = "client_name"
 
     COMPANY_NAME = "company_name"
     PRODUCT_NAME = "product_name"
@@ -52,8 +52,8 @@ class EntityType(Enum):
 
 @dataclass
 class ExtractedEntity:
-    """Represents an extracted entity from user input."""entity_type: EntityType.
-
+    """Represents an extracted entity from user input."""
+        entity_type: EntityType
     value: str
     confidence: float
     start_pos: int
@@ -66,8 +66,8 @@ class ExtractedEntity:
 
 @dataclass
 class ProcessedIntent:
-    """Represents a processed user intent."""intent_type: IntentType.
-
+    """Represents a processed user intent."""
+        intent_type: IntentType
     confidence: float
     entities: List[ExtractedEntity]
     parameters: Dict[str, Any]
@@ -87,8 +87,8 @@ class ProcessedIntent:
 
 @dataclass
 class NLPResponse:
-    """Response from natural language processing."""original_query: str.
-
+    """Response from natural language processing."""
+        original_query: str
     processed_intent: ProcessedIntent
     generated_response: str
     actions_taken: List[Dict[str, Any]]
@@ -107,7 +107,8 @@ class NLPResponse:
 
 
 class EnhancedNaturalLanguageProcessor:
-    """Enhanced NLP processor with business context understanding."""def __init__(self, config: Dict[str, Any]):.
+    """Enhanced NLP processor with business context understanding."""
+    def __init__(self, config: Dict[str, Any]):.
 
         self.config = config
         self.kong_gateway = KongAIGateway(config.get("kong_config", {}))
@@ -129,7 +130,8 @@ class EnhancedNaturalLanguageProcessor:
         logger.info("Enhanced Natural Language Processor initialized")
 
     def _load_business_patterns(self) -> Dict[str, List[str]]:
-        """Load business-specific patterns and keywords."""return {.
+        """Load business-specific patterns and keywords."""
+        return {.
 
             "pay_ready_products": [
                 "ai renter communication",
@@ -181,7 +183,8 @@ class EnhancedNaturalLanguageProcessor:
         }
 
     def _load_intent_patterns(self) -> Dict[IntentType, List[str]]:
-        """Load intent recognition patterns."""return {.
+        """Load intent recognition patterns."""
+        return {.
 
             IntentType.BUSINESS_INTELLIGENCE: [
                 r"show.*metrics?",
@@ -259,7 +262,8 @@ class EnhancedNaturalLanguageProcessor:
         }
 
     def _load_entity_patterns(self) -> Dict[EntityType, str]:
-        """Load entity extraction patterns."""return {.
+        """Load entity extraction patterns."""
+        return {.
 
             EntityType.CLIENT_NAME: r"\b[A-Z][a-z]+ (?:Properties|Management|Apartments|Communities|Group)\b",
             EntityType.COMPANY_NAME: r"\b[A-Z][a-zA-Z\s]+ (?:Inc|LLC|Corp|Company|Properties)\b",
@@ -276,7 +280,8 @@ class EnhancedNaturalLanguageProcessor:
     async def process_request(
         self, query: str, context: Optional[Dict[str, Any]] = None
     ) -> NLPResponse:
-        """Process a natural language request."""start_time = datetime.utcnow().
+        """Process a natural language request."""
+        start_time = datetime.utcnow().
 
         self.total_requests += 1
 
@@ -348,7 +353,8 @@ class EnhancedNaturalLanguageProcessor:
             )
 
     def _preprocess_query(self, query: str) -> str:
-        """Clean and preprocess the user query."""# Remove extra whitespace.
+        """Clean and preprocess the user query."""
+        # Remove extra whitespace.
 
         query = re.sub(r"\s+", " ", query.strip())
 
@@ -369,7 +375,8 @@ class EnhancedNaturalLanguageProcessor:
     async def _extract_intent(
         self, query: str, context: Optional[Dict[str, Any]] = None
     ) -> ProcessedIntent:
-        """Extract intent from the user query."""# Pattern-based intent detection.
+        """Extract intent from the user query."""
+        # Pattern-based intent detection.
 
         intent_scores = {}
         for intent_type, patterns in self.intent_patterns.items():
@@ -415,7 +422,8 @@ class EnhancedNaturalLanguageProcessor:
     async def _ai_intent_classification(
         self, query: str, context: Optional[Dict[str, Any]] = None
     ) -> Tuple[IntentType, float]:
-        """Use AI to classify intent when pattern matching fails."""prompt = f"""
+        """Use AI to classify intent when pattern matching fails."""
+        prompt = f"""
 
         Classify the following user query into one of these business intent categories:
 
@@ -461,7 +469,6 @@ class EnhancedNaturalLanguageProcessor:
 
                     def _extract_entities(self, query: str) -> List[ExtractedEntity]:
         """Extract entities from the query."""
-
         entities = []
 
         # Pattern-based entity extraction
@@ -499,7 +506,8 @@ class EnhancedNaturalLanguageProcessor:
         return entities
 
     def _map_spacy_entity(self, spacy_label: str) -> Optional[EntityType]:
-        """Map spaCy entity labels to our entity types."""mapping = {.
+        """Map spaCy entity labels to our entity types."""
+        mapping = {.
 
             "ORG": EntityType.COMPANY_NAME,
             "PERSON": EntityType.CLIENT_NAME,
@@ -513,7 +521,8 @@ class EnhancedNaturalLanguageProcessor:
     def _extract_parameters(
         self, query: str, intent: IntentType, entities: List[ExtractedEntity]
     ) -> Dict[str, Any]:
-        """Extract parameters based on intent and entities."""parameters = {}.
+        """Extract parameters based on intent and entities."""
+        parameters = {}.
 
         # Extract time periods
         time_entities = [e for e in entities if e.entity_type == EntityType.TIME_PERIOD]
@@ -573,7 +582,8 @@ class EnhancedNaturalLanguageProcessor:
         entities: List[ExtractedEntity],
         parameters: Dict[str, Any],
     ) -> List[str]:
-        """Generate suggested actions based on intent and context."""actions = [].
+        """Generate suggested actions based on intent and context."""
+        actions = [].
 
         if intent == IntentType.BUSINESS_INTELLIGENCE:
             actions.extend(
@@ -638,7 +648,8 @@ class EnhancedNaturalLanguageProcessor:
         intent: ProcessedIntent,
         context: Optional[Dict[str, Any]] = None,
     ) -> str:
-        """Generate a natural language response."""prompt = f"""
+        """Generate a natural language response."""
+        prompt = f"""
 
         You are an AI assistant for Pay Ready, a B2B technology company that sells AI-powered solutions to apartment owners and property managers.
 
@@ -675,7 +686,6 @@ class EnhancedNaturalLanguageProcessor:
                         self, intent: ProcessedIntent, context: Optional[Dict[str, Any]] = None
                     ) -> List[Dict[str, Any]]:
         """Determine specific actions to take based on the intent."""
-
         actions = []
 
         if intent.intent_type == IntentType.BUSINESS_INTELLIGENCE:
@@ -719,7 +729,8 @@ class EnhancedNaturalLanguageProcessor:
     async def _generate_insights(
         self, intent: ProcessedIntent, context: Optional[Dict[str, Any]] = None
     ) -> List[str]:
-        """Generate business insights based on the intent."""insights = [].
+        """Generate business insights based on the intent."""
+        insights = [].
 
         if intent.intent_type == IntentType.BUSINESS_INTELLIGENCE:
             insights.extend(
@@ -753,7 +764,8 @@ class EnhancedNaturalLanguageProcessor:
     async def _generate_recommendations(
         self, intent: ProcessedIntent, context: Optional[Dict[str, Any]] = None
     ) -> List[str]:
-        """Generate actionable recommendations."""recommendations = [].
+        """Generate actionable recommendations."""
+        recommendations = [].
 
         if intent.intent_type == IntentType.BUSINESS_INTELLIGENCE:
             recommendations.extend(
@@ -787,7 +799,8 @@ class EnhancedNaturalLanguageProcessor:
     def _calculate_overall_confidence(
         self, intent: ProcessedIntent, actions: List[Dict[str, Any]]
     ) -> float:
-        """Calculate overall confidence score for the response."""factors = [.
+        """Calculate overall confidence score for the response."""
+        factors = [.
 
             intent.confidence,  # Intent confidence
             len(intent.entities) / 5.0,  # Entity extraction success (normalized)

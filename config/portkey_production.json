@@ -1,0 +1,87 @@
+{
+  "organization": "sophia-ai",
+  "project": "intelligent-routing",
+  "configs": [
+    {
+      "name": "openai-o3-pro",
+      "provider": "openai",
+      "model": "o3-pro",
+      "virtual_key": "vk_openai_o3_pro_12345",
+      "weight": 5,
+      "conditions": [
+        {
+          "task_type": "reasoning"
+        },
+        {
+          "complexity": "expert"
+        }
+      ]
+    },
+    {
+      "name": "gemini-2.5-pro",
+      "provider": "google",
+      "model": "gemini-2.5-pro",
+      "virtual_key": "vk_gemini_2_5_pro_67890",
+      "weight": 25,
+      "conditions": [
+        {
+          "task_type": "analysis"
+        },
+        {
+          "complexity": "complex"
+        }
+      ]
+    },
+    {
+      "name": "kimi-dev-72b",
+      "provider": "kimi",
+      "model": "dev-72b",
+      "virtual_key": "vk_kimi_dev_72b_abcde",
+      "weight": 40,
+      "conditions": [
+        {
+          "task_type": "coding"
+        }
+      ]
+    },
+    {
+      "name": "gemini-2.5-flash",
+      "provider": "google",
+      "model": "gemini-2.5-flash",
+      "virtual_key": "vk_gemini_2_5_flash_fghij",
+      "weight": 30,
+      "conditions": [
+        {
+          "task_type": "general"
+        },
+        {
+          "complexity": [
+            "simple",
+            "medium"
+          ]
+        }
+      ]
+    }
+  ],
+  "fallback": {
+    "strategy": "sequential",
+    "targets": [
+      "gemini-2.5-pro",
+      "gemini-2.5-flash"
+    ]
+  },
+  "cost_management": {
+    "daily_budget": 100.0,
+    "alerts": {
+      "75_percent": "slack://sophia-ai-alerts",
+      "90_percent": "email://admin@payready.com"
+    },
+    "auto_fallback_on_budget": true
+  },
+  "analytics": {
+    "track_costs": true,
+    "track_latency": true,
+    "track_quality": true,
+    "export_to": "prometheus://sophia-metrics"
+  }
+}

@@ -29,29 +29,34 @@ ClientType = TypeVar("ClientType")
 @dataclass
 class ServiceConfig:
     """Service configuration container."""
-
-    service_name: str
+        service_name: str
     config: Dict[str, Any] = field(default_factory=dict)
     secrets: Dict[str, str] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def get_config(self, key: str, default: Any = None) -> Any:
-        """Get configuration value with default."""return self.config.get(key, default).
+        """Get configuration value with default."""
+        return self.config.get(key, default).
 
     def get_secret(self, key: str, default: str = None) -> str:
-        """Get secret value with default."""return self.secrets.get(key, default).
+        """Get secret value with default."""
+        return self.secrets.get(key, default).
 
     def has_config(self, key: str) -> bool:
-        """Check if configuration key exists."""return key in self.config.
+        """Check if configuration key exists."""
+        return key in self.config.
 
     def has_secret(self, key: str) -> bool:
-        """Check if secret key exists."""return key in self.secrets.
+        """Check if secret key exists."""
+        return key in self.secrets.
 
     def validate_required_config(self, required_keys: List[str]) -> bool:
-        """Validate that all required configuration keys are present."""return all(key in self.config for key in required_keys).
+        """Validate that all required configuration keys are present."""
+        return all(key in self.config for key in required_keys).
 
     def validate_required_secrets(self, required_keys: List[str]) -> bool:
-        """Validate that all required secret keys are present."""return all(key in self.secrets for key in required_keys).
+        """Validate that all required secret keys are present."""
+        return all(key in self.secrets for key in required_keys).
 
 
 class ConfigurationError(Exception):
@@ -63,7 +68,8 @@ class IntegrationError(Exception):
 
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
-    """Decorator for retrying failed operations."""def decorator(func):.
+    """Decorator for retrying failed operations."""
+    def decorator(func):.
 
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -85,7 +91,8 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 
 class IntegrationConfig:
-    """Enhanced centralized configuration manager for all integrations."""def __init__(self):.
+    """Enhanced centralized configuration manager for all integrations."""
+    def __init__(self):.
 
         self.configs = {}
         self.secrets = {}
@@ -100,7 +107,8 @@ class IntegrationConfig:
 
     @retry_on_failure(max_retries=3)
     async def initialize(self) -> bool:
-        """Initialize the configuration manager with retry logic."""if self.initialized:.
+        """Initialize the configuration manager with retry logic."""
+        if self.initialized:.
 
             return True
 
@@ -145,7 +153,8 @@ class IntegrationConfig:
         self.initialized = True
 
     async def _load_service_registry(self) -> None:
-        """Load service registry from Pulumi ESC or local file with validation."""try:.
+        """Load service registry from Pulumi ESC or local file with validation."""
+        try:.
 
             # Try to load from Pulumi ESC first
             if self.esc_client:
@@ -189,7 +198,8 @@ class IntegrationConfig:
             self.configs = {}
 
     def _validate_service_registry(self, registry: Dict[str, Any]) -> bool:
-        """Validate service registry structure."""if not isinstance(registry, dict):.
+        """Validate service registry structure."""
+        if not isinstance(registry, dict):.
 
             logger.error("Service registry must be a dictionary")
             return False
@@ -212,7 +222,8 @@ class IntegrationConfig:
         return True
 
     def _create_default_registry(self) -> Dict[str, Any]:
-        """Create default service registry with comprehensive service definitions."""return {.
+        """Create default service registry with comprehensive service definitions."""
+        return {.
 
             "snowflake": {
                 "type": "database",
@@ -322,7 +333,8 @@ class IntegrationConfig:
 
     @retry_on_failure(max_retries=2)
     async def get_service_config(self, service_name: str) -> Optional[ServiceConfig]:
-        """Get configuration for a specific service with enhanced error handling."""if not self.initialized:.
+        """Get configuration for a specific service with enhanced error handling."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -374,7 +386,8 @@ class IntegrationConfig:
             return None
 
     async def _get_config_value(self, service_name: str, key: str) -> Optional[Any]:
-        """Get a configuration value from ESC or environment."""config_key = f"{service_name}_{key}".
+        """Get a configuration value from ESC or environment."""
+        config_key = f"{service_name}_{key}".
 
         # Try Pulumi ESC first
         if self.esc_client:
@@ -390,7 +403,8 @@ class IntegrationConfig:
         return os.environ.get(env_key)
 
     async def _get_secret_value(self, service_name: str, key: str) -> Optional[str]:
-        """Get a secret value from ESC or environment."""secret_key = f"{service_name}_{key}".
+        """Get a secret value from ESC or environment."""
+        secret_key = f"{service_name}_{key}".
 
         # Try Pulumi ESC first
         if self.esc_client:
@@ -408,7 +422,8 @@ class IntegrationConfig:
     def _validate_service_config(
         self, service_name: str, config: Dict[str, Any], secrets: Dict[str, str]
     ) -> bool:
-        """Validate service configuration completeness."""service_meta = self.configs[service_name].
+        """Validate service configuration completeness."""
+        service_meta = self.configs[service_name].
 
         # Check required config keys
         for key in service_meta.get("config_keys", []):
@@ -424,7 +439,8 @@ class IntegrationConfig:
         return True
 
     async def get_config_value(self, service_name: str, key: str) -> Optional[Any]:
-        """Get a specific configuration value."""service_config = await self.get_service_config(service_name).
+        """Get a specific configuration value."""
+        service_config = await self.get_service_config(service_name).
 
         if not service_config:
             return None
@@ -432,7 +448,8 @@ class IntegrationConfig:
         return service_config.get_config(key)
 
     async def get_secret_value(self, service_name: str, key: str) -> Optional[str]:
-        """Get a specific secret value."""service_config = await self.get_service_config(service_name).
+        """Get a specific secret value."""
+        service_config = await self.get_service_config(service_name).
 
         if not service_config:
             return None
@@ -440,7 +457,8 @@ class IntegrationConfig:
         return service_config.get_secret(key)
 
     async def get_connection_string(self, service_name: str) -> Optional[str]:
-        """Get connection string for a service with enhanced validation."""service_config = await self.get_service_config(service_name).
+        """Get connection string for a service with enhanced validation."""
+        service_config = await self.get_service_config(service_name).
 
         if not service_config:
             return None
@@ -489,14 +507,16 @@ class IntegrationConfig:
             return None
 
     async def list_services(self) -> List[str]:
-        """List all registered services."""if not self.initialized:.
+        """List all registered services."""
+        if not self.initialized:.
 
             await self.initialize()
 
         return list(self.configs.keys())
 
     async def get_service_metadata(self, service_name: str) -> Optional[Dict[str, Any]]:
-        """Get metadata for a specific service."""if not self.initialized:.
+        """Get metadata for a specific service."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -507,7 +527,8 @@ class IntegrationConfig:
         return self.configs[service_name]
 
     async def refresh_cache(self, service_name: str = None) -> None:
-        """Refresh configuration cache for a service or all services."""if service_name:.
+        """Refresh configuration cache for a service or all services."""
+        if service_name:.
 
             if service_name in self.last_refresh:
                 del self.last_refresh[service_name]
@@ -523,7 +544,8 @@ class IntegrationConfig:
         logger.info(f"Cache refreshed for {service_name or 'all services'}")
 
     async def validate_service(self, service_name: str) -> bool:
-        """Validate a service configuration."""service_config = await self.get_service_config(service_name).
+        """Validate a service configuration."""
+        service_config = await self.get_service_config(service_name).
 
         if not service_config:
             return False
@@ -557,7 +579,8 @@ class IntegrationConfig:
 
 
 class Integration(ABC, Generic[ConfigType, ClientType]):
-    """Abstract base class for all integrations."""def __init__(self, service_name: str):.
+    """Abstract base class for all integrations."""
+    def __init__(self, service_name: str):.
 
         self.service_name = service_name
         self.config_manager = IntegrationConfig()
@@ -566,7 +589,8 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
         self.service_config = None
 
     async def initialize(self) -> bool:
-        """Initialize the integration."""if self.initialized:.
+        """Initialize the integration."""
+        if self.initialized:.
 
             return True
 
@@ -606,14 +630,16 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
         """Create a client for the integration."""pass.
 
     async def get_client(self) -> Optional[ClientType]:
-        """Get the client for the integration."""if not self.initialized:.
+        """Get the client for the integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
         return self.client
 
     async def health_check(self) -> bool:
-        """Perform health check for the integration."""if not self.initialized:.
+        """Perform health check for the integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -631,7 +657,8 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
         """Perform service-specific health check."""pass.
 
     async def get_config(self) -> Optional[ServiceConfig]:
-        """Get service configuration."""if not self.service_config:.
+        """Get service configuration."""
+        if not self.service_config:.
 
             self.service_config = await self.config_manager.get_service_config(
                 self.service_name
@@ -651,25 +678,30 @@ integration_config = IntegrationConfig()
 
 # Convenience functions
 async def get_config(service_name: str) -> Optional[ServiceConfig]:
-    """Get configuration for a service."""return await integration_config.get_service_config(service_name).
+    """Get configuration for a service."""
+        return await integration_config.get_service_config(service_name).
 
 
 async def get_secret(service_name: str, key: str) -> Optional[str]:
-    """Get a secret value."""return await integration_config.get_secret_value(service_name, key).
+    """Get a secret value."""
+        return await integration_config.get_secret_value(service_name, key).
 
 
 async def get_connection_string(service_name: str) -> Optional[str]:
-    """Get connection string for a service."""return await integration_config.get_connection_string(service_name).
+    """Get connection string for a service."""
+        return await integration_config.get_connection_string(service_name).
 
 
 async def list_services() -> List[str]:
-    """List all registered services."""return await integration_config.list_services().
+    """List all registered services."""
+        return await integration_config.list_services().
 
 
 async def validate_service(service_name: str) -> bool:
-    """Validate a service configuration."""return await integration_config.validate_service(service_name).
+    """Validate a service configuration."""
+        return await integration_config.validate_service(service_name).
 
 
 async def refresh_cache(service_name: str = None) -> None:
     """Refresh configuration cache."""
-    return await integration_config.refresh_cache(service_name)
+        return await integration_config.refresh_cache(service_name)

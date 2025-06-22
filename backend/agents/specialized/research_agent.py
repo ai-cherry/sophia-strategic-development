@@ -16,7 +16,8 @@ class ResearchAgent(Agent, BaseAgent):
     """An agent specialized in conducting web research on a given topic.
 
             It breaks down a topic, executes web searches, and synthesizes the results.
-    """def __init__(self, config: AgentConfig):.
+    """
+    def __init__(self, config: AgentConfig):.
         Agent.__init__(self)
         BaseAgent.__init__(self, config)
         self.mcp_client = MCPClient(
@@ -74,7 +75,8 @@ Example Output:
 
     @state
     async def execute_search(self):
-"""Calls the Apify MCP server to perform web searches."""queries = self.research_data.get("search_queries", []).
+"""Calls the Apify MCP server to perform web searches."""
+        queries = self.research_data.get("search_queries", []).
 
         logger.info(f"[State: EXECUTE_SEARCH] for {len(queries)} queries.")
 
@@ -96,7 +98,7 @@ Example Output:
         # with a prompt like "Summarize the following research into a coherent brief..."
 
         # For now, we'll just concatenate the results.
-        all_text = "\n\n---\n\n".join(
+        all_text = "\n\n---\n\n"join(
             str(item) for item in self.research_data.get("scraped_content", [])
         )
 

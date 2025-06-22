@@ -17,7 +17,6 @@ from ..sophia_mcp_server import MCPTool
 
 class VectorSearchTool(MCPTool):
     """Tool for searching vector databases."""
-
     def __init__(self):
         super().__init__(
             name="vector_search",
@@ -58,7 +57,8 @@ class VectorSearchTool(MCPTool):
         self.weaviate_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         query = parameters["query"]
         collection = parameters.get("collection")
@@ -105,7 +105,8 @@ class VectorSearchTool(MCPTool):
             }
 
     async def _generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text."""if not self.openai_client:.
+        """Generate embedding for text."""
+        if not self.openai_client:.
 
             from openai import OpenAI
             api_key = await secret_manager.get_secret("api_key", "openai")
@@ -119,7 +120,8 @@ class VectorSearchTool(MCPTool):
         return response.data[0].embedding
 
     async def _search_pinecone(self, embedding: List[float], namespace: Optional[str], limit: int, filter_obj: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Search Pinecone vector database."""if not self.pinecone_client:.
+        """Search Pinecone vector database."""
+        if not self.pinecone_client:.
 
             import pinecone
 
@@ -159,7 +161,8 @@ pinecone_client = comprehensive_memory_manager
         return results
 
     async def _search_weaviate(self, embedding: List[float], class_name: Optional[str], limit: int, filter_obj: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Search Weaviate vector database."""if not self.weaviate_client:.
+        """Search Weaviate vector database."""
+        if not self.weaviate_client:.
 
             import weaviate
 
@@ -222,7 +225,8 @@ pinecone_client = comprehensive_memory_manager
         return results
 
     def _convert_filter_to_weaviate(self, filter_obj: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert generic filter to Weaviate filter format."""if not filter_obj:.
+        """Convert generic filter to Weaviate filter format."""
+        if not filter_obj:.
 
             return {}
 
@@ -247,7 +251,8 @@ pinecone_client = comprehensive_memory_manager
         return weaviate_filter
 
 class VectorStoreTool(MCPTool):
-    """Tool for storing data in vector databases."""def __init__(self):.
+    """Tool for storing data in vector databases."""
+    def __init__(self):.
 
         super().__init__(
             name="vector_store",
@@ -287,7 +292,8 @@ class VectorStoreTool(MCPTool):
         self.weaviate_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         text = parameters["text"]
         metadata = parameters.get("metadata", {})
@@ -332,7 +338,8 @@ class VectorStoreTool(MCPTool):
             }
 
     async def _generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text."""if not self.openai_client:.
+        """Generate embedding for text."""
+        if not self.openai_client:.
 
             from openai import OpenAI
             api_key = await secret_manager.get_secret("api_key", "openai")
@@ -346,7 +353,8 @@ class VectorStoreTool(MCPTool):
         return response.data[0].embedding
 
     async def _store_pinecone(self, text: str, embedding: List[float], metadata: Dict[str, Any], namespace: Optional[str], item_id: Optional[str]) -> Dict[str, Any]:
-        """Store data in Pinecone vector database."""if not self.pinecone_client:.
+        """Store data in Pinecone vector database."""
+        if not self.pinecone_client:.
 
             import uuid
 

@@ -1,0 +1,14 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+aiohttp==3.9.0
+openai==1.0.0
+anthropic==0.8.0
+requests==2.31.0
+python-dotenv==1.0.0
+asyncio==3.4.3
+logging==0.4.9.6
+pulumi==3.95.0
+click==8.1.7
+pydantic-settings==2.0.3
+httpx==0.25.0 

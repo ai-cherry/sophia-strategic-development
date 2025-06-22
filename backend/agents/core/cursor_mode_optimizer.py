@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CursorModeHint:
     """Optimization hints for Cursor AI interaction modes"""
-    preferred_mode: str      # "chat", "composer", "agent"
+        preferred_mode: str      # "chat", "composer", "agent"
     response_style: str      # "conversational", "structured", "streaming"  
     complexity_level: str    # "simple", "moderate", "complex"
     estimated_duration: str  # "short", "medium", "long"
@@ -29,22 +29,21 @@ class CursorModeHint:
 
 class TaskComplexity(Enum):
     """Task complexity levels for mode optimization"""
-    SIMPLE = "simple"        # < 30 seconds, single operation
+        SIMPLE = "simple"        # < 30 seconds, single operation
     MODERATE = "moderate"    # 30 seconds - 5 minutes, multi-step
     COMPLEX = "complex"      # > 5 minutes, autonomous operation
 
 
 class ResponseStyle(Enum):
     """Response formatting styles"""
-    CONVERSATIONAL = "conversational"  # Natural, chat-like responses
+        CONVERSATIONAL = "conversational"  # Natural, chat-like responses
     STRUCTURED = "structured"          # Organized, multi-section responses
     STREAMING = "streaming"             # Real-time progress updates
 
 
 class CursorModeOptimizer:
     """Provides optimization hints without changing core routing"""
-    
-    # Command patterns mapped to mode hints
+        # Command patterns mapped to mode hints
     MODE_HINTS = {
         # Quick queries - Chat Mode (conversational, immediate)
         "show": CursorModeHint("chat", "conversational", "simple", "short"),
@@ -299,17 +298,17 @@ class CursorModeOptimizer:
 # Integration helper functions
 def get_mode_hint(command: str, agent_name: Optional[str] = None) -> Optional[CursorModeHint]:
     """Get Cursor mode optimization hint for command"""
-    return CursorModeOptimizer.get_mode_hint(command, agent_name)
+        return CursorModeOptimizer.get_mode_hint(command, agent_name)
 
 
 def suggest_cursor_workflow(command: str, agent_name: Optional[str] = None) -> Dict[str, any]:
     """Get complete Cursor workflow suggestion"""
-    return CursorModeOptimizer.suggest_cursor_workflow(command, agent_name)
+        return CursorModeOptimizer.suggest_cursor_workflow(command, agent_name)
 
 
 def analyze_command_complexity(command: str) -> TaskComplexity:
     """Analyze command complexity level"""
-    return CursorModeOptimizer.analyze_command_complexity(command)
+        return CursorModeOptimizer.analyze_command_complexity(command)
 
 
 # Global instance for easy access

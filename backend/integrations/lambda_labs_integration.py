@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LambdaLabsInstance:
     """Lambda Labs instance representation."""
-
-    id: str
+        id: str
     name: str
     instance_type: str
     region: str
@@ -34,7 +33,8 @@ class LambdaLabsIntegration:
     """Lambda Labs API Integration.
 
             Provides secure access to Lambda Labs cloud compute services
-    """def __init__(self, api_key: Optional[str] = None):."""Initialize Lambda Labs integration"""
+    """
+    def __init__(self, api_key: Optional[str] = None):."""Initialize Lambda Labs integration"""
 
         self.api_key = api_key or os.getenv("LAMBDA_LABS_API_KEY")
         if not self.api_key:
@@ -61,14 +61,16 @@ class LambdaLabsIntegration:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit."""if self.session:.
+        """Async context manager exit."""
+        if self.session:.
 
             await self.session.close()
 
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
     ) -> Dict[str, Any]:
-        """Make authenticated API request."""url = f"{self.base_url}/{endpoint.lstrip('/')}".
+        """Make authenticated API request."""
+        url = f"{self.base_url}/{endpoint.lstrip('/')}".
 
         try:
             async with self.session.request(method, url, **kwargs) as response:
@@ -82,7 +84,8 @@ class LambdaLabsIntegration:
             raise
 
     async def get_instance_types(self) -> List[Dict[str, Any]]:
-        """Get available instance types."""try:.
+        """Get available instance types."""
+        try:.
 
             response = await self._make_request("GET", "/instance-types")
             return response.get("data", [])
@@ -91,7 +94,8 @@ class LambdaLabsIntegration:
             return []
 
     async def list_instances(self) -> List[LambdaLabsInstance]:
-        """List all instances."""try:.
+        """List all instances."""
+        try:.
 
             response = await self._make_request("GET", "/instances")
             instances = []
@@ -120,7 +124,8 @@ class LambdaLabsIntegration:
         region: str = "us-west-1",
         ssh_key_names: Optional[List[str]] = None,
     ) -> Optional[LambdaLabsInstance]:
-        """Create a new instance."""instance_type = instance_type or self.default_instance_type.
+        """Create a new instance."""
+        instance_type = instance_type or self.default_instance_type.
 
         ssh_key_names = ssh_key_names or [self.default_ssh_key]
 
@@ -153,7 +158,8 @@ class LambdaLabsIntegration:
             return None
 
     async def terminate_instance(self, instance_id: str) -> bool:
-        """Terminate an instance."""payload = {"instance_ids": [instance_id]}.
+        """Terminate an instance."""
+        payload = {"instance_ids": [instance_id]}.
 
         try:
             await self._make_request(
@@ -166,7 +172,8 @@ class LambdaLabsIntegration:
             return False
 
     async def restart_instance(self, instance_id: str) -> bool:
-        """Restart an instance."""payload = {"instance_ids": [instance_id]}.
+        """Restart an instance."""
+        payload = {"instance_ids": [instance_id]}.
 
         try:
             await self._make_request(
@@ -179,7 +186,8 @@ class LambdaLabsIntegration:
             return False
 
     async def get_ssh_keys(self) -> List[Dict[str, Any]]:
-        """Get SSH keys."""try:.
+        """Get SSH keys."""
+        try:.
 
             response = await self._make_request("GET", "/ssh-keys")
             return response.get("data", [])
@@ -188,7 +196,8 @@ class LambdaLabsIntegration:
             return []
 
     async def add_ssh_key(self, name: str, public_key: str) -> bool:
-        """Add SSH key."""payload = {"name": name, "public_key": public_key}.
+        """Add SSH key."""
+        payload = {"name": name, "public_key": public_key}.
 
         try:
             await self._make_request("POST", "/ssh-keys", json=payload)
@@ -199,7 +208,8 @@ class LambdaLabsIntegration:
             return False
 
     async def health_check(self) -> Dict[str, Any]:
-        """Check Lambda Labs API health."""try:.
+        """Check Lambda Labs API health."""
+        try:.
 
             # Test API connectivity by getting instance types
             instance_types = await self.get_instance_types()

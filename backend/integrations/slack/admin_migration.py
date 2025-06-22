@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class AdminMigrationManager:
     """Manages migration from admin website to Slack interface."""
-
     def __init__(self):
         self.client = AsyncWebClient(token=os.getenv("SLACK_BOT_TOKEN"))
         self.migration_status = {
@@ -30,7 +29,8 @@ class AdminMigrationManager:
         }
 
     async def migrate_dashboard_functionality(self) -> bool:
-        """Migrate dashboard functionality to Slack."""try:.
+        """Migrate dashboard functionality to Slack."""
+        try:.
 
             # Create dashboard command
             dashboard_blocks = [
@@ -59,7 +59,8 @@ class AdminMigrationManager:
             return False
 
     async def migrate_natural_language_queries(self) -> bool:
-        """Migrate natural language query functionality."""try:.
+        """Migrate natural language query functionality."""
+        try:.
 
             # Setup natural language processing
             query_blocks = [
@@ -88,7 +89,8 @@ class AdminMigrationManager:
             return False
 
     async def migrate_conversation_search(self) -> bool:
-        """Migrate conversation search functionality."""try:.
+        """Migrate conversation search functionality."""
+        try:.
 
             # Setup search commands
             search_blocks = [
@@ -117,7 +119,8 @@ class AdminMigrationManager:
             return False
 
     async def migrate_health_monitoring(self) -> bool:
-        """Migrate health monitoring functionality."""try:.
+        """Migrate health monitoring functionality."""
+        try:.
 
             # Setup health monitoring
             health_blocks = [
@@ -146,7 +149,8 @@ class AdminMigrationManager:
             return False
 
     async def migrate_deployment_commands(self) -> bool:
-        """Migrate deployment functionality."""try:.
+        """Migrate deployment functionality."""
+        try:.
 
             # Setup deployment commands
             deploy_blocks = [
@@ -175,7 +179,8 @@ class AdminMigrationManager:
             return False
 
     async def setup_automated_workflows(self) -> bool:
-        """Setup automated Slack workflows."""try:.
+        """Setup automated Slack workflows."""
+        try:.
 
             # Setup daily reports
             workflow_config = {
@@ -204,7 +209,8 @@ class AdminMigrationManager:
             return False
 
     async def deprecate_admin_website(self) -> bool:
-        """Deprecate the admin website."""try:.
+        """Deprecate the admin website."""
+        try:.
 
             # Create deprecation notice
             deprecation_notice = {
@@ -227,7 +233,8 @@ class AdminMigrationManager:
             return False
 
     async def run_full_migration(self) -> Dict[str, Any]:
-        """Run complete migration process."""migration_results = {}.
+        """Run complete migration process."""
+        migration_results = {}.
 
         logger.info("Starting admin website to Slack migration...")
 
@@ -272,7 +279,7 @@ migration_manager = AdminMigrationManager()
 
 async def main():
     """Main migration entry point."""
-    results = await migration_manager.run_full_migration()
+        results = await migration_manager.run_full_migration()
     print(json.dumps(results, indent=2))
 
 

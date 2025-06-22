@@ -1,38 +1,60 @@
-# Stage 1: Build stage with full build dependencies
-FROM python:3.11-slim as builder
+# Sophia AI Production Dockerfile
+# Implements solutions from deployment guide:
+# - Clean deployment isolation
+# - Container resource optimization
+# - Fixed dependency versions
+# - ESC integration
 
-WORKDIR /app
-
-# Install poetry for dependency management
-RUN pip install poetry
-
-# Copy only the files needed for dependency installation
-COPY poetry.lock pyproject.toml ./
-
-# Install dependencies without creating a virtual environment
-RUN poetry install --no-root --no-dev --no-interaction --no-ansi
-
-# Copy the rest of the application code
-COPY . .
-
-# ---
-
-# Stage 2: Final production stage with minimal dependencies
 FROM python:3.11-slim
 
+# Set production environment
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV ENVIRONMENT=production
+
+# Create app directory
 WORKDIR /app
 
-# Copy the installed dependencies from the builder stage
-COPY --from=builder /app/.venv /app/.venv
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set path to use the installed packages
-ENV PATH="/app/.venv/bin:$PATH"
+# Copy fixed requirements first for better caching
+COPY requirements_fixed.txt /app/requirements.txt
 
-# Copy the application code
-COPY . .
+# Install Python dependencies with fixed versions
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Copy only clean, verified modules (bypasses corrupted imports)
+COPY backend/core/clean_esc_config.py /app/backend/core/clean_esc_config.py
+COPY backend/production_main.py /app/backend/production_main.py
+COPY backend/__init__.py /app/backend/__init__.py
+COPY backend/core/__init__.py /app/backend/core/__init__.py
 
-# Command to run the application
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy Agno integration modules
+COPY backend/agno_basic_test.py /app/backend/agno_basic_test.py
+COPY backend/agno_ux_ui_simple.py /app/backend/agno_ux_ui_simple.py
+
+# Create necessary directories
+RUN mkdir -p /app/logs && \
+    mkdir -p /app/config && \
+    chmod 755 /app/logs
+
+# Create non-root user for security
+RUN groupadd -r sophia && useradd -r -g sophia sophia
+RUN chown -R sophia:sophia /app
+USER sophia
+
+# Expose port (will be set dynamically)
+EXPOSE ${PORT:-8000}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Production startup command
+CMD ["python", "-m", "backend.production_main"]

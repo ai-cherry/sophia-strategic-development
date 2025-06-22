@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 class MemoryOperationType(Enum):
     """Types of memory operations"""
-
-    STORE = "store"
+        STORE = "store"
     RETRIEVE = "retrieve"
     UPDATE = "update"
     DELETE = "delete"
@@ -30,7 +29,7 @@ class MemoryOperationType(Enum):
 @dataclass
 class MemoryRequest:
     """Memory operation request"""
-    operation: MemoryOperationType
+        operation: MemoryOperationType
 
     agent_id: str
     user_role: str = "default"
@@ -43,7 +42,7 @@ class MemoryRequest:
 @dataclass
 class MemoryResponse:
     """Memory operation response"""
-success: bool
+        success: bool
 
     operation: MemoryOperationType
     data: Any
@@ -53,7 +52,7 @@ success: bool
 
 class ComprehensiveMemoryManager:
     """Manages a two-tiered memory system: a Vector Store and a Persistent KV Store"""
-def __init__(self):
+    def __init__(self):
 
         self.logger = logging.getLogger(__name__)
 
@@ -78,7 +77,7 @@ def __init__(self):
 
     async def process_memory_request(self, request: MemoryRequest) -> MemoryResponse:
         """Process a memory operation request"""
-    start_time = datetime.now()
+        start_time = datetime.now()
 
         try:
         except Exception:

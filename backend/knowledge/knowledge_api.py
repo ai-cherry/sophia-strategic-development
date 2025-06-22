@@ -90,7 +90,8 @@ def list_documents():
     """List all documents in the knowledge base.
 
             GET /api/knowledge/documents?content_type=company_core&status=published&limit=50
-    """try:
+    """
+        try:
 
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
@@ -127,7 +128,8 @@ def get_document(document_id: str):
     """Get a specific document by ID.
 
             GET /api/knowledge/documents/company_mission
-    """try:
+    """
+        try:
 
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
@@ -319,7 +321,8 @@ def get_statistics():
     """Get knowledge base statistics.
 
             GET /api/knowledge/statistics
-    """try:
+    """
+        try:
 
         if not knowledge_base:
             return jsonify({"error": "Knowledge base not available"}), 503
@@ -344,7 +347,8 @@ def get_content_types():
     """Get available content types.
 
             GET /api/knowledge/content-types
-    """return jsonify(
+    """
+        return jsonify(
 
         {
             "content_types": [
@@ -361,8 +365,7 @@ def get_content_types():
 
 def _get_content_type_description(content_type: ContentType) -> str:
     """Get human-readable description for content types."""
-
-    descriptions = {
+        descriptions = {
         ContentType.COMPANY_CORE: "Mission, vision, values, and organizational information",
         ContentType.PRODUCTS_SERVICES: "Product descriptions, features, and service offerings",
         ContentType.OPERATIONS: "Standard operating procedures and workflow documentation",
@@ -381,7 +384,7 @@ def _get_content_type_description(content_type: ContentType) -> str:
 @knowledge_bp.route("/health", methods=["GET"])
 def health_check():
     """Knowledge base health check."""
-    try:
+        try:
         if not knowledge_base:
             return (
                 jsonify(

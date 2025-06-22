@@ -2,7 +2,9 @@
 
 These tools allow a specialized agent to programmatically create and modify
 frontend components, enabling an AI-driven design and development workflow.
-"""import logging
+"""
+
+import logging
 
 from pathlib import Path
 
@@ -24,7 +26,7 @@ def create_react_component(component_name: str, jsx_code: str) -> str:
             :param jsx_code: A string containing the full, valid JSX code for the component.
             :return: A confirmation message with the path to the created file.
     """
-    if ".." in component_name or "/" in component_name:
+        if ".." in component_name or "/" in component_name:
         raise ValueError(
             "Invalid component name. Must not contain path traversal characters."
         )

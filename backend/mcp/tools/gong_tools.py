@@ -8,7 +8,6 @@ from ..sophia_mcp_server import MCPTool
 
 class GongCallAnalysisTool(MCPTool):
     """Tool for analyzing Gong call recordings."""
-
     def __init__(self):
         super().__init__(
             name="gong_call_analysis",
@@ -38,7 +37,8 @@ class GongCallAnalysisTool(MCPTool):
         self.gong_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         call_id = parameters["call_id"]
         analysis_type = parameters.get("analysis_type", "detailed")
@@ -116,7 +116,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_basic_analysis(
         self, call_detail: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Perform basic analysis of a call."""# Extract basic information.
+        """Perform basic analysis of a call."""
+        # Extract basic information.
 
         call_date = call_detail.get("dateTime")
         duration_seconds = call_detail.get("durationSeconds")
@@ -167,7 +168,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_detailed_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform detailed analysis of a call."""# Get basic analysis.
+        """Perform detailed analysis of a call."""
+        # Get basic analysis.
 
         basic_analysis = await self._perform_basic_analysis(call_detail)
 
@@ -203,7 +205,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_coaching_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform coaching analysis of a call."""# Get detailed analysis.
+        """Perform coaching analysis of a call."""
+        # Get detailed analysis.
 
         detailed_analysis = await self._perform_detailed_analysis(
             call_detail, transcript_text
@@ -273,7 +276,8 @@ class GongCallAnalysisTool(MCPTool):
     async def _perform_sentiment_analysis(
         self, call_detail: Dict[str, Any], transcript_text: str
     ) -> Dict[str, Any]:
-        """Perform sentiment analysis of a call."""# Get basic analysis.
+        """Perform sentiment analysis of a call."""
+        # Get basic analysis.
 
         basic_analysis = await self._perform_basic_analysis(call_detail)
 
@@ -381,7 +385,8 @@ class GongCallAnalysisTool(MCPTool):
         return analysis
 
     async def _analyze_transcript(self, transcript_text: str) -> Dict[str, Any]:
-        """Analyze transcript text."""if not transcript_text:.
+        """Analyze transcript text."""
+        if not transcript_text:.
 
             return {"error": "No transcript available for analysis"}
 
@@ -439,7 +444,8 @@ class GongCallAnalysisTool(MCPTool):
 
 
 class GongTranscriptExtractionTool(MCPTool):
-    """Tool for extracting and processing Gong call transcripts."""def __init__(self):.
+    """Tool for extracting and processing Gong call transcripts."""
+    def __init__(self):.
 
         super().__init__(
             name="gong_transcript_extraction",
@@ -469,7 +475,8 @@ class GongTranscriptExtractionTool(MCPTool):
         self.gong_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         call_id = parameters["call_id"]
         format_type = parameters.get("format", "clean")
@@ -542,7 +549,8 @@ class GongTranscriptExtractionTool(MCPTool):
     async def _extract_structured_transcript(
         self, transcript_raw: Any
     ) -> List[Dict[str, Any]]:
-        """Extract structured transcript from raw transcript."""structured_transcript = [].
+        """Extract structured transcript from raw transcript."""
+        structured_transcript = [].
 
         # Process transcript based on its structure
         if isinstance(transcript_raw, list):

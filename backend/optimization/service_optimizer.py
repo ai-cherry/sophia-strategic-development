@@ -12,8 +12,7 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class OptimizationConfig:
     """Service optimization configuration."""
-
-    service_name: str
+        service_name: str
     optimization_level: str  # "basic", "standard", "aggressive"
     performance_targets: Dict[str, Any]
     cost_targets: Dict[str, Any]
@@ -23,14 +22,16 @@ class OptimizationConfig:
 
 
 class SophiaServiceOptimizer:
-    """Centralized service optimization manager for Sophia AI."""def __init__(self):.
+    """Centralized service optimization manager for Sophia AI."""
+    def __init__(self):.
 
         """Initialize service optimizer."""self.optimization_configs = self._load_optimization_configs().
         self.performance_metrics = {}
         self.cost_metrics = {}
 
     def _load_optimization_configs(self) -> Dict[str, OptimizationConfig]:
-        """Load optimization configurations for all services."""configs = {}.
+        """Load optimization configurations for all services."""
+        configs = {}.
 
         # AI Monitoring (Arize)
         configs["arize"] = OptimizationConfig(
@@ -294,13 +295,15 @@ class SophiaServiceOptimizer:
     def get_optimization_config(
         self, service_name: str
     ) -> Optional[OptimizationConfig]:
-        """Get optimization configuration for a service."""return self.optimization_configs.get(service_name).
+        """Get optimization configuration for a service."""
+        return self.optimization_configs.get(service_name).
 
     def update_optimization_config(self, service_name: str, config: OptimizationConfig):
         """Update optimization configuration for a service."""self.optimization_configs[service_name] = config.
 
     def get_cost_optimization_recommendations(self) -> List[Dict[str, Any]]:
-        """Get cost optimization recommendations across all services."""recommendations = [].
+        """Get cost optimization recommendations across all services."""
+        recommendations = [].
 
         # AI Gateway optimization
         recommendations.append(
@@ -349,7 +352,8 @@ class SophiaServiceOptimizer:
         return recommendations
 
     def get_performance_optimization_recommendations(self) -> List[Dict[str, Any]]:
-        """Get performance optimization recommendations."""recommendations = [].
+        """Get performance optimization recommendations."""
+        recommendations = [].
 
         # Caching optimization
         recommendations.append(
@@ -387,7 +391,8 @@ class SophiaServiceOptimizer:
         return recommendations
 
     def generate_optimization_report(self) -> Dict[str, Any]:
-        """Generate comprehensive optimization report."""return {.
+        """Generate comprehensive optimization report."""
+        return {.
 
             "timestamp": datetime.now().isoformat(),
             "total_services": len(self.optimization_configs),
@@ -438,7 +443,8 @@ class SophiaServiceOptimizer:
         }
 
     def export_configurations(self, file_path: str):
-        """Export all optimization configurations to file."""export_data = {.
+        """Export all optimization configurations to file."""
+        export_data = {.
 
             "configurations": {
                 name: asdict(config)
@@ -466,7 +472,8 @@ def get_service_optimizer() -> SophiaServiceOptimizer:
 
 # Service-specific optimization functions
 def optimize_ai_gateway_routing():
-    """Optimize AI gateway routing for cost and performance."""optimizer = get_service_optimizer().
+    """Optimize AI gateway routing for cost and performance."""
+        optimizer = get_service_optimizer().
 
     # Get configurations
     openrouter_config = optimizer.get_optimization_config("openrouter")
@@ -494,7 +501,8 @@ def optimize_ai_gateway_routing():
 
 
 def optimize_data_collection_pipeline():
-    """Optimize data collection pipeline for efficiency."""optimizer = get_service_optimizer().
+    """Optimize data collection pipeline for efficiency."""
+        optimizer = get_service_optimizer().
 
     pipeline_config = {
         "batch_processing": {
@@ -522,7 +530,7 @@ def optimize_data_collection_pipeline():
 
 def optimize_model_inference():
     """Optimize AI model inference for cost and performance."""
-    optimizer = get_service_optimizer()
+        optimizer = get_service_optimizer()
 
     inference_config = {
         "model_selection": {

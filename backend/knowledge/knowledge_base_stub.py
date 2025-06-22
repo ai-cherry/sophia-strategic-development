@@ -4,7 +4,8 @@ from typing import Any, Dict
 
 
 class SophiaKnowledgeBase:
-    """Stub implementation of SophiaKnowledgeBase."""def __init__(self, config: Dict[str, Any]):.
+    """Stub implementation of SophiaKnowledgeBase."""
+    def __init__(self, config: Dict[str, Any]):.
 
         """Initialize stub knowledge base."""self.config = config.
 

@@ -19,14 +19,14 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 class AdminMCPServer(BaseMCPServer):
     """MCP Server for administrative tasks."""
-
     def __init__(self):
         super().__init__("admin")
         self.github_client = None  # To be initialized
         self.pulumi_client = None  # To be initialized
 
     async def initialize_integration(self):
-        """Initializes the admin clients."""# self.github_client = github_admin_client.
+        """Initializes the admin clients."""
+        # self.github_client = github_admin_client.
 
         # self.pulumi_client = pulumi_admin_client
         # await self.github_client.initialize()
@@ -35,16 +35,19 @@ class AdminMCPServer(BaseMCPServer):
         self.logger.info("Admin integrations initialized (MOCK).")
 
     async def list_resources(self, request: any) -> List[Resource]:
-        """Admin server is tool-focused and has no queryable resources yet."""return [].
+        """Admin server is tool-focused and has no queryable resources yet."""
+        return [].
 
     async def get_resource(self, request: any) -> str:
-        """Admin server is tool-focused and has no queryable resources yet."""return json.dumps(.
+        """Admin server is tool-focused and has no queryable resources yet."""
+        return json.dumps(.
 
             {"error": "This server does not provide resources, only tools."}
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists the administrative tools."""return [.
+        """Lists the administrative tools."""
+        return [.
 
             Tool(
                 name="get_secret_sync_status",
@@ -69,7 +72,8 @@ class AdminMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles an administrative tool call."""tool_name = request.params.name.
+        """Handles an administrative tool call."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
         result = {

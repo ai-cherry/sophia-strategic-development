@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 class EnhancedLLMGateway:
     """Route LLM requests with intelligent model selection."""
-
     def __init__(
         self, portkey_api_key: str, openrouter_api_key: str | None = None
     ) -> None:

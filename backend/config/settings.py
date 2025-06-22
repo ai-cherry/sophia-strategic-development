@@ -19,8 +19,7 @@ ENV = os.getenv("SOPHIA_ENV", "development")
 
 class DatabaseSettings(BaseSettings):
     """Database configuration."""
-
-    postgres_host: str = Field(default="localhost", env="POSTGRES_HOST")
+        postgres_host: str = Field(default="localhost", env="POSTGRES_HOST")
     postgres_port: int = Field(default=5432, env="POSTGRES_PORT")
     postgres_user: str = Field(default="sophia", env="POSTGRES_USER")
     postgres_password: str = Field(env="POSTGRES_PASSWORD")
@@ -33,11 +32,13 @@ class DatabaseSettings(BaseSettings):
 
     @property
     def postgres_url(self) -> str:
-        """Generate PostgreSQL connection URL."""return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}".
+        """Generate PostgreSQL connection URL."""
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}".
 
     @property
     def redis_url(self) -> str:
-        """Generate Redis connection URL."""if self.redis_password:.
+        """Generate Redis connection URL."""
+        if self.redis_password:.
 
             return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/{self.redis_db}"
         return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
@@ -49,7 +50,8 @@ class DatabaseSettings(BaseSettings):
 
 
 class SecuritySettings(BaseSettings):
-    """Security configuration."""secret_key: str = Field(.
+    """Security configuration."""
+        secret_key: str = Field(.
 
         default_factory=lambda: os.urandom(32).hex(), env="SECRET_KEY"
     )
@@ -87,7 +89,8 @@ class APIKeysSettings(BaseSettings):
 
             For new code, use:
             from backend.core.auto_esc_config import config
-    """# LLM Gateway (Primary).
+    """
+        # LLM Gateway (Primary).
 
     llm_gateway: str = Field(
         default="portkey", env="LLM_GATEWAY"
@@ -129,7 +132,8 @@ class APIKeysSettings(BaseSettings):
 
     @property
     def has_ai_provider(self) -> bool:
-        """Check if at least one AI provider is configured."""# Check for gateway first (preferred).
+        """Check if at least one AI provider is configured."""
+        # Check for gateway first (preferred).
 
         if (
             self.llm_gateway == "portkey"
@@ -142,23 +146,28 @@ class APIKeysSettings(BaseSettings):
 
     @property
     def has_vector_db(self) -> bool:
-        """Check if any vector database is configured."""return bool(self.pinecone_api_key or self.weaviate_api_key).
+        """Check if any vector database is configured."""
+        return bool(self.pinecone_api_key or self.weaviate_api_key).
 
     @property
     def has_hubspot(self) -> bool:
-        """Check if HubSpot is configured."""return bool(self.hubspot_api_key).
+        """Check if HubSpot is configured."""
+        return bool(self.hubspot_api_key).
 
     @property
     def has_gong(self) -> bool:
-        """Check if Gong is configured."""return bool(self.gong_api_key and self.gong_api_secret).
+        """Check if Gong is configured."""
+        return bool(self.gong_api_key and self.gong_api_secret).
 
     @property
     def has_slack(self) -> bool:
-        """Check if Slack is configured."""return bool(self.slack_bot_token and self.slack_signing_secret).
+        """Check if Slack is configured."""
+        return bool(self.slack_bot_token and self.slack_signing_secret).
 
 
 class AgentSettings(BaseSettings):
-    """Agent configuration."""max_concurrent_agents: int = Field(default=10, env="SOPHIA_MAX_CONCURRENT_AGENTS").
+    """Agent configuration."""
+        max_concurrent_agents: int = Field(default=10, env="SOPHIA_MAX_CONCURRENT_AGENTS").
 
     agent_timeout_seconds: int = Field(default=300, env="SOPHIA_AGENT_TIMEOUT_SECONDS")
     agent_retry_attempts: int = Field(default=3, env="SOPHIA_AGENT_RETRY_ATTEMPTS")
@@ -179,7 +188,8 @@ class AgentSettings(BaseSettings):
 
 
 class MonitoringSettings(BaseSettings):
-    """Monitoring configuration."""prometheus_enabled: bool = Field(default=False, env="SOPHIA_PROMETHEUS_ENABLED").
+    """Monitoring configuration."""
+        prometheus_enabled: bool = Field(default=False, env="SOPHIA_PROMETHEUS_ENABLED").
 
     prometheus_port: int = Field(default=9090, env="PROMETHEUS_PORT")
 
@@ -202,7 +212,8 @@ class MonitoringSettings(BaseSettings):
 
 
 class ServerSettings(BaseSettings):
-    """Server configuration."""host: str = Field(default="0.0.0.0", env="HOST").
+    """Server configuration."""
+        host: str = Field(default="0.0.0.0", env="HOST").
 
     port: int = Field(default=5000, env="PORT")
     workers: int = Field(default=4, env="WORKERS")
@@ -230,7 +241,8 @@ class ServerSettings(BaseSettings):
 
 
 class FeatureFlags(BaseSettings):
-    """Feature flags for gradual rollout."""enable_hierarchical_agents: bool = Field(default=False).
+    """Feature flags for gradual rollout."""
+        enable_hierarchical_agents: bool = Field(default=False).
 
     enable_n8n_workflows: bool = Field(default=False)
     enable_advanced_analytics: bool = Field(default=True)
@@ -246,7 +258,8 @@ class FeatureFlags(BaseSettings):
 
 
 class Settings(BaseSettings):
-    """Main settings aggregator."""# Environment.
+    """Main settings aggregator."""
+        # Environment.
 
     environment: str = Field(default="development", env="SOPHIA_ENV")
     app_name: str = Field(default="Sophia AI - Pay Ready Assistant", env="APP_NAME")
@@ -275,18 +288,22 @@ class Settings(BaseSettings):
 
     @property
     def is_production(self) -> bool:
-        """Check if running in production."""return self.environment.lower() == "production".
+        """Check if running in production."""
+        return self.environment.lower() == "production".
 
     @property
     def is_development(self) -> bool:
-        """Check if running in development."""return self.environment.lower() == "development".
+        """Check if running in development."""
+        return self.environment.lower() == "development".
 
     @property
     def is_testing(self) -> bool:
-        """Check if running in test mode."""return self.environment.lower() == "test" or self.server.testing.
+        """Check if running in test mode."""
+        return self.environment.lower() == "test" or self.server.testing.
 
     def validate_production_settings(self):
-        """Validate critical settings and return warnings."""warnings = [].
+        """Validate critical settings and return warnings."""
+        warnings = [].
 
         # Check for at least one AI provider
         if not self.api_keys.has_ai_provider:
@@ -320,7 +337,8 @@ class Settings(BaseSettings):
         return warnings
 
     def get_enabled_features(self) -> Dict[str, bool]:
-        """Get a summary of enabled features based on available API keys."""return {.
+        """Get a summary of enabled features based on available API keys."""
+        return {.
 
             "ai_enabled": self.api_keys.has_ai_provider,
             "vector_search": self.api_keys.has_vector_db,
@@ -337,7 +355,8 @@ class Settings(BaseSettings):
         }
 
     def get_api_key(self, service: str) -> Optional[str]:
-        """Get API key for a service."""service_map = {.
+        """Get API key for a service."""
+        service_map = {.
 
             "openai": self.api_keys.openai_api_key,
             "anthropic": self.api_keys.anthropic_api_key,
@@ -350,7 +369,8 @@ class Settings(BaseSettings):
         return service_map.get(service.lower())
 
     def to_dict(self, include_secrets: bool = False) -> Dict[str, Any]:
-        """Convert settings to dictionary."""data = self.dict().
+        """Convert settings to dictionary."""
+        data = self.dict().
 
         if not include_secrets:
             # Remove sensitive information
@@ -380,7 +400,8 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """Get cached settings instance."""settings = Settings().
+    """Get cached settings instance."""
+        settings = Settings().
 
     # Log configuration warnings
     warnings = settings.validate_production_settings()
@@ -421,8 +442,7 @@ DEBUG = settings.server.debug
 # For Flask compatibility
 class Config:
     """Flask-compatible configuration class."""
-
-    SECRET_KEY = settings.security.secret_key
+        SECRET_KEY = settings.security.secret_key
     JWT_SECRET_KEY = settings.security.secret_key
     JWT_ALGORITHM = settings.security.jwt_algorithm
     JWT_ACCESS_TOKEN_EXPIRES = settings.security.jwt_expiration_hours * 3600

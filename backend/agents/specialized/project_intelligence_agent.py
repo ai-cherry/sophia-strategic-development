@@ -22,8 +22,7 @@ logger = logging.getLogger(__name__)
 
 class ProjectStatus(Enum):
     """Project health status."""
-
-    ON_TRACK = "on_track"
+        ON_TRACK = "on_track"
     AT_RISK = "at_risk"
     BLOCKED = "blocked"
     COMPLETED = "completed"
@@ -33,7 +32,7 @@ class ProjectStatus(Enum):
 @dataclass
 class ProjectMetrics:
     """Metrics for a project."""
-    completion_percentage: float
+        completion_percentage: float
     velocity: float  # Story points per sprint
     blocked_items: int
     overdue_items: int
@@ -44,7 +43,7 @@ class ProjectMetrics:
 @dataclass
 class OKRAlignment:
     """How a project aligns with OKRs."""
-    objective: str
+        objective: str
     key_result: str
     contribution_percentage: float
     current_progress: float
@@ -56,7 +55,6 @@ class ProjectIntelligenceAgent(BaseAgent):
 
             and recommendations for achieving company OKRs
     """
-
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.mcp_client = MCPClient()
@@ -141,7 +139,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return TaskResult(success=False, error=str(e))
 
     async def _analyze_project_portfolio(self) -> TaskResult:
-        """Analyze all projects across tools."""# Gather data from all sources in parallel.
+        """Analyze all projects across tools."""
+        # Gather data from all sources in parallel.
 
         linear_data, github_data, asana_data, slack_data = await asyncio.gather(
             self._get_linear_projects(),
@@ -175,7 +174,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         )
 
     async def _get_linear_projects(self) -> List[Dict[str, Any]]:
-        """Get all projects from Linear."""try:.
+        """Get all projects from Linear."""
+        try:.
 
             # Get all teams and their projects
             teams = await linear_integration.get_teams()
@@ -208,7 +208,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return []
 
     async def _get_github_projects(self) -> List[Dict[str, Any]]:
-        """Get projects from GitHub."""try:.
+        """Get projects from GitHub."""
+        try:.
 
             # Use GitHub MCP server
             result = await self.mcp_client.call_tool(
@@ -245,12 +246,14 @@ class ProjectIntelligenceAgent(BaseAgent):
             return []
 
     async def _get_asana_projects(self) -> List[Dict[str, Any]]:
-        """Get projects from Asana (when available)."""# Placeholder for Asana integration.
+        """Get projects from Asana (when available)."""
+        # Placeholder for Asana integration.
 
         return []
 
     async def _analyze_slack_conversations(self) -> Dict[str, Any]:
-        """Analyze Slack for project-related discussions."""try:.
+        """Analyze Slack for project-related discussions."""
+        try:.
 
             # Search for project-related messages
             channels = ["#engineering", "#product", "#general"]
@@ -287,7 +290,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return {}
 
     def _unify_project_data(self, *data_sources) -> List[Dict[str, Any]]:
-        """Merge project data from multiple sources."""unified = {}.
+        """Merge project data from multiple sources."""
+        unified = {}.
 
         for source_data in data_sources:
             if isinstance(source_data, Exception):
@@ -320,14 +324,16 @@ class ProjectIntelligenceAgent(BaseAgent):
         return list(unified.values())
 
     def _generate_project_key(self, project: Dict[str, Any]) -> str:
-        """Generate a unique key for project deduplication."""# Simple approach - in production would use more sophisticated matching.
+        """Generate a unique key for project deduplication."""
+        # Simple approach - in production would use more sophisticated matching.
 
         return project.get("name", "").lower().strip()
 
     async def _analyze_single_project(
         self, unified_project: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Analyze a single unified project."""project_data = unified_project["data"].
+        """Analyze a single unified project."""
+        project_data = unified_project["data"].
 
         # Calculate metrics
         metrics = ProjectMetrics(
@@ -366,7 +372,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         }
 
     def _calculate_completion(self, project_data: Dict[str, Any]) -> float:
-        """Calculate overall completion percentage."""completions = [].
+        """Calculate overall completion percentage."""
+        completions = [].
 
         # Linear completion
         if "linear" in project_data:
@@ -382,7 +389,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return sum(completions) / len(completions) if completions else 0
 
     def _calculate_velocity(self, project_data: Dict[str, Any]) -> float:
-        """Calculate project velocity (story points per sprint)."""# Simplified - would need sprint data in production.
+        """Calculate project velocity (story points per sprint)."""
+        # Simplified - would need sprint data in production.
 
         if "linear" in project_data:
             issues = project_data["linear"].get("issues", [])
@@ -396,7 +404,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return 0
 
     def _is_within_last_sprint(self, date_str: str) -> bool:
-        """Check if date is within last 2 weeks."""try:.
+        """Check if date is within last 2 weeks."""
+        try:.
 
             date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
             return date > datetime.now() - timedelta(days=14)
@@ -404,7 +413,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return False
 
     def _calculate_sentiment(self, project_data: Dict[str, Any]) -> float:
-        """Calculate team sentiment from Slack data."""if "slack" in project_data:.
+        """Calculate team sentiment from Slack data."""
+        if "slack" in project_data:.
 
             sentiments = project_data["slack"].get("sentiment", [])
             if sentiments:
@@ -412,7 +422,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return 0.7  # Neutral default
 
     def _calculate_code_quality(self, project_data: Dict[str, Any]) -> float:
-        """Calculate code quality from GitHub metrics."""if "github" in project_data:.
+        """Calculate code quality from GitHub metrics."""
+        if "github" in project_data:.
 
             prs = project_data["github"].get("pull_requests", [])
             if prs:
@@ -422,7 +433,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return 0.8  # Default
 
     def _determine_project_status(self, metrics: ProjectMetrics) -> ProjectStatus:
-        """Determine overall project status."""if metrics.completion_percentage >= 100:.
+        """Determine overall project status."""
+        if metrics.completion_percentage >= 100:.
 
             return ProjectStatus.COMPLETED
         elif metrics.blocked_items > 3 or metrics.overdue_items > 5:
@@ -437,7 +449,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _generate_portfolio_summary(
         self, project_analyses: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Generate portfolio-level summary."""total_projects = len(project_analyses).
+        """Generate portfolio-level summary."""
+        total_projects = len(project_analyses).
 
         status_breakdown = {
             "on_track": sum(1 for p in project_analyses if p["status"] == "on_track"),
@@ -472,7 +485,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _calculate_portfolio_okr_impact(
         self, projects: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Calculate how projects impact OKRs."""okr_contributions = {}.
+        """Calculate how projects impact OKRs."""
+        okr_contributions = {}.
 
         for project in projects:
             alignments = project.get("okr_alignment", [])
@@ -491,7 +505,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return okr_contributions
 
     async def _generate_okr_alignment_report(self) -> TaskResult:
-        """Generate detailed OKR alignment report."""# Get current project portfolio.
+        """Generate detailed OKR alignment report."""
+        # Get current project portfolio.
 
         portfolio_result = await self._analyze_project_portfolio()
         if not portfolio_result.success:
@@ -570,7 +585,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _generate_kr_recommendations(
         self, kr: Dict[str, Any], contributing_projects: List[Dict[str, Any]]
     ) -> List[str]:
-        """Generate recommendations for a key result."""recommendations = [].
+        """Generate recommendations for a key result."""
+        recommendations = [].
 
         # Check if we need more projects
         total_contribution = sum(p["contribution"] for p in contributing_projects)
@@ -598,7 +614,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return recommendations
 
     async def _identify_cross_project_blockers(self) -> TaskResult:
-        """Identify blockers affecting multiple projects."""# Get all blocked items across tools.
+        """Identify blockers affecting multiple projects."""
+        # Get all blocked items across tools.
 
         blocked_items = await asyncio.gather(
             self._get_linear_blocked_items(),
@@ -627,7 +644,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         )
 
     async def _recommend_strategic_actions(self) -> TaskResult:
-        """Generate strategic recommendations based on all data."""# Get current state.
+        """Generate strategic recommendations based on all data."""
+        # Get current state.
 
         portfolio = await self._analyze_project_portfolio()
         okr_report = await self._generate_okr_alignment_report()
@@ -713,7 +731,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         )
 
     def _extract_action_themes(self, actions: List[Dict[str, Any]]) -> List[str]:
-        """Extract common themes from recommended actions."""themes = [].
+        """Extract common themes from recommended actions."""
+        themes = [].
 
         blocker_count = sum(1 for a in actions if a["category"] == "blocker")
         if blocker_count > 3:
@@ -730,7 +749,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return themes
 
     async def _analyze_message_sentiment(self, text: str) -> float:
-        """Analyze sentiment of a message (0-1, 0.5 is neutral)."""# Simple keyword-based sentiment.
+        """Analyze sentiment of a message (0-1, 0.5 is neutral)."""
+        # Simple keyword-based sentiment.
 
         positive_words = [
             "great",
@@ -761,7 +781,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return positive_count / (positive_count + negative_count)
 
     def _extract_project_mentions(self, text: str) -> List[str]:
-        """Extract project names from text."""# Simple approach - look for common project name patterns.
+        """Extract project names from text."""
+        # Simple approach - look for common project name patterns.
 
         import re
 
@@ -779,7 +800,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return list(set(projects))
 
     def _count_blocked_items(self, project_data: Dict[str, Any]) -> int:
-        """Count blocked items across all sources."""count = 0.
+        """Count blocked items across all sources."""
+        count = 0.
 
         if "linear" in project_data:
             issues = project_data["linear"].get("issues", [])
@@ -798,7 +820,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return count
 
     def _count_overdue_items(self, project_data: Dict[str, Any]) -> int:
-        """Count overdue items."""count = 0.
+        """Count overdue items."""
+        count = 0.
 
         now = datetime.now()
 
@@ -818,7 +841,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return count
 
     def _get_project_name(self, project_data: Dict[str, Any]) -> str:
-        """Get the best project name from available sources."""if "linear" in project_data:.
+        """Get the best project name from available sources."""
+        if "linear" in project_data:.
 
             return project_data["linear"]["name"]
         elif "github" in project_data:
@@ -829,7 +853,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return "Unknown Project"
 
     def _find_okr_alignment(self, project_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Find which OKRs this project contributes to."""alignments = [].
+        """Find which OKRs this project contributes to."""
+        alignments = [].
 
         # Extract keywords from project data
         project_text = ""
@@ -864,7 +889,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return alignments
 
     def _extract_kr_keywords(self, kr: Dict[str, Any]) -> List[str]:
-        """Extract keywords from a key result."""# Simple approach - in production would be more sophisticated.
+        """Extract keywords from a key result."""
+        # Simple approach - in production would be more sophisticated.
 
         title_words = kr["title"].lower().split()
         important_words = [w for w in title_words if len(w) > 3]
@@ -876,7 +902,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         metrics: ProjectMetrics,
         status: ProjectStatus,
     ) -> List[str]:
-        """Generate insights for a project."""insights = [].
+        """Generate insights for a project."""
+        insights = [].
 
         if status == ProjectStatus.BLOCKED:
             insights.append(
@@ -898,7 +925,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return insights
 
     def _calculate_portfolio_health(self, status_breakdown: Dict[str, int]) -> float:
-        """Calculate overall portfolio health score (0-100)."""total = sum(status_breakdown.values()).
+        """Calculate overall portfolio health score (0-100)."""
+        total = sum(status_breakdown.values()).
 
         if total == 0:
             return 0
@@ -919,7 +947,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _identify_portfolio_risks(
         self, projects: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Identify top risks across the portfolio."""risks = [].
+        """Identify top risks across the portfolio."""
+        risks = [].
 
         # Count projects by status
         blocked_projects = [p for p in projects if p["status"] == "blocked"]
@@ -968,7 +997,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         status_breakdown: Dict[str, int],
         okr_impact: Dict[str, Any],
     ) -> List[str]:
-        """Generate portfolio-level recommendations."""recommendations = [].
+        """Generate portfolio-level recommendations."""
+        recommendations = [].
 
         # Based on status breakdown
         if status_breakdown["blocked"] > 2:
@@ -1006,7 +1036,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return recommendations
 
     async def _get_linear_blocked_items(self) -> List[Dict[str, Any]]:
-        """Get all blocked items from Linear."""try:.
+        """Get all blocked items from Linear."""
+        try:.
 
             issues = await linear_integration.search_issues(
                 filter={"state": {"name": {"eq": "Blocked"}}}
@@ -1017,7 +1048,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return []
 
     async def _get_github_blocked_items(self) -> List[Dict[str, Any]]:
-        """Get all blocked items from GitHub."""try:.
+        """Get all blocked items from GitHub."""
+        try:.
 
             result = await self.mcp_client.call_tool(
                 "github", "search_issues", query="label:blocked is:open"
@@ -1030,7 +1062,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _analyze_blocker_patterns(
         self, blocked_items: List[List[Dict[str, Any]]]
     ) -> List[Dict[str, Any]]:
-        """Analyze patterns in blockers."""all_blockers = [].
+        """Analyze patterns in blockers."""
+        all_blockers = [].
 
         for items in blocked_items:
             if not isinstance(items, Exception):
@@ -1093,7 +1126,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _generate_blocker_resolutions(
         self, patterns: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Generate resolution recommendations for blocker patterns."""resolutions = [].
+        """Generate resolution recommendations for blocker patterns."""
+        resolutions = [].
 
         for pattern in patterns:
             if pattern["type"] == "overloaded_assignee":
@@ -1129,7 +1163,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return resolutions
 
     def _identify_okr_gaps(self, okr_report: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Identify gaps in OKR achievement."""gaps = [].
+        """Identify gaps in OKR achievement."""
+        gaps = [].
 
         for objective in okr_report["objectives"]:
             for kr in objective["key_results"]:
@@ -1147,7 +1182,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return gaps
 
     def _recommend_okr_action(self, kr: Dict[str, Any]) -> str:
-        """Recommend action for an underperforming KR."""if not kr["contributing_projects"]:.
+        """Recommend action for an underperforming KR."""
+        if not kr["contributing_projects"]:.
 
             return f"Assign projects to support: {kr['title']}"
 
@@ -1165,7 +1201,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _identify_resource_gaps(
         self, projects: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Identify resource allocation issues."""gaps = [].
+        """Identify resource allocation issues."""
+        gaps = [].
 
         # Group projects by team
         team_projects = {}
@@ -1195,7 +1232,8 @@ class ProjectIntelligenceAgent(BaseAgent):
     def _identify_timeline_risks(
         self, projects: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Identify projects with timeline risks."""risks = [].
+        """Identify projects with timeline risks."""
+        risks = [].
 
         for project in projects:
             # Check if project has target date
@@ -1226,7 +1264,8 @@ class ProjectIntelligenceAgent(BaseAgent):
         return risks
 
     def _estimate_impact_score(self, impact_description: str) -> float:
-        """Estimate numerical impact score from description."""# Simple keyword-based scoring.
+        """Estimate numerical impact score from description."""
+        # Simple keyword-based scoring.
 
         high_impact_words = ["critical", "multiple", "all", "major"]
         medium_impact_words = ["improve", "enhance", "several"]
@@ -1241,7 +1280,8 @@ class ProjectIntelligenceAgent(BaseAgent):
             return 1
 
     def _estimate_okr_improvement(self, actions: List[Dict[str, Any]]) -> float:
-        """Estimate potential OKR improvement from actions."""# Simplified calculation.
+        """Estimate potential OKR improvement from actions."""
+        # Simplified calculation.
 
         okr_actions = [a for a in actions if a["category"] == "okr_gap"]
         if not okr_actions:

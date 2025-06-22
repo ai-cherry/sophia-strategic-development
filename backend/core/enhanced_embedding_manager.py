@@ -3,7 +3,7 @@
 Manages text embeddings with caching and multiple model support
 """
 
-    import asyncio
+import asyncio
 
 import hashlib
 import logging
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EmbeddingMetadata:
     """Metadata for an embedding"""
-model: str
+        model: str
     dimension: int
     content_hash: str
     created_at: datetime
@@ -52,21 +52,21 @@ model: str
 @dataclass
 class EmbeddingResult:
     """Result of embedding generation"""
-embedding: List[float]
+        embedding: List[float]
 
     metadata: EmbeddingMetadata
 
 
 class EmbeddingCache:
     """Simple in-memory cache for embeddings"""
-def __init__(self, ttl_seconds: int = 3600):
+    def __init__(self, ttl_seconds: int = 3600):
 
         self.cache: Dict[str, Tuple[List[float], EmbeddingMetadata, datetime]] = {}
         self.ttl = timedelta(seconds=ttl_seconds)
 
     def get(self, key: str) -> Optional[EmbeddingResult]:
         """Get embedding from cache if not expired"""
-if key in self.cache:
+        if key in self.cache:
 
             embedding, metadata, cached_at = self.cache[key]
             if datetime.now() - cached_at < self.ttl:
@@ -87,7 +87,6 @@ self.cache.clear()
 
 class EnhancedEmbeddingManager:
     """Manages embeddings with multiple model support and caching"""
-
     def __init__(self):
 
         self.sentence_transformer = None
@@ -132,7 +131,7 @@ class EnhancedEmbeddingManager:
 
     def _compute_content_hash(self, text: str) -> str:
         """Compute hash of text content"""
-return hashlib.sha256(text.encode()).hexdigest()
+        return hashlib.sha256(text.encode()).hexdigest()
 
     async def generate_text_embedding(
         self, text: str, model: Optional[str] = None, use_cache: bool = True
@@ -261,7 +260,7 @@ return hashlib.sha256(text.encode()).hexdigest()
         self, texts: List[str], model: Optional[str] = None, use_cache: bool = True
     ) -> List[Tuple[List[float], EmbeddingMetadata]]:
         """Generate embeddings for multiple texts"""
-results = []
+        results = []
 
         for text in texts:
             embedding, metadata = await self.generate_text_embedding(
@@ -325,7 +324,7 @@ enhanced_embedding_manager = EnhancedEmbeddingManager()
 # Example usage
 async def main():
     """Example usage of enhanced embedding manager"""
-    manager = enhanced_embedding_manager
+        manager = enhanced_embedding_manager
     await manager.initialize()
 
     # Generate single embedding

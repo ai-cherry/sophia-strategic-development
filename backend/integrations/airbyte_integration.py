@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 
 class AirbyteIntegration:
     """Handles communication with the Airbyte API."""
-
     def __init__(self, api_base_url: str = "https://api.airbyte.com/v1/"):
         self.api_base_url = api_base_url
         self.session = None
         self.headers = {}
 
     async def initialize(self):
-        """Initializes the aiohttp session and retrieves the API key."""if self.session:.
+        """Initializes the aiohttp session and retrieves the API key."""
+        if self.session:.
 
             return
 
@@ -43,7 +43,8 @@ class AirbyteIntegration:
             raise
 
     async def close(self):
-        """Closes the aiohttp session."""if self.session:.
+        """Closes the aiohttp session."""
+        if self.session:.
 
             await self.session.close()
 
@@ -55,7 +56,8 @@ class AirbyteIntegration:
 
                         Returns:
                             A dictionary containing the job information, or None on failure.
-        """if not self.session:.
+        """
+        if not self.session:.
 
             await self.initialize()
 

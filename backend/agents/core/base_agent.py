@@ -3,8 +3,8 @@
 Foundation for all specialized agents in the Pay Ready ecosystem
 
 This module provides the base agent class that all specialized agents inherit from,
-ensuring consistent communication protocols and integration patterns.
-"""
+ensuring consistent communication protocols and integration patterns:
+    """
 
 import asyncio
 import json
@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 class AgentConfig:
     agent_id: str
     agent_type: str
-    specialization: str
-    redis_host: str = os.getenv("REDIS_HOST", "localhost")
+    specialization: str"""
+        redis_host: str = os.getenv("REDIS_HOST", "localhost")
     redis_port: int = 6379
     openai_api_key: str = None
     performance_target: float = 0.90
@@ -37,18 +37,15 @@ class AgentConfig:
 
 @dataclass
 class TaskResult:
-    """Result of task execution."""
-
-    status: str
+    Result of task execution.    """s"""
+        tatus: str
     output: Any
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
 class BaseAgent(ABC):
-    """Base class for all Sophia AI agents."""
-
-    def __init__(self, config: AgentConfig):
+    Base class for all Sophia AI agents.    """d"""ef __init__(self, config: AgentConfig):
         self.config = config
         self.agent_id = config.agent_id
         self.agent_type = config.agent_type
@@ -394,9 +391,7 @@ class BaseAgent(ABC):
 
 
 class AgentHealthMonitor:
-    """Monitor agent health and performance."""
-
-    def __init__(self, redis_client: redis.Redis):
+    Monitor agent health and performance.    """d"""ef __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
         self.agent_health: Dict[str, Dict[str, Any]] = {}
 
@@ -453,7 +448,7 @@ async def create_agent_response(
     success: bool, data: Any = None, error: str = None, metadata: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """Create standardized agent response."""
-    response = {
+        response = {
         "success": success,
         "timestamp": datetime.now().isoformat(),
         "data": data,
@@ -465,22 +460,20 @@ async def create_agent_response(
 
 async def validate_task_data(task: Task, required_fields: List[str]) -> bool:
     """Validate that task data contains required fields."""
-    try:
-        for field in required_fields:
-            if field not in task.task_data:
-                logger.error(f"Missing required field: {field}")
+        try:
+            for field in required_fields:
+                if field not in task.task_data:
+                    logger.error(f"Missing required field: {field}")
                 return False
         return True
-    except Exception as e:
+        except Exception as e:
         logger.error(f"Task validation error: {str(e)}")
         return False
 
 
 # Example specialized agent implementation
 class ExampleSpecializedAgent(BaseAgent):
-    """Example implementation of a specialized agent."""
-
-    async def get_capabilities(self) -> List[AgentCapability]:
+    Example implementation of a specialized agent.    """a"""sync def get_capabilities(self) -> List[AgentCapability]:
         """Return list of agent capabilities."""
         return [
             AgentCapability(
@@ -535,3 +528,5 @@ if __name__ == "__main__":
         await agent.stop()
 
     asyncio.run(main())
+
+"""

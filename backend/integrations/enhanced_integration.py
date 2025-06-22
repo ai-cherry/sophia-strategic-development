@@ -20,15 +20,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class IntegrationConfig:
     """Configuration for enhanced integrations."""
-
-    bardeen_id: str
+        bardeen_id: str
     arize_api_key: str
     portkey_api_key: str
     environment: str = "production"
 
 
 class BardeenWorkflowManager:
-    """Bardeen automation workflow management."""def __init__(self, bardeen_id: str):.
+    """Bardeen automation workflow management."""
+    def __init__(self, bardeen_id: str):.
 
         self.bardeen_id = bardeen_id
         self.base_url = "https://api.bardeen.ai/v1"
@@ -43,7 +43,8 @@ class BardeenWorkflowManager:
     async def execute_workflow(
         self, workflow_name: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Execute a Bardeen workflow with provided data."""try:.
+        """Execute a Bardeen workflow with provided data."""
+        try:.
 
             payload = {
                 "workflow": workflow_name,
@@ -65,7 +66,8 @@ class BardeenWorkflowManager:
             raise
 
     async def sync_gong_to_hubspot(self, call_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Sync Gong.io call data to HubSpot."""workflow_data = {.
+        """Sync Gong.io call data to HubSpot."""
+        workflow_data = {.
 
             "call_id": call_data.get("call_id"),
             "participants": call_data.get("participants", []),
@@ -82,7 +84,8 @@ class BardeenWorkflowManager:
     async def automate_lead_enrichment(
         self, lead_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Automate lead enrichment process."""enrichment_data = {.
+        """Automate lead enrichment process."""
+        enrichment_data = {.
 
             "email": lead_data.get("email"),
             "company": lead_data.get("company"),
@@ -103,7 +106,8 @@ class BardeenWorkflowManager:
     async def slack_team_notification(
         self, notification_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Send automated Slack notifications to team."""slack_data = {.
+        """Send automated Slack notifications to team."""
+        slack_data = {.
 
             "channel": notification_data.get("channel", "#sales-team"),
             "message": notification_data.get("message"),
@@ -116,7 +120,8 @@ class BardeenWorkflowManager:
 
 
 class ArizeMonitoringManager:
-    """Arize AI monitoring and observability management."""def __init__(self, api_key: str):.
+    """Arize AI monitoring and observability management."""
+    def __init__(self, api_key: str):.
 
         self.api_key = api_key
         self.base_url = "https://api.arize.com/v1"
@@ -128,7 +133,8 @@ class ArizeMonitoringManager:
     async def log_model_prediction(
         self, model_id: str, prediction_data: Dict[str, Any]
     ) -> bool:
-        """Log model prediction for monitoring."""try:.
+        """Log model prediction for monitoring."""
+        try:.
 
             payload = {
                 "model_id": model_id,
@@ -153,7 +159,8 @@ class ArizeMonitoringManager:
             return False
 
     async def track_sophia_ai_response(self, response_data: Dict[str, Any]) -> bool:
-        """Track Sophia AI response quality and performance."""prediction_data = {.
+        """Track Sophia AI response quality and performance."""
+        prediction_data = {.
 
             "prediction_id": response_data.get("request_id"),
             "features": {
@@ -175,7 +182,8 @@ class ArizeMonitoringManager:
         return await self.log_model_prediction("sophia_ai_responses", prediction_data)
 
     async def monitor_business_intelligence(self, insight_data: Dict[str, Any]) -> bool:
-        """Monitor business intelligence quality and accuracy."""prediction_data = {.
+        """Monitor business intelligence quality and accuracy."""
+        prediction_data = {.
 
             "prediction_id": insight_data.get("insight_id"),
             "features": {
@@ -199,7 +207,8 @@ class ArizeMonitoringManager:
         )
 
     async def create_performance_alert(self, alert_config: Dict[str, Any]) -> bool:
-        """Create performance monitoring alert."""try:.
+        """Create performance monitoring alert."""
+        try:.
 
             payload = {
                 "alert_name": alert_config.get("name"),
@@ -222,7 +231,8 @@ class ArizeMonitoringManager:
 
 
 class EnhancedPortkeyGateway:
-    """Enhanced Portkey gateway with Arize monitoring integration."""def __init__(self, portkey_api_key: str, arize_manager: ArizeMonitoringManager):.
+    """Enhanced Portkey gateway with Arize monitoring integration."""
+    def __init__(self, portkey_api_key: str, arize_manager: ArizeMonitoringManager):.
 
         self.portkey_api_key = portkey_api_key
         self.arize_manager = arize_manager
@@ -238,7 +248,8 @@ class EnhancedPortkeyGateway:
     async def enhanced_completion(
         self, prompt: str, model: str = "gpt-4", **kwargs
     ) -> Dict[str, Any]:
-        """Enhanced completion with monitoring and optimization."""start_time = datetime.utcnow().
+        """Enhanced completion with monitoring and optimization."""
+        start_time = datetime.utcnow().
 
         request_id = f"req_{int(start_time.timestamp())}"
 
@@ -290,7 +301,8 @@ class EnhancedPortkeyGateway:
             raise
 
     async def get_usage_analytics(self, time_range: str = "24h") -> Dict[str, Any]:
-        """Get usage analytics from Portkey."""try:.
+        """Get usage analytics from Portkey."""
+        try:.
 
             response = self.session.get(
                 f"{self.base_url}/analytics/usage", params={"time_range": time_range}
@@ -305,7 +317,8 @@ class EnhancedPortkeyGateway:
 
 
 class SophiaAIEnhancedIntegration:
-    """Main integration manager for enhanced Sophia AI capabilities."""def __init__(self, config: IntegrationConfig):.
+    """Main integration manager for enhanced Sophia AI capabilities."""
+    def __init__(self, config: IntegrationConfig):.
 
         self.config = config
         self.bardeen_manager = BardeenWorkflowManager(config.bardeen_id)
@@ -318,7 +331,8 @@ class SophiaAIEnhancedIntegration:
         asyncio.create_task(self._setup_monitoring_alerts())
 
     async def _setup_monitoring_alerts(self):
-        """Setup initial monitoring alerts."""alerts = [.
+        """Setup initial monitoring alerts."""
+        alerts = [.
 
             {
                 "name": "Sophia AI Response Time Alert",
@@ -352,7 +366,8 @@ class SophiaAIEnhancedIntegration:
     async def process_gong_call_analysis(
         self, call_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Process Gong.io call analysis with enhanced AI and automation."""try:.
+        """Process Gong.io call analysis with enhanced AI and automation."""
+        try:.
 
             # Generate AI insights from call data
             ai_prompt = f"""
@@ -421,7 +436,8 @@ class SophiaAIEnhancedIntegration:
                             async def automated_lead_processing(
                                 self, lead_data: Dict[str, Any]
                             ) -> Dict[str, Any]:
-            """Automated lead processing with enrichment and scoring."""try:.
+            """Automated lead processing with enrichment and scoring."""
+        try:.
 
             # Enrich lead data via Bardeen
             enriched_data = await self.bardeen_manager.automate_lead_enrichment(
@@ -475,7 +491,8 @@ class SophiaAIEnhancedIntegration:
                                     raise
 
                             async def get_performance_dashboard(self) -> Dict[str, Any]:
-            """Get comprehensive performance dashboard data."""try:.
+            """Get comprehensive performance dashboard data."""
+        try:.
 
             # Get Portkey usage analytics
             portkey_analytics = await self.portkey_gateway.get_usage_analytics("24h")
@@ -506,7 +523,8 @@ class SophiaAIEnhancedIntegration:
 
 # Configuration and initialization
 def create_enhanced_integration() -> SophiaAIEnhancedIntegration:
-    """Create enhanced integration instance with environment configuration."""config = IntegrationConfig(.
+    """Create enhanced integration instance with environment configuration."""
+        config = IntegrationConfig(.
 
         bardeen_id=os.getenv(
             "BARDEEN_ID",
@@ -526,7 +544,7 @@ def create_enhanced_integration() -> SophiaAIEnhancedIntegration:
 # Example usage
 async def main():
     """Example usage of enhanced integration."""
-    integration = create_enhanced_integration()
+        integration = create_enhanced_integration()
 
     # Example: Process Gong call analysis
     call_data = {

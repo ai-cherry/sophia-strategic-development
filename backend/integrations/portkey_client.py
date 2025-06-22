@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PortkeyConfig:
     """Configuration for Portkey routing"""
-
-    api_key: str
+        api_key: str
     default_provider: str = "openrouter"
     virtual_key: str = "sophia-ai-key"
     base_url: str = "https://api.portkey.ai/v1"

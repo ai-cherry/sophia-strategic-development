@@ -24,7 +24,7 @@ async def get_current_user_role(
     credentials: HTTPAuthorizationCredentials = Depends(reusable_oauth2),
 ) -> UserRole:
     """Dependency to get the current user's role from a JWT."""
-    try:
+        try:
         token = credentials.credentials
         SECRET_KEY = settings.security.jwt_secret_key  # Use the centralized secret
         ALGORITHM = "HS256"
@@ -45,7 +45,7 @@ async def get_current_user_role(
 
 async def verify_admin_key(x_admin_key: str = Header(...)):
     """A simple dependency to verify the admin API key."""
-    if x_admin_key != SOPHIA_ADMIN_KEY:
+        if x_admin_key != SOPHIA_ADMIN_KEY:
         raise HTTPException(status_code=403, detail="Invalid Admin Key")
 
 

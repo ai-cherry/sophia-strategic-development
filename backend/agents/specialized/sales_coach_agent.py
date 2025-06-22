@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 class SalesCoachAgent(BaseAgent):
     """Analyzes sales calls to provide coaching and performance insights. Integrated with AgnoPerformanceOptimizer."""
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.snowflake_conn = None

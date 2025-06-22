@@ -28,7 +28,8 @@ class ArchitectureParser:
 
                         Returns:
                             A list of dictionaries, each representing a discovered API endpoint.
-        """endpoints = []
+        """
+        endpoints = []
 
         try:
             tree = ast.parse(file_content)
@@ -73,7 +74,8 @@ class ArchitectureParser:
 
                         Returns:
                             A list of dictionaries, each representing a discovered MCP tool.
-        """tools = []
+        """
+        tools = []
 
         try:
             tree = ast.parse(file_content)
@@ -107,7 +109,8 @@ class ArchitectureParser:
 
                         Returns:
                             A list of dictionaries, each representing a discovered database table.
-        """tables = []
+        """
+        tables = []
 
         # A simple regex to find CREATE TABLE statements and their columns.
         # A real implementation might use a more robust SQL parsing library.

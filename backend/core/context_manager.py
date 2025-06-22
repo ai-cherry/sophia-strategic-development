@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SessionContext:
     """Context for a single user session"""
-
-    session_id: str
+        session_id: str
     user_id: str
     user_role: str = "viewer"
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -57,7 +56,6 @@ class ContextManager:
     - Handles context expiration
     - Thread-safe operations
     """
-
     def __init__(self, ttl_minutes: int = 60):
         self.sessions: Dict[str, SessionContext] = {}
         self.ttl = timedelta(minutes=ttl_minutes)

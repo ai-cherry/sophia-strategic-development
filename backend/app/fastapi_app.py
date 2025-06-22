@@ -47,7 +47,7 @@ from backend.agents.core.agno_performance_optimizer import AgnoPerformanceOptimi
 # Database connection utilities
 def check_database() -> bool:
     """Return True if the configured PostgreSQL database is reachable."""
-    try:
+        try:
         import psycopg2
 
         from backend.config.settings import settings
@@ -65,7 +65,7 @@ def check_database() -> bool:
 
 def check_redis() -> bool:
     """Return True if the configured Redis cache is reachable."""
-    try:
+        try:
         import redis
 
         from backend.config.settings import settings
@@ -157,7 +157,7 @@ except ImportError as e:
 @app.get("/api/health", tags=["health"])
 async def health_check():
     """Comprehensive health check for Sophia AI - Pay Ready Assistant."""
-    health_status = {
+        health_status = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
         "service": "Sophia AI - Pay Ready Company Assistant",
@@ -202,7 +202,7 @@ async def health_check():
 @app.get("/api/metrics/agno-performance", tags=["metrics"])
 async def agno_performance_metrics():
     """Returns live Agno agent performance metrics (instantiation time, pool size, memory, etc)."""
-    optimizer = AgnoPerformanceOptimizer()
+        optimizer = AgnoPerformanceOptimizer()
     metrics = optimizer.get_metrics()
     # Optionally, add summary stats
     summary = {}
@@ -227,7 +227,7 @@ async def agno_performance_metrics():
 @app.get("/", tags=["root"])
 async def index():
     """Sophia AI - Pay Ready Company Assistant welcome endpoint."""
-    return {
+        return {
         "service": "Sophia AI - Pay Ready Company Assistant",
         "company": "Pay Ready",
         "version": "1.0.0",

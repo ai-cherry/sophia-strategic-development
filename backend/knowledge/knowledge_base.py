@@ -31,8 +31,7 @@ Base = declarative_base()
 
 class ContentType(Enum):
     """Types of content in the knowledge base."""
-
-    COMPANY_CORE = "company_core"
+        COMPANY_CORE = "company_core"
     PRODUCTS_SERVICES = "products_services"
     OPERATIONS = "operations"
     DATA_DICTIONARY = "data_dictionary"
@@ -45,7 +44,8 @@ class ContentType(Enum):
 
 
 class ContentStatus(Enum):
-    """Status of content in the knowledge base."""DRAFT = "draft".
+    """Status of content in the knowledge base."""
+        DRAFT = "draft"
 
     REVIEW = "review"
     APPROVED = "approved"
@@ -55,8 +55,8 @@ class ContentStatus(Enum):
 
 @dataclass
 class KnowledgeDocument:
-    """Represents a document in the knowledge base."""id: str.
-
+    """Represents a document in the knowledge base."""
+        id: str
     title: str
     content: str
     content_type: ContentType
@@ -70,7 +70,8 @@ class KnowledgeDocument:
     embedding_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for storage."""return {.
+        """Convert to dictionary for storage."""
+        return {.
 
             **asdict(self),
             "content_type": self.content_type.value,
@@ -81,7 +82,8 @@ class KnowledgeDocument:
 
 
 class KnowledgeBaseDocument(Base):
-    """SQLAlchemy model for knowledge base documents."""__tablename__ = "knowledge_documents".
+    """SQLAlchemy model for knowledge base documents."""
+        __tablename__ = "knowledge_documents"
 
     id = Column(String, primary_key=True)
     title = Column(String, nullable=False)
@@ -102,7 +104,8 @@ class SophiaKnowledgeBase:
     """Contained Company Knowledge Base for Sophia AI.
 
             Manages curated company knowledge with vector search capabilities
-    """def __init__(self, config: Dict[str, Any]):."""Initialize the knowledge base with configuration"""
+    """
+    def __init__(self, config: Dict[str, Any]):."""Initialize the knowledge base with configuration"""
 
         self.config = config
         self.db_engine = create_engine(config["database_url"])
@@ -121,7 +124,8 @@ class SophiaKnowledgeBase:
         logger.info("Sophia Knowledge Base initialized")
 
     def _init_pinecone(self):
-        """Initialize Pinecone vector database."""try:.
+        """Initialize Pinecone vector database."""
+        try:.
 
             pinecone.init(
                 api_key=self.config["pinecone_api_key"],
@@ -145,7 +149,8 @@ class SophiaKnowledgeBase:
             self.pinecone_index = None
 
     def _init_weaviate(self):
-        """Initialize Weaviate vector database."""try:.
+        """Initialize Weaviate vector database."""
+        try:.
 
             self.weaviate_client = weaviate.Client(
                 url=self.config["weaviate_url"],
@@ -163,7 +168,8 @@ class SophiaKnowledgeBase:
             self.weaviate_client = None
 
     def _create_weaviate_schema(self):
-        """Create Weaviate schema for knowledge documents."""schema = {.
+        """Create Weaviate schema for knowledge documents."""
+        schema = {.
 
             "class": "KnowledgeDocument",
             "description": "Pay Ready company knowledge documents",
@@ -210,7 +216,8 @@ class SophiaKnowledgeBase:
 
                         Returns:
                             bool: Success status
-        """try:.
+        """
+        try:.
 
             session = self.Session()
 
@@ -251,7 +258,8 @@ class SophiaKnowledgeBase:
             return False
 
     def _store_embeddings(self, document: KnowledgeDocument) -> Optional[str]:
-        """Store document embeddings in vector databases."""try:.
+        """Store document embeddings in vector databases."""
+        try:.
 
             # Generate embedding
             embedding = self.embedding_model.encode(
@@ -312,7 +320,8 @@ class SophiaKnowledgeBase:
 
                         Returns:
                             List of matching documents with scores
-        """try:.
+        """
+        try:.
 
             # Generate query embedding
             query_embedding = self.embedding_model.encode(query).tolist()
@@ -382,7 +391,8 @@ class SophiaKnowledgeBase:
             return []
 
     def get_document(self, document_id: str) -> Optional[KnowledgeDocument]:
-        """Get a specific document by ID."""try:.
+        """Get a specific document by ID."""
+        try:.
 
             session = self.Session()
             doc = (
@@ -420,7 +430,8 @@ class SophiaKnowledgeBase:
             return None
 
     def update_document(self, document: KnowledgeDocument) -> bool:
-        """Update an existing document."""try:.
+        """Update an existing document."""
+        try:.
 
             session = self.Session()
 
@@ -473,7 +484,8 @@ class SophiaKnowledgeBase:
             return False
 
     def get_content_statistics(self) -> Dict[str, Any]:
-        """Get statistics about the knowledge base content."""try:.
+        """Get statistics about the knowledge base content."""
+        try:.
 
             session = self.Session()
 
@@ -534,7 +546,8 @@ class SophiaKnowledgeBase:
 
                         Returns:
                             Dictionary with import statistics
-        """stats = {"success": 0, "failed": 0, "skipped": 0}.
+        """
+        stats = {"success": 0, "failed": 0, "skipped": 0}.
 
         for doc_data in documents:
             try:
@@ -568,7 +581,8 @@ class SophiaKnowledgeBase:
 
 # Example usage and initialization
 def initialize_sophia_knowledge_base(config: Dict[str, Any]) -> SophiaKnowledgeBase:
-    """Initialize Sophia's knowledge base with Pay Ready configuration."""# Default configuration.
+    """Initialize Sophia's knowledge base with Pay Ready configuration."""
+        # Default configuration.
 
     default_config = {
         "database_url": os.getenv(

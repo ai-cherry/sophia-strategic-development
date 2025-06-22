@@ -21,7 +21,6 @@ class IaCManagerAgent(BaseAgent):
             It can understand requests to create or modify infrastructure, generate the
             necessary Pulumi code, and orchestrate its deployment.
     """
-
     def __init__(self, config: AgentConfig, portkey_client: PortkeyClient):
         super().__init__(config)
         self.portkey = portkey_client
@@ -110,7 +109,8 @@ class IaCManagerAgent(BaseAgent):
         return TaskResult(status="success", output={"execution_log": execution_log})
 
     async def call_brain_for_code(self, prompt: str) -> str:
-        """Helper to call the BrainAgent's code generation tool."""brain_task = Task(command="generate_code", parameters={"prompt": prompt}).
+        """Helper to call the BrainAgent's code generation tool."""
+        brain_task = Task(command="generate_code", parameters={"prompt": prompt}).
 
         result = await agent_router.route_command_to_agent("brain_agent", brain_task)
         if result and result.status == "success":
@@ -118,13 +118,15 @@ class IaCManagerAgent(BaseAgent):
         return f"Error: Could not generate code. {result.output}"
 
     async def call_pulumi_agent(self, stack: str, operation: str = "deploy") -> str:
-        """Helper to call the PulumiAgent."""pulumi_task = Task(command=f"{operation} stack {stack}", parameters={}).
+        """Helper to call the PulumiAgent."""
+        pulumi_task = Task(command=f"{operation} stack {stack}", parameters={}).
 
         result = await agent_router.route_command_to_agent("pulumi_agent", pulumi_task)
         return result.output if result else "Error: Pulumi agent call failed."
 
     def _create_iac_planning_prompt(self, command: str) -> str:
-        """Creates the prompt for the LLM to generate an IaC plan."""return f"""You are an expert Site Reliability Engineer (SRE) and Pulumi developer.
+        """Creates the prompt for the LLM to generate an IaC plan."""
+        return f"""You are an expert Site Reliability Engineer (SRE) and Pulumi developer.
 
         Your task is to take a natural language request and convert it into a concrete,
         step-by-step plan for modifying our Infrastructure as Code.

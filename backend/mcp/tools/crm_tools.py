@@ -8,7 +8,6 @@ from ..sophia_mcp_server import MCPTool
 
 class CrmSyncTool(MCPTool):
     """Tool for synchronizing data with CRM systems."""
-
     def __init__(self):
         super().__init__(
             name="crm_sync",
@@ -50,7 +49,8 @@ class CrmSyncTool(MCPTool):
         self.salesforce_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         crm_type = parameters["crm_type"]
         entity_type = parameters["entity_type"]
@@ -107,7 +107,8 @@ class CrmSyncTool(MCPTool):
         operation: str,
         external_id: Optional[str],
     ) -> Dict[str, Any]:
-        """Sync data with HubSpot."""if not self.hubspot_client:.
+        """Sync data with HubSpot."""
+        if not self.hubspot_client:.
 
             import hubspot
 
@@ -179,7 +180,8 @@ class CrmSyncTool(MCPTool):
         operation: str,
         external_id: Optional[str],
     ) -> Dict[str, Any]:
-        """Sync data with Salesforce."""if not self.salesforce_client:.
+        """Sync data with Salesforce."""
+        if not self.salesforce_client:.
 
             from simple_salesforce import Salesforce
 
@@ -270,7 +272,8 @@ class CrmSyncTool(MCPTool):
     def _prepare_hubspot_data(
         self, entity_type: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Prepare data for HubSpot API."""# HubSpot expects properties as a flat object.
+        """Prepare data for HubSpot API."""
+        # HubSpot expects properties as a flat object.
 
         properties = {}
 
@@ -287,7 +290,8 @@ class CrmSyncTool(MCPTool):
     def _prepare_salesforce_data(
         self, entity_type: str, data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Prepare data for Salesforce API."""# Map common field names to Salesforce field names.
+        """Prepare data for Salesforce API."""
+        # Map common field names to Salesforce field names.
 
         field_map = {
             "contact": {
@@ -340,7 +344,8 @@ class CrmSyncTool(MCPTool):
 
 
 class CrmQueryTool(MCPTool):
-    """Tool for querying data from CRM systems."""def __init__(self):.
+    """Tool for querying data from CRM systems."""
+    def __init__(self):.
 
         super().__init__(
             name="crm_query",
@@ -382,7 +387,8 @@ class CrmQueryTool(MCPTool):
         self.salesforce_client = None
 
     async def execute(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the tool with the provided parameters."""# Get parameters.
+        """Execute the tool with the provided parameters."""
+        # Get parameters.
 
         crm_type = parameters["crm_type"]
         entity_type = parameters["entity_type"]
@@ -436,7 +442,8 @@ class CrmQueryTool(MCPTool):
         query_params: Dict[str, Any],
         limit: int,
     ) -> Any:
-        """Query data from HubSpot."""if not self.hubspot_client:.
+        """Query data from HubSpot."""
+        if not self.hubspot_client:.
 
             import hubspot
 
@@ -590,7 +597,7 @@ class CrmQueryTool(MCPTool):
 
             # Build SOQL query
             fields = query_params.get("fields", ["Id", "Name"])
-            fields_str = ", ".join(fields)
+            fields_str = ", "join(fields)
 
             soql = f"SELECT {fields_str} FROM {salesforce_object}"
 
@@ -613,7 +620,7 @@ class CrmQueryTool(MCPTool):
         elif query_type == "list":
             # List entities using SOQL
             fields = query_params.get("fields", ["Id", "Name"])
-            fields_str = ", ".join(fields)
+            fields_str = ", "join(fields)
 
             soql = f"SELECT {fields_str} FROM {salesforce_object} LIMIT {limit}"
 

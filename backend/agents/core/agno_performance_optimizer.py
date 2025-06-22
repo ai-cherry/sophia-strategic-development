@@ -21,8 +21,7 @@ class AgnoPerformanceOptimizer:
     - Agent pooling for high concurrency
     - Performance metrics tracking
     """
-
-    _instance = None
+        _instance = None
     _lock = asyncio.Lock()
 
     def __new__(cls, *args, **kwargs):

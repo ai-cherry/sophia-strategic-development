@@ -18,7 +18,6 @@ from ..integrations.slack.slack_integration import SlackIntegration, SlackNotifi
 
 class GongSnowflakePipeline:
     """Pipeline for Gong → Snowflake → Vector DB."""
-
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.gong_client = None
@@ -28,7 +27,8 @@ class GongSnowflakePipeline:
         self.slack_client = None
 
     async def setup_connections(self):
-        """Initialize all connections."""# Gong connection.
+        """Initialize all connections."""
+        # Gong connection.
 
         self.gong_client = EnhancedGongIntegration()
         await self.gong_client.setup()
@@ -70,7 +70,8 @@ class GongSnowflakePipeline:
             )
 
     async def run_daily_sync(self):
-        """Daily sync of all Gong data (calls + emails + meetings)."""yesterday = datetime.now() - timedelta(days=1).
+        """Daily sync of all Gong data (calls + emails + meetings)."""
+        yesterday = datetime.now() - timedelta(days=1).
 
         date_str = yesterday.strftime("%Y-%m-%d")
 
@@ -95,7 +96,8 @@ class GongSnowflakePipeline:
     async def _load_conversations_to_snowflake(
         self, conversations: List[Dict[str, Any]]
     ):
-        """Load conversations to Snowflake with proper normalization."""cursor = self.sf_conn.cursor().
+        """Load conversations to Snowflake with proper normalization."""
+        cursor = self.sf_conn.cursor().
 
         for conv in conversations:
             try:
@@ -103,9 +105,7 @@ class GongSnowflakePipeline:
 
                 # 1. Insert into CONVERSATIONS table
                 cursor.execute(
-                    """INSERT INTO GONG_CONVERSATIONS.
-
-                                                            (conversation_id, conversation_key, conversation_type,
+                    """INSERT INTO GONG_CONVERSATIONS(conversation_id, conversation_key, conversation_type,
                                                              conversation_datetime, workspace_ids, is_deleted)
                                                             VALUES (%s, %s, %s, %s, %s, %s)
                                                             ON CONFLICT (conversation_key) DO UPDATE SET
@@ -142,15 +142,14 @@ class GongSnowflakePipeline:
         cursor.close()
 
     async def _insert_call_data(self, cursor, call_data: Dict[str, Any]):
-        """Insert call-specific data."""conversation_key = call_data.get("conversationKey", f"call_{call_data['id']}").
+        """Insert call-specific data."""
+        conversation_key = call_data.get("conversationKey", f"call_{call_data['id']}").
 
         # This will be updated with the Slack message TS later
         slack_ts = call_data.get("slack_notification_ts")
 
         cursor.execute(
-            """INSERT INTO GONG_CALLS.
-
-                                    (conversation_key, conversation_id, call_url, direction, disposition,
+            """INSERT INTO GONG_CALLS(conversation_key, conversation_id, call_url, direction, disposition,
                                      duration_seconds, effective_start_datetime, planned_start_datetime,
                                      planned_end_datetime, scope, owner_id, phone_number,
                                      call_spotlight_brief, call_spotlight_key_points,
@@ -200,9 +199,7 @@ class GongSnowflakePipeline:
             )
 
             cursor.execute(
-                """INSERT INTO GONG_CALL_TRANSCRIPTS.
-
-                                                (conversation_key, transcript_json, transcript_text,
+                """INSERT INTO GONG_CALL_TRANSCRIPTS(conversation_key, transcript_json, transcript_text,
                                                  language, recording_duration_sec)
                                                 VALUES (%s, %s, %s, %s, %s)
                                                 ON CONFLICT (conversation_key) DO UPDATE SET
@@ -219,7 +216,8 @@ class GongSnowflakePipeline:
             )
 
     async def _send_slack_notifications(self, conversations: List[Dict[str, Any]]):
-        """Send Slack notifications for new calls and update Snowflake with the message TS."""for conv in conversations:.
+        """Send Slack notifications for new calls and update Snowflake with the message TS."""
+        for conv in conversations:.
 
             if conv.get("conversation_type") != "call":
                 continue
@@ -256,13 +254,9 @@ class GongSnowflakePipeline:
 
                     # Update GONG_CALLS with slack_notification_ts
                     cursor.execute(
-                        """UPDATE GONG_CALLS.
-
-                                                                        SET slack_notification_ts = %s
+                        """UPDATE GONG_CALLSSET slack_notification_ts = %s
                                                                         WHERE conversation_key = %s
-                        """,.
-
-                        (message_ts, conversation_key),
+                        """,(message_ts, conversation_key),
                     )
 
                     # Create a record in SLACK_CONVERSATIONS
@@ -289,15 +283,14 @@ class GongSnowflakePipeline:
                 )
 
     async def _insert_email_data(self, cursor, email_data: Dict[str, Any]):
-        """Insert email-specific data."""conversation_key = email_data.get(.
+        """Insert email-specific data."""
+        conversation_key = email_data.get(.
 
             "conversationKey", f"email_{email_data['id']}"
         )
 
         cursor.execute(
-            """INSERT INTO GONG_EMAILS.
-
-                                    (conversation_key, conversation_id, email_subject, email_thread_id,
+            """INSERT INTO GONG_EMAILS(conversation_key, conversation_id, email_subject, email_thread_id,
                                      sender_email, recipient_emails, cc_emails, bcc_emails,
                                      email_direction, email_body_text, email_body_html,
                                      email_sentiment_score, email_attachment_count,
@@ -327,7 +320,8 @@ class GongSnowflakePipeline:
         )
 
     async def _insert_participants(self, cursor, conv: Dict[str, Any]):
-        """Insert conversation participants."""conversation_key = conv.get(.
+        """Insert conversation participants."""
+        conversation_key = conv.get(.
 
             "conversationKey", f"{conv['conversation_type']}_{conv['id']}"
         )
@@ -335,9 +329,7 @@ class GongSnowflakePipeline:
 
         for participant in participants:
             cursor.execute(
-                """INSERT INTO GONG_PARTICIPANTS.
-
-                                                (conversation_key, participant_id, participant_name,
+                """INSERT INTO GONG_PARTICIPANTS(conversation_key, participant_id, participant_name,
                                                  participant_email, participant_role, participant_company,
                                                  is_from_customer, talk_time_percentage, email_role)
                                                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -360,7 +352,8 @@ class GongSnowflakePipeline:
             )
 
     async def _insert_trackers(self, cursor, conv: Dict[str, Any]):
-        """Insert conversation trackers (topics/keywords)."""conversation_key = conv.get(.
+        """Insert conversation trackers (topics/keywords)."""
+        conversation_key = conv.get(.
 
             "conversationKey", f"{conv['conversation_type']}_{conv['id']}"
         )
@@ -368,9 +361,7 @@ class GongSnowflakePipeline:
 
         for tracker in trackers:
             cursor.execute(
-                """INSERT INTO GONG_CONVERSATION_TRACKERS.
-
-                                                (conversation_key, tracker_id, tracker_name,
+                """INSERT INTO GONG_CONVERSATION_TRACKERS(conversation_key, tracker_id, tracker_name,
                                                  tracker_type, tracker_count, tracker_sentiment)
                                                 VALUES (%s, %s, %s, %s, %s, %s)
                                                 ON CONFLICT (conversation_key, tracker_id) DO UPDATE SET
@@ -389,7 +380,8 @@ class GongSnowflakePipeline:
             )
 
     async def _insert_crm_context(self, cursor, conv: Dict[str, Any]):
-        """Insert CRM context for conversation."""conversation_key = conv.get(.
+        """Insert CRM context for conversation."""
+        conversation_key = conv.get(.
 
             "conversationKey", f"{conv['conversation_type']}_{conv['id']}"
         )
@@ -397,9 +389,7 @@ class GongSnowflakePipeline:
 
         for context in contexts:
             cursor.execute(
-                """INSERT INTO GONG_CONVERSATION_CONTEXTS.
-
-                                                (conversation_key, crm_object_type, crm_object_id, crm_object_name)
+                """INSERT INTO GONG_CONVERSATION_CONTEXTS(conversation_key, crm_object_type, crm_object_id, crm_object_name)
                                                 VALUES (%s, %s, %s, %s)
                                                 ON CONFLICT (conversation_key, crm_object_type, crm_object_id) DO NOTHING
                 """,.

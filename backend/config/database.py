@@ -19,7 +19,6 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 class DatabaseConfig:
     """Manage PostgreSQL and Redis connections with pooling."""
-
     def __init__(self) -> None:
         self.pg_pool = pool.SimpleConnectionPool(5, 20, POSTGRES_DSN)
         self.redis = redis.Redis.from_url(REDIS_URL)

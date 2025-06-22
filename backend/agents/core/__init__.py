@@ -34,7 +34,7 @@ async def initialize_agent_system():
     - Initialize context manager
     - Set up integrations
     """
-    try:
+        try:
         # Initialize context manager
         await context_manager.initialize()
         logger.info("Context manager initialized")
@@ -109,7 +109,7 @@ async def initialize_agent_system():
 
 async def shutdown_agent_system():
     """Gracefully shutdown the agent system."""
-    try:
+        try:
         # Shutdown context manager
         await context_manager.shutdown()
 

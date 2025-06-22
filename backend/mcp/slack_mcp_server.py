@@ -26,7 +26,6 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 class SlackMCPServer(BaseMCPServer):
     """MCP Server for Slack integration."""
-
     def __init__(self):
         super().__init__("slack")
         self.slack_bot = sophia_slack_bot
@@ -43,7 +42,8 @@ class SlackMCPServer(BaseMCPServer):
         self.http_session = aiohttp.ClientSession()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Slack resources."""return [.
+        """Lists available Slack resources."""
+        return [.
 
             Resource(
                 uri="slack://channels",
@@ -58,7 +58,8 @@ class SlackMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Slack resource."""uri = request.uri.
+        """Gets a specific Slack resource."""
+        uri = request.uri.
 
         if uri == "slack://channels":
             channels = await self.slack_bot.client.conversations_list()
@@ -77,7 +78,8 @@ class SlackMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Slack tools."""return [.
+        """Lists available Slack tools."""
+        return [.
 
             Tool(
                 name="send_message",
@@ -103,7 +105,8 @@ class SlackMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Slack tool call."""tool_name = request.params.name.
+        """Handles a Slack tool call."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
         result = None

@@ -1,7 +1,9 @@
 """Deployment Validator for CI/CD.
 
 Performs pre-deployment checks for security and performance.
-"""import asyncio
+"""
+
+import asyncio
 
 import logging
 from typing import Any, Dict
@@ -11,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 class DeploymentValidator:
     """A simple, stateless validator for use in CI/CD pipelines."""
-
     def __init__(self):
         pass
 

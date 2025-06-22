@@ -1,7 +1,9 @@
 """HuggingFace and Together AI Model Integrations for Sophia AI.
 
 Optimized integrations for accessing diverse AI models and capabilities
-"""import json
+"""
+
+import json
 
 import logging
 import os
@@ -20,8 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelCapability:
     """Model capability definition."""
-
-    name: str
+        name: str
     description: str
     input_types: List[str]
     output_types: List[str]
@@ -31,8 +32,8 @@ class ModelCapability:
 
 @dataclass
 class ModelConfig:
-    """Model configuration."""model_id: str.
-
+    """Model configuration."""
+        model_id: str
     provider: str
     capabilities: List[ModelCapability]
     parameters: Dict[str, Any]
@@ -43,7 +44,8 @@ class HuggingFaceService:
     """HuggingFace model integration service.
 
             Provides access to HuggingFace models via API and local inference
-    """def __init__(self):."""Initialize HuggingFace service"""
+    """
+    def __init__(self):."""Initialize HuggingFace service"""
 
         self.api_token = os.getenv("HUGGINGFACE_API_TOKEN")
         self.base_url = "https://api-inference.huggingface.co/models"
@@ -110,7 +112,8 @@ class HuggingFaceService:
 
                         Returns:
                             Dict with generation results
-        """try:.
+        """
+        try:.
 
             if use_local:
                 return await self._generate_local(
@@ -126,7 +129,8 @@ class HuggingFaceService:
     async def _generate_api(
         self, prompt: str, model: str, max_tokens: int, temperature: float
     ) -> Dict[str, Any]:
-        """Generate text using HuggingFace API."""model_id = self.models["text_generation"].get(model, model).
+        """Generate text using HuggingFace API."""
+        model_id = self.models["text_generation"].get(model, model).
 
         payload = {
             "inputs": prompt,
@@ -164,7 +168,8 @@ class HuggingFaceService:
     async def _generate_local(
         self, prompt: str, model: str, max_tokens: int, temperature: float
     ) -> Dict[str, Any]:
-        """Generate text using local HuggingFace model."""try:.
+        """Generate text using local HuggingFace model."""
+        try:.
 
             model_id = self.models["text_generation"].get(model, model)
 
@@ -200,7 +205,8 @@ class HuggingFaceService:
             return {"error": str(e)}
 
     async def _load_local_model(self, model_id: str):
-        """Load a model for local inference."""try:.
+        """Load a model for local inference."""
+        try:.
 
             logger.info(f"Loading local model: {model_id}")
 
@@ -240,7 +246,8 @@ class HuggingFaceService:
 
                         Returns:
                             Dict with embeddings
-        """try:.
+        """
+        try:.
 
             model_id = self.models["embeddings"].get(model, model)
 
@@ -285,7 +292,8 @@ class HuggingFaceService:
 
                         Returns:
                             Dict with classification results
-        """try:.
+        """
+        try:.
 
             if not model:
                 model_id = self.models["classification"].get(task)
@@ -326,7 +334,8 @@ class TogetherAIService:
     """Together AI model integration service.
 
             Provides access to Together AI's optimized model inference
-    """def __init__(self):."""Initialize Together AI service"""
+    """
+    def __init__(self):."""Initialize Together AI service"""
 
         self.api_key = os.getenv("TOGETHER_AI_API_KEY")
         self.base_url = "https://api.together.xyz/v1"
@@ -380,7 +389,8 @@ class TogetherAIService:
 
                         Returns:
                             Dict with completion results
-        """try:.
+        """
+        try:.
 
             model_id = self.models["chat"].get(model, model)
 
@@ -428,7 +438,8 @@ class TogetherAIService:
                     return {"error": f"API error: {response.status}"}
 
     async def _stream_completion(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Handle streaming chat completion."""try:.
+        """Handle streaming chat completion."""
+        try:.
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -492,7 +503,8 @@ class TogetherAIService:
 
                         Returns:
                             Dict with code generation results
-        """try:.
+        """
+        try:.
 
             model_id = self.models["code"].get(model, model)
 
@@ -525,7 +537,8 @@ class TogetherAIService:
             return {"error": str(e)}
 
     async def get_available_models(self) -> Dict[str, Any]:
-        """Get list of available models from Together AI."""try:.
+        """Get list of available models from Together AI."""
+        try:.
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(
@@ -547,7 +560,8 @@ class TogetherAIService:
 
 
 class SophiaModelIntegrationManager:
-    """Unified manager for HuggingFace and Together AI integrations."""def __init__(self):.
+    """Unified manager for HuggingFace and Together AI integrations."""
+    def __init__(self):.
 
         """Initialize model integration manager."""self.huggingface = HuggingFaceService().
 
@@ -581,7 +595,8 @@ class SophiaModelIntegrationManager:
 
                         Returns:
                             Dict with generation results
-        """try:.
+        """
+        try:.
 
             # Determine provider
             if not provider:
@@ -619,7 +634,8 @@ class SophiaModelIntegrationManager:
 
                         Returns:
                             Dict with embeddings
-        """try:.
+        """
+        try:.
 
             if provider == "huggingface":
                 return await self.huggingface.get_embeddings(
@@ -644,7 +660,8 @@ class SophiaModelIntegrationManager:
 
                         Returns:
                             Dict with analysis results
-        """try:.
+        """
+        try:.
 
             if provider == "huggingface":
                 return await self.huggingface.classify_text(text, analysis_type)
@@ -672,13 +689,15 @@ def get_model_manager() -> SophiaModelIntegrationManager:
 
 # Convenience functions
 async def sophia_generate(prompt: str, **kwargs) -> Dict[str, Any]:
-    """Convenience function for text generation."""manager = get_model_manager().
+    """Convenience function for text generation."""
+        manager = get_model_manager().
 
     return await manager.generate_text(prompt, **kwargs)
 
 
 async def sophia_embed(texts: Union[str, List[str]], **kwargs) -> Dict[str, Any]:
-    """Convenience function for embeddings."""manager = get_model_manager().
+    """Convenience function for embeddings."""
+        manager = get_model_manager().
 
     return await manager.get_embeddings(texts, **kwargs)
 
@@ -687,5 +706,5 @@ async def sophia_analyze(
     text: str, analysis_type: str = "sentiment", **kwargs
 ) -> Dict[str, Any]:
     """Convenience function for text analysis."""
-    manager = get_model_manager()
+        manager = get_model_manager()
     return await manager.analyze_text(text, analysis_type, **kwargs)

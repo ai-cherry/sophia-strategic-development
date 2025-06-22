@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 class MultiDatabaseManager:
     """Manage connections to multiple databases."""
-
     def __init__(
         self,
         pg_dsn: str,
@@ -45,7 +44,8 @@ class MultiDatabaseManager:
     # Query routing
     # ------------------------------------------------------------------
     async def query(self, text: str) -> List[Dict[str, Any]]:
-        """Route query to vector DBs and Postgres."""results = [].
+        """Route query to vector DBs and Postgres."""
+        results = [].
 
         try:
             vec = await self._vector_search(text)

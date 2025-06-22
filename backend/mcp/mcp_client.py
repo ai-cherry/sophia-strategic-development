@@ -46,7 +46,6 @@ class MCPClient:
 
     to any MCP-compliant server via the gateway.
     """
-
     async def get_context(
         self, service_name: str, request: str, context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:

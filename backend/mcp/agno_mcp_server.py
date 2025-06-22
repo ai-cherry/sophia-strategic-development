@@ -17,13 +17,15 @@ class AgnoMCPServer(BaseMCPServer):
     """MCP server for Agno integration.
 
             Provides tools for interacting with Agno's ultra-fast agent platform.
-    """def __init__(self):."""Initialize the Agno MCP server."""
+    """
+    def __init__(self):."""Initialize the Agno MCP server."""
 
         super().__init__("agno")
         self.initialized = False
 
     async def initialize(self):
-        """Initialize the Agno MCP server."""if self.initialized:.
+        """Initialize the Agno MCP server."""
+        if self.initialized:.
 
             return
 
@@ -131,7 +133,8 @@ class AgnoMCPServer(BaseMCPServer):
 
                         Returns:
                             Dict[str, Any]: The created agent
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -164,7 +167,8 @@ class AgnoMCPServer(BaseMCPServer):
 
                         Returns:
                             Dict[str, Any]: The response
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -197,7 +201,8 @@ class AgnoMCPServer(BaseMCPServer):
 
                         Returns:
                             Dict[str, Any]: Statistics about the agent pool
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -223,7 +228,8 @@ class AgnoMCPServer(BaseMCPServer):
 
                         Returns:
                             Dict[str, Any]: The result of the registration
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 

@@ -13,7 +13,7 @@ VALID_API_KEYS = {"sophia-dashboard-prod-key"}  # This is an example key.
 
 async def get_api_key(api_key: str = Security(api_key_header)):
     """Validate the API key from the X-API-KEY header."""
-    if api_key in VALID_API_KEYS:
+        if api_key in VALID_API_KEYS:
         return api_key
     else:
         raise HTTPException(

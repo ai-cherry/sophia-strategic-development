@@ -24,7 +24,6 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 class GongMCPServer(BaseMCPServer):
     """MCP Server for Gong.io integration."""
-
     def __init__(self):
         super().__init__("gong")
 
@@ -34,7 +33,8 @@ class GongMCPServer(BaseMCPServer):
         await self.integration_client.initialize()
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Gong resources."""return [.
+        """Lists available Gong resources."""
+        return [.
 
             Resource(
                 uri="gong://health",
@@ -45,7 +45,8 @@ class GongMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Gong resource."""if request.uri == "gong://health":.
+        """Gets a specific Gong resource."""
+        if request.uri == "gong://health":.
 
             health_status = await self.integration_client.get_health_status()
             return json.dumps(health_status, indent=2)
@@ -53,7 +54,8 @@ class GongMCPServer(BaseMCPServer):
             return json.dumps({"error": f"Unknown resource: {request.uri}"})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Gong tools."""return [.
+        """Lists available Gong tools."""
+        return [.
 
             Tool(
                 name="get_calls",
@@ -115,7 +117,8 @@ class GongMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Gong tool call."""tool_name = request.params.name.
+        """Handles a Gong tool call."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
 

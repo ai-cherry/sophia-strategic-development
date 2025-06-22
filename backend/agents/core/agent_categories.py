@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 class AgentCategory(Enum):
     """Clean agent categorization aligned with Cursor AI modes"""
-    
-    # Development Agents (Cursor Agent Mode)
+        # Development Agents (Cursor Agent Mode)
     CODE_ANALYSIS = "code_analysis"          # Deep code exploration
     CODE_GENERATION = "code_generation"      # Multi-file generation
     INFRASTRUCTURE = "infrastructure"        # Large-scale deployments
@@ -32,15 +31,14 @@ class AgentCategory(Enum):
 
 class CursorMode(Enum):
     """Cursor AI interaction modes"""
-    CHAT = "chat"           # Quick queries and conversational assistance
+        CHAT = "chat"           # Quick queries and conversational assistance
     COMPOSER = "composer"   # Multi-file tasks and structured operations
     AGENT = "agent"         # Complex autonomous operations
 
 
 class AgentCategoryManager:
     """Manages agent categorization without disrupting existing routing"""
-    
-    # Map existing agents to categories
+        # Map existing agents to categories
     CATEGORY_MAPPING = {
         # Business Intelligence Agents
         "gong_agent": AgentCategory.BUSINESS_INTELLIGENCE,
@@ -245,17 +243,17 @@ class AgentCategoryManager:
 # Convenience functions for integration with existing systems
 def get_agent_category(agent_name: str) -> AgentCategory:
     """Get category for an agent"""
-    return AgentCategoryManager.get_category(agent_name)
+        return AgentCategoryManager.get_category(agent_name)
 
 
 def get_optimal_cursor_mode(agent_name: str) -> CursorMode:
     """Get optimal Cursor mode for an agent"""
-    return AgentCategoryManager.get_optimal_cursor_mode(agent_name)
+        return AgentCategoryManager.get_optimal_cursor_mode(agent_name)
 
 
 def suggest_agent_for_task(task_description: str) -> Optional[str]:
     """Suggest best agent for a task"""
-    return AgentCategoryManager.suggest_agent_for_task(task_description)
+        return AgentCategoryManager.suggest_agent_for_task(task_description)
 
 
 # Global instance for easy access

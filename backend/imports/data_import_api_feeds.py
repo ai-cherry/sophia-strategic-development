@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class SlackDataImporter:
-    """Import data from Slack API."""def __init__(self, token: str) -> None:.
+    """Import data from Slack API."""
+    def __init__(self, token: str) -> None:.
 
         self.token = token
         self.base = "https://slack.com/api"
@@ -35,7 +36,8 @@ class SlackDataImporter:
 
 
 class GongDataImporter:
-    """Import data from Gong.io API."""def __init__(self, token: str) -> None:.
+    """Import data from Gong.io API."""
+    def __init__(self, token: str) -> None:.
 
         self.token = token
         self.base = "https://api.gong.io"
@@ -55,7 +57,6 @@ class GongDataImporter:
 
 class GenericAPIImporter:
     """Generic importer for arbitrary JSON APIs."""
-
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url.rstrip("/")
 

@@ -14,8 +14,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ESCConfig:
     """Configuration for Pulumi ESC integration."""
-
-    environment_name: str = "sophia-ai/sophia-production"
+        environment_name: str = "sophia-ai/sophia-production"
     project_name: str = "sophia-ai"
     organization: str = "ai-cherry"
 
@@ -24,14 +23,16 @@ class SophiaESCManager:
     """Pulumi ESC integration for Sophia AI.
 
             Provides centralized secrets and configuration management
-    """def __init__(self, config: ESCConfig = None):.
+    """
+    def __init__(self, config: ESCConfig = None):.
         self.config = config or ESCConfig()
         self.environment_path = (
             f"{self.config.organization}/{self.config.environment_name}"
         )
 
     def get_environment_values(self) -> Dict[str, Any]:
-        """Retrieve all environment values from Pulumi ESC."""try:.
+        """Retrieve all environment values from Pulumi ESC."""
+        try:.
 
             result = subprocess.run(
                 ["esc", "env", "get", self.environment_path],
@@ -56,7 +57,7 @@ class SophiaESCManager:
                     yaml_content.append(line)
 
             if yaml_content:
-                yaml_str = "\n".join(yaml_content)
+                yaml_str = "\n"join(yaml_content)
                 env_data = yaml.safe_load(yaml_str)
                 return env_data.get("values", {}) if env_data else {}
             else:
@@ -76,7 +77,8 @@ class SophiaESCManager:
 
                         Args:
                             key_path: Dot-separated path to the secret (e.g., 'database.password')
-        """try:.
+        """
+        try:.
 
             values = self.get_environment_values()
 
@@ -96,12 +98,14 @@ class SophiaESCManager:
             return None
 
     def get_database_config(self) -> Dict[str, Any]:
-        """Get database configuration from ESC."""values = self.get_environment_values().
+        """Get database configuration from ESC."""
+        values = self.get_environment_values().
 
         return values.get("database", {})
 
     def get_ai_service_config(self) -> Dict[str, Any]:
-        """Get AI service configuration (OpenAI, Anthropic, HuggingFace)."""values = self.get_environment_values().
+        """Get AI service configuration (OpenAI, Anthropic, HuggingFace)."""
+        values = self.get_environment_values().
 
         return {
             "openai": values.get("openai", {}),
@@ -110,7 +114,8 @@ class SophiaESCManager:
         }
 
     def get_business_integration_config(self) -> Dict[str, Any]:
-        """Get business integration configuration (Gong, Salesforce, Slack)."""values = self.get_environment_values().
+        """Get business integration configuration (Gong, Salesforce, Slack)."""
+        values = self.get_environment_values().
 
         return {
             "gong": values.get("gong", {}),
@@ -119,7 +124,8 @@ class SophiaESCManager:
         }
 
     def get_vector_database_config(self) -> Dict[str, Any]:
-        """Get vector database configuration (Pinecone, Weaviate)."""values = self.get_environment_values().
+        """Get vector database configuration (Pinecone, Weaviate)."""
+        values = self.get_environment_values().
 
         return {
             "pinecone": values.get("pinecone", {}),
@@ -131,7 +137,8 @@ class SophiaESCManager:
 
                         Args:
                             command: Command to run as a list of strings
-        """try:.
+        """
+        try:.
 
             # Use esc run to inject environment variables
             esc_command = ["esc", "run", self.environment_path, "--"] + command
@@ -151,7 +158,8 @@ class SophiaESCManager:
         """Update local .env file with values from ESC environment.
 
                         Useful for development and testing
-        """try:.
+        """
+        try:.
 
             values = self.get_environment_values()
 
@@ -178,7 +186,8 @@ class SophiaESCManager:
     def _flatten_config(
         self, config: Dict[str, Any], prefix: str = ""
     ) -> Dict[str, Any]:
-        """Flatten nested configuration dictionary for .env format."""flattened = {}.
+        """Flatten nested configuration dictionary for .env format."""
+        flattened = {}.
 
         for key, value in config.items():
             new_key = f"{prefix}_{key}".upper() if prefix else key.upper()
@@ -193,7 +202,8 @@ class SophiaESCManager:
         return flattened
 
     def validate_environment(self) -> Dict[str, bool]:
-        """Validate that all required configuration is present."""validation_results = {}.
+        """Validate that all required configuration is present."""
+        validation_results = {}.
 
         try:
             values = self.get_environment_values()
@@ -248,7 +258,8 @@ sophia_esc = SophiaESCManager()
 
 @esc_bp.route("/config")
 def get_config():
-    """Get non-sensitive configuration values."""try:.
+    """Get non-sensitive configuration values."""
+        try:.
 
         values = sophia_esc.get_environment_values()
 
@@ -274,7 +285,8 @@ def get_config():
 
 @esc_bp.route("/validate")
 def validate_environment():
-    """Validate environment configuration."""try:.
+    """Validate environment configuration."""
+        try:.
 
         validation_results = sophia_esc.validate_environment()
 
@@ -290,7 +302,8 @@ def validate_environment():
 
 @esc_bp.route("/health")
 def esc_health():
-    """Check ESC integration health."""try:.
+    """Check ESC integration health."""
+        try:.
 
         # Test basic ESC connectivity
         values = sophia_esc.get_environment_values()
@@ -311,7 +324,7 @@ def esc_health():
 # Example usage
 def main():
     """Example usage of Sophia ESC integration."""
-    esc_manager = SophiaESCManager()
+        esc_manager = SophiaESCManager()
 
     # Get database configuration
     db_config = esc_manager.get_database_config()

@@ -18,8 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PulumiMCPConfig:
     """Configuration for Pulumi MCP Server"""
-
-    base_url: str = "http://pulumi-mcp-server:9001"
+        base_url: str = "http://pulumi-mcp-server:9001"
     api_token: str = ""
     organization: str = "sophia-ai"
     project: str = "sophia"
@@ -36,7 +35,6 @@ class PulumiMCPClient:
     - Audit logging
     - Safe operations only (no destroy without explicit approval)
     """
-
     def __init__(self, config_path: str = "config/pulumi-mcp.json"):
         self.config = self._load_config(config_path)
         if not self.config.api_token:

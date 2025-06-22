@@ -20,7 +20,6 @@ class N8nWorkflow:
 
 class N8nWorkflowOrchestrator:
     """Simple orchestrator to execute n8n workflows via REST API."""
-
     def __init__(self, base_url: str, api_key: str) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key

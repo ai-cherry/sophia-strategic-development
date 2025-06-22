@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class ExecutiveAgent(BaseAgent):
     """Serves as the CEO's dedicated interface for strategic intelligence and orchestration. Integrated with AgnoPerformanceOptimizer."""
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.agent_router = agent_router
@@ -101,7 +100,8 @@ class ExecutiveAgent(BaseAgent):
     async def _synthesize_results_with_llm(
         self, question: str, results: List[Dict]
     ) -> str:
-        """Uses an LLM to synthesize agent results into a narrative briefing."""if not self.openai_client:.
+        """Uses an LLM to synthesize agent results into a narrative briefing."""
+        if not self.openai_client:.
 
             await self._initialize_llm()
         if not self.openai_client:
@@ -129,7 +129,8 @@ class ExecutiveAgent(BaseAgent):
         2.  **Key Contributing Factors:** A bulleted list of the primary reasons for the outcome.
         3.  **Supporting Evidence:** A brief summary of the key data points from the agent reports that support your analysis.
         4.  **Strategic Recommendations:** A numbered list of 2-3 actionable recommendations for the executive team.
-        """try:.
+        """
+        try:.
 
                             response = await self.openai_client.chat.completions.create(
                                 model="gpt-4-turbo",

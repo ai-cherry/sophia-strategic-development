@@ -18,13 +18,13 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 class KnowledgeMCPServer(BaseMCPServer):
     """MCP Server for Sophia's Knowledge Base."""
-
     def __init__(self):
         super().__init__("knowledge")  # Renamed for clarity
         self.portkey_client = PortkeyClient()  # For entity extraction
 
     async def initialize_integration(self):
-        """Initializes the knowledge managers."""# We only need to initialize the managers, not the legacy stores.
+        """Initializes the knowledge managers."""
+        # We only need to initialize the managers, not the legacy stores.
 
         await knowledge_manager.initialize()
         await hybrid_rag_manager.initialize()
@@ -42,7 +42,8 @@ class KnowledgeMCPServer(BaseMCPServer):
         return json.dumps({"error": "This server is tool-focused."})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Knowledge Base tools."""ingestion_tools = [.
+        """Lists available Knowledge Base tools."""
+        ingestion_tools = [.
 
             # Tools from knowledge_manager like ingest_document, delete_document etc. go here
             # This is a simplified representation
@@ -73,7 +74,8 @@ class KnowledgeMCPServer(BaseMCPServer):
         return ingestion_tools + [rag_tool]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles Knowledge Base tool calls."""tool_name = request.params.name.
+        """Handles Knowledge Base tool calls."""
+        tool_name = request.params.name.
 
         arguments = request.params.arguments or {}
 
@@ -98,7 +100,8 @@ class KnowledgeMCPServer(BaseMCPServer):
     async def _ingest_document_with_entity_extraction(
         self, arguments: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Enhanced ingestion that automatically extracts metadata tags."""file_path = Path(arguments["file_path"]).
+        """Enhanced ingestion that automatically extracts metadata tags."""
+        file_path = Path(arguments["file_path"]).
 
         document_type = arguments.get("document_type", "general")
         tags = arguments.get("tags", [])

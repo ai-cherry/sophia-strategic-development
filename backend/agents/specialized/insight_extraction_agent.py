@@ -46,7 +46,6 @@ class ProactiveInsight:
 
 class InsightExtractionAgent(BaseAgent):
     """Analyzes Gong transcripts and other data sources to proactively extract insights for the knowledge base. Integrated with AgnoPerformanceOptimizer."""
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.gong_integration = GongIntegration()
@@ -96,7 +95,6 @@ class InsightExtractionAgent(BaseAgent):
 
     async def process_task(self, task: Task) -> Dict[str, Any]:
         """Process insight extraction tasks."""
-
         if task.task_type == "analyze_transcript_for_insights":
             return await self._analyze_single_transcript(task)
         elif task.task_type == "batch_analyze_recent_calls":
@@ -128,7 +126,7 @@ class InsightExtractionAgent(BaseAgent):
                 )
 
             # Convert transcript to text for analysis
-            transcript_text = "\n".join(
+            transcript_text = "\n"join(
                 [f"{t.speaker_name}: {t.text}" for t in transcript]
             )
 
@@ -179,7 +177,8 @@ class InsightExtractionAgent(BaseAgent):
         {transcript_text[:8000]}  # Limit to avoid token limits
 
         Return the results as a JSON array. If no insights found, return empty array.
-        """try:
+        """
+        try:
 
                             response = await self.portkey_client.llm_call(
                                 prompt=prompt, model="claude-3-5-sonnet-20241022", temperature=0.3

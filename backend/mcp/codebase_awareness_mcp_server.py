@@ -18,8 +18,7 @@ from backend.mcp.base_mcp_server import BaseMCPServer, setup_logging
 
 class CodebaseAwarenessMCPServer(BaseMCPServer):
     """MCP Server that provides structured, searchable access to the codebase itself."""
-
-    CODEBASE_INDEX_NAME = "sophia-codebase-awareness"
+        CODEBASE_INDEX_NAME = "sophia-codebase-awareness"
 
     def __init__(self):
         super().__init__("codebase_awareness")
@@ -53,7 +52,8 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
         )
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists the specialized tools for codebase awareness."""return [.
+        """Lists the specialized tools for codebase awareness."""
+        return [.
 
             Tool(
                 name="find_relevant_code",
@@ -91,7 +91,8 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a tool call for codebase awareness."""tool_name = request.params.name.
+        """Handles a tool call for codebase awareness."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
         result = None
@@ -111,7 +112,7 @@ class CodebaseAwarenessMCPServer(BaseMCPServer):
                 f"Found in {res['metadata']['file_path']}:\nScore: {res['score']:.4f}\nContent: {res['content']}\n---"
                 for res in search_results
             ]
-            result = "\n".join(result) if result else "No relevant code found."
+            result = "\n"join(result) if result else "No relevant code found."
 
         elif tool_name == "ingest_codebase":
             # This can be a long-running task. We start it but don't wait.

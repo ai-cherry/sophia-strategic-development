@@ -16,7 +16,6 @@ class AdminAgent(BaseAgent):
 
     system-level checks and administrative actions.
     """
-
     def __init__(self, config: AgentConfig, mcp_client: MCPClient):
         super().__init__(config)
         self.mcp_client = mcp_client

@@ -1,0 +1,38 @@
+# Sophia AI - Simplified Working Requirements
+# Core performance optimizations that work
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.2
+
+# Performance optimizations
+uvloop
+orjson
+pybreaker
+redis
+aiohttp
+aiofiles
+
+# Fixed AI Client Dependencies
+httpx==0.27.2
+openai==1.90.0
+anthropic==0.34.2
+
+# Agno Framework
+agno[all]
+
+# Monitoring
+prometheus-client
+psutil
+memory-profiler
+
+# Additional dependencies
+asyncio-throttle
+tenacity
+backoff
+requests
+python-dotenv
+PyYAML
+jinja2
+click 

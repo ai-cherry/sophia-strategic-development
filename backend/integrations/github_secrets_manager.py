@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GitHubConfig:
     """Configuration for GitHub organization secrets integration."""
-
-    organization: str = "ai-cherry"
+        organization: str = "ai-cherry"
     token: Optional[str] = None
     api_base_url: str = "https://api.github.com"
 
@@ -33,7 +32,8 @@ class GitHubSecretsManager:
     """GitHub Organization Secrets Manager.
 
             Handles retrieval and management of organization-level secrets
-    """def __init__(self, config: GitHubConfig = None):.
+    """
+    def __init__(self, config: GitHubConfig = None):.
         self.config = config or GitHubConfig()
         self.headers = {
             "Authorization": f"token {self.config.token}",
@@ -42,7 +42,8 @@ class GitHubSecretsManager:
         }
 
     def list_organization_secrets(self) -> List[Dict[str, Any]]:
-        """List all organization secrets."""try:.
+        """List all organization secrets."""
+        try:.
 
             url = f"{self.config.api_base_url}/orgs/{self.config.organization}/actions/secrets"
             response = requests.get(url, headers=self.headers)
@@ -59,7 +60,8 @@ class GitHubSecretsManager:
             return []
 
     def get_organization_secret(self, secret_name: str) -> Optional[Dict[str, Any]]:
-        """Get details of a specific organization secret."""try:.
+        """Get details of a specific organization secret."""
+        try:.
 
             url = f"{self.config.api_base_url}/orgs/{self.config.organization}/actions/secrets/{secret_name}"
             response = requests.get(url, headers=self.headers)
@@ -74,7 +76,8 @@ class GitHubSecretsManager:
     def create_organization_secret(
         self, secret_name: str, secret_value: str, visibility: str = "all"
     ) -> bool:
-        """Create or update an organization secret."""try:.
+        """Create or update an organization secret."""
+        try:.
 
             # First, get the organization's public key for encryption
             public_key = self._get_organization_public_key()
@@ -104,7 +107,8 @@ class GitHubSecretsManager:
             return False
 
     def _get_organization_public_key(self) -> Optional[Dict[str, str]]:
-        """Get the organization's public key for secret encryption."""try:.
+        """Get the organization's public key for secret encryption."""
+        try:.
 
             url = f"{self.config.api_base_url}/orgs/{self.config.organization}/actions/secrets/public-key"
             response = requests.get(url, headers=self.headers)
@@ -117,7 +121,8 @@ class GitHubSecretsManager:
             return None
 
     def _encrypt_secret(self, secret_value: str, public_key: str) -> str:
-        """Encrypt a secret value using the organization's public key."""try:.
+        """Encrypt a secret value using the organization's public key."""
+        try:.
 
             from nacl import public
 
@@ -139,7 +144,8 @@ class GitHubSecretsManager:
             raise
 
     def generate_secrets_mapping(self) -> Dict[str, str]:
-        """Generate a mapping of expected secrets for Sophia AI."""return {.
+        """Generate a mapping of expected secrets for Sophia AI."""
+        return {.
 
             # Security
             "SOPHIA_SECRET_KEY": "Core application secret key",
@@ -234,7 +240,8 @@ class GitHubSecretsManager:
         }
 
     def audit_secrets_coverage(self) -> Dict[str, Any]:
-        """Audit which secrets are present in the organization."""expected_secrets = self.generate_secrets_mapping().
+        """Audit which secrets are present in the organization."""
+        expected_secrets = self.generate_secrets_mapping().
 
         org_secrets = self.list_organization_secrets()
 
@@ -279,7 +286,8 @@ class GitHubSecretsManager:
         return coverage_report
 
     def create_missing_secrets_template(self) -> str:
-        """Create a template for missing secrets that need to be added."""coverage = self.audit_secrets_coverage().
+        """Create a template for missing secrets that need to be added."""
+        coverage = self.audit_secrets_coverage().
 
         template = "# Missing GitHub Organization Secrets\n"
         template += "# Add these secrets to the ai-cherry organization\n\n"
@@ -291,7 +299,8 @@ class GitHubSecretsManager:
         return template
 
     def validate_secret_access(self) -> bool:
-        """Validate that we can access organization secrets."""try:.
+        """Validate that we can access organization secrets."""
+        try:.
 
             secrets = self.list_organization_secrets()
             return len(secrets) >= 0  # Even 0 secrets means we have access
@@ -301,12 +310,14 @@ class GitHubSecretsManager:
 
 
 class PulumiGitHubIntegration:
-    """Integration between Pulumi ESC and GitHub organization secrets."""def __init__(self, github_config: GitHubConfig = None):.
+    """Integration between Pulumi ESC and GitHub organization secrets."""
+    def __init__(self, github_config: GitHubConfig = None):.
 
         self.github_manager = GitHubSecretsManager(github_config)
 
     def create_pulumi_esc_import(self) -> str:
-        """Create a Pulumi ESC import configuration for GitHub secrets."""import_config = {.
+        """Create a Pulumi ESC import configuration for GitHub secrets."""
+        import_config = {.
 
             "imports": [
                 {
@@ -322,7 +333,8 @@ class PulumiGitHubIntegration:
         return json.dumps(import_config, indent=2)
 
     def generate_esc_environment_with_github(self) -> str:
-        """Generate a complete ESC environment that imports from GitHub."""environment = {.
+        """Generate a complete ESC environment that imports from GitHub."""
+        environment = {.
 
             "imports": ["github-org-secrets"],
             "values": {
@@ -341,7 +353,8 @@ class PulumiGitHubIntegration:
         return json.dumps(environment, indent=2)
 
     def sync_secrets_to_pulumi(self) -> bool:
-        """Sync GitHub organization secrets to Pulumi ESC."""try:.
+        """Sync GitHub organization secrets to Pulumi ESC."""
+        try:.
 
             # This would implement the actual sync logic
             logger.info("Syncing GitHub secrets to Pulumi ESC...")
@@ -361,7 +374,9 @@ class PulumiGitHubIntegration:
 
 
 def create_github_secrets_setup_script() -> str:
-    """Create a script to help set up GitHub organization secrets."""script = """#!/bin/bash.
+    """Create a script to help set up GitHub organization secrets."""
+        script = """
+        #!/bin/bash.
 
 # GitHub Organization Secrets Setup Script for Sophia AI
 # Run this script to set up all required organization secrets

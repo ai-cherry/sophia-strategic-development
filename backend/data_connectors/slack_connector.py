@@ -1,7 +1,9 @@
 """Slack Data Connector.
 
 Handles all interactions with the Slack API for communication insights.
-"""import os
+"""
+
+import os
 
 from typing import Any, Dict
 

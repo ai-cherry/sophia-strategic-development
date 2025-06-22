@@ -32,7 +32,6 @@ class CallAnalysisAgent(BaseAgent):
 
             Integrated with AgnoPerformanceOptimizer for ultra-fast instantiation and pooling.
     """
-
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.gong_integration = None

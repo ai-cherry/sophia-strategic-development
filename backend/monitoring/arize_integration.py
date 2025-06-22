@@ -21,7 +21,8 @@ class ArizeMonitoringService:
     """Comprehensive Arize monitoring service for Sophia AI platform.
 
             Handles model performance tracking, drift detection, and observability
-    """def __init__(self):."""Initialize Arize monitoring service"""
+    """
+    def __init__(self):."""Initialize Arize monitoring service"""
 
         self.space_id = os.getenv("ARIZE_SPACE_ID")
         self.api_key = os.getenv("ARIZE_API_KEY")
@@ -77,7 +78,8 @@ class ArizeMonitoringService:
 
                         Returns:
                             bool: True if logging successful, False otherwise
-        """try:.
+        """
+        try:.
 
             if model_name not in self.model_configs:
                 logger.warning(f"Unknown model: {model_name}")
@@ -139,7 +141,8 @@ class ArizeMonitoringService:
 
                         Returns:
                             bool: True if logging successful, False otherwise
-        """try:.
+        """
+        try:.
 
             if model_name not in self.model_configs:
                 logger.warning(f"Unknown model: {model_name}")
@@ -177,7 +180,8 @@ class ArizeMonitoringService:
 
                         Returns:
                             bool: True if setup successful, False otherwise
-        """try:.
+        """
+        try:.
 
             if model_name not in self.model_configs:
                 logger.warning(f"Unknown model: {model_name}")
@@ -208,7 +212,8 @@ class ArizeMonitoringService:
 
                         Returns:
                             Dict with performance metrics or None if error
-        """try:.
+        """
+        try:.
 
             if model_name not in self.model_configs:
                 logger.warning(f"Unknown model: {model_name}")
@@ -266,7 +271,7 @@ def log_ai_interaction(
             Returns:
                 bool: True if logging successful, False otherwise
     """
-    try:
+        try:
         monitor = get_arize_monitor()
 
         # Generate prediction ID

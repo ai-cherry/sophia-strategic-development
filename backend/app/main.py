@@ -43,8 +43,7 @@ from backend.config.settings import Config, settings
 
 def check_database() -> bool:
     """Return True if the configured PostgreSQL database is reachable."""
-
-    try:
+        try:
         conn = psycopg2.connect(
             settings.database.postgres_url,
             connect_timeout=1,
@@ -57,7 +56,8 @@ def check_database() -> bool:
 
 
 def check_redis() -> bool:
-    """Return True if the configured Redis cache is reachable."""try:.
+    """Return True if the configured Redis cache is reachable."""
+        try:.
 
         client = redis.Redis.from_url(
             settings.database.redis_url,
@@ -72,7 +72,8 @@ def check_redis() -> bool:
 
 
 def create_app(config_class=Config):
-    """Create and configure the Flask application."""app = Flask(__name__).
+    """Create and configure the Flask application."""
+        app = Flask(__name__).
 
     app.config.from_object(config_class)
 
@@ -123,7 +124,8 @@ def create_app(config_class=Config):
     # Health check endpoint
     @app.route("/api/health")
     def health_check():
-        """Comprehensive health check for Sophia AI - Pay Ready Assistant."""health_status = {.
+        """Comprehensive health check for Sophia AI - Pay Ready Assistant."""
+        health_status = {.
 
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),

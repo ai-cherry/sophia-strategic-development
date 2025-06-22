@@ -20,16 +20,14 @@ from backend.monitoring.observability import logger
 
 class CacheTier(str, Enum):
     """Cache tier levels"""
-
-    L1_MEMORY = "l1_memory"
+        L1_MEMORY = "l1_memory"
     L2_REDIS = "l2_redis"
     L3_DATABASE = "l3_database"
 
 
 class CacheStrategy(str, Enum):
     """Cache strategies"""
-
-    WRITE_THROUGH = "write_through"
+        WRITE_THROUGH = "write_through"
 
     WRITE_BACK = "write_back"
     WRITE_AROUND = "write_around"
@@ -37,7 +35,7 @@ class CacheStrategy(str, Enum):
 
 class CacheMetrics(BaseModel):
     """Cache performance metrics"""
-hits: int = 0
+        hits: int = 0
 
     misses: int = 0
     evictions: int = 0
@@ -53,7 +51,7 @@ hits: int = 0
 
 class CacheEntry(BaseModel):
     """Cache entry with metadata"""
-key: str
+        key: str
 
     value: Any
     tier: CacheTier
@@ -65,7 +63,7 @@ key: str
 
     def is_expired(self) -> bool:
         """Check if entry is expired"""
-if self.ttl_seconds is None:
+        if self.ttl_seconds is None:
 
             return False
         expiry = self.created_at + timedelta(seconds=self.ttl_seconds)
@@ -74,7 +72,7 @@ if self.ttl_seconds is None:
 
 class HierarchicalCache:
     """3-tier hierarchical caching system"""
-def __init__(.
+    def __init__(.
 
         self,
         l1_max_size: int = 1000,
@@ -108,8 +106,7 @@ def __init__(.
 
     async def initialize(self):
         """Initialize cache components"""
-
-    if self._initialized:
+        if self._initialized:
 
             return
 
@@ -237,8 +234,7 @@ await self.initialize()
 
     async def get_metrics(self) -> Dict[str, Any]:
         """Get cache performance metrics"""
-
-    metrics = {}
+        metrics = {}
 
         for tier, metric in self.metrics.items():
             metrics[tier.value] = {
@@ -266,7 +262,7 @@ await self.initialize()
     # L1 Operations
     async def _get_l1(self, key: str) -> Optional[Any]:
         """Get from L1 memory cache"""
-try:
+        try:
 except Exception:
     pass
             value = self.l1_cache.get(key)
@@ -278,8 +274,7 @@ except Exception:
 
     async def _set_l1(self, key: str, value: Any, ttl: Optional[int] = None):
         """Set in L1 memory cache"""
-
-    try:
+        try:
     except Exception:
         pass
             serialized = json.dumps(value) if not isinstance(value, str) else value
@@ -290,7 +285,7 @@ except Exception:
 
     async def _invalidate_l1(self, key: str):
         """Invalidate L1 entry"""
-try:
+        try:
 except Exception:
     pass
             del self.l1_cache[key]
@@ -301,8 +296,7 @@ except Exception:
     # L2 Operations
     async def _get_l2(self, key: str) -> Optional[Any]:
         """Get from L2 Redis cache"""
-
-    if not self.l2_client:
+        if not self.l2_client:
 
             return None
 
@@ -318,8 +312,7 @@ except Exception:
 
     async def _set_l2(self, key: str, value: Any, ttl: Optional[int] = None):
         """Set in L2 Redis cache"""
-
-    if not self.l2_client:
+        if not self.l2_client:
 
             return
 
@@ -335,8 +328,7 @@ except Exception:
 
     async def _invalidate_l2(self, key: str):
         """Invalidate L2 entry"""
-
-    if not self.l2_client:
+        if not self.l2_client:
 
             return
 
@@ -350,7 +342,8 @@ except Exception:
 
     # L3 Operations (placeholder - actual implementation in database layer)
     async def _get_l3(self, key: str) -> Optional[Any]:
-        """Get from L3 database cache"""  # This would be implemented by the database layer
+        """Get from L3 database cache"""
+        # This would be implemented by the database layer
 # For now, return None
         return None
 
@@ -361,21 +354,24 @@ except Exception:
         ttl: Optional[int] = None,
         tags: Optional[List[str]] = None,
     ):
-        """Set in L3 database cache"""  # This would be implemented by the database layer.
+        """Set in L3 database cache"""
+        # This would be implemented by the database layer.
 self.metrics[CacheTier.L3_DATABASE].writes += 1
 
     async def _invalidate_l3(self, key: str):
-        """Invalidate L3 entry"""  # This would be implemented by the database layer.
+        """Invalidate L3 entry"""
+        # This would be implemented by the database layer.
 self.metrics[CacheTier.L3_DATABASE].evictions += 1
 
     async def _get_keys_by_tag(self, tag: str) -> List[str]:
-        """Get all keys with a specific tag from L3"""  # This would be implemented by the database layer
+        """Get all keys with a specific tag from L3"""
+        # This would be implemented by the database layer
 return []
 
     # Helper methods
     def _track_access(self, key: str):
         """Track access patterns for optimization"""
-now = time.time()
+        now = time.time()
 
         if key not in self._access_patterns:
             self._access_patterns[key] = []
@@ -389,7 +385,7 @@ now = time.time()
 
     def _record_hit(self, tier: CacheTier, latency: float):
         """Record cache hit metrics"""
-metrics = self.metrics[tier].
+        metrics = self.metrics[tier].
 
         metrics.hits += 1
         metrics.avg_latency_ms = (
@@ -474,7 +470,6 @@ def cached(
     tags: Optional[List[str]] = None,
 ):
     """Decorator for automatic method caching"""
-
     def decorator(func: Callable):
         async def wrapper(*args, **kwargs):
             # Generate cache key

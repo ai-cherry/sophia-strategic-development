@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 class HuggingFaceIntegration:
     """A client that connects to and interacts with the Hugging Face MCP server."""
-
-    HF_MCP_URL = "https://hf.co/mcp"
+        HF_MCP_URL = "https://hf.co/mcp"
 
     def __init__(self):
         self.client: Optional[MCPClient] = None
@@ -24,7 +23,8 @@ class HuggingFaceIntegration:
         self.initialized = False
 
     async def initialize(self):
-        """Initializes the connection to the Hugging Face MCP server."""if self.initialized:.
+        """Initializes the connection to the Hugging Face MCP server."""
+        if self.initialized:.
 
             return
 
@@ -60,7 +60,8 @@ class HuggingFaceIntegration:
 
                         Returns:
                             A list of dictionaries, each representing a found model.
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -83,7 +84,8 @@ class HuggingFaceIntegration:
 
                         Returns:
                             A dictionary containing the paper's details.
-        """if not self.initialized:.
+        """
+        if not self.initialized:.
 
             await self.initialize()
 

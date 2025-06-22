@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  sentry-mcp:
+    build:
+      context: ./mcp-servers/sentry
+      dockerfile: Dockerfile
+    container_name: sentry-mcp
+    environment:
+      # Pulumi ESC configuration
+      - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
+      - PULUMI_ORG=scoobyjava-org
+      - PULUMI_ENVIRONMENT=sophia-ai-production
+      # Fallback environment variables (will be overridden by Pulumi ESC)
+      - SENTRY_API_TOKEN=${SENTRY_API_TOKEN}
+      - SENTRY_ORGANIZATION_SLUG=${SENTRY_ORGANIZATION_SLUG:-pay-ready}
+      - SENTRY_PROJECT_SLUG=${SENTRY_PROJECT_SLUG:-pay-ready}
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    ports:
+      - "9006:9000"  # Sentry MCP on port 9006
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:9000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./logs/sentry-mcp:/app/logs
+
+networks:
+  sophia-network:
+    external: true

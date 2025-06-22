@@ -1,7 +1,9 @@
 """Unified LLM Client for Sophia AI Agents.
 
 Automatically uses the configured gateway or falls back to direct APIs
-"""import logging
+"""
+
+import logging
 
 from typing import Dict, List, Optional
 
@@ -15,14 +17,14 @@ class LLMClient:
     """Unified LLM client that abstracts the underlying provider.
 
             Uses Portkey gateway when available, falls back to direct APIs
-    """def __init__(self):
+    """
+    def __init__(self):
 
         self.gateway = None
         self._setup_client()
 
     def _setup_client(self):
         """Set up the appropriate LLM client based on configuration."""
-
         # Try to use Portkey gateway first
         if (
             settings.api_keys.llm_gateway == "portkey"
@@ -49,7 +51,8 @@ class LLMClient:
             )
 
     def _setup_openai(self):
-        """Set up direct OpenAI client."""try:.
+        """Set up direct OpenAI client."""
+        try:.
 
             import openai
 
@@ -60,7 +63,8 @@ class LLMClient:
             raise
 
     def _setup_anthropic(self):
-        """Set up direct Anthropic client."""try:.
+        """Set up direct Anthropic client."""
+        try:.
 
             import anthropic
 
@@ -90,7 +94,8 @@ class LLMClient:
 
                         Returns:
                             Generated text content
-        """# Use gateway if available.
+        """
+        # Use gateway if available.
 
         if self.gateway:
             response = await self.gateway.complete(
@@ -117,7 +122,9 @@ class LLMClient:
     async def _complete_openai(
         self, messages, model, temperature, max_tokens, **kwargs
     ):
-        """Direct OpenAI completion."""import openai.
+        """Direct OpenAI completion."""
+
+import openai.
 
         response = await openai.ChatCompletion.acreate(
             model=model or "gpt-4-turbo-preview",
@@ -132,7 +139,8 @@ class LLMClient:
     async def _complete_anthropic(
         self, messages, model, temperature, max_tokens, **kwargs
     ):
-        """Direct Anthropic completion."""# Convert messages to Anthropic format.
+        """Direct Anthropic completion."""
+        # Convert messages to Anthropic format.
 
         system_message = ""
         conversation = []
@@ -170,7 +178,8 @@ class LLMClient:
 
                         Returns:
                             Generated response
-        """messages = [].
+        """
+        messages = [].
 
         # System prompt
         if system_prompt:
@@ -194,7 +203,8 @@ class LLMClient:
         return await self.complete(messages, **kwargs)
 
     def get_available_models(self) -> List[str]:
-        """Get list of available models."""if self.gateway:.
+        """Get list of available models."""
+        if self.gateway:.
 
             return self.gateway.get_available_models()
 
@@ -229,7 +239,7 @@ async def analyze_text(text: str, analysis_type: str = "general") -> str:
             Returns:
                 Analysis result
     """
-    client = get_llm_client()
+        client = get_llm_client()
 
     prompts = {
         "general": "Analyze the following text and provide key insights:",

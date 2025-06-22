@@ -3,7 +3,7 @@
 Standardizes error handling, credential validation, and common patterns
 """
 
-    import asyncio
+import asyncio
 
 import logging
 import os
@@ -28,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 class IntegrationError(Exception):
     """Base exception for integration errors"""
-
     def __init__(
         self,
         message: str,
@@ -45,7 +44,8 @@ class IntegrationError(Exception):
 class ConfigurationError(IntegrationError):
     """Configuration-related errors"""
 
-    class AuthenticationError(IntegrationError):
+
+class AuthenticationError(IntegrationError):
 
     """Authentication-related errors"""
 
@@ -62,8 +62,7 @@ class ServiceUnavailableError(IntegrationError):
     pass
 class IntegrationMetrics(BaseModel):
     """Metrics for integration performance"""
-
-    total_requests: int = 0
+        total_requests: int = 0
 
     successful_requests: int = 0
     failed_requests: int = 0
@@ -88,7 +87,8 @@ class BaseIntegration(ABC):
     """Base class for all service integrations.
 
             Provides standardized patterns for error handling, retries, and monitoring
-    """# Error code mappings.
+    """
+        # Error code mappings.
 
     ERROR_CODES = {
         "missing_credential": "E_MISSING_CREDENTIAL",
@@ -110,8 +110,7 @@ class BaseIntegration(ABC):
 
     async def initialize(self):
         """Initialize the integration"""
-
-    if self._initialized:
+        if self._initialized:
 
             return
 
@@ -147,8 +146,7 @@ pass.
 
     def _validate_credentials(self):
         """Validate that all required credentials are present"""
-
-    required_keys = self._get_required_credentials()
+        required_keys = self._get_required_credentials()
 
         missing_keys = []
 
@@ -170,7 +168,8 @@ pass.
             )
 
     def _get_credential(self, key: str) -> Optional[str]:
-        """Get credential from environment or ESC config"""# Try environment variable first
+        """Get credential from environment or ESC config"""
+        # Try environment variable first
 
         env_key = f"{self.service_name.upper()}_{key.upper()}"
         value = os.getenv(env_key)
@@ -191,8 +190,7 @@ pass.
         self, method: str, url: str, headers: Optional[Dict[str, str]] = None, **kwargs
     ) -> Dict[str, Any]:
         """Make HTTP request with retry logic"""
-
-    if self.session is None:
+        if self.session is None:
 
             await self.initialize()
 
@@ -272,8 +270,7 @@ pass.
 
     def handle_error(self, error: Exception) -> Dict[str, Any]:
         """Standardized error handling"""
-
-    if isinstance(error, IntegrationError):
+        if isinstance(error, IntegrationError):
 
             return {
                 "success": False,
@@ -294,7 +291,8 @@ pass.
             }
 
     def _sanitize_error_message(self, message: str) -> str:
-        """Remove sensitive information from error messages"""# Remove potential API keys or tokens
+        """Remove sensitive information from error messages"""
+        # Remove potential API keys or tokens
 
         import re
 
@@ -313,8 +311,7 @@ pass.
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check for the service"""
-
-    try:
+        try:
     except Exception:
         pass
             # Service-specific health check
@@ -342,8 +339,7 @@ pass.
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get current metrics for the integration"""
-
-    return {
+        return {
 
             "service": self.service_name,
             "metrics": self.metrics.dict(),
@@ -353,7 +349,7 @@ pass.
 
     async def close(self):
         """Cleanup resources"""
-if self.session:
+        if self.session:
 
             await self.session.close()
             self.session = None

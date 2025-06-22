@@ -1,0 +1,48 @@
+# Sophia AI - Production Requirements (Fixed)
+# Addresses AI client initialization issues with httpx compatibility
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.2
+
+# AI Client Dependencies - FIXED VERSIONS
+httpx==0.27.2  # CRITICAL: Pin to 0.27.2 to fix "proxies" argument issue
+openai==1.90.0  # Compatible with httpx 0.27.2
+anthropic==0.34.2  # Latest compatible version
+
+# Agno Framework
+agno[all]==1.6.3
+
+# HTTP and Async
+aiohttp==3.9.1
+asyncio-throttle==1.0.2
+
+# Pulumi ESC Integration  
+pulumi>=3.0.0
+
+# Database and Caching
+redis==5.0.1
+asyncpg==0.29.0
+
+# Monitoring and Observability
+prometheus-client==0.19.0
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+
+# Dashboard and UI
+streamlit==1.46.0
+plotly==6.1.2
+pandas==2.1.4
+
+# Additional dependencies
+requests==2.31.0
+python-dotenv==1.0.0
+PyYAML==6.0.1
+jinja2==3.1.6
+
+# Development and Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+isort==5.12.0 

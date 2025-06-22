@@ -32,7 +32,6 @@ class CoStarMCPServer(BaseMCPServer):
 
             real estate market data files.
     """
-
     def __init__(self):
         super().__init__("costar")
         self.watched_folder = Path("./watched_costar_files")
@@ -47,7 +46,8 @@ class CoStarMCPServer(BaseMCPServer):
         pass
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists files in the watched folder as resources."""files = [f for f in self.watched_folder.iterdir() if f.is_file()].
+        """Lists files in the watched folder as resources."""
+        files = [f for f in self.watched_folder.iterdir() if f.is_file()].
 
         return [
             Resource(
@@ -60,7 +60,8 @@ class CoStarMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: ReadResourceRequest) -> str:
-        """Returns metadata about a file in the watched folder."""file_path = Path(request.uri.replace("file://", "")).
+        """Returns metadata about a file in the watched folder."""
+        file_path = Path(request.uri.replace("file://", "")).
 
         if file_path.exists() and file_path.is_relative_to(self.watched_folder):
             stat = file_path.stat()
@@ -74,7 +75,8 @@ class CoStarMCPServer(BaseMCPServer):
         return json.dumps({"error": "File not found in watched folder."})
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available CoStar tools."""return [.
+        """Lists available CoStar tools."""
+        return [.
 
             Tool(
                 name="ingest_costar_datafile",
@@ -119,7 +121,8 @@ class CoStarMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles CoStar tool calls."""tool_name = request.params.name.
+        """Handles CoStar tool calls."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
 
@@ -140,7 +143,8 @@ class CoStarMCPServer(BaseMCPServer):
             return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
 
     async def _ingest_datafile(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Handler for ingesting a single file."""file_path = Path(args.get("file_path")).
+        """Handler for ingesting a single file."""
+        file_path = Path(args.get("file_path")).
 
         market = args.get("market_area")
         year = args.get("data_year")

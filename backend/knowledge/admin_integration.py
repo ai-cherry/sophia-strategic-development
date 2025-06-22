@@ -285,13 +285,13 @@ ADMIN_INTERFACE_TEMPLATE = """<!DOCTYPE html>.
 
 def admin_interface():
 """Serve the knowledge base admin interface."""
-
-    return render_template_string(ADMIN_INTERFACE_TEMPLATE)
+        return render_template_string(ADMIN_INTERFACE_TEMPLATE)
 
 
 @admin_kb_bp.route("/api/status")
 def api_status():
-    """Get knowledge base system status."""return jsonify(.
+    """Get knowledge base system status."""
+        return jsonify(.
 
         {
             "status": "operational",
@@ -314,7 +314,8 @@ def api_status():
 
 @admin_kb_bp.route("/api/workflows")
 def list_workflows():
-    """List all workflow tasks."""# This would integrate with the actual workflow manager.
+    """List all workflow tasks."""
+        # This would integrate with the actual workflow manager.
 
     workflows = [
         {
@@ -339,7 +340,8 @@ def list_workflows():
 
 @admin_kb_bp.route("/api/workflows", methods=["POST"])
 def create_workflow():
-    """Create a new workflow."""data = request.get_json().
+    """Create a new workflow."""
+        data = request.get_json().
 
     # Validate required fields
     required_fields = ["name", "source", "metadata"]
@@ -365,7 +367,8 @@ def create_workflow():
 
 
 def create_admin_app():
-    """Create Flask app with knowledge base admin interface."""app = Flask(__name__).
+    """Create Flask app with knowledge base admin interface."""
+        app = Flask(__name__).
 
     CORS(app)
 
@@ -381,7 +384,8 @@ def integrate_with_existing_admin(existing_app):
 
             Args:
                 existing_app: Existing Flask application instance
-    """# Register the knowledge base blueprint.
+    """
+        # Register the knowledge base blueprint.
 
     existing_app.register_blueprint(admin_kb_bp)
     existing_app.register_blueprint(knowledge_bp)
@@ -402,12 +406,14 @@ def integrate_with_existing_admin(existing_app):
 
 # Deployment configuration
 class KnowledgeBaseDeployment:
-    """Handles deployment configuration for knowledge base admin."""def __init__(self, config):.
+    """Handles deployment configuration for knowledge base admin."""
+    def __init__(self, config):.
 
         self.config = config
 
     def deploy_to_vercel(self):
-        """Deploy the React admin interface to Vercel."""vercel_config = {.
+        """Deploy the React admin interface to Vercel."""
+        vercel_config = {.
 
             "name": "sophia-knowledge-admin",
             "version": 2,
@@ -435,7 +441,8 @@ class KnowledgeBaseDeployment:
         return vercel_config
 
     def deploy_to_lambda_labs(self):
-        """Deploy the backend API to Lambda Labs."""docker_config = {.
+        """Deploy the backend API to Lambda Labs."""
+        docker_config = {.
 
             "FROM": "python:3.11-slim",
             "WORKDIR": "/app",
@@ -449,7 +456,8 @@ class KnowledgeBaseDeployment:
         return docker_config
 
     def generate_nginx_config(self):
-        """Generate Nginx configuration for production deployment."""nginx_config = r"""
+        """Generate Nginx configuration for production deployment."""
+        nginx_config = r"""
 
 server {
     listen 80;

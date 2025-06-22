@@ -25,7 +25,6 @@ from infrastructure.esc.claude_secrets import claude_secret_manager
 
 class ClaudeMCPServer(BaseMCPServer):
     """MCP Server for Claude/Anthropic API integration."""
-
     def __init__(self):
         super().__init__("claude")
         # The claude_integration is a singleton-like module, so we'll use it directly
@@ -34,14 +33,14 @@ class ClaudeMCPServer(BaseMCPServer):
 
     async def initialize_integration(self):
         """Initializes the Claude integration."""
-
         # The integration is initialized on first use, but we can check its status.
         if not self.claude._authenticated:
             await self.claude.initialize()
         self.integration_client = self.claude  # for compatibility with BaseMCPServer
 
     async def list_resources(self, request: ListResourcesRequest) -> List[Resource]:
-        """Lists available Claude resources."""return [.
+        """Lists available Claude resources."""
+        return [.
 
             Resource(
                 uri="claude://health", name="Claude Health", mimeType="application/json"
@@ -55,7 +54,8 @@ class ClaudeMCPServer(BaseMCPServer):
         ]
 
     async def get_resource(self, request: GetResourceRequest) -> str:
-        """Gets a specific Claude resource."""uri = request.uri.
+        """Gets a specific Claude resource."""
+        uri = request.uri.
 
         if uri == "claude://health":
             data = await self.claude.get_health_status()
@@ -80,7 +80,8 @@ class ClaudeMCPServer(BaseMCPServer):
         return json.dumps(data, indent=2)
 
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Lists available Claude tools for code generation and analysis."""return [.
+        """Lists available Claude tools for code generation and analysis."""
+        return [.
 
             Tool(
                 name="generate_code",
@@ -136,7 +137,8 @@ class ClaudeMCPServer(BaseMCPServer):
         ]
 
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
-        """Handles a Claude tool call."""tool_name = request.params.name.
+        """Handles a Claude tool call."""
+        tool_name = request.params.name.
 
         args = request.params.arguments or {}
         result = None

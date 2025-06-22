@@ -27,8 +27,7 @@ logger = logging.getLogger(__name__)
 
 class DataSource(BaseModel):
     """Data source configuration."""
-
-    name: str
+        name: str
     type: str  # 'api', 'file', 'webhook'
     connection_config: Dict[str, Any]
     refresh_interval: int = 3600  # seconds
@@ -37,7 +36,8 @@ class DataSource(BaseModel):
 
 
 class ProcessingJob(BaseModel):
-    """Data processing job configuration."""job_id: str = Field(default_factory=lambda: str(uuid.uuid4())).
+    """Data processing job configuration."""
+        job_id: str = Field(default_factory=lambda: str(uuid.uuid4())).
 
     source_name: str
     target_table: str
@@ -52,7 +52,8 @@ class ProcessingJob(BaseModel):
 
 
 class DataTransformationPipeline:
-    """Main data transformation and processing pipeline."""def __init__(self, config: Dict[str, Any]):.
+    """Main data transformation and processing pipeline."""
+    def __init__(self, config: Dict[str, Any]):.
 
         self.config = config
         self.snowflake_config = config["snowflake"]
@@ -75,7 +76,8 @@ class DataTransformationPipeline:
         }
 
     async def initialize(self):
-        """Initialize all connections and resources."""try:.
+        """Initialize all connections and resources."""
+        try:.
 
             # Initialize Snowflake connection
             self.snowflake_engine = snowflake.connector.connect(
@@ -102,7 +104,8 @@ class DataTransformationPipeline:
             raise
 
     async def process_hubspot_data(self, job: ProcessingJob) -> Dict[str, Any]:
-        """Process HubSpot CRM data."""try:.
+        """Process HubSpot CRM data."""
+        try:.
 
             logger.info(f"Processing HubSpot data for job {job.job_id}")
 
@@ -136,7 +139,8 @@ class DataTransformationPipeline:
             return {"status": "error", "error": str(e)}
 
     async def _fetch_hubspot_data(self) -> Dict[str, Any]:
-        """Fetch data from HubSpot API."""hubspot_config = self.api_configs["hubspot"].
+        """Fetch data from HubSpot API."""
+        hubspot_config = self.api_configs["hubspot"].
 
         async with aiohttp.ClientSession() as session:
             headers = {
@@ -168,7 +172,8 @@ class DataTransformationPipeline:
     async def _transform_hubspot_data(
         self, data: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Transform HubSpot data for Snowflake."""transformed_records = [].
+        """Transform HubSpot data for Snowflake."""
+        transformed_records = [].
 
         # Transform contacts
         for contact in data.get("contacts", []):
@@ -196,7 +201,8 @@ class DataTransformationPipeline:
         return transformed_records
 
     async def process_gong_data(self, job: ProcessingJob) -> Dict[str, Any]:
-        """Process Gong.io call intelligence data."""try:.
+        """Process Gong.io call intelligence data."""
+        try:.
 
             logger.info(f"Processing Gong data for job {job.job_id}")
 
@@ -230,7 +236,8 @@ class DataTransformationPipeline:
             return {"status": "error", "error": str(e)}
 
     async def _fetch_gong_data(self) -> Dict[str, Any]:
-        """Fetch data from Gong.io API."""gong_config = self.api_configs["gong"].
+        """Fetch data from Gong.io API."""
+        gong_config = self.api_configs["gong"].
 
         async with aiohttp.ClientSession() as session:
             headers = {
@@ -279,7 +286,8 @@ class DataTransformationPipeline:
             return {"calls": calls, "transcripts": transcripts}
 
     async def _transform_gong_data(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Transform Gong data for Snowflake."""transformed_records = [].
+        """Transform Gong data for Snowflake."""
+        transformed_records = [].
 
         # Transform calls
         for call in data.get("calls", []):
@@ -308,7 +316,8 @@ class DataTransformationPipeline:
         return transformed_records
 
     async def process_slack_data(self, job: ProcessingJob) -> Dict[str, Any]:
-        """Process Slack communication data."""try:.
+        """Process Slack communication data."""
+        try:.
 
             logger.info(f"Processing Slack data for job {job.job_id}")
 
@@ -342,7 +351,8 @@ class DataTransformationPipeline:
             return {"status": "error", "error": str(e)}
 
     async def _fetch_slack_data(self) -> Dict[str, Any]:
-        """Fetch data from Slack API."""slack_config = self.api_configs["slack"].
+        """Fetch data from Slack API."""
+        slack_config = self.api_configs["slack"].
 
         async with aiohttp.ClientSession() as session:
             headers = {
@@ -385,7 +395,8 @@ class DataTransformationPipeline:
             return {"channels": channels, "messages": messages, "users": users}
 
     async def _transform_slack_data(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Transform Slack data for Snowflake."""transformed_records = [].
+        """Transform Slack data for Snowflake."""
+        transformed_records = [].
 
         # Transform messages
         for message in data.get("messages", []):
@@ -417,7 +428,8 @@ class DataTransformationPipeline:
     async def process_file_upload(
         self, file_path: str, file_metadata: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Process uploaded file and extract data."""try:.
+        """Process uploaded file and extract data."""
+        try:.
 
             logger.info(f"Processing file upload: {file_path}")
 
@@ -453,7 +465,8 @@ class DataTransformationPipeline:
             return {"status": "error", "error": str(e)}
 
     async def _process_csv_file(self, file_path: str) -> List[Dict[str, Any]]:
-        """Process CSV file."""df = pd.read_csv(file_path).
+        """Process CSV file."""
+        df = pd.read_csv(file_path).
 
         # Clean and standardize data
         df = df.fillna("")
@@ -468,7 +481,8 @@ class DataTransformationPipeline:
         return df.to_dict("records")
 
     async def _process_excel_file(self, file_path: str) -> List[Dict[str, Any]]:
-        """Process Excel file."""# Read all sheets.
+        """Process Excel file."""
+        # Read all sheets.
 
         excel_file = pd.ExcelFile(file_path)
         all_data = []
@@ -511,7 +525,8 @@ class DataTransformationPipeline:
         return records
 
     async def _process_pdf_file(self, file_path: str) -> List[Dict[str, Any]]:
-        """Process PDF file (placeholder implementation)."""# This would typically use a PDF processing library.
+        """Process PDF file (placeholder implementation)."""
+        # This would typically use a PDF processing library.
 
         return [
             {
@@ -522,7 +537,8 @@ class DataTransformationPipeline:
         ]
 
     async def _process_generic_file(self, file_path: str) -> List[Dict[str, Any]]:
-        """Process generic file."""return [.
+        """Process generic file."""
+        return [.
 
             {
                 "filename": Path(file_path).name,
@@ -536,7 +552,8 @@ class DataTransformationPipeline:
     async def _load_to_snowflake(
         self, data: List[Dict[str, Any]], table_name: str, schema: str
     ) -> Dict[str, Any]:
-        """Load data to Snowflake table."""try:.
+        """Load data to Snowflake table."""
+        try:.
 
             if not data:
                 return {"status": "success", "records_loaded": 0}
@@ -572,7 +589,8 @@ class DataTransformationPipeline:
     async def _create_table_if_not_exists(
         self, df: pd.DataFrame, table_name: str, schema: str
     ):
-        """Create Snowflake table if it doesn't exist."""try:.
+        """Create Snowflake table if it doesn't exist."""
+        try:.
 
             cursor = self.snowflake_engine.cursor()
 
@@ -608,7 +626,8 @@ class DataTransformationPipeline:
                                     raise
 
                             async def _calculate_data_quality(self, data: List[Dict[str, Any]]) -> float:
-            """Calculate data quality score."""if not data:.
+            """Calculate data quality score."""
+        if not data:.
 
             return 0.0
 
@@ -630,7 +649,8 @@ class DataTransformationPipeline:
         headers: Dict[str, str],
         params: Dict[str, Any] = None,
     ) -> List[Dict[str, Any]]:
-        """Fetch paginated data from API."""all_data = [].
+        """Fetch paginated data from API."""
+        all_data = [].
 
         next_url = url
 
@@ -660,7 +680,8 @@ class DataTransformationPipeline:
         return all_data
 
     def _parse_hubspot_date(self, date_str: str) -> Optional[datetime]:
-        """Parse HubSpot date string."""if not date_str:.
+        """Parse HubSpot date string."""
+        if not date_str:.
 
             return None
         try:
@@ -669,7 +690,8 @@ class DataTransformationPipeline:
             return None
 
     def _parse_gong_date(self, date_str: str) -> Optional[datetime]:
-        """Parse Gong date string."""if not date_str:.
+        """Parse Gong date string."""
+        if not date_str:.
 
             return None
         try:
@@ -678,7 +700,8 @@ class DataTransformationPipeline:
             return None
 
     def _generate_table_name(self, filename: str) -> str:
-        """Generate Snowflake table name from filename."""# Remove extension and clean name.
+        """Generate Snowflake table name from filename."""
+        # Remove extension and clean name.
 
         name = Path(filename).stem
         name = "".join(c if c.isalnum() else "_" for c in name)
@@ -689,10 +712,12 @@ class DataTransformationPipeline:
         return f"{name}_{timestamp}"
 
     async def get_processing_stats(self) -> Dict[str, Any]:
-        """Get current processing statistics."""return self.stats.
+        """Get current processing statistics."""
+        return self.stats.
 
     async def cleanup(self):
-        """Cleanup resources."""if self.snowflake_engine:.
+        """Cleanup resources."""
+        if self.snowflake_engine:.
 
             self.snowflake_engine.close()
         if self.redis_client:
@@ -702,7 +727,7 @@ class DataTransformationPipeline:
 # Example usage and configuration
 async def main():
     """Example usage of the data transformation pipeline."""
-    config = {
+        config = {
         "snowflake": {
             "user": os.getenv("SNOWFLAKE_USER"),
             "password": os.getenv("SNOWFLAKE_PASSWORD"),

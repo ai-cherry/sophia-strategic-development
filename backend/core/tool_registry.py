@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 class ToolStatus(Enum):
     """Status of tool integration."""
-
-    ACTIVE = "active"
+        ACTIVE = "active"
     CONFIGURED = "configured"
     PLANNED = "planned"
     DEPRECATED = "deprecated"
@@ -24,7 +23,8 @@ class ToolStatus(Enum):
 
 
 class ToolCategory(Enum):
-    """Categories of tools."""AI_LLM = "AI/LLM Services".
+    """Categories of tools."""
+        AI_LLM = "AI/LLM Services"
 
     VECTOR_DB = "Vector Databases"
     CRM_SALES = "CRM & Sales"
@@ -40,8 +40,8 @@ class ToolCategory(Enum):
 
 @dataclass
 class ToolCapability:
-    """Represents a specific capability of a tool."""name: str.
-
+    """Represents a specific capability of a tool."""
+        name: str
     description: str
     example_usage: str
     required_params: List[str] = field(default_factory=list)
@@ -50,8 +50,8 @@ class ToolCapability:
 
 @dataclass
 class ToolIntegration:
-    """Represents a tool/integration in the system."""id: str.
-
+    """Represents a tool/integration in the system."""
+        id: str
     name: str
     category: ToolCategory
     status: ToolStatus
@@ -66,13 +66,15 @@ class ToolIntegration:
 
 
 class SophiaToolRegistry:
-    """Central registry for all Sophia AI tools and integrations."""def __init__(self):.
+    """Central registry for all Sophia AI tools and integrations."""
+    def __init__(self):.
 
         self.tools: Dict[str, ToolIntegration] = {}
         self._initialize_registry()
 
     def _initialize_registry(self):
-        """Initialize the tool registry with all known integrations."""# AI/LLM Services.
+        """Initialize the tool registry with all known integrations."""
+        # AI/LLM Services.
 
         self.register_tool(
             ToolIntegration(
@@ -660,14 +662,16 @@ class SophiaToolRegistry:
         logger.info(f"Registered tool: {tool.name} ({tool.status.value})")
 
     def get_tool(self, tool_id: str) -> Optional[ToolIntegration]:
-        """Get a specific tool by ID."""return self.tools.get(tool_id).
+        """Get a specific tool by ID."""
+        return self.tools.get(tool_id).
 
     def list_tools(
         self,
         category: Optional[ToolCategory] = None,
         status: Optional[ToolStatus] = None,
     ) -> List[ToolIntegration]:
-        """List tools with optional filtering."""tools = list(self.tools.values()).
+        """List tools with optional filtering."""
+        tools = list(self.tools.values()).
 
         if category:
             tools = [t for t in tools if t.category == category]
@@ -678,21 +682,24 @@ class SophiaToolRegistry:
         return sorted(tools, key=lambda t: (t.category.value, t.name))
 
     def get_categories(self) -> Dict[ToolCategory, int]:
-        """Get tool count by category."""counts = {}.
+        """Get tool count by category."""
+        counts = {}.
 
         for tool in self.tools.values():
             counts[tool.category] = counts.get(tool.category, 0) + 1
         return counts
 
     def get_status_summary(self) -> Dict[ToolStatus, int]:
-        """Get tool count by status."""counts = {}.
+        """Get tool count by status."""
+        counts = {}.
 
         for tool in self.tools.values():
             counts[tool.status] = counts.get(tool.status, 0) + 1
         return counts
 
     def search_tools(self, query: str) -> List[ToolIntegration]:
-        """Search tools by name, description, or capabilities."""query_lower = query.lower().
+        """Search tools by name, description, or capabilities."""
+        query_lower = query.lower().
 
         results = []
 
@@ -711,7 +718,8 @@ class SophiaToolRegistry:
         return results
 
     def get_workflow_tools(self, workflow: str) -> List[ToolIntegration]:
-        """Get tools that support a specific workflow."""workflow_lower = workflow.lower().
+        """Get tools that support a specific workflow."""
+        workflow_lower = workflow.lower().
 
         return [
             tool

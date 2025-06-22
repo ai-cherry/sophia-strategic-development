@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class MCPCrewOrchestrator:
     """Orchestrates CrewAI agents with MCP tool integration."""
-
     def __init__(
         self,
         mcp_gateway_url: str = "http://localhost:8090",
@@ -40,7 +39,8 @@ class MCPCrewOrchestrator:
         logger.info(f"Initialized with {len(self.tools)} MCP tools")
 
     def create_data_analyst_agent(self) -> Agent:
-        """Create an agent specialized in data analysis."""tools = [.
+        """Create an agent specialized in data analysis."""
+        tools = [.
 
             self.tools.get("snowflake.execute_query"),
             self.tools.get("snowflake.list_tables"),
@@ -70,7 +70,8 @@ class MCPCrewOrchestrator:
         return agent
 
     def create_sales_intelligence_agent(self) -> Agent:
-        """Create an agent specialized in sales intelligence."""tools = [.
+        """Create an agent specialized in sales intelligence."""
+        tools = [.
 
             self.tools.get("gong.get_calls"),
             self.tools.get("gong.get_call_transcript"),
@@ -99,7 +100,8 @@ class MCPCrewOrchestrator:
         return agent
 
     def create_project_manager_agent(self) -> Agent:
-        """Create an agent specialized in project management."""tools = [.
+        """Create an agent specialized in project management."""
+        tools = [.
 
             self.tools.get("asana.create_task"),
             self.tools.get("asana.get_project_tasks"),
@@ -127,7 +129,8 @@ class MCPCrewOrchestrator:
         return agent
 
     def create_infrastructure_engineer_agent(self) -> Agent:
-        """Create an agent specialized in infrastructure management."""tools = [.
+        """Create an agent specialized in infrastructure management."""
+        tools = [.
 
             self.tools.get("pulumi.preview_infrastructure_change"),
             self.tools.get("pulumi.apply_with_approval"),
@@ -155,7 +158,8 @@ class MCPCrewOrchestrator:
     async def execute_revenue_analysis(
         self, time_period: str = "last_month"
     ) -> Dict[str, Any]:
-        """Execute a comprehensive revenue analysis workflow."""# Create agents.
+        """Execute a comprehensive revenue analysis workflow."""
+        # Create agents.
 
         data_analyst = self.create_data_analyst_agent()
         sales_agent = self.create_sales_intelligence_agent()
@@ -217,7 +221,8 @@ class MCPCrewOrchestrator:
         }
 
     async def execute_customer_health_check(self, customer_id: str) -> Dict[str, Any]:
-        """Execute a customer health check workflow."""# Create agents.
+        """Execute a customer health check workflow."""
+        # Create agents.
 
         data_analyst = self.create_data_analyst_agent()
         sales_agent = self.create_sales_intelligence_agent()
@@ -280,7 +285,8 @@ class MCPCrewOrchestrator:
         }
 
     async def execute_infrastructure_optimization(self) -> Dict[str, Any]:
-        """Execute infrastructure optimization workflow."""# Create agents.
+        """Execute infrastructure optimization workflow."""
+        # Create agents.
 
         infra_engineer = self.create_infrastructure_engineer_agent()
         data_analyst = self.create_data_analyst_agent()
@@ -331,7 +337,7 @@ class MCPCrewOrchestrator:
 # Example usage
 async def main():
     """Example usage of MCP Crew Orchestrator."""
-    orchestrator = MCPCrewOrchestrator()
+        orchestrator = MCPCrewOrchestrator()
 
     try:
         # Initialize

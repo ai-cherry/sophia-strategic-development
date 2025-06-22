@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TraceSpan:
     """Represents a span in distributed tracing."""
-
-    trace_id: str
+        trace_id: str
     span_id: str
     parent_span_id: Optional[str]
     operation_name: str
@@ -32,13 +31,15 @@ class TraceSpan:
     status: str = "running"
 
     def duration_ms(self) -> Optional[float]:
-        """Get duration in milliseconds."""if self.end_time:.
+        """Get duration in milliseconds."""
+        if self.end_time:.
 
             return (self.end_time - self.start_time) * 1000
         return None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""return {.
+        """Convert to dictionary for serialization."""
+        return {.
 
             "trace_id": self.trace_id,
             "span_id": self.span_id,
@@ -55,8 +56,8 @@ class TraceSpan:
 
 @dataclass
 class Metric:
-    """Represents a metric data point."""name: str.
-
+    """Represents a metric data point."""
+        name: str
     value: float
     timestamp: float
     tags: Dict[str, str] = field(default_factory=dict)
@@ -64,7 +65,8 @@ class Metric:
 
 
 class StructuredLogger:
-    """Structured logging with JSON output."""def __init__(self, name: str):.
+    """Structured logging with JSON output."""
+    def __init__(self, name: str):.
 
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO)
@@ -75,7 +77,10 @@ class StructuredLogger:
         self.logger.addHandler(handler)
 
     def _create_formatter(self) -> logging.Formatter:
-        """Create JSON formatter."""class JSONFormatter(logging.Formatter):.
+        """Create JSON formatter."""
+
+
+class JSONFormatter(logging.Formatter):.
 
             def format(self, record):
                 log_data = {
@@ -97,7 +102,8 @@ class StructuredLogger:
         return JSONFormatter()
 
     def log(self, level: str, message: str, **kwargs):
-        """Log with structured data."""extra_fields = kwargs.
+        """Log with structured data."""
+        extra_fields = kwargs.
 
         log_method = getattr(self.logger, level.lower())
         log_method(message, extra={"extra_fields": extra_fields})
@@ -116,7 +122,8 @@ class StructuredLogger:
 
 
 class MetricsCollector:
-    """Collects and aggregates metrics."""def __init__(self):.
+    """Collects and aggregates metrics."""
+    def __init__(self):.
 
         self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
         self.aggregated: Dict[str, Dict[str, float]] = defaultdict(dict)
@@ -129,7 +136,8 @@ class MetricsCollector:
         tags: Optional[Dict[str, str]] = None,
         metric_type: str = "gauge",
     ):
-        """Record a metric."""metric = Metric(.
+        """Record a metric."""
+        metric = Metric(.
 
             name=name,
             value=value,
@@ -156,16 +164,18 @@ class MetricsCollector:
                 )
 
     def _metric_key(self, name: str, tags: Optional[Dict[str, str]]) -> str:
-        """Generate unique key for metric."""if not tags:.
+        """Generate unique key for metric."""
+        if not tags:.
 
             return name
-        tag_str = ",".join(f"{k}={v}" for k, v in sorted(tags.items()))
+        tag_str = ","join(f"{k}={v}" for k, v in sorted(tags.items()))
         return f"{name}:{tag_str}"
 
     async def get_metrics(
         self, name: str, tags: Optional[Dict[str, str]] = None, last_n_minutes: int = 5
     ) -> List[Metric]:
-        """Get recent metrics."""key = self._metric_key(name, tags).
+        """Get recent metrics."""
+        key = self._metric_key(name, tags).
 
         cutoff_time = time.time() - (last_n_minutes * 60)
 
@@ -180,7 +190,8 @@ class MetricsCollector:
 
 
 class DistributedTracer:
-    """Distributed tracing implementation."""def __init__(self):.
+    """Distributed tracing implementation."""
+    def __init__(self):.
 
         self.spans: Dict[str, TraceSpan] = {}
         self.completed_traces: deque = deque(maxlen=1000)
@@ -194,7 +205,8 @@ class DistributedTracer:
         parent_span_id: Optional[str] = None,
         tags: Optional[Dict[str, Any]] = None,
     ):
-        """Create a trace span context."""span = await self.start_span(operation_name, trace_id, parent_span_id, tags).
+        """Create a trace span context."""
+        span = await self.start_span(operation_name, trace_id, parent_span_id, tags).
 
         try:
             yield span
@@ -215,7 +227,8 @@ class DistributedTracer:
         parent_span_id: Optional[str] = None,
         tags: Optional[Dict[str, Any]] = None,
     ) -> TraceSpan:
-        """Start a new span."""span = TraceSpan(.
+        """Start a new span."""
+        span = TraceSpan(.
 
             trace_id=trace_id or str(uuid.uuid4()),
             span_id=str(uuid.uuid4()),
@@ -258,14 +271,16 @@ class DistributedTracer:
 
 
 class AgentMetrics:
-    """Metrics specific to agent operations."""def __init__(self, metrics_collector: MetricsCollector):.
+    """Metrics specific to agent operations."""
+    def __init__(self, metrics_collector: MetricsCollector):.
 
         self.metrics = metrics_collector
 
     async def record_agent_execution(
         self, agent_name: str, duration_ms: float, status: str, command_type: str
     ):
-        """Record agent execution metrics."""tags = {"agent": agent_name, "status": status, "command_type": command_type}.
+        """Record agent execution metrics."""
+        tags = {"agent": agent_name, "status": status, "command_type": command_type}.
 
         # Duration
         await self.metrics.record_metric(
@@ -284,7 +299,8 @@ class AgentMetrics:
     async def record_context_operation(
         self, operation: str, duration_ms: float, session_id: str
     ):
-        """Record context manager operations."""tags = {"operation": operation, "session_id": session_id}.
+        """Record context manager operations."""
+        tags = {"operation": operation, "session_id": session_id}.
 
         await self.metrics.record_metric(
             "context.operation.duration_ms", duration_ms, tags, "histogram"
@@ -298,7 +314,8 @@ class AgentMetrics:
         tokens_used: int,
         status: str,
     ):
-        """Record LLM request metrics."""tags = {"provider": provider, "model": model, "status": status}.
+        """Record LLM request metrics."""
+        tags = {"provider": provider, "model": model, "status": status}.
 
         await self.metrics.record_metric(
             "llm.request.duration_ms", duration_ms, tags, "histogram"
@@ -310,7 +327,8 @@ class AgentMetrics:
 
 
 class MonitoringDashboard:
-    """Generate monitoring dashboard data."""def __init__(.
+    """Generate monitoring dashboard data."""
+    def __init__(.
 
         self,
         metrics_collector: MetricsCollector,
@@ -322,7 +340,8 @@ class MonitoringDashboard:
         self.logger = structured_logger
 
     async def get_system_health(self) -> Dict[str, Any]:
-        """Get overall system health metrics."""aggregated = await self.metrics.get_aggregated_metrics().
+        """Get overall system health metrics."""
+        aggregated = await self.metrics.get_aggregated_metrics().
 
         # Calculate health scores
         agent_success_rate = self._calculate_success_rate(
@@ -351,7 +370,8 @@ class MonitoringDashboard:
         }
 
     async def get_agent_performance(self) -> Dict[str, Any]:
-        """Get agent performance metrics."""aggregated = await self.metrics.get_aggregated_metrics().
+        """Get agent performance metrics."""
+        aggregated = await self.metrics.get_aggregated_metrics().
 
         agent_metrics = {}
         for key, values in aggregated.items():
@@ -371,7 +391,8 @@ class MonitoringDashboard:
         return {"timestamp": datetime.utcnow().isoformat(), "agents": agent_metrics}
 
     async def get_workflow_analytics(self) -> Dict[str, Any]:
-        """Get workflow execution analytics."""# This would integrate with workflow manager.
+        """Get workflow execution analytics."""
+        # This would integrate with workflow manager.
 
         return {
             "timestamp": datetime.utcnow().isoformat(),
@@ -381,7 +402,8 @@ class MonitoringDashboard:
         }
 
     def _calculate_success_rate(self, aggregated: Dict, metric_prefix: str) -> float:
-        """Calculate success rate from aggregated metrics."""total = 0.
+        """Calculate success rate from aggregated metrics."""
+        total = 0.
 
         success = 0
 
@@ -393,7 +415,8 @@ class MonitoringDashboard:
         return (success / total * 100) if total > 0 else 100.0
 
     def _determine_health_status(self, agent_success: float, llm_success: float) -> str:
-        """Determine overall health status."""if agent_success >= 95 and llm_success >= 95:.
+        """Determine overall health status."""
+        if agent_success >= 95 and llm_success >= 95:.
 
             return "healthy"
         elif agent_success >= 80 and llm_success >= 80:
@@ -402,12 +425,14 @@ class MonitoringDashboard:
             return "unhealthy"
 
     async def _count_active_sessions(self) -> int:
-        """Count active sessions (placeholder)."""# This would integrate with context manager.
+        """Count active sessions (placeholder)."""
+        # This would integrate with context manager.
 
         return 0
 
     async def _get_recent_errors(self) -> List[Dict[str, Any]]:
-        """Get recent errors (placeholder)."""# This would query structured logs.
+        """Get recent errors (placeholder)."""
+        # This would query structured logs.
 
         return []
 

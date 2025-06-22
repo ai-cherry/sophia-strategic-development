@@ -29,8 +29,7 @@ vercel_integration = None
 @server.list_tools()
 async def handle_list_tools() -> List[Tool]:
     """List available Vercel tools."""
-
-    return [
+        return [
         Tool(
             name="get_projects",
             description="Get all Vercel projects",

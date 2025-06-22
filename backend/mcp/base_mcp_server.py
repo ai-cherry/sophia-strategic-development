@@ -30,7 +30,8 @@ class BaseMCPServer(ABC):
             - State management (for integration clients)
             - Error handling
             - Consistent server startup logic
-    """def __init__(self, server_name: str, server_version: str = "1.0.0"):
+    """
+    def __init__(self, server_name: str, server_version: str = "1.0.0"):
 
         self.server_name = server_name
         self.server_version = server_version
@@ -72,7 +73,8 @@ class BaseMCPServer(ABC):
         """pass.
 
     def _setup_handlers(self):
-        """Sets up the standard MCP handlers for this server."""# Register handlers using the server's handler decorators.
+        """Sets up the standard MCP handlers for this server."""
+        # Register handlers using the server's handler decorators.
 
         @self.server.list_resources()
         async def handle_list_resources(

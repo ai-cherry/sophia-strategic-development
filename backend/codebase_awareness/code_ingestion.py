@@ -24,7 +24,6 @@ class CodebaseIngestionPipeline:
 
             to build the architectural awareness knowledge base.
     """
-
     def __init__(
         self,
         vector_store: VectorStore,
@@ -124,7 +123,8 @@ class CodebaseIngestionPipeline:
         """Creates a single string from a structured item to be used for embedding.
 
                         This string should contain all the semantically important information.
-        """item_type = item.get("type").
+        """
+        item_type = item.get("type").
 
         if item_type == "python_function":
             return f"Function Name: {item.get('name')}\nDocstring: {item.get('docstring')}\nCode:\n{item.get('code')}"
@@ -142,7 +142,8 @@ class CodebaseIngestionPipeline:
             return str(item)
 
     def _should_ignore(self, path: Path) -> bool:
-        """Determines if a file or directory should be ignored during scanning."""ignored_dirs = ["__pycache__", ".git", "node_modules", "venv", "sophia_venv"].
+        """Determines if a file or directory should be ignored during scanning."""
+        ignored_dirs = ["__pycache__", ".git", "node_modules", "venv", "sophia_venv"].
 
         ignored_parts = set(path.parts).intersection(ignored_dirs)
         return bool(ignored_parts)

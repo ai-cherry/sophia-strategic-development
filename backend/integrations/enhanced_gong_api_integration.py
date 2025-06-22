@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ConversationTranscript:
     """Data class for conversation transcript"""
-    call_id: str
+        call_id: str
     transcript_segments: List[Dict[str, Any]]
     speakers: List[Dict[str, str]]
     duration: int
@@ -31,7 +31,7 @@ class ConversationTranscript:
 @dataclass
 class MediaFile:
     """Data class for media file information"""
-    call_id: str
+        call_id: str
     media_url: str
     media_type: str  # audio, video
     duration: int
@@ -41,7 +41,7 @@ class MediaFile:
 @dataclass
 class InteractionStats:
     """Data class for interaction statistics"""
-    call_id: str
+        call_id: str
     talk_time_percentage: float
     longest_monologue: int
     questions_asked: int
@@ -54,7 +54,6 @@ class EnhancedGongIntegration:
     Enhanced Gong API integration with OAuth authentication
     Provides access to premium features: transcripts, media, webhooks
     """
-    
     def __init__(self, oauth_manager):
         self.oauth_manager = oauth_manager
         self.base_url = "https://us-70092.api.gong.io"
@@ -70,7 +69,6 @@ class EnhancedGongIntegration:
     
     async def setup_enhanced_schema(self):
         """Create enhanced database schema for OAuth features"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -192,7 +190,6 @@ class EnhancedGongIntegration:
     
     async def get_conversation_transcript(self, call_id: str) -> Optional[ConversationTranscript]:
         """Get full conversation transcript with speaker identification"""
-        
         try:
             # Make authenticated request to transcript endpoint
             result = await self.oauth_manager.make_authenticated_request(
@@ -230,7 +227,6 @@ class EnhancedGongIntegration:
     
     async def get_conversation_media(self, call_id: str) -> Optional[MediaFile]:
         """Get media file URL for conversation"""
-        
         try:
             # Make authenticated request to media endpoint
             result = await self.oauth_manager.make_authenticated_request(
@@ -267,7 +263,6 @@ class EnhancedGongIntegration:
     
     async def get_interaction_statistics(self, call_id: str) -> Optional[InteractionStats]:
         """Get detailed interaction statistics for conversation"""
-        
         try:
             # Make authenticated request to interaction stats endpoint
             result = await self.oauth_manager.make_authenticated_request(
@@ -307,7 +302,6 @@ class EnhancedGongIntegration:
     
     async def get_extensive_call_data(self, call_id: str) -> Optional[Dict[str, Any]]:
         """Get extensive call data with all available information"""
-        
         try:
             # Make authenticated request to extensive endpoint
             result = await self.oauth_manager.make_authenticated_request(
@@ -332,7 +326,6 @@ class EnhancedGongIntegration:
     
     async def process_all_conversations_enhanced(self, limit: int = 100) -> Dict[str, Any]:
         """Process all conversations with enhanced features"""
-        
         try:
             # Get list of calls
             calls_result = await self.oauth_manager.make_authenticated_request(
@@ -425,7 +418,6 @@ class EnhancedGongIntegration:
     
     async def _store_transcript(self, transcript: ConversationTranscript):
         """Store conversation transcript in database"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -457,7 +449,6 @@ class EnhancedGongIntegration:
     
     async def _store_media_file(self, media_file: MediaFile):
         """Store media file information in database"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -488,7 +479,6 @@ class EnhancedGongIntegration:
     
     async def _store_interaction_stats(self, stats: InteractionStats):
         """Store interaction statistics in database"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -523,7 +513,6 @@ class EnhancedGongIntegration:
     
     async def _store_extensive_call_data(self, call_id: str, extensive_data: Dict[str, Any]):
         """Store extensive call data in enhanced analytics table"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -560,7 +549,6 @@ class EnhancedGongIntegration:
     
     async def _analyze_transcript_relevance(self, transcript: ConversationTranscript):
         """Analyze transcript for apartment industry relevance"""
-        
         try:
             # Apartment industry keywords
             apartment_keywords = [
@@ -612,7 +600,6 @@ class EnhancedGongIntegration:
     
     async def _analyze_interaction_insights(self, stats: InteractionStats):
         """Analyze interaction statistics for apartment industry insights"""
-        
         try:
             # Calculate apartment industry score based on interaction patterns
             apartment_industry_score = 0.0
@@ -653,7 +640,6 @@ class EnhancedGongIntegration:
     
     async def _calculate_apartment_relevance(self, call_id: str) -> float:
         """Calculate overall apartment relevance score for a call"""
-        
         try:
             conn = await asyncpg.connect(**self.db_config)
             
@@ -698,7 +684,6 @@ class EnhancedGongIntegration:
     
     async def _calculate_apartment_relevance_from_data(self, data: Dict[str, Any]) -> float:
         """Calculate apartment relevance from extensive call data"""
-        
         # Simple relevance calculation based on topics and participants
         topics = data.get("topics", [])
         participants = data.get("participants", [])
@@ -725,7 +710,6 @@ class EnhancedGongIntegration:
     
     def _extract_deal_stage(self, data: Dict[str, Any]) -> str:
         """Extract deal stage from extensive call data"""
-        
         # Simple deal stage extraction based on call content
         topics = data.get("topics", [])
         
@@ -745,7 +729,6 @@ class EnhancedGongIntegration:
     
     def _calculate_win_probability(self, data: Dict[str, Any]) -> float:
         """Calculate win probability from extensive call data"""
-        
         # Simple win probability calculation
         probability_factors = []
         
@@ -769,8 +752,7 @@ class EnhancedGongIntegration:
 # Test the enhanced integration
 async def test_enhanced_integration():
     """Test enhanced Gong integration features"""
-    
-    # This would normally use the OAuth manager from the main application
+        # This would normally use the OAuth manager from the main application
     # For testing, we'll create a mock implementation
     
     class MockOAuthManager:

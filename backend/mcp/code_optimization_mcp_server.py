@@ -15,7 +15,8 @@ class CodeOptimizationMCPServer:
 
             This is a scaffold based on the user's design. The methods will be
             implemented to run formatters, linters, and other code analysis tools.
-    """def __init__(self):
+    """
+    def __init__(self):
 
         logging.info("CodeOptimizationMCPServer initialized.")
         # In a real implementation, we might have a queue for optimization tasks
