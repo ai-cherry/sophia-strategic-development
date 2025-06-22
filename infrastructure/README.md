@@ -92,7 +92,7 @@ pulumi config
 
 ## CI/CD Integration
 
-The infrastructure deployment can be integrated into a CI/CD pipeline using GitHub Actions. See the `.github/workflows/deploy.yml` file for an example.
+The infrastructure deployment can be integrated into a CI/CD pipeline using GitHub Actions. See the `.github/workflows/production_deployment.yml` file for an example.
 
 ## Monitoring and Alerting
 

@@ -28,7 +28,7 @@ The Sophia AI platform faces **critical systemic failures** requiring immediate 
 
 #### Critical Actions:
 1. **Create Missing Dependencies** (`requirements.txt`)
-2. **Fix Primary Deployment Workflow** (`.github/workflows/deploy.yml`)
+2. **Fix Primary Deployment Workflow** (`.github/workflows/production_deployment.yml`)
 3. **Disable Conflicting Workflows** (12+ redundant workflows)
 4. **Update Pulumi Stack References** (correct authentication)
 
@@ -95,7 +95,7 @@ pulumi>=3.0.0,<4.0.0
 EOF
 
 # 2. Fix primary workflow
-# Update .github/workflows/deploy.yml with correct stack reference
+# Update .github/workflows/production_deployment.yml with correct stack reference
 # scoobyjava-org/sophia-prod-on-lambda
 
 # 3. Disable redundant workflows
