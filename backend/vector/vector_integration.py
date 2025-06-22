@@ -35,13 +35,13 @@ logger = logging.getLogger(__name__)
 
 class VectorDBType(Enum):
     """Supported vector database types."""
-        MEMORY = "memory"
+    MEMORY = "memory"
 
 
 @dataclass
 class VectorConfig:
     """Configuration for the vector database."""
-        db_type: VectorDBType
+    db_type: VectorDBType
     index_name: str
     dimension: int = 384
     metric: str = "cosine"
@@ -51,7 +51,7 @@ class VectorConfig:
 @dataclass
 class VectorSearchResult:
     """Result from a vector search."""
-        id: str
+    id: str
     score: float
     metadata: Dict[str, Any]
     text: Optional[str] = None
