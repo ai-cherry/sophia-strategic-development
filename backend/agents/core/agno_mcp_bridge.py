@@ -2,8 +2,9 @@
 
 Seamless integration between Agno framework's high-performance agents
 and Sophia's existing MCP (Model Context Protocol) tool ecosystem.
-""""""import asyncio.
+"""
 
+import asyncio
 import logging
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -24,17 +25,19 @@ logger = logging.getLogger(__name__)
 class AgnoMCPBridge:
     """Bridge between Agno agents and MCP tool ecosystem.
 
-            This bridge enables Agno agents to seamlessly use existing MCP services
-            while maintaining their performance characteristics (~3μs instantiation).
-    """def __init__(self):.
+    This bridge enables Agno agents to seamlessly use existing MCP services
+    while maintaining their performance characteristics (~3μs instantiation).
+    """
 
+    def __init__(self):
         self.mcp_client = mcp_client
         self.agent_framework = agent_framework
         self.mcp_tools_cache: Dict[str, Callable] = {}
         self.performance_metrics: Dict[str, Any] = {}
 
     async def initialize(self):
-        """Initialize the bridge and cache MCP tool wrappers."""logger.info("Initializing Agno-MCP Bridge...").
+        """Initialize the bridge and cache MCP tool wrappers."""
+        logger.info("Initializing Agno-MCP Bridge...")
 
         # Pre-create tool wrappers for all MCP services
         for server_name, server_config in MCP_SERVERS.items():
@@ -52,14 +55,15 @@ class AgnoMCPBridge:
     ) -> Agent:
         """Create high-performance Agno agent with MCP tool access.
 
-                        Args:
-                            agent_name: Name of the agent
-                            agent_config: Agent configuration including model, memory, etc.
-                            mcp_services: List of MCP services to integrate
+        Args:
+            agent_name: Name of the agent
+            agent_config: Agent configuration including model, memory, etc.
+            mcp_services: List of MCP services to integrate
 
-                        Returns:
-                            Configured Agno agent with MCP tool access
-        """logger.info(f"Creating Agno agent '{agent_name}' with MCP services: {mcp_services}").
+        Returns:
+            Configured Agno agent with MCP tool access
+        """
+        logger.info(f"Creating Agno agent '{agent_name}' with MCP services: {mcp_services}")
 
         # Get MCP tools for this agent
         mcp_tools = []
@@ -116,15 +120,14 @@ class AgnoMCPBridge:
     async def _create_mcp_tool_wrapper(self, service_name: str) -> Callable:
         """Create optimized tool wrapper for MCP service.
 
-                        Args:
-                            service_name: Name of the MCP service
+        Args:
+            service_name: Name of the MCP service
 
-                        Returns:
-                            Async callable tool function
-        """async def mcp_tool(request: str, **kwargs) -> str:."""
-
-        Optimized MCP tool wrapper with error handling and caching"""
-
+        Returns:
+            Async callable tool function
+        """
+        async def mcp_tool(request: str, **kwargs) -> str:
+            """Optimized MCP tool wrapper with error handling and caching"""
             try:
                 # Use existing MCP client for service communication
                 response = await self.mcp_client.get_context(
@@ -159,8 +162,7 @@ class AgnoMCPBridge:
 
     def _create_model(self, model_config: Dict[str, Any]) -> Union[Claude, OpenAIChat]:
         """Create optimized model instance based on configuration."""
-
-        model_type = model_config.get("type", "claude").
+        model_type = model_config.get("type", "claude")
 
         if model_type == "claude":
             return Claude(
@@ -178,8 +180,7 @@ class AgnoMCPBridge:
 
     def _create_knowledge_base(self, agent_config: Dict[str, Any]) -> Optional[VectorKnowledge]:
         """Create knowledge base based on configuration."""
-        kb_config = agent_config.get("knowledge", {}).
-
+        kb_config = agent_config.get("knowledge", {})
         kb_type = kb_config.get("type", "weaviate")
 
         if kb_type == "weaviate":
@@ -202,8 +203,7 @@ class AgnoMCPBridge:
         mcp_services: List[str]
     ) -> str:
         """Generate optimized instructions for the agent."""
-
-        base_instructions = agent_config.get("instructions", "").
+        base_instructions = agent_config.get("instructions", "")
 
         agno_instructions = f"""
 You are {agent_name}, enhanced with Agno framework for maximum performance.
@@ -220,15 +220,13 @@ Performance Guidelines:
 - Provide actionable business intelligence insights
 
 {base_instructions}
-        """strip().
+        """.strip()
 
-                        return agno_instructions
+        return agno_instructions
 
-                    async def get_performance_metrics(self) -> Dict[str, Any]:
+    async def get_performance_metrics(self) -> Dict[str, Any]:
         """Get performance metrics for monitoring."""
-
-        return {.
-
+        return {
             "cached_tools": len(self.mcp_tools_cache),
             "agent_metrics": self.performance_metrics,
             "bridge_status": "active"
@@ -236,8 +234,7 @@ Performance Guidelines:
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on the bridge."""
-        try:.
-
+        try:
             # Test MCP client connectivity
             mcp_health = await self.mcp_client.health_check() if hasattr(self.mcp_client, 'health_check') else True
 
@@ -261,9 +258,7 @@ agno_mcp_bridge = AgnoMCPBridge()
 
 async def initialize_bridge():
     """Initialize the global Agno-MCP bridge."""
-
-    await agno_mcp_bridge.initialize().
-
+    await agno_mcp_bridge.initialize()
     logger.info("Agno-MCP Bridge initialized successfully")
 
 
@@ -274,8 +269,7 @@ async def create_hybrid_agent(
     mcp_services: List[str]
 ) -> Agent:
     """Create hybrid Agno agent with MCP integration."""
-    return await agno_mcp_bridge.create_agno_agent_with_mcp_tools(.
-
+    return await agno_mcp_bridge.create_agno_agent_with_mcp_tools(
         agent_name, agent_config, mcp_services
     )
 

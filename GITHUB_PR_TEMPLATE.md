@@ -1,53 +1,93 @@
-# Sophia AI Codebase Cleanup
+# Sophia AI Codebase Cleanup - Phase [X]
 
-## Summary
-This PR implements comprehensive codebase cleanup based on the code review findings. It removes vendored dependencies, fixes directory structure issues, and updates .gitignore to prevent future issues.
+## Overview
+This PR implements Phase [X] of the codebase cleanup as outlined in the cleanup plan.
 
 ## Changes Made
 
-### 🗑️ Removed Vendored Dependencies
-- [ ] Removed `frontend/node_modules` (~202 MB)
-- [ ] Removed `sophia_admin_api/venv` (~24 MB)
-- [ ] Removed any `.npm` cache files
-- [ ] Removed `sophia_venv` if present
+### Phase 1: Remove Vendored Dependencies _(if applicable)_
+- [ ] Added `frontend/node_modules/` to .gitignore
+- [ ] Added `sophia_admin_api/venv/` to .gitignore
+- [ ] Added `sophia_venv/` to .gitignore
+- [ ] Removed tracked vendored dependencies
+- [ ] Updated documentation for dependency installation
 
-### 🔧 Fixed Directory Structure
-- [ ] Removed malformed directory: `backend/agents/core/agent_framework.py and infrastructure`
-- [ ] Verified no other malformed directories exist
+### Phase 2: Fix Directory Structure _(if applicable)_
+- [ ] Renamed erroneous directories
+- [ ] Updated all import statements
+- [ ] Fixed broken references
+- [ ] Verified no naming conflicts
 
-### 📝 Updated Configuration
-- [ ] Updated `.gitignore` with comprehensive patterns
-- [ ] Cleaned git cache to ensure ignored files are properly ignored
+### Phase 3: Consolidate Dependencies _(if applicable)_
+- [ ] Chose dependency management system (Poetry/pip)
+- [ ] Consolidated all dependencies
+- [ ] Generated lockfile
+- [ ] Updated CI/CD configuration
+- [ ] Removed obsolete dependency files
 
-### 📊 Repository Size Reduction
-- **Before**: [Initial Size] MB
-- **After**: [Final Size] MB
-- **Reduction**: [Size Reduction] MB ([Percentage]%)
+### Phase 4: Remove Dead Code _(if applicable)_
+- [ ] Analyzed script usage
+- [ ] Removed obsolete `fix_*` scripts
+- [ ] Removed unused test scripts
+- [ ] Updated documentation
+
+### Phase 5: Git History Cleanup _(if applicable)_
+- [ ] Removed large files from history
+- [ ] Cleaned up binary files
+- [ ] Reduced repository size
 
 ## Testing Checklist
-- [ ] Verified all source code is preserved
-- [ ] Confirmed `sophia_admin_api/src` code is intact
-- [ ] Ran `poetry install` successfully
-- [ ] Ran `cd frontend && npm install` successfully
-- [ ] Backend starts without errors
-- [ ] Frontend builds without errors
 
-## Next Steps
-After merging this PR:
-1. Consider using BFG Repo-Cleaner to remove large files from git history
-2. Review and remove obsolete scripts in the `scripts/` directory
-3. Standardize on either Poetry or pip for Python dependency management
-4. Add pre-commit hooks to prevent vendored dependencies
+### Backend Tests
+- [ ] `pytest` passes all tests
+- [ ] No import errors
+- [ ] Secret loading works correctly
+- [ ] All agents initialize properly
 
-## Notes
-- All actual source code has been preserved
-- Only vendored dependencies and malformed directories were removed
-- The cleanup script created a detailed report: `CLEANUP_REPORT.md`
+### Frontend Tests
+- [ ] `npm test` passes
+- [ ] `npm run build` succeeds
+- [ ] No missing dependencies
 
-## Related Issues
-- Addresses repository size concerns
-- Fixes directory structure issues
-- Implements proper dependency management
+### Integration Tests
+- [ ] `docker-compose build` succeeds
+- [ ] All MCP servers start correctly
+- [ ] API endpoints respond correctly
+- [ ] Database connections work
 
----
-**Important**: This is a cleanup PR that should not affect functionality. All tests should pass without modification.
+### CI/CD
+- [ ] GitHub Actions workflows pass
+- [ ] Pre-commit hooks pass
+- [ ] No linting errors
+
+## Size Impact
+- **Before**: [X] MB
+- **After**: [Y] MB
+- **Reduction**: [Z]%
+
+## Breaking Changes
+- [ ] None
+- [ ] Listed below:
+  - 
+
+## Documentation Updates
+- [ ] README.md updated
+- [ ] Development setup instructions updated
+- [ ] Dependency management documented
+- [ ] CHANGELOG.md updated
+
+## Rollback Plan
+If issues arise:
+1. Revert this PR
+2. Restore from backup branch
+3. Re-run dependency installation
+
+## Additional Notes
+_Add any additional context, decisions made, or issues encountered_
+
+## Reviewers Checklist
+- [ ] Code changes reviewed
+- [ ] Tests pass locally
+- [ ] Documentation is clear
+- [ ] No security concerns
+- [ ] Follows project conventions

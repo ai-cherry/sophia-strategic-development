@@ -3,8 +3,9 @@
 This example demonstrates how to enhance the existing Gong agent with Agno's
 high-performance capabilities while maintaining all MCP integrations and
 backward compatibility with the existing Sophia AI architecture.
-"""import asyncio
+"""
 
+import asyncio
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -24,22 +25,22 @@ logger = logging.getLogger(__name__)
 class AgnoEnhancedGongAgent:
     """Agno-enhanced version of the Gong Intelligence Agent.
 
-        This agent demonstrates the seamless integration between Agno's high-performance
-        capabilities and Sophia AI's existing MCP infrastructure for Gong.io analysis.
+    This agent demonstrates the seamless integration between Agno's high-performance
+    capabilities and Sophia AI's existing MCP infrastructure for Gong.io analysis.
 
-        Performance improvements:
-        - ~3μs instantiation time (vs ~100ms traditional)
-        - ~50MB memory usage (vs ~200MB traditional)
-        - <200ms response time for call analysis
-        - Advanced team coordination capabilities
-    """def __init__(self):
+    Performance improvements:
+    - ~3μs instantiation time (vs ~100ms traditional)
+    - ~50MB memory usage (vs ~200MB traditional)
+    - <200ms response time for call analysis
+    - Advanced team coordination capabilities
+    """
 
+    def __init__(self):
         self.agent: Optional[Agent] = None
         self.performance_metrics: Dict[str, Any] = {}
 
     async def initialize(self) -> Agent:
         """Initialize the Agno-enhanced Gong agent."""
-
         logger.info("Initializing Agno-Enhanced Gong Intelligence Agent...")
 
         # Agent configuration optimized for Gong analysis
@@ -89,8 +90,8 @@ class AgnoEnhancedGongAgent:
         return self.agent
 
     def _get_agent_instructions(self) -> str:
-        """Get optimized instructions for the Gong agent."""return """
-
+        """Get optimized instructions for the Gong agent."""
+        return """
 You are the Agno-Enhanced Gong Intelligence Agent, optimized for ultra-fast call analysis and sales intelligence.
 
 CORE CAPABILITIES:
@@ -122,11 +123,10 @@ RESPONSE FORMAT:
 - Use structured output for dashboard integration
 
 Use your enhanced performance to provide rapid, accurate analysis while maintaining the deep intelligence capabilities expected from Sophia AI.
-        """strip().
+        """.strip()
 
-            async def analyze_recent_calls(self, limit: int = 10) -> Dict[str, Any]:
+    async def analyze_recent_calls(self, limit: int = 10) -> Dict[str, Any]:
         """Analyze recent Gong calls with enhanced performance."""
-
         if not self.agent:
             await self.initialize()
 
@@ -144,33 +144,34 @@ Use your enhanced performance to provide rapid, accurate analysis while maintain
         6. Action items and follow-ups needed
 
         Format the response for executive dashboard consumption.
-        """# Use the Agno agent for analysis.
+        """
 
-                response = await self.agent.run(analysis_request)
+        # Use the Agno agent for analysis
+        response = await self.agent.run(analysis_request)
 
-                # Track performance metrics
-                execution_time = (asyncio.get_event_loop().time() - start_time) * 1000  # Convert to ms
+        # Track performance metrics
+        execution_time = (asyncio.get_event_loop().time() - start_time) * 1000  # Convert to ms
 
-                self.performance_metrics["recent_calls_analysis"] = {
-                    "execution_time_ms": execution_time,
-                    "calls_analyzed": limit,
-                    "timestamp": datetime.now().isoformat()
-                }
+        self.performance_metrics["recent_calls_analysis"] = {
+            "execution_time_ms": execution_time,
+            "calls_analyzed": limit,
+            "timestamp": datetime.now().isoformat()
+        }
 
-                logger.info(f"Recent calls analysis completed in {execution_time:.2f}ms")
+        logger.info(f"Recent calls analysis completed in {execution_time:.2f}ms")
 
-                return {
-                    "analysis": response,
-                    "performance": {
-                        "execution_time_ms": execution_time,
-                        "calls_analyzed": limit,
-                        "agent_type": "agno_enhanced"
-                    }
-                }
+        return {
+            "analysis": response,
+            "performance": {
+                "execution_time_ms": execution_time,
+                "calls_analyzed": limit,
+                "agent_type": "agno_enhanced"
+            }
+        }
 
-            async def analyze_specific_call(self, call_id: str) -> Dict[str, Any]:
-        """Analyze a specific call with detailed insights."""if not self.agent:.
-
+    async def analyze_specific_call(self, call_id: str) -> Dict[str, Any]:
+        """Analyze a specific call with detailed insights."""
+        if not self.agent:
             await self.initialize()
 
         start_time = asyncio.get_event_loop().time()
@@ -189,22 +190,23 @@ Use your enhanced performance to provide rapid, accurate analysis while maintain
         8. **Next Steps**: Recommended follow-up actions
 
         Use your MCP integrations to correlate with CRM data and historical patterns.
-        """response = await self.agent.run(analysis_request).
+        """
 
-                execution_time = (asyncio.get_event_loop().time() - start_time) * 1000
+        response = await self.agent.run(analysis_request)
+        execution_time = (asyncio.get_event_loop().time() - start_time) * 1000
 
-                return {
-                    "call_id": call_id,
-                    "analysis": response,
-                    "performance": {
-                        "execution_time_ms": execution_time,
-                        "agent_type": "agno_enhanced"
-                    }
-                }
+        return {
+            "call_id": call_id,
+            "analysis": response,
+            "performance": {
+                "execution_time_ms": execution_time,
+                "agent_type": "agno_enhanced"
+            }
+        }
 
-            async def generate_sales_coaching_insights(self, rep_name: str) -> Dict[str, Any]:
-        """Generate personalized coaching insights for a sales rep."""if not self.agent:.
-
+    async def generate_sales_coaching_insights(self, rep_name: str) -> Dict[str, Any]:
+        """Generate personalized coaching insights for a sales rep."""
+        if not self.agent:
             await self.initialize()
 
         coaching_request = f"""
@@ -227,23 +229,24 @@ Use your enhanced performance to provide rapid, accurate analysis while maintain
         - Performance trends
 
         Correlate with CRM data to show impact on pipeline progression.
-        """start_time = asyncio.get_event_loop().time().
+        """
 
-                response = await self.agent.run(coaching_request)
-                execution_time = (asyncio.get_event_loop().time() - start_time) * 1000
+        start_time = asyncio.get_event_loop().time()
+        response = await self.agent.run(coaching_request)
+        execution_time = (asyncio.get_event_loop().time() - start_time) * 1000
 
-                return {
-                    "rep_name": rep_name,
-                    "coaching_insights": response,
-                    "performance": {
-                        "execution_time_ms": execution_time,
-                        "agent_type": "agno_enhanced"
-                    }
-                }
+        return {
+            "rep_name": rep_name,
+            "coaching_insights": response,
+            "performance": {
+                "execution_time_ms": execution_time,
+                "agent_type": "agno_enhanced"
+            }
+        }
 
-            async def get_performance_metrics(self) -> Dict[str, Any]:
-        """Get comprehensive performance metrics."""return {.
-
+    async def get_performance_metrics(self) -> Dict[str, Any]:
+        """Get comprehensive performance metrics."""
+        return {
             "agent_metrics": self.performance_metrics,
             "bridge_metrics": await agno_mcp_bridge.get_performance_metrics(),
             "agent_status": "active" if self.agent else "inactive"

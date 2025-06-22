@@ -47,7 +47,7 @@ echo "**/node_modules/" >> .gitignore
    # backend/main.py
    import os
    from backend.core.auto_esc_config import config
-   
+
    # Feature flags from environment
    ENABLE_DASHBOARD = os.getenv("ENABLE_DASHBOARD", "true").lower() == "true"
    ENABLE_MCP = os.getenv("ENABLE_MCP", "true").lower() == "true"
@@ -61,7 +61,7 @@ echo "**/node_modules/" >> .gitignore
 - Remove: `backend/integrations/gong/enhanced_gong_integration.py`
 - Remove: `backend/analytics/gong_analytics.py`
 
-#### Vector Store Integration  
+#### Vector Store Integration
 - Keep: `backend/vector/vector_integration.py`
 - Remove: `backend/vector/vector_integration_updated.py`
 
@@ -220,13 +220,13 @@ repos:
     hooks:
       - id: black
         language_version: python3.11
-  
+
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
       - id: flake8
         args: ['--max-line-length=88']
-  
+
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
@@ -275,7 +275,7 @@ if __name__ == "__main__":
         check_single_main,
         check_no_duplicate_integrations,
     ]
-    
+
     all_passed = all(check() for check in checks)
     sys.exit(0 if all_passed else 1)
 ```

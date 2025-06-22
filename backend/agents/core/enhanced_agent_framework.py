@@ -2,8 +2,9 @@
 
 Hybrid framework supporting both traditional and Agno agents.
 Provides intelligent agent allocation and seamless integration between architectures.
-""""""import asyncio.
+"""
 
+import asyncio
 import logging
 from typing import Any, Dict, List, Optional, Union
 
@@ -22,11 +23,12 @@ logger = logging.getLogger(__name__)
 class EnhancedAgentFramework:
     """Enhanced framework supporting both traditional and Agno agents.
 
-            This framework intelligently decides whether to use traditional BaseAgent
-            or high-performance Agno agents based on performance requirements,
-            while maintaining full backward compatibility.
-    """def __init__(self):.
+    This framework intelligently decides whether to use traditional BaseAgent
+    or high-performance Agno agents based on performance requirements,
+    while maintaining full backward compatibility.
+    """
 
+    def __init__(self):
         self.mcp_orchestrator = agent_framework
         self.agno_bridge = agno_mcp_bridge
         self.agent_router = agent_router
@@ -36,7 +38,8 @@ class EnhancedAgentFramework:
         self.allocation_strategy = "intelligent"  # intelligent, agno_preferred, traditional_only
 
     async def initialize(self):
-        """Initialize the enhanced framework."""logger.info("Initializing Enhanced Agent Framework...").
+        """Initialize the enhanced framework."""
+        logger.info("Initializing Enhanced Agent Framework...")
 
         # Initialize base components
         await self.mcp_orchestrator.initialize()
@@ -58,14 +61,15 @@ class EnhancedAgentFramework:
     ) -> Union[BaseAgent, AgnoAgent]:
         """Create agent using optimal framework.
 
-                        Args:
-                            agent_name: Name of the agent
-                            agent_config: Agent configuration
-                            force_type: Force specific agent type ('agno', 'traditional', or None)
+        Args:
+            agent_name: Name of the agent
+            agent_config: Agent configuration
+            force_type: Force specific agent type ('agno', 'traditional', or None)
 
-                        Returns:
-                            Optimally configured agent
-        """logger.info(f"Creating agent '{agent_name}' with config: {agent_config}").
+        Returns:
+            Optimally configured agent
+        """
+        logger.info(f"Creating agent '{agent_name}' with config: {agent_config}")
 
         # Determine agent type based on strategy
         use_agno = self._should_use_agno(agent_config, force_type)
@@ -96,14 +100,15 @@ class EnhancedAgentFramework:
     ) -> Team:
         """Create coordinated agent team using Agno Team 2.0.
 
-                        Args:
-                            team_name: Name of the team
-                            team_config: Team configuration
-                            agents: List of agent names or agent configurations
+        Args:
+            team_name: Name of the team
+            team_config: Team configuration
+            agents: List of agent names or agent configurations
 
-                        Returns:
-                            Coordinated agent team
-        """logger.info(f"Creating agent team '{team_name}' with {len(agents)} members").
+        Returns:
+            Coordinated agent team
+        """
+        logger.info(f"Creating agent team '{team_name}' with {len(agents)} members")
 
         # Create team members
         team_members = []
@@ -154,14 +159,15 @@ class EnhancedAgentFramework:
     ) -> Dict[str, Any]:
         """Route request to optimal agent or team.
 
-                        Args:
-                            request: Natural language request
-                            context: Request context
-                            prefer_teams: Whether to prefer team coordination
+        Args:
+            request: Natural language request
+            context: Request context
+            prefer_teams: Whether to prefer team coordination
 
-                        Returns:
-                            Response from agent or team
-        """logger.info(f"Routing request: {request[:100]}...").
+        Returns:
+            Response from agent or team
+        """
+        logger.info(f"Routing request: {request[:100]}...")
 
         # Check if request requires team coordination
         if prefer_teams or self._requires_team_coordination(request, context):
@@ -175,9 +181,7 @@ class EnhancedAgentFramework:
 
     def _should_use_agno(self, agent_config: Dict[str, Any], force_type: Optional[str]) -> bool:
         """Determine whether to use Agno for this agent."""
-
-        if force_type:.
-
+        if force_type:
             return force_type == "agno"
 
         if self.allocation_strategy == "traditional_only":
@@ -208,7 +212,7 @@ class EnhancedAgentFramework:
 
     async def _create_agno_agent(self, agent_name: str, config: Dict[str, Any]) -> AgnoAgent:
         """Create Agno-enhanced agent."""
-        mcp_services = config.get('mcp_services', []).
+        mcp_services = config.get('mcp_services', [])
 
         agent_config = {
             "model": config.get("model", {"type": "claude"}),
@@ -229,8 +233,8 @@ class EnhancedAgentFramework:
         )
 
     async def _create_traditional_agent(self, agent_name: str, config: Dict[str, Any]) -> BaseAgent:
-        """Create traditional BaseAgent."""# Convert config to AgentConfig format.
-
+        """Create traditional BaseAgent."""
+        # Convert config to AgentConfig format
         agent_config = AgentConfig(
             agent_id=agent_name,
             agent_type=config.get("agent_type", "specialized"),
@@ -252,9 +256,7 @@ class EnhancedAgentFramework:
 
     def _requires_team_coordination(self, request: str, context: Optional[Dict[str, Any]]) -> bool:
         """Determine if request benefits from team coordination."""
-
-        coordination_keywords = [.
-
+        coordination_keywords = [
             "comprehensive analysis", "cross-platform insights",
             "multi-source data", "complete picture", "integrated view",
             "coordinate", "collaborate", "team analysis"
@@ -262,8 +264,8 @@ class EnhancedAgentFramework:
         return any(keyword in request.lower() for keyword in coordination_keywords)
 
     def _determine_best_team(self, request: str, context: Optional[Dict[str, Any]]) -> Optional[str]:
-        """Determine the best team for the request."""# Simple keyword-based team selection.
-
+        """Determine the best team for the request."""
+        # Simple keyword-based team selection
         if any(keyword in request.lower() for keyword in ["business", "sales", "revenue", "pipeline"]):
             return "business_intelligence"
         elif any(keyword in request.lower() for keyword in ["executive", "strategic", "leadership"]):
@@ -274,18 +276,15 @@ class EnhancedAgentFramework:
 
     async def get_agent(self, agent_name: str) -> Optional[Union[BaseAgent, AgnoAgent]]:
         """Get agent by name."""
-
-        return self.hybrid_agents.get(agent_name).
+        return self.hybrid_agents.get(agent_name)
 
     async def get_team(self, team_name: str) -> Optional[Team]:
         """Get team by name."""
-        return self.agent_teams.get(team_name).
+        return self.agent_teams.get(team_name)
 
     async def get_performance_metrics(self) -> Dict[str, Any]:
         """Get performance metrics for all agents and teams."""
-
-        return {.
-
+        return {
             "agents": self.performance_metrics,
             "teams": {name: {"members": len(team.members)} for name, team in self.agent_teams.items()},
             "allocation_strategy": self.allocation_strategy,
@@ -295,8 +294,7 @@ class EnhancedAgentFramework:
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on the framework."""
-        try:.
-
+        try:
             # Check bridge health
             bridge_health = await self.agno_bridge.health_check()
 
@@ -324,9 +322,7 @@ enhanced_agent_framework = EnhancedAgentFramework()
 
 async def initialize_enhanced_framework():
     """Initialize the global enhanced agent framework."""
-
-    await enhanced_agent_framework.initialize().
-
+    await enhanced_agent_framework.initialize()
     logger.info("Enhanced Agent Framework initialized successfully")
 
 
@@ -337,7 +333,7 @@ async def create_hybrid_agent(
     force_type: Optional[str] = None
 ) -> Union[BaseAgent, AgnoAgent]:
     """Create hybrid agent using enhanced framework."""
-    return await enhanced_agent_framework.create_agent(agent_name, agent_config, force_type).
+    return await enhanced_agent_framework.create_agent(agent_name, agent_config, force_type)
 
 
 async def create_agent_team(
@@ -346,8 +342,7 @@ async def create_agent_team(
     agents: List[Union[str, Dict[str, Any]]]
 ) -> Team:
     """Create agent team using enhanced framework."""
-
-    return await enhanced_agent_framework.create_agent_team(team_name, team_config, agents).
+    return await enhanced_agent_framework.create_agent_team(team_name, team_config, agents)
 
 
 async def route_intelligent_request(

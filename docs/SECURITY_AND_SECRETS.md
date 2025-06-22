@@ -65,4 +65,4 @@ openai.api_key = config.openai_api_key
 
 ---
 
-For more details, see the onboarding guide, performance playbook, and CEO dashboard for live security and secret management status. 
+For more details, see the onboarding guide, performance playbook, and CEO dashboard for live security and secret management status.

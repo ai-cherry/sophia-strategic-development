@@ -110,7 +110,7 @@ git checkout HEAD -- path/to/file
    ```bash
    # Start the backend
    cd backend && python main.py
-   
+
    # In another terminal, test the API
    curl http://localhost:8000/health
    ```

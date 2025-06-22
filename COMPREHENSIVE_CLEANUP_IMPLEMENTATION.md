@@ -82,19 +82,19 @@ def fix_python_file(filepath):
     try:
         with open(filepath, 'r') as f:
             content = f.read()
-        
+
         # Fix with autopep8
         fixed = autopep8.fix_code(content, options={
             'aggressive': 2,
             'max_line_length': 88,
         })
-        
+
         # Verify it's valid Python
         ast.parse(fixed)
-        
+
         with open(filepath, 'w') as f:
             f.write(fixed)
-        
+
         return True
     except Exception as e:
         print(f"Error fixing {filepath}: {e}")

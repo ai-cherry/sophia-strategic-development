@@ -6,4 +6,4 @@ description: A sophisticated AI orchestration platform.
 # This ensures that all secrets and configurations are automatically
 # available to our Pulumi programs without needing to specify them manually.
 environment:
-  - scoobyjava-org/default/sophia-ai-production 
+  - scoobyjava-org/default/sophia-ai-production
