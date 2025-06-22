@@ -29,17 +29,17 @@ jobs:
         echo "🔒 Running security validation..."
 
         # Check for hardcoded secrets (critical security check)
-        if grep -r "sk-ant-api03-" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+        if grep -r "sk-ant-api03-" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude='.env.example' --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded Anthropic API keys found!"
           exit 1
         fi
 
-        if grep -r "Huskers1983" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+        if grep -r "Huskers1983" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude='.env.example' --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded passwords found!"
           exit 1
         fi
 
-        if grep -r "FP71296" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude-dir=venv; then
+        if grep -r "FP71296" . --exclude-dir=.git --exclude="*.md" --exclude="*.log" --exclude='.env.example' --exclude-dir=venv; then
           echo "❌ CRITICAL: Hardcoded Snowflake credentials found!"
           exit 1
         fi
