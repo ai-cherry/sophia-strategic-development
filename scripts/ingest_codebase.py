@@ -59,7 +59,8 @@ class RepositoryIntelligenceService:
         )
 
     def scan_repository(self) -> List[Path]:
-        """Scans the repository for relevant files to ingest."""logging.info("Scanning repository for relevant files...").
+        """Scans the repository for relevant files to ingest."""
+        logging.info("Scanning repository for relevant files...")
 
         relevant_files = []
         for path in self.root_path.rglob("*"):
