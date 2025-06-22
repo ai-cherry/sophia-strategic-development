@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ..integrations.workflow_orchestrator import N8nWorkflowOrchestrator
-from .core.base_agent import BaseAgent
+from backend.integrations.workflow_orchestrator import N8nWorkflowOrchestrator
+from backend.agents.core.base_agent import BaseAgent
 
 
 class NLCommandAgent(BaseAgent):

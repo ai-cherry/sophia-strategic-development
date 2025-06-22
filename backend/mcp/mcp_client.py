@@ -3,7 +3,10 @@
 import logging
 from typing import Any, Dict, Optional
 
-import aiohttp
+try:  # pragma: no cover - optional dependency
+    import aiohttp  # type: ignore
+except Exception:  # pragma: no cover - gracefully degrade if missing
+    aiohttp = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +69,9 @@ class MCPClient:
         }
 
         logger.info(f"Sending MCP request to '{service_name}': '{request}'")
+
+        if aiohttp is None:
+            raise RuntimeError("aiohttp is required to perform MCP requests")
 
         async with aiohttp.ClientSession() as session:
             try:
