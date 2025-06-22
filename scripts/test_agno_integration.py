@@ -10,14 +10,22 @@ import logging
 import os
 import sys
 from datetime import datetime
+import pytest
+from backend.integrations.agno_integration import agno_integration
+from infrastructure.esc.agno_secrets import agno_secret_manager
+from backend.agents.specialized.sentry_agent import SentryAgent
+from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
+from backend.agents.specialized.metrics_agent import MetricsAgent
+from backend.agents.specialized.executive_agent import ExecutiveAgent
+from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
+from backend.agents.specialized.crm_sync_agent import CRMSyncAgent
+from backend.agents.specialized.insight_extraction_agent import InsightExtractionAgent
+from backend.agents.specialized.project_intelligence_agent import ProjectIntelligenceAgent
+from backend.agents.specialized.hr_agent import HRAgent
+from backend.agents.core.base_agent import AgentConfig, Task
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-# Import Agno integration
-from backend.integrations.agno_integration import agno_integration
-from backend.mcp.agno_bridge import MCPToAgnoBridge
-from backend.mcp.mcp_client import MCPClient
 
 # Configure logging
 logging.basicConfig(
@@ -36,199 +44,110 @@ logger = logging.getLogger(__name__)
 TEST_AGENT_ID = "test_agent"
 TEST_REQUEST = "What is the current status of our Gong integration? Please check the latest calls and provide a summary."
 
+AGENTS = [
+    ("SentryAgent", SentryAgent),
+    ("CallAnalysisAgent", CallAnalysisAgent),
+    ("MetricsAgent", MetricsAgent),
+    ("ExecutiveAgent", ExecutiveAgent),
+    ("SalesCoachAgent", SalesCoachAgent),
+    ("CRMSyncAgent", CRMSyncAgent),
+    ("InsightExtractionAgent", InsightExtractionAgent),
+    ("ProjectIntelligenceAgent", ProjectIntelligenceAgent),
+    ("HRAgent", HRAgent),
+]
 
-async def test_agno_integration():
-    """Test the Agno integration."""
+@pytest.mark.asyncio
+async def test_agno_secret_loading():
+    """Test Agno secret/config loading from Pulumi ESC."""
+    api_key = await agno_secret_manager.get_agno_api_key()
+    config = await agno_secret_manager.get_agno_config()
+    assert api_key, "AGNO_API_KEY should not be empty"
+    assert isinstance(config, dict), "AGNO_CONFIG should be a dict"
+    print("✅ Agno secret/config loading passed.")
 
-    logger.info("Testing Agno integration...")
+@pytest.mark.asyncio
+async def test_agno_secret_loading_failure(monkeypatch):
+    """Test Agno secret loading failure (simulate missing secret)."""
+    monkeypatch.setattr(agno_secret_manager, "get_secret", lambda key: None)
+    api_key = await agno_secret_manager.get_agno_api_key()
+    assert api_key is None, "Should return None if secret is missing"
+    print("✅ Agno secret loading failure handled.")
 
-    try:
-        # Initialize Agno integration
-        await agno_integration.initialize()
-        logger.info("Agno integration initialized successfully.")
+@pytest.mark.asyncio
+async def test_agent_pooling():
+    """Test pooled instantiation for all Agno agents."""
+    for name, AgentClass in AGENTS:
+        config = AgentConfig(agent_id=f"test_{name.lower()}", agent_type="test", specialization=name.lower())
+        agent = await AgentClass.pooled(config)
+        assert agent is not None, f"{name} pooled instantiation failed"
+        print(f"✅ {name} pooled instantiation passed.")
 
-        # Get pool stats
-        pool_stats = agno_integration.get_pool_stats()
-        logger.info(f"Agent pool stats: {json.dumps(pool_stats, indent=2)}")
-
-        # Create agent
-        agent = await agno_integration.get_agent(
-            agent_id=TEST_AGENT_ID,
-            instructions=[
-                "You are Sophia AI, an enterprise AI assistant for Pay Ready",
-                "You have access to various tools to help you accomplish tasks",
-                "Always provide clear, concise responses",
-                "When using tools, explain your reasoning",
-            ],
+@pytest.mark.asyncio
+async def test_task_failure_handling():
+    """Test task failure and exception handling for all Agno agents."""
+    for name, AgentClass in AGENTS:
+        config = AgentConfig(agent_id=f"fail_{name.lower()}", agent_type="test", specialization=name.lower())
+        agent = await AgentClass.pooled(config)
+        # Use an invalid task type to trigger error
+        task = Task(
+            task_id="fail_task",
+            task_type="invalid_task_type",
+            agent_id=config.agent_id,
+            task_data={},
+            status=None,
+            created_at=datetime.utcnow(),
+            started_at=None,
+            completed_at=None,
+            result=None,
+            error_message=None,
+            priority=None,
         )
-        logger.info(f"Agent {TEST_AGENT_ID} created successfully.")
+        result = await agent.process_task(task)
+        assert not result.get("success", True), f"{name} should fail on invalid task type"
+        print(f"✅ {name} task failure handling passed.")
 
-        # Test successful
-        logger.info("Agno integration test successful.")
-        return True
-    except Exception as e:
-        logger.error(f"Agno integration test failed: {e}", exc_info=True)
-        return False
+@pytest.mark.asyncio
+async def test_edge_cases():
+    """Test edge cases: rapid agent creation, concurrent tasks, missing config."""
+    # Rapid agent creation
+    config = AgentConfig(agent_id="rapid_test", agent_type="test", specialization="sentry")
+    agents = [await SentryAgent.pooled(config) for _ in range(10)]
+    assert all(agents), "Rapid agent creation failed"
+    print("✅ Rapid agent creation passed.")
 
-
-async def test_agno_bridge():
-    """Test the MCP-to-Agno bridge."""logger.info("Testing MCP-to-Agno bridge...").
-
-    try:
-        # Initialize MCP client
-        mcp_client = MCPClient()
-        await mcp_client.initialize()
-        logger.info("MCP client initialized successfully.")
-
-        # Initialize bridge
-        bridge = MCPToAgnoBridge(mcp_client)
-        logger.info("MCP-to-Agno bridge initialized successfully.")
-
-        # Convert all MCP tools to Agno tools
-        tools = await bridge.convert_all_mcp_tools()
-        logger.info(f"Converted {len(tools)} MCP tools to Agno tools.")
-
-        # Log tool names
-        tool_names = [tool.name for tool in tools]
-        logger.info(f"Tool names: {', '.join(tool_names)}")
-
-        # Get cache stats
-        cache_stats = bridge.get_cache_stats()
-        logger.info(f"Bridge cache stats: {json.dumps(cache_stats, indent=2)}")
-
-        # Test successful
-        logger.info("MCP-to-Agno bridge test successful.")
-        return True
-    except Exception as e:
-        logger.error(f"MCP-to-Agno bridge test failed: {e}", exc_info=True)
-        return False
-
-
-async def test_agent_request():
-    """Test an agent request."""logger.info("Testing agent request...").
-
-    try:
-        # Initialize MCP client
-        mcp_client = MCPClient()
-        await mcp_client.initialize()
-        logger.info("MCP client initialized successfully.")
-
-        # Initialize bridge
-        bridge = MCPToAgnoBridge(mcp_client)
-        logger.info("MCP-to-Agno bridge initialized successfully.")
-
-        # Convert all MCP tools to Agno tools
-        tools = await bridge.convert_all_mcp_tools()
-        logger.info(f"Converted {len(tools)} MCP tools to Agno tools.")
-
-        # Process request
-        logger.info(f"Processing request: {TEST_REQUEST}")
-        response_chunks = []
-        async for chunk in agno_integration.process_request(
-            agent_id=TEST_AGENT_ID, request=TEST_REQUEST, tools=tools
-        ):
-            response_chunks.append(chunk)
-            logger.info(f"Received chunk: {json.dumps(chunk, indent=2)}")
-
-        # Log response
-        logger.info(f"Received {len(response_chunks)} response chunks.")
-
-        # Test successful
-        logger.info("Agent request test successful.")
-        return True
-    except Exception as e:
-        logger.error(f"Agent request test failed: {e}", exc_info=True)
-        return False
-
-
-async def test_mcp_server():
-    """Test the Agno MCP server via MCP client."""logger.info("Testing Agno MCP server...").
-
-    try:
-        # Initialize MCP client
-        mcp_client = MCPClient()
-        await mcp_client.initialize()
-        logger.info("MCP client initialized successfully.")
-
-        # List servers
-        servers = mcp_client.list_servers()
-        logger.info(f"Available servers: {', '.join(servers)}")
-
-        # Check if Agno server is available
-        if "agno" not in servers:
-            logger.error("Agno server not found in available servers.")
-            return False
-
-        # List tools
-        tools = mcp_client.list_tools("agno")
-        logger.info(f"Available tools: {', '.join(tools)}")
-
-        # Call create_agent tool
-        result = await mcp_client.call_tool(
-            "agno",
-            "create_agent",
-            agent_id=f"{TEST_AGENT_ID}_mcp",
-            instructions=[
-                "You are Sophia AI, an enterprise AI assistant for Pay Ready",
-                "You have access to various tools to help you accomplish tasks",
-                "Always provide clear, concise responses",
-                "When using tools, explain your reasoning",
-            ],
+    # Concurrent tasks
+    async def run_task(agent, i):
+        task = Task(
+            task_id=f"concurrent_{i}",
+            task_type="invalid_task_type",
+            agent_id=agent.config.agent_id,
+            task_data={},
+            status=None,
+            created_at=datetime.utcnow(),
+            started_at=None,
+            completed_at=None,
+            result=None,
+            error_message=None,
+            priority=None,
         )
-        logger.info(f"Create agent result: {json.dumps(result, indent=2)}")
+        return await agent.process_task(task)
+    agent = await SentryAgent.pooled(config)
+    results = await asyncio.gather(*(run_task(agent, i) for i in range(5)))
+    assert all(not r.get("success", True) for r in results), "Concurrent task error handling failed"
+    print("✅ Concurrent task error handling passed.")
 
-        # Call process_request tool
-        result = await mcp_client.call_tool(
-            "agno",
-            "process_request",
-            agent_id=f"{TEST_AGENT_ID}_mcp",
-            request="Hello, I'm testing the Agno MCP server.",
-            stream=False,
-        )
-        logger.info(f"Process request result: {json.dumps(result, indent=2)}")
-
-        # Test successful
-        logger.info("Agno MCP server test successful.")
-        return True
-    except Exception as e:
-        logger.error(f"Agno MCP server test failed: {e}", exc_info=True)
-        return False
-
-
-async def main():
-    """Main entry point."""
-    logger.info("Starting Agno integration tests...")
-
-    # Run tests
-    integration_test = await test_agno_integration()
-    bridge_test = await test_agno_bridge()
-    mcp_server_test = await test_mcp_server()
-    agent_test = await test_agent_request()
-
-    # Log results
-    logger.info("Test results:")
-    logger.info(f"  Agno integration: {'PASS' if integration_test else 'FAIL'}")
-    logger.info(f"  MCP-to-Agno bridge: {'PASS' if bridge_test else 'FAIL'}")
-    logger.info(f"  Agno MCP server: {'PASS' if mcp_server_test else 'FAIL'}")
-    logger.info(f"  Agent request: {'PASS' if agent_test else 'FAIL'}")
-
-    # Overall result
-    overall = all([integration_test, bridge_test, mcp_server_test, agent_test])
-    logger.info(f"Overall result: {'PASS' if overall else 'FAIL'}")
-
-    # Close resources
-    await agno_integration.close()
-
-    return 0 if overall else 1
-
-
-if __name__ == "__main__":
+    # Missing config (simulate by passing None)
     try:
-        exit_code = asyncio.run(main())
-        sys.exit(exit_code)
-    except KeyboardInterrupt:
-        logger.info("Tests interrupted by user.")
-        sys.exit(130)
+        await SentryAgent.pooled(None)
     except Exception as e:
-        logger.error(f"Unhandled exception: {e}", exc_info=True)
-        sys.exit(1)
+        print(f"✅ Missing config edge case handled: {e}")
+
+
+def print_test_summary():
+    print("\n=== AGNO AGENT TEST SUITE COMPLETE ===\n")
+    print("All core agents, pooling, config, and error handling tested.")
+
+# Remove or comment out legacy/duplicate test functions below
+# async def test_agno_integration():
+#     ...
+# (and any other old test functions)

@@ -8,125 +8,50 @@ import json
 import logging
 from typing import Any, Dict
 
-from infrastructure.pulumi_esc import PulumiESCManager
+from backend.core.enhanced_pulumi_esc import EnhancedPulumiESC
 
 logger = logging.getLogger(__name__)
 
 
-class AgnoSecretManager:
-    """Manages secrets for Agno integration."""
+class AgnoSecretManager(EnhancedPulumiESC):
+    """Manages secrets for Agno integration using Pulumi ESC."""
 
     def __init__(self):
-        """Initialize the Agno secret manager."""self.esc_manager = PulumiESCManager().
-
-        self.api_key = None
-        self.config = None
+        super().__init__()
         self.initialized = False
 
     async def initialize(self):
-        """Initialize the Agno secret manager."""if self.initialized:.
-
+        if self.initialized:
             return
-
-        try:
-            # Initialize ESC manager
-            await self.esc_manager.initialize()
-
-            # Get API key
-            self.api_key = await self.get_agno_api_key()
-
-            # Get configuration
-            self.config = await self.get_agno_config()
-
-            self.initialized = True
-            logger.info("Agno secret manager initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize Agno secret manager: {e}")
-            self.initialized = False
-            raise
+        # Optionally, perform any additional setup here
+        self.initialized = True
 
     async def get_agno_api_key(self) -> str:
-        """Get the Agno API key.
+        """Get the Agno API key from Pulumi ESC."""
+        return await self.get_secret("AGNO_API_KEY")
 
-                Returns:
-                    str: The Agno API key
-        """logger.warning("Using placeholder Agno API key.").
+    async def get_agno_config(self) -> dict:
+        """Get the Agno configuration from Pulumi ESC (expects JSON string)."""
+        config_json = await self.get_secret("AGNO_CONFIG")
+        if config_json:
+            try:
+                return json.loads(config_json)
+            except Exception as e:
+                logger.error(f"Failed to parse AGNO_CONFIG: {e}")
+                return {}
+        return {}
 
-        return "placeholder_agno_api_key"
-
-    async def get_agno_config(self) -> Dict[str, Any]:
-        """Get the Agno configuration.
-
-                Returns:
-                    Dict[str, Any]: The Agno configuration
-        """logger.warning("Using placeholder Agno config.").
-
-        return {"placeholder": True}
-
-    async def set_agno_api_key(self, api_key: str) -> bool:
-        """Set the Agno API key.
-
-                Args:
-                    api_key: The Agno API key
-
-                Returns:
-                    bool: True if successful, False otherwise
-        """try:.
-
-            # Set in ESC
-            success = await self.esc_manager.set_secret("AGNO_API_KEY", api_key)
-            if success:
-                self.api_key = api_key
-                return True
-
-            # Failed to set in ESC
-            logger.error("Failed to set Agno API key in ESC")
-            return False
-        except Exception as e:
-            logger.error(f"Failed to set Agno API key: {e}")
-            return False
-
-    async def set_agno_config(self, config: Dict[str, Any]) -> bool:
-        """Set the Agno configuration.
-
-                Args:
-                    config: The Agno configuration
-
-                Returns:
-                    bool: True if successful, False otherwise
-        """try:.
-
-            # Convert to JSON
+    async def set_agno_config(self, config: dict) -> bool:
+        """Set the Agno configuration in Pulumi ESC (as JSON string)."""
+        try:
             config_json = json.dumps(config)
-
-            # Set in ESC
-            success = await self.esc_manager.set_secret("AGNO_CONFIG", config_json)
+            success = await self.set_secret("AGNO_CONFIG", config_json)
             if success:
-                self.config = config
                 return True
-
-            # Failed to set in ESC
             logger.error("Failed to set Agno configuration in ESC")
             return False
         except Exception as e:
             logger.error(f"Failed to set Agno configuration: {e}")
-            return False
-
-    async def rotate_agno_api_key(self) -> bool:
-        """Rotate the Agno API key.
-
-                Returns:
-                    bool: True if successful, False otherwise
-        """try:.
-
-            # This is a placeholder for rotating the API key
-            # In a real implementation, we would call the Agno API to rotate the key
-
-            # For now, just log a warning
-            logger.warning("Agno API key rotation not implemented")
-            return False
-        except Exception as e:
-            logger.error(f"Failed to rotate Agno API key: {e}")
             return False
 
     async def health_check(self) -> Dict[str, Any]:
