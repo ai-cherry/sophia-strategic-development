@@ -8,12 +8,11 @@ import logging
 from datetime import datetime
 from typing import Any, Coroutine, Dict, List, Optional
 
-from backend.agents.tools.custom_chunking_tools import custom_chunking_tools
+# Only import tools that exist in the trimmed test environment.  The original
+# project provided many more tool collections but most of them have been
+# stripped from this simplified codebase.
 from backend.agents.tools.design_tools import design_tools
-from backend.agents.tools.gong_tools import gong_tools
-from backend.agents.tools.hubspot_tools import hubspot_tools
-from backend.agents.tools.llm_tools import llm_tools
-from backend.agents.tools.pulumi_tools import pulumi_tools
+from backend.agents.tools.filesystem_tools import filesystem_tools
 from backend.mcp.mcp_client import MCP_GATEWAY_ENDPOINTS, mcp_client
 
 logger = logging.getLogger(__name__)
@@ -77,13 +76,9 @@ class MCPOrchestrator:
 
     async def initialize_tools(self) -> None:
         """Load all defined tools and register them for agent use."""
-        logger.info("Initializing and registering Agno-native tools...")
+        logger.info("Initializing and registering available tools...")
         all_tools = [
-            gong_tools,
-            hubspot_tools,
-            custom_chunking_tools,
-            pulumi_tools,
-            llm_tools,
+            filesystem_tools,
             design_tools,
         ]
 

@@ -7,7 +7,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-import httpx
+try:  # pragma: no cover - optional dependency
+    import httpx  # type: ignore
+except Exception:  # pragma: no cover - handled gracefully
+    httpx = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +27,10 @@ class N8nWorkflowOrchestrator:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.registry: Dict[str, N8nWorkflow] = {}
+        if httpx is None:
+            raise ImportError(
+                "httpx is required for N8nWorkflowOrchestrator but is not installed"
+            )
         self._client = httpx.AsyncClient(timeout=30)
 
     async def close(self) -> None:
