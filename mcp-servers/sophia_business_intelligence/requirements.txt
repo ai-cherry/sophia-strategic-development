@@ -11,5 +11,4 @@ hubspot-api-client==8.0.0
 click==8.1.7
 pydantic-settings==2.0.3
 httpx==0.25.0
-retoolapi==1.0.0
-python-intercom==4.1.0 
+python-intercom==4.0.0a1 

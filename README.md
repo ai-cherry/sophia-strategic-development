@@ -227,3 +227,44 @@ This project is proprietary to AI-Cherry organization.
 **Maintained By**: Sophia AI Platform Team
 
 For detailed configuration information, see [DEPLOYMENT_CONFIGURATION_GUIDE.md](./DEPLOYMENT_CONFIGURATION_GUIDE.md)
+
+# Sophia AI - Local Development with Pulumi ESC Secrets
+
+## Pulumi ESC Secrets Workflow
+
+All secrets and sensitive configuration for Sophia AI are managed in Pulumi ESC. For local development, follow this workflow to ensure your containers have the correct environment variables:
+
+1. **Fetch secrets from Pulumi ESC:**
+   ```sh
+   ./scripts/dev/fetch-secrets.sh
+   ```
+   This will create or update a `.env.local` file in the project root with all required secrets in dotenv format.
+
+2. **Start your stack with Docker Compose:**
+   ```sh
+   docker compose up
+   ```
+   Docker Compose will automatically load environment variables from `.env.local` and inject them into your containers.
+
+3. **Security Note:**
+   - `.env.local` is already in `.gitignore` and should never be committed to version control.
+   - If secrets change in Pulumi ESC, re-run the fetch script to update your local environment.
+
+4. **For CI/CD:**
+   - Integrate the fetch script into your pipeline before any build or deploy steps that require secrets.
+
+## Example Compose Service
+
+```yaml
+services:
+  app:
+    image: myapp:latest
+    env_file:
+      - .env.local
+    ports:
+      - "8080:8080"
+```
+
+---
+
+For more details, see the Pulumi ESC documentation: https://www.pulumi.com/docs/esc/
