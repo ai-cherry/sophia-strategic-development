@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "sophia_intelligence": {
+      "type": "http",
+      "baseUrl": "http://localhost:8092",
+      "description": "Sophia AI Intelligence MCP Server - Handles AI model routing, business intelligence, and analytical tasks",
+      "capabilities": [
+        "agent_creation",
+        "business_analysis", 
+        "data_insights",
+        "ai_orchestration"
+      ]
+    },
+    "sophia_business": {
+      "type": "http",
+      "baseUrl": "http://localhost:8093",
+      "description": "Sophia Business Intelligence MCP Server - Manages CRM, sales data, and business metrics",
+      "capabilities": [
+        "crm_integration",
+        "sales_analysis",
+        "customer_health",
+        "revenue_tracking"
+      ]
+    },
+    "sophia_data": {
+      "type": "http",
+      "baseUrl": "http://localhost:8094",
+      "description": "Sophia Data Intelligence MCP Server - Handles data processing, ETL, and data pipeline management",
+      "capabilities": [
+        "data_processing",
+        "etl_pipelines",
+        "database_operations",
+        "data_quality"
+      ]
+    },
+    "sophia_infrastructure": {
+      "type": "http",
+      "baseUrl": "http://localhost:8095",
+      "description": "Sophia Infrastructure MCP Server - Manages deployments, scaling, and infrastructure operations",
+      "capabilities": [
+        "deployment_management",
+        "infrastructure_scaling",
+        "monitoring_setup", 
+        "security_configuration"
+      ]
+    }
+  },
+  "settings": {
+    "timeout": 30000,
+    "retries": 3,
+    "healthCheckInterval": 60000,
+    "logLevel": "info"
+  },
+  "development": {
+    "hotReload": true,
+    "debugMode": true,
+    "performanceTracking": true
+  }
+} 

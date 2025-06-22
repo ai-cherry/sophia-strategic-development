@@ -1,8 +1,9 @@
 """Pay Ready AI Agent Orchestrator - Main Entry Point.
 
 Centralized orchestration for all Pay Ready specialized AI agents, powered by Agno.
-"""import asyncio
+"""
 
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -79,8 +80,8 @@ app.include_router(api_v1_router.router, prefix="/api/v1", tags=["Dashboard API 
 # --- Health and Status Endpoints ---
 @app.get("/", tags=["Status"])
 async def root():
-    """Return the root endpoint message."""return {.
-
+    """Return the root endpoint message."""
+    return {
         "message": "Sophia AI - Agno-Powered Agent System",
         "status": "operational",
         "version": app.version,

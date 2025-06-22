@@ -89,12 +89,12 @@ class BrainAgent(BaseAgent):
                     )
                     return TaskResult(status="success", output=final_answer)
 
-                except (json.JSONDecodeError, KeyError):
-                    logger.warning(
-                        "Could not parse a structured plan. Falling back to direct answer."
-                    )
-                    # Fallback if the plan isn't structured as expected
-                    pass
+            except (json.JSONDecodeError, KeyError):
+                logger.warning(
+                    "Could not parse a structured plan. Falling back to direct answer."
+                )
+                # Fallback if the plan isn't structured as expected
+                pass
 
             except Exception as e:
                 logger.error(
