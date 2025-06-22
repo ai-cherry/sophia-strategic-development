@@ -85,6 +85,7 @@ async def route_to_agno_agent(intent: dict, message: str):
 @router.websocket("/api/chat/agent")
 async def chat_agent_ws(websocket: WebSocket):
     """WebSocket endpoint for conversational agent orchestration.
+
     - Receives natural language messages from Cursor AI (or other chat clients)
     - Parses intent and routes to Agno agents (rule-based for now)
     - Integrates with MCP memory for persistent context (future)

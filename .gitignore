@@ -144,6 +144,9 @@ Pulumi.*.yaml
 # pipenv
 Pipfile.lock
 
+# Node.js (additional entries)
+frontend/.npm/_logs/
+
 # Poetry
 poetry.lock
 

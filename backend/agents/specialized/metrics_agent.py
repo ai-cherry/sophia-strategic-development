@@ -7,6 +7,7 @@ from backend.agents.core.base_agent import AgentConfig, BaseAgent, Task
 
 class MetricsAgent(BaseAgent):
     """Agent for querying live agent/system performance metrics.
+
     Returns AgnoPerformanceOptimizer metrics and summary.
     """
 
