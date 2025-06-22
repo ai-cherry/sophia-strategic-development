@@ -12,13 +12,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY mcp-servers/sophia_infrastructure/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
-COPY ../../backend/core/clean_esc_config.py /app/backend/core/
-COPY ../../backend/core/__init__.py /app/backend/core/
+COPY mcp-servers/sophia_infrastructure/sophia_infrastructure_mcp_server.py .
+COPY backend/core/clean_esc_config.py /app/backend/core/
+COPY backend/core/__init__.py /app/backend/core/
 
 # Set Python path
 ENV PYTHONPATH=/app

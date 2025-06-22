@@ -1,0 +1,72 @@
+services:
+  mcp-gateway:
+    build: ./mcp-gateway
+    volumes:
+      - ./mcp-gateway:/app
+    ports:
+      - "3000:3000"
+      - "8090:8090"
+  github-mcp:
+    build: ./mcp-servers/github
+    volumes:
+      - ./mcp-servers/github:/app
+    ports:
+      - "3002:3002"
+  docker-mcp:
+    build: ./mcp-servers/docker
+    volumes:
+      - ./mcp-servers/docker:/app
+    ports:
+      - "3003:3003"
+  slack-mcp:
+    build: ./mcp-servers/slack
+    volumes:
+      - ./mcp-servers/slack:/app
+    ports:
+      - "3004:3004"
+  postgres-mcp:
+    build: ./mcp-servers/postgres
+    volumes:
+      - ./mcp-servers/postgres:/app
+    ports:
+      - "3005:3005"
+  pulumi-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/pulumi/Dockerfile
+    volumes:
+      - ./mcp-servers/pulumi:/app
+    ports:
+      - "3001:3001"
+  sentry-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/sentry/Dockerfile
+    volumes:
+      - ./mcp-servers/sentry:/app
+    ports:
+      - "9006:9000"
+  sophia_ai_intelligence-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/sophia_ai_intelligence/Dockerfile
+    volumes:
+      - ./mcp-servers/sophia_ai_intelligence:/app
+  sophia_business_intelligence-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/sophia_business_intelligence/Dockerfile
+    volumes:
+      - ./mcp-servers/sophia_business_intelligence:/app
+  sophia_data_intelligence-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/sophia_data_intelligence/Dockerfile
+    volumes:
+      - ./mcp-servers/sophia_data_intelligence:/app
+  sophia_infrastructure-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/sophia_infrastructure/Dockerfile
+    volumes:
+      - ./mcp-servers/sophia_infrastructure:/app 

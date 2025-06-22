@@ -11,14 +11,14 @@ RUN apt-get update && apt-get install -y \
     && mv /root/.pulumi/bin/pulumi /usr/local/bin/
 
 # Copy requirements
-COPY requirements.txt .
+COPY mcp-servers/sentry/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy server code
-COPY . .
+COPY mcp-servers/sentry/sentry_mcp_server.py .
 
 # Expose MCP server port
 EXPOSE 9000
 
 # Run the MCP server
-CMD ["python", "-m", "sentry_mcp_server"]
+CMD ["python", "sentry_mcp_server.py"]

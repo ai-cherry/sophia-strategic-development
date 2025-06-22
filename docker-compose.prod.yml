@@ -1,0 +1,23 @@
+services:
+  mcp-gateway:
+    pull_policy: missing
+  github-mcp:
+    pull_policy: missing
+  docker-mcp:
+    pull_policy: missing
+  slack-mcp:
+    pull_policy: missing
+  postgres-mcp:
+    pull_policy: missing
+  pulumi-mcp:
+    pull_policy: missing
+  sentry-mcp:
+    pull_policy: missing
+  sophia_ai_intelligence-mcp:
+    pull_policy: missing
+  sophia_business_intelligence-mcp:
+    pull_policy: missing
+  sophia_data_intelligence-mcp:
+    pull_policy: missing
+  sophia_infrastructure-mcp:
+    pull_policy: missing 
