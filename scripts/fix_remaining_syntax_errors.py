@@ -8,6 +8,8 @@ import ast
 from pathlib import Path
 import logging
 
+TRIPLE = '"""'
+
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
 
@@ -40,9 +42,10 @@ def fix_unterminated_strings(content):
                     in_triple_quote = False
         
         # Fix lines that have docstring immediately followed by code
-        if '"""' in line and not in_triple_quote:
-            # Pattern: """text"""code -> """text"""\ncode
-            match = re.match(r'^(\s*)(""".*?""")([^#\s].*)$', line)
+        if TRIPLE in line and not in_triple_quote:
+            # Pattern: triple-quoted text immediately followed by code -> split into separate lines
+            pattern = rf'^(\s*)({TRIPLE}.*?{TRIPLE})([^#\s].*)$'
+            match = re.match(pattern, line)
             if match:
                 indent, docstring, code = match.groups()
                 fixed_lines.append(indent + docstring)

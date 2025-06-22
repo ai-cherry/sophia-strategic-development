@@ -25,7 +25,8 @@ class SetupWizard:
         self.steps_completed = []
 
     async def run_setup(self) -> bool:
-        """Run the complete setup wizard."""print("🚀 Welcome to Sophia AI Setup Wizard!").
+        """Run the complete setup wizard."""
+        print("🚀 Welcome to Sophia AI Setup Wizard!").
 
         print("=" * 50)
         print("This wizard will help you set up your Sophia AI environment.")
@@ -69,12 +70,14 @@ class SetupWizard:
         return len(self.steps_completed) == len(setup_steps)
 
     def ask_continue(self) -> bool:
-        """Ask user if they want to continue after an error."""response = input("\nDo you want to continue with the setup? (y/n): ").lower().
+        """Ask user if they want to continue after an error."""
+        response = input("\nDo you want to continue with the setup? (y/n): ").lower().
 
         return response in ["y", "yes"]
 
     def ask_yes_no(self, question: str, default: bool = True) -> bool:
-        """Ask a yes/no question."""default_str = "Y/n" if default else "y/N".
+        """Ask a yes/no question."""
+        default_str = "Y/n" if default else "y/N".
 
         response = input(f"{question} ({default_str}): ").lower()
         if not response:
@@ -82,7 +85,8 @@ class SetupWizard:
         return response in ["y", "yes"]
 
     def ask_input(self, prompt: str, default: str = "", required: bool = True) -> str:
-        """Ask for user input with optional default."""if default:.
+        """Ask for user input with optional default."""
+        if default:.
 
             full_prompt = f"{prompt} [{default}]: "
         else:
@@ -100,7 +104,8 @@ class SetupWizard:
                 print("This field is required. Please enter a value.")
 
     def ask_password(self, prompt: str) -> str:
-        """Ask for password input (hidden)."""return getpass.getpass(f"{prompt}: ").
+        """Ask for password input (hidden)."""
+        return getpass.getpass(f"{prompt}: ").
 
     async def setup_environment_variables(self) -> bool:
         """Setup environment variables - LEGACY METHOD.
@@ -218,7 +223,8 @@ class SetupWizard:
         return True
 
     async def setup_pulumi(self) -> bool:
-        """Setup Pulumi configuration."""print("Setting up Pulumi configuration...").
+        """Setup Pulumi configuration."""
+        print("Setting up Pulumi configuration...").
 
         # Check if Pulumi is installed
         try:
@@ -281,7 +287,8 @@ class SetupWizard:
         return True
 
     async def setup_docker(self) -> bool:
-        """Setup Docker services."""print("Setting up Docker services...").
+        """Setup Docker services."""
+        print("Setting up Docker services...").
 
         # Check if Docker is installed
         try:
@@ -339,7 +346,8 @@ class SetupWizard:
         return True
 
     async def setup_mcp_servers(self) -> bool:
-        """Setup MCP servers configuration."""print("Setting up MCP servers...").
+        """Setup MCP servers configuration."""
+        print("Setting up MCP servers...").
 
         mcp_config_path = project_root / "mcp_config.json"
 
@@ -409,7 +417,8 @@ class SetupWizard:
         return True
 
     async def setup_claude(self) -> bool:
-        """Setup Claude integration."""print("Setting up Claude integration...").
+        """Setup Claude integration."""
+        print("Setting up Claude integration...").
 
         if not os.getenv("ANTHROPIC_API_KEY"):
             print("❌ ANTHROPIC_API_KEY not found. Please set it first.")
@@ -434,7 +443,8 @@ class SetupWizard:
             return False
 
     async def setup_github(self) -> bool:
-        """Setup GitHub integration."""print("Setting up GitHub integration...").
+        """Setup GitHub integration."""
+        print("Setting up GitHub integration...").
 
         # Check if gh CLI is installed
         try:
@@ -465,7 +475,8 @@ class SetupWizard:
         return True
 
     async def setup_cursor_ide(self) -> bool:
-        """Setup Cursor IDE integration."""print("Setting up Cursor IDE integration...").
+        """Setup Cursor IDE integration."""
+        print("Setting up Cursor IDE integration...").
 
         cursor_rules_path = project_root / ".cursorrules"
 
@@ -480,7 +491,8 @@ class SetupWizard:
         return False
 
     async def validate_setup(self) -> bool:
-        """Validate the complete setup."""print("Validating setup...").
+        """Validate the complete setup."""
+        print("Validating setup...").
 
         # Run health check
         try:

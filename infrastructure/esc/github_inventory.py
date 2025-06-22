@@ -35,7 +35,8 @@ class GitHubSecretInventory:
         os.environ["GITHUB_TOKEN"] = self.token
 
     def get_organization_secrets(self) -> List[Dict[str, Any]]:
-        """Get all organization secrets."""try:.
+        """Get all organization secrets."""
+        try:.
 
             # Run GitHub CLI command to list secrets
             result = subprocess.run(
@@ -67,7 +68,8 @@ class GitHubSecretInventory:
             return []
 
     def get_repository_secrets(self, repository: str) -> List[Dict[str, Any]]:
-        """Get all repository secrets."""try:.
+        """Get all repository secrets."""
+        try:.
 
             # Run GitHub CLI command to list secrets
             result = subprocess.run(
@@ -105,7 +107,8 @@ class GitHubSecretInventory:
             return []
 
     def get_repositories(self) -> List[str]:
-        """Get all repositories in the organization."""try:.
+        """Get all repositories in the organization."""
+        try:.
 
             # Run GitHub CLI command to list repositories
             result = subprocess.run(
@@ -139,7 +142,8 @@ class GitHubSecretInventory:
             return []
 
     def map_secret_to_service(self, secret_name: str) -> Dict[str, str]:
-        """Map GitHub secret name to service and key."""# Try to infer mapping from name.
+        """Map GitHub secret name to service and key."""
+        # Try to infer mapping from name.
 
         if secret_name.startswith("SNOWFLAKE_"):
             service = "snowflake"
@@ -210,7 +214,8 @@ class GitHubSecretInventory:
         return {"service": service, "key": key, "group": group}
 
     def create_inventory(self, output_file: str = None) -> Dict[str, Any]:
-        """Create inventory of all GitHub secrets."""inventory = {.
+        """Create inventory of all GitHub secrets."""
+        inventory = {.
 
             "organization": self.organization,
             "timestamp": datetime.datetime.now().isoformat(),

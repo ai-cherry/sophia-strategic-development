@@ -32,7 +32,8 @@ class PulumiESCSecretsSync:
         self.esc_environment = f"{self.pulumi_org}/default/{self.pulumi_env}"
 
     def load_validation_results(self) -> Optional[Dict[str, Any]]:
-        """Load the latest validation results."""# Look for the most recent validation results.
+        """Load the latest validation results."""
+        # Look for the most recent validation results.
 
         validation_file = "docs/CURRENT_CAPABILITIES.json"
 
@@ -51,7 +52,8 @@ class PulumiESCSecretsSync:
             return None
 
     def check_esc_access(self) -> bool:
-        """Check if Pulumi ESC is accessible."""try:.
+        """Check if Pulumi ESC is accessible."""
+        try:.
 
             # Check if ESC CLI is available
             result = subprocess.run(["esc", "version"], capture_output=True, text=True)
@@ -77,7 +79,8 @@ class PulumiESCSecretsSync:
             return False
 
     def get_current_esc_secrets(self) -> Dict[str, Any]:
-        """Get current secrets in the ESC environment."""try:.
+        """Get current secrets in the ESC environment."""
+        try:.
 
             result = subprocess.run(
                 ["esc", "env", "get", self.esc_environment, "--show-secrets"],
@@ -98,7 +101,8 @@ class PulumiESCSecretsSync:
             return {}
 
     def sync_secrets_to_esc(self, validation_data: Dict[str, Any], force: bool = False, dry_run: bool = False) -> Dict[str, Any]:
-        """Sync validated secrets to Pulumi ESC."""logger.info(f"🔄 Syncing validated secrets to Pulumi ESC").
+        """Sync validated secrets to Pulumi ESC."""
+        logger.info(f"🔄 Syncing validated secrets to Pulumi ESC").
 
         if dry_run:
             logger.info("🧪 DRY RUN MODE - No actual changes will be made")
@@ -184,7 +188,8 @@ class PulumiESCSecretsSync:
         return sync_results
 
     def generate_esc_environment_file(self, validation_data: Dict[str, Any]) -> str:
-        """Generate a complete ESC environment file for reference."""logger.info("📝 Generating ESC environment file").
+        """Generate a complete ESC environment file for reference."""
+        logger.info("📝 Generating ESC environment file").
 
         timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -220,7 +225,8 @@ class PulumiESCSecretsSync:
         return config_file
 
     def save_sync_results(self, sync_results: Dict[str, Any]):
-        """Save sync results to files."""timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S").
+        """Save sync results to files."""
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S").
 
         # Ensure logs directory exists
         os.makedirs("logs", exist_ok=True)
@@ -235,7 +241,8 @@ class PulumiESCSecretsSync:
         self._generate_sync_report(sync_results)
 
     def _generate_sync_report(self, sync_results: Dict[str, Any]):
-        """Generate a human-readable sync report."""timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC").
+        """Generate a human-readable sync report."""
+        timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC").
 
         report = f"""# Sophia AI - Pulumi ESC Sync Report
 Generated: {timestamp}

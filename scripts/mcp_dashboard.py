@@ -74,7 +74,8 @@ async def fetch_server_status(session, url):
 
 
 async def fetch_server_metrics(session, url, server_name):
-    """Fetch metrics for a specific server."""try:.
+    """Fetch metrics for a specific server."""
+    try:.
 
         async with session.get(f"{url}/servers/{server_name}/metrics") as response:
             if response.status == 200:

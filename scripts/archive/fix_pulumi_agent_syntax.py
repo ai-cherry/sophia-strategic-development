@@ -3,6 +3,8 @@
 
 import re
 
+TRIPLE = '"""'
+
 
 def fix_pulumi_agent():
     """Fix all syntax errors in pulumi_agent.py"""
@@ -13,8 +15,9 @@ def fix_pulumi_agent():
     # These are on lines: 119, 144, 161, 192, 239, 280, 331, 430, 481, 519
     lines = content.split("\n")
 
-    # Fix line 119: """Deploy a Pulumi stack"""# Extract stack name from command
-    lines[118] = '        """Deploy a Pulumi stack"""'
+    # Fix line 119: """Deploy a Pulumi stack"""
+    # Extract stack name from command
+    lines[118] = '        ' + TRIPLE + 'Deploy a Pulumi stack' + TRIPLE
     lines.insert(119, "        # Extract stack name from command")
 
     # Fix line 144: """List resources in a stack"""
@@ -58,10 +61,12 @@ def fix_pulumi_agent():
             lines.insert(i + 1, "        # Extract what to generate")
             break
 
-    # Fix line 430: """Use AI-Copilot to fix errors"""# Extract error message from command or get from context
+    # Fix line 430: """Use AI-Copilot to fix errors"""
+    # Extract error message from command or get from context
     for i in range(425, 435):
-        if i < len(lines) and '"""Use AI-Copilot to fix errors"""' in lines[i]:
-            lines[i] = '        """Use AI-Copilot to fix errors"""'
+        DOC = TRIPLE + 'Use AI-Copilot to fix errors' + TRIPLE
+        if i < len(lines) and DOC in lines[i]:
+            lines[i] = '        ' + DOC
             lines.insert(
                 i + 1,
                 "        # Extract error message from command or get from context",

@@ -38,7 +38,8 @@ class SecretRotator(ABC):
         self.next_rotation = {}
 
     def should_rotate(self, key: str) -> bool:
-        """Check if a secret should be rotated."""# Get last rotation time.
+        """Check if a secret should be rotated."""
+        # Get last rotation time.
 
         last_rotation = self.last_rotation.get(key)
         if not last_rotation:
@@ -64,7 +65,8 @@ class SecretRotator(ABC):
         return datetime.datetime.now() >= next_rotation
 
     def generate_password(self, length: int = 32, include_special: bool = True) -> str:
-        """Generate a secure random password."""chars = string.ascii_letters + string.digits.
+        """Generate a secure random password."""
+        chars = string.ascii_letters + string.digits.
 
         if include_special:
             chars += "!@#$%^&*()-_=+[]{}|;:,.<>?"
@@ -72,7 +74,8 @@ class SecretRotator(ABC):
         return "".join(random.choice(chars) for _ in range(length))
 
     def generate_api_key(self, length: int = 40, prefix: str = "") -> str:
-        """Generate a secure random API key."""chars = string.ascii_letters + string.digits.
+        """Generate a secure random API key."""
+        chars = string.ascii_letters + string.digits.
 
         if prefix:
             return prefix + "".join(
@@ -90,7 +93,8 @@ class SecretRotator(ABC):
         """pass.
 
     def rotate_all_secrets(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Rotate all secrets for this service."""results = {.
+        """Rotate all secrets for this service."""
+        results = {.
 
             "service": self.service_name,
             "timestamp": datetime.datetime.now().isoformat(),
@@ -141,7 +145,8 @@ class SecretRotator(ABC):
         return results
 
     def update_secret_stores(self, key: str, value: str) -> bool:
-        """Update Pulumi ESC and GitHub with new secret value."""try:.
+        """Update Pulumi ESC and GitHub with new secret value."""
+        try:.
 
             # Update Pulumi ESC
             pulumi_key = f"{self.service_name}_{key}"
@@ -167,12 +172,14 @@ class SecretRotator(ABC):
 
 
 class SnowflakeRotator(SecretRotator):
-    """Rotator for Snowflake credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Snowflake credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("snowflake", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Snowflake secret."""try:.
+        """Rotate a Snowflake secret."""
+        try:.
 
             if key == "password":
                 # Generate a new password
@@ -191,12 +198,14 @@ class SnowflakeRotator(SecretRotator):
 
 
 class GongRotator(SecretRotator):
-    """Rotator for Gong API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Gong API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("gong", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Gong secret."""try:.
+        """Rotate a Gong secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -223,12 +232,14 @@ class GongRotator(SecretRotator):
 
 
 class VercelRotator(SecretRotator):
-    """Rotator for Vercel API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Vercel API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("vercel", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Vercel secret."""try:.
+        """Rotate a Vercel secret."""
+        try:.
 
             if key == "token":
                 # Generate a new token
@@ -247,12 +258,14 @@ class VercelRotator(SecretRotator):
 
 
 class EstuaryRotator(SecretRotator):
-    """Rotator for Estuary API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Estuary API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("estuary", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Estuary secret."""try:.
+        """Rotate an Estuary secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -271,12 +284,14 @@ class EstuaryRotator(SecretRotator):
 
 
 class PineconeRotator(SecretRotator):
-    """Rotator for Pinecone API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Pinecone API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("pinecone", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Pinecone secret."""try:.
+        """Rotate a Pinecone secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -295,12 +310,14 @@ class PineconeRotator(SecretRotator):
 
 
 class AirbyteRotator(SecretRotator):
-    """Rotator for Airbyte API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Airbyte API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("airbyte", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Airbyte secret."""try:.
+        """Rotate an Airbyte secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -327,12 +344,14 @@ class AirbyteRotator(SecretRotator):
 
 
 class LambdaLabsRotator(SecretRotator):
-    """Rotator for Lambda Labs API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Lambda Labs API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("lambda_labs", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate a Lambda Labs secret."""try:.
+        """Rotate a Lambda Labs secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -365,12 +384,14 @@ class LambdaLabsRotator(SecretRotator):
 
 
 class OpenAIRotator(SecretRotator):
-    """Rotator for OpenAI API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for OpenAI API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("openai", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an OpenAI secret."""try:.
+        """Rotate an OpenAI secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -389,12 +410,14 @@ class OpenAIRotator(SecretRotator):
 
 
 class AnthropicRotator(SecretRotator):
-    """Rotator for Anthropic API credentials."""def __init__(self, config: Dict[str, Any]):.
+    """Rotator for Anthropic API credentials."""
+    def __init__(self, config: Dict[str, Any]):.
 
         super().__init__("anthropic", config)
 
     def rotate_secret(self, key: str) -> Tuple[bool, Optional[str]]:
-        """Rotate an Anthropic secret."""try:.
+        """Rotate an Anthropic secret."""
+        try:.
 
             if key == "api_key":
                 # Generate a new API key
@@ -413,14 +436,16 @@ class AnthropicRotator(SecretRotator):
 
 
 class RotationManager:
-    """Manages secret rotation for all services."""def __init__(self):.
+    """Manages secret rotation for all services."""
+    def __init__(self):.
 
         self.rotators = {}
         self.service_registry = self._load_service_registry()
         self._initialize_rotators()
 
     def _load_service_registry(self) -> Dict[str, Dict[str, Any]]:
-        """Load service registry."""try:.
+        """Load service registry."""
+        try:.
 
             registry_path = os.environ.get(
                 "SERVICE_REGISTRY_PATH",
@@ -441,7 +466,8 @@ class RotationManager:
             return {}
 
     def _initialize_rotators(self):
-        """Initialize rotators for all services."""for service, config in self.service_registry.items():.
+        """Initialize rotators for all services."""
+        for service, config in self.service_registry.items():.
 
             try:
                 if service == "snowflake":
@@ -471,7 +497,8 @@ class RotationManager:
     def rotate_service_secrets(
         self, service: str, dry_run: bool = False
     ) -> Dict[str, Any]:
-        """Rotate secrets for a specific service."""if service not in self.rotators:.
+        """Rotate secrets for a specific service."""
+        if service not in self.rotators:.
 
             return {
                 "service": service,
@@ -483,7 +510,8 @@ class RotationManager:
         return self.rotators[service].rotate_all_secrets(dry_run)
 
     def rotate_all_secrets(self, dry_run: bool = False) -> Dict[str, Any]:
-        """Rotate secrets for all services."""results = {.
+        """Rotate secrets for all services."""
+        results = {.
 
             "timestamp": datetime.datetime.now().isoformat(),
             "dry_run": dry_run,
@@ -496,7 +524,8 @@ class RotationManager:
         return results
 
     def get_rotation_schedule(self) -> Dict[str, Any]:
-        """Get rotation schedule for all services."""schedule = {"timestamp": datetime.datetime.now().isoformat(), "services": {}}.
+        """Get rotation schedule for all services."""
+        schedule = {"timestamp": datetime.datetime.now().isoformat(), "services": {}}.
 
         for service, rotator in self.rotators.items():
             schedule["services"][service] = {

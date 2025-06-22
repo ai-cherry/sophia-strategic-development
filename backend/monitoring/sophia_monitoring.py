@@ -75,7 +75,8 @@ class SophiaMonitoring:
         logger.info("✅ All monitoring threads started")
 
     def _monitor_system_metrics(self):
-        """Monitor system performance metrics."""while self.running:.
+        """Monitor system performance metrics."""
+        while self.running:.
 
             try:
                 # CPU usage
@@ -106,7 +107,8 @@ class SophiaMonitoring:
                 time.sleep(60)
 
     def _monitor_business_metrics(self):
-        """Monitor business intelligence metrics."""while self.running:.
+        """Monitor business intelligence metrics."""
+        while self.running:.
 
             try:
                 # Simulate business metrics collection
@@ -135,7 +137,8 @@ class SophiaMonitoring:
                 time.sleep(600)
 
     def _health_check_services(self):
-        """Perform health checks on critical services."""while self.running:.
+        """Perform health checks on critical services."""
+        while self.running:.
 
             try:
                 services = {
@@ -185,15 +188,18 @@ class SophiaMonitoring:
                 time.sleep(300)
 
     def record_api_request(self, method, endpoint, duration):
-        """Record API request metrics."""self.api_requests.labels(method=method, endpoint=endpoint).inc().
+        """Record API request metrics."""
+        self.api_requests.labels(method=method, endpoint=endpoint).inc().
 
         self.api_duration.observe(duration)
 
     def record_bi_query(self):
-        """Record business intelligence query."""self.bi_queries.inc().
+        """Record business intelligence query."""
+        self.bi_queries.inc().
 
     def stop_monitoring(self):
-        """Stop the monitoring system."""self.running = False.
+        """Stop the monitoring system."""
+        self.running = False.
 
         logger.info("🛑 Monitoring system stopped")
 

@@ -16,8 +16,10 @@ from infrastructure.esc.snowflake_secrets import snowflake_secret_manager
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeIntegration:"""
-Handles the connection and querying logic for Snowflake.    """d"""ef __init__(self):
+class SnowflakeIntegration:
+    """Handles the connection and querying logic for Snowflake."""
+
+    def __init__(self):
         self.connection = None
         self.credentials = None
 

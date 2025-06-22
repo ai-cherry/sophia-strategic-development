@@ -41,7 +41,8 @@ class MemoryManagerClient:
     async def store_memory(
         self, agent_id: str, content: str, metadata: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Store a memory using the ComprehensiveMemoryManager."""try:.
+        """Store a memory using the ComprehensiveMemoryManager."""
+        try:.
 
             request = MemoryRequest(
                 operation=MemoryOperationType.STORE,
@@ -68,7 +69,8 @@ class MemoryManagerClient:
             return {"success": False, "error": str(e)}
 
     async def retrieve_memory(self, agent_id: str, query: str) -> Dict[str, Any]:
-        """Retrieve memories using the ComprehensiveMemoryManager."""try:.
+        """Retrieve memories using the ComprehensiveMemoryManager."""
+        try:.
 
             request = MemoryRequest(
                 operation=MemoryOperationType.RETRIEVE, agent_id=agent_id, query=query
@@ -95,7 +97,8 @@ class MemoryManagerClient:
             return {"success": False, "error": str(e)}
 
     async def delete_memory(self, agent_id: str, memory_id: str) -> Dict[str, Any]:
-        """Delete a memory using the ComprehensiveMemoryManager."""try:.
+        """Delete a memory using the ComprehensiveMemoryManager."""
+        try:.
 
             request = MemoryRequest(
                 operation=MemoryOperationType.DELETE,

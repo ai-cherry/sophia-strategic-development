@@ -12,7 +12,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         self.mixpanel_client = self._init_mixpanel_client()
 
     async def setup(self):
-        """Register BI tools."""self.register_tool(.
+        """Register BI tools."""
+        self.register_tool(.
 
             Tool(
                 name="bi_execute_query",
@@ -63,7 +64,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         )
 
     async def bi_execute_query(self, query: str):
-        """Run a query against Snowflake."""# Query Snowflake data warehouse.
+        """Run a query against Snowflake."""
+        # Query Snowflake data warehouse.
 
         # Documentation outlines using Snowflake for analytics and reporting
         # (see docs/API_CAPABILITIES_FOR_AI_AGENTS.md)
@@ -72,7 +74,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         return None
 
     async def bi_semantic_search(self, query: str, top_k: int = 5):
-        """Search Pinecone vector DB for insights."""# Vector search using Pinecone integration.
+        """Search Pinecone vector DB for insights."""
+        # Vector search using Pinecone integration.
 
         if self.pinecone_client:
             pass
@@ -84,7 +87,8 @@ class SophiaBusinessIntelligenceMCPServer(MCPServer):
         start_date: str | None = None,
         end_date: str | None = None,
     ):
-        """Generate a BI report using analytics tools."""# Use Looker or Mixpanel APIs to produce analytics reports.
+        """Generate a BI report using analytics tools."""
+        # Use Looker or Mixpanel APIs to produce analytics reports.
 
         pass
 

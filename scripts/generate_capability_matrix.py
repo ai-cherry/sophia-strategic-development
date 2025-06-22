@@ -61,7 +61,8 @@ def load_secret_definitions() -> Dict[str, Any]:
 
 
 def check_secret_availability() -> Dict[str, bool]:
-    """Check which secrets are available in the environment."""secret_definitions = load_secret_definitions().
+    """Check which secrets are available in the environment."""
+    secret_definitions = load_secret_definitions().
 
     availability = {}
 
@@ -72,7 +73,8 @@ def check_secret_availability() -> Dict[str, bool]:
 
 
 def generate_capability_matrix() -> Dict[str, Any]:
-    """Generate the capability matrix."""secret_definitions = load_secret_definitions().
+    """Generate the capability matrix."""
+    secret_definitions = load_secret_definitions().
 
     availability = check_secret_availability()
 
@@ -159,7 +161,8 @@ def generate_capability_matrix() -> Dict[str, Any]:
 
 
 def save_capability_matrix(matrix: Dict[str, Any]):
-    """Save the capability matrix to files."""# Ensure docs directory exists.
+    """Save the capability matrix to files."""
+    # Ensure docs directory exists.
 
     os.makedirs("docs", exist_ok=True)
 
@@ -178,7 +181,8 @@ def save_capability_matrix(matrix: Dict[str, Any]):
 
 
 def generate_markdown_summary(matrix: Dict[str, Any]) -> str:
-    """Generate a markdown summary of capabilities."""timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC").
+    """Generate a markdown summary of capabilities."""
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC").
 
     content = f"""# Sophia AI - Capability Summary
 

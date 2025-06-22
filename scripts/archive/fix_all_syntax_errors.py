@@ -4,6 +4,8 @@
 import ast
 import os
 import re
+
+TRIPLE = '"""'
 from pathlib import Path
 from typing import List, Tuple
 
@@ -41,7 +43,7 @@ def fix_docstring_syntax(content: str) -> str:
                 ('"""', "'''")
             ):
                 # This might be the end of a docstring that was split
-                line = line.replace('."""', '"""').replace(".'''", "'''")
+                line = line.replace('.' + TRIPLE, TRIPLE).replace('.' + "'''", "'''")
 
         fixed_lines.append(line)
         i += 1

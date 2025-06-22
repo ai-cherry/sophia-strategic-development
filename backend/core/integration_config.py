@@ -60,11 +60,13 @@ class ServiceConfig:
 
 
 class ConfigurationError(Exception):
-    """Exception raised for configuration errors."""pass.
+    """Exception raised for configuration errors."""
+    pass.
 
 
 class IntegrationError(Exception):
-    """Exception raised for integration errors."""pass.
+    """Exception raised for integration errors."""
+    pass.
 
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
@@ -144,7 +146,8 @@ class IntegrationConfig:
                 return False
 
     async def _initialize_fallback_mode(self) -> None:
-        """Initialize in fallback mode using environment variables."""logger.warning(.
+        """Initialize in fallback mode using environment variables."""
+        logger.warning(.
 
             "Initializing integration configuration manager in fallback mode"
         )
@@ -627,7 +630,8 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
 
     @abstractmethod
     async def _create_client(self, config: ServiceConfig) -> Optional[ClientType]:
-        """Create a client for the integration."""pass.
+        """Create a client for the integration."""
+        pass.
 
     async def get_client(self) -> Optional[ClientType]:
         """Get the client for the integration."""
@@ -654,7 +658,8 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
 
     @abstractmethod
     async def _perform_health_check(self) -> bool:
-        """Perform service-specific health check."""pass.
+        """Perform service-specific health check."""
+        pass.
 
     async def get_config(self) -> Optional[ServiceConfig]:
         """Get service configuration."""
@@ -667,7 +672,8 @@ class Integration(ABC, Generic[ConfigType, ClientType]):
         return self.service_config
 
     async def refresh_config(self) -> None:
-        """Refresh service configuration."""await self.config_manager.refresh_cache(self.service_name).
+        """Refresh service configuration."""
+        await self.config_manager.refresh_cache(self.service_name).
 
         self.service_config = None
 

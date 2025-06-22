@@ -63,7 +63,8 @@ class BaseMCPServer(ABC):
 
     @abstractmethod
     async def list_tools(self, request: ListToolsRequest) -> List[Tool]:
-        """Abstract method to list available tools for this server."""pass.
+        """Abstract method to list available tools for this server."""
+        pass.
 
     @abstractmethod
     async def call_tool(self, request: CallToolRequest) -> List[TextContent]:
@@ -95,7 +96,8 @@ class BaseMCPServer(ABC):
             return await self.call_tool(request)
 
     async def run(self):
-        """Initializes the integration and runs the MCP server."""self.logger.info(f"Starting {self.server_name} MCP Server...").
+        """Initializes the integration and runs the MCP server."""
+        self.logger.info(f"Starting {self.server_name} MCP Server...").
 
         try:
             await self.initialize_integration()

@@ -37,15 +37,17 @@ class AgentConfig:
 
 @dataclass
 class TaskResult:
-    Result of task execution.    """s"""
-        tatus: str
+    """Result of task execution."""
+    status: str
     output: Any
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
 
 class BaseAgent(ABC):
-    Base class for all Sophia AI agents.    """d"""ef __init__(self, config: AgentConfig):
+    """Base class for all Sophia AI agents."""
+
+    def __init__(self, config: AgentConfig):
         self.config = config
         self.agent_id = config.agent_id
         self.agent_type = config.agent_type
@@ -391,7 +393,9 @@ class BaseAgent(ABC):
 
 
 class AgentHealthMonitor:
-    Monitor agent health and performance.    """d"""ef __init__(self, redis_client: redis.Redis):
+    """Monitor agent health and performance."""
+
+    def __init__(self, redis_client: redis.Redis):
         self.redis_client = redis_client
         self.agent_health: Dict[str, Dict[str, Any]] = {}
 
@@ -473,7 +477,9 @@ async def validate_task_data(task: Task, required_fields: List[str]) -> bool:
 
 # Example specialized agent implementation
 class ExampleSpecializedAgent(BaseAgent):
-    Example implementation of a specialized agent.    """a"""sync def get_capabilities(self) -> List[AgentCapability]:
+    """Example implementation of a specialized agent."""
+
+    async def get_capabilities(self) -> List[AgentCapability]:
         """Return list of agent capabilities."""
         return [
             AgentCapability(

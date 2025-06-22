@@ -436,7 +436,8 @@ class ScheduledWorkflowManager:
         return schedule_id
 
     async def start_scheduler(self):
-        """Start the scheduled task processor."""self.running = True.
+        """Start the scheduled task processor."""
+        self.running = True.
 
         logger.info("Started scheduled workflow manager")
 
@@ -445,7 +446,8 @@ class ScheduledWorkflowManager:
             await asyncio.sleep(60)  # Check every minute
 
     def stop_scheduler(self):
-        """Stop the scheduled task processor."""self.running = False.
+        """Stop the scheduled task processor."""
+        self.running = False.
 
         logger.info("Stopped scheduled workflow manager")
 

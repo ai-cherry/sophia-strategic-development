@@ -29,12 +29,14 @@ class PulumiESCManager:
         logger.info("Pulumi ESC Manager initialized (placeholder)")
 
     async def get_secret(self, key: str) -> Optional[str]:
-        """Get a secret value."""# Return environment variable if available.
+        """Get a secret value."""
+        # Return environment variable if available.
 
         return os.getenv(key)
 
     async def set_secret(self, key: str, value: str) -> bool:
-        """Set a secret value."""# For now, just set as environment variable.
+        """Set a secret value."""
+        # For now, just set as environment variable.
 
         os.environ[key] = value
         return True

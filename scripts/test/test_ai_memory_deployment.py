@@ -37,7 +37,8 @@ class AIMemoryDeploymentTester:
         }
 
     async def run_all_tests(self) -> Dict[str, Any]:
-        """Run all deployment tests."""print("🧪 AI Memory MCP Deployment Test Suite").
+        """Run all deployment tests."""
+        print("🧪 AI Memory MCP Deployment Test Suite").
 
         print("=" * 60)
 
@@ -94,7 +95,8 @@ class AIMemoryDeploymentTester:
         return self.test_results
 
     async def test_config_validation(self) -> Dict[str, Any]:
-        """Test MCP configuration includes AI Memory server."""try:.
+        """Test MCP configuration includes AI Memory server."""
+        try:.
 
             config_path = "mcp_config.json"
             if not os.path.exists(config_path):
@@ -121,7 +123,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_server_startup(self) -> Dict[str, Any]:
-        """Test that AI Memory MCP server can start."""try:.
+        """Test that AI Memory MCP server can start."""
+        try:.
 
             server_path = "backend/mcp/ai_memory_mcp_server.py"
             if not os.path.exists(server_path):
@@ -156,7 +159,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_dependencies(self) -> Dict[str, Any]:
-        """Test required dependencies are available."""try:.
+        """Test required dependencies are available."""
+        try:.
 
             missing_deps = []
             warnings = []
@@ -203,7 +207,8 @@ class AIMemoryDeploymentTester:
             }
 
     async def test_cursor_integration(self) -> Dict[str, Any]:
-        """Test Cursor AI integration readiness."""try:.
+        """Test Cursor AI integration readiness."""
+        try:.
 
             warnings = []
 
@@ -252,7 +257,8 @@ class AIMemoryDeploymentTester:
             }
 
     def save_test_results(self, filename: str = "ai_memory_test_results.json"):
-        """Save test results to file."""try:.
+        """Save test results to file."""
+        try:.
 
             with open(filename, "w") as f:
                 json.dump(self.test_results, f, indent=2)

@@ -38,7 +38,8 @@ class EnhancedPulumiESC:
     def __init__(.
         self, access_token: Optional[str] = None, organization: str = "ai-cherry"
     ):
-        """Initialize Pulumi ESC client."""self.access_token = access_token or os.getenv("PULUMI_ACCESS_TOKEN").
+        """Initialize Pulumi ESC client."""
+        self.access_token = access_token or os.getenv("PULUMI_ACCESS_TOKEN").
 
         if not self.access_token:
             raise ValueError("PULUMI_ACCESS_TOKEN environment variable is required")
@@ -359,7 +360,8 @@ import aiohttp.
             }
 
     def clear_cache(self):
-        """Clear secret cache."""self._secret_cache.clear().
+        """Clear secret cache."""
+        self._secret_cache.clear().
 
         logger.info("Cleared Pulumi ESC secret cache")
 

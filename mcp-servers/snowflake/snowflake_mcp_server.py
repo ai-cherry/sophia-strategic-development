@@ -32,7 +32,8 @@ class SnowflakeMCPServer(MCPServer):
         }
 
     async def setup(self):
-        """Setup Snowflake connection and register tools."""# Establish connection.
+        """Setup Snowflake connection and register tools."""
+        # Establish connection.
 
         await self.connect()
 
@@ -194,7 +195,8 @@ class SnowflakeMCPServer(MCPServer):
         )
 
     async def connect(self):
-        """Connect to Snowflake with appropriate authentication method."""try:.
+        """Connect to Snowflake with appropriate authentication method."""
+        try:.
 
             if self.auth_method == "keypair":
                 # Use key pair authentication
@@ -249,7 +251,8 @@ class SnowflakeMCPServer(MCPServer):
     async def execute_query(
         self, query: str, parameters: Optional[List[Any]] = None, limit: int = 1000
     ) -> Dict[str, Any]:
-        """Execute a SQL query."""try:.
+        """Execute a SQL query."""
+        try:.
 
             cursor = self.connection.cursor(DictCursor)
 
@@ -299,7 +302,8 @@ class SnowflakeMCPServer(MCPServer):
     async def list_tables(
         self, schema: Optional[str] = None, pattern: Optional[str] = None
     ) -> Dict[str, Any]:
-        """List tables in the current database/schema."""try:.
+        """List tables in the current database/schema."""
+        try:.
 
             query = "SHOW TABLES"
             if schema:
@@ -321,7 +325,8 @@ class SnowflakeMCPServer(MCPServer):
     async def describe_table(
         self, table_name: str, schema: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Get schema information for a table."""try:.
+        """Get schema information for a table."""
+        try:.
 
             full_name = f"{schema}.{table_name}" if schema else table_name
             query = f"DESCRIBE TABLE {full_name}"
@@ -351,7 +356,8 @@ class SnowflakeMCPServer(MCPServer):
     async def get_table_sample(
         self, table_name: str, sample_size: int = 10, schema: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Get a sample of data from a table."""try:.
+        """Get a sample of data from a table."""
+        try:.
 
             full_name = f"{schema}.{table_name}" if schema else table_name
             query = f"SELECT * FROM {full_name} SAMPLE ({sample_size} ROWS)"
@@ -364,7 +370,8 @@ class SnowflakeMCPServer(MCPServer):
     async def create_table(
         self, table_name: str, columns: Dict[str, str], schema: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Create a new table."""try:.
+        """Create a new table."""
+        try:.
 
             full_name = f"{schema}.{table_name}" if schema else table_name
 
@@ -387,7 +394,8 @@ class SnowflakeMCPServer(MCPServer):
         if_exists: str = "append",
         schema: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Upload data to Snowflake table."""try:.
+        """Upload data to Snowflake table."""
+        try:.
 
             # Convert to DataFrame
             df = pd.DataFrame(data)
@@ -413,7 +421,8 @@ class SnowflakeMCPServer(MCPServer):
             return {"success": False, "error": str(e)}
 
     async def cleanup(self):
-        """Cleanup resources."""if self.connection:.
+        """Cleanup resources."""
+        if self.connection:.
 
             self.connection.close()
             self.logger.info("Closed Snowflake connection")

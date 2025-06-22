@@ -73,7 +73,9 @@ class AgentResult:
 
 
 class BasePayReadyAgent:
-    Base class for all Pay Ready specialized agents.    """d"""ef __init__(self, config: Dict[str, Any]):
+    """Base class for all Pay Ready specialized agents."""
+
+    def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.agent_type = self.__class__.__name__.lower().replace("agent", "")
         self.status = AgentStatus.IDLE
@@ -167,7 +169,9 @@ class BasePayReadyAgent:
 
 
 class ClientHealthAgent(BasePayReadyAgent):
-    Monitors Pay Ready's client portfolio health and identifies opportunities.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Monitors Pay Ready's client portfolio health and identifies opportunities."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute client health monitoring tasks."""
         task_type = task.task_type
 
@@ -200,7 +204,9 @@ class ClientHealthAgent(BasePayReadyAgent):
 
 
 class SalesIntelligenceAgent(BasePayReadyAgent):
-    Optimizes Pay Ready's sales performance and competitive positioning.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Optimizes Pay Ready's sales performance and competitive positioning."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute sales intelligence tasks."""
         task_type = task.task_type
 
@@ -233,7 +239,9 @@ class SalesIntelligenceAgent(BasePayReadyAgent):
 
 
 class OperationalEfficiencyAgent(BasePayReadyAgent):
-    Optimizes Pay Ready's internal operations and processes.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Optimizes Pay Ready's internal operations and processes."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute operational efficiency tasks."""
         # Simplified implementation for now
         return {
@@ -246,7 +254,9 @@ class OperationalEfficiencyAgent(BasePayReadyAgent):
 
 
 class MarketIntelligenceAgent(BasePayReadyAgent):
-    Provides market insights and trend analysis for the apartment industry.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Provides market insights and trend analysis for the apartment industry."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute market intelligence tasks."""
         # Simplified implementation for now
         return {
@@ -259,7 +269,9 @@ class MarketIntelligenceAgent(BasePayReadyAgent):
 
 
 class ComplianceMonitoringAgent(BasePayReadyAgent):
-    Monitors compliance and regulatory requirements for Pay Ready operations.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Monitors compliance and regulatory requirements for Pay Ready operations."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute compliance monitoring tasks."""
         # Simplified implementation for now
         return {
@@ -273,7 +285,9 @@ class ComplianceMonitoringAgent(BasePayReadyAgent):
 
 
 class MarketResearchAgent(BasePayReadyAgent):
-    Conducts market research and competitive intelligence for the apartment industry.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Conducts market research and competitive intelligence for the apartment industry."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute market research tasks."""
         # Simplified implementation for now
         return {
@@ -287,7 +301,9 @@ class MarketResearchAgent(BasePayReadyAgent):
 
 
 class WorkflowAutomationAgent(BasePayReadyAgent):
-    Automates and optimizes business workflows for Pay Ready operations.    """a"""sync def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
+    """Automates and optimizes business workflows for Pay Ready operations."""
+
+    async def _execute_task(self, task: AgentTask) -> Dict[str, Any]:
         """Execute workflow automation tasks."""
         # Simplified implementation for now
         return {
@@ -301,7 +317,9 @@ class WorkflowAutomationAgent(BasePayReadyAgent):
 
 
 class PayReadyAgentOrchestrator:
-    Orchestrates and coordinates all Pay Ready specialized agents.    """d"""ef __init__(self, config: Dict[str, Any]):
+    """Orchestrates and coordinates all Pay Ready specialized agents."""
+
+    def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.agents = {}
         self._initialize_agents()

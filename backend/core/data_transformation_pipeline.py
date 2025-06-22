@@ -504,7 +504,8 @@ class DataTransformationPipeline:
         return all_data
 
     async def _process_json_file(self, file_path: str) -> List[Dict[str, Any]]:
-        """Process JSON file."""async with aiofiles.open(file_path, "r") as f:.
+        """Process JSON file."""
+        async with aiofiles.open(file_path, "r") as f:.
 
             content = await f.read()
             data = json.loads(content)

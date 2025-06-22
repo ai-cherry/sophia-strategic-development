@@ -22,12 +22,14 @@ DATABASE_URL = "postgresql://ubuntu:password@localhost:5432/sophia_enhanced"
 
 
 class SophiaDatabase:
-    """Database connection and query manager."""def __init__(self):.
+    """Database connection and query manager."""
+    def __init__(self):.
 
         self.connection = None
 
     async def connect(self):
-        """Connect to PostgreSQL database."""try:.
+        """Connect to PostgreSQL database."""
+        try:.
 
             self.connection = await asyncpg.connect(DATABASE_URL)
             return True
@@ -36,14 +38,16 @@ class SophiaDatabase:
             return False
 
     async def close(self):
-        """Close database connection."""if self.connection:.
+        """Close database connection."""
+        if self.connection:.
 
             await self.connection.close()
 
     async def search_conversations(
         self, query: str = "", limit: int = 50, offset: int = 0
     ) -> Dict[str, Any]:
-        """Search conversations with natural language query using actual schema."""try:.
+        """Search conversations with natural language query using actual schema."""
+        try:.
 
             # Base query with actual column names
             base_sql = """
@@ -226,7 +230,8 @@ class SophiaDatabase:
                         return {"error": str(e)}
 
                 async def get_dashboard_stats(self) -> Dict[str, Any]:
-            """Get real dashboard statistics using actual schema."""try:.
+            """Get real dashboard statistics using actual schema."""
+            try:.
 
             stats = {}
 
@@ -418,7 +423,8 @@ def health():
 
 @app.route("/api/stats", methods=["GET"])
 def stats():
-    """Get dashboard statistics."""try:.
+    """Get dashboard statistics."""
+    try:.
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

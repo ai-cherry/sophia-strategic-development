@@ -12,8 +12,10 @@ from typing import Any, Dict, List
 logger = logging.getLogger(__name__)
 
 
-class ClientHealthAgent:"""
-Monitors client health based on various data sources and predicts churn risk.    """d"""ef __init__(self, config: Dict[str, Any]):
+class ClientHealthAgent:
+    """Monitors client health based on various data sources and predicts churn risk."""
+
+    def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.agent_type = "client_health"
         logger.info("ClientHealthAgent initialized")
