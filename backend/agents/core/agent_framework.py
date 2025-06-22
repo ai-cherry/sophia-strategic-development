@@ -1,8 +1,8 @@
 """Sophia AI - Centralized MCP-Native Agent Framework.
 
-This framework is the single source of truth for all AI agent initialization,
-management, and interaction via the Model Context Protocol (MCP):
-    """"""
+This module manages initialization of tools and orchestrates agent sessions
+through the Model Context Protocol (MCP).
+"""
 
 import logging
 from datetime import datetime
@@ -20,24 +20,18 @@ logger = logging.getLogger(__name__)
 
 
 class MCPOrchestrator:
-    The central nervous system for Sophia's AI agents.
+    """Central orchestrator for Sophia's agents."""
 
-            It manages agent sessions and funnels all tool interactions through the single,
-            universal mcp_client:
-                """d"""
-        ef __init__(self):."""
-
-        Initializes the orchestrator."""
-
+    def __init__(self) -> None:
+        """Initialize the orchestrator with default state."""
         self.is_initialized = False
         self.start_time: Optional[datetime] = None
-        self.sessions: Dict[str, List[Dict]] = {}  # Simplified session state
+        self.sessions: Dict[str, List[Dict]] = {}
         logger.info("MCPOrchestrator instance created.")
 
-    async def initialize(self):
-        """Initializes the framework."""
-        if self.is_initialized:.
-
+    async def initialize(self) -> None:
+        """Initialize the framework and load tools."""
+        if self.is_initialized:
             logger.warning("Framework already initialized.")
             return
 
@@ -47,14 +41,10 @@ class MCPOrchestrator:
         self.is_initialized = True
         logger.info("✅ MCP-Native Agent Framework Initialized Successfully.")
 
-    async def ask_agent(self, session_id: str, request: str) -> Dict:
-        """Primary method for interacting with an agent:
-                        Simulates the agent receiving a request and using an MCP tool to respond:"""
-        """
-        if session_id not in self.sessions:.
-
+    async def ask_agent(self, session_id: str, request: str) -> Dict[str, Any]:
+        """Simulate an agent using MCP to answer a request."""
+        if session_id not in self.sessions:
             self.sessions[session_id] = []
-"""
         self.sessions[session_id].append({"role": "user", "content": request})
 
         logger.info("Agent decided to use the 'pulumi' MCP service.")
@@ -72,7 +62,7 @@ class MCPOrchestrator:
         return final_answer
 
     async def get_status(self) -> Dict[str, Any]:
-        """Returns the current status of the agent framework."""
+        """Return the current status of the agent framework."""
         return {
             "is_healthy": self.is_initialized,
             "start_time": self.start_time.isoformat() if self.start_time else None,
@@ -80,17 +70,15 @@ class MCPOrchestrator:
             "mcp_gateway_endpoints": list(MCP_GATEWAY_ENDPOINTS.keys()),
         }
 
-    async def shutdown(self):
-        """Gracefully shuts down the framework."""
-        logger.info("Shutting down MCP-Native Agent Framework...").
-
+    async def shutdown(self) -> None:
+        """Gracefully shut down the framework."""
+        logger.info("Shutting down MCP-Native Agent Framework...")
         self.is_initialized = False
 
-    async def initialize_tools(self):
-        """Loads all defined tools and registers them for agent use."""
-
-        logger.info("Initializing and registering Agno-native tools..."):
-            all_tools = [
+    async def initialize_tools(self) -> None:
+        """Load all defined tools and register them for agent use."""
+        logger.info("Initializing and registering Agno-native tools...")
+        all_tools = [
             gong_tools,
             hubspot_tools,
             custom_chunking_tools,
@@ -105,9 +93,9 @@ class MCPOrchestrator:
 
         logger.info("Tool registration complete.")
 
-    def register_tool(self, name: str, function: Coroutine):
-        """Registers a single tool function in the framework."""
-        if "tool_registry" not in self.__dict__:
+    def register_tool(self, name: str, function: Coroutine) -> None:
+        """Register a single tool function in the framework."""
+        if not hasattr(self, "tool_registry"):
             self.tool_registry = {}
         if name in self.tool_registry:
             logger.warning(f"Tool '{name}' is already registered. Overwriting.")
@@ -115,7 +103,5 @@ class MCPOrchestrator:
         logger.debug(f"Registered tool: {name}")
 
 
-# Singleton instance of the framework, now renamed to reflect its purpose
+# Singleton instance of the framework
 agent_framework = MCPOrchestrator()
-
-"""
