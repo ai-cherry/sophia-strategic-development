@@ -598,11 +598,8 @@ class EstuaryIntegration(Integration):
 
     async def _create_client(self, config: ServiceConfig) -> Optional[Any]:
         """Create an Estuary client."""
-        try:.
-
-            from ..integrations.estuary_flow_integration_updated import (
-                EstuaryFlowClient,
-            )
+        try:
+            from ..integrations.estuary import EstuaryFlowClient
 
             client = EstuaryFlowClient()
             await client.setup()
