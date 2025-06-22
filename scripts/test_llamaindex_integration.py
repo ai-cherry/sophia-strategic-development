@@ -3,7 +3,9 @@
 
 This script demonstrates how to use the LlamaIndex integration for document
 processing and querying. It processes a sample document and performs a query.
-"""import asyncio
+"""
+
+import asyncio
 
 import logging
 import os

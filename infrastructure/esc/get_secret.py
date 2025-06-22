@@ -37,7 +37,7 @@ except ImportError:
 
         async def initialize(self) -> bool:
             """Initialize the client."""
-            import subprocess.
+            import subprocess
 
             try:
                 # Check if pulumi is installed
@@ -55,7 +55,7 @@ except ImportError:
 
         async def get_secret(self, key: str) -> Optional[str]:
             """Get a secret from Pulumi ESC."""
-            import json.
+            import json
 
             import subprocess
 
@@ -86,7 +86,7 @@ except ImportError:
 
         async def get_configuration(self, key: str) -> Optional[str]:
             """Get a configuration value from Pulumi ESC."""
-            import json.
+            import json
 
             import subprocess
 
@@ -124,7 +124,7 @@ async def get_secret(
     environment: str = "production",
 ) -> Optional[str]:
     """Get a secret from Pulumi ESC."""
-    try:.
+    try:
 
         # Initialize ESC client
         esc_client = ESCClient(
@@ -149,7 +149,7 @@ async def get_config(
     environment: str = "production",
 ) -> Optional[str]:
     """Get a configuration value from Pulumi ESC."""
-    try:.
+    try:
 
         # Initialize ESC client
         esc_client = ESCClient(
@@ -173,7 +173,7 @@ async def get_service_secrets(
     environment: str = "production",
 ) -> Dict[str, str]:
     """Get all secrets for a service from Pulumi ESC."""
-    try:.
+    try:
 
         # Initialize ESC client
         esc_client = ESCClient(

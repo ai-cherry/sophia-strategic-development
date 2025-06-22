@@ -6,7 +6,9 @@ GitHub organization secrets and their validation status.
 
 Usage:
     python scripts/generate_capability_matrix.py
-"""import json
+"""
+
+import json
 
 import os
 from datetime import datetime

@@ -2,7 +2,9 @@
 """Sophia AI Infrastructure Validation Script.
 
 Tests all critical components for deployment readiness.
-"""import logging
+"""
+
+import logging
 
 import os
 import sys

@@ -6,7 +6,9 @@ This program defines the full stack in a specific, dependency-aware order:
 3. Deploys a comprehensive suite of MCP (Model Context Protocol) servers.
 4. Deploys the Agno Agent UI for monitoring and interaction.
 5. Deploys the static hosting infrastructure for the Sophia Dashboard.
-"""import os
+"""
+
+import os
 
 from typing import Any, Iterable
 

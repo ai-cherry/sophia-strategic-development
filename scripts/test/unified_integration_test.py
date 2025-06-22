@@ -11,7 +11,9 @@ This script tests the connectivity and functionality of all integrations:
 Usage:
     python unified_integration_test.py --tests all --output test_results.json
     python unified_integration_test.py --tests snowflake,gong --output snowflake_gong_results.json
-"""import argparse
+"""
+
+import argparse
 
 import asyncio
 import json

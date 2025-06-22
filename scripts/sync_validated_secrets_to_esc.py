@@ -8,7 +8,9 @@ Usage:
     python scripts/sync_validated_secrets_to_esc.py
     python scripts/sync_validated_secrets_to_esc.py --force
     python scripts/sync_validated_secrets_to_esc.py --dry-run
-"""import asyncio
+"""
+
+import asyncio
 
 import json
 import logging

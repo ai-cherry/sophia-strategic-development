@@ -1,7 +1,9 @@
 """Sophia AI System - Production Deployment Script using MCP.
 
 This script deploys the Sophia AI system to production using the MCP federation model.
-"""import asyncio
+"""
+
+import asyncio
 
 import json
 import logging
