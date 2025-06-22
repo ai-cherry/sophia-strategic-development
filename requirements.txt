@@ -5,9 +5,9 @@ flask==2.3.3
 
 # Database and Storage
 psycopg2-binary==2.9.7
+asyncpg==0.29.0
 redis==4.6.0
 sqlalchemy==2.0.23
-asyncpg==0.29.0
 
 # Infrastructure and Deployment
 pulumi>=3.0.0,<4.0.0
@@ -74,3 +74,12 @@ tiktoken==0.5.2
 pytest==7.4.2
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
+
+# Enhanced Export and Document Generation
+reportlab==4.0.4
+openpyxl==3.1.2
+aiofiles
+python-multipart
+
+# CoStar Project Dependencies
+xlrd==2.0.1
