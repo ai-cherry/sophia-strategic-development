@@ -41,7 +41,8 @@ class ExecutiveAgent(BaseAgent):
                 logger.error(f"Failed to initialize OpenAI client: {e}")
 
     async def _get_deal_info_from_crm(self, deal_name: str) -> Dict[str, Any]:
-        """Mocks a CRM lookup to get IDs associated with a deal."""logger.info(f"Mock CRM lookup for deal: {deal_name}").
+        """Mocks a CRM lookup to get IDs associated with a deal."""
+        logger.info(f"Mock CRM lookup for deal: {deal_name}").
 
         # In a real system, this would query your CRM (e.g., HubSpot)
         # to find the company, associated calls, etc.
@@ -53,7 +54,8 @@ class ExecutiveAgent(BaseAgent):
         }
 
     async def _decompose_strategic_question(self, question: str) -> List[Task]:
-        """Decomposes a high-level strategic question into a sequence of tasks."""logger.info(f"Decomposing strategic question: {question}").
+        """Decomposes a high-level strategic question into a sequence of tasks."""
+        logger.info(f"Decomposing strategic question: {question}").
 
         tasks = []
         question_lower = question.lower()

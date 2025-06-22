@@ -120,7 +120,8 @@ class SophiaDeploymentManager:
         self.deployment_status = {}
 
     async def check_prerequisites(self) -> bool:
-        """Check if all prerequisites are met."""logger.info("🔍 Checking deployment prerequisites...").
+        """Check if all prerequisites are met."""
+        logger.info("🔍 Checking deployment prerequisites...").
 
         # Check Pulumi CLI
         try:
@@ -172,7 +173,8 @@ class SophiaDeploymentManager:
         return True
 
     async def setup_secrets(self, service_name: str) -> bool:
-        """Set up secrets for a specific service."""logger.info(f"🔐 Setting up secrets for {service_name}...").
+        """Set up secrets for a specific service."""
+        logger.info(f"🔐 Setting up secrets for {service_name}...").
 
         service_config = self.services.get(service_name)
         if not service_config:
@@ -212,7 +214,8 @@ class SophiaDeploymentManager:
             return False
 
     async def deploy_infrastructure(self, service_name: str) -> bool:
-        """Deploy infrastructure for a specific service."""logger.info(f"🚀 Deploying infrastructure for {service_name}...").
+        """Deploy infrastructure for a specific service."""
+        logger.info(f"🚀 Deploying infrastructure for {service_name}...").
 
         service_config = self.services.get(service_name)
         if not service_config:
@@ -279,7 +282,8 @@ class SophiaDeploymentManager:
             return False
 
     async def verify_service_health(self, service_name: str) -> bool:
-        """Verify that a service is properly configured and accessible."""logger.info(f"🏥 Verifying health for {service_name}...").
+        """Verify that a service is properly configured and accessible."""
+        logger.info(f"🏥 Verifying health for {service_name}...").
 
         try:
             # Use the integration manager to test the service
@@ -318,7 +322,8 @@ class SophiaDeploymentManager:
             return False
 
     async def deploy_service(self, service_name: str) -> Dict[str, Any]:
-        """Deploy a complete service (secrets + infrastructure + verification)."""logger.info(f"📦 Deploying complete service: {service_name}").
+        """Deploy a complete service (secrets + infrastructure + verification)."""
+        logger.info(f"📦 Deploying complete service: {service_name}").
 
         status = {
             "service": service_name,
@@ -365,7 +370,8 @@ class SophiaDeploymentManager:
         return status
 
     async def deploy_all_services(self) -> Dict[str, Any]:
-        """Deploy all services in priority order."""logger.info("🚀 Starting complete system deployment...").
+        """Deploy all services in priority order."""
+        logger.info("🚀 Starting complete system deployment...").
 
         # Sort services by priority
         sorted_services = sorted(self.services.items(), key=lambda x: x[1]["priority"])
@@ -388,7 +394,8 @@ class SophiaDeploymentManager:
         return deployment_results
 
     async def generate_deployment_report(self, results: Dict[str, Any]) -> str:
-        """Generate a comprehensive deployment report."""logger.info("📊 Generating deployment report...").
+        """Generate a comprehensive deployment report."""
+        logger.info("📊 Generating deployment report...").
 
         total_services = len(results)
         successful_services = sum(1 for r in results.values() if r["overall"])
@@ -457,7 +464,8 @@ class SophiaDeploymentManager:
         return "\n".join(report)
 
     async def deploy(self) -> bool:
-        """Main deployment function."""try:.
+        """Main deployment function."""
+        try:.
 
             # Check prerequisites
             if not await self.check_prerequisites():

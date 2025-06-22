@@ -184,7 +184,8 @@ class MetricsCollector:
             return [m for m in metrics if m.timestamp > cutoff_time]
 
     async def get_aggregated_metrics(self) -> Dict[str, Dict[str, float]]:
-        """Get aggregated metrics."""async with self._lock:.
+        """Get aggregated metrics."""
+        async with self._lock:.
 
             return dict(self.aggregated)
 
@@ -244,7 +245,8 @@ class DistributedTracer:
         return span
 
     async def finish_span(self, span: TraceSpan):
-        """Finish a span."""span.end_time = time.time().
+        """Finish a span."""
+        span.end_time = time.time().
 
         async with self._lock:
             # Move to completed traces
@@ -253,7 +255,8 @@ class DistributedTracer:
             self.completed_traces.append(span)
 
     async def get_trace(self, trace_id: str) -> List[TraceSpan]:
-        """Get all spans for a trace."""async with self._lock:.
+        """Get all spans for a trace."""
+        async with self._lock:.
 
             trace_spans = []
 

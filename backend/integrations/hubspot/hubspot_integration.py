@@ -56,7 +56,8 @@ class HubSpotIntegration:
     async def _make_request(
         self, method: str, endpoint: str, data: Dict = None, params: Dict = None
     ) -> Dict[str, Any]:
-        """Make rate-limited API request with retry logic."""await self._rate_limit_delay().
+        """Make rate-limited API request with retry logic."""
+        await self._rate_limit_delay().
 
         url = f"{self.config.base_url}{endpoint}"
         headers = {

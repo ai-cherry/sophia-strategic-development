@@ -25,7 +25,8 @@ class ClaudeSecretManager:
         self.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", "")
 
     async def setup_claude_secrets(self) -> bool:
-        """Setup Claude secrets in Pulumi ESC."""# Validate API key is provided.
+        """Setup Claude secrets in Pulumi ESC."""
+        # Validate API key is provided.
 
         if not self.anthropic_api_key:
             logger.error("ANTHROPIC_API_KEY environment variable is required")
@@ -80,7 +81,8 @@ class ClaudeSecretManager:
             return False
 
     async def validate_claude_config(self) -> Dict[str, Any]:
-        """Validate Claude configuration in Pulumi ESC."""try:.
+        """Validate Claude configuration in Pulumi ESC."""
+        try:.
 
             logger.info("Validating Claude configuration...")
 
@@ -143,7 +145,8 @@ class ClaudeSecretManager:
             }
 
     async def get_environment_variables(self) -> Dict[str, str]:
-        """Get Claude environment variables from Pulumi ESC."""try:.
+        """Get Claude environment variables from Pulumi ESC."""
+        try:.
 
             env_vars = {}
 
@@ -182,7 +185,8 @@ class ClaudeSecretManager:
             return {}
 
     async def rotate_api_key(self, new_api_key: str) -> bool:
-        """Rotate Claude API key."""try:.
+        """Rotate Claude API key."""
+        try:.
 
             logger.info("Rotating Claude API key...")
 
@@ -208,7 +212,8 @@ class ClaudeSecretManager:
             return False
 
     async def get_claude_config(self) -> Optional[Dict[str, Any]]:
-        """Get complete Claude configuration."""try:.
+        """Get complete Claude configuration."""
+        try:.
 
             config = {}
 
@@ -247,7 +252,8 @@ class ClaudeSecretManager:
             return None
 
     async def test_claude_connection(self) -> Dict[str, Any]:
-        """Test Claude API connection."""try:.
+        """Test Claude API connection."""
+        try:.
 
             # Get configuration
             config = await self.get_claude_config()
@@ -296,7 +302,8 @@ class ClaudeSecretManager:
             }
 
     async def generate_claude_env_file(self, output_path: str = ".env.claude") -> bool:
-        """Generate .env file for Claude configuration."""try:.
+        """Generate .env file for Claude configuration."""
+        try:.
 
             env_vars = await self.get_environment_variables()
 

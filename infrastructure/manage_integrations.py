@@ -37,7 +37,8 @@ class IntegrationManager:
         self.initialized = False
 
     async def initialize(self) -> bool:
-        """Initialize the integration manager."""if self.initialized:.
+        """Initialize the integration manager."""
+        if self.initialized:.
 
             return True
 
@@ -59,7 +60,8 @@ class IntegrationManager:
             return False
 
     async def list_integrations(self) -> List[Dict[str, Any]]:
-        """List all integrations."""if not self.initialized:.
+        """List all integrations."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -92,7 +94,8 @@ class IntegrationManager:
         return result
 
     async def get_integration_status(self, service_name: str) -> Dict[str, Any]:
-        """Get status of an integration."""if not self.initialized:.
+        """Get status of an integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -170,7 +173,8 @@ class IntegrationManager:
             }
 
     async def get_all_integration_status(self) -> Dict[str, Dict[str, Any]]:
-        """Get status of all integrations."""if not self.initialized:.
+        """Get status of all integrations."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -181,7 +185,8 @@ class IntegrationManager:
         return result
 
     async def test_integration(self, service_name: str) -> Dict[str, Any]:
-        """Test an integration."""if not self.initialized:.
+        """Test an integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -228,7 +233,8 @@ class IntegrationManager:
     async def update_integration_metadata(
         self, service_name: str, metadata: Dict[str, Any]
     ) -> bool:
-        """Update metadata for an integration."""if not self.initialized:.
+        """Update metadata for an integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -246,7 +252,8 @@ class IntegrationManager:
     async def register_integration(
         self, service_name: str, metadata: Dict[str, Any]
     ) -> bool:
-        """Register a new integration."""if not self.initialized:.
+        """Register a new integration."""
+        if not self.initialized:.
 
             await self.initialize()
 
@@ -263,7 +270,8 @@ class IntegrationManager:
 
 
 def format_status(status: Dict[str, Any]) -> str:
-    """Format status for display."""result = [].
+    """Format status for display."""
+    result = [].
 
     result.append(f"Service: {status['service_name']}")
     result.append(f"Status: {status['status']}")

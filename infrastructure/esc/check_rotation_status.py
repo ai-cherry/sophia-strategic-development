@@ -28,7 +28,8 @@ class RotationStatusChecker:
         self.rotation_history = self._load_rotation_history()
 
     def _load_service_registry(self) -> Dict[str, Dict[str, Any]]:
-        """Load service registry."""try:.
+        """Load service registry."""
+        try:.
 
             registry_path = os.environ.get(
                 "SERVICE_REGISTRY_PATH",
@@ -49,7 +50,8 @@ class RotationStatusChecker:
             return {}
 
     def _load_rotation_history(self) -> Dict[str, Dict[str, Any]]:
-        """Load rotation history."""try:.
+        """Load rotation history."""
+        try:.
 
             history_path = os.environ.get(
                 "ROTATION_HISTORY_PATH",
@@ -72,7 +74,8 @@ class RotationStatusChecker:
             return {"services": {}}
 
     def _save_rotation_history(self, history: Dict[str, Any]):
-        """Save rotation history."""try:.
+        """Save rotation history."""
+        try:.
 
             history_path = os.environ.get(
                 "ROTATION_HISTORY_PATH",
@@ -87,7 +90,8 @@ class RotationStatusChecker:
             logger.error(f"Failed to save rotation history: {e}")
 
     def _parse_rotation_schedule(self, schedule: str) -> datetime.timedelta:
-        """Parse rotation schedule."""if schedule.endswith("d"):.
+        """Parse rotation schedule."""
+        if schedule.endswith("d"):.
 
             days = int(schedule[:-1])
             return datetime.timedelta(days=days)
@@ -99,7 +103,8 @@ class RotationStatusChecker:
             return datetime.timedelta(days=90)
 
     def check_rotation_status(self) -> Dict[str, Any]:
-        """Check rotation status of all secrets."""now = datetime.datetime.now().
+        """Check rotation status of all secrets."""
+        now = datetime.datetime.now().
 
         status = {"timestamp": now.isoformat(), "services": {}}
 
@@ -167,7 +172,8 @@ class RotationStatusChecker:
         return status
 
     def generate_report(self, status: Dict[str, Any], format: str = "text") -> str:
-        """Generate a report of rotation status."""if format == "json":.
+        """Generate a report of rotation status."""
+        if format == "json":.
 
             return json.dumps(status, indent=2)
 
@@ -240,7 +246,8 @@ class RotationStatusChecker:
         return "\n".join(report)
 
     def update_rotation_history(self, service: str, key: str, timestamp: str = None):
-        """Update rotation history for a secret."""if timestamp is None:.
+        """Update rotation history for a secret."""
+        if timestamp is None:.
 
             timestamp = datetime.datetime.now().isoformat()
 

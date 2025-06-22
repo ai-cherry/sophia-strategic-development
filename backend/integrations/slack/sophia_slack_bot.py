@@ -69,7 +69,8 @@ class SophiaSlackBot:
         self._setup_message_handlers()
 
     def _setup_command_handlers(self):
-        """Setup Slack slash command handlers."""@self.app.command("/sophia").
+        """Setup Slack slash command handlers."""
+        @self.app.command("/sophia").
 
         async def handle_sophia_command(ack, command, client, logger):
             await ack()
@@ -101,7 +102,8 @@ class SophiaSlackBot:
             await self._handle_deploy_command(command, client)
 
     def _setup_event_handlers(self):
-        """Setup Slack event handlers."""@self.app.event("app_mention").
+        """Setup Slack event handlers."""
+        @self.app.event("app_mention").
 
         async def handle_app_mention(event, client, logger):
             await self._handle_mention(event, client)
@@ -113,7 +115,8 @@ class SophiaSlackBot:
                 await self._handle_direct_message(event, client)
 
     def _setup_message_handlers(self):
-        """Setup interactive message handlers."""@self.app.action("dashboard_refresh").
+        """Setup interactive message handlers."""
+        @self.app.action("dashboard_refresh").
 
         async def handle_dashboard_refresh(ack, action, client):
             await ack()
@@ -167,7 +170,8 @@ class SophiaSlackBot:
     async def _handle_dashboard_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated dashboard command."""await self._handle_dashboard_request(.
+        """Handle dedicated dashboard command."""
+        await self._handle_dashboard_request(.
 
             command["channel_id"], client, command["user_id"]
         )
@@ -195,7 +199,8 @@ class SophiaSlackBot:
     async def _handle_health_command(
         self, command: Dict[str, Any], client: AsyncWebClient
     ):
-        """Handle dedicated health command."""await self._handle_system_health(.
+        """Handle dedicated health command."""
+        await self._handle_system_health(.
 
             command["channel_id"], client, command["user_id"]
         )
@@ -452,7 +457,8 @@ class SophiaSlackBot:
             return await self._process_query_via_api(query)
 
     async def _process_query_via_api(self, query: str) -> Dict[str, Any]:
-        """Process query via direct API call."""async with aiohttp.ClientSession() as session:.
+        """Process query via direct API call."""
+        async with aiohttp.ClientSession() as session:.
 
             async with session.post(
                 f"{self.admin_api_base}/natural-query", json={"query": query}

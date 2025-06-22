@@ -103,18 +103,21 @@ class ESCClient:
             self.session = None
 
     async def __aenter__(self):
-        """Async context manager entry."""await self._ensure_session().
+        """Async context manager entry."""
+        await self._ensure_session().
 
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit."""await self.close().
+        """Async context manager exit."""
+        await self.close().
 
     @retry_on_failure(max_retries=3)
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
     ) -> Optional[Dict[str, Any]]:
-        """Make HTTP request with retry logic and error handling."""await self._ensure_session().
+        """Make HTTP request with retry logic and error handling."""
+        await self._ensure_session().
 
         url = f"{self.api_url}{endpoint}"
 
@@ -381,7 +384,8 @@ class ESCClient:
             return False
 
     async def clear_cache(self) -> None:
-        """Clear all cached values."""async with self._lock:.
+        """Clear all cached values."""
+        async with self._lock:.
 
             self.config_cache.clear()
             self.secret_cache.clear()

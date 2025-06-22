@@ -35,7 +35,8 @@ class SophiaToolExplorer:
         self.registry = tool_registry
 
     def display_summary(self):
-        """Display overall tool summary."""console.print("\n[bold cyan]🤖 Sophia AI Tool Summary[/bold cyan]\n").
+        """Display overall tool summary."""
+        console.print("\n[bold cyan]🤖 Sophia AI Tool Summary[/bold cyan]\n").
 
         # Status summary
         status_table = Table(title="Tool Status Overview", box=box.ROUNDED)
@@ -79,7 +80,8 @@ class SophiaToolExplorer:
         console.print(category_table)
 
     def display_category_tools(self, category: Optional[ToolCategory] = None):
-        """Display tools by category."""if category:.
+        """Display tools by category."""
+        if category:.
 
             tools = self.registry.list_tools(category=category)
             title = f"Tools in {category.value}"
@@ -118,7 +120,8 @@ class SophiaToolExplorer:
         console.print(tree)
 
     def display_tool_details(self, tool_id: str):
-        """Display detailed information about a specific tool."""tool = self.registry.get_tool(tool_id).
+        """Display detailed information about a specific tool."""
+        tool = self.registry.get_tool(tool_id).
 
         if not tool:
             console.print(f"[red]Tool '{tool_id}' not found[/red]")
@@ -181,7 +184,8 @@ class SophiaToolExplorer:
         console.print(panel)
 
     async def check_tool_health(self, tool_id: str):
-"""Check if a tool is properly configured and healthy."""tool = self.registry.get_tool(tool_id).
+"""Check if a tool is properly configured and healthy."""
+tool = self.registry.get_tool(tool_id).
 
         if not tool:
             console.print(f"[red]Tool '{tool_id}' not found[/red]")
@@ -283,7 +287,8 @@ class SophiaToolExplorer:
         console.print("\n", results_table)
 
     def search_tools(self, query: str):
-        """Search for tools matching a query."""results = self.registry.search_tools(query).
+        """Search for tools matching a query."""
+        results = self.registry.search_tools(query).
 
         if not results:
             console.print(f"[yellow]No tools found matching '{query}'[/yellow]")
@@ -309,7 +314,8 @@ class SophiaToolExplorer:
             console.print()
 
     def show_workflows(self, workflow_query: Optional[str] = None):
-        """Show example workflows."""if workflow_query:.
+        """Show example workflows."""
+        if workflow_query:.
 
             tools = self.registry.get_workflow_tools(workflow_query)
             title = f"Tools supporting '{workflow_query}' workflows"
@@ -342,7 +348,8 @@ class SophiaToolExplorer:
     def export_documentation(
         self, format: str = "markdown", filename: Optional[str] = None
     ):
-        """Export tool registry documentation."""if not filename:.
+        """Export tool registry documentation."""
+        if not filename:.
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = (
@@ -357,7 +364,8 @@ class SophiaToolExplorer:
         console.print(f"[green]✅ Documentation exported to {filename}[/green]")
 
     async def interactive_mode(self):
-        """Run interactive exploration mode."""console.print(.
+        """Run interactive exploration mode."""
+        console.print(.
 
             Panel.fit(
                 "[bold cyan]Welcome to Sophia AI Tool Explorer[/bold cyan]\n\n"

@@ -25,7 +25,8 @@ class TestInfrastructure(unittest.TestCase):
 
     @patch("backend.core.auto_esc_config.subprocess.run")
     def test_secret_loading(self, mock_run):
-        """Test that secrets are loaded correctly from the mock ESC output."""# Mock the output of the 'pulumi env open' command.
+        """Test that secrets are loaded correctly from the mock ESC output."""
+        # Mock the output of the 'pulumi env open' command.
 
         mock_output = {
             "values": {
@@ -51,7 +52,8 @@ class TestInfrastructure(unittest.TestCase):
 
 
 class InfrastructureTest:
-    """Test suite for Sophia AI infrastructure."""def __init__(self):.
+    """Test suite for Sophia AI infrastructure."""
+    def __init__(self):.
 
         self.config = config
         self.orchestrator = get_gateway_orchestrator()
@@ -63,13 +65,15 @@ class InfrastructureTest:
         }
 
     def print_header(self, title: str):
-        """Print a formatted header."""print(f"\n{'=' * 60}").
+        """Print a formatted header."""
+        print(f"\n{'=' * 60}").
 
         print(f"  {title}")
         print(f"{'=' * 60}\n")
 
     def test_api_configuration(self):
-        """Test API configuration status."""self.print_header("API Configuration Test").
+        """Test API configuration status."""
+        self.print_header("API Configuration Test").
 
         api_count = self.config.get_api_count()
         print(f"Total APIs Available: {api_count['total']}")
@@ -122,7 +126,8 @@ class InfrastructureTest:
         }
 
     def test_gateway_routing(self):
-        """Test gateway routing functionality."""self.print_header("Gateway Routing Test").
+        """Test gateway routing functionality."""
+        self.print_header("Gateway Routing Test").
 
         gateway_status = self.orchestrator.get_gateway_status()
 
@@ -146,7 +151,8 @@ class InfrastructureTest:
         self.test_results["gateway_routing"] = gateway_status
 
     async def test_mcp_servers(self):
-        """Test MCP server availability."""self.print_header("MCP Server Test").
+        """Test MCP server availability."""
+        self.print_header("MCP Server Test").
 
         # Load MCP configuration
         mcp_config_path = Path("mcp_config.json")
@@ -191,7 +197,8 @@ class InfrastructureTest:
         }
 
     async def test_integrations(self):
-        """Test specific integrations."""self.print_header("Integration Tests").
+        """Test specific integrations."""
+        self.print_header("Integration Tests").
 
         # Test vector database connectivity
         print("Vector Database Tests:")
@@ -241,7 +248,8 @@ class InfrastructureTest:
         }
 
     def generate_report(self):
-        """Generate final test report."""self.print_header("Infrastructure Test Summary").
+        """Generate final test report."""
+        self.print_header("Infrastructure Test Summary").
 
         # Overall health score
         total_tests = 0
@@ -305,7 +313,8 @@ class InfrastructureTest:
         print(f"\nDetailed report saved to: {report_path}")
 
     async def run_all_tests(self):
-        """Run all infrastructure tests."""print("\n🚀 Sophia AI Infrastructure Test Suite").
+        """Run all infrastructure tests."""
+        print("\n🚀 Sophia AI Infrastructure Test Suite").
 
         print("Testing all API integrations, gateways, and MCP servers...")
 

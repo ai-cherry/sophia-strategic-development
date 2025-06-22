@@ -82,7 +82,8 @@ class RepositoryIntelligenceService:
 
                 This is a simple chunking strategy. More advanced strategies could use
                 tree-sitter for code or specific markdown parsers.
-        """try:.
+        """
+        try:
 
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()

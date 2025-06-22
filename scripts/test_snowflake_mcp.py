@@ -86,7 +86,8 @@ async def test_snowflake_mcp():
 
 
 async def test_mcp_workflow():
-    """Test a multi-step MCP workflow."""print("\n\n🔄 Testing MCP Workflow Execution").
+    """Test a multi-step MCP workflow."""
+    print("\n\n🔄 Testing MCP Workflow Execution").
 
     print("=" * 50)
 

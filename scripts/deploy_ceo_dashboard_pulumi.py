@@ -34,7 +34,8 @@ class CEODashboardPulumiDeployer:
         self.retool_integration = None
 
     async def initialize(self):
-        """Initialize MCP client and integrations."""print(f"\n{BLUE}=== Initializing Sophia AI Infrastructure ==={RESET}").
+        """Initialize MCP client and integrations."""
+        print(f"\n{BLUE}=== Initializing Sophia AI Infrastructure ==={RESET}").
 
         # Initialize MCP Client
         self.mcp_client = MCPClient("http://localhost:8090")
@@ -47,7 +48,8 @@ class CEODashboardPulumiDeployer:
         print(f"{GREEN}✓ Retool Integration initialized{RESET}")
 
     async def check_infrastructure_health(self) -> Dict[str, Any]:
-        """Check health of all infrastructure components."""print(f"\n{BLUE}=== Checking Infrastructure Health ==={RESET}").
+        """Check health of all infrastructure components."""
+        print(f"\n{BLUE}=== Checking Infrastructure Health ==={RESET}").
 
         health_status = {}
 
@@ -77,7 +79,8 @@ class CEODashboardPulumiDeployer:
         return health_status
 
     async def deploy_retool_dashboard_via_pulumi(self) -> Dict[str, Any]:
-        """Deploy Retool dashboard using Pulumi IaC."""print(f"\n{BLUE}=== Deploying CEO Dashboard via Pulumi ==={RESET}").
+        """Deploy Retool dashboard using Pulumi IaC."""
+        print(f"\n{BLUE}=== Deploying CEO Dashboard via Pulumi ==={RESET}").
 
         # Use Pulumi MCP server to deploy
         deployment_config = {
@@ -102,7 +105,8 @@ class CEODashboardPulumiDeployer:
             return await self.deploy_retool_dashboard_direct()
 
     async def deploy_retool_dashboard_direct(self) -> Dict[str, Any]:
-        """Deploy Retool dashboard directly via API."""print(f"\n{YELLOW}⚠ Using direct Retool API deployment{RESET}").
+        """Deploy Retool dashboard directly via API."""
+        print(f"\n{YELLOW}⚠ Using direct Retool API deployment{RESET}").
 
         # Create the dashboard app
         app_result = await self.retool_integration.create_app(
@@ -126,7 +130,8 @@ class CEODashboardPulumiDeployer:
         }
 
     async def _create_dashboard_components(self, app_id: str) -> List[Dict]:
-        """Create all dashboard components."""components = [].
+        """Create all dashboard components."""
+        components = [].
 
         # Executive Summary Container
         summary_container = await self.retool_integration.add_component_to_app(
@@ -186,7 +191,8 @@ class CEODashboardPulumiDeployer:
         return components
 
     async def configure_retool_resources(self, app_id: str) -> Dict[str, Any]:
-        """Configure Retool resources and queries."""print(f"\n{BLUE}=== Configuring Retool Resources ==={RESET}").
+        """Configure Retool resources and queries."""
+        print(f"\n{BLUE}=== Configuring Retool Resources ==={RESET}").
 
         # Get backend URL from config
         backend_config = await get_config("backend")
@@ -214,7 +220,8 @@ class CEODashboardPulumiDeployer:
         return {"status": "configured", "app_id": app_id}
 
     async def test_dashboard_endpoints(self) -> Dict[str, bool]:
-        """Test all dashboard API endpoints."""print(f"\n{BLUE}=== Testing Dashboard Endpoints ==={RESET}").
+        """Test all dashboard API endpoints."""
+        print(f"\n{BLUE}=== Testing Dashboard Endpoints ==={RESET}").
 
         backend_config = await get_config("backend")
         backend_url = backend_config.get("url", "http://localhost:8000")
@@ -257,7 +264,8 @@ class CEODashboardPulumiDeployer:
     async def generate_deployment_report(
         self, deployment_results: Dict[str, Any]
     ) -> str:
-        """Generate comprehensive deployment report."""report = f"""
+        """Generate comprehensive deployment report."""
+        report = f"""
 
 # Sophia AI CEO Dashboard Deployment Report
 

@@ -25,7 +25,8 @@ class SophiaServiceOptimizer:
     """Centralized service optimization manager for Sophia AI."""
     def __init__(self):.
 
-        """Initialize service optimizer."""self.optimization_configs = self._load_optimization_configs().
+        """Initialize service optimizer."""
+        self.optimization_configs = self._load_optimization_configs().
         self.performance_metrics = {}
         self.cost_metrics = {}
 
@@ -299,7 +300,8 @@ class SophiaServiceOptimizer:
         return self.optimization_configs.get(service_name).
 
     def update_optimization_config(self, service_name: str, config: OptimizationConfig):
-        """Update optimization configuration for a service."""self.optimization_configs[service_name] = config.
+        """Update optimization configuration for a service."""
+        self.optimization_configs[service_name] = config.
 
     def get_cost_optimization_recommendations(self) -> List[Dict[str, Any]]:
         """Get cost optimization recommendations across all services."""
@@ -463,7 +465,8 @@ sophia_optimizer = None
 
 
 def get_service_optimizer() -> SophiaServiceOptimizer:
-    """Get or create global service optimizer."""global sophia_optimizer.
+    """Get or create global service optimizer."""
+    global sophia_optimizer.
 
     if sophia_optimizer is None:
         sophia_optimizer = SophiaServiceOptimizer()

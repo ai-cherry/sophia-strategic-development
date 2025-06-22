@@ -29,7 +29,8 @@ class SecretRotator:
         self.rotation_history = []
 
     def get_secret(self, key: str) -> Optional[str]:
-        """Get secret value from Pulumi ESC."""try:.
+        """Get secret value from Pulumi ESC."""
+        try:.
 
             return self.config.require_secret(f"{self.service_name}_{key}")
         except Exception as e:
@@ -37,7 +38,8 @@ class SecretRotator:
             return None
 
     def set_secret(self, key: str, value: str, group: str) -> bool:
-        """Set secret value in Pulumi ESC."""try:.
+        """Set secret value in Pulumi ESC."""
+        try:.
 
             secret_name = f"{self.service_name}_{key}"
 
@@ -77,28 +79,33 @@ class SecretRotator:
             return False
 
     def generate_password(self, length: int = 32) -> str:
-        """Generate a secure random password."""chars = string.ascii_letters + string.digits + "!@#$%^&*()_+-=[]{}|;:,.<>?".
+        """Generate a secure random password."""
+        chars = string.ascii_letters + string.digits + "!@#$%^&*()_+-=[]{}|;:,.<>?".
 
         return "".join(random.choice(chars) for _ in range(length))
 
     def generate_api_key(self, length: int = 32) -> str:
-        """Generate a secure random API key."""chars = string.ascii_letters + string.digits.
+        """Generate a secure random API key."""
+        chars = string.ascii_letters + string.digits.
 
         return "".join(random.choice(chars) for _ in range(length))
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate secrets for this service."""# This method should be implemented by subclasses.
+        """Rotate secrets for this service."""
+        # This method should be implemented by subclasses.
 
         raise NotImplementedError("Subclasses must implement rotate_secrets()")
 
 
 class SnowflakeRotator(SecretRotator):
-    """Rotates Snowflake credentials."""def __init__(self):.
+    """Rotates Snowflake credentials."""
+    def __init__(self):.
 
         super().__init__("snowflake")
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate Snowflake password."""results = {.
+        """Rotate Snowflake password."""
+        results = {.
 
             "service": self.service_name,
             "rotated": [],
@@ -137,12 +144,14 @@ class SnowflakeRotator(SecretRotator):
 
 
 class GongRotator(SecretRotator):
-    """Rotates Gong API credentials."""def __init__(self):.
+    """Rotates Gong API credentials."""
+    def __init__(self):.
 
         super().__init__("gong")
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate Gong API key and secret."""results = {.
+        """Rotate Gong API key and secret."""
+        results = {.
 
             "service": self.service_name,
             "rotated": [],
@@ -186,12 +195,14 @@ class GongRotator(SecretRotator):
 
 
 class VercelRotator(SecretRotator):
-    """Rotates Vercel API credentials."""def __init__(self):.
+    """Rotates Vercel API credentials."""
+    def __init__(self):.
 
         super().__init__("vercel")
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate Vercel access token."""results = {.
+        """Rotate Vercel access token."""
+        results = {.
 
             "service": self.service_name,
             "rotated": [],
@@ -229,12 +240,14 @@ class VercelRotator(SecretRotator):
 
 
 class EstuaryRotator(SecretRotator):
-    """Rotates Estuary API credentials."""def __init__(self):.
+    """Rotates Estuary API credentials."""
+    def __init__(self):.
 
         super().__init__("estuary")
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate Estuary API key."""results = {.
+        """Rotate Estuary API key."""
+        results = {.
 
             "service": self.service_name,
             "rotated": [],
@@ -272,12 +285,14 @@ class EstuaryRotator(SecretRotator):
 
 
 class PineconeRotator(SecretRotator):
-    """Rotates Pinecone API credentials."""def __init__(self):.
+    """Rotates Pinecone API credentials."""
+    def __init__(self):.
 
         super().__init__("pinecone")
 
     def rotate_secrets(self) -> Dict[str, Any]:
-        """Rotate Pinecone API key."""results = {.
+        """Rotate Pinecone API key."""
+        results = {.
 
             "service": self.service_name,
             "rotated": [],
@@ -314,7 +329,8 @@ class PineconeRotator(SecretRotator):
 
 
 class SecretRotationManager:
-    """Manages secret rotation for all services."""def __init__(self):.
+    """Manages secret rotation for all services."""
+    def __init__(self):.
 
         self.rotators = {
             "snowflake": SnowflakeRotator(),
@@ -334,13 +350,15 @@ class SecretRotationManager:
         }
 
     def should_rotate(self, service: str) -> bool:
-        """Check if a service's secrets should be rotated."""# In a real implementation, this would check the last rotation date.
+        """Check if a service's secrets should be rotated."""
+        # In a real implementation, this would check the last rotation date.
 
         # For this example, we'll always return True for demonstration purposes
         return True
 
     def rotate_all_secrets(self) -> Dict[str, Any]:
-        """Rotate secrets for all services that need rotation."""results = {"timestamp": datetime.now().isoformat(), "services": {}}.
+        """Rotate secrets for all services that need rotation."""
+        results = {"timestamp": datetime.now().isoformat(), "services": {}}.
 
         for service, rotator in self.rotators.items():
             if self.should_rotate(service):
