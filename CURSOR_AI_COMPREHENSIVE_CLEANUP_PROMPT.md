@@ -10,7 +10,7 @@ You are tasked with performing a comprehensive cleanup and fix of the Sophia AI 
 **Problem**: Hardcoded API keys detected in security scans
 **Files Affected**: 
 - `.env.example` - Contains `sk-ant-api03-your_anthropic_key_here`
-- `.github/workflows/deploy-simplified.yml` - Contains hardcoded key patterns
+ - `.github/workflows/production_deployment.yml` - Contains hardcoded key patterns
 - `backend/core/secure_environment_validator.py` - Contains regex patterns triggering false positives
 
 **Required Actions**:

@@ -141,7 +141,7 @@ class PermanentSolutionTester:
             self.project_root
             / ".github"
             / "workflows"
-            / "auto_deploy_with_org_secrets.yml"
+            / "production_deployment.yml"
         )
 
         if not workflow_path.exists():
