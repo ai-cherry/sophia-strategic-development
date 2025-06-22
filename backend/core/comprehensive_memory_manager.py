@@ -1,11 +1,23 @@
-"""
-Sophia AI Comprehensive Memory Manager
+"""In-memory conversation history manager for Sophia AI."""
 
-Minimal stub for comprehensive memory management in Sophia AI backend.
-"""
+from __future__ import annotations
+
+from collections import defaultdict
+from typing import DefaultDict, List
 
 
 class ComprehensiveMemoryManager:
-    """Minimal stub for comprehensive memory manager."""
+    """Manage conversation history per user."""
 
-    pass
+    def __init__(self) -> None:
+        self._memory: DefaultDict[str, List[str]] = defaultdict(list)
+
+    async def append(self, user: str, message: str) -> None:
+        """Append a message to a user's history."""
+
+        self._memory[user].append(message)
+
+    async def history(self, user: str) -> list[str]:
+        """Return the conversation history for a user."""
+
+        return list(self._memory[user])

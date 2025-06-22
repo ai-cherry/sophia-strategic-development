@@ -23,6 +23,8 @@ class IntegrationRegistry:
     async def get(self, name: str) -> Any:
         """Retrieve a registered integration by name."""
 
+        if name not in self._registry:
+            raise KeyError(f"Integration '{name}' not found")
         return self._registry[name]
 
     async def all(self) -> Dict[str, Any]:
