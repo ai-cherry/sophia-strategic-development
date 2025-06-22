@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 class SecretType(Enum):
     """Types of secrets for validation."""
-        API_KEY = "api_key"
+
+    API_KEY = "api_key"
     PASSWORD = "password"
     TOKEN = "token"
     URL = "url"
@@ -27,7 +28,8 @@ class SecretType(Enum):
 @dataclass
 class ValidationRule:
     """Validation rule for environment variables."""
-        name: str
+
+    name: str
     required: bool = True
     secret_type: Optional[SecretType] = None
     pattern: Optional[str] = None
@@ -40,17 +42,18 @@ class ValidationRule:
 class SecureEnvironmentValidator:
     """Validates environment variables with security checks.
 
-            Ensures all required secrets are present and properly formatted
+    Ensures all required secrets are present and properly formatted.
     """
-    def __init__(self):."""Initialize validator with security rules"""
+
+    def __init__(self) -> None:
+        """Initialize validator with security rules."""
 
         self.validation_rules = self._define_validation_rules()
         self.validation_results: Dict[str, Any] = {}
 
     def _define_validation_rules(self) -> Dict[str, ValidationRule]:
         """Define validation rules for all environment variables."""
-        rules = {.
-
+        rules = {
             # Core Application
             "SECRET_KEY": ValidationRule(
                 name="SECRET_KEY",
@@ -225,7 +228,7 @@ class SecureEnvironmentValidator:
         self, env_vars: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         """Validate all environment variables."""
-        if env_vars is None:.
+        if env_vars is None:
 
             env_vars = dict(os.environ)
 
@@ -288,8 +291,7 @@ class SecureEnvironmentValidator:
         self, rule: ValidationRule, value: Optional[str]
     ) -> Dict[str, Any]:
         """Validate a single environment variable."""
-        result = {.
-
+        result = {
             "valid": True,
             "missing_required": False,
             "invalid_format": False,
@@ -359,7 +361,7 @@ class SecureEnvironmentValidator:
         self, name: str, value: str, secret_type: SecretType
     ) -> Dict[str, Any]:
         """Check security of secret values."""
-        result = {"secure": True, "issue": None}.
+        result = {"secure": True, "issue": None}
 
         # Check for common insecure patterns
         insecure_patterns = [
@@ -399,7 +401,7 @@ class SecureEnvironmentValidator:
 
     def _check_hardcoded_secrets(self, env_vars: Dict[str, str]) -> List[str]:
         """Check for hardcoded secrets that should not be in environment variables."""
-        hardcoded_secrets = [].
+        hardcoded_secrets = []
 
         # Known hardcoded values that should be replaced
         hardcoded_patterns = {
@@ -421,8 +423,7 @@ class SecureEnvironmentValidator:
 
     def generate_secure_env_template(self) -> str:
         """Generate a secure .env template."""
-        template_lines = [.
-
+        template_lines = [
             "# SOPHIA AI System - Secure Environment Variables",
             "# Copy this file to .env and fill in your secure values",
             "# DO NOT commit .env files to version control",
@@ -477,7 +478,7 @@ class SecureEnvironmentValidator:
 
     def get_validation_summary(self) -> str:
         """Get a human-readable validation summary."""
-        if not self.validation_results:.
+        if not self.validation_results:
 
             return "No validation results available. Run validate_environment() first."
 
@@ -519,14 +520,14 @@ class SecureEnvironmentValidator:
 # Convenience functions
 def validate_sophia_environment() -> Dict[str, Any]:
     """Validate Sophia AI environment variables."""
-        validator = SecureEnvironmentValidator().
+    validator = SecureEnvironmentValidator()
 
     return validator.validate_environment()
 
 
 def generate_secure_env_file(output_path: str = ".env.secure.example") -> str:
     """Generate a secure environment file template."""
-        validator = SecureEnvironmentValidator()
+    validator = SecureEnvironmentValidator()
     template = validator.generate_secure_env_template()
 
     with open(output_path, "w") as f:
