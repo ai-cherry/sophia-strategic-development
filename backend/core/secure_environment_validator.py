@@ -97,7 +97,8 @@ class SecureEnvironmentValidator:
                 name="ANTHROPIC_API_KEY",
                 required=False,
                 secret_type=SecretType.API_KEY,
-                pattern=r"^sk-ant-api03-[a-zA-Z0-9_-]{95}$",
+                # Accept generic Anthropic API key pattern without hardcoded prefix
+                pattern=r"^sk-[a-zA-Z0-9_-]{95}$",
                 description="Anthropic Claude API key",
             ),
             # Vector Databases
