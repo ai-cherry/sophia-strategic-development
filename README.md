@@ -2,20 +2,24 @@
 
 A comprehensive AI platform with MCP (Model Context Protocol) integration, deployed on Lambda Labs infrastructure.
 
+> **Note**
+> The repository contains references to an experimental Agno integration.
+> That integration is not included in the codebase at this time.
+
 ## 🚀 AI-First Codebase: Optimized for AI Coding Agents
 
 **This repository is designed for AI-first development.**
 - All core logic, agent orchestration, and performance monitoring are structured for seamless collaboration between human and AI coders.
-- The codebase is fully integrated with AgnoPerformanceOptimizer and supports ultra-fast, pooled agent instantiation.
+ - The codebase references an `AgnoPerformanceOptimizer`, but the actual integration is not included.
 - Live agent performance metrics are available via API and the CEO dashboard.
 
 ## 🧠 Quickstart for AI Coders
 
 - **Agent Instantiation:**
   - Use the `pooled` classmethod for all major agents (e.g., `await SalesCoachAgent.pooled(config)`).
-  - All agents are registered with AgnoPerformanceOptimizer for pooling and performance tracking.
+  - All agents were originally expected to register with `AgnoPerformanceOptimizer` for pooling and tracking, but that system is not implemented.
 - **Performance Metrics:**
-  - Access live metrics at `/api/metrics/agno-performance` (see CEO dashboard for visualization).
+  - The `/api/metrics/agno-performance` endpoint is not available since the Agno integration is missing.
 - **Code Structure:**
   - Feature-based, vertical slice architecture for easy navigation by AI tools.
   - All business logic, integrations, and workflows are grouped by feature.
@@ -25,21 +29,20 @@ A comprehensive AI platform with MCP (Model Context Protocol) integration, deplo
 
 ## 🏗️ Agent Pooling & Performance
 
-- **AgnoPerformanceOptimizer:**
-  - Provides ultra-fast (~3μs) agent instantiation and memory pooling.
-  - All agents are pooled by type for high concurrency and efficiency.
-  - Performance metrics (instantiation time, pool size, memory usage) are tracked and available via API.
+- **AgnoPerformanceOptimizer (not implemented):**
+  - Documentation references this component, but it is not available in the repository.
+  - Metrics and pooling features tied to Agno are therefore not functional.
 - **How to Use:**
-  - Register new agent classes with the optimizer for pooling.
-  - Use the `pooled` classmethod for all agent instantiation in orchestrators, routers, and tests.
+  - When the integration becomes available, register agent classes with the optimizer for pooling.
+  - Use the `pooled` classmethod for agent instantiation once Agno is integrated.
 
 ## 📊 Live Monitoring & CEO Dashboard
 
 - **CEO Dashboard:**
   - View live agent performance metrics, business KPIs, and system health in one place.
   - Accessible at `/ceo-dashboard` (see frontend for details).
-- **API Metrics:**
-  - `/api/metrics/agno-performance` returns real-time agent performance data for dashboards and monitoring tools.
+  - **API Metrics:**
+  - The `/api/metrics/agno-performance` endpoint is referenced in older docs but is not implemented.
 
 ## 📚 Documentation for AI & Human Developers
 
@@ -51,7 +54,7 @@ A comprehensive AI platform with MCP (Model Context Protocol) integration, deplo
   - All configuration files are YAML/JSON and include inline comments for clarity.
 - **API Reference:**
   - FastAPI OpenAPI docs at `/docs`.
-  - Agent pooling and performance API at `/api/metrics/agno-performance`.
+  - Agent pooling and performance API endpoints will be documented once Agno integration is available.
 
 ## 📝 Contributing (AI & Human)
 
