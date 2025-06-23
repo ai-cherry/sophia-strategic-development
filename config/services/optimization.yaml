@@ -142,15 +142,6 @@ infrastructure_services:
 
 # Business Services Configuration
 business_services:
-  retool:
-    optimization_level: standard
-    performance_targets:
-      dashboard_load_time_ms: 2000
-      api_response_time_ms: 500
-    usage_limits:
-      monthly_api_calls: 100000
-      concurrent_users: 50
-
   gong:
     optimization_level: moderate
     performance_targets:
@@ -208,26 +199,35 @@ global_settings:
 
 # Service Routing Rules
 routing_rules:
-  ai_model_selection:
-    - condition: "prompt_tokens < 1000 AND complexity == 'simple'"
-      model: "llama-3-70b"
-      provider: "together_ai"
-      cost_per_token: 0.0009
-
-    - condition: "prompt_tokens < 5000 AND complexity == 'medium'"
-      model: "claude-3-haiku"
-      provider: "anthropic"
-      cost_per_token: 0.00025
-
-    - condition: "prompt_tokens >= 5000 OR complexity == 'complex'"
-      model: "gpt-4-turbo"
-      provider: "openai"
-      cost_per_token: 0.03
-
-    - condition: "task_type == 'code_generation'"
-      model: "deepseek-coder-33b"
-      provider: "together_ai"
-      cost_per_token: 0.0008
+  llm_gateway:
+    primary: "openrouter"
+    endpoint: "https://openrouter.ai/api/v1/completions"
+    api_key_env: "OPENROUTER_API_KEY"
+    fallback_endpoints:
+      - "https://api.openai.com/v1/completions"
+      - "https://api.anthropic.com/v1/complete"
+    model_selection:
+      - condition: "task_type == 'code_generation'"
+        model: "deepseek-v3"
+        provider: "openrouter"
+      - condition: "task_type == 'complex_reasoning' or task_type == 'long_context'"
+        model: "claude-3-opus"
+        provider: "openrouter"
+      - condition: "task_type == 'chat' or task_type == 'general'"
+        model: "gpt-4o"
+        provider: "openrouter"
+      - condition: "prompt_tokens > 16000"
+        model: "gemini-1.5-pro"
+        provider: "openrouter"
+      - condition: "cost_sensitive == true"
+        model: "llama-3-70b"
+        provider: "openrouter"
+      - condition: "task_type == 'open_source_preferred'"
+        model: "qwen2-72b"
+        provider: "openrouter"
+      - condition: "task_type == 'multi-modal'"
+        model: "gemini-1.5-pro"
+        provider: "openrouter"
 
   data_source_selection:
     - condition: "data_type == 'structured' AND size < '1GB'"
