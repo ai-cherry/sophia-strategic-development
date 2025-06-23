@@ -1,4 +1,27 @@
+---
+title: Sentry MCP Setup Summary for Sophia AI
+description: 
+tags: mcp, docker, security, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sentry MCP Setup Summary for Sophia AI
+
+
+## Table of Contents
+
+- [✅ What's Been Set Up](#✅-what's-been-set-up)
+- [🔑 What You Need to Provide](#🔑-what-you-need-to-provide)
+  - [1. **Sentry Issue ID**](#1.-**sentry-issue-id**)
+  - [2. **Environment Variables** (GitHub Actions Secrets)](#2.-**environment-variables**-(github-actions-secrets))
+  - [3. **Webhook URL**](#3.-**webhook-url**)
+- [🚀 Quick Start](#🚀-quick-start)
+- [💬 Natural Language Commands](#💬-natural-language-commands)
+- [📊 Available MCP Tools](#📊-available-mcp-tools)
+- [🔍 Finding Your First Issue ID](#🔍-finding-your-first-issue-id)
+- [📝 Next Steps](#📝-next-steps)
 
 ## ✅ What's Been Set Up
 
@@ -35,9 +58,10 @@ You mentioned you already have:
 
 ### 3. **Webhook URL**
 For Sentry webhook configuration, use:
-```
-https://your-sophia-domain.com/webhooks/sentry
-```
+```python
+# Example usage:
+python
+```python
 
 ## 🚀 Quick Start
 
@@ -50,12 +74,12 @@ https://your-sophia-domain.com/webhooks/sentry
    
    # Run the test
    python scripts/test/test_sentry_agent.py
-   ```
+   ```python
 
 3. **Deploy the MCP server**:
    ```bash
    docker-compose -f docker-compose.sentry.yml up -d
-   ```
+   ```python
 
 ## 💬 Natural Language Commands
 

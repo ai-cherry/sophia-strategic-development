@@ -1,4 +1,23 @@
+---
+title: Testing & QA Guide
+description: This guide provides best practices and patterns for testing and quality assurance in Sophia AI, with a focus on pooled agents, performance, and feature-flagged rollouts. Designed for both AI and human developers. ---
+tags: database, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Testing & QA Guide
+
+
+## Table of Contents
+
+- [🧪 Testing Pooled Agents](#🧪-testing-pooled-agents)
+- [🚦 Feature Flag Testing](#🚦-feature-flag-testing)
+- [📊 Performance & Integration Tests](#📊-performance-&-integration-tests)
+- [🤖 AI-Driven Test Strategies](#🤖-ai-driven-test-strategies)
+- [🏗️ Best Practices](#🏗️-best-practices)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This guide provides best practices and patterns for testing and quality assurance in Sophia AI, with a focus on pooled agents, performance, and feature-flagged rollouts. Designed for both AI and human developers.
 
@@ -12,7 +31,7 @@ This guide provides best practices and patterns for testing and quality assuranc
   await agent.start()
   # ... run tests ...
   await agent.stop()
-  ```
+  ```python
 - **Test agent pooling logic:**
   - Check that agents are reused from the pool.
   - Test pool exhaustion and recovery.

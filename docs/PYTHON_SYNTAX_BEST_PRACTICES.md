@@ -1,4 +1,42 @@
+---
+title: Python Syntax Best Practices for Sophia AI
+description: This guide documents common Python syntax issues encountered in the Sophia AI codebase and provides best practices to avoid them.
+tags: 
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Python Syntax Best Practices for Sophia AI
+
+
+## Table of Contents
+
+- [Common Issues and Solutions](#common-issues-and-solutions)
+  - [1. Docstring Formatting](#1.-docstring-formatting)
+  - [2. Module-Level Docstrings and Imports](#2.-module-level-docstrings-and-imports)
+  - [3. Trailing Periods on Statements](#3.-trailing-periods-on-statements)
+  - [4. Try Blocks Without Handlers](#4.-try-blocks-without-handlers)
+  - [5. Multiline String Formatting](#5.-multiline-string-formatting)
+- [Automated Tools](#automated-tools)
+  - [Python Syntax Validator](#python-syntax-validator)
+  - [Pre-commit Hook](#pre-commit-hook)
+- [IDE Configuration](#ide-configuration)
+  - [VS Code Settings](#vs-code-settings)
+  - [PyCharm Settings](#pycharm-settings)
+- [Code Review Checklist](#code-review-checklist)
+- [Common Patterns to Avoid](#common-patterns-to-avoid)
+  - [1. Concatenated Statements](#1.-concatenated-statements)
+  - [2. Inconsistent Indentation](#2.-inconsistent-indentation)
+  - [3. Missing Error Handling](#3.-missing-error-handling)
+- [Automated Fixes](#automated-fixes)
+- [Integration with CI/CD](#integration-with-ci-cd)
+- [Best Practices Summary](#best-practices-summary)
+- [Troubleshooting](#troubleshooting)
+  - [Issue: Pre-commit hook not running](#issue:-pre-commit-hook-not-running)
+  - [Issue: Auto-fix not working](#issue:-auto-fix-not-working)
+  - [Issue: False positives](#issue:-false-positives)
+- [Contributing](#contributing)
 
 This guide documents common Python syntax issues encountered in the Sophia AI codebase and provides best practices to avoid them.
 
@@ -9,16 +47,9 @@ This guide documents common Python syntax issues encountered in the Sophia AI co
 **Issue**: Docstrings concatenated with following code without proper spacing.
 
 ```python
-# ❌ Bad
-def my_function():
-    """This is a docstring."""self.value = 10
-
-# ✅ Good
-def my_function():
-    """This is a docstring."""
-
-    self.value = 10
-```
+# Example usage:
+python
+```python
 
 **Best Practice**: Always leave a blank line after docstrings before the first line of code.
 
@@ -27,15 +58,9 @@ def my_function():
 **Issue**: Module docstring immediately followed by import statements.
 
 ```python
-# ❌ Bad
-"""Module docstring."""
-import os
-
-# ✅ Good
-"""Module docstring."""
-
-import os
-```
+# Example usage:
+python
+```python
 
 **Best Practice**: Always leave a blank line between module docstrings and import statements.
 
@@ -44,14 +69,9 @@ import os
 **Issue**: Unnecessary periods at the end of Python statements.
 
 ```python
-# ❌ Bad
-self.cache.clear().
-result = calculate_value().
-
-# ✅ Good
-self.cache.clear()
-result = calculate_value()
-```
+# Example usage:
+python
+```python
 
 **Best Practice**: Python statements don't end with periods. Remove any trailing periods.
 
@@ -60,17 +80,9 @@ result = calculate_value()
 **Issue**: Try blocks without except or finally clauses.
 
 ```python
-# ❌ Bad
-try:
-    risky_operation()
-# Missing except or finally
-
-# ✅ Good
-try:
-    risky_operation()
-except Exception as e:
-    logger.error(f"Operation failed: {e}")
-```
+# Example usage:
+python
+```python
 
 **Best Practice**: Every try block must have at least one except or finally clause.
 
@@ -79,20 +91,9 @@ except Exception as e:
 **Issue**: Inconsistent indentation in multiline strings.
 
 ```python
-# ❌ Bad
-query = """
-SELECT * FROM table
-WHERE condition = true
-    AND other = false
-"""
-
-# ✅ Good
-query = """
-    SELECT * FROM table
-    WHERE condition = true
-    AND other = false
-"""
-```
+# Example usage:
+python
+```python
 
 **Best Practice**: Maintain consistent indentation within multiline strings.
 
@@ -103,28 +104,18 @@ query = """
 We provide a custom syntax validator that can automatically detect and fix common issues:
 
 ```bash
-# Check for issues
-python scripts/python_syntax_validator.py
-
-# Auto-fix issues
-python scripts/python_syntax_validator.py --fix
-
-# Check specific file
-python scripts/python_syntax_validator.py backend/core/config.py
-
-# Output as JSON
-python scripts/python_syntax_validator.py --json
-```
+# Example usage:
+bash
+```python
 
 ### Pre-commit Hook
 
 A pre-commit hook is available to catch syntax errors before committing:
 
 ```bash
-# Install the pre-commit hook
-cp .githooks/pre-commit-python-syntax .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+# Example usage:
+bash
+```python
 
 The hook will:
 - Block commits with syntax errors
@@ -138,20 +129,9 @@ The hook will:
 Add these settings to your `.vscode/settings.json`:
 
 ```json
-{
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
-    "[python]": {
-        "editor.rulers": [88],
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": true
-        }
-    }
-}
-```
+# Example usage:
+json
+```python
 
 ### PyCharm Settings
 
@@ -176,53 +156,23 @@ When reviewing Python code, check for:
 ### 1. Concatenated Statements
 
 ```python
-# ❌ Avoid
-"""Docstring"""return value
-self.method()another_call()
-
-# ✅ Prefer
-"""Docstring"""
-
-return value
-
-self.method()
-another_call()
-```
+# Example usage:
+python
+```python
 
 ### 2. Inconsistent Indentation
 
 ```python
-# ❌ Avoid
-def function():
-    if condition:
-        do_something()
-      do_another()  # Wrong indentation
-
-# ✅ Prefer
-def function():
-    if condition:
-        do_something()
-        do_another()
-```
+# Example usage:
+python
+```python
 
 ### 3. Missing Error Handling
 
 ```python
-# ❌ Avoid
-try:
-    risky_operation()
-    # No error handling
-
-# ✅ Prefer
-try:
-    risky_operation()
-except SpecificException as e:
-    logger.error(f"Expected error: {e}")
-    # Handle appropriately
-except Exception as e:
-    logger.exception("Unexpected error")
-    raise
-```
+# Example usage:
+python
+```python
 
 ## Automated Fixes
 
@@ -239,10 +189,9 @@ The `python_syntax_validator.py` script can automatically fix:
 Add this to your GitHub Actions workflow:
 
 ```yaml
-- name: Check Python Syntax
-  run: |
-    python scripts/python_syntax_validator.py --severity error
-```
+# Example usage:
+yaml
+```python
 
 This will fail the build if any syntax errors are found.
 
@@ -260,21 +209,15 @@ This will fail the build if any syntax errors are found.
 
 ### Issue: Pre-commit hook not running
 ```bash
-# Make sure it's executable
-chmod +x .git/hooks/pre-commit
-
-# Test manually
-python .githooks/pre-commit-python-syntax
-```
+# Example usage:
+bash
+```python
 
 ### Issue: Auto-fix not working
 ```bash
-# Check for syntax errors first
-python -m py_compile your_file.py
-
-# Run with verbose output
-python scripts/python_syntax_validator.py --fix -v
-```
+# Example usage:
+bash
+```python
 
 ### Issue: False positives
 If the validator reports false positives, you can:

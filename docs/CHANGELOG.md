@@ -1,4 +1,24 @@
+---
+title: Changelog & Upgrade Guide
+description: This changelog tracks major architectural changes, migration steps, and upgrade checklists for Sophia AI. Designed for both AI and human developers. ---
+tags: security, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Changelog & Upgrade Guide
+
+
+## Table of Contents
+
+- [🆕 Major Changes](#🆕-major-changes)
+  - [2024-06-21: Agno Integration & Agent Pooling](#2024-06-21:-agno-integration-&-agent-pooling)
+  - [2024-06-20: Vertical Slice Architecture](#2024-06-20:-vertical-slice-architecture)
+  - [2024-06-19: Centralized Secret Management](#2024-06-19:-centralized-secret-management)
+- [🔄 Migration Steps for Breaking Changes](#🔄-migration-steps-for-breaking-changes)
+- [✅ Upgrade Checklist](#✅-upgrade-checklist)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This changelog tracks major architectural changes, migration steps, and upgrade checklists for Sophia AI. Designed for both AI and human developers.
 

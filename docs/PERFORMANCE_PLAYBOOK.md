@@ -1,4 +1,26 @@
+---
+title: Performance Playbook
+description: This playbook provides best practices, troubleshooting, and tuning guidance for maintaining ultra-fast, high-concurrency agent performance in Sophia AI. Designed for both AI and human developers. ---
+tags: database, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Performance Playbook
+
+
+## Table of Contents
+
+- [🚀 Using AgnoPerformanceOptimizer](#🚀-using-agnoperformanceoptimizer)
+- [📊 Reading & Interpreting Live Metrics](#📊-reading-&-interpreting-live-metrics)
+- [🛠️ Troubleshooting](#🛠️-troubleshooting)
+  - [**Slow Agent Instantiation**](#**slow-agent-instantiation**)
+  - [**Pool Exhaustion**](#**pool-exhaustion**)
+  - [**Performance Regression**](#**performance-regression**)
+- [🏗️ Tuning & Best Practices](#🏗️-tuning-&-best-practices)
+- [📝 Performance Regression Checklist](#📝-performance-regression-checklist)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This playbook provides best practices, troubleshooting, and tuning guidance for maintaining ultra-fast, high-concurrency agent performance in Sophia AI. Designed for both AI and human developers.
 

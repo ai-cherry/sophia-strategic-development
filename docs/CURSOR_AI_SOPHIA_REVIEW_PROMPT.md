@@ -1,4 +1,56 @@
+---
+title: Sophia AI Comprehensive Project Review - Cursor AI Prompt
+description: 
+tags: mcp, security, gong, monitoring, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Comprehensive Project Review - Cursor AI Prompt
+
+
+## Table of Contents
+
+- [🎯 PROJECT OVERVIEW](#🎯-project-overview)
+- [📋 COMPREHENSIVE REVIEW OBJECTIVES](#📋-comprehensive-review-objectives)
+  - [1. **ARCHITECTURE & CODE QUALITY REVIEW**](#1.-**architecture-&-code-quality-review**)
+  - [2. **BUSINESS LOGIC & DOMAIN ALIGNMENT**](#2.-**business-logic-&-domain-alignment**)
+  - [3. **PRODUCTION READINESS ASSESSMENT**](#3.-**production-readiness-assessment**)
+  - [4. **DEVELOPMENT WORKFLOW OPTIMIZATION**](#4.-**development-workflow-optimization**)
+- [🔍 SPECIFIC AREAS TO INVESTIGATE](#🔍-specific-areas-to-investigate)
+  - [**CRITICAL ISSUES TO FIX:**](#**critical-issues-to-fix:**)
+    - [**1. Server Deployment Issues**](#**1.-server-deployment-issues**)
+    - [**2. API Authentication & Integration**](#**2.-api-authentication-&-integration**)
+    - [**3. Vector Database Configuration**](#**3.-vector-database-configuration**)
+    - [**4. Agent Communication & Orchestration**](#**4.-agent-communication-&-orchestration**)
+  - [**ENHANCEMENT OPPORTUNITIES:**](#**enhancement-opportunities:**)
+    - [**1. Business Intelligence Capabilities**](#**1.-business-intelligence-capabilities**)
+    - [**2. Integration Robustness**](#**2.-integration-robustness**)
+    - [**3. User Experience**](#**3.-user-experience**)
+- [📊 TECHNICAL SPECIFICATIONS](#📊-technical-specifications)
+  - [**Current Technology Stack:**](#**current-technology-stack:**)
+  - [**Performance Targets:**](#**performance-targets:**)
+  - [**Security Requirements:**](#**security-requirements:**)
+- [🛠️ REVIEW METHODOLOGY](#🛠️-review-methodology)
+  - [**1. CODE ANALYSIS**](#**1.-code-analysis**)
+  - [**2. TESTING STRATEGY**](#**2.-testing-strategy**)
+  - [**3. DEPLOYMENT VALIDATION**](#**3.-deployment-validation**)
+- [🎯 EXPECTED DELIVERABLES](#🎯-expected-deliverables)
+  - [**1. IMMEDIATE FIXES**](#**1.-immediate-fixes**)
+  - [**2. ARCHITECTURE IMPROVEMENTS**](#**2.-architecture-improvements**)
+  - [**3. BUSINESS LOGIC ENHANCEMENTS**](#**3.-business-logic-enhancements**)
+  - [**4. DEVELOPMENT EXPERIENCE**](#**4.-development-experience**)
+- [🚀 SUCCESS CRITERIA](#🚀-success-criteria)
+  - [**Functional Requirements:**](#**functional-requirements:**)
+  - [**Performance Requirements:**](#**performance-requirements:**)
+  - [**Business Requirements:**](#**business-requirements:**)
+- [📋 REVIEW CHECKLIST](#📋-review-checklist)
+  - [**Code Quality:**](#**code-quality:**)
+  - [**Architecture:**](#**architecture:**)
+  - [**Business Alignment:**](#**business-alignment:**)
+  - [**Production Readiness:**](#**production-readiness:**)
+- [🎯 FINAL OBJECTIVE](#🎯-final-objective)
 
 ## 🎯 PROJECT OVERVIEW
 
@@ -36,61 +88,28 @@ You are reviewing the **Sophia AI Pay Ready Platform** - an AI assistant orchest
 ### **CRITICAL ISSUES TO FIX:**
 
 #### **1. Server Deployment Issues**
-```
-PROBLEM: Servers not starting properly
-- MCP Server: Import path resolution issues
-- Backend API: Not responding on port 8000
-- Module imports: Python path configuration problems
-
-INVESTIGATE:
-- /backend/mcp/sophia_mcp_server.py import structure
-- /backend/app/main.py FastAPI configuration
-- Python path and module resolution
-- Environment variable configuration
-```
+```python
+# Example usage:
+python
+```python
 
 #### **2. API Authentication & Integration**
-```
-STATUS: Partially resolved but needs validation
-- Pinecone: ✅ Authenticated (5 indexes available)
-- Weaviate: ✅ Authenticated (v1.28.16)
-- HubSpot: ⚠️ Implementation complete, needs API key
-- Slack: ⚠️ Implementation complete, needs bot token
-- Gong.io: ⚠️ Implementation complete, needs API key
-
-INVESTIGATE:
-- Complete end-to-end API testing
-- Error handling for API failures
-- Rate limiting implementation
-- Authentication refresh mechanisms
-```
+```python
+# Example usage:
+python
+```python
 
 #### **3. Vector Database Configuration**
-```
-CURRENT STATUS: Basic setup complete
-- Pinecone indexes: sophia-payready, sophia-business
-- Weaviate instance: Clean and ready
-
-NEEDS IMPROVEMENT:
-- Schema design for business intelligence data
-- Embedding strategies for different data types
-- Hybrid search optimization
-- Performance tuning for business queries
-```
+```python
+# Example usage:
+python
+```python
 
 #### **4. Agent Communication & Orchestration**
-```
-ARCHITECTURE: Flat-to-hierarchical evolution planned
-- Base agent class: Implemented
-- Orchestrator framework: Implemented
-- Specialized agents: Call Analysis, CRM Sync
-
-NEEDS REVIEW:
-- Message passing between agents
-- Task routing and priority handling
-- Agent performance monitoring
-- Failure recovery mechanisms
-```
+```python
+# Example usage:
+python
+```python
 
 ### **ENHANCEMENT OPPORTUNITIES:**
 
@@ -139,38 +158,21 @@ NEEDS REVIEW:
 
 ### **1. CODE ANALYSIS**
 ```bash
-# Review these key files and directories:
-/backend/agents/core/orchestrator.py          # Agent orchestration
-/backend/integrations/hubspot/               # HubSpot CRM integration
-/backend/integrations/gong/                  # Gong.io call analysis
-/backend/integrations/slack/                 # Slack communication
-/backend/vector/optimized_vector_config.py   # Vector database setup
-/backend/security/security_manager.py        # Security implementation
-/backend/monitoring/enhanced_monitoring.py   # Performance monitoring
-/backend/mcp/sophia_mcp_server.py            # MCP server for Cursor AI
-/frontend/src/App.jsx                        # React frontend
-/.cursorrules                                # Cursor AI configuration
-```
+# Example usage:
+bash
+```python
 
 ### **2. TESTING STRATEGY**
 ```python
-# Test these critical workflows:
-1. Gong.io call analysis → HubSpot update → Slack notification
-2. Vector search across business intelligence data
-3. Agent communication and task routing
-4. API authentication and error handling
-5. Real-time monitoring and alerting
-```
+# Example usage:
+python
+```python
 
 ### **3. DEPLOYMENT VALIDATION**
 ```bash
-# Verify these deployment components:
-- MCP server startup and tool availability
-- Backend API health and endpoints
-- Frontend build and deployment
-- Database connections and migrations
-- Vector database indexing and search
-```
+# Example usage:
+bash
+```python
 
 ## 🎯 EXPECTED DELIVERABLES
 

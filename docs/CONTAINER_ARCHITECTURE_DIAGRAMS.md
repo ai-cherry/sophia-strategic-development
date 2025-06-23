@@ -1,24 +1,21 @@
+---
+title: Sophia AI - Containerized Architecture
+description: The platform runs as a collection of Docker containers orchestrated with Docker Compose. The diagram below shows the main services and network connections.
+tags: mcp, docker, monitoring, database
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Containerized Architecture
 
 The platform runs as a collection of Docker containers orchestrated with Docker Compose.
 The diagram below shows the main services and network connections.
 
 ```mermaid
-graph TD
-    subgraph Core
-        api[Sophia API]
-        mcp[MCP Servers]
-        gateway[MCP Gateway]
-    end
-    api --> postgres[(PostgreSQL)]
-    api --> redis[(Redis)]
-    api --> weaviate[(Weaviate)]
-    gateway --> mcp
-    mcp --> iac[IAC Toolkit]
-    api --> nginx[Nginx]
-    prometheus --> api
-    grafana --> prometheus
-```
+# Example usage:
+mermaid
+```python
 
 ## Service List
 

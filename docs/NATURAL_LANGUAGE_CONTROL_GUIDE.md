@@ -1,4 +1,59 @@
+---
+title: SOPHIA AI System - Natural Language Control Guide
+description: 
+tags: security, gong, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # SOPHIA AI System - Natural Language Control Guide
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Table of Contents](#table-of-contents)
+- [Introduction](#introduction)
+- [Architecture](#architecture)
+- [Command Structure](#command-structure)
+- [Supported Commands](#supported-commands)
+  - [1. Data Retrieval](#1.-data-retrieval)
+  - [2. Analysis](#2.-analysis)
+  - [3. Communication](#3.-communication)
+  - [4. System Control](#4.-system-control)
+  - [5. Agent Interaction](#5.-agent-interaction)
+- [Context Awareness](#context-awareness)
+  - [Contextual References](#contextual-references)
+  - [Conversation History](#conversation-history)
+  - [Multi-turn Interactions](#multi-turn-interactions)
+- [User Permissions](#user-permissions)
+  - [Permission Levels](#permission-levels)
+  - [Permission Enforcement](#permission-enforcement)
+  - [Permission Examples](#permission-examples)
+- [Implementation](#implementation)
+  - [1. NL Command Agent](#1.-nl-command-agent)
+  - [2. Intent Recognition](#2.-intent-recognition)
+  - [3. Entity Extraction](#3.-entity-extraction)
+  - [4. Context Management](#4.-context-management)
+  - [5. Command Routing](#5.-command-routing)
+- [Best Practices](#best-practices)
+  - [For Users](#for-users)
+  - [For Developers](#for-developers)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+    - [1. Command Not Recognized](#1.-command-not-recognized)
+    - [2. Incorrect Intent Recognition](#2.-incorrect-intent-recognition)
+    - [3. Entity Extraction Errors](#3.-entity-extraction-errors)
+    - [4. Context Confusion](#4.-context-confusion)
+- [Examples](#examples)
+  - [Data Retrieval Examples](#data-retrieval-examples)
+  - [Analysis Examples](#analysis-examples)
+  - [Communication Examples](#communication-examples)
+  - [System Control Examples](#system-control-examples)
+  - [Agent Interaction Examples](#agent-interaction-examples)
+  - [Multi-turn Conversation Example](#multi-turn-conversation-example)
+- [Conclusion](#conclusion)
 
 ## Overview
 
@@ -39,36 +94,19 @@ The Natural Language Control system consists of several components:
 4. **Command Execution**: Translates recognized intents into system actions
 5. **Response Generation**: Creates natural language responses to commands
 
-```
-┌─────────────────────────────────────────────────────┐
-│               Natural Language Control               │
-│                                                     │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │    Intent   │  │   Entity    │  │   Context   │  │
-│  │ Recognition │  │ Extraction  │  │ Management  │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  │
-│                                                     │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │   Command   │  │  Response   │  │ Conversation│  │
-│  │  Execution  │  │ Generation  │  │   History   │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-         │               │               │
-         ▼               ▼               ▼
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│  SOPHIA     │  │  External   │  │   System    │
-│  Agents     │  │  Systems    │  │   Actions   │
-└─────────────┘  └─────────────┘  └─────────────┘
-```
+```python
+# Example usage:
+python
+```python
 
 ## Command Structure
 
 While natural language commands don't require a specific syntax, they generally follow this pattern:
 
-```
-[Action] [Object] [Parameters] [Constraints]
-```
+```python
+# Example usage:
+python
+```python
 
 Examples:
 - "Show me sales data for Q2 2025"
@@ -216,169 +254,45 @@ The NL Command Agent (`backend/agents/nl_command_agent.py`) is responsible for:
 - Routing commands to appropriate handlers
 
 ```python
-class NLCommandAgent(BaseAgent):
-    def __init__(self, config: AgentConfig):
-        super().__init__(config)
-        self.intent_recognizer = IntentRecognizer()
-        self.entity_extractor = EntityExtractor()
-        self.context_manager = ContextManager()
-        self.command_router = CommandRouter()
-
-    async def execute_task(self, task: Task) -> TaskResult:
-        try:
-            # Parse natural language input
-            nl_input = task.input.get("text", "")
-
-            # Recognize intent
-            intent = self.intent_recognizer.recognize(nl_input)
-
-            # Extract entities
-            entities = self.entity_extractor.extract(nl_input)
-
-            # Update context
-            context = self.context_manager.update(task.context, intent, entities)
-
-            # Route command
-            result = await self.command_router.route(intent, entities, context)
-
-            return TaskResult(
-                status="success",
-                output=result,
-                context=context
-            )
-        except Exception as e:
-            logger.error(f"Error executing NL command: {e}")
-            return TaskResult(
-                status="error",
-                output={"error": str(e)},
-                context=task.context
-            )
-```
+# Example usage:
+python
+```python
 
 ### 2. Intent Recognition
 
 The Intent Recognizer identifies the user's intention from natural language input:
 
 ```python
-class IntentRecognizer:
-    def __init__(self):
-        self.model = self._load_model()
-
-    def _load_model(self):
-        # Load intent recognition model
-        # This could be a fine-tuned language model
-        pass
-
-    def recognize(self, text: str) -> Intent:
-        # Recognize intent from text
-        intent_type = self._classify_intent_type(text)
-        action = self._extract_action(text)
-        object_type = self._extract_object(text)
-
-        return Intent(
-            type=intent_type,
-            action=action,
-            object=object_type
-        )
-```
+# Example usage:
+python
+```python
 
 ### 3. Entity Extraction
 
 The Entity Extractor identifies relevant entities in the user's input:
 
 ```python
-class EntityExtractor:
-    def __init__(self):
-        self.model = self._load_model()
-
-    def _load_model(self):
-        # Load entity extraction model
-        # This could be a named entity recognition model
-        pass
-
-    def extract(self, text: str) -> List[Entity]:
-        # Extract entities from text
-        entities = []
-
-        # Extract dates, times, names, etc.
-        dates = self._extract_dates(text)
-        times = self._extract_times(text)
-        names = self._extract_names(text)
-
-        # Add extracted entities to list
-        entities.extend(dates)
-        entities.extend(times)
-        entities.extend(names)
-
-        return entities
-```
+# Example usage:
+python
+```python
 
 ### 4. Context Management
 
 The Context Manager maintains conversation context:
 
 ```python
-class ContextManager:
-    def __init__(self):
-        self.max_history = 10
-
-    def update(self, current_context: Dict, intent: Intent, entities: List[Entity]) -> Dict:
-        # Update context with new intent and entities
-        new_context = current_context.copy()
-
-        # Add current intent to history
-        if "intent_history" not in new_context:
-            new_context["intent_history"] = []
-
-        new_context["intent_history"].append(intent)
-
-        # Limit history size
-        if len(new_context["intent_history"]) > self.max_history:
-            new_context["intent_history"] = new_context["intent_history"][-self.max_history:]
-
-        # Update entity references
-        self._update_entity_references(new_context, entities)
-
-        return new_context
-
-    def _update_entity_references(self, context: Dict, entities: List[Entity]):
-        # Update entity references in context
-        # This allows resolving pronouns and references
-        pass
-```
+# Example usage:
+python
+```python
 
 ### 5. Command Routing
 
 The Command Router directs commands to the appropriate handlers:
 
 ```python
-class CommandRouter:
-    def __init__(self):
-        self.handlers = self._register_handlers()
-
-    def _register_handlers(self) -> Dict[str, CommandHandler]:
-        # Register command handlers
-        return {
-            "data_retrieval": DataRetrievalHandler(),
-            "analysis": AnalysisHandler(),
-            "communication": CommunicationHandler(),
-            "system_control": SystemControlHandler(),
-            "agent_interaction": AgentInteractionHandler()
-        }
-
-    async def route(self, intent: Intent, entities: List[Entity], context: Dict) -> Dict:
-        # Route command to appropriate handler
-        handler = self._get_handler(intent)
-
-        if handler:
-            return await handler.handle(intent, entities, context)
-        else:
-            raise ValueError(f"No handler found for intent: {intent.type}")
-
-    def _get_handler(self, intent: Intent) -> CommandHandler:
-        # Get appropriate handler for intent
-        return self.handlers.get(intent.type)
-```
+# Example usage:
+python
+```python
 
 ## Best Practices
 
@@ -439,95 +353,45 @@ If the system loses track of context:
 
 ### Data Retrieval Examples
 
-```
-"Show me sales data for Q2 2025"
-"Find all clients in the healthcare industry"
-"Get the latest support tickets for Acme Corp"
-"Display revenue by region for the last 6 months"
-"Search for mentions of product X in customer feedback"
-```
+```python
+# Example usage:
+python
+```python
 
 ### Analysis Examples
 
-```
-"Analyze customer churn for enterprise clients"
-"Compare performance of team A and team B"
-"Identify bottlenecks in the sales pipeline"
-"Predict revenue for Q3 based on current trends"
-"Summarize the key points from yesterday's client calls"
-```
+```python
+# Example usage:
+python
+```python
 
 ### Communication Examples
 
-```
-"Send a summary of this report to the sales team"
-"Notify the support team about the issue with client X"
-"Schedule a follow-up meeting with Acme Corp next week"
-"Create an alert for any clients with satisfaction below 70%"
-"Share these insights with the executive team"
-```
+```python
+# Example usage:
+python
+```python
 
 ### System Control Examples
 
-```
-"Configure notification preferences to only send high priority alerts"
-"Enable automatic reporting for all client accounts"
-"Set default analysis period to 90 days"
-"Update the sales coach agent with the latest training data"
-"Restart the integration with Salesforce"
-```
+```python
+# Example usage:
+python
+```python
 
 ### Agent Interaction Examples
 
-```
-"Ask Sales Coach to analyze my last call with Acme Corp"
-"Have Client Health Agent check the status of our top 10 accounts"
-"Tell Research Agent to find information about competitor X's new product"
-"Request Business Strategy Agent to identify growth opportunities in the healthcare sector"
-"Instruct HR Agent to summarize team performance reviews"
-```
+```python
+# Example usage:
+python
+```python
 
 ### Multi-turn Conversation Example
 
-```
-User: "I need to prepare for my meeting with Acme Corp tomorrow"
-
-SOPHIA: "I can help you prepare for your meeting with Acme Corp. What specific information would you like to know?"
-
-User: "First, show me their account status"
-
-SOPHIA: "Acme Corp is a Tier 1 client with an active enterprise subscription ($250,000/year). Their renewal is due in 3 months. Their account health score is 85/100 (Good)."
-
-User: "Any recent support issues?"
-
-SOPHIA: "In the last 30 days, Acme Corp has submitted 5 support tickets:
-1. API integration issue (Resolved)
-2. User access problem (Resolved)
-3. Data import failure (In Progress)
-4. Custom report request (Pending)
-5. Feature request for mobile app (Under Review)"
-
-User: "What about their usage patterns?"
-
-SOPHIA: "Acme Corp has 120 active users (up 15% from last quarter). Their most used features are:
-1. Analytics Dashboard (78% of users)
-2. Custom Reports (65% of users)
-3. Data Integration (42% of users)
-
-Their usage has increased 23% compared to the same period last year."
-
-User: "Great. Can you prepare a summary of this information and send it to me and the account team?"
-
-SOPHIA: "I've prepared a summary of Acme Corp's account status, support issues, and usage patterns. Would you like to review it before I send it to you and the account team?"
-
-User: "Yes, show me the summary"
-
-SOPHIA: *displays summary*
-
-User: "Looks good. Send it out and add a note that we should discuss the pending support tickets during the meeting."
-
-SOPHIA: "I've sent the summary to you and the account team with a note about discussing the pending support tickets during the meeting."
-```
+```python
+# Example usage:
+python
+```python
 
 ## Conclusion
 

@@ -7,12 +7,11 @@ Handles all Snowflake operations for storing raw and enhanced webhook data.
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 import hashlib
 
 import structlog
-from snowflake.connector import connect, DictCursor
+from snowflake.connector import DictCursor
 from snowflake.connector.pool import SnowflakePool
 
 logger = structlog.get_logger()
@@ -20,7 +19,7 @@ logger = structlog.get_logger()
 
 class SnowflakeWebhookClient:
     """Client for Snowflake webhook data operations."""
-    
+
     def __init__(
         self,
         account: str,
@@ -29,7 +28,7 @@ class SnowflakeWebhookClient:
         warehouse: str = "COMPUTE_WH",
         database: str = "SOPHIA_AI",
         schema: str = "GONG_WEBHOOKS",
-        pool_size: int = 5
+        pool_size: int = 5,
     ):
         self.account = account
         self.user = user
@@ -38,7 +37,7 @@ class SnowflakeWebhookClient:
         self.database = database
         self.schema = schema
         self.logger = logger.bind(component="snowflake_webhook_client")
-        
+
         # Create connection pool
         self.pool = SnowflakePool(
             name="gong_webhook_pool",
@@ -48,19 +47,20 @@ class SnowflakeWebhookClient:
             password=password,
             warehouse=warehouse,
             database=database,
-            schema=schema
+            schema=schema,
         )
-        
+
         # Initialize tables on startup
         self._initialize_tables()
-    
+
     def _initialize_tables(self):
         """Create tables if they don't exist."""
         with self.pool.get_connection() as conn:
             cursor = conn.cursor()
-            
+
             # Raw webhook table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS gong_webhooks_raw (
                     webhook_id VARCHAR(255) PRIMARY KEY,
                     received_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
@@ -74,10 +74,12 @@ class SnowflakeWebhookClient:
                     retry_count NUMBER DEFAULT 0,
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             # Enhanced call data table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS gong_calls_enhanced (
                     call_id VARCHAR(255) PRIMARY KEY,
                     webhook_id VARCHAR(255),
@@ -98,10 +100,12 @@ class SnowflakeWebhookClient:
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
                     updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             # Email data table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS gong_emails_enhanced (
                     email_id VARCHAR(255) PRIMARY KEY,
                     webhook_id VARCHAR(255),
@@ -113,10 +117,12 @@ class SnowflakeWebhookClient:
                     enhanced_at TIMESTAMP_NTZ,
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             # Meeting data table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS gong_meetings_enhanced (
                     meeting_id VARCHAR(255) PRIMARY KEY,
                     webhook_id VARCHAR(255),
@@ -128,10 +134,12 @@ class SnowflakeWebhookClient:
                     enhanced_at TIMESTAMP_NTZ,
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             # Processing history table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS webhook_processing_history (
                     id NUMBER AUTOINCREMENT PRIMARY KEY,
                     webhook_id VARCHAR(255),
@@ -143,88 +151,100 @@ class SnowflakeWebhookClient:
                     metadata VARIANT,
                     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             conn.commit()
             self.logger.info("Snowflake tables initialized successfully")
-    
+
     async def store_raw_webhook(self, webhook_data: Dict[str, Any]) -> str:
         """Store raw webhook data for immediate response."""
-        webhook_id = webhook_data.get("webhook_id", self._generate_webhook_id(webhook_data))
-        
+        webhook_id = webhook_data.get(
+            "webhook_id", self._generate_webhook_id(webhook_data)
+        )
+
         with self.pool.get_connection() as conn:
             cursor = conn.cursor(DictCursor)
-            
+
             try:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO gong_webhooks_raw (
                         webhook_id, event_type, object_id, object_type, raw_data
                     ) VALUES (%s, %s, %s, %s, %s)
-                """, (
-                    webhook_id,
-                    webhook_data.get("event_type", "unknown"),
-                    webhook_data.get("object_id", ""),
-                    webhook_data.get("object_type", ""),
-                    json.dumps(webhook_data)
-                ))
-                
+                """,
+                    (
+                        webhook_id,
+                        webhook_data.get("event_type", "unknown"),
+                        webhook_data.get("object_id", ""),
+                        webhook_data.get("object_type", ""),
+                        json.dumps(webhook_data),
+                    ),
+                )
+
                 conn.commit()
                 self.logger.info("Raw webhook stored", webhook_id=webhook_id)
                 return webhook_id
-                
+
             except Exception as e:
                 conn.rollback()
-                self.logger.error("Failed to store raw webhook", 
-                                webhook_id=webhook_id, 
-                                error=str(e))
+                self.logger.error(
+                    "Failed to store raw webhook", webhook_id=webhook_id, error=str(e)
+                )
                 raise
-    
+
     async def update_webhook_status(
-        self, 
-        webhook_id: str, 
-        status: str, 
-        error_message: Optional[str] = None
+        self, webhook_id: str, status: str, error_message: Optional[str] = None
     ):
         """Update webhook processing status."""
         with self.pool.get_connection() as conn:
             cursor = conn.cursor()
-            
+
             try:
                 if error_message:
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE gong_webhooks_raw 
                         SET processing_status = %s, 
                             error_message = %s,
                             processed_at = CURRENT_TIMESTAMP(),
                             retry_count = retry_count + 1
                         WHERE webhook_id = %s
-                    """, (status, error_message, webhook_id))
+                    """,
+                        (status, error_message, webhook_id),
+                    )
                 else:
-                    cursor.execute("""
+                    cursor.execute(
+                        """
                         UPDATE gong_webhooks_raw 
                         SET processing_status = %s,
                             processed_at = CURRENT_TIMESTAMP()
                         WHERE webhook_id = %s
-                    """, (status, webhook_id))
-                
+                    """,
+                        (status, webhook_id),
+                    )
+
                 conn.commit()
-                
+
             except Exception as e:
                 conn.rollback()
-                self.logger.error("Failed to update webhook status",
-                                webhook_id=webhook_id,
-                                error=str(e))
+                self.logger.error(
+                    "Failed to update webhook status",
+                    webhook_id=webhook_id,
+                    error=str(e),
+                )
                 raise
-    
+
     async def store_enhanced_call_data(self, enhanced_data: Dict[str, Any]):
         """Store enhanced call data."""
         call_data = enhanced_data.get("call_data", {})
-        
+
         with self.pool.get_connection() as conn:
             cursor = conn.cursor()
-            
+
             try:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     MERGE INTO gong_calls_enhanced AS target
                     USING (SELECT %s AS call_id) AS source
                     ON target.call_id = source.call_id
@@ -253,55 +273,60 @@ class SnowflakeWebhookClient:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    # For MERGE condition
-                    enhanced_data["call_id"],
-                    # For UPDATE
-                    enhanced_data.get("webhook_id"),
-                    call_data.get("started"),
-                    call_data.get("duration"),
-                    call_data.get("title"),
-                    call_data.get("direction"),
-                    call_data.get("is_video"),
-                    call_data.get("language"),
-                    call_data.get("purpose"),
-                    json.dumps(call_data.get("participants", [])),
-                    json.dumps(enhanced_data.get("transcript")),
-                    json.dumps(enhanced_data.get("analytics")),
-                    json.dumps(call_data.get("topics", [])),
-                    json.dumps(call_data.get("action_items", [])),
-                    json.dumps(call_data.get("summary")),
-                    enhanced_data.get("enhanced_at"),
-                    # For INSERT
-                    enhanced_data["call_id"],
-                    enhanced_data.get("webhook_id"),
-                    call_data.get("started"),
-                    call_data.get("duration"),
-                    call_data.get("title"),
-                    call_data.get("direction"),
-                    call_data.get("is_video"),
-                    call_data.get("language"),
-                    call_data.get("purpose"),
-                    json.dumps(call_data.get("participants", [])),
-                    json.dumps(enhanced_data.get("transcript")),
-                    json.dumps(enhanced_data.get("analytics")),
-                    json.dumps(call_data.get("topics", [])),
-                    json.dumps(call_data.get("action_items", [])),
-                    json.dumps(call_data.get("summary")),
-                    enhanced_data.get("enhanced_at")
-                ))
-                
+                """,
+                    (
+                        # For MERGE condition
+                        enhanced_data["call_id"],
+                        # For UPDATE
+                        enhanced_data.get("webhook_id"),
+                        call_data.get("started"),
+                        call_data.get("duration"),
+                        call_data.get("title"),
+                        call_data.get("direction"),
+                        call_data.get("is_video"),
+                        call_data.get("language"),
+                        call_data.get("purpose"),
+                        json.dumps(call_data.get("participants", [])),
+                        json.dumps(enhanced_data.get("transcript")),
+                        json.dumps(enhanced_data.get("analytics")),
+                        json.dumps(call_data.get("topics", [])),
+                        json.dumps(call_data.get("action_items", [])),
+                        json.dumps(call_data.get("summary")),
+                        enhanced_data.get("enhanced_at"),
+                        # For INSERT
+                        enhanced_data["call_id"],
+                        enhanced_data.get("webhook_id"),
+                        call_data.get("started"),
+                        call_data.get("duration"),
+                        call_data.get("title"),
+                        call_data.get("direction"),
+                        call_data.get("is_video"),
+                        call_data.get("language"),
+                        call_data.get("purpose"),
+                        json.dumps(call_data.get("participants", [])),
+                        json.dumps(enhanced_data.get("transcript")),
+                        json.dumps(enhanced_data.get("analytics")),
+                        json.dumps(call_data.get("topics", [])),
+                        json.dumps(call_data.get("action_items", [])),
+                        json.dumps(call_data.get("summary")),
+                        enhanced_data.get("enhanced_at"),
+                    ),
+                )
+
                 conn.commit()
-                self.logger.info("Enhanced call data stored", 
-                               call_id=enhanced_data["call_id"])
-                
+                self.logger.info(
+                    "Enhanced call data stored", call_id=enhanced_data["call_id"]
+                )
+
             except Exception as e:
                 conn.rollback()
-                self.logger.error("Failed to store enhanced call data",
-                                call_id=enhanced_data.get("call_id"),
-                                error=str(e))
+                self.logger.error(
+                    "Failed to store enhanced call data",
+                    call_id=enhanced_data.get("call_id"),
+                    error=str(e),
+                )
                 raise
-    
+
     async def log_processing_stage(
         self,
         webhook_id: str,
@@ -310,42 +335,48 @@ class SnowflakeWebhookClient:
         status: str,
         duration_ms: Optional[int] = None,
         error_message: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """Log webhook processing stages for monitoring."""
         with self.pool.get_connection() as conn:
             cursor = conn.cursor()
-            
+
             try:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO webhook_processing_history (
                         webhook_id, event_type, stage, status,
                         duration_ms, error_message, metadata
                     ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (
-                    webhook_id,
-                    event_type,
-                    stage,
-                    status,
-                    duration_ms,
-                    error_message,
-                    json.dumps(metadata) if metadata else None
-                ))
-                
+                """,
+                    (
+                        webhook_id,
+                        event_type,
+                        stage,
+                        status,
+                        duration_ms,
+                        error_message,
+                        json.dumps(metadata) if metadata else None,
+                    ),
+                )
+
                 conn.commit()
-                
+
             except Exception as e:
-                self.logger.error("Failed to log processing stage",
-                                webhook_id=webhook_id,
-                                stage=stage,
-                                error=str(e))
-    
+                self.logger.error(
+                    "Failed to log processing stage",
+                    webhook_id=webhook_id,
+                    stage=stage,
+                    error=str(e),
+                )
+
     async def get_pending_webhooks(self, limit: int = 100) -> List[Dict[str, Any]]:
         """Get pending webhooks for reprocessing."""
         with self.pool.get_connection() as conn:
             cursor = conn.cursor(DictCursor)
-            
-            cursor.execute("""
+
+            cursor.execute(
+                """
                 SELECT webhook_id, event_type, object_id, raw_data, retry_count
                 FROM gong_webhooks_raw
                 WHERE processing_status IN ('pending', 'failed')
@@ -353,49 +384,51 @@ class SnowflakeWebhookClient:
                   AND received_at > DATEADD(day, -7, CURRENT_TIMESTAMP())
                 ORDER BY received_at
                 LIMIT %s
-            """, (limit,))
-            
+            """,
+                (limit,),
+            )
+
             return cursor.fetchall()
-    
+
     async def batch_insert(self, table: str, data_list: List[Dict[str, Any]]):
         """Efficient batch insertion."""
         if not data_list:
             return
-        
+
         with self.pool.get_connection() as conn:
             cursor = conn.cursor()
-            
+
             try:
                 # Prepare batch insert based on first record
                 columns = list(data_list[0].keys())
                 placeholders = ", ".join(["%s"] * len(columns))
-                
+
                 query = f"""
                     INSERT INTO {table} ({", ".join(columns)})
                     VALUES ({placeholders})
                 """
-                
+
                 # Execute batch insert
-                cursor.executemany(query, 
-                                 [tuple(record.get(col) for col in columns) 
-                                  for record in data_list])
-                
+                cursor.executemany(
+                    query,
+                    [tuple(record.get(col) for col in columns) for record in data_list],
+                )
+
                 conn.commit()
-                self.logger.info(f"Batch inserted {len(data_list)} records",
-                               table=table)
-                
+                self.logger.info(
+                    f"Batch inserted {len(data_list)} records", table=table
+                )
+
             except Exception as e:
                 conn.rollback()
-                self.logger.error("Batch insert failed",
-                                table=table,
-                                error=str(e))
+                self.logger.error("Batch insert failed", table=table, error=str(e))
                 raise
-    
+
     def _generate_webhook_id(self, data: Dict[str, Any]) -> str:
         """Generate deterministic webhook ID."""
         content = json.dumps(data, sort_keys=True)
         return hashlib.sha256(content.encode()).hexdigest()[:16]
-    
+
     def close(self):
         """Close the connection pool."""
         self.pool.close()

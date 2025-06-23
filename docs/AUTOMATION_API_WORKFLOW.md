@@ -1,4 +1,21 @@
+---
+title: Sophia AI - Automation API Workflow
+description: This guide explains how Sophia AI orchestrates infrastructure changes through the Pulumi Automation API. The `PulumiAgent` communicates with the Pulumi MCP server which in turn invokes Automation API programs inside the `iac-toolkit` container.
+tags: mcp, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Automation API Workflow
+
+
+## Table of Contents
+
+- [Workflow Overview](#workflow-overview)
+- [Example Usage](#example-usage)
+- [Troubleshooting](#troubleshooting)
+- [Maintenance](#maintenance)
 
 This guide explains how Sophia AI orchestrates infrastructure changes through the Pulumi Automation API.
 The `PulumiAgent` communicates with the Pulumi MCP server which in turn invokes Automation API programs inside the `iac-toolkit` container.
@@ -6,13 +23,9 @@ The `PulumiAgent` communicates with the Pulumi MCP server which in turn invokes 
 ## Workflow Overview
 
 ```mermaid
-graph LR
-    A[User Command] --> B[PulumiAgent]
-    B --> C[Pulumi MCP Server]
-    C --> D[Automation API Program]
-    D --> E[Cloud Resources]
-    E --> F[Status Back to Agent]
-```
+# Example usage:
+mermaid
+```python
 
 1. **User Command** – A natural language command like `deploy prod` is issued.
 2. **PulumiAgent** – Parses the request and sends an API call to the Pulumi MCP server.
@@ -23,12 +36,9 @@ graph LR
 ## Example Usage
 
 ```python
-from backend.agents.pulumi_agent import PulumiAgent
-
-agent = PulumiAgent()
-result = await agent.handle_command("deploy staging", session_id="abc")
-print(result)
-```
+# Example usage:
+python
+```python
 
 ## Troubleshooting
 

@@ -1,4 +1,47 @@
+---
+title: Sophia AI - Comprehensive Project Summary
+description: 
+tags: mcp, security, gong, linear, monitoring, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Comprehensive Project Summary
+
+
+## Table of Contents
+
+- [🎯 Project Overview](#🎯-project-overview)
+- [🏗️ Architecture](#🏗️-architecture)
+  - [System Architecture](#system-architecture)
+  - [Core Components](#core-components)
+- [🛠️ Technology Stack](#🛠️-technology-stack)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+  - [Databases](#databases)
+  - [Infrastructure](#infrastructure)
+- [🤖 AI Agent Architecture](#🤖-ai-agent-architecture)
+  - [Agent Framework: Agno](#agent-framework:-agno)
+  - [Agent Categories](#agent-categories)
+  - [Brain Agent](#brain-agent)
+- [🔧 Key Integrations](#🔧-key-integrations)
+  - [Business Systems](#business-systems)
+  - [AI/ML Services](#ai-ml-services)
+  - [Data Services](#data-services)
+  - [Development Tools](#development-tools)
+- [🔐 Security & Configuration](#🔐-security-&-configuration)
+  - [Permanent Secret Management Solution](#permanent-secret-management-solution)
+  - [Key Features](#key-features)
+- [📁 Project Structure](#📁-project-structure)
+- [🚀 MCP (Model Context Protocol) Integration](#🚀-mcp-(model-context-protocol)-integration)
+  - [MCP Servers](#mcp-servers)
+- [📊 Performance Characteristics](#📊-performance-characteristics)
+- [🔄 Development Workflow](#🔄-development-workflow)
+- [📝 Key Features](#📝-key-features)
+- [🎯 Business Focus](#🎯-business-focus)
+- [🔮 Future Roadmap](#🔮-future-roadmap)
+- [📞 Support](#📞-support)
 
 ## 🎯 Project Overview
 
@@ -113,15 +156,10 @@
 ## 🔐 Security & Configuration
 
 ### Permanent Secret Management Solution
-```
-GitHub Organization Secrets (ai-cherry)
-           ↓
-    GitHub Actions (automatic sync)
-           ↓
-    Pulumi ESC Environments
-           ↓
-    Sophia AI Backend (automatic loading)
-```
+```python
+# Example usage:
+python
+```python
 
 ### Key Features
 - Zero manual .env file management
@@ -131,27 +169,10 @@ GitHub Organization Secrets (ai-cherry)
 
 ## 📁 Project Structure
 
-```
-sophia-main/
-├── backend/                 # Core backend services
-│   ├── agents/             # AI agent implementations
-│   ├── app/                # FastAPI/Flask applications
-│   ├── core/               # Core utilities and managers
-│   ├── integrations/       # External service integrations
-│   ├── mcp/                # MCP server implementations
-│   └── knowledge/          # Knowledge base management
-├── frontend/               # React dashboard
-├── mcp-servers/            # MCP server implementations
-│   ├── sophia_infrastructure/
-│   ├── sophia_data_intelligence/
-│   ├── sophia_business_intelligence/
-│   ├── sophia_ai_intelligence/
-│   └── [various integration servers]
-├── infrastructure/         # IaC and deployment configs
-├── scripts/                # Utility and management scripts
-└── docs/                   # Documentation
-
-```
+```python
+# Example usage:
+python
+```python
 
 ## 🚀 MCP (Model Context Protocol) Integration
 

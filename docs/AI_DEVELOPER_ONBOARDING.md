@@ -1,4 +1,24 @@
+---
+title: AI & Developer Onboarding Guide
+description: Welcome to the Sophia AI codebase! This guide is designed for both AI coding agents and human developers. It will help you get productive quickly in an AI-first, high-performance environment. ---
+tags: security, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # AI & Developer Onboarding Guide
+
+
+## Table of Contents
+
+- [🚀 AI-First Patterns & Principles](#🚀-ai-first-patterns-&-principles)
+- [🧠 Quickstart Checklist](#🧠-quickstart-checklist)
+- [🏗️ Agent Pooling & Performance](#🏗️-agent-pooling-&-performance)
+- [📚 Documentation Structure](#📚-documentation-structure)
+- [📝 Contributing Best Practices](#📝-contributing-best-practices)
+- [🛡️ Security & Secrets](#🛡️-security-&-secrets)
+- [📦 Deployment & Rollout](#📦-deployment-&-rollout)
 
 Welcome to the Sophia AI codebase! This guide is designed for both AI coding agents and human developers. It will help you get productive quickly in an AI-first, high-performance environment.
 

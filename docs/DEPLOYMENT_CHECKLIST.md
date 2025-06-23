@@ -1,4 +1,43 @@
+---
+title: SOPHIA AI System - Deployment Checklist
+description: This checklist outlines the steps required to deploy the SOPHIA AI System to production environments.
+tags: mcp, security, monitoring, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # SOPHIA AI System - Deployment Checklist
+
+
+## Table of Contents
+
+- [📋 Pre-Deployment Preparation](#📋-pre-deployment-preparation)
+  - [Environment Setup](#environment-setup)
+  - [Code Preparation](#code-preparation)
+  - [Database Preparation](#database-preparation)
+  - [Security Preparation](#security-preparation)
+  - [Integration Preparation](#integration-preparation)
+- [🚀 Deployment Process](#🚀-deployment-process)
+  - [Infrastructure Deployment](#infrastructure-deployment)
+  - [Database Deployment](#database-deployment)
+  - [Application Deployment](#application-deployment)
+  - [Frontend Deployment](#frontend-deployment)
+  - [MCP Server Deployment](#mcp-server-deployment)
+- [🔍 Post-Deployment Verification](#🔍-post-deployment-verification)
+  - [Health Checks](#health-checks)
+  - [Functionality Checks](#functionality-checks)
+  - [Performance Checks](#performance-checks)
+  - [Security Checks](#security-checks)
+- [📢 Deployment Announcement](#📢-deployment-announcement)
+  - [Internal Communication](#internal-communication)
+  - [External Communication](#external-communication)
+- [🔄 Rollback Procedure](#🔄-rollback-procedure)
+- [📝 Post-Deployment Tasks](#📝-post-deployment-tasks)
+  - [Monitoring Setup](#monitoring-setup)
+  - [Documentation Updates](#documentation-updates)
+  - [Cleanup](#cleanup)
+- [✅ Final Approval](#✅-final-approval)
 
 This checklist outlines the steps required to deploy the SOPHIA AI System to production environments.
 
@@ -44,7 +83,7 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
   ```bash
   cd infrastructure
   pulumi up
-  ```
+  ```python
 - [ ] Verify all resources are created successfully
 - [ ] Check resource configurations
 - [ ] Verify network connectivity
@@ -53,7 +92,7 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
 - [ ] Run database migrations
   ```bash
   alembic upgrade head
-  ```
+  ```python
 - [ ] Verify migration success
 - [ ] Run data seeding scripts (if needed)
 - [ ] Verify data integrity
@@ -62,12 +101,12 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
 - [ ] Build Docker images
   ```bash
   docker-compose build
-  ```
+  ```python
 - [ ] Push images to registry (if applicable)
 - [ ] Deploy application containers
   ```bash
   docker-compose --profile production up -d
-  ```
+  ```python
 - [ ] Verify all containers are running
 
 ### Frontend Deployment
@@ -75,7 +114,7 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
   ```bash
   cd sophia_admin_frontend
   npm run build
-  ```
+  ```python
 - [ ] Deploy frontend to hosting service
 - [ ] Verify frontend is accessible
 - [ ] Check browser compatibility
@@ -84,7 +123,7 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
 - [ ] Deploy MCP server
   ```bash
   docker-compose up -d mcp-server
-  ```
+  ```python
 - [ ] Verify MCP server is running
 - [ ] Test MCP tools and resources
 - [ ] Check MCP server logs
@@ -95,11 +134,11 @@ This checklist outlines the steps required to deploy the SOPHIA AI System to pro
 - [ ] Verify API health endpoint
   ```bash
   curl http://localhost:8000/health
-  ```
+  ```python
 - [ ] Check MCP server health
   ```bash
   curl http://localhost:8002/health
-  ```
+  ```python
 - [ ] Verify database connectivity
 - [ ] Check vector database connectivity
 - [ ] Verify Redis connectivity
@@ -146,23 +185,23 @@ In case of deployment failure, follow these steps to rollback:
 1. Stop all containers
    ```bash
    docker-compose --profile production down
-   ```
+   ```python
 
 2. Rollback database migrations
    ```bash
    alembic downgrade -1
-   ```
+   ```python
 
 3. Deploy previous version
    ```bash
    git checkout <previous-tag>
    docker-compose --profile production up -d
-   ```
+   ```python
 
 4. Verify rollback success
    ```bash
    curl http://localhost:8000/health
-   ```
+   ```python
 
 5. Notify all stakeholders of the rollback
 

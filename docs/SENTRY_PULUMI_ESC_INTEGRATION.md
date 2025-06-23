@@ -1,4 +1,47 @@
+---
+title: Sentry Integration with Pulumi ESC and GitHub Actions
+description: 
+tags: mcp, docker, security
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sentry Integration with Pulumi ESC and GitHub Actions
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Required GitHub Organization Secrets](#required-github-organization-secrets)
+- [Automatic Synchronization](#automatic-synchronization)
+  - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Manual Sync](#manual-sync)
+- [Pulumi ESC Configuration](#pulumi-esc-configuration)
+  - [Environment Path](#environment-path)
+  - [Stored Secrets](#stored-secrets)
+  - [Access in Code](#access-in-code)
+    - [Python Backend](#python-backend)
+    - [MCP Server](#mcp-server)
+- [Docker Deployment](#docker-deployment)
+  - [Environment Variables](#environment-variables)
+  - [Automatic Configuration](#automatic-configuration)
+- [Local Development](#local-development)
+  - [Setup](#setup)
+  - [Testing](#testing)
+- [Security Benefits](#security-benefits)
+- [Troubleshooting](#troubleshooting)
+  - [Secret Not Available?](#secret-not-available?)
+  - [MCP Server Can't Access Secrets?](#mcp-server-can't-access-secrets?)
+  - [Sync Workflow Failing?](#sync-workflow-failing?)
+- [Best Practices](#best-practices)
+- [Integration Points](#integration-points)
+  - [1. Backend Initialization](#1.-backend-initialization)
+  - [2. MCP Server](#2.-mcp-server)
+  - [3. Docker Compose](#3.-docker-compose)
+  - [4. GitHub Actions](#4.-github-actions)
+- [Summary](#summary)
 
 ## Overview
 
@@ -9,15 +52,10 @@ This document describes how Sentry is integrated with Sophia AI using:
 
 ## Architecture
 
-```
-GitHub Organization Secrets (ai-cherry)
-           ↓
-    GitHub Actions Workflow
-           ↓
-    Pulumi ESC (scoobyjava-org)
-           ↓
-    Sentry MCP Server & Backend
-```
+```python
+# Example usage:
+python
+```python
 
 ## Required GitHub Organization Secrets
 
@@ -61,9 +99,10 @@ To manually sync secrets:
 ## Pulumi ESC Configuration
 
 ### Environment Path
-```
-scoobyjava-org/default/sophia-ai-production
-```
+```python
+# Example usage:
+python
+```python
 
 ### Stored Secrets
 - `SENTRY_DSN` (encrypted)
@@ -76,36 +115,25 @@ scoobyjava-org/default/sophia-ai-production
 
 #### Python Backend
 ```python
-from backend.core.auto_esc_config import config
-
-# Automatically loaded from Pulumi ESC
-sentry_dsn = config.sentry_dsn
-sentry_api_token = config.sentry_api_token
-```
+# Example usage:
+python
+```python
 
 #### MCP Server
 The Sentry MCP server automatically retrieves secrets using Pulumi CLI:
 ```python
-def get_pulumi_esc_value(key: str, default: str = None) -> str:
-    """Get value from Pulumi ESC using CLI."""
-    result = subprocess.run(
-        ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production", key],
-        capture_output=True,
-        text=True
-    )
-    return result.stdout.strip()
-```
+# Example usage:
+python
+```python
 
 ## Docker Deployment
 
 ### Environment Variables
 The Docker Compose configuration includes:
 ```yaml
-environment:
-  - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
-  - PULUMI_ORG=scoobyjava-org
-  - PULUMI_ENVIRONMENT=sophia-ai-production
-```
+# Example usage:
+yaml
+```python
 
 ### Automatic Configuration
 1. Container starts with Pulumi CLI installed
@@ -116,23 +144,15 @@ environment:
 
 ### Setup
 ```bash
-# Set Pulumi organization
-export PULUMI_ORG=scoobyjava-org
-
-# Login to Pulumi
-pulumi login
-
-# Secrets will be automatically loaded
-```
+# Example usage:
+bash
+```python
 
 ### Testing
 ```bash
-# Verify Sentry configuration
-pulumi env get scoobyjava-org/default/sophia-ai-production | grep -i sentry
-
-# Test secret retrieval
-python -c "from backend.core.auto_esc_config import config; print('Sentry configured' if hasattr(config, 'sentry_dsn') else 'No Sentry config')"
-```
+# Example usage:
+bash
+```python
 
 ## Security Benefits
 
@@ -149,59 +169,34 @@ python -c "from backend.core.auto_esc_config import config; print('Sentry config
 2. Verify secret exists in GitHub organization
 3. Check Pulumi ESC environment:
    ```bash
-   pulumi env get scoobyjava-org/default/sophia-ai-production --show-secrets
-   ```
-
-### MCP Server Can't Access Secrets?
-1. Verify `PULUMI_ACCESS_TOKEN` is set
-2. Check Pulumi CLI is installed in container
-3. Review container logs:
-   ```bash
-   docker logs sentry-mcp
-   ```
-
-### Sync Workflow Failing?
-1. Check `PULUMI_ACCESS_TOKEN` in GitHub secrets
-2. Verify organization name is correct
-3. Review workflow logs in GitHub Actions
-
-## Best Practices
-
-1. **Never commit secrets** - Use GitHub organization secrets
-2. **Regular rotation** - Update API tokens periodically
-3. **Monitor sync status** - Check workflow runs
-4. **Use secret flag** - Mark sensitive values with `--secret`
-5. **Verify after changes** - Always test after updating secrets
-
-## Integration Points
-
-### 1. Backend Initialization
+# Example usage:
+bash
 ```python
 # backend/core/sentry_setup.py
 from backend.core.auto_esc_config import config
 
 sentry_dsn = config.sentry_dsn
 sentry_sdk.init(dsn=sentry_dsn)
-```
-
-### 2. MCP Server
+```python
+# Example usage:
+python
 ```python
 # mcp-servers/sentry/sentry_mcp_server.py
 self.api_token = get_pulumi_esc_value("SENTRY_API_TOKEN")
-```
-
-### 3. Docker Compose
+```python
+# Example usage:
+python
 ```yaml
 # docker-compose.sentry.yml
 environment:
   - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
-```
-
-### 4. GitHub Actions
+```python
+# Example usage:
+python
 ```yaml
 # .github/workflows/sync-sentry-secrets.yml
 pulumi env set scoobyjava-org/default/sophia-ai-production SENTRY_API_TOKEN "$SENTRY_API_TOKEN" --secret
-```
+```python
 
 ## Summary
 

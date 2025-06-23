@@ -1,3 +1,12 @@
+---
+title: Sophia AI - Unified Secret Management Overview
+description: This document consolidates information from `SECRET_MANAGEMENT_GUIDE.md` and `SECRETS_MANAGEMENT_IMPLEMENTATION.md`. The Sophia platform manages all secrets through **GitHub Organization Secrets** synchronized to **Pulumi ESC**. The backend automatically loads secrets from ESC, removing the need for `.env` files or manual configuration.
+tags: security
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Unified Secret Management Overview
 
 This document consolidates information from `SECRET_MANAGEMENT_GUIDE.md` and `SECRETS_MANAGEMENT_IMPLEMENTATION.md`.

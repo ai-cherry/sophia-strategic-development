@@ -1,0 +1,184 @@
+{
+  "timestamp": "2025-06-23T06:28:05.473316+00:00",
+  "total_execution_time": 0.185159,
+  "sophia_ai_version": "v2.0.0",
+  "environment": "staging",
+  "summary": {
+    "overall_status": "warning",
+    "health_percentage": 80.0,
+    "total_components": 5,
+    "healthy_count": 4,
+    "warning_count": 1,
+    "critical_count": 0,
+    "total_execution_time": 0.185,
+    "production_ready": false,
+    "status_distribution": {
+      "healthy": 4,
+      "warning": 1
+    }
+  },
+  "detailed_results": [
+    {
+      "component": "Configuration System",
+      "status": "healthy",
+      "details": {
+        "platform_name": "sophia-ai-platform",
+        "platform_version": "v2.0.0",
+        "environment": "staging",
+        "config_key_count": 3,
+        "cache_valid": false,
+        "critical_checks": {
+          "platform_name": true,
+          "platform_version": true,
+          "environment": true,
+          "config_loaded": true,
+          "fallback_working": true
+        },
+        "health_status": {
+          "config_loaded": true,
+          "config_key_count": 3,
+          "last_loaded": null,
+          "cache_age_seconds": null,
+          "cache_valid": false,
+          "environment": "staging",
+          "pulumi_org": "scoobyjava-org"
+        }
+      },
+      "execution_time": 0.184149
+    },
+    {
+      "component": "Dependencies",
+      "status": "healthy",
+      "details": {
+        "dependencies": {
+          "pydantic": {
+            "status": "available",
+            "version": "2.5.0"
+          },
+          "fastapi": {
+            "status": "available",
+            "version": "0.104.1"
+          },
+          "asyncio": {
+            "status": "available",
+            "version": "unknown"
+          },
+          "logging": {
+            "status": "available",
+            "version": "0.5.1.2"
+          },
+          "json": {
+            "status": "available",
+            "version": "2.0.9"
+          },
+          "datetime": {
+            "status": "available",
+            "version": "unknown"
+          },
+          "pathlib": {
+            "status": "available",
+            "version": "unknown"
+          }
+        },
+        "total_checked": 7,
+        "available_count": 7,
+        "problematic_count": 0
+      },
+      "execution_time": 7.2e-05
+    },
+    {
+      "component": "MCP Servers",
+      "status": "healthy",
+      "details": {
+        "tools_count": 2,
+        "tools": [
+          "store_conversation",
+          "recall_memory"
+        ],
+        "health_status": {
+          "status": "operational",
+          "openai_client": false,
+          "pinecone_index": false,
+          "memory_manager": true,
+          "timestamp": "2025-06-22T23:28:05.472627"
+        },
+        "functionality_checks": {
+          "tools_available": true,
+          "server_operational": true,
+          "memory_manager": true,
+          "store_functionality": true
+        },
+        "test_store_result": {
+          "id": "workflow_20250622232805",
+          "status": "stored"
+        }
+      },
+      "execution_time": 0.0004
+    },
+    {
+      "component": "Agent Framework",
+      "status": "warning",
+      "details": {
+        "agent_status": {
+          "name": "SophiaInfrastructureAgent",
+          "status": "initializing",
+          "initialized": false,
+          "active_tasks": 0,
+          "queue_size": 0,
+          "capabilities": [],
+          "metrics": {
+            "tasks_completed": 0,
+            "tasks_failed": 0,
+            "tasks_timeout": 0,
+            "avg_execution_time": 0.0,
+            "last_activity": null
+          },
+          "config": {
+            "version": "1.0.0",
+            "max_concurrent_tasks": 10,
+            "timeout_seconds": 30
+          }
+        },
+        "capabilities": [],
+        "health_check": {
+          "healthy": false,
+          "status": "initializing",
+          "initialized": false,
+          "active_tasks": 0,
+          "error_rate": 0.0,
+          "last_activity": null,
+          "uptime": null
+        },
+        "agent_checks": {
+          "agent_instantiated": true,
+          "agent_name": true,
+          "agent_initialized": false,
+          "capabilities_defined": false,
+          "health_check_working": false
+        }
+      },
+      "execution_time": 0.000223
+    },
+    {
+      "component": "FastAPI Application",
+      "status": "healthy",
+      "details": {
+        "app_title": "FastAPI",
+        "route_count": 5,
+        "routes": [
+          "/openapi.json",
+          "/docs",
+          "/docs/oauth2-redirect",
+          "/redoc",
+          "/"
+        ],
+        "endpoint_checks": {
+          "health_endpoint": true,
+          "app_instantiated": true,
+          "routes_defined": true
+        }
+      },
+      "execution_time": 2.9e-05
+    }
+  ]
+}

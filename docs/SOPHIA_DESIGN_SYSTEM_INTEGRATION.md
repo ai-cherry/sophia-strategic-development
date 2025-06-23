@@ -1,4 +1,57 @@
+---
+title: Sophia AI Design System Integration Guide
+description: 
+tags: mcp, docker, monitoring
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Design System Integration Guide
+
+
+## Table of Contents
+
+- [🎨 Overview](#🎨-overview)
+- [🌑 Dark Theme Design Principles](#🌑-dark-theme-design-principles)
+  - [Color Palette](#color-palette)
+  - [Typography](#typography)
+  - [Spacing System](#spacing-system)
+- [🔌 Backend Integration](#🔌-backend-integration)
+  - [API Service Layer](#api-service-layer)
+  - [Available Endpoints](#available-endpoints)
+    - [Company Metrics](#company-metrics)
+    - [Strategy](#strategy)
+    - [Operations](#operations)
+    - [AI Insights](#ai-insights)
+- [🧩 Component Architecture](#🧩-component-architecture)
+  - [Core Design System Components](#core-design-system-components)
+  - [Dashboard Layout Pattern](#dashboard-layout-pattern)
+- [🚀 Implementation Patterns](#🚀-implementation-patterns)
+  - [1. Creating New Dashboard Pages](#1.-creating-new-dashboard-pages)
+  - [2. Connecting to MCP Servers](#2.-connecting-to-mcp-servers)
+  - [3. Real-time Updates](#3.-real-time-updates)
+- [🎯 Best Practices](#🎯-best-practices)
+  - [Performance](#performance)
+  - [Accessibility](#accessibility)
+  - [State Management](#state-management)
+- [📱 Responsive Design](#📱-responsive-design)
+  - [Breakpoints](#breakpoints)
+  - [Mobile Optimizations](#mobile-optimizations)
+- [🔧 Extending the Design System](#🔧-extending-the-design-system)
+  - [Adding New Components](#adding-new-components)
+  - [Custom Animations](#custom-animations)
+- [🚦 Testing](#🚦-testing)
+  - [Component Testing](#component-testing)
+  - [Integration Testing](#integration-testing)
+- [🚀 Deployment](#🚀-deployment)
+  - [Environment Variables](#environment-variables)
+  - [Build Process](#build-process)
+  - [Performance Optimization](#performance-optimization)
+- [📊 Monitoring](#📊-monitoring)
+  - [Frontend Analytics](#frontend-analytics)
+  - [Error Tracking](#error-tracking)
+- [🎉 Conclusion](#🎉-conclusion)
 
 ## 🎨 Overview
 
@@ -45,7 +98,7 @@ const units = await api.searchUnits({
   bedrooms: 2,
   maxRent: 3000
 });
-```
+```python
 
 ### Available Endpoints
 
@@ -104,87 +157,36 @@ const units = await api.searchUnits({
 The main dashboard (`/components/dashboard/DashboardLayout.jsx`) demonstrates:
 
 ```jsx
-// Pattern for fetching and displaying backend data
-const fetchMetrics = async () => {
-  try {
-    setLoading(true);
-    const data = await api.getCompanyMetrics();
-    setMetrics(data);
-  } catch (err) {
-    // Handle errors gracefully
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-```
+# Example usage:
+jsx
+```python
 
 ## 🚀 Implementation Patterns
 
 ### 1. Creating New Dashboard Pages
 
 ```jsx
-import { useState, useEffect } from 'react';
-import GlassCard from '@/components/design-system/cards/GlassCard';
-import MetricCard from '@/components/design-system/cards/MetricCard';
-import api from '@/services/api';
-
-const PropertyDashboard = () => {
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await api.getPropertyData();
-        setProperties(data);
-      } catch (error) {
-        console.error('Failed to fetch properties:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  return (
-    <GlassCard>
-      <h2 className="text-h2 font-semibold mb-6">Property Management</h2>
-      {/* Component content */}
-    </GlassCard>
-  );
-};
-```
+# Example usage:
+jsx
+```python
 
 ### 2. Connecting to MCP Servers
 
 The frontend can interact with MCP servers through the backend API:
 
 ```javascript
-// Knowledge base search using Sophia MCP Server
-const searchResults = await api.searchKnowledge('revenue optimization');
-
-// Property data from Property Management MCP Server
-const units = await api.searchUnits({
-  propertyId: 'PROP-123',
-  availableOnly: true
-});
-```
+# Example usage:
+javascript
+```python
 
 ### 3. Real-time Updates
 
 For real-time data, implement WebSocket connections:
 
 ```javascript
-// Connect to backend WebSocket for live updates
-const ws = new WebSocket('ws://localhost:5001/ws');
-
-ws.onmessage = (event) => {
-  const update = JSON.parse(event.data);
-  // Update UI with real-time data
-};
-```
+# Example usage:
+javascript
+```python
 
 ## 🎯 Best Practices
 
@@ -224,36 +226,9 @@ ws.onmessage = (event) => {
 ### Adding New Components
 
 1. Create component in appropriate directory:
-   ```
-   frontend/src/components/design-system/[category]/[ComponentName].jsx
-   ```
-
-2. Follow the established pattern:
-   ```jsx
-   import React from 'react';
-   import { cn } from '@/lib/utils';
-
-   const NewComponent = ({ className, ...props }) => {
-     return (
-       <div className={cn(
-         "base-styles",
-         "hover:hover-styles",
-         className
-       )} {...props}>
-         {/* Component content */}
-       </div>
-     );
-   };
-
-   export default NewComponent;
-   ```
-
-3. Use design tokens from Tailwind config
-
-### Custom Animations
-
-Add to `tailwind.config.js`:
-
+   ```python
+# Example usage:
+python
 ```javascript
 animation: {
   'custom-slide': 'customSlide 0.3s ease-out',
@@ -264,11 +239,9 @@ keyframes: {
     '100%': { transform: 'translateX(0)' },
   },
 }
-```
-
-## 🚦 Testing
-
-### Component Testing
+```python
+# Example usage:
+python
 ```javascript
 import { render, screen } from '@testing-library/react';
 import MetricCard from '@/components/design-system/cards/MetricCard';
@@ -286,11 +259,9 @@ test('renders metric card with value', () => {
   expect(screen.getByText('$100K')).toBeInTheDocument();
   expect(screen.getByText('+15%')).toBeInTheDocument();
 });
-```
-
-### Integration Testing
-Test API integration with mock service worker (MSW):
-
+```python
+# Example usage:
+python
 ```javascript
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -302,37 +273,25 @@ const server = setupServer(
     }));
   })
 );
-```
-
-## 🚀 Deployment
-
-### Environment Variables
+```python
+# Example usage:
+python
 ```bash
 # Frontend environment variables
 VITE_API_URL=https://api.sophiaai.payready.com
 VITE_WS_URL=wss://api.sophiaai.payready.com/ws
-```
-
-### Build Process
+```python
+# Example usage:
+python
 ```bash
 # Build for production
 npm run build
 
 # Preview production build
 npm run preview
-```
-
-### Performance Optimization
-- Enable gzip compression
-- Implement CDN for static assets
-- Use HTTP/2 push for critical resources
-- Enable browser caching headers
-
-## 📊 Monitoring
-
-### Frontend Analytics
-Track user interactions and performance:
-
+```python
+# Example usage:
+python
 ```javascript
 // Track metric card clicks
 const handleMetricClick = (metricType) => {
@@ -341,11 +300,9 @@ const handleMetricClick = (metricType) => {
     timestamp: new Date()
   });
 };
-```
-
-### Error Tracking
-Integrate with Sentry for error monitoring:
-
+```python
+# Example usage:
+python
 ```javascript
 import * as Sentry from "@sentry/react";
 
@@ -353,7 +310,7 @@ Sentry.init({
   dsn: process.env.VITE_SENTRY_DSN,
   environment: process.env.NODE_ENV,
 });
-```
+```python
 
 ## 🎉 Conclusion
 

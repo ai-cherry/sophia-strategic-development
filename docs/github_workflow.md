@@ -1,4 +1,31 @@
+---
+title: GitHub Workflow Documentation
+description: 
+tags: security
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # GitHub Workflow Documentation
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Main Workflow](#main-workflow)
+  - [Triggering the Workflow](#triggering-the-workflow)
+  - [Workflow Structure](#workflow-structure)
+  - [Environment Support](#environment-support)
+- [Secret Management](#secret-management)
+  - [Secret Synchronization](#secret-synchronization)
+  - [Secret Retrieval](#secret-retrieval)
+  - [Secret Injection](#secret-injection)
+  - [Secret Rotation](#secret-rotation)
+- [Testing the Workflow](#testing-the-workflow)
+- [Troubleshooting](#troubleshooting)
+- [Adding a New Service](#adding-a-new-service)
+- [Best Practices](#best-practices)
 
 ## Overview
 
@@ -139,7 +166,7 @@ To add a new service to the workflow:
      "owner": "team-name",
      "dependencies": []
    }
-   ```
+   ```python
 
 2. Add the service's secrets to GitHub:
    - Go to the repository settings

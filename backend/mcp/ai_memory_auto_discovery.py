@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 async def discover_memory_patterns(codebase_path: str) -> Dict[str, Any]:
     """
-Automatically discover memory patterns in the codebase."""
+    Automatically discover memory patterns in the codebase."""
     try:
         patterns: Dict[str, Any] = {}
         # Implementation logic here

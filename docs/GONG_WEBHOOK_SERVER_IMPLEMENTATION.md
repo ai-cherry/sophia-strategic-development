@@ -1,4 +1,57 @@
+---
+title: 🚀 Gong Webhook Server Implementation
+description: 
+tags: security, gong, monitoring, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # 🚀 Gong Webhook Server Implementation
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture Components](#architecture-components)
+  - [1. **Main Webhook Server** (`backend/integrations/gong_webhook_server.py`)](#1.-**main-webhook-server**-(`backend-integrations-gong_webhook_server.py`))
+  - [2. **Gong API Client** (`backend/integrations/gong_api_client.py`)](#2.-**gong-api-client**-(`backend-integrations-gong_api_client.py`))
+  - [3. **Snowflake Storage** (`backend/integrations/gong_snowflake_client.py`)](#3.-**snowflake-storage**-(`backend-integrations-gong_snowflake_client.py`))
+  - [4. **Redis Notifications** (`backend/integrations/gong_redis_client.py`)](#4.-**redis-notifications**-(`backend-integrations-gong_redis_client.py`))
+  - [5. **Webhook Processor** (`backend/integrations/gong_webhook_processor.py`)](#5.-**webhook-processor**-(`backend-integrations-gong_webhook_processor.py`))
+- [Data Flow](#data-flow)
+- [Key Features](#key-features)
+  - [Security](#security)
+  - [Performance](#performance)
+  - [Reliability](#reliability)
+  - [Observability](#observability)
+- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+  - [Webhook Endpoints](#webhook-endpoints)
+  - [Monitoring Endpoints](#monitoring-endpoints)
+- [Snowflake Schema](#snowflake-schema)
+  - [Tables Created](#tables-created)
+- [Redis Channels](#redis-channels)
+  - [Main Channels](#main-channels)
+  - [Priority Channels](#priority-channels)
+- [Business Intelligence Features](#business-intelligence-features)
+  - [Insight Detection](#insight-detection)
+  - [Priority Determination](#priority-determination)
+  - [Next Steps Generation](#next-steps-generation)
+- [Deployment](#deployment)
+  - [Docker Deployment](#docker-deployment)
+  - [Required Dependencies](#required-dependencies)
+- [Monitoring and Metrics](#monitoring-and-metrics)
+  - [Key Metrics](#key-metrics)
+  - [Health Checks](#health-checks)
+- [Error Handling](#error-handling)
+  - [Error Types](#error-types)
+  - [Recovery Mechanisms](#recovery-mechanisms)
+- [Testing](#testing)
+  - [Unit Tests](#unit-tests)
+  - [Integration Tests](#integration-tests)
+- [Performance Targets](#performance-targets)
+- [Future Enhancements](#future-enhancements)
 
 ## Overview
 A production-ready FastAPI webhook server for Gong integration that processes webhook data, enhances it via API calls, stores it in Snowflake, and notifies Sophia agents via Redis pub/sub.
@@ -39,17 +92,10 @@ A production-ready FastAPI webhook server for Gong integration that processes we
 
 ## Data Flow
 
-```
-1. Webhook Receipt → JWT Verification → Fast Response (<200ms)
-                          ↓
-2. Background Processing → Store Raw Data → API Enhancement
-                          ↓
-3. Data Validation → Transform & Clean → Store Enhanced Data
-                          ↓
-4. Extract Insights → Determine Priority → Redis Notification
-                          ↓
-5. Sophia Agents ← Real-time Updates ← Pub/Sub Channels
-```
+```python
+# Example usage:
+python
+```python
 
 ## Key Features
 
@@ -84,21 +130,9 @@ A production-ready FastAPI webhook server for Gong integration that processes we
 All configuration is managed through environment variables or Pulumi ESC:
 
 ```python
-# Required environment variables
-GONG_API_KEY              # Gong API authentication
-GONG_WEBHOOK_SECRETS      # List of webhook secrets (JSON array)
-SNOWFLAKE_ACCOUNT         # Snowflake account identifier
-SNOWFLAKE_USER            # Snowflake username
-SNOWFLAKE_PASSWORD        # Snowflake password
-REDIS_URL                 # Redis connection URL
-
-# Optional configuration
-GONG_API_RATE_LIMIT       # API calls per second (default: 2.5)
-GONG_API_BURST_LIMIT      # Burst limit (default: 10)
-SNOWFLAKE_WAREHOUSE       # Warehouse name (default: COMPUTE_WH)
-SNOWFLAKE_DATABASE        # Database name (default: SOPHIA_AI)
-SNOWFLAKE_SCHEMA          # Schema name (default: GONG_WEBHOOKS)
-```
+# Example usage:
+python
+```python
 
 ## API Endpoints
 
@@ -157,27 +191,15 @@ SNOWFLAKE_SCHEMA          # Schema name (default: GONG_WEBHOOKS)
 
 ### Docker Deployment
 ```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8080
-CMD ["uvicorn", "backend.integrations.gong_webhook_server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "4"]
-```
+# Example usage:
+dockerfile
+```python
 
 ### Required Dependencies
 ```txt
-fastapi==0.104.1
-uvicorn==0.24.0
-aiohttp==3.9.0
-aioredis==2.0.1
-snowflake-connector-python==3.5.0
-pydantic==2.5.0
-structlog==23.2.0
-prometheus-client==0.19.0
-pyjwt==2.8.0
-```
+# Example usage:
+txt
+```python
 
 ## Monitoring and Metrics
 
@@ -215,16 +237,9 @@ pyjwt==2.8.0
 
 ### Unit Tests
 ```python
-# Test webhook signature verification
-async def test_webhook_verification():
-    verifier = GongWebhookVerifier(["secret1", "secret2"])
-    # Test with valid and invalid signatures
-
-# Test rate limiting
-async def test_rate_limiter():
-    limiter = AsyncRateLimiter(2.5, burst_limit=10)
-    # Test burst and sustained rate limiting
-```
+# Example usage:
+python
+```python
 
 ### Integration Tests
 - End-to-end webhook processing

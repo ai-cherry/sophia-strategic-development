@@ -1,4 +1,46 @@
+---
+title: Sophia AI - Production Deployment Guide
+description: 
+tags: security, gong, monitoring, database, docker
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Production Deployment Guide
+
+
+## Table of Contents
+
+- [🚀 Quick Start](#🚀-quick-start)
+- [📋 Prerequisites](#📋-prerequisites)
+  - [Required API Keys (Minimal Setup)](#required-api-keys-(minimal-setup))
+  - [Optional Integrations (Add as Needed)](#optional-integrations-(add-as-needed))
+- [🔑 Setting Up GitHub Secrets](#🔑-setting-up-github-secrets)
+  - [Step 1: Add Organization Secrets](#step-1:-add-organization-secrets)
+  - [Step 2: Verify Secrets](#step-2:-verify-secrets)
+- [🏗️ Architecture Overview](#🏗️-architecture-overview)
+- [📦 Deployment Process](#📦-deployment-process)
+  - [Automatic Deployment (Recommended)](#automatic-deployment-(recommended))
+  - [Manual Deployment](#manual-deployment)
+- [🔧 Configuration](#🔧-configuration)
+  - [LLM Gateway Setup](#llm-gateway-setup)
+  - [Environment Variables](#environment-variables)
+  - [Pulumi ESC Secret Loading](#pulumi-esc-secret-loading)
+  - [Feature Flags](#feature-flags)
+- [🚨 Production Checklist](#🚨-production-checklist)
+  - [Security](#security)
+  - [Performance](#performance)
+  - [Backup](#backup)
+- [📊 Monitoring](#📊-monitoring)
+  - [Health Checks](#health-checks)
+  - [Logs](#logs)
+- [🆘 Troubleshooting](#🆘-troubleshooting)
+  - [Deployment Fails](#deployment-fails)
+  - [LLM Gateway Issues](#llm-gateway-issues)
+  - [Integration Problems](#integration-problems)
+- [📞 Support](#📞-support)
+- [🔄 Updates](#🔄-updates)
 
 ## 🚀 Quick Start
 
@@ -32,33 +74,9 @@ Navigate to your GitHub organization settings → Secrets → Actions
 
 Add these secrets:
 ```yaml
-# Core LLM Gateway (Required)
-PORTKEY_API_KEY=pk_xxx
-OPENROUTER_API_KEY=sk-or-xxx
-
-# Deployment (Required)
-VERCEL_ACCESS_TOKEN=xxx
-LAMBDA_LABS_API_KEY=xxx
-
-# Security (Required)
-SECRET_KEY=<generate-random-32-char-string>
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=<strong-password>
-
-# Database (Optional - uses Docker defaults if not set)
-POSTGRES_PASSWORD=<strong-db-password>
-
-# Business Integrations (Optional)
-HUBSPOT_API_KEY=xxx
-GONG_API_KEY=xxx
-GONG_API_SECRET=xxx
-SLACK_BOT_TOKEN=xoxb-xxx
-SLACK_SIGNING_SECRET=xxx
-
-# Vector Databases (Optional)
-PINECONE_API_KEY=xxx
-WEAVIATE_API_KEY=xxx
-```
+# Example usage:
+yaml
+```python
 
 ### Step 2: Verify Secrets
 The deployment workflow will automatically report which features are enabled based on available secrets.
@@ -66,25 +84,9 @@ The deployment workflow will automatically report which features are enabled bas
 ## 🏗️ Architecture Overview
 
 ```mermaid
-graph TD
-    A[GitHub Actions] -->|Deploy Frontend| B[Vercel]
-    A -->|Deploy Backend| C[Lambda Labs]
-
-    C --> D[Portkey Gateway]
-    D --> E[OpenRouter<br/>100+ LLM Models]
-    D --> F[Direct APIs<br/>Fallback]
-
-    C --> G[PostgreSQL]
-    C --> H[Redis]
-
-    B -->|API Calls| C
-
-    I[Optional Services] --> C
-    I --> J[HubSpot CRM]
-    I --> K[Gong.io]
-    I --> L[Slack]
-    I --> M[Pinecone/Weaviate]
-```
+# Example usage:
+mermaid
+```python
 
 ## 📦 Deployment Process
 
@@ -98,17 +100,9 @@ graph TD
 
 ### Manual Deployment
 ```bash
-# Frontend
-cd frontend
-pnpm install
-pnpm build
-vercel --prod
-
-# Backend
-docker build -t sophia-backend .
-docker push your-registry/sophia-backend
-# Deploy to Lambda Labs via their CLI/API
-```
+# Example usage:
+bash
+```python
 
 ## 🔧 Configuration
 
@@ -116,24 +110,16 @@ docker push your-registry/sophia-backend
 Sophia uses Portkey + OpenRouter for unified LLM access:
 
 ```python
-# Automatically configured in backend/config/settings.py
-LLM_GATEWAY=portkey
-PORTKEY_API_KEY=your-key
-OPENROUTER_API_KEY=your-key
-
-# This gives access to:
-# - Claude 3 Opus/Sonnet
-# - GPT-4 Turbo
-# - Llama 3
-# - 100+ other models
-```
+# Example usage:
+python
+```python
 
 ### Environment Variables
 Create `.env` from the provided example:
 ```bash
 cp .env.example .env
 # Add your API keys
-```
+```python
 
 ### Pulumi ESC Secret Loading
 All GitHub organization secrets are automatically synchronized to **Pulumi ESC**.

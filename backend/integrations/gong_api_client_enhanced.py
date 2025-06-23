@@ -13,10 +13,10 @@ import hashlib
 import json
 import time
 from collections import deque
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
-from urllib.parse import urljoin, urlencode
+from typing import Any, Callable, Dict, List, Optional
+from urllib.parse import urljoin
 
 import aiohttp
 import aioredis
@@ -24,64 +24,47 @@ import structlog
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge
 
-from backend.core.auto_esc_config import config as esc_config
 
 logger = structlog.get_logger()
 
 # Prometheus metrics
 api_requests_total = Counter(
-    'gong_api_requests_total',
-    'Total Gong API requests',
-    ['endpoint', 'method', 'status']
+    "gong_api_requests_total",
+    "Total Gong API requests",
+    ["endpoint", "method", "status"],
 )
 api_request_duration = Histogram(
-    'gong_api_request_duration_seconds',
-    'Gong API request duration',
-    ['endpoint', 'method']
+    "gong_api_request_duration_seconds",
+    "Gong API request duration",
+    ["endpoint", "method"],
 )
-api_rate_limit_hits = Counter(
-    'gong_api_rate_limit_hits_total',
-    'Rate limit hits'
-)
+api_rate_limit_hits = Counter("gong_api_rate_limit_hits_total", "Rate limit hits")
 cache_operations_total = Counter(
-    'gong_cache_operations_total',
-    'Cache operations',
-    ['operation', 'status']
+    "gong_cache_operations_total", "Cache operations", ["operation", "status"]
 )
-cache_hit_ratio = Gauge(
-    'gong_cache_hit_ratio',
-    'Cache hit ratio'
-)
+cache_hit_ratio = Gauge("gong_cache_hit_ratio", "Cache hit ratio")
 retry_attempts_total = Counter(
-    'gong_retry_attempts_total',
-    'Retry attempts',
-    ['endpoint', 'reason']
+    "gong_retry_attempts_total", "Retry attempts", ["endpoint", "reason"]
 )
 data_enhancement_score = Gauge(
-    'gong_data_enhancement_score',
-    'Data enhancement quality score'
+    "gong_data_enhancement_score", "Data enhancement quality score"
 )
-concurrent_requests = Gauge(
-    'gong_concurrent_requests',
-    'Current concurrent requests'
-)
-queue_depth = Gauge(
-    'gong_request_queue_depth',
-    'Request queue depth',
-    ['priority']
-)
+concurrent_requests = Gauge("gong_concurrent_requests", "Current concurrent requests")
+queue_depth = Gauge("gong_request_queue_depth", "Request queue depth", ["priority"])
 
 
 class RequestPriority(str, Enum):
     """Request priority levels for queue management."""
-    REAL_TIME = "real_time"      # Webhook enhancement
-    HIGH = "high"                 # User-initiated requests
-    NORMAL = "normal"             # Scheduled sync
-    LOW = "low"                   # Analytics and batch
-    
+
+    REAL_TIME = "real_time"  # Webhook enhancement
+    HIGH = "high"  # User-initiated requests
+    NORMAL = "normal"  # Scheduled sync
+    LOW = "low"  # Analytics and batch
+
 
 class ErrorCategory(str, Enum):
     """Error categories for handling strategies."""
+
     RATE_LIMIT = "rate_limit"
     AUTH_ERROR = "auth_error"
     NOT_FOUND = "not_found"
@@ -94,6 +77,7 @@ class ErrorCategory(str, Enum):
 # Enhanced Data Models with Validation
 class TranscriptSegment(BaseModel):
     """Individual transcript segment with speaker attribution."""
+
     speaker_id: str
     speaker_name: Optional[str] = None
     speaker_email: Optional[str] = None
@@ -107,6 +91,7 @@ class TranscriptSegment(BaseModel):
 
 class GongCallTranscript(BaseModel):
     """Enhanced call transcript data."""
+
     call_id: str
     transcript_segments: List[TranscriptSegment] = Field(default_factory=list)
     duration_seconds: int
@@ -115,8 +100,8 @@ class GongCallTranscript(BaseModel):
     transcript_url: Optional[str] = None
     key_phrases: List[str] = Field(default_factory=list)
     sentiment_summary: Optional[Dict[str, float]] = None
-    
-    @validator('transcript_segments')
+
+    @validator("transcript_segments")
     def validate_segments(cls, segments):
         """Ensure segments are chronologically ordered."""
         if segments:
@@ -128,6 +113,7 @@ class GongCallTranscript(BaseModel):
 
 class GongParticipant(BaseModel):
     """Detailed participant information."""
+
     user_id: str
     email: str
     name: str
@@ -140,19 +126,20 @@ class GongParticipant(BaseModel):
     talk_time_percentage: Optional[float] = Field(None, ge=0.0, le=100.0)
     is_decision_maker: bool = False
     is_key_stakeholder: bool = False
-    
-    @validator('company_domain')
+
+    @validator("company_domain")
     def extract_domain(cls, v, values):
         """Extract domain from email if not provided."""
-        if not v and 'email' in values:
-            email = values['email']
-            if '@' in email:
-                return email.split('@')[1].lower()
+        if not v and "email" in values:
+            email = values["email"]
+            if "@" in email:
+                return email.split("@")[1].lower()
         return v
 
 
 class CallAnalytics(BaseModel):
     """Comprehensive call analytics."""
+
     call_id: str
     talk_ratio: Optional[float] = Field(None, ge=0.0, le=1.0)
     longest_monologue_seconds: Optional[int] = None
@@ -170,6 +157,7 @@ class CallAnalytics(BaseModel):
 
 class EnhancedCallData(BaseModel):
     """Complete enhanced call data."""
+
     call_id: str
     webhook_id: Optional[str] = None
     title: str
@@ -189,12 +177,15 @@ class EnhancedCallData(BaseModel):
     action_items: List[Dict[str, Any]] = Field(default_factory=list)
     summary: Optional[Dict[str, Any]] = None
     quality_score: float = Field(ge=0.0, le=1.0)
-    enhancement_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    enhancement_timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     processing_metrics: Dict[str, Any] = Field(default_factory=dict)
 
 
 class TeamActivityStats(BaseModel):
     """Team activity statistics."""
+
     team_id: str
     team_name: str
     period_start: datetime
@@ -209,19 +200,19 @@ class TeamActivityStats(BaseModel):
 
 # Cache Configuration
 CACHE_TTL_CONFIG = {
-    "transcript": 86400,      # 24 hours
-    "participant": 3600,      # 1 hour
-    "user": 14400,           # 4 hours
-    "call_list": 900,        # 15 minutes
-    "extensive": 21600,      # 6 hours
-    "analytics": 3600,       # 1 hour
-    "stats": 3600,           # 1 hour
+    "transcript": 86400,  # 24 hours
+    "participant": 3600,  # 1 hour
+    "user": 14400,  # 4 hours
+    "call_list": 900,  # 15 minutes
+    "extensive": 21600,  # 6 hours
+    "analytics": 3600,  # 1 hour
+    "stats": 3600,  # 1 hour
 }
 
 
 class TokenBucketRateLimiter:
     """Token bucket rate limiter with burst capacity."""
-    
+
     def __init__(self, rate: float, burst: int = 10):
         self.rate = rate  # tokens per second
         self.burst = burst  # max tokens
@@ -229,7 +220,7 @@ class TokenBucketRateLimiter:
         self.last_update = time.time()
         self.lock = asyncio.Lock()
         self.waiting_queue = deque()
-        
+
     async def acquire(self, priority: RequestPriority = RequestPriority.NORMAL):
         """Acquire a token, waiting if necessary."""
         async with self.lock:
@@ -237,23 +228,23 @@ class TokenBucketRateLimiter:
             elapsed = now - self.last_update
             self.tokens = min(self.burst, self.tokens + elapsed * self.rate)
             self.last_update = now
-            
+
             if self.tokens >= 1:
                 self.tokens -= 1
                 return
-            
+
             # Calculate wait time
             wait_time = (1 - self.tokens) / self.rate
             api_rate_limit_hits.inc()
-            
+
             # Add to priority queue
             future = asyncio.Future()
             self.waiting_queue.append((priority, future, wait_time))
-            
+
         # Wait outside lock
         await asyncio.sleep(wait_time)
         await future
-        
+
     def get_current_rate(self) -> float:
         """Get current token rate."""
         now = time.time()
@@ -264,7 +255,7 @@ class TokenBucketRateLimiter:
 
 class CircuitBreaker:
     """Circuit breaker for handling sustained failures."""
-    
+
     def __init__(self, failure_threshold: int = 5, timeout: float = 300.0):
         self.failure_threshold = failure_threshold
         self.timeout = timeout
@@ -272,7 +263,7 @@ class CircuitBreaker:
         self.last_failure_time = None
         self.is_open = False
         self.lock = asyncio.Lock()
-        
+
     async def call(self, func: Callable, *args, **kwargs):
         """Execute function with circuit breaker protection."""
         async with self.lock:
@@ -282,13 +273,13 @@ class CircuitBreaker:
                     self.failures = 0
                 else:
                     raise Exception("Circuit breaker is open")
-        
+
         try:
             result = await func(*args, **kwargs)
             async with self.lock:
                 self.failures = 0
             return result
-        except Exception as e:
+        except Exception:
             async with self.lock:
                 self.failures += 1
                 self.last_failure_time = time.time()
@@ -299,36 +290,38 @@ class CircuitBreaker:
 
 class RedisCache:
     """Redis-based caching with compression and TTL management."""
-    
+
     def __init__(self, redis_url: str, ttl_config: Dict[str, int]):
         self.redis_url = redis_url
         self.ttl_config = ttl_config
         self.redis: Optional[aioredis.Redis] = None
         self.hit_count = 0
         self.miss_count = 0
-        
+
     async def connect(self):
         """Connect to Redis."""
         if not self.redis:
             self.redis = await aioredis.from_url(self.redis_url)
-            
+
     async def disconnect(self):
         """Disconnect from Redis."""
         if self.redis:
             await self.redis.close()
-            
+
     def _get_cache_key(self, endpoint: str, params: Dict[str, Any]) -> str:
         """Generate cache key from endpoint and parameters."""
         # Sort params for consistent hashing
         sorted_params = json.dumps(params, sort_keys=True)
         param_hash = hashlib.sha256(sorted_params.encode()).hexdigest()[:16]
         return f"gong:cache:{endpoint}:{param_hash}"
-        
-    async def get(self, endpoint: str, params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    async def get(
+        self, endpoint: str, params: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """Get cached response."""
         await self.connect()
         key = self._get_cache_key(endpoint, params)
-        
+
         try:
             data = await self.redis.get(key)
             if data:
@@ -342,24 +335,29 @@ class RedisCache:
         except Exception as e:
             logger.error("Cache get error", error=str(e))
             return None
-            
-    async def set(self, endpoint: str, params: Dict[str, Any], 
-                  data: Dict[str, Any], ttl_override: Optional[int] = None):
+
+    async def set(
+        self,
+        endpoint: str,
+        params: Dict[str, Any],
+        data: Dict[str, Any],
+        ttl_override: Optional[int] = None,
+    ):
         """Set cached response with TTL."""
         await self.connect()
         key = self._get_cache_key(endpoint, params)
-        
+
         # Determine TTL
         cache_type = self._get_cache_type(endpoint)
         ttl = ttl_override or self.ttl_config.get(cache_type, 3600)
-        
+
         try:
             await self.redis.setex(key, ttl, json.dumps(data))
             cache_operations_total.labels(operation="set", status="success").inc()
         except Exception as e:
             logger.error("Cache set error", error=str(e))
             cache_operations_total.labels(operation="set", status="error").inc()
-            
+
     def _get_cache_type(self, endpoint: str) -> str:
         """Determine cache type from endpoint."""
         if "transcript" in endpoint:
@@ -376,96 +374,101 @@ class RedisCache:
             return "stats"
         else:
             return "default"
-            
+
     def get_hit_ratio(self) -> float:
         """Calculate cache hit ratio."""
         total = self.hit_count + self.miss_count
         if total == 0:
             return 0.0
         return self.hit_count / total
-        
+
     async def invalidate(self, pattern: str):
         """Invalidate cache entries matching pattern."""
         await self.connect()
         cursor = 0
-        
+
         while True:
             cursor, keys = await self.redis.scan(
-                cursor, 
-                match=f"gong:cache:{pattern}*",
-                count=100
+                cursor, match=f"gong:cache:{pattern}*", count=100
             )
-            
+
             if keys:
                 await self.redis.delete(*keys)
-                
+
             if cursor == 0:
                 break
-                
+
     async def warm_cache(self, prefetch_configs: List[Dict[str, Any]]):
         """Warm cache with frequently accessed data."""
         for config in prefetch_configs:
             endpoint = config.get("endpoint")
             params = config.get("params", {})
-            
+
             # Skip if already cached
             if await self.get(endpoint, params):
                 continue
-                
+
             # Fetch and cache (implement in main client)
             logger.info("Cache warming needed", endpoint=endpoint)
 
 
 class RetryPolicy:
     """Configurable retry policy for different error types."""
-    
+
     def __init__(self):
         self.policies = {
             ErrorCategory.RATE_LIMIT: {
                 "max_retries": 5,
                 "base_delay": 1.0,
                 "max_delay": 300.0,
-                "exponential": True
+                "exponential": True,
             },
             ErrorCategory.NETWORK_ERROR: {
                 "max_retries": 3,
                 "base_delay": 0.5,
                 "max_delay": 10.0,
-                "exponential": False
+                "exponential": False,
             },
             ErrorCategory.SERVER_ERROR: {
                 "max_retries": 3,
                 "base_delay": 2.0,
                 "max_delay": 30.0,
-                "exponential": True
+                "exponential": True,
             },
             ErrorCategory.TIMEOUT: {
                 "max_retries": 2,
                 "base_delay": 1.0,
                 "max_delay": 5.0,
-                "exponential": False
-            }
+                "exponential": False,
+            },
         }
-        
-    def get_retry_delay(self, error_category: ErrorCategory, 
-                       attempt: int, retry_after: Optional[float] = None) -> float:
+
+    def get_retry_delay(
+        self,
+        error_category: ErrorCategory,
+        attempt: int,
+        retry_after: Optional[float] = None,
+    ) -> float:
         """Calculate retry delay based on error type and attempt."""
-        policy = self.policies.get(error_category, self.policies[ErrorCategory.SERVER_ERROR])
-        
+        policy = self.policies.get(
+            error_category, self.policies[ErrorCategory.SERVER_ERROR]
+        )
+
         if retry_after:
             return retry_after
-            
+
         if policy["exponential"]:
-            delay = policy["base_delay"] * (2 ** attempt)
+            delay = policy["base_delay"] * (2**attempt)
         else:
             delay = policy["base_delay"] * attempt
-            
+
         # Add jitter to prevent thundering herd
         import random
+
         jitter = random.uniform(0.1, 0.3) * delay
-        
+
         return min(delay + jitter, policy["max_delay"])
-        
+
     def should_retry(self, error_category: ErrorCategory, attempt: int) -> bool:
         """Determine if request should be retried."""
         policy = self.policies.get(error_category, {"max_retries": 0})
@@ -474,16 +477,20 @@ class RetryPolicy:
 
 class GongAPIError(Exception):
     """Enhanced Gong API error with categorization."""
-    
-    def __init__(self, status_code: int, message: str, 
-                 details: Optional[Dict[str, Any]] = None,
-                 category: Optional[ErrorCategory] = None):
+
+    def __init__(
+        self,
+        status_code: int,
+        message: str,
+        details: Optional[Dict[str, Any]] = None,
+        category: Optional[ErrorCategory] = None,
+    ):
         self.status_code = status_code
         self.message = message
         self.details = details or {}
         self.category = category or self._categorize_error(status_code)
         super().__init__(f"Gong API Error ({status_code}): {message}")
-        
+
     def _categorize_error(self, status_code: int) -> ErrorCategory:
         """Categorize error based on status code."""
         if status_code == 429:
@@ -502,7 +509,7 @@ class GongAPIError(Exception):
 
 class EnhancedGongAPIClient:
     """Enhanced Gong API client with comprehensive features."""
-    
+
     def __init__(
         self,
         api_key: str,
@@ -511,53 +518,57 @@ class EnhancedGongAPIClient:
         burst_limit: int = 10,
         timeout: int = 30,
         max_concurrent_requests: int = 10,
-        cache_config: Optional[Dict[str, Any]] = None
+        cache_config: Optional[Dict[str, Any]] = None,
     ):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = aiohttp.ClientTimeout(total=timeout)
-        
+
         # Rate limiting
         self.rate_limiter = TokenBucketRateLimiter(rate_limit, burst_limit)
-        
+
         # Retry and circuit breaker
         self.retry_policy = RetryPolicy()
         self.circuit_breaker = CircuitBreaker()
-        
+
         # Caching
-        cache_url = cache_config.get("redis_url", "redis://localhost:6379") if cache_config else "redis://localhost:6379"
+        cache_url = (
+            cache_config.get("redis_url", "redis://localhost:6379")
+            if cache_config
+            else "redis://localhost:6379"
+        )
         self.cache = RedisCache(cache_url, CACHE_TTL_CONFIG)
-        
+
         # Connection management
         self.max_concurrent_requests = max_concurrent_requests
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
         self._session: Optional[aiohttp.ClientSession] = None
-        
+
         # Request deduplication
         self._pending_requests: Dict[str, asyncio.Future] = {}
-        
+
         # Metrics
         self.logger = logger.bind(component="enhanced_gong_api_client")
-        
+
     async def __aenter__(self):
         """Async context manager entry."""
         await self._ensure_session()
         await self.cache.connect()
         return self
-        
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
         await self.close()
-        
+
     async def _ensure_session(self):
         """Ensure aiohttp session is created with connection pooling."""
         if self._session is None or self._session.closed:
             connector = aiohttp.TCPConnector(
                 limit=self.max_concurrent_requests,
                 limit_per_host=self.max_concurrent_requests,
-                ttl_dns_cache=300
+                ttl_dns_cache=300,
             )
-            
+
             self._session = aiohttp.ClientSession(
                 connector=connector,
                 timeout=self.timeout,
@@ -565,22 +576,25 @@ class EnhancedGongAPIClient:
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "User-Agent": "Sophia-AI-Gong-Client/2.0"
-                }
+                    "User-Agent": "Sophia-AI-Gong-Client/2.0",
+                },
             )
-            
+
     async def close(self):
         """Close all connections."""
         if self._session and not self._session.closed:
             await self._session.close()
         await self.cache.disconnect()
-        
-    def _get_request_key(self, method: str, endpoint: str, 
-                        params: Optional[Dict[str, Any]] = None) -> str:
+
+    def _get_request_key(
+        self, method: str, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> str:
         """Generate unique key for request deduplication."""
         param_str = json.dumps(params or {}, sort_keys=True)
-        return f"{method}:{endpoint}:{hashlib.sha256(param_str.encode()).hexdigest()[:16]}"
-        
+        return (
+            f"{method}:{endpoint}:{hashlib.sha256(param_str.encode()).hexdigest()[:16]}"
+        )
+
     async def _make_request(
         self,
         method: str,
@@ -589,10 +603,10 @@ class EnhancedGongAPIClient:
         json_data: Optional[Dict[str, Any]] = None,
         priority: RequestPriority = RequestPriority.NORMAL,
         use_cache: bool = True,
-        retry: bool = True
+        retry: bool = True,
     ) -> Dict[str, Any]:
         """Make enhanced API request with all features."""
-        
+
         # Check cache first for GET requests
         if method == "GET" and use_cache:
             cached_response = await self.cache.get(endpoint, params or {})
@@ -600,37 +614,37 @@ class EnhancedGongAPIClient:
                 self.logger.debug("Cache hit", endpoint=endpoint)
                 cache_hit_ratio.set(self.cache.get_hit_ratio())
                 return cached_response
-                
+
         # Request deduplication
         request_key = self._get_request_key(method, endpoint, params)
         if request_key in self._pending_requests:
             self.logger.debug("Request deduplication", endpoint=endpoint)
             return await self._pending_requests[request_key]
-            
+
         # Create future for deduplication
         future = asyncio.Future()
         self._pending_requests[request_key] = future
-        
+
         try:
             # Execute request with all enhancements
             result = await self._execute_request(
                 method, endpoint, params, json_data, priority, retry
             )
-            
+
             # Cache successful GET responses
             if method == "GET" and use_cache:
                 await self.cache.set(endpoint, params or {}, result)
                 cache_hit_ratio.set(self.cache.get_hit_ratio())
-                
+
             future.set_result(result)
             return result
-            
+
         except Exception as e:
             future.set_exception(e)
             raise
         finally:
             self._pending_requests.pop(request_key, None)
-            
+
     async def _execute_request(
         self,
         method: str,
@@ -638,155 +652,149 @@ class EnhancedGongAPIClient:
         params: Optional[Dict[str, Any]] = None,
         json_data: Optional[Dict[str, Any]] = None,
         priority: RequestPriority = RequestPriority.NORMAL,
-        retry: bool = True
+        retry: bool = True,
     ) -> Dict[str, Any]:
         """Execute the actual HTTP request."""
-        
+
         url = urljoin(self.base_url, endpoint)
         attempt = 0
         last_error = None
-        
+
         while True:
             try:
                 # Acquire rate limit token
                 await self.rate_limiter.acquire(priority)
-                
+
                 # Update queue depth metric
                 queue_depth.labels(priority=priority.value).set(
                     len(self.rate_limiter.waiting_queue)
                 )
-                
+
                 # Acquire semaphore for concurrent request limiting
                 async with self.semaphore:
                     concurrent_requests.inc()
-                    
+
                     try:
                         # Make the actual request
                         start_time = time.time()
-                        
+
                         async with self._session.request(
-                            method,
-                            url,
-                            params=params,
-                            json=json_data
+                            method, url, params=params, json=json_data
                         ) as response:
                             response_data = await response.json()
-                            
+
                             # Record metrics
                             duration = time.time() - start_time
                             api_request_duration.labels(
-                                endpoint=endpoint,
-                                method=method
+                                endpoint=endpoint, method=method
                             ).observe(duration)
-                            
+
                             if response.status == 200:
                                 api_requests_total.labels(
-                                    endpoint=endpoint,
-                                    method=method,
-                                    status="success"
+                                    endpoint=endpoint, method=method, status="success"
                                 ).inc()
                                 return response_data
-                                
+
                             # Handle errors
                             error = GongAPIError(
                                 response.status,
                                 response_data.get("message", "Unknown error"),
-                                response_data
+                                response_data,
                             )
-                            
+
                             # Special handling for rate limits
                             if error.category == ErrorCategory.RATE_LIMIT:
-                                retry_after = float(response.headers.get("Retry-After", 60))
+                                retry_after = float(
+                                    response.headers.get("Retry-After", 60)
+                                )
                                 error.details["retry_after"] = retry_after
-                                
+
                             raise error
-                            
+
                     finally:
                         concurrent_requests.dec()
-                        
+
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 last_error = GongAPIError(
-                    0,
-                    str(e),
-                    category=ErrorCategory.NETWORK_ERROR
+                    0, str(e), category=ErrorCategory.NETWORK_ERROR
                 )
                 api_requests_total.labels(
-                    endpoint=endpoint,
-                    method=method,
-                    status="network_error"
+                    endpoint=endpoint, method=method, status="network_error"
                 ).inc()
-                
+
             except GongAPIError as e:
                 last_error = e
                 api_requests_total.labels(
-                    endpoint=endpoint,
-                    method=method,
-                    status=f"error_{e.status_code}"
+                    endpoint=endpoint, method=method, status=f"error_{e.status_code}"
                 ).inc()
-                
+
             # Determine if we should retry
-            if not retry or not self.retry_policy.should_retry(last_error.category, attempt):
+            if not retry or not self.retry_policy.should_retry(
+                last_error.category, attempt
+            ):
                 raise last_error
-                
+
             # Calculate retry delay
             retry_delay = self.retry_policy.get_retry_delay(
-                last_error.category,
-                attempt,
-                last_error.details.get("retry_after")
+                last_error.category, attempt, last_error.details.get("retry_after")
             )
-            
+
             retry_attempts_total.labels(
-                endpoint=endpoint,
-                reason=last_error.category.value
+                endpoint=endpoint, reason=last_error.category.value
             ).inc()
-            
+
             self.logger.warning(
                 f"Retrying request (attempt {attempt + 1})",
                 endpoint=endpoint,
                 error=str(last_error),
-                retry_delay=retry_delay
+                retry_delay=retry_delay,
             )
-            
+
             await asyncio.sleep(retry_delay)
             attempt += 1
-            
+
     # API Endpoint Methods
-    
-    async def get_call_transcript(self, call_id: str, 
-                                 priority: RequestPriority = RequestPriority.NORMAL) -> GongCallTranscript:
+
+    async def get_call_transcript(
+        self, call_id: str, priority: RequestPriority = RequestPriority.NORMAL
+    ) -> GongCallTranscript:
         """Get enhanced call transcript with speaker attribution."""
         self.logger.info("Fetching call transcript", call_id=call_id)
-        
+
         response = await self._make_request(
-            "GET",
-            f"/v2/calls/{call_id}/transcript",
-            priority=priority
+            "GET", f"/v2/calls/{call_id}/transcript", priority=priority
         )
-        
+
         transcript_data = response.get("callTranscript", {})
-        
+
         # Parse transcript segments
         segments = []
         for segment in transcript_data.get("sentences", []):
-            segments.append(TranscriptSegment(
-                speaker_id=segment.get("speakerId", ""),
-                speaker_name=segment.get("speakerName"),
-                speaker_email=segment.get("speakerEmail"),
-                start_time=segment.get("startTime", 0),
-                end_time=segment.get("endTime", 0),
-                text=segment.get("text", ""),
-                confidence=segment.get("confidence"),
-                sentiment=segment.get("sentiment"),
-                keywords=segment.get("keywords", [])
-            ))
-            
+            segments.append(
+                TranscriptSegment(
+                    speaker_id=segment.get("speakerId", ""),
+                    speaker_name=segment.get("speakerName"),
+                    speaker_email=segment.get("speakerEmail"),
+                    start_time=segment.get("startTime", 0),
+                    end_time=segment.get("endTime", 0),
+                    text=segment.get("text", ""),
+                    confidence=segment.get("confidence"),
+                    sentiment=segment.get("sentiment"),
+                    keywords=segment.get("keywords", []),
+                )
+            )
+
         # Calculate overall confidence
         if segments:
             confidence_scores = [s.confidence for s in segments if s.confidence]
-            overall_confidence = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0.8
+            overall_confidence = (
+                sum(confidence_scores) / len(confidence_scores)
+                if confidence_scores
+                else 0.8
+            )
         else:
             overall_confidence = 0.0
-            
+
         return GongCallTranscript(
             call_id=call_id,
             transcript_segments=segments,
@@ -795,20 +803,19 @@ class EnhancedGongAPIClient:
             confidence_score=overall_confidence,
             transcript_url=transcript_data.get("url"),
             key_phrases=transcript_data.get("keyPhrases", []),
-            sentiment_summary=transcript_data.get("sentimentSummary")
+            sentiment_summary=transcript_data.get("sentimentSummary"),
         )
-        
-    async def get_call_participants(self, call_id: str,
-                                   priority: RequestPriority = RequestPriority.NORMAL) -> List[GongParticipant]:
+
+    async def get_call_participants(
+        self, call_id: str, priority: RequestPriority = RequestPriority.NORMAL
+    ) -> List[GongParticipant]:
         """Get detailed participant information with engagement metrics."""
         self.logger.info("Fetching call participants", call_id=call_id)
-        
+
         response = await self._make_request(
-            "GET",
-            f"/v2/calls/{call_id}/participants",
-            priority=priority
+            "GET", f"/v2/calls/{call_id}/participants", priority=priority
         )
-        
+
         participants = []
         for p in response.get("participants", []):
             participant = GongParticipant(
@@ -823,110 +830,101 @@ class EnhancedGongAPIClient:
                 talk_time_seconds=p.get("talkTimeSeconds"),
                 talk_time_percentage=p.get("talkTimePercentage"),
                 is_decision_maker=p.get("isDecisionMaker", False),
-                is_key_stakeholder=p.get("isKeyStakeholder", False)
+                is_key_stakeholder=p.get("isKeyStakeholder", False),
             )
             participants.append(participant)
-            
+
         return participants
-        
+
     async def list_calls(
         self,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
         cursor: Optional[str] = None,
         limit: int = 100,
-        priority: RequestPriority = RequestPriority.NORMAL
+        priority: RequestPriority = RequestPriority.NORMAL,
     ) -> Dict[str, Any]:
         """List calls with comprehensive filtering and pagination."""
-        params = {
-            "limit": min(limit, 100)  # API max is 100
-        }
-        
+        params = {"limit": min(limit, 100)}  # API max is 100
+
         if from_date:
             params["fromDateTime"] = from_date.isoformat()
-        
+
         if to_date:
             params["toDateTime"] = to_date.isoformat()
-        
+
         if cursor:
             params["cursor"] = cursor
-        
+
         response = await self._make_request(
-            "GET",
-            "/v2/calls",
-            params=params,
-            priority=priority
+            "GET", "/v2/calls", params=params, priority=priority
         )
-        
+
         return {
             "calls": response.get("calls", []),
             "cursor": response.get("cursor"),
-            "has_more": response.get("hasMore", False)
+            "has_more": response.get("hasMore", False),
         }
-        
+
     async def get_calls_extensive(
-        self,
-        call_ids: List[str],
-        priority: RequestPriority = RequestPriority.NORMAL
+        self, call_ids: List[str], priority: RequestPriority = RequestPriority.NORMAL
     ) -> List[Dict[str, Any]]:
         """Get extensive call data for multiple calls."""
         self.logger.info("Fetching extensive call data", call_count=len(call_ids))
-        
+
         # Batch request
         response = await self._make_request(
             "POST",
             "/v2/calls/extensive",
             json_data={"callIds": call_ids},
-            priority=priority
+            priority=priority,
         )
-        
+
         return response.get("calls", [])
-        
-    async def get_user(self, user_id: str,
-                      priority: RequestPriority = RequestPriority.NORMAL) -> Dict[str, Any]:
+
+    async def get_user(
+        self, user_id: str, priority: RequestPriority = RequestPriority.NORMAL
+    ) -> Dict[str, Any]:
         """Get detailed user information."""
         self.logger.info("Fetching user data", user_id=user_id)
-        
+
         response = await self._make_request(
-            "GET",
-            f"/v2/users/{user_id}",
-            priority=priority
+            "GET", f"/v2/users/{user_id}", priority=priority
         )
-        
+
         return response.get("user", {})
-        
+
     async def get_stats_activity_aggregate(
         self,
         from_date: datetime,
         to_date: datetime,
         group_by: str = "user",
         metrics: Optional[List[str]] = None,
-        priority: RequestPriority = RequestPriority.LOW
+        priority: RequestPriority = RequestPriority.LOW,
     ) -> TeamActivityStats:
         """Get aggregated activity statistics."""
-        self.logger.info("Fetching activity stats", 
-                        from_date=from_date, 
-                        to_date=to_date,
-                        group_by=group_by)
-        
+        self.logger.info(
+            "Fetching activity stats",
+            from_date=from_date,
+            to_date=to_date,
+            group_by=group_by,
+        )
+
         params = {
             "fromDateTime": from_date.isoformat(),
             "toDateTime": to_date.isoformat(),
-            "groupBy": group_by
+            "groupBy": group_by,
         }
-        
+
         if metrics:
             params["metrics"] = ",".join(metrics)
-        
+
         response = await self._make_request(
-            "GET",
-            "/v2/stats/activity/aggregate",
-            params=params,
-            priority=priority
+            "GET", "/v2/stats/activity/aggregate", params=params, priority=priority
         )
-        
+
         stats_data = response.get("stats", {})
-        
+
         return TeamActivityStats(
             team_id=stats_data.get("teamId", ""),
             team_name=stats_data.get("teamName", ""),
@@ -934,55 +932,55 @@ class EnhancedGongAPIClient:
             period_end=to_date,
             total_calls=stats_data.get("totalCalls", 0),
             total_duration_minutes=stats_data.get("totalDurationMinutes", 0),
-            average_call_duration_minutes=stats_data.get("averageCallDurationMinutes", 0.0),
+            average_call_duration_minutes=stats_data.get(
+                "averageCallDurationMinutes", 0.0
+            ),
             conversion_metrics=stats_data.get("conversionMetrics", {}),
             performance_trends=stats_data.get("performanceTrends", []),
-            top_performers=stats_data.get("topPerformers", [])
+            top_performers=stats_data.get("topPerformers", []),
         )
-        
+
     async def enhance_webhook_data(
-        self,
-        webhook_data: Dict[str, Any],
-        webhook_id: Optional[str] = None
+        self, webhook_data: Dict[str, Any], webhook_id: Optional[str] = None
     ) -> EnhancedCallData:
         """Main enhancement orchestration method for webhook data."""
         start_time = time.time()
         call_id = webhook_data.get("call_id", "")
-        
+
         if not call_id:
             raise ValueError("No call_id found in webhook data")
-            
-        self.logger.info("Starting webhook data enhancement", 
-                        call_id=call_id,
-                        webhook_id=webhook_id)
-        
+
+        self.logger.info(
+            "Starting webhook data enhancement", call_id=call_id, webhook_id=webhook_id
+        )
+
         # Prepare tasks for parallel execution
         tasks = {}
-        
+
         # Always try to get basic call data
         tasks["call"] = self._get_call_safe(call_id)
-        
+
         # Get transcript if available
         tasks["transcript"] = self._get_transcript_safe(call_id)
-        
+
         # Get participants
         tasks["participants"] = self._get_participants_safe(call_id)
-        
+
         # Get analytics
         tasks["analytics"] = self._get_analytics_safe(call_id)
-        
+
         # Execute all tasks in parallel
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
-        
+
         # Map results back to task names
         task_results = dict(zip(tasks.keys(), results))
-        
+
         # Process results and build enhanced data
         call_data = task_results.get("call", {})
         if isinstance(call_data, Exception):
             self.logger.error("Failed to get call data", error=str(call_data))
             call_data = self._build_fallback_call_data(webhook_data)
-            
+
         # Build enhanced call data
         enhanced_data = EnhancedCallData(
             call_id=call_id,
@@ -1004,10 +1002,10 @@ class EnhancedGongAPIClient:
             processing_metrics={
                 "enhancement_duration_seconds": time.time() - start_time,
                 "data_sources_available": 0,
-                "data_sources_failed": 0
-            }
+                "data_sources_failed": 0,
+            },
         )
-        
+
         # Add transcript if available
         transcript_result = task_results.get("transcript")
         if transcript_result and not isinstance(transcript_result, Exception):
@@ -1015,7 +1013,7 @@ class EnhancedGongAPIClient:
             enhanced_data.processing_metrics["data_sources_available"] += 1
         else:
             enhanced_data.processing_metrics["data_sources_failed"] += 1
-            
+
         # Add participants if available
         participants_result = task_results.get("participants")
         if participants_result and not isinstance(participants_result, Exception):
@@ -1023,7 +1021,7 @@ class EnhancedGongAPIClient:
             enhanced_data.processing_metrics["data_sources_available"] += 1
         else:
             enhanced_data.processing_metrics["data_sources_failed"] += 1
-            
+
         # Add analytics if available
         analytics_result = task_results.get("analytics")
         if analytics_result and not isinstance(analytics_result, Exception):
@@ -1031,68 +1029,80 @@ class EnhancedGongAPIClient:
             enhanced_data.processing_metrics["data_sources_available"] += 1
         else:
             enhanced_data.processing_metrics["data_sources_failed"] += 1
-            
+
         # Calculate quality score
         enhanced_data.quality_score = self._calculate_quality_score(enhanced_data)
-        
+
         # Update data enhancement score metric
         data_enhancement_score.set(enhanced_data.quality_score)
-        
+
         # Log completion
-        self.logger.info("Webhook data enhancement completed",
-                        call_id=call_id,
-                        webhook_id=webhook_id,
-                        quality_score=enhanced_data.quality_score,
-                        duration_seconds=enhanced_data.processing_metrics["enhancement_duration_seconds"])
-        
+        self.logger.info(
+            "Webhook data enhancement completed",
+            call_id=call_id,
+            webhook_id=webhook_id,
+            quality_score=enhanced_data.quality_score,
+            duration_seconds=enhanced_data.processing_metrics[
+                "enhancement_duration_seconds"
+            ],
+        )
+
         return enhanced_data
-        
+
     async def _get_call_safe(self, call_id: str) -> Dict[str, Any]:
         """Safely get call data with error handling."""
         try:
             response = await self._make_request(
-                "GET",
-                f"/v2/calls/{call_id}",
-                priority=RequestPriority.REAL_TIME
+                "GET", f"/v2/calls/{call_id}", priority=RequestPriority.REAL_TIME
             )
             return response.get("call", {})
         except Exception as e:
             self.logger.error("Failed to get call data", call_id=call_id, error=str(e))
             raise
-            
+
     async def _get_transcript_safe(self, call_id: str) -> Optional[GongCallTranscript]:
         """Safely get transcript with error handling."""
         try:
-            return await self.get_call_transcript(call_id, priority=RequestPriority.REAL_TIME)
+            return await self.get_call_transcript(
+                call_id, priority=RequestPriority.REAL_TIME
+            )
         except GongAPIError as e:
             if e.category == ErrorCategory.NOT_FOUND:
                 self.logger.info("Transcript not available", call_id=call_id)
             else:
-                self.logger.error("Failed to get transcript", call_id=call_id, error=str(e))
+                self.logger.error(
+                    "Failed to get transcript", call_id=call_id, error=str(e)
+                )
             return None
         except Exception as e:
-            self.logger.error("Unexpected error getting transcript", call_id=call_id, error=str(e))
+            self.logger.error(
+                "Unexpected error getting transcript", call_id=call_id, error=str(e)
+            )
             return None
-            
+
     async def _get_participants_safe(self, call_id: str) -> List[GongParticipant]:
         """Safely get participants with error handling."""
         try:
-            return await self.get_call_participants(call_id, priority=RequestPriority.REAL_TIME)
+            return await self.get_call_participants(
+                call_id, priority=RequestPriority.REAL_TIME
+            )
         except Exception as e:
-            self.logger.error("Failed to get participants", call_id=call_id, error=str(e))
+            self.logger.error(
+                "Failed to get participants", call_id=call_id, error=str(e)
+            )
             return []
-            
+
     async def _get_analytics_safe(self, call_id: str) -> Optional[CallAnalytics]:
         """Safely get analytics with error handling."""
         try:
             response = await self._make_request(
                 "GET",
                 f"/v2/calls/{call_id}/analytics",
-                priority=RequestPriority.REAL_TIME
+                priority=RequestPriority.REAL_TIME,
             )
-            
+
             analytics_data = response.get("analytics", {})
-            
+
             return CallAnalytics(
                 call_id=call_id,
                 talk_ratio=analytics_data.get("talkRatio"),
@@ -1106,36 +1116,40 @@ class EnhancedGongAPIClient:
                 silence_percentage=analytics_data.get("silencePercentage"),
                 topic_switches=analytics_data.get("topicSwitches"),
                 key_moments=analytics_data.get("keyMoments", []),
-                coaching_opportunities=analytics_data.get("coachingOpportunities", [])
+                coaching_opportunities=analytics_data.get("coachingOpportunities", []),
             )
         except Exception as e:
             self.logger.error("Failed to get analytics", call_id=call_id, error=str(e))
             return None
-            
+
     def _build_fallback_call_data(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
         """Build fallback call data from webhook."""
         return {
             "id": webhook_data.get("call_id", ""),
             "title": webhook_data.get("title", "Unknown Call"),
-            "scheduledStart": webhook_data.get("scheduled_start", datetime.now(timezone.utc).isoformat()),
-            "started": webhook_data.get("started", datetime.now(timezone.utc).isoformat()),
+            "scheduledStart": webhook_data.get(
+                "scheduled_start", datetime.now(timezone.utc).isoformat()
+            ),
+            "started": webhook_data.get(
+                "started", datetime.now(timezone.utc).isoformat()
+            ),
             "duration": webhook_data.get("duration", 0),
             "primaryUserId": webhook_data.get("user_id", ""),
             "direction": webhook_data.get("direction", "unknown"),
             "isVideo": webhook_data.get("is_video", False),
-            "language": webhook_data.get("language", "en")
+            "language": webhook_data.get("language", "en"),
         }
-        
+
     def _parse_datetime(self, datetime_str: Optional[str]) -> datetime:
         """Parse datetime string with fallback."""
         if not datetime_str:
             return datetime.now(timezone.utc)
-            
+
         try:
-            return datetime.fromisoformat(datetime_str.replace('Z', '+00:00'))
+            return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
         except:
             return datetime.now(timezone.utc)
-            
+
     def _calculate_quality_score(self, enhanced_data: EnhancedCallData) -> float:
         """Calculate data quality score based on completeness."""
         score = 0.0
@@ -1144,45 +1158,43 @@ class EnhancedGongAPIClient:
             "transcript": 0.3,
             "participants": 0.2,
             "analytics": 0.2,
-            "metadata": 0.1
+            "metadata": 0.1,
         }
-        
+
         # Basic info score
         if enhanced_data.title and enhanced_data.duration_seconds > 0:
             score += weights["basic_info"]
-            
+
         # Transcript score
         if enhanced_data.transcript and enhanced_data.transcript.transcript_segments:
             score += weights["transcript"]
-            
+
         # Participants score
         if enhanced_data.participants and len(enhanced_data.participants) > 0:
             score += weights["participants"]
-            
+
         # Analytics score
-        if enhanced_data.analytics and enhanced_data.analytics.engagement_score is not None:
+        if (
+            enhanced_data.analytics
+            and enhanced_data.analytics.engagement_score is not None
+        ):
             score += weights["analytics"]
-            
+
         # Metadata score
         if enhanced_data.topics or enhanced_data.action_items or enhanced_data.summary:
             score += weights["metadata"]
-            
+
         return min(score, 1.0)
-        
+
     async def warm_cache_for_date_range(
-        self,
-        from_date: datetime,
-        to_date: datetime,
-        batch_size: int = 20
+        self, from_date: datetime, to_date: datetime, batch_size: int = 20
     ):
         """Warm cache for calls in date range."""
-        self.logger.info("Starting cache warming", 
-                        from_date=from_date,
-                        to_date=to_date)
-        
+        self.logger.info("Starting cache warming", from_date=from_date, to_date=to_date)
+
         cursor = None
         total_warmed = 0
-        
+
         while True:
             # Get batch of calls
             result = await self.list_calls(
@@ -1190,31 +1202,31 @@ class EnhancedGongAPIClient:
                 to_date=to_date,
                 cursor=cursor,
                 limit=batch_size,
-                priority=RequestPriority.LOW
+                priority=RequestPriority.LOW,
             )
-            
+
             calls = result.get("calls", [])
             if not calls:
                 break
-                
+
             # Warm cache for each call
             tasks = []
             for call in calls:
                 call_id = call.get("id")
                 if call_id:
                     tasks.append(self._warm_single_call(call_id))
-                    
+
             await asyncio.gather(*tasks, return_exceptions=True)
             total_warmed += len(tasks)
-            
+
             # Check if more calls available
             if not result.get("has_more", False):
                 break
-                
+
             cursor = result.get("cursor")
-            
+
         self.logger.info("Cache warming completed", total_calls_warmed=total_warmed)
-        
+
     async def _warm_single_call(self, call_id: str):
         """Warm cache for a single call."""
         try:
@@ -1222,16 +1234,18 @@ class EnhancedGongAPIClient:
             await asyncio.gather(
                 self.get_call_transcript(call_id, priority=RequestPriority.LOW),
                 self.get_call_participants(call_id, priority=RequestPriority.LOW),
-                return_exceptions=True
+                return_exceptions=True,
             )
         except Exception as e:
-            self.logger.warning("Failed to warm cache for call", call_id=call_id, error=str(e))
-            
+            self.logger.warning(
+                "Failed to warm cache for call", call_id=call_id, error=str(e)
+            )
+
     async def invalidate_call_cache(self, call_id: str):
         """Invalidate all cached data for a specific call."""
         await self.cache.invalidate(f"*/calls/{call_id}/*")
         self.logger.info("Invalidated cache for call", call_id=call_id)
-        
+
     async def get_health_status(self) -> Dict[str, Any]:
         """Get health status of the API client."""
         health = {
@@ -1242,10 +1256,10 @@ class EnhancedGongAPIClient:
                 "current_rate_tokens": self.rate_limiter.get_current_rate(),
                 "circuit_breaker_open": self.circuit_breaker.is_open,
                 "concurrent_requests": concurrent_requests._value._value,
-                "pending_requests": len(self._pending_requests)
-            }
+                "pending_requests": len(self._pending_requests),
+            },
         }
-        
+
         # Test API connectivity
         try:
             await self._make_request(
@@ -1253,11 +1267,11 @@ class EnhancedGongAPIClient:
                 "/v2/users/me",
                 priority=RequestPriority.HIGH,
                 use_cache=False,
-                retry=False
+                retry=False,
             )
             health["api_connectivity"] = "ok"
         except Exception as e:
             health["status"] = "degraded"
             health["api_connectivity"] = f"error: {str(e)}"
-            
+
         return health

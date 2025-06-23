@@ -86,7 +86,9 @@ async def test_get_tools(memory_server):
 @pytest.mark.asyncio
 async def test_execute_tool_store(memory_server):
     """Test executing the store_conversation tool."""
-    memory_server.store_memory = AsyncMock(return_value={"id": "test_id", "status": "stored"})
+    memory_server.store_memory = AsyncMock(
+        return_value={"id": "test_id", "status": "stored"}
+    )
     params = {
         "content": "We decided to use PostgreSQL for the database",
         "category": "architecture",
@@ -95,7 +97,9 @@ async def test_execute_tool_store(memory_server):
     result = await memory_server.execute_tool("store_conversation", params)
     assert result["id"] == "test_id"
     assert result["status"] == "stored"
-    memory_server.store_memory.assert_called_once_with(params["content"], params["category"], params["tags"])
+    memory_server.store_memory.assert_called_once_with(
+        params["content"], params["category"], params["tags"]
+    )
 
 
 @pytest.mark.asyncio
@@ -111,7 +115,9 @@ async def test_execute_tool_recall(memory_server):
     result = await memory_server.execute_tool("recall_memory", params)
     assert "results" in result
     assert result["results"] == mock_results
-    memory_server.recall_memory.assert_called_once_with(params["query"], params["category"], params["limit"])
+    memory_server.recall_memory.assert_called_once_with(
+        params["query"], params["category"], params["limit"]
+    )
 
 
 @pytest.mark.asyncio

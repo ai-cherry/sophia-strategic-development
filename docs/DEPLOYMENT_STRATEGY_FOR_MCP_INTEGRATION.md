@@ -1,4 +1,43 @@
+---
+title: Deployment Strategy for Sophia AI MCP Integration
+description: 
+tags: mcp, security, gong, monitoring, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Deployment Strategy for Sophia AI MCP Integration
+
+
+## Table of Contents
+
+- [🎯 **Deployment Architecture Overview**](#🎯-**deployment-architecture-overview**)
+- [🏗️ **Infrastructure Requirements**](#🏗️-**infrastructure-requirements**)
+  - [**Lambda Labs Production Specifications**](#**lambda-labs-production-specifications**)
+  - [**Software Dependencies**](#**software-dependencies**)
+- [📊 **Phase-Based Deployment Strategy**](#📊-**phase-based-deployment-strategy**)
+  - [**Phase 1: Foundation Infrastructure (Week 1)**](#**phase-1:-foundation-infrastructure-(week-1)**)
+  - [**Phase 2: MCP Server Deployment (Week 2)**](#**phase-2:-mcp-server-deployment-(week-2)**)
+  - [**Phase 3: Integration Validation (Week 2-3)**](#**phase-3:-integration-validation-(week-2-3)**)
+  - [**Phase 4: Production Stabilization (Week 3-4)**](#**phase-4:-production-stabilization-(week-3-4)**)
+- [🔧 **Agno Agent Deployment Configuration**](#🔧-**agno-agent-deployment-configuration**)
+  - [**Production Agno Workspace**](#**production-agno-workspace**)
+  - [**Agno Deployment Commands**](#**agno-deployment-commands**)
+- [🚀 **Pulumi Automation API Integration**](#🚀-**pulumi-automation-api-integration**)
+  - [**Sophia AI Pulumi Stack Configuration**](#**sophia-ai-pulumi-stack-configuration**)
+  - [**Automated Deployment Pipeline**](#**automated-deployment-pipeline**)
+- [📊 **Integration with Clean Structural Improvements**](#📊-**integration-with-clean-structural-improvements**)
+  - [**Agent Category Deployment Mapping**](#**agent-category-deployment-mapping**)
+  - [**Cursor Mode Deployment Optimization**](#**cursor-mode-deployment-optimization**)
+- [🔍 **Monitoring and Reliability**](#🔍-**monitoring-and-reliability**)
+  - [**Core Reliability Metrics**](#**core-reliability-metrics**)
+  - [**Health Check Implementation**](#**health-check-implementation**)
+- [🎯 **Deployment Validation Checklist**](#🎯-**deployment-validation-checklist**)
+  - [**Pre-Deployment**](#**pre-deployment**)
+  - [**Post-Deployment**](#**post-deployment**)
+  - [**Integration Validation**](#**integration-validation**)
+- [🏁 **Conclusion**](#🏁-**conclusion**)
 
 ## 🎯 **Deployment Architecture Overview**
 
@@ -31,219 +70,70 @@ Based on the comprehensive deployment requirements, our Sophia AI platform requi
 
 **Next Actions**:
 ```bash
-# Deploy base infrastructure
-pulumi up --stack sophia-ai-foundation
-
-# Verify agent categorization
-python3 scripts/standalone_demo.py
-
-# Test basic agent routing
-curl http://localhost:8000/api/v1/agents/status
-```
+# Example usage:
+bash
+```python
 
 ### **Phase 2: MCP Server Deployment (Week 2)**
 **Goal**: Deploy and configure all MCP servers with proper communication
 
 **Infrastructure Setup**:
 ```bash
-# Build and deploy Agno MCP server
-ag ws up --env production --infra docker --type container
-
-# Deploy Pulumi MCP server
-cd mcp-servers/pulumi && docker build -t sophia-pulumi-mcp .
-docker run -d --name pulumi-mcp -p 8091:8091 sophia-pulumi-mcp
-
-# Deploy Sophia AI MCP servers
-cd mcp-servers/sophia_ai_intelligence && python sophia_ai_intelligence_mcp_server.py
-```
+# Example usage:
+bash
+```python
 
 **MCP Configuration in Cursor**:
 ```json
-{
-  "mcpServers": {
-    "sophia_agno": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "backend.mcp.agno_mcp_server"]
-    },
-    "sophia_pulumi": {
-      "type": "stdio", 
-      "command": "npx",
-      "args": ["@pulumi/mcp-server", "--config", "pulumi-config.json"]
-    },
-    "sophia_intelligence": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "mcp_servers.sophia_ai_intelligence.sophia_ai_intelligence_mcp_server"]
-    }
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ### **Phase 3: Integration Validation (Week 2-3)**
 **Goal**: Ensure all components communicate effectively
 
 **Integration Tests**:
 ```bash
-# Test Agno agent instantiation via MCP
-curl -X POST http://localhost:8090/mcp/agno/create_agent \
-  -H "Content-Type: application/json" \
-  -d '{"agent_type": "gong_agent", "task": "analyze recent calls"}'
-
-# Test Pulumi deployment via MCP
-curl -X POST http://localhost:8091/mcp/pulumi/deploy \
-  -H "Content-Type: application/json" \
-  -d '{"stack": "sophia-ai-prod", "operation": "up"}'
-
-# Test Cursor AI integration
-# Use Cursor Agent Mode with: "Deploy Sophia AI infrastructure using Pulumi"
-```
+# Example usage:
+bash
+```python
 
 ### **Phase 4: Production Stabilization (Week 3-4)**
 **Goal**: Implement monitoring, reliability, and performance optimization
 
 **Monitoring Setup**:
 ```yaml
-# monitoring/mcp-monitoring.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mcp-monitoring-config
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-    scrape_configs:
-      - job_name: 'agno-mcp'
-        static_configs:
-          - targets: ['localhost:8090']
-      - job_name: 'pulumi-mcp'
-        static_configs:
-          - targets: ['localhost:8091']
-      - job_name: 'sophia-mcp'
-        static_configs:
-          - targets: ['localhost:8092']
-```
+# Example usage:
+yaml
+```python
 
 ## 🔧 **Agno Agent Deployment Configuration**
 
 ### **Production Agno Workspace**
 ```python
-# workspace/production_resources.py
-from agno import Agent, Workspace
-from agno.resources.docker import DockerConfig
-
-# Configure production deployment
-workspace = Workspace(
-    name="sophia-ai-production",
-    image_repo="sophia-ai/agno-agents",
-    build_images=True,
-    docker_config=DockerConfig(
-        network="sophia-ai-network",
-        ports={"8090": 8090},
-        env_vars={
-            "PULUMI_ORG": "scoobyjava-org",
-            "ENVIRONMENT": "production",
-            "LOG_LEVEL": "INFO"
-        }
-    )
-)
-
-# Register agent categories aligned with our clean improvements
-workspace.register_agent_category("business_intelligence")
-workspace.register_agent_category("infrastructure") 
-workspace.register_agent_category("code_generation")
-```
+# Example usage:
+python
+```python
 
 ### **Agno Deployment Commands**
 ```bash
-# Build production images with our categorization
-ag ws up --env production --infra docker --type image
-
-# Deploy with monitoring
-ag ws up --env production --infra docker --type container --monitor
-
-# Restart if needed
-ag ws restart --env production --infra docker --type container
-
-# Force recreation (careful in production)
-ag ws up -f --env production
-```
+# Example usage:
+bash
+```python
 
 ## 🚀 **Pulumi Automation API Integration**
 
 ### **Sophia AI Pulumi Stack Configuration**
 ```typescript
-// infrastructure/sophia-ai-stack.ts
-import * as pulumi from "@pulumi/pulumi";
-import * as aws from "@pulumi/aws";
-
-export class SophiaAIStack extends pulumi.ComponentResource {
-    constructor(name: string, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:infrastructure:SophiaAIStack", name, {}, opts);
-        
-        // Lambda Labs integration
-        const lambdaLabsInstance = new aws.ec2.Instance("sophia-ai-main", {
-            instanceType: "g4dn.xlarge", // GPU instance for AI workloads
-            ami: "ami-0c94855ba95b798c7", // Ubuntu 22.04 LTS
-            keyName: "sophia-ai-keypair",
-            tags: {
-                Name: "Sophia-AI-Production",
-                Environment: "production",
-                MCP: "enabled"
-            }
-        });
-        
-        // MCP server configuration
-        const mcpServerConfig = new aws.ssm.Parameter("mcp-server-config", {
-            name: "/sophia-ai/mcp/server-config",
-            type: "String",
-            value: JSON.stringify({
-                agno_port: 8090,
-                pulumi_port: 8091,
-                sophia_port: 8092,
-                network: "sophia-ai-network"
-            })
-        });
-    }
-}
-```
+# Example usage:
+typescript
+```python
 
 ### **Automated Deployment Pipeline**
 ```yaml
-# .github/workflows/deploy-mcp-infrastructure.yml
-name: Deploy Sophia AI MCP Infrastructure
-
-on:
-  push:
-    branches: [main]
-    paths: ['infrastructure/**', 'mcp-servers/**']
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Pulumi
-        uses: pulumi/actions@v4
-        with:
-          command: up
-          stack-name: sophia-ai-production
-          work-dir: infrastructure/
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          
-      - name: Deploy MCP Servers
-        run: |
-          # Build and deploy all MCP servers
-          docker-compose -f docker-compose.mcp.yml up -d
-          
-      - name: Validate Integration
-        run: |
-          # Test MCP server connectivity
-          python3 scripts/test_mcp_integration.py
-```
+# Example usage:
+yaml
+```python
 
 ## 📊 **Integration with Clean Structural Improvements**
 
@@ -251,50 +141,15 @@ jobs:
 Our clean structural improvements align perfectly with the deployment strategy:
 
 ```python
-# Deploy agents by category for optimal resource allocation
-DEPLOYMENT_CATEGORY_MAPPING = {
-    AgentCategory.BUSINESS_INTELLIGENCE: {
-        "resources": {"memory": "4GB", "cpu": "2 cores"},
-        "mcp_services": ["gong", "snowflake", "hubspot"],
-        "deployment_priority": "high"
-    },
-    AgentCategory.INFRASTRUCTURE: {
-        "resources": {"memory": "2GB", "cpu": "1 core"},  
-        "mcp_services": ["pulumi", "docker"],
-        "deployment_priority": "critical",
-        "requires_confirmation": True
-    },
-    AgentCategory.CODE_GENERATION: {
-        "resources": {"memory": "6GB", "cpu": "2 cores"},
-        "mcp_services": ["claude", "ai_memory"],
-        "deployment_priority": "medium"
-    }
-}
-```
+# Example usage:
+python
+```python
 
 ### **Cursor Mode Deployment Optimization**
 ```python
-# Optimize deployment based on Cursor mode usage patterns
-CURSOR_MODE_DEPLOYMENT_CONFIG = {
-    "chat": {
-        "auto_scale": True,
-        "min_instances": 2,
-        "max_instances": 10,
-        "target_cpu": 70
-    },
-    "composer": {
-        "auto_scale": True,
-        "min_instances": 1,
-        "max_instances": 5,
-        "target_cpu": 80
-    },
-    "agent": {
-        "auto_scale": False,
-        "instances": 1,
-        "high_availability": True
-    }
-}
-```
+# Example usage:
+python
+```python
 
 ## 🔍 **Monitoring and Reliability**
 
@@ -307,46 +162,9 @@ CURSOR_MODE_DEPLOYMENT_CONFIG = {
 
 ### **Health Check Implementation**
 ```python
-# scripts/health_check_mcp_integration.py
-import asyncio
-import aiohttp
-from backend.agents.core.agent_categories import AgentCategoryManager
-
-async def health_check_mcp_servers():
-    """Comprehensive health check for all MCP servers"""
-    
-    health_status = {}
-    
-    # Check Agno MCP server
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get('http://localhost:8090/health') as resp:
-                health_status['agno_mcp'] = resp.status == 200
-    except:
-        health_status['agno_mcp'] = False
-    
-    # Check Pulumi MCP server  
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get('http://localhost:8091/health') as resp:
-                health_status['pulumi_mcp'] = resp.status == 200
-    except:
-        health_status['pulumi_mcp'] = False
-    
-    # Check agent categorization system
-    try:
-        stats = AgentCategoryManager.get_category_stats()
-        health_status['agent_categories'] = stats['total_agents'] > 0
-    except:
-        health_status['agent_categories'] = False
-    
-    return health_status
-
-# Run health check
-if __name__ == "__main__":
-    status = asyncio.run(health_check_mcp_servers())
-    print(f"MCP Integration Health: {status}")
-```
+# Example usage:
+python
+```python
 
 ## 🎯 **Deployment Validation Checklist**
 

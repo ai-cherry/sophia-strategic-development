@@ -1,4 +1,25 @@
+---
+title: AGNO Agent Reference
+description: 
+tags: security, gong, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # AGNO Agent Reference
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Agent Registry](#agent-registry)
+- [Capabilities](#capabilities)
+- [Configuration Keys & Defaults](#configuration-keys-&-defaults)
+- [Usage Patterns](#usage-patterns)
+- [Logging and Error Handling Best Practices](#logging-and-error-handling-best-practices)
+- [Adding a New Agno Agent](#adding-a-new-agno-agent)
+- [See Also](#see-also)
 
 ## Overview
 This document provides a comprehensive reference for all Agno agents in the Sophia AI platform, including their capabilities, configuration options, and usage patterns. It is intended as a single source of truth for developers and operators.
@@ -69,7 +90,7 @@ All Agno agents use centralized configuration, typically loaded from Pulumi ESC.
   except Exception as e:
       logger.error(f"Agent {self.agent_id} failed to process task {task.task_type}: {e}", exc_info=True)
       return await create_agent_response(False, error=str(e))
-  ```
+  ```python
 
 ---
 

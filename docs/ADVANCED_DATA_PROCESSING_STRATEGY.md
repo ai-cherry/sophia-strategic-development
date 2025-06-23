@@ -1,7 +1,37 @@
+---
+title: Sophia AI - Advanced Data Processing & RAG Strategy
+description: **Date:** December 20, 2024 **Status:** A Modern Approach for the New Agno Architecture
+tags: security, gong, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Advanced Data Processing & RAG Strategy
+
+
+## Table of Contents
+
+- [1. The Goal: From Brittle Pipelines to Intelligent Workflows](#1.-the-goal:-from-brittle-pipelines-to-intelligent-workflows)
+- [2. Replacing the Custom RAG Pipeline with Agno's Knowledge Base](#2.-replacing-the-custom-rag-pipeline-with-agno's-knowledge-base)
+  - [The "Agno Way" for RAG:](#the-"agno-way"-for-rag:)
+- [3. Re-implementing Specialized Chunking as Agno Tools](#3.-re-implementing-specialized-chunking-as-agno-tools)
+  - [Action Plan: Create `custom_chunking_tools.py`](#action-plan:-create-`custom_chunking_tools.py`)
+  - [New Agentic Ingestion Workflow:](#new-agentic-ingestion-workflow:)
+- [4. Re-implementing BI Extraction as a Specialized Agent](#4.-re-implementing-bi-extraction-as-a-specialized-agent)
+  - [Action Plan: Define the `analyst_agent`](#action-plan:-define-the-`analyst_agent`)
+- [5. Summary: A Modern, Intelligent System](#5.-summary:-a-modern,-intelligent-system)
 
 **Date:** December 20, 2024
 **Status:** A Modern Approach for the New Agno Architecture
+
+
+## Quick Reference
+
+### Functions
+- `by_decision_points()`
+- `by_sentiment_shift()`
+
 
 ## 1. The Goal: From Brittle Pipelines to Intelligent Workflows
 
@@ -25,12 +55,12 @@ This document outlines the strategy for re-implementing the valuable **business 
     # Example within an agent's code
     transcript = gong_tools.get_call_transcript("12345")
     agent.knowledge.ingest(document=transcript, metadata={"source": "gong", "call_id": "12345"})
-    ```
+    ```python
 3.  **Simplified Retrieval:** Agents can search the knowledge base with an equally simple command, automatically getting the benefits of retrieval-augmented generation.
     ```python
     # Example within an agent's code
     answer = agent.ask("What were the key objections in the call with Acme Corp?", search_knowledge=True)
-    ```
+    ```python
 
 **Benefits:**
 -   **Zero Maintenance:** The entire RAG pipeline is now managed and updated by the Agno framework.
@@ -76,7 +106,7 @@ custom_chunking_tools = {
     "chunk_by_decision_points": by_decision_points,
     "chunk_by_sentiment_shift": by_sentiment_shift,
 }
-```
+```python
 
 ### New Agentic Ingestion Workflow:
 
@@ -109,7 +139,7 @@ An ingestion agent would now follow this intelligent workflow:
         "instructions": "Your task is to meticulously analyze transcripts and documents to extract key business intelligence. You must identify decision-makers, extract competitor mentions, summarize action items, and score the overall sentiment. You must return your findings ONLY as a structured JSON object."
     }
     self.register_agent("analyst_agent", persona=analyst_persona)
-    ```
+    ```python
 2.  **Define the Agent's Workflow:**
     -   An orchestrating agent receives a new Gong call ID.
     -   It uses a tool: `transcript = gong_tools.get_call_transcript(call_id)`
@@ -119,7 +149,7 @@ An ingestion agent would now follow this intelligent workflow:
             "prompt": f"Analyze the following transcript and return the structured JSON: {transcript}",
         }
         structured_bi_data = await agent.delegate_task("analyst_agent", analysis_task)
-        ```
+        ```python
     -   The `analyst_agent` processes the transcript and returns a clean JSON object.
     -   This structured data can then be saved to Snowflake or another BI tool for dashboarding.
 

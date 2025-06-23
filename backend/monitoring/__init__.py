@@ -16,12 +16,12 @@ from .gong_data_quality import (
     MappingReport,
     AlertSeverity,
     AlertType,
-    QualityDimension
+    QualityDimension,
 )
 
 __all__ = [
     "GongDataQualityMonitor",
-    "QualityRuleEngine", 
+    "QualityRuleEngine",
     "QualityMetricsCollector",
     "DataQualityConfig",
     "QualityReport",
@@ -30,5 +30,5 @@ __all__ = [
     "MappingReport",
     "AlertSeverity",
     "AlertType",
-    "QualityDimension"
+    "QualityDimension",
 ]

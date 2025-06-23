@@ -1,4 +1,27 @@
+---
+title: Local Development & Testing Guide
+description: **Date:** December 20, 2024 **Status:** The Official Guide for Running Sophia AI Services Locally
+tags: security, onboarding, gong, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Local Development & Testing Guide
+
+
+## Table of Contents
+
+- [1. The Goal: Secure, Simple, and Powerful Local Development](#1.-the-goal:-secure,-simple,-and-powerful-local-development)
+- [2. Prerequisites](#2.-prerequisites)
+- [3. The Core Pattern: `esc run`](#3.-the-core-pattern:-`esc-run`)
+- [4. How to Run Any Agent Locally](#4.-how-to-run-any-agent-locally)
+  - [Example: Running the "Analyst Agent"](#example:-running-the-"analyst-agent")
+  - [Breakdown of the Command:](#breakdown-of-the-command:)
+- [5. Advanced Usage: Dynamic Configuration Files](#5.-advanced-usage:-dynamic-configuration-files)
+  - [Example: Providing a `settings.yaml` to a service](#example:-providing-a-`settings.yaml`-to-a-service)
+  - [Breakdown:](#breakdown:)
+- [Conclusion: The New Standard for Local Development](#conclusion:-the-new-standard-for-local-development)
 
 **Date:** December 20, 2024
 **Status:** The Official Guide for Running Sophia AI Services Locally
@@ -34,21 +57,18 @@ The `esc run` command works by opening a secure session with our central Pulumi 
 This process assumes you have built the Docker image for the agent you wish to run. For example, to build the `analyst-agent`:
 
 ```bash
-# From the root of the repository
-docker build . -f Dockerfile.agent -t analyst-agent:latest
-```
+# Example usage:
+bash
+```python
 
 Once the image is built, you can run the agent with a **single command**.
 
 ### Example: Running the "Analyst Agent"
 
 ```bash
-esc run scoobyjava-org/default/sophia-ai-production -- docker run --rm -it \
-  -p 8080:8080 \
-  -e PERSONA="You are an expert financial analyst." \
-  -e TOOLS="gong_tools,snowflake_tools" \
-  analyst-agent:latest
-```
+# Example usage:
+bash
+```python
 
 ### Breakdown of the Command:
 
@@ -75,28 +95,16 @@ As outlined in the Pulumi ESC documentation, we can also use the `files` directi
 Let's say a service needs a `config/settings.yaml` file to start. We can define this in our ESC environment:
 
 ```yaml
-# In the main ESC environment YAML
-values:
-  # ... other values ...
-  files:
-    # This will create a temporary file with the following content
-    AGENT_SETTINGS_YAML: |
-      api_version: "v2"
-      logging:
-        level: "debug"
-        format: "json"
-      features:
-        enable_experimental_tools: true
-```
+# Example usage:
+yaml
+```python
 
 Now, we can run a service that needs this file:
 
 ```bash
-# The path to the temp file is available as $AGENT_SETTINGS_YAML
-esc run scoobyjava-org/default/sophia-ai-production -- docker run --rm -it \
-  -v $AGENT_SETTINGS_YAML:/app/config/settings.yaml \
-  my-service:latest
-```
+# Example usage:
+bash
+```python
 
 ### Breakdown:
 

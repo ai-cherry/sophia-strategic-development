@@ -1,4 +1,22 @@
+---
+title: Feature Flags & Rollout Guide
+description: This guide explains how to use feature flags for safe, controlled deployment of new features and agent upgrades in Sophia AI. Designed for both AI and human developers. ---
+tags: monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Feature Flags & Rollout Guide
+
+
+## Table of Contents
+
+- [🚦 Adding & Using Feature Flags](#🚦-adding-&-using-feature-flags)
+- [🧪 Rollout Strategies](#🧪-rollout-strategies)
+- [🛑 Rollback & Monitoring](#🛑-rollback-&-monitoring)
+- [🏗️ Best Practices](#🏗️-best-practices)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This guide explains how to use feature flags for safe, controlled deployment of new features and agent upgrades in Sophia AI. Designed for both AI and human developers.
 
@@ -14,7 +32,7 @@ This guide explains how to use feature flags for safe, controlled deployment of 
       enable_agno_agents: true
       enable_team_coordination: false
       enable_performance_optimization: true
-    ```
+    ```python
 - **How to use in code:**
   - Import the config/flag and check before enabling a feature:
     ```python
@@ -22,7 +40,7 @@ This guide explains how to use feature flags for safe, controlled deployment of 
     config = await get_config_loader()
     if config.feature_flags.get('enable_agno_agents'):
         # Enable Agno agents
-    ```
+    ```python
 - **Frontend:**
   - Use API endpoints or config fetches to toggle UI features.
 
@@ -42,7 +60,7 @@ This guide explains how to use feature flags for safe, controlled deployment of 
     ab_testing:
       enabled: true
       agno_traffic_percentage: 10
-    ```
+    ```python
 
 ---
 

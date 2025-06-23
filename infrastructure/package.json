@@ -10,13 +10,15 @@
     "deploy": "pulumi up",
     "preview": "pulumi preview",
     "destroy": "pulumi destroy",
-    "mcp-server": "ts-node enhanced-pulumi-mcp-server.ts"
+    "mcp-server": "ts-node enhanced-pulumi-mcp-server.ts",
+    "n8n": "n8n start"
   },
   "dependencies": {
     "@pulumi/pulumi": "^3.100.0",
     "@pulumi/aws": "^6.15.0",
     "@pulumi/docker": "^4.5.0",
-    "@modelcontextprotocol/sdk": "^0.4.0"
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "n8n": "^1.45.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

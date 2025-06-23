@@ -1,4 +1,34 @@
+---
+title: Sentry Integration Setup Guide for Sophia AI
+description: This guide provides step-by-step instructions for setting up Sentry integration with the Sophia AI project, including GitHub secrets management and Pulumi ESC synchronization.
+tags: mcp, monitoring, security, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sentry Integration Setup Guide for Sophia AI
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Step 1: Set Up GitHub Organization Secrets](#step-1:-set-up-github-organization-secrets)
+- [Step 2: Create Sentry Project](#step-2:-create-sentry-project)
+- [Step 3: Set Sentry DSN Secret](#step-3:-set-sentry-dsn-secret)
+- [Step 4: Sync Secrets to Pulumi ESC](#step-4:-sync-secrets-to-pulumi-esc)
+- [Step 5: Verify Configuration](#step-5:-verify-configuration)
+- [Configuration Structure](#configuration-structure)
+- [Testing the Integration](#testing-the-integration)
+- [MCP Server Integration](#mcp-server-integration)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Manual Verification Scripts](#manual-verification-scripts)
+- [Security Considerations](#security-considerations)
+- [Monitoring and Maintenance](#monitoring-and-maintenance)
+- [Support](#support)
+- [Related Files](#related-files)
 
 This guide provides step-by-step instructions for setting up Sentry integration with the Sophia AI project, including GitHub secrets management and Pulumi ESC synchronization.
 
@@ -19,8 +49,9 @@ The Sentry integration follows the Sophia AI secret management architecture:
 Run the provided script to set up all required GitHub secrets:
 
 ```bash
-./scripts/setup_github_sentry_secrets.sh
-```
+# Example usage:
+bash
+```python
 
 This script sets the following secrets in the `ai-cherry` organization:
 - `SENTRY_AUTH_TOKEN` - Personal Access Token for Sentry API
@@ -44,99 +75,55 @@ This script sets the following secrets in the `ai-cherry` organization:
 After creating the Sentry project, set the DSN secret:
 
 ```bash
-gh secret set SENTRY_DSN --org ai-cherry --visibility all
-# Paste the DSN when prompted
-```
+# Example usage:
+bash
+```python
 
 ## Step 4: Sync Secrets to Pulumi ESC
 
 Trigger the sync workflow to push all secrets to Pulumi ESC:
 
 ```bash
-gh workflow run sync-sentry-secrets.yml --repo ai-cherry/sophia-main
-```
+# Example usage:
+bash
+```python
 
 ## Step 5: Verify Configuration
 
 Check that secrets were properly synced:
 
 ```bash
-# Verify GitHub secrets
-gh secret list --org ai-cherry | grep SENTRY
-
-# Check workflow run status
-gh run list --workflow=sync-sentry-secrets.yml --repo ai-cherry/sophia-main
-```
+# Example usage:
+bash
+```python
 
 ## Configuration Structure
 
 The Sentry configuration is accessible in the application via:
 
 ```python
-from backend.core.auto_esc_config import config
-
-# Access Sentry configuration
-sentry_dsn = config.observability.sentry_dsn
-sentry_api_token = config.observability.sentry_api_token
-sentry_org = config.observability.sentry_organization_slug
-sentry_project = config.observability.sentry_project_slug
-```
+# Example usage:
+python
+```python
 
 ## Testing the Integration
 
 1. **Local Testing**:
    ```bash
-   cd sophia-main
-   python scripts/test/test_sentry_agent.py
-   ```
-
-2. **Create Test Error**:
-   ```bash
-   python scripts/setup_sentry_and_create_error.py
-   ```
-
-3. **Verify in Sentry Dashboard**:
-   - Check that errors appear in the Sentry project
-   - Verify error details and stack traces
-
-## MCP Server Integration
-
-The Sentry MCP server is automatically deployed when secrets are synced. To manually deploy:
-
+# Example usage:
+bash
 ```bash
 gh workflow run deploy-sentry-mcp.yml --repo ai-cherry/sophia-main
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Secrets not syncing**:
-   - Check GitHub Actions workflow logs
-   - Verify Pulumi access token is valid
-   - Ensure organization permissions are correct
-
-2. **Sentry not initializing**:
-   - Check that SENTRY_DSN is properly set
-   - Verify environment configuration
-   - Check application logs for initialization errors
-
-3. **MCP server connection issues**:
-   - Verify MCP gateway configuration
-   - Check Sentry MCP server logs
-   - Ensure network connectivity
-
-### Manual Verification Scripts
-
-Use the provided verification scripts:
-
+```python
+# Example usage:
+python
 ```bash
 # Verify Pulumi ESC secrets
 ./scripts/verify_sentry_pulumi_secrets.sh
 
 # Manual sync if needed
 ./scripts/manual_sync_sentry_to_pulumi.sh
-```
+```python
 
 ## Security Considerations
 

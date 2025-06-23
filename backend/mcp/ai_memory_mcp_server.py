@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 class MemoryCategory:
     """
-Categories for AI memory storage."""
+    Categories for AI memory storage."""
 
     ARCHITECTURE = "architecture"
     BUG_SOLUTION = "bug_solution"
@@ -47,7 +47,7 @@ class MemoryRecord(BaseModel):
 
 class AiMemoryMCPServer:
     """
-AI Memory MCP Server for persistent development context."""
+    AI Memory MCP Server for persistent development context."""
 
     def __init__(self) -> None:
         self.name = "ai_memory"
@@ -101,7 +101,9 @@ AI Memory MCP Server for persistent development context."""
             logger.error(f"Error generating embedding: {str(exc)}")
             return []
 
-    async def store_memory(self, content: str, category: str, tags: List[str]) -> Dict[str, Any]:
+    async def store_memory(
+        self, content: str, category: str, tags: List[str]
+    ) -> Dict[str, Any]:
         """Store a memory with categorization and embedding."""
         if not self.initialized:
             await self.initialize()
@@ -277,7 +279,9 @@ AI Memory MCP Server for persistent development context."""
             },
         ]
 
-    async def execute_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_tool(
+        self, tool_name: str, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Execute a tool with the given parameters."""
         if not self.initialized:
             await self.initialize()

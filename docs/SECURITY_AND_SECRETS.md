@@ -1,4 +1,24 @@
+---
+title: Security & Secrets Management Guide
+description: This guide explains how to securely manage secrets, credentials, and sensitive data in Sophia AI. It is designed for both AI coding agents and human developers. ---
+tags: security, gong, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Security & Secrets Management Guide
+
+
+## Table of Contents
+
+- [🔐 Centralized Secret Management](#🔐-centralized-secret-management)
+- [🏗️ How It Works](#🏗️-how-it-works)
+- [🧑‍💻 Secure Secret Loading Pattern](#🧑‍💻-secure-secret-loading-pattern)
+- [🔄 Secret Rotation & Audit Logging](#🔄-secret-rotation-&-audit-logging)
+- [🛡️ Best Practices](#🛡️-best-practices)
+- [📝 Example: Secure API Client](#📝-example:-secure-api-client)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This guide explains how to securely manage secrets, credentials, and sensitive data in Sophia AI. It is designed for both AI coding agents and human developers.
 
@@ -25,7 +45,7 @@ This guide explains how to securely manage secrets, credentials, and sensitive d
   from backend.core.auto_esc_config import config
   openai_key = config.openai_api_key
   gong_key = config.gong_access_key
-  ```
+  ```python
 - **Never hardcode secrets or credentials in code or config files.**
 - **Never share secrets in chat, email, or documentation.**
 
@@ -55,7 +75,7 @@ This guide explains how to securely manage secrets, credentials, and sensitive d
 from backend.core.auto_esc_config import config
 import openai
 openai.api_key = config.openai_api_key
-```
+```python
 
 ---
 

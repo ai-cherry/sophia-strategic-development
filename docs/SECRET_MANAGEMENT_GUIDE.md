@@ -1,4 +1,84 @@
+---
+title: Sophia AI Secrets Management Guide
+description: 
+tags: mcp, security, gong, linear, database, docker
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Secrets Management Guide
+
+
+## Table of Contents
+
+- [🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**](#🔐-**permanent-secret-management-solution**)
+  - [**✅ What's Automated (No More Manual Work)**](#**✅-what's-automated-(no-more-manual-work)**)
+  - [**🔑 How It Works**](#**🔑-how-it-works**)
+  - [**📋 Required GitHub Organization Secrets**](#**📋-required-github-organization-secrets**)
+    - [**Infrastructure Secrets**](#**infrastructure-secrets**)
+    - [**AI Service Secrets**](#**ai-service-secrets**)
+    - [**Business Integration Secrets**](#**business-integration-secrets**)
+    - [**Data Infrastructure Secrets**](#**data-infrastructure-secrets**)
+    - [**Cloud Service Secrets**](#**cloud-service-secrets**)
+  - [**🚀 Quick Setup**](#**🚀-quick-setup**)
+  - [**🔧 Troubleshooting the Permanent Solution**](#**🔧-troubleshooting-the-permanent-solution**)
+    - [**"Secret not found" errors**](#**"secret-not-found"-errors**)
+    - [**"Pulumi ESC access denied"**](#**"pulumi-esc-access-denied"**)
+    - [**Backend can't load secrets**](#**backend-can't-load-secrets**)
+- [📚 **LEGACY DOCUMENTATION (For Reference Only)**](#📚-**legacy-documentation-(for-reference-only)**)
+- [Overview](#overview)
+- [Pulumi ESC (Environment Secrets and Configuration)](#pulumi-esc-(environment-secrets-and-configuration))
+  - [Configuration](#configuration)
+  - [Secret Groups](#secret-groups)
+  - [Access Control](#access-control)
+- [Environment Variables](#environment-variables)
+  - [.env Files](#.env-files)
+  - [Docker Environment Variables](#docker-environment-variables)
+- [GitHub Secrets](#github-secrets)
+  - [Setting Up GitHub Secrets](#setting-up-github-secrets)
+  - [GitHub Actions Usage](#github-actions-usage)
+- [Secret Rotation](#secret-rotation)
+  - [Rotation Procedure](#rotation-procedure)
+- [Tools](#tools)
+  - [1. `secrets_manager.py`](#1.-`secrets_manager.py`)
+  - [2. `setup_new_repo.py`](#2.-`setup_new_repo.py`)
+- [Secret Storage Locations](#secret-storage-locations)
+  - [1. Local .env Files](#1.-local-.env-files)
+  - [2. Pulumi ESC (Environment Secrets and Configuration)](#2.-pulumi-esc-(environment-secrets-and-configuration))
+  - [3. GitHub Secrets](#3.-github-secrets)
+- [Required Environment Variables](#required-environment-variables)
+  - [Core API Keys](#core-api-keys)
+  - [Slack Integration](#slack-integration)
+  - [Linear Integration](#linear-integration)
+  - [Gong Integration](#gong-integration)
+  - [Database Credentials](#database-credentials)
+  - [Vercel Integration](#vercel-integration)
+  - [Lambda Labs Integration](#lambda-labs-integration)
+  - [Vector Database Integration](#vector-database-integration)
+  - [Snowflake Integration](#snowflake-integration)
+  - [Estuary Integration](#estuary-integration)
+  - [Airbyte Integration](#airbyte-integration)
+  - [Environment Configuration](#environment-configuration)
+- [Optional Environment Variables](#optional-environment-variables)
+- [Usage Guide](#usage-guide)
+  - [Setting Up a New Repository](#setting-up-a-new-repository)
+  - [Managing Secrets in an Existing Repository](#managing-secrets-in-an-existing-repository)
+    - [Detecting Missing Environment Variables](#detecting-missing-environment-variables)
+    - [Importing Secrets from a .env File](#importing-secrets-from-a-.env-file)
+    - [Exporting Secrets to a .env File](#exporting-secrets-to-a-.env-file)
+    - [Syncing Secrets to Pulumi ESC](#syncing-secrets-to-pulumi-esc)
+    - [Syncing Secrets to GitHub](#syncing-secrets-to-github)
+    - [Validating Secret Configuration](#validating-secret-configuration)
+    - [Generating a Template .env File](#generating-a-template-.env-file)
+    - [Syncing All Secrets](#syncing-all-secrets)
+- [Best Practices](#best-practices)
+- [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Getting Help](#getting-help)
+- [Conclusion](#conclusion)
+- [🎯 **PERMANENT SOLUTION GUARANTEE**](#🎯-**permanent-solution-guarantee**)
 
 ## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**
 
@@ -14,15 +94,10 @@
 - ✅ Backend automatically loads all secrets
 
 ### **🔑 How It Works**
-```
-GitHub Organization Secrets (ai-cherry)
-           ↓
-    GitHub Actions (automatic sync)
-           ↓
-    Pulumi ESC Environments
-           ↓
-    Sophia AI Backend (automatic loading)
-```
+```python
+# Example usage:
+python
+```python
 
 ### **📋 Required GitHub Organization Secrets**
 
@@ -56,25 +131,9 @@ All secrets are managed in the [ai-cherry GitHub organization](https://github.co
 ### **🚀 Quick Setup**
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/ai-cherry/sophia-main.git
-cd sophia-main
-
-# 2. Set Pulumi organization
-export PULUMI_ORG=scoobyjava-org
-
-# 3. Set Pulumi access token
-export PULUMI_ACCESS_TOKEN=your_token_here
-
-# 4. Sync secrets from Pulumi ESC
-python scripts/setup_all_secrets_once.py
-
-# 5. Test everything works
-python scripts/test_permanent_solution.py
-
-# 6. Start developing - all secrets automatically available!
-python backend/main.py
-```
+# Example usage:
+bash
+```python
 
 ### **🔧 Troubleshooting the Permanent Solution**
 
@@ -123,22 +182,9 @@ Pulumi ESC provides centralized secret management for the Sophia AI system. It o
 The Pulumi ESC configuration is defined in `pulumi-esc-environment.yaml`:
 
 ```yaml
-name: sophia-esc
-description: SOPHIA AI System Encrypted Secrets Configuration
-organization: payready
-
-environments:
-  - name: development
-  - name: staging
-  - name: production
-
-secretGroups:
-  - name: api-keys
-  - name: database-credentials
-  - name: security-tokens
-  - name: integration-credentials
-  - name: infrastructure-credentials
-```
+# Example usage:
+yaml
+```python
 
 ### Secret Groups
 
@@ -155,22 +201,9 @@ Secrets are organized into logical groups:
 Access to secrets is controlled through access policies defined in `pulumi-esc-environment.yaml`:
 
 ```yaml
-accessPolicies:
-  - name: admin-access
-    secretGroups:
-      - api-keys
-      - database-credentials
-      - security-tokens
-      - integration-credentials
-      - infrastructure-credentials
-    environments:
-      - development
-      - staging
-      - production
-    identities:
-      - type: user
-        name: admin@payready.com
-```
+# Example usage:
+yaml
+```python
 
 ## Environment Variables
 
@@ -182,28 +215,19 @@ For local development, a `.env` file can be used to store environment variables.
 
 A template file (`env.example`) is provided with placeholder values:
 
-```
-# API Keys
-OPENAI_API_KEY=your_openai_api_key_here
-PINECONE_API_KEY=your_pinecone_api_key_here
-
-# Database Credentials
-POSTGRES_PASSWORD=your_postgres_password_here
-REDIS_PASSWORD=your_redis_password_here
-```
+```python
+# Example usage:
+python
+```python
 
 ### Docker Environment Variables
 
 For Docker deployments, environment variables are defined in `docker-compose.yml`:
 
 ```yaml
-services:
-  sophia-api:
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PINECONE_API_KEY=${PINECONE_API_KEY}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sophia
-```
+# Example usage:
+yaml
+```python
 
 ## GitHub Secrets
 
@@ -214,30 +238,18 @@ GitHub Actions workflows use secrets stored in the GitHub repository settings.
 Use the `configure_github_secrets.py` script to set up GitHub secrets:
 
 ```bash
-# Install required packages
-pip install PyGithub pynacl
-
-# Configure secrets from .env file
-python configure_github_secrets.py --env-file .env --repo payready/sophia
-```
+# Example usage:
+bash
+```python
 
 ### GitHub Actions Usage
 
 In GitHub Actions workflows, secrets are accessed using the `${{ secrets.SECRET_NAME }}` syntax:
 
 ```yaml
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to production
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-        run: python scripts/deploy_production_mcp.py
-```
+# Example usage:
+yaml
+```python
 
 ## Secret Rotation
 
@@ -256,155 +268,8 @@ Secrets should be rotated regularly according to the following schedule:
 1. Generate new credentials in the external service
 2. Update the secret in Pulumi ESC:
    ```bash
-   ./configure_pulumi_esc.sh import-env .env.new
-   ```
-3. Sync the secret to GitHub:
-   ```bash
-   ./configure_pulumi_esc.sh sync
-   ```
-4. Deploy the application with the new secrets
-5. Verify functionality with the new secrets
-6. Revoke the old credentials in the external service
-
-## Tools
-
-The secrets management system includes the following tools:
-
-### 1. `secrets_manager.py`
-
-A comprehensive script for managing secrets and environment variables. It can:
-
-- Detect missing environment variables
-- Import secrets from various sources (.env files, Pulumi ESC, GitHub)
-- Export secrets to various destinations (.env files, Pulumi ESC, GitHub)
-- Validate secret configurations
-- Generate template .env files
-- Sync secrets across different environments
-
-### 2. `setup_new_repo.py`
-
-A script to automate the setup of a new Sophia AI repository with all the necessary secrets and configurations. It:
-
-- Creates a new directory for the repository
-- Initializes a Git repository
-- Copies the secrets_manager.py script
-- Imports secrets from a master .env file or Pulumi ESC
-- Sets up the necessary configuration files
-- Creates a README.md file with setup instructions
-
-## Secret Storage Locations
-
-The secrets management system supports multiple storage locations:
-
-### 1. Local .env Files
-
-- **Purpose**: Development environments and local testing
-- **Format**: Key-value pairs in a .env file
-- **Security**: Not committed to Git (included in .gitignore)
-- **Usage**: Loaded by the application at runtime
-
-### 2. Pulumi ESC (Environment Secrets and Configuration)
-
-- **Purpose**: Centralized secret management for all environments
-- **Format**: JSON object stored in Pulumi's secure storage
-- **Security**: Encrypted at rest and in transit
-- **Usage**: Accessed via Pulumi API or CLI
-
-### 3. GitHub Secrets
-
-- **Purpose**: CI/CD pipelines and GitHub Actions
-- **Format**: Key-value pairs stored in GitHub repository settings
-- **Security**: Encrypted at rest and masked in logs
-- **Usage**: Accessed via GitHub Actions environment variables
-
-## Required Environment Variables
-
-The following environment variables are required for Sophia AI to function properly:
-
-### Core API Keys
-
-- `ANTHROPIC_API_KEY`: Claude API key for AI capabilities
-- `OPENAI_API_KEY`: OpenAI API key for AI capabilities (optional)
-- `PULUMI_ACCESS_TOKEN`: Pulumi access token for infrastructure management
-
-### Slack Integration
-
-- `SLACK_BOT_TOKEN`: Slack bot token for Slack integration
-- `SLACK_APP_TOKEN`: Slack app token for Slack integration
-- `SLACK_SIGNING_SECRET`: Slack signing secret for Slack integration
-
-### Linear Integration
-
-- `LINEAR_API_TOKEN`: Linear API token for project management integration
-- `LINEAR_WORKSPACE_ID`: Linear workspace ID for project management integration
-
-### Gong Integration
-
-- `GONG_CLIENT_ID`: Gong client ID for call analysis integration
-- `GONG_CLIENT_SECRET`: Gong client secret for call analysis integration
-
-### Database Credentials
-
-- `POSTGRES_USER`: PostgreSQL username
-- `POSTGRES_PASSWORD`: PostgreSQL password
-- `POSTGRES_DB`: PostgreSQL database name
-
-### Vercel Integration
-
-- `VERCEL_ACCESS_TOKEN`: Vercel access token for deployment integration
-- `VERCEL_TEAM_ID`: Vercel team ID for deployment integration
-
-### Lambda Labs Integration
-
-- `LAMBDA_LABS_API_KEY`: Lambda Labs API key for compute resources
-
-### Vector Database Integration
-
-- `PINECONE_API_KEY`: Pinecone API key for vector database
-- `WEAVIATE_API_KEY`: Weaviate API key for vector database
-
-### Snowflake Integration
-
-- `SNOWFLAKE_ACCOUNT`: Snowflake account identifier
-- `SNOWFLAKE_USER`: Snowflake username
-- `SNOWFLAKE_PASSWORD`: Snowflake password
-- `SNOWFLAKE_DATABASE`: Snowflake database name
-
-### Estuary Integration
-
-- `ESTUARY_API_KEY`: Estuary API key for data flow management
-
-### Airbyte Integration
-
-- `AIRBYTE_API_KEY`: Airbyte API key for data integration
-
-### Environment Configuration
-
-- `SOPHIA_ENVIRONMENT`: Environment name (development, staging, production)
-- `PULUMI_ORGANIZATION`: Pulumi organization name
-- `PULUMI_PROJECT`: Pulumi project name
-
-## Optional Environment Variables
-
-The following environment variables are optional and have default values:
-
-- `CLAUDE_MODEL`: Claude model to use (default: claude-3-5-sonnet-20241022)
-- `CLAUDE_MAX_TOKENS`: Maximum tokens for Claude responses (default: 4096)
-- `CLAUDE_ORGANIZATION_ID`: Claude organization ID (default: sophia-ai)
-- `OPENAI_MODEL`: OpenAI model to use (default: gpt-4-turbo)
-- `OPENAI_MAX_TOKENS`: Maximum tokens for OpenAI responses (default: 4096)
-- `REDIS_URL`: Redis URL (default: redis://localhost:6379)
-- `POSTGRES_HOST`: PostgreSQL host (default: localhost)
-- `POSTGRES_PORT`: PostgreSQL port (default: 5432)
-- `LOG_LEVEL`: Logging level (default: INFO)
-- `SSL_CERT_FILE`: SSL certificate file path
-
-## Usage Guide
-
-### Setting Up a New Repository
-
-To set up a new repository with all the necessary secrets and configurations:
-
+# Example usage:
+bash
 ```bash
 # Create a new repository with a specific name
 ./setup_new_repo.py --name sophia-new-repo
@@ -414,71 +279,47 @@ To set up a new repository with all the necessary secrets and configurations:
 
 # Create a new repository and import secrets from Pulumi ESC
 ./setup_new_repo.py --name sophia-new-repo --from-pulumi
-```
-
-### Managing Secrets in an Existing Repository
-
-#### Detecting Missing Environment Variables
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py detect-missing
-```
-
-This command will check for missing required environment variables and display them with their descriptions.
-
-#### Importing Secrets from a .env File
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py import-from-env --env-file .env
-```
-
-This command will import environment variables from a .env file and add them to the current environment.
-
-#### Exporting Secrets to a .env File
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py export-to-env --env-file .env.new
-```
-
-This command will export the current environment variables to a .env file, organized by category.
-
-#### Syncing Secrets to Pulumi ESC
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py sync-to-pulumi
-```
-
-This command will sync the current environment variables to Pulumi ESC, making them available to all repositories and environments.
-
-#### Syncing Secrets to GitHub
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py sync-to-github
-```
-
-This command will sync the current environment variables to GitHub Secrets, making them available to GitHub Actions.
-
-#### Validating Secret Configuration
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py validate
-```
-
-This command will validate the current configuration, checking for missing required variables and displaying a summary of the configuration.
-
-#### Generating a Template .env File
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py generate-template --output-file env.template
-```
-
-This command will generate a template .env file with all required and optional variables, with sensitive values masked.
-
-#### Syncing All Secrets
-
+```python
+# Example usage:
+python
 ```bash
 ./secrets_manager.py sync-all
-```
+```python
 
 This command will sync all secrets to all destinations: .env file, Pulumi ESC, and GitHub Secrets.
 

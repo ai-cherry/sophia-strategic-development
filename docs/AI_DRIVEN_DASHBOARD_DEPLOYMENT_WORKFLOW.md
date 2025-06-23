@@ -1,4 +1,24 @@
+---
+title: The AI-Driven Dashboard Deployment Workflow
+description: **Date:** December 20, 2024 **Status:** The Official Continuous Deployment Strategy for the Sophia Dashboard
+tags: mcp, security, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # The AI-Driven Dashboard Deployment Workflow
+
+
+## Table of Contents
+
+- [1. The Goal: Zero-Touch, AI-Orchestrated Frontend Deployment](#1.-the-goal:-zero-touch,-ai-orchestrated-frontend-deployment)
+- [2. The Workflow Visualized](#2.-the-workflow-visualized)
+- [3. The Core Components](#3.-the-core-components)
+  - [The `FrontendOps Agent`](#the-`frontendops-agent`)
+  - [The Key Tools (MCP Servers)](#the-key-tools-(mcp-servers))
+- [4. How It Works in Practice](#4.-how-it-works-in-practice)
+- [Conclusion](#conclusion)
 
 **Date:** December 20, 2024
 **Status:** The Official Continuous Deployment Strategy for the Sophia Dashboard
@@ -12,37 +32,9 @@ This document describes the modern, AI-driven workflow that replaces manual fron
 ## 2. The Workflow Visualized
 
 ```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Git as GitHub Repository
-    participant Action as GitHub Action
-    participant Agent as FrontendOps Agent
-    participant Pulumi as Pulumi MCP Server
-    participant AWS as AWS (S3/CloudFront)
-
-    Dev->>+Git: Push changes to `sophia-dashboard/`
-    Git->>+Action: Trigger "Build Sophia Dashboard" workflow
-    Action->>Action: Run `npm ci` and `npm run build`
-    Action->>AWS: `aws s3 sync ./dist s3://sophia-dashboard-build-artifacts/`
-    Action-->>-Git: Build successful
-
-    Note over Agent: A new build is ready. Deployment can be triggered.
-
-    Dev->>+Agent: "Deploy the latest version of the dashboard"
-    Agent->>+Pulumi: "Get the output 'deployment_sync_command' from the 'dashboard-hosting-prod' stack"
-    Pulumi-->>-Agent: "aws s3 sync s3://sophia-dashboard-build-artifacts/ s3://sophia-dashboard-hosting-bucket-xyz/"
-
-    Agent->>+Agent: Execute the received AWS CLI command
-    Note over Agent: Agent runs the sync command in its secure environment
-
-    Agent->>+AWS: Sync files from build bucket to hosting bucket
-    AWS-->>-Agent: Sync complete
-
-    Agent->>+Pulumi: "Trigger an invalidation for the 'sophia-dashboard-cdn' CloudFront distribution"
-    Pulumi-->>-Agent: "Invalidation request created"
-
-    Agent-->>-Dev: "Deployment complete. The latest version is now live."
-```
+# Example usage:
+mermaid
+```python
 
 ---
 

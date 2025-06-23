@@ -1,4 +1,55 @@
+---
+title: Sophia AI Platform - Deployment Configuration Guide
+description: 
+tags: mcp, security, kubernetes, deployment, monitoring, database, docker
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Platform - Deployment Configuration Guide
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Current Infrastructure Configuration](#current-infrastructure-configuration)
+  - [Lambda Labs Server Specifications](#lambda-labs-server-specifications)
+  - [SSH Key Strategy](#ssh-key-strategy)
+    - [Current Active Configuration](#current-active-configuration)
+    - [Available SSH Keys](#available-ssh-keys)
+    - [Key Management Best Practices](#key-management-best-practices)
+- [Pulumi Configuration](#pulumi-configuration)
+  - [Current Stack Configuration](#current-stack-configuration)
+  - [Required Configuration Values](#required-configuration-values)
+  - [Deployment Commands](#deployment-commands)
+- [GitHub Organization Secrets](#github-organization-secrets)
+  - [Verified Access](#verified-access)
+  - [Key Secrets for Sophia AI](#key-secrets-for-sophia-ai)
+  - [Secret Management Flow](#secret-management-flow)
+- [MCP Server Integrations](#mcp-server-integrations)
+  - [Configured MCP Servers](#configured-mcp-servers)
+  - [Service Integration Registry](#service-integration-registry)
+  - [Integration Configuration](#integration-configuration)
+- [Performance Optimization Opportunities](#performance-optimization-opportunities)
+  - [Current Server Analysis](#current-server-analysis)
+  - [Upgrade Options Available](#upgrade-options-available)
+  - [Optimization Recommendations](#optimization-recommendations)
+- [Deployment Verification Checklist](#deployment-verification-checklist)
+  - [Pre-Deployment](#pre-deployment)
+  - [Post-Deployment](#post-deployment)
+  - [Troubleshooting](#troubleshooting)
+- [Security Best Practices](#security-best-practices)
+  - [Secret Management](#secret-management)
+  - [Access Control](#access-control)
+  - [Network Security](#network-security)
+- [Maintenance Schedule](#maintenance-schedule)
+  - [Weekly](#weekly)
+  - [Monthly](#monthly)
+  - [Quarterly](#quarterly)
+- [Contact and Support](#contact-and-support)
+  - [Team Responsibilities](#team-responsibilities)
+  - [Emergency Procedures](#emergency-procedures)
 
 ## Overview
 
@@ -50,19 +101,15 @@ This document provides comprehensive configuration details for the Sophia AI pla
 
 ### Required Configuration Values
 ```bash
-LAMBDA_CONTROL_PLANE_IP=170.9.9.253
-LAMBDA_SSH_KEY_NAME=cherry-ai-key
-LAMBDA_API_KEY=[SECRET]
-LAMBDA_SSH_PRIVATE_KEY=[SECRET]
-PULUMI_ORG=scoobyjava-org
-```
+# Example usage:
+bash
+```python
 
 ### Deployment Commands
 ```bash
-cd infrastructure
-pulumi stack select sophia-prod-on-lambda
-pulumi up --yes
-```
+# Example usage:
+bash
+```python
 
 ## GitHub Organization Secrets
 

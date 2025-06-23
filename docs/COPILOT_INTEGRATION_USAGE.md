@@ -1,4 +1,21 @@
+---
+title: Sophia AI - Copilot Integration Usage
+description: Sophia AI leverages Pulumi's AI‑Copilot to provide automated suggestions when infrastructure operations fail. This feature is available through the `PulumiAgent` and the `pulumi_mcp_client`.
+tags: mcp, docker, security, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Copilot Integration Usage
+
+
+## Table of Contents
+
+- [Getting Suggestions](#getting-suggestions)
+- [Typical Workflow](#typical-workflow)
+- [Troubleshooting](#troubleshooting)
+- [Maintenance](#maintenance)
 
 Sophia AI leverages Pulumi's AI‑Copilot to provide automated suggestions when infrastructure operations fail.
 This feature is available through the `PulumiAgent` and the `pulumi_mcp_client`.
@@ -8,12 +25,9 @@ This feature is available through the `PulumiAgent` and the `pulumi_mcp_client`.
 Use the Pulumi agent to request fixes when a command fails:
 
 ```python
-from backend.agents.pulumi_agent import PulumiAgent
-
-agent = PulumiAgent()
-result = await agent.handle_command("fix error: resource not found", session_id="123")
-print(result)
-```
+# Example usage:
+python
+```python
 
 The agent collects the most recent error from context and calls `/api/copilot/suggestions` on the Pulumi MCP server.
 

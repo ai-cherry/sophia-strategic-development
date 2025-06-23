@@ -1,4 +1,52 @@
+---
+title: Sophia AI Integration Management Guide
+description: This guide provides comprehensive instructions for managing integrations with external services in the Sophia AI platform.
+tags: security, gong, monitoring, database
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Integration Management Guide
+
+
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Overview](#overview)
+- [Integration Architecture](#integration-architecture)
+- [Snowflake Integration](#snowflake-integration)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Best Practices](#best-practices)
+- [Gong Integration](#gong-integration)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Best Practices](#best-practices)
+- [Vercel Integration](#vercel-integration)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Best Practices](#best-practices)
+- [Estuary Integration](#estuary-integration)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+  - [Best Practices](#best-practices)
+- [Secret Management](#secret-management)
+  - [Adding a New Secret](#adding-a-new-secret)
+  - [Rotating Secrets](#rotating-secrets)
+- [Testing Integrations](#testing-integrations)
+  - [Running Tests](#running-tests)
+  - [Adding Tests](#adding-tests)
+- [Monitoring and Alerting](#monitoring-and-alerting)
+  - [Setting Up Monitoring](#setting-up-monitoring)
+  - [Setting Up Alerting](#setting-up-alerting)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+    - [Snowflake](#snowflake)
+    - [Gong](#gong)
+    - [Vercel](#vercel)
+    - [Estuary](#estuary)
+  - [Getting Help](#getting-help)
 
 This guide provides comprehensive instructions for managing integrations with external services in the Sophia AI platform.
 
@@ -32,21 +80,9 @@ The integration architecture follows these principles:
 The integration architecture is implemented as follows:
 
 ```mermaid
-graph TD
-    A[Sophia AI] --> B[Integration Layer]
-    B --> C[Snowflake]
-    B --> D[Gong]
-    B --> E[Vercel]
-    B --> F[Estuary]
-    G[Pulumi IaC] --> C
-    G --> D
-    G --> E
-    G --> F
-    H[Monitoring] --> C
-    H --> D
-    H --> E
-    H --> F
-```
+# Example usage:
+mermaid
+```python
 
 ## Snowflake Integration
 
@@ -64,21 +100,9 @@ Snowflake is configured using Pulumi IaC. The configuration includes:
 To use Snowflake in your code:
 
 ```python
-import snowflake.connector
-
-def connect_to_snowflake():
-    """Connect to Snowflake"""
-    conn = snowflake.connector.connect(
-        account=os.environ.get("SNOWFLAKE_ACCOUNT"),
-        user=os.environ.get("SNOWFLAKE_USER"),
-        password=os.environ.get("SNOWFLAKE_PASSWORD"),
-        warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE"),
-        database=os.environ.get("SNOWFLAKE_DATABASE"),
-        schema=os.environ.get("SNOWFLAKE_SCHEMA"),
-        role=os.environ.get("SNOWFLAKE_ROLE")
-    )
-    return conn
-```
+# Example usage:
+python
+```python
 
 ### Best Practices
 
@@ -102,17 +126,9 @@ Gong is configured using Pulumi IaC. The configuration includes:
 To use Gong in your code:
 
 ```python
-import requests
-
-def get_gong_workspaces():
-    """Get Gong workspaces"""
-    response = requests.get(
-        "https://us-70092.api.gong.io/v2/workspaces",
-        auth=(os.environ.get("GONG_API_KEY"), os.environ.get("GONG_API_SECRET"))
-    )
-    response.raise_for_status()
-    return response.json()
-```
+# Example usage:
+python
+```python
 
 ### Best Practices
 
@@ -136,26 +152,9 @@ Vercel is configured using Pulumi IaC. The configuration includes:
 To use Vercel in your code:
 
 ```python
-import requests
-
-def get_vercel_deployments():
-    """Get Vercel deployments"""
-    headers = {
-        "Authorization": f"Bearer {os.environ.get('VERCEL_ACCESS_TOKEN')}",
-        "Content-Type": "application/json"
-    }
-    params = {}
-    if os.environ.get("VERCEL_TEAM_ID"):
-        params["teamId"] = os.environ.get("VERCEL_TEAM_ID")
-
-    response = requests.get(
-        "https://api.vercel.com/v6/deployments",
-        headers=headers,
-        params=params
-    )
-    response.raise_for_status()
-    return response.json()
-```
+# Example usage:
+python
+```python
 
 ### Best Practices
 
@@ -179,21 +178,9 @@ Estuary is configured using Pulumi IaC. The configuration includes:
 To use Estuary in your code:
 
 ```python
-import requests
-
-def get_estuary_collections():
-    """Get Estuary collections"""
-    headers = {
-        "Authorization": f"Bearer {os.environ.get('ESTUARY_API_KEY')}",
-        "Content-Type": "application/json"
-    }
-    response = requests.get(
-        f"{os.environ.get('ESTUARY_API_URL', 'https://api.estuary.tech')}/collections",
-        headers=headers
-    )
-    response.raise_for_status()
-    return response.json()
-```
+# Example usage:
+python
+```python
 
 ### Best Practices
 
@@ -214,9 +201,9 @@ To add a new secret:
 2. Import the secret to Pulumi ESC:
 
 ```bash
-cd infrastructure
-./import_secrets.sh ../.env development
-```
+# Example usage:
+bash
+```python
 
 ### Rotating Secrets
 
@@ -227,9 +214,9 @@ Secrets are rotated automatically every 90 days using GitHub Actions. To manuall
 3. Import the secret to Pulumi ESC:
 
 ```bash
-cd infrastructure
-./import_secrets.sh ../.env development
-```
+# Example usage:
+bash
+```python
 
 ## Testing Integrations
 
@@ -240,17 +227,16 @@ Integrations are tested using the unified integration test framework. This ensur
 To run all integration tests:
 
 ```bash
-./test_all_integrations.sh
-```
+# Example usage:
+bash
+```python
 
 To run specific integration tests:
 
 ```bash
-./test_all_integrations.sh --snowflake  # Run only Snowflake tests
-./test_all_integrations.sh --gong       # Run only Gong tests
-./test_all_integrations.sh --vercel     # Run only Vercel tests
-./test_all_integrations.sh --estuary    # Run only Estuary tests
-```
+# Example usage:
+bash
+```python
 
 ### Adding Tests
 

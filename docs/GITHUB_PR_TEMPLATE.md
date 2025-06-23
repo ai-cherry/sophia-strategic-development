@@ -1,4 +1,35 @@
+---
+title: Sophia AI Codebase Cleanup - Phase [X]
+description: 
+tags: mcp, security, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Codebase Cleanup - Phase [X]
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Changes Made](#changes-made)
+  - [Phase 1: Remove Vendored Dependencies _(if applicable)_](#phase-1:-remove-vendored-dependencies-_(if-applicable)_)
+  - [Phase 2: Fix Directory Structure _(if applicable)_](#phase-2:-fix-directory-structure-_(if-applicable)_)
+  - [Phase 3: Consolidate Dependencies _(if applicable)_](#phase-3:-consolidate-dependencies-_(if-applicable)_)
+  - [Phase 4: Remove Dead Code _(if applicable)_](#phase-4:-remove-dead-code-_(if-applicable)_)
+  - [Phase 5: Git History Cleanup _(if applicable)_](#phase-5:-git-history-cleanup-_(if-applicable)_)
+- [Testing Checklist](#testing-checklist)
+  - [Backend Tests](#backend-tests)
+  - [Frontend Tests](#frontend-tests)
+  - [Integration Tests](#integration-tests)
+  - [CI/CD](#ci-cd)
+- [Size Impact](#size-impact)
+- [Breaking Changes](#breaking-changes)
+- [Documentation Updates](#documentation-updates)
+- [Rollback Plan](#rollback-plan)
+- [Additional Notes](#additional-notes)
+- [Reviewers Checklist](#reviewers-checklist)
 
 ## Overview
 This PR implements Phase [X] of the codebase cleanup as outlined in the cleanup plan.

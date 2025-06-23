@@ -1,4 +1,21 @@
+---
+title: VSCode Shell Configuration for Cline
+description: 
+tags: 
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # VSCode Shell Configuration for Cline
+
+
+## Table of Contents
+
+- [Setting zsh as Default Shell in VSCode](#setting-zsh-as-default-shell-in-vscode)
+- [Alternative Method (Settings JSON)](#alternative-method-(settings-json))
+- [Verifying Shell Integration](#verifying-shell-integration)
+- [Troubleshooting](#troubleshooting)
 
 ## Setting zsh as Default Shell in VSCode
 
@@ -21,16 +38,9 @@
 You can also add this to your VSCode settings:
 
 ```json
-{
-  "terminal.integrated.defaultProfile.osx": "zsh",
-  "terminal.integrated.profiles.osx": {
-    "zsh": {
-      "path": "/bin/zsh",
-      "args": ["-l"]
-    }
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ## Verifying Shell Integration
 

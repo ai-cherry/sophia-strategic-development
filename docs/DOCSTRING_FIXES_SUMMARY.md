@@ -1,4 +1,25 @@
+---
+title: Docstring Fixes Summary
+description: 
+tags: 
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Docstring Fixes Summary
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Changes Applied](#changes-applied)
+- [Script Features](#script-features)
+- [Usage](#usage)
+- [Known Issues](#known-issues)
+- [Documentation](#documentation)
+- [Next Steps](#next-steps)
+- [Impact](#impact)
 
 ## Overview
 Successfully applied docstring formatting fixes across the entire Sophia AI codebase using the `scripts/fix_all_docstrings.py` tool.
@@ -19,15 +40,9 @@ The docstring fixer script (`scripts/fix_all_docstrings.py`) includes:
 
 ## Usage
 ```bash
-# Test mode (no changes)
-python scripts/fix_all_docstrings.py . --dry-run
-
-# Apply fixes
-python scripts/fix_all_docstrings.py .
-
-# Fix specific file
-python scripts/fix_all_docstrings.py path/to/file.py
-```
+# Example usage:
+bash
+```python
 
 ## Known Issues
 Some files had pre-existing syntax errors in their docstrings that were exposed when the fixer added proper formatting. These files will need manual review:

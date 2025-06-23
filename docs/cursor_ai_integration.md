@@ -1,4 +1,59 @@
+---
+title: Sophia AI - Cursor AI Integration Guide
+description: 
+tags: mcp, security, gong, monitoring, database, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Cursor AI Integration Guide
+
+
+## Table of Contents
+
+- [🎯 **ENHANCED CURSOR AI INTEGRATION WITH PERMANENT SECRET MANAGEMENT**](#🎯-**enhanced-cursor-ai-integration-with-permanent-secret-management**)
+- [🔐 **PERMANENT SECRET MANAGEMENT INTEGRATION**](#🔐-**permanent-secret-management-integration**)
+  - [**Zero Manual Configuration Required**](#**zero-manual-configuration-required**)
+  - [**✅ What's Automated for Cursor AI**](#**✅-what's-automated-for-cursor-ai**)
+  - [**🔑 Cursor AI Secret Access Pattern**](#**🔑-cursor-ai-secret-access-pattern**)
+- [🚀 **Quick Setup for Cursor AI**](#🚀-**quick-setup-for-cursor-ai**)
+  - [**1. One-Time Setup**](#**1.-one-time-setup**)
+  - [**2. Start Development in Cursor AI**](#**2.-start-development-in-cursor-ai**)
+- [🛠️ **Cursor AI Natural Language Commands**](#🛠️-**cursor-ai-natural-language-commands**)
+  - [**Infrastructure Management Commands**](#**infrastructure-management-commands**)
+  - [**MCP Server Integration Commands**](#**mcp-server-integration-commands**)
+  - [**Development Workflow**](#**development-workflow**)
+  - [**Security Best Practices**](#**security-best-practices**)
+  - [**Troubleshooting Commands**](#**troubleshooting-commands**)
+- [🏗️ **Enhanced Cursor AI Development Patterns**](#🏗️-**enhanced-cursor-ai-development-patterns**)
+  - [**Automatic Configuration Access**](#**automatic-configuration-access**)
+  - [**Natural Language Infrastructure Commands**](#**natural-language-infrastructure-commands**)
+  - [Backend Configuration Integration Commands](#backend-configuration-integration-commands)
+    - [Configuration Management](#configuration-management)
+    - [Secret Management with Backend Integration](#secret-management-with-backend-integration)
+    - [Integration Testing Commands](#integration-testing-commands)
+    - [Advanced Backend Operations](#advanced-backend-operations)
+  - [Natural Language Command Patterns for Backend Integration](#natural-language-command-patterns-for-backend-integration)
+    - [Conditional Operations](#conditional-operations)
+    - [Batch Operations](#batch-operations)
+    - [Troubleshooting Operations](#troubleshooting-operations)
+  - [MCP Agent Integration with Backend Configuration](#mcp-agent-integration-with-backend-configuration)
+    - [Dynamic MCP Operations](#dynamic-mcp-operations)
+    - [Natural Language MCP Commands](#natural-language-mcp-commands)
+  - [Error Handling and Recovery Patterns](#error-handling-and-recovery-patterns)
+    - [Automatic Fallbacks](#automatic-fallbacks)
+    - [Error Diagnostics](#error-diagnostics)
+  - [Performance and Monitoring Integration](#performance-and-monitoring-integration)
+    - [Performance Metrics](#performance-metrics)
+    - [Optimization Features](#optimization-features)
+  - [Security Best Practices with Backend Integration](#security-best-practices-with-backend-integration)
+    - [Secret Security](#secret-security)
+    - [Access Control](#access-control)
+  - [Development Workflow with Enhanced Backend](#development-workflow-with-enhanced-backend)
+  - [Best Practices for Backend Configuration Integration](#best-practices-for-backend-configuration-integration)
+- [🎯 **Success Indicators for Cursor AI**](#🎯-**success-indicators-for-cursor-ai**)
+- [🔒 **Security Guarantee for Cursor AI**](#🔒-**security-guarantee-for-cursor-ai**)
 
 ## 🎯 **ENHANCED CURSOR AI INTEGRATION WITH PERMANENT SECRET MANAGEMENT**
 
@@ -9,17 +64,10 @@ This guide demonstrates how to leverage Sophia AI's **PERMANENT GitHub Organizat
 ### **Zero Manual Configuration Required**
 Sophia AI now uses a **PERMANENT** secret management solution that eliminates all manual secret handling:
 
-```
-GitHub Organization Secrets (ai-cherry)
-           ↓
-    GitHub Actions (automatic sync)
-           ↓
-    Pulumi ESC Environments
-           ↓
-    Sophia AI Backend (automatic loading)
-           ↓
-    Cursor AI (automatic access)
-```
+```python
+# Example usage:
+python
+```python
 
 ### **✅ What's Automated for Cursor AI**
 - ✅ All API keys automatically available
@@ -30,46 +78,23 @@ GitHub Organization Secrets (ai-cherry)
 
 ### **🔑 Cursor AI Secret Access Pattern**
 ```python
-# Cursor AI automatically accesses secrets through ESC
-from backend.core.auto_esc_config import config
-
-# All secrets automatically available in Cursor AI
-openai_key = config.openai_api_key
-gong_key = config.gong_access_key
-slack_token = config.slack_bot_token
-```
+# Example usage:
+python
+```python
 
 ## 🚀 **Quick Setup for Cursor AI**
 
 ### **1. One-Time Setup**
 ```bash
-# Clone and setup (only needed once)
-git clone https://github.com/ai-cherry/sophia-main.git
-cd sophia-main
-
-# Set Pulumi organization
-export PULUMI_ORG=scoobyjava-org
-
-# Set Pulumi access token
-export PULUMI_ACCESS_TOKEN=your_token_here
-
-# Sync secrets from Pulumi ESC
-python scripts/setup_all_secrets_once.py
-
-# Test everything works
-python scripts/test_permanent_solution.py
-```
+# Example usage:
+bash
+```python
 
 ### **2. Start Development in Cursor AI**
 ```bash
-# Start backend (automatically loads all secrets)
-python backend/main.py
-
-# Start frontend
-cd frontend && npm run dev
-
-# All integrations work immediately - no configuration needed!
-```
+# Example usage:
+bash
+```python
 
 ## 🛠️ **Cursor AI Natural Language Commands**
 
@@ -106,32 +131,15 @@ cd frontend && npm run dev
 
 ### **Automatic Configuration Access**
 ```python
-# Cursor AI can immediately use any service
-from backend.core.auto_esc_config import config
-
-# All these work automatically without setup:
-gong_client = GongClient(
-    access_key=config.gong_access_key,
-    client_secret=config.gong_client_secret
-)
-
-slack_client = SlackClient(token=config.slack_bot_token)
-snowflake_client = SnowflakeClient(
-    account=config.snowflake_account,
-    user=config.snowflake_user,
-    password=config.snowflake_password
-)
-```
+# Example usage:
+python
+```python
 
 ### **Natural Language Infrastructure Commands**
 ```bash
-# These commands work immediately in Cursor AI:
-"Deploy to Lambda Labs with A100 GPU"
-"Query Snowflake for recent sales data"
-"Send Slack notification about deployment"
-"Analyze Gong calls from this week"
-"Update Pinecone vector index"
-```
+# Example usage:
+bash
+```python
 
 ### Backend Configuration Integration Commands
 When working with backend configuration, use these enhanced patterns:

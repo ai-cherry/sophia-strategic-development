@@ -1,4 +1,50 @@
+---
+title: 🚀 Sophia AI Development Environment Setup
+description: 
+tags: security, onboarding, monitoring
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # 🚀 Sophia AI Development Environment Setup
+
+
+## Table of Contents
+
+- [🎯 PROBLEM SOLVED: AI Tools Virtual Environment Issues](#🎯-problem-solved:-ai-tools-virtual-environment-issues)
+- [✅ AUTOMATED SOLUTION IMPLEMENTED](#✅-automated-solution-implemented)
+  - [**1. Direnv Auto-Activation (PERMANENT FIX)**](#**1.-direnv-auto-activation-(permanent-fix)**)
+  - [**2. Universal Environment Enforcer**](#**2.-universal-environment-enforcer**)
+  - [**3. Environment Validation**](#**3.-environment-validation**)
+- [🔧 SETUP COMPLETE - WHAT WAS INSTALLED](#🔧-setup-complete---what-was-installed)
+  - [**Direnv Installation**](#**direnv-installation**)
+  - [**Project Files Created**](#**project-files-created**)
+- [🎯 HOW IT WORKS](#🎯-how-it-works)
+  - [**Automatic Activation**](#**automatic-activation**)
+  - [**AI Tool Protection**](#**ai-tool-protection**)
+  - [**Multiple Safety Layers**](#**multiple-safety-layers**)
+- [💻 USAGE FOR DEVELOPERS](#💻-usage-for-developers)
+  - [**Normal Development (Zero Extra Steps)**](#**normal-development-(zero-extra-steps)**)
+  - [**AI Tool Integration**](#**ai-tool-integration**)
+  - [**Manual Environment Check (If Needed)**](#**manual-environment-check-(if-needed)**)
+- [��️ TROUBLESHOOTING](#��️-troubleshooting)
+  - [**If Auto-Activation Stops Working**](#**if-auto-activation-stops-working**)
+  - [**If AI Tools Still Use Wrong Python**](#**if-ai-tools-still-use-wrong-python**)
+  - [**If Dependencies Are Missing**](#**if-dependencies-are-missing**)
+- [🔬 VERIFICATION TESTS](#🔬-verification-tests)
+  - [**Test 1: Directory Entry**](#**test-1:-directory-entry**)
+  - [**Test 2: Python Path**](#**test-2:-python-path**)
+  - [**Test 3: Environment Variables**](#**test-3:-environment-variables**)
+  - [**Test 4: Validation Script**](#**test-4:-validation-script**)
+- [🎉 BENEFITS ACHIEVED](#🎉-benefits-achieved)
+  - [**For You**](#**for-you**)
+  - [**For AI Tools**](#**for-ai-tools**)
+  - [**For Team Development**](#**for-team-development**)
+- [🚀 ADVANCED FEATURES](#🚀-advanced-features)
+  - [**Environment Variables Set Automatically**](#**environment-variables-set-automatically**)
+  - [**Intelligent Health Monitoring**](#**intelligent-health-monitoring**)
+- [🎯 SUMMARY](#🎯-summary)
 
 ## 🎯 PROBLEM SOLVED: AI Tools Virtual Environment Issues
 
@@ -25,30 +71,23 @@ This setup **permanently fixes** the issue where AI coding tools constantly kick
 
 ### **Direnv Installation**
 ```bash
-✅ brew install direnv                    # Installed
-✅ eval "$(direnv hook zsh)" → ~/.zshrc   # Added to shell
-✅ .envrc file created                    # Auto-activation config
-✅ direnv allow .                         # Security approval
-```
+# Example usage:
+bash
+```python
 
 ### **Project Files Created**
-```
-✅ .envrc                                 # Auto-activation configuration
-✅ scripts/ensure_venv.sh                 # Universal environment enforcer
-✅ scripts/validate_dev_environment.py    # Environment validation
-✅ DEVELOPMENT_ENVIRONMENT_SETUP.md       # This guide
-```
+```python
+# Example usage:
+python
+```python
 
 ## 🎯 HOW IT WORKS
 
 ### **Automatic Activation**
 ```bash
-# ANY time you or AI tools enter the directory:
-cd ~/sophia-main
-# 🔄 Activating Sophia AI virtual environment...
-# ✅ Virtual environment activated: /Users/lynnmusil/sophia-main/.venv/bin/python
-# 🧠 Welcome to Sophia AI development workspace!
-```
+# Example usage:
+bash
+```python
 
 ### **AI Tool Protection**
 - **Before**: AI tools spawn new shells → no venv → system Python ❌
@@ -64,10 +103,9 @@ cd ~/sophia-main
 
 ### **Normal Development (Zero Extra Steps)**
 ```bash
-cd ~/sophia-main          # Auto-activates venv
-python script.py          # Uses venv Python automatically
-# Everything just works! 🎉
-```
+# Example usage:
+bash
+```python
 
 ### **AI Tool Integration**
 - **Cursor AI**: Works automatically, no setup needed
@@ -77,74 +115,55 @@ python script.py          # Uses venv Python automatically
 
 ### **Manual Environment Check (If Needed)**
 ```bash
-# Quick validation
-python scripts/validate_dev_environment.py
-
-# Force environment setup
-./scripts/ensure_venv.sh
-
-# Check current status
-which python              # Should show: .venv/bin/python
-echo $VIRTUAL_ENV         # Should show: /Users/lynnmusil/sophia-main/.venv
-```
+# Example usage:
+bash
+```python
 
 ## ��️ TROUBLESHOOTING
 
 ### **If Auto-Activation Stops Working**
 ```bash
-# Reload shell configuration
-source ~/.zshrc
-
-# Re-allow .envrc (if modified)
-direnv allow .
-
-# Force environment setup
-./scripts/ensure_venv.sh
-```
+# Example usage:
+bash
+```python
 
 ### **If AI Tools Still Use Wrong Python**
 ```bash
-# Add to AI tool scripts:
-#!/bin/bash
-source "$(dirname "$0")/ensure_venv.sh"
-# Your commands here...
-```
+# Example usage:
+bash
+```python
 
 ### **If Dependencies Are Missing**
 ```bash
-# Auto-install dependencies
-./scripts/ensure_venv.sh
-# This automatically installs requirements.txt
-```
+# Example usage:
+bash
+```python
 
 ## 🔬 VERIFICATION TESTS
 
 ### **Test 1: Directory Entry**
 ```bash
-cd .. && cd sophia-main
-# Should see: "🔄 Activating Sophia AI virtual environment..."
-```
+# Example usage:
+bash
+```python
 
 ### **Test 2: Python Path**
 ```bash
-which python
-# Should show: /Users/lynnmusil/sophia-main/.venv/bin/python
-```
+# Example usage:
+bash
+```python
 
 ### **Test 3: Environment Variables**
 ```bash
-echo $VIRTUAL_ENV
-# Should show: /Users/lynnmusil/sophia-main/.venv
-
-echo $SOPHIA_PROJECT_ROOT
-# Should show: /Users/lynnmusil/sophia-main
-```
+# Example usage:
+bash
+```python
 
 ### **Test 4: Validation Script**
 ```bash
-python scripts/validate_dev_environment.py
-# Should show: "🎉 Development environment is properly configured!"
-```
+# Example usage:
+bash
+```python
 
 ## 🎉 BENEFITS ACHIEVED
 
@@ -170,12 +189,9 @@ python scripts/validate_dev_environment.py
 
 ### **Environment Variables Set Automatically**
 ```bash
-VIRTUAL_ENV=/Users/lynnmusil/sophia-main/.venv
-SOPHIA_PROJECT_ROOT=/Users/lynnmusil/sophia-main
-PYTHONPATH=/Users/lynnmusil/sophia-main
-LOG_LEVEL=INFO
-PATH=/Users/lynnmusil/sophia-main/.venv/bin:$PATH
-```
+# Example usage:
+bash
+```python
 
 ### **Intelligent Health Monitoring**
 - **Dependency validation**: Checks for required packages

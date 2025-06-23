@@ -1,4 +1,26 @@
+---
+title: Cline & Cognee: The Developer's Guide to Conversational Coding
+description: **Date:** December 20, 2024 **Status:** The Official Guide for Integrating Your Local VSCode with the Sophia AI Platform
+tags: mcp, security, kubernetes, docker, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Cline & Cognee: The Developer's Guide to Conversational Coding
+
+
+## Table of Contents
+
+- [1. The Goal: A Seamless Human-AI Development Experience](#1.-the-goal:-a-seamless-human-ai-development-experience)
+- [2. Prerequisites](#2.-prerequisites)
+- [3. Step-by-Step Configuration](#3.-step-by-step-configuration)
+  - [Step 3.1: Install Cline for VSCode](#step-3.1:-install-cline-for-vscode)
+  - [Step 3.2: Set Up the `cognee` Knowledge Graph Engine](#step-3.2:-set-up-the-`cognee`-knowledge-graph-engine)
+  - [Step 3.3: Configure Cline to Find Your MCP Servers](#step-3.3:-configure-cline-to-find-your-mcp-servers)
+  - [Step 3.4: Build Your Code's Knowledge Graph](#step-3.4:-build-your-code's-knowledge-graph)
+- [4. The Conversational Workflow: You Are Now an AI-Powered Developer](#4.-the-conversational-workflow:-you-are-now-an-ai-powered-developer)
+- [Conclusion](#conclusion)
 
 **Date:** December 20, 2024
 **Status:** The Official Guide for Integrating Your Local VSCode with the Sophia AI Platform
@@ -38,18 +60,18 @@ This creates a unified environment where you can ask deep, contextual questions 
 1.  **Clone the Repository:**
     ```bash
     git clone https://www.github.com/topoteretes/cognee
-    ```
+    ```python
 
 2.  **Install Dependencies:**
     ```bash
     cd cognee/cognee-mcp
     uv sync --reinstall
-    ```
+    ```python
 
 3.  **Activate the Virtual Environment:**
     ```bash
     source .venv/bin/activate
-    ```
+    ```python
     *(Leave this terminal window open and activated for later)*
 
 ### Step 3.3: Configure Cline to Find Your MCP Servers
@@ -96,14 +118,14 @@ This is the most critical step. We need to tell Cline where to find both the loc
         }
       }
     }
-    ```
+    ```python
 
 3.  **A Note on Secrets:** Notice the `LLM_API_KEY` for `cognee` is set to `${env:OPENAI_API_KEY}`. Cline is smart enough to use environment variables. To make this work, **you must launch VSCode from a terminal that has been initialized with our secrets**:
 
     ```bash
     # In your terminal, from the root of the sophia-main project
     esc run scoobyjava-org/default/sophia-ai-production -- code .
-    ```
+    ```python
     This command opens VSCode with all our production secrets loaded into its environment, which Cline can then pass to the `cognee` server.
 
 4.  **Restart Cline:** Open the Command Palette again (`Cmd+Shift+P`) and run `> Cline: Restart`.
@@ -115,9 +137,9 @@ Now, you will instruct `cognee` to analyze the Sophia AI codebase and build its 
 1.  **Open Cline:** Click the Cline icon in the VSCode activity bar.
 2.  **Run the `codify` command:** In the Cline input, type the following command, replacing `{PATH_TO_SOPHIA_MAIN}` with the absolute path to this repository, and press Enter.
 
-    ```
+    ```python
     @cognee /codify --path /{PATH_TO_SOPHIA_MAIN}/backend
-    ```
+    ```python
 
 3.  **Wait for Processing:** You will see logs from the `cognee` server in the VSCode terminal. This process can take several minutes as it reads all files, generates embeddings, and builds the relational graph.
 

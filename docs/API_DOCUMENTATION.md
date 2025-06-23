@@ -1,4 +1,50 @@
+---
+title: Sophia AI - Comprehensive API Documentation
+description: 
+tags: security, gong, monitoring
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI - Comprehensive API Documentation
+
+
+## Table of Contents
+
+- [🚀 **Overview**](#🚀-**overview**)
+- [🔐 **Authentication**](#🔐-**authentication**)
+  - [**1. API Key Authentication**](#**1.-api-key-authentication**)
+  - [**2. OAuth 2.0 (Recommended)**](#**2.-oauth-2.0-(recommended)**)
+- [📋 **Core Endpoints**](#📋-**core-endpoints**)
+  - [**Natural Language Query**](#**natural-language-query**)
+  - [**Health Check**](#**health-check**)
+- [🏗️ **Infrastructure Endpoints**](#🏗️-**infrastructure-endpoints**)
+  - [**Secret Management**](#**secret-management**)
+  - [**Configuration Management**](#**configuration-management**)
+- [🤖 **Claude Integration Endpoints**](#🤖-**claude-integration-endpoints**)
+  - [**Code Generation**](#**code-generation**)
+  - [**Code Analysis**](#**code-analysis**)
+- [📊 **Service-Specific Endpoints**](#📊-**service-specific-endpoints**)
+  - [**Gong Integration**](#**gong-integration**)
+  - [**Snowflake Integration**](#**snowflake-integration**)
+  - [**Vercel Integration**](#**vercel-integration**)
+- [🔄 **Webhook Endpoints**](#🔄-**webhook-endpoints**)
+  - [**GitHub Webhooks**](#**github-webhooks**)
+  - [**Slack Webhooks**](#**slack-webhooks**)
+- [📈 **Monitoring Endpoints**](#📈-**monitoring-endpoints**)
+  - [**Metrics**](#**metrics**)
+  - [**Logs**](#**logs**)
+- [🚨 **Error Handling**](#🚨-**error-handling**)
+  - [**Common Error Codes**](#**common-error-codes**)
+- [📝 **Usage Examples**](#📝-**usage-examples**)
+  - [**Natural Language Infrastructure Management**](#**natural-language-infrastructure-management**)
+  - [**Code Generation with Claude**](#**code-generation-with-claude**)
+  - [**Data Analysis with Snowflake**](#**data-analysis-with-snowflake**)
+- [🔧 **SDK and Libraries**](#🔧-**sdk-and-libraries**)
+  - [**Python SDK**](#**python-sdk**)
+  - [**JavaScript SDK**](#**javascript-sdk**)
+- [📚 **Additional Resources**](#📚-**additional-resources**)
 
 ## 🚀 **Overview**
 
@@ -10,17 +56,15 @@ All API endpoints require authentication using one of the following methods:
 
 ### **1. API Key Authentication**
 ```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-     -H "Content-Type: application/json" \
-     https://api.sophia.ai/v1/endpoint
-```
+# Example usage:
+bash
+```python
 
 ### **2. OAuth 2.0 (Recommended)**
 ```bash
-curl -H "Authorization: Bearer YOUR_OAUTH_TOKEN" \
-     -H "Content-Type: application/json" \
-     https://api.sophia.ai/v1/endpoint
-```
+# Example usage:
+bash
+```python
 
 ## 📋 **Core Endpoints**
 
@@ -31,30 +75,15 @@ Process natural language requests and route to appropriate services.
 
 **Request:**
 ```json
-{
-  "query": "Get all deals from Gong for this month",
-  "context": {
-    "user_id": "user123",
-    "session_id": "session456"
-  }
-}
-```
+# Example usage:
+json
+```python
 
 **Response:**
 ```json
-{
-  "status": "success",
-  "result": {
-    "service": "gong",
-    "action": "get_deals",
-    "data": [...],
-    "metadata": {
-      "execution_time": "1.2s",
-      "confidence": 0.95
-    }
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ### **Health Check**
 Check the health status of all integrated services.
@@ -63,17 +92,9 @@ Check the health status of all integrated services.
 
 **Response:**
 ```json
-{
-  "status": "healthy",
-  "services": {
-    "snowflake": {"status": "healthy", "response_time": "45ms"},
-    "gong": {"status": "healthy", "response_time": "120ms"},
-    "vercel": {"status": "healthy", "response_time": "80ms"},
-    "claude": {"status": "healthy", "response_time": "200ms"}
-  },
-  "timestamp": "2025-01-20T10:30:00Z"
-}
-```
+# Example usage:
+json
+```python
 
 ## 🏗️ **Infrastructure Endpoints**
 
@@ -100,15 +121,9 @@ Generate code using Claude AI.
 
 **Request:**
 ```json
-{
-  "prompt": "Create a Python function to process CSV files",
-  "language": "python",
-  "context": {
-    "framework": "pandas",
-    "style": "functional"
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ### **Code Analysis**
 Analyze code for issues and improvements.
@@ -117,11 +132,9 @@ Analyze code for issues and improvements.
 
 **Request:**
 ```json
-{
-  "code": "def process_data(data): ...",
-  "analysis_type": ["security", "performance", "style"]
-}
-```
+# Example usage:
+json
+```python
 
 ## 📊 **Service-Specific Endpoints**
 
@@ -176,18 +189,9 @@ Access system logs with filtering.
 All endpoints return standardized error responses:
 
 ```json
-{
-  "error": {
-    "code": "INVALID_REQUEST",
-    "message": "The request is invalid",
-    "details": {
-      "field": "query",
-      "reason": "Query cannot be empty"
-    },
-    "request_id": "req_123456789"
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ### **Common Error Codes**
 - `INVALID_REQUEST` (400) - Request validation failed
@@ -202,79 +206,35 @@ All endpoints return standardized error responses:
 
 ### **Natural Language Infrastructure Management**
 ```bash
-# Deploy infrastructure
-curl -X POST https://api.sophia.ai/v1/natural-query \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "Deploy the infrastructure to production"}'
-
-# Check service health
-curl -X POST https://api.sophia.ai/v1/natural-query \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "Check the health of all services"}'
-
-# Rotate secrets
-curl -X POST https://api.sophia.ai/v1/natural-query \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "Rotate all API keys for security"}'
-```
+# Example usage:
+bash
+```python
 
 ### **Code Generation with Claude**
 ```bash
-# Generate Python function
-curl -X POST https://api.sophia.ai/v1/claude/generate-code \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{
-    "prompt": "Create a function to validate email addresses",
-    "language": "python",
-    "context": {"style": "modern", "include_tests": true}
-  }'
-```
+# Example usage:
+bash
+```python
 
 ### **Data Analysis with Snowflake**
 ```bash
-# Execute query
-curl -X POST https://api.sophia.ai/v1/snowflake/query \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{
-    "query": "SELECT COUNT(*) FROM customers WHERE created_date >= CURRENT_DATE - 30",
-    "format": "json"
-  }'
-```
+# Example usage:
+bash
+```python
 
 ## 🔧 **SDK and Libraries**
 
 ### **Python SDK**
 ```python
-from sophia_ai import SophiaClient
-
-client = SophiaClient(api_key="your_api_key")
-
-# Natural language query
-result = client.query("Get all deals from Gong this month")
-
-# Code generation
-code = client.claude.generate_code(
-    prompt="Create a REST API endpoint",
-    language="python",
-    framework="fastapi"
-)
-
-# Infrastructure management
-client.infrastructure.deploy("production")
-```
+# Example usage:
+python
+```python
 
 ### **JavaScript SDK**
 ```javascript
-import { SophiaClient } from '@sophia-ai/sdk';
-
-const client = new SophiaClient({ apiKey: 'your_api_key' });
-
-// Natural language query
-const result = await client.query('Show me the latest deployment status');
-
-// Health check
-const health = await client.health.check();
-```
+# Example usage:
+javascript
+```python
 
 ## 📚 **Additional Resources**
 

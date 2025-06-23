@@ -25,7 +25,9 @@ async def check_ai_memory_health() -> bool:
             logger.info("Checking MCP Gateway registration...")
             async with session.get(f"{gateway_url}/servers") as response:
                 if response.status != 200:
-                    logger.error(f"Failed to get servers from gateway: {response.status}")
+                    logger.error(
+                        f"Failed to get servers from gateway: {response.status}"
+                    )
                     return False
                 servers = await response.json()
                 if "ai_memory" not in servers:
@@ -34,14 +36,20 @@ async def check_ai_memory_health() -> bool:
                 logger.info("✅ AI Memory MCP server registered with gateway")
 
             logger.info("Checking AI Memory MCP server health...")
-            async with session.get(f"{gateway_url}/servers/ai_memory/health") as response:
+            async with session.get(
+                f"{gateway_url}/servers/ai_memory/health"
+            ) as response:
                 if response.status != 200:
                     logger.error(f"Failed to get server health: {response.status}")
                     return False
                 health = await response.json()
-                logger.info("AI Memory MCP server health: %s", json.dumps(health, indent=2))
+                logger.info(
+                    "AI Memory MCP server health: %s", json.dumps(health, indent=2)
+                )
                 if health.get("status") != "operational":
-                    logger.warning("AI Memory MCP server not operational: %s", health.get("status"))
+                    logger.warning(
+                        "AI Memory MCP server not operational: %s", health.get("status")
+                    )
                     return False
                 logger.info("✅ AI Memory MCP server operational")
 
@@ -55,7 +63,9 @@ async def check_ai_memory_health() -> bool:
                     "tags": ["test", "health_check"],
                 },
             }
-            async with session.post(f"{gateway_url}/servers/ai_memory/tools", json=store_payload) as response:
+            async with session.post(
+                f"{gateway_url}/servers/ai_memory/tools", json=store_payload
+            ) as response:
                 if response.status != 200:
                     logger.error(f"Failed to store conversation: {response.status}")
                     return False
@@ -75,7 +85,9 @@ async def check_ai_memory_health() -> bool:
                     "limit": 1,
                 },
             }
-            async with session.post(f"{gateway_url}/servers/ai_memory/tools", json=recall_payload) as response:
+            async with session.post(
+                f"{gateway_url}/servers/ai_memory/tools", json=recall_payload
+            ) as response:
                 if response.status != 200:
                     logger.error(f"Failed to recall memory: {response.status}")
                     return False

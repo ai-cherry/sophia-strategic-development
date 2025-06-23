@@ -1,4 +1,22 @@
+---
+title: Agent & Service Reference
+description: This reference lists all major agents in the Sophia AI platform, their purpose, pooled instantiation usage, configuration, and performance notes. Designed for both AI and human developers. ---
+tags: gong, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Agent & Service Reference
+
+
+## Table of Contents
+
+- [Example: Pooled Instantiation](#example:-pooled-instantiation)
+- [Agent Configuration](#agent-configuration)
+- [Performance Notes](#performance-notes)
+- [Adding a New Agent](#adding-a-new-agent)
+- [AI-Parseable Section](#ai-parseable-section)
 
 This reference lists all major agents in the Sophia AI platform, their purpose, pooled instantiation usage, configuration, and performance notes. Designed for both AI and human developers.
 
@@ -18,18 +36,18 @@ This reference lists all major agents in the Sophia AI platform, their purpose, 
 
 ---
 
+
+## Quick Reference
+
+### Functions
+- `pooled()`
+
+
 ## Example: Pooled Instantiation
 ```python
-from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent, AgentConfig
-
-config = AgentConfig(
-    agent_id="call_analysis_01",
-    agent_type="specialized",
-    specialization="Call Analysis",
-)
-agent = await CallAnalysisAgent.pooled(config)
-await agent.start()
-```
+# Example usage:
+python
+```python
 
 ---
 

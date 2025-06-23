@@ -1,0 +1,105 @@
+{
+  "timestamp": "2025-06-23T00:50:47.663960",
+  "dry_run": false,
+  "removed_files": [
+    "AGNO_INTEGRATION_SUCCESS_SUMMARY.md",
+    "CLEANUP_REPORT.md",
+    "COMBINED_ANALYSIS_CURSOR_AI_GITHUB_ACTIONS.md",
+    "COMPLETE_REMEDIATION_STRATEGY_IMPLEMENTATION_GUIDE.md",
+    "COMPREHENSIVE_AGNO_ARIZE_SUCCESS_REPORT.md",
+    "COMPREHENSIVE_CLEANUP_IMPLEMENTATION.md",
+    "COSTAR_PROJECT_IMPLEMENTATION_SUMMARY.md",
+    "CURSOR_AI_COMPREHENSIVE_CLEANUP_PROMPT.md",
+    "CURSOR_AI_PHASE2_IMPROVEMENT_PROMPTS.md",
+    "DEPLOYMENT_SUCCESS_SUMMARY.md",
+    "DEPLOYMENT_VERIFICATION_REPORT.md",
+    "GITHUB_ACTIONS_CLEANUP_SUMMARY.md",
+    "GONG_AGENT_INTEGRATION_IMPLEMENTATION_SUMMARY.md",
+    "GONG_WEBHOOK_K8S_IMPLEMENTATION_SUMMARY.md",
+    "OPENAI_CODEX_CLEANUP_IMPLEMENTATION.md",
+    "OPENAI_CODEX_IMPLEMENTATION_PROMPT.md",
+    "OPENAI_CODEX_INTEGRATION_PROMPT.md",
+    "OPTIMAL_ALIGNMENT_STRATEGY.md",
+    "OPTIMAL_MCP_INTEGRATION_STRATEGY.md",
+    "PRODUCTION_DEPLOYMENT_SUCCESS_SUMMARY.md",
+    "PRODUCTION_READINESS_REPORT.md",
+    "PULUMI_ESC_GITHUB_SECRETS_INTEGRATION_SUMMARY.md",
+    "SENTRY_SETUP_COMPLETE.md",
+    "SERVICE_INTEGRATION_OPTIMIZATION_REPORT.md",
+    "SOPHIA_AI_DEPLOYMENT_IMPLEMENTATION_STATUS.md",
+    "SOPHIA_AI_FIXES_IMPLEMENTATION_SUMMARY.md",
+    "SOPHIA_AI_PHASE1_IMPLEMENTATION_REPORT.md",
+    "SOPHIA_AI_PHASE1_SYNTAX_CLEANUP_SUMMARY.md",
+    "SOPHIA_AI_SYNTAX_CORRUPTION_HANDOFF.md",
+    "SOPHIA_AI_UX_UI_SUCCESS_SUMMARY.md",
+    "SOPHIA_INTEGRATION_COMPLETE.md",
+    "SYNTAX_FIX_CHECKLIST.md",
+    "TROUBLESHOOTING_REPORT.md",
+    "corrupted_files.txt",
+    "corrupted_files_list.txt",
+    "current_syntax_validation_report.json",
+    "deploy_advanced_sophia_2025.sh",
+    "deploy_enhanced_sota_gateway.sh",
+    "deploy_intelligent_ai_gateway.sh",
+    "deploy_next_phase.sh",
+    "deploy_sophia_conversational_interface.sh",
+    "deploy_sophia_mcp_gateway.sh",
+    "deploy_sophia_ux_ui_dashboard.sh",
+    "deploy_sota_ai_gateway.sh",
+    "docs/AGNO_INTEGRATION_SUMMARY 2.md",
+    "docs/AGNO_INTEGRATION_SUMMARY 3.md",
+    "docs/AGNO_INTEGRATION_SUMMARY 4.md",
+    "docs/AGNO_SOPHIA_INTEGRATION_STRATEGY 2.md",
+    "docs/AGNO_SOPHIA_INTEGRATION_STRATEGY 3.md",
+    "docs/CODEBASE_REVIEW_FINAL_SUMMARY 2.md",
+    "optimization_report.json",
+    "requirements-dev 2.txt",
+    "requirements-dev 3.txt",
+    "requirements-dev 4.txt",
+    "requirements-dev 5.txt",
+    "sophia_health_report_20250622_232805.json",
+    "syntax_error_files.txt",
+    "syntax_validation_report 2.json",
+    "syntax_validation_report.json",
+    "syntax_validation_report.txt",
+    "type_safety_audit_report.json",
+    "validation_report.json",
+    "venv_cleanup_report.json"
+  ],
+  "moved_files": [
+    [
+      "LOCAL_DEVELOPMENT_GUIDE.md",
+      "docs/getting-started"
+    ],
+    [
+      "DEVELOPMENT_ENVIRONMENT_SETUP.md",
+      "docs/getting-started"
+    ],
+    [
+      "DEPLOYMENT_CONFIGURATION_GUIDE.md",
+      "docs/deployment"
+    ],
+    [
+      "GITHUB_PR_TEMPLATE.md",
+      "docs"
+    ],
+    [
+      "QUICK_START_SYNTAX_FIX.md",
+      "docs"
+    ],
+    [
+      "MCP_SERVICE_INTEGRATION_MAPPING.md",
+      "docs/integrations"
+    ],
+    [
+      "SOPHIA_AI_BEST_PRACTICES_GUIDE.md",
+      "docs"
+    ],
+    [
+      "SOPHIA_AI_PROJECT_SUMMARY.md",
+      "docs"
+    ]
+  ],
+  "preserved_files": [],
+  "archive_location": "docs_archive_20250623_005045"
+}

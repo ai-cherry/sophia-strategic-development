@@ -1,4 +1,41 @@
+---
+title: Sophia AI Improvement Recommendations
+description: 
+tags: mcp, security, gong, kubernetes, monitoring, agent
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Improvement Recommendations
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Phase 1: Critical Fixes (Week 1)](#phase-1:-critical-fixes-(week-1))
+  - [1.1 Fix Syntax Errors](#1.1-fix-syntax-errors)
+  - [1.2 Fix Import Issues](#1.2-fix-import-issues)
+  - [1.3 Resolve Filename Conflict](#1.3-resolve-filename-conflict)
+- [Phase 2: Consolidation (Week 2)](#phase-2:-consolidation-(week-2))
+  - [2.1 Consolidate Main Entry Points](#2.1-consolidate-main-entry-points)
+  - [2.2 Merge Duplicate Integrations](#2.2-merge-duplicate-integrations)
+  - [2.3 Consolidate Retool Routes](#2.3-consolidate-retool-routes)
+- [Phase 3: Standardization (Week 3)](#phase-3:-standardization-(week-3))
+  - [3.1 Migrate to New Agent Framework](#3.1-migrate-to-new-agent-framework)
+  - [3.2 Merge Data Connectors into Integrations](#3.2-merge-data-connectors-into-integrations)
+  - [3.3 Standardize Configuration](#3.3-standardize-configuration)
+- [Phase 4: Architecture Improvements (Week 4)](#phase-4:-architecture-improvements-(week-4))
+  - [4.1 Implement Dependency Injection](#4.1-implement-dependency-injection)
+  - [4.2 Create Service Registry](#4.2-create-service-registry)
+  - [4.3 Standardize File Naming](#4.3-standardize-file-naming)
+- [Phase 5: Testing and Documentation (Ongoing)](#phase-5:-testing-and-documentation-(ongoing))
+  - [5.1 Add Type Hints](#5.1-add-type-hints)
+  - [5.2 Create Integration Tests](#5.2-create-integration-tests)
+  - [5.3 Update Documentation](#5.3-update-documentation)
+- [Implementation Checklist](#implementation-checklist)
+- [Success Metrics](#success-metrics)
+- [Notes](#notes)
 
 ## Overview
 Based on the codebase review, here are actionable recommendations to improve code quality, reduce redundancy, and resolve conflicts.
@@ -16,8 +53,9 @@ Based on the codebase review, here are actionable recommendations to improve cod
 ### 1.2 Fix Import Issues
 **Script to run:**
 ```bash
-python scripts/fix_imports.py
-```
+# Example usage:
+bash
+```python
 
 **Manual fixes needed for:**
 - Replace all `from ...core.secret_manager` with `from backend.core.auto_esc_config`
@@ -39,18 +77,9 @@ python scripts/fix_imports.py
 **Recommendation:**
 Create a single `backend/main.py` with environment-based configuration:
 ```python
-import os
-from backend.core.auto_esc_config import config
-
-app_mode = os.getenv("APP_MODE", "full")  # full, simple, dashboard
-
-if app_mode == "simple":
-    # Load simple configuration
-elif app_mode == "dashboard":
-    # Load dashboard configuration
-else:
-    # Load full configuration
-```
+# Example usage:
+python
+```python
 
 ### 2.2 Merge Duplicate Integrations
 **Gong Integration:**
@@ -69,16 +98,9 @@ else:
 ### 2.3 Consolidate Retool Routes
 **Action:** Merge all Retool endpoints into a single router:
 ```python
-# backend/app/routes/retool_routes.py
-from fastapi import APIRouter
-
-router = APIRouter(prefix="/api/retool", tags=["retool"])
-
-# Include all Retool endpoints here
-# Executive dashboard endpoints
-# Standard API endpoints
-# WebSocket endpoints
-```
+# Example usage:
+python
+```python
 
 ## Phase 3: Standardization (Week 3)
 
@@ -103,11 +125,9 @@ router = APIRouter(prefix="/api/retool", tags=["retool"])
 ### 3.3 Standardize Configuration
 **Use only:**
 ```python
-from backend.core.auto_esc_config import config
-
-# Access all configuration through this single interface
-api_key = config.get_secret("service_name", "api_key")
-```
+# Example usage:
+python
+```python
 
 **Remove references to:**
 - Direct environment variable access
@@ -119,37 +139,16 @@ api_key = config.get_secret("service_name", "api_key")
 ### 4.1 Implement Dependency Injection
 **Create:** `backend/core/dependencies.py`
 ```python
-from typing import Annotated
-from fastapi import Depends
-
-def get_gong_integration():
-    from backend.integrations.gong.enhanced_gong_integration import GongIntegration
-    return GongIntegration()
-
-def get_agent_framework():
-    from backend.agents.core.agent_framework import AgentFramework
-    return AgentFramework()
-
-# Use in routes:
-# def route(gong: Annotated[GongIntegration, Depends(get_gong_integration)]):
-```
+# Example usage:
+python
+```python
 
 ### 4.2 Create Service Registry
 **Create:** `backend/core/service_registry.py`
 ```python
-class ServiceRegistry:
-    """Central registry for all services and integrations."""
-
-    _services = {}
-
-    @classmethod
-    def register(cls, name: str, service_class):
-        cls._services[name] = service_class
-
-    @classmethod
-    def get(cls, name: str):
-        return cls._services.get(name)
-```
+# Example usage:
+python
+```python
 
 ### 4.3 Standardize File Naming
 **Convention:**

@@ -1,5 +1,67 @@
+---
+title: Sophia AI Infrastructure Report
+description: **Date:** December 2024 **Version:** 2.0
+tags: mcp, security, gong, kubernetes, monitoring, database
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Sophia AI Infrastructure Report
 **Date:** December 2024
+
+## Table of Contents
+
+- [Executive Summary](#executive-summary)
+- [🚀 Infrastructure Overview](#🚀-infrastructure-overview)
+  - [API Integration Categories](#api-integration-categories)
+- [🎯 MCP Server Ecosystem](#🎯-mcp-server-ecosystem)
+  - [Active MCP Servers](#active-mcp-servers)
+    - [1. **Sophia MCP Server** (`backend/mcp/sophia_mcp_server.py`)](#1.-**sophia-mcp-server**-(`backend-mcp-sophia_mcp_server.py`))
+    - [2. **Property Management MCP Server** (`backend/mcp/property_management_mcp_server.py`)](#2.-**property-management-mcp-server**-(`backend-mcp-property_management_mcp_server.py`))
+    - [3. **HuggingFace MCP Server** (`backend/integrations/huggingface_mcp.py`)](#3.-**huggingface-mcp-server**-(`backend-integrations-huggingface_mcp.py`))
+  - [Potential MCP Servers (Recommended)](#potential-mcp-servers-(recommended))
+- [🌐 Gateway Architecture](#🌐-gateway-architecture)
+  - [Unified Gateway Orchestrator](#unified-gateway-orchestrator)
+  - [Gateway Types](#gateway-types)
+- [🔐 Security Implementation](#🔐-security-implementation)
+  - [Secure Configuration Management](#secure-configuration-management)
+  - [Key Security Features:](#key-security-features:)
+- [📊 API Integration Details](#📊-api-integration-details)
+  - [AI/ML Services](#ai-ml-services)
+  - [Business Intelligence](#business-intelligence)
+  - [Property Management (Apartment Industry)](#property-management-(apartment-industry))
+  - [Vector Databases](#vector-databases)
+  - [Communication Services](#communication-services)
+  - [Analytics & Monitoring](#analytics-&-monitoring)
+- [🚀 Deployment Architecture](#🚀-deployment-architecture)
+  - [Production Infrastructure](#production-infrastructure)
+  - [Scaling Strategy](#scaling-strategy)
+- [📈 Performance Metrics](#📈-performance-metrics)
+  - [Current Capabilities](#current-capabilities)
+  - [Optimization Features](#optimization-features)
+- [🔄 Integration Workflow](#🔄-integration-workflow)
+  - [API Request Flow](#api-request-flow)
+- [🛠️ Configuration Guide](#🛠️-configuration-guide)
+  - [Minimal Setup (Development)](#minimal-setup-(development))
+  - [Standard Setup (Staging)](#standard-setup-(staging))
+  - [Full Setup (Production)](#full-setup-(production))
+- [📊 API Usage Dashboard](#📊-api-usage-dashboard)
+  - [Active Integrations by Category](#active-integrations-by-category)
+  - [Cost Analysis](#cost-analysis)
+- [🔮 Future Enhancements](#🔮-future-enhancements)
+  - [Phase 1 (Q1 2025)](#phase-1-(q1-2025))
+  - [Phase 2 (Q2 2025)](#phase-2-(q2-2025))
+  - [Phase 3 (Q3 2025)](#phase-3-(q3-2025))
+- [🎯 Action Items](#🎯-action-items)
+  - [Immediate (This Week)](#immediate-(this-week))
+  - [Short Term (This Month)](#short-term-(this-month))
+  - [Long Term (This Quarter)](#long-term-(this-quarter))
+- [📚 Documentation](#📚-documentation)
+  - [Available Guides](#available-guides)
+  - [API Documentation](#api-documentation)
+- [🏆 Conclusion](#🏆-conclusion)
+
 **Version:** 2.0
 **Status:** Production Ready with 100+ API Integrations
 
@@ -199,43 +261,23 @@ The new Unified Gateway Orchestrator provides:
 
 ### API Request Flow
 ```mermaid
-graph TD
-    A[Client Request] --> B[API Gateway]
-    B --> C{Route Decision}
-    C -->|LLM| D[Portkey Gateway]
-    C -->|Vector| E[Direct Connection]
-    C -->|Business| F[Service Gateway]
-    D --> G[Model Provider]
-    E --> H[Vector DB]
-    F --> I[Business Service]
-    G --> J[Response Processing]
-    H --> J
-    I --> J
-    J --> K[Cache Update]
-    K --> L[Client Response]
-```
+# Example usage:
+mermaid
+```python
 
 ## 🛠️ Configuration Guide
 
 ### Minimal Setup (Development)
 ```bash
-# Essential APIs only
-OPENAI_API_KEY=sk-...
-POSTGRES_HOST=localhost
-REDIS_HOST=localhost
-SECRET_KEY=dev-secret-key
-```
+# Example usage:
+bash
+```python
 
 ### Standard Setup (Staging)
 ```bash
-# Core business features
-OPENAI_API_KEY=sk-...
-PORTKEY_API_KEY=pk-...
-HUBSPOT_API_KEY=hb-...
-GONG_API_KEY=gong-...
-PINECONE_API_KEY=pc-...
-SLACK_BOT_TOKEN=xoxb-...
-```
+# Example usage:
+bash
+```python
 
 ### Full Setup (Production)
 - Use GitHub organizational secrets

@@ -1,4 +1,72 @@
+---
+title: CoStar Real Estate Intelligence - Implementation Guide
+description: 
+tags: mcp, monitoring, database
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # CoStar Real Estate Intelligence - Implementation Guide
+
+
+## Table of Contents
+
+- [🏢 **Project Overview**](#🏢-**project-overview**)
+  - [**Key Features**](#**key-features**)
+- [🏗️ **Architecture Overview**](#🏗️-**architecture-overview**)
+  - [**Component Structure**](#**component-structure**)
+- [🚀 **Quick Start Guide**](#🚀-**quick-start-guide**)
+  - [**1. Database Setup**](#**1.-database-setup**)
+  - [**2. Start the Backend**](#**2.-start-the-backend**)
+  - [**3. Access the Web Interface**](#**3.-access-the-web-interface**)
+  - [**4. Test API Endpoints**](#**4.-test-api-endpoints**)
+- [📊 **Data Model & Schema**](#📊-**data-model-&-schema**)
+  - [**Core Tables**](#**core-tables**)
+    - [**costar_markets**](#**costar_markets**)
+    - [**costar_market_data**](#**costar_market_data**)
+    - [**costar_import_log**](#**costar_import_log**)
+  - [**Expected Data Format**](#**expected-data-format**)
+    - [**CSV/Excel Column Mapping**](#**csv-excel-column-mapping**)
+    - [**Sample Data Structure**](#**sample-data-structure**)
+- [🔌 **API Reference**](#🔌-**api-reference**)
+  - [**Core Endpoints**](#**core-endpoints**)
+    - [**POST /api/costar/initialize**](#**post--api-costar-initialize**)
+    - [**GET /api/costar/markets**](#**get--api-costar-markets**)
+    - [**GET /api/costar/market/{metro_area}**](#**get--api-costar-market-{metro_area}**)
+    - [**POST /api/costar/upload**](#**post--api-costar-upload**)
+    - [**GET /api/costar/import-status**](#**get--api-costar-import-status**)
+    - [**GET /api/costar/analytics/summary/{metro_area}**](#**get--api-costar-analytics-summary-{metro_area}**)
+- [🛠️ **CLI Tools Usage**](#🛠️-**cli-tools-usage**)
+  - [**Data Ingestion Script**](#**data-ingestion-script**)
+    - [**Basic Usage**](#**basic-usage**)
+    - [**Validation Mode**](#**validation-mode**)
+    - [**Advanced Options**](#**advanced-options**)
+- [🎯 **Integration with Sophia AI**](#🎯-**integration-with-sophia-ai**)
+  - [**Conversational Queries**](#**conversational-queries**)
+  - [**Export Capabilities**](#**export-capabilities**)
+- [📈 **Performance & Monitoring**](#📈-**performance-&-monitoring**)
+  - [**Key Metrics**](#**key-metrics**)
+  - [**Monitoring Endpoints**](#**monitoring-endpoints**)
+- [🔧 **Development & Customization**](#🔧-**development-&-customization**)
+  - [**Adding New Data Sources**](#**adding-new-data-sources**)
+  - [**Custom Analytics**](#**custom-analytics**)
+  - [**File Format Support**](#**file-format-support**)
+- [🚨 **Troubleshooting**](#🚨-**troubleshooting**)
+  - [**Common Issues**](#**common-issues**)
+    - [**Database Connection Errors**](#**database-connection-errors**)
+    - [**File Upload Failures**](#**file-upload-failures**)
+    - [**Import Processing Errors**](#**import-processing-errors**)
+  - [**Performance Optimization**](#**performance-optimization**)
+    - [**Database Tuning**](#**database-tuning**)
+    - [**File Processing**](#**file-processing**)
+- [📝 **Future Enhancements**](#📝-**future-enhancements**)
+  - [**Phase 2: Advanced Analytics**](#**phase-2:-advanced-analytics**)
+  - [**Phase 3: External Integrations**](#**phase-3:-external-integrations**)
+  - [**Phase 4: Advanced Features**](#**phase-4:-advanced-features**)
+- [📞 **Support & Documentation**](#📞-**support-&-documentation**)
+  - [**Additional Resources**](#**additional-resources**)
+  - [**Getting Help**](#**getting-help**)
 
 ## 🏢 **Project Overview**
 
@@ -17,31 +85,10 @@ The **CoStar Real Estate Intelligence System** is a comprehensive real estate ma
 ## 🏗️ **Architecture Overview**
 
 ### **Component Structure**
-```
-CoStar Real Estate Intelligence
-├── Database Layer (PostgreSQL)
-│   ├── costar_markets (Metro areas)
-│   ├── costar_market_data (Time-series data)
-│   ├── costar_import_log (Import tracking)
-│   ├── costar_market_insights (AI insights)
-│   └── costar_market_comparisons (Market analysis)
-├── MCP Server (backend/mcp/costar_mcp_server.py)
-│   ├── File watching and processing
-│   ├── Data validation and transformation
-│   └── Database operations
-├── API Layer (backend/api/costar_routes.py)
-│   ├── RESTful endpoints
-│   ├── File upload handling
-│   └── Market data retrieval
-├── Frontend Component (frontend/src/components/CoStarDataManager.jsx)
-│   ├── Data upload interface
-│   ├── Market data browser
-│   └── Import history tracking
-└── CLI Tools (scripts/ingest_costar_data.py)
-    ├── Batch processing
-    ├── Data validation
-    └── Command-line interface
-```
+```python
+# Example usage:
+python
+```python
 
 ---
 
@@ -49,36 +96,27 @@ CoStar Real Estate Intelligence
 
 ### **1. Database Setup**
 ```bash
-# Initialize database with CoStar schema
-psql -h localhost -U postgres -d sophia_ai -f database/init/06-costar-tables.sql
-```
+# Example usage:
+bash
+```python
 
 ### **2. Start the Backend**
 ```bash
-# Start Sophia AI backend with CoStar integration
-./start_sophia_backend.sh
-```
+# Example usage:
+bash
+```python
 
 ### **3. Access the Web Interface**
 ```bash
-# Start frontend
-./start_sophia_frontend.sh
-
-# Navigate to CoStar Data Manager
-# http://localhost:3000 -> CoStar Data Manager
-```
+# Example usage:
+bash
+```python
 
 ### **4. Test API Endpoints**
 ```bash
-# Check CoStar service health
-curl http://localhost:8000/api/costar/health
-
-# Get available markets
-curl http://localhost:8000/api/costar/markets
-
-# Get supported file formats
-curl http://localhost:8000/api/costar/formats
-```
+# Example usage:
+bash
+```python
 
 ---
 
@@ -89,78 +127,37 @@ curl http://localhost:8000/api/costar/formats
 #### **costar_markets**
 Master table of metropolitan areas and markets.
 ```sql
-- id (SERIAL PRIMARY KEY)
-- metro_area (VARCHAR UNIQUE) -- "San Francisco, CA"
-- state (VARCHAR) -- "California"
-- region (VARCHAR) -- "West Coast"
-- market_tier (VARCHAR) -- "Primary", "Secondary", "Tertiary"
-- created_at, updated_at (TIMESTAMP)
-```
+# Example usage:
+sql
+```python
 
 #### **costar_market_data**
 Time-series market data with property metrics.
 ```sql
-- id (SERIAL PRIMARY KEY)
-- market_id (INTEGER REFERENCES costar_markets)
-- property_type (VARCHAR) -- "Office", "Retail", "Industrial"
-- submarket (VARCHAR) -- Optional submarket
-- total_inventory (BIGINT) -- Square footage
-- vacancy_rate (DECIMAL) -- Percentage 0-100
-- asking_rent_psf (DECIMAL) -- Dollars per sq ft annually
-- effective_rent_psf (DECIMAL) -- After concessions
-- net_absorption (INTEGER) -- Sq ft absorbed/vacated
-- construction_deliveries (INTEGER) -- New construction
-- under_construction (INTEGER) -- Pipeline construction
-- construction_starts (INTEGER) -- New starts
-- cap_rate (DECIMAL) -- Capitalization rate
-- price_per_sf (DECIMAL) -- Sale price per sq ft
-- market_date (DATE) -- Data period
-- quarter (VARCHAR) -- "Q1 2024"
-- data_source (VARCHAR) -- "CoStar"
-- data_quality_score (INTEGER) -- 1-100
-```
+# Example usage:
+sql
+```python
 
 #### **costar_import_log**
 Audit trail of data imports with processing status.
 ```sql
-- id (SERIAL PRIMARY KEY)
-- filename (VARCHAR)
-- file_size_bytes (BIGINT)
-- file_checksum (VARCHAR) -- MD5/SHA256
-- records_processed, records_imported, records_failed (INTEGER)
-- import_method (VARCHAR) -- "file_upload", "api", "scheduled"
-- import_status (VARCHAR) -- "pending", "success", "failed"
-- error_message (TEXT)
-- processing_start_time, processing_end_time (TIMESTAMP)
-- imported_by (VARCHAR) -- User/system
-- metadata (JSONB) -- Additional data
-```
+# Example usage:
+sql
+```python
 
 ### **Expected Data Format**
 
 #### **CSV/Excel Column Mapping**
-```
-Required Columns:
-- metro_area (or aliases: market, metro, msa)
-- market_date (or aliases: date, period, quarter_date)
-
-Optional Columns:
-- property_type (or aliases: prop_type, type, asset_type)
-- vacancy_rate (or aliases: vacancy, vac_rate, vacant_pct)
-- asking_rent_psf (or aliases: asking_rent, rent_psf, rent)
-- total_inventory (or aliases: inventory, total_sf, total_space)
-- net_absorption (or aliases: absorption, net_abs)
-- construction_deliveries (or aliases: deliveries, new_supply)
-- under_construction (or aliases: under_const, pipeline)
-```
+```python
+# Example usage:
+python
+```python
 
 #### **Sample Data Structure**
 ```csv
-Metro Area,Property Type,Market Date,Vacancy Rate,Asking Rent PSF,Total Inventory
-"San Francisco, CA",Office,2024-12-31,18.5,65.50,125000000
-"New York, NY",Office,2024-12-31,12.3,78.25,350000000
-"Dallas, TX",Industrial,2024-12-31,4.2,8.75,45000000
-```
+# Example usage:
+csv
+```python
 
 ---
 
@@ -171,84 +168,44 @@ Metro Area,Property Type,Market Date,Vacancy Rate,Asking Rent PSF,Total Inventor
 #### **POST /api/costar/initialize**
 Initialize CoStar database tables and setup.
 ```json
-Response: {
-  "status": "success",
-  "message": "CoStar database initialized successfully",
-  "tables_created": ["costar_markets", "costar_market_data", ...]
-}
-```
+# Example usage:
+json
+```python
 
 #### **GET /api/costar/markets**
 Get all available metro areas with record counts.
 ```json
-Response: {
-  "status": "success",
-  "markets": [
-    {
-      "id": 1,
-      "metro_area": "San Francisco, CA",
-      "state": "California",
-      "region": "West Coast",
-      "market_tier": "Primary",
-      "record_count": 245
-    }
-  ],
-  "total_count": 10
-}
-```
+# Example usage:
+json
+```python
 
 #### **GET /api/costar/market/{metro_area}**
 Get market data for specific metro area.
 ```bash
 # Example
 curl "http://localhost:8000/api/costar/market/San%20Francisco,%20CA?limit=50"
-```
+```python
 
 #### **POST /api/costar/upload**
 Upload and process CoStar data file.
 ```bash
-curl -X POST \
-  -F "file=@costar_data_q4_2024.csv" \
-  http://localhost:8000/api/costar/upload
-```
+# Example usage:
+bash
+```python
 
 #### **GET /api/costar/import-status**
 Get import history and processing status.
 ```json
-Response: {
-  "status": "success",
-  "imports": [
-    {
-      "id": 1,
-      "filename": "costar_data_q4_2024.csv",
-      "records_imported": 1250,
-      "import_status": "success",
-      "created_at": "2024-12-20T10:30:00Z"
-    }
-  ]
-}
-```
+# Example usage:
+json
+```python
 
 #### **GET /api/costar/analytics/summary/{metro_area}**
 Get analytics summary for specific market.
 ```json
-Response: {
-  "status": "success",
-  "market": "San Francisco, CA",
-  "summary": {
-    "total_records": 245,
-    "property_types": ["Office", "Retail", "Industrial"],
-    "average_vacancy_rate": 18.5,
-    "average_asking_rent_psf": 65.50,
-    "data_quality": "good"
-  },
-  "latest_metrics": {
-    "vacancy_rate": 18.5,
-    "asking_rent_psf": 65.50,
-    "total_inventory": 125000000
-  }
-}
-```
+# Example usage:
+json
+```python
 
 ---
 
@@ -258,55 +215,31 @@ Response: {
 
 #### **Basic Usage**
 ```bash
-# Process single file
-python scripts/ingest_costar_data.py --file data/costar_q4_2024.csv
-
-# Process directory
-python scripts/ingest_costar_data.py --directory data/costar_files/
-
-# Process recursively
-python scripts/ingest_costar_data.py --directory data/ --recursive
-```
+# Example usage:
+bash
+```python
 
 #### **Validation Mode**
 ```bash
-# Validate without importing
-python scripts/ingest_costar_data.py --file data/costar_q4_2024.csv --validate-only
-
-# Validate directory
-python scripts/ingest_costar_data.py --directory data/ --validate-only
-```
+# Example usage:
+bash
+```python
 
 #### **Advanced Options**
 ```bash
-# Dry run (show what would be processed)
-python scripts/ingest_costar_data.py --directory data/ --dry-run
-
-# Verbose logging
-python scripts/ingest_costar_data.py --file data/costar_q4_2024.csv --verbose
-
-# Batch processing with logging
-python scripts/ingest_costar_data.py --directory data/ --verbose > ingestion.log 2>&1
-```
+# Example usage:
+bash
+```python
 
 ---
 
 ## 🎯 **Integration with Sophia AI**
 
 ### **Conversational Queries**
-```
-User: "What's the vacancy rate in San Francisco office market?"
-Sophia: "The San Francisco office market currently shows an 18.5% vacancy rate, 
-         up 2.3% from last quarter. The average asking rent is $65.50 per square foot."
-
-User: "Compare industrial markets in Texas"
-Sophia: "Dallas leads with 4.2% vacancy rate and $8.25 PSF rent, 
-         while Houston shows 6.1% vacancy but stronger absorption trends."
-
-User: "Show me markets with highest construction activity"
-Sophia: "Based on under-construction data, Austin leads with 2.3M sq ft, 
-         followed by Denver (1.8M sq ft) and Nashville (1.5M sq ft)."
-```
+```python
+# Example usage:
+python
+```python
 
 ### **Export Capabilities**
 All market data and analytics can be exported in multiple formats:
@@ -328,15 +261,9 @@ All market data and analytics can be exported in multiple formats:
 
 ### **Monitoring Endpoints**
 ```bash
-# Service health check
-curl http://localhost:8000/api/costar/health
-
-# Database connection status
-curl http://localhost:8000/api/costar/health | jq '.database_connected'
-
-# Available markets count
-curl http://localhost:8000/api/costar/markets | jq '.total_count'
-```
+# Example usage:
+bash
+```python
 
 ---
 
@@ -369,54 +296,29 @@ To add new formats:
 
 #### **Database Connection Errors**
 ```bash
-# Check PostgreSQL status
-pg_ctl status
-
-# Verify database exists
-psql -l | grep sophia_ai
-
-# Test connection
-psql -h localhost -U postgres -d sophia_ai -c "SELECT 1;"
-```
+# Example usage:
+bash
+```python
 
 #### **File Upload Failures**
 ```bash
-# Check file format
-file data/costar_data.csv
-
-# Validate file structure
-python scripts/ingest_costar_data.py --file data/costar_data.csv --validate-only
-
-# Check file permissions
-ls -la data/costar_data.csv
-```
+# Example usage:
+bash
+```python
 
 #### **Import Processing Errors**
 ```bash
-# Check import logs
-curl http://localhost:8000/api/costar/import-status | jq '.imports[0]'
-
-# View detailed logs
-tail -f costar_ingestion.log
-
-# Check database for failed imports
-psql -d sophia_ai -c "SELECT * FROM costar_import_log WHERE import_status = 'failed';"
-```
+# Example usage:
+bash
+```python
 
 ### **Performance Optimization**
 
 #### **Database Tuning**
 ```sql
--- Analyze table statistics
-ANALYZE costar_market_data;
-
--- Check index usage
-SELECT schemaname, tablename, attname, n_distinct, correlation 
-FROM pg_stats WHERE tablename = 'costar_market_data';
-
--- Optimize queries
-EXPLAIN ANALYZE SELECT * FROM costar_market_data WHERE market_id = 1;
-```
+# Example usage:
+sql
+```python
 
 #### **File Processing**
 - **Large Files**: Process in chunks for files >10MB

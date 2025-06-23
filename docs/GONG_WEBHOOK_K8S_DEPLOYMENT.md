@@ -1,4 +1,61 @@
+---
+title: Gong Webhook Service - Kubernetes Deployment Guide
+description: 
+tags: security, gong, kubernetes, monitoring, database, docker
+last_updated: 2025-06-23
+dependencies: none
+related_docs: none
+---
+
 # Gong Webhook Service - Kubernetes Deployment Guide
+
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+  - [Components Deployed](#components-deployed)
+- [Prerequisites](#prerequisites)
+  - [Required Tools](#required-tools)
+  - [Required Access](#required-access)
+  - [Required Infrastructure](#required-infrastructure)
+- [Configuration](#configuration)
+  - [Environment Variables (ConfigMap)](#environment-variables-(configmap))
+  - [Secrets (Kubernetes Secret)](#secrets-(kubernetes-secret))
+- [Deployment](#deployment)
+  - [Quick Deployment](#quick-deployment)
+  - [Step-by-Step Deployment](#step-by-step-deployment)
+- [Resource Specifications](#resource-specifications)
+  - [Pod Resources](#pod-resources)
+  - [Auto-scaling](#auto-scaling)
+  - [High Availability](#high-availability)
+- [Security Features](#security-features)
+  - [Container Security](#container-security)
+  - [Network Security](#network-security)
+  - [Secret Management](#secret-management)
+- [Monitoring and Observability](#monitoring-and-observability)
+  - [Health Endpoints](#health-endpoints)
+  - [Prometheus Metrics](#prometheus-metrics)
+  - [Logging](#logging)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debugging Commands](#debugging-commands)
+- [Maintenance](#maintenance)
+  - [Updates](#updates)
+  - [Scaling](#scaling)
+  - [Secret Rotation](#secret-rotation)
+- [Performance Optimization](#performance-optimization)
+  - [Tuning Parameters](#tuning-parameters)
+  - [Monitoring Metrics](#monitoring-metrics)
+- [Integration Points](#integration-points)
+  - [Upstream Services](#upstream-services)
+  - [Downstream Services](#downstream-services)
+- [Disaster Recovery](#disaster-recovery)
+  - [Backup Strategy](#backup-strategy)
+  - [Recovery Procedures](#recovery-procedures)
+- [Support and Documentation](#support-and-documentation)
+  - [Additional Resources](#additional-resources)
+  - [Contact Information](#contact-information)
 
 ## Overview
 
@@ -6,13 +63,10 @@ The Gong Webhook Service is a production-ready FastAPI application that processe
 
 ## Architecture
 
-```
-Internet → Ingress (TLS) → Service → Deployment (3 replicas) → Pods
-                                 ↓
-                           Auto-scaling (HPA)
-                                 ↓
-                          Monitoring (Prometheus)
-```
+```python
+# Example usage:
+python
+```python
 
 ### Components Deployed
 
@@ -50,21 +104,9 @@ Internet → Ingress (TLS) → Service → Deployment (3 replicas) → Pods
 
 ### Environment Variables (ConfigMap)
 ```yaml
-HOST: "0.0.0.0"
-PORT: "8080"
-WORKERS: "4"
-GONG_API_BASE_URL: "https://api.gong.io"
-GONG_API_RATE_LIMIT: "2.5"
-GONG_API_BURST_LIMIT: "10"
-SNOWFLAKE_WAREHOUSE: "COMPUTE_WH"
-SNOWFLAKE_DATABASE: "SOPHIA_AI"
-SNOWFLAKE_SCHEMA: "GONG_WEBHOOKS"
-REDIS_URL: "redis://redis-service:6379"
-MAX_RETRY_ATTEMPTS: "5"
-INITIAL_RETRY_DELAY: "1.0"
-MAX_RETRY_DELAY: "300.0"
-WEBHOOK_TIMEOUT_SECONDS: "30"
-```
+# Example usage:
+yaml
+```python
 
 ### Secrets (Kubernetes Secret)
 Managed by Pulumi ESC and automatically injected:
@@ -78,59 +120,16 @@ Managed by Pulumi ESC and automatically injected:
 
 ### Quick Deployment
 ```bash
-# Full deployment with secret injection
-./scripts/deploy-gong-webhook-k8s.sh deploy
-
-# Build image only
-./scripts/deploy-gong-webhook-k8s.sh build
-
-# Apply secrets only
-./scripts/deploy-gong-webhook-k8s.sh secrets
-```
+# Example usage:
+bash
+```python
 
 ### Step-by-Step Deployment
 
 1. **Prepare Environment**
    ```bash
-   export PULUMI_ORG=scoobyjava-org
-   pulumi login
-   pulumi env open scoobyjava-org/default/sophia-ai-production
-   ```
-
-2. **Build Docker Image**
-   ```bash
-   docker build -f Dockerfile.gong-webhook -t sophia-ai/gong-webhook-service:latest .
-   ```
-
-3. **Deploy to Kubernetes**
-   ```bash
-   kubectl apply -f infrastructure/kubernetes/manifests/gong-webhook-service.yaml
-   ```
-
-4. **Inject Secrets**
-   ```bash
-   # Load ESC environment
-   eval "$(pulumi env get scoobyjava-org/default/sophia-ai-production --format shell)"
-   
-   # Create secret
-   kubectl create secret generic gong-webhook-secrets \
-     --namespace=sophia-ai \
-     --from-literal=GONG_API_KEY="${GONG_ACCESS_KEY}" \
-     --from-literal=GONG_WEBHOOK_SECRETS="${GONG_CLIENT_SECRET}" \
-     --from-literal=SNOWFLAKE_ACCOUNT="${SNOWFLAKE_ACCOUNT}" \
-     --from-literal=SNOWFLAKE_USER="${SNOWFLAKE_USER}" \
-     --from-literal=SNOWFLAKE_PASSWORD="${SNOWFLAKE_PASSWORD}"
-   ```
-
-5. **Verify Deployment**
-   ```bash
-   kubectl get pods -l app=gong-webhook-service -n sophia-ai
-   kubectl logs -l app=gong-webhook-service -n sophia-ai -f
-   ```
-
-## Resource Specifications
-
-### Pod Resources
+# Example usage:
+bash
 ```yaml
 requests:
   memory: "512Mi"
@@ -140,90 +139,9 @@ limits:
   memory: "2Gi"
   cpu: "1000m"
   ephemeral-storage: "2Gi"
-```
-
-### Auto-scaling
-- **Min replicas**: 3
-- **Max replicas**: 10
-- **CPU target**: 70%
-- **Memory target**: 80%
-- **Scale-up policy**: 100% increase, max 2 pods per minute
-- **Scale-down policy**: 10% decrease per minute with 5-minute stabilization
-
-### High Availability
-- **Pod anti-affinity**: Spreads pods across nodes
-- **Pod disruption budget**: Minimum 2 pods available during disruptions
-- **Rolling updates**: Max 1 surge, 0 unavailable
-- **Health checks**: Startup, readiness, and liveness probes
-
-## Security Features
-
-### Container Security
-- Non-root user (UID/GID 1000)
-- Read-only root filesystem
-- No privilege escalation
-- Dropped capabilities (ALL)
-- Security context enforcement
-
-### Network Security
-- NetworkPolicy restricting ingress/egress
-- TLS termination at ingress
-- Internal service communication only
-- Prometheus metrics endpoint protection
-
-### Secret Management
-- Pulumi ESC integration for secret rotation
-- Kubernetes secrets with proper annotations
-- No hardcoded credentials
-- Secret rotation schedule (90 days)
-
-## Monitoring and Observability
-
-### Health Endpoints
-- **Health check**: `GET /health`
-- **Metrics**: `GET /metrics` (Prometheus format)
-
-### Prometheus Metrics
-- Request count and duration
-- API call metrics
-- Rate limit metrics
-- Data quality scores
-- Background task metrics
-
-### Logging
-- Structured JSON logging
-- Request/response logging
-- Error tracking with context
-- Request ID correlation
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Pod Startup Failures**
-   ```bash
-   kubectl describe pod -l app=gong-webhook-service -n sophia-ai
-   kubectl logs -l app=gong-webhook-service -n sophia-ai --previous
-   ```
-
-2. **Secret Access Issues**
-   ```bash
-   kubectl get secret gong-webhook-secrets -n sophia-ai -o yaml
-   pulumi env get scoobyjava-org/default/sophia-ai-production
-   ```
-
-3. **Network Connectivity**
-   ```bash
-   kubectl exec -it deployment/gong-webhook-service -n sophia-ai -- curl -v https://api.gong.io
-   ```
-
-4. **Health Check Failures**
-   ```bash
-   kubectl port-forward service/gong-webhook-service 8080:80 -n sophia-ai
-   curl http://localhost:8080/health
-   ```
-
-### Debugging Commands
+```python
+# Example usage:
+python
 ```bash
 # View all resources
 kubectl get all -l app=gong-webhook-service -n sophia-ai
@@ -239,11 +157,9 @@ kubectl get configmap gong-webhook-config -n sophia-ai -o yaml
 
 # Check ingress
 kubectl describe ingress gong-webhook-ingress -n sophia-ai
-```
-
-## Maintenance
-
-### Updates
+```python
+# Example usage:
+python
 ```bash
 # Update image
 kubectl set image deployment/gong-webhook-service \
@@ -252,25 +168,25 @@ kubectl set image deployment/gong-webhook-service \
 
 # Monitor rollout
 kubectl rollout status deployment/gong-webhook-service -n sophia-ai
-```
-
-### Scaling
+```python
+# Example usage:
+python
 ```bash
 # Manual scaling
 kubectl scale deployment gong-webhook-service --replicas=5 -n sophia-ai
 
 # Update HPA
 kubectl patch hpa gong-webhook-hpa -n sophia-ai -p '{"spec":{"maxReplicas":15}}'
-```
-
-### Secret Rotation
+```python
+# Example usage:
+python
 ```bash
 # Rotate secrets via Pulumi ESC
 pulumi env set scoobyjava-org/default/sophia-ai-production GONG_ACCESS_KEY new-value
 
 # Restart deployment to pick up new secrets
 kubectl rollout restart deployment/gong-webhook-service -n sophia-ai
-```
+```python
 
 ## Performance Optimization
 
