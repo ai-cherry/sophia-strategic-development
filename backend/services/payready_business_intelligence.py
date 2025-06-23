@@ -56,9 +56,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         
         # MCP server endpoints
         self.mcp_servers = {
-            "apollo": "http://payready-apollo-mcp:3000",
             "competitive_monitor": "http://payready-competitive-monitor:3000",
-            "nmhc_targeting": "http://payready-nmhc-targeting:3000",
             "buzz_roi": "http://payready-buzz-roi:3000",
             "linkedin": "http://payready-linkedin-mcp:3000"
         }
@@ -135,29 +133,23 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         if not company_name:
             raise ValueError("Company name required for prospect enrichment")
             
-        # Use Apollo MCP for enrichment
-        apollo_result = await self.mcp_gateway.route_request(
-            server_name="apollo",
-            tool_name="enrich_prospect",
-            parameters={
-                "company_name": company_name,
-                "enrichment_level": request.parameters.get("enrichment_level", "comprehensive")
-            }
-        )
-        
-        # Enhance with competitive intelligence
+        # Use competitive monitor for basic company intelligence
         competitive_result = await self.mcp_gateway.route_request(
             server_name="competitive_monitor",
             tool_name="check_threat_level",
             parameters={"competitor_name": company_name}
         )
         
-        # Combine results
+        # Create basic enriched data structure
         enriched_data = {
-            "company_profile": apollo_result,
+            "company_profile": {
+                "name": company_name,
+                "status": "basic_profile",
+                "enrichment_level": request.parameters.get("enrichment_level", "basic")
+            },
             "competitive_status": competitive_result,
-            "buzz_integration_potential": await self._assess_buzz_potential(apollo_result),
-            "sales_priority_score": await self._calculate_sales_priority(apollo_result, competitive_result)
+            "buzz_integration_potential": await self._assess_buzz_potential({"company_name": company_name}),
+            "sales_priority_score": await self._calculate_sales_priority({"company_name": company_name}, competitive_result)
         }
         
         return enriched_data
@@ -217,24 +209,32 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         if not company_name:
             raise ValueError("Company name required for sales brief")
             
-        # Get comprehensive sales brief from Apollo
-        sales_brief = await self.mcp_gateway.route_request(
-            server_name="apollo",
-            tool_name="generate_sales_brief",
-            parameters={"company_name": company_name}
-        )
+        # Create basic sales brief structure
+        sales_brief = {
+            "company_name": company_name,
+            "brief_type": "basic",
+            "key_contacts": [],
+            "company_overview": {
+                "name": company_name,
+                "size": "unknown"
+            }
+        }
         
         # Enhance with LinkedIn intelligence if available
         if request.parameters.get("include_linkedin", True):
-            linkedin_data = await self.mcp_gateway.route_request(
-                server_name="linkedin",
-                tool_name="enrich_contacts",
-                parameters={
-                    "company_name": company_name,
-                    "contacts": sales_brief.get("key_contacts", [])
-                }
-            )
-            sales_brief["enhanced_contacts"] = linkedin_data
+            try:
+                linkedin_data = await self.mcp_gateway.route_request(
+                    server_name="linkedin",
+                    tool_name="enrich_contacts",
+                    parameters={
+                        "company_name": company_name,
+                        "contacts": sales_brief.get("key_contacts", [])
+                    }
+                )
+                sales_brief["enhanced_contacts"] = linkedin_data
+            except Exception as e:
+                logger.warning(f"LinkedIn enrichment failed: {e}")
+                sales_brief["enhanced_contacts"] = {}
             
         # Add competitive positioning
         competitive_position = await self._generate_competitive_positioning(company_name)
@@ -251,21 +251,11 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         # Aggregate intelligence from multiple sources
         market_data = {
             "timestamp": datetime.utcnow().isoformat(),
-            "nmhc_analysis": {},
             "competitive_landscape": {},
             "market_trends": {},
             "opportunities": []
         }
         
-        # NMHC Top 50 analysis
-        if request.parameters.get("include_nmhc", True):
-            nmhc_data = await self.mcp_gateway.route_request(
-                server_name="nmhc_targeting",
-                tool_name="analyze_nmhc_landscape",
-                parameters={}
-            )
-            market_data["nmhc_analysis"] = nmhc_data
-            
         # Competitive landscape
         competitive_data = await self.mcp_gateway.route_request(
             server_name="competitive_monitor",
@@ -444,16 +434,6 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         """Identify market opportunities from intelligence data"""
         opportunities = []
         
-        # NMHC opportunities
-        nmhc_data = market_data.get("nmhc_analysis", {})
-        if nmhc_data.get("untapped_companies"):
-            opportunities.append({
-                "type": "nmhc_expansion",
-                "description": f"{len(nmhc_data['untapped_companies'])} NMHC Top 50 companies without AI collections",
-                "priority": "high",
-                "estimated_value": "High 7-figures annually"
-            })
-            
         # Competitive displacement
         competitive_data = market_data.get("competitive_landscape", {})
         for competitor, data in competitive_data.get("competitors", {}).items():

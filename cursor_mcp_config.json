@@ -43,6 +43,18 @@
         "monitoring_setup", 
         "security_configuration"
       ]
+    },
+    "codacy": {
+      "type": "http",
+      "baseUrl": "http://localhost:3008",
+      "description": "Codacy MCP Server - Code quality analysis, security scanning, and automated code review",
+      "capabilities": [
+        "code_analysis",
+        "security_scanning",
+        "quality_metrics",
+        "automated_fixes",
+        "executive_reporting"
+      ]
     }
   },
   "settings": {

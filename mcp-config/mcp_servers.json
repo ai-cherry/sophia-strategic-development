@@ -1,8 +1,13 @@
 [
-  {"name": "snowflake", "url": "http://snowflake-mcp:8080"},
-  {"name": "pulumi", "url": "http://pulumi-mcp:8080"},
+  {"name": "pulumi", "url": "http://pulumi-mcp:3001"},
+  {"name": "github", "url": "http://github-mcp:3002"},
+  {"name": "docker", "url": "http://docker-mcp:3003"},
+  {"name": "slack", "url": "http://slack-mcp:3004"},
+  {"name": "postgres", "url": "http://postgres-mcp:3005"},
+  {"name": "asana", "url": "http://asana-mcp:3006"},
+  {"name": "notion", "url": "http://notion-mcp:3007"},
+  {"name": "codacy", "url": "http://codacy-mcp:3008"},
   {"name": "ai_memory", "url": "http://ai-memory-mcp:9000"},
-  {"name": "docker", "url": "http://docker-mcp:9000"},
-  {"name": "agno", "url": "http://agno-mcp:9000"},
-  {"name": "sentry", "url": "http://sentry-mcp:9000"}
+  {"name": "snowflake", "url": "http://snowflake-mcp:8080"},
+  {"name": "agno", "url": "http://agno-mcp:9000"}
 ]

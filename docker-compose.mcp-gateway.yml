@@ -119,6 +119,55 @@ services:
       - sophia-network
     restart: unless-stopped
 
+  # Project Management MCP Servers
+  asana-mcp:
+    build:
+      context: ./mcp-servers/asana
+      dockerfile: Dockerfile
+    environment:
+      - ASANA_ACCESS_TOKEN=${ASANA_ACCESS_TOKEN}
+      - ASANA_WORKSPACE_GID=${ASANA_WORKSPACE_GID}
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=3006
+    ports:
+      - "3006:3006"
+    networks:
+      - sophia-network
+    restart: unless-stopped
+
+  notion-mcp:
+    build:
+      context: ./mcp-servers/notion
+      dockerfile: Dockerfile
+    environment:
+      - NOTION_ACCESS_TOKEN=${NOTION_ACCESS_TOKEN}
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=3007
+    ports:
+      - "3007:3007"
+    networks:
+      - sophia-network
+    restart: unless-stopped
+
+  # Code Quality MCP Server
+  codacy-mcp:
+    build:
+      context: ./mcp-servers/codacy
+      dockerfile: Dockerfile
+    environment:
+      - CODACY_ACCOUNT_TOKEN=${CODACY_ACCOUNT_TOKEN}
+      - CODACY_PROJECT_TOKEN=${CODACY_PROJECT_TOKEN}
+      - CODACY_WORKSPACE_PATH=/workspace
+      - MCP_TRANSPORT=sse
+      - MCP_PORT=3008
+    ports:
+      - "3008:3008"
+    volumes:
+      - .:/workspace:ro  # Mount workspace as read-only for analysis
+    networks:
+      - sophia-network
+    restart: unless-stopped
+
   # Core Infrastructure Services
   postgres:
     image: postgres:15-alpine
@@ -168,7 +217,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3006:3000"
+      - "3009:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=sophia2025

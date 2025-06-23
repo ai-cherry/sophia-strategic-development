@@ -82,7 +82,6 @@
       },
       "description": "Business tools and communication platforms",
       "services": [
-        "retool",
         "linear",
         "slack",
         "gong",
@@ -90,7 +89,6 @@
         "hubspot"
       ],
       "features": [
-        "dashboard_creation",
         "project_management",
         "team_communication",
         "sales_intelligence",

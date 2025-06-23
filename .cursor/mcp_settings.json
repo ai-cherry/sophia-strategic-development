@@ -52,6 +52,16 @@
         "LOOKER_API_KEY": "${ESC_LOOKER_API_KEY}",
         "MIXPANEL_API_KEY": "${ESC_MIXPANEL_API_KEY}"
       }
+    },
+    "codacy": {
+      "command": "python",
+      "args": ["-m", "mcp-servers.codacy.codacy_mcp_server"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "CODACY_ACCOUNT_TOKEN": "${ESC_CODACY_ACCOUNT_TOKEN}",
+        "CODACY_PROJECT_TOKEN": "${ESC_CODACY_PROJECT_TOKEN}",
+        "CODACY_WORKSPACE_PATH": "/Users/lynnmusil/sophia-main"
+      }
     }
   }
 }

@@ -195,10 +195,8 @@ services:
           cpus: '0.5'
 
 volumes:
-  apollo-data:
   linkedin-data:
   competitive-data:
-  nmhc-data:
   roi-data:
   roi-reports:
   weaviate-competitive-data:

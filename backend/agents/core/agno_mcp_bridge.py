@@ -39,6 +39,14 @@ class AgnoMCPBridge:
         }
         self._initialized = False
 
+        # MCP server routing configuration
+        self.server_routing = {
+            "ai_intelligence": ["openrouter", "portkey", "arize", "huggingface"],
+            "data_intelligence": ["snowflake", "pinecone", "weaviate", "estuary"],
+            "infrastructure": ["pulumi", "docker", "lambda_labs", "github"],
+            "business_intelligence": ["snowflake", "pinecone", "github"],
+        }
+
     async def initialize(self) -> None:
         """Initialize the bridge and warm up agent pools."""
         if self._initialized:

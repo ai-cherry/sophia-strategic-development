@@ -188,7 +188,6 @@ services:
       - PYTHONUNBUFFERED=1
       - PULUMI_ORG=${PULUMI_ORG}
       - PINECONE_API_KEY=${PINECONE_API_KEY}
-      - RETOOL_API_TOKEN=${RETOOL_API_TOKEN}
       # Add any other required env vars for secrets here
     networks:
       - sophia-network
@@ -250,13 +249,6 @@ services:
       args:
         MCP_SERVER_MODULE: backend.mcp.ai_memory_mcp_server
     container_name: sophia-ai-memory-mcp
-
-  retool-mcp:
-    <<: *base-mcp-service
-    build:
-      args:
-        MCP_SERVER_MODULE: backend.mcp.retool_mcp_server
-    container_name: sophia-retool-mcp
 
   docker-mcp:
     <<: *base-mcp-service

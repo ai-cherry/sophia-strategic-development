@@ -179,15 +179,6 @@ values:
       model_id: "sophia-orchestrator"
       model_version: "v2.0.0"
     
-    # Enhanced Sentry configuration
-    sentry:
-      dsn:
-        fn::secret: "${SENTRY_DSN}"
-      environment: "${platform.environment}"
-      release: "${platform.version}"
-      traces_sample_rate: 0.1
-      profiles_sample_rate: 0.1
-    
     # Prometheus metrics
     prometheus:
       enabled: true
@@ -239,8 +230,6 @@ values:
       account: "${snowflake.account}"
       user: "${snowflake.user}"
       password: "${snowflake.password}"
-    sentry:
-      dsn: "${monitoring.sentry.dsn}"
   
   # Enhanced security configuration
   security:
