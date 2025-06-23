@@ -265,17 +265,17 @@ services:
         MCP_SERVER_MODULE: backend.mcp.docker_mcp_server
     container_name: sophia-docker-mcp
 
-  agno-mcp:
-    <<: *base-mcp-service
-    build:
-      args:
-        MCP_SERVER_MODULE: backend.mcp.agno_mcp_server
-    container_name: sophia-agno-mcp
-    environment:
-      - AGNO_API_KEY=${AGNO_API_KEY}
-      - PYTHONUNBUFFERED=1
-      - PULUMI_ORG=${PULUMI_ORG}
-
+#   agno-mcp:
+#     <<: *base-mcp-service
+#     build:
+#       args:
+#         MCP_SERVER_MODULE: backend.mcp.agno_mcp_server
+#     container_name: sophia-agno-mcp
+#     environment:
+#       - AGNO_API_KEY=${AGNO_API_KEY}
+#       - PYTHONUNBUFFERED=1
+#       - PULUMI_ORG=${PULUMI_ORG}
+#
   pulumi-mcp:
     <<: *base-mcp-service
     build:
