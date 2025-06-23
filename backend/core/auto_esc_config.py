@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import subprocess
 from typing import Any, Optional
 
 from pydantic import BaseModel, ValidationError
+
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
 
 class Settings(BaseModel):
@@ -15,6 +18,9 @@ class Settings(BaseModel):
 
     openai_api_key: Optional[str] = None
     snowflake_account: Optional[str] = None
+    snowflake_user: Optional[str] = None
+    snowflake_password: Optional[str] = None
+    slack_bot_token: Optional[str] = None
 
 
 class AutoESCConfig:
@@ -44,13 +50,22 @@ class AutoESCConfig:
             "--format",
             "json",
         ]
+        logging.debug("Loading ESC config via: %s", " ".join(cmd))
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-            if result.returncode == 0:
-                self._config = json.loads(result.stdout)
-            else:
+            if result.returncode != 0:
+                logging.error("pulumi env open failed: %s", result.stderr.strip())
                 self._config = {}
-        except Exception:
+                return
+            self._config = json.loads(result.stdout)
+            logging.info(
+                "Loaded ESC configuration with %d keys", len(self._config or {})
+            )
+        except json.JSONDecodeError as exc:
+            logging.exception("Failed to parse ESC output: %s", exc)
+            self._config = {}
+        except Exception as exc:  # pragma: no cover - defensive
+            logging.exception("Unexpected error loading ESC config: %s", exc)
             self._config = {}
 
     def get(self, key: str, default: Any | None = None) -> Any | None:
@@ -65,7 +80,7 @@ class AutoESCConfig:
 
         try:
             return Settings(**(self._config or {}))
-        except ValidationError as exc:
+        except ValidationError as exc:  # pragma: no cover - defensive
             raise RuntimeError(f"Invalid ESC configuration: {exc}") from exc
 
 
