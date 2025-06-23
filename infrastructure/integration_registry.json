@@ -246,5 +246,111 @@
     "priority": "critical",
     "features": ["source_control", "ci_cd", "secret_management", "actions"],
     "cost_tier": "enterprise"
+  },
+  "gong_webhook_service": {
+    "type": "webhook_processor",
+    "description": "Production Gong webhook processing service with Kubernetes deployment",
+    "config_keys": [
+      "host",
+      "port",
+      "workers",
+      "gong_api_base_url",
+      "gong_api_rate_limit",
+      "gong_api_burst_limit",
+      "snowflake_warehouse",
+      "snowflake_database",
+      "snowflake_schema",
+      "redis_url",
+      "max_retry_attempts",
+      "initial_retry_delay",
+      "max_retry_delay",
+      "webhook_timeout_seconds"
+    ],
+    "secret_keys": [
+      "gong_api_key",
+      "gong_webhook_secrets",
+      "snowflake_account",
+      "snowflake_user",
+      "snowflake_password"
+    ],
+    "rotation_schedule": "90d",
+    "owner": "sophia-ai-team",
+    "dependencies": ["snowflake", "docker", "kubernetes", "pulumi"],
+    "status": "active",
+    "priority": "high",
+    "features": [
+      "webhook_processing",
+      "rate_limiting",
+      "jwt_verification",
+      "data_validation",
+      "background_processing",
+      "prometheus_metrics",
+      "health_checks",
+      "horizontal_autoscaling"
+    ],
+    "cost_tier": "pay_per_use",
+    "deployment": {
+      "type": "kubernetes",
+      "namespace": "sophia-ai",
+      "replicas": 3,
+      "auto_scaling": {
+        "min_replicas": 3,
+        "max_replicas": 10,
+        "cpu_threshold": 70,
+        "memory_threshold": 80
+      },
+      "resources": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi",
+          "storage": "1Gi"
+        },
+        "limits": {
+          "cpu": "1000m",
+          "memory": "2Gi",
+          "storage": "2Gi"
+        }
+      },
+      "security": {
+        "run_as_non_root": true,
+        "read_only_filesystem": true,
+        "network_policies": true,
+        "pod_security_standards": "restricted"
+      },
+      "monitoring": {
+        "prometheus_scraping": true,
+        "health_checks": true,
+        "service_monitor": true
+      },
+      "ingress": {
+        "enabled": true,
+        "tls": true,
+        "domain": "gong-webhook.sophia-ai.com",
+        "rate_limiting": true
+      }
+    },
+    "integration_points": [
+      {
+        "service": "gong_api",
+        "type": "external_api",
+        "endpoint": "https://api.gong.io",
+        "authentication": "bearer_token"
+      },
+      {
+        "service": "snowflake",
+        "type": "database",
+        "purpose": "webhook_data_storage"
+      },
+      {
+        "service": "redis",
+        "type": "cache",
+        "purpose": "background_task_queue"
+      },
+      {
+        "service": "prometheus",
+        "type": "monitoring",
+        "purpose": "metrics_collection"
+      }
+    ]
   }
 }
