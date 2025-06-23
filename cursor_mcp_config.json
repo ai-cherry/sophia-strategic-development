@@ -1,5 +1,66 @@
 {
   "mcpServers": {
+    "ai_memory": {
+      "type": "http",
+      "baseUrl": "http://localhost:9000",
+      "description": "AI Memory MCP Server - Persistent development context and learning",
+      "capabilities": [
+        "conversation_storage",
+        "context_recall",
+        "pattern_recognition",
+        "decision_tracking",
+        "architectural_memory"
+      ],
+      "autoTriggers": {
+        "onCodeDiscussion": true,
+        "onArchitecturalDecision": true,
+        "onBugSolution": true,
+        "onPatternExplanation": true
+      }
+    },
+    "codacy": {
+      "type": "http",
+      "baseUrl": "http://localhost:3008",
+      "description": "Codacy MCP Server - Code quality analysis, security scanning, and automated code review",
+      "capabilities": [
+        "code_analysis",
+        "security_scanning",
+        "quality_metrics",
+        "automated_fixes",
+        "executive_reporting",
+        "real_time_analysis"
+      ],
+      "autoTriggers": {
+        "onFileSave": true,
+        "onCommit": true,
+        "onPullRequest": true,
+        "onSecurityConcern": true
+      }
+    },
+    "asana": {
+      "type": "http",
+      "baseUrl": "http://localhost:3006",
+      "description": "Asana MCP Server - Project management and task tracking integration",
+      "capabilities": [
+        "project_management",
+        "task_tracking",
+        "team_coordination",
+        "progress_monitoring",
+        "deadline_management"
+      ]
+    },
+    "notion": {
+      "type": "http",
+      "baseUrl": "http://localhost:3007",
+      "description": "Notion MCP Server - Knowledge management and documentation",
+      "capabilities": [
+        "knowledge_search",
+        "document_management",
+        "content_organization",
+        "strategic_insights",
+        "documentation_sync"
+      ]
+    },
     "sophia_intelligence": {
       "type": "http",
       "baseUrl": "http://localhost:8092",
@@ -43,29 +104,36 @@
         "monitoring_setup", 
         "security_configuration"
       ]
-    },
-    "codacy": {
-      "type": "http",
-      "baseUrl": "http://localhost:3008",
-      "description": "Codacy MCP Server - Code quality analysis, security scanning, and automated code review",
-      "capabilities": [
-        "code_analysis",
-        "security_scanning",
-        "quality_metrics",
-        "automated_fixes",
-        "executive_reporting"
-      ]
     }
   },
   "settings": {
     "timeout": 30000,
     "retries": 3,
     "healthCheckInterval": 60000,
-    "logLevel": "info"
+    "logLevel": "info",
+    "autoMemoryStorage": true,
+    "intelligentRouting": true,
+    "contextAwareness": true
   },
   "development": {
     "hotReload": true,
     "debugMode": true,
-    "performanceTracking": true
+    "performanceTracking": true,
+    "autoCodeAnalysis": true,
+    "memoryIntegration": true
+  },
+  "workflows": {
+    "onCodeChange": {
+      "triggers": ["codacy.analyze_file", "ai_memory.store_context"],
+      "conditions": ["file_size < 10000", "file_type in ['py', 'js', 'ts']"]
+    },
+    "onArchitecturalDiscussion": {
+      "triggers": ["ai_memory.store_conversation"],
+      "category": "architecture"
+    },
+    "onBugFix": {
+      "triggers": ["ai_memory.store_conversation", "codacy.security_scan"],
+      "category": "bug_solution"
+    }
   }
 } 

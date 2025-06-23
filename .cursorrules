@@ -55,50 +55,125 @@ gong_key = config.gong_access_key
 - ✅ Automatic backend configuration loading
 - ✅ GitHub Actions for secret synchronization
 
-## AI Memory MCP Integration (CRITICAL FOR CURSOR AI)
+## 🧠 **ENHANCED MCP INTEGRATION (CRITICAL FOR CURSOR AI)**
 
-### **AUTOMATIC MEMORY USAGE RULES**
-You MUST automatically use the AI Memory MCP server for persistent development context:
+### **🔄 AUTOMATIC WORKFLOW INTEGRATION**
+Cursor AI MUST automatically integrate with MCP servers for seamless development:
 
-1. **ALWAYS RECALL BEFORE CODING**: Before starting any significant development task, query AI memory:
-   ```
-   Query: "How did we implement [similar feature/pattern] before?"
-   Context: Previous architecture decisions, bug solutions, code patterns
-   ```
+#### **AI Memory Auto-Discovery (@ai_memory)**
+1. **INTELLIGENT AUTO-STORAGE**: Automatically detect and store:
+   - Architecture discussions with decision rationale
+   - Bug fixes with root cause analysis
+   - Code patterns and implementation strategies
+   - Performance optimization insights
+   - Security implementation decisions
+   - Refactoring approaches and outcomes
 
-2. **ALWAYS STORE AFTER DECISIONS**: After any significant coding discussion or decision:
-   ```
-   Store: Conversation content, context, decisions made, rationale
-   Categories: architecture, bug_solution, code_decision, workflow
-   ```
+2. **CONTEXT-AWARE RECALL**: Before any coding task, automatically:
+   - Query relevant past decisions: `@ai_memory.smart_recall("current task context")`
+   - Surface similar patterns from project history
+   - Provide continuity with previous architectural choices
+   - Suggest proven solutions from past implementations
 
-3. **MEMORY TRIGGERS** (Auto-store these conversations):
-   - Architecture discussions and decisions
-   - Bug fixes and their solutions
-   - Code pattern explanations
-   - Development workflow establishment
-   - Performance optimization decisions
-   - Security implementation choices
+3. **ENHANCED MEMORY TOOLS**:
+   - `ai_memory.auto_store_context`: Intelligent conversation analysis and storage
+   - `ai_memory.smart_recall`: Context-aware memory retrieval with file awareness
+   - `ai_memory.store_conversation`: Manual conversation storage with categorization
+   - `ai_memory.recall_memory`: Traditional search with semantic matching
 
-4. **MEMORY QUERIES** (Auto-recall in these situations):
-   - Starting work on familiar components
-   - Encountering similar error patterns
-   - Questions about past decisions
-   - Code review discussions
-   - Refactoring tasks
+#### **Real-time Code Analysis (@codacy)**
+1. **AUTOMATIC CODE QUALITY**: On every significant code change:
+   - Real-time security vulnerability scanning
+   - Code complexity analysis with refactoring suggestions
+   - Style compliance checking (Black, PEP 8)
+   - Performance pattern detection
 
-### **AI Memory MCP Tools Available**:
-- `ai_memory.store_conversation`: Store development conversations
-- `ai_memory.recall_memory`: Search previous decisions and solutions
+2. **INTELLIGENT SUGGESTIONS**: Proactive recommendations:
+   - Security best practices for detected patterns
+   - Refactoring opportunities for complex functions
+   - Code quality improvements with examples
+   - Architecture alignment with project standards
 
-### **Example Workflow**:
+3. **ENHANCED CODACY TOOLS**:
+   - `codacy.analyze_code`: Real-time code snippet analysis
+   - `codacy.analyze_file`: Complete file quality assessment
+   - `codacy.get_fix_suggestions`: Automated improvement recommendations
+   - `codacy.security_scan`: Focused security vulnerability detection
+
+### **🚀 WORKFLOW AUTOMATION TRIGGERS**
+
+#### **Automatic Triggers (No User Input Required)**:
+- **On File Save**: `@codacy.analyze_file` + `@ai_memory.auto_store_context`
+- **On Architecture Discussion**: `@ai_memory.store_conversation(category="architecture")`
+- **On Bug Fix**: `@ai_memory.store_conversation(category="bug_solution")` + `@codacy.security_scan`
+- **On Code Review**: `@codacy.analyze_code` + `@ai_memory.recall_memory("similar patterns")`
+
+#### **Smart Context Awareness**:
+- **File-Specific Memory**: Automatically recall memories related to current file
+- **Project Pattern Recognition**: Surface relevant architectural decisions
+- **Security Context**: Auto-scan for security issues in sensitive code areas
+- **Performance Awareness**: Detect performance-critical code sections
+
+### **🎯 ENHANCED NATURAL LANGUAGE COMMANDS**
+
+#### **Memory Operations**:
+- "Remember this architectural decision" → Auto-categorize and store with context
+- "What did we decide about database schema?" → Smart recall with file context
+- "Show me similar bug fixes" → Context-aware pattern matching
+- "Store this conversation about MCP integration" → Enhanced storage with metadata
+
+#### **Code Quality Operations**:
+- "Analyze this code for security issues" → Comprehensive security scan
+- "Check code quality" → Multi-dimensional analysis with suggestions
+- "Fix this function complexity" → Automated refactoring recommendations
+- "Scan for vulnerabilities" → Deep security pattern analysis
+
+#### **Integrated Workflows**:
+- "Review and remember this implementation" → Codacy analysis + Memory storage
+- "Find similar patterns and analyze quality" → Memory recall + Code analysis
+- "Store this bug fix and scan for similar issues" → Memory storage + Security scan
+
+### **📊 INTELLIGENT REPORTING**
+
+#### **Development Insights**:
+- Automatic pattern recognition across stored memories
+- Code quality trends over time
+- Security vulnerability patterns
+- Architecture evolution tracking
+
+#### **Proactive Recommendations**:
+- Suggest architectural improvements based on stored decisions
+- Recommend security enhancements from vulnerability patterns
+- Propose refactoring based on complexity analysis
+- Guide development based on successful past patterns
+
+### **🔧 CURSOR IDE INTEGRATION SPECIFICS**
+
+#### **Configuration Requirements**:
+- MCP servers running on specified ports (ai_memory: 9000, codacy: 3008)
+- Auto-trigger workflows enabled in cursor_mcp_config.json
+- Context awareness enabled for file-specific operations
+- Intelligent routing for multi-tool operations
+
+#### **Performance Optimization**:
+- Parallel tool execution for independent operations
+- Smart caching of frequently accessed memories
+- Efficient code analysis with incremental scanning
+- Context-aware tool selection based on current activity
+
+### **Example Enhanced Workflow**:
 ```
-User: "How should we handle authentication in MCP servers?"
-Cursor:
-1. [AUTO] Query ai_memory.recall_memory("MCP server authentication patterns")
-2. [Based on results] Provide context-aware answer referencing past decisions
-3. [After discussion] Store new insights with ai_memory.store_conversation
+User: "I need to implement user authentication for the MCP server"
+
+Cursor AI (Automatic Sequence):
+1. [AUTO] @ai_memory.smart_recall("authentication MCP server implementation")
+2. [CONTEXT] Retrieve: Previous auth patterns, security decisions, MCP integration approaches
+3. [ANALYSIS] @codacy.analyze_code(current_auth_code) for security assessment
+4. [RESPONSE] Provide implementation guidance based on stored patterns + security analysis
+5. [AUTO] @ai_memory.auto_store_context(conversation + implementation decisions)
 ```
+
+This enhanced integration transforms Cursor AI into an intelligent development partner that learns from every interaction and provides contextually aware assistance.
 
 ## Development Standards
 

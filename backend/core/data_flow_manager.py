@@ -14,7 +14,7 @@ from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass
 from enum import Enum
 
-import aioredis
+import redis.asyncio as redis_client
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.auto_esc_config import config
 
@@ -107,7 +107,7 @@ class IntelligentCache:
     async def initialize(self):
         """Initialize Redis connection"""
         try:
-            self.redis_client = await aioredis.from_url(
+            self.redis_client = await redis_client.from_url(
                 config.redis_url,
                 encoding="utf-8",
                 decode_responses=True

@@ -19,7 +19,7 @@ from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urljoin
 
 import aiohttp
-import aioredis
+import redis.asyncio as redis_client
 import structlog
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge
@@ -294,14 +294,14 @@ class RedisCache:
     def __init__(self, redis_url: str, ttl_config: Dict[str, int]):
         self.redis_url = redis_url
         self.ttl_config = ttl_config
-        self.redis: Optional[aioredis.Redis] = None
+        self.redis: Optional[redis.Redis] = None
         self.hit_count = 0
         self.miss_count = 0
 
     async def connect(self):
         """Connect to Redis."""
         if not self.redis:
-            self.redis = await aioredis.from_url(self.redis_url)
+            self.redis = await redis.from_url(self.redis_url)
 
     async def disconnect(self):
         """Disconnect from Redis."""

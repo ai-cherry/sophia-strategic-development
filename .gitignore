@@ -209,3 +209,6 @@ ipython_config.py
 
 # Rope project settings
 .ropeproject
+
+# Auto-generated secrets
+.env.secrets

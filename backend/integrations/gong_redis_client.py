@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from enum import Enum
 
-import aioredis
+import redis.asyncio as redis
 import structlog
 from pydantic import BaseModel, Field
 
@@ -85,7 +85,7 @@ class RedisNotificationClient:
 
     def __init__(self, redis_url: str = "redis://localhost:6379"):
         self.redis_url = redis_url
-        self.redis: Optional[aioredis.Redis] = None
+        self.redis: Optional[redis.Redis] = None
         self.logger = logger.bind(component="redis_notification_client")
 
         # Channel configuration
@@ -107,7 +107,7 @@ class RedisNotificationClient:
     async def connect(self):
         """Connect to Redis."""
         if not self.redis:
-            self.redis = await aioredis.from_url(
+            self.redis = await redis.from_url(
                 self.redis_url, encoding="utf-8", decode_responses=True
             )
             self.logger.info("Connected to Redis", url=self.redis_url)

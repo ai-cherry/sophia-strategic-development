@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 import logging
 
 from backend.core.auto_esc_config import config
-from backend.mcp.ai_memory_mcp_server import AIMemoryMCPServer
-from backend.integrations.gong_api_client_enhanced import GongAPIClientEnhanced
+from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
+from backend.integrations.gong_api_client_enhanced import EnhancedGongAPIClient
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

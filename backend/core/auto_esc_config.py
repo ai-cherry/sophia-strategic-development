@@ -534,3 +534,35 @@ class AutoESCConfig:
 
 # Global instance (maintain backward compatibility)
 config = AutoESCConfig()
+
+
+def get_config_value(key: str, default: Any | None = None) -> Any | None:
+    """Get configuration value using the global config instance.
+    
+    This function provides backward compatibility for modules that expect
+    a simple get_config_value function.
+    
+    Args:
+        key: Configuration key to retrieve
+        default: Default value if key is not found
+        
+    Returns:
+        Configuration value or default
+    """
+    return config.get(key, default)
+
+
+def get_config_value(key: str, default: Any | None = None) -> Any | None:
+    """Get configuration value using the global config instance.
+    
+    This function provides backward compatibility for modules that expect
+    a simple get_config_value function.
+    
+    Args:
+        key: Configuration key to retrieve
+        default: Default value if key is not found
+        
+    Returns:
+        Configuration value or default
+    """
+    return config.get(key, default)
