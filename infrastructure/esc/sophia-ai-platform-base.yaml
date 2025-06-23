@@ -387,9 +387,17 @@ n8n:
 
 # LLM gateway credentials and endpoints
 llm_gateway:
+  # Portkey Gateway Configuration
+  portkey_api_key:
+    fn::secret: "${PORTKEY_API_KEY}"
+  portkey_endpoint: "https://api.portkey.ai/v1/chat/completions"
+  
+  # OpenRouter Backend Configuration
   api_key:
     fn::secret: "${OPENROUTER_API_KEY}"
-  endpoint: "https://openrouter.ai/api/v1/completions"
+  endpoint: "https://openrouter.ai/api/v1/chat/completions"
+  
+  # Fallback endpoints for high availability
   fallback_endpoints:
-    - "https://api.openai.com/v1/completions"
-    - "https://api.anthropic.com/v1/complete" 
+    - "https://api.openai.com/v1/chat/completions"
+    - "https://api.anthropic.com/v1/messages" 

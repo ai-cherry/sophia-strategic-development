@@ -197,50 +197,170 @@ global_settings:
       - email
     metrics_retention_days: 90
 
-# Service Routing Rules
+# Service Routing Rules - Enhanced Portkey + OpenRouter Architecture
 routing_rules:
   llm_gateway:
-    primary: "openrouter"
-    endpoint: "https://openrouter.ai/api/v1/completions"
-    api_key_env: "OPENROUTER_API_KEY"
-    fallback_endpoints:
-      - "https://api.openai.com/v1/completions"
-      - "https://api.anthropic.com/v1/complete"
+    # Primary: Portkey Gateway with OpenRouter backend
+    primary: "portkey"
+    portkey_endpoint: "https://api.portkey.ai/v1/chat/completions"
+    portkey_api_key_env: "PORTKEY_API_KEY"
+    
+    # OpenRouter as backend provider through Portkey
+    backend_provider: "openrouter"
+    openrouter_api_key_env: "OPENROUTER_API_KEY"
+    
+    # Intelligent routing configuration
+    routing_strategy:
+      # Performance-optimized model selection
+      performance_tier_1:
+        models: ["gpt-4o", "claude-3-opus", "gemini-1.5-pro"]
+        use_case: ["complex_reasoning", "executive_insights", "strategic_analysis"]
+        cost_multiplier: 1.0
+        
+      performance_tier_2: 
+        models: ["claude-3-haiku", "gpt-4-turbo", "deepseek-v3"]
+        use_case: ["code_generation", "document_analysis", "routine_queries"]
+        cost_multiplier: 0.6
+        
+      cost_optimized:
+        models: ["llama-3-70b", "qwen2-72b", "mixtral-8x22b"]
+        use_case: ["bulk_processing", "training_data", "cost_sensitive"]
+        cost_multiplier: 0.2
+    
+    # Portkey-specific configurations
+    portkey_config:
+      # Semantic caching for cost optimization
+      semantic_caching:
+        enabled: true
+        similarity_threshold: 0.92
+        ttl_hours: 24
+        cache_size_gb: 50
+        
+      # Smart routing and load balancing
+      load_balancing:
+        strategy: "weighted_round_robin"
+        health_check_interval: 30
+        fallback_enabled: true
+        
+      # Cost and performance monitoring
+      monitoring:
+        track_costs: true
+        track_latency: true
+        track_token_usage: true
+        alert_thresholds:
+          cost_spike_percentage: 50
+          latency_spike_ms: 2000
+          error_rate_percentage: 5
+    
+    # Model selection rules with business context
     model_selection:
-      - condition: "task_type == 'code_generation'"
-        model: "deepseek-v3"
-        provider: "openrouter"
-      - condition: "task_type == 'complex_reasoning' or task_type == 'long_context'"
-        model: "claude-3-opus"
-        provider: "openrouter"
-      - condition: "task_type == 'chat' or task_type == 'general'"
+      - condition: "dashboard_type == 'ceo' AND task_type == 'executive_summary'"
         model: "gpt-4o"
         provider: "openrouter"
-      - condition: "prompt_tokens > 16000"
+        cache_ttl: 3600
+        priority: "high"
+        
+      - condition: "dashboard_type == 'ceo' AND task_type == 'competitive_analysis'"
+        model: "claude-3-opus"
+        provider: "openrouter" 
+        cache_ttl: 7200
+        priority: "high"
+        
+      - condition: "task_type == 'code_generation' OR task_type == 'technical_analysis'"
+        model: "deepseek-v3"
+        provider: "openrouter"
+        cache_ttl: 1800
+        priority: "medium"
+        
+      - condition: "task_type == 'long_context' OR prompt_tokens > 16000"
         model: "gemini-1.5-pro"
         provider: "openrouter"
-      - condition: "cost_sensitive == true"
+        cache_ttl: 3600
+        priority: "medium"
+        
+      - condition: "task_type == 'chat' OR task_type == 'general'"
+        model: "gpt-4o"
+        provider: "openrouter"
+        cache_ttl: 900
+        priority: "medium"
+        
+      - condition: "cost_sensitive == true OR budget_constraint == true"
         model: "llama-3-70b"
         provider: "openrouter"
-      - condition: "task_type == 'open_source_preferred'"
-        model: "qwen2-72b"
+        cache_ttl: 7200
+        priority: "low"
+        
+      - condition: "task_type == 'multi_modal' OR has_images == true"
+        model: "gpt-4o"
         provider: "openrouter"
-      - condition: "task_type == 'multi-modal'"
-        model: "gemini-1.5-pro"
+        cache_ttl: 1800
+        priority: "high"
+        
+      - condition: "task_type == 'summarization' AND content_length < 10000"
+        model: "claude-3-haiku"
         provider: "openrouter"
+        cache_ttl: 3600
+        priority: "medium"
+    
+    # Fallback strategy
+    fallback_strategy:
+      primary_fallback: "openrouter_direct"
+      secondary_fallback: "openai_direct"
+      fallback_endpoints:
+        openrouter_direct:
+          endpoint: "https://openrouter.ai/api/v1/chat/completions"
+          api_key_env: "OPENROUTER_API_KEY"
+        openai_direct:
+          endpoint: "https://api.openai.com/v1/chat/completions"
+          api_key_env: "OPENAI_API_KEY"
+        anthropic_direct:
+          endpoint: "https://api.anthropic.com/v1/messages"
+          api_key_env: "ANTHROPIC_API_KEY"
+    
+    # CEO Dashboard specific configurations
+    ceo_dashboard_config:
+      # Model performance tracking
+      performance_metrics:
+        - response_quality_score
+        - business_relevance_score
+        - cost_efficiency_ratio
+        - user_satisfaction_rating
+        
+      # Strategic model assignments
+      strategic_model_assignments:
+        executive_insights: "gpt-4o"
+        competitive_intelligence: "claude-3-opus"
+        financial_analysis: "gpt-4o"
+        market_analysis: "gemini-1.5-pro"
+        operational_efficiency: "claude-3-haiku"
+        
+      # Cost management
+      cost_controls:
+        monthly_budget_usd: 2000
+        alert_at_percentage: 75
+        auto_downgrade_at_percentage: 90
+        emergency_fallback_model: "llama-3-70b"
+        
+      # A/B testing for model optimization
+      ab_testing:
+        enabled: true
+        test_percentage: 10
+        metrics_tracked: ["quality", "cost", "latency"]
+        test_duration_days: 7
 
-  data_source_selection:
-    - condition: "data_type == 'structured' AND size < '1GB'"
-      source: "snowflake"
-      query_engine: "standard"
+# Data Source Selection
+data_source_selection:
+  - condition: "data_type == 'structured' AND size < '1GB'"
+    source: "snowflake"
+    query_engine: "standard"
 
-    - condition: "data_type == 'embeddings'"
-      source: "pinecone"
-      index: "sophia-main"
+  - condition: "data_type == 'embeddings'"
+    source: "pinecone"
+    index: "sophia-main"
 
-    - condition: "data_type == 'web_content'"
-      source: "apify"
-      scraper: "universal"
+  - condition: "data_type == 'web_content'"
+    source: "apify"
+    scraper: "universal"
 
 # Feature Flags
 feature_flags:
