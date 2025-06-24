@@ -31,9 +31,13 @@ import {
   FolderOpen,
   FileCode,
   FileSpreadsheet,
-  FilePlus
+  FilePlus,
+  Users,
+  MessageSquare
 } from 'lucide-react';
 import EnhancedUnifiedChatInterface from '../shared/EnhancedUnifiedChatInterface';
+import FoundationalKnowledgeTab from './FoundationalKnowledgeTab';
+import SlackKnowledgeTab from './SlackKnowledgeTab';
 
 interface IngestionJob {
   id: string;
@@ -223,13 +227,22 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
     },
     {
       id: 'job_004',
-      source: 'Snowflake Sync',
-      document: 'Customer Analytics Dataset',
-      status: 'failed',
-      error: 'Connection timeout',
-      timestamp: '2024-07-21 09:55 AM',
-      size: '8.7 MB',
+      source: 'Foundational Sync',
+      document: 'Employee Directory Update',
+      status: 'success',
+      timestamp: '2024-07-21 09:45 AM',
+      size: '2.1 MB',
       type: 'database'
+    },
+    {
+      id: 'job_005',
+      source: 'Slack Sync',
+      document: 'Team Conversations - Last 24h',
+      status: 'processing',
+      progress: 78,
+      timestamp: '2024-07-21 10:10 AM',
+      size: '5.3 MB',
+      type: 'chat'
     }
   ];
 
@@ -256,19 +269,38 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
       id: 'snowflake',
       name: 'Snowflake Analytics',
       type: 'snowflake',
-      status: 'disconnected',
-      lastSync: '3 days ago',
-      documentCount: 890
+      status: 'connected',
+      lastSync: '2 hours ago',
+      documentCount: 890,
+      nextSync: 'in 4 hours'
+    },
+    {
+      id: 'foundational',
+      name: 'Pay Ready Foundation',
+      type: 'api',
+      status: 'connected',
+      lastSync: '30 minutes ago',
+      documentCount: 2456,
+      nextSync: 'Daily at 2 AM'
+    },
+    {
+      id: 'slack',
+      name: 'Slack Workspace',
+      type: 'api',
+      status: 'connected',
+      lastSync: '5 minutes ago',
+      documentCount: 8934,
+      nextSync: 'Every 15 minutes'
     }
   ];
 
   const mockStats: KnowledgeStats = {
-    totalDocuments: 12456,
-    totalSize: '45.8 GB',
-    recentIngestions: 156,
-    activeProcessing: 3,
-    searchQueries: 4567,
-    avgQueryTime: 123
+    totalDocuments: 18192, // Updated to include foundational + slack
+    totalSize: '67.3 GB', // Updated size
+    recentIngestions: 234, // Updated count
+    activeProcessing: 5, // Updated count
+    searchQueries: 6789, // Updated count
+    avgQueryTime: 98 // Improved performance
   };
 
   return (
@@ -276,10 +308,10 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Knowledge Management</h1>
-        <p className="text-gray-600 mt-1">Manage and monitor your AI knowledge base</p>
+        <p className="text-gray-600 mt-1">Comprehensive knowledge base with foundational data and team insights</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Enhanced Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="">
           <CardHeader className="pb-2">
@@ -287,7 +319,7 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
           </CardHeader>
           <CardContent className="">
             <div className="text-2xl font-bold">{mockStats.totalDocuments.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">Across all sources</p>
+            <p className="text-xs text-gray-500">Including foundational data</p>
           </CardContent>
         </Card>
         
@@ -322,22 +354,30 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Main Content */}
+      {/* Enhanced Main Content with New Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="sources">Data Sources</TabsTrigger>
           <TabsTrigger value="ingestion">Ingestion</TabsTrigger>
+          <TabsTrigger value="foundational">
+            <Users className="h-4 w-4 mr-2" />
+            Foundational
+          </TabsTrigger>
+          <TabsTrigger value="slack">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Slack Knowledge
+          </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
+        {/* Overview Tab - Enhanced */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Recent Ingestion Jobs */}
             <Card className="">
               <CardHeader className="">
                 <CardTitle>Recent Ingestion Activity</CardTitle>
-                <CardDescription>Latest document processing jobs</CardDescription>
+                <CardDescription>Latest document processing across all sources</CardDescription>
               </CardHeader>
               <CardContent className="">
                 <div className="space-y-3">
@@ -361,11 +401,11 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
+            {/* Enhanced Quick Actions */}
             <Card className="">
               <CardHeader className="">
                 <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Common knowledge management tasks</CardDescription>
+                <CardDescription>Knowledge management operations</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* File Upload */}
@@ -384,24 +424,25 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Data Source Actions */}
+                {/* Enhanced Data Source Actions */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Sync Data Sources</label>
-                  <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {mockDataSources.map((source) => (
                       <Button
                         key={source.id}
                         variant="outline"
+                        size="sm"
                         onClick={() => handleDataSourceSync(source.id)}
                         disabled={syncing === source.id || source.status === 'disconnected'}
                         className="justify-start"
                       >
                         {syncing === source.id ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="h-3 w-3 mr-2 animate-spin" />
                         ) : (
-                          <RefreshCw className="h-4 w-4 mr-2" />
+                          <RefreshCw className="h-3 w-3 mr-2" />
                         )}
-                        Sync {source.name}
+                        {source.name}
                       </Button>
                     ))}
                   </div>
@@ -411,18 +452,19 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* Data Sources Tab */}
+        {/* Enhanced Data Sources Tab */}
         <TabsContent value="sources" className="space-y-4">
           <Card className="">
             <CardHeader className="">
               <CardTitle>Connected Data Sources</CardTitle>
-              <CardDescription>Manage your knowledge base integrations</CardDescription>
+              <CardDescription>Manage your comprehensive knowledge base integrations</CardDescription>
             </CardHeader>
             <CardContent className="">
               <Table className="">
                 <TableHeader className="">
                   <TableRow className="">
                     <TableHead>Source</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Documents</TableHead>
                     <TableHead>Last Sync</TableHead>
@@ -438,6 +480,9 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
                           <Database className="h-4 w-4" />
                           {source.name}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{source.type}</Badge>
                       </TableCell>
                       <TableCell className="">
                         <div className="flex items-center gap-2">
@@ -478,12 +523,12 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Ingestion Tab */}
+        {/* Enhanced Ingestion Tab */}
         <TabsContent value="ingestion" className="space-y-4">
           <Card className="">
             <CardHeader className="">
               <CardTitle>Ingestion History</CardTitle>
-              <CardDescription>Complete history of document processing</CardDescription>
+              <CardDescription>Complete history of document processing across all sources</CardDescription>
             </CardHeader>
             <CardContent className="">
               <Table className="">
@@ -494,6 +539,7 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
                     <TableHead>Type</TableHead>
                     <TableHead>Size</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Progress</TableHead>
                     <TableHead>Timestamp</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -506,26 +552,26 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
                           {job.document}
                         </div>
                       </TableCell>
-                      <TableCell>{job.source}</TableCell>
-                      <TableCell className="">
-                        <Badge className="" variant="secondary">{job.type || 'unknown'}</Badge>
+                      <TableCell>
+                        <Badge variant="outline">{job.source}</Badge>
                       </TableCell>
-                      <TableCell>{job.size || '-'}</TableCell>
-                      <TableCell className="">
+                      <TableCell>{job.type}</TableCell>
+                      <TableCell>{job.size}</TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(job.status)}
-                          <span className={`text-sm ${
-                            job.status === 'success' ? 'text-green-600' :
-                            job.status === 'failed' ? 'text-red-600' :
-                            job.status === 'processing' ? 'text-blue-600' :
-                            'text-yellow-600'
-                          }`}>
-                            {job.status}
-                          </span>
-                          {job.error && (
-                            <span className="text-xs text-red-600">({job.error})</span>
-                          )}
+                          <span className="capitalize">{job.status}</span>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {job.progress ? (
+                          <div className="w-full">
+                            <Progress value={job.progress} className="h-2" />
+                            <span className="text-xs text-gray-500">{job.progress}%</span>
+                          </div>
+                        ) : (
+                          '-'
+                        )}
                       </TableCell>
                       <TableCell>{job.timestamp}</TableCell>
                     </TableRow>
@@ -535,15 +581,25 @@ export const EnhancedKnowledgeDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* New Foundational Knowledge Tab */}
+        <TabsContent value="foundational" className="space-y-4">
+          <FoundationalKnowledgeTab />
+        </TabsContent>
+
+        {/* New Slack Knowledge Tab */}
+        <TabsContent value="slack" className="space-y-4">
+          <SlackKnowledgeTab />
+        </TabsContent>
       </Tabs>
 
-      {/* Chat Interface */}
-      <div className="mt-6">
+      {/* Enhanced Universal Chat Interface */}
+      <div className="mt-8">
         <EnhancedUnifiedChatInterface
           context={chatContext}
-          height="400px"
-          title="Knowledge Assistant"
-          placeholder="Search documents, ask questions, or manage knowledge..."
+          height="600px"
+          title="Knowledge Base Assistant"
+          placeholder="Search across all knowledge sources: foundational data, Gong calls, Slack conversations, documents..."
         />
       </div>
     </div>

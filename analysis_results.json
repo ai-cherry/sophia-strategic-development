@@ -1,0 +1,27 @@
+{
+  "quality_score": 92,
+  "security_issues": 128,
+  "performance_opportunities": 5658,
+  "cursor_optimizations": [],
+  "mcp_integration_health": {
+    "servers_configured": 9,
+    "servers_with_health_checks": 0,
+    "auto_triggers_enabled": true,
+    "workflow_automation": true,
+    "issues": []
+  },
+  "github_integration_status": {
+    "workflows_configured": 21,
+    "cursor_specific_workflows": true,
+    "automated_analysis": true,
+    "issues": []
+  },
+  "recommendations": [
+    "\ud83d\udd04 Enable auto-triggers in Cursor MCP configuration",
+    "\ud83e\udd16 Add workflow automation to enhance development productivity",
+    "\ud83d\udd17 Add Cursor-specific GitHub workflows for enhanced integration"
+  ],
+  "analysis_timestamp": "2025-06-24T15:06:14.758162",
+  "commit_hash": "HEAD",
+  "branch": "main"
+}

@@ -1,65 +1,118 @@
 {
   "mcpServers": {
     "ai_memory": {
-      "type": "http",
-      "baseUrl": "http://localhost:9000",
-      "description": "AI Memory MCP Server - Persistent development context and learning",
-      "capabilities": [
-        "conversation_storage",
-        "context_recall",
-        "pattern_recognition",
-        "decision_tracking",
-        "architectural_memory"
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp.ai_memory_mcp_server"
       ],
-      "autoTriggers": {
-        "onCodeDiscussion": true,
-        "onArchitecturalDecision": true,
-        "onBugSolution": true,
-        "onPatternExplanation": true
+      "env": {
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "capabilities": {
+        "semantic_search": true,
+        "auto_discovery": true,
+        "context_awareness": true,
+        "intelligent_categorization": true
+      },
+      "auto_triggers": {
+        "on_file_save": true,
+        "on_commit": true,
+        "on_branch_switch": true,
+        "on_architecture_discussion": true,
+        "on_file_change": true,
+        "on_save": true
+      },
+      "workflow_automation": {
+        "auto_store_context": true,
+        "smart_recall": true,
+        "file_specific_memory": true,
+        "pattern_recognition": true
+      },
+      "performance": {
+        "cache_enabled": true,
+        "batch_operations": true,
+        "async_processing": true
       }
     },
     "codacy": {
-      "type": "http",
-      "baseUrl": "http://localhost:3008",
-      "description": "Codacy MCP Server - Code quality analysis, security scanning, and automated code review",
-      "capabilities": [
-        "code_analysis",
-        "security_scanning",
-        "quality_metrics",
-        "automated_fixes",
-        "executive_reporting",
-        "real_time_analysis"
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.codacy.codacy_mcp_server"
       ],
-      "autoTriggers": {
-        "onFileSave": true,
-        "onCommit": true,
-        "onPullRequest": true,
-        "onSecurityConcern": true
+      "capabilities": {
+        "real_time_analysis": true,
+        "security_scanning": true,
+        "ast_analysis": true,
+        "quality_metrics": true,
+        "fix_suggestions": true
+      },
+      "auto_triggers": {
+        "on_file_save": true,
+        "on_code_change": true,
+        "on_security_review": true,
+        "on_file_change": true,
+        "on_save": true
+      },
+      "analysis_settings": {
+        "complexity_threshold": 10,
+        "security_level": "strict",
+        "style_checking": true,
+        "performance_analysis": true
+      },
+      "integration": {
+        "github_integration": true,
+        "pr_comments": true,
+        "automated_fixes": false
       }
     },
     "asana": {
-      "type": "http",
-      "baseUrl": "http://localhost:3006",
-      "description": "Asana MCP Server - Project management and task tracking integration",
-      "capabilities": [
-        "project_management",
-        "task_tracking",
-        "team_coordination",
-        "progress_monitoring",
-        "deadline_management"
-      ]
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.asana.asana_mcp_server"
+      ],
+      "env": {
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "capabilities": {
+        "task_management": true,
+        "project_tracking": true,
+        "team_collaboration": true,
+        "progress_monitoring": true
+      },
+      "integration": {
+        "github_issues": true,
+        "development_workflow": true,
+        "automated_updates": true
+      }
     },
     "notion": {
-      "type": "http",
-      "baseUrl": "http://localhost:3007",
-      "description": "Notion MCP Server - Knowledge management and documentation",
-      "capabilities": [
-        "knowledge_search",
-        "document_management",
-        "content_organization",
-        "strategic_insights",
-        "documentation_sync"
-      ]
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.notion.notion_mcp_server"
+      ],
+      "env": {
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "capabilities": {
+        "document_management": true,
+        "knowledge_base": true,
+        "project_documentation": true,
+        "team_wiki": true
+      },
+      "auto_triggers": {
+        "on_architecture_decision": true,
+        "on_documentation_update": true,
+        "on_project_milestone": true,
+        "on_file_change": true,
+        "on_save": true
+      }
     },
     "sophia_intelligence": {
       "type": "http",
@@ -67,7 +120,7 @@
       "description": "Sophia AI Intelligence MCP Server - Handles AI model routing, business intelligence, and analytical tasks",
       "capabilities": [
         "agent_creation",
-        "business_analysis", 
+        "business_analysis",
         "data_insights",
         "ai_orchestration"
       ]
@@ -101,35 +154,46 @@
       "capabilities": [
         "deployment_management",
         "infrastructure_scaling",
-        "monitoring_setup", 
+        "monitoring_setup",
         "security_configuration"
       ]
     },
     "snowflake_admin": {
-      "type": "http",
-      "baseUrl": "http://localhost:8085",
-      "description": "Snowflake Admin MCP Server - Natural language interface for Snowflake administration using LangChain SQL Agent",
-      "capabilities": [
-        "schema_management",
-        "warehouse_management",
-        "role_management",
-        "user_management",
-        "grants_management",
-        "object_inspection",
-        "sql_generation",
-        "multi_environment_support",
-        "safety_confirmations"
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.snowflake_admin.snowflake_admin_mcp_server"
       ],
-      "autoTriggers": {
-        "onSnowflakeQuery": true,
-        "onAdminRequest": true,
-        "onDatabaseOperation": true
+      "env": {
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
       },
-      "environments": ["dev", "stg", "prod"],
+      "capabilities": {
+        "sql_agent": true,
+        "multi_environment": true,
+        "safety_checks": true,
+        "natural_language": true
+      },
       "security": {
-        "confirmationRequired": true,
-        "dangerousOperationDetection": true,
-        "auditLogging": true
+        "dangerous_operation_detection": true,
+        "confirmation_required": true,
+        "environment_restrictions": true,
+        "audit_logging": true
+      },
+      "environments": {
+        "dev": {
+          "restrictions": "minimal",
+          "confirmation_required": false
+        },
+        "staging": {
+          "restrictions": "moderate",
+          "confirmation_required": true
+        },
+        "production": {
+          "restrictions": "strict",
+          "confirmation_required": true,
+          "read_only": true
+        }
       }
     }
   },
@@ -143,29 +207,115 @@
     "contextAwareness": true
   },
   "development": {
-    "hotReload": true,
-    "debugMode": true,
-    "performanceTracking": true,
-    "autoCodeAnalysis": true,
-    "memoryIntegration": true
+    "auto_reload": true,
+    "debug_mode": true,
+    "verbose_logging": true,
+    "fast_feedback": true
   },
   "workflows": {
     "onCodeChange": {
-      "triggers": ["codacy.analyze_file", "ai_memory.store_context"],
-      "conditions": ["file_size < 10000", "file_type in ['py', 'js', 'ts']"]
+      "triggers": [
+        "codacy.analyze_file",
+        "ai_memory.store_context"
+      ],
+      "conditions": [
+        "file_size < 10000",
+        "file_type in ['py', 'js', 'ts']"
+      ]
     },
     "onArchitecturalDiscussion": {
-      "triggers": ["ai_memory.store_conversation"],
+      "triggers": [
+        "ai_memory.store_conversation"
+      ],
       "category": "architecture"
     },
     "onBugFix": {
-      "triggers": ["ai_memory.store_conversation", "codacy.security_scan"],
+      "triggers": [
+        "ai_memory.store_conversation",
+        "codacy.security_scan"
+      ],
       "category": "bug_solution"
     },
     "onSnowflakeAdminQuery": {
-      "triggers": ["snowflake_admin.execute_admin_task", "ai_memory.store_context"],
+      "triggers": [
+        "snowflake_admin.execute_admin_task",
+        "ai_memory.store_context"
+      ],
       "category": "database_administration",
-      "conditions": ["query_contains_snowflake_keywords", "user_has_admin_permissions"]
+      "conditions": [
+        "query_contains_snowflake_keywords",
+        "user_has_admin_permissions"
+      ]
     }
+  },
+  "github_integration": {
+    "auto_sync": true,
+    "branch_awareness": true,
+    "pr_integration": true,
+    "issue_linking": true,
+    "workflow_triggers": {
+      "on_push": [
+        "ai_memory",
+        "codacy"
+      ],
+      "on_pr": [
+        "codacy",
+        "ai_memory"
+      ],
+      "on_branch_switch": [
+        "ai_memory"
+      ],
+      "on_commit": [
+        "ai_memory",
+        "codacy"
+      ]
+    }
+  },
+  "cursor_optimizations": {
+    "intelligent_code_completion": true,
+    "context_aware_suggestions": true,
+    "ai_powered_refactoring": true,
+    "automated_documentation": true,
+    "smart_error_handling": true,
+    "performance_monitoring": true
+  },
+  "development_workflow": {
+    "auto_format_on_save": true,
+    "lint_on_change": true,
+    "test_on_commit": true,
+    "security_scan_on_pr": true
+  },
+  "ai_assistance": {
+    "natural_language_commands": true,
+    "contextual_help": true,
+    "code_explanation": true,
+    "optimization_suggestions": true
+  },
+  "performance": {
+    "connection_pooling": true,
+    "request_batching": true,
+    "async_operations": true,
+    "caching": {
+      "enabled": true,
+      "ttl": 300,
+      "max_size": 1000
+    },
+    "timeouts": {
+      "connection": 10,
+      "request": 30,
+      "keepalive": 60
+    }
+  },
+  "monitoring": {
+    "health_checks": true,
+    "performance_metrics": true,
+    "error_tracking": true,
+    "usage_analytics": true
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json",
+    "correlation_ids": true,
+    "structured_logging": true
   }
-} 
+}
