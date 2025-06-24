@@ -1,0 +1,654 @@
+"""
+Snowflake Gong Connector
+
+Utility module for accessing Gong call data directly from Snowflake structured tables.
+This provides optimized access to processed Gong data for Sales Coach and Call Analysis agents.
+
+Key Features:
+- Direct access to structured Gong call data in Snowflake
+- Integration with Snowflake Cortex for AI processing
+- Optimized queries for agent consumption
+- HubSpot data joining for enriched context
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
+
+import snowflake.connector
+import pandas as pd
+
+from backend.core.auto_esc_config import config
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class GongCallQuery:
+    """Configuration for Gong call data queries"""
+    date_range: Optional[Dict[str, datetime]] = None
+    sales_rep: Optional[str] = None
+    deal_stage: Optional[str] = None
+    sentiment_threshold: Optional[float] = None
+    limit: Optional[int] = None
+    include_transcripts: bool = False
+
+
+@dataclass
+class CallAnalysisResult:
+    """Result from call analysis with AI insights"""
+    call_id: str
+    call_title: str
+    sales_rep: str
+    call_datetime: datetime
+    sentiment_score: float
+    sentiment_category: str
+    talk_ratio: float
+    coaching_priority: str
+    hubspot_context: Dict[str, Any]
+    ai_insights: Dict[str, Any]
+
+
+class SnowflakeGongConnector:
+    """
+    Connector for accessing structured Gong data from Snowflake
+    
+    This class provides optimized methods for Sales Coach and Call Analysis agents
+    to access processed Gong data with Snowflake Cortex AI enhancements.
+    """
+    
+    def __init__(self):
+        self.connection = None
+        self.database = config.get("snowflake_database", "SOPHIA_AI")
+        self.gong_schema = "GONG_DATA"
+        self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
+        self.initialized = False
+        
+        # Common table references
+        self.tables = {
+            "calls": f"{self.database}.{self.gong_schema}.STG_GONG_CALLS",
+            "transcripts": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_TRANSCRIPTS",
+            "participants": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_PARTICIPANTS",
+            "topics": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_TOPICS"
+        }
+    
+    async def __aenter__(self):
+        """Async context manager entry - initialize connection"""
+        await self.initialize()
+        return self
+    
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit - cleanup resources"""
+        await self.close()
+    
+    async def initialize(self) -> None:
+        """Initialize Snowflake connection for Gong data access"""
+        if self.initialized:
+            return
+            
+        try:
+            self.connection = snowflake.connector.connect(
+                user=config.get("snowflake_user"),
+                password=config.get("snowflake_password"),
+                account=config.get("snowflake_account"),
+                warehouse=self.warehouse,
+                database=self.database,
+                schema=self.gong_schema,
+                role=config.get("snowflake_role", "ACCOUNTADMIN")
+            )
+            
+            self.initialized = True
+            logger.info("✅ Snowflake Gong connector initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Snowflake Gong connector: {e}")
+            raise
+    
+    async def get_calls_for_coaching(
+        self,
+        sales_rep: Optional[str] = None,
+        date_range_days: int = 7,
+        sentiment_threshold: float = 0.4,
+        limit: int = 20
+    ) -> List[Dict[str, Any]]:
+        """
+        Get calls that need coaching attention
+        
+        Args:
+            sales_rep: Specific sales rep to analyze
+            date_range_days: Days back to search
+            sentiment_threshold: Minimum sentiment for filtering
+            limit: Maximum calls to return
+            
+        Returns:
+            List of calls needing coaching with AI insights
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        rep_filter = f"AND gc.PRIMARY_USER_NAME = '{sales_rep}'" if sales_rep else ""
+        
+        query = f"""
+        SELECT 
+            gc.CALL_ID,
+            gc.CALL_TITLE,
+            gc.PRIMARY_USER_NAME,
+            gc.CALL_DATETIME_UTC,
+            gc.SENTIMENT_SCORE,
+            gc.TALK_RATIO,
+            gc.CALL_DURATION_SECONDS,
+            gc.CALL_SUMMARY,
+            
+            -- HubSpot context
+            hd.DEAL_NAME,
+            hd.DEAL_STAGE,
+            hd.DEAL_AMOUNT,
+            hc.COMPANY_NAME,
+            
+            -- Coaching indicators
+            CASE 
+                WHEN gc.SENTIMENT_SCORE < 0.2 THEN 'High Priority'
+                WHEN gc.SENTIMENT_SCORE < {sentiment_threshold} THEN 'Medium Priority'
+                WHEN gc.TALK_RATIO > 0.8 THEN 'Talk Ratio Issue'
+                ELSE 'Low Priority'
+            END as coaching_priority,
+            
+            CASE 
+                WHEN gc.SENTIMENT_SCORE > 0.7 THEN 'Very Positive'
+                WHEN gc.SENTIMENT_SCORE > 0.3 THEN 'Positive'
+                WHEN gc.SENTIMENT_SCORE > -0.3 THEN 'Neutral'
+                WHEN gc.SENTIMENT_SCORE > -0.7 THEN 'Negative'
+                ELSE 'Very Negative'
+            END as sentiment_category,
+            
+            -- Transcript insights
+            COUNT(t.TRANSCRIPT_ID) as transcript_segments,
+            AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
+            
+            -- Risk indicators
+            STRING_AGG(
+                CASE WHEN t.SEGMENT_SENTIMENT < 0.2 
+                THEN LEFT(t.TRANSCRIPT_TEXT, 200)
+                ELSE NULL END, 
+                ' | '
+            ) as risk_indicators
+            
+        FROM {self.tables['calls']} gc
+        LEFT JOIN {self.tables['transcripts']} t ON gc.CALL_ID = t.CALL_ID
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
+        
+        WHERE gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        AND (gc.SENTIMENT_SCORE < {sentiment_threshold} OR gc.TALK_RATIO > 0.7)
+        {rep_filter}
+        
+        GROUP BY 
+            gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
+            gc.SENTIMENT_SCORE, gc.TALK_RATIO, gc.CALL_DURATION_SECONDS, gc.CALL_SUMMARY,
+            hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
+            
+        ORDER BY 
+            CASE 
+                WHEN gc.SENTIMENT_SCORE < 0.2 THEN 1
+                WHEN gc.TALK_RATIO > 0.8 THEN 2
+                ELSE 3
+            END,
+            gc.CALL_DATETIME_UTC DESC
+            
+        LIMIT {limit}
+        """
+        
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query)
+            
+            columns = [desc[0] for desc in cursor.description]
+            results = cursor.fetchall()
+            
+            calls = []
+            for row in results:
+                call_data = dict(zip(columns, row))
+                calls.append(call_data)
+            
+            logger.info(f"Retrieved {len(calls)} calls needing coaching attention")
+            return calls
+            
+        except Exception as e:
+            logger.error(f"Error getting calls for coaching: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+    
+    async def get_call_analysis_data(
+        self,
+        call_id: str,
+        include_full_transcript: bool = True
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Get comprehensive call analysis data for a specific call
+        
+        Args:
+            call_id: Gong call ID
+            include_full_transcript: Whether to include full transcript data
+            
+        Returns:
+            Comprehensive call data with AI analysis
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        query = f"""
+        WITH call_base AS (
+            SELECT 
+                gc.CALL_ID,
+                gc.CALL_TITLE,
+                gc.PRIMARY_USER_NAME,
+                gc.CALL_DATETIME_UTC,
+                gc.CALL_DURATION_SECONDS,
+                gc.CALL_DIRECTION,
+                gc.SENTIMENT_SCORE,
+                gc.TALK_RATIO,
+                gc.CALL_SUMMARY,
+                gc.LONGEST_MONOLOGUE_SECONDS,
+                gc.INTERACTIVITY_SCORE,
+                gc.QUESTIONS_ASKED_COUNT,
+                
+                -- HubSpot enrichment
+                hd.DEAL_NAME,
+                hd.DEAL_STAGE,
+                hd.DEAL_AMOUNT,
+                hd.CLOSE_DATE,
+                hc.COMPANY_NAME,
+                hc.FIRST_NAME || ' ' || hc.LAST_NAME as contact_name,
+                hc.JOB_TITLE,
+                
+                -- Calculated insights
+                CASE 
+                    WHEN gc.SENTIMENT_SCORE > 0.7 THEN 'Very Positive'
+                    WHEN gc.SENTIMENT_SCORE > 0.3 THEN 'Positive'
+                    WHEN gc.SENTIMENT_SCORE > -0.3 THEN 'Neutral'
+                    WHEN gc.SENTIMENT_SCORE > -0.7 THEN 'Negative'
+                    ELSE 'Very Negative'
+                END as sentiment_category,
+                
+                CASE 
+                    WHEN gc.TALK_RATIO > 0.8 THEN 'Too High'
+                    WHEN gc.TALK_RATIO < 0.3 THEN 'Too Low'
+                    ELSE 'Good'
+                END as talk_ratio_assessment,
+                
+                DATEDIFF('day', gc.CALL_DATETIME_UTC, hd.CLOSE_DATE) as days_to_close
+                
+            FROM {self.tables['calls']} gc
+            LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
+            LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
+            WHERE gc.CALL_ID = '{call_id}'
+        ),
+        transcript_analysis AS (
+            SELECT 
+                COUNT(*) as total_segments,
+                AVG(SEGMENT_SENTIMENT) as avg_transcript_sentiment,
+                SUM(SEGMENT_DURATION_SECONDS) as total_transcript_duration,
+                
+                -- Speaker analysis
+                COUNT(DISTINCT SPEAKER_NAME) as unique_speakers,
+                STRING_AGG(DISTINCT SPEAKER_NAME, ', ') as all_speakers,
+                
+                -- Sentiment breakdown
+                COUNT(CASE WHEN SEGMENT_SENTIMENT > 0.5 THEN 1 END) as positive_segments,
+                COUNT(CASE WHEN SEGMENT_SENTIMENT < -0.5 THEN 1 END) as negative_segments,
+                
+                -- Key insights
+                STRING_AGG(
+                    CASE WHEN SEGMENT_SENTIMENT < 0.2 
+                    THEN LEFT(TRANSCRIPT_TEXT, 200) 
+                    ELSE NULL END, 
+                    ' | '
+                ) as negative_moments,
+                
+                STRING_AGG(
+                    CASE WHEN SEGMENT_SENTIMENT > 0.8 
+                    THEN LEFT(TRANSCRIPT_TEXT, 200) 
+                    ELSE NULL END, 
+                    ' | '
+                ) as positive_moments
+                
+            FROM {self.tables['transcripts']}
+            WHERE CALL_ID = '{call_id}'
+        ),
+        participants_info AS (
+            SELECT 
+                COUNT(*) as total_participants,
+                COUNT(CASE WHEN PARTICIPANT_TYPE = 'External' THEN 1 END) as external_participants,
+                COUNT(CASE WHEN PARTICIPANT_TYPE = 'Internal' THEN 1 END) as internal_participants,
+                STRING_AGG(FULL_NAME || ' (' || PARTICIPANT_TYPE || ')', ', ') as participant_list
+            FROM {self.tables['participants']}
+            WHERE CALL_ID = '{call_id}'
+        )
+        SELECT 
+            cb.*,
+            ta.total_segments,
+            ta.avg_transcript_sentiment,
+            ta.unique_speakers,
+            ta.all_speakers,
+            ta.positive_segments,
+            ta.negative_segments,
+            ta.negative_moments,
+            ta.positive_moments,
+            pi.total_participants,
+            pi.external_participants,
+            pi.internal_participants,
+            pi.participant_list
+        FROM call_base cb
+        LEFT JOIN transcript_analysis ta ON 1=1
+        LEFT JOIN participants_info pi ON 1=1
+        """
+        
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query)
+            
+            result = cursor.fetchone()
+            if not result:
+                return None
+            
+            columns = [desc[0] for desc in cursor.description]
+            call_data = dict(zip(columns, result))
+            
+            # Add full transcript if requested
+            if include_full_transcript:
+                transcript_data = await self._get_call_transcript(call_id)
+                call_data['full_transcript'] = transcript_data
+            
+            logger.info(f"Retrieved comprehensive analysis for call {call_id}")
+            return call_data
+            
+        except Exception as e:
+            logger.error(f"Error getting call analysis data: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+    
+    async def get_sales_rep_performance(
+        self,
+        sales_rep: str,
+        date_range_days: int = 30
+    ) -> Dict[str, Any]:
+        """
+        Get performance analysis for a specific sales rep
+        
+        Args:
+            sales_rep: Sales representative name
+            date_range_days: Days back to analyze
+            
+        Returns:
+            Comprehensive performance analysis
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        query = f"""
+        WITH rep_performance AS (
+            SELECT 
+                gc.PRIMARY_USER_NAME,
+                COUNT(*) as total_calls,
+                AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
+                AVG(gc.TALK_RATIO) as avg_talk_ratio,
+                AVG(gc.CALL_DURATION_SECONDS) as avg_duration,
+                AVG(gc.QUESTIONS_ASKED_COUNT) as avg_questions,
+                
+                -- Performance categories
+                COUNT(CASE WHEN gc.SENTIMENT_SCORE > 0.6 THEN 1 END) as positive_calls,
+                COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
+                COUNT(CASE WHEN gc.TALK_RATIO > 0.7 THEN 1 END) as high_talk_ratio_calls,
+                COUNT(CASE WHEN gc.TALK_RATIO < 0.4 THEN 1 END) as low_talk_ratio_calls,
+                
+                -- Deal outcomes
+                COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals,
+                COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won,
+                COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Lost', 'Closed - Lost') THEN 1 END) as deals_lost,
+                SUM(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN hd.DEAL_AMOUNT ELSE 0 END) as revenue_won,
+                
+                -- Time analysis
+                MIN(gc.CALL_DATETIME_UTC) as first_call_date,
+                MAX(gc.CALL_DATETIME_UTC) as last_call_date
+                
+            FROM {self.tables['calls']} gc
+            LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
+            
+            WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
+            AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+            
+            GROUP BY gc.PRIMARY_USER_NAME
+        ),
+        coaching_opportunities AS (
+            SELECT 
+                COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as needs_sentiment_coaching,
+                COUNT(CASE WHEN gc.TALK_RATIO > 0.8 THEN 1 END) as needs_talk_ratio_coaching,
+                COUNT(CASE WHEN gc.QUESTIONS_ASKED_COUNT < 3 THEN 1 END) as needs_discovery_coaching,
+                
+                STRING_AGG(
+                    CASE WHEN gc.SENTIMENT_SCORE < 0.3 
+                    THEN gc.CALL_TITLE || ' (' || DATE(gc.CALL_DATETIME_UTC) || ')'
+                    ELSE NULL END, 
+                    ', '
+                ) as low_sentiment_calls
+                
+            FROM {self.tables['calls']} gc
+            WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
+            AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        )
+        SELECT 
+            rp.*,
+            co.needs_sentiment_coaching,
+            co.needs_talk_ratio_coaching,
+            co.needs_discovery_coaching,
+            co.low_sentiment_calls,
+            
+            -- Performance scores
+            CASE 
+                WHEN rp.avg_sentiment > 0.6 AND rp.avg_talk_ratio BETWEEN 0.4 AND 0.7 THEN 'Excellent'
+                WHEN rp.avg_sentiment > 0.4 AND rp.avg_talk_ratio BETWEEN 0.3 AND 0.8 THEN 'Good'
+                WHEN rp.avg_sentiment > 0.2 THEN 'Needs Improvement'
+                ELSE 'Requires Coaching'
+            END as performance_category,
+            
+            ROUND((rp.avg_sentiment + 1) * 50, 1) as sentiment_score_pct,
+            ROUND(rp.positive_calls::FLOAT / rp.total_calls * 100, 1) as positive_call_rate,
+            ROUND(CASE WHEN rp.unique_deals > 0 THEN rp.deals_won::FLOAT / rp.unique_deals * 100 ELSE 0 END, 1) as win_rate
+            
+        FROM rep_performance rp
+        CROSS JOIN coaching_opportunities co
+        """
+        
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query)
+            
+            result = cursor.fetchone()
+            if not result:
+                return {"error": f"No data found for sales rep: {sales_rep}"}
+            
+            columns = [desc[0] for desc in cursor.description]
+            performance_data = dict(zip(columns, result))
+            
+            logger.info(f"Retrieved performance analysis for {sales_rep}")
+            return performance_data
+            
+        except Exception as e:
+            logger.error(f"Error getting sales rep performance: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+    
+    async def search_calls_by_content(
+        self,
+        search_terms: List[str],
+        date_range_days: int = 90,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search calls by transcript content using text search
+        
+        Args:
+            search_terms: Terms to search for in transcripts
+            date_range_days: Days back to search
+            limit: Maximum results to return
+            
+        Returns:
+            List of matching calls with context
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        # Build search conditions
+        search_conditions = " OR ".join([
+            f"LOWER(t.TRANSCRIPT_TEXT) LIKE '%{term.lower()}%'" 
+            for term in search_terms
+        ])
+        
+        query = f"""
+        SELECT 
+            gc.CALL_ID,
+            gc.CALL_TITLE,
+            gc.PRIMARY_USER_NAME,
+            gc.CALL_DATETIME_UTC,
+            gc.SENTIMENT_SCORE,
+            hd.DEAL_NAME,
+            hd.DEAL_STAGE,
+            hc.COMPANY_NAME,
+            
+            -- Matching transcript segments
+            COUNT(DISTINCT t.TRANSCRIPT_ID) as matching_segments,
+            STRING_AGG(
+                LEFT(t.TRANSCRIPT_TEXT, 300), 
+                ' | '
+            ) as matching_content,
+            
+            AVG(t.SEGMENT_SENTIMENT) as avg_matching_sentiment
+            
+        FROM {self.tables['calls']} gc
+        JOIN {self.tables['transcripts']} t ON gc.CALL_ID = t.CALL_ID
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
+        
+        WHERE ({search_conditions})
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        
+        GROUP BY 
+            gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
+            gc.SENTIMENT_SCORE, hd.DEAL_NAME, hd.DEAL_STAGE, hc.COMPANY_NAME
+            
+        ORDER BY gc.CALL_DATETIME_UTC DESC
+        LIMIT {limit}
+        """
+        
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(query)
+            
+            columns = [desc[0] for desc in cursor.description]
+            results = cursor.fetchall()
+            
+            calls = []
+            for row in results:
+                call_data = dict(zip(columns, row))
+                call_data['search_terms'] = search_terms
+                calls.append(call_data)
+            
+            logger.info(f"Found {len(calls)} calls matching search terms: {search_terms}")
+            return calls
+            
+        except Exception as e:
+            logger.error(f"Error searching calls by content: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+    
+    async def _get_call_transcript(self, call_id: str) -> List[Dict[str, Any]]:
+        """Get full transcript segments for a call"""
+        query = f"""
+        SELECT 
+            TRANSCRIPT_ID,
+            SPEAKER_NAME,
+            SPEAKER_TYPE,
+            TRANSCRIPT_TEXT,
+            START_TIME_SECONDS,
+            END_TIME_SECONDS,
+            SEGMENT_SENTIMENT,
+            SEGMENT_SUMMARY
+        FROM {self.tables['transcripts']}
+        WHERE CALL_ID = '{call_id}'
+        ORDER BY START_TIME_SECONDS
+        """
+        
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(query)
+            columns = [desc[0] for desc in cursor.description]
+            results = cursor.fetchall()
+            
+            transcript = []
+            for row in results:
+                segment = dict(zip(columns, row))
+                transcript.append(segment)
+            
+            return transcript
+            
+        finally:
+            cursor.close()
+    
+    async def close(self):
+        """Close Snowflake connection"""
+        if self.connection:
+            self.connection.close()
+            self.initialized = False
+            logger.info("Snowflake Gong connector closed")
+
+
+# Global connector instance
+gong_connector = SnowflakeGongConnector()
+
+
+async def get_gong_connector() -> SnowflakeGongConnector:
+    """Get the global Gong connector instance"""
+    if not gong_connector.initialized:
+        await gong_connector.initialize()
+    return gong_connector
+
+
+# Convenience functions for agents
+async def get_coaching_opportunities(sales_rep: str = None, days: int = 7) -> List[Dict[str, Any]]:
+    """Get calls needing coaching attention"""
+    connector = await get_gong_connector()
+    return await connector.get_calls_for_coaching(
+        sales_rep=sales_rep,
+        date_range_days=days,
+        sentiment_threshold=0.4
+    )
+
+
+async def analyze_call(call_id: str) -> Optional[Dict[str, Any]]:
+    """Get comprehensive call analysis"""
+    connector = await get_gong_connector()
+    return await connector.get_call_analysis_data(call_id, include_full_transcript=True)
+
+
+async def get_rep_performance(sales_rep: str, days: int = 30) -> Dict[str, Any]:
+    """Get sales rep performance analysis"""
+    connector = await get_gong_connector()
+    return await connector.get_sales_rep_performance(sales_rep, days)
+
+
+async def search_call_content(terms: List[str], days: int = 90) -> List[Dict[str, Any]]:
+    """Search calls by transcript content"""
+    connector = await get_gong_connector()
+    return await connector.search_calls_by_content(terms, days) 

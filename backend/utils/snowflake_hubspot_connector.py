@@ -69,6 +69,15 @@ class SnowflakeHubSpotConnector:
             "properties": "PROPERTIES"
         }
     
+    async def __aenter__(self):
+        """Async context manager entry - initialize connection"""
+        await self.initialize()
+        return self
+    
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit - cleanup resources"""
+        await self.close()
+    
     async def initialize(self) -> None:
         """Initialize Snowflake connection for HubSpot data access"""
         if self.initialized:

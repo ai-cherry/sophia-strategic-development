@@ -1,6 +1,6 @@
 """
 Enhanced AI Memory MCP Server for persistent development context
-Now with real OpenAI embeddings, Pinecone integration, and auto-detection
+Now with real OpenAI embeddings, Pinecone integration, Snowflake Cortex, and auto-detection
 """
 
 from __future__ import annotations
@@ -34,6 +34,11 @@ from backend.core.comprehensive_memory_manager import ComprehensiveMemoryManager
 from backend.core.contextual_memory_intelligence import ContextualMemoryIntelligence
 from backend.core.hierarchical_cache import HierarchicalCache
 
+# Import Snowflake Cortex integration
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+
 logger = logging.getLogger(__name__)
 
 
@@ -53,6 +58,13 @@ class MemoryCategory:
     HUBSPOT_SALES_PATTERN = "hubspot_sales_pattern"
     HUBSPOT_CUSTOMER_INTERACTION = "hubspot_customer_interaction"
     HUBSPOT_PIPELINE_INSIGHT = "hubspot_pipeline_insight"
+    
+    # Gong-specific categories for call analysis and coaching
+    GONG_CALL_SUMMARY = "gong_call_summary"
+    GONG_CALL_INSIGHT = "gong_call_insight"
+    GONG_COACHING_RECOMMENDATION = "gong_coaching_recommendation"
+    GONG_SENTIMENT_ANALYSIS = "gong_sentiment_analysis"
+    GONG_TOPIC_ANALYSIS = "gong_topic_analysis"
 
 
 class MemoryRecord(BaseModel):
@@ -67,6 +79,13 @@ class MemoryRecord(BaseModel):
     auto_detected: bool = False
     usage_count: int = 0
     last_accessed: Optional[datetime] = None
+    
+    # Enhanced metadata for business intelligence
+    deal_id: Optional[str] = None
+    call_id: Optional[str] = None
+    contact_id: Optional[str] = None
+    sentiment_score: Optional[float] = None
+    confidence_score: Optional[float] = None
 
 
 class ConversationAnalyzer:
@@ -247,17 +266,23 @@ class ConversationAnalyzer:
 
 
 class EnhancedAiMemoryMCPServer:
-    """Enhanced AI Memory MCP Server with real integrations and auto-detection"""
+    """Enhanced AI Memory MCP Server with real integrations, auto-detection, and Snowflake Cortex"""
 
     def __init__(self) -> None:
         self.name = "ai_memory"
-        self.description = "Enhanced AI Memory for persistent development context with auto-detection"
+        self.description = "Enhanced AI Memory for persistent development context with auto-detection and Snowflake Cortex"
         self.memory_manager = ComprehensiveMemoryManager()
         self.memory_intelligence = ContextualMemoryIntelligence(self.memory_manager)
         self.cache = HierarchicalCache()
         self.conversation_analyzer = ConversationAnalyzer()
         self.openai_client: Optional[Any] = None
         self.pinecone_index: Optional[Any] = None
+        
+        # Snowflake Cortex integration
+        self.cortex_service: Optional[SnowflakeCortexService] = None
+        self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
+        self.gong_connector: Optional[SnowflakeGongConnector] = None
+        
         self.initialized = False
         self.preloaded_knowledge = False
 
@@ -266,7 +291,7 @@ class EnhancedAiMemoryMCPServer:
         if self.initialized:
             return
 
-        logger.info("Initializing Enhanced AI Memory MCP Server...")
+        logger.info("Initializing Enhanced AI Memory MCP Server with Snowflake Cortex...")
 
         # Initialize OpenAI client with enhanced error handling
         await self._initialize_openai()
@@ -274,11 +299,14 @@ class EnhancedAiMemoryMCPServer:
         # Initialize Pinecone with enhanced setup
         await self._initialize_pinecone()
         
+        # Initialize Snowflake Cortex services
+        await self._initialize_snowflake_cortex()
+        
         # Pre-load helpful AI coding knowledge
         await self._preload_ai_coding_knowledge()
 
         self.initialized = True
-        logger.info("Enhanced AI Memory MCP Server initialized successfully")
+        logger.info("Enhanced AI Memory MCP Server with Snowflake Cortex initialized successfully")
 
     async def _initialize_openai(self):
         """Initialize OpenAI client with proper configuration"""
@@ -351,6 +379,21 @@ class EnhancedAiMemoryMCPServer:
         except Exception as e:
             logger.error(f"Failed to initialize Pinecone: {e}")
             self.pinecone_index = None
+
+    async def _initialize_snowflake_cortex(self):
+        """Initialize Snowflake Cortex services"""
+        try:
+            self.cortex_service = SnowflakeCortexService()
+            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.gong_connector = SnowflakeGongConnector()
+            
+            logger.info("✅ Snowflake Cortex services initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Snowflake Cortex services: {e}")
+            self.cortex_service = None
+            self.hubspot_connector = None
+            self.gong_connector = None
 
     async def _preload_ai_coding_knowledge(self):
         """Pre-load helpful AI coding knowledge for developers"""
@@ -907,54 +950,143 @@ class EnhancedAiMemoryMCPServer:
     async def store_hubspot_deal_analysis(
         self,
         deal_id: str,
-        analysis_content: str,
-        deal_stage: str,
+        analysis_content: str = None,
+        deal_stage: str = None,
         deal_value: Optional[float] = None,
-        tags: List[str] = None
+        tags: List[str] = None,
+        use_cortex_summary: bool = True
     ) -> Dict[str, Any]:
         """
-        Store HubSpot deal analysis for pipeline intelligence
+        Enhanced HubSpot deal analysis storage with Snowflake Cortex integration
         
         Args:
             deal_id: HubSpot deal ID
-            analysis_content: Analysis or insights about the deal
+            analysis_content: Pre-generated analysis content (optional if using Cortex)
             deal_stage: Current deal stage
-            deal_value: Deal value if available
-            tags: Additional tags
+            deal_value: Deal value/amount
+            tags: Additional tags for categorization
+            use_cortex_summary: Whether to use Snowflake Cortex for summary generation
             
         Returns:
-            Storage result with metadata
+            Storage result with embedding and metadata
         """
-        if not tags:
-            tags = []
-        
-        tags.extend(["hubspot", "crm", "deal_analysis", deal_stage, f"deal_{deal_id}"])
-        
-        structured_content = f"""
-        HubSpot Deal Analysis:
-        Deal ID: {deal_id}
-        Deal Stage: {deal_stage}
-        Deal Value: {deal_value or 'Not specified'}
-        Analysis: {analysis_content}
-        Timestamp: {datetime.now().isoformat()}
-        
-        TODO: This analysis will leverage Snowflake Cortex for:
-        - Deal progression pattern analysis
-        - Revenue forecasting insights
-        - Risk assessment using historical data
-        - Semantic search across similar deals
-        """
-        
-        importance = 0.8 if deal_value and deal_value > 10000 else 0.6
-        
-        return await self.store_memory(
-            content=structured_content,
-            category=MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
-            tags=tags,
-            importance_score=importance,
-            auto_detected=False
-        )
-    
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Ensure embedding columns exist in ENRICHED_HUBSPOT_DEALS table
+            async with self.cortex_service as cortex:
+                await cortex.ensure_embedding_columns_exist("ENRICHED_HUBSPOT_DEALS")
+            
+            # Generate comprehensive deal summary using Snowflake Cortex if enabled
+            if use_cortex_summary and self.cortex_service and self.hubspot_connector:
+                async with self.hubspot_connector as connector:
+                    # Get deal data from HubSpot via Snowflake
+                    deal_data = await connector.query_hubspot_deals(
+                        stage_filters=[deal_stage] if deal_stage else None,
+                        limit=1
+                    )
+                    
+                    if not deal_data.empty:
+                        deal_info = deal_data.iloc[0]
+                        
+                        # Create comprehensive context for Cortex summarization
+                        deal_context = f"""
+                        Deal Analysis for {deal_info.get('DEAL_NAME', 'Unknown Deal')}:
+                        - Deal ID: {deal_id}
+                        - Stage: {deal_info.get('DEAL_STAGE', 'Unknown')}
+                        - Amount: ${deal_info.get('AMOUNT', 0):,.2f}
+                        - Company: {deal_info.get('COMPANY_NAME', 'Unknown')}
+                        - Created: {deal_info.get('CREATE_DATE', 'Unknown')}
+                        - Close Date: {deal_info.get('CLOSE_DATE', 'Unknown')}
+                        - Owner: {deal_info.get('HUBSPOT_OWNER_ID', 'Unknown')}
+                        """
+                        
+                        if analysis_content:
+                            deal_context += f"\nAdditional Analysis: {analysis_content}"
+                        
+                        # Generate AI summary using Snowflake Cortex
+                        async with self.cortex_service as cortex:
+                            summary_result = await cortex.complete_text_with_cortex(
+                                prompt=f"Analyze this HubSpot deal and provide key insights, risks, and opportunities:\n{deal_context}",
+                                max_tokens=300
+                            )
+                            
+                            analysis_content = summary_result if summary_result else deal_context
+            
+            else:
+                # Use provided analysis content or create basic summary
+                if not analysis_content:
+                    analysis_content = f"Deal analysis for {deal_id} in stage {deal_stage} with value ${deal_value or 0:,.2f}"
+
+            # Store embedding directly in ENRICHED_HUBSPOT_DEALS table using Snowflake Cortex
+            async with self.cortex_service as cortex:
+                # Prepare metadata for storage
+                metadata = {
+                    "category": MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                    "deal_id": deal_id,
+                    "deal_stage": deal_stage or "unknown",
+                    "deal_value": deal_value or 0,
+                    "tags": tags or [],
+                    "created_at": datetime.now().isoformat(),
+                    "importance_score": self._calculate_deal_importance(deal_value, deal_stage),
+                    "confidence_score": 0.9 if use_cortex_summary else 0.7
+                }
+                
+                # Store embedding directly in business table
+                embedding_stored = await cortex.store_embedding_in_business_table(
+                    table_name="ENRICHED_HUBSPOT_DEALS",
+                    record_id=deal_id,
+                    text_content=analysis_content,
+                    embedding_column="ai_memory_embedding",
+                    metadata=metadata,
+                    model="e5-base-v2"
+                )
+
+            # Create memory record for local tracking (without Pinecone storage)
+            memory_id = f"hubspot_deal_{deal_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            
+            memory = MemoryRecord(
+                id=memory_id,
+                content=analysis_content,
+                category=MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                tags=tags or [],
+                embedding=None,  # Stored in Snowflake, not locally
+                created_at=datetime.now(),
+                importance_score=self._calculate_deal_importance(deal_value, deal_stage),
+                auto_detected=False,
+                deal_id=deal_id,
+                confidence_score=0.9 if use_cortex_summary else 0.7
+            )
+
+            # Store in local memory manager (for fallback and tracking)
+            await self.memory_manager.append(
+                MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                json.dumps(memory.model_dump(), default=str)
+            )
+
+            return {
+                "id": memory_id,
+                "status": "stored",
+                "deal_id": deal_id,
+                "category": MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                "importance_score": memory.importance_score,
+                "confidence_score": memory.confidence_score,
+                "embedding_source": "snowflake_cortex",
+                "vector_stored": embedding_stored,
+                "cortex_enhanced": use_cortex_summary and bool(self.cortex_service),
+                "storage_location": "ENRICHED_HUBSPOT_DEALS"
+            }
+
+        except Exception as e:
+            logger.error(f"Error storing HubSpot deal analysis: {e}")
+            return {
+                "id": None,
+                "status": "error",
+                "error": str(e),
+                "deal_id": deal_id
+            }
+
     async def store_hubspot_sales_pattern(
         self,
         pattern_description: str,
@@ -1009,51 +1141,170 @@ class EnhancedAiMemoryMCPServer:
         insight_type: Optional[str] = None,
         contact_id: Optional[str] = None,
         deal_id: Optional[str] = None,
-        limit: int = 5
+        limit: int = 5,
+        use_cortex_search: bool = True
     ) -> List[Dict[str, Any]]:
         """
-        Recall HubSpot-specific insights with enhanced filtering
+        Enhanced HubSpot insights recall with Snowflake Cortex vector search
         
         Args:
             query: Search query for insights
             insight_type: Type of insight to filter by
-            contact_id: Specific contact ID to filter by
-            deal_id: Specific deal ID to filter by
-            limit: Maximum results to return
+            contact_id: Filter by specific contact ID
+            deal_id: Filter by specific deal ID
+            limit: Maximum number of results
+            use_cortex_search: Whether to use Snowflake Cortex for vector search
             
         Returns:
-            List of relevant HubSpot insights
-            
-        TODO: This will transition to use Snowflake native vector search:
-        - VECTOR_COSINE_SIMILARITY() for semantic matching
-        - Integration with HubSpot Secure Data Share
-        - Real-time insights from live CRM data
+            List of relevant HubSpot insights with enhanced metadata
         """
-        # Build enhanced query with HubSpot context
-        hubspot_query = f"HubSpot CRM {query}"
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Use Snowflake Cortex vector search for HubSpot data
+            if use_cortex_search and self.cortex_service:
+                async with self.cortex_service as cortex:
+                    # Build metadata filters
+                    metadata_filters = {}
+                    if deal_id:
+                        metadata_filters['id'] = deal_id  # Primary key in ENRICHED_HUBSPOT_DEALS
+                    
+                    # Use enhanced Cortex search for HubSpot deals
+                    cortex_results = await cortex.search_hubspot_deals_with_ai_memory(
+                        query_text=query,
+                        top_k=limit,
+                        similarity_threshold=0.7,
+                        deal_stage=insight_type if insight_type else None
+                    )
+                    
+                    if cortex_results:
+                        # Convert Cortex results to standard format
+                        cortex_insights = []
+                        for result in cortex_results:
+                            cortex_insights.append({
+                                "id": result.get("ID"),
+                                "content": result.get("AI_MEMORY_METADATA", ""),
+                                "category": MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                                "relevance_score": result.get("SIMILARITY_SCORE", 0),
+                                "deal_id": result.get("ID"),
+                                "contact_id": result.get("CONTACT_ID"),
+                                "deal_stage": result.get("DEAL_STAGE"),
+                                "deal_value": result.get("AMOUNT"),
+                                "company_name": result.get("COMPANY_NAME"),
+                                "created_at": result.get("AI_MEMORY_UPDATED_AT"),
+                                "embedding_source": "snowflake_cortex",
+                                "storage_location": "ENRICHED_HUBSPOT_DEALS",
+                                "tags": []
+                            })
+                        
+                        logger.info(f"Found {len(cortex_insights)} HubSpot insights via Snowflake Cortex search")
+                        return cortex_insights
+
+            # Fallback to traditional memory search for non-HubSpot categories
+            # Keep Pinecone for other memory categories (general development memories, etc.)
+            embedding = await self.get_embedding(query)
+            results = []
+
+            if self.pinecone_index and embedding:
+                try:
+                    # Complete list of categories handled by Snowflake Cortex
+                    SNOWFLAKE_CORTEX_CATEGORIES = {
+                        MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                        MemoryCategory.HUBSPOT_CONTACT_INSIGHT,
+                        MemoryCategory.HUBSPOT_SALES_PATTERN,
+                        MemoryCategory.HUBSPOT_CUSTOMER_INTERACTION,
+                        MemoryCategory.HUBSPOT_PIPELINE_INSIGHT,
+                        MemoryCategory.GONG_CALL_SUMMARY,
+                        MemoryCategory.GONG_CALL_INSIGHT,
+                        MemoryCategory.GONG_COACHING_RECOMMENDATION,
+                        MemoryCategory.GONG_SENTIMENT_ANALYSIS,
+                        MemoryCategory.GONG_TOPIC_ANALYSIS
+                    }
+                    
+                    # Only search non-HubSpot/Gong categories in Pinecone
+                    filter_dict = {
+                        "category": {
+                            "$nin": list(SNOWFLAKE_CORTEX_CATEGORIES)  # Exclude all Snowflake-handled categories
+                        }
+                    }
+                    
+                    # Add additional filters
+                    if deal_id:
+                        filter_dict["deal_id"] = deal_id
+                    if contact_id:
+                        filter_dict["contact_id"] = contact_id
+
+                    query_response = self.pinecone_index.query(
+                        vector=embedding,
+                        filter=filter_dict,
+                        top_k=limit * 2,
+                        include_metadata=True,
+                    )
+                    
+                    for match in query_response.matches:
+                        metadata = match.metadata
+                        results.append({
+                            "id": match.id,
+                            "category": metadata.get("category", "unknown"),
+                            "tags": json.loads(metadata.get("tags", "[]")),
+                            "created_at": metadata.get("created_at"),
+                            "relevance_score": float(match.score),
+                            "importance_score": metadata.get("importance_score", 0.5),
+                            "deal_id": metadata.get("deal_id"),
+                            "contact_id": metadata.get("contact_id"),
+                            "embedding_source": "pinecone",
+                            "content": await self._get_memory_content(metadata.get("category", "unknown"), match.id)
+                        })
+                    
+                    # Sort by relevance and importance
+                    results.sort(key=lambda x: (x["relevance_score"] * 0.7 + x["importance_score"] * 0.3), reverse=True)
+                    results = results[:limit]
+                    
+                    logger.info(f"Found {len(results)} general insights via Pinecone search")
+
+                except Exception as e:
+                    logger.error(f"Error searching general insights in Pinecone: {e}")
+
+            return results
+
+        except Exception as e:
+            logger.error(f"Error recalling HubSpot insights: {e}")
+            return []
+
+    def _get_value_tier(self, value: Optional[float]) -> str:
+        """Categorize deal value into tiers"""
+        if not value:
+            return "unknown"
+        elif value < 10000:
+            return "small"
+        elif value < 50000:
+            return "medium"
+        elif value < 200000:
+            return "large"
+        else:
+            return "enterprise"
+
+    def _calculate_deal_importance(self, deal_value: Optional[float], deal_stage: Optional[str]) -> float:
+        """Calculate importance score for deal analysis"""
+        base_score = 0.5
         
-        if contact_id:
-            hubspot_query += f" contact_{contact_id}"
-        if deal_id:
-            hubspot_query += f" deal_{deal_id}"
+        # Value-based scoring
+        if deal_value:
+            if deal_value > 200000:
+                base_score += 0.3
+            elif deal_value > 50000:
+                base_score += 0.2
+            elif deal_value > 10000:
+                base_score += 0.1
         
-        # Determine category filter
-        category_filter = None
-        if insight_type == "contact":
-            category_filter = MemoryCategory.HUBSPOT_CONTACT_INSIGHT
-        elif insight_type == "deal":
-            category_filter = MemoryCategory.HUBSPOT_DEAL_ANALYSIS
-        elif insight_type == "pattern":
-            category_filter = MemoryCategory.HUBSPOT_SALES_PATTERN
+        # Stage-based scoring
+        if deal_stage:
+            high_priority_stages = ["closing", "negotiation", "proposal", "decision"]
+            if any(stage in deal_stage.lower() for stage in high_priority_stages):
+                base_score += 0.2
         
-        results = await self.recall_memory(hubspot_query, category_filter, limit)
-        
-        # Add HubSpot-specific metadata
-        for result in results:
-            result["source"] = "hubspot_crm"
-            result["ai_processing_ready"] = True  # Ready for Snowflake Cortex
-        
-        return results
+        return min(base_score, 1.0)
 
 
 # Use the enhanced server
