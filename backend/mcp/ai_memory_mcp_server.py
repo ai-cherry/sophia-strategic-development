@@ -364,7 +364,7 @@ class EnhancedAiMemoryMCPServer:
                 "importance_score": 0.8
             },
             {
-                "content": "Redis connection pattern for Python 3.11+: Use 'import redis.asyncio as redis_client' then 'redis_client.from_url()'. Avoid 'aioredis' package due to Python 3.11 TimeoutError compatibility issues.",
+                "content": "Redis connection pattern for Python 3.11+: Use 'import redis.asyncio as redis_client' then 'redis_client.from_url()'. Avoid 'redis_client' package due to Python 3.11 TimeoutError compatibility issues.",
                 "category": MemoryCategory.BUG_SOLUTION,
                 "tags": ["python", "redis", "python311", "compatibility"],
                 "importance_score": 0.9

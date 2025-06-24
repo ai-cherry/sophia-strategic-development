@@ -12,7 +12,7 @@ import json
 from backend.agents.core.base_agent import BaseAgent, Task
 from backend.agents.core.agno_mcp_bridge import AgnoMCPBridge
 
-# Mock Redis client to avoid aioredis compatibility issues with Python 3.11
+# Mock Redis client to avoid redis_client compatibility issues with Python 3.11
 class MockRedisClient:
     """Mock Redis client for testing purposes"""
     async def set_key(self, key: str, value: str) -> bool:
