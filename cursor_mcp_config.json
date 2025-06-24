@@ -104,6 +104,33 @@
         "monitoring_setup", 
         "security_configuration"
       ]
+    },
+    "snowflake_admin": {
+      "type": "http",
+      "baseUrl": "http://localhost:8085",
+      "description": "Snowflake Admin MCP Server - Natural language interface for Snowflake administration using LangChain SQL Agent",
+      "capabilities": [
+        "schema_management",
+        "warehouse_management",
+        "role_management",
+        "user_management",
+        "grants_management",
+        "object_inspection",
+        "sql_generation",
+        "multi_environment_support",
+        "safety_confirmations"
+      ],
+      "autoTriggers": {
+        "onSnowflakeQuery": true,
+        "onAdminRequest": true,
+        "onDatabaseOperation": true
+      },
+      "environments": ["dev", "stg", "prod"],
+      "security": {
+        "confirmationRequired": true,
+        "dangerousOperationDetection": true,
+        "auditLogging": true
+      }
     }
   },
   "settings": {
@@ -134,6 +161,11 @@
     "onBugFix": {
       "triggers": ["ai_memory.store_conversation", "codacy.security_scan"],
       "category": "bug_solution"
+    },
+    "onSnowflakeAdminQuery": {
+      "triggers": ["snowflake_admin.execute_admin_task", "ai_memory.store_context"],
+      "category": "database_administration",
+      "conditions": ["query_contains_snowflake_keywords", "user_has_admin_permissions"]
     }
   }
 } 

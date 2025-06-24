@@ -1,0 +1,730 @@
+"""
+Snowflake Admin Agent
+LangChain-powered natural language interface for Snowflake administration tasks
+"""
+
+import asyncio
+import json
+import logging
+import re
+from datetime import datetime
+from typing import Dict, List, Optional, Any, Tuple
+from dataclasses import dataclass
+from enum import Enum
+
+# LangChain imports
+try:
+    from langchain.agents import create_sql_agent, AgentType
+    from langchain.sql_database import SQLDatabase
+    from langchain.callbacks import StdOutCallbackHandler
+    from langchain.schema import AgentAction, AgentFinish
+    from langchain.callbacks.base import BaseCallbackHandler
+    import langchain
+    LANGCHAIN_AVAILABLE = True
+except ImportError:
+    LANGCHAIN_AVAILABLE = False
+    logging.warning("LangChain not available. Install with: pip install langchain")
+
+# Snowflake connector
+try:
+    import snowflake.connector
+    from snowflake.connector import DictCursor
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
+    logging.warning("Snowflake connector not available. Install with: pip install snowflake-connector-python")
+
+# OpenAI for LLM
+try:
+    from langchain.llms import OpenAI
+    from langchain.chat_models import ChatOpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
+from backend.core.auto_esc_config import get_config_value
+
+logger = logging.getLogger(__name__)
+
+
+class SnowflakeEnvironment(Enum):
+    """Snowflake environment targets"""
+    DEV = "dev"
+    STG = "stg" 
+    PROD = "prod"
+
+
+class AdminTaskType(Enum):
+    """Types of admin tasks"""
+    SCHEMA_MANAGEMENT = "schema_management"
+    WAREHOUSE_MANAGEMENT = "warehouse_management"
+    ROLE_MANAGEMENT = "role_management"
+    USER_MANAGEMENT = "user_management"
+    GRANTS_MANAGEMENT = "grants_management"
+    OBJECT_INSPECTION = "object_inspection"
+    CONFIGURATION = "configuration"
+
+
+@dataclass
+class AdminTaskRequest:
+    """Admin task request structure"""
+    natural_language_request: str
+    target_environment: SnowflakeEnvironment
+    task_type: Optional[AdminTaskType] = None
+    entities: Dict[str, Any] = None
+    requires_confirmation: bool = False
+    user_id: str = "system"
+
+
+@dataclass
+class AdminTaskResponse:
+    """Admin task response structure"""
+    success: bool
+    message: str
+    sql_executed: Optional[str] = None
+    results: Optional[List[Dict[str, Any]]] = None
+    requires_confirmation: bool = False
+    confirmation_sql: Optional[str] = None
+    task_type: Optional[AdminTaskType] = None
+    environment: Optional[SnowflakeEnvironment] = None
+    execution_time: float = 0.0
+
+
+class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
+    """Custom callback handler for Snowflake admin operations"""
+    
+    def __init__(self):
+        super().__init__()
+        self.thoughts = []
+        self.actions = []
+        self.sql_queries = []
+        self.observations = []
+    
+    def on_agent_action(self, action: AgentAction, **kwargs) -> None:
+        """Capture agent actions and SQL queries"""
+        self.actions.append({
+            "tool": action.tool,
+            "tool_input": action.tool_input,
+            "log": action.log,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        # Extract SQL from tool input if it's a query
+        if action.tool == "sql_db_query" and isinstance(action.tool_input, str):
+            self.sql_queries.append(action.tool_input)
+            logger.info(f"SQL Query: {action.tool_input}")
+    
+    def on_agent_finish(self, finish: AgentFinish, **kwargs) -> None:
+        """Capture final result"""
+        logger.info(f"Agent finished: {finish.return_values}")
+    
+    def on_tool_start(self, serialized: Dict[str, Any], input_str: str, **kwargs) -> None:
+        """Log tool start"""
+        tool_name = serialized.get("name", "unknown")
+        logger.info(f"Tool started: {tool_name} with input: {input_str}")
+    
+    def on_tool_end(self, output: str, **kwargs) -> None:
+        """Capture tool output"""
+        self.observations.append({
+            "output": output,
+            "timestamp": datetime.now().isoformat()
+        })
+
+
+class SnowflakeAdminAgent:
+    """
+    LangChain-powered Snowflake administration agent
+    
+    Provides natural language interface for Snowflake DDL/DCL operations
+    with appropriate safeguards and environment targeting.
+    """
+    
+    def __init__(self):
+        self.connections = {}
+        self.sql_databases = {}
+        self.agents = {}
+        self.llm = None
+        self.initialized = False
+        
+        # Dangerous SQL patterns that require confirmation
+        self.dangerous_patterns = [
+            r'\bDROP\s+(?:TABLE|SCHEMA|DATABASE|WAREHOUSE|USER|ROLE)\b',
+            r'\bTRUNCATE\s+TABLE\b',
+            r'\bALTER\s+ACCOUNT\b',
+            r'\bALTER\s+USER\s+.*\s+SET\s+PASSWORD\b',
+            r'\bGRANT\s+.*\s+ACCOUNTADMIN\b',
+            r'\bGRANT\s+.*\s+SECURITYADMIN\b',
+            r'\bDELETE\s+FROM\b',
+            r'\bUPDATE\s+.*\s+SET\b'
+        ]
+        
+        # Safe operations that don't require confirmation
+        self.safe_patterns = [
+            r'\bCREATE\s+(?:SCHEMA|WAREHOUSE|ROLE)\s+IF\s+NOT\s+EXISTS\b',
+            r'\bSHOW\s+(?:TABLES|SCHEMAS|WAREHOUSES|ROLES|USERS)\b',
+            r'\bDESCRIBE\s+(?:TABLE|SCHEMA|WAREHOUSE)\b',
+            r'\bSELECT\s+.*\s+FROM\s+INFORMATION_SCHEMA\b',
+            r'\bGRANT\s+USAGE\s+ON\s+(?:SCHEMA|WAREHOUSE)\b'
+        ]
+    
+    async def initialize(self):
+        """Initialize the Snowflake admin agent"""
+        if self.initialized:
+            return
+        
+        if not LANGCHAIN_AVAILABLE:
+            raise ImportError("LangChain is required for Snowflake Admin Agent")
+        
+        if not SNOWFLAKE_AVAILABLE:
+            raise ImportError("Snowflake connector is required for Snowflake Admin Agent")
+        
+        try:
+            # Initialize LLM for agent
+            await self._initialize_llm()
+            
+            # Initialize connections for each environment
+            for env in SnowflakeEnvironment:
+                await self._initialize_environment(env)
+            
+            self.initialized = True
+            logger.info("✅ Snowflake Admin Agent initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Snowflake Admin Agent: {e}")
+            raise
+    
+    async def _initialize_llm(self):
+        """Initialize the LLM for the agent"""
+        try:
+            # Try to get OpenAI API key
+            openai_key = await get_config_value("openai_api_key")
+            if openai_key and OPENAI_AVAILABLE:
+                self.llm = ChatOpenAI(
+                    model="gpt-4o-mini",
+                    temperature=0,
+                    openai_api_key=openai_key,
+                    max_tokens=1000
+                )
+                logger.info("✅ Initialized ChatOpenAI for Snowflake Admin Agent")
+            else:
+                raise ValueError("OpenAI API key not available")
+                
+        except Exception as e:
+            logger.error(f"Failed to initialize LLM: {e}")
+            raise
+    
+    async def _initialize_environment(self, environment: SnowflakeEnvironment):
+        """Initialize Snowflake connection for specific environment"""
+        try:
+            # Get environment-specific configuration
+            config_prefix = f"snowflake_{environment.value}"
+            
+            account = await get_config_value(f"{config_prefix}_account")
+            user = await get_config_value(f"{config_prefix}_user") 
+            password = await get_config_value(f"{config_prefix}_password")
+            warehouse = await get_config_value(f"{config_prefix}_warehouse")
+            database = await get_config_value(f"{config_prefix}_database")
+            schema = await get_config_value(f"{config_prefix}_schema")
+            role = await get_config_value(f"{config_prefix}_role")
+            
+            # Use PAT if available, otherwise password
+            pat = await get_config_value(f"{config_prefix}_pat")
+            auth_config = {}
+            
+            if pat:
+                auth_config = {
+                    "authenticator": "oauth",
+                    "token": pat
+                }
+                logger.info(f"Using PAT authentication for {environment.value}")
+            elif password:
+                auth_config = {"password": password}
+                logger.info(f"Using password authentication for {environment.value}")
+            else:
+                raise ValueError(f"No authentication method available for {environment.value}")
+            
+            # Create Snowflake connection
+            connection_params = {
+                "account": account,
+                "user": user,
+                "warehouse": warehouse,
+                "database": database,
+                "schema": schema,
+                "role": role,
+                **auth_config
+            }
+            
+            connection = snowflake.connector.connect(**connection_params)
+            self.connections[environment] = connection
+            
+            # Create SQLDatabase for LangChain
+            connection_string = self._build_connection_string(connection_params, environment)
+            sql_db = SQLDatabase.from_uri(
+                connection_string,
+                include_tables=[],  # Don't include business tables for security
+                custom_table_info={},  # We'll use INFORMATION_SCHEMA
+                max_string_length=1000
+            )
+            self.sql_databases[environment] = sql_db
+            
+            # Create LangChain agent for this environment
+            agent = create_sql_agent(
+                llm=self.llm,
+                db=sql_db,
+                agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+                verbose=True,
+                prefix=self._get_agent_prefix(environment),
+                suffix=self._get_agent_suffix(),
+                max_iterations=5,
+                max_execution_time=30,
+                early_stopping_method="generate"
+            )
+            self.agents[environment] = agent
+            
+            logger.info(f"✅ Initialized Snowflake connection for {environment.value}")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize {environment.value} environment: {e}")
+            raise
+    
+    def _build_connection_string(self, params: Dict[str, str], environment: SnowflakeEnvironment) -> str:
+        """Build Snowflake connection string for SQLDatabase"""
+        # This is a simplified connection string - in production, you'd want to handle this more securely
+        account = params["account"]
+        user = params["user"]
+        warehouse = params["warehouse"]
+        database = params["database"]
+        schema = params["schema"]
+        
+        # Note: For PAT authentication, you might need a custom SQLDatabase implementation
+        # This is a placeholder for the connection string format
+        return f"snowflake://{user}@{account}/{database}/{schema}?warehouse={warehouse}"
+    
+    def _get_agent_prefix(self, environment: SnowflakeEnvironment) -> str:
+        """Get environment-specific agent prefix with safety rules"""
+        base_prefix = """
+You are a Snowflake database administrator assistant. You help users manage Snowflake objects through SQL commands.
+
+CRITICAL SAFETY RULES:
+1. NEVER execute DROP, TRUNCATE, or DELETE commands without explicit confirmation
+2. ALWAYS use CREATE IF NOT EXISTS for creation commands
+3. ALWAYS use fully qualified object names (database.schema.object)
+4. For PROD environment, be EXTREMELY cautious with any changes
+5. When in doubt, show the SQL and ask for confirmation
+6. Focus on DDL (Data Definition Language) and DCL (Data Control Language) operations
+7. Avoid DML (Data Manipulation Language) operations unless explicitly requested
+8. Use INFORMATION_SCHEMA views to understand existing objects
+9. Always check if objects exist before creating or modifying them
+10. Log all executed SQL for audit purposes
+
+ENVIRONMENT-SPECIFIC RULES:
+"""
+        
+        if environment == SnowflakeEnvironment.PROD:
+            env_rules = """
+- PRODUCTION ENVIRONMENT: Exercise maximum caution
+- ALL destructive operations require explicit confirmation
+- Prefer READ-ONLY operations (SHOW, DESCRIBE, SELECT from INFORMATION_SCHEMA)
+- Never modify critical system objects or roles
+- Always test commands in DEV first
+"""
+        elif environment == SnowflakeEnvironment.STG:
+            env_rules = """
+- STAGING ENVIRONMENT: Use caution with destructive operations
+- Test changes thoroughly before applying to PROD
+- Confirm destructive operations
+"""
+        else:  # DEV
+            env_rules = """
+- DEVELOPMENT ENVIRONMENT: More flexibility allowed
+- Still use best practices and confirm destructive operations
+- This is the safest environment for testing new configurations
+"""
+        
+        return base_prefix + env_rules + """
+
+Available tools allow you to execute SQL queries and inspect database objects.
+Always explain what you're going to do before executing commands.
+"""
+    
+    def _get_agent_suffix(self) -> str:
+        """Get agent suffix with response format instructions"""
+        return """
+When responding:
+1. Explain what you understand from the request
+2. Show the SQL you plan to execute
+3. Execute the SQL if it's safe, or ask for confirmation if it's potentially destructive
+4. Provide clear feedback on the results
+5. Suggest next steps if applicable
+
+Begin!
+
+Question: {input}
+Thought: I should understand what the user wants to do and determine if it's a safe operation.
+{agent_scratchpad}
+"""
+    
+    def _is_dangerous_sql(self, sql: str) -> bool:
+        """Check if SQL contains dangerous patterns"""
+        sql_upper = sql.upper()
+        
+        # Check for dangerous patterns
+        for pattern in self.dangerous_patterns:
+            if re.search(pattern, sql_upper, re.IGNORECASE):
+                return True
+        
+        return False
+    
+    def _is_safe_sql(self, sql: str) -> bool:
+        """Check if SQL is explicitly safe"""
+        sql_upper = sql.upper()
+        
+        # Check for safe patterns
+        for pattern in self.safe_patterns:
+            if re.search(pattern, sql_upper, re.IGNORECASE):
+                return True
+        
+        return False
+    
+    async def execute_admin_task(
+        self, 
+        request: AdminTaskRequest
+    ) -> AdminTaskResponse:
+        """
+        Execute a Snowflake admin task based on natural language request
+        
+        Args:
+            request: Admin task request with natural language and environment
+            
+        Returns:
+            Admin task response with results or confirmation requirement
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        start_time = asyncio.get_event_loop().time()
+        
+        try:
+            environment = request.target_environment
+            
+            # Get the appropriate agent for the environment
+            agent = self.agents.get(environment)
+            if not agent:
+                return AdminTaskResponse(
+                    success=False,
+                    message=f"No agent available for environment: {environment.value}",
+                    environment=environment
+                )
+            
+            # Create callback handler to capture SQL and actions
+            callback_handler = SnowflakeAdminCallbackHandler()
+            
+            # Execute the agent with the natural language request
+            try:
+                result = await asyncio.to_thread(
+                    agent.run,
+                    request.natural_language_request,
+                    callbacks=[callback_handler]
+                )
+                
+                # Check if any dangerous SQL was executed
+                dangerous_sql = []
+                for sql in callback_handler.sql_queries:
+                    if self._is_dangerous_sql(sql) and not self._is_safe_sql(sql):
+                        dangerous_sql.append(sql)
+                
+                if dangerous_sql and not request.requires_confirmation:
+                    # Return for confirmation
+                    return AdminTaskResponse(
+                        success=False,
+                        message="CONFIRMATION REQUIRED: This operation contains potentially destructive SQL commands.",
+                        requires_confirmation=True,
+                        confirmation_sql="; ".join(dangerous_sql),
+                        environment=environment,
+                        execution_time=asyncio.get_event_loop().time() - start_time
+                    )
+                
+                # Successful execution
+                return AdminTaskResponse(
+                    success=True,
+                    message=result,
+                    sql_executed="; ".join(callback_handler.sql_queries),
+                    environment=environment,
+                    execution_time=asyncio.get_event_loop().time() - start_time
+                )
+                
+            except Exception as agent_error:
+                logger.error(f"Agent execution error: {agent_error}")
+                return AdminTaskResponse(
+                    success=False,
+                    message=f"Error executing admin task: {str(agent_error)}",
+                    environment=environment,
+                    execution_time=asyncio.get_event_loop().time() - start_time
+                )
+        
+        except Exception as e:
+            logger.error(f"Snowflake admin task failed: {e}")
+            return AdminTaskResponse(
+                success=False,
+                message=f"Admin task failed: {str(e)}",
+                environment=request.target_environment,
+                execution_time=asyncio.get_event_loop().time() - start_time
+            )
+    
+    async def confirm_and_execute(
+        self,
+        request: AdminTaskRequest,
+        confirmed_sql: str
+    ) -> AdminTaskResponse:
+        """
+        Execute confirmed dangerous SQL after user confirmation
+        
+        Args:
+            request: Original admin task request
+            confirmed_sql: SQL confirmed by user
+            
+        Returns:
+            Execution results
+        """
+        start_time = asyncio.get_event_loop().time()
+        
+        try:
+            environment = request.target_environment
+            connection = self.connections.get(environment)
+            
+            if not connection:
+                return AdminTaskResponse(
+                    success=False,
+                    message=f"No connection available for environment: {environment.value}",
+                    environment=environment
+                )
+            
+            # Execute the confirmed SQL directly
+            cursor = connection.cursor(DictCursor)
+            
+            try:
+                # Split and execute multiple statements if needed
+                statements = [stmt.strip() for stmt in confirmed_sql.split(';') if stmt.strip()]
+                results = []
+                
+                for statement in statements:
+                    cursor.execute(statement)
+                    
+                    # Fetch results if it's a SELECT statement
+                    if statement.upper().strip().startswith('SELECT') or statement.upper().strip().startswith('SHOW'):
+                        rows = cursor.fetchall()
+                        results.extend(rows)
+                    
+                    logger.info(f"Executed confirmed SQL: {statement}")
+                
+                return AdminTaskResponse(
+                    success=True,
+                    message=f"Successfully executed {len(statements)} SQL statement(s)",
+                    sql_executed=confirmed_sql,
+                    results=results,
+                    environment=environment,
+                    execution_time=asyncio.get_event_loop().time() - start_time
+                )
+                
+            except Exception as sql_error:
+                logger.error(f"SQL execution error: {sql_error}")
+                return AdminTaskResponse(
+                    success=False,
+                    message=f"SQL execution failed: {str(sql_error)}",
+                    sql_executed=confirmed_sql,
+                    environment=environment,
+                    execution_time=asyncio.get_event_loop().time() - start_time
+                )
+            finally:
+                cursor.close()
+        
+        except Exception as e:
+            logger.error(f"Confirmed execution failed: {e}")
+            return AdminTaskResponse(
+                success=False,
+                message=f"Confirmed execution failed: {str(e)}",
+                environment=request.target_environment,
+                execution_time=asyncio.get_event_loop().time() - start_time
+            )
+    
+    async def get_environment_info(self, environment: SnowflakeEnvironment) -> Dict[str, Any]:
+        """Get information about a Snowflake environment"""
+        try:
+            connection = self.connections.get(environment)
+            if not connection:
+                return {"error": f"No connection for environment: {environment.value}"}
+            
+            cursor = connection.cursor(DictCursor)
+            
+            # Get basic environment information
+            info = {
+                "environment": environment.value,
+                "current_user": None,
+                "current_role": None,
+                "current_warehouse": None,
+                "current_database": None,
+                "current_schema": None
+            }
+            
+            # Get current session information
+            cursor.execute("SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE(), CURRENT_SCHEMA()")
+            session_info = cursor.fetchone()
+            
+            if session_info:
+                info.update({
+                    "current_user": session_info.get("CURRENT_USER()"),
+                    "current_role": session_info.get("CURRENT_ROLE()"),
+                    "current_warehouse": session_info.get("CURRENT_WAREHOUSE()"),
+                    "current_database": session_info.get("CURRENT_DATABASE()"),
+                    "current_schema": session_info.get("CURRENT_SCHEMA()")
+                })
+            
+            cursor.close()
+            return info
+            
+        except Exception as e:
+            logger.error(f"Failed to get environment info: {e}")
+            return {"error": str(e)}
+    
+    async def health_check(self) -> Dict[str, Any]:
+        """Perform health check on all environments"""
+        health_status = {
+            "initialized": self.initialized,
+            "langchain_available": LANGCHAIN_AVAILABLE,
+            "snowflake_available": SNOWFLAKE_AVAILABLE,
+            "openai_available": OPENAI_AVAILABLE,
+            "environments": {}
+        }
+        
+        if self.initialized:
+            for env in SnowflakeEnvironment:
+                try:
+                    env_info = await self.get_environment_info(env)
+                    health_status["environments"][env.value] = {
+                        "status": "healthy" if "error" not in env_info else "error",
+                        "info": env_info
+                    }
+                except Exception as e:
+                    health_status["environments"][env.value] = {
+                        "status": "error",
+                        "error": str(e)
+                    }
+        
+        return health_status
+    
+    async def close(self):
+        """Close all Snowflake connections"""
+        for env, connection in self.connections.items():
+            try:
+                connection.close()
+                logger.info(f"Closed connection for {env.value}")
+            except Exception as e:
+                logger.error(f"Error closing connection for {env.value}: {e}")
+        
+        self.connections.clear()
+        self.sql_databases.clear()
+        self.agents.clear()
+        self.initialized = False
+
+
+# Global instance
+snowflake_admin_agent = SnowflakeAdminAgent()
+
+
+# Convenience functions
+async def execute_snowflake_admin_task(
+    natural_language_request: str,
+    target_environment: str = "dev",
+    user_id: str = "system"
+) -> AdminTaskResponse:
+    """
+    Convenience function for executing Snowflake admin tasks
+    
+    Args:
+        natural_language_request: Natural language description of admin task
+        target_environment: Target environment (dev, stg, prod)
+        user_id: User requesting the task
+        
+    Returns:
+        Admin task response
+    """
+    try:
+        env = SnowflakeEnvironment(target_environment.lower())
+    except ValueError:
+        return AdminTaskResponse(
+            success=False,
+            message=f"Invalid environment: {target_environment}. Must be one of: dev, stg, prod"
+        )
+    
+    request = AdminTaskRequest(
+        natural_language_request=natural_language_request,
+        target_environment=env,
+        user_id=user_id
+    )
+    
+    return await snowflake_admin_agent.execute_admin_task(request)
+
+
+async def confirm_snowflake_admin_task(
+    natural_language_request: str,
+    confirmed_sql: str,
+    target_environment: str = "dev",
+    user_id: str = "system"
+) -> AdminTaskResponse:
+    """
+    Convenience function for confirming and executing dangerous SQL
+    
+    Args:
+        natural_language_request: Original natural language request
+        confirmed_sql: SQL confirmed by user
+        target_environment: Target environment
+        user_id: User confirming the task
+        
+    Returns:
+        Execution results
+    """
+    try:
+        env = SnowflakeEnvironment(target_environment.lower())
+    except ValueError:
+        return AdminTaskResponse(
+            success=False,
+            message=f"Invalid environment: {target_environment}. Must be one of: dev, stg, prod"
+        )
+    
+    request = AdminTaskRequest(
+        natural_language_request=natural_language_request,
+        target_environment=env,
+        user_id=user_id,
+        requires_confirmation=True
+    )
+    
+    return await snowflake_admin_agent.confirm_and_execute(request, confirmed_sql)
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    async def test_snowflake_admin_agent():
+        """Test the Snowflake admin agent"""
+        
+        # Test basic functionality
+        response = await execute_snowflake_admin_task(
+            "Show me all schemas in the current database",
+            target_environment="dev"
+        )
+        
+        print(f"Response: {response}")
+        
+        # Test schema creation
+        response = await execute_snowflake_admin_task(
+            "Create a new schema called MARKETING_STAGE if it doesn't exist",
+            target_environment="dev"
+        )
+        
+        print(f"Schema creation response: {response}")
+        
+        # Test health check
+        health = await snowflake_admin_agent.health_check()
+        print(f"Health check: {json.dumps(health, indent=2)}")
+    
+    # Run test
+    asyncio.run(test_snowflake_admin_agent()) 

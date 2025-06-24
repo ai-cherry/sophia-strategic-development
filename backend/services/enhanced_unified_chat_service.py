@@ -37,6 +37,7 @@ class QueryIntent(Enum):
     EXECUTIVE_SUMMARY = "executive_summary"
     PREDICTIVE_INSIGHTS = "predictive_insights"
     ACTION_ITEMS = "action_items"
+    SNOWFLAKE_ADMIN = "snowflake_admin"
 
 
 class QueryComplexity(Enum):
