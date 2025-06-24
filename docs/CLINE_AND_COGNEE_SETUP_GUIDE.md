@@ -1,6 +1,6 @@
 ---
 title: Cline & Cognee: The Developer's Guide to Conversational Coding
-description: **Date:** December 20, 2024 **Status:** The Official Guide for Integrating Your Local VSCode with the Sophia AI Platform
+description: **Date:** December 20, 2024 **Status:** The Official Guide for Integrating Your Local VSCode with AI Platform
 tags: mcp, security, kubernetes, docker, agent
 last_updated: 2025-06-23
 dependencies: none
@@ -23,24 +23,24 @@ related_docs: none
 - [Conclusion](#conclusion)
 
 **Date:** December 20, 2024
-**Status:** The Official Guide for Integrating Your Local VSCode with the Sophia AI Platform
+**Status:** Generic Guide for Integrating Local VSCode with AI Platform
 
 ## 1. The Goal: A Seamless Human-AI Development Experience
 
-This guide unlocks the most powerful development workflow for Sophia AI. By following these steps, you will configure **Cline**, the in-editor AI command line, to communicate with:
+This guide unlocks a powerful development workflow for AI-assisted coding. By following these steps, you will configure **Cline**, the in-editor AI command line, to communicate with:
 
-1.  **A local `cognee` instance:** An MCP server that transforms your local Sophia AI codebase into a queryable knowledge graph.
-2.  **The remote, deployed MCP servers:** The full suite of production tools (Pulumi, Kubernetes, GitHub, etc.) running in our EKS cluster.
+1.  **A local `cognee` instance:** An MCP server that transforms your local codebase into a queryable knowledge graph.
+2.  **Remote MCP servers:** A full suite of production tools (Pulumi, Kubernetes, GitHub, etc.) running in your infrastructure.
 
-This creates a unified environment where you can ask deep, contextual questions about your local code and command the entire production infrastructure, all without leaving your editor.
+This creates a unified environment where you can ask deep, contextual questions about your local code and command remote infrastructure, all without leaving your editor.
 
 ---
 
 ## 2. Prerequisites
 
--   You have completed the [Local Development & Testing Guide](./LOCAL_DEVELOPMENT_GUIDE.md) and have Docker and the `esc` CLI installed and configured.
 -   You have **VSCode** installed.
 -   You have `git` and `uv` (a Python package installer) installed. `pip install uv`.
+-   You have a Python project with virtual environment (`.venv`) set up.
 
 ---
 
@@ -55,28 +55,28 @@ This creates a unified environment where you can ask deep, contextual questions 
 
 ### Step 3.2: Set Up the `cognee` Knowledge Graph Engine
 
-`cognee` is the magic that understands our codebase. We will clone it and set it up locally.
+`cognee` is the magic that understands your codebase. We will clone it and set it up locally.
 
 1.  **Clone the Repository:**
     ```bash
     git clone https://www.github.com/topoteretes/cognee
-    ```python
+    ```
 
 2.  **Install Dependencies:**
     ```bash
     cd cognee/cognee-mcp
     uv sync --reinstall
-    ```python
+    ```
 
 3.  **Activate the Virtual Environment:**
     ```bash
     source .venv/bin/activate
-    ```python
+    ```
     *(Leave this terminal window open and activated for later)*
 
 ### Step 3.3: Configure Cline to Find Your MCP Servers
 
-This is the most critical step. We need to tell Cline where to find both the local `cognee` server and our remote, deployed servers.
+This is the most critical step. We need to tell Cline where to find both the local `cognee` server and your remote servers.
 
 1.  **Find Your Cline Settings File:**
     -   In VSCode, open the Command Palette (`Cmd+Shift+P` on Mac, `Ctrl+Shift+P` on Windows).
@@ -85,7 +85,8 @@ This is the most critical step. We need to tell Cline where to find both the loc
 
 2.  **Add the Server Configurations:**
     -   Paste the following JSON into the file.
-    -   **You must replace `{CLONE_PATH_TO_COGNEE}`** with the absolute path to the `cognee` directory you cloned in the previous step.
+    -   **Replace `{CLONE_PATH_TO_COGNEE}`** with the absolute path to the `cognee` directory you cloned.
+    -   **Replace remote URLs** with your actual MCP server endpoints.
 
     ```json
     {
@@ -94,7 +95,7 @@ This is the most critical step. We need to tell Cline where to find both the loc
           "command": "uv",
           "args": [
             "--directory",
-            "/{CLONE_PATH_TO_COGNEE}/cognee-mcp",
+            "{CLONE_PATH_TO_COGNEE}/cognee-mcp",
             "run",
             "cognee"
           ],
@@ -104,42 +105,52 @@ This is the most critical step. We need to tell Cline where to find both the loc
             "LLM_API_KEY": "${env:OPENAI_API_KEY}"
           }
         },
+        "ai_memory": {
+          "url": "http://localhost:9000",
+          "description": "Local AI Memory MCP server for persistent development context."
+        },
+        "codacy": {
+          "url": "http://localhost:3008", 
+          "description": "Local Codacy MCP server for code quality analysis."
+        },
         "pulumi_remote": {
-          "url": "http://pulumi-mcp-service.mcp-servers.svc.cluster.local:9000",
-          "description": "Interface to the production Pulumi deployment server."
+          "url": "http://your-pulumi-server:9000",
+          "description": "Interface to your Pulumi deployment server."
         },
         "k8s_remote": {
-          "url": "http://k8s-mcp-service.mcp-servers.svc.cluster.local:9000",
-          "description": "Interface to the production Kubernetes cluster."
+          "url": "http://your-k8s-server:9000", 
+          "description": "Interface to your Kubernetes cluster."
         },
         "github_remote": {
-          "url": "http://github-mcp-service.mcp-servers.svc.cluster.local:9000",
-          "description": "Interface to the production GitHub project management server."
+          "url": "http://your-github-server:9000",
+          "description": "Interface to your GitHub project management server."
         }
       }
     }
-    ```python
+    ```
 
-3.  **A Note on Secrets:** Notice the `LLM_API_KEY` for `cognee` is set to `${env:OPENAI_API_KEY}`. Cline is smart enough to use environment variables. To make this work, **you must launch VSCode from a terminal that has been initialized with our secrets**:
+3.  **Environment Variables:** The `LLM_API_KEY` for `cognee` uses `${env:OPENAI_API_KEY}`. To make this work, launch VSCode from a terminal with environment variables loaded:
 
     ```bash
-    # In your terminal, from the root of the sophia-main project
-    esc run scoobyjava-org/default/sophia-ai-production -- code .
-    ```python
-    This command opens VSCode with all our production secrets loaded into its environment, which Cline can then pass to the `cognee` server.
+    # From your project root directory
+    source .venv/bin/activate
+    # Load your environment variables (if using .env file)
+    export $(cat .env | xargs) 2>/dev/null || true
+    code .
+    ```
 
 4.  **Restart Cline:** Open the Command Palette again (`Cmd+Shift+P`) and run `> Cline: Restart`.
 
 ### Step 3.4: Build Your Code's Knowledge Graph
 
-Now, you will instruct `cognee` to analyze the Sophia AI codebase and build its knowledge graph.
+Now, you will instruct `cognee` to analyze your codebase and build its knowledge graph.
 
 1.  **Open Cline:** Click the Cline icon in the VSCode activity bar.
-2.  **Run the `codify` command:** In the Cline input, type the following command, replacing `{PATH_TO_SOPHIA_MAIN}` with the absolute path to this repository, and press Enter.
+2.  **Run the `codify` command:** In the Cline input, type the following command, replacing `{PROJECT_PATH}` with the absolute path to your project's backend/source directory:
 
-    ```python
-    @cognee /codify --path /{PATH_TO_SOPHIA_MAIN}/backend
-    ```python
+    ```
+    @cognee /codify --path {PROJECT_PATH}/backend
+    ```
 
 3.  **Wait for Processing:** You will see logs from the `cognee` server in the VSCode terminal. This process can take several minutes as it reads all files, generates embeddings, and builds the relational graph.
 
@@ -155,20 +166,53 @@ You are now fully set up. Here is how you can use this system:
 
 `cognee` will use its knowledge graph to provide a detailed, accurate answer about the relationships and functionality within your local code.
 
-**Example 2: Interact with Production Infrastructure**
+**Example 2: Store Development Context**
 
-> `@pulumi_remote Preview the 'production' stack for the 'sophia-ai-agents' project.`
+> `@ai_memory store this conversation about implementing async patterns`
 
-Cline will securely route this request to the deployed Pulumi MCP server, which will execute the command and stream the results back to your editor.
+The AI Memory MCP server will store important development decisions for future reference.
 
-**Example 3: A Multi-Modal Workflow**
+**Example 3: Code Quality Analysis**
 
-> `@cognee Show me the code for the 'AgnoAgentDeployment' component. Then, @k8s_remote tell me how many replicas of that agent are currently running.`
+> `@codacy analyze this Python function for potential issues`
 
-This demonstrates the true power of the system: seamless conversation that pivots between local code understanding and live production infrastructure management.
+The Codacy MCP server will provide real-time code quality feedback and suggestions.
+
+**Example 4: Interact with Remote Infrastructure**
+
+> `@pulumi_remote Preview the 'production' stack for the current project.`
+
+Cline will securely route this request to your deployed Pulumi MCP server.
+
+**Example 5: A Multi-Modal Workflow**
+
+> `@cognee Show me the code for the 'AgentDeployment' component. Then, @k8s_remote tell me how many replicas of that agent are currently running.`
+
+This demonstrates the true power of the system: seamless conversation that pivots between local code understanding and live infrastructure management.
+
+---
+
+## Troubleshooting
+
+### Virtual Environment Issues
+- Ensure you're in the correct virtual environment when launching VSCode
+- Check that all required packages are installed in your `.venv`
+- Use the generic activation script: `source activate_env.sh`
+
+### Cline Configuration Issues
+- Verify all paths in `cline_mcp_settings.json` are absolute and correct
+- Check that MCP servers are running on specified ports
+- Restart Cline after configuration changes
+
+### MCP Server Connection Issues
+- Verify server URLs and ports are accessible
+- Check firewall and network settings for remote servers
+- Ensure authentication credentials are properly configured
 
 ---
 
 ## Conclusion
 
-By following this guide, you have bridged your local development environment directly into the heart of the Sophia AI platform. This unified, conversational interface dramatically enhances productivity, simplifies complex tasks, and represents the future of AI-assisted software development.
+By following this guide, you have bridged your local development environment with powerful AI assistance tools. This unified, conversational interface dramatically enhances productivity, simplifies complex tasks, and represents the future of AI-assisted software development.
+
+The configuration is now generic and can be adapted to any project by simply updating paths and server URLs to match your specific setup.

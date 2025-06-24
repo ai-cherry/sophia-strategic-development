@@ -76,6 +76,55 @@ cp .env.template .env
 # Edit .env with your specific configuration
 ```
 
+## Cline Integration for Enhanced AI Coding
+
+For even more powerful AI assistance, consider integrating **Cline** (the in-editor AI command line) with your development workflow.
+
+### What is Cline?
+
+Cline is a VSCode extension that provides conversational AI assistance directly in your editor. It can:
+
+- Understand your entire codebase through knowledge graphs
+- Connect to multiple MCP servers for specialized functionality
+- Provide contextual code analysis and suggestions
+- Integrate with remote infrastructure tools
+
+### Setting Up Cline
+
+For detailed Cline setup instructions, see: [Cline & Cognee Setup Guide](./CLINE_AND_COGNEE_SETUP_GUIDE.md)
+
+**Quick Overview:**
+
+1. **Install Cline Extension** in VSCode
+2. **Configure MCP Servers** in `cline_mcp_settings.json`:
+   ```json
+   {
+     "mcpServers": {
+       "ai_memory": {
+         "url": "http://localhost:9000",
+         "description": "AI Memory for persistent context"
+       },
+       "codacy": {
+         "url": "http://localhost:3008",
+         "description": "Code quality analysis"
+       }
+     }
+   }
+   ```
+3. **Launch VSCode with Environment**:
+   ```bash
+   source .venv/bin/activate
+   export $(cat .env | xargs) 2>/dev/null || true
+   code .
+   ```
+
+### Cline + Virtual Environment Best Practices
+
+- Always launch VSCode from an activated virtual environment
+- Use the generic activation scripts before starting Cline
+- Configure Cline to use local MCP servers that respect your virtual environment
+- Test MCP server connectivity after virtual environment changes
+
 ## AI Memory MCP Integration for Coders
 
 ### Using AI Memory in Cursor
@@ -108,6 +157,7 @@ The AI Memory MCP comes with pre-loaded coding knowledge:
 - **Vector Databases**: Pinecone patterns, metadata handling
 - **Security Patterns**: API key management, environment variables
 - **Error Handling**: Retry logic, circuit breakers, logging patterns
+- **Cursor Virtual Environment Fix**: Solutions for IDE environment switching
 
 #### Integration with Development Workflow:
 
@@ -115,6 +165,7 @@ The AI Memory MCP comes with pre-loaded coding knowledge:
 2. **Bug Solutions**: Searchable by error patterns and solutions
 3. **Performance Tips**: Optimization patterns and bottleneck solutions
 4. **Security Patterns**: Best practices for secure coding
+5. **IDE Issues**: Solutions for common development environment problems
 
 ### MCP Server Health Check
 
@@ -152,6 +203,13 @@ curl -X GET "http://localhost:9000/health"
 2. **Check logs**: Look for import errors or port conflicts
 3. **Restart server**: Kill existing processes and restart
 
+### Cline Integration Issues:
+
+1. **Verify MCP server URLs**: Check that servers are accessible
+2. **Check environment variables**: Ensure all required vars are loaded
+3. **Restart Cline**: Use Command Palette > "Cline: Restart"
+4. **Check virtual environment**: Ensure Cline is using the correct Python
+
 ## Best Practices
 
 1. **Always use virtual environments** for Python projects
@@ -159,6 +217,8 @@ curl -X GET "http://localhost:9000/health"
 3. **Use consistent naming** for environment variables
 4. **Test imports** after environment changes
 5. **Keep documentation updated** with AI Memory integration
+6. **Launch VSCode from activated virtual environment** for Cline compatibility
+7. **Use generic configuration files** that work across different projects
 
 ## Memory Integration Tips
 
@@ -167,5 +227,6 @@ curl -X GET "http://localhost:9000/health"
 - Store both successful solutions AND failed attempts
 - Regularly query past decisions before making new ones
 - Use auto-store for important conversations with AI assistants
+- Store IDE configuration solutions for team knowledge sharing
 
-This setup ensures consistent virtual environment activation and provides AI assistants with persistent memory across coding sessions.
+This setup ensures consistent virtual environment activation and provides AI assistants with persistent memory across coding sessions, whether using Cursor alone or with Cline integration.
