@@ -434,7 +434,45 @@ class AutoESCConfig:
         if self._config is None:
             return default
 
+        # Check nested structure first for real secrets
+        if key == "openai_api_key":
+            nested_value = self._get_nested_value("values.sophia.ai.openai.api_key")
+            if nested_value:
+                return nested_value
+        elif key == "pinecone_api_key":
+            nested_value = self._get_nested_value("values.sophia.data.pinecone.api_key")
+            if nested_value:
+                return nested_value
+        elif key == "gong_access_key":
+            nested_value = self._get_nested_value("values.sophia.business.gong.access_key")
+            if nested_value:
+                return nested_value
+        elif key == "gong_client_secret":
+            nested_value = self._get_nested_value("values.sophia.business.gong.client_secret")
+            if nested_value:
+                return nested_value
+        elif key == "anthropic_api_key":
+            nested_value = self._get_nested_value("values.sophia.ai.anthropic.api_key")
+            if nested_value:
+                return nested_value
+
         return self._config.get(key, default)
+    
+    def _get_nested_value(self, path: str) -> Any | None:
+        """Get value from nested dictionary using dot notation."""
+        if not self._config:
+            return None
+            
+        keys = path.split('.')
+        value = self._config
+        
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return None
+                
+        return value if value != "PLACEHOLDER_VALUE" else None
 
     def as_settings(self) -> Settings:
         """Return config as typed Settings (backward compatibility)."""

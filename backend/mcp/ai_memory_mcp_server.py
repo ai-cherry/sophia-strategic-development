@@ -275,7 +275,8 @@ class EnhancedAiMemoryMCPServer:
 
     async def _initialize_openai(self):
         """Initialize OpenAI client with proper configuration"""
-        openai_api_key = os.getenv("OPENAI_API_KEY")
+        from backend.core.auto_esc_config import config
+        openai_api_key = config.get("openai_api_key")
         
         if not openai_api_key or openai_api_key in ['fallback-key', 'sk-development-key-fallback']:
             logger.warning("No valid OpenAI API key found. Semantic search will be limited.")

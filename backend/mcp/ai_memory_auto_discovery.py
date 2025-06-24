@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Set
 from pathlib import Path
 
-from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer, MemoryCategory
+from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class CursorContextDetector:
     """Detects development context from Cursor IDE interactions"""
     
-    def __init__(self, ai_memory: AiMemoryMCPServer):
+    def __init__(self, ai_memory: EnhancedAiMemoryMCPServer):
         self.ai_memory = ai_memory
         self.patterns = {
             'architecture_keywords': [
@@ -236,7 +236,7 @@ METADATA:
 
 
 # Enhanced MCP Server with auto-discovery
-class EnhancedAiMemoryMCPServer(AiMemoryMCPServer):
+class CursorIntegratedAiMemoryMCPServer(EnhancedAiMemoryMCPServer):
     """Enhanced AI Memory MCP Server with Cursor IDE integration"""
     
     def __init__(self):
@@ -296,4 +296,4 @@ class EnhancedAiMemoryMCPServer(AiMemoryMCPServer):
 
 
 # Global instance for use in MCP server
-enhanced_ai_memory_server = EnhancedAiMemoryMCPServer()
+enhanced_ai_memory_server = CursorIntegratedAiMemoryMCPServer()
