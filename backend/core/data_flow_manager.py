@@ -231,6 +231,9 @@ class DataFlowManager:
         sources = [
             DataSource("gong", "airbyte", config.gong_api_base_url, "circuit_breaker"),
             DataSource("hubspot", "airbyte", config.hubspot_api_base_url, "circuit_breaker"),
+            # TODO: HYBRID APPROACH - Maintain existing HubSpot ingestion for training/interaction
+            # PLUS add Snowflake Secure Data Sharing for enterprise analytics
+            # See backend/utils/snowflake_hubspot_connector.py for blended access patterns
             DataSource("slack", "webhook", config.slack_webhook_url, "queue"),
             DataSource("linear", "airbyte", config.linear_api_base_url, "retry"),
             DataSource("github", "webhook", config.github_webhook_url, "queue"),

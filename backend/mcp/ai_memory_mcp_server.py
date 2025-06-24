@@ -46,6 +46,13 @@ class MemoryCategory:
     AI_CODING_PATTERN = "ai_coding_pattern"
     PERFORMANCE_TIP = "performance_tip"
     SECURITY_PATTERN = "security_pattern"
+    
+    # HubSpot-specific categories for CRM and sales intelligence
+    HUBSPOT_CONTACT_INSIGHT = "hubspot_contact_insight"
+    HUBSPOT_DEAL_ANALYSIS = "hubspot_deal_analysis"
+    HUBSPOT_SALES_PATTERN = "hubspot_sales_pattern"
+    HUBSPOT_CUSTOMER_INTERACTION = "hubspot_customer_interaction"
+    HUBSPOT_PIPELINE_INSIGHT = "hubspot_pipeline_insight"
 
 
 class MemoryRecord(BaseModel):
@@ -843,6 +850,210 @@ class EnhancedAiMemoryMCPServer:
             "conversation_analyzer": True,
             "timestamp": datetime.now().isoformat(),
         }
+
+    # HubSpot-specific memory functions for CRM and sales intelligence
+    async def store_hubspot_contact_insight(
+        self,
+        contact_id: str,
+        insight_content: str,
+        interaction_type: str = "general",
+        tags: List[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Store HubSpot contact insights for future AI processing
+        
+        Args:
+            contact_id: HubSpot contact ID
+            insight_content: The insight or summary about the contact
+            interaction_type: Type of interaction (call, email, meeting, note)
+            tags: Additional tags for categorization
+            
+        Returns:
+            Storage result with metadata
+        
+        TODO: For HubSpot data, vector embeddings will be generated using 
+        SNOWFLAKE.CORTEX.EMBED_TEXT() and stored in a VECTOR column within Snowflake tables.
+        This will reduce dependency on Pinecone for HubSpot-specific data.
+        """
+        if not tags:
+            tags = []
+        
+        # Add HubSpot-specific tags
+        tags.extend(["hubspot", "crm", "contact_insight", interaction_type, f"contact_{contact_id}"])
+        
+        # Enhanced content with structured data
+        structured_content = f"""
+        HubSpot Contact Insight:
+        Contact ID: {contact_id}
+        Interaction Type: {interaction_type}
+        Insight: {insight_content}
+        Timestamp: {datetime.now().isoformat()}
+        
+        TODO: This insight will be processed using Snowflake Cortex for:
+        - Sentiment analysis via SNOWFLAKE.CORTEX.SENTIMENT()
+        - Entity extraction for contact attributes
+        - Vector embedding for semantic search within Snowflake
+        - Integration with HubSpot Secure Data Share
+        """
+        
+        return await self.store_memory(
+            content=structured_content,
+            category=MemoryCategory.HUBSPOT_CONTACT_INSIGHT,
+            tags=tags,
+            importance_score=0.7,  # Contact insights are generally important
+            auto_detected=False
+        )
+    
+    async def store_hubspot_deal_analysis(
+        self,
+        deal_id: str,
+        analysis_content: str,
+        deal_stage: str,
+        deal_value: Optional[float] = None,
+        tags: List[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Store HubSpot deal analysis for pipeline intelligence
+        
+        Args:
+            deal_id: HubSpot deal ID
+            analysis_content: Analysis or insights about the deal
+            deal_stage: Current deal stage
+            deal_value: Deal value if available
+            tags: Additional tags
+            
+        Returns:
+            Storage result with metadata
+        """
+        if not tags:
+            tags = []
+        
+        tags.extend(["hubspot", "crm", "deal_analysis", deal_stage, f"deal_{deal_id}"])
+        
+        structured_content = f"""
+        HubSpot Deal Analysis:
+        Deal ID: {deal_id}
+        Deal Stage: {deal_stage}
+        Deal Value: {deal_value or 'Not specified'}
+        Analysis: {analysis_content}
+        Timestamp: {datetime.now().isoformat()}
+        
+        TODO: This analysis will leverage Snowflake Cortex for:
+        - Deal progression pattern analysis
+        - Revenue forecasting insights
+        - Risk assessment using historical data
+        - Semantic search across similar deals
+        """
+        
+        importance = 0.8 if deal_value and deal_value > 10000 else 0.6
+        
+        return await self.store_memory(
+            content=structured_content,
+            category=MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+            tags=tags,
+            importance_score=importance,
+            auto_detected=False
+        )
+    
+    async def store_hubspot_sales_pattern(
+        self,
+        pattern_description: str,
+        pattern_type: str = "general",
+        success_rate: Optional[float] = None,
+        tags: List[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Store identified sales patterns from HubSpot data analysis
+        
+        Args:
+            pattern_description: Description of the sales pattern
+            pattern_type: Type of pattern (conversion, objection, timing, etc.)
+            success_rate: Success rate of this pattern if known
+            tags: Additional tags
+            
+        Returns:
+            Storage result with metadata
+        """
+        if not tags:
+            tags = []
+        
+        tags.extend(["hubspot", "sales_pattern", pattern_type, "business_intelligence"])
+        
+        structured_content = f"""
+        HubSpot Sales Pattern:
+        Pattern Type: {pattern_type}
+        Success Rate: {success_rate or 'Not specified'}
+        Description: {pattern_description}
+        Timestamp: {datetime.now().isoformat()}
+        
+        TODO: Sales patterns will be enhanced with Snowflake Cortex:
+        - Pattern validation against historical data
+        - Predictive modeling for pattern effectiveness
+        - Automated pattern detection from new data
+        - Cross-reference with Gong call analysis
+        """
+        
+        importance = 0.9 if success_rate and success_rate > 0.7 else 0.7
+        
+        return await self.store_memory(
+            content=structured_content,
+            category=MemoryCategory.HUBSPOT_SALES_PATTERN,
+            tags=tags,
+            importance_score=importance,
+            auto_detected=False
+        )
+    
+    async def recall_hubspot_insights(
+        self,
+        query: str,
+        insight_type: Optional[str] = None,
+        contact_id: Optional[str] = None,
+        deal_id: Optional[str] = None,
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Recall HubSpot-specific insights with enhanced filtering
+        
+        Args:
+            query: Search query for insights
+            insight_type: Type of insight to filter by
+            contact_id: Specific contact ID to filter by
+            deal_id: Specific deal ID to filter by
+            limit: Maximum results to return
+            
+        Returns:
+            List of relevant HubSpot insights
+            
+        TODO: This will transition to use Snowflake native vector search:
+        - VECTOR_COSINE_SIMILARITY() for semantic matching
+        - Integration with HubSpot Secure Data Share
+        - Real-time insights from live CRM data
+        """
+        # Build enhanced query with HubSpot context
+        hubspot_query = f"HubSpot CRM {query}"
+        
+        if contact_id:
+            hubspot_query += f" contact_{contact_id}"
+        if deal_id:
+            hubspot_query += f" deal_{deal_id}"
+        
+        # Determine category filter
+        category_filter = None
+        if insight_type == "contact":
+            category_filter = MemoryCategory.HUBSPOT_CONTACT_INSIGHT
+        elif insight_type == "deal":
+            category_filter = MemoryCategory.HUBSPOT_DEAL_ANALYSIS
+        elif insight_type == "pattern":
+            category_filter = MemoryCategory.HUBSPOT_SALES_PATTERN
+        
+        results = await self.recall_memory(hubspot_query, category_filter, limit)
+        
+        # Add HubSpot-specific metadata
+        for result in results:
+            result["source"] = "hubspot_crm"
+            result["ai_processing_ready"] = True  # Ready for Snowflake Cortex
+        
+        return results
 
 
 # Use the enhanced server
