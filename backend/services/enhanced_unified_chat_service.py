@@ -1,2007 +1,923 @@
+#!/usr/bin/env python3
 """
 Enhanced Unified Chat Service
-Advanced natural language processing for CEO dashboard with multi-domain intelligence
+Extended to support comprehensive business intelligence across all schemas including
+PAYREADY_CORE_SQL, NETSUITE_DATA, PROPERTY_ASSETS, AI_WEB_RESEARCH, and CEO_INTELLIGENCE
 """
 
 import asyncio
-import json
 import logging
+import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-import time
 
-# Core imports
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.workflows.langgraph_agent_orchestration import (
-    LangGraphWorkflowOrchestrator,
-)
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class QueryIntent(Enum):
-    """Types of user query intents"""
-
-    SALES_PERFORMANCE = "sales_performance"
-    DEAL_ANALYSIS = "deal_analysis"
-    CALL_INSIGHTS = "call_insights"
-    REVENUE_METRICS = "revenue_metrics"
-    TEAM_PERFORMANCE = "team_performance"
-    CUSTOMER_HEALTH = "customer_health"
-    PIPELINE_STATUS = "pipeline_status"
-    COMPETITIVE_INTELLIGENCE = "competitive_intelligence"
-    TREND_ANALYSIS = "trend_analysis"
+    """Enhanced query intent classification"""
+    # Executive/CEO intents
     EXECUTIVE_SUMMARY = "executive_summary"
-    PREDICTIVE_INSIGHTS = "predictive_insights"
-    ACTION_ITEMS = "action_items"
-    SNOWFLAKE_ADMIN = "snowflake_admin"
-    # New KB management intents
-    KB_ADD_ENTITY = "kb_add_entity"
-    KB_UPDATE_ENTITY = "kb_update_entity"
-    KB_DELETE_ENTITY = "kb_delete_entity"
-    KB_ADD_ARTICLE = "kb_add_article"
-    KB_UPDATE_ARTICLE = "kb_update_article"
-    KB_SEARCH_KNOWLEDGE = "kb_search_knowledge"
-    KB_UPLOAD_DOCUMENT = "kb_upload_document"
-    KB_MANAGE_CATEGORY = "kb_manage_category"
-    # Enhanced Gong-specific intents
-    GONG_CALL_SEARCH = "gong_call_search"
-    GONG_TRANSCRIPT_SEARCH = "gong_transcript_search"
-    GONG_ACCOUNT_INSIGHTS = "gong_account_insights"
-    GONG_SENTIMENT_ANALYSIS = "gong_sentiment_analysis"
-    GONG_TOPIC_ANALYSIS = "gong_topic_analysis"
-    GONG_COACHING_INSIGHTS = "gong_coaching_insights"
-
-
-class QueryComplexity(Enum):
-    """Complexity levels for query processing"""
-
-    SIMPLE = "simple"  # Single metric, direct query
-    MODERATE = "moderate"  # Multiple metrics, some analysis
-    COMPLEX = "complex"  # Cross-domain analysis, aggregation
-    ADVANCED = "advanced"  # Predictive analysis, deep insights
-
+    STRATEGIC_ANALYSIS = "strategic_analysis"
+    BOARD_INTELLIGENCE = "board_intelligence"
+    COMPETITIVE_INTELLIGENCE = "competitive_intelligence"
+    
+    # Financial intents
+    FINANCIAL_ANALYSIS = "financial_analysis"
+    PAYMENT_ANALYSIS = "payment_analysis"
+    EXPENSE_ANALYSIS = "expense_analysis"
+    REVENUE_METRICS = "revenue_metrics"
+    
+    # Operational intents
+    CUSTOMER_ANALYSIS = "customer_analysis"
+    PROPERTY_ANALYSIS = "property_analysis"
+    FEATURE_ANALYSIS = "feature_analysis"
+    BUSINESS_RULES = "business_rules"
+    
+    # Intelligence intents
+    MARKET_INTELLIGENCE = "market_intelligence"
+    INDUSTRY_TRENDS = "industry_trends"
+    PARTNERSHIP_OPPORTUNITIES = "partnership_opportunities"
+    
+    # Communication intents
+    CALL_INSIGHTS = "call_insights"
+    SLACK_ANALYSIS = "slack_analysis"
+    TEAM_PERFORMANCE = "team_performance"
+    
+    # General intents
+    KNOWLEDGE_SEARCH = "knowledge_search"
+    DATA_EXPLORATION = "data_exploration"
+    GENERAL_QUERY = "general_query"
 
 @dataclass
 class QueryContext:
-    """Context information for query processing"""
-
-    user_role: str = "ceo"
-    time_period: Optional[str] = None
-    specific_entities: List[str] = field(default_factory=list)
-    filters: Dict[str, Any] = field(default_factory=dict)
-    preferred_format: str = "executive_summary"
-    urgency_level: str = "normal"
-
-
-@dataclass
-class ProcessedQuery:
-    """Processed and analyzed query"""
-
-    original_query: str
-    intent: QueryIntent
-    complexity: QueryComplexity
-    context: QueryContext
-    entities: List[str]
-    metrics_requested: List[str]
-    time_filters: Dict[str, Any]
-    confidence: float
-    processing_plan: List[str]
-
+    """Enhanced query context with security and role information"""
+    user_id: str
+    user_role: str
+    dashboard_type: str
+    security_level: str = "STANDARD"  # STANDARD, EXECUTIVE, CEO_ONLY
+    accessible_schemas: List[str] = None
+    time_filter: Optional[str] = None
+    preferred_format: str = "conversational"
 
 @dataclass
-class QueryResponse:
-    """Structured response to user query"""
-
-    query: str
-    intent: QueryIntent
-    executive_summary: str
-    key_metrics: Dict[str, Any]
-    insights: List[str]
-    recommendations: List[str]
-    data_sources: List[str]
-    confidence: float
-    processing_time: float
-    follow_up_questions: List[str]
-    visualizations: List[Dict[str, Any]] = field(default_factory=list)
-
-
-@dataclass
-class KBEntity:
-    """Knowledge Base entity structure"""
-
-    entity_type: str  # 'employee', 'customer', 'product', 'competitor', etc.
-    entity_id: Optional[str] = None
-    attributes: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class KBArticle:
-    """Knowledge Base article structure"""
-
-    title: str
+class QueryResult:
+    """Enhanced query result with metadata"""
     content: str
-    category: str
-    tags: List[str] = field(default_factory=list)
-    article_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-
-class IntentClassifier:
-    """Advanced intent classification for CEO queries"""
-
-    def __init__(self):
-        self.intent_patterns = self._initialize_intent_patterns()
-        self.openai_client = None
-        self.initialized = False
-
-    async def initialize(self):
-        """Initialize OpenAI client for advanced intent classification"""
-        if self.initialized:
-            return
-
-        try:
-            import openai
-
-            api_key = await get_config_value("openai_api_key")
-            if api_key:
-                self.openai_client = openai.AsyncOpenAI(api_key=api_key)
-                logger.info("✅ Intent Classifier initialized with OpenAI")
-            else:
-                logger.warning(
-                    "OpenAI API key not available, using pattern-based classification only"
-                )
-
-            self.initialized = True
-
-        except Exception as e:
-            logger.error(f"Failed to initialize Intent Classifier: {e}")
-            self.initialized = True
-
-    def _initialize_intent_patterns(self) -> Dict[QueryIntent, Dict[str, Any]]:
-        """Initialize patterns for intent classification"""
-        return {
-            QueryIntent.SALES_PERFORMANCE: {
-                "keywords": [
-                    "sales",
-                    "performance",
-                    "quota",
-                    "target",
-                    "achievement",
-                    "revenue",
-                ],
-                "phrases": [
-                    "how are sales",
-                    "sales performance",
-                    "revenue numbers",
-                    "quota attainment",
-                ],
-                "entities": ["sales_rep", "team", "region", "product"],
-                "complexity_indicators": ["trend", "comparison", "forecast"],
-            },
-            QueryIntent.DEAL_ANALYSIS: {
-                "keywords": ["deal", "opportunity", "proposal", "contract", "close"],
-                "phrases": [
-                    "deal status",
-                    "opportunity analysis",
-                    "close rate",
-                    "deal health",
-                ],
-                "entities": ["deal_id", "company", "amount", "stage"],
-                "complexity_indicators": ["risk", "probability", "forecast"],
-            },
-            QueryIntent.CALL_INSIGHTS: {
-                "keywords": ["call", "conversation", "meeting", "discussion", "talk"],
-                "phrases": [
-                    "call analysis",
-                    "conversation insights",
-                    "meeting outcomes",
-                    "call sentiment",
-                ],
-                "entities": ["customer", "prospect", "sales_rep", "topic"],
-                "complexity_indicators": ["sentiment", "topics", "coaching"],
-            },
-            QueryIntent.REVENUE_METRICS: {
-                "keywords": [
-                    "revenue",
-                    "income",
-                    "earnings",
-                    "financial",
-                    "money",
-                    "dollars",
-                ],
-                "phrases": [
-                    "revenue growth",
-                    "financial performance",
-                    "earnings report",
-                    "revenue forecast",
-                ],
-                "entities": ["period", "segment", "product", "region"],
-                "complexity_indicators": ["growth", "forecast", "trend", "comparison"],
-            },
-            QueryIntent.TEAM_PERFORMANCE: {
-                "keywords": [
-                    "team",
-                    "rep",
-                    "salesperson",
-                    "performance",
-                    "productivity",
-                ],
-                "phrases": [
-                    "team performance",
-                    "rep productivity",
-                    "sales team",
-                    "individual performance",
-                ],
-                "entities": ["team_member", "manager", "region", "role"],
-                "complexity_indicators": ["ranking", "improvement", "coaching"],
-            },
-            QueryIntent.CUSTOMER_HEALTH: {
-                "keywords": [
-                    "customer",
-                    "client",
-                    "account",
-                    "health",
-                    "satisfaction",
-                    "retention",
-                ],
-                "phrases": [
-                    "customer health",
-                    "account status",
-                    "client satisfaction",
-                    "retention risk",
-                ],
-                "entities": ["customer", "account", "segment", "value"],
-                "complexity_indicators": ["risk", "churn", "expansion"],
-            },
-            QueryIntent.PIPELINE_STATUS: {
-                "keywords": ["pipeline", "funnel", "stage", "progress", "flow"],
-                "phrases": [
-                    "pipeline status",
-                    "sales funnel",
-                    "deal flow",
-                    "stage progression",
-                ],
-                "entities": ["stage", "period", "team", "product"],
-                "complexity_indicators": ["velocity", "conversion", "bottleneck"],
-            },
-            QueryIntent.EXECUTIVE_SUMMARY: {
-                "keywords": [
-                    "summary",
-                    "overview",
-                    "dashboard",
-                    "status",
-                    "update",
-                    "report",
-                ],
-                "phrases": [
-                    "executive summary",
-                    "overall status",
-                    "high level",
-                    "business overview",
-                ],
-                "entities": ["period", "metric", "kpi"],
-                "complexity_indicators": ["comprehensive", "detailed", "complete"],
-            },
-            QueryIntent.TREND_ANALYSIS: {
-                "keywords": ["trend", "pattern", "direction", "movement", "change"],
-                "phrases": [
-                    "trending",
-                    "pattern analysis",
-                    "trend direction",
-                    "what's changing",
-                ],
-                "entities": ["metric", "period", "segment"],
-                "complexity_indicators": ["forecast", "prediction", "correlation"],
-            },
-            QueryIntent.PREDICTIVE_INSIGHTS: {
-                "keywords": ["predict", "forecast", "future", "projection", "estimate"],
-                "phrases": [
-                    "what will happen",
-                    "forecast",
-                    "prediction",
-                    "future outlook",
-                ],
-                "entities": ["metric", "period", "scenario"],
-                "complexity_indicators": ["model", "probability", "scenario"],
-            },
-            # Knowledge Base Management Intents
-            QueryIntent.KB_ADD_ENTITY: {
-                "keywords": [
-                    "add",
-                    "create",
-                    "new",
-                    "employee",
-                    "customer",
-                    "product",
-                    "competitor",
-                ],
-                "phrases": [
-                    "add employee",
-                    "create customer",
-                    "new product",
-                    "define competitor",
-                ],
-                "entities": [
-                    "name",
-                    "email",
-                    "department",
-                    "skills",
-                    "company",
-                    "description",
-                ],
-                "complexity_indicators": ["attributes", "metadata", "properties"],
-            },
-            QueryIntent.KB_UPDATE_ENTITY: {
-                "keywords": [
-                    "update",
-                    "modify",
-                    "change",
-                    "edit",
-                    "employee",
-                    "customer",
-                    "product",
-                ],
-                "phrases": [
-                    "update employee",
-                    "modify customer",
-                    "change product",
-                    "edit competitor",
-                ],
-                "entities": ["id", "name", "attribute", "value"],
-                "complexity_indicators": ["multiple", "batch", "bulk"],
-            },
-            QueryIntent.KB_ADD_ARTICLE: {
-                "keywords": [
-                    "add",
-                    "create",
-                    "write",
-                    "article",
-                    "knowledge",
-                    "document",
-                    "content",
-                ],
-                "phrases": [
-                    "add article",
-                    "create knowledge",
-                    "write document",
-                    "new content",
-                ],
-                "entities": ["title", "category", "content", "tags"],
-                "complexity_indicators": ["detailed", "comprehensive", "structured"],
-            },
-            QueryIntent.KB_SEARCH_KNOWLEDGE: {
-                "keywords": [
-                    "search",
-                    "find",
-                    "lookup",
-                    "knowledge",
-                    "who",
-                    "what",
-                    "where",
-                ],
-                "phrases": [
-                    "search for",
-                    "find information",
-                    "lookup knowledge",
-                    "who knows",
-                ],
-                "entities": ["topic", "person", "skill", "expertise"],
-                "complexity_indicators": ["semantic", "related", "similar"],
-            },
-            QueryIntent.KB_UPLOAD_DOCUMENT: {
-                "keywords": [
-                    "upload",
-                    "import",
-                    "load",
-                    "document",
-                    "file",
-                    "pdf",
-                    "docx",
-                ],
-                "phrases": [
-                    "upload document",
-                    "import file",
-                    "load content",
-                    "process document",
-                ],
-                "entities": ["file", "document", "content", "type"],
-                "complexity_indicators": ["extract", "parse", "process"],
-            },
-        }
-
-    async def classify_intent(
-        self, query: str, context: Optional[QueryContext] = None
-    ) -> Tuple[QueryIntent, float]:
-        """
-        Classify user query intent with confidence score
-
-        Args:
-            query: User query text
-            context: Optional query context
-
-        Returns:
-            Tuple of (intent, confidence_score)
-        """
-        if not self.initialized:
-            await self.initialize()
-
-        # Pattern-based classification
-        pattern_intent, pattern_confidence = self._classify_with_patterns(query)
-
-        # AI-enhanced classification if available
-        if self.openai_client:
-            ai_intent, ai_confidence = await self._classify_with_ai(query, context)
-
-            # Combine results (AI gets higher weight if confidence is high)
-            if ai_confidence > 0.8:
-                return ai_intent, ai_confidence
-            elif pattern_confidence > 0.7:
-                return pattern_intent, pattern_confidence
-            else:
-                # Average the confidences, prefer AI if close
-                if ai_confidence >= pattern_confidence - 0.1:
-                    return ai_intent, (ai_confidence + pattern_confidence) / 2
-                else:
-                    return pattern_intent, (ai_confidence + pattern_confidence) / 2
-
-        return pattern_intent, pattern_confidence
-
-    def _classify_with_patterns(self, query: str) -> Tuple[QueryIntent, float]:
-        """Pattern-based intent classification"""
-        query_lower = query.lower()
-        intent_scores = {}
-
-        for intent, patterns in self.intent_patterns.items():
-            score = 0.0
-
-            # Check keywords
-            for keyword in patterns["keywords"]:
-                if keyword in query_lower:
-                    score += 0.1
-
-            # Check phrases (higher weight)
-            for phrase in patterns["phrases"]:
-                if phrase in query_lower:
-                    score += 0.3
-
-            # Check complexity indicators
-            for indicator in patterns.get("complexity_indicators", []):
-                if indicator in query_lower:
-                    score += 0.05
-
-            intent_scores[intent] = score
-
-        # Get best match
-        if intent_scores:
-            best_intent = max(intent_scores.items(), key=lambda x: x[1])
-            return best_intent[0], min(best_intent[1], 1.0)
-
-        # Default fallback
-        return QueryIntent.EXECUTIVE_SUMMARY, 0.3
-
-    async def _classify_with_ai(
-        self, query: str, context: Optional[QueryContext] = None
-    ) -> Tuple[QueryIntent, float]:
-        """AI-enhanced intent classification"""
-        try:
-            context_info = ""
-            if context:
-                context_info = f"\nUser context: Role={context.user_role}, Format preference={context.preferred_format}"
-
-            prompt = f"""
-            Classify this CEO/executive query into the most appropriate intent category:
-            
-            Query: "{query}"
-            {context_info}
-            
-            Available intent categories:
-            - sales_performance: Sales metrics, quota attainment, team performance
-            - deal_analysis: Specific deal insights, opportunity analysis
-            - call_insights: Call analysis, conversation insights, customer interactions
-            - revenue_metrics: Revenue, financial performance, earnings
-            - team_performance: Individual/team productivity and performance
-            - customer_health: Customer satisfaction, retention, account health
-            - pipeline_status: Sales pipeline, funnel analysis, deal flow
-            - competitive_intelligence: Competitor analysis, market insights
-            - trend_analysis: Patterns, trends, directional analysis
-            - executive_summary: High-level overview, dashboard summary
-            - predictive_insights: Forecasting, predictions, future outlook
-            - action_items: Tasks, recommendations, next steps
-            
-            Respond with JSON:
-            {{
-                "intent": "intent_category",
-                "confidence": 0.95,
-                "reasoning": "brief explanation"
-            }}
-            """
-
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=200,
-            )
-
-            result = json.loads(response.choices[0].message.content)
-            intent_str = result.get("intent", "executive_summary")
-            confidence = float(result.get("confidence", 0.5))
-
-            # Map string to enum
-            intent_mapping = {intent.value: intent for intent in QueryIntent}
-            intent = intent_mapping.get(intent_str, QueryIntent.EXECUTIVE_SUMMARY)
-
-            return intent, confidence
-
-        except Exception as e:
-            logger.error(f"AI intent classification failed: {e}")
-            return QueryIntent.EXECUTIVE_SUMMARY, 0.3
-
-
-class QueryProcessor:
-    """Advanced query processing and analysis"""
-
-    def __init__(self):
-        self.intent_classifier = IntentClassifier()
-        self.entity_patterns = self._initialize_entity_patterns()
-        self.time_patterns = self._initialize_time_patterns()
-
-    async def initialize(self):
-        """Initialize query processor"""
-        await self.intent_classifier.initialize()
-
-    def _initialize_entity_patterns(self) -> Dict[str, str]:
-        """Initialize entity extraction patterns"""
-        return {
-            "deal_id": r"deal[_\s]*(?:id|#)?\s*:?\s*([A-Za-z0-9\-_]+)",
-            "company": r"(?:company|client|account)\s+([A-Za-z\s&]+)",
-            "sales_rep": r"(?:rep|salesperson|sales\s+rep)\s+([A-Za-z\s]+)",
-            "amount": r"\$?([\d,]+(?:\.\d{2})?)[kKmMbB]?",
-            "percentage": r"(\d+(?:\.\d+)?)%",
-            "date_range": r"(?:last|past|previous)\s+(\d+)\s+(day|week|month|quarter|year)s?",
-            "specific_date": r"(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})",
-            "team": r"(?:team|group|division)\s+([A-Za-z\s]+)",
-            "product": r"(?:product|solution|service)\s+([A-Za-z\s]+)",
-        }
-
-    def _initialize_time_patterns(self) -> Dict[str, Dict[str, Any]]:
-        """Initialize time period patterns"""
-        return {
-            "today": {"days": 1, "type": "current"},
-            "yesterday": {"days": 1, "type": "previous"},
-            "this week": {"days": 7, "type": "current"},
-            "last week": {"days": 7, "type": "previous"},
-            "this month": {"days": 30, "type": "current"},
-            "last month": {"days": 30, "type": "previous"},
-            "this quarter": {"days": 90, "type": "current"},
-            "last quarter": {"days": 90, "type": "previous"},
-            "this year": {"days": 365, "type": "current"},
-            "last year": {"days": 365, "type": "previous"},
-            "ytd": {"days": 365, "type": "year_to_date"},
-            "year to date": {"days": 365, "type": "year_to_date"},
-        }
-
-    async def process_query(
-        self, query: str, context: Optional[QueryContext] = None
-    ) -> ProcessedQuery:
-        """
-        Process and analyze user query
-
-        Args:
-            query: User query text
-            context: Optional query context
-
-        Returns:
-            Processed query with intent, entities, and processing plan
-        """
-        if not context:
-            context = QueryContext()
-
-        # Classify intent
-        intent, confidence = await self.intent_classifier.classify_intent(
-            query, context
-        )
-
-        # Extract entities
-        entities = self._extract_entities(query)
-
-        # Extract time filters
-        time_filters = self._extract_time_filters(query)
-
-        # Determine complexity
-        complexity = self._determine_complexity(query, intent, entities)
-
-        # Extract requested metrics
-        metrics = self._extract_metrics(query, intent)
-
-        # Create processing plan
-        processing_plan = self._create_processing_plan(
-            intent, complexity, entities, metrics
-        )
-
-        return ProcessedQuery(
-            original_query=query,
-            intent=intent,
-            complexity=complexity,
-            context=context,
-            entities=entities,
-            metrics_requested=metrics,
-            time_filters=time_filters,
-            confidence=confidence,
-            processing_plan=processing_plan,
-        )
-
-    def _extract_entities(self, query: str) -> List[str]:
-        """Extract named entities from query"""
-        entities = []
-
-        for entity_type, pattern in self.entity_patterns.items():
-            matches = re.findall(pattern, query, re.IGNORECASE)
-            for match in matches:
-                entities.append(f"{entity_type}:{match}")
-
-        return entities
-
-    def _extract_time_filters(self, query: str) -> Dict[str, Any]:
-        """Extract time-related filters from query"""
-        query_lower = query.lower()
-        time_filters = {}
-
-        # Check for predefined time periods
-        for period, config in self.time_patterns.items():
-            if period in query_lower:
-                time_filters["period"] = period
-                time_filters["days"] = config["days"]
-                time_filters["type"] = config["type"]
-                break
-
-        # Check for specific date ranges
-        date_match = re.search(r"from\s+([^\s]+)\s+to\s+([^\s]+)", query_lower)
-        if date_match:
-            time_filters["start_date"] = date_match.group(1)
-            time_filters["end_date"] = date_match.group(2)
-            time_filters["type"] = "custom_range"
-
-        return time_filters
-
-    def _determine_complexity(
-        self, query: str, intent: QueryIntent, entities: List[str]
-    ) -> QueryComplexity:
-        """Determine query complexity level"""
-        complexity_indicators = {
-            "simple": 0,
-            "moderate": 0,
-            "complex": 0,
-            "advanced": 0,
-        }
-
-        # Length-based complexity
-        word_count = len(query.split())
-        if word_count > 20:
-            complexity_indicators["complex"] += 1
-        elif word_count > 10:
-            complexity_indicators["moderate"] += 1
-        else:
-            complexity_indicators["simple"] += 1
-
-        # Entity-based complexity
-        if len(entities) > 5:
-            complexity_indicators["complex"] += 1
-        elif len(entities) > 2:
-            complexity_indicators["moderate"] += 1
-
-        # Intent-based complexity
-        complex_intents = [
-            QueryIntent.PREDICTIVE_INSIGHTS,
-            QueryIntent.TREND_ANALYSIS,
-            QueryIntent.COMPETITIVE_INTELLIGENCE,
-        ]
-        if intent in complex_intents:
-            complexity_indicators["advanced"] += 2
-
-        # Keyword-based complexity
-        complex_keywords = [
-            "forecast",
-            "predict",
-            "correlation",
-            "trend",
-            "pattern",
-            "compare",
-            "analyze",
-        ]
-        for keyword in complex_keywords:
-            if keyword in query.lower():
-                complexity_indicators["complex"] += 1
-
-        # Advanced keywords
-        advanced_keywords = [
-            "machine learning",
-            "ai",
-            "model",
-            "algorithm",
-            "statistical",
-        ]
-        for keyword in advanced_keywords:
-            if keyword in query.lower():
-                complexity_indicators["advanced"] += 2
-
-        # Determine final complexity
-        max_complexity = max(complexity_indicators.items(), key=lambda x: x[1])
-        return QueryComplexity(max_complexity[0])
-
-    def _extract_metrics(self, query: str, intent: QueryIntent) -> List[str]:
-        """Extract requested metrics from query"""
-        query_lower = query.lower()
-        metrics = []
-
-        # Intent-based default metrics
-        intent_metrics = {
-            QueryIntent.SALES_PERFORMANCE: [
-                "revenue",
-                "quota_attainment",
-                "deals_closed",
-            ],
-            QueryIntent.DEAL_ANALYSIS: [
-                "deal_value",
-                "close_probability",
-                "deal_stage",
-            ],
-            QueryIntent.CALL_INSIGHTS: ["call_sentiment", "talk_ratio", "call_outcome"],
-            QueryIntent.REVENUE_METRICS: ["revenue", "growth_rate", "forecast"],
-            QueryIntent.TEAM_PERFORMANCE: [
-                "individual_performance",
-                "team_ranking",
-                "productivity",
-            ],
-            QueryIntent.CUSTOMER_HEALTH: [
-                "satisfaction_score",
-                "retention_rate",
-                "expansion_revenue",
-            ],
-            QueryIntent.PIPELINE_STATUS: [
-                "pipeline_value",
-                "conversion_rate",
-                "velocity",
-            ],
-        }
-
-        metrics.extend(intent_metrics.get(intent, []))
-
-        # Explicit metric mentions
-        metric_keywords = {
-            "revenue": ["revenue", "sales", "income"],
-            "deals": ["deals", "opportunities", "contracts"],
-            "calls": ["calls", "meetings", "conversations"],
-            "customers": ["customers", "clients", "accounts"],
-            "performance": ["performance", "productivity", "results"],
-            "growth": ["growth", "increase", "improvement"],
-            "forecast": ["forecast", "prediction", "projection"],
-        }
-
-        for metric, keywords in metric_keywords.items():
-            if any(keyword in query_lower for keyword in keywords):
-                if metric not in metrics:
-                    metrics.append(metric)
-
-        return metrics[:10]  # Limit to 10 metrics
-
-    def _create_processing_plan(
-        self,
-        intent: QueryIntent,
-        complexity: QueryComplexity,
-        entities: List[str],
-        metrics: List[str],
-    ) -> List[str]:
-        """Create step-by-step processing plan"""
-        plan = []
-
-        # Basic data retrieval
-        if intent in [QueryIntent.SALES_PERFORMANCE, QueryIntent.REVENUE_METRICS]:
-            plan.append("Retrieve HubSpot sales data")
-
-        if intent in [QueryIntent.CALL_INSIGHTS, QueryIntent.CUSTOMER_HEALTH]:
-            plan.append("Retrieve Gong call data")
-
-        if intent == QueryIntent.DEAL_ANALYSIS:
-            plan.append("Retrieve specific deal information")
-            plan.append("Analyze deal progression and health")
-
-        # Analysis steps based on complexity
-        if complexity in [QueryComplexity.MODERATE, QueryComplexity.COMPLEX]:
-            plan.append("Perform cross-domain data analysis")
-            plan.append("Calculate derived metrics and KPIs")
-
-        if complexity in [QueryComplexity.COMPLEX, QueryComplexity.ADVANCED]:
-            plan.append("Apply statistical analysis and trend detection")
-            plan.append("Generate predictive insights")
-
-        # AI enhancement
-        plan.append("Generate AI-powered insights using Snowflake Cortex")
-        plan.append("Create executive summary and recommendations")
-
-        return plan
-
-    # Enhanced Gong call search patterns
-    gong_call_patterns = [
-        r"(?:search|find|show|get).*(?:gong|call|conversation).*(?:about|for|with).*([^.?!]+)",
-        r"(?:calls|conversations).*(?:about|regarding|with).*([^.?!]+)",
-        r"(?:gong|call).*(?:data|insights|analysis).*([^.?!]+)",
-        r"(?:show|find).*(?:calls|meetings).*(?:sentiment|positive|negative)",
-        r"(?:recent|latest).*(?:calls|gong).*(?:data|insights)"
-    ]
-    
-    gong_transcript_patterns = [
-        r"(?:search|find).*(?:transcript|conversation|discussion).*([^.?!]+)",
-        r"(?:what.*said|who.*mentioned).*([^.?!]+)",
-        r"(?:transcript|conversation).*(?:about|regarding).*([^.?!]+)",
-        r"(?:find|search).*(?:speaker|participant).*([^.?!]+)"
-    ]
-    
-    gong_account_patterns = [
-        r"(?:account|customer|client).*([A-Za-z][A-Za-z0-9\s]+).*(?:calls|insights|data)",
-        r"(?:calls|conversations).*(?:with|from).*([A-Za-z][A-Za-z0-9\s]+)",
-        r"(?:gong|call).*(?:data|insights).*(?:for|about).*([A-Za-z][A-Za-z0-9\s]+)"
-    ]
-    
-    gong_sentiment_patterns = [
-        r"(?:sentiment|mood|feeling).*(?:calls|conversations|gong)",
-        r"(?:positive|negative|neutral).*(?:calls|sentiment)",
-        r"(?:how.*feel|customer.*sentiment).*(?:calls|gong)",
-        r"(?:analyze|show).*(?:sentiment|mood).*(?:calls|data)"
-    ]
-    
-    gong_topic_patterns = [
-        r"(?:topics|themes|subjects).*(?:discussed|mentioned).*(?:calls|gong)",
-        r"(?:what.*talked|discussed).*(?:about|in).*(?:calls|meetings)",
-        r"(?:key|main|important).*(?:topics|themes).*(?:calls|conversations)",
-        r"(?:analyze|show).*(?:topics|themes).*(?:gong|calls)"
-    ]
-    
-    gong_coaching_patterns = [
-        r"(?:coaching|feedback|improvement).*(?:insights|recommendations)",
-        r"(?:sales|call).*(?:coaching|training|improvement)",
-        r"(?:performance|effectiveness).*(?:analysis|insights).*(?:calls|sales)",
-        r"(?:recommendations|suggestions).*(?:sales|calls|gong)"
-    ]
-
+    intent: QueryIntent
+    data_sources: List[str]
+    confidence_score: float
+    execution_time_ms: int
+    records_analyzed: int
+    security_level: str
+    suggested_actions: List[Dict[str, Any]] = None
 
 class EnhancedUnifiedChatService:
-    """
-    Enhanced unified chat service with advanced NLP and multi-domain intelligence
-    """
-
+    """Enhanced unified chat service with comprehensive business intelligence"""
+    
     def __init__(self):
-        self.query_processor = QueryProcessor()
         self.cortex_service = None
-        self.hubspot_connector = None
-        self.gong_connector = None
-        self.ai_memory = None
-        self.workflow_orchestrator = None
-        self.initialized = False
-
-        # Response cache
-        self.response_cache = {}
-        self.cache_ttl = 300  # 5 minutes
-
-    async def initialize(self):
-        """Initialize all service components"""
-        if self.initialized:
-            return
-
+        self.ai_memory_service = None
+        self.snowflake_conn = None
+        
+        # Schema access mapping based on security levels
+        self.schema_access_map = {
+            "STANDARD": [
+                "FOUNDATIONAL_KNOWLEDGE",
+                "HUBSPOT_DATA", 
+                "GONG_DATA",
+                "SLACK_DATA"
+            ],
+            "EXECUTIVE": [
+                "FOUNDATIONAL_KNOWLEDGE",
+                "HUBSPOT_DATA",
+                "GONG_DATA", 
+                "SLACK_DATA",
+                "PAYREADY_CORE_SQL",
+                "NETSUITE_DATA",
+                "PROPERTY_ASSETS",
+                "AI_WEB_RESEARCH"
+            ],
+            "CEO_ONLY": [
+                "FOUNDATIONAL_KNOWLEDGE",
+                "HUBSPOT_DATA",
+                "GONG_DATA",
+                "SLACK_DATA", 
+                "PAYREADY_CORE_SQL",
+                "NETSUITE_DATA",
+                "PROPERTY_ASSETS",
+                "AI_WEB_RESEARCH",
+                "CEO_INTELLIGENCE"
+            ]
+        }
+        
+    async def initialize(self) -> None:
+        """Initialize the enhanced chat service"""
         try:
-            # Initialize core services
-            await self.query_processor.initialize()
-
             self.cortex_service = SnowflakeCortexService()
-            self.hubspot_connector = SnowflakeHubSpotConnector()
-            self.gong_connector = SnowflakeGongConnector()
-            self.ai_memory = EnhancedAiMemoryMCPServer()
-            self.workflow_orchestrator = LangGraphWorkflowOrchestrator()
-
-            # Initialize AI Memory and Workflow Orchestrator
-            await self.ai_memory.initialize()
-            await self.workflow_orchestrator.initialize()
-
-            self.initialized = True
+            await self.cortex_service.initialize()
+            
+            self.ai_memory_service = EnhancedAiMemoryMCPServer()
+            await self.ai_memory_service.initialize()
+            
+            # Get direct Snowflake connection
+            import snowflake.connector
+            self.snowflake_conn = snowflake.connector.connect(
+                account=await get_config_value("snowflake_account"),
+                user=await get_config_value("snowflake_user"),
+                password=await get_config_value("snowflake_password"),
+                database="SOPHIA_AI_DEV",
+                warehouse="WH_SOPHIA_AI_PROCESSING",
+                role="ACCOUNTADMIN"
+            )
+            
             logger.info("✅ Enhanced Unified Chat Service initialized")
-
+            
         except Exception as e:
-            logger.error(f"Failed to initialize Enhanced Unified Chat Service: {e}")
+            logger.error(f"❌ Failed to initialize enhanced chat service: {e}")
             raise
 
-    async def process_query(
-        self, query: str, user_context: Optional[Dict[str, Any]] = None
-    ) -> QueryResponse:
-        """
-        Process user query and generate comprehensive response
-
-        Args:
-            query: User query text
-            user_context: Optional user context
-
-        Returns:
-            Comprehensive query response
-        """
-        if not self.initialized:
-            await self.initialize()
-
-        start_time = asyncio.get_event_loop().time()
-
+    async def classify_query_intent(self, query: str, context: QueryContext) -> QueryIntent:
+        """Enhanced intent classification with context awareness"""
         try:
-            # Check cache
-            cache_key = f"{hash(query)}_{hash(str(user_context))}"
-            if cache_key in self.response_cache:
-                cached_response, timestamp = self.response_cache[cache_key]
-                if (datetime.now().timestamp() - timestamp) < self.cache_ttl:
-                    logger.info(f"Returning cached response for query: {query[:50]}...")
-                    return cached_response
+            query_lower = query.lower()
+            
+            # CEO/Executive specific intents
+            if context.security_level == "CEO_ONLY" or context.dashboard_type == "ceo":
+                if any(word in query_lower for word in ["strategic", "board", "confidential", "executive"]):
+                    return QueryIntent.STRATEGIC_ANALYSIS
+                if any(word in query_lower for word in ["competitor", "competitive", "market share"]):
+                    return QueryIntent.COMPETITIVE_INTELLIGENCE
+                if any(word in query_lower for word in ["board", "directors", "governance"]):
+                    return QueryIntent.BOARD_INTELLIGENCE
+                if any(word in query_lower for word in ["summary", "overview", "executive brief"]):
+                    return QueryIntent.EXECUTIVE_SUMMARY
+            
+            # Financial analysis intents
+            if any(word in query_lower for word in ["payment", "transaction", "revenue", "financial"]):
+                if any(word in query_lower for word in ["payment", "transaction"]):
+                    return QueryIntent.PAYMENT_ANALYSIS
+                if any(word in query_lower for word in ["expense", "cost", "spending"]):
+                    return QueryIntent.EXPENSE_ANALYSIS
+                if any(word in query_lower for word in ["revenue", "income", "earnings"]):
+                    return QueryIntent.REVENUE_METRICS
+                return QueryIntent.FINANCIAL_ANALYSIS
+            
+            # Property and asset intents
+            if any(word in query_lower for word in ["property", "asset", "unit", "occupancy"]):
+                return QueryIntent.PROPERTY_ANALYSIS
+            
+            # Customer and feature intents
+            if any(word in query_lower for word in ["customer", "feature", "subscription"]):
+                if any(word in query_lower for word in ["feature", "subscription", "tier"]):
+                    return QueryIntent.FEATURE_ANALYSIS
+                return QueryIntent.CUSTOMER_ANALYSIS
+            
+            # Market intelligence intents
+            if any(word in query_lower for word in ["trend", "industry", "market", "research"]):
+                if any(word in query_lower for word in ["trend", "industry"]):
+                    return QueryIntent.INDUSTRY_TRENDS
+                if any(word in query_lower for word in ["partner", "partnership", "collaboration"]):
+                    return QueryIntent.PARTNERSHIP_OPPORTUNITIES
+                return QueryIntent.MARKET_INTELLIGENCE
+            
+            # Communication intents
+            if any(word in query_lower for word in ["call", "gong", "conversation"]):
+                return QueryIntent.CALL_INSIGHTS
+            if any(word in query_lower for word in ["slack", "message", "chat"]):
+                return QueryIntent.SLACK_ANALYSIS
+            if any(word in query_lower for word in ["team", "performance", "employee"]):
+                return QueryIntent.TEAM_PERFORMANCE
+            
+            # Business rules and operations
+            if any(word in query_lower for word in ["rule", "process", "workflow", "automation"]):
+                return QueryIntent.BUSINESS_RULES
+            
+            # Knowledge search
+            if any(word in query_lower for word in ["search", "find", "document", "knowledge"]):
+                return QueryIntent.KNOWLEDGE_SEARCH
+            
+            # Data exploration
+            if any(word in query_lower for word in ["show", "list", "display", "data"]):
+                return QueryIntent.DATA_EXPLORATION
+            
+            return QueryIntent.GENERAL_QUERY
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to classify query intent: {e}")
+            return QueryIntent.GENERAL_QUERY
 
-            # Create query context
-            context = QueryContext(
-                user_role=user_context.get("role", "ceo") if user_context else "ceo",
-                time_period=user_context.get("time_period") if user_context else None,
-                preferred_format=(
-                    user_context.get("format", "executive_summary")
-                    if user_context
-                    else "executive_summary"
+    async def execute_payment_analysis_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute payment and transaction analysis queries"""
+        try:
+            cursor = self.snowflake_conn.cursor()
+            
+            # Determine time filter
+            time_filter = self._get_time_filter_sql(context.time_filter or "30d")
+            
+            # Execute payment analysis query
+            cursor.execute(f"""
+                WITH payment_metrics AS (
+                    SELECT 
+                        COUNT(*) as total_transactions,
+                        SUM(CASE WHEN STATUS = 'COMPLETED' THEN AMOUNT ELSE 0 END) as total_amount,
+                        AVG(CASE WHEN STATUS = 'COMPLETED' THEN AMOUNT END) as avg_amount,
+                        COUNT(CASE WHEN STATUS = 'COMPLETED' THEN 1 END) as successful_transactions,
+                        COUNT(CASE WHEN STATUS = 'FAILED' THEN 1 END) as failed_transactions,
+                        ROUND(COUNT(CASE WHEN STATUS = 'COMPLETED' THEN 1 END) * 100.0 / COUNT(*), 2) as success_rate,
+                        COUNT(DISTINCT CUSTOMER_ID) as unique_customers,
+                        COUNT(DISTINCT PROPERTY_ID) as unique_properties
+                    FROM PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS
+                    WHERE {time_filter}
                 ),
+                payment_trends AS (
+                    SELECT 
+                        DATE_TRUNC('day', PROCESSING_DATE) as payment_date,
+                        COUNT(*) as daily_transactions,
+                        SUM(CASE WHEN STATUS = 'COMPLETED' THEN AMOUNT ELSE 0 END) as daily_amount
+                    FROM PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS
+                    WHERE {time_filter}
+                    GROUP BY DATE_TRUNC('day', PROCESSING_DATE)
+                    ORDER BY payment_date DESC
+                    LIMIT 7
+                ),
+                top_failure_reasons AS (
+                    SELECT 
+                        FAILURE_REASON,
+                        COUNT(*) as failure_count
+                    FROM PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS
+                    WHERE STATUS = 'FAILED' AND {time_filter}
+                    AND FAILURE_REASON IS NOT NULL
+                    GROUP BY FAILURE_REASON
+                    ORDER BY failure_count DESC
+                    LIMIT 5
+                )
+                SELECT 
+                    (SELECT OBJECT_CONSTRUCT(*) FROM payment_metrics) as metrics,
+                    (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM payment_trends) as trends,
+                    (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM top_failure_reasons) as failures
+            """)
+            
+            result = cursor.fetchone()
+            metrics = json.loads(result[0])
+            trends = json.loads(result[1]) if result[1] else []
+            failures = json.loads(result[2]) if result[2] else []
+            
+            # Generate natural language response
+            response = self._format_payment_analysis_response(metrics, trends, failures, context)
+            
+            cursor.close()
+            
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.PAYMENT_ANALYSIS,
+                data_sources=["PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS"],
+                confidence_score=0.95,
+                execution_time_ms=100,  # Would be measured in real implementation
+                records_analyzed=metrics.get('total_transactions', 0),
+                security_level="EXECUTIVE"
             )
-
-            # Process query
-            processed_query = await self.query_processor.process_query(query, context)
-
-            # Generate response based on intent and complexity
-            response = await self._generate_response(processed_query)
-
-            # Calculate processing time
-            processing_time = asyncio.get_event_loop().time() - start_time
-            response.processing_time = processing_time
-
-            # Cache response
-            self.response_cache[cache_key] = (response, datetime.now().timestamp())
-
-            # Store interaction in AI Memory
-            await self._store_interaction(query, response)
-
-            logger.info(f"Processed query in {processing_time:.2f}s: {query[:50]}...")
-            return response
-
+            
         except Exception as e:
-            logger.error(f"Query processing failed: {e}")
-            return QueryResponse(
-                query=query,
-                intent=QueryIntent.EXECUTIVE_SUMMARY,
-                executive_summary=f"I encountered an error processing your query: {str(e)}",
-                key_metrics={},
-                insights=["Unable to process query due to technical error"],
-                recommendations=[
-                    "Please try rephrasing your question or contact support"
-                ],
+            logger.error(f"❌ Failed to execute payment analysis query: {e}")
+            return QueryResult(
+                content=f"I encountered an error analyzing payment data: {str(e)}",
+                intent=QueryIntent.PAYMENT_ANALYSIS,
                 data_sources=[],
-                confidence=0.0,
-                processing_time=asyncio.get_event_loop().time() - start_time,
-                follow_up_questions=[],
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level="EXECUTIVE"
             )
 
-    async def _generate_response(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Generate comprehensive response based on processed query"""
-
-        # Route to appropriate handler based on intent
-        if processed_query.intent == QueryIntent.DEAL_ANALYSIS:
-            return await self._handle_deal_analysis(processed_query)
-        elif processed_query.intent == QueryIntent.SALES_PERFORMANCE:
-            return await self._handle_sales_performance(processed_query)
-        elif processed_query.intent == QueryIntent.CALL_INSIGHTS:
-            return await self._handle_call_insights(processed_query)
-        elif processed_query.intent == QueryIntent.REVENUE_METRICS:
-            return await self._handle_revenue_metrics(processed_query)
-        elif processed_query.intent == QueryIntent.EXECUTIVE_SUMMARY:
-            return await self._handle_executive_summary(processed_query)
-        elif processed_query.intent == QueryIntent.PREDICTIVE_INSIGHTS:
-            return await self._handle_predictive_insights(processed_query)
-        else:
-            return await self._handle_general_query(processed_query)
-
-    async def _handle_deal_analysis(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle deal-specific analysis queries"""
-
-        # Extract deal ID if specified
-        deal_id = None
-        for entity in processed_query.entities:
-            if entity.startswith("deal_id:"):
-                deal_id = entity.split(":", 1)[1]
-                break
-
-        if deal_id:
-            # Use LangGraph workflow for comprehensive deal analysis
-            workflow_result = await self.workflow_orchestrator.analyze_deal(
-                deal_id=deal_id,
-                analysis_type="comprehensive",
-                user_request=processed_query.original_query,
-            )
-
-            if workflow_result.get("status") == "completed":
-                consolidated_findings = workflow_result.get("consolidated_findings", {})
-                recommendations = workflow_result.get("recommendations", [])
-
-                return QueryResponse(
-                    query=processed_query.original_query,
-                    intent=processed_query.intent,
-                    executive_summary=consolidated_findings.get(
-                        "executive_summary", "Deal analysis completed"
-                    ),
-                    key_metrics=consolidated_findings.get("key_metrics", {}),
-                    insights=[
-                        f"Deal health score: {consolidated_findings.get('deal_health_score', 'N/A')}",
-                        "Comprehensive analysis completed using AI workflow",
-                    ],
-                    recommendations=[
-                        rec.get("description", "") for rec in recommendations[:5]
-                    ],
-                    data_sources=["HubSpot CRM", "Gong Calls", "AI Workflow Analysis"],
-                    confidence=0.9,
-                    processing_time=0.0,
-                    follow_up_questions=[
-                        "What are the specific risks for this deal?",
-                        "What actions should the sales rep take next?",
-                        "How does this deal compare to similar opportunities?",
-                    ],
-                )
-
-        # General deal analysis without specific ID
-        async with self.hubspot_connector as connector:
-            recent_deals = await connector.query_hubspot_deals(limit=10)
-
-            if not recent_deals.empty:
-                # Analyze recent deals using Cortex
-                async with self.cortex_service as cortex:
-                    analysis_prompt = f"""
-                    Analyze these recent deals and provide executive insights:
-                    
-                    Recent Deals Summary:
-                    - Total deals: {len(recent_deals)}
-                    - Average value: ${recent_deals['AMOUNT'].mean():,.0f}
-                    - Top stage: {recent_deals['DEAL_STAGE'].mode().iloc[0] if not recent_deals['DEAL_STAGE'].mode().empty else 'Unknown'}
-                    
-                    Provide:
-                    1. Overall deal pipeline health
-                    2. Key opportunities and risks
-                    3. Strategic recommendations
-                    """
-
-                    executive_summary = await cortex.complete_text_with_cortex(
-                        prompt=analysis_prompt, max_tokens=400
-                    )
-
-                return QueryResponse(
-                    query=processed_query.original_query,
-                    intent=processed_query.intent,
-                    executive_summary=executive_summary,
-                    key_metrics={
-                        "total_deals": len(recent_deals),
-                        "average_deal_value": float(recent_deals["AMOUNT"].mean()),
-                        "pipeline_value": float(recent_deals["AMOUNT"].sum()),
-                    },
-                    insights=[
-                        f"Analyzed {len(recent_deals)} recent deals",
-                        f"Pipeline value: ${recent_deals['AMOUNT'].sum():,.0f}",
-                        f"Average deal size: ${recent_deals['AMOUNT'].mean():,.0f}",
-                    ],
-                    recommendations=[
-                        "Focus on high-value opportunities",
-                        "Address deals stuck in early stages",
-                        "Implement deal acceleration strategies",
-                    ],
-                    data_sources=["HubSpot CRM", "Snowflake Cortex AI"],
-                    confidence=0.8,
-                    processing_time=0.0,
-                    follow_up_questions=[
-                        "Which deals need immediate attention?",
-                        "What's our deal velocity trend?",
-                        "How can we improve our close rate?",
-                    ],
-                )
-
-        # Fallback response
-        return QueryResponse(
-            query=processed_query.original_query,
-            intent=processed_query.intent,
-            executive_summary="Unable to retrieve deal data at this time.",
-            key_metrics={},
-            insights=["Deal analysis requires access to CRM data"],
-            recommendations=["Ensure HubSpot integration is active"],
-            data_sources=[],
-            confidence=0.3,
-            processing_time=0.0,
-            follow_up_questions=[],
-        )
-
-    async def _handle_executive_summary(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle executive summary requests"""
-
-        # Gather data from multiple sources
-        summary_data = {}
-        data_sources = []
-
+    async def execute_financial_analysis_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute financial analysis queries across NetSuite and PayReady data"""
         try:
-            # HubSpot data
-            async with self.hubspot_connector as connector:
-                deals_data = await connector.query_hubspot_deals(limit=100)
-                if not deals_data.empty:
-                    summary_data["deals"] = {
-                        "total_deals": len(deals_data),
-                        "pipeline_value": float(deals_data["AMOUNT"].sum()),
-                        "average_deal_size": float(deals_data["AMOUNT"].mean()),
-                    }
-                    data_sources.append("HubSpot CRM")
-        except Exception as e:
-            logger.error(f"Failed to get HubSpot data: {e}")
-
-        try:
-            # Gong data
-            async with self.gong_connector as connector:
-                calls_data = await connector.get_calls_for_coaching(
-                    date_range_days=30, limit=50
+            cursor = self.snowflake_conn.cursor()
+            
+            time_filter = self._get_time_filter_sql(context.time_filter or "30d")
+            
+            # Execute comprehensive financial analysis
+            cursor.execute(f"""
+                WITH revenue_metrics AS (
+                    SELECT 
+                        SUM(CASE WHEN STATUS = 'COMPLETED' THEN AMOUNT ELSE 0 END) as total_revenue,
+                        COUNT(CASE WHEN STATUS = 'COMPLETED' THEN 1 END) as revenue_transactions
+                    FROM PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS
+                    WHERE {time_filter}
+                ),
+                expense_metrics AS (
+                    SELECT 
+                        SUM(AMOUNT) as total_expenses,
+                        COUNT(*) as expense_count,
+                        COUNT(DISTINCT EMPLOYEE_ID) as employees_with_expenses
+                    FROM NETSUITE_DATA.EXPENSE_REPORTS
+                    WHERE EXPENSE_DATE >= CURRENT_DATE - 30
+                ),
+                ledger_summary AS (
+                    SELECT 
+                        SUM(DEBIT_AMOUNT) as total_debits,
+                        SUM(CREDIT_AMOUNT) as total_credits,
+                        COUNT(*) as ledger_entries
+                    FROM NETSUITE_DATA.GENERAL_LEDGER
+                    WHERE TRANSACTION_DATE >= CURRENT_DATE - 30
                 )
-                if calls_data:
-                    avg_sentiment = sum(
-                        call.get("SENTIMENT_SCORE", 0) for call in calls_data
-                    ) / len(calls_data)
-                    summary_data["calls"] = {
-                        "total_calls": len(calls_data),
-                        "average_sentiment": avg_sentiment,
-                    }
-                    data_sources.append("Gong Conversations")
-        except Exception as e:
-            logger.error(f"Failed to get Gong data: {e}")
-
-        # Generate executive summary using Cortex
-        async with self.cortex_service as cortex:
-            summary_prompt = f"""
-            Create an executive summary based on this business data:
+                SELECT 
+                    (SELECT OBJECT_CONSTRUCT(*) FROM revenue_metrics) as revenue,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM expense_metrics) as expenses,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM ledger_summary) as ledger
+            """)
             
-            Sales Data: {json.dumps(summary_data.get('deals', {}), indent=2)}
-            Call Data: {json.dumps(summary_data.get('calls', {}), indent=2)}
+            result = cursor.fetchone()
+            revenue = json.loads(result[0]) if result[0] else {}
+            expenses = json.loads(result[1]) if result[1] else {}
+            ledger = json.loads(result[2]) if result[2] else {}
             
-            Provide a comprehensive executive summary covering:
-            1. Current business performance
-            2. Key metrics and trends
-            3. Areas of strength and concern
-            4. Strategic recommendations
+            # Generate natural language response
+            response = self._format_financial_analysis_response(revenue, expenses, ledger, context)
             
-            Format for CEO consumption - concise but comprehensive.
-            """
-
-            executive_summary = await cortex.complete_text_with_cortex(
-                prompt=summary_prompt, max_tokens=500
-            )
-
-        # Combine metrics
-        key_metrics = {}
-        key_metrics.update(summary_data.get("deals", {}))
-        key_metrics.update(summary_data.get("calls", {}))
-
-        return QueryResponse(
-            query=processed_query.original_query,
-            intent=processed_query.intent,
-            executive_summary=executive_summary,
-            key_metrics=key_metrics,
-            insights=[
-                "Multi-source business intelligence analysis completed",
-                f"Data integrated from {len(data_sources)} systems",
-                "AI-powered insights generated using Snowflake Cortex",
-            ],
-            recommendations=[
-                "Monitor pipeline velocity closely",
-                "Focus on customer sentiment improvement",
-                "Implement data-driven decision making",
-            ],
-            data_sources=data_sources,
-            confidence=0.85,
-            processing_time=0.0,
-            follow_up_questions=[
-                "What are our biggest risks right now?",
-                "Which metrics need immediate attention?",
-                "How do we compare to last quarter?",
-            ],
-        )
-
-    async def _handle_general_query(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle general queries that don't fit specific intents"""
-
-        # Use AI Memory to find relevant context
-        relevant_memories = await self.ai_memory.recall_memory(
-            query=processed_query.original_query, limit=3
-        )
-
-        # Generate response using Cortex with memory context
-        async with self.cortex_service as cortex:
-            context_info = ""
-            if relevant_memories:
-                context_info = "\n\nRelevant context from previous interactions:\n"
-                for memory in relevant_memories:
-                    context_info += f"- {memory.get('content', '')[:200]}...\n"
-
-            response_prompt = f"""
-            Answer this business query from a CEO perspective:
+            cursor.close()
             
-            Query: {processed_query.original_query}
-            {context_info}
-            
-            Provide:
-            1. Direct answer to the question
-            2. Relevant business insights
-            3. Actionable recommendations
-            
-            Keep response executive-level and actionable.
-            """
-
-            ai_response = await cortex.complete_text_with_cortex(
-                prompt=response_prompt, max_tokens=400
-            )
-
-        return QueryResponse(
-            query=processed_query.original_query,
-            intent=processed_query.intent,
-            executive_summary=ai_response,
-            key_metrics={},
-            insights=[
-                f"Query processed with {processed_query.confidence:.1%} confidence",
-                f"Used {len(relevant_memories)} relevant memories for context",
-            ],
-            recommendations=[
-                "Consider providing more specific details for better insights",
-                "Regular data review helps identify trends early",
-            ],
-            data_sources=["AI Memory", "Snowflake Cortex"],
-            confidence=processed_query.confidence,
-            processing_time=0.0,
-            follow_up_questions=[
-                "Would you like more specific data on any aspect?",
-                "What time period should we focus on?",
-                "Are there specific metrics you want to track?",
-            ],
-        )
-
-    async def _store_interaction(self, query: str, response: QueryResponse):
-        """Store query-response interaction in AI Memory"""
-        try:
-            interaction_content = f"""
-            CEO Query: {query}
-            
-            Intent: {response.intent.value}
-            Confidence: {response.confidence:.2f}
-            
-            Response Summary: {response.executive_summary[:300]}...
-            
-            Key Metrics: {json.dumps(response.key_metrics, indent=2)}
-            
-            Data Sources: {', '.join(response.data_sources)}
-            Processing Time: {response.processing_time:.2f}s
-            """
-
-            await self.ai_memory.store_memory(
-                content=interaction_content,
-                category="ceo_dashboard_interaction",
-                tags=["ceo_query", response.intent.value, "dashboard"],
-                importance_score=0.7,
-                auto_detected=True,
-            )
-
-        except Exception as e:
-            logger.error(f"Failed to store interaction in AI Memory: {e}")
-
-    # Additional handler methods would be implemented similarly...
-    async def _handle_sales_performance(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle sales performance queries"""
-        # Implementation similar to deal analysis but focused on sales metrics
-        pass
-
-    async def _handle_call_insights(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle call insights queries"""
-        # Implementation focused on Gong call data analysis
-        pass
-
-    async def _handle_revenue_metrics(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle revenue metrics queries"""
-        # Implementation focused on financial metrics
-        pass
-
-    async def _handle_predictive_insights(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle predictive analytics queries"""
-        # Implementation using advanced AI for predictions
-        pass
-
-    async def _handle_gong_call_search(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Enhanced Gong call search using STG_TRANSFORMED tables"""
-        try:
-            # Extract search parameters from query
-            account_filter = None
-            sentiment_filter = None
-            
-            # Parse entities for search parameters
-            for entity in processed_query.entities:
-                if entity.startswith("company:"):
-                    account_filter = entity.split(":", 1)[1]
-                elif "sentiment" in processed_query.original_query.lower():
-                    if "positive" in processed_query.original_query.lower():
-                        sentiment_filter = "> 0.5"
-                    elif "negative" in processed_query.original_query.lower():
-                        sentiment_filter = "< -0.5"
-            
-            # Build semantic search query for Gong calls
-            semantic_query = processed_query.original_query
-            if account_filter:
-                semantic_query += f" {account_filter}"
-            
-            # Search using AI Memory for semantic matching
-            await self.ai_memory_server.search_memories(
-                query=semantic_query,
-                category="gong_calls",
-                limit=10
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.FINANCIAL_ANALYSIS,
+                data_sources=["PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS", "NETSUITE_DATA.EXPENSE_REPORTS", "NETSUITE_DATA.GENERAL_LEDGER"],
+                confidence_score=0.92,
+                execution_time_ms=150,
+                records_analyzed=revenue.get('revenue_transactions', 0) + expenses.get('expense_count', 0),
+                security_level="EXECUTIVE"
             )
             
-            # Get detailed call data from STG_TRANSFORMED tables
-            database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
-            
-            # Build SQL query for structured data
-            sql_filters = ["1=1"]  # Base condition
-            
-            if account_filter:
-                sql_filters.append(f"(ACCOUNT_NAME ILIKE '%{account_filter}%' OR CONTACT_NAME ILIKE '%{account_filter}%')")
-            
-            if sentiment_filter:
-                sql_filters.append(f"SENTIMENT_SCORE {sentiment_filter}")
-            
-            if processed_query.time_filters.get("period"):
-                if processed_query.time_filters["type"] == "current":
-                    days = processed_query.time_filters["days"]
-                    sql_filters.append(f"CALL_DATETIME_UTC >= DATEADD('day', -{days}, CURRENT_TIMESTAMP())")
-            
-            calls_query = f"""
-            SELECT 
-                CALL_ID,
-                CALL_TITLE,
-                CALL_DATETIME_UTC,
-                CALL_DURATION_SECONDS,
-                CALL_DIRECTION,
-                PRIMARY_USER_NAME,
-                ACCOUNT_NAME,
-                CONTACT_NAME,
-                DEAL_STAGE,
-                DEAL_VALUE,
-                SENTIMENT_SCORE,
-                CALL_SUMMARY,
-                KEY_TOPICS,
-                RISK_INDICATORS,
-                NEXT_STEPS,
-                TALK_RATIO,
-                INTERACTIVITY_SCORE,
-                QUESTIONS_ASKED_COUNT
-            FROM {database}.STG_TRANSFORMED.STG_GONG_CALLS
-            WHERE {' AND '.join(sql_filters)}
-            ORDER BY CALL_DATETIME_UTC DESC
-            LIMIT 20
-            """
-            
-            calls_data = await self.cortex_service.execute_query(calls_query)
-            
-            # Generate insights using Snowflake Cortex
-            if len(calls_data) > 0:
-                # Aggregate insights
-                total_calls = len(calls_data)
-                avg_sentiment = calls_data['SENTIMENT_SCORE'].mean() if 'SENTIMENT_SCORE' in calls_data.columns else 0
-                avg_duration = calls_data['CALL_DURATION_SECONDS'].mean() / 60  # Convert to minutes
-                avg_talk_ratio = calls_data['TALK_RATIO'].mean() if 'TALK_RATIO' in calls_data.columns else 0
-                
-                # Extract key topics and risks
-                all_topics = []
-                all_risks = []
-                for _, call in calls_data.iterrows():
-                    if call.get('KEY_TOPICS'):
-                        try:
-                            topics = json.loads(call['KEY_TOPICS']) if isinstance(call['KEY_TOPICS'], str) else call['KEY_TOPICS']
-                            if isinstance(topics, list):
-                                all_topics.extend(topics)
-                        except:
-                            pass
-                    
-                    if call.get('RISK_INDICATORS'):
-                        try:
-                            risks = json.loads(call['RISK_INDICATORS']) if isinstance(call['RISK_INDICATORS'], str) else call['RISK_INDICATORS']
-                            if isinstance(risks, list):
-                                all_risks.extend(risks)
-                        except:
-                            pass
-                
-                # Generate executive summary using Cortex
-                summary_prompt = f"""
-                Analyze these {total_calls} Gong calls:
-                - Average sentiment: {avg_sentiment:.2f}
-                - Average duration: {avg_duration:.1f} minutes
-                - Average talk ratio: {avg_talk_ratio:.1%}
-                - Key topics discussed: {', '.join(set(all_topics[:10]))}
-                - Risk indicators: {', '.join(set(all_risks[:5]))}
-                
-                Provide executive insights and recommendations.
-                """
-                
-                executive_summary = await self.cortex_service.complete_text(
-                    summary_prompt,
-                    model="mistral-large"
-                )
-                
-                # Build detailed insights
-                insights = [
-                    f"Found {total_calls} calls matching your criteria",
-                    f"Average sentiment score: {avg_sentiment:.2f} ({'Positive' if avg_sentiment > 0 else 'Negative' if avg_sentiment < 0 else 'Neutral'})",
-                    f"Average call duration: {avg_duration:.1f} minutes",
-                    f"Average talk ratio: {avg_talk_ratio:.1%}"
-                ]
-                
-                if all_topics:
-                    top_topics = list(set(all_topics))[:5]
-                    insights.append(f"Most discussed topics: {', '.join(top_topics)}")
-                
-                if all_risks:
-                    insights.append(f"Risk indicators identified in {len(set(all_risks))} calls")
-                
-                # Generate recommendations
-                recommendations = []
-                if avg_sentiment < -0.2:
-                    recommendations.append("🚨 Low sentiment detected - review customer concerns and provide coaching")
-                elif avg_sentiment > 0.5:
-                    recommendations.append("✅ Positive sentiment trend - identify and replicate successful approaches")
-                
-                if avg_talk_ratio < 0.4:
-                    recommendations.append("📢 Low talk ratio - encourage more customer engagement")
-                elif avg_talk_ratio > 0.7:
-                    recommendations.append("👂 High talk ratio - ensure adequate listening time")
-                
-                if all_risks:
-                    recommendations.append("⚠️ Review identified risk indicators and develop mitigation strategies")
-                
-                # Key metrics
-                key_metrics = {
-                    "total_calls": total_calls,
-                    "avg_sentiment": round(avg_sentiment, 3),
-                    "avg_duration_minutes": round(avg_duration, 1),
-                    "avg_talk_ratio": round(avg_talk_ratio, 3),
-                    "positive_calls": len([c for _, c in calls_data.iterrows() if c.get('SENTIMENT_SCORE', 0) > 0.2]),
-                    "negative_calls": len([c for _, c in calls_data.iterrows() if c.get('SENTIMENT_SCORE', 0) < -0.2]),
-                    "high_value_calls": len([c for _, c in calls_data.iterrows() if c.get('DEAL_VALUE', 0) > 50000])
-                }
-                
-                # Create visualizations data
-                visualizations = [
-                    {
-                        "type": "sentiment_distribution",
-                        "title": "Call Sentiment Distribution",
-                        "data": calls_data[['CALL_ID', 'SENTIMENT_SCORE']].to_dict('records') if 'SENTIMENT_SCORE' in calls_data.columns else []
-                    },
-                    {
-                        "type": "timeline",
-                        "title": "Calls Timeline",
-                        "data": calls_data[['CALL_DATETIME_UTC', 'CALL_TITLE', 'SENTIMENT_SCORE']].to_dict('records')
-                    }
-                ]
-                
-                return QueryResponse(
-                    query=processed_query.original_query,
-                    intent=processed_query.intent,
-                    executive_summary=executive_summary or f"Analysis of {total_calls} Gong calls with average sentiment of {avg_sentiment:.2f}",
-                    key_metrics=key_metrics,
-                    insights=insights,
-                    recommendations=recommendations,
-                    data_sources=["STG_TRANSFORMED.STG_GONG_CALLS", "AI_MEMORY.MEMORY_RECORDS"],
-                    confidence=0.9,
-                    processing_time=0.0,
-                    follow_up_questions=[
-                        "Would you like to see transcript details for any specific call?",
-                        "Should I analyze sentiment trends over time?",
-                        "Do you want coaching recommendations for specific reps?"
-                    ],
-                    visualizations=visualizations
-                )
-            
-            else:
-                return QueryResponse(
-                    query=processed_query.original_query,
-                    intent=processed_query.intent,
-                    executive_summary="No Gong calls found matching your search criteria.",
-                    key_metrics={"total_calls": 0},
-                    insights=["No calls found with the specified criteria"],
-                    recommendations=["Try broadening your search criteria or check data availability"],
-                    data_sources=["STG_TRANSFORMED.STG_GONG_CALLS"],
-                    confidence=0.8,
-                    processing_time=0.0,
-                    follow_up_questions=[
-                        "Would you like to search with different criteria?",
-                        "Should I check recent data ingestion status?"
-                    ]
-                )
-                
         except Exception as e:
-            logger.error(f"Error in Gong call search: {e}")
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=f"Error occurred while searching Gong calls: {str(e)}",
-                key_metrics={},
-                insights=[],
-                recommendations=["Please try again or contact support"],
+            logger.error(f"❌ Failed to execute financial analysis query: {e}")
+            return QueryResult(
+                content=f"I encountered an error analyzing financial data: {str(e)}",
+                intent=QueryIntent.FINANCIAL_ANALYSIS,
                 data_sources=[],
-                confidence=0.0,
-                processing_time=0.0,
-                follow_up_questions=[]
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level="EXECUTIVE"
             )
 
-    async def _handle_gong_transcript_search(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle Gong transcript search queries"""
+    async def execute_strategic_analysis_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute strategic analysis queries for CEO intelligence (CONFIDENTIAL)"""
         try:
-            start_time = time.time()
-            
-            query_text = processed_query.original_query
-            
-            # Extract speaker type filter
-            speaker_type = None
-            if "internal" in query_text.lower():
-                speaker_type = "Internal"
-            elif "external" in query_text.lower() or "customer" in query_text.lower():
-                speaker_type = "External"
-            
-            # Perform transcript search
-            transcript_results = await self.cortex_service.search_gong_transcripts_with_ai_memory(
-                query_text=query_text,
-                top_k=15,
-                similarity_threshold=0.7,
-                speaker_type=speaker_type
-            )
-            
-            # Generate summary
-            total_segments = len(transcript_results)
-            unique_calls = len(set(segment["call_id"] for segment in transcript_results))
-            
-            avg_sentiment = sum(
-                segment["ai_insights"]["segment_sentiment"] or 0 
-                for segment in transcript_results 
-                if segment["ai_insights"]["segment_sentiment"] is not None
-            ) / max(total_segments, 1)
-            
-            executive_summary = f"""
-            Found {total_segments} transcript segments across {unique_calls} calls matching your search. 
-            Average segment sentiment: {avg_sentiment:.2f}. 
-            Results include both internal and external speaker perspectives.
-            """
-            
-            # Generate insights from transcript analysis
-            insights = []
-            
-            if transcript_results:
-                # Speaker insights
-                internal_segments = sum(1 for seg in transcript_results if seg["speaker"]["type"] == "Internal")
-                external_segments = total_segments - internal_segments
-                insights.append(f"Speaker distribution: {internal_segments} internal, {external_segments} external segments")
-                
-                # Entity insights
-                all_entities = []
-                for segment in transcript_results:
-                    if segment["content"]["extracted_entities"]:
-                        all_entities.extend(segment["content"]["extracted_entities"])
-                
-                if all_entities:
-                    from collections import Counter
-                    top_entities = Counter(all_entities).most_common(3)
-                    insights.append(f"Key entities mentioned: {', '.join([entity for entity, _ in top_entities])}")
-            
-            # Generate recommendations
-            recommendations = []
-            if avg_sentiment < 0:
-                recommendations.append("Review negative sentiment segments for coaching opportunities")
-            
-            if transcript_results:
-                recommendations.append("Consider creating talking points based on successful conversation patterns")
-            
-            key_metrics = {
-                "transcript_segments_found": total_segments,
-                "unique_calls": unique_calls,
-                "average_segment_sentiment": round(avg_sentiment, 2),
-                "internal_speaker_segments": sum(1 for seg in transcript_results if seg["speaker"]["type"] == "Internal"),
-                "external_speaker_segments": sum(1 for seg in transcript_results if seg["speaker"]["type"] == "External")
-            }
-            
-            processing_time = time.time() - start_time
-            
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=executive_summary.strip(),
-                key_metrics=key_metrics,
-                insights=insights,
-                recommendations=recommendations,
-                data_sources=["Gong Transcripts", "AI Memory", "Snowflake Cortex"],
-                confidence=processed_query.confidence,
-                processing_time=processing_time,
-                follow_up_questions=[
-                    "Would you like to see the actual transcript text?",
-                    "Should I analyze conversation patterns for coaching?",
-                    "Do you want to search for similar conversations?"
-                ],
-                visualizations=[
-                    {
-                        "type": "speaker_sentiment",
-                        "data": transcript_results,
-                        "title": "Speaker Sentiment Analysis"
-                    }
-                ]
-            )
-            
-        except Exception as e:
-            logger.error(f"Error handling Gong transcript search: {e}")
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=f"Error searching Gong transcripts: {str(e)}",
-                key_metrics={},
-                insights=[],
-                recommendations=[],
-                data_sources=[],
-                confidence=0.0,
-                processing_time=0.0,
-                follow_up_questions=[]
-            )
-
-    async def _handle_gong_account_insights(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle Gong account-specific insights queries"""
-        try:
-            start_time = time.time()
-            
-            # Extract account name from query
-            query_text = processed_query.original_query
-            entities = processed_query.entities
-            
-            # Try to extract account name from entities or query
-            account_name = None
-            for entity in entities:
-                if entity.startswith("company:"):
-                    account_name = entity.split(":", 1)[1].strip()
-                    break
-            
-            # If no account found in entities, try regex
-            if not account_name:
-                import re
-                account_match = re.search(r"(?:account|company|client)\s+([A-Za-z][A-Za-z0-9\s&]+)", query_text, re.IGNORECASE)
-                if account_match:
-                    account_name = account_match.group(1).strip()
-            
-            if not account_name:
-                return QueryResponse(
-                    query=processed_query.original_query,
-                    intent=processed_query.intent,
-                    executive_summary="Please specify an account name to search for insights.",
-                    key_metrics={},
-                    insights=[],
-                    recommendations=["Try: 'Show me Gong insights for Acme Corp'"],
+            # Verify CEO-level access
+            if context.security_level != "CEO_ONLY":
+                return QueryResult(
+                    content="I'm sorry, but strategic analysis requires CEO-level access. Please contact your administrator.",
+                    intent=QueryIntent.STRATEGIC_ANALYSIS,
                     data_sources=[],
-                    confidence=0.0,
-                    processing_time=0.0,
-                    follow_up_questions=[]
+                    confidence_score=1.0,
+                    execution_time_ms=0,
+                    records_analyzed=0,
+                    security_level="CEO_ONLY"
                 )
             
-            # Search for account-specific insights
-            account_insights = await self.ai_memory.search_gong_insights_by_account(
-                account_name=account_name,
-                limit=20,
-                include_transcripts=True
-            )
+            cursor = self.snowflake_conn.cursor()
             
-            # Generate comprehensive account analysis
-            call_level_insights = [insight for insight in account_insights if insight.get("insight_level") == "call"]
-            transcript_level_insights = [insight for insight in account_insights if insight.get("insight_level") == "transcript"]
+            # Execute strategic analysis query
+            cursor.execute("""
+                WITH strategic_overview AS (
+                    SELECT 
+                        COUNT(*) as total_strategic_plans,
+                        COUNT(CASE WHEN STATUS = 'IN_EXECUTION' THEN 1 END) as active_plans,
+                        COUNT(CASE WHEN STATUS = 'COMPLETED' THEN 1 END) as completed_plans
+                    FROM CEO_INTELLIGENCE.STRATEGIC_PLANS
+                    WHERE PLANNING_PERIOD_END >= CURRENT_DATE
+                ),
+                competitive_intelligence AS (
+                    SELECT 
+                        COUNT(*) as total_intelligence_reports,
+                        COUNT(CASE WHEN THREAT_LEVEL = 'HIGH' THEN 1 END) as high_threat_reports,
+                        COUNT(CASE WHEN OPPORTUNITY_LEVEL = 'HIGH' THEN 1 END) as high_opportunity_reports
+                    FROM CEO_INTELLIGENCE.COMPETITIVE_INTELLIGENCE
+                    WHERE COLLECTION_DATE >= CURRENT_DATE - 90
+                ),
+                ma_pipeline AS (
+                    SELECT 
+                        COUNT(*) as total_opportunities,
+                        COUNT(CASE WHEN OPPORTUNITY_STATUS = 'DUE_DILIGENCE' THEN 1 END) as active_dd,
+                        SUM(ESTIMATED_VALUATION) as total_pipeline_value
+                    FROM CEO_INTELLIGENCE.MA_OPPORTUNITIES
+                    WHERE OPPORTUNITY_STATUS IN ('INITIAL_CONTACT', 'DUE_DILIGENCE', 'NEGOTIATION')
+                )
+                SELECT 
+                    (SELECT OBJECT_CONSTRUCT(*) FROM strategic_overview) as strategy,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM competitive_intelligence) as competitive,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM ma_pipeline) as ma_pipeline
+            """)
             
-            total_insights = len(account_insights)
+            result = cursor.fetchone()
+            strategy = json.loads(result[0]) if result[0] else {}
+            competitive = json.loads(result[1]) if result[1] else {}
+            ma_pipeline = json.loads(result[2]) if result[2] else {}
             
-            # Calculate account health metrics
-            sentiments = [insight.get("sentiment_score") for insight in call_level_insights if insight.get("sentiment_score") is not None]
-            avg_sentiment = sum(sentiments) / len(sentiments) if sentiments else 0
+            # Generate natural language response
+            response = self._format_strategic_analysis_response(strategy, competitive, ma_pipeline, context)
             
-            executive_summary = f"""
-            Account Analysis for {account_name}: Found {total_insights} insights across {len(call_level_insights)} calls 
-            and {len(transcript_level_insights)} transcript segments. 
-            Overall sentiment: {avg_sentiment:.2f} ({'Positive' if avg_sentiment > 0.3 else 'Negative' if avg_sentiment < -0.3 else 'Neutral'}).
-            """
+            cursor.close()
             
-            # Generate account-specific insights
-            insights = []
-            
-            if call_level_insights:
-                # Deal stage insights
-                deal_stages = [insight.get("deal_stage") for insight in call_level_insights if insight.get("deal_stage")]
-                if deal_stages:
-                    from collections import Counter
-                    stage_counts = Counter(deal_stages)
-                    current_stage = stage_counts.most_common(1)[0][0]
-                    insights.append(f"Most recent deal stage: {current_stage}")
-                
-                # Risk analysis
-                risks = []
-                for insight in call_level_insights:
-                    if insight.get("risk_indicators"):
-                        risks.extend(insight["risk_indicators"])
-                
-                if risks:
-                    from collections import Counter
-                    top_risks = Counter(risks).most_common(2)
-                    insights.append(f"Key risks identified: {', '.join([risk for risk, _ in top_risks])}")
-                
-                # Relationship health
-                if avg_sentiment > 0.5:
-                    insights.append("Strong positive relationship - high engagement and satisfaction")
-                elif avg_sentiment < -0.3:
-                    insights.append("Relationship requires attention - negative sentiment trends detected")
-            
-            # Generate recommendations
-            recommendations = []
-            
-            if avg_sentiment < 0:
-                recommendations.append(f"Schedule relationship recovery call with {account_name}")
-                recommendations.append("Review recent interactions for improvement opportunities")
-            elif avg_sentiment > 0.5:
-                recommendations.append(f"Consider expansion opportunities with {account_name}")
-            
-            if call_level_insights:
-                recent_calls = sorted(call_level_insights, key=lambda x: x.get("call_datetime", ""), reverse=True)[:3]
-                if recent_calls:
-                    recommendations.append("Follow up on action items from recent calls")
-            
-            key_metrics = {
-                "total_insights": total_insights,
-                "call_level_insights": len(call_level_insights),
-                "transcript_level_insights": len(transcript_level_insights),
-                "average_sentiment": round(avg_sentiment, 2),
-                "account_name": account_name,
-                "sentiment_trend": "Positive" if avg_sentiment > 0.3 else "Negative" if avg_sentiment < -0.3 else "Neutral"
-            }
-            
-            processing_time = time.time() - start_time
-            
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=executive_summary.strip(),
-                key_metrics=key_metrics,
-                insights=insights,
-                recommendations=recommendations,
-                data_sources=["Gong Calls", "Gong Transcripts", "AI Memory"],
-                confidence=processed_query.confidence,
-                processing_time=processing_time,
-                follow_up_questions=[
-                    f"Would you like detailed call history for {account_name}?",
-                    "Should I analyze conversation topics with this account?",
-                    "Do you want to see risk mitigation strategies?"
-                ],
-                visualizations=[
-                    {
-                        "type": "account_sentiment_timeline",
-                        "data": call_level_insights,
-                        "title": f"{account_name} Sentiment Over Time"
-                    },
-                    {
-                        "type": "account_interaction_summary",
-                        "data": account_insights,
-                        "title": f"{account_name} Interaction Summary"
-                    }
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.STRATEGIC_ANALYSIS,
+                data_sources=["CEO_INTELLIGENCE.STRATEGIC_PLANS", "CEO_INTELLIGENCE.COMPETITIVE_INTELLIGENCE", "CEO_INTELLIGENCE.MA_OPPORTUNITIES"],
+                confidence_score=0.98,
+                execution_time_ms=200,
+                records_analyzed=strategy.get('total_strategic_plans', 0) + competitive.get('total_intelligence_reports', 0),
+                security_level="CEO_ONLY",
+                suggested_actions=[
+                    {"action": "review_strategic_plans", "description": "Review active strategic plans"},
+                    {"action": "assess_competitive_threats", "description": "Assess high-threat competitive intelligence"},
+                    {"action": "evaluate_ma_pipeline", "description": "Evaluate M&A pipeline opportunities"}
                 ]
             )
             
         except Exception as e:
-            logger.error(f"Error handling Gong account insights: {e}")
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=f"Error retrieving account insights: {str(e)}",
-                key_metrics={},
-                insights=[],
-                recommendations=[],
+            logger.error(f"❌ Failed to execute strategic analysis query: {e}")
+            return QueryResult(
+                content=f"I encountered an error accessing strategic intelligence: {str(e)}",
+                intent=QueryIntent.STRATEGIC_ANALYSIS,
                 data_sources=[],
-                confidence=0.0,
-                processing_time=0.0,
-                follow_up_questions=[]
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level="CEO_ONLY"
             )
 
-    async def _handle_gong_sentiment_analysis(
-        self, processed_query: ProcessedQuery
-    ) -> QueryResponse:
-        """Handle Gong sentiment analysis queries"""
+    async def execute_property_analysis_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute property and asset analysis queries"""
         try:
-            start_time = time.time()
+            cursor = self.snowflake_conn.cursor()
             
-            # Get comprehensive Gong analytics with sentiment focus
-            analytics = await self.cortex_service.get_gong_call_analytics(
-                date_range_days=30,  # Default to last 30 days
-                include_ai_insights=True
-            )
+            # Execute property analysis query
+            cursor.execute("""
+                WITH property_overview AS (
+                    SELECT 
+                        COUNT(*) as total_properties,
+                        SUM(TOTAL_UNITS) as total_units,
+                        SUM(OCCUPIED_UNITS) as occupied_units,
+                        ROUND(AVG(OCCUPANCY_RATE), 2) as avg_occupancy_rate,
+                        SUM(MONTHLY_RENT_POTENTIAL) as total_rent_potential,
+                        SUM(ACTUAL_MONTHLY_RENT) as actual_monthly_rent
+                    FROM PROPERTY_ASSETS.PROPERTIES
+                    WHERE PROPERTY_STATUS = 'ACTIVE'
+                ),
+                property_performance AS (
+                    SELECT 
+                        PROPERTY_TYPE,
+                        COUNT(*) as property_count,
+                        AVG(OCCUPANCY_RATE) as avg_occupancy,
+                        AVG(MONTHLY_RENT_POTENTIAL) as avg_rent_potential
+                    FROM PROPERTY_ASSETS.PROPERTIES
+                    WHERE PROPERTY_STATUS = 'ACTIVE'
+                    GROUP BY PROPERTY_TYPE
+                    ORDER BY avg_occupancy DESC
+                ),
+                unit_analysis AS (
+                    SELECT 
+                        OCCUPANCY_STATUS,
+                        COUNT(*) as unit_count,
+                        AVG(MONTHLY_RENT) as avg_rent
+                    FROM PROPERTY_ASSETS.PROPERTY_UNITS
+                    GROUP BY OCCUPANCY_STATUS
+                )
+                SELECT 
+                    (SELECT OBJECT_CONSTRUCT(*) FROM property_overview) as overview,
+                    (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM property_performance) as performance,
+                    (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM unit_analysis) as units
+            """)
             
-            if "error" in analytics:
-                raise Exception(analytics["error"])
+            result = cursor.fetchone()
+            overview = json.loads(result[0]) if result[0] else {}
+            performance = json.loads(result[1]) if result[1] else []
+            units = json.loads(result[2]) if result[2] else []
             
-            # Extract sentiment data
-            sentiment_dist = analytics["sentiment_distribution"]
-            total_calls = analytics["summary"]["total_calls"]
-            avg_sentiment = analytics["summary"]["avg_sentiment_score"]
+            # Generate natural language response
+            response = self._format_property_analysis_response(overview, performance, units, context)
             
-            # Calculate sentiment percentages
-            positive_pct = (sentiment_dist["positive"] / total_calls * 100) if total_calls > 0 else 0
-            negative_pct = (sentiment_dist["negative"] / total_calls * 100) if total_calls > 0 else 0
-            neutral_pct = (sentiment_dist["neutral"] / total_calls * 100) if total_calls > 0 else 0
+            cursor.close()
             
-            executive_summary = f"""
-            Sentiment Analysis for {total_calls} calls over the last 30 days:
-            Overall sentiment score: {avg_sentiment:.2f}
-            Distribution: {positive_pct:.1f}% positive, {neutral_pct:.1f}% neutral, {negative_pct:.1f}% negative.
-            """
-            
-            # Generate sentiment insights
-            insights = []
-            
-            if positive_pct > 60:
-                insights.append("Strong positive sentiment trend - customer relationships are healthy")
-            elif negative_pct > 30:
-                insights.append("Concerning negative sentiment levels - immediate attention required")
-            
-            if avg_sentiment > 0.5:
-                insights.append("Exceptional customer satisfaction levels detected")
-            elif avg_sentiment < -0.3:
-                insights.append("Customer satisfaction below acceptable threshold")
-            
-            # Trend analysis
-            if analytics.get("ai_insights", {}).get("top_topics"):
-                top_topics = analytics["ai_insights"]["top_topics"][:3]
-                insights.append(f"Top discussion topics: {', '.join([topic['topic'] for topic in top_topics])}")
-            
-            # Generate recommendations
-            recommendations = []
-            
-            if negative_pct > 20:
-                recommendations.append("Implement immediate coaching for calls with negative sentiment")
-                recommendations.append("Review and improve customer interaction protocols")
-            
-            if positive_pct > 70:
-                recommendations.append("Identify and replicate successful conversation patterns")
-                recommendations.append("Consider case studies from high-performing interactions")
-            
-            recommendations.append("Schedule regular sentiment monitoring and reporting")
-            
-            key_metrics = {
-                "total_calls_analyzed": total_calls,
-                "average_sentiment_score": avg_sentiment,
-                "positive_calls": sentiment_dist["positive"],
-                "negative_calls": sentiment_dist["negative"],
-                "neutral_calls": sentiment_dist["neutral"],
-                "positive_percentage": round(positive_pct, 1),
-                "negative_percentage": round(negative_pct, 1),
-                "neutral_percentage": round(neutral_pct, 1),
-                "sentiment_health_score": round((positive_pct - negative_pct), 1)
-            }
-            
-            processing_time = time.time() - start_time
-            
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=executive_summary.strip(),
-                key_metrics=key_metrics,
-                insights=insights,
-                recommendations=recommendations,
-                data_sources=["Gong Calls", "Snowflake Cortex", "AI Analytics"],
-                confidence=processed_query.confidence,
-                processing_time=processing_time,
-                follow_up_questions=[
-                    "Would you like to see sentiment trends over time?",
-                    "Should I identify specific calls needing attention?",
-                    "Do you want coaching recommendations for negative sentiment calls?"
-                ],
-                visualizations=[
-                    {
-                        "type": "sentiment_pie_chart",
-                        "data": sentiment_dist,
-                        "title": "Call Sentiment Distribution"
-                    },
-                    {
-                        "type": "sentiment_trend",
-                        "data": analytics,
-                        "title": "Sentiment Trend Over Time"
-                    }
-                ]
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.PROPERTY_ANALYSIS,
+                data_sources=["PROPERTY_ASSETS.PROPERTIES", "PROPERTY_ASSETS.PROPERTY_UNITS"],
+                confidence_score=0.93,
+                execution_time_ms=120,
+                records_analyzed=overview.get('total_properties', 0),
+                security_level="EXECUTIVE"
             )
             
         except Exception as e:
-            logger.error(f"Error handling Gong sentiment analysis: {e}")
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=f"Error analyzing sentiment: {str(e)}",
-                key_metrics={},
-                insights=[],
-                recommendations=[],
+            logger.error(f"❌ Failed to execute property analysis query: {e}")
+            return QueryResult(
+                content=f"I encountered an error analyzing property data: {str(e)}",
+                intent=QueryIntent.PROPERTY_ANALYSIS,
                 data_sources=[],
-                confidence=0.0,
-                processing_time=0.0,
-                follow_up_questions=[]
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level="EXECUTIVE"
             )
 
+    async def execute_market_intelligence_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute market intelligence and industry trend queries"""
+        try:
+            cursor = self.snowflake_conn.cursor()
+            
+            # Execute market intelligence query
+            cursor.execute("""
+                WITH industry_trends AS (
+                    SELECT 
+                        COUNT(*) as total_trends,
+                        COUNT(CASE WHEN RELEVANCE_SCORE > 0.8 THEN 1 END) as high_relevance_trends,
+                        COUNT(CASE WHEN BUSINESS_IMPACT_SCORE > 0.7 THEN 1 END) as high_impact_trends,
+                        AVG(RELEVANCE_SCORE) as avg_relevance_score
+                    FROM AI_WEB_RESEARCH.INDUSTRY_TRENDS
+                    WHERE PUBLICATION_DATE >= CURRENT_DATE - 30
+                ),
+                competitor_intel AS (
+                    SELECT 
+                        COUNT(*) as total_intelligence,
+                        COUNT(CASE WHEN THREAT_LEVEL = 'HIGH' THEN 1 END) as high_threats,
+                        COUNT(CASE WHEN OPPORTUNITY_LEVEL = 'HIGH' THEN 1 END) as high_opportunities
+                    FROM AI_WEB_RESEARCH.COMPETITOR_INTELLIGENCE
+                    WHERE COLLECTION_DATE >= CURRENT_DATE - 30
+                ),
+                partnership_opps AS (
+                    SELECT 
+                        COUNT(*) as total_opportunities,
+                        COUNT(CASE WHEN STRATEGIC_FIT_SCORE > 0.8 THEN 1 END) as high_fit_opportunities,
+                        AVG(POTENTIAL_VALUE) as avg_potential_value
+                    FROM AI_WEB_RESEARCH.PARTNERSHIP_OPPORTUNITIES
+                ),
+                top_trends AS (
+                    SELECT 
+                        TREND_TITLE,
+                        RELEVANCE_SCORE,
+                        BUSINESS_IMPACT_SCORE
+                    FROM AI_WEB_RESEARCH.INDUSTRY_TRENDS
+                    WHERE PUBLICATION_DATE >= CURRENT_DATE - 30
+                    ORDER BY RELEVANCE_SCORE DESC
+                    LIMIT 5
+                )
+                SELECT 
+                    (SELECT OBJECT_CONSTRUCT(*) FROM industry_trends) as trends,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM competitor_intel) as competitive,
+                    (SELECT OBJECT_CONSTRUCT(*) FROM partnership_opps) as partnerships,
+                    (SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*)) FROM top_trends) as top_trends
+            """)
+            
+            result = cursor.fetchone()
+            trends = json.loads(result[0]) if result[0] else {}
+            competitive = json.loads(result[1]) if result[1] else {}
+            partnerships = json.loads(result[2]) if result[2] else {}
+            top_trends = json.loads(result[3]) if result[3] else []
+            
+            # Generate natural language response
+            response = self._format_market_intelligence_response(trends, competitive, partnerships, top_trends, context)
+            
+            cursor.close()
+            
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.MARKET_INTELLIGENCE,
+                data_sources=["AI_WEB_RESEARCH.INDUSTRY_TRENDS", "AI_WEB_RESEARCH.COMPETITOR_INTELLIGENCE", "AI_WEB_RESEARCH.PARTNERSHIP_OPPORTUNITIES"],
+                confidence_score=0.90,
+                execution_time_ms=180,
+                records_analyzed=trends.get('total_trends', 0) + competitive.get('total_intelligence', 0),
+                security_level="EXECUTIVE"
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to execute market intelligence query: {e}")
+            return QueryResult(
+                content=f"I encountered an error analyzing market intelligence: {str(e)}",
+                intent=QueryIntent.MARKET_INTELLIGENCE,
+                data_sources=[],
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level="EXECUTIVE"
+            )
 
-# Global service instance
-enhanced_chat_service = EnhancedUnifiedChatService()
+    def _get_time_filter_sql(self, time_filter: str) -> str:
+        """Generate SQL time filter based on time period"""
+        time_mappings = {
+            "7d": "PROCESSING_DATE >= CURRENT_DATE - 7",
+            "30d": "PROCESSING_DATE >= CURRENT_DATE - 30", 
+            "90d": "PROCESSING_DATE >= CURRENT_DATE - 90",
+            "1y": "PROCESSING_DATE >= CURRENT_DATE - 365"
+        }
+        return time_mappings.get(time_filter, "PROCESSING_DATE >= CURRENT_DATE - 30")
 
+    def _format_payment_analysis_response(self, metrics: Dict, trends: List, failures: List, context: QueryContext) -> str:
+        """Format payment analysis response in natural language"""
+        total_amount = metrics.get('total_amount', 0)
+        success_rate = metrics.get('success_rate', 0)
+        total_transactions = metrics.get('total_transactions', 0)
+        
+        response = f"""📊 **Payment Analysis Summary**
 
-async def process_ceo_query(
-    query: str, user_context: Optional[Dict[str, Any]] = None
-) -> QueryResponse:
-    """
-    Convenience function for processing CEO queries
+**Overall Performance:**
+• Total transactions: {total_transactions:,}
+• Total amount processed: ${total_amount:,.2f}
+• Success rate: {success_rate}%
+• Unique customers: {metrics.get('unique_customers', 0):,}
+• Average transaction: ${metrics.get('avg_amount', 0):.2f}
 
-    Args:
-        query: User query text
-        user_context: Optional user context
+**Recent Trends:**
+"""
+        
+        for trend in trends[:3]:
+            date = trend.get('payment_date', '')
+            daily_amount = trend.get('daily_amount', 0)
+            daily_transactions = trend.get('daily_transactions', 0)
+            response += f"• {date}: {daily_transactions} transactions, ${daily_amount:,.2f}\n"
+        
+        if failures:
+            response += "\n**Top Failure Reasons:**\n"
+            for failure in failures[:3]:
+                reason = failure.get('failure_reason', 'Unknown')
+                count = failure.get('failure_count', 0)
+                response += f"• {reason}: {count} failures\n"
+        
+        return response
 
-    Returns:
-        Comprehensive query response
-    """
-    return await enhanced_chat_service.process_query(query, user_context)
+    def _format_financial_analysis_response(self, revenue: Dict, expenses: Dict, ledger: Dict, context: QueryContext) -> str:
+        """Format financial analysis response in natural language"""
+        total_revenue = revenue.get('total_revenue', 0)
+        total_expenses = expenses.get('total_expenses', 0)
+        net_income = total_revenue - total_expenses
+        
+        response = f"""💰 **Financial Analysis Summary**
 
+**Revenue & Income:**
+• Total revenue: ${total_revenue:,.2f}
+• Revenue transactions: {revenue.get('revenue_transactions', 0):,}
 
-# Example usage
-if __name__ == "__main__":
+**Expenses:**
+• Total expenses: ${total_expenses:,.2f}
+• Expense reports: {expenses.get('expense_count', 0):,}
+• Employees with expenses: {expenses.get('employees_with_expenses', 0)}
 
-    async def test_chat_service():
-        """Test the enhanced chat service"""
+**Net Performance:**
+• Net income: ${net_income:,.2f}
+• Profit margin: {(net_income / total_revenue * 100) if total_revenue > 0 else 0:.1f}%
 
+**Ledger Summary:**
+• Total debits: ${ledger.get('total_debits', 0):,.2f}
+• Total credits: ${ledger.get('total_credits', 0):,.2f}
+• Ledger entries: {ledger.get('ledger_entries', 0):,}
+"""
+        
+        return response
+
+    def _format_strategic_analysis_response(self, strategy: Dict, competitive: Dict, ma_pipeline: Dict, context: QueryContext) -> str:
+        """Format strategic analysis response for CEO (CONFIDENTIAL)"""
+        response = f"""🎯 **CONFIDENTIAL - Strategic Intelligence Summary**
+
+**Strategic Plans:**
+• Total strategic plans: {strategy.get('total_strategic_plans', 0)}
+• Active plans: {strategy.get('active_plans', 0)}
+• Completed plans: {strategy.get('completed_plans', 0)}
+
+**Competitive Intelligence:**
+• Intelligence reports (90 days): {competitive.get('total_intelligence_reports', 0)}
+• High-threat reports: {competitive.get('high_threat_reports', 0)}
+• High-opportunity reports: {competitive.get('high_opportunity_reports', 0)}
+
+**M&A Pipeline:**
+• Active opportunities: {ma_pipeline.get('total_opportunities', 0)}
+• Due diligence phase: {ma_pipeline.get('active_dd', 0)}
+• Total pipeline value: ${ma_pipeline.get('total_pipeline_value', 0):,.0f}
+
+**Strategic Recommendations:**
+• Review high-threat competitive intelligence
+• Evaluate M&A opportunities in due diligence
+• Assess strategic plan execution progress
+"""
+        
+        return response
+
+    def _format_property_analysis_response(self, overview: Dict, performance: List, units: List, context: QueryContext) -> str:
+        """Format property analysis response in natural language"""
+        occupancy_rate = overview.get('avg_occupancy_rate', 0)
+        total_properties = overview.get('total_properties', 0)
+        
+        response = f"""🏢 **Property Portfolio Analysis**
+
+**Portfolio Overview:**
+• Total properties: {total_properties}
+• Total units: {overview.get('total_units', 0):,}
+• Occupied units: {overview.get('occupied_units', 0):,}
+• Average occupancy rate: {occupancy_rate}%
+• Monthly rent potential: ${overview.get('total_rent_potential', 0):,.2f}
+• Actual monthly rent: ${overview.get('actual_monthly_rent', 0):,.2f}
+
+**Performance by Property Type:**
+"""
+        
+        for perf in performance[:3]:
+            prop_type = perf.get('property_type', 'Unknown')
+            avg_occ = perf.get('avg_occupancy', 0)
+            avg_rent = perf.get('avg_rent_potential', 0)
+            response += f"• {prop_type}: {avg_occ:.1f}% occupancy, ${avg_rent:,.0f} avg rent\n"
+        
+        response += "\n**Unit Status Distribution:**\n"
+        for unit in units:
+            status = unit.get('occupancy_status', 'Unknown')
+            count = unit.get('unit_count', 0)
+            avg_rent = unit.get('avg_rent', 0)
+            response += f"• {status}: {count} units, ${avg_rent:.0f} avg rent\n"
+        
+        return response
+
+    def _format_market_intelligence_response(self, trends: Dict, competitive: Dict, partnerships: Dict, top_trends: List, context: QueryContext) -> str:
+        """Format market intelligence response in natural language"""
+        response = f"""📈 **Market Intelligence Summary**
+
+**Industry Trends (Last 30 Days):**
+• Total trends identified: {trends.get('total_trends', 0)}
+• High-relevance trends: {trends.get('high_relevance_trends', 0)}
+• High-impact trends: {trends.get('high_impact_trends', 0)}
+• Average relevance score: {trends.get('avg_relevance_score', 0):.2f}
+
+**Competitive Intelligence:**
+• Intelligence reports: {competitive.get('total_intelligence', 0)}
+• High-threat items: {competitive.get('high_threats', 0)}
+• High-opportunity items: {competitive.get('high_opportunities', 0)}
+
+**Partnership Opportunities:**
+• Total opportunities: {partnerships.get('total_opportunities', 0)}
+• High-fit opportunities: {partnerships.get('high_fit_opportunities', 0)}
+• Average potential value: ${partnerships.get('avg_potential_value', 0):,.0f}
+
+**Top Industry Trends:**
+"""
+        
+        for trend in top_trends[:3]:
+            title = trend.get('trend_title', 'Unknown')
+            relevance = trend.get('relevance_score', 0)
+            impact = trend.get('business_impact_score', 0)
+            response += f"• {title} (Relevance: {relevance:.2f}, Impact: {impact:.2f})\n"
+        
+        return response
+
+    async def process_unified_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Process unified query across all schemas based on intent and security level"""
+        try:
+            start_time = datetime.now()
+            
+            # Classify query intent
+            intent = await self.classify_query_intent(query, context)
+            
+            # Verify schema access based on security level
+            accessible_schemas = self.schema_access_map.get(context.security_level, [])
+            
+            # Route to appropriate query handler
+            if intent == QueryIntent.PAYMENT_ANALYSIS:
+                result = await self.execute_payment_analysis_query(query, context)
+            elif intent == QueryIntent.FINANCIAL_ANALYSIS:
+                result = await self.execute_financial_analysis_query(query, context)
+            elif intent == QueryIntent.STRATEGIC_ANALYSIS:
+                result = await self.execute_strategic_analysis_query(query, context)
+            elif intent == QueryIntent.PROPERTY_ANALYSIS:
+                result = await self.execute_property_analysis_query(query, context)
+            elif intent == QueryIntent.MARKET_INTELLIGENCE:
+                result = await self.execute_market_intelligence_query(query, context)
+            else:
+                # Default to general knowledge search
+                result = await self._execute_general_query(query, context)
+            
+            # Calculate execution time
+            execution_time = (datetime.now() - start_time).total_seconds() * 1000
+            result.execution_time_ms = int(execution_time)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to process unified query: {e}")
+            return QueryResult(
+                content=f"I encountered an error processing your query: {str(e)}",
+                intent=QueryIntent.GENERAL_QUERY,
+                data_sources=[],
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level=context.security_level
+            )
+
+    async def _execute_general_query(self, query: str, context: QueryContext) -> QueryResult:
+        """Execute general queries using semantic search across accessible schemas"""
+        try:
+            # Use AI Memory service for semantic search
+            search_results = await self.ai_memory_service.search_memories(
+                query=query,
+                category="ALL",
+                max_results=10
+            )
+            
+            if not search_results:
+                return QueryResult(
+                    content="I couldn't find any relevant information for your query. Please try rephrasing or be more specific.",
+                    intent=QueryIntent.GENERAL_QUERY,
+                    data_sources=[],
+                    confidence_score=0.5,
+                    execution_time_ms=50,
+                    records_analyzed=0,
+                    security_level=context.security_level
+                )
+            
+            # Format search results into natural language response
+            response = "Based on your query, here's what I found:\n\n"
+            data_sources = set()
+            
+            for result in search_results[:5]:
+                response += f"• {result.get('content', 'No content available')}\n"
+                if result.get('source'):
+                    data_sources.add(result['source'])
+            
+            return QueryResult(
+                content=response,
+                intent=QueryIntent.GENERAL_QUERY,
+                data_sources=list(data_sources),
+                confidence_score=0.8,
+                execution_time_ms=100,
+                records_analyzed=len(search_results),
+                security_level=context.security_level
+            )
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to execute general query: {e}")
+            return QueryResult(
+                content=f"I encountered an error searching for information: {str(e)}",
+                intent=QueryIntent.GENERAL_QUERY,
+                data_sources=[],
+                confidence_score=0.0,
+                execution_time_ms=0,
+                records_analyzed=0,
+                security_level=context.security_level
+            )
+
+    async def close(self) -> None:
+        """Clean up connections"""
+        try:
+            if self.snowflake_conn:
+                self.snowflake_conn.close()
+            if self.cortex_service:
+                await self.cortex_service.close()
+            if self.ai_memory_service:
+                await self.ai_memory_service.close()
+            logger.info("✅ Enhanced Unified Chat Service connections closed")
+        except Exception as e:
+            logger.error(f"❌ Error closing connections: {e}")
+
+async def main():
+    """Test the enhanced unified chat service"""
+    service = EnhancedUnifiedChatService()
+    
+    try:
+        await service.initialize()
+        
+        # Test queries for different security levels
         test_queries = [
-            "What were the key topics and sentiment for recent calls related to our top 5 largest open deals?",
-            "Show me our sales performance this quarter",
-            "Which deals need immediate attention?",
-            "Give me an executive summary of our business status",
-            "What's our revenue forecast for next quarter?",
+            ("What's our payment volume this month?", "EXECUTIVE"),
+            ("Show me property occupancy rates", "EXECUTIVE"),
+            ("Analyze strategic plans and competitive threats", "CEO_ONLY"),
+            ("What are the latest industry trends?", "EXECUTIVE")
         ]
+        
+        for query, security_level in test_queries:
+            context = QueryContext(
+                user_id="test_user",
+                user_role="executive",
+                dashboard_type="ceo",
+                security_level=security_level
+            )
+            
+            result = await service.process_unified_query(query, context)
+            print(f"\n🔍 Query: {query}")
+            print(f"🎯 Intent: {result.intent.value}")
+            print(f"📊 Response: {result.content[:200]}...")
+            print(f"⚡ Execution time: {result.execution_time_ms}ms")
+            print(f"🔒 Security level: {result.security_level}")
+        
+    except Exception as e:
+        print(f"❌ Test failed: {e}")
+        return 1
+    finally:
+        await service.close()
+    
+    return 0
 
-        for query in test_queries:
-            print(f"\n--- Query: {query} ---")
-            response = await process_ceo_query(query)
-            print(f"Intent: {response.intent.value}")
-            print(f"Summary: {response.executive_summary[:200]}...")
-            print(f"Confidence: {response.confidence:.2f}")
-            print(f"Processing Time: {response.processing_time:.2f}s")
-
-    asyncio.run(test_chat_service())
+if __name__ == "__main__":
+    exit(asyncio.run(main()))
