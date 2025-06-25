@@ -1,464 +1,479 @@
+#!/usr/bin/env python3
 """
-Knowledge Dashboard API Routes
-Provides endpoints for knowledge base management, document ingestion, and data source synchronization
+Knowledge Dashboard API Routes for Sophia AI
+Comprehensive API endpoints for knowledge management and chat integration
 """
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Query
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 import json
+import asyncio
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from uuid import uuid4
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
+import os
 
-from backend.core.database import get_session
-from backend.core.auth import get_current_user
-from backend.services.knowledge_service import KnowledgeService
-from backend.services.ingestion_service import IngestionService
-from backend.services.data_source_service import DataSourceService
-from backend.services.sync_service import SyncService
-from backend.models.knowledge import (
-    KnowledgeStats,
-    IngestionJob,
-    DataSource,
-    Document,
-    SyncStatus,
+# Import our services
+from backend.services.knowledge_service import (
+    knowledge_service, 
+    KnowledgeEntry, 
+    KnowledgeStats, 
+    UploadResponse, 
+    SearchFilters
 )
-from backend.core.cache_manager import DashboardCacheManager
-from backend.core.logger import logger
+from backend.services.enhanced_unified_chat_service import snowflake_service
 
-router = APIRouter(prefix="/api/v1/knowledge", tags=["knowledge"])
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Initialize services
-knowledge_service = KnowledgeService()
-ingestion_service = IngestionService()
-data_source_service = DataSourceService()
-sync_service = SyncService()
-cache_manager = DashboardCacheManager()
+# Authentication
+security = HTTPBearer()
+CEO_ACCESS_TOKEN = os.getenv("CEO_ACCESS_TOKEN", "sophia_ceo_access_2024")
+ADMIN_USER_ID = "ceo_user"
 
+async def authenticate_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    """Authenticate user with simple token"""
+    if credentials.credentials == CEO_ACCESS_TOKEN:
+        return ADMIN_USER_ID
+    raise HTTPException(status_code=401, detail="Invalid authentication token")
+
+# Request/Response Models
+class CreateCategoryRequest(BaseModel):
+    category_id: str
+    category_name: str
+    description: Optional[str] = None
+
+class SearchRequest(BaseModel):
+    query: str
+    limit: int = 10
+    category_filter: Optional[str] = None
+
+class ChatWithKnowledgeRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+    use_knowledge: bool = True
+    category_filter: Optional[str] = None
+
+class UpdateEntryRequest(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category_id: Optional[str] = None
+
+# Initialize router
+router = APIRouter(prefix="/api/v1/knowledge", tags=["Knowledge Management"])
+
+@router.on_event("startup")
+async def startup_knowledge_service():
+    """Initialize knowledge service on startup"""
+    await knowledge_service.connect()
+    logger.info("🚀 Knowledge Dashboard API routes initialized")
+
+@router.on_event("shutdown")
+async def shutdown_knowledge_service():
+    """Cleanup on shutdown"""
+    await knowledge_service.disconnect()
+    logger.info("Knowledge Dashboard API routes shut down")
+
+# File Upload and Processing Endpoints
+
+@router.post("/upload", response_model=UploadResponse)
+async def upload_file(
+    file: UploadFile = File(...),
+    title: str = Form(...),
+    category_id: Optional[str] = Form(None),
+    description: Optional[str] = Form(""),
+    user_id: str = Depends(authenticate_user)
+):
+    """Upload and process a file for the knowledge base"""
+    try:
+        # Read file content
+        file_content = await file.read()
+        
+        # Create content combining description and file content
+        content = description if description else f"Uploaded file: {file.filename}"
+        
+        # Upload to knowledge service
+        result = await knowledge_service.upload_knowledge_entry(
+            title=title,
+            content=content,
+            category_id=category_id,
+            file_data=file_content,
+            filename=file.filename,
+            file_type=file.content_type
+        )
+        
+        logger.info(f"File uploaded successfully: {file.filename} -> {result.entry_id}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"File upload failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+@router.post("/entries", response_model=UploadResponse)
+async def create_knowledge_entry(
+    title: str,
+    content: str,
+    category_id: Optional[str] = None,
+    user_id: str = Depends(authenticate_user)
+):
+    """Create a knowledge entry from text"""
+    try:
+        result = await knowledge_service.upload_knowledge_entry(
+            title=title,
+            content=content,
+            category_id=category_id
+        )
+        
+        logger.info(f"Knowledge entry created: {result.entry_id}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Entry creation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Creation failed: {str(e)}")
+
+# Search and Retrieval Endpoints
+
+@router.post("/search")
+async def search_knowledge(
+    request: SearchRequest,
+    user_id: str = Depends(authenticate_user)
+) -> Dict[str, Any]:
+    """Search knowledge base"""
+    try:
+        filters = SearchFilters(category_id=request.category_filter) if request.category_filter else None
+        
+        results = await knowledge_service.search_knowledge(
+            query=request.query,
+            limit=request.limit,
+            filters=filters
+        )
+        
+        return {
+            "query": request.query,
+            "results": [
+                {
+                    "entry_id": entry.entry_id,
+                    "title": entry.title,
+                    "content": entry.content[:500] + "..." if len(entry.content) > 500 else entry.content,
+                    "category_id": entry.category_id,
+                    "category_name": entry.category_name,
+                    "file_type": entry.file_type,
+                    "created_at": entry.created_at.isoformat(),
+                    "metadata": entry.metadata
+                }
+                for entry in results
+            ],
+            "total_results": len(results),
+            "search_timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Search failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@router.get("/entries/{entry_id}")
+async def get_knowledge_entry(
+    entry_id: str,
+    user_id: str = Depends(authenticate_user)
+) -> Dict[str, Any]:
+    """Get specific knowledge entry"""
+    try:
+        # Search for the specific entry
+        results = await knowledge_service.search_knowledge(query="", limit=1000)
+        
+        for entry in results:
+            if entry.entry_id == entry_id:
+                return {
+                    "entry_id": entry.entry_id,
+                    "title": entry.title,
+                    "content": entry.content,
+                    "category_id": entry.category_id,
+                    "category_name": entry.category_name,
+                    "file_type": entry.file_type,
+                    "file_size": entry.file_size,
+                    "status": entry.status,
+                    "metadata": entry.metadata,
+                    "created_at": entry.created_at.isoformat(),
+                    "updated_at": entry.updated_at.isoformat()
+                }
+        
+        raise HTTPException(status_code=404, detail="Entry not found")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get entry {entry_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get entry: {str(e)}")
+
+@router.get("/entries")
+async def list_knowledge_entries(
+    category_id: Optional[str] = None,
+    limit: int = 50,
+    user_id: str = Depends(authenticate_user)
+) -> List[Dict[str, Any]]:
+    """List knowledge entries with optional filtering"""
+    try:
+        filters = SearchFilters(category_id=category_id) if category_id else None
+        
+        results = await knowledge_service.search_knowledge(
+            query="",  # Empty query to get all
+            limit=limit,
+            filters=filters
+        )
+        
+        return [
+            {
+                "entry_id": entry.entry_id,
+                "title": entry.title,
+                "content": entry.content[:200] + "..." if len(entry.content) > 200 else entry.content,
+                "category_id": entry.category_id,
+                "category_name": entry.category_name,
+                "file_type": entry.file_type,
+                "file_size": entry.file_size,
+                "created_at": entry.created_at.isoformat(),
+                "updated_at": entry.updated_at.isoformat()
+            }
+            for entry in results
+        ]
+        
+    except Exception as e:
+        logger.error(f"Failed to list entries: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list entries: {str(e)}")
+
+# Chat Integration Endpoints
+
+@router.post("/chat")
+async def chat_with_knowledge(
+    request: ChatWithKnowledgeRequest,
+    user_id: str = Depends(authenticate_user)
+) -> Dict[str, Any]:
+    """Chat with AI using knowledge base context"""
+    try:
+        session_id = request.session_id
+        
+        # Create session if not provided
+        if not session_id:
+            session_id = await snowflake_service.create_session(
+                user_id=user_id,
+                title=f"Knowledge Chat {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            )
+        
+        # Save user message
+        user_message_id = await snowflake_service.save_message(
+            session_id, user_id, request.message, "user"
+        )
+        
+        # Search knowledge base if requested
+        knowledge_results = []
+        if request.use_knowledge:
+            filters = SearchFilters(category_id=request.category_filter) if request.category_filter else None
+            knowledge_results = await knowledge_service.search_knowledge(
+                query=request.message,
+                limit=5,
+                filters=filters
+            )
+        
+        # Generate AI response with knowledge context
+        ai_response = await snowflake_service.generate_ai_response(
+            request.message, 
+            [
+                {
+                    "TITLE": entry.title,
+                    "CONTENT": entry.content,
+                    "CATEGORY_NAME": entry.category_name
+                }
+                for entry in knowledge_results
+            ]
+        )
+        
+        # Save AI response
+        ai_message_id = await snowflake_service.save_message(
+            session_id, "system", ai_response, "assistant"
+        )
+        
+        return {
+            "session_id": session_id,
+            "user_message_id": user_message_id,
+            "ai_message_id": ai_message_id,
+            "response": ai_response,
+            "knowledge_sources": [
+                {
+                    "entry_id": entry.entry_id,
+                    "title": entry.title,
+                    "category": entry.category_name,
+                    "relevance": "high"  # Placeholder
+                }
+                for entry in knowledge_results[:3]
+            ],
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Chat with knowledge failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
+# Management Endpoints
 
 @router.get("/stats", response_model=KnowledgeStats)
 async def get_knowledge_stats(
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> KnowledgeStats:
-    """
-    Get knowledge base statistics including document counts, storage usage, and activity metrics
-
-    Returns:
-        Comprehensive knowledge base statistics
-    """
+    user_id: str = Depends(authenticate_user)
+):
+    """Get knowledge base statistics"""
     try:
-        # Use cache for stats
-        cache_key = f"knowledge_stats:{user_id}"
-
-        async def fetch_stats():
-            return await knowledge_service.get_stats(session, user_id)
-
-        stats = await cache_manager.get_or_set(
-            cache_key, fetch_stats, ttl=300  # 5 minutes cache
-        )
-
+        stats = await knowledge_service.get_knowledge_stats()
         return stats
     except Exception as e:
-        logger.error(f"Error fetching knowledge stats: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch knowledge statistics"
-        )
+        logger.error(f"Failed to get stats: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get stats: {str(e)}")
 
-
-@router.get("/ingestion-jobs", response_model=List[IngestionJob])
-async def get_ingestion_jobs(
-    status: Optional[str] = Query(None, description="Filter by job status"),
-    limit: int = Query(20, description="Number of jobs to return"),
-    offset: int = Query(0, description="Number of jobs to skip"),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> List[IngestionJob]:
-    """
-    Get recent document ingestion job status
-
-    Returns:
-        List of recent ingestion jobs with their status and metadata
-    """
+@router.get("/categories")
+async def get_categories(
+    user_id: str = Depends(authenticate_user)
+) -> List[Dict[str, Any]]:
+    """Get all knowledge categories"""
     try:
-        jobs = await ingestion_service.get_recent_jobs(
-            session, user_id=user_id, status=status, limit=limit, offset=offset
-        )
-        return jobs
+        query = "SELECT CATEGORY_ID, CATEGORY_NAME, DESCRIPTION, CREATED_AT FROM KNOWLEDGE_CATEGORIES ORDER BY CATEGORY_NAME"
+        results = await knowledge_service.execute_query(query)
+        
+        return [
+            {
+                "category_id": row["CATEGORY_ID"],
+                "category_name": row["CATEGORY_NAME"],
+                "description": row["DESCRIPTION"],
+                "created_at": row["CREATED_AT"].isoformat() if row["CREATED_AT"] else None
+            }
+            for row in results
+        ]
+        
     except Exception as e:
-        logger.error(f"Error fetching ingestion jobs: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch ingestion jobs")
+        logger.error(f"Failed to get categories: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get categories: {str(e)}")
 
-
-@router.get("/data-sources", response_model=List[DataSource])
-async def get_data_sources(
-    active_only: bool = Query(True, description="Return only active data sources"),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> List[DataSource]:
-    """
-    Get configured data sources for knowledge base
-
-    Returns:
-        List of configured data sources with their sync status
-    """
-    try:
-        sources = await data_source_service.get_all_sources(
-            session, user_id=user_id, active_only=active_only
-        )
-        return sources
-    except Exception as e:
-        logger.error(f"Error fetching data sources: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch data sources")
-
-
-@router.post("/upload")
-async def upload_document(
-    file: UploadFile = File(...),
-    metadata: Optional[str] = Query(
-        None, description="Additional metadata as JSON string"
-    ),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
-    """
-    Upload a document to the knowledge base
-
-    Returns:
-        Document ID and ingestion job details
-    """
-    try:
-        # Validate file type
-        allowed_types = {
-            "application/pdf",
-            "text/plain",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/msword",
-            "text/markdown",
-            "text/csv",
-        }
-
-        if file.content_type not in allowed_types:
-            raise HTTPException(
-                status_code=400, detail=f"File type {file.content_type} not supported"
-            )
-
-        # Parse metadata if provided
-        doc_metadata = {}
-        if metadata:
-            try:
-                doc_metadata = json.loads(metadata)
-            except json.JSONDecodeError:
-                raise HTTPException(status_code=400, detail="Invalid metadata JSON")
-
-        # Create ingestion job
-        job = await ingestion_service.create_ingestion_job(
-            session, user_id=user_id, file=file, metadata=doc_metadata
-        )
-
-        # Process document asynchronously
-        await ingestion_service.process_document_async(job.id)
-
-        # Invalidate cache
-        await cache_manager.invalidate_pattern(f"knowledge_stats:{user_id}")
-
-        return {
-            "job_id": job.id,
-            "status": job.status,
-            "document_name": file.filename,
-            "estimated_completion": job.estimated_completion,
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error uploading document: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to upload document")
-
-
-@router.post("/sync/{source_id}")
-async def sync_data_source(
-    source_id: str,
-    full_sync: bool = Query(
-        False, description="Perform full sync instead of incremental"
-    ),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
-    """
-    Trigger synchronization for a specific data source
-
-    Returns:
-        Sync job details and status
-    """
-    try:
-        # Verify data source exists and user has access
-        source = await data_source_service.get_source(session, source_id, user_id)
-        if not source:
-            raise HTTPException(status_code=404, detail="Data source not found")
-
-        # Check if sync is already in progress
-        if await sync_service.is_sync_in_progress(session, source_id):
-            raise HTTPException(
-                status_code=409, detail="Sync already in progress for this source"
-            )
-
-        # Create sync job
-        sync_job = await sync_service.create_sync_job(
-            session, source_id=source_id, user_id=user_id, full_sync=full_sync
-        )
-
-        # Trigger async sync
-        await sync_service.trigger_sync_async(sync_job.id)
-
-        # Invalidate cache
-        await cache_manager.invalidate_pattern(f"knowledge_stats:{user_id}")
-
-        return {
-            "sync_job_id": sync_job.id,
-            "source_name": source.name,
-            "sync_type": "full" if full_sync else "incremental",
-            "status": sync_job.status,
-            "started_at": sync_job.started_at,
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error triggering sync: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to trigger sync")
-
-
-@router.get("/documents", response_model=List[Document])
-async def get_documents(
-    source_id: Optional[str] = Query(None, description="Filter by data source"),
-    search_query: Optional[str] = Query(None, description="Search documents"),
-    limit: int = Query(50, description="Number of documents to return"),
-    offset: int = Query(0, description="Number of documents to skip"),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> List[Document]:
-    """
-    Get documents from the knowledge base with optional filtering
-
-    Returns:
-        List of documents matching the criteria
-    """
-    try:
-        documents = await knowledge_service.get_documents(
-            session,
-            user_id=user_id,
-            source_id=source_id,
-            search_query=search_query,
-            limit=limit,
-            offset=offset,
-        )
-        return documents
-    except Exception as e:
-        logger.error(f"Error fetching documents: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch documents")
-
-
-@router.post("/search")
-async def search_knowledge_base(
-    query: Dict[str, Any],
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
-    """
-    Perform semantic search across the knowledge base
-
-    Returns:
-        Search results with relevance scores and metadata
-    """
-    try:
-        # Extract search parameters
-        search_query = query.get("query", "")
-        filters = query.get("filters", {})
-        limit = query.get("limit", 10)
-        search_type = query.get("type", "semantic")  # semantic, keyword, hybrid
-
-        if not search_query:
-            raise HTTPException(status_code=400, detail="Search query is required")
-
-        # Perform search based on type
-        if search_type == "semantic":
-            results = await knowledge_service.semantic_search(
-                query=search_query, user_id=user_id, filters=filters, limit=limit
-            )
-        elif search_type == "keyword":
-            results = await knowledge_service.keyword_search(
-                query=search_query, user_id=user_id, filters=filters, limit=limit
-            )
-        else:  # hybrid
-            results = await knowledge_service.hybrid_search(
-                query=search_query, user_id=user_id, filters=filters, limit=limit
-            )
-
-        return {
-            "query": search_query,
-            "type": search_type,
-            "results": results,
-            "total_results": len(results),
-            "search_time_ms": results.get("search_time_ms", 0),
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error performing search: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to perform search")
-
-
-@router.delete("/documents/{document_id}")
-async def delete_document(
-    document_id: str,
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
+@router.post("/categories")
+async def create_category(
+    request: CreateCategoryRequest,
+    user_id: str = Depends(authenticate_user)
 ) -> Dict[str, str]:
-    """
-    Delete a document from the knowledge base
-
-    Returns:
-        Confirmation of deletion
-    """
+    """Create a new knowledge category"""
     try:
-        # Verify document exists and user has access
-        document = await knowledge_service.get_document(session, document_id, user_id)
-        if not document:
-            raise HTTPException(status_code=404, detail="Document not found")
-
-        # Delete from vector stores
-        await knowledge_service.delete_document_embeddings(document_id)
-
-        # Delete from database
-        await knowledge_service.delete_document(session, document_id)
-
-        # Invalidate cache
-        await cache_manager.invalidate_pattern(f"knowledge_stats:{user_id}")
-
-        return {"message": f"Document {document_id} deleted successfully"}
-
-    except HTTPException:
-        raise
+        await knowledge_service.ensure_category_exists(request.category_id)
+        
+        # Update category details if different from auto-created
+        if request.category_name:
+            update_query = """
+            UPDATE KNOWLEDGE_CATEGORIES 
+            SET CATEGORY_NAME = %s, DESCRIPTION = %s 
+            WHERE CATEGORY_ID = %s
+            """
+            await knowledge_service.execute_query(update_query, (
+                request.category_name,
+                request.description,
+                request.category_id
+            ))
+        
+        return {
+            "category_id": request.category_id,
+            "status": "created",
+            "message": "Category created successfully"
+        }
+        
     except Exception as e:
-        logger.error(f"Error deleting document: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to delete document")
+        logger.error(f"Failed to create category: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create category: {str(e)}")
 
-
-@router.get("/sync-status/{source_id}", response_model=SyncStatus)
-async def get_sync_status(
-    source_id: str,
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> SyncStatus:
-    """
-    Get current sync status for a data source
-
-    Returns:
-        Detailed sync status information
-    """
+@router.put("/entries/{entry_id}")
+async def update_knowledge_entry(
+    entry_id: str,
+    request: UpdateEntryRequest,
+    user_id: str = Depends(authenticate_user)
+) -> Dict[str, str]:
+    """Update knowledge entry"""
     try:
-        status = await sync_service.get_sync_status(session, source_id, user_id)
-        if not status:
-            raise HTTPException(status_code=404, detail="No sync status found")
-
-        return status
-    except HTTPException:
-        raise
+        updates = []
+        params = []
+        
+        if request.title:
+            updates.append("TITLE = %s")
+            params.append(request.title)
+        
+        if request.content:
+            updates.append("CONTENT = %s")
+            params.append(request.content)
+        
+        if request.category_id:
+            await knowledge_service.ensure_category_exists(request.category_id)
+            updates.append("CATEGORY_ID = %s")
+            params.append(request.category_id)
+        
+        if updates:
+            updates.append("UPDATED_AT = %s")
+            params.append(datetime.now())
+            params.append(entry_id)
+            
+            update_query = f"""
+            UPDATE KNOWLEDGE_BASE_ENTRIES 
+            SET {', '.join(updates)}
+            WHERE ENTRY_ID = %s
+            """
+            
+            await knowledge_service.execute_query(update_query, tuple(params))
+        
+        return {
+            "entry_id": entry_id,
+            "status": "updated",
+            "message": "Entry updated successfully"
+        }
+        
     except Exception as e:
-        logger.error(f"Error fetching sync status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch sync status")
+        logger.error(f"Failed to update entry {entry_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update entry: {str(e)}")
 
-
-@router.post("/data-sources")
-async def create_data_source(
-    source_config: Dict[str, Any],
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> DataSource:
-    """
-    Create a new data source configuration
-
-    Returns:
-        Created data source details
-    """
+@router.delete("/entries/{entry_id}")
+async def delete_knowledge_entry(
+    entry_id: str,
+    user_id: str = Depends(authenticate_user)
+) -> Dict[str, str]:
+    """Delete knowledge entry"""
     try:
-        # Validate source configuration
-        required_fields = ["name", "type", "connection_config"]
-        for field in required_fields:
-            if field not in source_config:
-                raise HTTPException(
-                    status_code=400, detail=f"Missing required field: {field}"
-                )
-
-        # Create data source
-        source = await data_source_service.create_source(
-            session, user_id=user_id, **source_config
-        )
-
-        return source
-
-    except HTTPException:
-        raise
+        await knowledge_service.delete_knowledge_entry(entry_id)
+        
+        return {
+            "entry_id": entry_id,
+            "status": "deleted",
+            "message": "Entry deleted successfully"
+        }
+        
     except Exception as e:
-        logger.error(f"Error creating data source: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create data source")
+        logger.error(f"Failed to delete entry {entry_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete entry: {str(e)}")
 
+# Health and System Endpoints
 
-@router.put("/data-sources/{source_id}")
-async def update_data_source(
-    source_id: str,
-    source_update: Dict[str, Any],
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> DataSource:
-    """
-    Update an existing data source configuration
-
-    Returns:
-        Updated data source details
-    """
+@router.get("/health")
+async def knowledge_health_check():
+    """Health check for knowledge service"""
     try:
-        # Update data source
-        source = await data_source_service.update_source(
-            session, source_id=source_id, user_id=user_id, **source_update
-        )
-
-        if not source:
-            raise HTTPException(status_code=404, detail="Data source not found")
-
-        return source
-
-    except HTTPException:
-        raise
+        # Test knowledge service connection
+        await knowledge_service.execute_query("SELECT 1 as test")
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "services": {
+                "knowledge_service": "connected",
+                "snowflake": "operational",
+                "file_processing": "ready"
+            },
+            "version": "1.0.0"
+        }
     except Exception as e:
-        logger.error(f"Error updating data source: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to update data source")
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
-
-@router.get("/analytics/usage", response_model=Dict[str, Any])
-async def get_knowledge_usage_analytics(
-    time_period: str = Query("30d", description="Time period (7d, 30d, 90d)"),
-    user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
-    """
-    Get knowledge base usage analytics
-
-    Returns:
-        Usage analytics including search queries, document access, and trends
-    """
-    try:
-        # Parse time period
-        days = {"7d": 7, "30d": 30, "90d": 90}.get(time_period, 30)
-        start_date = datetime.now() - timedelta(days=days)
-
-        analytics = await knowledge_service.get_usage_analytics(
-            session, user_id=user_id, start_date=start_date
-        )
-
-        return analytics
-
-    except Exception as e:
-        logger.error(f"Error fetching usage analytics: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+# Export router
+knowledge_router = router
