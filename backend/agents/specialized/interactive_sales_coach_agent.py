@@ -13,14 +13,19 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.services.enhanced_knowledge_base_service import EnhancedKnowledgeBaseService
-from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
+from backend.services.enhanced_knowledge_base_service import (
+    EnhancedKnowledgeBaseService,
+)
+from backend.utils.enhanced_snowflake_cortex_service import (
+    EnhancedSnowflakeCortexService,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class CoachingType(str, Enum):
     """Types of coaching interactions"""
+
     REAL_TIME_FEEDBACK = "real_time_feedback"
     CALL_PREPARATION = "call_preparation"
     FOLLOW_UP_GUIDANCE = "follow_up_guidance"
@@ -32,35 +37,37 @@ class CoachingType(str, Enum):
 
 class CoachingPriority(str, Enum):
     """Priority levels for coaching interventions"""
-    IMMEDIATE = "immediate"      # Real-time during/after calls
-    HIGH = "high"               # End of day coaching
-    MEDIUM = "medium"           # Weekly coaching
-    LOW = "low"                 # Monthly coaching
+
+    IMMEDIATE = "immediate"  # Real-time during/after calls
+    HIGH = "high"  # End of day coaching
+    MEDIUM = "medium"  # Weekly coaching
+    LOW = "low"  # Monthly coaching
 
 
 @dataclass
 class CoachingInsight:
     """Coaching insight generated for sales rep"""
+
     insight_id: str
     sales_rep_id: str
     coaching_type: CoachingType
     priority: CoachingPriority
-    
+
     # Core coaching content
     situation: str
     insight: str
     recommendation: str
     action_steps: List[str]
-    
+
     # Supporting data
     context_data: Dict[str, Any]
     confidence_score: float
     urgency_score: float
-    
+
     # Slack integration
     slack_message: str
     slack_thread_id: Optional[str] = None
-    
+
     # Tracking
     delivered_at: datetime = field(default_factory=datetime.now)
     rep_response: Optional[str] = None
@@ -70,118 +77,125 @@ class CoachingInsight:
 class InteractiveSalesCoachAgent(BaseAgent):
     """
     Interactive Sales Coach Agent with Slack Integration
-    
+
     Provides real-time coaching based on:
     - Gong call analysis and conversation intelligence
     - Slack interactions and communication patterns
     - Knowledge base insights and best practices
     - Performance data and improvement opportunities
     """
-    
+
     def __init__(self):
         super().__init__()
         self.name = "interactive_sales_coach"
         self.description = "AI sales coach providing real-time coaching via Slack"
-        
+
         # Service integrations
         self.knowledge_base: Optional[EnhancedKnowledgeBaseService] = None
         self.cortex_service: Optional[EnhancedSnowflakeCortexService] = None
-        
+
         # Coaching analytics
         self.coaching_analytics = {
             "total_insights_generated": 0,
             "insights_delivered": 0,
             "rep_engagement_rate": 0.0,
-            "effectiveness_score": 0.0
+            "effectiveness_score": 0.0,
         }
-        
+
         # Active coaching sessions
         self.active_sessions: Dict[str, Dict] = {}
-        
+
         self.initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize the Interactive Sales Coach Agent"""
         if self.initialized:
             return
-        
+
         try:
             # Initialize services
             self.knowledge_base = EnhancedKnowledgeBaseService()
             await self.knowledge_base.initialize()
-            
+
             self.cortex_service = EnhancedSnowflakeCortexService()
-            
+
             self.initialized = True
             logger.info("✅ Interactive Sales Coach Agent initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Sales Coach Agent: {e}")
             raise
-    
+
     async def _agent_initialize(self) -> None:
         """Required by BaseAgent - Initialize agent-specific components"""
         await self.initialize()
-    
+
     async def _execute_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """Required by BaseAgent - Execute agent-specific tasks"""
         task_type = task.get("type", "coaching")
-        
+
         if task_type == "real_time_coaching":
             return await self.provide_real_time_coaching(
                 sales_rep_id=task.get("sales_rep_id", ""),
-                context=task.get("context", {})
+                context=task.get("context", {}),
             )
         elif task_type == "slack_interaction":
             return await self.slack_coaching_interface(task.get("slack_event", {}))
         elif task_type == "generate_insights":
-            return await self.generate_coaching_insights(task.get("performance_data", {}))
+            return await self.generate_coaching_insights(
+                task.get("performance_data", {})
+            )
         else:
             return {
                 "success": False,
                 "error": f"Unknown task type: {task_type}",
-                "task": task
+                "task": task,
             }
-    
+
     async def provide_real_time_coaching(
-        self, 
-        sales_rep_id: str, 
-        context: Dict[str, Any]
+        self, sales_rep_id: str, context: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Provide real-time coaching based on current context
-        
+
         Args:
             sales_rep_id: ID of the sales representative
             context: Current context (call data, slack activity, etc.)
-            
+
         Returns:
             Dict with coaching insights and delivery status
         """
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Analyze current situation
-            situation_analysis = await self._analyze_current_situation(sales_rep_id, context)
-            
+            situation_analysis = await self._analyze_current_situation(
+                sales_rep_id, context
+            )
+
             # Generate coaching insights
-            insights = await self._generate_coaching_insights(sales_rep_id, situation_analysis)
-            
+            insights = await self._generate_coaching_insights(
+                sales_rep_id, situation_analysis
+            )
+
             # Prioritize insights for delivery
             prioritized_insights = await self._prioritize_insights(insights, context)
-            
+
             # Deliver coaching via Slack
             delivery_results = []
             for insight in prioritized_insights:
-                if insight.priority in [CoachingPriority.IMMEDIATE, CoachingPriority.HIGH]:
+                if insight.priority in [
+                    CoachingPriority.IMMEDIATE,
+                    CoachingPriority.HIGH,
+                ]:
                     delivery_result = await self.deliver_slack_coaching(insight)
                     delivery_results.append(delivery_result)
-            
+
             # Update analytics
             self.coaching_analytics["total_insights_generated"] += len(insights)
             self.coaching_analytics["insights_delivered"] += len(delivery_results)
-            
+
             result = {
                 "success": True,
                 "sales_rep_id": sales_rep_id,
@@ -193,89 +207,89 @@ class InteractiveSalesCoachAgent(BaseAgent):
                         "coaching_type": insight.coaching_type.value,
                         "priority": insight.priority.value,
                         "recommendation": insight.recommendation,
-                        "slack_delivered": any(d.get("success") for d in delivery_results)
+                        "slack_delivered": any(
+                            d.get("success") for d in delivery_results
+                        ),
                     }
                     for insight in prioritized_insights[:3]  # Show top 3
                 ],
-                "delivery_results": delivery_results
+                "delivery_results": delivery_results,
             }
-            
-            logger.info(f"Real-time coaching provided to {sales_rep_id}: {len(insights)} insights")
+
+            logger.info(
+                f"Real-time coaching provided to {sales_rep_id}: {len(insights)} insights"
+            )
             return result
-            
+
         except Exception as e:
             logger.error(f"Error providing real-time coaching: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "sales_rep_id": sales_rep_id
-            }
-    
-    async def slack_coaching_interface(self, slack_event: Dict[str, Any]) -> Dict[str, Any]:
+            return {"success": False, "error": str(e), "sales_rep_id": sales_rep_id}
+
+    async def slack_coaching_interface(
+        self, slack_event: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Interactive Slack coaching interface for sales reps
-        
+
         Args:
             slack_event: Slack event data (message, reaction, etc.)
-            
+
         Returns:
             Dict with coaching response and interaction data
         """
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             event_type = slack_event.get("type", "")
             user_id = slack_event.get("user", "")
             channel = slack_event.get("channel", "")
             text = slack_event.get("text", "")
-            
+
             # Handle different types of Slack interactions
             if event_type == "message" and text.startswith("@coach"):
                 # Direct coaching request
-                response = await self._handle_direct_coaching_request(user_id, text, channel)
-                
+                response = await self._handle_direct_coaching_request(
+                    user_id, text, channel
+                )
+
             elif event_type == "message" and "help" in text.lower():
                 # Help request
                 response = await self._provide_coaching_help(user_id, channel)
-                
+
             elif event_type == "reaction_added":
                 # User reacted to coaching message
                 response = await self._handle_coaching_feedback(slack_event)
-                
+
             else:
                 # Passive analysis of sales conversations
                 response = await self._analyze_passive_slack_activity(slack_event)
-            
+
             return {
                 "success": True,
                 "event_type": event_type,
                 "user_id": user_id,
-                "response": response
+                "response": response,
             }
-            
+
         except Exception as e:
             logger.error(f"Error in Slack coaching interface: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "slack_event": slack_event
-            }
-    
+            return {"success": False, "error": str(e), "slack_event": slack_event}
+
     async def deliver_slack_coaching(self, insight: CoachingInsight) -> Dict[str, Any]:
         """
         Deliver coaching insight via Slack
-        
+
         Args:
             insight: CoachingInsight to deliver
-            
+
         Returns:
             Dict with delivery status and tracking info
         """
         try:
             # Format Slack message
             slack_message = self._format_coaching_message(insight)
-            
+
             # Simulate Slack delivery (in production, would use Slack API)
             delivery_result = {
                 "success": True,
@@ -284,65 +298,71 @@ class InteractiveSalesCoachAgent(BaseAgent):
                 "message": slack_message,
                 "delivered_at": datetime.now().isoformat(),
                 "channel": f"@{insight.sales_rep_id}",  # DM to sales rep
-                "thread_id": f"thread_{insight.insight_id}"
+                "thread_id": f"thread_{insight.insight_id}",
             }
-            
+
             # Track delivery
             insight.delivered_at = datetime.now()
             insight.slack_thread_id = delivery_result["thread_id"]
-            
+
             # Store for follow-up tracking
             self.active_sessions[insight.insight_id] = {
                 "insight": insight,
                 "delivered_at": datetime.now(),
-                "awaiting_response": True
+                "awaiting_response": True,
             }
-            
-            logger.info(f"Coaching insight delivered to {insight.sales_rep_id}: {insight.coaching_type.value}")
+
+            logger.info(
+                f"Coaching insight delivered to {insight.sales_rep_id}: {insight.coaching_type.value}"
+            )
             return delivery_result
-            
+
         except Exception as e:
             logger.error(f"Error delivering Slack coaching: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "insight_id": insight.insight_id
-            }
-    
-    async def generate_coaching_insights(self, performance_data: Dict[str, Any]) -> Dict[str, Any]:
+            return {"success": False, "error": str(e), "insight_id": insight.insight_id}
+
+    async def generate_coaching_insights(
+        self, performance_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Generate coaching insights from performance data
-        
+
         Args:
             performance_data: Sales performance and activity data
-            
+
         Returns:
             Dict with generated insights and recommendations
         """
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             sales_rep_id = performance_data.get("sales_rep_id")
-            
+
             # Analyze performance patterns
-            performance_analysis = await self._analyze_performance_patterns(performance_data)
-            
+            performance_analysis = await self._analyze_performance_patterns(
+                performance_data
+            )
+
             # Get relevant knowledge base insights
-            kb_insights = await self._get_relevant_knowledge_insights(performance_analysis)
-            
+            kb_insights = await self._get_relevant_knowledge_insights(
+                performance_analysis
+            )
+
             # Generate personalized coaching
             personalized_coaching = await self._generate_personalized_coaching(
                 sales_rep_id, performance_analysis, kb_insights
             )
-            
+
             # Create structured insights
             insights = []
             for coaching_item in personalized_coaching:
                 insight = CoachingInsight(
                     insight_id=f"insight_{int(datetime.now().timestamp())}_{sales_rep_id}",
                     sales_rep_id=sales_rep_id,
-                    coaching_type=CoachingType(coaching_item.get("type", "performance_improvement")),
+                    coaching_type=CoachingType(
+                        coaching_item.get("type", "performance_improvement")
+                    ),
                     priority=CoachingPriority(coaching_item.get("priority", "medium")),
                     situation=coaching_item.get("situation", ""),
                     insight=coaching_item.get("insight", ""),
@@ -352,10 +372,10 @@ class InteractiveSalesCoachAgent(BaseAgent):
                     confidence_score=coaching_item.get("confidence", 0.8),
                     urgency_score=coaching_item.get("urgency", 0.5),
                     slack_message="",  # Will be formatted when delivered
-                    delivered_at=datetime.now()
+                    delivered_at=datetime.now(),
                 )
                 insights.append(insight)
-            
+
             result = {
                 "success": True,
                 "sales_rep_id": sales_rep_id,
@@ -368,25 +388,29 @@ class InteractiveSalesCoachAgent(BaseAgent):
                         "priority": insight.priority.value,
                         "recommendation": insight.recommendation,
                         "action_steps": insight.action_steps,
-                        "confidence_score": insight.confidence_score
+                        "confidence_score": insight.confidence_score,
                     }
                     for insight in insights
-                ]
+                ],
             }
-            
-            logger.info(f"Generated {len(insights)} coaching insights for {sales_rep_id}")
+
+            logger.info(
+                f"Generated {len(insights)} coaching insights for {sales_rep_id}"
+            )
             return result
-            
+
         except Exception as e:
             logger.error(f"Error generating coaching insights: {e}")
             return {
                 "success": False,
                 "error": str(e),
-                "performance_data": performance_data
+                "performance_data": performance_data,
             }
-    
+
     # Private helper methods
-    async def _analyze_current_situation(self, sales_rep_id: str, context: Dict) -> Dict[str, Any]:
+    async def _analyze_current_situation(
+        self, sales_rep_id: str, context: Dict
+    ) -> Dict[str, Any]:
         """Analyze current situation for real-time coaching"""
         situation = {
             "rep_id": sales_rep_id,
@@ -394,25 +418,27 @@ class InteractiveSalesCoachAgent(BaseAgent):
             "urgency_level": "medium",
             "key_factors": [],
             "opportunities": [],
-            "challenges": []
+            "challenges": [],
         }
-        
+
         # Analyze based on context type
         if context.get("type") == "gong_call_completed":
             situation["urgency_level"] = "high"
             situation["key_factors"].append("recent_call_activity")
             situation["opportunities"].append("immediate_follow_up")
-        
+
         elif context.get("type") == "slack_activity":
             situation["urgency_level"] = "medium"
             situation["key_factors"].append("communication_patterns")
-        
+
         return situation
-    
-    async def _generate_coaching_insights(self, sales_rep_id: str, situation: Dict) -> List[CoachingInsight]:
+
+    async def _generate_coaching_insights(
+        self, sales_rep_id: str, situation: Dict
+    ) -> List[CoachingInsight]:
         """Generate specific coaching insights based on situation"""
         insights = []
-        
+
         # Generate sample insights based on situation
         if "recent_call_activity" in situation.get("key_factors", []):
             insight = CoachingInsight(
@@ -426,39 +452,41 @@ class InteractiveSalesCoachAgent(BaseAgent):
                 action_steps=[
                     "Draft follow-up email with key discussion points",
                     "Schedule next meeting while conversation is fresh",
-                    "Send connection requests on LinkedIn"
+                    "Send connection requests on LinkedIn",
                 ],
                 context_data=situation,
                 confidence_score=0.9,
                 urgency_score=0.8,
                 slack_message="",
-                delivered_at=datetime.now()
+                delivered_at=datetime.now(),
             )
             insights.append(insight)
-        
+
         return insights
-    
-    async def _prioritize_insights(self, insights: List[CoachingInsight], context: Dict) -> List[CoachingInsight]:
+
+    async def _prioritize_insights(
+        self, insights: List[CoachingInsight], context: Dict
+    ) -> List[CoachingInsight]:
         """Prioritize insights based on urgency and effectiveness"""
         # Sort by urgency score and priority
         prioritized = sorted(
-            insights, 
-            key=lambda x: (x.priority.value == "immediate", x.urgency_score), 
-            reverse=True
+            insights,
+            key=lambda x: (x.priority.value == "immediate", x.urgency_score),
+            reverse=True,
         )
         return prioritized
-    
+
     def _format_coaching_message(self, insight: CoachingInsight) -> str:
         """Format coaching insight for Slack delivery"""
         priority_emoji = {
             CoachingPriority.IMMEDIATE: "🚨",
             CoachingPriority.HIGH: "⚡",
             CoachingPriority.MEDIUM: "💡",
-            CoachingPriority.LOW: "📝"
+            CoachingPriority.LOW: "📝",
         }
-        
+
         emoji = priority_emoji.get(insight.priority, "💡")
-        
+
         message = f"""
 {emoji} **Sales Coaching Insight**
 
@@ -473,47 +501,50 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
 *Confidence: {insight.confidence_score:.0%} | Priority: {insight.priority.value.title()}*
         """.strip()
-        
+
         return message
-    
-    async def _handle_direct_coaching_request(self, user_id: str, text: str, channel: str) -> Dict[str, Any]:
+
+    async def _handle_direct_coaching_request(
+        self, user_id: str, text: str, channel: str
+    ) -> Dict[str, Any]:
         """Handle direct coaching request from Slack"""
         # Extract coaching topic from message
         topic = text.replace("@coach", "").strip()
-        
+
         # Get relevant knowledge base insights
         if self.knowledge_base:
             kb_result = await self.knowledge_base.contextual_knowledge_retrieval(
-                query=topic,
-                context={"user_id": user_id, "source": "slack_request"}
+                query=topic, context={"user_id": user_id, "source": "slack_request"}
             )
-            
+
             if kb_result.get("success") and kb_result.get("knowledge_items"):
                 knowledge_item = kb_result["knowledge_items"][0]
                 response = {
                     "type": "coaching_response",
                     "message": f"Here's what I found about '{topic}':\n\n{knowledge_item['content'][:300]}...",
                     "source": "knowledge_base",
-                    "confidence": 0.8
+                    "confidence": 0.8,
                 }
             else:
                 response = {
-                    "type": "coaching_response", 
+                    "type": "coaching_response",
                     "message": f"I don't have specific information about '{topic}'. Let me learn from you - can you share what you know?",
                     "source": "learning_request",
-                    "confidence": 0.3
+                    "confidence": 0.3,
                 }
         else:
             response = {
                 "type": "coaching_response",
                 "message": "I'm here to help with sales coaching! Try asking about specific topics like 'objection handling' or 'follow-up strategies'.",
                 "source": "general_help",
-                "confidence": 0.5
+                "confidence": 0.5,
             }
-        
+
         return response
-    
-    async def _provide_coaching_help(self, user_id: str, channel: str) -> Dict[str, Any]:
+
+    async def _provide_coaching_help(
+        self, user_id: str, channel: str
+    ) -> Dict[str, Any]:
         """Provide coaching help information"""
         help_message = """
 🎯 **Sales Coach Help**
@@ -537,90 +568,98 @@ I can help you with:
 • Competitive intelligence
 • Communication best practices
         """.strip()
-        
+
         return {
             "type": "help_response",
             "message": help_message,
-            "source": "help_system"
+            "source": "help_system",
         }
-    
+
     async def _handle_coaching_feedback(self, slack_event: Dict) -> Dict[str, Any]:
         """Handle feedback on coaching messages"""
         reaction = slack_event.get("reaction", "")
-        
+
         # Map reactions to feedback
         feedback_mapping = {
             "thumbsup": "positive",
-            "thumbsdown": "negative", 
+            "thumbsdown": "negative",
             "heart": "very_positive",
-            "thinking_face": "needs_clarification"
+            "thinking_face": "needs_clarification",
         }
-        
+
         feedback_type = feedback_mapping.get(reaction, "neutral")
-        
+
         return {
             "type": "feedback_received",
             "feedback_type": feedback_type,
             "reaction": reaction,
-            "message": f"Thanks for the feedback! I'll use this to improve my coaching."
+            "message": f"Thanks for the feedback! I'll use this to improve my coaching.",
         }
-    
-    async def _analyze_passive_slack_activity(self, slack_event: Dict) -> Dict[str, Any]:
+
+    async def _analyze_passive_slack_activity(
+        self, slack_event: Dict
+    ) -> Dict[str, Any]:
         """Analyze passive Slack activity for coaching opportunities"""
         # Basic analysis of conversation patterns
         text = slack_event.get("text", "").lower()
-        
+
         coaching_triggers = {
             "struggling": "offer_support",
             "difficult": "problem_solving",
             "confused": "clarification",
             "help": "assistance_needed",
-            "stuck": "guidance_needed"
+            "stuck": "guidance_needed",
         }
-        
+
         for trigger, action in coaching_triggers.items():
             if trigger in text:
                 return {
                     "type": "passive_analysis",
                     "trigger_detected": trigger,
                     "suggested_action": action,
-                    "intervention_needed": True
+                    "intervention_needed": True,
                 }
-        
+
         return {
             "type": "passive_analysis",
             "trigger_detected": None,
-            "intervention_needed": False
+            "intervention_needed": False,
         }
-    
-    async def _analyze_performance_patterns(self, performance_data: Dict) -> Dict[str, Any]:
+
+    async def _analyze_performance_patterns(
+        self, performance_data: Dict
+    ) -> Dict[str, Any]:
         """Analyze performance patterns for coaching insights"""
         return {
             "overall_performance": "good",
             "improvement_areas": ["follow_up_timing", "objection_handling"],
             "strengths": ["relationship_building", "product_knowledge"],
-            "trends": {"calls_per_week": "increasing", "close_rate": "stable"}
+            "trends": {"calls_per_week": "increasing", "close_rate": "stable"},
         }
-    
-    async def _get_relevant_knowledge_insights(self, performance_analysis: Dict) -> List[Dict]:
+
+    async def _get_relevant_knowledge_insights(
+        self, performance_analysis: Dict
+    ) -> List[Dict]:
         """Get relevant knowledge base insights for coaching"""
         insights = []
-        
+
         for area in performance_analysis.get("improvement_areas", []):
             if self.knowledge_base:
                 kb_result = await self.knowledge_base.contextual_knowledge_retrieval(
                     query=area.replace("_", " "),
-                    context={"source": "performance_coaching"}
+                    context={"source": "performance_coaching"},
                 )
                 if kb_result.get("success") and kb_result.get("knowledge_items"):
                     insights.extend(kb_result["knowledge_items"])
-        
+
         return insights
-    
-    async def _generate_personalized_coaching(self, sales_rep_id: str, analysis: Dict, kb_insights: List) -> List[Dict]:
+
+    async def _generate_personalized_coaching(
+        self, sales_rep_id: str, analysis: Dict, kb_insights: List
+    ) -> List[Dict]:
         """Generate personalized coaching recommendations"""
         coaching_items = []
-        
+
         for area in analysis.get("improvement_areas", []):
             coaching_item = {
                 "type": "performance_improvement",
@@ -631,11 +670,11 @@ I can help you with:
                 "action_steps": [
                     f"Review current {area.replace('_', ' ')} approach",
                     f"Practice {area.replace('_', ' ')} techniques",
-                    f"Track {area.replace('_', ' ')} improvements"
+                    f"Track {area.replace('_', ' ')} improvements",
                 ],
                 "confidence": 0.8,
-                "urgency": 0.6
+                "urgency": 0.6,
             }
             coaching_items.append(coaching_item)
-        
+
         return coaching_items
