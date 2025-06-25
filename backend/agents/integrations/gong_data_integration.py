@@ -9,16 +9,17 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Union
 from enum import Enum
 from uuid import uuid4
 
-import structlog
+import pandas as pd
 from pydantic import BaseModel, Field
 
-# Import existing infrastructure components
-from backend.agents.core.agno_mcp_bridge import AgnoMCPBridge
+import structlog
+from backend.agents.core.langgraph_agent_base import LangGraphAgentBase, AgentCapability, AgentContext
 from backend.integrations.gong_redis_client import (
     RedisNotificationClient,
     ProcessedCallData,
@@ -26,6 +27,8 @@ from backend.integrations.gong_redis_client import (
     NotificationType,
 )
 from backend.core.integration_registry import IntegrationRegistry
+from backend.integrations.gong_api_client_enhanced import GongAPIClientEnhanced
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 
 logger = structlog.get_logger()
 
@@ -785,20 +788,44 @@ class AgentDataTransformer:
         }
 
 
-class AgentWorkflowOrchestrator:
+class LangGraphAgentWorkflowOrchestrator:
     """
-    Orchestrates multi-agent workflows triggered by Gong events.
+    LangGraph-compatible orchestrator for multi-agent workflows triggered by Gong events.
+    Replaces AgnoMCPBridge with pure Python LangGraph-compatible implementation.
     """
 
-    def __init__(self, agno_bridge: AgnoMCPBridge):
-        self.agno_bridge = agno_bridge
-        self.logger = logger.bind(component="agent_workflow_orchestrator")
+    def __init__(self, agent_pool: Optional['LangGraphAgentPool'] = None):
+        from backend.agents.core.langgraph_agent_base import LangGraphAgentPool
+        
+        self.agent_pool = agent_pool or LangGraphAgentPool(pool_size=3)
+        self.logger = logger.bind(component="langgraph_agent_workflow_orchestrator")
         self.active_workflows: Dict[str, Dict[str, Any]] = {}
+        
+        # Import agent classes for dynamic instantiation
+        self._agent_classes = {}
+        self._initialize_agent_classes()
+
+    def _initialize_agent_classes(self):
+        """Initialize agent class registry for dynamic instantiation"""
+        try:
+            from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
+            from backend.agents.specialized.sales_intelligence_agent import SalesIntelligenceAgent
+            from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
+            from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
+            
+            self._agent_classes = {
+                "call_analysis": CallAnalysisAgent,
+                "sales_intelligence": SalesIntelligenceAgent,
+                "marketing_analysis": MarketingAnalysisAgent,
+                "sales_coach": SalesCoachAgent,
+            }
+        except ImportError as e:
+            self.logger.warning(f"Some agent classes not available: {e}")
 
     async def orchestrate_call_analysis_workflow(
         self, call_data: ProcessedCallData, transformed_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Orchestrate multi-agent workflow for call analysis."""
+        """Orchestrate multi-agent workflow for call analysis using LangGraph patterns."""
         workflow_id = str(uuid4())
         self.active_workflows[workflow_id] = {
             "status": WorkflowStatus.IN_PROGRESS,
@@ -816,7 +843,7 @@ class AgentWorkflowOrchestrator:
 
         try:
             # Step 1: CallAnalysisAgent - analyze conversation
-            call_analysis_result = await self._route_to_agent(
+            call_analysis_result = await self._route_to_langgraph_agent(
                 "call_analysis",
                 transformed_data["call_analysis"],
                 context={"step": 1, "workflow_id": workflow_id},
@@ -824,7 +851,7 @@ class AgentWorkflowOrchestrator:
             results["agent_results"]["call_analysis"] = call_analysis_result
 
             # Step 2: SalesIntelligenceAgent - extract sales insights
-            sales_result = await self._route_to_agent(
+            sales_result = await self._route_to_langgraph_agent(
                 "sales_intelligence",
                 transformed_data["sales_intelligence"],
                 context={
@@ -835,26 +862,12 @@ class AgentWorkflowOrchestrator:
             )
             results["agent_results"]["sales_intelligence"] = sales_result
 
-            # Step 3: BusinessIntelligenceAgent - generate metrics
-            business_result = await self._route_to_agent(
-                "business_intelligence",
-                transformed_data["business_intelligence"],
-                context={
-                    "step": 3,
-                    "workflow_id": workflow_id,
-                    "previous_results": [call_analysis_result, sales_result],
-                },
-            )
-            results["agent_results"]["business_intelligence"] = business_result
-
-            # Step 4: Consolidate results
+            # Step 3: Generate consolidated insights and actions
             results["consolidated_insights"] = self._consolidate_insights(
-                call_analysis_result, sales_result, business_result
+                call_analysis_result, sales_result
             )
-
-            # Step 5: Generate consolidated actions
             results["recommended_actions"] = self._consolidate_actions(
-                call_analysis_result, sales_result, business_result
+                call_analysis_result, sales_result
             )
 
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.COMPLETED
@@ -862,7 +875,7 @@ class AgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "Workflow orchestration failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph workflow orchestration failed", workflow_id=workflow_id, error=str(e)
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             self.active_workflows[workflow_id]["error"] = str(e)
@@ -873,7 +886,7 @@ class AgentWorkflowOrchestrator:
     async def orchestrate_insight_workflow(
         self, insight_data: Dict[str, Any], transformed_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Orchestrate workflow for detected insights."""
+        """Orchestrate LangGraph workflow for detected insights."""
         workflow_id = str(uuid4())
         insight_type = insight_data.get("insight_type", "general")
 
@@ -893,19 +906,15 @@ class AgentWorkflowOrchestrator:
 
         try:
             # Route to appropriate specialist agents based on insight type
-            if insight_type in [
-                "competitor_mention",
-                "churn_risk",
-                "upsell_opportunity",
-            ]:
-                # Route to ExecutiveIntelligenceAgent for strategic insights
-                exec_result = await self._route_to_agent(
-                    "executive_intelligence",
-                    transformed_data["executive_intelligence"],
+            if insight_type in ["competitor_mention", "churn_risk", "upsell_opportunity"]:
+                # Use sales intelligence agent for strategic insights
+                sales_result = await self._route_to_langgraph_agent(
+                    "sales_intelligence",
+                    transformed_data.get("sales_intelligence", {}),
                     context={"workflow_id": workflow_id, "insight_type": insight_type},
                 )
-                results["agent_results"]["executive_intelligence"] = exec_result
-                results["executive_summary"] = exec_result.get("content", "")
+                results["agent_results"]["sales_intelligence"] = sales_result
+                results["executive_summary"] = sales_result.get("content", "")
 
             # Generate consolidated recommendations
             results["recommended_actions"] = self._generate_insight_actions(
@@ -916,7 +925,7 @@ class AgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "Insight workflow failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph insight workflow failed", workflow_id=workflow_id, error=str(e)
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             results["error"] = str(e)
@@ -926,7 +935,7 @@ class AgentWorkflowOrchestrator:
     async def orchestrate_action_workflow(
         self, action_data: Dict[str, Any], transformed_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Orchestrate workflow for required actions."""
+        """Orchestrate LangGraph workflow for required actions."""
         workflow_id = str(uuid4())
         action_type = action_data.get("action_type", "general")
 
@@ -945,24 +954,26 @@ class AgentWorkflowOrchestrator:
         }
 
         try:
-            # Assign action to best-suited agent
-            general_result = await self._route_to_agent(
-                "general_intelligence",
-                transformed_data["general_intelligence"],
+            # Route to most appropriate agent based on action type
+            agent_type = self._determine_best_agent_for_action(action_type)
+            
+            action_result = await self._route_to_langgraph_agent(
+                agent_type,
+                transformed_data.get(agent_type, {}),
                 context={
                     "workflow_id": workflow_id,
                     "action_type": action_type,
                     "assigned_to": action_data.get("assigned_to"),
                 },
             )
-            results["agent_results"]["general_intelligence"] = general_result
+            results["agent_results"][agent_type] = action_result
 
             # Create task assignment
             results["task_assignment"] = {
-                "agent": "general_intelligence",
+                "agent": agent_type,
                 "task_id": workflow_id,
                 "status": "assigned",
-                "estimated_completion": general_result.get("metadata", {}).get(
+                "estimated_completion": action_result.get("metadata", {}).get(
                     "estimated_completion"
                 ),
             }
@@ -971,25 +982,35 @@ class AgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "Action workflow failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph action workflow failed", workflow_id=workflow_id, error=str(e)
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             results["error"] = str(e)
 
         return results
 
-    async def _route_to_agent(
+    async def _route_to_langgraph_agent(
         self, agent_type: str, data: Any, context: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Route data to agent using existing AgnoMCPBridge."""
+        """Route data to LangGraph-compatible agent."""
         # Convert Pydantic model to dict if necessary
         if hasattr(data, "dict"):
             data_dict = data.dict()
         else:
             data_dict = data
 
+        # Create agent context
+        agent_context = AgentContext(
+            request_id=context.get("workflow_id", str(uuid4())),
+            workflow_id=context.get("workflow_id"),
+            priority=context.get("priority", "normal"),
+            metadata=context
+        )
+
+        # Prepare request for LangGraph agent
         request = {
             "query": self._generate_agent_query(agent_type, data_dict),
+            "data": data_dict,
             "context": {
                 "data_source": "gong_webhook",
                 "data_type": agent_type,
@@ -999,18 +1020,52 @@ class AgentWorkflowOrchestrator:
             },
         }
 
-        # Use existing AgnoMCPBridge routing
-        response = await self.agno_bridge.route_to_agent(agent_type, request)
-        return response
+        # Get agent from pool and process request
+        if agent_type in self._agent_classes:
+            agent_class = self._agent_classes[agent_type]
+            agent = await self.agent_pool.get_agent(agent_class)
+            
+            try:
+                response = await agent.process_request(request, agent_context)
+                return response
+            except Exception as e:
+                self.logger.error(f"Agent {agent_type} processing failed: {e}")
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "agent_type": agent_type,
+                    "metadata": {"processing_failed": True}
+                }
+        else:
+            # Fallback for unknown agent types
+            return {
+                "success": False,
+                "error": f"Unknown agent type: {agent_type}",
+                "agent_type": agent_type,
+                "content": f"Agent type {agent_type} not available",
+                "metadata": {"fallback_response": True}
+            }
+
+    def _determine_best_agent_for_action(self, action_type: str) -> str:
+        """Determine the best agent for a specific action type."""
+        action_agent_mapping = {
+            "sales_follow_up": "sales_intelligence",
+            "call_analysis": "call_analysis",
+            "competitive_analysis": "sales_intelligence",
+            "customer_outreach": "sales_intelligence",
+            "performance_review": "call_analysis",
+            "coaching_session": "call_analysis",
+        }
+        
+        return action_agent_mapping.get(action_type, "sales_intelligence")
 
     def _generate_agent_query(self, agent_type: str, data: Dict[str, Any]) -> str:
         """Generate appropriate query for agent based on type and data."""
         queries = {
             "call_analysis": f"Analyze this Gong call with ID {data.get('call_id')} focusing on conversation flow, sentiment, and coaching opportunities.",
             "sales_intelligence": f"Extract sales insights from call {data.get('call_id')} including deal progression, revenue signals, and next best actions.",
-            "business_intelligence": f"Generate business intelligence metrics and recommendations for call {data.get('call_id')}.",
-            "executive_intelligence": f"Provide executive-level strategic analysis for event {data.get('event_id')}.",
-            "general_intelligence": f"Process task {data.get('task_type')} with details: {data.get('task_details')}",
+            "marketing_analysis": f"Analyze marketing implications for call {data.get('call_id')} including campaign effectiveness and audience insights.",
+            "sales_coach": f"Provide sales coaching recommendations based on call {data.get('call_id')} performance and outcomes.",
         }
 
         return queries.get(agent_type, "Process this Gong data and provide insights.")
@@ -1020,14 +1075,15 @@ class AgentWorkflowOrchestrator:
         consolidated = []
 
         for result in agent_results:
-            if result and "content" in result:
+            if result and result.get("success", True) and "content" in result:
                 # Extract insights from agent response
                 consolidated.append(
                     {
-                        "agent": result.get("agent_type"),
+                        "agent": result.get("metadata", {}).get("agent_type", "unknown"),
                         "insight": result.get("content"),
-                        "confidence": result.get("confidence", 0.5),
+                        "confidence": result.get("metadata", {}).get("confidence", 0.5),
                         "timestamp": datetime.utcnow().isoformat(),
+                        "processing_time_ms": result.get("metadata", {}).get("processing_time_ms", 0),
                     }
                 )
 
@@ -1039,10 +1095,8 @@ class AgentWorkflowOrchestrator:
         action_set = set()  # To avoid duplicates
 
         for result in agent_results:
-            if result and "metadata" in result:
-                agent_actions = result.get("metadata", {}).get(
-                    "recommended_actions", []
-                )
+            if result and result.get("success", True) and "metadata" in result:
+                agent_actions = result.get("metadata", {}).get("recommended_actions", [])
                 for action in agent_actions:
                     action_key = f"{action.get('type')}:{action.get('description')}"
                     if action_key not in action_set:
@@ -1050,8 +1104,9 @@ class AgentWorkflowOrchestrator:
                         actions.append(
                             {
                                 **action,
-                                "source_agent": result.get("agent_type"),
-                                "confidence": result.get("confidence", 0.5),
+                                "source_agent": result.get("metadata", {}).get("agent_type", "unknown"),
+                                "confidence": result.get("metadata", {}).get("confidence", 0.5),
+                                "workflow_generated": True,
                             }
                         )
 
@@ -1076,6 +1131,7 @@ class AgentWorkflowOrchestrator:
                     "priority": "high",
                     "owner": "sales_intelligence",
                     "due_date": "within_24_hours",
+                    "generated_by": "langgraph_workflow",
                 }
             )
         elif insight_type == "churn_risk":
@@ -1086,6 +1142,7 @@ class AgentWorkflowOrchestrator:
                     "priority": "urgent",
                     "owner": "customer_success",
                     "due_date": "immediate",
+                    "generated_by": "langgraph_workflow",
                 }
             )
         elif insight_type == "upsell_opportunity":
@@ -1096,10 +1153,27 @@ class AgentWorkflowOrchestrator:
                     "priority": "high",
                     "owner": "sales_team",
                     "due_date": "within_week",
+                    "generated_by": "langgraph_workflow",
                 }
             )
 
         return actions
+
+    async def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+        """Get status of a specific workflow."""
+        return self.active_workflows.get(workflow_id, {"status": "not_found"})
+
+    async def get_active_workflows(self) -> Dict[str, Any]:
+        """Get all active workflows."""
+        return {
+            "total_workflows": len(self.active_workflows),
+            "workflows": self.active_workflows,
+            "agent_pool_metrics": self.agent_pool.get_pool_metrics(),
+        }
+
+
+# Keep the original class name as an alias for backward compatibility
+AgentWorkflowOrchestrator = LangGraphAgentWorkflowOrchestrator
 
 
 class ConversationIntelligenceUpdater:
@@ -1198,18 +1272,18 @@ class GongAgentIntegrationManager:
 
     def __init__(
         self,
-        agno_bridge: AgnoMCPBridge,
+        agent_pool: Optional['LangGraphAgentPool'],
         redis_client: RedisNotificationClient,
         config: Optional[GongAgentIntegrationConfig] = None,
     ):
-        self.agno_bridge = agno_bridge
+        self.agent_pool = agent_pool
         self.redis_client = redis_client
         self.config = config or GongAgentIntegrationConfig()
         self.logger = logger.bind(component="gong_agent_integration_manager")
 
         # Initialize components
         self.data_transformer = AgentDataTransformer()
-        self.workflow_orchestrator = AgentWorkflowOrchestrator(agno_bridge)
+        self.workflow_orchestrator = AgentWorkflowOrchestrator(agent_pool)
         self.intelligence_updater = ConversationIntelligenceUpdater(redis_client)
 
         # Integration registry
@@ -1230,12 +1304,6 @@ class GongAgentIntegrationManager:
     async def initialize(self):
         """Initialize the integration manager."""
         self.logger.info("Initializing Gong-Agent Integration Manager")
-
-        # Initialize AgnoMCPBridge if not already initialized
-        await self.agno_bridge.initialize()
-
-        # Set up Redis subscriptions
-        await self._setup_redis_subscriptions()
 
         # Register with integration registry
         await self.integration_registry.register(
@@ -1545,7 +1613,7 @@ class GongAgentIntegrationManager:
             "metrics": self.metrics,
             "active_subscriptions": len(self._subscription_tasks),
             "active_workflows": len(self.workflow_orchestrator.active_workflows),
-            "agno_bridge_status": await self.agno_bridge.get_performance_metrics(),
+            "agent_pool_metrics": self.agent_pool.get_pool_metrics(),
         }
 
     async def shutdown(self):
@@ -1558,8 +1626,5 @@ class GongAgentIntegrationManager:
 
         # Wait for tasks to complete
         await asyncio.gather(*self._subscription_tasks, return_exceptions=True)
-
-        # Shutdown components
-        await self.agno_bridge.shutdown()
 
         self.logger.info("Gong-Agent Integration Manager shutdown complete")

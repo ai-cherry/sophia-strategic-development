@@ -1,31 +1,40 @@
+imports:
+  - esc:
+      organization: scoobyjava-org
+      project: default
+      environment: shared-secrets
+      
 values:
   ai_intelligence:
+    # LangGraph is now the sole orchestration framework - Agno deprecated
+    # agno:
+    #   api_key:
+    #     fn::secret: "${AGNO_API_KEY}"  # REMOVED: Agno framework deprecated
+    openrouter:
+      api_key:
+        fn::secret: "${OPENROUTER_API_KEY}"
+    portkey:
+      api_key:
+        fn::secret: "${PORTKEY_API_KEY}"
+      virtual_key_prod:
+        fn::secret: "${PORTKEY_VIRTUAL_KEY_PROD}"
     openai:
       api_key:
         fn::secret: "${OPENAI_API_KEY}"
     anthropic:
       api_key:
         fn::secret: "${ANTHROPIC_API_KEY}"
-    agno:
-      api_key:
-        fn::secret: "${AGNO_API_KEY}"
     huggingface:
       api_token:
         fn::secret: "${HUGGINGFACE_API_TOKEN}"
     langchain:
       api_key:
         fn::secret: "${LANGCHAIN_API_KEY}"
-    portkey:
+    arize:
       api_key:
-        fn::secret: "${PORTKEY_API_KEY}"
-      config_id:
-        fn::secret: "${PORTKEY_CONFIG_ID}"
-    openrouter:
-      api_key:
-        fn::secret: "${OPENROUTER_API_KEY}"
-    perplexity:
-      api_key:
-        fn::secret: "${PERPLEXITY_API_KEY}"
+        fn::secret: "${ARIZE_API_KEY}"
+      space_id:
+        fn::secret: "${ARIZE_SPACE_ID}"
     mistral:
       api_key:
         fn::secret: "${MISTRAL_API_KEY}"
@@ -83,11 +92,6 @@ values:
 
   infrastructure:
     observability:
-      arize:
-        api_key:
-          fn::secret: "${ARIZE_API_KEY}"
-        space_id:
-          fn::secret: "${ARIZE_SPACE_ID}"
       grafana:
         url:
           fn::secret: "${GRAFANA_URL}"
@@ -154,13 +158,11 @@ rotation:
 environmentVariables:
   OPENAI_API_KEY: ${ai_intelligence.openai.api_key}
   ANTHROPIC_API_KEY: ${ai_intelligence.anthropic.api_key}
-  AGNO_API_KEY: ${ai_intelligence.agno.api_key}
   HUGGINGFACE_API_TOKEN: ${ai_intelligence.huggingface.api_token}
   LANGCHAIN_API_KEY: ${ai_intelligence.langchain.api_key}
   PORTKEY_API_KEY: ${ai_intelligence.portkey.api_key}
-  PORTKEY_CONFIG_ID: ${ai_intelligence.portkey.config_id}
+  PORTKEY_VIRTUAL_KEY_PROD: ${ai_intelligence.portkey.virtual_key_prod}
   OPENROUTER_API_KEY: ${ai_intelligence.openrouter.api_key}
-  PERPLEXITY_API_KEY: ${ai_intelligence.perplexity.api_key}
   MISTRAL_API_KEY: ${ai_intelligence.mistral.api_key}
   DEEPSEEK_API_KEY: ${ai_intelligence.deepseek.api_key}
   CODESTRAL_API_KEY: ${ai_intelligence.codestral.api_key}
