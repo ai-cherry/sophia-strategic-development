@@ -311,10 +311,11 @@ class SnowflakeDataLoader:
             # Begin transaction
             cursor.execute("BEGIN")
             
+            # Updated to match Manus AI DDL structure
             insert_sql = """
             INSERT INTO RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
-            (CALL_ID, RAW_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
-            VALUES (%s, %s, %s, %s, %s)
+            (_AIRBYTE_AB_ID, _AIRBYTE_EMITTED_AT, _AIRBYTE_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """
             
             correlation_id = str(uuid.uuid4())
@@ -322,9 +323,13 @@ class SnowflakeDataLoader:
             
             for call in calls_data:
                 try:
+                    # Generate unique Airbyte ID
+                    airbyte_id = str(uuid.uuid4())
+                    
                     cursor.execute(insert_sql, (
-                        call.get('id'),
-                        json.dumps(call),
+                        airbyte_id,
+                        current_time,
+                        json.dumps(call),  # Store as VARIANT in _AIRBYTE_DATA
                         current_time,
                         correlation_id,
                         False
@@ -352,7 +357,7 @@ class SnowflakeDataLoader:
     async def load_raw_transcripts(self, transcripts_data: List[Dict[str, Any]]) -> int:
         """Load raw transcripts data with transaction management"""
         if self.config.dry_run:
-            logger.info(f"[DRY RUN] Would load {len(transcripts_data)} transcripts to RAW_AIRBYTE.RAW_GONG_TRANSCRIPTS_RAW")
+            logger.info(f"[DRY RUN] Would load {len(transcripts_data)} transcripts to RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW")
             return len(transcripts_data)
         
         cursor = self.connection.cursor()
@@ -362,10 +367,11 @@ class SnowflakeDataLoader:
             # Begin transaction
             cursor.execute("BEGIN")
             
+            # Updated to match Manus AI DDL structure
             insert_sql = """
-            INSERT INTO RAW_AIRBYTE.RAW_GONG_TRANSCRIPTS_RAW 
-            (CALL_ID, TRANSCRIPT_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW 
+            (_AIRBYTE_AB_ID, _AIRBYTE_EMITTED_AT, _AIRBYTE_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
+            VALUES (%s, %s, %s, %s, %s, %s)
             """
             
             correlation_id = str(uuid.uuid4())
@@ -373,9 +379,13 @@ class SnowflakeDataLoader:
             
             for transcript in transcripts_data:
                 try:
+                    # Generate unique Airbyte ID
+                    airbyte_id = str(uuid.uuid4())
+                    
                     cursor.execute(insert_sql, (
-                        transcript.get('callId'),
-                        json.dumps(transcript),
+                        airbyte_id,
+                        current_time,
+                        json.dumps(transcript),  # Store as VARIANT in _AIRBYTE_DATA
                         current_time,
                         correlation_id,
                         False
@@ -388,7 +398,7 @@ class SnowflakeDataLoader:
             
             # Commit transaction
             cursor.execute("COMMIT")
-            logger.info(f"✅ Loaded {loaded_count} transcripts to RAW_AIRBYTE.RAW_GONG_TRANSCRIPTS_RAW")
+            logger.info(f"✅ Loaded {loaded_count} transcripts to RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW")
             
         except Exception as e:
             # Rollback on error
@@ -410,15 +420,15 @@ class SnowflakeDataLoader:
         results = {}
         
         try:
-            # Transform calls
+            # Transform calls using the correct procedure names from Manus AI DDL
             logger.info("🔄 Executing call transformation procedures...")
-            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_GONG_CALLS()")
+            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_RAW_GONG_CALLS()")
             calls_result = cursor.fetchone()
             results["calls_transformed"] = calls_result[0] if calls_result else 0
             
             # Transform transcripts
             logger.info("🔄 Executing transcript transformation procedures...")
-            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_GONG_TRANSCRIPTS()")
+            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_RAW_GONG_TRANSCRIPTS()")
             transcripts_result = cursor.fetchone()
             results["transcripts_transformed"] = transcripts_result[0] if transcripts_result else 0
             
@@ -448,8 +458,8 @@ class SnowflakeDataLoader:
         try:
             logger.info("🧠 Executing AI enrichment procedures...")
             
-            # Execute AI enrichment procedure
-            cursor.execute("CALL STG_TRANSFORMED.ENRICH_GONG_DATA_WITH_AI()")
+            # Execute AI enrichment procedure from Manus AI DDL
+            cursor.execute("CALL STG_TRANSFORMED.ENRICH_GONG_CALLS_WITH_AI()")
             enrichment_result = cursor.fetchone()
             results["enrichments_completed"] = enrichment_result[0] if enrichment_result else 0
             

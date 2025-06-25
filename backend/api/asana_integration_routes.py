@@ -1,500 +1,740 @@
+#!/usr/bin/env python3
 """
-Asana Integration API Routes for Sophia AI
-Provides endpoints for Asana project management data via MCP server.
+Asana Integration API Routes
+
+Comprehensive API endpoints for Asana project management integration including:
+- Project intelligence and analytics
+- Task management and tracking
+- Team productivity metrics
+- AI-powered insights and recommendations
+- Chat service integration
 """
 
-import json
+import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Any
+import json
 
-import aiohttp
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends, Query, Path, BackgroundTasks
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
+from backend.agents.specialized.asana_project_intelligence_agent import AsanaProjectIntelligenceAgent
+from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
+from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/integrations/asana", tags=["asana"])
-
+# Create router
+router = APIRouter(prefix="/api/asana", tags=["asana"])
 
 # Pydantic models for request/response
-class AsanaProjectSummary(BaseModel):
-    gid: str
-    name: str
-    status: str
-    progress: int
-    owner: Optional[str] = None
-    team: Optional[str] = None
-    due_date: Optional[str] = None
-    budget: Optional[float] = None
-    spent: Optional[float] = None
+class AsanaQueryRequest(BaseModel):
+    query: str = Field(..., description="Natural language query about Asana data")
+    user_id: str = Field(..., description="User ID for context")
+    user_role: str = Field(default="manager", description="User role for access control")
+    dashboard_type: str = Field(default="project", description="Dashboard context")
+    time_filter: Optional[str] = Field(None, description="Time filter (e.g., '30d', '7d')")
+
+class ProjectFilterRequest(BaseModel):
+    team_name: Optional[str] = None
     risk_level: Optional[str] = None
+    status: Optional[str] = None
+    search_term: Optional[str] = None
+    sort_by: str = Field(default="health_score", description="Sort field")
+    limit: int = Field(default=50, description="Maximum results")
 
+class TaskFilterRequest(BaseModel):
+    project_gid: Optional[str] = None
+    assignee_name: Optional[str] = None
+    status: Optional[str] = None
+    priority_level: Optional[str] = None
+    overdue_only: bool = Field(default=False)
+    limit: int = Field(default=100, description="Maximum results")
 
-class AsanaTaskSummary(BaseModel):
-    gid: str
-    name: str
-    completed: bool
-    assignee: Optional[str] = None
-    due_date: Optional[str] = None
-    project: Optional[str] = None
+class AsanaInsightRequest(BaseModel):
+    project_gid: Optional[str] = None
+    insight_type: str = Field(..., description="Type of insight: project_health, risk_assessment, team_productivity")
+    include_ai_recommendations: bool = Field(default=True)
 
+class AsanaSyncRequest(BaseModel):
+    force_sync: bool = Field(default=False, description="Force immediate sync")
+    sync_type: str = Field(default="incremental", description="Sync type: full, incremental")
 
-class AsanaTeamSummary(BaseModel):
-    gid: str
-    name: str
-    project_count: int
-    member_count: Optional[int] = None
+# Service instances (will be initialized on startup)
+intelligence_agent: Optional[AsanaProjectIntelligenceAgent] = None
+chat_service: Optional[EnhancedUnifiedChatService] = None
+airbyte_manager: Optional[EnhancedAirbyteManager] = None
+cortex_service: Optional[SnowflakeCortexService] = None
+ai_memory_service: Optional[EnhancedAiMemoryMCPServer] = None
 
+async def get_intelligence_agent() -> AsanaProjectIntelligenceAgent:
+    """Get or initialize the intelligence agent"""
+    global intelligence_agent
+    if intelligence_agent is None:
+        intelligence_agent = AsanaProjectIntelligenceAgent({
+            "agent_id": "asana_api_intelligence",
+            "performance_target_ms": 200
+        })
+        await intelligence_agent.initialize()
+    return intelligence_agent
 
-class AsanaIntegrationHealth(BaseModel):
-    status: str
-    last_sync: str
-    api_health: bool
-    total_projects: int
-    total_tasks: int
-    sync_errors: List[str] = []
+async def get_chat_service() -> EnhancedUnifiedChatService:
+    """Get or initialize the chat service"""
+    global chat_service
+    if chat_service is None:
+        chat_service = EnhancedUnifiedChatService()
+        await chat_service.initialize()
+    return chat_service
 
+async def get_airbyte_manager() -> EnhancedAirbyteManager:
+    """Get or initialize the Airbyte manager"""
+    global airbyte_manager
+    if airbyte_manager is None:
+        airbyte_manager = EnhancedAirbyteManager("dev")  # TODO: Make environment configurable
+        await airbyte_manager.initialize()
+    return airbyte_manager
 
-class AsanaMCPClient:
-    """Client for communicating with Asana MCP server."""
+async def get_cortex_service() -> SnowflakeCortexService:
+    """Get or initialize the Cortex service"""
+    global cortex_service
+    if cortex_service is None:
+        cortex_service = SnowflakeCortexService()
+        await cortex_service.initialize()
+    return cortex_service
 
-    def __init__(self):
-        self.mcp_url = "http://asana-mcp:3006"
-        self.timeout = 30
+# PROJECT INTELLIGENCE ENDPOINTS
 
-    async def call_tool(
-        self, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Call a tool on the Asana MCP server."""
-        try:
-            async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=self.timeout)
-            ) as session:
-                payload = {
-                    "method": "tools/call",
-                    "params": {"name": tool_name, "arguments": arguments},
-                }
-
-                async with session.post(
-                    f"{self.mcp_url}/mcp", json=payload
-                ) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                        # Parse the text content from MCP response
-                        if "result" in result and "content" in result["result"]:
-                            content = result["result"]["content"][0]["text"]
-                            return json.loads(content)
-                        return result
-                    else:
-                        error_text = await response.text()
-                        raise Exception(
-                            f"MCP server error {response.status}: {error_text}"
-                        )
-        except Exception as e:
-            logger.error(f"Error calling Asana MCP tool {tool_name}: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Asana integration error: {str(e)}"
-            )
-
-
-# Initialize MCP client
-asana_client = AsanaMCPClient()
-
-
-@router.get("/health", response_model=AsanaIntegrationHealth)
-async def get_asana_health():
-    """Get Asana integration health status."""
-    try:
-        # Test connection by getting projects
-        projects_result = await asana_client.call_tool("get_projects", {"limit": 1})
-
-        total_projects = projects_result.get("total_count", 0)
-
-        # Test getting tasks for health check
-        if projects_result.get("projects"):
-            first_project = projects_result["projects"][0]
-            tasks_result = await asana_client.call_tool(
-                "get_project_tasks", {"project_gid": first_project["gid"], "limit": 1}
-            )
-            total_tasks = tasks_result.get("task_summary", {}).get("total", 0)
-        else:
-            total_tasks = 0
-
-        return AsanaIntegrationHealth(
-            status="healthy",
-            last_sync=datetime.now().isoformat(),
-            api_health=True,
-            total_projects=total_projects,
-            total_tasks=total_tasks,
-            sync_errors=[],
-        )
-    except Exception as e:
-        logger.error(f"Asana health check failed: {str(e)}")
-        return AsanaIntegrationHealth(
-            status="unhealthy",
-            last_sync=datetime.now().isoformat(),
-            api_health=False,
-            total_projects=0,
-            total_tasks=0,
-            sync_errors=[str(e)],
-        )
-
-
-@router.get("/projects", response_model=List[AsanaProjectSummary])
-async def get_projects(
-    team_gid: Optional[str] = Query(None, description="Filter by team GID"),
-    archived: bool = Query(False, description="Include archived projects"),
-    limit: int = Query(50, description="Maximum number of projects to return"),
+@router.get("/intelligence-report")
+async def get_project_intelligence_report(
+    project_gid: Optional[str] = Query(None, description="Specific project GID"),
+    agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent)
 ):
-    """Get projects from Asana."""
+    """
+    Generate comprehensive project intelligence report
+    
+    Returns:
+    - Project metrics and health scores
+    - Team productivity analysis
+    - Risk assessments
+    - AI-powered insights and recommendations
+    """
     try:
-        arguments = {"archived": archived, "limit": min(limit, 100)}
-
-        if team_gid:
-            arguments["team_gid"] = team_gid
-
-        result = await asana_client.call_tool("get_projects", arguments)
-
-        projects = []
-        for project in result.get("projects", []):
-            # Extract custom fields for budget and risk
-            custom_fields = project.get("custom_fields", {})
-            budget = (
-                custom_fields.get("budget") if isinstance(custom_fields, dict) else None
-            )
-            spent = (
-                custom_fields.get("spent") if isinstance(custom_fields, dict) else None
-            )
-            risk_level = (
-                custom_fields.get("risk_level")
-                if isinstance(custom_fields, dict)
-                else None
-            )
-
-            projects.append(
-                AsanaProjectSummary(
-                    gid=project["gid"],
-                    name=project.get("name", "Unnamed Project"),
-                    status=_map_asana_status(project.get("current_status")),
-                    progress=_calculate_progress(project),
-                    owner=(
-                        project.get("owner", {}).get("name")
-                        if project.get("owner")
-                        else None
-                    ),
-                    team=(
-                        project.get("team", {}).get("name")
-                        if project.get("team")
-                        else None
-                    ),
-                    due_date=project.get("due_date"),
-                    budget=budget,
-                    spent=spent,
-                    risk_level=risk_level,
-                )
-            )
-
-        return projects
+        logger.info(f"Generating intelligence report for project: {project_gid or 'all'}")
+        
+        report = await agent.generate_project_intelligence_report(project_gid)
+        
+        if "error" in report:
+            raise HTTPException(status_code=500, detail=report["error"])
+        
+        return JSONResponse(content=report)
+        
     except Exception as e:
-        logger.error(f"Error getting Asana projects: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get projects: {str(e)}")
+        logger.error(f"Failed to generate intelligence report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/projects")
+async def get_projects(
+    team_name: Optional[str] = Query(None),
+    risk_level: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    search_term: Optional[str] = Query(None),
+    sort_by: str = Query("health_score"),
+    limit: int = Query(50),
+    agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent)
+):
+    """
+    Get filtered and sorted project list with metrics
+    """
+    try:
+        # Get all project metrics
+        projects = await agent.get_project_metrics()
+        
+        # Apply filters
+        if team_name:
+            projects = [p for p in projects if p.team_name == team_name]
+        
+        if risk_level:
+            projects = [p for p in projects if p.risk_level.value == risk_level]
+        
+        if search_term:
+            search_lower = search_term.lower()
+            projects = [
+                p for p in projects 
+                if search_lower in p.project_name.lower() 
+                or (p.team_name and search_lower in p.team_name.lower())
+                or (p.owner_name and search_lower in p.owner_name.lower())
+            ]
+        
+        # Sort projects
+        if sort_by == "health_score":
+            projects.sort(key=lambda p: p.health_score, reverse=True)
+        elif sort_by == "completion":
+            projects.sort(key=lambda p: p.completion_percentage, reverse=True)
+        elif sort_by == "risk":
+            risk_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
+            projects.sort(key=lambda p: risk_order.get(p.risk_level.value, 0), reverse=True)
+        elif sort_by == "due_date":
+            projects.sort(key=lambda p: p.due_date or datetime.max)
+        
+        # Limit results
+        projects = projects[:limit]
+        
+        # Convert to dict format
+        project_data = []
+        for project in projects:
+            project_data.append({
+                "project_gid": project.project_gid,
+                "project_name": project.project_name,
+                "health_score": project.health_score,
+                "completion_percentage": project.completion_percentage,
+                "risk_level": project.risk_level.value,
+                "task_count": project.task_count,
+                "completed_task_count": project.completed_task_count,
+                "overdue_task_count": project.overdue_task_count,
+                "team_name": project.team_name,
+                "owner_name": project.owner_name,
+                "due_date": project.due_date.isoformat() if project.due_date else None,
+                "created_at": project.created_at.isoformat(),
+                "modified_at": project.modified_at.isoformat(),
+                "ai_insights": project.ai_insights
+            })
+        
+        return JSONResponse(content={
+            "projects": project_data,
+            "total_count": len(project_data),
+            "filters_applied": {
+                "team_name": team_name,
+                "risk_level": risk_level,
+                "status": status,
+                "search_term": search_term,
+                "sort_by": sort_by
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get projects: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/projects/{project_gid}")
-async def get_project_details(project_gid: str):
-    """Get detailed information about a specific project."""
-    try:
-        result = await asana_client.call_tool(
-            "get_project_details", {"project_gid": project_gid}
-        )
-        return result
-    except Exception as e:
-        logger.error(f"Error getting project details for {project_gid}: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get project details: {str(e)}"
-        )
-
-
-@router.get("/projects/{project_gid}/tasks", response_model=List[AsanaTaskSummary])
-async def get_project_tasks(
-    project_gid: str,
-    completed_since: Optional[str] = Query(
-        None, description="ISO date string for completed tasks filter"
-    ),
-    limit: int = Query(100, description="Maximum number of tasks to return"),
+async def get_project_details(
+    project_gid: str = Path(..., description="Project GID"),
+    agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent)
 ):
-    """Get tasks for a specific project."""
+    """
+    Get detailed information for a specific project
+    """
     try:
-        arguments = {"project_gid": project_gid, "limit": min(limit, 100)}
-
-        if completed_since:
-            arguments["completed_since"] = completed_since
-
-        result = await asana_client.call_tool("get_project_tasks", arguments)
-
-        tasks = []
-        for task in result.get("tasks", []):
-            tasks.append(
-                AsanaTaskSummary(
-                    gid=task["gid"],
-                    name=task.get("name", "Unnamed Task"),
-                    completed=task.get("completed", False),
-                    assignee=(
-                        task.get("assignee", {}).get("name")
-                        if task.get("assignee")
-                        else None
-                    ),
-                    due_date=task.get("due_date"),
-                    project=project_gid,
-                )
-            )
-
-        return tasks
-    except Exception as e:
-        logger.error(f"Error getting tasks for project {project_gid}: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get project tasks: {str(e)}"
-        )
-
-
-@router.get("/teams", response_model=List[AsanaTeamSummary])
-async def get_teams(
-    workspace_gid: Optional[str] = Query(None, description="Workspace GID")
-):
-    """Get teams in the workspace."""
-    try:
-        arguments = {}
-        if workspace_gid:
-            arguments["workspace_gid"] = workspace_gid
-
-        result = await asana_client.call_tool("get_teams", arguments)
-
-        teams = []
-        for team in result.get("teams", []):
-            # Get project count for each team
-            try:
-                team_projects = await asana_client.call_tool(
-                    "get_team_projects", {"team_gid": team["gid"]}
-                )
-                project_count = team_projects.get("project_count", 0)
-            except Exception:
-                project_count = 0
-
-            teams.append(
-                AsanaTeamSummary(
-                    gid=team["gid"],
-                    name=team.get("name", "Unnamed Team"),
-                    project_count=project_count,
-                )
-            )
-
-        return teams
-    except Exception as e:
-        logger.error(f"Error getting Asana teams: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get teams: {str(e)}")
-
-
-@router.get("/search/tasks", response_model=List[AsanaTaskSummary])
-async def search_tasks(
-    text: Optional[str] = Query(None, description="Text to search for"),
-    assignee: Optional[str] = Query(None, description="User GID to filter by assignee"),
-    project_gid: Optional[str] = Query(None, description="Project GID to limit search"),
-    completed: Optional[bool] = Query(None, description="Filter by completion status"),
-    due_date_before: Optional[str] = Query(
-        None, description="ISO date to filter tasks due before"
-    ),
-    due_date_after: Optional[str] = Query(
-        None, description="ISO date to filter tasks due after"
-    ),
-):
-    """Search for tasks with various filters."""
-    try:
-        arguments = {}
-
-        if text:
-            arguments["text"] = text
-        if assignee:
-            arguments["assignee"] = assignee
-        if project_gid:
-            arguments["project_gid"] = project_gid
-        if completed is not None:
-            arguments["completed"] = completed
-        if due_date_before:
-            arguments["due_date_before"] = due_date_before
-        if due_date_after:
-            arguments["due_date_after"] = due_date_after
-
-        result = await asana_client.call_tool("search_tasks", arguments)
-
-        tasks = []
-        for task in result.get("tasks", []):
-            # Get project name from projects array
-            project_name = None
-            if task.get("projects"):
-                project_name = task["projects"][0].get("name")
-
-            tasks.append(
-                AsanaTaskSummary(
-                    gid=task["gid"],
-                    name=task.get("name", "Unnamed Task"),
-                    completed=task.get("completed", False),
-                    assignee=(
-                        task.get("assignee", {}).get("name")
-                        if task.get("assignee")
-                        else None
-                    ),
-                    due_date=task.get("due_date"),
-                    project=project_name,
-                )
-            )
-
-        return tasks
-    except Exception as e:
-        logger.error(f"Error searching Asana tasks: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to search tasks: {str(e)}")
-
-
-@router.get("/users/{user_gid}/tasks", response_model=List[AsanaTaskSummary])
-async def get_user_tasks(
-    user_gid: str,
-    completed_since: Optional[str] = Query(
-        None, description="ISO date string for completed tasks filter"
-    ),
-    workspace_gid: Optional[str] = Query(None, description="Workspace GID"),
-):
-    """Get tasks assigned to a specific user."""
-    try:
-        arguments = {"user_gid": user_gid}
-
-        if completed_since:
-            arguments["completed_since"] = completed_since
-        if workspace_gid:
-            arguments["workspace_gid"] = workspace_gid
-
-        result = await asana_client.call_tool("get_user_tasks", arguments)
-
-        tasks = []
-        for task in result.get("tasks", []):
-            # Get project name from projects array
-            project_name = None
-            if task.get("projects"):
-                project_name = task["projects"][0].get("name")
-
-            tasks.append(
-                AsanaTaskSummary(
-                    gid=task["gid"],
-                    name=task.get("name", "Unnamed Task"),
-                    completed=task.get("completed", False),
-                    assignee=user_gid,
-                    due_date=task.get("due_date"),
-                    project=project_name,
-                )
-            )
-
-        return tasks
-    except Exception as e:
-        logger.error(f"Error getting tasks for user {user_gid}: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get user tasks: {str(e)}"
-        )
-
-
-@router.get("/dashboard/summary")
-async def get_dashboard_summary():
-    """Get summary data for executive dashboard."""
-    try:
-        # Get projects overview
-        projects_result = await asana_client.call_tool("get_projects", {"limit": 100})
-        projects = projects_result.get("projects", [])
-
-        # Calculate summary metrics
-        total_projects = len(projects)
-        active_projects = len([p for p in projects if not p.get("completed", False)])
-
-        # Get recent activity (tasks completed in last 7 days)
-        (datetime.now() - timedelta(days=7)).isoformat()
-
-        # Calculate budget metrics
-        total_budget = 0
-        total_spent = 0
-
-        for project in projects:
-            custom_fields = project.get("custom_fields", {})
-            if isinstance(custom_fields, dict):
-                budget = custom_fields.get("budget", 0)
-                spent = custom_fields.get("spent", 0)
-                if budget:
-                    total_budget += budget
-                if spent:
-                    total_spent += spent
-
-        # Risk analysis
-        risk_distribution = {"low": 0, "medium": 0, "high": 0}
-        for project in projects:
-            custom_fields = project.get("custom_fields", {})
-            if isinstance(custom_fields, dict):
-                risk = custom_fields.get("risk_level", "low")
-                risk_distribution[risk] = risk_distribution.get(risk, 0) + 1
-
-        return {
-            "total_projects": total_projects,
-            "active_projects": active_projects,
-            "completed_projects": total_projects - active_projects,
-            "total_budget": total_budget,
-            "total_spent": total_spent,
-            "budget_utilization": (
-                (total_spent / total_budget * 100) if total_budget > 0 else 0
-            ),
-            "risk_distribution": risk_distribution,
-            "sync_time": datetime.now().isoformat(),
-            "health_status": "healthy",
+        projects = await agent.get_project_metrics(project_gid)
+        
+        if not projects:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        project = projects[0]
+        
+        # Get risk assessment for this project
+        risk_assessments = await agent.perform_risk_assessment(project_gid)
+        risk_assessment = risk_assessments[0] if risk_assessments else None
+        
+        project_detail = {
+            "project_gid": project.project_gid,
+            "project_name": project.project_name,
+            "health_score": project.health_score,
+            "completion_percentage": project.completion_percentage,
+            "risk_level": project.risk_level.value,
+            "task_count": project.task_count,
+            "completed_task_count": project.completed_task_count,
+            "overdue_task_count": project.overdue_task_count,
+            "team_name": project.team_name,
+            "owner_name": project.owner_name,
+            "due_date": project.due_date.isoformat() if project.due_date else None,
+            "created_at": project.created_at.isoformat(),
+            "modified_at": project.modified_at.isoformat(),
+            "ai_insights": project.ai_insights
         }
+        
+        if risk_assessment:
+            project_detail["risk_assessment"] = {
+                "overall_risk": risk_assessment.overall_risk.value,
+                "schedule_risk": risk_assessment.schedule_risk.value,
+                "resource_risk": risk_assessment.resource_risk.value,
+                "scope_risk": risk_assessment.scope_risk.value,
+                "quality_risk": risk_assessment.quality_risk.value,
+                "risk_factors": risk_assessment.risk_factors,
+                "mitigation_suggestions": risk_assessment.mitigation_suggestions,
+                "predicted_completion_date": risk_assessment.predicted_completion_date.isoformat() if risk_assessment.predicted_completion_date else None
+            }
+        
+        return JSONResponse(content=project_detail)
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error getting dashboard summary: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get dashboard summary: {str(e)}"
+        logger.error(f"Failed to get project details: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/teams/productivity")
+async def get_team_productivity(
+    team_name: Optional[str] = Query(None),
+    agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent)
+):
+    """
+    Get team productivity metrics and analytics
+    """
+    try:
+        teams = await agent.analyze_team_productivity(team_name)
+        
+        team_data = []
+        for team in teams:
+            team_data.append({
+                "team_name": team.team_name,
+                "productivity_score": team.productivity_score,
+                "total_projects": team.total_projects,
+                "active_projects": team.active_projects,
+                "completed_projects": team.completed_projects,
+                "average_completion_rate": team.average_completion_rate,
+                "overdue_tasks_ratio": team.overdue_tasks_ratio,
+                "team_velocity": team.team_velocity,
+                "member_count": team.member_count
+            })
+        
+        return JSONResponse(content={
+            "teams": team_data,
+            "total_teams": len(team_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get team productivity: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/risk-assessment")
+async def get_risk_assessment(
+    project_gid: Optional[str] = Query(None),
+    agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent)
+):
+    """
+    Get comprehensive risk assessment for projects
+    """
+    try:
+        risk_assessments = await agent.perform_risk_assessment(project_gid)
+        
+        assessment_data = []
+        for assessment in risk_assessments:
+            assessment_data.append({
+                "project_gid": assessment.project_gid,
+                "project_name": assessment.project_name,
+                "overall_risk": assessment.overall_risk.value,
+                "schedule_risk": assessment.schedule_risk.value,
+                "resource_risk": assessment.resource_risk.value,
+                "scope_risk": assessment.scope_risk.value,
+                "quality_risk": assessment.quality_risk.value,
+                "risk_factors": assessment.risk_factors,
+                "mitigation_suggestions": assessment.mitigation_suggestions,
+                "predicted_completion_date": assessment.predicted_completion_date.isoformat() if assessment.predicted_completion_date else None
+            })
+        
+        return JSONResponse(content={
+            "risk_assessments": assessment_data,
+            "total_assessments": len(assessment_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get risk assessment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# TASK MANAGEMENT ENDPOINTS
+
+@router.get("/tasks")
+async def get_tasks(
+    project_gid: Optional[str] = Query(None),
+    assignee_name: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    priority_level: Optional[str] = Query(None),
+    overdue_only: bool = Query(False),
+    limit: int = Query(100),
+    cortex: SnowflakeCortexService = Depends(get_cortex_service)
+):
+    """
+    Get filtered task list with details
+    """
+    try:
+        # Build query conditions
+        conditions = ["1=1"]  # Base condition
+        
+        if project_gid:
+            conditions.append(f"PROJECT_GID = '{project_gid}'")
+        
+        if assignee_name:
+            conditions.append(f"ASSIGNEE_NAME = '{assignee_name}'")
+        
+        if status:
+            conditions.append(f"TASK_STATUS = '{status}'")
+        
+        if priority_level:
+            conditions.append(f"PRIORITY_LEVEL = '{priority_level}'")
+        
+        if overdue_only:
+            conditions.append("TASK_STATUS = 'OVERDUE'")
+        
+        where_clause = " AND ".join(conditions)
+        
+        query = f"""
+        SELECT 
+            TASK_GID,
+            TASK_NAME,
+            TASK_DESCRIPTION,
+            TASK_STATUS,
+            IS_COMPLETED,
+            ASSIGNEE_NAME,
+            PROJECT_GID,
+            PROJECT_NAME,
+            DUE_DATE,
+            PRIORITY_LEVEL,
+            AI_URGENCY_SCORE,
+            AI_TASK_SENTIMENT,
+            CREATED_AT,
+            MODIFIED_AT
+        FROM STG_TRANSFORMED.STG_ASANA_TASKS
+        WHERE {where_clause}
+        ORDER BY AI_URGENCY_SCORE DESC, DUE_DATE ASC
+        LIMIT {limit}
+        """
+        
+        result = await cortex.execute_query(query)
+        
+        tasks = []
+        for _, row in result.iterrows():
+            tasks.append({
+                "task_gid": row["TASK_GID"],
+                "task_name": row["TASK_NAME"],
+                "task_description": row.get("TASK_DESCRIPTION"),
+                "task_status": row["TASK_STATUS"],
+                "is_completed": row["IS_COMPLETED"],
+                "assignee_name": row.get("ASSIGNEE_NAME"),
+                "project_gid": row["PROJECT_GID"],
+                "project_name": row.get("PROJECT_NAME"),
+                "due_date": row.get("DUE_DATE").isoformat() if row.get("DUE_DATE") else None,
+                "priority_level": row.get("PRIORITY_LEVEL"),
+                "ai_urgency_score": row.get("AI_URGENCY_SCORE"),
+                "ai_task_sentiment": row.get("AI_TASK_SENTIMENT"),
+                "created_at": row["CREATED_AT"].isoformat() if row.get("CREATED_AT") else None,
+                "modified_at": row["MODIFIED_AT"].isoformat() if row.get("MODIFIED_AT") else None
+            })
+        
+        return JSONResponse(content={
+            "tasks": tasks,
+            "total_count": len(tasks),
+            "filters_applied": {
+                "project_gid": project_gid,
+                "assignee_name": assignee_name,
+                "status": status,
+                "priority_level": priority_level,
+                "overdue_only": overdue_only
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get tasks: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/tasks/overdue")
+async def get_overdue_tasks(
+    team_name: Optional[str] = Query(None),
+    limit: int = Query(50),
+    cortex: SnowflakeCortexService = Depends(get_cortex_service)
+):
+    """
+    Get all overdue tasks with priority scoring
+    """
+    try:
+        team_filter = f"AND p.TEAM_NAME = '{team_name}'" if team_name else ""
+        
+        query = f"""
+        SELECT 
+            t.TASK_GID,
+            t.TASK_NAME,
+            t.ASSIGNEE_NAME,
+            t.PROJECT_NAME,
+            t.DUE_DATE,
+            t.PRIORITY_LEVEL,
+            t.AI_URGENCY_SCORE,
+            p.TEAM_NAME,
+            DATEDIFF('day', t.DUE_DATE, CURRENT_DATE) as DAYS_OVERDUE
+        FROM STG_TRANSFORMED.STG_ASANA_TASKS t
+        LEFT JOIN STG_TRANSFORMED.STG_ASANA_PROJECTS p ON t.PROJECT_GID = p.PROJECT_GID
+        WHERE t.TASK_STATUS = 'OVERDUE'
+        {team_filter}
+        ORDER BY t.AI_URGENCY_SCORE DESC, DAYS_OVERDUE DESC
+        LIMIT {limit}
+        """
+        
+        result = await cortex.execute_query(query)
+        
+        overdue_tasks = []
+        for _, row in result.iterrows():
+            overdue_tasks.append({
+                "task_gid": row["TASK_GID"],
+                "task_name": row["TASK_NAME"],
+                "assignee_name": row.get("ASSIGNEE_NAME"),
+                "project_name": row["PROJECT_NAME"],
+                "due_date": row["DUE_DATE"].isoformat() if row.get("DUE_DATE") else None,
+                "priority_level": row.get("PRIORITY_LEVEL"),
+                "ai_urgency_score": row.get("AI_URGENCY_SCORE"),
+                "team_name": row.get("TEAM_NAME"),
+                "days_overdue": row.get("DAYS_OVERDUE")
+            })
+        
+        return JSONResponse(content={
+            "overdue_tasks": overdue_tasks,
+            "total_count": len(overdue_tasks),
+            "team_filter": team_name
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get overdue tasks: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# CHAT INTEGRATION ENDPOINTS
+
+@router.post("/chat/query")
+async def process_asana_chat_query(
+    request: AsanaQueryRequest,
+    chat_service: EnhancedUnifiedChatService = Depends(get_chat_service)
+):
+    """
+    Process natural language queries about Asana data through the chat service
+    """
+    try:
+        # Create query context
+        context = QueryContext(
+            user_id=request.user_id,
+            user_role=request.user_role,
+            dashboard_type=request.dashboard_type,
+            security_level="EXECUTIVE",  # Asana data requires executive access
+            time_filter=request.time_filter
         )
+        
+        # Process the query
+        result = await chat_service.process_unified_query(request.query, context)
+        
+        return JSONResponse(content={
+            "response": result.content,
+            "intent": result.intent.value,
+            "data_sources": result.data_sources,
+            "confidence_score": result.confidence_score,
+            "execution_time_ms": result.execution_time_ms,
+            "records_analyzed": result.records_analyzed,
+            "security_level": result.security_level,
+            "suggested_actions": result.suggested_actions
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to process chat query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
+# DATA PIPELINE ENDPOINTS
 
-# Helper functions
-def _map_asana_status(status_data: Optional[Dict]) -> str:
-    """Map Asana status to simplified status."""
-    if not status_data:
-        return "not-started"
+@router.post("/sync")
+async def trigger_asana_sync(
+    request: AsanaSyncRequest,
+    background_tasks: BackgroundTasks,
+    airbyte: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+):
+    """
+    Trigger Asana data synchronization
+    """
+    try:
+        if request.force_sync or request.sync_type == "full":
+            # Trigger full pipeline setup
+            background_tasks.add_task(
+                _run_full_sync_pipeline,
+                airbyte
+            )
+            
+            return JSONResponse(content={
+                "message": "Full Asana sync initiated",
+                "sync_type": "full",
+                "status": "initiated"
+            })
+        else:
+            # Trigger incremental sync
+            # This would typically trigger an existing connection
+            health_status = await airbyte.perform_health_check()
+            
+            return JSONResponse(content={
+                "message": "Incremental sync status checked",
+                "sync_type": "incremental",
+                "health_status": health_status
+            })
+        
+    except Exception as e:
+        logger.error(f"Failed to trigger sync: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    status_type = status_data.get("status_type", "").lower()
+@router.get("/sync/status")
+async def get_sync_status(
+    airbyte: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+):
+    """
+    Get current synchronization status
+    """
+    try:
+        health_status = await airbyte.perform_health_check()
+        data_quality = await airbyte.validate_asana_data_quality()
+        
+        return JSONResponse(content={
+            "health_status": health_status,
+            "data_quality": {
+                "quality_score": data_quality.quality_score,
+                "total_records": data_quality.total_records,
+                "valid_records": data_quality.valid_records,
+                "validation_timestamp": data_quality.validation_timestamp.isoformat() if data_quality.validation_timestamp else None,
+                "issues": data_quality.issues
+            },
+            "last_updated": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get sync status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    if status_type in ["complete", "approved"]:
-        return "completed"
-    elif status_type in ["at_risk", "off_track"]:
-        return "at-risk"
-    elif status_type in ["on_track", "on_hold"]:
-        return "on-track"
-    else:
-        return "not-started"
+# ANALYTICS AND INSIGHTS ENDPOINTS
 
+@router.get("/analytics/summary")
+async def get_analytics_summary(
+    time_period: str = Query("30d", description="Time period: 7d, 30d, 90d"),
+    cortex: SnowflakeCortexService = Depends(get_cortex_service)
+):
+    """
+    Get high-level analytics summary
+    """
+    try:
+        # Calculate time filter
+        days = int(time_period.replace('d', ''))
+        
+        query = f"""
+        WITH project_summary AS (
+            SELECT 
+                COUNT(*) as total_projects,
+                COUNT(CASE WHEN IS_ARCHIVED = FALSE THEN 1 END) as active_projects,
+                AVG(COMPLETION_PERCENTAGE) as avg_completion,
+                AVG(AI_HEALTH_SCORE) as avg_health_score,
+                COUNT(CASE WHEN AI_RISK_ASSESSMENT = 'HIGH' OR AI_RISK_ASSESSMENT = 'CRITICAL' THEN 1 END) as high_risk_projects
+            FROM STG_TRANSFORMED.STG_ASANA_PROJECTS
+            WHERE MODIFIED_AT >= CURRENT_DATE - {days}
+        ),
+        task_summary AS (
+            SELECT 
+                COUNT(*) as total_tasks,
+                COUNT(CASE WHEN IS_COMPLETED = TRUE THEN 1 END) as completed_tasks,
+                COUNT(CASE WHEN TASK_STATUS = 'OVERDUE' THEN 1 END) as overdue_tasks,
+                AVG(AI_URGENCY_SCORE) as avg_urgency_score
+            FROM STG_TRANSFORMED.STG_ASANA_TASKS
+            WHERE MODIFIED_AT >= CURRENT_DATE - {days}
+        ),
+        team_summary AS (
+            SELECT 
+                COUNT(DISTINCT TEAM_NAME) as active_teams,
+                AVG(COMPLETION_PERCENTAGE) as team_avg_completion
+            FROM STG_TRANSFORMED.STG_ASANA_PROJECTS
+            WHERE IS_ARCHIVED = FALSE
+            AND TEAM_NAME IS NOT NULL
+        )
+        SELECT 
+            (SELECT OBJECT_CONSTRUCT(*) FROM project_summary) as projects,
+            (SELECT OBJECT_CONSTRUCT(*) FROM task_summary) as tasks,
+            (SELECT OBJECT_CONSTRUCT(*) FROM team_summary) as teams
+        """
+        
+        result = await cortex.execute_query(query)
+        
+        if result.empty:
+            raise HTTPException(status_code=404, detail="No data found for the specified time period")
+        
+        row = result.iloc[0]
+        projects = json.loads(row["PROJECTS"])
+        tasks = json.loads(row["TASKS"])
+        teams = json.loads(row["TEAMS"])
+        
+        return JSONResponse(content={
+            "time_period": time_period,
+            "summary": {
+                "projects": projects,
+                "tasks": tasks,
+                "teams": teams
+            },
+            "generated_at": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get analytics summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-def _calculate_progress(project: Dict[str, Any]) -> int:
-    """Calculate project progress percentage."""
-    # If we have task count data, use that
-    task_count = project.get("task_count", 0)
-    if task_count > 0:
-        # Estimate progress based on task completion (simplified)
-        return min(int(task_count * 10), 100)  # Rough estimation
+@router.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Asana integration
+    """
+    try:
+        # Check if services are initialized
+        services_status = {
+            "intelligence_agent": intelligence_agent is not None,
+            "chat_service": chat_service is not None,
+            "airbyte_manager": airbyte_manager is not None,
+            "cortex_service": cortex_service is not None
+        }
+        
+        all_services_healthy = all(services_status.values())
+        
+        return JSONResponse(content={
+            "status": "healthy" if all_services_healthy else "degraded",
+            "services": services_status,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # Fallback to status-based progress
-    status = project.get("current_status", {})
-    if status:
-        status_type = status.get("status_type", "").lower()
-        if status_type == "complete":
-            return 100
-        elif status_type == "on_track":
-            return 65
-        elif status_type == "at_risk":
-            return 45
-        elif status_type == "off_track":
-            return 25
+# Background task functions
+async def _run_full_sync_pipeline(airbyte_manager: EnhancedAirbyteManager):
+    """Background task to run full sync pipeline"""
+    try:
+        logger.info("Starting full Asana sync pipeline")
+        results = await airbyte_manager.setup_complete_asana_pipeline()
+        
+        success_count = sum(1 for result in results.values() if result.status.value == "success")
+        total_count = len(results)
+        
+        logger.info(f"Full sync pipeline completed: {success_count}/{total_count} successful")
+        
+    except Exception as e:
+        logger.error(f"Full sync pipeline failed: {e}")
 
-    return 0
+# Cleanup function for application shutdown
+async def cleanup_asana_services():
+    """Cleanup function to be called on application shutdown"""
+    global intelligence_agent, chat_service, airbyte_manager, cortex_service, ai_memory_service
+    
+    try:
+        if intelligence_agent:
+            await intelligence_agent.close()
+        if chat_service:
+            await chat_service.close()
+        if airbyte_manager:
+            await airbyte_manager.cleanup()
+        if cortex_service:
+            await cortex_service.close()
+        if ai_memory_service:
+            await ai_memory_service.close()
+            
+        logger.info("✅ Asana services cleaned up successfully")
+        
+    except Exception as e:
+        logger.error(f"❌ Error cleaning up Asana services: {e}")
+
+# Export router and cleanup function
+__all__ = ["router", "cleanup_asana_services"]

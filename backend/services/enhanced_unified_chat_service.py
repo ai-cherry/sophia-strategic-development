@@ -41,6 +41,13 @@ class QueryIntent(Enum):
     FEATURE_ANALYSIS = "feature_analysis"
     BUSINESS_RULES = "business_rules"
     
+    # Project Management intents
+    PROJECT_ANALYSIS = "project_analysis"
+    TASK_MANAGEMENT = "task_management"
+    TEAM_PRODUCTIVITY = "team_productivity"
+    PROJECT_HEALTH = "project_health"
+    ASANA_INSIGHTS = "asana_insights"
+    
     # Intelligence intents
     MARKET_INTELLIGENCE = "market_intelligence"
     INDUSTRY_TRENDS = "industry_trends"
@@ -49,7 +56,6 @@ class QueryIntent(Enum):
     # Communication intents
     CALL_INSIGHTS = "call_insights"
     SLACK_ANALYSIS = "slack_analysis"
-    TEAM_PERFORMANCE = "team_performance"
     
     # General intents
     KNOWLEDGE_SEARCH = "knowledge_search"
