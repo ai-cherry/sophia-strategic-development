@@ -461,6 +461,10 @@ class AutoESCConfig:
             nested_value = self._get_nested_value("values.sophia.ai.anthropic.api_key")
             if nested_value:
                 return nested_value
+        elif key == "lambda_labs_api_key":
+            nested_value = self._get_nested_value("values.sophia.infrastructure.lambda_labs.api_key")
+            if nested_value:
+                return nested_value
 
         return self._config.get(key, default)
 

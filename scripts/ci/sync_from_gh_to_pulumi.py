@@ -36,9 +36,10 @@ class PulumiESCSync:
         self.env_path = f"{self.pulumi_org}/default/{self.pulumi_env}"
         
         # GitHub secrets to Pulumi ESC path mapping
-        # CRITICAL: These GitHub secret names must match exactly what's in the organization
+        # CRITICAL: These GitHub secret names must match exactly what's in .github/workflows/sync_secrets.yml
+        # CRITICAL: Pulumi paths must match what backend/core/auto_esc_config.py expects
         self.secret_mappings = {
-            # AI Services
+            # AI Services - backend expects values.sophia.ai.*
             "OPENAI_API_KEY": "values.sophia.ai.openai.api_key",
             "ANTHROPIC_API_KEY": "values.sophia.ai.anthropic.api_key",
             "HUGGINGFACE_API_TOKEN": "values.sophia.ai.huggingface.api_token",
@@ -55,7 +56,7 @@ class PulumiESCSync:
             "VENICE_AI_API_KEY": "values.sophia.ai.venice_ai.api_key",
             "LLAMA_API_KEY": "values.sophia.ai.llama.api_key",
             
-            # Business Intelligence
+            # Business Intelligence - backend expects values.sophia.business.*
             "GONG_ACCESS_KEY": "values.sophia.business.gong.access_key",
             "GONG_CLIENT_SECRET": "values.sophia.business.gong.client_secret",
             "GONG_BASE_URL": "values.sophia.business.gong.base_url",
@@ -64,14 +65,14 @@ class PulumiESCSync:
             "LINEAR_API_KEY": "values.sophia.business.linear.api_key",
             "NOTION_API_KEY": "values.sophia.business.notion.api_key",
             
-            # Communication
+            # Communication - backend expects values.sophia.communication.*
             "SLACK_BOT_TOKEN": "values.sophia.communication.slack.bot_token",
             "SLACK_APP_TOKEN": "values.sophia.communication.slack.app_token",
             "SLACK_SIGNING_SECRET": "values.sophia.communication.slack.signing_secret",
             "SLACK_CLIENT_ID": "values.sophia.communication.slack.client_id",
             "SLACK_CLIENT_SECRET": "values.sophia.communication.slack.client_secret",
             
-            # Data Infrastructure
+            # Data Infrastructure - backend expects values.sophia.data.*
             "SNOWFLAKE_ACCOUNT": "values.sophia.data.snowflake.account",
             "SNOWFLAKE_USER": "values.sophia.data.snowflake.user",
             "SNOWFLAKE_ROLE": "values.sophia.data.snowflake.role",
@@ -94,10 +95,10 @@ class PulumiESCSync:
             "GRAFANA_PASSWORD": "values.sophia.monitoring.grafana.password",
             "PROMETHEUS_URL": "values.sophia.monitoring.prometheus.url",
             
-            # Cloud Infrastructure - FIXED: Use correct secret names
-            "LAMBDA_LABS_API_KEY": "values.sophia.cloud.lambda_labs.api_key",
-            "VERCEL_ACCESS_TOKEN": "values.sophia.cloud.vercel.access_token",
-            "VULTR_API_KEY": "values.sophia.cloud.vultr.api_key",
+            # Cloud Infrastructure - FIXED: GitHub workflow has LAMBDA_API_KEY, not LAMBDA_LABS_API_KEY
+            "LAMBDA_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
+            "VERCEL_ACCESS_TOKEN": "values.sophia.infrastructure.vercel.access_token",
+            "VULTR_API_KEY": "values.sophia.infrastructure.vultr.api_key",
             
             # Research Tools
             "APIFY_API_TOKEN": "values.sophia.research.apify.api_token",
@@ -108,10 +109,10 @@ class PulumiESCSync:
             "ZENROWS_API_KEY": "values.sophia.research.zenrows.api_key",
             
             # Development Tools
-            "GH_API_TOKEN": "values.sophia.dev.github.api_token",
-            "RETOOL_API_TOKEN": "values.sophia.dev.retool.api_token",
-            "DOCKER_TOKEN": "values.sophia.dev.docker.token",
-            "NPM_API_TOKEN": "values.sophia.dev.npm.api_token",
+            "GH_API_TOKEN": "values.sophia.development.github.api_token",
+            "RETOOL_API_TOKEN": "values.sophia.development.retool.api_token",
+            "DOCKER_TOKEN": "values.sophia.development.docker.token",
+            "NPM_API_TOKEN": "values.sophia.development.npm.api_token",
             
             # Data Integration
             "AIRBYTE_ACCESS_TOKEN": "values.sophia.integration.airbyte.access_token",
