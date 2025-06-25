@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class CoachingPriority(Enum):
     """Priority levels for coaching recommendations"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -32,6 +33,7 @@ class CoachingPriority(Enum):
 
 class CoachingCategory(Enum):
     """Categories of coaching recommendations"""
+
     SENTIMENT_IMPROVEMENT = "sentiment_improvement"
     TALK_RATIO_BALANCE = "talk_ratio_balance"
     DISCOVERY_SKILLS = "discovery_skills"
@@ -45,12 +47,13 @@ class CoachingCategory(Enum):
 @dataclass
 class CallAnalysisResult:
     """Result from comprehensive call analysis"""
+
     call_id: str
     call_title: str
     sales_rep: str
     call_datetime: datetime
     duration_seconds: int
-    
+
     # Cortex-derived insights
     overall_sentiment: float
     sentiment_category: str
@@ -58,13 +61,13 @@ class CallAnalysisResult:
     cortex_summary: str
     speaker_sentiments: Dict[str, float]
     key_topics: List[str]
-    
+
     # HubSpot context
     deal_id: Optional[str] = None
     deal_stage: Optional[str] = None
     deal_value: Optional[float] = None
     company_name: Optional[str] = None
-    
+
     # Analysis metadata
     confidence_score: float = 0.0
     analysis_timestamp: datetime = datetime.now()
@@ -73,6 +76,7 @@ class CallAnalysisResult:
 @dataclass
 class CoachingRecommendation:
     """Individual coaching recommendation"""
+
     category: CoachingCategory
     priority: CoachingPriority
     title: str
@@ -80,7 +84,7 @@ class CoachingRecommendation:
     specific_feedback: str
     suggested_actions: List[str]
     confidence_score: float
-    
+
     # Context
     call_id: str
     deal_context: Optional[str] = None
@@ -90,72 +94,73 @@ class CoachingRecommendation:
 class SalesCoachAgent(BaseAgent):
     """
     Enhanced Sales Coach Agent with Snowflake Cortex integration
-    
+
     Provides AI-powered sales coaching based on:
     - Gong call analysis via Snowflake Cortex
     - HubSpot deal context for strategic insights
     - Historical pattern analysis
     - Personalized coaching recommendations
     """
-    
+
     def __init__(self):
         super().__init__()
         self.name = "sales_coach"
         self.description = "AI-powered sales coaching with Snowflake Cortex insights"
-        
+
         # Snowflake integrations
         self.cortex_service: Optional[SnowflakeCortexService] = None
         self.gong_connector: Optional[SnowflakeGongConnector] = None
         self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
         self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-        
+
         self.initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize Snowflake Cortex services and AI Memory"""
         if self.initialized:
             return
-        
+
         try:
             self.cortex_service = SnowflakeCortexService()
             self.gong_connector = SnowflakeGongConnector()
             self.hubspot_connector = SnowflakeHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
-            
+
             await self.ai_memory.initialize()
-            
+
             self.initialized = True
             logger.info("✅ Sales Coach Agent initialized with Snowflake Cortex")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Sales Coach Agent: {e}")
             raise
-    
-    async def analyze_call_with_cortex(self, call_id: str) -> Optional[CallAnalysisResult]:
+
+    async def analyze_call_with_cortex(
+        self, call_id: str
+    ) -> Optional[CallAnalysisResult]:
         """
         Perform comprehensive call analysis using Snowflake Cortex
-        
+
         Args:
             call_id: Gong call ID to analyze
-            
+
         Returns:
             Comprehensive call analysis with Cortex insights
         """
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Get call data from Snowflake
             async with self.gong_connector as connector:
                 call_data = await connector.get_call_analysis_data(
-                    call_id=call_id,
-                    include_full_transcript=True
+                    call_id=call_id, include_full_transcript=True
                 )
-                
+
                 if not call_data:
                     logger.warning(f"No call data found for call_id: {call_id}")
                     return None
-            
+
             # Generate Cortex insights
             async with self.cortex_service as cortex:
                 # Generate comprehensive call summary
@@ -179,69 +184,88 @@ class SalesCoachAgent(BaseAgent):
                 4. Customer engagement level
                 5. Next steps and follow-up recommendations
                 """
-                
+
                 cortex_summary = await cortex.complete_text_with_cortex(
-                    prompt=summary_prompt,
-                    max_tokens=400
+                    prompt=summary_prompt, max_tokens=400
                 )
-                
+
                 # Analyze sentiment per speaker if transcript available
                 speaker_sentiments = {}
-                if call_data.get('full_transcript'):
-                    transcript_segments = call_data['full_transcript']
-                    for segment in transcript_segments[:10]:  # Analyze first 10 segments
-                        speaker = segment.get('SPEAKER_NAME', 'Unknown')
+                if call_data.get("full_transcript"):
+                    transcript_segments = call_data["full_transcript"]
+                    for segment in transcript_segments[
+                        :10
+                    ]:  # Analyze first 10 segments
+                        speaker = segment.get("SPEAKER_NAME", "Unknown")
                         if speaker not in speaker_sentiments:
                             speaker_sentiments[speaker] = []
-                        speaker_sentiments[speaker].append(segment.get('SEGMENT_SENTIMENT', 0))
-                    
+                        speaker_sentiments[speaker].append(
+                            segment.get("SEGMENT_SENTIMENT", 0)
+                        )
+
                     # Average sentiments per speaker
                     speaker_sentiments = {
                         speaker: sum(sentiments) / len(sentiments)
                         for speaker, sentiments in speaker_sentiments.items()
                         if sentiments
                     }
-                
+
                 # Extract key topics using Cortex
-                if call_data.get('full_transcript'):
+                if call_data.get("full_transcript"):
                     topic_prompt = "Extract the top 5 key topics discussed in this sales call. Return as a comma-separated list."
-                    transcript_text = " ".join([
-                        segment.get('TRANSCRIPT_TEXT', '')
-                        for segment in call_data['full_transcript'][:20]  # First 20 segments
-                    ])
-                    
+                    transcript_text = " ".join(
+                        [
+                            segment.get("TRANSCRIPT_TEXT", "")
+                            for segment in call_data["full_transcript"][
+                                :20
+                            ]  # First 20 segments
+                        ]
+                    )
+
                     topics_result = await cortex.complete_text_with_cortex(
                         prompt=f"{topic_prompt}\n\nTranscript: {transcript_text[:2000]}",
-                        max_tokens=100
+                        max_tokens=100,
                     )
-                    
-                    key_topics = [topic.strip() for topic in topics_result.split(',') if topic.strip()] if topics_result else []
+
+                    key_topics = (
+                        [
+                            topic.strip()
+                            for topic in topics_result.split(",")
+                            if topic.strip()
+                        ]
+                        if topics_result
+                        else []
+                    )
                 else:
                     key_topics = []
-            
+
             # Get HubSpot deal context if available
-            deal_context = await self._get_deal_context(call_data.get('HUBSPOT_DEAL_ID'))
-            
+            deal_context = await self._get_deal_context(
+                call_data.get("HUBSPOT_DEAL_ID")
+            )
+
             # Create analysis result
             analysis = CallAnalysisResult(
                 call_id=call_id,
-                call_title=call_data.get('CALL_TITLE', 'Unknown'),
-                sales_rep=call_data.get('PRIMARY_USER_NAME', 'Unknown'),
-                call_datetime=call_data.get('CALL_DATETIME_UTC', datetime.now()),
-                duration_seconds=call_data.get('CALL_DURATION_SECONDS', 0),
-                overall_sentiment=call_data.get('SENTIMENT_SCORE', 0),
-                sentiment_category=self._categorize_sentiment(call_data.get('SENTIMENT_SCORE', 0)),
-                talk_ratio=call_data.get('TALK_RATIO', 0),
+                call_title=call_data.get("CALL_TITLE", "Unknown"),
+                sales_rep=call_data.get("PRIMARY_USER_NAME", "Unknown"),
+                call_datetime=call_data.get("CALL_DATETIME_UTC", datetime.now()),
+                duration_seconds=call_data.get("CALL_DURATION_SECONDS", 0),
+                overall_sentiment=call_data.get("SENTIMENT_SCORE", 0),
+                sentiment_category=self._categorize_sentiment(
+                    call_data.get("SENTIMENT_SCORE", 0)
+                ),
+                talk_ratio=call_data.get("TALK_RATIO", 0),
                 cortex_summary=cortex_summary or "Analysis not available",
                 speaker_sentiments=speaker_sentiments,
                 key_topics=key_topics,
-                deal_id=call_data.get('HUBSPOT_DEAL_ID'),
-                deal_stage=deal_context.get('stage') if deal_context else None,
-                deal_value=deal_context.get('value') if deal_context else None,
-                company_name=deal_context.get('company') if deal_context else None,
-                confidence_score=0.9
+                deal_id=call_data.get("HUBSPOT_DEAL_ID"),
+                deal_stage=deal_context.get("stage") if deal_context else None,
+                deal_value=deal_context.get("value") if deal_context else None,
+                company_name=deal_context.get("company") if deal_context else None,
+                confidence_score=0.9,
             )
-            
+
             # Store analysis in AI Memory
             await self.ai_memory.store_gong_call_insight(
                 call_id=call_id,
@@ -249,235 +273,266 @@ class SalesCoachAgent(BaseAgent):
                 deal_id=analysis.deal_id,
                 call_type="analyzed",
                 tags=["cortex_analysis", "sales_coaching"] + key_topics[:3],
-                use_cortex_analysis=True
+                use_cortex_analysis=True,
             )
-            
+
             logger.info(f"Completed Cortex analysis for call {call_id}")
             return analysis
-            
+
         except Exception as e:
             logger.error(f"Error analyzing call {call_id} with Cortex: {e}")
             return None
-    
+
     async def generate_coaching_recommendations(
-        self, 
-        analysis: CallAnalysisResult,
-        historical_context: bool = True
+        self, analysis: CallAnalysisResult, historical_context: bool = True
     ) -> List[CoachingRecommendation]:
         """
         Generate personalized coaching recommendations based on call analysis
-        
+
         Args:
             analysis: Call analysis result from Cortex
             historical_context: Whether to include historical pattern analysis
-            
+
         Returns:
             List of prioritized coaching recommendations
         """
         recommendations = []
-        
+
         try:
             # Sentiment-based coaching
             if analysis.overall_sentiment < 0.3:
-                recommendations.append(CoachingRecommendation(
-                    category=CoachingCategory.SENTIMENT_IMPROVEMENT,
-                    priority=CoachingPriority.HIGH,
-                    title="Improve Call Sentiment",
-                    description=f"Call sentiment was {analysis.sentiment_category} ({analysis.overall_sentiment:.2f})",
-                    specific_feedback=f"The overall tone of your call with {analysis.company_name or 'the prospect'} was below optimal. Focus on building rapport and addressing concerns proactively.",
-                    suggested_actions=[
-                        "Start calls with genuine interest in the prospect's business",
-                        "Ask open-ended questions to understand their challenges",
-                        "Acknowledge concerns before addressing them",
-                        "Use positive language and avoid industry jargon",
-                        "Practice active listening and summarize their key points"
-                    ],
-                    confidence_score=0.9,
-                    call_id=analysis.call_id,
-                    deal_context=f"Deal stage: {analysis.deal_stage}, Value: ${analysis.deal_value:,.2f}" if analysis.deal_value else None,
-                    supporting_evidence=[
-                        f"Overall sentiment score: {analysis.overall_sentiment:.2f}",
-                        "Multiple negative sentiment segments detected in transcript"
-                    ]
-                ))
-            
+                recommendations.append(
+                    CoachingRecommendation(
+                        category=CoachingCategory.SENTIMENT_IMPROVEMENT,
+                        priority=CoachingPriority.HIGH,
+                        title="Improve Call Sentiment",
+                        description=f"Call sentiment was {analysis.sentiment_category} ({analysis.overall_sentiment:.2f})",
+                        specific_feedback=f"The overall tone of your call with {analysis.company_name or 'the prospect'} was below optimal. Focus on building rapport and addressing concerns proactively.",
+                        suggested_actions=[
+                            "Start calls with genuine interest in the prospect's business",
+                            "Ask open-ended questions to understand their challenges",
+                            "Acknowledge concerns before addressing them",
+                            "Use positive language and avoid industry jargon",
+                            "Practice active listening and summarize their key points",
+                        ],
+                        confidence_score=0.9,
+                        call_id=analysis.call_id,
+                        deal_context=(
+                            f"Deal stage: {analysis.deal_stage}, Value: ${analysis.deal_value:,.2f}"
+                            if analysis.deal_value
+                            else None
+                        ),
+                        supporting_evidence=[
+                            f"Overall sentiment score: {analysis.overall_sentiment:.2f}",
+                            "Multiple negative sentiment segments detected in transcript",
+                        ],
+                    )
+                )
+
             # Talk ratio coaching
             if analysis.talk_ratio > 0.7:
-                recommendations.append(CoachingRecommendation(
-                    category=CoachingCategory.DISCOVERY_SKILLS,
-                    priority=CoachingPriority.HIGH,
-                    title="Improve Discovery Through Listening",
-                    description=f"Talk ratio was {analysis.talk_ratio:.1%} - too high for effective discovery",
-                    specific_feedback="You dominated the conversation. Great sales reps listen more than they talk, especially in discovery calls.",
-                    suggested_actions=[
-                        "Use the 70/30 rule: prospect talks 70%, you talk 30%",
-                        "Ask follow-up questions to dive deeper into their responses",
-                        "Use silence strategically to encourage elaboration",
-                        "Summarize what you hear before moving to next topic",
-                        "Practice the SPIN selling methodology"
-                    ],
-                    confidence_score=0.95,
-                    call_id=analysis.call_id,
-                    deal_context=f"Deal stage: {analysis.deal_stage}" if analysis.deal_stage else None,
-                    supporting_evidence=[
-                        f"Talk ratio: {analysis.talk_ratio:.1%}",
-                        "Limited prospect engagement in transcript"
-                    ]
-                ))
+                recommendations.append(
+                    CoachingRecommendation(
+                        category=CoachingCategory.DISCOVERY_SKILLS,
+                        priority=CoachingPriority.HIGH,
+                        title="Improve Discovery Through Listening",
+                        description=f"Talk ratio was {analysis.talk_ratio:.1%} - too high for effective discovery",
+                        specific_feedback="You dominated the conversation. Great sales reps listen more than they talk, especially in discovery calls.",
+                        suggested_actions=[
+                            "Use the 70/30 rule: prospect talks 70%, you talk 30%",
+                            "Ask follow-up questions to dive deeper into their responses",
+                            "Use silence strategically to encourage elaboration",
+                            "Summarize what you hear before moving to next topic",
+                            "Practice the SPIN selling methodology",
+                        ],
+                        confidence_score=0.95,
+                        call_id=analysis.call_id,
+                        deal_context=(
+                            f"Deal stage: {analysis.deal_stage}"
+                            if analysis.deal_stage
+                            else None
+                        ),
+                        supporting_evidence=[
+                            f"Talk ratio: {analysis.talk_ratio:.1%}",
+                            "Limited prospect engagement in transcript",
+                        ],
+                    )
+                )
             elif analysis.talk_ratio < 0.3:
-                recommendations.append(CoachingRecommendation(
-                    category=CoachingCategory.RELATIONSHIP_BUILDING,
-                    priority=CoachingPriority.MEDIUM,
-                    title="Increase Engagement and Value Delivery",
-                    description=f"Talk ratio was {analysis.talk_ratio:.1%} - may indicate low engagement",
-                    specific_feedback="While listening is important, ensure you're providing enough value and guidance in the conversation.",
-                    suggested_actions=[
-                        "Share relevant insights about their industry",
-                        "Provide examples of how you've helped similar companies",
-                        "Ask permission to share your perspective",
-                        "Summarize key points and confirm understanding",
-                        "Guide the conversation toward next steps"
-                    ],
-                    confidence_score=0.8,
-                    call_id=analysis.call_id,
-                    deal_context=f"Deal stage: {analysis.deal_stage}" if analysis.deal_stage else None
-                ))
-            
+                recommendations.append(
+                    CoachingRecommendation(
+                        category=CoachingCategory.RELATIONSHIP_BUILDING,
+                        priority=CoachingPriority.MEDIUM,
+                        title="Increase Engagement and Value Delivery",
+                        description=f"Talk ratio was {analysis.talk_ratio:.1%} - may indicate low engagement",
+                        specific_feedback="While listening is important, ensure you're providing enough value and guidance in the conversation.",
+                        suggested_actions=[
+                            "Share relevant insights about their industry",
+                            "Provide examples of how you've helped similar companies",
+                            "Ask permission to share your perspective",
+                            "Summarize key points and confirm understanding",
+                            "Guide the conversation toward next steps",
+                        ],
+                        confidence_score=0.8,
+                        call_id=analysis.call_id,
+                        deal_context=(
+                            f"Deal stage: {analysis.deal_stage}"
+                            if analysis.deal_stage
+                            else None
+                        ),
+                    )
+                )
+
             # Deal stage-specific coaching
             if analysis.deal_stage and analysis.deal_value:
                 if "discovery" in analysis.deal_stage.lower():
                     if len(analysis.key_topics) < 3:
-                        recommendations.append(CoachingRecommendation(
-                            category=CoachingCategory.DISCOVERY_SKILLS,
-                            priority=CoachingPriority.MEDIUM,
-                            title="Deepen Discovery Conversation",
-                            description="Limited topics covered in discovery call",
-                            specific_feedback=f"For a ${analysis.deal_value:,.0f} opportunity, you should explore more areas during discovery.",
-                            suggested_actions=[
-                                "Cover business challenges, decision process, timeline, and budget",
-                                "Understand their current solution and pain points",
-                                "Identify key stakeholders and decision criteria",
-                                "Explore the cost of inaction",
-                                "Uncover compelling events driving urgency"
-                            ],
-                            confidence_score=0.8,
-                            call_id=analysis.call_id,
-                            deal_context=f"Discovery call for ${analysis.deal_value:,.0f} opportunity"
-                        ))
-                
+                        recommendations.append(
+                            CoachingRecommendation(
+                                category=CoachingCategory.DISCOVERY_SKILLS,
+                                priority=CoachingPriority.MEDIUM,
+                                title="Deepen Discovery Conversation",
+                                description="Limited topics covered in discovery call",
+                                specific_feedback=f"For a ${analysis.deal_value:,.0f} opportunity, you should explore more areas during discovery.",
+                                suggested_actions=[
+                                    "Cover business challenges, decision process, timeline, and budget",
+                                    "Understand their current solution and pain points",
+                                    "Identify key stakeholders and decision criteria",
+                                    "Explore the cost of inaction",
+                                    "Uncover compelling events driving urgency",
+                                ],
+                                confidence_score=0.8,
+                                call_id=analysis.call_id,
+                                deal_context=f"Discovery call for ${analysis.deal_value:,.0f} opportunity",
+                            )
+                        )
+
                 elif "closing" in analysis.deal_stage.lower():
                     if analysis.overall_sentiment < 0.5:
-                        recommendations.append(CoachingRecommendation(
-                            category=CoachingCategory.CLOSING_TECHNIQUES,
-                            priority=CoachingPriority.CRITICAL,
-                            title="Address Concerns Before Closing",
-                            description="Negative sentiment in closing stage call",
-                            specific_feedback=f"Sentiment is concerning for a closing call on a ${analysis.deal_value:,.0f} deal. Address objections first.",
-                            suggested_actions=[
-                                "Identify and address remaining concerns",
-                                "Confirm value proposition alignment",
-                                "Review decision criteria and timeline",
-                                "Provide social proof and case studies",
-                                "Create urgency with limited-time incentives"
-                            ],
-                            confidence_score=0.95,
-                            call_id=analysis.call_id,
-                            deal_context=f"Closing stage: ${analysis.deal_value:,.0f} opportunity",
-                            supporting_evidence=[
-                                f"Sentiment: {analysis.overall_sentiment:.2f} in closing stage",
-                                "Risk of deal stalling or lost"
-                            ]
-                        ))
-            
+                        recommendations.append(
+                            CoachingRecommendation(
+                                category=CoachingCategory.CLOSING_TECHNIQUES,
+                                priority=CoachingPriority.CRITICAL,
+                                title="Address Concerns Before Closing",
+                                description="Negative sentiment in closing stage call",
+                                specific_feedback=f"Sentiment is concerning for a closing call on a ${analysis.deal_value:,.0f} deal. Address objections first.",
+                                suggested_actions=[
+                                    "Identify and address remaining concerns",
+                                    "Confirm value proposition alignment",
+                                    "Review decision criteria and timeline",
+                                    "Provide social proof and case studies",
+                                    "Create urgency with limited-time incentives",
+                                ],
+                                confidence_score=0.95,
+                                call_id=analysis.call_id,
+                                deal_context=f"Closing stage: ${analysis.deal_value:,.0f} opportunity",
+                                supporting_evidence=[
+                                    f"Sentiment: {analysis.overall_sentiment:.2f} in closing stage",
+                                    "Risk of deal stalling or lost",
+                                ],
+                            )
+                        )
+
             # Speaker sentiment analysis
             if analysis.speaker_sentiments:
                 prospect_speakers = [
-                    speaker for speaker in analysis.speaker_sentiments.keys()
+                    speaker
+                    for speaker in analysis.speaker_sentiments.keys()
                     if speaker.lower() not in analysis.sales_rep.lower()
                 ]
-                
+
                 for speaker in prospect_speakers:
                     sentiment = analysis.speaker_sentiments[speaker]
                     if sentiment < 0.2:
-                        recommendations.append(CoachingRecommendation(
-                            category=CoachingCategory.OBJECTION_HANDLING,
-                            priority=CoachingPriority.HIGH,
-                            title=f"Address {speaker}'s Concerns",
-                            description=f"{speaker} showed negative sentiment ({sentiment:.2f})",
-                            specific_feedback=f"{speaker} appears to have concerns that weren't fully addressed during the call.",
-                            suggested_actions=[
-                                f"Follow up directly with {speaker} to understand their concerns",
-                                "Schedule a separate conversation to address their specific needs",
-                                "Provide additional resources or case studies relevant to their role",
-                                "Involve a technical expert if needed",
-                                "Acknowledge their concerns and provide specific solutions"
-                            ],
-                            confidence_score=0.85,
-                            call_id=analysis.call_id,
-                            deal_context=f"Stakeholder: {speaker}",
-                            supporting_evidence=[f"{speaker} sentiment: {sentiment:.2f}"]
-                        ))
-            
+                        recommendations.append(
+                            CoachingRecommendation(
+                                category=CoachingCategory.OBJECTION_HANDLING,
+                                priority=CoachingPriority.HIGH,
+                                title=f"Address {speaker}'s Concerns",
+                                description=f"{speaker} showed negative sentiment ({sentiment:.2f})",
+                                specific_feedback=f"{speaker} appears to have concerns that weren't fully addressed during the call.",
+                                suggested_actions=[
+                                    f"Follow up directly with {speaker} to understand their concerns",
+                                    "Schedule a separate conversation to address their specific needs",
+                                    "Provide additional resources or case studies relevant to their role",
+                                    "Involve a technical expert if needed",
+                                    "Acknowledge their concerns and provide specific solutions",
+                                ],
+                                confidence_score=0.85,
+                                call_id=analysis.call_id,
+                                deal_context=f"Stakeholder: {speaker}",
+                                supporting_evidence=[
+                                    f"{speaker} sentiment: {sentiment:.2f}"
+                                ],
+                            )
+                        )
+
             # Historical context recommendations
             if historical_context and self.ai_memory:
                 similar_insights = await self.ai_memory.recall_gong_call_insights(
                     query=f"sales rep {analysis.sales_rep} coaching recommendations",
-                    limit=3
+                    limit=3,
                 )
-                
+
                 if similar_insights:
-                    pattern_feedback = self._analyze_historical_patterns(similar_insights, analysis)
+                    pattern_feedback = self._analyze_historical_patterns(
+                        similar_insights, analysis
+                    )
                     if pattern_feedback:
                         recommendations.append(pattern_feedback)
-            
+
             # Sort by priority and confidence
-            recommendations.sort(key=lambda x: (
-                {"critical": 4, "high": 3, "medium": 2, "low": 1}[x.priority.value],
-                x.confidence_score
-            ), reverse=True)
-            
-            logger.info(f"Generated {len(recommendations)} coaching recommendations for call {analysis.call_id}")
+            recommendations.sort(
+                key=lambda x: (
+                    {"critical": 4, "high": 3, "medium": 2, "low": 1}[x.priority.value],
+                    x.confidence_score,
+                ),
+                reverse=True,
+            )
+
+            logger.info(
+                f"Generated {len(recommendations)} coaching recommendations for call {analysis.call_id}"
+            )
             return recommendations
-            
+
         except Exception as e:
             logger.error(f"Error generating coaching recommendations: {e}")
             return recommendations
-    
+
     async def create_coaching_summary(
         self,
         sales_rep: str,
         time_period_days: int = 30,
-        include_action_plan: bool = True
+        include_action_plan: bool = True,
     ) -> Dict[str, Any]:
         """
         Create comprehensive coaching summary for a sales rep
-        
+
         Args:
             sales_rep: Sales representative name
             time_period_days: Days to analyze
             include_action_plan: Whether to include action plan
-            
+
         Returns:
             Comprehensive coaching summary with insights and action plan
         """
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Get recent calls for the sales rep
             async with self.gong_connector as connector:
                 rep_performance = await connector.get_sales_rep_performance(
-                    sales_rep=sales_rep,
-                    date_range_days=time_period_days
+                    sales_rep=sales_rep, date_range_days=time_period_days
                 )
-                
+
                 coaching_calls = await connector.get_calls_for_coaching(
                     sales_rep=sales_rep,
                     date_range_days=time_period_days,
                     sentiment_threshold=0.5,
-                    limit=10
+                    limit=10,
                 )
-            
+
             # Analyze patterns using Cortex
             async with self.cortex_service as cortex:
                 performance_summary = await cortex.complete_text_with_cortex(
@@ -505,15 +560,14 @@ class SalesCoachAgent(BaseAgent):
                     3. Top 3 improvement areas
                     4. Specific coaching priorities
                     """,
-                    max_tokens=500
+                    max_tokens=500,
                 )
-            
+
             # Get historical coaching insights
             coaching_history = await self.ai_memory.recall_gong_call_insights(
-                query=f"coaching recommendations {sales_rep}",
-                limit=5
+                query=f"coaching recommendations {sales_rep}", limit=5
             )
-            
+
             # Create action plan if requested
             action_plan = []
             if include_action_plan:
@@ -524,10 +578,13 @@ class SalesCoachAgent(BaseAgent):
                         "actions": [
                             "Practice active listening techniques",
                             "Role-play difficult conversations",
-                            "Review successful call recordings"
+                            "Review successful call recordings",
                         ],
                         "timeline": "2 weeks",
-                        "success_metrics": ["Sentiment score > 0.5", "Reduced negative feedback"]
+                        "success_metrics": [
+                            "Sentiment score > 0.5",
+                            "Reduced negative feedback",
+                        ],
                     },
                     {
                         "priority": "Medium",
@@ -535,13 +592,16 @@ class SalesCoachAgent(BaseAgent):
                         "actions": [
                             "Use SPIN selling methodology",
                             "Prepare discovery question bank",
-                            "Practice talk ratio management"
+                            "Practice talk ratio management",
                         ],
                         "timeline": "1 month",
-                        "success_metrics": ["Talk ratio 30-50%", "Deeper qualification"]
-                    }
+                        "success_metrics": [
+                            "Talk ratio 30-50%",
+                            "Deeper qualification",
+                        ],
+                    },
                 ]
-            
+
             summary = {
                 "sales_rep": sales_rep,
                 "analysis_period": f"{time_period_days} days",
@@ -552,50 +612,52 @@ class SalesCoachAgent(BaseAgent):
                 "historical_insights": len(coaching_history),
                 "action_plan": action_plan,
                 "next_review_date": (datetime.now() + timedelta(days=14)).isoformat(),
-                "confidence_score": 0.9
+                "confidence_score": 0.9,
             }
-            
+
             # Store coaching summary in AI Memory
             await self.ai_memory.store_memory(
                 content=f"Coaching summary for {sales_rep}: {performance_summary}",
                 category=MemoryCategory.GONG_COACHING_RECOMMENDATION,
-                tags=["coaching_summary", sales_rep.lower().replace(' ', '_'), "performance_analysis"],
-                importance_score=0.8
+                tags=[
+                    "coaching_summary",
+                    sales_rep.lower().replace(" ", "_"),
+                    "performance_analysis",
+                ],
+                importance_score=0.8,
             )
-            
+
             logger.info(f"Created coaching summary for {sales_rep}")
             return summary
-            
+
         except Exception as e:
             logger.error(f"Error creating coaching summary for {sales_rep}: {e}")
-            return {
-                "error": str(e),
-                "sales_rep": sales_rep,
-                "status": "failed"
-            }
-    
-    async def _get_deal_context(self, deal_id: Optional[str]) -> Optional[Dict[str, Any]]:
+            return {"error": str(e), "sales_rep": sales_rep, "status": "failed"}
+
+    async def _get_deal_context(
+        self, deal_id: Optional[str]
+    ) -> Optional[Dict[str, Any]]:
         """Get HubSpot deal context for call analysis"""
         if not deal_id or not self.hubspot_connector:
             return None
-        
+
         try:
             async with self.hubspot_connector as connector:
                 deals_data = await connector.query_hubspot_deals(limit=1)
-                
+
                 if not deals_data.empty:
                     deal_info = deals_data.iloc[0]
                     return {
-                        "stage": deal_info.get('DEAL_STAGE'),
-                        "value": deal_info.get('AMOUNT'),
-                        "company": deal_info.get('COMPANY_NAME'),
-                        "close_date": deal_info.get('CLOSE_DATE')
+                        "stage": deal_info.get("DEAL_STAGE"),
+                        "value": deal_info.get("AMOUNT"),
+                        "company": deal_info.get("COMPANY_NAME"),
+                        "close_date": deal_info.get("CLOSE_DATE"),
                     }
         except Exception as e:
             logger.error(f"Error getting deal context for {deal_id}: {e}")
-        
+
         return None
-    
+
     def _categorize_sentiment(self, sentiment: float) -> str:
         """Categorize sentiment score into human-readable category"""
         if sentiment > 0.6:
@@ -608,22 +670,26 @@ class SalesCoachAgent(BaseAgent):
             return "Negative"
         else:
             return "Very Negative"
-    
+
     def _analyze_historical_patterns(
-        self, 
-        historical_insights: List[Dict[str, Any]], 
-        current_analysis: CallAnalysisResult
+        self,
+        historical_insights: List[Dict[str, Any]],
+        current_analysis: CallAnalysisResult,
     ) -> Optional[CoachingRecommendation]:
         """Analyze historical patterns to provide trend-based coaching"""
         if len(historical_insights) < 2:
             return None
-        
+
         # Look for recurring issues
-        sentiment_trend = [insight.get('sentiment_score', 0) for insight in historical_insights if insight.get('sentiment_score')]
-        
+        sentiment_trend = [
+            insight.get("sentiment_score", 0)
+            for insight in historical_insights
+            if insight.get("sentiment_score")
+        ]
+
         if sentiment_trend and len(sentiment_trend) >= 3:
             avg_historical_sentiment = sum(sentiment_trend) / len(sentiment_trend)
-            
+
             if current_analysis.overall_sentiment < avg_historical_sentiment - 0.2:
                 return CoachingRecommendation(
                     category=CoachingCategory.SENTIMENT_IMPROVEMENT,
@@ -636,17 +702,17 @@ class SalesCoachAgent(BaseAgent):
                         "Practice objection handling for common concerns",
                         "Focus on building rapport early in calls",
                         "Prepare better discovery questions",
-                        "Schedule role-play session with manager"
+                        "Schedule role-play session with manager",
                     ],
                     confidence_score=0.8,
                     call_id=current_analysis.call_id,
                     supporting_evidence=[
                         f"Current sentiment: {current_analysis.overall_sentiment:.2f}",
                         f"Recent average: {avg_historical_sentiment:.2f}",
-                        f"Based on {len(sentiment_trend)} recent calls"
-                    ]
+                        f"Based on {len(sentiment_trend)} recent calls",
+                    ],
                 )
-        
+
         return None
 
 
@@ -655,4 +721,4 @@ async def create_sales_coach_agent(config: Dict[str, Any] = None) -> SalesCoachA
     """Create and initialize a Sales Coach Agent instance"""
     agent = SalesCoachAgent()
     await agent.initialize()
-    return agent 
+    return agent

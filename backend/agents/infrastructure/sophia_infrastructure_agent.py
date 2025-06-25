@@ -12,12 +12,14 @@ import json
 from backend.agents.core.base_agent import BaseAgent, Task
 from backend.agents.core.agno_mcp_bridge import AgnoMCPBridge
 
+
 # Mock Redis client to avoid redis_client compatibility issues with Python 3.11
 class MockRedisClient:
     """Mock Redis client for testing purposes"""
+
     async def set_key(self, key: str, value: str) -> bool:
         return True
-    
+
     async def get_key(self, key: str) -> str:
         return ""
 
@@ -342,7 +344,7 @@ class SophiaInfrastructureAgent(BaseAgent):
         try:
             await self.redis_service.set_key(
                 f"infrastructure_patterns_{pattern_key}",
-                json.dumps(self.optimization_patterns[pattern_key])
+                json.dumps(self.optimization_patterns[pattern_key]),
             )
         except Exception as e:
             self.logger.warning(f"Could not persist patterns to Redis: {e}")
@@ -406,17 +408,30 @@ class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
 
         return implementation
 
-    async def _analyze_geo_distribution(self, traffic_analysis: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_geo_distribution(
+        self, traffic_analysis: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Analyze geographic distribution of traffic"""
-        return {"primary_regions": ["us-east", "us-west"], "traffic_distribution": {"us-east": 0.6, "us-west": 0.4}}
+        return {
+            "primary_regions": ["us-east", "us-west"],
+            "traffic_distribution": {"us-east": 0.6, "us-west": 0.4},
+        }
 
-    async def _generate_optimal_dns_config(self, geo_distribution: Dict[str, Any]) -> Dict[str, Any]:
+    async def _generate_optimal_dns_config(
+        self, geo_distribution: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Generate optimal DNS configuration"""
         return {
-            "geo_routing": {"us-east": "server1.example.com", "us-west": "server2.example.com"},
+            "geo_routing": {
+                "us-east": "server1.example.com",
+                "us-west": "server2.example.com",
+            },
             "ttl_optimization": {"A": 300, "CNAME": 3600},
-            "failover_config": {"primary": "server1.example.com", "secondary": "server2.example.com"},
-            "security_enhancements": {"dnssec": True}
+            "failover_config": {
+                "primary": "server1.example.com",
+                "secondary": "server2.example.com",
+            },
+            "security_enhancements": {"dnssec": True},
         }
 
 
@@ -437,20 +452,26 @@ class SophiaPerformanceAgent(SophiaInfrastructureAgent):
 
         return implementation
 
-    async def _identify_bottlenecks(self, metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _identify_bottlenecks(
+        self, metrics: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Identify performance bottlenecks"""
         return [{"type": "cpu", "severity": "medium", "location": "web_server"}]
 
-    async def _generate_performance_optimizations(self, bottlenecks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def _generate_performance_optimizations(
+        self, bottlenecks: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
         """Generate performance optimizations"""
         return [{"optimization": "increase_cpu", "impact": "high", "risk": "low"}]
 
-    async def _create_safe_performance_plan(self, optimizations: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def _create_safe_performance_plan(
+        self, optimizations: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Create safe implementation plan"""
         return {
             "plan": "gradual_optimization",
             "steps": ["test_in_staging", "gradual_rollout", "monitor_metrics"],
-            "estimated_improvement": "30%"
+            "estimated_improvement": "30%",
         }
 
 
@@ -482,21 +503,27 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             "status": "secure",
             "last_scan": datetime.utcnow().isoformat(),
             "vulnerabilities_found": 0,
-            "security_score": 95
+            "security_score": 95,
         }
 
-    async def _identify_vulnerabilities(self, security_status: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _identify_vulnerabilities(
+        self, security_status: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Identify security vulnerabilities"""
         return []  # No vulnerabilities found
 
-    async def _auto_remediate_vulnerabilities(self, vulnerabilities: List[Dict[str, Any]]) -> None:
+    async def _auto_remediate_vulnerabilities(
+        self, vulnerabilities: List[Dict[str, Any]]
+    ) -> None:
         """Auto-remediate security vulnerabilities"""
         for vuln in vulnerabilities:
             self.logger.info(f"Remediating vulnerability: {vuln}")
 
     async def _update_compliance_status(self, security_status: Dict[str, Any]) -> None:
         """Update compliance status"""
-        self.logger.info(f"Compliance status updated: {security_status.get('security_score', 0)}/100")
+        self.logger.info(
+            f"Compliance status updated: {security_status.get('security_score', 0)}/100"
+        )
 
     # Placeholder implementations for missing methods
     async def _check_dns_health(self) -> Dict[str, Any]:
@@ -523,19 +550,27 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         """Check security status"""
         return {"vulnerabilities": 0, "last_scan": datetime.utcnow().isoformat()}
 
-    async def _analyze_patterns(self, deployment_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def _analyze_patterns(
+        self, deployment_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Analyze historical patterns"""
         return {"trend": "stable", "peak_hours": [14, 15, 16]}
 
-    async def _predict_load_changes(self, current_load: float, historical_patterns: Dict[str, Any]) -> Dict[str, Any]:
+    async def _predict_load_changes(
+        self, current_load: float, historical_patterns: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Predict load changes"""
         return {"predicted_load": current_load * 1.1, "confidence": 0.8}
 
-    async def _predict_issues(self, state: Dict[str, Any], patterns: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _predict_issues(
+        self, state: Dict[str, Any], patterns: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Predict potential issues"""
         return [{"issue": "none", "probability": 0.1}]
 
-    async def _identify_cost_savings(self, cost_analysis: Dict[str, Any], load_prediction: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _identify_cost_savings(
+        self, cost_analysis: Dict[str, Any], load_prediction: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Identify cost saving opportunities"""
         return [{"opportunity": "optimize_instances", "savings": 100}]
 
@@ -543,7 +578,12 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         """Generate optimization suggestions"""
         return ["Enable caching", "Optimize database queries"]
 
-    async def _determine_critical_action(self, state: Dict[str, Any], predictions: Dict[str, Any], context: InfrastructureContext) -> tuple[str, str]:
+    async def _determine_critical_action(
+        self,
+        state: Dict[str, Any],
+        predictions: Dict[str, Any],
+        context: InfrastructureContext,
+    ) -> tuple[str, str]:
         """Determine the most critical action needed"""
         if context.error_rate > 0.05:
             return "heal", "High error rate detected"
@@ -552,11 +592,15 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         else:
             return "optimize", "Normal operation, optimization opportunities available"
 
-    async def _calculate_confidence(self, state: Dict[str, Any], predictions: Dict[str, Any]) -> float:
+    async def _calculate_confidence(
+        self, state: Dict[str, Any], predictions: Dict[str, Any]
+    ) -> float:
         """Calculate confidence in the decision"""
         return 0.85  # Default confidence
 
-    async def _assess_risk_level(self, action: str, context: InfrastructureContext) -> str:
+    async def _assess_risk_level(
+        self, action: str, context: InfrastructureContext
+    ) -> str:
         """Assess risk level of the action"""
         if action == "rollback":
             return "low"
@@ -567,24 +611,28 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         else:
             return "low"
 
-    async def _generate_recommendations(self, action: str, state: Dict[str, Any], predictions: Dict[str, Any]) -> List[str]:
+    async def _generate_recommendations(
+        self, action: str, state: Dict[str, Any], predictions: Dict[str, Any]
+    ) -> List[str]:
         """Generate specific recommendations"""
         recommendations = {
             "scale_up": ["Add 2 more instances", "Enable auto-scaling"],
             "optimize": ["Enable caching", "Optimize database queries"],
             "heal": ["Restart failed services", "Clear error logs"],
             "deploy": ["Test in staging first", "Monitor deployment closely"],
-            "rollback": ["Rollback to previous version", "Analyze failure cause"]
+            "rollback": ["Rollback to previous version", "Analyze failure cause"],
         }
         return recommendations.get(action, ["Monitor system"])
 
-    async def _create_execution_plan(self, action: str, recommendations: List[str], context: InfrastructureContext) -> Dict[str, Any]:
+    async def _create_execution_plan(
+        self, action: str, recommendations: List[str], context: InfrastructureContext
+    ) -> Dict[str, Any]:
         """Create detailed execution plan"""
         return {
             "action": action,
             "steps": recommendations,
             "estimated_duration": "5-10 minutes",
-            "rollback_plan": "Automated rollback available"
+            "rollback_plan": "Automated rollback available",
         }
 
     async def _validate_decision_safety(self, decision: InfrastructureDecision) -> bool:
@@ -594,20 +642,26 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             return False
         return True
 
-    async def _execute_infrastructure_action(self, decision: InfrastructureDecision) -> Dict[str, Any]:
+    async def _execute_infrastructure_action(
+        self, decision: InfrastructureDecision
+    ) -> Dict[str, Any]:
         """Execute the infrastructure action"""
         # Placeholder implementation
         return {
             "action": decision.action,
             "status": "completed",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
-    async def _monitor_execution(self, result: Dict[str, Any], decision: InfrastructureDecision) -> None:
+    async def _monitor_execution(
+        self, result: Dict[str, Any], decision: InfrastructureDecision
+    ) -> None:
         """Monitor execution results"""
         self.logger.info(f"Monitoring execution of {decision.action}")
 
-    async def _learn_from_execution(self, result: Dict[str, Any], decision: InfrastructureDecision) -> None:
+    async def _learn_from_execution(
+        self, result: Dict[str, Any], decision: InfrastructureDecision
+    ) -> None:
         """Learn from execution results"""
         self.logger.info(f"Learning from execution of {decision.action}")
 
@@ -619,10 +673,12 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         """Parse natural language command intent"""
         return {
             "action": "analyze" if "analyze" in command.lower() else "optimize",
-            "summary": f"User requested: {command}"
+            "summary": f"User requested: {command}",
         }
 
-    async def _generate_context_from_command(self, command: str, intent: Dict[str, Any]) -> InfrastructureContext:
+    async def _generate_context_from_command(
+        self, command: str, intent: Dict[str, Any]
+    ) -> InfrastructureContext:
         """Generate context from command"""
         return InfrastructureContext(
             environment="staging",
@@ -630,7 +686,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             error_rate=0.01,
             deployment_history=[],
             cost_metrics={},
-            performance_metrics={}
+            performance_metrics={},
         )
 
     async def _get_current_context(self) -> InfrastructureContext:
@@ -641,12 +697,16 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             error_rate=0.01,
             deployment_history=[],
             cost_metrics={},
-            performance_metrics={}
+            performance_metrics={},
         )
 
-    async def _log_decision(self, decision: InfrastructureDecision, context: InfrastructureContext) -> None:
+    async def _log_decision(
+        self, decision: InfrastructureDecision, context: InfrastructureContext
+    ) -> None:
         """Log decision for audit trail"""
-        self.logger.info(f"Decision logged: {decision.action} with confidence {decision.confidence}")
+        self.logger.info(
+            f"Decision logged: {decision.action} with confidence {decision.confidence}"
+        )
 
     async def _calculate_sleep_duration(self, context: InfrastructureContext) -> int:
         """Calculate sleep duration based on context"""

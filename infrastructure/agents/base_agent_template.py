@@ -25,6 +25,7 @@ meter = metrics.get_meter(__name__)
 
 class HealthStatus(Enum):
     """Agent health status"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -32,29 +33,36 @@ class HealthStatus(Enum):
 
 class AgentRequest:
     """Standard agent request format"""
-    def __init__(self, 
-                 action: str, 
-                 payload: Dict[str, Any],
-                 correlation_id: Optional[str] = None,
-                 priority: int = 5):
+
+    def __init__(
+        self,
+        action: str,
+        payload: Dict[str, Any],
+        correlation_id: Optional[str] = None,
+        priority: int = 5,
+    ):
         self.action = action
         self.payload = payload
         self.correlation_id = correlation_id or self._generate_id()
         self.priority = priority
         self.timestamp = datetime.utcnow()
-    
+
     def _generate_id(self) -> str:
         import uuid
+
         return str(uuid.uuid4())
 
 
 class AgentResponse:
     """Standard agent response format"""
-    def __init__(self,
-                 status: str,
-                 data: Optional[Dict[str, Any]] = None,
-                 error: Optional[str] = None,
-                 metadata: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        status: str,
+        data: Optional[Dict[str, Any]] = None,
+        error: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         self.status = status
         self.data = data or {}
         self.error = error
@@ -67,7 +75,7 @@ class BaseAgent(ABC):
     Base class for all Sophia AI agents
     Implements expert-recommended patterns
     """
-    
+
     def __init__(self, name: str, config: Dict[str, Any]):
         self.name = name
         self.config = config
@@ -75,24 +83,23 @@ class BaseAgent(ABC):
         self._health_status = HealthStatus.HEALTHY
         self._metrics = {}
         self._setup_metrics()
-    
+
     def _setup_metrics(self):
         """Initialize OpenTelemetry metrics"""
         self.request_counter = meter.create_counter(
             f"{self.name}_requests_total",
-            description=f"Total requests processed by {self.name}"
+            description=f"Total requests processed by {self.name}",
         )
-        
+
         self.error_counter = meter.create_counter(
-            f"{self.name}_errors_total",
-            description=f"Total errors in {self.name}"
+            f"{self.name}_errors_total", description=f"Total errors in {self.name}"
         )
-        
+
         self.latency_histogram = meter.create_histogram(
             f"{self.name}_latency_seconds",
-            description=f"Request latency for {self.name}"
+            description=f"Request latency for {self.name}",
         )
-    
+
     async def health_check(self) -> HealthStatus:
         """
         Health check implementation
@@ -106,19 +113,19 @@ class BaseAgent(ABC):
             self.logger.error("Health check failed", error=str(e))
             self._health_status = HealthStatus.UNHEALTHY
             return self._health_status
-    
+
     @abstractmethod
     async def _perform_health_check(self):
         """Implement specific health checks in subclasses"""
         pass
-    
+
     @abstractmethod
     async def process(self, request: AgentRequest) -> AgentResponse:
         """
         Main processing method - must be implemented by all agents
         """
         pass
-    
+
     async def get_metrics(self) -> Dict[str, float]:
         """
         Return current metrics
@@ -126,14 +133,14 @@ class BaseAgent(ABC):
         return {
             "health_status": self._health_status.value,
             "uptime_seconds": self._get_uptime(),
-            **self._metrics
+            **self._metrics,
         }
-    
+
     def _get_uptime(self) -> float:
         """Calculate agent uptime"""
         # Implementation depends on how you track start time
         return 0.0
-    
+
     async def execute_with_telemetry(self, request: AgentRequest) -> AgentResponse:
         """
         Execute request with full observability
@@ -142,54 +149,54 @@ class BaseAgent(ABC):
             span.set_attribute("agent.name", self.name)
             span.set_attribute("request.action", request.action)
             span.set_attribute("request.correlation_id", request.correlation_id)
-            
+
             start_time = datetime.utcnow()
-            
+
             try:
                 # Log request
                 self.logger.info(
                     "Processing request",
                     action=request.action,
-                    correlation_id=request.correlation_id
+                    correlation_id=request.correlation_id,
                 )
-                
+
                 # Process request
                 response = await self.process(request)
-                
+
                 # Record metrics
                 latency = (datetime.utcnow() - start_time).total_seconds()
                 self.latency_histogram.record(latency)
                 self.request_counter.add(1, {"status": response.status})
-                
+
                 # Log response
                 self.logger.info(
                     "Request completed",
                     action=request.action,
                     correlation_id=request.correlation_id,
                     status=response.status,
-                    latency=latency
+                    latency=latency,
                 )
-                
+
                 return response
-                
+
             except Exception as e:
                 # Record error
                 self.error_counter.add(1, {"error_type": type(e).__name__})
                 span.record_exception(e)
-                
+
                 # Log error
                 self.logger.error(
                     "Request failed",
                     action=request.action,
                     correlation_id=request.correlation_id,
-                    error=str(e)
+                    error=str(e),
                 )
-                
+
                 # Return error response
                 return AgentResponse(
                     status="error",
                     error=str(e),
-                    metadata={"correlation_id": request.correlation_id}
+                    metadata={"correlation_id": request.correlation_id},
                 )
 
 
@@ -198,28 +205,22 @@ class ExampleAgent(BaseAgent):
     """
     Example agent implementation
     """
-    
+
     async def _perform_health_check(self):
         """Check agent-specific health"""
         # Example: Check database connection, API availability, etc.
         pass
-    
+
     async def process(self, request: AgentRequest) -> AgentResponse:
         """Process the request"""
         # Example implementation
         action = request.action
-        
+
         if action == "ping":
-            return AgentResponse(
-                status="success",
-                data={"message": "pong"}
-            )
-        
+            return AgentResponse(status="success", data={"message": "pong"})
+
         # Add your agent-specific logic here
-        return AgentResponse(
-            status="success",
-            data={"processed": True}
-        )
+        return AgentResponse(status="success", data={"processed": True})
 
 
 # Circuit breaker decorator for external calls
@@ -228,20 +229,21 @@ class CircuitBreaker:
     Simple circuit breaker implementation
     Based on expert recommendation for resilience
     """
+
     def __init__(self, failure_threshold: int = 5, recovery_timeout: int = 60):
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "closed"  # closed, open, half-open
-    
+
     async def call(self, func, *args, **kwargs):
         if self.state == "open":
             if self._should_attempt_reset():
                 self.state = "half-open"
             else:
                 raise Exception("Circuit breaker is open")
-        
+
         try:
             result = await func(*args, **kwargs)
             self._on_success()
@@ -249,17 +251,18 @@ class CircuitBreaker:
         except Exception as e:
             self._on_failure()
             raise e
-    
+
     def _should_attempt_reset(self) -> bool:
         return (
-            self.last_failure_time and
-            (datetime.utcnow() - self.last_failure_time).seconds >= self.recovery_timeout
+            self.last_failure_time
+            and (datetime.utcnow() - self.last_failure_time).seconds
+            >= self.recovery_timeout
         )
-    
+
     def _on_success(self):
         self.failure_count = 0
         self.state = "closed"
-    
+
     def _on_failure(self):
         self.failure_count += 1
         self.last_failure_time = datetime.utcnow()
@@ -270,26 +273,20 @@ class CircuitBreaker:
 if __name__ == "__main__":
     # Example usage
     async def main():
-        agent = ExampleAgent(
-            name="example-agent",
-            config={"debug": True}
-        )
-        
+        agent = ExampleAgent(name="example-agent", config={"debug": True})
+
         # Test request
-        request = AgentRequest(
-            action="ping",
-            payload={}
-        )
-        
+        request = AgentRequest(action="ping", payload={})
+
         response = await agent.execute_with_telemetry(request)
         print(f"Response: {response.status}")
-        
+
         # Check health
         health = await agent.health_check()
         print(f"Health: {health.value}")
-        
+
         # Get metrics
         metrics = await agent.get_metrics()
         print(f"Metrics: {metrics}")
-    
+
     asyncio.run(main())

@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class HubSpotDataQuery:
     """Configuration for HubSpot data queries via Snowflake"""
+
     table_name: str
     filters: Dict[str, Any]
     date_range: Optional[Dict[str, datetime]] = None
@@ -40,22 +41,24 @@ class HubSpotDataQuery:
 class SnowflakeHubSpotConnector:
     """
     Connector for accessing HubSpot data via Snowflake Secure Data Share
-    
+
     This class provides methods to query HubSpot data directly within Snowflake,
     leveraging native Snowflake capabilities while maintaining compatibility
     with existing ingestion patterns.
     """
-    
+
     def __init__(self):
         self.connection = None
-        self.hubspot_database = "HUBSPOT_SECURE_SHARE"  # Placeholder - actual share name
+        self.hubspot_database = (
+            "HUBSPOT_SECURE_SHARE"  # Placeholder - actual share name
+        )
         self.hubspot_schema = "PUBLIC"
         self.initialized = False
-        
+
         # Common HubSpot table mappings (to be updated with actual share structure)
         self.table_mappings = {
             "contacts": "CONTACTS",
-            "companies": "COMPANIES", 
+            "companies": "COMPANIES",
             "deals": "DEALS",
             "deal_stages": "DEAL_STAGES",
             "activities": "ACTIVITIES",
@@ -64,23 +67,23 @@ class SnowflakeHubSpotConnector:
             "calls": "CALLS",
             "notes": "NOTES",
             "tasks": "TASKS",
-            "properties": "PROPERTIES"
+            "properties": "PROPERTIES",
         }
-    
+
     async def __aenter__(self):
         """Async context manager entry - initialize connection"""
         await self.initialize()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit - cleanup resources"""
         await self.close()
-    
+
     async def initialize(self) -> None:
         """Initialize Snowflake connection for HubSpot data access"""
         if self.initialized:
             return
-            
+
         try:
             # TODO: Update with actual Snowflake connection from ESC config
             self.connection = snowflake.connector.connect(
@@ -90,149 +93,155 @@ class SnowflakeHubSpotConnector:
                 warehouse=config.get("snowflake_warehouse", "COMPUTE_WH"),
                 database=self.hubspot_database,
                 schema=self.hubspot_schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN")
+                role=config.get("snowflake_role", "ACCOUNTADMIN"),
             )
-            
+
             self.initialized = True
             logger.info("✅ Snowflake HubSpot connector initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake HubSpot connector: {e}")
             raise
-    
+
     async def query_hubspot_contacts(
-        self, 
+        self,
         filters: Optional[Dict[str, Any]] = None,
         date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 1000
+        limit: Optional[int] = 1000,
     ) -> pd.DataFrame:
         """
         Query HubSpot contacts from Snowflake Secure Data Share
-        
+
         Args:
             filters: Dictionary of filter conditions
             date_range: Date range for filtering (created_date, modified_date)
             limit: Maximum number of records to return
-            
+
         Returns:
             DataFrame with contact data ready for AI processing
         """
         if not self.initialized:
             await self.initialize()
-            
+
         query = self._build_contact_query(filters, date_range, limit)
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             # Convert to DataFrame for easy processing
             columns = [desc[0] for desc in cursor.description]
             data = cursor.fetchall()
             df = pd.DataFrame(data, columns=columns)
-            
+
             logger.info(f"Retrieved {len(df)} contacts from HubSpot Secure Data Share")
             return df
-            
+
         except Exception as e:
             logger.error(f"Error querying HubSpot contacts: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def query_hubspot_deals(
         self,
         pipeline_filters: Optional[List[str]] = None,
         stage_filters: Optional[List[str]] = None,
         date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 1000
+        limit: Optional[int] = 1000,
     ) -> pd.DataFrame:
         """
         Query HubSpot deals with pipeline and stage filtering
-        
+
         Args:
             pipeline_filters: List of pipeline names/IDs to include
             stage_filters: List of deal stages to include
             date_range: Date range for filtering
             limit: Maximum number of records
-            
+
         Returns:
             DataFrame with deal data optimized for revenue analysis
         """
         if not self.initialized:
             await self.initialize()
-            
-        query = self._build_deals_query(pipeline_filters, stage_filters, date_range, limit)
-        
+
+        query = self._build_deals_query(
+            pipeline_filters, stage_filters, date_range, limit
+        )
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             data = cursor.fetchall()
             df = pd.DataFrame(data, columns=columns)
-            
+
             logger.info(f"Retrieved {len(df)} deals from HubSpot Secure Data Share")
             return df
-            
+
         except Exception as e:
             logger.error(f"Error querying HubSpot deals: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def query_hubspot_activities(
         self,
         activity_types: Optional[List[str]] = None,
         contact_ids: Optional[List[str]] = None,
         date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 5000
+        limit: Optional[int] = 5000,
     ) -> pd.DataFrame:
         """
         Query HubSpot activities (emails, calls, meetings, notes)
-        
+
         Args:
             activity_types: Types of activities to include
             contact_ids: Specific contact IDs to filter by
             date_range: Date range for activity filtering
             limit: Maximum number of activities
-            
+
         Returns:
             DataFrame with activity data for interaction analysis
         """
         if not self.initialized:
             await self.initialize()
-            
-        query = self._build_activities_query(activity_types, contact_ids, date_range, limit)
-        
+
+        query = self._build_activities_query(
+            activity_types, contact_ids, date_range, limit
+        )
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             data = cursor.fetchall()
             df = pd.DataFrame(data, columns=columns)
-            
-            logger.info(f"Retrieved {len(df)} activities from HubSpot Secure Data Share")
+
+            logger.info(
+                f"Retrieved {len(df)} activities from HubSpot Secure Data Share"
+            )
             return df
-            
+
         except Exception as e:
             logger.error(f"Error querying HubSpot activities: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     def _build_contact_query(
-        self, 
-        filters: Optional[Dict[str, Any]], 
-        date_range: Optional[Dict[str, datetime]], 
-        limit: Optional[int]
+        self,
+        filters: Optional[Dict[str, Any]],
+        date_range: Optional[Dict[str, datetime]],
+        limit: Optional[int],
     ) -> str:
         """Build SQL query for HubSpot contacts"""
-        
+
         base_query = f"""
         SELECT 
             contact_id,
@@ -260,7 +269,7 @@ class SnowflakeHubSpotConnector:
         FROM {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings['contacts']}
         WHERE 1=1
         """
-        
+
         # Add filters
         if filters:
             for key, value in filters.items():
@@ -271,31 +280,35 @@ class SnowflakeHubSpotConnector:
                     base_query += f" AND {key} IN ('{values}')"
                 else:
                     base_query += f" AND {key} = {value}"
-        
+
         # Add date range filtering
         if date_range:
-            if 'start_date' in date_range:
-                base_query += f" AND created_date >= '{date_range['start_date'].isoformat()}'"
-            if 'end_date' in date_range:
-                base_query += f" AND created_date <= '{date_range['end_date'].isoformat()}'"
-        
+            if "start_date" in date_range:
+                base_query += (
+                    f" AND created_date >= '{date_range['start_date'].isoformat()}'"
+                )
+            if "end_date" in date_range:
+                base_query += (
+                    f" AND created_date <= '{date_range['end_date'].isoformat()}'"
+                )
+
         # Add ordering and limit
         base_query += " ORDER BY last_modified_date DESC"
-        
+
         if limit:
             base_query += f" LIMIT {limit}"
-            
+
         return base_query
-    
+
     def _build_deals_query(
         self,
         pipeline_filters: Optional[List[str]],
-        stage_filters: Optional[List[str]], 
+        stage_filters: Optional[List[str]],
         date_range: Optional[Dict[str, datetime]],
-        limit: Optional[int]
+        limit: Optional[int],
     ) -> str:
         """Build SQL query for HubSpot deals"""
-        
+
         base_query = f"""
         SELECT 
             d.deal_id,
@@ -325,40 +338,44 @@ class SnowflakeHubSpotConnector:
             ON d.associated_company_id = c.company_id
         WHERE 1=1
         """
-        
+
         # Add pipeline filters
         if pipeline_filters:
             pipelines = "','".join(pipeline_filters)
             base_query += f" AND d.deal_pipeline IN ('{pipelines}')"
-        
-        # Add stage filters  
+
+        # Add stage filters
         if stage_filters:
             stages = "','".join(stage_filters)
             base_query += f" AND d.deal_stage IN ('{stages}')"
-        
+
         # Add date range
         if date_range:
-            if 'start_date' in date_range:
-                base_query += f" AND d.create_date >= '{date_range['start_date'].isoformat()}'"
-            if 'end_date' in date_range:
-                base_query += f" AND d.create_date <= '{date_range['end_date'].isoformat()}'"
-        
+            if "start_date" in date_range:
+                base_query += (
+                    f" AND d.create_date >= '{date_range['start_date'].isoformat()}'"
+                )
+            if "end_date" in date_range:
+                base_query += (
+                    f" AND d.create_date <= '{date_range['end_date'].isoformat()}'"
+                )
+
         base_query += " ORDER BY d.last_modified_date DESC"
-        
+
         if limit:
             base_query += f" LIMIT {limit}"
-            
+
         return base_query
-    
+
     def _build_activities_query(
         self,
         activity_types: Optional[List[str]],
         contact_ids: Optional[List[str]],
         date_range: Optional[Dict[str, datetime]],
-        limit: Optional[int]
+        limit: Optional[int],
     ) -> str:
         """Build SQL query for HubSpot activities"""
-        
+
         base_query = f"""
         SELECT 
             activity_id,
@@ -380,58 +397,64 @@ class SnowflakeHubSpotConnector:
         FROM {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings['activities']}
         WHERE 1=1
         """
-        
+
         # Add activity type filters
         if activity_types:
             types = "','".join(activity_types)
             base_query += f" AND activity_type IN ('{types}')"
-        
+
         # Add contact filters
         if contact_ids:
             contacts = "','".join(contact_ids)
             base_query += f" AND contact_id IN ('{contacts}')"
-        
+
         # Add date range
         if date_range:
-            if 'start_date' in date_range:
-                base_query += f" AND activity_date >= '{date_range['start_date'].isoformat()}'"
-            if 'end_date' in date_range:
-                base_query += f" AND activity_date <= '{date_range['end_date'].isoformat()}'"
-        
+            if "start_date" in date_range:
+                base_query += (
+                    f" AND activity_date >= '{date_range['start_date'].isoformat()}'"
+                )
+            if "end_date" in date_range:
+                base_query += (
+                    f" AND activity_date <= '{date_range['end_date'].isoformat()}'"
+                )
+
         base_query += " ORDER BY activity_date DESC"
-        
+
         if limit:
             base_query += f" LIMIT {limit}"
-            
+
         return base_query
-    
+
     async def get_hubspot_data_for_ai_processing(
         self,
         data_type: str = "contacts",
         ai_context: Optional[str] = None,
-        limit: int = 1000
+        limit: int = 1000,
     ) -> Dict[str, Any]:
         """
         Get HubSpot data optimized for AI processing and analysis
-        
+
         Args:
             data_type: Type of data to retrieve (contacts, deals, activities)
             ai_context: Context for AI processing (lead_scoring, churn_prediction, etc.)
             limit: Maximum records to process
-            
+
         Returns:
             Dictionary with data ready for AI agents and Snowflake Cortex processing
         """
         # Placeholder implementation - will be expanded based on actual Secure Data Share structure
-        logger.info(f"Preparing {data_type} data for AI processing with context: {ai_context}")
-        
+        logger.info(
+            f"Preparing {data_type} data for AI processing with context: {ai_context}"
+        )
+
         return {
             "data_type": data_type,
             "ai_context": ai_context,
             "status": "ready_for_implementation",
-            "notes": "Awaiting HubSpot Secure Data Share configuration"
+            "notes": "Awaiting HubSpot Secure Data Share configuration",
         }
-    
+
     async def close(self):
         """Close Snowflake connection"""
         if self.connection:
@@ -452,12 +475,14 @@ async def get_hubspot_connector() -> SnowflakeHubSpotConnector:
 
 
 # Convenience functions for BI agents
-async def get_recent_hubspot_contacts(days: int = 30, limit: int = 1000) -> pd.DataFrame:
+async def get_recent_hubspot_contacts(
+    days: int = 30, limit: int = 1000
+) -> pd.DataFrame:
     """Get recent HubSpot contacts for AI analysis"""
     connector = await get_hubspot_connector()
     date_range = {
-        'start_date': datetime.now() - timedelta(days=days),
-        'end_date': datetime.now()
+        "start_date": datetime.now() - timedelta(days=days),
+        "end_date": datetime.now(),
     }
     return await connector.query_hubspot_contacts(date_range=date_range, limit=limit)
 
@@ -466,32 +491,39 @@ async def get_active_hubspot_deals(limit: int = 500) -> pd.DataFrame:
     """Get active HubSpot deals for pipeline analysis"""
     connector = await get_hubspot_connector()
     # Filter for non-closed stages
-    stage_filters = ['appointmentscheduled', 'qualifiedtobuy', 'presentationscheduled', 'decisionmakerboughtin']
+    stage_filters = [
+        "appointmentscheduled",
+        "qualifiedtobuy",
+        "presentationscheduled",
+        "decisionmakerboughtin",
+    ]
     return await connector.query_hubspot_deals(stage_filters=stage_filters, limit=limit)
 
 
-async def get_hubspot_activity_summary(contact_id: str, days: int = 90) -> Dict[str, Any]:
+async def get_hubspot_activity_summary(
+    contact_id: str, days: int = 90
+) -> Dict[str, Any]:
     """Get activity summary for a specific contact"""
     connector = await get_hubspot_connector()
     date_range = {
-        'start_date': datetime.now() - timedelta(days=days),
-        'end_date': datetime.now()
+        "start_date": datetime.now() - timedelta(days=days),
+        "end_date": datetime.now(),
     }
-    
+
     activities_df = await connector.query_hubspot_activities(
-        contact_ids=[contact_id],
-        date_range=date_range,
-        limit=1000
+        contact_ids=[contact_id], date_range=date_range, limit=1000
     )
-    
+
     # Summarize activities
     summary = {
         "contact_id": contact_id,
         "total_activities": len(activities_df),
-        "activity_breakdown": activities_df['activity_type'].value_counts().to_dict(),
-        "last_activity_date": activities_df['activity_date'].max() if len(activities_df) > 0 else None,
+        "activity_breakdown": activities_df["activity_type"].value_counts().to_dict(),
+        "last_activity_date": (
+            activities_df["activity_date"].max() if len(activities_df) > 0 else None
+        ),
         "engagement_score": len(activities_df) / days * 30,  # Activities per month
-        "data_source": "snowflake_secure_share"
+        "data_source": "snowflake_secure_share",
     }
-    
-    return summary 
+
+    return summary

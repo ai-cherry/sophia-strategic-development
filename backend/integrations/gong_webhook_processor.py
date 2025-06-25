@@ -309,9 +309,11 @@ class WebhookProcessor:
 
             await self.redis.notify_email_processed(
                 processed_email,
-                NotificationPriority.HIGH
-                if processed_email.requires_response
-                else NotificationPriority.LOW,
+                (
+                    NotificationPriority.HIGH
+                    if processed_email.requires_response
+                    else NotificationPriority.LOW
+                ),
             )
 
             await self.snowflake.update_webhook_status(webhook_id, "completed")

@@ -15,6 +15,7 @@ from enum import Enum
 try:
     from langgraph.graph import StateGraph, END
     from langgraph.prebuilt import ToolExecutor
+
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     LANGGRAPH_AVAILABLE = False
@@ -29,7 +30,9 @@ from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
 from backend.agents.specialized.slack_analysis_agent import SlackAnalysisAgent
-from backend.agents.specialized.linear_project_health_agent import LinearProjectHealthAgent
+from backend.agents.specialized.linear_project_health_agent import (
+    LinearProjectHealthAgent,
+)
 from backend.services.kb_management_service import KBManagementService
 
 logger = logging.getLogger(__name__)
@@ -37,6 +40,7 @@ logger = logging.getLogger(__name__)
 
 class WorkflowType(Enum):
     """Types of enhanced workflows"""
+
     DEAL_ANALYSIS = "deal_analysis"
     CROSS_SOURCE_ANALYSIS = "cross_source_analysis"
     BUSINESS_INTELLIGENCE = "business_intelligence"
@@ -49,18 +53,19 @@ class WorkflowType(Enum):
 
 class WorkflowState(TypedDict):
     """Enhanced workflow state with new data sources"""
+
     # Original fields
     query: str
     workflow_type: str
     deal_id: Optional[str]
     hubspot_data: Optional[Dict[str, Any]]
     gong_data: Optional[Dict[str, Any]]
-    
+
     # Enhanced fields for new integrations
     slack_data: Optional[Dict[str, Any]]
     linear_data: Optional[Dict[str, Any]]
     kb_data: Optional[Dict[str, Any]]
-    
+
     # Analysis results
     call_analysis: Optional[Dict[str, Any]]
     deal_insights: Optional[Dict[str, Any]]
@@ -68,7 +73,7 @@ class WorkflowState(TypedDict):
     slack_insights: Optional[Dict[str, Any]]
     linear_health: Optional[Dict[str, Any]]
     kb_insights: Optional[Dict[str, Any]]
-    
+
     # Workflow control
     next_action: str
     error: Optional[str]
@@ -78,16 +83,20 @@ class WorkflowState(TypedDict):
 @dataclass
 class WorkflowRequest:
     """Enhanced workflow request"""
+
     query: str
     workflow_type: WorkflowType
     parameters: Dict[str, Any] = field(default_factory=dict)
     user_context: Optional[Dict[str, Any]] = None
-    data_sources: List[str] = field(default_factory=lambda: ["hubspot", "gong", "slack", "linear", "kb"])
+    data_sources: List[str] = field(
+        default_factory=lambda: ["hubspot", "gong", "slack", "linear", "kb"]
+    )
 
 
-@dataclass 
+@dataclass
 class WorkflowResult:
     """Enhanced workflow result"""
+
     success: bool
     workflow_type: WorkflowType
     insights: Dict[str, Any]
@@ -100,61 +109,64 @@ class WorkflowResult:
 
 # Enhanced Agent Classes
 
+
 @dataclass
 class SlackAnalysisAgent:
     """Enhanced Slack Analysis Agent for LangGraph integration"""
-    
+
     name: str = "slack_analysis_agent"
     description: str = "Analyzes Slack conversations for business insights"
-    
+
     # Service integrations
     cortex_service: Optional[SnowflakeCortexService] = None
     ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
     slack_agent: Optional[SlackAnalysisAgent] = None
-    
+
     initialized: bool = False
-    
+
     async def initialize(self) -> None:
         """Initialize Slack Analysis Agent"""
         if self.initialized:
             return
-        
+
         try:
-            from backend.agents.specialized.slack_analysis_agent import SlackAnalysisAgent as SlackAgent
-            
+            from backend.agents.specialized.slack_analysis_agent import (
+                SlackAnalysisAgent as SlackAgent,
+            )
+
             self.cortex_service = SnowflakeCortexService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.slack_agent = SlackAgent()
-            
+
             await self.ai_memory.initialize()
             await self.slack_agent.initialize()
-            
+
             self.initialized = True
             logger.info("✅ Slack Analysis Agent initialized for LangGraph")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Slack Analysis Agent: {e}")
             raise
-    
+
     async def analyze_slack_conversations(self, state: WorkflowState) -> WorkflowState:
         """Analyze Slack conversations for the workflow"""
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Get Slack data from query or parameters
             slack_query = state.get("query", "")
-            
+
             # Query Slack conversations (placeholder - would query STG_SLACK_CONVERSATIONS)
             conversations = await self._get_relevant_slack_conversations(slack_query)
-            
+
             if not conversations:
                 state["slack_insights"] = {
                     "message": "No relevant Slack conversations found",
-                    "conversations_analyzed": 0
+                    "conversations_analyzed": 0,
                 }
                 return state
-            
+
             # Analyze conversations
             analysis_results = []
             for conversation in conversations[:5]:  # Limit to top 5 conversations
@@ -162,124 +174,136 @@ class SlackAnalysisAgent:
                     result = await self.slack_agent.analyze_conversation(conversation)
                     analysis_results.append(result)
                 except Exception as e:
-                    logger.warning(f"Failed to analyze conversation {conversation.conversation_id}: {e}")
-            
+                    logger.warning(
+                        f"Failed to analyze conversation {conversation.conversation_id}: {e}"
+                    )
+
             # Aggregate insights
             slack_insights = self._aggregate_slack_insights(analysis_results)
-            
+
             state["slack_data"] = {
                 "conversations": [c.conversation_id for c in conversations],
-                "total_analyzed": len(analysis_results)
+                "total_analyzed": len(analysis_results),
             }
             state["slack_insights"] = slack_insights
-            
+
             logger.info(f"Analyzed {len(analysis_results)} Slack conversations")
             return state
-            
+
         except Exception as e:
             logger.error(f"Error in Slack analysis: {e}")
             state["error"] = f"Slack analysis failed: {str(e)}"
             return state
-    
+
     async def _get_relevant_slack_conversations(self, query: str) -> List[Any]:
         """Get relevant Slack conversations (placeholder implementation)"""
         # In production, this would query STG_SLACK_CONVERSATIONS table
         # For now, return empty list
         return []
-    
+
     def _aggregate_slack_insights(self, results: List[Any]) -> Dict[str, Any]:
         """Aggregate insights from multiple Slack conversation analyses"""
         if not results:
             return {"message": "No analysis results to aggregate"}
-        
+
         # Calculate aggregate metrics
         total_conversations = len(results)
         avg_sentiment = sum(r.overall_sentiment for r in results) / total_conversations
-        avg_business_value = sum(r.business_value_score for r in results) / total_conversations
-        
+        avg_business_value = (
+            sum(r.business_value_score for r in results) / total_conversations
+        )
+
         # Collect all topics and insights
         all_topics = []
         all_insights = []
         all_action_items = []
-        
+
         for result in results:
             all_topics.extend(result.key_topics)
             all_insights.extend([insight.summary for insight in result.insights])
             all_action_items.extend(result.action_items)
-        
+
         # Count topic frequency
         topic_counts = {}
         for topic in all_topics:
             topic_counts[topic] = topic_counts.get(topic, 0) + 1
-        
+
         top_topics = sorted(topic_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-        
+
         return {
             "conversations_analyzed": total_conversations,
             "average_sentiment": avg_sentiment,
             "average_business_value": avg_business_value,
-            "top_topics": [{"topic": topic, "frequency": freq} for topic, freq in top_topics],
+            "top_topics": [
+                {"topic": topic, "frequency": freq} for topic, freq in top_topics
+            ],
             "key_insights": all_insights[:10],
             "action_items": all_action_items[:10],
-            "sentiment_summary": "positive" if avg_sentiment > 0.1 else "negative" if avg_sentiment < -0.1 else "neutral"
+            "sentiment_summary": (
+                "positive"
+                if avg_sentiment > 0.1
+                else "negative" if avg_sentiment < -0.1 else "neutral"
+            ),
         }
 
 
 @dataclass
 class LinearAnalysisAgent:
     """Enhanced Linear Analysis Agent for LangGraph integration"""
-    
+
     name: str = "linear_analysis_agent"
     description: str = "Analyzes Linear project health and development insights"
-    
+
     # Service integrations
     cortex_service: Optional[SnowflakeCortexService] = None
     ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
     linear_agent: Optional[LinearProjectHealthAgent] = None
-    
+
     initialized: bool = False
-    
+
     async def initialize(self) -> None:
         """Initialize Linear Analysis Agent"""
         if self.initialized:
             return
-        
+
         try:
-            from backend.agents.specialized.linear_project_health_agent import LinearProjectHealthAgent
-            
+            from backend.agents.specialized.linear_project_health_agent import (
+                LinearProjectHealthAgent,
+            )
+
             self.cortex_service = SnowflakeCortexService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.linear_agent = LinearProjectHealthAgent()
-            
+
             await self.ai_memory.initialize()
             await self.linear_agent.initialize()
-            
+
             self.initialized = True
             logger.info("✅ Linear Analysis Agent initialized for LangGraph")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Linear Analysis Agent: {e}")
             raise
-    
+
     async def analyze_project_health(self, state: WorkflowState) -> WorkflowState:
         """Analyze Linear project health for the workflow"""
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Get Linear data from query or parameters
             project_query = state.get("query", "")
-            
+
             # Query Linear projects and issues (placeholder - would query STG_LINEAR_ISSUES)
             projects = await self._get_relevant_linear_projects(project_query)
-            
+
             if not projects:
                 state["linear_health"] = {
                     "message": "No relevant Linear projects found",
-                    "projects_analyzed": 0
+                    "projects_analyzed": 0,
                 }
                 return state
-            
+
             # Analyze project health
             health_reports = []
             for project in projects[:3]:  # Limit to top 3 projects
@@ -288,207 +312,236 @@ class LinearAnalysisAgent:
                     health_report = await self.linear_agent.assess_project_health(
                         project_id=project["project_id"],
                         project_name=project["project_name"],
-                        issues=issues
+                        issues=issues,
                     )
                     health_reports.append(health_report)
                 except Exception as e:
-                    logger.warning(f"Failed to analyze project {project['project_id']}: {e}")
-            
+                    logger.warning(
+                        f"Failed to analyze project {project['project_id']}: {e}"
+                    )
+
             # Aggregate health insights
             linear_insights = self._aggregate_linear_insights(health_reports)
-            
+
             state["linear_data"] = {
                 "projects": [p["project_id"] for p in projects],
-                "total_analyzed": len(health_reports)
+                "total_analyzed": len(health_reports),
             }
             state["linear_health"] = linear_insights
-            
+
             logger.info(f"Analyzed {len(health_reports)} Linear projects")
             return state
-            
+
         except Exception as e:
             logger.error(f"Error in Linear analysis: {e}")
             state["error"] = f"Linear analysis failed: {str(e)}"
             return state
-    
+
     async def _get_relevant_linear_projects(self, query: str) -> List[Dict[str, Any]]:
         """Get relevant Linear projects (placeholder implementation)"""
         # In production, this would query STG_LINEAR_PROJECTS table
         return []
-    
+
     async def _get_project_issues(self, project_id: str) -> List[Any]:
         """Get issues for a Linear project (placeholder implementation)"""
         # In production, this would query STG_LINEAR_ISSUES table
         return []
-    
+
     def _aggregate_linear_insights(self, reports: List[Any]) -> Dict[str, Any]:
         """Aggregate insights from multiple Linear project health reports"""
         if not reports:
             return {"message": "No health reports to aggregate"}
-        
+
         # Calculate aggregate metrics
         total_projects = len(reports)
         avg_health_score = sum(r.health_score for r in reports) / total_projects
-        
+
         # Count health statuses
         status_counts = {}
         for report in reports:
             status = report.health_status.value
             status_counts[status] = status_counts.get(status, 0) + 1
-        
+
         # Collect all risks and recommendations
         all_risks = []
         all_recommendations = []
-        
+
         for report in reports:
-            all_risks.extend([{"type": r.risk_type.value, "severity": r.severity} for r in report.risks])
+            all_risks.extend(
+                [
+                    {"type": r.risk_type.value, "severity": r.severity}
+                    for r in report.risks
+                ]
+            )
             all_recommendations.extend(report.recommendations)
-        
+
         # Count risk types
         risk_counts = {}
         for risk in all_risks:
             risk_type = risk["type"]
             risk_counts[risk_type] = risk_counts.get(risk_type, 0) + 1
-        
+
         return {
             "projects_analyzed": total_projects,
             "average_health_score": avg_health_score,
             "health_status_distribution": status_counts,
-            "common_risks": sorted(risk_counts.items(), key=lambda x: x[1], reverse=True)[:5],
+            "common_risks": sorted(
+                risk_counts.items(), key=lambda x: x[1], reverse=True
+            )[:5],
             "top_recommendations": list(set(all_recommendations))[:10],
-            "overall_health": "healthy" if avg_health_score > 0.7 else "at_risk" if avg_health_score > 0.5 else "critical"
+            "overall_health": (
+                "healthy"
+                if avg_health_score > 0.7
+                else "at_risk" if avg_health_score > 0.5 else "critical"
+            ),
         }
 
 
 @dataclass
 class KnowledgeCuratorAgent:
     """Enhanced Knowledge Curator Agent for LangGraph integration"""
-    
+
     name: str = "knowledge_curator_agent"
     description: str = "Manages and curates knowledge base content"
-    
+
     # Service integrations
     cortex_service: Optional[SnowflakeCortexService] = None
     ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
     kb_service: Optional[KBManagementService] = None
-    
+
     initialized: bool = False
-    
+
     async def initialize(self) -> None:
         """Initialize Knowledge Curator Agent"""
         if self.initialized:
             return
-        
+
         try:
             self.cortex_service = SnowflakeCortexService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.kb_service = KBManagementService()
-            
+
             await self.ai_memory.initialize()
             await self.kb_service.initialize()
-            
+
             self.initialized = True
             logger.info("✅ Knowledge Curator Agent initialized for LangGraph")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Knowledge Curator Agent: {e}")
             raise
-    
+
     async def curate_knowledge(self, state: WorkflowState) -> WorkflowState:
         """Curate knowledge from multiple sources for the workflow"""
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Extract knowledge from all available sources
             knowledge_sources = []
-            
+
             # Extract from Slack insights
             if state.get("slack_insights"):
                 slack_knowledge = self._extract_slack_knowledge(state["slack_insights"])
-                knowledge_sources.append({"source": "slack", "knowledge": slack_knowledge})
-            
+                knowledge_sources.append(
+                    {"source": "slack", "knowledge": slack_knowledge}
+                )
+
             # Extract from Linear insights
             if state.get("linear_health"):
-                linear_knowledge = self._extract_linear_knowledge(state["linear_health"])
-                knowledge_sources.append({"source": "linear", "knowledge": linear_knowledge})
-            
+                linear_knowledge = self._extract_linear_knowledge(
+                    state["linear_health"]
+                )
+                knowledge_sources.append(
+                    {"source": "linear", "knowledge": linear_knowledge}
+                )
+
             # Extract from HubSpot/Gong data
             if state.get("deal_insights"):
                 deal_knowledge = self._extract_deal_knowledge(state["deal_insights"])
-                knowledge_sources.append({"source": "deals", "knowledge": deal_knowledge})
-            
+                knowledge_sources.append(
+                    {"source": "deals", "knowledge": deal_knowledge}
+                )
+
             # Synthesize cross-source insights
             synthesized_knowledge = await self._synthesize_knowledge(knowledge_sources)
-            
+
             state["kb_insights"] = {
                 "sources_processed": len(knowledge_sources),
                 "synthesized_insights": synthesized_knowledge,
-                "knowledge_gaps": await self._identify_knowledge_gaps(knowledge_sources),
-                "recommended_actions": await self._recommend_knowledge_actions(synthesized_knowledge)
+                "knowledge_gaps": await self._identify_knowledge_gaps(
+                    knowledge_sources
+                ),
+                "recommended_actions": await self._recommend_knowledge_actions(
+                    synthesized_knowledge
+                ),
             }
-            
+
             logger.info(f"Curated knowledge from {len(knowledge_sources)} sources")
             return state
-            
+
         except Exception as e:
             logger.error(f"Error in knowledge curation: {e}")
             state["error"] = f"Knowledge curation failed: {str(e)}"
             return state
-    
+
     def _extract_slack_knowledge(self, slack_insights: Dict[str, Any]) -> List[str]:
         """Extract knowledge items from Slack insights"""
         knowledge = []
-        
+
         # Extract from top topics
         for topic_data in slack_insights.get("top_topics", []):
             knowledge.append(f"Team frequently discusses: {topic_data['topic']}")
-        
+
         # Extract from key insights
         knowledge.extend(slack_insights.get("key_insights", [])[:5])
-        
+
         return knowledge
-    
+
     def _extract_linear_knowledge(self, linear_health: Dict[str, Any]) -> List[str]:
         """Extract knowledge items from Linear health insights"""
         knowledge = []
-        
+
         # Extract from common risks
         for risk_type, count in linear_health.get("common_risks", []):
-            knowledge.append(f"Common project risk: {risk_type} (affects {count} projects)")
-        
+            knowledge.append(
+                f"Common project risk: {risk_type} (affects {count} projects)"
+            )
+
         # Extract from recommendations
         knowledge.extend(linear_health.get("top_recommendations", [])[:5])
-        
+
         return knowledge
-    
+
     def _extract_deal_knowledge(self, deal_insights: Dict[str, Any]) -> List[str]:
         """Extract knowledge items from deal insights"""
         knowledge = []
-        
+
         # Extract deal patterns and insights
         if "patterns" in deal_insights:
             knowledge.extend(deal_insights["patterns"][:3])
-        
+
         if "insights" in deal_insights:
             knowledge.extend(deal_insights["insights"][:3])
-        
+
         return knowledge
-    
-    async def _synthesize_knowledge(self, knowledge_sources: List[Dict[str, Any]]) -> List[str]:
+
+    async def _synthesize_knowledge(
+        self, knowledge_sources: List[Dict[str, Any]]
+    ) -> List[str]:
         """Synthesize knowledge across sources using AI"""
         try:
             if not knowledge_sources:
                 return []
-            
+
             # Combine all knowledge items
             all_knowledge = []
             for source in knowledge_sources:
                 all_knowledge.extend(source["knowledge"])
-            
+
             if not all_knowledge:
                 return []
-            
+
             async with self.cortex_service as cortex:
                 synthesis_prompt = f"""
                 Synthesize these business insights from multiple sources into key strategic knowledge:
@@ -499,218 +552,226 @@ class KnowledgeCuratorAgent:
                 Generate 3-5 synthesized insights that connect patterns across sources.
                 Focus on actionable business intelligence.
                 """
-                
+
                 synthesized = await cortex.complete_text_with_cortex(
-                    prompt=synthesis_prompt,
-                    max_tokens=300
+                    prompt=synthesis_prompt, max_tokens=300
                 )
-                
+
                 # Parse synthesized insights
-                insights = [line.strip() for line in synthesized.split('\n') if line.strip()]
+                insights = [
+                    line.strip() for line in synthesized.split("\n") if line.strip()
+                ]
                 return insights[:5]
-                
+
         except Exception as e:
             logger.error(f"Error synthesizing knowledge: {e}")
             return ["Knowledge synthesis failed"]
-    
-    async def _identify_knowledge_gaps(self, knowledge_sources: List[Dict[str, Any]]) -> List[str]:
+
+    async def _identify_knowledge_gaps(
+        self, knowledge_sources: List[Dict[str, Any]]
+    ) -> List[str]:
         """Identify gaps in knowledge coverage"""
         gaps = []
-        
+
         source_types = set(source["source"] for source in knowledge_sources)
-        
+
         if "slack" not in source_types:
             gaps.append("Missing team communication insights")
-        
+
         if "linear" not in source_types:
             gaps.append("Missing development project insights")
-        
+
         if "deals" not in source_types:
             gaps.append("Missing sales and deal insights")
-        
+
         return gaps
-    
-    async def _recommend_knowledge_actions(self, synthesized_knowledge: List[str]) -> List[str]:
+
+    async def _recommend_knowledge_actions(
+        self, synthesized_knowledge: List[str]
+    ) -> List[str]:
         """Recommend actions based on synthesized knowledge"""
         actions = []
-        
+
         if synthesized_knowledge:
             actions.append("Document key insights in knowledge base")
             actions.append("Share insights with relevant teams")
             actions.append("Create action items for identified opportunities")
-        
+
         actions.append("Schedule regular knowledge synthesis sessions")
-        
+
         return actions
 
 
 @dataclass
 class SupervisorAgent:
     """Enhanced Supervisor Agent for orchestrating multi-source workflows"""
-    
+
     name: str = "supervisor_agent"
     description: str = "Orchestrates enhanced multi-source analysis workflows"
-    
+
     # Service integrations
     cortex_service: Optional[SnowflakeCortexService] = None
     hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
     gong_connector: Optional[SnowflakeGongConnector] = None
     ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    
+
     initialized: bool = False
-    
+
     async def initialize(self) -> None:
         """Initialize services"""
         if self.initialized:
             return
-        
+
         try:
             self.cortex_service = SnowflakeCortexService()
             self.hubspot_connector = SnowflakeHubSpotConnector()
             self.gong_connector = SnowflakeGongConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
-            
+
             await self.ai_memory.initialize()
-            
+
             self.initialized = True
             logger.info("✅ Enhanced Supervisor Agent initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Enhanced Supervisor Agent: {e}")
             raise
-    
+
     async def route_workflow(self, state: WorkflowState) -> WorkflowState:
         """Route workflow to appropriate agents based on query and type"""
         if not self.initialized:
             await self.initialize()
-        
+
         workflow_type = state.get("workflow_type", "")
         query = state.get("query", "")
-        
+
         # Determine next action based on workflow type and available data
         if workflow_type == WorkflowType.CROSS_SOURCE_ANALYSIS.value:
             # Multi-source analysis workflow
             if not state.get("slack_data") and "slack" in query.lower():
                 state["next_action"] = "analyze_slack"
-            elif not state.get("linear_data") and ("linear" in query.lower() or "project" in query.lower()):
+            elif not state.get("linear_data") and (
+                "linear" in query.lower() or "project" in query.lower()
+            ):
                 state["next_action"] = "analyze_linear"
-            elif not state.get("hubspot_data") and ("deal" in query.lower() or "customer" in query.lower()):
+            elif not state.get("hubspot_data") and (
+                "deal" in query.lower() or "customer" in query.lower()
+            ):
                 state["next_action"] = "analyze_hubspot"
-            elif not state.get("gong_data") and ("call" in query.lower() or "conversation" in query.lower()):
+            elif not state.get("gong_data") and (
+                "call" in query.lower() or "conversation" in query.lower()
+            ):
                 state["next_action"] = "analyze_gong"
             else:
                 state["next_action"] = "synthesize_insights"
-        
+
         elif workflow_type == WorkflowType.SLACK_INTELLIGENCE.value:
             state["next_action"] = "analyze_slack"
-        
+
         elif workflow_type == WorkflowType.PROJECT_HEALTH_MONITORING.value:
             state["next_action"] = "analyze_linear"
-        
+
         elif workflow_type == WorkflowType.KNOWLEDGE_SYNTHESIS.value:
             state["next_action"] = "curate_knowledge"
-        
+
         else:
             # Default to existing deal analysis workflow
             state["next_action"] = "analyze_hubspot"
-        
+
         return state
-    
+
     async def synthesize_final_insights(self, state: WorkflowState) -> WorkflowState:
         """Synthesize final insights from all analyzed sources"""
         if not self.initialized:
             await self.initialize()
-        
+
         try:
             # Collect insights from all sources
             all_insights = []
             data_sources_used = []
-            
+
             if state.get("slack_insights"):
-                all_insights.append({
-                    "source": "slack",
-                    "insights": state["slack_insights"]
-                })
+                all_insights.append(
+                    {"source": "slack", "insights": state["slack_insights"]}
+                )
                 data_sources_used.append("slack")
-            
+
             if state.get("linear_health"):
-                all_insights.append({
-                    "source": "linear",
-                    "insights": state["linear_health"]
-                })
+                all_insights.append(
+                    {"source": "linear", "insights": state["linear_health"]}
+                )
                 data_sources_used.append("linear")
-            
+
             if state.get("deal_insights"):
-                all_insights.append({
-                    "source": "hubspot",
-                    "insights": state["deal_insights"]
-                })
+                all_insights.append(
+                    {"source": "hubspot", "insights": state["deal_insights"]}
+                )
                 data_sources_used.append("hubspot")
-            
+
             if state.get("call_analysis"):
-                all_insights.append({
-                    "source": "gong",
-                    "insights": state["call_analysis"]
-                })
+                all_insights.append(
+                    {"source": "gong", "insights": state["call_analysis"]}
+                )
                 data_sources_used.append("gong")
-            
+
             if state.get("kb_insights"):
-                all_insights.append({
-                    "source": "knowledge_base",
-                    "insights": state["kb_insights"]
-                })
+                all_insights.append(
+                    {"source": "knowledge_base", "insights": state["kb_insights"]}
+                )
                 data_sources_used.append("knowledge_base")
-            
+
             # Generate comprehensive synthesis
-            synthesis = await self._generate_comprehensive_synthesis(all_insights, state["query"])
-            
+            synthesis = await self._generate_comprehensive_synthesis(
+                all_insights, state["query"]
+            )
+
             state["final_response"] = {
                 "query": state["query"],
                 "workflow_type": state["workflow_type"],
                 "synthesis": synthesis,
                 "data_sources_used": data_sources_used,
                 "total_sources": len(all_insights),
-                "confidence_score": self._calculate_confidence_score(all_insights)
+                "confidence_score": self._calculate_confidence_score(all_insights),
             }
-            
+
             state["next_action"] = "complete"
-            
+
             return state
-            
+
         except Exception as e:
             logger.error(f"Error synthesizing final insights: {e}")
             state["error"] = f"Synthesis failed: {str(e)}"
             return state
-    
+
     async def _generate_comprehensive_synthesis(
-        self, 
-        all_insights: List[Dict[str, Any]], 
-        query: str
+        self, all_insights: List[Dict[str, Any]], query: str
     ) -> Dict[str, Any]:
         """Generate comprehensive synthesis using AI"""
         try:
             if not all_insights:
                 return {"message": "No insights available for synthesis"}
-            
+
             # Prepare insights summary for AI
             insights_summary = []
             for insight_data in all_insights:
                 source = insight_data["source"]
                 insights = insight_data["insights"]
-                
+
                 if isinstance(insights, dict):
                     summary = f"{source.title()} insights: "
                     key_points = []
-                    
+
                     for key, value in insights.items():
                         if isinstance(value, (str, int, float)):
                             key_points.append(f"{key}: {value}")
                         elif isinstance(value, list) and value:
-                            key_points.append(f"{key}: {', '.join(map(str, value[:3]))}")
-                    
+                            key_points.append(
+                                f"{key}: {', '.join(map(str, value[:3]))}"
+                            )
+
                     summary += "; ".join(key_points[:5])
                     insights_summary.append(summary)
-            
+
             async with self.cortex_service as cortex:
                 synthesis_prompt = f"""
                 Generate a comprehensive business intelligence synthesis for this query:
@@ -729,57 +790,77 @@ class SupervisorAgent:
                 
                 Focus on actionable business intelligence.
                 """
-                
+
                 synthesis_result = await cortex.complete_text_with_cortex(
-                    prompt=synthesis_prompt,
-                    max_tokens=600
+                    prompt=synthesis_prompt, max_tokens=600
                 )
-                
+
                 return {
                     "executive_summary": synthesis_result,
-                    "cross_source_patterns": self._identify_cross_source_patterns(all_insights),
-                    "strategic_recommendations": self._generate_strategic_recommendations(all_insights),
-                    "confidence_assessment": "High confidence with multi-source validation"
+                    "cross_source_patterns": self._identify_cross_source_patterns(
+                        all_insights
+                    ),
+                    "strategic_recommendations": self._generate_strategic_recommendations(
+                        all_insights
+                    ),
+                    "confidence_assessment": "High confidence with multi-source validation",
                 }
-                
+
         except Exception as e:
             logger.error(f"Error generating synthesis: {e}")
             return {"error": f"Synthesis generation failed: {str(e)}"}
-    
-    def _identify_cross_source_patterns(self, all_insights: List[Dict[str, Any]]) -> List[str]:
+
+    def _identify_cross_source_patterns(
+        self, all_insights: List[Dict[str, Any]]
+    ) -> List[str]:
         """Identify patterns across different data sources"""
         patterns = []
-        
+
         # Look for common themes across sources
         source_keywords = {}
         for insight_data in all_insights:
             source = insight_data["source"]
             insights = insight_data["insights"]
-            
+
             # Extract keywords from insights
             if isinstance(insights, dict):
                 text_content = str(insights)
                 # Simple keyword extraction (could be enhanced with NLP)
-                keywords = ["customer", "project", "team", "risk", "opportunity", "performance"]
+                keywords = [
+                    "customer",
+                    "project",
+                    "team",
+                    "risk",
+                    "opportunity",
+                    "performance",
+                ]
                 found_keywords = [kw for kw in keywords if kw in text_content.lower()]
                 source_keywords[source] = found_keywords
-        
+
         # Find common keywords across sources
         all_keywords = set()
         for keywords in source_keywords.values():
             all_keywords.update(keywords)
-        
+
         for keyword in all_keywords:
-            sources_with_keyword = [source for source, keywords in source_keywords.items() if keyword in keywords]
+            sources_with_keyword = [
+                source
+                for source, keywords in source_keywords.items()
+                if keyword in keywords
+            ]
             if len(sources_with_keyword) > 1:
-                patterns.append(f"{keyword.title()} mentioned across {', '.join(sources_with_keyword)}")
-        
+                patterns.append(
+                    f"{keyword.title()} mentioned across {', '.join(sources_with_keyword)}"
+                )
+
         return patterns[:5]
-    
-    def _generate_strategic_recommendations(self, all_insights: List[Dict[str, Any]]) -> List[str]:
+
+    def _generate_strategic_recommendations(
+        self, all_insights: List[Dict[str, Any]]
+    ) -> List[str]:
         """Generate strategic recommendations based on all insights"""
         recommendations = []
-        
+
         # Extract recommendations from each source
         for insight_data in all_insights:
             insights = insight_data["insights"]
@@ -793,31 +874,37 @@ class SupervisorAgent:
                     actions = insights["recommended_actions"]
                     if isinstance(actions, list):
                         recommendations.extend(actions[:2])
-        
+
         # Add cross-source recommendations
         if len(all_insights) > 1:
-            recommendations.append("Establish regular cross-functional data review meetings")
-            recommendations.append("Create integrated dashboard for holistic business monitoring")
-        
+            recommendations.append(
+                "Establish regular cross-functional data review meetings"
+            )
+            recommendations.append(
+                "Create integrated dashboard for holistic business monitoring"
+            )
+
         return list(set(recommendations))[:5]  # Remove duplicates and limit
-    
+
     def _calculate_confidence_score(self, all_insights: List[Dict[str, Any]]) -> float:
         """Calculate confidence score based on number and quality of insights"""
         if not all_insights:
             return 0.0
-        
-        base_score = min(len(all_insights) * 0.2, 0.8)  # More sources = higher confidence
-        
+
+        base_score = min(
+            len(all_insights) * 0.2, 0.8
+        )  # More sources = higher confidence
+
         # Bonus for having diverse source types
         source_types = set(insight["source"] for insight in all_insights)
         diversity_bonus = len(source_types) * 0.05
-        
+
         return min(base_score + diversity_bonus, 1.0)
 
 
 class EnhancedLangGraphWorkflowOrchestrator:
     """Enhanced LangGraph Workflow Orchestrator with multi-source intelligence"""
-    
+
     def __init__(self):
         self.supervisor = SupervisorAgent()
         self.call_analysis_agent = CallAnalysisAgent()
@@ -825,15 +912,15 @@ class EnhancedLangGraphWorkflowOrchestrator:
         self.slack_analysis_agent = SlackAnalysisAgent()
         self.linear_analysis_agent = LinearAnalysisAgent()
         self.knowledge_curator_agent = KnowledgeCuratorAgent()
-        
+
         self.workflow_graph = None
         self.initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize the enhanced orchestrator"""
         if self.initialized:
             return
-        
+
         try:
             # Initialize all agents
             await self.supervisor.initialize()
@@ -842,35 +929,43 @@ class EnhancedLangGraphWorkflowOrchestrator:
             await self.slack_analysis_agent.initialize()
             await self.linear_analysis_agent.initialize()
             await self.knowledge_curator_agent.initialize()
-            
+
             # Create enhanced workflow graph
             if LANGGRAPH_AVAILABLE:
                 self.workflow_graph = self._create_enhanced_workflow_graph()
-            
+
             self.initialized = True
             logger.info("✅ Enhanced LangGraph Workflow Orchestrator initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Enhanced LangGraph Orchestrator: {e}")
             raise
-    
+
     def _create_enhanced_workflow_graph(self) -> StateGraph:
         """Create enhanced workflow graph with new agents"""
         workflow = StateGraph(WorkflowState)
-        
+
         # Add all agent nodes
         workflow.add_node("supervisor", self.supervisor.route_workflow)
         workflow.add_node("analyze_hubspot", self._analyze_hubspot_wrapper)
         workflow.add_node("analyze_gong", self.call_analysis_agent.analyze_calls)
-        workflow.add_node("analyze_slack", self.slack_analysis_agent.analyze_slack_conversations)
-        workflow.add_node("analyze_linear", self.linear_analysis_agent.analyze_project_health)
-        workflow.add_node("curate_knowledge", self.knowledge_curator_agent.curate_knowledge)
+        workflow.add_node(
+            "analyze_slack", self.slack_analysis_agent.analyze_slack_conversations
+        )
+        workflow.add_node(
+            "analyze_linear", self.linear_analysis_agent.analyze_project_health
+        )
+        workflow.add_node(
+            "curate_knowledge", self.knowledge_curator_agent.curate_knowledge
+        )
         workflow.add_node("generate_coaching", self.sales_coach_agent.generate_coaching)
-        workflow.add_node("synthesize_insights", self.supervisor.synthesize_final_insights)
-        
+        workflow.add_node(
+            "synthesize_insights", self.supervisor.synthesize_final_insights
+        )
+
         # Set entry point
         workflow.set_entry_point("supervisor")
-        
+
         # Add conditional edges based on next_action
         workflow.add_conditional_edges(
             "supervisor",
@@ -882,10 +977,10 @@ class EnhancedLangGraphWorkflowOrchestrator:
                 "analyze_linear": "analyze_linear",
                 "curate_knowledge": "curate_knowledge",
                 "synthesize_insights": "synthesize_insights",
-                "complete": END
-            }
+                "complete": END,
+            },
         )
-        
+
         # Add edges back to supervisor for continued routing
         workflow.add_edge("analyze_hubspot", "supervisor")
         workflow.add_edge("analyze_gong", "supervisor")
@@ -894,13 +989,13 @@ class EnhancedLangGraphWorkflowOrchestrator:
         workflow.add_edge("curate_knowledge", "supervisor")
         workflow.add_edge("generate_coaching", "supervisor")
         workflow.add_edge("synthesize_insights", END)
-        
+
         return workflow.compile()
-    
+
     def _route_next_action(self, state: WorkflowState) -> str:
         """Route to next action based on state"""
         return state.get("next_action", "complete")
-    
+
     async def _analyze_hubspot_wrapper(self, state: WorkflowState) -> WorkflowState:
         """Wrapper for HubSpot analysis to maintain compatibility"""
         # This would integrate with existing HubSpot analysis logic
@@ -908,14 +1003,14 @@ class EnhancedLangGraphWorkflowOrchestrator:
         state["hubspot_data"] = {"analyzed": True}
         state["deal_insights"] = {"message": "HubSpot analysis completed"}
         return state
-    
+
     async def execute_workflow(self, request: WorkflowRequest) -> WorkflowResult:
         """Execute enhanced workflow"""
         if not self.initialized:
             await self.initialize()
-        
+
         start_time = asyncio.get_event_loop().time()
-        
+
         try:
             # Create initial state
             initial_state = WorkflowState(
@@ -935,19 +1030,21 @@ class EnhancedLangGraphWorkflowOrchestrator:
                 kb_insights=None,
                 next_action="start",
                 error=None,
-                final_response=None
+                final_response=None,
             )
-            
+
             # Execute workflow
             if self.workflow_graph:
                 final_state = await self.workflow_graph.ainvoke(initial_state)
             else:
                 # Fallback execution without LangGraph
-                final_state = await self._execute_fallback_workflow(initial_state, request)
-            
+                final_state = await self._execute_fallback_workflow(
+                    initial_state, request
+                )
+
             # Calculate processing time
             processing_time = asyncio.get_event_loop().time() - start_time
-            
+
             # Create result
             if final_state.get("error"):
                 return WorkflowResult(
@@ -958,25 +1055,27 @@ class EnhancedLangGraphWorkflowOrchestrator:
                     data_sources_used=[],
                     processing_time=processing_time,
                     confidence_score=0.0,
-                    error=final_state["error"]
+                    error=final_state["error"],
                 )
-            
+
             final_response = final_state.get("final_response", {})
-            
+
             return WorkflowResult(
                 success=True,
                 workflow_type=request.workflow_type,
                 insights=final_response.get("synthesis", {}),
-                recommendations=final_response.get("synthesis", {}).get("strategic_recommendations", []),
+                recommendations=final_response.get("synthesis", {}).get(
+                    "strategic_recommendations", []
+                ),
                 data_sources_used=final_response.get("data_sources_used", []),
                 processing_time=processing_time,
-                confidence_score=final_response.get("confidence_score", 0.5)
+                confidence_score=final_response.get("confidence_score", 0.5),
             )
-            
+
         except Exception as e:
             processing_time = asyncio.get_event_loop().time() - start_time
             logger.error(f"Workflow execution failed: {e}")
-            
+
             return WorkflowResult(
                 success=False,
                 workflow_type=request.workflow_type,
@@ -985,39 +1084,41 @@ class EnhancedLangGraphWorkflowOrchestrator:
                 data_sources_used=[],
                 processing_time=processing_time,
                 confidence_score=0.0,
-                error=str(e)
+                error=str(e),
             )
-    
+
     async def _execute_fallback_workflow(
-        self, 
-        initial_state: WorkflowState, 
-        request: WorkflowRequest
+        self, initial_state: WorkflowState, request: WorkflowRequest
     ) -> WorkflowState:
         """Execute workflow without LangGraph as fallback"""
         state = initial_state
-        
+
         try:
             # Route workflow
             state = await self.supervisor.route_workflow(state)
-            
+
             # Execute based on workflow type
             if request.workflow_type == WorkflowType.SLACK_INTELLIGENCE:
-                state = await self.slack_analysis_agent.analyze_slack_conversations(state)
+                state = await self.slack_analysis_agent.analyze_slack_conversations(
+                    state
+                )
             elif request.workflow_type == WorkflowType.PROJECT_HEALTH_MONITORING:
                 state = await self.linear_analysis_agent.analyze_project_health(state)
             elif request.workflow_type == WorkflowType.KNOWLEDGE_SYNTHESIS:
                 state = await self.knowledge_curator_agent.curate_knowledge(state)
             elif request.workflow_type == WorkflowType.CROSS_SOURCE_ANALYSIS:
                 # Execute multiple agents
-                state = await self.slack_analysis_agent.analyze_slack_conversations(state)
+                state = await self.slack_analysis_agent.analyze_slack_conversations(
+                    state
+                )
                 state = await self.linear_analysis_agent.analyze_project_health(state)
                 state = await self.knowledge_curator_agent.curate_knowledge(state)
-            
+
             # Synthesize final insights
             state = await self.supervisor.synthesize_final_insights(state)
-            
+
             return state
-            
+
         except Exception as e:
             state["error"] = str(e)
             return state
@@ -1028,21 +1129,21 @@ async def test_enhanced_workflow():
     """Test enhanced workflow orchestration"""
     orchestrator = EnhancedLangGraphWorkflowOrchestrator()
     await orchestrator.initialize()
-    
+
     # Test cross-source analysis
     request = WorkflowRequest(
         query="What are the risks for our current projects based on team communication and development progress?",
         workflow_type=WorkflowType.CROSS_SOURCE_ANALYSIS,
-        parameters={"include_slack": True, "include_linear": True}
+        parameters={"include_slack": True, "include_linear": True},
     )
-    
+
     result = await orchestrator.execute_workflow(request)
-    
+
     print(f"Workflow Success: {result.success}")
     print(f"Data Sources Used: {result.data_sources_used}")
     print(f"Processing Time: {result.processing_time:.2f}s")
     print(f"Confidence Score: {result.confidence_score:.2f}")
-    
+
     if result.success:
         print(f"Insights: {json.dumps(result.insights, indent=2)}")
         print(f"Recommendations: {result.recommendations}")
@@ -1051,4 +1152,4 @@ async def test_enhanced_workflow():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_enhanced_workflow()) 
+    asyncio.run(test_enhanced_workflow())

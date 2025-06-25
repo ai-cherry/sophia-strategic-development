@@ -16,69 +16,74 @@ import shutil
 from pathlib import Path
 from datetime import datetime
 
+
 class MCPOrchestrationOptimizer:
     """Optimize MCP orchestration according to the new streamlined plan"""
-    
+
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.backup_dir = self.project_root / f"backups/mcp_optimization_{self.timestamp}"
+        self.backup_dir = (
+            self.project_root / f"backups/mcp_optimization_{self.timestamp}"
+        )
         self.optimization_log = []
-        
+
         # Create backup directory
         self.backup_dir.mkdir(parents=True, exist_ok=True)
-        
+
     def log_action(self, action: str, status: str = "SUCCESS"):
         """Log optimization actions"""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "action": action,
-            "status": status
+            "status": status,
         }
         self.optimization_log.append(log_entry)
         print(f"[{status}] {action}")
-    
+
     def remove_claude_mcp_server(self):
         """Remove all references to the redundant Claude MCP server"""
         print("\n🧹 Phase 1: Removing Claude MCP Server...")
-        
+
         # 1. Remove from docker-compose.yml
         docker_compose_path = self.project_root / "docker-compose.yml"
         if docker_compose_path.exists():
             # Backup first
-            shutil.copy(docker_compose_path, self.backup_dir / "docker-compose.yml.backup")
-            
-            with open(docker_compose_path, 'r') as f:
+            shutil.copy(
+                docker_compose_path, self.backup_dir / "docker-compose.yml.backup"
+            )
+
+            with open(docker_compose_path, "r") as f:
                 content = f.read()
-            
+
             # Remove claude-mcp service block (lines 200-207 approximately)
-            lines = content.split('\n')
+            lines = content.split("\n")
             filtered_lines = []
             skip_mode = False
-            
+
             for i, line in enumerate(lines):
-                if 'claude-mcp:' in line:
+                if "claude-mcp:" in line:
                     skip_mode = True
                     self.log_action("Found claude-mcp service in docker-compose.yml")
-                elif skip_mode and line.strip() and not line.startswith(' '):
+                elif skip_mode and line.strip() and not line.startswith(" "):
                     skip_mode = False
-                
+
                 if not skip_mode:
                     filtered_lines.append(line)
-            
-            with open(docker_compose_path, 'w') as f:
-                f.write('\n'.join(filtered_lines))
-            
+
+            with open(docker_compose_path, "w") as f:
+                f.write("\n".join(filtered_lines))
+
             self.log_action("Removed claude-mcp from docker-compose.yml")
-        
+
         # 2. Remove from MCP configurations
         mcp_config_files = [
             "mcp-config/mcp_servers.json",
-            "mcp-config/unified_mcp_servers.json", 
+            "mcp-config/unified_mcp_servers.json",
             "cursor_mcp_config.json",
-            ".cursor/mcp_settings.json"
+            ".cursor/mcp_settings.json",
         ]
-        
+
         for config_file in mcp_config_files:
             config_path = self.project_root / config_file
             if config_path.exists():
@@ -86,27 +91,27 @@ class MCPOrchestrationOptimizer:
                 backup_path = self.backup_dir / config_file
                 backup_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(config_path, backup_path)
-                
-                with open(config_path, 'r') as f:
+
+                with open(config_path, "r") as f:
                     config = json.load(f)
-                
+
                 # Remove claude server references
                 if "mcpServers" in config:
                     config["mcpServers"].pop("claude", None)
                     config["mcpServers"].pop("claude-mcp", None)
-                
-                with open(config_path, 'w') as f:
+
+                with open(config_path, "w") as f:
                     json.dump(config, f, indent=2)
-                
+
                 self.log_action(f"Removed claude references from {config_file}")
-        
+
         # 3. Remove Claude MCP server files
         claude_files_to_remove = [
             "backend/mcp/claude_mcp_server.py",
             "mcp-servers/claude/",
-            "backend/agents/core/claude_routing.py"
+            "backend/agents/core/claude_routing.py",
         ]
-        
+
         for file_path in claude_files_to_remove:
             full_path = self.project_root / file_path
             if full_path.exists():
@@ -115,37 +120,36 @@ class MCPOrchestrationOptimizer:
                 else:
                     os.remove(full_path)
                 self.log_action(f"Removed {file_path}")
-        
+
         # 4. Update .cursorrules
         cursorrules_path = self.project_root / ".cursorrules"
         if cursorrules_path.exists():
             shutil.copy(cursorrules_path, self.backup_dir / ".cursorrules.backup")
-            
-            with open(cursorrules_path, 'r') as f:
+
+            with open(cursorrules_path, "r") as f:
                 content = f.read()
-            
+
             # Update Claude references to point to Sophia Intelligence
+            content = content.replace('"claude_mcp_server"', '"sophia_ai_intelligence"')
             content = content.replace(
-                '"claude_mcp_server"', 
-                '"sophia_ai_intelligence"'
+                "Use MCP to query Claude",
+                "Use Sophia AI Intelligence for Claude capabilities",
             )
-            content = content.replace(
-                'Use MCP to query Claude',
-                'Use Sophia AI Intelligence for Claude capabilities'
-            )
-            
-            with open(cursorrules_path, 'w') as f:
+
+            with open(cursorrules_path, "w") as f:
                 f.write(content)
-            
+
             self.log_action("Updated .cursorrules Claude references")
-    
+
     def enhance_sophia_intelligence_mcp(self):
         """Enhance Sophia AI Intelligence MCP with Claude integration"""
         print("\n🚀 Phase 2: Enhancing Sophia AI Intelligence MCP...")
-        
+
         # Create enhanced Sophia Intelligence MCP
-        enhanced_mcp_path = self.project_root / "backend/mcp/sophia_ai_intelligence_enhanced.py"
-        
+        enhanced_mcp_path = (
+            self.project_root / "backend/mcp/sophia_ai_intelligence_enhanced.py"
+        )
+
         enhanced_mcp_content = '''#!/usr/bin/env python3
 """
 Enhanced Sophia AI Intelligence MCP Server
@@ -317,13 +321,13 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8092)
 '''
-        
+
         enhanced_mcp_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(enhanced_mcp_path, 'w') as f:
+        with open(enhanced_mcp_path, "w") as f:
             f.write(enhanced_mcp_content)
-        
+
         self.log_action("Created enhanced Sophia AI Intelligence MCP")
-        
+
         # Create intelligent LLM router
         router_path = self.project_root / "backend/core/intelligent_llm_router.py"
         router_content = '''#!/usr/bin/env python3
@@ -456,17 +460,17 @@ class IntelligentLLMRouter:
         
         return (tokens / 1000) * cost_per_1k.get(model, 0.002)
 '''
-        
+
         router_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(router_path, 'w') as f:
+        with open(router_path, "w") as f:
             f.write(router_content)
-        
+
         self.log_action("Created intelligent LLM router")
-    
+
     def optimize_cursor_configuration(self):
         """Create optimized Cursor IDE configuration"""
         print("\n⚙️ Phase 3: Optimizing Cursor Configuration...")
-        
+
         cursor_config = {
             "mcpServers": {
                 "sophia_intelligence": {
@@ -476,12 +480,12 @@ class IntelligentLLMRouter:
                     "capabilities": [
                         "code_generation",
                         "code_analysis",
-                        "debugging_assistance", 
+                        "debugging_assistance",
                         "architecture_guidance",
                         "test_generation",
                         "documentation_generation",
                         "concept_explanation",
-                        "refactoring_assistance"
+                        "refactoring_assistance",
                     ],
                     "priority": 1,
                     "timeout": 30000,
@@ -489,26 +493,26 @@ class IntelligentLLMRouter:
                     "healthCheck": {
                         "enabled": True,
                         "interval": 30000,
-                        "endpoint": "/health"
-                    }
+                        "endpoint": "/health",
+                    },
                 },
                 "codacy": {
                     "type": "http",
-                    "baseUrl": "http://localhost:3008", 
+                    "baseUrl": "http://localhost:3008",
                     "description": "Code quality and security analysis",
                     "capabilities": [
                         "code_analysis",
                         "security_scanning",
                         "automated_fixes",
                         "quality_metrics",
-                        "coverage_analysis"
+                        "coverage_analysis",
                     ],
                     "priority": 2,
                     "integration": {
                         "auto_analyze": True,
                         "auto_fix": False,
-                        "report_format": "cursor_friendly"
-                    }
+                        "report_format": "cursor_friendly",
+                    },
                 },
                 "ai_memory": {
                     "type": "http",
@@ -516,44 +520,52 @@ class IntelligentLLMRouter:
                     "description": "Development context and pattern memory",
                     "capabilities": [
                         "store_decisions",
-                        "recall_patterns", 
+                        "recall_patterns",
                         "development_context",
-                        "architecture_memory"
+                        "architecture_memory",
                     ],
                     "priority": 3,
                     "auto_store": {
                         "enabled": True,
-                        "triggers": ["architecture_decisions", "bug_solutions", "code_patterns"]
-                    }
+                        "triggers": [
+                            "architecture_decisions",
+                            "bug_solutions",
+                            "code_patterns",
+                        ],
+                    },
                 },
                 "github": {
                     "type": "http",
                     "baseUrl": "http://localhost:8000",
                     "description": "Repository and collaboration management",
-                    "capabilities": ["repository_management", "issue_tracking", "pull_requests"],
-                    "priority": 4
+                    "capabilities": [
+                        "repository_management",
+                        "issue_tracking",
+                        "pull_requests",
+                    ],
+                    "priority": 4,
                 },
                 "docker": {
-                    "type": "http", 
+                    "type": "http",
                     "baseUrl": "http://localhost:8001",
                     "description": "Container and deployment management",
                     "capabilities": ["container_management", "deployment"],
-                    "priority": 5
+                    "priority": 5,
                 },
                 "pulumi": {
                     "type": "http",
                     "baseUrl": "http://localhost:8002",
                     "description": "Infrastructure as code",
                     "capabilities": ["infrastructure_management", "deployment"],
-                    "priority": 6
+                    "priority": 6,
                 },
                 "snowflake": {
                     "type": "http",
                     "baseUrl": "http://localhost:8003",
                     "description": "Data and SQL operations",
                     "capabilities": ["data_analysis", "sql_operations"],
-                    "priority": 7
-                }
+                    "priority": 7,
+                },
             },
             "orchestration": {
                 "enabled": True,
@@ -561,40 +573,44 @@ class IntelligentLLMRouter:
                     "code_generation": ["sophia_intelligence", "codacy", "ai_memory"],
                     "debugging": ["ai_memory", "sophia_intelligence", "codacy"],
                     "refactoring": ["codacy", "sophia_intelligence", "ai_memory"],
-                    "deployment": ["docker", "pulumi", "github"]
+                    "deployment": ["docker", "pulumi", "github"],
                 },
                 "auto_workflows": {
                     "on_file_save": ["codacy"],
                     "on_error": ["ai_memory", "sophia_intelligence"],
-                    "on_commit": ["codacy", "ai_memory"]
-                }
-            }
+                    "on_commit": ["codacy", "ai_memory"],
+                },
+            },
         }
-        
+
         # Save optimized configuration
         cursor_config_path = self.project_root / ".cursor/mcp_settings_optimized.json"
         cursor_config_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(cursor_config_path, 'w') as f:
+
+        with open(cursor_config_path, "w") as f:
             json.dump(cursor_config, f, indent=2)
-        
+
         self.log_action("Created optimized Cursor configuration")
-        
+
         # Update main cursor config
         main_cursor_config = self.project_root / "cursor_mcp_config.json"
         if main_cursor_config.exists():
-            shutil.copy(main_cursor_config, self.backup_dir / "cursor_mcp_config.json.backup")
-        
-        with open(main_cursor_config, 'w') as f:
+            shutil.copy(
+                main_cursor_config, self.backup_dir / "cursor_mcp_config.json.backup"
+            )
+
+        with open(main_cursor_config, "w") as f:
             json.dump(cursor_config, f, indent=2)
-        
+
         self.log_action("Updated main cursor_mcp_config.json")
-    
+
     def create_orchestration_engine(self):
         """Create MCP orchestration engine"""
         print("\n🎭 Phase 4: Creating Orchestration Engine...")
-        
-        orchestrator_path = self.project_root / "backend/orchestration/mcp_coordinator.py"
+
+        orchestrator_path = (
+            self.project_root / "backend/orchestration/mcp_coordinator.py"
+        )
         orchestrator_content = '''#!/usr/bin/env python3
 """
 MCP Coordinator
@@ -769,17 +785,17 @@ class MCPCoordinator:
         
         return result
 '''
-        
+
         orchestrator_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(orchestrator_path, 'w') as f:
+        with open(orchestrator_path, "w") as f:
             f.write(orchestrator_content)
-        
+
         self.log_action("Created MCP orchestration engine")
-    
+
     def generate_summary_report(self):
         """Generate optimization summary report"""
         report_path = self.project_root / f"MCP_OPTIMIZATION_REPORT_{self.timestamp}.md"
-        
+
         report_content = f"""# MCP Orchestration Optimization Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -843,36 +859,36 @@ All original files backed up to: `{self.backup_dir}`
 """
         for log_entry in self.optimization_log:
             report_content += f"- [{log_entry['status']}] {log_entry['action']} ({log_entry['timestamp']})\n"
-        
-        with open(report_path, 'w') as f:
+
+        with open(report_path, "w") as f:
             f.write(report_content)
-        
+
         self.log_action(f"Generated optimization report: {report_path}")
-    
+
     def run_optimization(self):
         """Run the complete MCP orchestration optimization"""
         print("🚀 Starting MCP Orchestration Optimization...")
         print(f"Backup directory: {self.backup_dir}")
-        
+
         try:
             # Phase 1: Remove Claude MCP
             self.remove_claude_mcp_server()
-            
+
             # Phase 2: Enhance Sophia Intelligence
             self.enhance_sophia_intelligence_mcp()
-            
+
             # Phase 3: Optimize Cursor Configuration
             self.optimize_cursor_configuration()
-            
+
             # Phase 4: Create Orchestration Engine
             self.create_orchestration_engine()
-            
+
             # Generate summary report
             self.generate_summary_report()
-            
+
             print("\n✅ MCP Orchestration Optimization Complete!")
             print(f"Review the report: MCP_OPTIMIZATION_REPORT_{self.timestamp}.md")
-            
+
         except Exception as e:
             self.log_action(f"Optimization failed: {str(e)}", "ERROR")
             print(f"\n❌ Optimization failed: {str(e)}")
@@ -882,25 +898,25 @@ All original files backed up to: `{self.backup_dir}`
 def main():
     """Main entry point"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Optimize MCP Orchestration")
     parser.add_argument(
         "--project-root",
         default=".",
-        help="Project root directory (default: current directory)"
+        help="Project root directory (default: current directory)",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would be done without making changes"
+        help="Show what would be done without making changes",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.dry_run:
         print("DRY RUN MODE - No changes will be made")
         # TODO: Implement dry run mode
-    
+
     optimizer = MCPOrchestrationOptimizer(args.project_root)
     optimizer.run_optimization()
 

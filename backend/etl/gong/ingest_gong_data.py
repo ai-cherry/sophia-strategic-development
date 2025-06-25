@@ -35,6 +35,7 @@ logger = structlog.get_logger()
 
 class SyncMode(Enum):
     """Sync modes for Gong data ingestion"""
+
     FULL = "full"
     INCREMENTAL = "incremental"
     BACKFILL = "backfill"
@@ -43,6 +44,7 @@ class SyncMode(Enum):
 @dataclass
 class IngestionState:
     """State tracking for incremental ingestion"""
+
     last_sync_timestamp: datetime
     last_call_id: Optional[str] = None
     total_calls_processed: int = 0
@@ -52,6 +54,7 @@ class IngestionState:
 
 class GongCall(BaseModel):
     """Gong call data model"""
+
     call_id: str
     title: str
     started: datetime
@@ -71,122 +74,122 @@ class GongCall(BaseModel):
 
 class GongAPIClient:
     """Async client for Gong API operations"""
-    
+
     def __init__(self):
         self.base_url = "https://api.gong.io/v2"
         self.session: Optional[aiohttp.ClientSession] = None
         self.access_key = config.get("gong_access_key")
         self.access_key_secret = config.get("gong_access_key_secret")
         self.rate_limit_delay = 1.0  # seconds between requests
-        
+
     async def __aenter__(self):
         """Async context manager entry"""
         if not self.access_key or not self.access_key_secret:
             raise ValueError("Gong API credentials not found in configuration")
-            
+
         auth = aiohttp.BasicAuth(self.access_key, self.access_key_secret)
         timeout = aiohttp.ClientTimeout(total=300)  # 5 minute timeout
-        
+
         self.session = aiohttp.ClientSession(
             auth=auth,
             timeout=timeout,
             headers={
                 "Content-Type": "application/json",
-                "User-Agent": "Sophia-AI-Gong-Ingestion/1.0"
-            }
+                "User-Agent": "Sophia-AI-Gong-Ingestion/1.0",
+            },
         )
         return self
-        
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit"""
         if self.session:
             await self.session.close()
-    
+
     async def get_calls(
-        self, 
+        self,
         from_date: datetime,
         to_date: datetime,
         cursor: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> Dict[str, Any]:
         """
         Fetch calls from Gong API with pagination support
-        
+
         Args:
             from_date: Start date for call retrieval
             to_date: End date for call retrieval
             cursor: Pagination cursor for subsequent requests
             limit: Number of calls per request (max 100)
-            
+
         Returns:
             API response with calls data and pagination info
         """
         endpoint = f"{self.base_url}/calls"
-        
+
         params = {
             "fromDateTime": from_date.isoformat(),
             "toDateTime": to_date.isoformat(),
-            "limit": min(limit, 100)  # Gong API limit
+            "limit": min(limit, 100),  # Gong API limit
         }
-        
+
         if cursor:
             params["cursor"] = cursor
-            
+
         try:
             await asyncio.sleep(self.rate_limit_delay)  # Rate limiting
-            
+
             async with self.session.get(endpoint, params=params) as response:
                 if response.status == 429:  # Rate limited
                     retry_after = int(response.headers.get("Retry-After", 60))
                     logger.warning(f"Rate limited, waiting {retry_after} seconds")
                     await asyncio.sleep(retry_after)
                     return await self.get_calls(from_date, to_date, cursor, limit)
-                
+
                 response.raise_for_status()
                 data = await response.json()
-                
+
                 logger.debug(
                     "Fetched calls from Gong API",
                     calls_count=len(data.get("calls", [])),
                     cursor=cursor,
-                    has_more=data.get("records", {}).get("totalRecords", 0) > 0
+                    has_more=data.get("records", {}).get("totalRecords", 0) > 0,
                 )
-                
+
                 return data
-                
+
         except aiohttp.ClientError as e:
             logger.error(f"Gong API request failed: {e}")
             raise
         except Exception as e:
             logger.error(f"Unexpected error in Gong API call: {e}")
             raise
-    
+
     async def get_call_transcript(self, call_id: str) -> Dict[str, Any]:
         """
         Fetch transcript for a specific call
-        
+
         Args:
             call_id: Gong call ID
-            
+
         Returns:
             Transcript data with speaker segments
         """
         endpoint = f"{self.base_url}/calls/{call_id}/transcript"
-        
+
         try:
             await asyncio.sleep(self.rate_limit_delay)
-            
+
             async with self.session.get(endpoint) as response:
                 if response.status == 404:
                     logger.warning(f"Transcript not found for call {call_id}")
                     return {"call_id": call_id, "transcript": None}
-                
+
                 response.raise_for_status()
                 data = await response.json()
-                
+
                 logger.debug(f"Fetched transcript for call {call_id}")
                 return data
-                
+
         except aiohttp.ClientError as e:
             logger.error(f"Failed to fetch transcript for call {call_id}: {e}")
             return {"call_id": call_id, "transcript": None, "error": str(e)}
@@ -194,13 +197,13 @@ class GongAPIClient:
 
 class SnowflakeGongLoader:
     """Loads Gong data into Snowflake tables"""
-    
+
     def __init__(self):
         self.connection = None
         self.database = config.get("snowflake_database", "SOPHIA_AI")
         self.schema = config.get("snowflake_schema", "GONG_DATA")
         self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
-        
+
     async def initialize(self) -> None:
         """Initialize Snowflake connection"""
         try:
@@ -211,18 +214,18 @@ class SnowflakeGongLoader:
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN")
+                role=config.get("snowflake_role", "ACCOUNTADMIN"),
             )
-            
+
             # Ensure schema exists
             await self._ensure_schema_exists()
-            
+
             logger.info("✅ Snowflake Gong loader initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake connection: {e}")
             raise
-    
+
     async def _ensure_schema_exists(self):
         """Ensure the Gong data schema exists"""
         cursor = self.connection.cursor()
@@ -235,28 +238,28 @@ class SnowflakeGongLoader:
             raise
         finally:
             cursor.close()
-    
+
     async def load_raw_calls(self, calls_data: List[Dict[str, Any]]) -> int:
         """
         Load raw call data into GONG_CALLS_RAW table
-        
+
         Args:
             calls_data: List of raw call data from Gong API
-            
+
         Returns:
             Number of records loaded
         """
         if not calls_data:
             return 0
-            
+
         # Create table if not exists
         await self._ensure_raw_calls_table()
-        
+
         cursor = self.connection.cursor()
         try:
             # Begin transaction for atomicity
             cursor.execute("BEGIN TRANSACTION")
-            
+
             insert_query = """
             INSERT INTO GONG_CALLS_RAW (
                 CALL_ID,
@@ -265,64 +268,63 @@ class SnowflakeGongLoader:
                 CORRELATION_ID
             ) VALUES (?, ?, ?, ?)
             """
-            
+
             # Prepare data for insertion
             correlation_id = str(uuid.uuid4())
             insert_data = []
-            
+
             for call in calls_data:
-                insert_data.append((
-                    call.get("id"),
-                    json.dumps(call),
-                    datetime.now(),
-                    correlation_id
-                ))
-            
+                insert_data.append(
+                    (call.get("id"), json.dumps(call), datetime.now(), correlation_id)
+                )
+
             # Batch insert
             cursor.executemany(insert_query, insert_data)
-            
+
             # Commit transaction
             cursor.execute("COMMIT")
-            
+
             logger.info(
                 f"Loaded {len(insert_data)} raw calls into Snowflake",
-                correlation_id=correlation_id
+                correlation_id=correlation_id,
             )
-            
+
             return len(insert_data)
-            
+
         except Exception as e:
             # Rollback transaction on error
             try:
                 cursor.execute("ROLLBACK")
             except Exception as rollback_error:
                 logger.error(f"Failed to rollback transaction: {rollback_error}")
-            
+
             logger.error(f"Failed to load raw calls: {e}")
             raise
         finally:
             cursor.close()
-    
-    async def load_call_transcripts(self, transcripts_data: List[Dict[str, Any]]) -> int:
+
+    async def load_call_transcripts(
+        self, transcripts_data: List[Dict[str, Any]]
+    ) -> int:
         """
         Load call transcripts into GONG_CALL_TRANSCRIPTS_RAW table
-        
+
         Args:
             transcripts_data: List of transcript data from Gong API
-            
+
         Returns:
             Number of records loaded
         """
         if not transcripts_data:
             return 0
-            
+
         await self._ensure_transcripts_table()
-        
+
         cursor = self.connection.cursor()
         try:
             # Begin transaction for atomicity
             cursor.execute("BEGIN TRANSACTION")
-            
+
             insert_query = """
             INSERT INTO GONG_CALL_TRANSCRIPTS_RAW (
                 CALL_ID,
@@ -331,47 +333,49 @@ class SnowflakeGongLoader:
                 CORRELATION_ID
             ) VALUES (?, ?, ?, ?)
             """
-            
+
             correlation_id = str(uuid.uuid4())
             insert_data = []
-            
+
             for transcript in transcripts_data:
                 if transcript.get("transcript"):  # Only insert if transcript exists
-                    insert_data.append((
-                        transcript.get("call_id"),
-                        json.dumps(transcript),
-                        datetime.now(),
-                        correlation_id
-                    ))
-            
+                    insert_data.append(
+                        (
+                            transcript.get("call_id"),
+                            json.dumps(transcript),
+                            datetime.now(),
+                            correlation_id,
+                        )
+                    )
+
             if insert_data:
                 cursor.executemany(insert_query, insert_data)
-                
+
                 # Commit transaction
                 cursor.execute("COMMIT")
-                
+
                 logger.info(
                     f"Loaded {len(insert_data)} transcripts into Snowflake",
-                    correlation_id=correlation_id
+                    correlation_id=correlation_id,
                 )
             else:
                 # Commit empty transaction
                 cursor.execute("COMMIT")
-            
+
             return len(insert_data)
-            
+
         except Exception as e:
             # Rollback transaction on error
             try:
                 cursor.execute("ROLLBACK")
             except Exception as rollback_error:
                 logger.error(f"Failed to rollback transaction: {rollback_error}")
-            
+
             logger.error(f"Failed to load transcripts: {e}")
             raise
         finally:
             cursor.close()
-    
+
     async def _ensure_raw_calls_table(self):
         """Ensure GONG_CALLS_RAW table exists"""
         cursor = self.connection.cursor()
@@ -393,7 +397,7 @@ class SnowflakeGongLoader:
             raise
         finally:
             cursor.close()
-    
+
     async def _ensure_transcripts_table(self):
         """Ensure GONG_CALL_TRANSCRIPTS_RAW table exists"""
         cursor = self.connection.cursor()
@@ -415,13 +419,14 @@ class SnowflakeGongLoader:
             raise
         finally:
             cursor.close()
-    
+
     async def get_last_sync_state(self) -> Optional[IngestionState]:
         """Get the last sync state from Snowflake"""
         cursor = self.connection.cursor()
         try:
             # Create state table if not exists
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS GONG_INGESTION_STATE (
                     ID NUMBER IDENTITY PRIMARY KEY,
                     LAST_SYNC_TIMESTAMP TIMESTAMP_LTZ,
@@ -431,10 +436,12 @@ class SnowflakeGongLoader:
                     CORRELATION_ID VARCHAR(255),
                     CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
                 )
-            """)
-            
+            """
+            )
+
             # Get latest state
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     LAST_SYNC_TIMESTAMP,
                     LAST_CALL_ID,
@@ -444,38 +451,42 @@ class SnowflakeGongLoader:
                 FROM GONG_INGESTION_STATE 
                 ORDER BY ID DESC 
                 LIMIT 1
-            """)
-            
+            """
+            )
+
             result = cursor.fetchone()
             if result:
                 return IngestionState(
                     last_sync_timestamp=result[0],
                     last_call_id=result[1],
                     total_calls_processed=result[2] or 0,
-                    sync_mode=SyncMode(result[3]) if result[3] else SyncMode.INCREMENTAL,
-                    correlation_id=result[4] or str(uuid.uuid4())
+                    sync_mode=(
+                        SyncMode(result[3]) if result[3] else SyncMode.INCREMENTAL
+                    ),
+                    correlation_id=result[4] or str(uuid.uuid4()),
                 )
-            
+
             # No previous state, return default
             return IngestionState(
-                last_sync_timestamp=datetime.now() - timedelta(days=7),  # Start with last week
+                last_sync_timestamp=datetime.now()
+                - timedelta(days=7),  # Start with last week
                 sync_mode=SyncMode.INCREMENTAL,
-                correlation_id=str(uuid.uuid4())
+                correlation_id=str(uuid.uuid4()),
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to get sync state: {e}")
             raise
         finally:
             cursor.close()
-    
+
     async def save_sync_state(self, state: IngestionState):
         """Save sync state to Snowflake"""
         cursor = self.connection.cursor()
         try:
             # Begin transaction for atomicity
             cursor.execute("BEGIN TRANSACTION")
-            
+
             insert_query = """
             INSERT INTO GONG_INGESTION_STATE (
                 LAST_SYNC_TIMESTAMP,
@@ -485,31 +496,36 @@ class SnowflakeGongLoader:
                 CORRELATION_ID
             ) VALUES (?, ?, ?, ?, ?)
             """
-            
-            cursor.execute(insert_query, (
-                state.last_sync_timestamp,
-                state.last_call_id,
-                state.total_calls_processed,
-                state.sync_mode.value,
-                state.correlation_id
-            ))
-            
+
+            cursor.execute(
+                insert_query,
+                (
+                    state.last_sync_timestamp,
+                    state.last_call_id,
+                    state.total_calls_processed,
+                    state.sync_mode.value,
+                    state.correlation_id,
+                ),
+            )
+
             # Commit transaction
             cursor.execute("COMMIT")
             logger.debug("Saved sync state to Snowflake")
-            
+
         except Exception as e:
             # Rollback transaction on error
             try:
                 cursor.execute("ROLLBACK")
             except Exception as rollback_error:
-                logger.error(f"Failed to rollback sync state transaction: {rollback_error}")
-            
+                logger.error(
+                    f"Failed to rollback sync state transaction: {rollback_error}"
+                )
+
             logger.error(f"Failed to save sync state: {e}")
             raise
         finally:
             cursor.close()
-    
+
     async def close(self):
         """Close Snowflake connection"""
         if self.connection:
@@ -519,27 +535,27 @@ class SnowflakeGongLoader:
 
 class GongDataIngestionOrchestrator:
     """Orchestrates the complete Gong data ingestion process"""
-    
+
     def __init__(self, sync_mode: SyncMode = SyncMode.INCREMENTAL):
         self.sync_mode = sync_mode
         self.gong_client = GongAPIClient()
         self.snowflake_loader = SnowflakeGongLoader()
         self.correlation_id = str(uuid.uuid4())
-        
+
     async def run_ingestion(
         self,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
-        include_transcripts: bool = True
+        include_transcripts: bool = True,
     ) -> Dict[str, Any]:
         """
         Run the complete Gong data ingestion process
-        
+
         Args:
             from_date: Start date (if None, uses last sync timestamp)
             to_date: End date (if None, uses current time)
             include_transcripts: Whether to fetch and load transcripts
-            
+
         Returns:
             Ingestion results summary
         """
@@ -551,123 +567,123 @@ class GongDataIngestionOrchestrator:
             "calls_processed": 0,
             "transcripts_processed": 0,
             "errors": [],
-            "success": False
+            "success": False,
         }
-        
+
         try:
             logger.info(
                 "Starting Gong data ingestion",
                 correlation_id=self.correlation_id,
-                sync_mode=self.sync_mode.value
+                sync_mode=self.sync_mode.value,
             )
-            
+
             # Initialize connections
             await self.snowflake_loader.initialize()
-            
+
             # Determine date range
             if not from_date:
                 state = await self.snowflake_loader.get_last_sync_state()
                 from_date = state.last_sync_timestamp
-            
+
             if not to_date:
                 to_date = datetime.now()
-            
+
             logger.info(
                 f"Ingesting Gong data from {from_date} to {to_date}",
-                correlation_id=self.correlation_id
+                correlation_id=self.correlation_id,
             )
-            
+
             # Fetch and load calls
             calls_processed = await self._ingest_calls(from_date, to_date)
             results["calls_processed"] = calls_processed
-            
+
             # Fetch and load transcripts if requested
             if include_transcripts and calls_processed > 0:
-                transcripts_processed = await self._ingest_transcripts(from_date, to_date)
+                transcripts_processed = await self._ingest_transcripts(
+                    from_date, to_date
+                )
                 results["transcripts_processed"] = transcripts_processed
-            
+
             # Update sync state
             new_state = IngestionState(
                 last_sync_timestamp=to_date,
                 total_calls_processed=calls_processed,
                 sync_mode=self.sync_mode,
-                correlation_id=self.correlation_id
+                correlation_id=self.correlation_id,
             )
             await self.snowflake_loader.save_sync_state(new_state)
-            
+
             results["success"] = True
             results["end_time"] = datetime.now().isoformat()
             results["duration_seconds"] = (datetime.now() - start_time).total_seconds()
-            
+
             logger.info(
                 "Gong data ingestion completed successfully",
                 correlation_id=self.correlation_id,
                 calls_processed=calls_processed,
                 transcripts_processed=results["transcripts_processed"],
-                duration_seconds=results["duration_seconds"]
+                duration_seconds=results["duration_seconds"],
             )
-            
+
         except Exception as e:
             results["errors"].append(str(e))
             results["success"] = False
             logger.error(
                 f"Gong data ingestion failed: {e}",
                 correlation_id=self.correlation_id,
-                exc_info=True
+                exc_info=True,
             )
-            
+
         finally:
             await self.snowflake_loader.close()
-        
+
         return results
-    
+
     async def _ingest_calls(self, from_date: datetime, to_date: datetime) -> int:
         """Ingest calls data with pagination"""
         total_calls = 0
         cursor = None
-        
+
         async with self.gong_client as client:
             while True:
                 try:
                     response = await client.get_calls(
-                        from_date=from_date,
-                        to_date=to_date,
-                        cursor=cursor,
-                        limit=100
+                        from_date=from_date, to_date=to_date, cursor=cursor, limit=100
                     )
-                    
+
                     calls = response.get("calls", [])
                     if not calls:
                         break
-                    
+
                     # Load batch into Snowflake
                     loaded_count = await self.snowflake_loader.load_raw_calls(calls)
                     total_calls += loaded_count
-                    
+
                     # Check for more data
                     records_info = response.get("records", {})
                     cursor = records_info.get("cursor")
-                    
+
                     if not cursor:
                         break
-                        
+
                     logger.debug(
                         f"Processed batch of {loaded_count} calls, total: {total_calls}",
-                        correlation_id=self.correlation_id
+                        correlation_id=self.correlation_id,
                     )
-                    
+
                 except Exception as e:
                     logger.error(f"Error processing calls batch: {e}")
                     raise
-        
+
         return total_calls
-    
+
     async def _ingest_transcripts(self, from_date: datetime, to_date: datetime) -> int:
         """Ingest transcripts for calls in date range"""
         # Get call IDs from raw calls table
         cursor = self.snowflake_loader.connection.cursor()
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT CALL_ID 
                 FROM GONG_CALLS_RAW 
                 WHERE INGESTED_AT >= ? 
@@ -675,38 +691,42 @@ class GongDataIngestionOrchestrator:
                 AND CALL_ID NOT IN (
                     SELECT CALL_ID FROM GONG_CALL_TRANSCRIPTS_RAW
                 )
-            """, (from_date, to_date))
-            
+            """,
+                (from_date, to_date),
+            )
+
             call_ids = [row[0] for row in cursor.fetchall()]
-            
+
         finally:
             cursor.close()
-        
+
         if not call_ids:
             logger.info("No new calls found for transcript processing")
             return 0
-        
+
         transcripts_data = []
-        
+
         async with self.gong_client as client:
             for call_id in call_ids:
                 try:
                     transcript = await client.get_call_transcript(call_id)
                     transcripts_data.append(transcript)
-                    
+
                     # Process in batches of 50
                     if len(transcripts_data) >= 50:
-                        await self.snowflake_loader.load_call_transcripts(transcripts_data)
+                        await self.snowflake_loader.load_call_transcripts(
+                            transcripts_data
+                        )
                         transcripts_data = []
-                        
+
                 except Exception as e:
                     logger.error(f"Error fetching transcript for call {call_id}: {e}")
                     continue
-        
+
         # Process remaining transcripts
         if transcripts_data:
             await self.snowflake_loader.load_call_transcripts(transcripts_data)
-        
+
         return len(call_ids)
 
 
@@ -714,55 +734,47 @@ class GongDataIngestionOrchestrator:
 async def main():
     """Main CLI entry point"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Gong Data Ingestion for Snowflake")
     parser.add_argument(
-        "--sync-mode", 
+        "--sync-mode",
         choices=["full", "incremental", "backfill"],
         default="incremental",
-        help="Sync mode for data ingestion"
+        help="Sync mode for data ingestion",
     )
     parser.add_argument(
-        "--from-date",
-        type=str,
-        help="Start date (YYYY-MM-DD) for data ingestion"
+        "--from-date", type=str, help="Start date (YYYY-MM-DD) for data ingestion"
     )
     parser.add_argument(
-        "--to-date", 
-        type=str,
-        help="End date (YYYY-MM-DD) for data ingestion"
+        "--to-date", type=str, help="End date (YYYY-MM-DD) for data ingestion"
     )
     parser.add_argument(
-        "--no-transcripts",
-        action="store_true",
-        help="Skip transcript ingestion"
+        "--no-transcripts", action="store_true", help="Skip transcript ingestion"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Parse dates
     from_date = None
     to_date = None
-    
+
     if args.from_date:
         from_date = datetime.fromisoformat(args.from_date)
     if args.to_date:
         to_date = datetime.fromisoformat(args.to_date)
-    
+
     # Run ingestion
-    orchestrator = GongDataIngestionOrchestrator(
-        sync_mode=SyncMode(args.sync_mode)
-    )
-    
+    orchestrator = GongDataIngestionOrchestrator(sync_mode=SyncMode(args.sync_mode))
+
     results = await orchestrator.run_ingestion(
         from_date=from_date,
         to_date=to_date,
-        include_transcripts=not args.no_transcripts
+        include_transcripts=not args.no_transcripts,
     )
-    
+
     print(json.dumps(results, indent=2, default=str))
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -306,9 +306,9 @@ class GongAPIClient:
             "call_id": call_id,
             "enhanced_at": datetime.now(timezone.utc).isoformat(),
             "call_data": results["call"].dict() if results["call"] else None,
-            "transcript": results["transcript"].dict()
-            if results["transcript"]
-            else None,
+            "transcript": (
+                results["transcript"].dict() if results["transcript"] else None
+            ),
             "analytics": results["analytics"].dict() if results["analytics"] else None,
             "participants": results["participants"] if results["participants"] else [],
         }

@@ -27,25 +27,26 @@ from mcp.types import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("notion-mcp-server")
 
+
 class NotionMCPServer:
     """Notion MCP Server for knowledge base and document management."""
-    
+
     def __init__(self):
         self.server = Server("notion-mcp-server")
         self.base_url = "https://api.notion.com/v1"
         self.access_token = os.getenv("NOTION_ACCESS_TOKEN")
         self.notion_version = "2022-06-28"
-        
+
         if not self.access_token:
             logger.error("NOTION_ACCESS_TOKEN environment variable not set")
             sys.exit(1)
-        
+
         # Setup MCP server handlers
         self.setup_handlers()
-    
+
     def setup_handlers(self):
         """Setup MCP server request handlers."""
-        
+
         @self.server.list_tools()
         async def handle_list_tools() -> ListToolsResult:
             """List available Notion tools."""
@@ -59,7 +60,7 @@ class NotionMCPServer:
                             "properties": {
                                 "query": {
                                     "type": "string",
-                                    "description": "Search query text"
+                                    "description": "Search query text",
                                 },
                                 "filter": {
                                     "type": "object",
@@ -67,13 +68,13 @@ class NotionMCPServer:
                                     "properties": {
                                         "property": {
                                             "type": "string",
-                                            "description": "Property name to filter by"
+                                            "description": "Property name to filter by",
                                         },
                                         "value": {
-                                            "type": "string", 
-                                            "description": "Value to filter for"
-                                        }
-                                    }
+                                            "type": "string",
+                                            "description": "Value to filter for",
+                                        },
+                                    },
                                 },
                                 "sort": {
                                     "type": "object",
@@ -82,21 +83,24 @@ class NotionMCPServer:
                                         "direction": {
                                             "type": "string",
                                             "enum": ["ascending", "descending"],
-                                            "description": "Sort direction"
+                                            "description": "Sort direction",
                                         },
                                         "timestamp": {
                                             "type": "string",
-                                            "enum": ["created_time", "last_edited_time"],
-                                            "description": "Timestamp to sort by"
-                                        }
-                                    }
+                                            "enum": [
+                                                "created_time",
+                                                "last_edited_time",
+                                            ],
+                                            "description": "Timestamp to sort by",
+                                        },
+                                    },
                                 },
                                 "page_size": {
                                     "type": "integer",
-                                    "description": "Number of results to return (max 100)"
-                                }
-                            }
-                        }
+                                    "description": "Number of results to return (max 100)",
+                                },
+                            },
+                        },
                     ),
                     Tool(
                         name="get_page",
@@ -107,11 +111,11 @@ class NotionMCPServer:
                                 "page_id": {
                                     "type": "string",
                                     "description": "Page ID to retrieve",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["page_id"]
-                        }
+                            "required": ["page_id"],
+                        },
                     ),
                     Tool(
                         name="get_page_content",
@@ -122,15 +126,15 @@ class NotionMCPServer:
                                 "page_id": {
                                     "type": "string",
                                     "description": "Page ID to get content for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "page_size": {
                                     "type": "integer",
-                                    "description": "Number of blocks to return (max 100)"
-                                }
+                                    "description": "Number of blocks to return (max 100)",
+                                },
                             },
-                            "required": ["page_id"]
-                        }
+                            "required": ["page_id"],
+                        },
                     ),
                     Tool(
                         name="get_database",
@@ -141,11 +145,11 @@ class NotionMCPServer:
                                 "database_id": {
                                     "type": "string",
                                     "description": "Database ID to retrieve",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["database_id"]
-                        }
+                            "required": ["database_id"],
+                        },
                     ),
                     Tool(
                         name="query_database",
@@ -156,23 +160,23 @@ class NotionMCPServer:
                                 "database_id": {
                                     "type": "string",
                                     "description": "Database ID to query",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "filter": {
                                     "type": "object",
-                                    "description": "Filter criteria for database query"
+                                    "description": "Filter criteria for database query",
                                 },
                                 "sorts": {
                                     "type": "array",
-                                    "description": "Sort criteria for database query"
+                                    "description": "Sort criteria for database query",
                                 },
                                 "page_size": {
                                     "type": "integer",
-                                    "description": "Number of results to return (max 100)"
-                                }
+                                    "description": "Number of results to return (max 100)",
+                                },
                             },
-                            "required": ["database_id"]
-                        }
+                            "required": ["database_id"],
+                        },
                     ),
                     Tool(
                         name="get_users",
@@ -182,10 +186,10 @@ class NotionMCPServer:
                             "properties": {
                                 "page_size": {
                                     "type": "integer",
-                                    "description": "Number of users to return (max 100)"
+                                    "description": "Number of users to return (max 100)",
                                 }
-                            }
-                        }
+                            },
+                        },
                     ),
                     Tool(
                         name="get_user",
@@ -196,11 +200,11 @@ class NotionMCPServer:
                                 "user_id": {
                                     "type": "string",
                                     "description": "User ID to retrieve",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["user_id"]
-                        }
+                            "required": ["user_id"],
+                        },
                     ),
                     Tool(
                         name="search_by_title",
@@ -211,15 +215,15 @@ class NotionMCPServer:
                                 "title": {
                                     "type": "string",
                                     "description": "Title text to search for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "exact_match": {
                                     "type": "boolean",
-                                    "description": "Whether to match exact title (default: false)"
-                                }
+                                    "description": "Whether to match exact title (default: false)",
+                                },
                             },
-                            "required": ["title"]
-                        }
+                            "required": ["title"],
+                        },
                     ),
                     Tool(
                         name="get_recent_pages",
@@ -229,14 +233,14 @@ class NotionMCPServer:
                             "properties": {
                                 "days": {
                                     "type": "integer",
-                                    "description": "Number of days to look back (default: 7)"
+                                    "description": "Number of days to look back (default: 7)",
                                 },
                                 "page_size": {
                                     "type": "integer",
-                                    "description": "Number of pages to return (max 100)"
-                                }
-                            }
-                        }
+                                    "description": "Number of pages to return (max 100)",
+                                },
+                            },
+                        },
                     ),
                     Tool(
                         name="get_page_analytics",
@@ -247,11 +251,11 @@ class NotionMCPServer:
                                 "page_id": {
                                     "type": "string",
                                     "description": "Page ID to analyze",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["page_id"]
-                        }
+                            "required": ["page_id"],
+                        },
                     ),
                     Tool(
                         name="search_strategic_content",
@@ -261,16 +265,22 @@ class NotionMCPServer:
                             "properties": {
                                 "content_type": {
                                     "type": "string",
-                                    "enum": ["okr", "strategy", "planning", "goals", "metrics"],
-                                    "description": "Type of strategic content to search for"
+                                    "enum": [
+                                        "okr",
+                                        "strategy",
+                                        "planning",
+                                        "goals",
+                                        "metrics",
+                                    ],
+                                    "description": "Type of strategic content to search for",
                                 },
                                 "quarter": {
                                     "type": "string",
-                                    "description": "Quarter to filter by (e.g., 'Q3 2024')"
-                                }
-                            }
-                        }
-                    )
+                                    "description": "Quarter to filter by (e.g., 'Q3 2024')",
+                                },
+                            },
+                        },
+                    ),
                 ]
             )
 
@@ -302,9 +312,11 @@ class NotionMCPServer:
                     result = await self.search_strategic_content(**arguments)
                 else:
                     raise ValueError(f"Unknown tool: {name}")
-                
+
                 return CallToolResult(
-                    content=[TextContent(type="text", text=json.dumps(result, indent=2))]
+                    content=[
+                        TextContent(type="text", text=json.dumps(result, indent=2))
+                    ]
                 )
             except Exception as e:
                 logger.error(f"Error calling tool {name}: {str(e)}")
@@ -312,16 +324,18 @@ class NotionMCPServer:
                     content=[TextContent(type="text", text=f"Error: {str(e)}")]
                 )
 
-    async def make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
+    async def make_request(
+        self, method: str, endpoint: str, data: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """Make authenticated request to Notion API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Content-Type": "application/json",
-            "Notion-Version": self.notion_version
+            "Notion-Version": self.notion_version,
         }
-        
+
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        
+
         async with aiohttp.ClientSession() as session:
             if method.upper() == "GET":
                 async with session.get(url, headers=headers, params=data) as response:
@@ -340,24 +354,27 @@ class NotionMCPServer:
             error_text = await response.text()
             raise Exception(f"Notion API error {response.status}: {error_text}")
 
-    async def search_pages(self, query: Optional[str] = None, filter: Optional[Dict] = None,
-                          sort: Optional[Dict] = None, page_size: int = 100) -> Dict[str, Any]:
+    async def search_pages(
+        self,
+        query: Optional[str] = None,
+        filter: Optional[Dict] = None,
+        sort: Optional[Dict] = None,
+        page_size: int = 100,
+    ) -> Dict[str, Any]:
         """Search for pages in Notion."""
-        search_data = {
-            "page_size": min(page_size, 100)
-        }
-        
+        search_data = {"page_size": min(page_size, 100)}
+
         if query:
             search_data["query"] = query
-        
+
         if filter:
             search_data["filter"] = filter
-        
+
         if sort:
             search_data["sort"] = sort
-        
+
         result = await self.make_request("POST", "search", search_data)
-        
+
         # Enhance results with additional metadata
         enhanced_results = []
         for page in result.get("results", []):
@@ -365,76 +382,73 @@ class NotionMCPServer:
                 enhanced_page = await self._enhance_page_data(page)
                 enhanced_results.append(enhanced_page)
             except Exception as e:
-                logger.warning(f"Could not enhance page {page.get('id', 'unknown')}: {e}")
+                logger.warning(
+                    f"Could not enhance page {page.get('id', 'unknown')}: {e}"
+                )
                 enhanced_results.append(page)
-        
+
         return {
             "results": enhanced_results,
             "has_more": result.get("has_more", False),
             "next_cursor": result.get("next_cursor"),
             "total_results": len(enhanced_results),
-            "search_criteria": {
-                "query": query,
-                "filter": filter,
-                "sort": sort
-            },
-            "sync_time": datetime.now().isoformat()
+            "search_criteria": {"query": query, "filter": filter, "sort": sort},
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_page(self, page_id: str) -> Dict[str, Any]:
         """Get detailed page information."""
         page = await self.make_request("GET", f"pages/{page_id}")
         enhanced_page = await self._enhance_page_data(page)
-        
-        return {
-            "page": enhanced_page,
-            "sync_time": datetime.now().isoformat()
-        }
 
-    async def get_page_content(self, page_id: str, page_size: int = 100) -> Dict[str, Any]:
+        return {"page": enhanced_page, "sync_time": datetime.now().isoformat()}
+
+    async def get_page_content(
+        self, page_id: str, page_size: int = 100
+    ) -> Dict[str, Any]:
         """Get page content blocks."""
-        params = {
-            "page_size": min(page_size, 100)
-        }
-        
+        params = {"page_size": min(page_size, 100)}
+
         result = await self.make_request("GET", f"blocks/{page_id}/children", params)
-        
+
         # Analyze content structure
         content_analysis = self._analyze_content_blocks(result.get("results", []))
-        
+
         return {
             "page_id": page_id,
             "blocks": result.get("results", []),
             "has_more": result.get("has_more", False),
             "next_cursor": result.get("next_cursor"),
             "content_analysis": content_analysis,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_database(self, database_id: str) -> Dict[str, Any]:
         """Get database information."""
         database = await self.make_request("GET", f"databases/{database_id}")
-        
-        return {
-            "database": database,
-            "sync_time": datetime.now().isoformat()
-        }
 
-    async def query_database(self, database_id: str, filter: Optional[Dict] = None,
-                            sorts: Optional[List] = None, page_size: int = 100) -> Dict[str, Any]:
+        return {"database": database, "sync_time": datetime.now().isoformat()}
+
+    async def query_database(
+        self,
+        database_id: str,
+        filter: Optional[Dict] = None,
+        sorts: Optional[List] = None,
+        page_size: int = 100,
+    ) -> Dict[str, Any]:
         """Query database with filters and sorting."""
-        query_data = {
-            "page_size": min(page_size, 100)
-        }
-        
+        query_data = {"page_size": min(page_size, 100)}
+
         if filter:
             query_data["filter"] = filter
-        
+
         if sorts:
             query_data["sorts"] = sorts
-        
-        result = await self.make_request("POST", f"databases/{database_id}/query", query_data)
-        
+
+        result = await self.make_request(
+            "POST", f"databases/{database_id}/query", query_data
+        )
+
         # Enhance database results
         enhanced_results = []
         for page in result.get("results", []):
@@ -442,122 +456,112 @@ class NotionMCPServer:
                 enhanced_page = await self._enhance_database_page(page)
                 enhanced_results.append(enhanced_page)
             except Exception as e:
-                logger.warning(f"Could not enhance database page {page.get('id', 'unknown')}: {e}")
+                logger.warning(
+                    f"Could not enhance database page {page.get('id', 'unknown')}: {e}"
+                )
                 enhanced_results.append(page)
-        
+
         return {
             "database_id": database_id,
             "results": enhanced_results,
             "has_more": result.get("has_more", False),
             "next_cursor": result.get("next_cursor"),
             "result_count": len(enhanced_results),
-            "query_criteria": {
-                "filter": filter,
-                "sorts": sorts
-            },
-            "sync_time": datetime.now().isoformat()
+            "query_criteria": {"filter": filter, "sorts": sorts},
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_users(self, page_size: int = 100) -> Dict[str, Any]:
         """Get workspace users."""
-        params = {
-            "page_size": min(page_size, 100)
-        }
-        
+        params = {"page_size": min(page_size, 100)}
+
         result = await self.make_request("GET", "users", params)
-        
+
         return {
             "users": result.get("results", []),
             "has_more": result.get("has_more", False),
             "next_cursor": result.get("next_cursor"),
             "user_count": len(result.get("results", [])),
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_user(self, user_id: str) -> Dict[str, Any]:
         """Get specific user information."""
         user = await self.make_request("GET", f"users/{user_id}")
-        
-        return {
-            "user": user,
-            "sync_time": datetime.now().isoformat()
-        }
 
-    async def search_by_title(self, title: str, exact_match: bool = False) -> Dict[str, Any]:
+        return {"user": user, "sync_time": datetime.now().isoformat()}
+
+    async def search_by_title(
+        self, title: str, exact_match: bool = False
+    ) -> Dict[str, Any]:
         """Search pages by title."""
         if exact_match:
-            filter_criteria = {
-                "property": "object",
-                "value": "page"
-            }
+            filter_criteria = {"property": "object", "value": "page"}
         else:
             filter_criteria = None
-        
+
         result = await self.search_pages(query=title, filter=filter_criteria)
-        
+
         # Filter results by title match
         if exact_match:
             filtered_results = [
-                page for page in result["results"]
+                page
+                for page in result["results"]
                 if self._extract_title(page).lower() == title.lower()
             ]
         else:
             title_lower = title.lower()
             filtered_results = [
-                page for page in result["results"]
+                page
+                for page in result["results"]
                 if title_lower in self._extract_title(page).lower()
             ]
-        
+
         return {
             "search_title": title,
             "exact_match": exact_match,
             "results": filtered_results,
             "result_count": len(filtered_results),
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_recent_pages(self, days: int = 7, page_size: int = 100) -> Dict[str, Any]:
+    async def get_recent_pages(
+        self, days: int = 7, page_size: int = 100
+    ) -> Dict[str, Any]:
         """Get recently edited pages."""
         cutoff_date = (datetime.now() - timedelta(days=days)).isoformat()
-        
-        sort_criteria = {
-            "direction": "descending",
-            "timestamp": "last_edited_time"
-        }
-        
-        filter_criteria = {
-            "property": "object",
-            "value": "page"
-        }
-        
+
+        sort_criteria = {"direction": "descending", "timestamp": "last_edited_time"}
+
+        filter_criteria = {"property": "object", "value": "page"}
+
         result = await self.search_pages(
-            filter=filter_criteria,
-            sort=sort_criteria,
-            page_size=page_size
+            filter=filter_criteria, sort=sort_criteria, page_size=page_size
         )
-        
+
         # Filter by date
         recent_pages = [
-            page for page in result["results"]
+            page
+            for page in result["results"]
             if page.get("last_edited_time", "") >= cutoff_date
         ]
-        
+
         return {
             "days_back": days,
             "cutoff_date": cutoff_date,
             "recent_pages": recent_pages,
             "page_count": len(recent_pages),
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_page_analytics(self, page_id: str) -> Dict[str, Any]:
         """Get analytics and metadata for a page."""
         page = await self.get_page(page_id)
         content = await self.get_page_content(page_id)
-        
+
         page_data = page["page"]
         content_data = content["content_analysis"]
-        
+
         # Calculate page metrics
         analytics = {
             "page_id": page_id,
@@ -569,22 +573,23 @@ class NotionMCPServer:
             "content_metrics": content_data,
             "properties": self._extract_properties(page_data),
             "url": page_data.get("url"),
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
-        
+
         return analytics
 
-    async def search_strategic_content(self, content_type: Optional[str] = None,
-                                     quarter: Optional[str] = None) -> Dict[str, Any]:
+    async def search_strategic_content(
+        self, content_type: Optional[str] = None, quarter: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Search for strategic planning content."""
         search_terms = {
             "okr": ["OKR", "objective", "key result", "goal"],
             "strategy": ["strategy", "strategic", "vision", "mission"],
             "planning": ["plan", "planning", "roadmap", "timeline"],
             "goals": ["goal", "target", "objective", "achievement"],
-            "metrics": ["metric", "KPI", "measurement", "performance"]
+            "metrics": ["metric", "KPI", "measurement", "performance"],
         }
-        
+
         query_terms = []
         if content_type and content_type in search_terms:
             query_terms.extend(search_terms[content_type])
@@ -592,43 +597,57 @@ class NotionMCPServer:
             # Search all strategic content
             for terms in search_terms.values():
                 query_terms.extend(terms)
-        
+
         if quarter:
             query_terms.append(quarter)
-        
+
         query = " OR ".join(query_terms[:10])  # Limit query complexity
-        
+
         result = await self.search_pages(query=query)
-        
+
         # Categorize results
         categorized_results = {
             "okr_pages": [],
             "strategy_pages": [],
             "planning_pages": [],
             "goal_pages": [],
-            "metric_pages": []
+            "metric_pages": [],
         }
-        
+
         for page in result["results"]:
             title = self._extract_title(page).lower()
             content = str(page.get("properties", {})).lower()
-            
-            if any(term in title or term in content for term in search_terms.get("okr", [])):
+
+            if any(
+                term in title or term in content for term in search_terms.get("okr", [])
+            ):
                 categorized_results["okr_pages"].append(page)
-            elif any(term in title or term in content for term in search_terms.get("strategy", [])):
+            elif any(
+                term in title or term in content
+                for term in search_terms.get("strategy", [])
+            ):
                 categorized_results["strategy_pages"].append(page)
-            elif any(term in title or term in content for term in search_terms.get("planning", [])):
+            elif any(
+                term in title or term in content
+                for term in search_terms.get("planning", [])
+            ):
                 categorized_results["planning_pages"].append(page)
-            elif any(term in title or term in content for term in search_terms.get("goals", [])):
+            elif any(
+                term in title or term in content
+                for term in search_terms.get("goals", [])
+            ):
                 categorized_results["goal_pages"].append(page)
-            elif any(term in title or term in content for term in search_terms.get("metrics", [])):
+            elif any(
+                term in title or term in content
+                for term in search_terms.get("metrics", [])
+            ):
                 categorized_results["metric_pages"].append(page)
-        
+
         return {
             "search_criteria": {
                 "content_type": content_type,
                 "quarter": quarter,
-                "query": query
+                "query": query,
             },
             "all_results": result["results"],
             "categorized_results": categorized_results,
@@ -638,43 +657,45 @@ class NotionMCPServer:
                 "strategy_pages": len(categorized_results["strategy_pages"]),
                 "planning_pages": len(categorized_results["planning_pages"]),
                 "goal_pages": len(categorized_results["goal_pages"]),
-                "metric_pages": len(categorized_results["metric_pages"])
+                "metric_pages": len(categorized_results["metric_pages"]),
             },
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def _enhance_page_data(self, page: Dict[str, Any]) -> Dict[str, Any]:
         """Enhance page data with additional metadata."""
         enhanced = page.copy()
-        
+
         # Extract and normalize title
         enhanced["extracted_title"] = self._extract_title(page)
-        
+
         # Extract properties in a normalized format
         enhanced["extracted_properties"] = self._extract_properties(page)
-        
+
         # Add content preview if it's a page
         if page.get("object") == "page":
             try:
                 content_preview = await self._get_content_preview(page["id"])
                 enhanced["content_preview"] = content_preview
             except Exception as e:
-                logger.debug(f"Could not get content preview for page {page['id']}: {e}")
+                logger.debug(
+                    f"Could not get content preview for page {page['id']}: {e}"
+                )
                 enhanced["content_preview"] = None
-        
+
         return enhanced
 
     async def _enhance_database_page(self, page: Dict[str, Any]) -> Dict[str, Any]:
         """Enhance database page with extracted property values."""
         enhanced = page.copy()
-        
+
         # Extract property values in a more usable format
         properties = page.get("properties", {})
         extracted_props = {}
-        
+
         for prop_name, prop_data in properties.items():
             prop_type = prop_data.get("type")
-            
+
             if prop_type == "title":
                 extracted_props[prop_name] = self._extract_title_property(prop_data)
             elif prop_type == "rich_text":
@@ -684,7 +705,9 @@ class NotionMCPServer:
             elif prop_type == "select":
                 extracted_props[prop_name] = prop_data.get("select", {}).get("name")
             elif prop_type == "multi_select":
-                extracted_props[prop_name] = [item.get("name") for item in prop_data.get("multi_select", [])]
+                extracted_props[prop_name] = [
+                    item.get("name") for item in prop_data.get("multi_select", [])
+                ]
             elif prop_type == "date":
                 extracted_props[prop_name] = prop_data.get("date", {}).get("start")
             elif prop_type == "checkbox":
@@ -696,8 +719,10 @@ class NotionMCPServer:
             elif prop_type == "phone_number":
                 extracted_props[prop_name] = prop_data.get("phone_number")
             elif prop_type == "people":
-                extracted_props[prop_name] = [person.get("name") for person in prop_data.get("people", [])]
-        
+                extracted_props[prop_name] = [
+                    person.get("name") for person in prop_data.get("people", [])
+                ]
+
         enhanced["extracted_properties"] = extracted_props
         return enhanced
 
@@ -706,13 +731,13 @@ class NotionMCPServer:
         try:
             content = await self.get_page_content(page_id, page_size=max_blocks)
             blocks = content.get("blocks", [])
-            
+
             preview_text = []
             for block in blocks[:max_blocks]:
                 block_text = self._extract_block_text(block)
                 if block_text:
                     preview_text.append(block_text)
-            
+
             return " ".join(preview_text)[:200] + "..." if preview_text else ""
         except Exception:
             return ""
@@ -724,13 +749,13 @@ class NotionMCPServer:
             for prop_name, prop_data in page["properties"].items():
                 if prop_data.get("type") == "title":
                     return self._extract_title_property(prop_data)
-        
+
         # Regular page
         if "title" in page:
             title_blocks = page["title"]
             if title_blocks:
                 return "".join(block.get("plain_text", "") for block in title_blocks)
-        
+
         return "Untitled"
 
     def _extract_title_property(self, title_prop: Dict[str, Any]) -> str:
@@ -747,7 +772,7 @@ class NotionMCPServer:
         """Extract properties in a normalized format."""
         if "properties" not in page:
             return {}
-        
+
         return {
             prop_name: self._normalize_property_value(prop_data)
             for prop_name, prop_data in page["properties"].items()
@@ -756,7 +781,7 @@ class NotionMCPServer:
     def _normalize_property_value(self, prop_data: Dict[str, Any]) -> Any:
         """Normalize property value based on type."""
         prop_type = prop_data.get("type")
-        
+
         if prop_type == "title":
             return self._extract_title_property(prop_data)
         elif prop_type == "rich_text":
@@ -791,21 +816,23 @@ class NotionMCPServer:
             "has_images": False,
             "has_links": False,
             "has_tables": False,
-            "has_code": False
+            "has_code": False,
         }
-        
+
         for block in blocks:
             block_type = block.get("type", "unknown")
-            analysis["block_types"][block_type] = analysis["block_types"].get(block_type, 0) + 1
-            
+            analysis["block_types"][block_type] = (
+                analysis["block_types"].get(block_type, 0) + 1
+            )
+
             # Extract text and analyze content
             block_text = self._extract_block_text(block)
             if block_text:
                 analysis["text_length"] += len(block_text)
-                
+
                 if "http" in block_text:
                     analysis["has_links"] = True
-            
+
             # Check for specific content types
             if block_type == "image":
                 analysis["has_images"] = True
@@ -813,14 +840,21 @@ class NotionMCPServer:
                 analysis["has_tables"] = True
             elif block_type == "code":
                 analysis["has_code"] = True
-        
+
         return analysis
 
     def _extract_block_text(self, block: Dict[str, Any]) -> str:
         """Extract text content from a block."""
         block_type = block.get("type")
-        
-        if block_type in ["paragraph", "heading_1", "heading_2", "heading_3", "bulleted_list_item", "numbered_list_item"]:
+
+        if block_type in [
+            "paragraph",
+            "heading_1",
+            "heading_2",
+            "heading_3",
+            "bulleted_list_item",
+            "numbered_list_item",
+        ]:
             rich_text = block.get(block_type, {}).get("rich_text", [])
             return "".join(item.get("plain_text", "") for item in rich_text)
         elif block_type == "quote":
@@ -832,13 +866,14 @@ class NotionMCPServer:
         elif block_type == "code":
             rich_text = block.get("code", {}).get("rich_text", [])
             return "".join(item.get("plain_text", "") for item in rich_text)
-        
+
         return ""
+
 
 async def main():
     """Main entry point for the Notion MCP server."""
     notion_server = NotionMCPServer()
-    
+
     # Initialize and run the server
     async with stdio_server() as (read_stream, write_stream):
         await notion_server.server.run(
@@ -849,10 +884,11 @@ async def main():
                 server_version="1.0.0",
                 capabilities=notion_server.server.get_capabilities(
                     notification_options=NotificationOptions(),
-                    experimental_capabilities={}
-                )
-            )
+                    experimental_capabilities={},
+                ),
+            ),
         )
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

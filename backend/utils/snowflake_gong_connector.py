@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GongCallQuery:
     """Configuration for Gong call data queries"""
+
     date_range: Optional[Dict[str, datetime]] = None
     sales_rep: Optional[str] = None
     deal_stage: Optional[str] = None
@@ -39,6 +40,7 @@ class GongCallQuery:
 @dataclass
 class CallAnalysisResult:
     """Result from call analysis with AI insights"""
+
     call_id: str
     call_title: str
     sales_rep: str
@@ -54,40 +56,40 @@ class CallAnalysisResult:
 class SnowflakeGongConnector:
     """
     Connector for accessing structured Gong data from Snowflake
-    
+
     This class provides optimized methods for Sales Coach and Call Analysis agents
     to access processed Gong data with Snowflake Cortex AI enhancements.
     """
-    
+
     def __init__(self):
         self.connection = None
         self.database = config.get("snowflake_database", "SOPHIA_AI")
         self.gong_schema = "GONG_DATA"
         self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
         self.initialized = False
-        
+
         # Common table references
         self.tables = {
             "calls": f"{self.database}.{self.gong_schema}.STG_GONG_CALLS",
             "transcripts": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_TRANSCRIPTS",
             "participants": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_PARTICIPANTS",
-            "topics": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_TOPICS"
+            "topics": f"{self.database}.{self.gong_schema}.STG_GONG_CALL_TOPICS",
         }
-    
+
     async def __aenter__(self):
         """Async context manager entry - initialize connection"""
         await self.initialize()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit - cleanup resources"""
         await self.close()
-    
+
     async def initialize(self) -> None:
         """Initialize Snowflake connection for Gong data access"""
         if self.initialized:
             return
-            
+
         try:
             self.connection = snowflake.connector.connect(
                 user=config.get("snowflake_user"),
@@ -96,40 +98,40 @@ class SnowflakeGongConnector:
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.gong_schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN")
+                role=config.get("snowflake_role", "ACCOUNTADMIN"),
             )
-            
+
             self.initialized = True
             logger.info("✅ Snowflake Gong connector initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Gong connector: {e}")
             raise
-    
+
     async def get_calls_for_coaching(
         self,
         sales_rep: Optional[str] = None,
         date_range_days: int = 7,
         sentiment_threshold: float = 0.4,
-        limit: int = 20
+        limit: int = 20,
     ) -> List[Dict[str, Any]]:
         """
         Get calls that need coaching attention
-        
+
         Args:
             sales_rep: Specific sales rep to analyze
             date_range_days: Days back to search
             sentiment_threshold: Minimum sentiment for filtering
             limit: Maximum calls to return
-            
+
         Returns:
             List of calls needing coaching with AI insights
         """
         if not self.initialized:
             await self.initialize()
-        
+
         rep_filter = f"AND gc.PRIMARY_USER_NAME = '{sales_rep}'" if sales_rep else ""
-        
+
         query = f"""
         SELECT 
             gc.CALL_ID,
@@ -199,47 +201,45 @@ class SnowflakeGongConnector:
             
         LIMIT {limit}
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             calls = []
             for row in results:
                 call_data = dict(zip(columns, row))
                 calls.append(call_data)
-            
+
             logger.info(f"Retrieved {len(calls)} calls needing coaching attention")
             return calls
-            
+
         except Exception as e:
             logger.error(f"Error getting calls for coaching: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def get_call_analysis_data(
-        self,
-        call_id: str,
-        include_full_transcript: bool = True
+        self, call_id: str, include_full_transcript: bool = True
     ) -> Optional[Dict[str, Any]]:
         """
         Get comprehensive call analysis data for a specific call
-        
+
         Args:
             call_id: Gong call ID
             include_full_transcript: Whether to include full transcript data
-            
+
         Returns:
             Comprehensive call data with AI analysis
         """
         if not self.initialized:
             await self.initialize()
-        
+
         query = f"""
         WITH call_base AS (
             SELECT 
@@ -346,51 +346,49 @@ class SnowflakeGongConnector:
         LEFT JOIN transcript_analysis ta ON 1=1
         LEFT JOIN participants_info pi ON 1=1
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             result = cursor.fetchone()
             if not result:
                 return None
-            
+
             columns = [desc[0] for desc in cursor.description]
             call_data = dict(zip(columns, result))
-            
+
             # Add full transcript if requested
             if include_full_transcript:
                 transcript_data = await self._get_call_transcript(call_id)
-                call_data['full_transcript'] = transcript_data
-            
+                call_data["full_transcript"] = transcript_data
+
             logger.info(f"Retrieved comprehensive analysis for call {call_id}")
             return call_data
-            
+
         except Exception as e:
             logger.error(f"Error getting call analysis data: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def get_sales_rep_performance(
-        self,
-        sales_rep: str,
-        date_range_days: int = 30
+        self, sales_rep: str, date_range_days: int = 30
     ) -> Dict[str, Any]:
         """
         Get performance analysis for a specific sales rep
-        
+
         Args:
             sales_rep: Sales representative name
             date_range_days: Days back to analyze
-            
+
         Returns:
             Comprehensive performance analysis
         """
         if not self.initialized:
             await self.initialize()
-        
+
         query = f"""
         WITH rep_performance AS (
             SELECT 
@@ -464,54 +462,53 @@ class SnowflakeGongConnector:
         FROM rep_performance rp
         CROSS JOIN coaching_opportunities co
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             result = cursor.fetchone()
             if not result:
                 return {"error": f"No data found for sales rep: {sales_rep}"}
-            
+
             columns = [desc[0] for desc in cursor.description]
             performance_data = dict(zip(columns, result))
-            
+
             logger.info(f"Retrieved performance analysis for {sales_rep}")
             return performance_data
-            
+
         except Exception as e:
             logger.error(f"Error getting sales rep performance: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def search_calls_by_content(
-        self,
-        search_terms: List[str],
-        date_range_days: int = 90,
-        limit: int = 10
+        self, search_terms: List[str], date_range_days: int = 90, limit: int = 10
     ) -> List[Dict[str, Any]]:
         """
         Search calls by transcript content using text search
-        
+
         Args:
             search_terms: Terms to search for in transcripts
             date_range_days: Days back to search
             limit: Maximum results to return
-            
+
         Returns:
             List of matching calls with context
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Build search conditions
-        search_conditions = " OR ".join([
-            f"LOWER(t.TRANSCRIPT_TEXT) LIKE '%{term.lower()}%'" 
-            for term in search_terms
-        ])
-        
+        search_conditions = " OR ".join(
+            [
+                f"LOWER(t.TRANSCRIPT_TEXT) LIKE '%{term.lower()}%'"
+                for term in search_terms
+            ]
+        )
+
         query = f"""
         SELECT 
             gc.CALL_ID,
@@ -547,30 +544,32 @@ class SnowflakeGongConnector:
         ORDER BY gc.CALL_DATETIME_UTC DESC
         LIMIT {limit}
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             calls = []
             for row in results:
                 call_data = dict(zip(columns, row))
-                call_data['search_terms'] = search_terms
+                call_data["search_terms"] = search_terms
                 calls.append(call_data)
-            
-            logger.info(f"Found {len(calls)} calls matching search terms: {search_terms}")
+
+            logger.info(
+                f"Found {len(calls)} calls matching search terms: {search_terms}"
+            )
             return calls
-            
+
         except Exception as e:
             logger.error(f"Error searching calls by content: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def _get_call_transcript(self, call_id: str) -> List[Dict[str, Any]]:
         """Get full transcript segments for a call"""
         query = f"""
@@ -587,23 +586,23 @@ class SnowflakeGongConnector:
         WHERE CALL_ID = '{call_id}'
         ORDER BY START_TIME_SECONDS
         """
-        
+
         cursor = self.connection.cursor()
         try:
             cursor.execute(query)
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             transcript = []
             for row in results:
                 segment = dict(zip(columns, row))
                 transcript.append(segment)
-            
+
             return transcript
-            
+
         finally:
             cursor.close()
-    
+
     async def close(self):
         """Close Snowflake connection"""
         if self.connection:
@@ -624,13 +623,13 @@ async def get_gong_connector() -> SnowflakeGongConnector:
 
 
 # Convenience functions for agents
-async def get_coaching_opportunities(sales_rep: str = None, days: int = 7) -> List[Dict[str, Any]]:
+async def get_coaching_opportunities(
+    sales_rep: str = None, days: int = 7
+) -> List[Dict[str, Any]]:
     """Get calls needing coaching attention"""
     connector = await get_gong_connector()
     return await connector.get_calls_for_coaching(
-        sales_rep=sales_rep,
-        date_range_days=days,
-        sentiment_threshold=0.4
+        sales_rep=sales_rep, date_range_days=days, sentiment_threshold=0.4
     )
 
 
@@ -649,4 +648,4 @@ async def get_rep_performance(sales_rep: str, days: int = 30) -> Dict[str, Any]:
 async def search_call_content(terms: List[str], days: int = 90) -> List[Dict[str, Any]]:
     """Search calls by transcript content"""
     connector = await get_gong_connector()
-    return await connector.search_calls_by_content(terms, days) 
+    return await connector.search_calls_by_content(terms, days)

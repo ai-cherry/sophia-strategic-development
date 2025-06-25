@@ -10,9 +10,9 @@ from .agents.secret_manager import SecretComplianceManager
 
 __all__ = [
     "EnhancedSophiaIntelligenceAgent",
-    "InfrastructureOrchestrator", 
+    "InfrastructureOrchestrator",
     "BusinessIntelligenceDeployer",
-    "SecretComplianceManager"
+    "SecretComplianceManager",
 ]
 
 __version__ = "2.0.0"

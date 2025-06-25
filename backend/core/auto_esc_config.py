@@ -335,7 +335,9 @@ class AutoESCConfig:
             "json",
         ]
 
-        logger.debug("Loading ESC config: command='%s' stack='%s'", " ".join(cmd), stack)
+        logger.debug(
+            "Loading ESC config: command='%s' stack='%s'", " ".join(cmd), stack
+        )
 
         try:
             result = subprocess.run(
@@ -444,11 +446,15 @@ class AutoESCConfig:
             if nested_value:
                 return nested_value
         elif key == "gong_access_key":
-            nested_value = self._get_nested_value("values.sophia.business.gong.access_key")
+            nested_value = self._get_nested_value(
+                "values.sophia.business.gong.access_key"
+            )
             if nested_value:
                 return nested_value
         elif key == "gong_client_secret":
-            nested_value = self._get_nested_value("values.sophia.business.gong.client_secret")
+            nested_value = self._get_nested_value(
+                "values.sophia.business.gong.client_secret"
+            )
             if nested_value:
                 return nested_value
         elif key == "anthropic_api_key":
@@ -457,21 +463,21 @@ class AutoESCConfig:
                 return nested_value
 
         return self._config.get(key, default)
-    
+
     def _get_nested_value(self, path: str) -> Any | None:
         """Get value from nested dictionary using dot notation."""
         if not self._config:
             return None
-            
-        keys = path.split('.')
+
+        keys = path.split(".")
         value = self._config
-        
+
         for key in keys:
             if isinstance(value, dict) and key in value:
                 value = value[key]
             else:
                 return None
-                
+
         return value if value != "PLACEHOLDER_VALUE" else None
 
     def as_settings(self) -> Settings:
@@ -576,14 +582,14 @@ config = AutoESCConfig()
 
 def get_config_value(key: str, default: Any | None = None) -> Any | None:
     """Get configuration value using the global config instance.
-    
+
     This function provides backward compatibility for modules that expect
     a simple get_config_value function.
-    
+
     Args:
         key: Configuration key to retrieve
         default: Default value if key is not found
-        
+
     Returns:
         Configuration value or default
     """
@@ -592,14 +598,14 @@ def get_config_value(key: str, default: Any | None = None) -> Any | None:
 
 def get_config_value(key: str, default: Any | None = None) -> Any | None:
     """Get configuration value using the global config instance.
-    
+
     This function provides backward compatibility for modules that expect
     a simple get_config_value function.
-    
+
     Args:
         key: Configuration key to retrieve
         default: Default value if key is not found
-        
+
     Returns:
         Configuration value or default
     """

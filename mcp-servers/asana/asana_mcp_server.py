@@ -27,28 +27,31 @@ from mcp.types import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("asana-mcp-server")
 
+
 class AsanaMCPServer:
     """Asana MCP Server for project management integration."""
-    
+
     def __init__(self):
         self.server = Server("asana-mcp-server")
         self.base_url = "https://app.asana.com/api/1.0"
         self.access_token = os.getenv("ASANA_ACCESS_TOKEN")
         self.workspace_gid = os.getenv("ASANA_WORKSPACE_GID")
-        
+
         if not self.access_token:
             logger.error("ASANA_ACCESS_TOKEN environment variable not set")
             sys.exit(1)
-            
+
         if not self.workspace_gid:
-            logger.warning("ASANA_WORKSPACE_GID not set, will use first available workspace")
-        
+            logger.warning(
+                "ASANA_WORKSPACE_GID not set, will use first available workspace"
+            )
+
         # Setup MCP server handlers
         self.setup_handlers()
-    
+
     def setup_handlers(self):
         """Setup MCP server request handlers."""
-        
+
         @self.server.list_tools()
         async def handle_list_tools() -> ListToolsResult:
             """List available Asana tools."""
@@ -62,22 +65,22 @@ class AsanaMCPServer:
                             "properties": {
                                 "workspace_gid": {
                                     "type": "string",
-                                    "description": "Workspace GID (optional, uses default if not provided)"
+                                    "description": "Workspace GID (optional, uses default if not provided)",
                                 },
                                 "team_gid": {
-                                    "type": "string", 
-                                    "description": "Filter projects by team GID"
+                                    "type": "string",
+                                    "description": "Filter projects by team GID",
                                 },
                                 "archived": {
                                     "type": "boolean",
-                                    "description": "Include archived projects (default: false)"
+                                    "description": "Include archived projects (default: false)",
                                 },
                                 "limit": {
                                     "type": "integer",
-                                    "description": "Maximum number of projects to return (default: 50)"
-                                }
-                            }
-                        }
+                                    "description": "Maximum number of projects to return (default: 50)",
+                                },
+                            },
+                        },
                     ),
                     Tool(
                         name="get_project_details",
@@ -88,34 +91,34 @@ class AsanaMCPServer:
                                 "project_gid": {
                                     "type": "string",
                                     "description": "Project GID to get details for",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["project_gid"]
-                        }
+                            "required": ["project_gid"],
+                        },
                     ),
                     Tool(
                         name="get_project_tasks",
                         description="Get tasks for a specific project",
                         inputSchema={
-                            "type": "object", 
+                            "type": "object",
                             "properties": {
                                 "project_gid": {
                                     "type": "string",
                                     "description": "Project GID to get tasks for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "completed_since": {
                                     "type": "string",
-                                    "description": "ISO date string to filter completed tasks since"
+                                    "description": "ISO date string to filter completed tasks since",
                                 },
                                 "limit": {
                                     "type": "integer",
-                                    "description": "Maximum number of tasks to return (default: 100)"
-                                }
+                                    "description": "Maximum number of tasks to return (default: 100)",
+                                },
                             },
-                            "required": ["project_gid"]
-                        }
+                            "required": ["project_gid"],
+                        },
                     ),
                     Tool(
                         name="get_task_details",
@@ -124,13 +127,13 @@ class AsanaMCPServer:
                             "type": "object",
                             "properties": {
                                 "task_gid": {
-                                    "type": "string", 
+                                    "type": "string",
                                     "description": "Task GID to get details for",
-                                    "required": True
+                                    "required": True,
                                 }
                             },
-                            "required": ["task_gid"]
-                        }
+                            "required": ["task_gid"],
+                        },
                     ),
                     Tool(
                         name="get_teams",
@@ -140,10 +143,10 @@ class AsanaMCPServer:
                             "properties": {
                                 "workspace_gid": {
                                     "type": "string",
-                                    "description": "Workspace GID (optional, uses default if not provided)"
+                                    "description": "Workspace GID (optional, uses default if not provided)",
                                 }
-                            }
-                        }
+                            },
+                        },
                     ),
                     Tool(
                         name="get_team_projects",
@@ -154,15 +157,15 @@ class AsanaMCPServer:
                                 "team_gid": {
                                     "type": "string",
                                     "description": "Team GID to get projects for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "archived": {
                                     "type": "boolean",
-                                    "description": "Include archived projects (default: false)"
-                                }
+                                    "description": "Include archived projects (default: false)",
+                                },
                             },
-                            "required": ["team_gid"]
-                        }
+                            "required": ["team_gid"],
+                        },
                     ),
                     Tool(
                         name="get_project_status_updates",
@@ -173,15 +176,15 @@ class AsanaMCPServer:
                                 "project_gid": {
                                     "type": "string",
                                     "description": "Project GID to get status updates for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "limit": {
                                     "type": "integer",
-                                    "description": "Maximum number of status updates to return (default: 20)"
-                                }
+                                    "description": "Maximum number of status updates to return (default: 20)",
+                                },
                             },
-                            "required": ["project_gid"]
-                        }
+                            "required": ["project_gid"],
+                        },
                     ),
                     Tool(
                         name="search_tasks",
@@ -191,30 +194,30 @@ class AsanaMCPServer:
                             "properties": {
                                 "text": {
                                     "type": "string",
-                                    "description": "Text to search for in task names and descriptions"
+                                    "description": "Text to search for in task names and descriptions",
                                 },
                                 "assignee": {
                                     "type": "string",
-                                    "description": "User GID to filter tasks by assignee"
+                                    "description": "User GID to filter tasks by assignee",
                                 },
                                 "project_gid": {
                                     "type": "string",
-                                    "description": "Project GID to limit search to specific project"
+                                    "description": "Project GID to limit search to specific project",
                                 },
                                 "completed": {
                                     "type": "boolean",
-                                    "description": "Filter by completion status"
+                                    "description": "Filter by completion status",
                                 },
                                 "due_date_before": {
                                     "type": "string",
-                                    "description": "ISO date string to filter tasks due before this date"
+                                    "description": "ISO date string to filter tasks due before this date",
                                 },
                                 "due_date_after": {
-                                    "type": "string", 
-                                    "description": "ISO date string to filter tasks due after this date"
-                                }
-                            }
-                        }
+                                    "type": "string",
+                                    "description": "ISO date string to filter tasks due after this date",
+                                },
+                            },
+                        },
                     ),
                     Tool(
                         name="get_user_tasks",
@@ -225,19 +228,19 @@ class AsanaMCPServer:
                                 "user_gid": {
                                     "type": "string",
                                     "description": "User GID to get tasks for",
-                                    "required": True
+                                    "required": True,
                                 },
                                 "completed_since": {
                                     "type": "string",
-                                    "description": "ISO date string to filter completed tasks since"
+                                    "description": "ISO date string to filter completed tasks since",
                                 },
                                 "workspace_gid": {
                                     "type": "string",
-                                    "description": "Workspace GID (optional, uses default if not provided)"
-                                }
+                                    "description": "Workspace GID (optional, uses default if not provided)",
+                                },
                             },
-                            "required": ["user_gid"]
-                        }
+                            "required": ["user_gid"],
+                        },
                     ),
                     Tool(
                         name="get_workspace_users",
@@ -247,11 +250,11 @@ class AsanaMCPServer:
                             "properties": {
                                 "workspace_gid": {
                                     "type": "string",
-                                    "description": "Workspace GID (optional, uses default if not provided)"
+                                    "description": "Workspace GID (optional, uses default if not provided)",
                                 }
-                            }
-                        }
-                    )
+                            },
+                        },
+                    ),
                 ]
             )
 
@@ -281,9 +284,11 @@ class AsanaMCPServer:
                     result = await self.get_workspace_users(**arguments)
                 else:
                     raise ValueError(f"Unknown tool: {name}")
-                
+
                 return CallToolResult(
-                    content=[TextContent(type="text", text=json.dumps(result, indent=2))]
+                    content=[
+                        TextContent(type="text", text=json.dumps(result, indent=2))
+                    ]
                 )
             except Exception as e:
                 logger.error(f"Error calling tool {name}: {str(e)}")
@@ -291,15 +296,17 @@ class AsanaMCPServer:
                     content=[TextContent(type="text", text=f"Error: {str(e)}")]
                 )
 
-    async def make_request(self, endpoint: str, params: Optional[Dict] = None) -> Dict[str, Any]:
+    async def make_request(
+        self, endpoint: str, params: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """Make authenticated request to Asana API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
-        
+
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers, params=params) as response:
                 if response.status == 200:
@@ -313,31 +320,36 @@ class AsanaMCPServer:
         """Get workspace GID, using default or first available."""
         if self.workspace_gid:
             return self.workspace_gid
-            
+
         workspaces = await self.make_request("workspaces")
         if not workspaces:
             raise Exception("No workspaces found")
-            
+
         return workspaces[0]["gid"]
 
-    async def get_projects(self, workspace_gid: Optional[str] = None, team_gid: Optional[str] = None, 
-                          archived: bool = False, limit: int = 50) -> Dict[str, Any]:
+    async def get_projects(
+        self,
+        workspace_gid: Optional[str] = None,
+        team_gid: Optional[str] = None,
+        archived: bool = False,
+        limit: int = 50,
+    ) -> Dict[str, Any]:
         """Get projects from workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
-        
+
         params = {
             "workspace": workspace_gid,
             "archived": str(archived).lower(),
             "limit": min(limit, 100),
-            "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,team,members,custom_fields"
+            "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,team,members,custom_fields",
         }
-        
+
         if team_gid:
             params["team"] = team_gid
-        
+
         projects = await self.make_request("projects", params)
-        
+
         # Enhance project data with additional metrics
         enhanced_projects = []
         for project in projects:
@@ -347,29 +359,29 @@ class AsanaMCPServer:
                     "project": project["gid"],
                     "completed_since": "now",
                     "limit": 1,
-                    "opt_fields": "completed"
+                    "opt_fields": "completed",
                 }
                 tasks_data = await self.make_request("tasks", task_params)
-                
-                project["task_count"] = len(tasks_data) if isinstance(tasks_data, list) else 0
+
+                project["task_count"] = (
+                    len(tasks_data) if isinstance(tasks_data, list) else 0
+                )
                 project["sync_time"] = datetime.now().isoformat()
-                
+
                 enhanced_projects.append(project)
             except Exception as e:
-                logger.warning(f"Could not enhance project {project.get('gid', 'unknown')}: {e}")
+                logger.warning(
+                    f"Could not enhance project {project.get('gid', 'unknown')}: {e}"
+                )
                 project["task_count"] = 0
                 project["sync_time"] = datetime.now().isoformat()
                 enhanced_projects.append(project)
-        
+
         return {
             "projects": enhanced_projects,
             "total_count": len(enhanced_projects),
             "workspace_gid": workspace_gid,
-            "filters": {
-                "team_gid": team_gid,
-                "archived": archived,
-                "limit": limit
-            }
+            "filters": {"team_gid": team_gid, "archived": archived, "limit": limit},
         }
 
     async def get_project_details(self, project_gid: str) -> Dict[str, Any]:
@@ -377,78 +389,89 @@ class AsanaMCPServer:
         params = {
             "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,team,members,custom_fields,followers,workspace"
         }
-        
+
         project = await self.make_request(f"projects/{project_gid}", params)
-        
+
         # Get project tasks summary
         task_params = {
             "project": project_gid,
             "opt_fields": "completed,assignee,due_date,created_at",
-            "limit": 100
+            "limit": 100,
         }
-        
+
         tasks = await self.make_request("tasks", task_params)
-        
+
         # Calculate project metrics
         total_tasks = len(tasks) if isinstance(tasks, list) else 0
-        completed_tasks = sum(1 for task in tasks if task.get("completed", False)) if isinstance(tasks, list) else 0
-        progress_percentage = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
-        
+        completed_tasks = (
+            sum(1 for task in tasks if task.get("completed", False))
+            if isinstance(tasks, list)
+            else 0
+        )
+        progress_percentage = (
+            (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        )
+
         # Get recent status updates
         try:
             status_updates = await self.get_project_status_updates(project_gid, limit=5)
         except Exception as e:
-            logger.warning(f"Could not fetch status updates for project {project_gid}: {e}")
+            logger.warning(
+                f"Could not fetch status updates for project {project_gid}: {e}"
+            )
             status_updates = {"status_updates": []}
-        
+
         return {
             "project": project,
             "metrics": {
                 "total_tasks": total_tasks,
                 "completed_tasks": completed_tasks,
                 "progress_percentage": round(progress_percentage, 1),
-                "pending_tasks": total_tasks - completed_tasks
+                "pending_tasks": total_tasks - completed_tasks,
             },
             "recent_status_updates": status_updates.get("status_updates", [])[:3],
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_project_tasks(self, project_gid: str, completed_since: Optional[str] = None, 
-                               limit: int = 100) -> Dict[str, Any]:
+    async def get_project_tasks(
+        self, project_gid: str, completed_since: Optional[str] = None, limit: int = 100
+    ) -> Dict[str, Any]:
         """Get tasks for a project."""
         params = {
             "project": project_gid,
             "opt_fields": "name,notes,completed,assignee,due_date,start_date,created_at,modified_at,tags,subtasks,dependencies,dependents,custom_fields",
-            "limit": min(limit, 100)
+            "limit": min(limit, 100),
         }
-        
+
         if completed_since:
             params["completed_since"] = completed_since
-        
+
         tasks = await self.make_request("tasks", params)
-        
+
         # Organize tasks by status
         task_summary = {
             "completed": [],
             "in_progress": [],
             "not_started": [],
-            "overdue": []
+            "overdue": [],
         }
-        
+
         current_date = datetime.now().date()
-        
+
         for task in tasks if isinstance(tasks, list) else []:
             if task.get("completed", False):
                 task_summary["completed"].append(task)
             elif task.get("due_date"):
-                due_date = datetime.fromisoformat(task["due_date"].replace('Z', '+00:00')).date()
+                due_date = datetime.fromisoformat(
+                    task["due_date"].replace("Z", "+00:00")
+                ).date()
                 if due_date < current_date:
                     task_summary["overdue"].append(task)
                 else:
                     task_summary["in_progress"].append(task)
             else:
                 task_summary["not_started"].append(task)
-        
+
         return {
             "project_gid": project_gid,
             "tasks": tasks if isinstance(tasks, list) else [],
@@ -457,10 +480,10 @@ class AsanaMCPServer:
                 "completed": len(task_summary["completed"]),
                 "in_progress": len(task_summary["in_progress"]),
                 "not_started": len(task_summary["not_started"]),
-                "overdue": len(task_summary["overdue"])
+                "overdue": len(task_summary["overdue"]),
             },
             "tasks_by_status": task_summary,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_task_details(self, task_gid: str) -> Dict[str, Any]:
@@ -468,94 +491,111 @@ class AsanaMCPServer:
         params = {
             "opt_fields": "name,notes,completed,assignee,due_date,start_date,created_at,modified_at,tags,subtasks,dependencies,dependents,custom_fields,projects,parent,followers"
         }
-        
+
         task = await self.make_request(f"tasks/{task_gid}", params)
-        
+
         # Get subtasks if any
         subtasks = []
         if task.get("subtasks"):
             for subtask_ref in task["subtasks"]:
                 try:
-                    subtask = await self.make_request(f"tasks/{subtask_ref['gid']}", {"opt_fields": "name,completed,assignee,due_date"})
+                    subtask = await self.make_request(
+                        f"tasks/{subtask_ref['gid']}",
+                        {"opt_fields": "name,completed,assignee,due_date"},
+                    )
                     subtasks.append(subtask)
                 except Exception as e:
                     logger.warning(f"Could not fetch subtask {subtask_ref['gid']}: {e}")
-        
+
         return {
             "task": task,
             "subtasks": subtasks,
             "subtask_summary": {
                 "total": len(subtasks),
-                "completed": sum(1 for st in subtasks if st.get("completed", False))
+                "completed": sum(1 for st in subtasks if st.get("completed", False)),
             },
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
     async def get_teams(self, workspace_gid: Optional[str] = None) -> Dict[str, Any]:
         """Get teams in workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
-        
+
         params = {
             "workspace": workspace_gid,
-            "opt_fields": "name,description,html_description,organization"
+            "opt_fields": "name,description,html_description,organization",
         }
-        
+
         teams = await self.make_request("teams", params)
-        
+
         return {
             "teams": teams if isinstance(teams, list) else [],
             "workspace_gid": workspace_gid,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_team_projects(self, team_gid: str, archived: bool = False) -> Dict[str, Any]:
+    async def get_team_projects(
+        self, team_gid: str, archived: bool = False
+    ) -> Dict[str, Any]:
         """Get projects for a team."""
         params = {
             "team": team_gid,
             "archived": str(archived).lower(),
-            "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,members"
+            "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,members",
         }
-        
+
         projects = await self.make_request("projects", params)
-        
+
         return {
             "team_gid": team_gid,
             "projects": projects if isinstance(projects, list) else [],
             "project_count": len(projects) if isinstance(projects, list) else 0,
             "archived": archived,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_project_status_updates(self, project_gid: str, limit: int = 20) -> Dict[str, Any]:
+    async def get_project_status_updates(
+        self, project_gid: str, limit: int = 20
+    ) -> Dict[str, Any]:
         """Get status updates for a project."""
         params = {
             "parent": project_gid,
             "opt_fields": "title,text,color,author,created_at,status_type",
-            "limit": min(limit, 50)
-        }
-        
-        status_updates = await self.make_request("status_updates", params)
-        
-        return {
-            "project_gid": project_gid,
-            "status_updates": status_updates if isinstance(status_updates, list) else [],
-            "update_count": len(status_updates) if isinstance(status_updates, list) else 0,
-            "sync_time": datetime.now().isoformat()
+            "limit": min(limit, 50),
         }
 
-    async def search_tasks(self, text: Optional[str] = None, assignee: Optional[str] = None,
-                          project_gid: Optional[str] = None, completed: Optional[bool] = None,
-                          due_date_before: Optional[str] = None, due_date_after: Optional[str] = None) -> Dict[str, Any]:
+        status_updates = await self.make_request("status_updates", params)
+
+        return {
+            "project_gid": project_gid,
+            "status_updates": (
+                status_updates if isinstance(status_updates, list) else []
+            ),
+            "update_count": (
+                len(status_updates) if isinstance(status_updates, list) else 0
+            ),
+            "sync_time": datetime.now().isoformat(),
+        }
+
+    async def search_tasks(
+        self,
+        text: Optional[str] = None,
+        assignee: Optional[str] = None,
+        project_gid: Optional[str] = None,
+        completed: Optional[bool] = None,
+        due_date_before: Optional[str] = None,
+        due_date_after: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Search for tasks with various filters."""
         workspace_gid = await self.get_workspace_gid()
-        
+
         params = {
             "workspace": workspace_gid,
             "opt_fields": "name,notes,completed,assignee,due_date,created_at,projects,tags",
-            "limit": 100
+            "limit": 100,
         }
-        
+
         if assignee:
             params["assignee"] = assignee
         if project_gid:
@@ -566,20 +606,21 @@ class AsanaMCPServer:
             params["due_date.before"] = due_date_before
         if due_date_after:
             params["due_date.after"] = due_date_after
-        
+
         tasks = await self.make_request("tasks", params)
-        
+
         # Filter by text if provided
         if text and isinstance(tasks, list):
             text_lower = text.lower()
             filtered_tasks = [
-                task for task in tasks 
-                if text_lower in task.get("name", "").lower() or 
-                   text_lower in task.get("notes", "").lower()
+                task
+                for task in tasks
+                if text_lower in task.get("name", "").lower()
+                or text_lower in task.get("notes", "").lower()
             ]
         else:
             filtered_tasks = tasks if isinstance(tasks, list) else []
-        
+
         return {
             "search_criteria": {
                 "text": text,
@@ -587,31 +628,35 @@ class AsanaMCPServer:
                 "project_gid": project_gid,
                 "completed": completed,
                 "due_date_before": due_date_before,
-                "due_date_after": due_date_after
+                "due_date_after": due_date_after,
             },
             "tasks": filtered_tasks,
             "result_count": len(filtered_tasks),
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_user_tasks(self, user_gid: str, completed_since: Optional[str] = None,
-                            workspace_gid: Optional[str] = None) -> Dict[str, Any]:
+    async def get_user_tasks(
+        self,
+        user_gid: str,
+        completed_since: Optional[str] = None,
+        workspace_gid: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Get tasks assigned to a user."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
-        
+
         params = {
             "assignee": user_gid,
             "workspace": workspace_gid,
             "opt_fields": "name,notes,completed,due_date,created_at,projects,tags",
-            "limit": 100
+            "limit": 100,
         }
-        
+
         if completed_since:
             params["completed_since"] = completed_since
-        
+
         tasks = await self.make_request("tasks", params)
-        
+
         # Organize tasks by project
         tasks_by_project = {}
         for task in tasks if isinstance(tasks, list) else []:
@@ -620,42 +665,42 @@ class AsanaMCPServer:
                 if project_gid not in tasks_by_project:
                     tasks_by_project[project_gid] = {
                         "project_name": project["name"],
-                        "tasks": []
+                        "tasks": [],
                     }
                 tasks_by_project[project_gid]["tasks"].append(task)
-        
+
         return {
             "user_gid": user_gid,
             "workspace_gid": workspace_gid,
             "tasks": tasks if isinstance(tasks, list) else [],
             "task_count": len(tasks) if isinstance(tasks, list) else 0,
             "tasks_by_project": tasks_by_project,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_workspace_users(self, workspace_gid: Optional[str] = None) -> Dict[str, Any]:
+    async def get_workspace_users(
+        self, workspace_gid: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Get users in workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
-        
-        params = {
-            "workspace": workspace_gid,
-            "opt_fields": "name,email,photo"
-        }
-        
+
+        params = {"workspace": workspace_gid, "opt_fields": "name,email,photo"}
+
         users = await self.make_request("users", params)
-        
+
         return {
             "workspace_gid": workspace_gid,
             "users": users if isinstance(users, list) else [],
             "user_count": len(users) if isinstance(users, list) else 0,
-            "sync_time": datetime.now().isoformat()
+            "sync_time": datetime.now().isoformat(),
         }
+
 
 async def main():
     """Main entry point for the Asana MCP server."""
     asana_server = AsanaMCPServer()
-    
+
     # Initialize and run the server
     async with stdio_server() as (read_stream, write_stream):
         await asana_server.server.run(
@@ -666,10 +711,11 @@ async def main():
                 server_version="1.0.0",
                 capabilities=asana_server.server.get_capabilities(
                     notification_options=NotificationOptions(),
-                    experimental_capabilities={}
-                )
-            )
+                    experimental_capabilities={},
+                ),
+            ),
         )
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

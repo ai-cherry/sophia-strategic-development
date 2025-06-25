@@ -68,7 +68,7 @@ class IntelligentDataIngestion:
     - Autonomous metadata detection and validation
     - Vectorization pipeline with Snowflake and Pinecone integration
     - Real-time processing status and progress tracking
-    
+
     HYBRID APPROACH FOR HUBSPOT DATA:
     - Maintains existing ingestion capabilities for training/interaction with foundational knowledge
     - Adds Snowflake Secure Data Sharing for enterprise analytics and real-time CRM access

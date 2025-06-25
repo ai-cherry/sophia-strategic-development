@@ -6,11 +6,13 @@ Deploy Gong Webhook Service to production server
 import subprocess
 from datetime import datetime
 
+
 def print_header(message):
     """Print formatted header"""
     print("\n" + "=" * 80)
     print(f"🚀 {message}")
     print("=" * 80)
+
 
 def run_command(command, capture_output=False):
     """Run shell command"""
@@ -21,15 +23,16 @@ def run_command(command, capture_output=False):
     else:
         return subprocess.run(command, shell=True).returncode == 0
 
+
 def check_dns():
     """Check DNS resolution"""
     print_header("Checking DNS Resolution")
     domain = "webhooks.sophia-intel.ai"
-    
+
     # Check DNS
     result = run_command(f"nslookup {domain}", capture_output=True)
     print(f"  DNS Result:\n{result}")
-    
+
     # Check if it resolves to expected IP
     expected_ip = "34.74.88.2"
     if expected_ip in result:
@@ -39,10 +42,11 @@ def check_dns():
         print(f"  ❌ DNS does not point to expected IP {expected_ip}")
         return False
 
+
 def deploy_locally():
     """Deploy webhook service locally for testing"""
     print_header("Deploying Webhook Service Locally")
-    
+
     # Build Docker image
     print("\n  📦 Building Docker image...")
     if run_command("cd gong-webhook-service && docker build -t gong-webhook:latest ."):
@@ -50,41 +54,48 @@ def deploy_locally():
     else:
         print("  ❌ Failed to build Docker image")
         return False
-    
+
     # Stop any existing container
     run_command("docker stop gong-webhook 2>/dev/null")
     run_command("docker rm gong-webhook 2>/dev/null")
-    
+
     # Run container
     print("\n  🏃 Starting webhook service...")
-    if run_command("docker run -d --name gong-webhook -p 8080:8080 gong-webhook:latest"):
+    if run_command(
+        "docker run -d --name gong-webhook -p 8080:8080 gong-webhook:latest"
+    ):
         print("  ✅ Webhook service started on port 8080")
-        
+
         # Test the service
         import time
+
         time.sleep(3)  # Wait for service to start
-        
+
         # Test health endpoint
-        health_result = run_command("curl -s http://localhost:8080/health", capture_output=True)
+        health_result = run_command(
+            "curl -s http://localhost:8080/health", capture_output=True
+        )
         print(f"\n  Health Check Result: {health_result}")
-        
+
         # Test webhook endpoint
         webhook_test = run_command(
             'curl -s -X POST http://localhost:8080/webhook/gong/calls -H "Content-Type: application/json" -d "{}"',
-            capture_output=True
+            capture_output=True,
         )
         print(f"\n  Webhook Test Result: {webhook_test}")
-        
+
         return True
     else:
         print("  ❌ Failed to start webhook service")
         return False
 
+
 def generate_deployment_commands():
     """Generate commands for remote deployment"""
     print_header("Remote Deployment Instructions")
-    
-    print("""
+
+    print(
+        """
 To deploy the webhook service on the remote server (34.74.88.2), follow these steps:
 
 1. SSH into the server:
@@ -137,7 +148,9 @@ To deploy the webhook service on the remote server (34.74.88.2), follow these st
 6. Verify deployment:
    curl https://webhooks.sophia-intel.ai/health
    curl -X POST https://webhooks.sophia-intel.ai/webhook/gong/calls -H "Content-Type: application/json" -d "{}"
-""")
+"""
+    )
+
 
 def main():
     """Main deployment function"""
@@ -145,24 +158,25 @@ def main():
     print("🔧 GONG WEBHOOK SERVICE DEPLOYMENT")
     print("=" * 80)
     print(f"Timestamp: {datetime.now().isoformat()}")
-    
+
     # Check DNS
     dns_ok = check_dns()
-    
+
     # Deploy locally for testing
     print("\n🧪 Testing webhook service locally first...")
     local_ok = deploy_locally()
-    
+
     if local_ok:
         print("\n✅ Local testing successful!")
-        
+
         # Generate deployment instructions
         generate_deployment_commands()
-        
+
         print("\n" + "=" * 80)
         print("📋 NEXT STEPS:")
         print("=" * 80)
-        print("""
+        print(
+            """
 1. Follow the remote deployment instructions above
 2. Ensure SSL certificate is properly configured
 3. Verify the service is accessible at https://webhooks.sophia-intel.ai/health
@@ -175,11 +189,13 @@ The webhook service is designed to:
 - Log all incoming requests
 - Provide health check endpoints
 - Serve the public key for JWT verification
-""")
+"""
+        )
     else:
         print("\n❌ Local testing failed. Please fix issues before deploying.")
-    
+
     print("\n" + "=" * 80)
+
 
 if __name__ == "__main__":
     main()

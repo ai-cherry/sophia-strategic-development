@@ -14,8 +14,7 @@ import uvicorn
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Gong Webhook Service",
     description="Webhook receiver for Gong.io integrations",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # JWT Public Key for Gong
@@ -44,7 +43,7 @@ async def root():
     return {
         "service": "Gong Webhook Service",
         "status": "running",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -55,7 +54,7 @@ async def health_check():
         "status": "healthy",
         "service": "gong-webhook-service",
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
 
 
@@ -65,7 +64,7 @@ async def webhook_health():
     return {
         "status": "healthy",
         "endpoint": "gong-webhooks",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -84,11 +83,11 @@ async def handle_call_webhook(request: Request):
     try:
         # Log the incoming request
         logger.info(f"Received call webhook from {request.client.host}")
-        
+
         # Get request headers for debugging
         headers = dict(request.headers)
         logger.info(f"Request headers: {headers}")
-        
+
         # Get the body (but don't validate for the test)
         try:
             body = await request.json()
@@ -97,7 +96,7 @@ async def handle_call_webhook(request: Request):
             # For Gong's test, it might send empty or non-JSON body
             body = {}
             logger.info("Received non-JSON or empty body (likely a test)")
-        
+
         # CRITICAL: Return 200 OK immediately
         # Gong's test expects a quick 200 response
         return JSONResponse(
@@ -105,10 +104,10 @@ async def handle_call_webhook(request: Request):
             content={
                 "status": "success",
                 "message": "Webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
-        
+
     except Exception as e:
         logger.error(f"Error processing webhook: {str(e)}")
         # Even on error, try to return 200 for Gong's test
@@ -117,8 +116,8 @@ async def handle_call_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Webhook accepted for processing",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
 
@@ -127,23 +126,23 @@ async def handle_email_webhook(request: Request):
     """Handle Gong email webhooks."""
     try:
         logger.info(f"Received email webhook from {request.client.host}")
-        
+
         try:
             body = await request.json()
             logger.info(f"Email webhook payload: {body}")
         except Exception:
             body = {}
             logger.info("Received non-JSON or empty body")
-        
+
         return JSONResponse(
             status_code=200,
             content={
                 "status": "success",
                 "message": "Email webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
-        
+
     except Exception as e:
         logger.error(f"Error processing email webhook: {str(e)}")
         return JSONResponse(
@@ -151,8 +150,8 @@ async def handle_email_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Email webhook accepted",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
 
@@ -161,23 +160,23 @@ async def handle_meeting_webhook(request: Request):
     """Handle Gong meeting webhooks."""
     try:
         logger.info(f"Received meeting webhook from {request.client.host}")
-        
+
         try:
             body = await request.json()
             logger.info(f"Meeting webhook payload: {body}")
         except Exception:
             body = {}
             logger.info("Received non-JSON or empty body")
-        
+
         return JSONResponse(
             status_code=200,
             content={
                 "status": "success",
                 "message": "Meeting webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
-        
+
     except Exception as e:
         logger.error(f"Error processing meeting webhook: {str(e)}")
         return JSONResponse(
@@ -185,8 +184,8 @@ async def handle_meeting_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Meeting webhook accepted",
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
 
@@ -200,8 +199,8 @@ async def handle_generic_webhook(path: str, request: Request):
         content={
             "status": "success",
             "message": f"Webhook received at /{path}",
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            "timestamp": datetime.utcnow().isoformat(),
+        },
     )
 
 
@@ -215,8 +214,8 @@ async def not_found_handler(request: Request, exc):
         content={
             "status": "accepted",
             "message": "Endpoint accepted",
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            "timestamp": datetime.utcnow().isoformat(),
+        },
     )
 
 
@@ -229,8 +228,8 @@ async def internal_error_handler(request: Request, exc):
         content={
             "status": "accepted",
             "message": "Request accepted despite error",
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            "timestamp": datetime.utcnow().isoformat(),
+        },
     )
 
 
@@ -238,14 +237,8 @@ if __name__ == "__main__":
     # Get configuration from environment or use defaults
     host = os.getenv("WEBHOOK_HOST", "0.0.0.0")
     port = int(os.getenv("WEBHOOK_PORT", "8080"))
-    
+
     logger.info(f"Starting Gong Webhook Service on {host}:{port}")
-    
+
     # Run the server
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        log_level="info",
-        access_log=True
-    )
+    uvicorn.run(app, host=host, port=port, log_level="info", access_log=True)

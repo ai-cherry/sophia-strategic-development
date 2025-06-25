@@ -18,20 +18,23 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 # Enhanced imports
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer as BaseAiMemoryMCPServer
+from backend.mcp.ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer as BaseAiMemoryMCPServer,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class EnhancedMemoryCategory(Enum):
     """Extended memory categories for new data sources"""
+
     # Existing categories
     GONG_CALL_SUMMARY = "gong_call_summary"
     GONG_CALL_INSIGHT = "gong_call_insight"
     HUBSPOT_DEAL_ANALYSIS = "hubspot_deal_analysis"
     SALES_COACHING = "sales_coaching"
     BUSINESS_INTELLIGENCE = "business_intelligence"
-    
+
     # New Slack categories
     SLACK_CONVERSATION = "slack_conversation"
     SLACK_INSIGHT = "slack_insight"
@@ -40,7 +43,7 @@ class EnhancedMemoryCategory(Enum):
     SLACK_KNOWLEDGE_SHARE = "slack_knowledge_share"
     SLACK_TEAM_UPDATE = "slack_team_update"
     SLACK_CUSTOMER_FEEDBACK = "slack_customer_feedback"
-    
+
     # New Linear categories
     LINEAR_ISSUE = "linear_issue"
     LINEAR_PROJECT = "linear_project"
@@ -49,7 +52,7 @@ class EnhancedMemoryCategory(Enum):
     LINEAR_TEAM_VELOCITY = "linear_team_velocity"
     LINEAR_SPRINT_SUMMARY = "linear_sprint_summary"
     LINEAR_FEATURE_REQUEST = "linear_feature_request"
-    
+
     # New Foundational KB categories
     FOUNDATIONAL_EMPLOYEE = "foundational_employee"
     FOUNDATIONAL_CUSTOMER = "foundational_customer"
@@ -57,7 +60,7 @@ class EnhancedMemoryCategory(Enum):
     FOUNDATIONAL_COMPETITOR = "foundational_competitor"
     FOUNDATIONAL_PROCESS = "foundational_process"
     FOUNDATIONAL_VALUE = "foundational_value"
-    
+
     # New Knowledge Base categories
     KB_ARTICLE = "kb_article"
     KB_ENTITY = "kb_entity"
@@ -70,20 +73,21 @@ class EnhancedMemoryCategory(Enum):
 @dataclass
 class EnhancedMemoryMetadata:
     """Enhanced metadata for new memory types"""
+
     # Common fields
     source_type: str
     source_id: str
     confidence_score: float = 0.8
     importance_score: float = 0.5
     business_value_score: float = 0.5
-    
+
     # Slack-specific fields
     slack_channel_id: Optional[str] = None
     slack_channel_name: Optional[str] = None
     slack_user_id: Optional[str] = None
     slack_thread_ts: Optional[str] = None
     slack_participants: Optional[List[str]] = None
-    
+
     # Linear-specific fields
     linear_project_id: Optional[str] = None
     linear_project_name: Optional[str] = None
@@ -91,12 +95,12 @@ class EnhancedMemoryMetadata:
     linear_assignee_id: Optional[str] = None
     linear_priority: Optional[str] = None
     linear_status: Optional[str] = None
-    
+
     # Foundational-specific fields
     foundational_type: Optional[str] = None
     foundational_department: Optional[str] = None
     foundational_tier: Optional[str] = None
-    
+
     # Knowledge base-specific fields
     kb_category: Optional[str] = None
     kb_visibility: Optional[str] = None
@@ -106,19 +110,21 @@ class EnhancedMemoryMetadata:
 
 class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
     """Enhanced AI Memory MCP Server with new data source integration"""
-    
+
     def __init__(self):
         super().__init__()
         self.server_name = "enhanced-ai-memory"
-        
+
         # Enhanced category exclusions
-        self.category_exclusions.update({
-            # Exclude test and temporary categories
-            "test_category",
-            "temp_data",
-            "debug_info"
-        })
-    
+        self.category_exclusions.update(
+            {
+                # Exclude test and temporary categories
+                "test_category",
+                "temp_data",
+                "debug_info",
+            }
+        )
+
     async def store_slack_conversation_memory(
         self,
         conversation_id: str,
@@ -129,15 +135,15 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         key_topics: List[str],
         decisions_made: List[str],
         action_items: List[str],
-        business_value_score: float = 0.6
+        business_value_score: float = 0.6,
     ) -> str:
         """Store Slack conversation as memory"""
-        
+
         # Determine category based on content
         category = self._classify_slack_conversation(
             conversation_summary, decisions_made, action_items
         )
-        
+
         # Create enhanced content
         content = f"""
         Slack Conversation: {conversation_title}
@@ -154,28 +160,28 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         Action Items:
         {chr(10).join(f'- {item}' for item in action_items)}
         """
-        
+
         # Enhanced metadata
         metadata = EnhancedMemoryMetadata(
             source_type="slack",
             source_id=conversation_id,
             business_value_score=business_value_score,
             slack_channel_name=channel_name,
-            slack_participants=participants
+            slack_participants=participants,
         )
-        
+
         # Store memory
         memory_id = await self.store_memory(
             content=content,
             category=category.value,
             tags=["slack", "conversation", channel_name] + key_topics,
             metadata=metadata.__dict__,
-            importance_score=business_value_score
+            importance_score=business_value_score,
         )
-        
+
         logger.info(f"Stored Slack conversation memory: {memory_id}")
         return memory_id
-    
+
     async def store_linear_issue_memory(
         self,
         issue_id: str,
@@ -186,13 +192,13 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         priority: str,
         status: str,
         labels: List[str],
-        importance_score: float = 0.5
+        importance_score: float = 0.5,
     ) -> str:
         """Store Linear issue as memory"""
-        
+
         # Determine category based on labels and priority
         category = self._classify_linear_issue(labels, priority, status)
-        
+
         # Create content
         content = f"""
         Linear Issue: {issue_title}
@@ -205,7 +211,7 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         
         Labels: {', '.join(labels)}
         """
-        
+
         # Enhanced metadata
         metadata = EnhancedMemoryMetadata(
             source_type="linear",
@@ -214,21 +220,21 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
             linear_project_name=project_name,
             linear_assignee_id=assignee,
             linear_priority=priority,
-            linear_status=status
+            linear_status=status,
         )
-        
+
         # Store memory
         memory_id = await self.store_memory(
             content=content,
             category=category.value,
             tags=["linear", "issue", project_name, priority] + labels,
             metadata=metadata.__dict__,
-            importance_score=importance_score
+            importance_score=importance_score,
         )
-        
+
         logger.info(f"Stored Linear issue memory: {memory_id}")
         return memory_id
-    
+
     async def store_foundational_knowledge_memory(
         self,
         record_id: str,
@@ -237,10 +243,10 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         description: str,
         category: str,
         department: Optional[str] = None,
-        importance_score: float = 0.7
+        importance_score: float = 0.7,
     ) -> str:
         """Store foundational knowledge as memory"""
-        
+
         # Map record type to memory category
         category_map = {
             "employee": EnhancedMemoryCategory.FOUNDATIONAL_EMPLOYEE,
@@ -248,11 +254,13 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
             "product": EnhancedMemoryCategory.FOUNDATIONAL_PRODUCT,
             "competitor": EnhancedMemoryCategory.FOUNDATIONAL_COMPETITOR,
             "business_process": EnhancedMemoryCategory.FOUNDATIONAL_PROCESS,
-            "organizational_value": EnhancedMemoryCategory.FOUNDATIONAL_VALUE
+            "organizational_value": EnhancedMemoryCategory.FOUNDATIONAL_VALUE,
         }
-        
-        memory_category = category_map.get(record_type, EnhancedMemoryCategory.FOUNDATIONAL_EMPLOYEE)
-        
+
+        memory_category = category_map.get(
+            record_type, EnhancedMemoryCategory.FOUNDATIONAL_EMPLOYEE
+        )
+
         # Create content
         content = f"""
         Foundational Knowledge: {title}
@@ -262,28 +270,29 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         
         Description: {description}
         """
-        
+
         # Enhanced metadata
         metadata = EnhancedMemoryMetadata(
             source_type="foundational",
             source_id=record_id,
             importance_score=importance_score,
             foundational_type=record_type,
-            foundational_department=department
+            foundational_department=department,
         )
-        
+
         # Store memory
         memory_id = await self.store_memory(
             content=content,
             category=memory_category.value,
-            tags=["foundational", record_type, category] + ([department] if department else []),
+            tags=["foundational", record_type, category]
+            + ([department] if department else []),
             metadata=metadata.__dict__,
-            importance_score=importance_score
+            importance_score=importance_score,
         )
-        
+
         logger.info(f"Stored foundational knowledge memory: {memory_id}")
         return memory_id
-    
+
     async def store_kb_article_memory(
         self,
         article_id: str,
@@ -293,10 +302,10 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         author: str,
         keywords: List[str],
         visibility: str = "internal",
-        importance_score: float = 0.6
+        importance_score: float = 0.6,
     ) -> str:
         """Store knowledge base article as memory"""
-        
+
         # Create memory content
         memory_content = f"""
         Knowledge Base Article: {title}
@@ -308,7 +317,7 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
         
         Keywords: {', '.join(keywords)}
         """
-        
+
         # Enhanced metadata
         metadata = EnhancedMemoryMetadata(
             source_type="knowledge_base",
@@ -317,76 +326,78 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
             kb_category=category,
             kb_visibility=visibility,
             kb_author=author,
-            kb_keywords=keywords
+            kb_keywords=keywords,
         )
-        
+
         # Store memory
         memory_id = await self.store_memory(
             content=memory_content,
             category=EnhancedMemoryCategory.KB_ARTICLE.value,
             tags=["knowledge_base", "article", category] + keywords,
             metadata=metadata.__dict__,
-            importance_score=importance_score
+            importance_score=importance_score,
         )
-        
+
         logger.info(f"Stored KB article memory: {memory_id}")
         return memory_id
-    
+
     async def recall_slack_insights(
         self,
         query: str,
         channel_name: Optional[str] = None,
         date_range_days: int = 30,
-        limit: int = 10
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """Recall Slack conversation insights"""
-        
+
         # Build search filters
         filters = {
-            "categories": [cat.value for cat in [
-                EnhancedMemoryCategory.SLACK_CONVERSATION,
-                EnhancedMemoryCategory.SLACK_INSIGHT,
-                EnhancedMemoryCategory.SLACK_DECISION,
-                EnhancedMemoryCategory.SLACK_ACTION_ITEM
-            ]]
+            "categories": [
+                cat.value
+                for cat in [
+                    EnhancedMemoryCategory.SLACK_CONVERSATION,
+                    EnhancedMemoryCategory.SLACK_INSIGHT,
+                    EnhancedMemoryCategory.SLACK_DECISION,
+                    EnhancedMemoryCategory.SLACK_ACTION_ITEM,
+                ]
+            ]
         }
-        
+
         if channel_name:
             filters["tags"] = [channel_name]
-        
+
         # Add date filter
         cutoff_date = datetime.now() - timedelta(days=date_range_days)
         filters["created_after"] = cutoff_date.isoformat()
-        
+
         # Perform search
-        results = await self.recall_memories(
-            query=query,
-            filters=filters,
-            limit=limit
-        )
-        
+        results = await self.recall_memories(query=query, filters=filters, limit=limit)
+
         logger.info(f"Found {len(results)} Slack insights for query: {query}")
         return results
-    
+
     async def recall_linear_issue_details(
         self,
         query: str,
         project_name: Optional[str] = None,
         priority: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 10
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """Recall Linear issue details"""
-        
+
         # Build search filters
         filters = {
-            "categories": [cat.value for cat in [
-                EnhancedMemoryCategory.LINEAR_ISSUE,
-                EnhancedMemoryCategory.LINEAR_PROJECT,
-                EnhancedMemoryCategory.LINEAR_FEATURE_REQUEST
-            ]]
+            "categories": [
+                cat.value
+                for cat in [
+                    EnhancedMemoryCategory.LINEAR_ISSUE,
+                    EnhancedMemoryCategory.LINEAR_PROJECT,
+                    EnhancedMemoryCategory.LINEAR_FEATURE_REQUEST,
+                ]
+            ]
         }
-        
+
         tags = ["linear"]
         if project_name:
             tags.append(project_name)
@@ -394,128 +405,125 @@ class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
             tags.append(priority)
         if status:
             tags.append(status)
-        
+
         filters["tags"] = tags
-        
+
         # Perform search
-        results = await self.recall_memories(
-            query=query,
-            filters=filters,
-            limit=limit
-        )
-        
+        results = await self.recall_memories(query=query, filters=filters, limit=limit)
+
         logger.info(f"Found {len(results)} Linear issues for query: {query}")
         return results
-    
+
     async def recall_foundational_knowledge(
         self,
         query: str,
         knowledge_type: Optional[str] = None,
         department: Optional[str] = None,
-        limit: int = 10
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """Recall foundational knowledge"""
-        
+
         # Build search filters
-        foundational_categories = [cat.value for cat in [
-            EnhancedMemoryCategory.FOUNDATIONAL_EMPLOYEE,
-            EnhancedMemoryCategory.FOUNDATIONAL_CUSTOMER,
-            EnhancedMemoryCategory.FOUNDATIONAL_PRODUCT,
-            EnhancedMemoryCategory.FOUNDATIONAL_COMPETITOR,
-            EnhancedMemoryCategory.FOUNDATIONAL_PROCESS,
-            EnhancedMemoryCategory.FOUNDATIONAL_VALUE
-        ]]
-        
+        foundational_categories = [
+            cat.value
+            for cat in [
+                EnhancedMemoryCategory.FOUNDATIONAL_EMPLOYEE,
+                EnhancedMemoryCategory.FOUNDATIONAL_CUSTOMER,
+                EnhancedMemoryCategory.FOUNDATIONAL_PRODUCT,
+                EnhancedMemoryCategory.FOUNDATIONAL_COMPETITOR,
+                EnhancedMemoryCategory.FOUNDATIONAL_PROCESS,
+                EnhancedMemoryCategory.FOUNDATIONAL_VALUE,
+            ]
+        ]
+
         filters = {"categories": foundational_categories}
-        
+
         tags = ["foundational"]
         if knowledge_type:
             tags.append(knowledge_type)
         if department:
             tags.append(department)
-        
+
         filters["tags"] = tags
-        
+
         # Perform search
-        results = await self.recall_memories(
-            query=query,
-            filters=filters,
-            limit=limit
+        results = await self.recall_memories(query=query, filters=filters, limit=limit)
+
+        logger.info(
+            f"Found {len(results)} foundational knowledge items for query: {query}"
         )
-        
-        logger.info(f"Found {len(results)} foundational knowledge items for query: {query}")
         return results
-    
+
     async def recall_kb_articles(
         self,
         query: str,
         category: Optional[str] = None,
         author: Optional[str] = None,
-        limit: int = 10
+        limit: int = 10,
     ) -> List[Dict[str, Any]]:
         """Recall knowledge base articles"""
-        
+
         # Build search filters
         filters = {
-            "categories": [cat.value for cat in [
-                EnhancedMemoryCategory.KB_ARTICLE,
-                EnhancedMemoryCategory.KB_INSIGHT,
-                EnhancedMemoryCategory.KB_FAQ,
-                EnhancedMemoryCategory.KB_BEST_PRACTICE
-            ]]
+            "categories": [
+                cat.value
+                for cat in [
+                    EnhancedMemoryCategory.KB_ARTICLE,
+                    EnhancedMemoryCategory.KB_INSIGHT,
+                    EnhancedMemoryCategory.KB_FAQ,
+                    EnhancedMemoryCategory.KB_BEST_PRACTICE,
+                ]
+            ]
         }
-        
+
         tags = ["knowledge_base"]
         if category:
             tags.append(category)
         if author:
             tags.append(author)
-        
+
         filters["tags"] = tags
-        
+
         # Perform search
-        results = await self.recall_memories(
-            query=query,
-            filters=filters,
-            limit=limit
-        )
-        
+        results = await self.recall_memories(query=query, filters=filters, limit=limit)
+
         logger.info(f"Found {len(results)} KB articles for query: {query}")
         return results
-    
+
     def _classify_slack_conversation(
-        self,
-        summary: str,
-        decisions: List[str],
-        action_items: List[str]
+        self, summary: str, decisions: List[str], action_items: List[str]
     ) -> EnhancedMemoryCategory:
         """Classify Slack conversation based on content"""
-        
+
         summary_lower = summary.lower()
-        
+
         if decisions:
             return EnhancedMemoryCategory.SLACK_DECISION
         elif action_items:
             return EnhancedMemoryCategory.SLACK_ACTION_ITEM
-        elif any(keyword in summary_lower for keyword in ["customer", "client", "feedback"]):
+        elif any(
+            keyword in summary_lower for keyword in ["customer", "client", "feedback"]
+        ):
             return EnhancedMemoryCategory.SLACK_CUSTOMER_FEEDBACK
-        elif any(keyword in summary_lower for keyword in ["update", "status", "progress"]):
+        elif any(
+            keyword in summary_lower for keyword in ["update", "status", "progress"]
+        ):
             return EnhancedMemoryCategory.SLACK_TEAM_UPDATE
-        elif any(keyword in summary_lower for keyword in ["knowledge", "share", "tip", "learn"]):
+        elif any(
+            keyword in summary_lower
+            for keyword in ["knowledge", "share", "tip", "learn"]
+        ):
             return EnhancedMemoryCategory.SLACK_KNOWLEDGE_SHARE
         else:
             return EnhancedMemoryCategory.SLACK_CONVERSATION
-    
+
     def _classify_linear_issue(
-        self,
-        labels: List[str],
-        priority: str,
-        status: str
+        self, labels: List[str], priority: str, status: str
     ) -> EnhancedMemoryCategory:
         """Classify Linear issue based on attributes"""
-        
+
         labels_lower = [label.lower() for label in labels]
-        
+
         if "feature" in labels_lower or "enhancement" in labels_lower:
             return EnhancedMemoryCategory.LINEAR_FEATURE_REQUEST
         elif "milestone" in labels_lower or "epic" in labels_lower:
@@ -549,10 +557,15 @@ async def list_tools() -> List[Tool]:
                     "key_topics": {"type": "array", "items": {"type": "string"}},
                     "decisions_made": {"type": "array", "items": {"type": "string"}},
                     "action_items": {"type": "array", "items": {"type": "string"}},
-                    "business_value_score": {"type": "number", "default": 0.6}
+                    "business_value_score": {"type": "number", "default": 0.6},
                 },
-                "required": ["conversation_id", "conversation_title", "conversation_summary", "channel_name"]
-            }
+                "required": [
+                    "conversation_id",
+                    "conversation_title",
+                    "conversation_summary",
+                    "channel_name",
+                ],
+            },
         ),
         Tool(
             name="store_linear_issue",
@@ -568,10 +581,15 @@ async def list_tools() -> List[Tool]:
                     "priority": {"type": "string"},
                     "status": {"type": "string"},
                     "labels": {"type": "array", "items": {"type": "string"}},
-                    "importance_score": {"type": "number", "default": 0.5}
+                    "importance_score": {"type": "number", "default": 0.5},
                 },
-                "required": ["issue_id", "issue_title", "issue_description", "project_name"]
-            }
+                "required": [
+                    "issue_id",
+                    "issue_title",
+                    "issue_description",
+                    "project_name",
+                ],
+            },
         ),
         Tool(
             name="store_foundational_knowledge",
@@ -585,10 +603,16 @@ async def list_tools() -> List[Tool]:
                     "description": {"type": "string"},
                     "category": {"type": "string"},
                     "department": {"type": "string"},
-                    "importance_score": {"type": "number", "default": 0.7}
+                    "importance_score": {"type": "number", "default": 0.7},
                 },
-                "required": ["record_id", "record_type", "title", "description", "category"]
-            }
+                "required": [
+                    "record_id",
+                    "record_type",
+                    "title",
+                    "description",
+                    "category",
+                ],
+            },
         ),
         Tool(
             name="store_kb_article",
@@ -603,10 +627,10 @@ async def list_tools() -> List[Tool]:
                     "author": {"type": "string"},
                     "keywords": {"type": "array", "items": {"type": "string"}},
                     "visibility": {"type": "string", "default": "internal"},
-                    "importance_score": {"type": "number", "default": 0.6}
+                    "importance_score": {"type": "number", "default": 0.6},
                 },
-                "required": ["article_id", "title", "content", "category", "author"]
-            }
+                "required": ["article_id", "title", "content", "category", "author"],
+            },
         ),
         Tool(
             name="recall_slack_insights",
@@ -617,10 +641,10 @@ async def list_tools() -> List[Tool]:
                     "query": {"type": "string"},
                     "channel_name": {"type": "string"},
                     "date_range_days": {"type": "number", "default": 30},
-                    "limit": {"type": "number", "default": 10}
+                    "limit": {"type": "number", "default": 10},
                 },
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         ),
         Tool(
             name="recall_linear_issues",
@@ -632,10 +656,10 @@ async def list_tools() -> List[Tool]:
                     "project_name": {"type": "string"},
                     "priority": {"type": "string"},
                     "status": {"type": "string"},
-                    "limit": {"type": "number", "default": 10}
+                    "limit": {"type": "number", "default": 10},
                 },
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         ),
         Tool(
             name="recall_foundational_knowledge",
@@ -646,10 +670,10 @@ async def list_tools() -> List[Tool]:
                     "query": {"type": "string"},
                     "knowledge_type": {"type": "string"},
                     "department": {"type": "string"},
-                    "limit": {"type": "number", "default": 10}
+                    "limit": {"type": "number", "default": 10},
                 },
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         ),
         Tool(
             name="recall_kb_articles",
@@ -660,11 +684,11 @@ async def list_tools() -> List[Tool]:
                     "query": {"type": "string"},
                     "category": {"type": "string"},
                     "author": {"type": "string"},
-                    "limit": {"type": "number", "default": 10}
+                    "limit": {"type": "number", "default": 10},
                 },
-                "required": ["query"]
-            }
-        )
+                "required": ["query"],
+            },
+        ),
     ]
 
 
@@ -673,40 +697,58 @@ async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
     """Execute AI Memory tools"""
     try:
         if name == "store_slack_conversation":
-            result = await enhanced_ai_memory.store_slack_conversation_memory(**arguments)
-            return [TextContent(type="text", text=f"Stored Slack conversation memory: {result}")]
-        
+            result = await enhanced_ai_memory.store_slack_conversation_memory(
+                **arguments
+            )
+            return [
+                TextContent(
+                    type="text", text=f"Stored Slack conversation memory: {result}"
+                )
+            ]
+
         elif name == "store_linear_issue":
             result = await enhanced_ai_memory.store_linear_issue_memory(**arguments)
-            return [TextContent(type="text", text=f"Stored Linear issue memory: {result}")]
-        
+            return [
+                TextContent(type="text", text=f"Stored Linear issue memory: {result}")
+            ]
+
         elif name == "store_foundational_knowledge":
-            result = await enhanced_ai_memory.store_foundational_knowledge_memory(**arguments)
-            return [TextContent(type="text", text=f"Stored foundational knowledge memory: {result}")]
-        
+            result = await enhanced_ai_memory.store_foundational_knowledge_memory(
+                **arguments
+            )
+            return [
+                TextContent(
+                    type="text", text=f"Stored foundational knowledge memory: {result}"
+                )
+            ]
+
         elif name == "store_kb_article":
             result = await enhanced_ai_memory.store_kb_article_memory(**arguments)
-            return [TextContent(type="text", text=f"Stored KB article memory: {result}")]
-        
+            return [
+                TextContent(type="text", text=f"Stored KB article memory: {result}")
+            ]
+
         elif name == "recall_slack_insights":
             results = await enhanced_ai_memory.recall_slack_insights(**arguments)
             return [TextContent(type="text", text=json.dumps(results, indent=2))]
-        
+
         elif name == "recall_linear_issues":
             results = await enhanced_ai_memory.recall_linear_issue_details(**arguments)
             return [TextContent(type="text", text=json.dumps(results, indent=2))]
-        
+
         elif name == "recall_foundational_knowledge":
-            results = await enhanced_ai_memory.recall_foundational_knowledge(**arguments)
+            results = await enhanced_ai_memory.recall_foundational_knowledge(
+                **arguments
+            )
             return [TextContent(type="text", text=json.dumps(results, indent=2))]
-        
+
         elif name == "recall_kb_articles":
             results = await enhanced_ai_memory.recall_kb_articles(**arguments)
             return [TextContent(type="text", text=json.dumps(results, indent=2))]
-        
+
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
-    
+
     except Exception as e:
         logger.error(f"Tool execution failed: {e}")
         return [TextContent(type="text", text=f"Error: {str(e)}")]
@@ -717,14 +759,12 @@ async def main():
     try:
         await enhanced_ai_memory.initialize()
         logger.info("✅ Enhanced AI Memory MCP Server initialized")
-        
+
         async with stdio_server() as (read_stream, write_stream):
             await server.run(
-                read_stream,
-                write_stream,
-                server.create_initialization_options()
+                read_stream, write_stream, server.create_initialization_options()
             )
-    
+
     except KeyboardInterrupt:
         logger.info("Shutting down Enhanced AI Memory MCP Server")
     except Exception as e:
@@ -732,4 +772,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

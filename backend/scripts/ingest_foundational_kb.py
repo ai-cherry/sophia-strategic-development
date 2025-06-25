@@ -16,13 +16,17 @@ from pathlib import Path
 import uuid
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService, FoundationalDataType
+from backend.services.foundational_knowledge_service import (
+    FoundationalKnowledgeService,
+    FoundationalDataType,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class IngestionFormat(Enum):
     """Supported ingestion formats"""
+
     CSV = "csv"
     JSON = "json"
     JSONL = "jsonl"
@@ -31,6 +35,7 @@ class IngestionFormat(Enum):
 @dataclass
 class IngestionConfig:
     """Configuration for data ingestion"""
+
     data_type: FoundationalDataType
     source_file: Path
     format: IngestionFormat
@@ -42,6 +47,7 @@ class IngestionConfig:
 @dataclass
 class IngestionStats:
     """Statistics for data ingestion"""
+
     data_type: str
     total_records: int = 0
     processed_records: int = 0
@@ -49,13 +55,13 @@ class IngestionStats:
     skipped_records: int = 0
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
-    
+
     @property
     def duration_seconds(self) -> float:
         if self.start_time and self.end_time:
             return (self.end_time - self.start_time).total_seconds()
         return 0.0
-    
+
     @property
     def success_rate(self) -> float:
         if self.total_records > 0:
@@ -65,12 +71,12 @@ class IngestionStats:
 
 class FoundationalKBIngestionService:
     """Service for ingesting foundational knowledge base data"""
-    
+
     def __init__(self, data_directory: str = "data/foundational"):
         self.data_directory = Path(data_directory)
         self.cortex_service = SnowflakeCortexService()
         self.foundational_service = FoundationalKnowledgeService()
-        
+
         # Default column mappings for each data type
         self.default_mappings = {
             FoundationalDataType.EMPLOYEE: {
@@ -91,7 +97,7 @@ class FoundationalKBIngestionService:
                 "location": "LOCATION",
                 "timezone": "TIMEZONE",
                 "skills": "PRIMARY_SKILLS",
-                "slack_id": "SLACK_USER_ID"
+                "slack_id": "SLACK_USER_ID",
             },
             FoundationalDataType.CUSTOMER: {
                 "id": "CUSTOMER_ID",
@@ -112,7 +118,7 @@ class FoundationalKBIngestionService:
                 "postal_code": "HEADQUARTERS_POSTAL_CODE",
                 "status": "CUSTOMER_STATUS",
                 "tier": "CUSTOMER_TIER",
-                "hubspot_id": "HUBSPOT_COMPANY_ID"
+                "hubspot_id": "HUBSPOT_COMPANY_ID",
             },
             FoundationalDataType.PRODUCT: {
                 "id": "PRODUCT_ID",
@@ -128,7 +134,7 @@ class FoundationalKBIngestionService:
                 "currency": "PRICING_CURRENCY",
                 "frequency": "PRICING_FREQUENCY",
                 "target_segment": "TARGET_CUSTOMER_SEGMENT",
-                "value_proposition": "VALUE_PROPOSITION"
+                "value_proposition": "VALUE_PROPOSITION",
             },
             FoundationalDataType.COMPETITOR: {
                 "id": "COMPETITOR_ID",
@@ -143,7 +149,7 @@ class FoundationalKBIngestionService:
                 "employee_count": "EMPLOYEE_COUNT_ESTIMATE",
                 "revenue": "ANNUAL_REVENUE_ESTIMATE",
                 "funding_status": "FUNDING_STATUS",
-                "headquarters": "HEADQUARTERS_LOCATION"
+                "headquarters": "HEADQUARTERS_LOCATION",
             },
             FoundationalDataType.ARTICLE: {
                 "id": "ARTICLE_ID",
@@ -155,27 +161,27 @@ class FoundationalKBIngestionService:
                 "visibility": "VISIBILITY_LEVEL",
                 "author": "AUTHOR_EMPLOYEE_ID",
                 "keywords": "KEYWORDS",
-                "status": "ARTICLE_STATUS"
-            }
+                "status": "ARTICLE_STATUS",
+            },
         }
-    
+
     async def initialize(self):
         """Initialize the ingestion service"""
         await self.cortex_service.initialize()
-        
+
         # Create data directory if it doesn't exist
         self.data_directory.mkdir(parents=True, exist_ok=True)
-        
+
         logger.info("✅ Foundational KB ingestion service initialized")
-    
+
     async def close(self):
         """Clean up resources"""
         await self.cortex_service.close()
-    
+
     def create_sample_data_files(self):
         """Create sample data files for testing"""
         logger.info("Creating sample data files")
-        
+
         # Sample employees data
         employees_data = [
             {
@@ -191,10 +197,10 @@ class FoundationalKBIngestionService:
                 "status": "Active",
                 "type": "Full-Time",
                 "location": "Remote",
-                "skills": ["Sales", "CRM", "Customer Relations"]
+                "skills": ["Sales", "CRM", "Customer Relations"],
             },
             {
-                "id": "emp_002", 
+                "id": "emp_002",
                 "employee_number": "E002",
                 "first_name": "Sarah",
                 "last_name": "Johnson",
@@ -206,10 +212,10 @@ class FoundationalKBIngestionService:
                 "status": "Active",
                 "type": "Full-Time",
                 "location": "New York",
-                "skills": ["Python", "React", "AWS", "Snowflake"]
-            }
+                "skills": ["Python", "React", "AWS", "Snowflake"],
+            },
         ]
-        
+
         # Sample customers data
         customers_data = [
             {
@@ -225,7 +231,7 @@ class FoundationalKBIngestionService:
                 "state": "IL",
                 "country": "USA",
                 "status": "Active",
-                "tier": "Key"
+                "tier": "Key",
             },
             {
                 "id": "cust_002",
@@ -237,13 +243,13 @@ class FoundationalKBIngestionService:
                 "employee_count": "201-1000",
                 "revenue": "$100M+",
                 "city": "Los Angeles",
-                "state": "CA", 
+                "state": "CA",
                 "country": "USA",
                 "status": "Active",
-                "tier": "Strategic"
-            }
+                "tier": "Strategic",
+            },
         ]
-        
+
         # Sample products data
         products_data = [
             {
@@ -258,7 +264,7 @@ class FoundationalKBIngestionService:
                 "base_price": 299.0,
                 "frequency": "Monthly",
                 "target_segment": "Property Management",
-                "value_proposition": "Streamlined payment processing with tenant portal"
+                "value_proposition": "Streamlined payment processing with tenant portal",
             },
             {
                 "id": "prod_002",
@@ -272,10 +278,10 @@ class FoundationalKBIngestionService:
                 "base_price": 99.0,
                 "frequency": "Monthly",
                 "target_segment": "Enterprise",
-                "value_proposition": "Data-driven insights for payment optimization"
-            }
+                "value_proposition": "Data-driven insights for payment optimization",
+            },
         ]
-        
+
         # Sample competitors data
         competitors_data = [
             {
@@ -291,10 +297,10 @@ class FoundationalKBIngestionService:
                 "employee_count": 500,
                 "revenue": 50000000,
                 "funding_status": "Public",
-                "headquarters": "San Francisco, CA"
+                "headquarters": "San Francisco, CA",
             }
         ]
-        
+
         # Sample knowledge articles data
         articles_data = [
             {
@@ -307,97 +313,105 @@ class FoundationalKBIngestionService:
                 "visibility": "Internal",
                 "author": "emp_001",
                 "keywords": ["payments", "best practices", "property management"],
-                "status": "Published"
+                "status": "Published",
             }
         ]
-        
+
         # Write sample files
         sample_data = {
             "employees.json": employees_data,
             "customers.json": customers_data,
             "products.json": products_data,
             "competitors.json": competitors_data,
-            "articles.json": articles_data
+            "articles.json": articles_data,
         }
-        
+
         for filename, data in sample_data.items():
             file_path = self.data_directory / filename
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(data, f, indent=2, default=str)
             logger.info(f"Created sample file: {file_path}")
-    
+
     async def ingest_data_file(self, config: IngestionConfig) -> IngestionStats:
         """Ingest data from a single file"""
         stats = IngestionStats(data_type=config.data_type.value)
         stats.start_time = datetime.now()
-        
+
         try:
-            logger.info(f"Starting ingestion for {config.data_type.value} from {config.source_file}")
-            
+            logger.info(
+                f"Starting ingestion for {config.data_type.value} from {config.source_file}"
+            )
+
             # Read data from file
             records = await self._read_data_file(config.source_file, config.format)
             stats.total_records = len(records)
-            
+
             # Process records in batches
             for i in range(0, len(records), config.batch_size):
-                batch = records[i:i + config.batch_size]
-                
+                batch = records[i : i + config.batch_size]
+
                 try:
                     processed_batch = await self._process_batch(batch, config)
                     await self._insert_batch(processed_batch, config.data_type)
                     stats.processed_records += len(processed_batch)
-                    
+
                 except Exception as e:
                     logger.error(f"Batch processing failed: {e}")
                     stats.failed_records += len(batch)
-            
+
             # Generate embeddings for inserted records
             await self._generate_embeddings_for_data_type(config.data_type)
-            
-            logger.info(f"✅ Ingestion completed for {config.data_type.value}: {stats.processed_records}/{stats.total_records} records")
-            
+
+            logger.info(
+                f"✅ Ingestion completed for {config.data_type.value}: {stats.processed_records}/{stats.total_records} records"
+            )
+
         except Exception as e:
             logger.error(f"❌ Ingestion failed for {config.data_type.value}: {e}")
             raise
-        
+
         finally:
             stats.end_time = datetime.now()
-        
+
         return stats
-    
-    async def _read_data_file(self, file_path: Path, format: IngestionFormat) -> List[Dict[str, Any]]:
+
+    async def _read_data_file(
+        self, file_path: Path, format: IngestionFormat
+    ) -> List[Dict[str, Any]]:
         """Read data from file based on format"""
         if not file_path.exists():
             raise FileNotFoundError(f"Data file not found: {file_path}")
-        
+
         records = []
-        
+
         if format == IngestionFormat.JSON:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = json.load(f)
                 if isinstance(data, list):
                     records = data
                 else:
                     records = [data]
-        
+
         elif format == IngestionFormat.JSONL:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 for line in f:
                     if line.strip():
                         records.append(json.loads(line))
-        
+
         elif format == IngestionFormat.CSV:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 reader = csv.DictReader(f)
                 records = list(reader)
-        
+
         logger.info(f"Read {len(records)} records from {file_path}")
         return records
-    
-    async def _process_batch(self, batch: List[Dict[str, Any]], config: IngestionConfig) -> List[Dict[str, Any]]:
+
+    async def _process_batch(
+        self, batch: List[Dict[str, Any]], config: IngestionConfig
+    ) -> List[Dict[str, Any]]:
         """Process a batch of records"""
         processed_records = []
-        
+
         for record in batch:
             try:
                 processed_record = await self._process_record(record, config)
@@ -405,74 +419,82 @@ class FoundationalKBIngestionService:
                     processed_records.append(processed_record)
             except Exception as e:
                 logger.error(f"Failed to process record: {e}")
-        
+
         return processed_records
-    
-    async def _process_record(self, record: Dict[str, Any], config: IngestionConfig) -> Optional[Dict[str, Any]]:
+
+    async def _process_record(
+        self, record: Dict[str, Any], config: IngestionConfig
+    ) -> Optional[Dict[str, Any]]:
         """Process a single record"""
         processed = {}
-        
+
         # Map fields using configuration
         mapping = config.mapping or self.default_mappings.get(config.data_type, {})
-        
+
         for source_field, target_field in mapping.items():
             if source_field in record:
                 value = record[source_field]
-                
+
                 # Handle JSON fields
                 if isinstance(value, (list, dict)):
                     processed[target_field] = json.dumps(value)
                 else:
                     processed[target_field] = value
-        
+
         # Add required metadata
         processed["CREATED_AT"] = datetime.now()
         processed["UPDATED_AT"] = datetime.now()
         processed["CREATED_BY"] = "foundational_kb_ingestion"
-        
+
         # Generate ID if not provided
         if not processed.get(self._get_id_field(config.data_type)):
             processed[self._get_id_field(config.data_type)] = str(uuid.uuid4())
-        
+
         return processed
-    
-    async def _insert_batch(self, batch: List[Dict[str, Any]], data_type: FoundationalDataType):
+
+    async def _insert_batch(
+        self, batch: List[Dict[str, Any]], data_type: FoundationalDataType
+    ):
         """Insert batch of records into Snowflake"""
         if not batch:
             return
-        
+
         table_name = self._get_table_name(data_type)
-        
+
         # Build INSERT query
         columns = list(batch[0].keys())
         placeholders = ", ".join(["%s"] * len(columns))
-        
+
         insert_query = f"""
         INSERT INTO FOUNDATIONAL_KNOWLEDGE.{table_name} ({", ".join(columns)})
         VALUES ({placeholders})
         """
-        
+
         # Execute batch insert
         values = []
         for record in batch:
             values.append([record[col] for col in columns])
-        
+
         await self.cortex_service.execute_batch_query(insert_query, values)
         logger.info(f"Inserted {len(batch)} records into {table_name}")
-    
+
     async def _generate_embeddings_for_data_type(self, data_type: FoundationalDataType):
         """Generate embeddings for newly inserted data"""
         try:
             # Call the existing embedding generation procedure
-            embed_query = "CALL FOUNDATIONAL_KNOWLEDGE.GENERATE_FOUNDATIONAL_EMBEDDINGS()"
+            embed_query = (
+                "CALL FOUNDATIONAL_KNOWLEDGE.GENERATE_FOUNDATIONAL_EMBEDDINGS()"
+            )
             result = await self.cortex_service.execute_query(embed_query)
-            
+
             if result:
-                logger.info(f"Generated embeddings: {result[0][0] if result[0] else 'Success'}")
-        
+                logger.info(
+                    f"Generated embeddings: {result[0][0] if result[0] else 'Success'}"
+                )
+
         except Exception as e:
             logger.error(f"Failed to generate embeddings: {e}")
-    
+
     def _get_table_name(self, data_type: FoundationalDataType) -> str:
         """Get Snowflake table name for data type"""
         table_map = {
@@ -482,10 +504,10 @@ class FoundationalKBIngestionService:
             FoundationalDataType.COMPETITOR: "COMPETITORS",
             FoundationalDataType.PROCESS: "BUSINESS_PROCESSES",
             FoundationalDataType.VALUE: "ORGANIZATIONAL_VALUES",
-            FoundationalDataType.ARTICLE: "KNOWLEDGE_ARTICLES"
+            FoundationalDataType.ARTICLE: "KNOWLEDGE_ARTICLES",
         }
         return table_map[data_type]
-    
+
     def _get_id_field(self, data_type: FoundationalDataType) -> str:
         """Get primary key field name for data type"""
         id_map = {
@@ -495,37 +517,37 @@ class FoundationalKBIngestionService:
             FoundationalDataType.COMPETITOR: "COMPETITOR_ID",
             FoundationalDataType.PROCESS: "PROCESS_ID",
             FoundationalDataType.VALUE: "VALUE_ID",
-            FoundationalDataType.ARTICLE: "ARTICLE_ID"
+            FoundationalDataType.ARTICLE: "ARTICLE_ID",
         }
         return id_map[data_type]
-    
+
     async def ingest_all_foundational_data(self) -> Dict[str, IngestionStats]:
         """Ingest all foundational data files"""
         logger.info("🚀 Starting full foundational data ingestion")
-        
+
         results = {}
-        
+
         # Define file mappings
         file_mappings = {
             FoundationalDataType.EMPLOYEE: "employees.json",
-            FoundationalDataType.CUSTOMER: "customers.json", 
+            FoundationalDataType.CUSTOMER: "customers.json",
             FoundationalDataType.PRODUCT: "products.json",
             FoundationalDataType.COMPETITOR: "competitors.json",
-            FoundationalDataType.ARTICLE: "articles.json"
+            FoundationalDataType.ARTICLE: "articles.json",
         }
-        
+
         for data_type, filename in file_mappings.items():
             file_path = self.data_directory / filename
-            
+
             if file_path.exists():
                 config = IngestionConfig(
                     data_type=data_type,
                     source_file=file_path,
                     format=IngestionFormat.JSON,
                     mapping=self.default_mappings.get(data_type, {}),
-                    batch_size=50
+                    batch_size=50,
                 )
-                
+
                 try:
                     stats = await self.ingest_data_file(config)
                     results[data_type.value] = stats
@@ -534,7 +556,7 @@ class FoundationalKBIngestionService:
                     results[data_type.value] = IngestionStats(data_type=data_type.value)
             else:
                 logger.warning(f"Data file not found: {file_path}")
-        
+
         logger.info("✅ Foundational data ingestion completed")
         return results
 
@@ -542,54 +564,70 @@ class FoundationalKBIngestionService:
 async def main():
     """Main function for command-line usage"""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Ingest foundational knowledge base data")
-    parser.add_argument("--data-dir", default="data/foundational", help="Data directory path")
-    parser.add_argument("--create-samples", action="store_true", help="Create sample data files")
-    parser.add_argument("--data-type", choices=[dt.value for dt in FoundationalDataType], help="Specific data type to ingest")
+
+    parser = argparse.ArgumentParser(
+        description="Ingest foundational knowledge base data"
+    )
+    parser.add_argument(
+        "--data-dir", default="data/foundational", help="Data directory path"
+    )
+    parser.add_argument(
+        "--create-samples", action="store_true", help="Create sample data files"
+    )
+    parser.add_argument(
+        "--data-type",
+        choices=[dt.value for dt in FoundationalDataType],
+        help="Specific data type to ingest",
+    )
     parser.add_argument("--file", help="Specific file to ingest")
-    parser.add_argument("--format", choices=["csv", "json", "jsonl"], default="json", help="File format")
+    parser.add_argument(
+        "--format", choices=["csv", "json", "jsonl"], default="json", help="File format"
+    )
     parser.add_argument("--verbose", action="store_true")
-    
+
     args = parser.parse_args()
-    
+
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
-    
+
     service = FoundationalKBIngestionService(data_directory=args.data_dir)
-    
+
     try:
         await service.initialize()
-        
+
         if args.create_samples:
             service.create_sample_data_files()
             logger.info("✅ Sample data files created")
-        
+
         if args.file and args.data_type:
             # Ingest specific file
             config = IngestionConfig(
                 data_type=FoundationalDataType(args.data_type),
                 source_file=Path(args.file),
                 format=IngestionFormat(args.format),
-                mapping=service.default_mappings.get(FoundationalDataType(args.data_type), {})
+                mapping=service.default_mappings.get(
+                    FoundationalDataType(args.data_type), {}
+                ),
             )
-            
+
             stats = await service.ingest_data_file(config)
             print(f"✅ Ingestion completed: {stats}")
-        
+
         else:
             # Ingest all foundational data
             results = await service.ingest_all_foundational_data()
-            
+
             print("\n📊 Ingestion Results:")
             for data_type, stats in results.items():
-                print(f"  {data_type}: {stats.processed_records}/{stats.total_records} records ({stats.success_rate:.1%} success)")
-    
+                print(
+                    f"  {data_type}: {stats.processed_records}/{stats.total_records} records ({stats.success_rate:.1%} success)"
+                )
+
     finally:
         await service.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

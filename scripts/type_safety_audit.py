@@ -86,9 +86,11 @@ def analyze_file(file_path: Path) -> Dict[str, Any]:
             "file": str(file_path),
             "total_functions": total_functions,
             "functions_with_complete_types": functions_with_complete_types,
-            "type_coverage": (functions_with_complete_types / total_functions * 100)
-            if total_functions > 0
-            else 100,
+            "type_coverage": (
+                (functions_with_complete_types / total_functions * 100)
+                if total_functions > 0
+                else 100
+            ),
             "functions": analyzer.functions,
             "classes": analyzer.classes,
             "missing_annotations": [
@@ -163,9 +165,9 @@ def scan_codebase(
         "total_files": len(results),
         "total_functions": total_functions,
         "functions_with_complete_types": total_with_types,
-        "overall_type_coverage": (total_with_types / total_functions * 100)
-        if total_functions > 0
-        else 100,
+        "overall_type_coverage": (
+            (total_with_types / total_functions * 100) if total_functions > 0 else 100
+        ),
         "files": results,
     }
 

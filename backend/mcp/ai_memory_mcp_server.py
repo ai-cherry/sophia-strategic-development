@@ -18,6 +18,7 @@ from pydantic import BaseModel
 # Enhanced dependencies with better error handling
 try:
     import pinecone
+
     PINECONE_AVAILABLE = True
 except ImportError:
     PINECONE_AVAILABLE = False
@@ -25,6 +26,7 @@ except ImportError:
 
 try:
     from openai import AsyncOpenAI
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -44,6 +46,7 @@ logger = logging.getLogger(__name__)
 
 class MemoryCategory:
     """Categories for AI memory storage."""
+
     ARCHITECTURE = "architecture"
     BUG_SOLUTION = "bug_solution"
     CODE_DECISION = "code_decision"
@@ -51,14 +54,14 @@ class MemoryCategory:
     AI_CODING_PATTERN = "ai_coding_pattern"
     PERFORMANCE_TIP = "performance_tip"
     SECURITY_PATTERN = "security_pattern"
-    
+
     # HubSpot-specific categories for CRM and sales intelligence
     HUBSPOT_CONTACT_INSIGHT = "hubspot_contact_insight"
     HUBSPOT_DEAL_ANALYSIS = "hubspot_deal_analysis"
     HUBSPOT_SALES_PATTERN = "hubspot_sales_pattern"
     HUBSPOT_CUSTOMER_INTERACTION = "hubspot_customer_interaction"
     HUBSPOT_PIPELINE_INSIGHT = "hubspot_pipeline_insight"
-    
+
     # Gong-specific categories for call analysis and coaching
     GONG_CALL_SUMMARY = "gong_call_summary"
     GONG_CALL_INSIGHT = "gong_call_insight"
@@ -69,6 +72,7 @@ class MemoryCategory:
 
 class MemoryRecord(BaseModel):
     """Enhanced model for a memory record."""
+
     id: str
     content: str
     category: str
@@ -79,7 +83,7 @@ class MemoryRecord(BaseModel):
     auto_detected: bool = False
     usage_count: int = 0
     last_accessed: Optional[datetime] = None
-    
+
     # Enhanced metadata for business intelligence
     deal_id: Optional[str] = None
     call_id: Optional[str] = None
@@ -90,7 +94,7 @@ class MemoryRecord(BaseModel):
 
 class ConversationAnalyzer:
     """Analyzes conversations to auto-detect important content"""
-    
+
     def __init__(self):
         self.importance_patterns = {
             "architecture": [
@@ -100,7 +104,7 @@ class ConversationAnalyzer:
                 r"microservices",
                 r"database schema",
                 r"api design",
-                r"system design"
+                r"system design",
             ],
             "bug_solution": [
                 r"fixed the bug",
@@ -108,14 +112,14 @@ class ConversationAnalyzer:
                 r"error was caused by",
                 r"debugging showed",
                 r"issue resolved",
-                r"problem solved"
+                r"problem solved",
             ],
             "code_decision": [
                 r"chose to implement",
                 r"decided to refactor",
                 r"code structure",
                 r"implementation approach",
-                r"coding standard"
+                r"coding standard",
             ],
             "security_pattern": [
                 r"security vulnerability",
@@ -123,97 +127,109 @@ class ConversationAnalyzer:
                 r"authorization",
                 r"encryption",
                 r"security best practice",
-                r"secure coding"
+                r"secure coding",
             ],
             "performance_tip": [
                 r"performance optimization",
                 r"faster approach",
                 r"bottleneck",
                 r"cache strategy",
-                r"query optimization"
-            ]
+                r"query optimization",
+            ],
         }
-        
+
         self.high_importance_keywords = [
-            "critical", "important", "remember", "decision", "solution",
-            "pattern", "best practice", "lesson learned", "mistake",
-            "breakthrough", "optimization", "security", "performance"
+            "critical",
+            "important",
+            "remember",
+            "decision",
+            "solution",
+            "pattern",
+            "best practice",
+            "lesson learned",
+            "mistake",
+            "breakthrough",
+            "optimization",
+            "security",
+            "performance",
         ]
-    
+
     def analyze_conversation(self, content: str) -> Dict[str, Any]:
         """Analyze conversation content for importance and categorization"""
         content_lower = content.lower()
-        
+
         # Calculate importance score
         importance_score = self._calculate_importance(content_lower)
-        
+
         # Detect category
         category = self._detect_category(content_lower)
-        
+
         # Extract tags
         tags = self._extract_tags(content_lower)
-        
+
         # Check if auto-storage worthy
         should_auto_store = importance_score > 0.6
-        
+
         return {
             "importance_score": importance_score,
             "category": category,
             "tags": tags,
             "should_auto_store": should_auto_store,
-            "analysis_reason": self._get_analysis_reason(content_lower, importance_score)
+            "analysis_reason": self._get_analysis_reason(
+                content_lower, importance_score
+            ),
         }
-    
+
     def _calculate_importance(self, content: str) -> float:
         """Calculate importance score based on content analysis"""
         score = 0.3  # Base score
-        
+
         # High importance keywords
         for keyword in self.high_importance_keywords:
             if keyword in content:
                 score += 0.1
-        
+
         # Pattern matching
         for category, patterns in self.importance_patterns.items():
             for pattern in patterns:
                 if re.search(pattern, content):
                     score += 0.15
-        
+
         # Length consideration (longer conversations often more important)
         if len(content) > 500:
             score += 0.1
         if len(content) > 1000:
             score += 0.1
-        
+
         # Code snippets increase importance
         if "```" in content or "def " in content or "class " in content:
             score += 0.2
-        
+
         return min(score, 1.0)
-    
+
     def _detect_category(self, content: str) -> str:
         """Detect the most likely category for the content"""
         category_scores = {}
-        
+
         for category, patterns in self.importance_patterns.items():
             score = 0
             for pattern in patterns:
                 if re.search(pattern, content):
                     score += 1
             category_scores[category] = score
-        
+
         # Return category with highest score, default to code_decision
         if category_scores:
             best_category = max(category_scores, key=category_scores.get)
             if category_scores[best_category] > 0:
                 return best_category
-        
+
         return MemoryCategory.CODE_DECISION
-    
+
     def _extract_tags(self, content: str) -> List[str]:
         """Extract relevant tags from content"""
         tags = []
-        
+
         # Technology tags
         tech_patterns = {
             "python": r"\bpython\b",
@@ -228,13 +244,13 @@ class ConversationAnalyzer:
             "openai": r"\bopenai\b",
             "pinecone": r"\bpinecone\b",
             "mcp": r"\bmcp\b",
-            "cursor": r"\bcursor\b"
+            "cursor": r"\bcursor\b",
         }
-        
+
         for tag, pattern in tech_patterns.items():
             if re.search(pattern, content):
                 tags.append(tag)
-        
+
         # Add context tags
         if "error" in content or "bug" in content:
             tags.append("debugging")
@@ -246,22 +262,26 @@ class ConversationAnalyzer:
             tags.append("api")
         if "database" in content:
             tags.append("database")
-        
+
         return tags
-    
+
     def _get_analysis_reason(self, content: str, score: float) -> str:
         """Get human-readable reason for the analysis"""
         reasons = []
-        
+
         if score > 0.8:
             reasons.append("High importance keywords detected")
         if "```" in content:
             reasons.append("Contains code snippets")
-        if any(pattern in content for patterns in self.importance_patterns.values() for pattern in patterns):
+        if any(
+            pattern in content
+            for patterns in self.importance_patterns.values()
+            for pattern in patterns
+        ):
             reasons.append("Matches important patterns")
         if len(content) > 1000:
             reasons.append("Detailed conversation")
-        
+
         return "; ".join(reasons) if reasons else "Standard content analysis"
 
 
@@ -277,12 +297,12 @@ class EnhancedAiMemoryMCPServer:
         self.conversation_analyzer = ConversationAnalyzer()
         self.openai_client: Optional[Any] = None
         self.pinecone_index: Optional[Any] = None
-        
+
         # Snowflake Cortex integration
         self.cortex_service: Optional[SnowflakeCortexService] = None
         self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
         self.gong_connector: Optional[SnowflakeGongConnector] = None
-        
+
         self.initialized = False
         self.preloaded_knowledge = False
 
@@ -291,51 +311,60 @@ class EnhancedAiMemoryMCPServer:
         if self.initialized:
             return
 
-        logger.info("Initializing Enhanced AI Memory MCP Server with Snowflake Cortex...")
+        logger.info(
+            "Initializing Enhanced AI Memory MCP Server with Snowflake Cortex..."
+        )
 
         # Initialize OpenAI client with enhanced error handling
         await self._initialize_openai()
-        
+
         # Initialize Pinecone with enhanced setup
         await self._initialize_pinecone()
-        
+
         # Initialize Snowflake Cortex services
         await self._initialize_snowflake_cortex()
-        
+
         # Pre-load helpful AI coding knowledge
         await self._preload_ai_coding_knowledge()
 
         self.initialized = True
-        logger.info("Enhanced AI Memory MCP Server with Snowflake Cortex initialized successfully")
+        logger.info(
+            "Enhanced AI Memory MCP Server with Snowflake Cortex initialized successfully"
+        )
 
     async def _initialize_openai(self):
         """Initialize OpenAI client with proper configuration"""
         from backend.core.auto_esc_config import config
+
         openai_api_key = config.get("openai_api_key")
-        
-        if not openai_api_key or openai_api_key in ['fallback-key', 'sk-development-key-fallback']:
-            logger.warning("No valid OpenAI API key found. Semantic search will be limited.")
+
+        if not openai_api_key or openai_api_key in [
+            "fallback-key",
+            "sk-development-key-fallback",
+        ]:
+            logger.warning(
+                "No valid OpenAI API key found. Semantic search will be limited."
+            )
             return
-        
+
         if not OPENAI_AVAILABLE:
-            logger.warning("OpenAI library not available. Install with: pip install openai")
+            logger.warning(
+                "OpenAI library not available. Install with: pip install openai"
+            )
             return
-            
+
         try:
             self.openai_client = AsyncOpenAI(
-                api_key=openai_api_key,
-                timeout=30.0,
-                max_retries=3
+                api_key=openai_api_key, timeout=30.0, max_retries=3
             )
-            
+
             # Test the connection
             test_response = await self.openai_client.embeddings.create(
-                input="test connection",
-                model="text-embedding-3-small"
+                input="test connection", model="text-embedding-3-small"
             )
-            
+
             logger.info("✅ OpenAI client initialized and tested successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize OpenAI client: {e}")
             self.openai_client = None
@@ -344,20 +373,27 @@ class EnhancedAiMemoryMCPServer:
         """Initialize Pinecone with proper configuration"""
         pinecone_api_key = os.getenv("PINECONE_API_KEY")
         pinecone_environment = os.getenv("PINECONE_ENVIRONMENT", "us-east1-gcp")
-        
-        if not pinecone_api_key or pinecone_api_key in ['dev-pinecone-key', 'fallback-key']:
-            logger.warning("No valid Pinecone API key found. Vector search will be limited.")
+
+        if not pinecone_api_key or pinecone_api_key in [
+            "dev-pinecone-key",
+            "fallback-key",
+        ]:
+            logger.warning(
+                "No valid Pinecone API key found. Vector search will be limited."
+            )
             return
-            
+
         if not PINECONE_AVAILABLE:
-            logger.warning("Pinecone library not available. Install with: pip install pinecone-client")
+            logger.warning(
+                "Pinecone library not available. Install with: pip install pinecone-client"
+            )
             return
-            
+
         try:
             pinecone.init(api_key=pinecone_api_key, environment=pinecone_environment)
-            
+
             index_name = "sophia-ai-memory"
-            
+
             # Check if index exists, create if not
             if index_name not in pinecone.list_indexes():
                 logger.info(f"Creating Pinecone index: {index_name}")
@@ -367,15 +403,17 @@ class EnhancedAiMemoryMCPServer:
                     metric="cosine",
                     pods=1,
                     replicas=1,
-                    pod_type="p1.x1"
+                    pod_type="p1.x1",
                 )
-                
+
             self.pinecone_index = pinecone.Index(index_name)
-            
+
             # Test the connection
             stats = self.pinecone_index.describe_index_stats()
-            logger.info(f"✅ Pinecone initialized successfully. Vectors: {stats.total_vector_count}")
-            
+            logger.info(
+                f"✅ Pinecone initialized successfully. Vectors: {stats.total_vector_count}"
+            )
+
         except Exception as e:
             logger.error(f"Failed to initialize Pinecone: {e}")
             self.pinecone_index = None
@@ -386,9 +424,9 @@ class EnhancedAiMemoryMCPServer:
             self.cortex_service = SnowflakeCortexService()
             self.hubspot_connector = SnowflakeHubSpotConnector()
             self.gong_connector = SnowflakeGongConnector()
-            
+
             logger.info("✅ Snowflake Cortex services initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Cortex services: {e}")
             self.cortex_service = None
@@ -399,86 +437,88 @@ class EnhancedAiMemoryMCPServer:
         """Pre-load helpful AI coding knowledge for developers"""
         if self.preloaded_knowledge:
             return
-            
+
         knowledge_base = [
             {
                 "content": "When using Cursor IDE with MCP servers, use @server_name commands to interact with specific tools. For example: @ai_memory store this conversation, @codacy analyze this code, @asana create task. This provides intelligent, context-aware development assistance.",
                 "category": MemoryCategory.AI_CODING_PATTERN,
                 "tags": ["cursor", "mcp", "ai_assistance", "development_workflow"],
-                "importance_score": 0.9
+                "importance_score": 0.9,
             },
             {
                 "content": "For Python async development, always use 'async def' for I/O operations and 'await' for async calls. Common pattern: async with aiohttp.ClientSession() as session: async with session.get(url) as response: data = await response.json(). Avoid blocking calls in async functions.",
                 "category": MemoryCategory.AI_CODING_PATTERN,
                 "tags": ["python", "async", "aiohttp", "best_practices"],
-                "importance_score": 0.8
+                "importance_score": 0.8,
             },
             {
                 "content": "Redis connection pattern for Python 3.11+: Use 'import redis.asyncio as redis_client' then 'redis_client.from_url()'. Avoid 'redis_client' package due to Python 3.11 TimeoutError compatibility issues.",
                 "category": MemoryCategory.BUG_SOLUTION,
                 "tags": ["python", "redis", "python311", "compatibility"],
-                "importance_score": 0.9
+                "importance_score": 0.9,
             },
             {
                 "content": "FastAPI deprecation fix: Replace @app.on_event('startup') with lifespan context manager. Use 'from contextlib import asynccontextmanager' and '@asynccontextmanager async def lifespan(app): # startup code yield # shutdown code'. Then FastAPI(lifespan=lifespan).",
                 "category": MemoryCategory.CODE_DECISION,
                 "tags": ["fastapi", "deprecation", "lifespan", "modernization"],
-                "importance_score": 0.8
+                "importance_score": 0.8,
             },
             {
                 "content": "OpenAI embeddings best practice: Use 'text-embedding-3-small' (1536 dimensions) for most use cases, 'text-embedding-3-large' (3072 dimensions) for highest quality. Always handle rate limits with exponential backoff and batch requests when possible.",
                 "category": MemoryCategory.PERFORMANCE_TIP,
                 "tags": ["openai", "embeddings", "rate_limits", "optimization"],
-                "importance_score": 0.8
+                "importance_score": 0.8,
             },
             {
                 "content": "Pinecone vector database pattern: Initialize with pinecone.init(), create index with proper dimensions matching your embedding model, use upsert() for storing vectors with metadata, query() with filters for retrieval. Always include meaningful metadata for filtering.",
                 "category": MemoryCategory.AI_CODING_PATTERN,
                 "tags": ["pinecone", "vector_database", "embeddings", "metadata"],
-                "importance_score": 0.8
+                "importance_score": 0.8,
             },
             {
                 "content": "Docker Compose environment variable warnings fix: Create .env file with all required variables, use 'docker-compose config' to validate, ensure no WARN messages about unset variables. Use Pulumi ESC or similar for production secret management.",
                 "category": MemoryCategory.BUG_SOLUTION,
                 "tags": ["docker", "environment_variables", "secrets", "pulumi"],
-                "importance_score": 0.7
+                "importance_score": 0.7,
             },
             {
                 "content": "Security pattern for API keys: Never hardcode in source code, use environment variables or secret management systems (Pulumi ESC, AWS Secrets Manager), implement key rotation, use different keys for dev/staging/prod, log key usage without exposing values.",
                 "category": MemoryCategory.SECURITY_PATTERN,
                 "tags": ["security", "api_keys", "secrets", "environment"],
-                "importance_score": 0.9
+                "importance_score": 0.9,
             },
             {
                 "content": "MCP server health check pattern: Implement /health endpoint returning JSON with status, dependencies, and timestamp. Include circuit breaker status, database connectivity, external API availability. Use for monitoring and load balancer health checks.",
                 "category": MemoryCategory.AI_CODING_PATTERN,
                 "tags": ["mcp", "health_checks", "monitoring", "reliability"],
-                "importance_score": 0.8
+                "importance_score": 0.8,
             },
             {
                 "content": "Error handling best practice: Use specific exception types, implement retry logic with exponential backoff, log errors with context (correlation IDs), provide fallback mechanisms, never expose internal errors to users. Pattern: try/except with proper logging and user-friendly messages.",
                 "category": MemoryCategory.AI_CODING_PATTERN,
                 "tags": ["error_handling", "logging", "retry", "user_experience"],
-                "importance_score": 0.8
-            }
+                "importance_score": 0.8,
+            },
         ]
-        
+
         logger.info("Pre-loading AI coding knowledge base...")
-        
+
         for knowledge in knowledge_base:
             try:
-                memory_id = f"preloaded_{knowledge['category']}_{len(knowledge['tags'])}"
+                memory_id = (
+                    f"preloaded_{knowledge['category']}_{len(knowledge['tags'])}"
+                )
                 await self.store_memory(
                     content=knowledge["content"],
                     category=knowledge["category"],
                     tags=knowledge["tags"],
                     importance_score=knowledge["importance_score"],
-                    auto_detected=False
+                    auto_detected=False,
                 )
                 logger.debug(f"Pre-loaded knowledge: {knowledge['category']}")
             except Exception as e:
                 logger.warning(f"Failed to pre-load knowledge item: {e}")
-        
+
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
 
@@ -499,12 +539,12 @@ class EnhancedAiMemoryMCPServer:
             return []
 
     async def store_memory(
-        self, 
-        content: str, 
-        category: str, 
+        self,
+        content: str,
+        category: str,
         tags: List[str],
         importance_score: float = 0.5,
-        auto_detected: bool = False
+        auto_detected: bool = False,
     ) -> Dict[str, Any]:
         """Store a memory with enhanced categorization and embedding"""
         if not self.initialized:
@@ -522,7 +562,7 @@ class EnhancedAiMemoryMCPServer:
             created_at=datetime.now(),
             importance_score=importance_score,
             auto_detected=auto_detected,
-            usage_count=0
+            usage_count=0,
         )
 
         # Store in Pinecone if available
@@ -539,7 +579,7 @@ class EnhancedAiMemoryMCPServer:
                                 "created_at": memory.created_at.isoformat(),
                                 "importance_score": importance_score,
                                 "auto_detected": auto_detected,
-                                "content_preview": content[:200]  # For debugging
+                                "content_preview": content[:200],  # For debugging
                             },
                         )
                     ]
@@ -552,42 +592,48 @@ class EnhancedAiMemoryMCPServer:
         await self.memory_manager.append(
             category, json.dumps(memory.model_dump(), default=str)
         )
-        
+
         return {
-            "id": memory_id, 
+            "id": memory_id,
             "status": "stored",
             "importance_score": importance_score,
             "auto_detected": auto_detected,
-            "vector_stored": bool(self.pinecone_index and embedding)
+            "vector_stored": bool(self.pinecone_index and embedding),
         }
 
-    async def auto_store_conversation(self, content: str, participants: List[str] = None) -> Dict[str, Any]:
+    async def auto_store_conversation(
+        self, content: str, participants: List[str] = None
+    ) -> Dict[str, Any]:
         """Automatically analyze and store important conversations"""
         analysis = self.conversation_analyzer.analyze_conversation(content)
-        
+
         if analysis["should_auto_store"]:
             result = await self.store_memory(
                 content=content,
                 category=analysis["category"],
                 tags=analysis["tags"] + ["auto_detected"],
                 importance_score=analysis["importance_score"],
-                auto_detected=True
+                auto_detected=True,
             )
-            
-            result.update({
-                "auto_stored": True,
-                "analysis_reason": analysis["analysis_reason"],
-                "detected_category": analysis["category"]
-            })
-            
-            logger.info(f"Auto-stored conversation: {analysis['category']} (score: {analysis['importance_score']:.2f})")
+
+            result.update(
+                {
+                    "auto_stored": True,
+                    "analysis_reason": analysis["analysis_reason"],
+                    "detected_category": analysis["category"],
+                }
+            )
+
+            logger.info(
+                f"Auto-stored conversation: {analysis['category']} (score: {analysis['importance_score']:.2f})"
+            )
             return result
         else:
             return {
                 "auto_stored": False,
                 "reason": "Importance score too low",
                 "score": analysis["importance_score"],
-                "suggested_category": analysis["category"]
+                "suggested_category": analysis["category"],
             }
 
     async def recall_memory(
@@ -610,31 +656,40 @@ class EnhancedAiMemoryMCPServer:
                     top_k=limit * 2,  # Get more results for better filtering
                     include_metadata=True,
                 )
-                
+
                 for match in query_response.matches:
                     metadata = match.metadata
                     memory_content = await self._get_memory_content(
                         metadata.get("category", "unknown"), match.id
                     )
-                    
+
                     if memory_content:  # Only include if content found
-                        results.append({
-                            "id": match.id,
-                            "category": metadata.get("category", "unknown"),
-                            "tags": json.loads(metadata.get("tags", "[]")),
-                            "created_at": metadata.get("created_at"),
-                            "relevance_score": float(match.score),
-                            "importance_score": metadata.get("importance_score", 0.5),
-                            "auto_detected": metadata.get("auto_detected", False),
-                            "content": memory_content,
-                        })
-                
+                        results.append(
+                            {
+                                "id": match.id,
+                                "category": metadata.get("category", "unknown"),
+                                "tags": json.loads(metadata.get("tags", "[]")),
+                                "created_at": metadata.get("created_at"),
+                                "relevance_score": float(match.score),
+                                "importance_score": metadata.get(
+                                    "importance_score", 0.5
+                                ),
+                                "auto_detected": metadata.get("auto_detected", False),
+                                "content": memory_content,
+                            }
+                        )
+
                 # Sort by combined relevance and importance
-                results.sort(key=lambda x: (x["relevance_score"] * 0.7 + x["importance_score"] * 0.3), reverse=True)
+                results.sort(
+                    key=lambda x: (
+                        x["relevance_score"] * 0.7 + x["importance_score"] * 0.3
+                    ),
+                    reverse=True,
+                )
                 results = results[:limit]
-                
+
                 logger.debug(f"Pinecone search returned {len(results)} results")
-                
+
             except Exception as e:
                 logger.error(f"Error searching Pinecone: {e}")
 
@@ -646,17 +701,24 @@ class EnhancedAiMemoryMCPServer:
                     try:
                         memory = json.loads(memory_json)
                         # Simple text matching for fallback
-                        if any(word.lower() in memory.get("content", "").lower() for word in query.split()):
-                            results.append({
-                                "id": memory.get("id", "unknown"),
-                                "category": memory.get("category", "unknown"),
-                                "tags": memory.get("tags", []),
-                                "created_at": memory.get("created_at"),
-                                "content": memory.get("content", ""),
-                                "relevance_score": 0.5,  # Default score for text matching
-                                "importance_score": memory.get("importance_score", 0.5),
-                                "auto_detected": memory.get("auto_detected", False)
-                            })
+                        if any(
+                            word.lower() in memory.get("content", "").lower()
+                            for word in query.split()
+                        ):
+                            results.append(
+                                {
+                                    "id": memory.get("id", "unknown"),
+                                    "category": memory.get("category", "unknown"),
+                                    "tags": memory.get("tags", []),
+                                    "created_at": memory.get("created_at"),
+                                    "content": memory.get("content", ""),
+                                    "relevance_score": 0.5,  # Default score for text matching
+                                    "importance_score": memory.get(
+                                        "importance_score", 0.5
+                                    ),
+                                    "auto_detected": memory.get("auto_detected", False),
+                                }
+                            )
                     except json.JSONDecodeError:
                         continue
             except Exception as e:
@@ -706,12 +768,12 @@ class EnhancedAiMemoryMCPServer:
                             "description": "Category for the memory (architecture, bug_solution, code_decision, workflow)",
                             "enum": [
                                 "architecture",
-                                "bug_solution", 
+                                "bug_solution",
                                 "code_decision",
                                 "workflow",
                                 "ai_coding_pattern",
                                 "performance_tip",
-                                "security_pattern"
+                                "security_pattern",
                             ],
                         },
                         "tags": {
@@ -727,7 +789,7 @@ class EnhancedAiMemoryMCPServer:
                 "name": "auto_store_conversation",
                 "description": "Automatically analyze and store important conversations",
                 "parameters": {
-                    "type": "object", 
+                    "type": "object",
                     "properties": {
                         "content": {
                             "type": "string",
@@ -758,11 +820,11 @@ class EnhancedAiMemoryMCPServer:
                             "enum": [
                                 "architecture",
                                 "bug_solution",
-                                "code_decision", 
+                                "code_decision",
                                 "workflow",
                                 "ai_coding_pattern",
                                 "performance_tip",
-                                "security_pattern"
+                                "security_pattern",
                             ],
                         },
                         "limit": {
@@ -794,28 +856,24 @@ class EnhancedAiMemoryMCPServer:
         """Get pre-loaded AI coding tips filtered by topic"""
         if not self.initialized:
             await self.initialize()
-            
+
         # Search for pre-loaded knowledge
         query = topic if topic else "ai coding pattern best practice"
         results = await self.recall_memory(query, limit=10)
-        
+
         # Filter for pre-loaded content and high importance
         tips = [
             {
                 "content": result["content"],
                 "category": result["category"],
                 "tags": result["tags"],
-                "importance_score": result["importance_score"]
+                "importance_score": result["importance_score"],
             }
             for result in results
             if result.get("importance_score", 0) > 0.7
         ]
-        
-        return {
-            "tips": tips,
-            "topic_filter": topic,
-            "total_found": len(tips)
-        }
+
+        return {"tips": tips, "topic_filter": topic, "total_found": len(tips)}
 
     async def execute_tool(
         self, tool_name: str, parameters: Dict[str, Any]
@@ -828,31 +886,31 @@ class EnhancedAiMemoryMCPServer:
             content = parameters.get("content", "")
             category = parameters.get("category")
             tags = parameters.get("tags", [])
-            
+
             # Auto-analyze if no category provided
             if not category:
                 analysis = self.conversation_analyzer.analyze_conversation(content)
                 category = analysis["category"]
                 tags.extend(analysis["tags"])
-            
+
             return await self.store_memory(content, category, tags)
-            
+
         elif tool_name == "auto_store_conversation":
             content = parameters.get("content", "")
             participants = parameters.get("participants", [])
             return await self.auto_store_conversation(content, participants)
-            
+
         elif tool_name == "recall_memory":
             query = parameters.get("query", "")
             category = parameters.get("category")
             limit = parameters.get("limit", 5)
             results = await self.recall_memory(query, category, limit)
             return {"results": results}
-            
+
         elif tool_name == "get_ai_coding_tips":
             topic = parameters.get("topic")
             return await self.get_ai_coding_tips(topic)
-            
+
         return {"error": f"Unknown tool: {tool_name}"}
 
     async def health_check(self) -> Dict[str, Any]:
@@ -865,14 +923,13 @@ class EnhancedAiMemoryMCPServer:
         if self.openai_client:
             try:
                 await self.openai_client.embeddings.create(
-                    input="health check",
-                    model="text-embedding-3-small"
+                    input="health check", model="text-embedding-3-small"
                 )
                 openai_status = "healthy"
             except Exception as e:
                 openai_status = f"error: {str(e)[:100]}"
 
-        # Test Pinecone if available  
+        # Test Pinecone if available
         pinecone_status = "not_configured"
         pinecone_vector_count = 0
         if self.pinecone_index:
@@ -900,30 +957,38 @@ class EnhancedAiMemoryMCPServer:
         contact_id: str,
         insight_content: str,
         interaction_type: str = "general",
-        tags: List[str] = None
+        tags: List[str] = None,
     ) -> Dict[str, Any]:
         """
         Store HubSpot contact insights for future AI processing
-        
+
         Args:
             contact_id: HubSpot contact ID
             insight_content: The insight or summary about the contact
             interaction_type: Type of interaction (call, email, meeting, note)
             tags: Additional tags for categorization
-            
+
         Returns:
             Storage result with metadata
-        
-        TODO: For HubSpot data, vector embeddings will be generated using 
+
+        TODO: For HubSpot data, vector embeddings will be generated using
         SNOWFLAKE.CORTEX.EMBED_TEXT() and stored in a VECTOR column within Snowflake tables.
         This will reduce dependency on Pinecone for HubSpot-specific data.
         """
         if not tags:
             tags = []
-        
+
         # Add HubSpot-specific tags
-        tags.extend(["hubspot", "crm", "contact_insight", interaction_type, f"contact_{contact_id}"])
-        
+        tags.extend(
+            [
+                "hubspot",
+                "crm",
+                "contact_insight",
+                interaction_type,
+                f"contact_{contact_id}",
+            ]
+        )
+
         # Enhanced content with structured data
         structured_content = f"""
         HubSpot Contact Insight:
@@ -938,15 +1003,15 @@ class EnhancedAiMemoryMCPServer:
         - Vector embedding for semantic search within Snowflake
         - Integration with HubSpot Secure Data Share
         """
-        
+
         return await self.store_memory(
             content=structured_content,
             category=MemoryCategory.HUBSPOT_CONTACT_INSIGHT,
             tags=tags,
             importance_score=0.7,  # Contact insights are generally important
-            auto_detected=False
+            auto_detected=False,
         )
-    
+
     async def store_hubspot_deal_analysis(
         self,
         deal_id: str,
@@ -954,11 +1019,11 @@ class EnhancedAiMemoryMCPServer:
         deal_stage: str = None,
         deal_value: Optional[float] = None,
         tags: List[str] = None,
-        use_cortex_summary: bool = True
+        use_cortex_summary: bool = True,
     ) -> Dict[str, Any]:
         """
         Enhanced HubSpot deal analysis storage with Snowflake Cortex integration
-        
+
         Args:
             deal_id: HubSpot deal ID
             analysis_content: Pre-generated analysis content (optional if using Cortex)
@@ -966,7 +1031,7 @@ class EnhancedAiMemoryMCPServer:
             deal_value: Deal value/amount
             tags: Additional tags for categorization
             use_cortex_summary: Whether to use Snowflake Cortex for summary generation
-            
+
         Returns:
             Storage result with embedding and metadata
         """
@@ -977,19 +1042,18 @@ class EnhancedAiMemoryMCPServer:
             # Ensure embedding columns exist in ENRICHED_HUBSPOT_DEALS table
             async with self.cortex_service as cortex:
                 await cortex.ensure_embedding_columns_exist("ENRICHED_HUBSPOT_DEALS")
-            
+
             # Generate comprehensive deal summary using Snowflake Cortex if enabled
             if use_cortex_summary and self.cortex_service and self.hubspot_connector:
                 async with self.hubspot_connector as connector:
                     # Get deal data from HubSpot via Snowflake
                     deal_data = await connector.query_hubspot_deals(
-                        stage_filters=[deal_stage] if deal_stage else None,
-                        limit=1
+                        stage_filters=[deal_stage] if deal_stage else None, limit=1
                     )
-                    
+
                     if not deal_data.empty:
                         deal_info = deal_data.iloc[0]
-                        
+
                         # Create comprehensive context for Cortex summarization
                         deal_context = f"""
                         Deal Analysis for {deal_info.get('DEAL_NAME', 'Unknown Deal')}:
@@ -1001,19 +1065,21 @@ class EnhancedAiMemoryMCPServer:
                         - Close Date: {deal_info.get('CLOSE_DATE', 'Unknown')}
                         - Owner: {deal_info.get('HUBSPOT_OWNER_ID', 'Unknown')}
                         """
-                        
+
                         if analysis_content:
                             deal_context += f"\nAdditional Analysis: {analysis_content}"
-                        
+
                         # Generate AI summary using Snowflake Cortex
                         async with self.cortex_service as cortex:
                             summary_result = await cortex.complete_text_with_cortex(
                                 prompt=f"Analyze this HubSpot deal and provide key insights, risks, and opportunities:\n{deal_context}",
-                                max_tokens=300
+                                max_tokens=300,
                             )
-                            
-                            analysis_content = summary_result if summary_result else deal_context
-            
+
+                            analysis_content = (
+                                summary_result if summary_result else deal_context
+                            )
+
             else:
                 # Use provided analysis content or create basic summary
                 if not analysis_content:
@@ -1029,10 +1095,12 @@ class EnhancedAiMemoryMCPServer:
                     "deal_value": deal_value or 0,
                     "tags": tags or [],
                     "created_at": datetime.now().isoformat(),
-                    "importance_score": self._calculate_deal_importance(deal_value, deal_stage),
-                    "confidence_score": 0.9 if use_cortex_summary else 0.7
+                    "importance_score": self._calculate_deal_importance(
+                        deal_value, deal_stage
+                    ),
+                    "confidence_score": 0.9 if use_cortex_summary else 0.7,
                 }
-                
+
                 # Store embedding directly in business table
                 embedding_stored = await cortex.store_embedding_in_business_table(
                     table_name="ENRICHED_HUBSPOT_DEALS",
@@ -1040,12 +1108,14 @@ class EnhancedAiMemoryMCPServer:
                     text_content=analysis_content,
                     embedding_column="ai_memory_embedding",
                     metadata=metadata,
-                    model="e5-base-v2"
+                    model="e5-base-v2",
                 )
 
             # Create memory record for local tracking (without Pinecone storage)
-            memory_id = f"hubspot_deal_{deal_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            
+            memory_id = (
+                f"hubspot_deal_{deal_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            )
+
             memory = MemoryRecord(
                 id=memory_id,
                 content=analysis_content,
@@ -1053,16 +1123,18 @@ class EnhancedAiMemoryMCPServer:
                 tags=tags or [],
                 embedding=None,  # Stored in Snowflake, not locally
                 created_at=datetime.now(),
-                importance_score=self._calculate_deal_importance(deal_value, deal_stage),
+                importance_score=self._calculate_deal_importance(
+                    deal_value, deal_stage
+                ),
                 auto_detected=False,
                 deal_id=deal_id,
-                confidence_score=0.9 if use_cortex_summary else 0.7
+                confidence_score=0.9 if use_cortex_summary else 0.7,
             )
 
             # Store in local memory manager (for fallback and tracking)
             await self.memory_manager.append(
                 MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
-                json.dumps(memory.model_dump(), default=str)
+                json.dumps(memory.model_dump(), default=str),
             )
 
             return {
@@ -1075,42 +1147,37 @@ class EnhancedAiMemoryMCPServer:
                 "embedding_source": "snowflake_cortex",
                 "vector_stored": embedding_stored,
                 "cortex_enhanced": use_cortex_summary and bool(self.cortex_service),
-                "storage_location": "ENRICHED_HUBSPOT_DEALS"
+                "storage_location": "ENRICHED_HUBSPOT_DEALS",
             }
 
         except Exception as e:
             logger.error(f"Error storing HubSpot deal analysis: {e}")
-            return {
-                "id": None,
-                "status": "error",
-                "error": str(e),
-                "deal_id": deal_id
-            }
+            return {"id": None, "status": "error", "error": str(e), "deal_id": deal_id}
 
     async def store_hubspot_sales_pattern(
         self,
         pattern_description: str,
         pattern_type: str = "general",
         success_rate: Optional[float] = None,
-        tags: List[str] = None
+        tags: List[str] = None,
     ) -> Dict[str, Any]:
         """
         Store identified sales patterns from HubSpot data analysis
-        
+
         Args:
             pattern_description: Description of the sales pattern
             pattern_type: Type of pattern (conversion, objection, timing, etc.)
             success_rate: Success rate of this pattern if known
             tags: Additional tags
-            
+
         Returns:
             Storage result with metadata
         """
         if not tags:
             tags = []
-        
+
         tags.extend(["hubspot", "sales_pattern", pattern_type, "business_intelligence"])
-        
+
         structured_content = f"""
         HubSpot Sales Pattern:
         Pattern Type: {pattern_type}
@@ -1124,17 +1191,17 @@ class EnhancedAiMemoryMCPServer:
         - Automated pattern detection from new data
         - Cross-reference with Gong call analysis
         """
-        
+
         importance = 0.9 if success_rate and success_rate > 0.7 else 0.7
-        
+
         return await self.store_memory(
             content=structured_content,
             category=MemoryCategory.HUBSPOT_SALES_PATTERN,
             tags=tags,
             importance_score=importance,
-            auto_detected=False
+            auto_detected=False,
         )
-    
+
     async def recall_hubspot_insights(
         self,
         query: str,
@@ -1142,11 +1209,11 @@ class EnhancedAiMemoryMCPServer:
         contact_id: Optional[str] = None,
         deal_id: Optional[str] = None,
         limit: int = 5,
-        use_cortex_search: bool = True
+        use_cortex_search: bool = True,
     ) -> List[Dict[str, Any]]:
         """
         Enhanced HubSpot insights recall with Snowflake Cortex vector search
-        
+
         Args:
             query: Search query for insights
             insight_type: Type of insight to filter by
@@ -1154,7 +1221,7 @@ class EnhancedAiMemoryMCPServer:
             deal_id: Filter by specific deal ID
             limit: Maximum number of results
             use_cortex_search: Whether to use Snowflake Cortex for vector search
-            
+
         Returns:
             List of relevant HubSpot insights with enhanced metadata
         """
@@ -1168,37 +1235,45 @@ class EnhancedAiMemoryMCPServer:
                     # Build metadata filters
                     metadata_filters = {}
                     if deal_id:
-                        metadata_filters['id'] = deal_id  # Primary key in ENRICHED_HUBSPOT_DEALS
-                    
+                        metadata_filters["id"] = (
+                            deal_id  # Primary key in ENRICHED_HUBSPOT_DEALS
+                        )
+
                     # Use enhanced Cortex search for HubSpot deals
                     cortex_results = await cortex.search_hubspot_deals_with_ai_memory(
                         query_text=query,
                         top_k=limit,
                         similarity_threshold=0.7,
-                        deal_stage=insight_type if insight_type else None
+                        deal_stage=insight_type if insight_type else None,
                     )
-                    
+
                     if cortex_results:
                         # Convert Cortex results to standard format
                         cortex_insights = []
                         for result in cortex_results:
-                            cortex_insights.append({
-                                "id": result.get("ID"),
-                                "content": result.get("AI_MEMORY_METADATA", ""),
-                                "category": MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
-                                "relevance_score": result.get("SIMILARITY_SCORE", 0),
-                                "deal_id": result.get("ID"),
-                                "contact_id": result.get("CONTACT_ID"),
-                                "deal_stage": result.get("DEAL_STAGE"),
-                                "deal_value": result.get("AMOUNT"),
-                                "company_name": result.get("COMPANY_NAME"),
-                                "created_at": result.get("AI_MEMORY_UPDATED_AT"),
-                                "embedding_source": "snowflake_cortex",
-                                "storage_location": "ENRICHED_HUBSPOT_DEALS",
-                                "tags": []
-                            })
-                        
-                        logger.info(f"Found {len(cortex_insights)} HubSpot insights via Snowflake Cortex search")
+                            cortex_insights.append(
+                                {
+                                    "id": result.get("ID"),
+                                    "content": result.get("AI_MEMORY_METADATA", ""),
+                                    "category": MemoryCategory.HUBSPOT_DEAL_ANALYSIS,
+                                    "relevance_score": result.get(
+                                        "SIMILARITY_SCORE", 0
+                                    ),
+                                    "deal_id": result.get("ID"),
+                                    "contact_id": result.get("CONTACT_ID"),
+                                    "deal_stage": result.get("DEAL_STAGE"),
+                                    "deal_value": result.get("AMOUNT"),
+                                    "company_name": result.get("COMPANY_NAME"),
+                                    "created_at": result.get("AI_MEMORY_UPDATED_AT"),
+                                    "embedding_source": "snowflake_cortex",
+                                    "storage_location": "ENRICHED_HUBSPOT_DEALS",
+                                    "tags": [],
+                                }
+                            )
+
+                        logger.info(
+                            f"Found {len(cortex_insights)} HubSpot insights via Snowflake Cortex search"
+                        )
                         return cortex_insights
 
             # Fallback to traditional memory search for non-HubSpot categories
@@ -1219,16 +1294,18 @@ class EnhancedAiMemoryMCPServer:
                         MemoryCategory.GONG_CALL_INSIGHT,
                         MemoryCategory.GONG_COACHING_RECOMMENDATION,
                         MemoryCategory.GONG_SENTIMENT_ANALYSIS,
-                        MemoryCategory.GONG_TOPIC_ANALYSIS
+                        MemoryCategory.GONG_TOPIC_ANALYSIS,
                     }
-                    
+
                     # Only search non-HubSpot/Gong categories in Pinecone
                     filter_dict = {
                         "category": {
-                            "$nin": list(SNOWFLAKE_CORTEX_CATEGORIES)  # Exclude all Snowflake-handled categories
+                            "$nin": list(
+                                SNOWFLAKE_CORTEX_CATEGORIES
+                            )  # Exclude all Snowflake-handled categories
                         }
                     }
-                    
+
                     # Add additional filters
                     if deal_id:
                         filter_dict["deal_id"] = deal_id
@@ -1241,27 +1318,40 @@ class EnhancedAiMemoryMCPServer:
                         top_k=limit * 2,
                         include_metadata=True,
                     )
-                    
+
                     for match in query_response.matches:
                         metadata = match.metadata
-                        results.append({
-                            "id": match.id,
-                            "category": metadata.get("category", "unknown"),
-                            "tags": json.loads(metadata.get("tags", "[]")),
-                            "created_at": metadata.get("created_at"),
-                            "relevance_score": float(match.score),
-                            "importance_score": metadata.get("importance_score", 0.5),
-                            "deal_id": metadata.get("deal_id"),
-                            "contact_id": metadata.get("contact_id"),
-                            "embedding_source": "pinecone",
-                            "content": await self._get_memory_content(metadata.get("category", "unknown"), match.id)
-                        })
-                    
+                        results.append(
+                            {
+                                "id": match.id,
+                                "category": metadata.get("category", "unknown"),
+                                "tags": json.loads(metadata.get("tags", "[]")),
+                                "created_at": metadata.get("created_at"),
+                                "relevance_score": float(match.score),
+                                "importance_score": metadata.get(
+                                    "importance_score", 0.5
+                                ),
+                                "deal_id": metadata.get("deal_id"),
+                                "contact_id": metadata.get("contact_id"),
+                                "embedding_source": "pinecone",
+                                "content": await self._get_memory_content(
+                                    metadata.get("category", "unknown"), match.id
+                                ),
+                            }
+                        )
+
                     # Sort by relevance and importance
-                    results.sort(key=lambda x: (x["relevance_score"] * 0.7 + x["importance_score"] * 0.3), reverse=True)
+                    results.sort(
+                        key=lambda x: (
+                            x["relevance_score"] * 0.7 + x["importance_score"] * 0.3
+                        ),
+                        reverse=True,
+                    )
                     results = results[:limit]
-                    
-                    logger.info(f"Found {len(results)} general insights via Pinecone search")
+
+                    logger.info(
+                        f"Found {len(results)} general insights via Pinecone search"
+                    )
 
                 except Exception as e:
                     logger.error(f"Error searching general insights in Pinecone: {e}")
@@ -1285,10 +1375,12 @@ class EnhancedAiMemoryMCPServer:
         else:
             return "enterprise"
 
-    def _calculate_deal_importance(self, deal_value: Optional[float], deal_stage: Optional[str]) -> float:
+    def _calculate_deal_importance(
+        self, deal_value: Optional[float], deal_stage: Optional[str]
+    ) -> float:
         """Calculate importance score for deal analysis"""
         base_score = 0.5
-        
+
         # Value-based scoring
         if deal_value:
             if deal_value > 200000:
@@ -1297,13 +1389,13 @@ class EnhancedAiMemoryMCPServer:
                 base_score += 0.2
             elif deal_value > 10000:
                 base_score += 0.1
-        
+
         # Stage-based scoring
         if deal_stage:
             high_priority_stages = ["closing", "negotiation", "proposal", "decision"]
             if any(stage in deal_stage.lower() for stage in high_priority_stages):
                 base_score += 0.2
-        
+
         return min(base_score, 1.0)
 
 

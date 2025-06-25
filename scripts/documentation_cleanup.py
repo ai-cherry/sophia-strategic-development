@@ -13,7 +13,7 @@ import json
 
 class DocumentationCleaner:
     """Clean up junk documentation files"""
-    
+
     def __init__(self, dry_run: bool = True):
         self.dry_run = dry_run
         self.root_path = Path(".")
@@ -22,13 +22,13 @@ class DocumentationCleaner:
         self.removed_files = []
         self.moved_files = []
         self.preserved_files = []
-        
+
     def get_junk_patterns(self) -> Dict[str, List[str]]:
         """Define patterns for junk documentation"""
         return {
             "duplicates": [
                 "**/AGNO_*_SUMMARY 2.md",
-                "**/AGNO_*_SUMMARY 3.md", 
+                "**/AGNO_*_SUMMARY 3.md",
                 "**/AGNO_*_SUMMARY 4.md",
                 "**/ARCHITECTURE_REVIEW_SUMMARY 2.md",
                 "**/ARCHITECTURE_REVIEW_SUMMARY 3.md",
@@ -41,7 +41,7 @@ class DocumentationCleaner:
                 "**/*-dev 2.txt",
                 "**/*-dev 3.txt",
                 "**/*-dev 4.txt",
-                "**/*-dev 5.txt"
+                "**/*-dev 5.txt",
             ],
             "one_time_reports": [
                 "CLEANUP_REPORT.md",
@@ -55,7 +55,7 @@ class DocumentationCleaner:
                 "corrupted_files_list.txt",
                 "corrupted_files.txt",
                 "syntax_error_files.txt",
-                "SYNTAX_FIX_CHECKLIST.md"
+                "SYNTAX_FIX_CHECKLIST.md",
             ],
             "old_summaries": [
                 "*_SUCCESS_SUMMARY.md",
@@ -65,7 +65,7 @@ class DocumentationCleaner:
                 "*_STATUS.md",
                 "*_COMPLETE.md",
                 "*_COMPLETION.md",
-                "*_FIXES.md"
+                "*_FIXES.md",
             ],
             "validation_reports": [
                 "syntax_validation_report*.json",
@@ -75,7 +75,7 @@ class DocumentationCleaner:
                 "type_safety_audit_report.json",
                 "validation_report.json",
                 "venv_cleanup_report.json",
-                "sophia_health_report_*.json"
+                "sophia_health_report_*.json",
             ],
             "old_deployment_scripts": [
                 "deploy_advanced_sophia_2025.sh",
@@ -85,23 +85,23 @@ class DocumentationCleaner:
                 "deploy_sophia_conversational_interface.sh",
                 "deploy_sophia_mcp_gateway.sh",
                 "deploy_sophia_ux_ui_dashboard.sh",
-                "deploy_sota_ai_gateway.sh"
+                "deploy_sota_ai_gateway.sh",
             ],
             "old_prompts": [
                 "CURSOR_AI_COMPREHENSIVE_CLEANUP_PROMPT.md",
                 "CURSOR_AI_PHASE2_IMPROVEMENT_PROMPTS.md",
                 "OPENAI_CODEX_IMPLEMENTATION_PROMPT.md",
                 "OPENAI_CODEX_INTEGRATION_PROMPT.md",
-                "CURSOR_AI_SOPHIA_REVIEW_PROMPT.md"
+                "CURSOR_AI_SOPHIA_REVIEW_PROMPT.md",
             ],
             "obsolete_strategies": [
                 "OPTIMAL_ALIGNMENT_STRATEGY.md",
                 "OPTIMAL_MCP_INTEGRATION_STRATEGY.md",
                 "COMPLETE_REMEDIATION_STRATEGY_IMPLEMENTATION_GUIDE.md",
-                "COMBINED_ANALYSIS_CURSOR_AI_GITHUB_ACTIONS.md"
-            ]
+                "COMBINED_ANALYSIS_CURSOR_AI_GITHUB_ACTIONS.md",
+            ],
         }
-    
+
     def should_preserve(self, filepath: Path) -> bool:
         """Check if file should be preserved"""
         preserve_keywords = [
@@ -114,17 +114,17 @@ class DocumentationCleaner:
             "MCP_AGENT",
             "INFRASTRUCTURE",
             "quickstart",
-            "guide"
+            "guide",
         ]
-        
+
         filename = filepath.name.upper()
         return any(keyword in filename for keyword in preserve_keywords)
-    
+
     def find_files_to_remove(self) -> List[Path]:
         """Find all files matching junk patterns"""
         files_to_remove = []
         patterns = self.get_junk_patterns()
-        
+
         for category, pattern_list in patterns.items():
             for pattern in pattern_list:
                 # Handle root directory patterns
@@ -134,33 +134,33 @@ class DocumentationCleaner:
                     # Remove **/ prefix for proper globbing
                     clean_pattern = pattern[3:]
                     matches = list(self.root_path.glob(f"**/{clean_pattern}"))
-                
+
                 for match in matches:
                     if match.is_file() and not self.should_preserve(match):
                         files_to_remove.append(match)
-        
+
         # Remove duplicates
         return list(set(files_to_remove))
-    
+
     def create_archive(self):
         """Create archive directory for removed files"""
         if not self.dry_run:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             self.archive_path = Path(f"docs_archive_{timestamp}")
             self.archive_path.mkdir(exist_ok=True)
-    
+
     def archive_file(self, filepath: Path) -> Path:
         """Archive a file before removal"""
         if self.dry_run:
             return filepath
-        
+
         relative_path = filepath.relative_to(self.root_path)
         archive_file_path = self.archive_path / relative_path
         archive_file_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         shutil.copy2(filepath, archive_file_path)
         return archive_file_path
-    
+
     def remove_file(self, filepath: Path):
         """Remove or archive a file"""
         try:
@@ -172,11 +172,11 @@ class DocumentationCleaner:
                 # Then remove
                 filepath.unlink()
                 print(f"✓ Removed: {filepath} (archived to {archived})")
-            
+
             self.removed_files.append(str(filepath))
         except Exception as e:
             print(f"✗ Failed to remove {filepath}: {e}")
-    
+
     def reorganize_docs(self):
         """Move scattered docs to proper locations"""
         root_docs = [
@@ -188,9 +188,9 @@ class DocumentationCleaner:
             "MCP_SERVICE_INTEGRATION_MAPPING.md",
             "SERVICE_INTEGRATION_OPTIMIZATION_REPORT.md",
             "SOPHIA_AI_BEST_PRACTICES_GUIDE.md",
-            "SOPHIA_AI_PROJECT_SUMMARY.md"
+            "SOPHIA_AI_PROJECT_SUMMARY.md",
         ]
-        
+
         for doc in root_docs:
             source = self.root_path / doc
             if source.exists():
@@ -203,7 +203,7 @@ class DocumentationCleaner:
                     target_dir = self.docs_path / "integrations"
                 else:
                     target_dir = self.docs_path
-                
+
                 if not self.dry_run:
                     target_dir.mkdir(parents=True, exist_ok=True)
                     target = target_dir / doc
@@ -211,9 +211,9 @@ class DocumentationCleaner:
                     print(f"✓ Moved {doc} to {target_dir}")
                 else:
                     print(f"[DRY RUN] Would move {doc} to {target_dir}")
-                
+
                 self.moved_files.append((str(source), str(target_dir)))
-    
+
     def generate_cleanup_log(self):
         """Generate a log of all changes"""
         log = {
@@ -222,46 +222,46 @@ class DocumentationCleaner:
             "removed_files": self.removed_files,
             "moved_files": self.moved_files,
             "preserved_files": self.preserved_files,
-            "archive_location": str(self.archive_path) if not self.dry_run else None
+            "archive_location": str(self.archive_path) if not self.dry_run else None,
         }
-        
+
         log_path = "documentation_cleanup_log.json"
         with open(log_path, "w") as f:
             json.dump(log, f, indent=2)
-        
+
         print(f"\n✓ Cleanup log saved to {log_path}")
-    
+
     def run(self):
         """Execute the cleanup process"""
         print("=== Sophia AI Documentation Cleanup ===")
         print(f"Mode: {'DRY RUN' if self.dry_run else 'LIVE'}\n")
-        
+
         # Create archive if not dry run
         if not self.dry_run:
             self.create_archive()
-        
+
         # Find and remove junk files
         print("Finding junk documentation...")
         files_to_remove = self.find_files_to_remove()
-        
+
         print(f"\nFound {len(files_to_remove)} files to remove:")
         for filepath in sorted(files_to_remove):
             self.remove_file(filepath)
-        
+
         # Reorganize remaining docs
         print("\nReorganizing documentation...")
         self.reorganize_docs()
-        
+
         # Generate cleanup log
         self.generate_cleanup_log()
-        
+
         # Summary
         print("\n=== Summary ===")
         print(f"Files removed: {len(self.removed_files)}")
         print(f"Files moved: {len(self.moved_files)}")
         if not self.dry_run:
             print(f"Archive location: {self.archive_path}")
-        
+
         if self.dry_run:
             print("\nRun without --dry-run to actually perform cleanup")
 
@@ -269,9 +269,9 @@ class DocumentationCleaner:
 def main():
     """Main function"""
     import sys
-    
+
     dry_run = "--dry-run" in sys.argv or "-n" in sys.argv
-    
+
     cleaner = DocumentationCleaner(dry_run=dry_run)
     cleaner.run()
 

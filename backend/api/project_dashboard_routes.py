@@ -33,11 +33,11 @@ async def get_projects(
     status: Optional[str] = Query(None, description="Filter by project status"),
     priority: Optional[str] = Query(None, description="Filter by priority"),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> List[Project]:
     """
     Get all projects with optional filters
-    
+
     Returns:
         List of projects with their current status and metrics
     """
@@ -47,7 +47,7 @@ async def get_projects(
         cached_data = await cache_manager.get_or_set(
             cache_key,
             lambda: project_service.get_projects(session, user_id, status, priority),
-            ttl=300  # 5 minutes cache
+            ttl=300,  # 5 minutes cache
         )
         return cached_data
     except Exception as e:
@@ -61,14 +61,18 @@ async def get_tasks(
     assignee: Optional[str] = Query(None, description="Filter by assignee"),
     status: Optional[str] = Query(None, description="Filter by task status"),
     priority: Optional[str] = Query(None, description="Filter by priority"),
-    due_date_start: Optional[datetime] = Query(None, description="Filter by due date start"),
-    due_date_end: Optional[datetime] = Query(None, description="Filter by due date end"),
+    due_date_start: Optional[datetime] = Query(
+        None, description="Filter by due date start"
+    ),
+    due_date_end: Optional[datetime] = Query(
+        None, description="Filter by due date end"
+    ),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> List[Task]:
     """
     Get tasks with multiple filter options
-    
+
     Returns:
         List of tasks matching the specified criteria
     """
@@ -79,12 +83,12 @@ async def get_tasks(
             "status": status,
             "priority": priority,
             "due_date_start": due_date_start,
-            "due_date_end": due_date_end
+            "due_date_end": due_date_end,
         }
-        
+
         # Remove None values
         filters = {k: v for k, v in filters.items() if v is not None}
-        
+
         tasks = await task_service.get_tasks(session, user_id, **filters)
         return tasks
     except Exception as e:
@@ -94,13 +98,15 @@ async def get_tasks(
 
 @router.get("/team/performance", response_model=List[TeamMember])
 async def get_team_performance(
-    time_period: str = Query("30d", description="Time period for metrics (7d, 30d, 90d)"),
+    time_period: str = Query(
+        "30d", description="Time period for metrics (7d, 30d, 90d)"
+    ),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> List[TeamMember]:
     """
     Get team performance metrics
-    
+
     Returns:
         List of team members with their performance metrics
     """
@@ -108,12 +114,12 @@ async def get_team_performance(
         # Parse time period
         days = {"7d": 7, "30d": 30, "90d": 90}.get(time_period, 30)
         start_date = datetime.now() - timedelta(days=days)
-        
+
         # Get team performance data
         performance_data = await team_service.get_performance_metrics(
             session, user_id, start_date
         )
-        
+
         return performance_data
     except Exception as e:
         logger.error(f"Error fetching team performance: {str(e)}")
@@ -125,11 +131,11 @@ async def get_sprint_velocity(
     project_id: Optional[str] = Query(None, description="Filter by project ID"),
     sprints: int = Query(6, description="Number of sprints to include"),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> List[SprintVelocity]:
     """
     Get sprint velocity data for analytics
-    
+
     Returns:
         Sprint velocity data for the specified number of sprints
     """
@@ -146,33 +152,35 @@ async def get_sprint_velocity(
 @router.get("/stats/overview", response_model=Dict[str, Any])
 async def get_project_stats_overview(
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Dict[str, Any]:
     """
     Get comprehensive project statistics overview
-    
+
     Returns:
         Dictionary containing project, task, and team statistics
     """
     try:
         # Use cache for frequently accessed overview data
         cache_key = f"project_stats_overview:{user_id}"
-        
+
         async def fetch_overview():
             return {
                 "projects": await project_service.get_project_stats(session, user_id),
                 "tasks": await task_service.get_task_stats(session, user_id),
                 "team": await team_service.get_team_stats(session, user_id),
-                "recent_activity": await analytics_service.get_recent_activity(session, user_id),
-                "upcoming_deadlines": await task_service.get_upcoming_deadlines(session, user_id)
+                "recent_activity": await analytics_service.get_recent_activity(
+                    session, user_id
+                ),
+                "upcoming_deadlines": await task_service.get_upcoming_deadlines(
+                    session, user_id
+                ),
             }
-        
+
         overview_data = await cache_manager.get_or_set(
-            cache_key,
-            fetch_overview,
-            ttl=120  # 2 minutes cache for overview
+            cache_key, fetch_overview, ttl=120  # 2 minutes cache for overview
         )
-        
+
         return overview_data
     except Exception as e:
         logger.error(f"Error fetching project overview: {str(e)}")
@@ -184,11 +192,11 @@ async def create_task(
     project_id: str,
     task_data: Dict[str, Any],
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Task:
     """
     Create a new task for a project
-    
+
     Returns:
         The created task
     """
@@ -197,18 +205,16 @@ async def create_task(
         project = await project_service.get_project(session, project_id, user_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found")
-        
+
         # Create task
         task = await task_service.create_task(
-            session,
-            project_id=project_id,
-            **task_data
+            session, project_id=project_id, **task_data
         )
-        
+
         # Invalidate relevant caches
         await cache_manager.invalidate_pattern(f"projects:{user_id}:*")
         await cache_manager.invalidate_pattern(f"project_stats_overview:{user_id}")
-        
+
         return task
     except HTTPException:
         raise
@@ -222,30 +228,27 @@ async def update_task(
     task_id: str,
     task_update: Dict[str, Any],
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Task:
     """
     Update an existing task
-    
+
     Returns:
         The updated task
     """
     try:
         # Update task
         task = await task_service.update_task(
-            session,
-            task_id=task_id,
-            user_id=user_id,
-            **task_update
+            session, task_id=task_id, user_id=user_id, **task_update
         )
-        
+
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
-        
+
         # Invalidate relevant caches
         await cache_manager.invalidate_pattern(f"projects:{user_id}:*")
         await cache_manager.invalidate_pattern(f"project_stats_overview:{user_id}")
-        
+
         return task
     except HTTPException:
         raise
@@ -257,13 +260,15 @@ async def update_task(
 @router.get("/department-okrs", response_model=Dict[str, Any])
 async def get_department_okrs(
     department: Optional[str] = Query(None, description="Filter by department"),
-    quarter: Optional[str] = Query(None, description="Filter by quarter (e.g., Q1-2025)"),
+    quarter: Optional[str] = Query(
+        None, description="Filter by quarter (e.g., Q1-2025)"
+    ),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Dict[str, Any]:
     """
     Get OKRs organized by department
-    
+
     Returns:
         Department OKRs with progress tracking
     """
@@ -280,11 +285,11 @@ async def get_department_okrs(
 @router.get("/cross-functional-insights", response_model=Dict[str, Any])
 async def get_cross_functional_insights(
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Dict[str, Any]:
     """
     Get insights on cross-functional collaboration
-    
+
     Returns:
         Cross-functional collaboration metrics and insights
     """
@@ -295,18 +300,20 @@ async def get_cross_functional_insights(
         return insights
     except Exception as e:
         logger.error(f"Error fetching cross-functional insights: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch cross-functional insights")
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch cross-functional insights"
+        )
 
 
 @router.get("/resource-allocation", response_model=Dict[str, Any])
 async def get_resource_allocation(
     view: str = Query("team", description="View type: team, project, or department"),
     user_id: str = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
 ) -> Dict[str, Any]:
     """
     Get resource allocation data
-    
+
     Returns:
         Resource allocation breakdown by specified view
     """
@@ -317,4 +324,6 @@ async def get_resource_allocation(
         return allocation_data
     except Exception as e:
         logger.error(f"Error fetching resource allocation: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch resource allocation")
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch resource allocation"
+        )

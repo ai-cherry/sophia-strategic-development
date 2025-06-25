@@ -429,7 +429,9 @@ async def chat_endpoint(request: Request):
     context = data.get("context", [])
     user_id = data.get("user_id", "anonymous")
     # Optionally, retrieve persistent context from AI Memory MCP
-    llm_endpoint = os.getenv("LLM_GATEWAY_ENDPOINT", "https://llm-gateway.sophia-intel.ai/v1/completions")
+    llm_endpoint = os.getenv(
+        "LLM_GATEWAY_ENDPOINT", "https://llm-gateway.sophia-intel.ai/v1/completions"
+    )
     api_key = os.getenv("LLM_GATEWAY_API_KEY")
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     payload = {"prompt": message, "context": context, "user_id": user_id}
@@ -439,11 +441,13 @@ async def chat_endpoint(request: Request):
             response.raise_for_status()
             data = response.json()
             # Optionally, trigger agent actions based on LLM output
-            return JSONResponse({
-                "message": data.get("completion", ""),
-                "action_summary": data.get("action_summary"),
-                "confidence": data.get("confidence"),
-                "risk": data.get("risk"),
-            })
+            return JSONResponse(
+                {
+                    "message": data.get("completion", ""),
+                    "action_summary": data.get("action_summary"),
+                    "confidence": data.get("confidence"),
+                    "risk": data.get("risk"),
+                }
+            )
         except Exception as e:
             return JSONResponse({"message": f"[LLM error: {e}]"}, status_code=500)

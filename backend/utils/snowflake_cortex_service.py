@@ -31,36 +31,41 @@ logger = logging.getLogger(__name__)
 # Custom Exception Classes
 class CortexEmbeddingError(Exception):
     """Raised when Snowflake Cortex embedding generation fails"""
+
     pass
 
 
 class InsufficientPermissionsError(Exception):
     """Raised when user lacks required Snowflake permissions"""
+
     pass
 
 
 class BusinessTableNotFoundError(Exception):
     """Raised when business table doesn't exist or is not accessible"""
+
     pass
 
 
 class InvalidInputError(Exception):
     """Raised when input parameters are invalid"""
+
     pass
 
 
 class CortexModel(Enum):
     """Available Snowflake Cortex models"""
+
     # Text generation models
     LLAMA2_70B = "llama2-70b-chat"
     MISTRAL_7B = "mistral-7b"
     MISTRAL_LARGE = "mistral-large"
     MIXTRAL_8X7B = "mixtral-8x7b"
-    
+
     # Embedding models
     E5_BASE_V2 = "e5-base-v2"
     MULTILINGUAL_E5_LARGE = "multilingual-e5-large"
-    
+
     # Analysis models
     SENTIMENT_ANALYSIS = "sentiment"
     SUMMARIZATION = "summarize"
@@ -69,6 +74,7 @@ class CortexModel(Enum):
 @dataclass
 class CortexQuery:
     """Configuration for Cortex AI queries"""
+
     model: CortexModel
     input_text: str
     parameters: Optional[Dict[str, Any]] = None
@@ -79,6 +85,7 @@ class CortexQuery:
 @dataclass
 class VectorSearchResult:
     """Result from vector similarity search"""
+
     content: str
     similarity_score: float
     metadata: Dict[str, Any]
@@ -89,41 +96,41 @@ class VectorSearchResult:
 class SnowflakeCortexService:
     """
     Service for accessing Snowflake Cortex AI capabilities
-    
+
     This class provides methods to use Snowflake's native AI functions
     for text processing, embeddings, and vector search directly within
     the data warehouse.
     """
-    
+
     def __init__(self):
         self.connection = None
         self.database = config.get("snowflake_database", "SOPHIA_AI")
         self.schema = config.get("snowflake_schema", "AI_PROCESSING")
         self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
         self.initialized = False
-        
+
         # Vector storage tables
         self.vector_tables = {
             "hubspot_embeddings": "HUBSPOT_CONTACT_EMBEDDINGS",
-            "gong_embeddings": "GONG_CALL_EMBEDDINGS", 
+            "gong_embeddings": "GONG_CALL_EMBEDDINGS",
             "document_embeddings": "DOCUMENT_EMBEDDINGS",
-            "memory_embeddings": "AI_MEMORY_EMBEDDINGS"
+            "memory_embeddings": "AI_MEMORY_EMBEDDINGS",
         }
-    
+
     async def __aenter__(self):
         """Async context manager entry - initialize connection"""
         await self.initialize()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit - cleanup resources"""
         await self.close()
-    
+
     async def initialize(self) -> None:
         """Initialize Snowflake connection for Cortex AI processing"""
         if self.initialized:
             return
-            
+
         try:
             self.connection = snowflake.connector.connect(
                 user=config.get("snowflake_user"),
@@ -132,41 +139,41 @@ class SnowflakeCortexService:
                 warehouse=self.warehouse,
                 database=self.database,
                 schema=self.schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN")
+                role=config.get("snowflake_role", "ACCOUNTADMIN"),
             )
-            
+
             # Ensure vector tables exist
             await self._create_vector_tables()
-            
+
             self.initialized = True
             logger.info("✅ Snowflake Cortex service initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
             raise
-    
+
     async def summarize_text_in_snowflake(
         self,
         text_column: str,
         table_name: str,
         conditions: Optional[str] = None,
-        max_length: int = 200
+        max_length: int = 200,
     ) -> List[Dict[str, Any]]:
         """
         Summarize text data using Snowflake Cortex SUMMARIZE function
-        
+
         Args:
             text_column: Column containing text to summarize
             table_name: Source table name
             conditions: Optional WHERE conditions
             max_length: Maximum summary length
-            
+
         Returns:
             List of records with original text and AI-generated summaries
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Build query using Snowflake Cortex SUMMARIZE function
         query = f"""
         SELECT 
@@ -179,54 +186,51 @@ class SnowflakeCortexService:
             CURRENT_TIMESTAMP() as processed_at
         FROM {table_name}
         """
-        
+
         if conditions:
             query += f" WHERE {conditions}"
-        
+
         query += " ORDER BY id"
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             summaries = []
             for row in results:
                 record = dict(zip(columns, row))
                 summaries.append(record)
-            
+
             logger.info(f"Generated {len(summaries)} text summaries using Cortex")
             return summaries
-            
+
         except Exception as e:
             logger.error(f"Error generating summaries with Cortex: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def analyze_sentiment_in_snowflake(
-        self,
-        text_column: str,
-        table_name: str,
-        conditions: Optional[str] = None
+        self, text_column: str, table_name: str, conditions: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Analyze sentiment using Snowflake Cortex SENTIMENT function
-        
+
         Args:
             text_column: Column containing text to analyze
             table_name: Source table name
             conditions: Optional WHERE conditions
-            
+
         Returns:
             List of records with sentiment scores and classifications
         """
         if not self.initialized:
             await self.initialize()
-        
+
         query = f"""
         SELECT 
             id,
@@ -240,56 +244,58 @@ class SnowflakeCortexService:
             CURRENT_TIMESTAMP() as analyzed_at
         FROM {table_name}
         """
-        
+
         if conditions:
             query += f" WHERE {conditions}"
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             sentiment_analysis = []
             for row in results:
                 record = dict(zip(columns, row))
                 sentiment_analysis.append(record)
-            
-            logger.info(f"Analyzed sentiment for {len(sentiment_analysis)} records using Cortex")
+
+            logger.info(
+                f"Analyzed sentiment for {len(sentiment_analysis)} records using Cortex"
+            )
             return sentiment_analysis
-            
+
         except Exception as e:
             logger.error(f"Error analyzing sentiment with Cortex: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def generate_embedding_in_snowflake(
         self,
         text_column: str,
         table_name: str,
         conditions: Optional[str] = None,
         model: str = "e5-base-v2",
-        store_embeddings: bool = True
+        store_embeddings: bool = True,
     ) -> List[Dict[str, Any]]:
         """
         Generate embeddings using Snowflake Cortex EMBED_TEXT function
-        
+
         Args:
             text_column: Column containing text to embed
             table_name: Source table name
             conditions: Optional WHERE conditions
             model: Embedding model to use
             store_embeddings: Whether to store embeddings in vector table
-            
+
         Returns:
             List of records with generated embeddings
         """
         if not self.initialized:
             await self.initialize()
-        
+
         query = f"""
         SELECT 
             id,
@@ -299,60 +305,60 @@ class SnowflakeCortexService:
             CURRENT_TIMESTAMP() as embedded_at
         FROM {table_name}
         """
-        
+
         if conditions:
             query += f" WHERE {conditions}"
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             embeddings = []
             for row in results:
                 record = dict(zip(columns, row))
                 embeddings.append(record)
-            
+
             # Optionally store embeddings in dedicated vector table
             if store_embeddings and embeddings:
                 await self._store_embeddings(embeddings, table_name)
-            
+
             logger.info(f"Generated {len(embeddings)} embeddings using Cortex {model}")
             return embeddings
-            
+
         except Exception as e:
             logger.error(f"Error generating embeddings with Cortex: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def vector_search_in_snowflake(
         self,
         query_text: str,
         vector_table: str,
         top_k: int = 10,
         similarity_threshold: float = 0.7,
-        model: str = "e5-base-v2"
+        model: str = "e5-base-v2",
     ) -> List[VectorSearchResult]:
         """
         Perform vector similarity search using Snowflake native functions
-        
+
         Args:
             query_text: Text to search for
             vector_table: Table containing stored embeddings
             top_k: Number of top results to return
             similarity_threshold: Minimum similarity score
             model: Embedding model for query encoding
-            
+
         Returns:
             List of similar content with scores and metadata
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Generate embedding for query text
         query = f"""
         WITH query_embedding AS (
@@ -381,11 +387,11 @@ class SnowflakeCortexService:
         ORDER BY similarity_score DESC
         LIMIT {top_k}
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             results = []
             for row in cursor.fetchall():
                 result = VectorSearchResult(
@@ -393,47 +399,49 @@ class SnowflakeCortexService:
                     similarity_score=row[5],
                     metadata=row[2] if row[2] else {},
                     source_table=row[3],
-                    source_id=row[4]
+                    source_id=row[4],
                 )
                 results.append(result)
-            
-            logger.info(f"Found {len(results)} similar results for query: {query_text[:50]}...")
+
+            logger.info(
+                f"Found {len(results)} similar results for query: {query_text[:50]}..."
+            )
             return results
-            
+
         except Exception as e:
             logger.error(f"Error performing vector search: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def complete_text_with_cortex(
         self,
         prompt: str,
         model: CortexModel = CortexModel.MISTRAL_7B,
         max_tokens: int = 500,
         temperature: float = 0.7,
-        context: Optional[str] = None
+        context: Optional[str] = None,
     ) -> str:
         """
         Generate text completion using Snowflake Cortex LLM functions
-        
+
         Args:
             prompt: Input prompt for text generation
             model: Cortex model to use
             max_tokens: Maximum tokens to generate
             temperature: Sampling temperature
             context: Optional context for the prompt
-            
+
         Returns:
             Generated text completion
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Combine context and prompt if provided
         full_prompt = f"{context}\n\n{prompt}" if context else prompt
-        
+
         query = f"""
         SELECT SNOWFLAKE.CORTEX.COMPLETE(
             '{model.value}',
@@ -444,49 +452,49 @@ class SnowflakeCortexService:
             }}
         ) as completion
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             result = cursor.fetchone()
             completion = result[0] if result else ""
-            
+
             logger.info(f"Generated text completion using {model.value}")
             return completion
-            
+
         except Exception as e:
             logger.error(f"Error generating text completion: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def extract_entities_from_text(
         self,
         text_column: str,
         table_name: str,
         entity_types: List[str],
-        conditions: Optional[str] = None
+        conditions: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Extract named entities from text using Cortex capabilities
-        
+
         Args:
             text_column: Column containing text to analyze
             table_name: Source table name
             entity_types: Types of entities to extract (PERSON, ORG, MONEY, etc.)
             conditions: Optional WHERE conditions
-            
+
         Returns:
             List of records with extracted entities
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Use Cortex completion to extract entities
         entity_prompt = f"Extract the following entity types from the text: {', '.join(entity_types)}. Return as JSON."
-        
+
         query = f"""
         SELECT 
             id,
@@ -499,35 +507,35 @@ class SnowflakeCortexService:
             CURRENT_TIMESTAMP() as extracted_at
         FROM {table_name}
         """
-        
+
         if conditions:
             query += f" WHERE {conditions}"
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             entities = []
             for row in results:
                 record = dict(zip(columns, row))
                 entities.append(record)
-            
+
             logger.info(f"Extracted entities from {len(entities)} records")
             return entities
-            
+
         except Exception as e:
             logger.error(f"Error extracting entities: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def _create_vector_tables(self):
         """Create vector storage tables if they don't exist"""
-        
+
         for table_key, table_name in self.vector_tables.items():
             create_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
@@ -542,7 +550,7 @@ class SnowflakeCortexService:
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
             )
             """
-            
+
             try:
                 cursor = self.connection.cursor()
                 cursor.execute(create_query)
@@ -552,31 +560,37 @@ class SnowflakeCortexService:
             finally:
                 if cursor:
                     cursor.close()
-    
-    async def _store_embeddings(self, embeddings: List[Dict[str, Any]], source_table: str):
+
+    async def _store_embeddings(
+        self, embeddings: List[Dict[str, Any]], source_table: str
+    ):
         """Store embeddings in dedicated vector table"""
-        
-        vector_table = self.vector_tables.get("document_embeddings", "DOCUMENT_EMBEDDINGS")
-        
+
+        vector_table = self.vector_tables.get(
+            "document_embeddings", "DOCUMENT_EMBEDDINGS"
+        )
+
         # Prepare insert data
         insert_data = []
         for embedding in embeddings:
-            insert_data.append((
-                embedding['id'],
-                embedding['text'],
-                embedding['embedding_vector'],
-                embedding['embedding_model'],
-                None,  # metadata
-                source_table,
-                embedding['id'],
-            ))
-        
+            insert_data.append(
+                (
+                    embedding["id"],
+                    embedding["text"],
+                    embedding["embedding_vector"],
+                    embedding["embedding_model"],
+                    None,  # metadata
+                    source_table,
+                    embedding["id"],
+                )
+            )
+
         insert_query = f"""
         INSERT INTO {vector_table} 
         (id, original_text, embedding_vector, embedding_model, metadata, source_table, source_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.executemany(insert_query, insert_data)
@@ -587,14 +601,14 @@ class SnowflakeCortexService:
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def close(self):
         """Close Snowflake connection"""
         if self.connection:
             self.connection.close()
             self.initialized = False
             logger.info("Snowflake Cortex service connection closed")
-    
+
     async def store_embedding_in_business_table(
         self,
         table_name: str,
@@ -602,11 +616,11 @@ class SnowflakeCortexService:
         text_content: str,
         embedding_column: str = "ai_memory_embedding",
         metadata: Optional[Dict[str, Any]] = None,
-        model: str = "e5-base-v2"
+        model: str = "e5-base-v2",
     ) -> bool:
         """
         Store embedding directly in business table using SNOWFLAKE.CORTEX.EMBED_TEXT_768
-        
+
         Args:
             table_name: Business table name (e.g., ENRICHED_GONG_CALLS, ENRICHED_HUBSPOT_DEALS)
             record_id: Primary key value for the record
@@ -614,10 +628,10 @@ class SnowflakeCortexService:
             embedding_column: Column name for storing embedding (should be VECTOR(FLOAT, 768))
             metadata: Optional metadata to store
             model: Embedding model to use (should produce 768-dimensional vectors)
-            
+
         Returns:
             True if successful, False otherwise
-            
+
         Raises:
             ValueError: If record doesn't exist or invalid parameters
             CortexEmbeddingError: If embedding generation fails
@@ -625,70 +639,88 @@ class SnowflakeCortexService:
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Input validation
         ALLOWED_TABLES = {"ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"}
         ALLOWED_EMBEDDING_COLUMNS = {"ai_memory_embedding"}
         ALLOWED_MODELS = {"e5-base-v2", "multilingual-e5-large"}
-        
+
         if table_name not in ALLOWED_TABLES:
-            raise ValueError(f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}")
-        
+            raise ValueError(
+                f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}"
+            )
+
         if embedding_column not in ALLOWED_EMBEDDING_COLUMNS:
             raise ValueError(f"Embedding column {embedding_column} not allowed")
-        
+
         if model not in ALLOWED_MODELS:
             raise ValueError(f"Model {model} not allowed. Allowed: {ALLOWED_MODELS}")
-        
+
         if not text_content or not text_content.strip():
             raise ValueError("Text content cannot be empty")
-        
+
         if len(text_content) > 8000:  # Snowflake Cortex limit
-            logger.warning(f"Text content truncated from {len(text_content)} to 8000 characters")
+            logger.warning(
+                f"Text content truncated from {len(text_content)} to 8000 characters"
+            )
             text_content = text_content[:8000]
-        
+
         cursor = None
         try:
             cursor = self.connection.cursor()
-            
+
             # Step 1: Verify record exists
             check_query = f"SELECT 1 FROM {table_name} WHERE id = %s"
             cursor.execute(check_query, (record_id,))
             record_exists = cursor.fetchone() is not None
-            
+
             if not record_exists:
                 raise ValueError(f"Record {record_id} not found in {table_name}")
-            
+
             # Step 2: Generate embedding with error handling
             try:
-                embed_query = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as embedding"
+                embed_query = (
+                    "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as embedding"
+                )
                 cursor.execute(embed_query, (model, text_content))
                 embedding_result = cursor.fetchone()
-                
+
                 if not embedding_result or not embedding_result[0]:
-                    raise CortexEmbeddingError(f"Failed to generate embedding with model {model}")
-                
+                    raise CortexEmbeddingError(
+                        f"Failed to generate embedding with model {model}"
+                    )
+
                 generated_embedding = embedding_result[0]
-                
+
             except Exception as cortex_error:
                 if "insufficient credits" in str(cortex_error).lower():
-                    raise CortexEmbeddingError("Insufficient Snowflake credits for embedding generation")
+                    raise CortexEmbeddingError(
+                        "Insufficient Snowflake credits for embedding generation"
+                    )
                 elif "model not available" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(f"Model {model} not available in Snowflake Cortex")
+                    raise CortexEmbeddingError(
+                        f"Model {model} not available in Snowflake Cortex"
+                    )
                 elif "text too long" in str(cortex_error).lower():
                     raise CortexEmbeddingError("Text content exceeds model limits")
                 else:
-                    raise CortexEmbeddingError(f"Cortex embedding error: {cortex_error}")
-            
+                    raise CortexEmbeddingError(
+                        f"Cortex embedding error: {cortex_error}"
+                    )
+
             # Step 3: Serialize metadata properly
             metadata_json = None
             if metadata:
                 try:
-                    metadata_json = json.dumps(metadata, default=str, ensure_ascii=False)
+                    metadata_json = json.dumps(
+                        metadata, default=str, ensure_ascii=False
+                    )
                 except (TypeError, ValueError) as e:
                     logger.warning(f"Failed to serialize metadata: {e}")
-                    metadata_json = json.dumps({"error": "failed_to_serialize", "original_error": str(e)})
-            
+                    metadata_json = json.dumps(
+                        {"error": "failed_to_serialize", "original_error": str(e)}
+                    )
+
             # Step 4: Update record with embedding and metadata
             update_query = f"""
             UPDATE {table_name}
@@ -698,17 +730,23 @@ class SnowflakeCortexService:
                 ai_memory_updated_at = CURRENT_TIMESTAMP()
             WHERE id = %s
             """
-            
-            cursor.execute(update_query, (generated_embedding, metadata_json, record_id))
+
+            cursor.execute(
+                update_query, (generated_embedding, metadata_json, record_id)
+            )
             rows_affected = cursor.rowcount
-            
+
             if rows_affected > 0:
-                logger.info(f"Successfully stored embedding for {record_id} in {table_name}")
+                logger.info(
+                    f"Successfully stored embedding for {record_id} in {table_name}"
+                )
                 return True
             else:
-                logger.error(f"No rows updated for {record_id} in {table_name} - this should not happen")
+                logger.error(
+                    f"No rows updated for {record_id} in {table_name} - this should not happen"
+                )
                 return False
-                
+
         except ValueError:
             # Re-raise validation errors
             raise
@@ -716,15 +754,22 @@ class SnowflakeCortexService:
             # Re-raise Cortex-specific errors
             raise
         except Exception as e:
-            if "permission denied" in str(e).lower() or "access denied" in str(e).lower():
-                raise InsufficientPermissionsError(f"Insufficient permissions to update {table_name}: {e}")
+            if (
+                "permission denied" in str(e).lower()
+                or "access denied" in str(e).lower()
+            ):
+                raise InsufficientPermissionsError(
+                    f"Insufficient permissions to update {table_name}: {e}"
+                )
             else:
-                logger.error(f"Unexpected error storing embedding in business table: {e}")
+                logger.error(
+                    f"Unexpected error storing embedding in business table: {e}"
+                )
                 return False
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def vector_search_business_table(
         self,
         query_text: str,
@@ -733,11 +778,11 @@ class SnowflakeCortexService:
         top_k: int = 10,
         similarity_threshold: float = 0.7,
         metadata_filters: Optional[Dict[str, Any]] = None,
-        model: str = "e5-base-v2"
+        model: str = "e5-base-v2",
     ) -> List[Dict[str, Any]]:
         """
         Perform vector similarity search directly on business tables with metadata filtering
-        
+
         Args:
             query_text: Text to search for
             table_name: Business table name (e.g., ENRICHED_GONG_CALLS, ENRICHED_HUBSPOT_DEALS)
@@ -746,10 +791,10 @@ class SnowflakeCortexService:
             similarity_threshold: Minimum similarity score
             metadata_filters: Optional filters (e.g., {'deal_id': '123', 'sentiment_category': 'positive'})
             model: Embedding model for query encoding
-            
+
         Returns:
             List of similar records with business context
-            
+
         Raises:
             InvalidInputError: If input parameters are invalid
             BusinessTableNotFoundError: If table doesn't exist
@@ -757,53 +802,66 @@ class SnowflakeCortexService:
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Input validation
         ALLOWED_TABLES = {"ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"}
         ALLOWED_EMBEDDING_COLUMNS = {"ai_memory_embedding"}
         ALLOWED_FILTER_COLUMNS = {
-            "deal_stage", "sentiment_category", "primary_user_name", 
-            "hubspot_deal_id", "call_type", "id", "contact_id"
+            "deal_stage",
+            "sentiment_category",
+            "primary_user_name",
+            "hubspot_deal_id",
+            "call_type",
+            "id",
+            "contact_id",
         }
         ALLOWED_MODELS = {"e5-base-v2", "multilingual-e5-large"}
-        
+
         # Validate table name
         if table_name not in ALLOWED_TABLES:
-            raise InvalidInputError(f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}")
-        
+            raise InvalidInputError(
+                f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}"
+            )
+
         # Validate embedding column
         if embedding_column not in ALLOWED_EMBEDDING_COLUMNS:
             raise InvalidInputError(f"Embedding column {embedding_column} not allowed")
-        
+
         # Validate model
         if model not in ALLOWED_MODELS:
-            raise InvalidInputError(f"Model {model} not allowed. Allowed: {ALLOWED_MODELS}")
-        
+            raise InvalidInputError(
+                f"Model {model} not allowed. Allowed: {ALLOWED_MODELS}"
+            )
+
         # Validate query text
         if not query_text or not query_text.strip():
             raise InvalidInputError("Query text cannot be empty")
-        
+
         if len(query_text) > 8000:  # Snowflake Cortex limit
-            logger.warning(f"Query text truncated from {len(query_text)} to 8000 characters")
+            logger.warning(
+                f"Query text truncated from {len(query_text)} to 8000 characters"
+            )
             query_text = query_text[:8000]
-        
+
         # Validate parameters
         if top_k <= 0 or top_k > 100:
             raise InvalidInputError("top_k must be between 1 and 100")
-        
+
         if not 0.0 <= similarity_threshold <= 1.0:
             raise InvalidInputError("similarity_threshold must be between 0.0 and 1.0")
-        
+
         # Validate metadata filters
         if metadata_filters:
             for key in metadata_filters.keys():
                 if key not in ALLOWED_FILTER_COLUMNS:
-                    raise InvalidInputError(f"Filter column {key} not allowed. Allowed: {ALLOWED_FILTER_COLUMNS}")
-        
+                    raise InvalidInputError(
+                        f"Filter column {key} not allowed. Allowed: {ALLOWED_FILTER_COLUMNS}"
+                    )
+
         cursor = None
         try:
             cursor = self.connection.cursor()
-            
+
             # Step 1: Verify table exists and has required columns
             table_check_query = """
             SELECT COUNT(*) 
@@ -814,40 +872,50 @@ class SnowflakeCortexService:
             """
             cursor.execute(table_check_query, (table_name, self.schema, self.database))
             table_exists = cursor.fetchone()[0] > 0
-            
+
             if not table_exists:
-                raise BusinessTableNotFoundError(f"Table {table_name} not found in {self.database}.{self.schema}")
-            
+                raise BusinessTableNotFoundError(
+                    f"Table {table_name} not found in {self.database}.{self.schema}"
+                )
+
             # Step 2: Generate query embedding with error handling
             try:
-                embed_query = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
+                embed_query = (
+                    "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
+                )
                 cursor.execute(embed_query, (model, query_text))
                 embedding_result = cursor.fetchone()
-                
+
                 if not embedding_result or not embedding_result[0]:
-                    raise CortexEmbeddingError(f"Failed to generate query embedding with model {model}")
-                
+                    raise CortexEmbeddingError(
+                        f"Failed to generate query embedding with model {model}"
+                    )
+
                 query_embedding = embedding_result[0]
-                
+
             except Exception as cortex_error:
                 if "insufficient credits" in str(cortex_error).lower():
-                    raise CortexEmbeddingError("Insufficient Snowflake credits for query embedding")
+                    raise CortexEmbeddingError(
+                        "Insufficient Snowflake credits for query embedding"
+                    )
                 elif "model not available" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(f"Model {model} not available in Snowflake Cortex")
+                    raise CortexEmbeddingError(
+                        f"Model {model} not available in Snowflake Cortex"
+                    )
                 else:
                     raise CortexEmbeddingError(f"Query embedding error: {cortex_error}")
-            
+
             # Step 3: Build WHERE clause with parameterized queries
             where_conditions = [f"{embedding_column} IS NOT NULL"]
             query_params = [query_embedding, similarity_threshold, top_k]
-            
+
             if metadata_filters:
                 for key, value in metadata_filters.items():
                     where_conditions.append(f"{key} = %s")
                     query_params.insert(-2, value)  # Insert before threshold and limit
-            
+
             where_clause = " AND ".join(where_conditions)
-            
+
             # Step 4: Build the vector search query with proper parameterization
             search_query = f"""
             SELECT 
@@ -859,25 +927,31 @@ class SnowflakeCortexService:
             ORDER BY similarity_score DESC
             LIMIT %s
             """
-            
+
             # Parameters: [query_embedding, query_embedding, ...metadata_values..., similarity_threshold, top_k]
-            final_params = [query_embedding, query_embedding] + query_params[:-2] + query_params[-2:]
-            
+            final_params = (
+                [query_embedding, query_embedding]
+                + query_params[:-2]
+                + query_params[-2:]
+            )
+
             cursor.execute(search_query, final_params)
-            
+
             # Get column names and results
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             # Convert to list of dictionaries
             search_results = []
             for row in results:
                 record = dict(zip(columns, row))
                 search_results.append(record)
-            
-            logger.info(f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}...")
+
+            logger.info(
+                f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}..."
+            )
             return search_results
-            
+
         except InvalidInputError:
             # Re-raise validation errors
             raise
@@ -889,69 +963,77 @@ class SnowflakeCortexService:
             raise
         except Exception as e:
             if "permission denied" in str(e).lower():
-                raise InsufficientPermissionsError(f"Insufficient permissions to query {table_name}: {e}")
+                raise InsufficientPermissionsError(
+                    f"Insufficient permissions to query {table_name}: {e}"
+                )
             else:
                 logger.error(f"Unexpected error in vector search: {e}")
                 raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def ensure_embedding_columns_exist(self, table_name: str) -> bool:
         """
         Ensure AI Memory embedding columns exist in business table
-        
+
         Args:
             table_name: Business table name
-            
+
         Returns:
             True if columns exist or were created successfully
-            
+
         Raises:
             InvalidInputError: If table name is not allowed
             InsufficientPermissionsError: If lacking ALTER TABLE permissions
         """
         if not self.initialized:
             await self.initialize()
-        
+
         # Input validation - only allow specific business tables
         ALLOWED_TABLES = {"ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"}
-        
+
         if table_name not in ALLOWED_TABLES:
-            raise InvalidInputError(f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}")
-        
+            raise InvalidInputError(
+                f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}"
+            )
+
         cursor = None
         try:
             cursor = self.connection.cursor()
-            
+
             # Use IF NOT EXISTS for safe concurrent execution
             alter_statements = [
                 f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_embedding VECTOR(FLOAT, 768)",
                 f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_metadata VARCHAR(16777216)",
-                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_updated_at TIMESTAMP_NTZ"
+                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_updated_at TIMESTAMP_NTZ",
             ]
-            
+
             # Execute within transaction for atomicity
             cursor.execute("BEGIN TRANSACTION")
-            
+
             try:
                 for statement in alter_statements:
                     cursor.execute(statement)
                     logger.info(f"Executed: {statement}")
-                
+
                 cursor.execute("COMMIT")
-                logger.info(f"✅ Successfully ensured AI Memory columns exist in {table_name}")
+                logger.info(
+                    f"✅ Successfully ensured AI Memory columns exist in {table_name}"
+                )
                 return True
-                
+
             except Exception as alter_error:
                 cursor.execute("ROLLBACK")
-                
+
                 if "permission denied" in str(alter_error).lower():
-                    raise InsufficientPermissionsError(f"Insufficient permissions to alter {table_name}: {alter_error}")
+                    raise InsufficientPermissionsError(
+                        f"Insufficient permissions to alter {table_name}: {alter_error}"
+                    )
                 else:
                     logger.error(f"Error adding columns to {table_name}: {alter_error}")
                     raise
-            
+
         except InvalidInputError:
             # Re-raise validation errors
             raise
@@ -964,7 +1046,7 @@ class SnowflakeCortexService:
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def search_hubspot_deals_with_ai_memory(
         self,
         query_text: str,
@@ -972,11 +1054,11 @@ class SnowflakeCortexService:
         similarity_threshold: float = 0.7,
         deal_stage: Optional[str] = None,
         min_deal_value: Optional[float] = None,
-        max_deal_value: Optional[float] = None
+        max_deal_value: Optional[float] = None,
     ) -> List[Dict[str, Any]]:
         """
         Search HubSpot deals using AI Memory embeddings with business filters
-        
+
         Args:
             query_text: Search query
             top_k: Number of results
@@ -984,23 +1066,23 @@ class SnowflakeCortexService:
             deal_stage: Optional deal stage filter
             min_deal_value: Minimum deal value filter
             max_deal_value: Maximum deal value filter
-            
+
         Returns:
             List of matching deals with similarity scores
         """
         # Build metadata filters
         metadata_filters = {}
-        
+
         if deal_stage:
-            metadata_filters['deal_stage'] = deal_stage
-        
+            metadata_filters["deal_stage"] = deal_stage
+
         # Add value range filtering in the search query
         additional_conditions = []
         if min_deal_value is not None:
             additional_conditions.append(f"amount >= {min_deal_value}")
         if max_deal_value is not None:
             additional_conditions.append(f"amount <= {max_deal_value}")
-        
+
         # Use the enhanced vector search
         results = await self.vector_search_business_table(
             query_text=query_text,
@@ -1008,23 +1090,23 @@ class SnowflakeCortexService:
             embedding_column="ai_memory_embedding",
             top_k=top_k,
             similarity_threshold=similarity_threshold,
-            metadata_filters=metadata_filters
+            metadata_filters=metadata_filters,
         )
-        
+
         # Apply additional value filters if needed
         if additional_conditions:
             filtered_results = []
             for result in results:
-                amount = result.get('AMOUNT', 0) or 0
+                amount = result.get("AMOUNT", 0) or 0
                 if min_deal_value is not None and amount < min_deal_value:
                     continue
                 if max_deal_value is not None and amount > max_deal_value:
                     continue
                 filtered_results.append(result)
             results = filtered_results
-        
+
         return results
-    
+
     async def search_gong_calls_with_ai_memory(
         self,
         query_text: str,
@@ -1033,11 +1115,11 @@ class SnowflakeCortexService:
         call_type: Optional[str] = None,
         sentiment_category: Optional[str] = None,
         sales_rep: Optional[str] = None,
-        deal_id: Optional[str] = None
+        deal_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Search Gong calls using AI Memory embeddings with business filters
-        
+
         Args:
             query_text: Search query
             top_k: Number of results
@@ -1046,22 +1128,22 @@ class SnowflakeCortexService:
             sentiment_category: Optional sentiment filter (positive, negative, neutral)
             sales_rep: Optional sales rep filter
             deal_id: Optional deal ID filter
-            
+
         Returns:
             List of matching calls with similarity scores
         """
         # Build metadata filters
         metadata_filters = {}
-        
+
         if call_type:
-            metadata_filters['call_type'] = call_type
+            metadata_filters["call_type"] = call_type
         if sentiment_category:
-            metadata_filters['sentiment_category'] = sentiment_category
+            metadata_filters["sentiment_category"] = sentiment_category
         if sales_rep:
-            metadata_filters['primary_user_name'] = sales_rep
+            metadata_filters["primary_user_name"] = sales_rep
         if deal_id:
-            metadata_filters['hubspot_deal_id'] = deal_id
-        
+            metadata_filters["hubspot_deal_id"] = deal_id
+
         # Use the enhanced vector search
         results = await self.vector_search_business_table(
             query_text=query_text,
@@ -1069,9 +1151,9 @@ class SnowflakeCortexService:
             embedding_column="ai_memory_embedding",
             top_k=top_k,
             similarity_threshold=similarity_threshold,
-            metadata_filters=metadata_filters
+            metadata_filters=metadata_filters,
         )
-        
+
         return results
 
 
@@ -1087,38 +1169,40 @@ async def get_cortex_service() -> SnowflakeCortexService:
 
 
 # Convenience functions for common AI operations
-async def summarize_hubspot_contact_notes(contact_id: str, max_length: int = 150) -> Dict[str, Any]:
+async def summarize_hubspot_contact_notes(
+    contact_id: str, max_length: int = 150
+) -> Dict[str, Any]:
     """Summarize all notes for a HubSpot contact using Cortex"""
     service = await get_cortex_service()
-    
+
     conditions = f"contact_id = '{contact_id}' AND note_text IS NOT NULL"
     summaries = await service.summarize_text_in_snowflake(
         text_column="note_text",
         table_name="HUBSPOT_CONTACT_NOTES",
         conditions=conditions,
-        max_length=max_length
+        max_length=max_length,
     )
-    
+
     return {
         "contact_id": contact_id,
         "note_summaries": summaries,
         "total_notes": len(summaries),
-        "ai_service": "snowflake_cortex"
+        "ai_service": "snowflake_cortex",
     }
 
 
 async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
     """
     Analyze sentiment for a specific Gong call using Snowflake Cortex
-    
+
     Args:
         call_id: Gong call ID
-        
+
     Returns:
         Comprehensive sentiment analysis with call context
     """
     service = await get_cortex_service()
-    
+
     query = f"""
     SELECT 
         gc.CALL_ID,
@@ -1163,12 +1247,12 @@ async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
         gc.PRIMARY_USER_NAME, gc.HUBSPOT_DEAL_ID,
         gc.CALL_SUMMARY, gc.ACCOUNT_NAME
     """
-    
+
     try:
         cursor = service.connection.cursor()
         cursor.execute(query)
         result = cursor.fetchone()
-        
+
         if result:
             return {
                 "call_id": result[0],
@@ -1183,11 +1267,14 @@ async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
                 "positive_segments": result[9],
                 "sentiment_category": _classify_sentiment_score(result[5]),
                 "coaching_priority": _calculate_coaching_priority(result[5], result[6]),
-                "ai_service": "snowflake_cortex"
+                "ai_service": "snowflake_cortex",
             }
         else:
-            return {"error": f"Call {call_id} not found", "ai_service": "snowflake_cortex"}
-            
+            return {
+                "error": f"Call {call_id} not found",
+                "ai_service": "snowflake_cortex",
+            }
+
     except Exception as e:
         logger.error(f"Error analyzing Gong call sentiment: {e}")
         raise
@@ -1196,19 +1283,21 @@ async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
             cursor.close()
 
 
-async def summarize_gong_call_with_context(call_id: str, max_length: int = 300) -> Dict[str, Any]:
+async def summarize_gong_call_with_context(
+    call_id: str, max_length: int = 300
+) -> Dict[str, Any]:
     """
     Generate comprehensive call summary using Snowflake Cortex with HubSpot context
-    
+
     Args:
         call_id: Gong call ID
         max_length: Maximum summary length
-        
+
     Returns:
         AI-generated call summary with business context
     """
     service = await get_cortex_service()
-    
+
     query = f"""
     WITH call_context AS (
         SELECT 
@@ -1266,12 +1355,12 @@ async def summarize_gong_call_with_context(call_id: str, max_length: int = 300) 
         
     FROM call_context
     """
-    
+
     try:
         cursor = service.connection.cursor()
         cursor.execute(query)
         result = cursor.fetchone()
-        
+
         if result:
             return {
                 "call_id": result[0],
@@ -1286,11 +1375,14 @@ async def summarize_gong_call_with_context(call_id: str, max_length: int = 300) 
                 "talk_ratio": result[9],
                 "duration_seconds": result[10],
                 "summary_length": len(result[7]) if result[7] else 0,
-                "ai_service": "snowflake_cortex"
+                "ai_service": "snowflake_cortex",
             }
         else:
-            return {"error": f"Call {call_id} not found", "ai_service": "snowflake_cortex"}
-            
+            return {
+                "error": f"Call {call_id} not found",
+                "ai_service": "snowflake_cortex",
+            }
+
     except Exception as e:
         logger.error(f"Error summarizing Gong call: {e}")
         raise
@@ -1303,22 +1395,22 @@ async def find_similar_gong_calls(
     query_text: str,
     top_k: int = 5,
     similarity_threshold: float = 0.7,
-    date_range_days: int = 90
+    date_range_days: int = 90,
 ) -> List[Dict[str, Any]]:
     """
     Find similar Gong calls using vector similarity search with Snowflake Cortex
-    
+
     Args:
         query_text: Text to search for (topic, concern, etc.)
         top_k: Number of similar calls to return
         similarity_threshold: Minimum similarity score
         date_range_days: Days back to search
-        
+
     Returns:
         List of similar calls with similarity scores and context
     """
     service = await get_cortex_service()
-    
+
     query = f"""
     WITH query_embedding AS (
         SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') AS query_vector
@@ -1374,34 +1466,38 @@ async def find_similar_gong_calls(
     ORDER BY max_similarity DESC
     LIMIT {top_k}
     """
-    
+
     try:
         cursor = service.connection.cursor()
         cursor.execute(query)
         results = cursor.fetchall()
-        
+
         similar_calls = []
         for row in results:
-            similar_calls.append({
-                "call_id": row[0],
-                "call_title": row[1],
-                "sales_rep": row[2],
-                "call_datetime": row[3],
-                "sentiment_score": row[4],
-                "deal_name": row[5],
-                "deal_stage": row[6],
-                "deal_amount": row[7],
-                "company_name": row[8],
-                "max_similarity": row[9],
-                "avg_similarity": row[10],
-                "matching_segments": row[11],
-                "relevant_segments": row[12],
-                "ai_service": "snowflake_cortex"
-            })
-        
-        logger.info(f"Found {len(similar_calls)} similar calls for query: {query_text[:50]}...")
+            similar_calls.append(
+                {
+                    "call_id": row[0],
+                    "call_title": row[1],
+                    "sales_rep": row[2],
+                    "call_datetime": row[3],
+                    "sentiment_score": row[4],
+                    "deal_name": row[5],
+                    "deal_stage": row[6],
+                    "deal_amount": row[7],
+                    "company_name": row[8],
+                    "max_similarity": row[9],
+                    "avg_similarity": row[10],
+                    "matching_segments": row[11],
+                    "relevant_segments": row[12],
+                    "ai_service": "snowflake_cortex",
+                }
+            )
+
+        logger.info(
+            f"Found {len(similar_calls)} similar calls for query: {query_text[:50]}..."
+        )
         return similar_calls
-        
+
     except Exception as e:
         logger.error(f"Error finding similar Gong calls: {e}")
         raise
@@ -1411,23 +1507,21 @@ async def find_similar_gong_calls(
 
 
 async def get_gong_coaching_insights(
-    sales_rep: str,
-    date_range_days: int = 30,
-    min_calls: int = 3
+    sales_rep: str, date_range_days: int = 30, min_calls: int = 3
 ) -> Dict[str, Any]:
     """
     Generate coaching insights for a sales rep using Snowflake Cortex analysis
-    
+
     Args:
         sales_rep: Sales representative name
         date_range_days: Days back to analyze
         min_calls: Minimum calls required for analysis
-        
+
     Returns:
         Comprehensive coaching insights with AI recommendations
     """
     service = await get_cortex_service()
-    
+
     query = f"""
     WITH rep_calls AS (
         SELECT 
@@ -1516,12 +1610,12 @@ async def get_gong_coaching_insights(
     FROM coaching_analysis
     WHERE total_calls >= {min_calls}
     """
-    
+
     try:
         cursor = service.connection.cursor()
         cursor.execute(query)
         result = cursor.fetchone()
-        
+
         if result:
             return {
                 "sales_rep": result[0],
@@ -1543,14 +1637,14 @@ async def get_gong_coaching_insights(
                 "coaching_priority": _determine_coaching_priority(
                     result[2], result[6], result[7]
                 ),
-                "ai_service": "snowflake_cortex"
+                "ai_service": "snowflake_cortex",
             }
         else:
             return {
                 "error": f"Insufficient data for {sales_rep} (minimum {min_calls} calls required)",
-                "ai_service": "snowflake_cortex"
+                "ai_service": "snowflake_cortex",
             }
-            
+
     except Exception as e:
         logger.error(f"Error generating coaching insights: {e}")
         raise
@@ -1576,13 +1670,15 @@ def _classify_sentiment_score(score: float) -> str:
         return "Very Negative"
 
 
-def _calculate_coaching_priority(call_sentiment: float, transcript_sentiment: float) -> str:
+def _calculate_coaching_priority(
+    call_sentiment: float, transcript_sentiment: float
+) -> str:
     """Calculate coaching priority based on sentiment scores"""
     if call_sentiment is None or transcript_sentiment is None:
         return "Low"
-    
+
     avg_sentiment = (call_sentiment + transcript_sentiment) / 2
-    
+
     if avg_sentiment < 0.2:
         return "High"
     elif avg_sentiment < 0.4:
@@ -1592,32 +1688,29 @@ def _calculate_coaching_priority(call_sentiment: float, transcript_sentiment: fl
 
 
 def _calculate_performance_score(
-    avg_sentiment: float, 
-    avg_talk_ratio: float, 
-    positive_calls: int, 
-    total_calls: int
+    avg_sentiment: float, avg_talk_ratio: float, positive_calls: int, total_calls: int
 ) -> float:
     """Calculate overall performance score (0-100)"""
     if not all([avg_sentiment, avg_talk_ratio, total_calls]):
         return 0.0
-    
+
     # Sentiment component (40% weight)
     sentiment_score = max(0, min(100, (avg_sentiment + 1) * 50))
-    
+
     # Talk ratio component (30% weight) - optimal range 0.4-0.6
     talk_ratio_score = max(0, min(100, 100 - abs(avg_talk_ratio - 0.5) * 200))
-    
+
     # Positive call ratio component (30% weight)
     positive_ratio = positive_calls / total_calls
     positive_score = positive_ratio * 100
-    
-    return round(sentiment_score * 0.4 + talk_ratio_score * 0.3 + positive_score * 0.3, 1)
+
+    return round(
+        sentiment_score * 0.4 + talk_ratio_score * 0.3 + positive_score * 0.3, 1
+    )
 
 
 def _determine_coaching_priority(
-    avg_sentiment: float, 
-    negative_calls: int, 
-    high_talk_ratio_calls: int
+    avg_sentiment: float, negative_calls: int, high_talk_ratio_calls: int
 ) -> str:
     """Determine coaching priority level"""
     if avg_sentiment < 0.3 or negative_calls > 2 or high_talk_ratio_calls > 3:
@@ -1625,4 +1718,4 @@ def _determine_coaching_priority(
     elif avg_sentiment < 0.5 or negative_calls > 0 or high_talk_ratio_calls > 1:
         return "Medium"
     else:
-        return "Low" 
+        return "Low"

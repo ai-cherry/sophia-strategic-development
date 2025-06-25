@@ -47,11 +47,18 @@ class SophiaInfrastructureChatInterface:
         await self.infrastructure_agent.initialize()
         print("🤖 Sophia Infrastructure Chat Interface initialized")
 
-    async def _call_llm_gateway(self, prompt: str, context: Optional[str] = None) -> str:
+    async def _call_llm_gateway(
+        self, prompt: str, context: Optional[str] = None
+    ) -> str:
         """Call the centralized LLM gateway (Portkey/OpenRouter) for completions."""
-        endpoint = os.getenv("LLM_GATEWAY_ENDPOINT", "https://llm-gateway.sophia-intel.ai/v1/completions")
+        endpoint = os.getenv(
+            "LLM_GATEWAY_ENDPOINT", "https://llm-gateway.sophia-intel.ai/v1/completions"
+        )
         api_key = os.getenv("LLM_GATEWAY_API_KEY")
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
         payload = {"prompt": prompt}
         if context:
             payload["context"] = context

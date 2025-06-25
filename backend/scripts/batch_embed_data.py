@@ -2,7 +2,7 @@
 """
 Batch Embedding Generation Script for Sophia AI
 
-This script iterates through new/updated records in STG_GONG_CALL_TRANSCRIPTS and 
+This script iterates through new/updated records in STG_GONG_CALL_TRANSCRIPTS and
 STG_HUBSPOT_DEALS tables and generates embeddings using Snowflake Cortex AI.
 
 Features:
@@ -43,6 +43,7 @@ logger = structlog.get_logger()
 
 class EmbeddingTable(Enum):
     """Supported tables for embedding generation"""
+
     GONG_CALL_TRANSCRIPTS = "STG_GONG_CALL_TRANSCRIPTS"
     HUBSPOT_DEALS = "STG_HUBSPOT_DEALS"
     GONG_CALLS = "STG_GONG_CALLS"
@@ -63,6 +64,7 @@ class EmbeddingTable(Enum):
 @dataclass
 class EmbeddingConfig:
     """Configuration for embedding generation"""
+
     table_name: str
     id_column: str
     text_column: str
@@ -77,6 +79,7 @@ class EmbeddingConfig:
 @dataclass
 class ProcessingStats:
     """Statistics for embedding processing"""
+
     total_records: int = 0
     processed_records: int = 0
     successful_embeddings: int = 0
@@ -84,19 +87,19 @@ class ProcessingStats:
     skipped_records: int = 0
     start_time: datetime = None
     end_time: datetime = None
-    
+
     @property
     def duration_seconds(self) -> float:
         if self.start_time and self.end_time:
             return (self.end_time - self.start_time).total_seconds()
         return 0.0
-    
+
     @property
     def success_rate(self) -> float:
         if self.processed_records > 0:
             return self.successful_embeddings / self.processed_records
         return 0.0
-    
+
     @property
     def records_per_second(self) -> float:
         if self.duration_seconds > 0:
@@ -106,17 +109,17 @@ class ProcessingStats:
 
 class BatchEmbeddingProcessor:
     """Main class for batch embedding processing"""
-    
+
     def __init__(self):
         self.cortex_service = SnowflakeCortexService()
         self.config_manager = SnowflakeConfigManager()
         self.stats = ProcessingStats()
-        
+
         # Default configuration
         self.default_batch_size = 50
         self.default_model = "e5-base-v2"
         self.max_retries = 3
-        
+
         # Table configurations
         self.table_configs = {
             EmbeddingTable.GONG_CALL_TRANSCRIPTS: EmbeddingConfig(
@@ -125,7 +128,7 @@ class BatchEmbeddingProcessor:
                 text_column="TRANSCRIPT_TEXT",
                 where_condition="TRANSCRIPT_TEXT IS NOT NULL AND LENGTH(TRANSCRIPT_TEXT) > 10",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.HUBSPOT_DEALS: EmbeddingConfig(
                 table_name="STG_HUBSPOT_DEALS",
@@ -133,7 +136,7 @@ class BatchEmbeddingProcessor:
                 text_column="DEAL_NAME || ' - ' || COALESCE(DEAL_STAGE, '') || ' - ' || COALESCE(PIPELINE_NAME, '')",
                 where_condition="DEAL_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.GONG_CALLS: EmbeddingConfig(
                 table_name="STG_GONG_CALLS",
@@ -141,7 +144,7 @@ class BatchEmbeddingProcessor:
                 text_column="CALL_TITLE || ' - ' || COALESCE(ACCOUNT_NAME, '') || ' - ' || COALESCE(DEAL_STAGE, '')",
                 where_condition="CALL_TITLE IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             # New Slack configurations
             EmbeddingTable.SLACK_MESSAGES: EmbeddingConfig(
@@ -150,7 +153,7 @@ class BatchEmbeddingProcessor:
                 text_column="MESSAGE_TEXT",
                 where_condition="MESSAGE_TEXT IS NOT NULL AND LENGTH(MESSAGE_TEXT) > 5",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.SLACK_CONVERSATIONS: EmbeddingConfig(
                 table_name="SLACK_DATA.STG_SLACK_CONVERSATIONS",
@@ -158,7 +161,7 @@ class BatchEmbeddingProcessor:
                 text_column="CONVERSATION_TITLE || ' - ' || COALESCE(CONVERSATION_SUMMARY, '')",
                 where_condition="CONVERSATION_TITLE IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             # Linear configurations
             EmbeddingTable.LINEAR_ISSUES: EmbeddingConfig(
@@ -167,7 +170,7 @@ class BatchEmbeddingProcessor:
                 text_column="ISSUE_TITLE || ' - ' || COALESCE(ISSUE_DESCRIPTION, '') || ' - ' || COALESCE(PROJECT_NAME, '')",
                 where_condition="ISSUE_TITLE IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             # Knowledge Base configurations
             EmbeddingTable.KB_ARTICLES: EmbeddingConfig(
@@ -176,7 +179,7 @@ class BatchEmbeddingProcessor:
                 text_column="ARTICLE_TITLE || ' - ' || COALESCE(ARTICLE_SUMMARY, '') || ' - ' || COALESCE(SUBSTR(ARTICLE_CONTENT, 1, 1000), '')",
                 where_condition="ARTICLE_TITLE IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.KB_ENTITIES: EmbeddingConfig(
                 table_name="KNOWLEDGE_BASE.KB_ENTITIES",
@@ -184,7 +187,7 @@ class BatchEmbeddingProcessor:
                 text_column="ENTITY_NAME || ' - ' || COALESCE(ENTITY_DESCRIPTION, '') || ' - ' || COALESCE(ENTITY_TYPE, '')",
                 where_condition="ENTITY_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.KB_UNSTRUCTURED_DOCUMENTS: EmbeddingConfig(
                 table_name="KNOWLEDGE_BASE.KB_UNSTRUCTURED_DOCUMENTS",
@@ -192,7 +195,7 @@ class BatchEmbeddingProcessor:
                 text_column="DOCUMENT_TITLE || ' - ' || COALESCE(DOCUMENT_SUMMARY, '') || ' - ' || COALESCE(SUBSTR(EXTRACTED_TEXT, 1, 2000), '')",
                 where_condition="DOCUMENT_TITLE IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             # Foundational Knowledge configurations
             EmbeddingTable.FOUNDATIONAL_EMPLOYEES: EmbeddingConfig(
@@ -201,7 +204,7 @@ class BatchEmbeddingProcessor:
                 text_column="FULL_NAME || ' - ' || COALESCE(JOB_TITLE, '') || ' - ' || COALESCE(DEPARTMENT, '') || ' - ' || COALESCE(ARRAY_TO_STRING(PRIMARY_SKILLS, ' '), '')",
                 where_condition="FULL_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.FOUNDATIONAL_CUSTOMERS: EmbeddingConfig(
                 table_name="FOUNDATIONAL_KNOWLEDGE.CUSTOMERS",
@@ -209,7 +212,7 @@ class BatchEmbeddingProcessor:
                 text_column="COMPANY_NAME || ' - ' || COALESCE(INDUSTRY, '') || ' - ' || COALESCE(CUSTOMER_TIER, '') || ' - ' || COALESCE(HEADQUARTERS_CITY, '')",
                 where_condition="COMPANY_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.FOUNDATIONAL_PRODUCTS: EmbeddingConfig(
                 table_name="FOUNDATIONAL_KNOWLEDGE.PRODUCTS_SERVICES",
@@ -217,7 +220,7 @@ class BatchEmbeddingProcessor:
                 text_column="PRODUCT_NAME || ' - ' || COALESCE(PRODUCT_DESCRIPTION, '') || ' - ' || COALESCE(PRODUCT_CATEGORY, '') || ' - ' || COALESCE(VALUE_PROPOSITION, '')",
                 where_condition="PRODUCT_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
+                model=self.default_model,
             ),
             EmbeddingTable.FOUNDATIONAL_COMPETITORS: EmbeddingConfig(
                 table_name="FOUNDATIONAL_KNOWLEDGE.COMPETITORS",
@@ -225,41 +228,43 @@ class BatchEmbeddingProcessor:
                 text_column="COMPANY_NAME || ' - ' || COALESCE(COMPANY_DESCRIPTION, '') || ' - ' || COALESCE(MARKET_SEGMENT, '') || ' - ' || COALESCE(COMPETITIVE_TIER, '')",
                 where_condition="COMPANY_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
-                model=self.default_model
-            )
+                model=self.default_model,
+            ),
         }
-    
+
     async def initialize(self):
         """Initialize the processor"""
         await self.cortex_service.initialize()
         logger.info("Batch embedding processor initialized")
-    
+
     async def close(self):
         """Clean up resources"""
         await self.cortex_service.close()
         logger.info("Batch embedding processor closed")
-    
+
     async def get_records_to_process(
-        self, 
-        config: EmbeddingConfig, 
+        self,
+        config: EmbeddingConfig,
         force_refresh: bool = False,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """Get records that need embedding generation"""
-        
+
         # Build WHERE conditions
         conditions = [config.where_condition] if config.where_condition else []
-        
+
         if not force_refresh:
             # Only process records without embeddings or updated since last embedding
-            conditions.append(f"""
+            conditions.append(
+                f"""
                 ({config.embedding_column} IS NULL 
                  OR {config.updated_column} IS NULL 
                  OR UPDATED_AT > {config.updated_column})
-            """)
-        
+            """
+            )
+
         where_clause = " AND ".join(conditions) if conditions else "1=1"
-        
+
         # Build query
         query = f"""
         SELECT 
@@ -272,51 +277,51 @@ class BatchEmbeddingProcessor:
         WHERE {where_clause}
         ORDER BY UPDATED_AT DESC
         """
-        
+
         if limit:
             query += f" LIMIT {limit}"
-        
+
         try:
             cursor = self.cortex_service.connection.cursor()
             cursor.execute(query)
-            
+
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
-            
+
             records = []
             for row in results:
                 record = dict(zip(columns, row))
                 records.append(record)
-            
-            logger.info(f"Found {len(records)} records to process in {config.table_name}")
+
+            logger.info(
+                f"Found {len(records)} records to process in {config.table_name}"
+            )
             return records
-            
+
         except Exception as e:
             logger.error(f"Error querying records from {config.table_name}: {e}")
             raise
         finally:
             if cursor:
                 cursor.close()
-    
+
     async def process_batch(
-        self, 
-        records: List[Dict[str, Any]], 
-        config: EmbeddingConfig
+        self, records: List[Dict[str, Any]], config: EmbeddingConfig
     ) -> Tuple[int, int]:
         """Process a batch of records for embedding generation"""
-        
+
         successful = 0
         failed = 0
-        
+
         for record in records:
-            record_id = record['ID']
-            text_content = record['TEXT_CONTENT']
-            
+            record_id = record["ID"]
+            text_content = record["TEXT_CONTENT"]
+
             if not text_content or not text_content.strip():
                 logger.warning(f"Skipping record {record_id}: empty text content")
                 self.stats.skipped_records += 1
                 continue
-            
+
             # Prepare metadata
             metadata = {
                 "table_name": config.table_name,
@@ -324,110 +329,124 @@ class BatchEmbeddingProcessor:
                 "embedding_model": config.model,
                 "processed_at": datetime.now().isoformat(),
                 "batch_processing": True,
-                "original_text_length": len(text_content)
+                "original_text_length": len(text_content),
             }
-            
+
             # Attempt to store embedding with retries
             retry_count = 0
             while retry_count <= self.max_retries:
                 try:
-                    success = await self.cortex_service.store_embedding_in_business_table(
-                        table_name=config.table_name,
-                        record_id=record_id,
-                        text_content=text_content,
-                        embedding_column=config.embedding_column,
-                        metadata=metadata,
-                        model=config.model
+                    success = (
+                        await self.cortex_service.store_embedding_in_business_table(
+                            table_name=config.table_name,
+                            record_id=record_id,
+                            text_content=text_content,
+                            embedding_column=config.embedding_column,
+                            metadata=metadata,
+                            model=config.model,
+                        )
                     )
-                    
+
                     if success:
                         successful += 1
                         logger.debug(f"Successfully processed {record_id}")
                         break
                     else:
                         raise Exception("Embedding storage returned False")
-                        
+
                 except Exception as e:
                     retry_count += 1
                     if retry_count <= self.max_retries:
-                        wait_time = 2 ** retry_count  # Exponential backoff
-                        logger.warning(f"Retry {retry_count}/{self.max_retries} for {record_id} after {wait_time}s: {e}")
+                        wait_time = 2**retry_count  # Exponential backoff
+                        logger.warning(
+                            f"Retry {retry_count}/{self.max_retries} for {record_id} after {wait_time}s: {e}"
+                        )
                         await asyncio.sleep(wait_time)
                     else:
-                        logger.error(f"Failed to process {record_id} after {self.max_retries} retries: {e}")
+                        logger.error(
+                            f"Failed to process {record_id} after {self.max_retries} retries: {e}"
+                        )
                         failed += 1
                         break
-        
+
         return successful, failed
-    
+
     async def process_table(
-        self, 
-        table: EmbeddingTable, 
+        self,
+        table: EmbeddingTable,
         force_refresh: bool = False,
         dry_run: bool = False,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> ProcessingStats:
         """Process all records in a specific table"""
-        
+
         config = self.table_configs[table]
         logger.info(f"Starting embedding processing for {config.table_name}")
-        
+
         # Ensure embedding columns exist
         try:
             await self.cortex_service.ensure_embedding_columns_exist(config.table_name)
         except Exception as e:
-            logger.error(f"Failed to ensure embedding columns exist in {config.table_name}: {e}")
+            logger.error(
+                f"Failed to ensure embedding columns exist in {config.table_name}: {e}"
+            )
             raise
-        
+
         # Get records to process
         records = await self.get_records_to_process(config, force_refresh, limit)
-        
+
         if not records:
             logger.info(f"No records to process in {config.table_name}")
             return ProcessingStats()
-        
+
         # Initialize stats
         stats = ProcessingStats()
         stats.total_records = len(records)
         stats.start_time = datetime.now()
-        
+
         if dry_run:
-            logger.info(f"DRY RUN: Would process {len(records)} records in {config.table_name}")
+            logger.info(
+                f"DRY RUN: Would process {len(records)} records in {config.table_name}"
+            )
             return stats
-        
+
         # Process records in batches
         batch_size = config.batch_size
         total_batches = (len(records) + batch_size - 1) // batch_size
-        
+
         with tqdm(total=len(records), desc=f"Processing {config.table_name}") as pbar:
             for batch_idx in range(total_batches):
                 start_idx = batch_idx * batch_size
                 end_idx = min(start_idx + batch_size, len(records))
                 batch = records[start_idx:end_idx]
-                
-                logger.info(f"Processing batch {batch_idx + 1}/{total_batches} ({len(batch)} records)")
-                
+
+                logger.info(
+                    f"Processing batch {batch_idx + 1}/{total_batches} ({len(batch)} records)"
+                )
+
                 try:
                     successful, failed = await self.process_batch(batch, config)
-                    
+
                     stats.processed_records += len(batch)
                     stats.successful_embeddings += successful
                     stats.failed_embeddings += failed
-                    
+
                     pbar.update(len(batch))
-                    pbar.set_postfix({
-                        'Success': f"{stats.successful_embeddings}/{stats.processed_records}",
-                        'Rate': f"{stats.success_rate:.2%}"
-                    })
-                    
+                    pbar.set_postfix(
+                        {
+                            "Success": f"{stats.successful_embeddings}/{stats.processed_records}",
+                            "Rate": f"{stats.success_rate:.2%}",
+                        }
+                    )
+
                 except Exception as e:
                     logger.error(f"Error processing batch {batch_idx + 1}: {e}")
                     stats.failed_embeddings += len(batch)
                     stats.processed_records += len(batch)
                     pbar.update(len(batch))
-        
+
         stats.end_time = datetime.now()
-        
+
         # Log final statistics
         logger.info(f"Completed processing {config.table_name}")
         logger.info(f"Total records: {stats.total_records}")
@@ -436,60 +455,64 @@ class BatchEmbeddingProcessor:
         logger.info(f"Success rate: {stats.success_rate:.2%}")
         logger.info(f"Processing rate: {stats.records_per_second:.2f} records/second")
         logger.info(f"Duration: {stats.duration_seconds:.2f} seconds")
-        
+
         return stats
-    
+
     async def process_all_tables(
-        self, 
+        self,
         force_refresh: bool = False,
         dry_run: bool = False,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> Dict[str, ProcessingStats]:
         """Process all supported tables"""
-        
+
         logger.info("Starting batch embedding processing for all tables")
-        
+
         results = {}
         total_stats = ProcessingStats()
         total_stats.start_time = datetime.now()
-        
+
         for table in EmbeddingTable:
             try:
                 stats = await self.process_table(table, force_refresh, dry_run, limit)
                 results[table.value] = stats
-                
+
                 # Aggregate stats
                 total_stats.total_records += stats.total_records
                 total_stats.processed_records += stats.processed_records
                 total_stats.successful_embeddings += stats.successful_embeddings
                 total_stats.failed_embeddings += stats.failed_embeddings
                 total_stats.skipped_records += stats.skipped_records
-                
+
             except Exception as e:
                 logger.error(f"Failed to process table {table.value}: {e}")
                 results[table.value] = ProcessingStats()
-        
+
         total_stats.end_time = datetime.now()
-        
+
         # Log overall statistics
         logger.info("Completed batch embedding processing for all tables")
         logger.info(f"Overall total records: {total_stats.total_records}")
-        logger.info(f"Overall successful embeddings: {total_stats.successful_embeddings}")
+        logger.info(
+            f"Overall successful embeddings: {total_stats.successful_embeddings}"
+        )
         logger.info(f"Overall failed embeddings: {total_stats.failed_embeddings}")
         logger.info(f"Overall success rate: {total_stats.success_rate:.2%}")
-        logger.info(f"Overall processing rate: {total_stats.records_per_second:.2f} records/second")
+        logger.info(
+            f"Overall processing rate: {total_stats.records_per_second:.2f} records/second"
+        )
         logger.info(f"Overall duration: {total_stats.duration_seconds:.2f} seconds")
-        
+
         return results
-    
+
     async def get_processing_status(self) -> Dict[str, Any]:
         """Get current processing status for all tables"""
-        
+
         status = {}
-        
+
         for table in EmbeddingTable:
             config = self.table_configs[table]
-            
+
             try:
                 # Query table statistics
                 query = f"""
@@ -502,11 +525,11 @@ class BatchEmbeddingProcessor:
                 FROM {config.table_name}
                 WHERE {config.where_condition if config.where_condition else '1=1'}
                 """
-                
+
                 cursor = self.cortex_service.connection.cursor()
                 cursor.execute(query)
                 result = cursor.fetchone()
-                
+
                 status[table.value] = {
                     "total_records": result[0],
                     "records_with_embeddings": result[1],
@@ -514,98 +537,86 @@ class BatchEmbeddingProcessor:
                     "embedding_coverage": result[1] / result[0] if result[0] > 0 else 0,
                     "last_embedding_update": result[3],
                     "last_record_update": result[4],
-                    "needs_processing": result[2] > 0
+                    "needs_processing": result[2] > 0,
                 }
-                
+
             except Exception as e:
                 logger.error(f"Error getting status for {table.value}: {e}")
                 status[table.value] = {"error": str(e)}
             finally:
                 if cursor:
                     cursor.close()
-        
+
         return status
 
 
 async def main():
     """Main function for command-line usage"""
-    
-    parser = argparse.ArgumentParser(description="Batch Embedding Generation for Sophia AI")
+
+    parser = argparse.ArgumentParser(
+        description="Batch Embedding Generation for Sophia AI"
+    )
     parser.add_argument(
-        "--table", 
+        "--table",
         choices=[table.value for table in EmbeddingTable],
-        help="Specific table to process"
+        help="Specific table to process",
     )
     parser.add_argument(
-        "--all-tables", 
+        "--all-tables", action="store_true", help="Process all supported tables"
+    )
+    parser.add_argument(
+        "--force-refresh",
         action="store_true",
-        help="Process all supported tables"
+        help="Force refresh all embeddings, even if they already exist",
     )
     parser.add_argument(
-        "--force-refresh", 
+        "--dry-run",
         action="store_true",
-        help="Force refresh all embeddings, even if they already exist"
+        help="Show what would be processed without actually doing it",
     )
     parser.add_argument(
-        "--dry-run", 
+        "--batch-size", type=int, help="Batch size for processing (overrides config)"
+    )
+    parser.add_argument(
+        "--limit", type=int, help="Limit number of records to process (for testing)"
+    )
+    parser.add_argument(
+        "--status",
         action="store_true",
-        help="Show what would be processed without actually doing it"
+        help="Show current processing status for all tables",
     )
-    parser.add_argument(
-        "--batch-size", 
-        type=int,
-        help="Batch size for processing (overrides config)"
-    )
-    parser.add_argument(
-        "--limit", 
-        type=int,
-        help="Limit number of records to process (for testing)"
-    )
-    parser.add_argument(
-        "--status", 
-        action="store_true",
-        help="Show current processing status for all tables"
-    )
-    parser.add_argument(
-        "--model", 
-        default="e5-base-v2",
-        help="Embedding model to use"
-    )
-    parser.add_argument(
-        "--verbose", 
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    
+    parser.add_argument("--model", default="e5-base-v2", help="Embedding model to use")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+
     args = parser.parse_args()
-    
+
     # Configure logging
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    
+
     # Validate arguments
     if not args.table and not args.all_tables and not args.status:
         parser.error("Must specify either --table, --all-tables, or --status")
-    
+
     if args.table and args.all_tables:
         parser.error("Cannot specify both --table and --all-tables")
-    
+
     # Initialize processor
     processor = BatchEmbeddingProcessor()
-    
+
     try:
         await processor.initialize()
-        
+
         # Override batch size if specified
         if args.batch_size:
             for config in processor.table_configs.values():
                 config.batch_size = args.batch_size
-        
+
         # Override model if specified
         if args.model:
             for config in processor.table_configs.values():
                 config.model = args.model
-        
+
         if args.status:
             # Show status
             status = await processor.get_processing_status()
@@ -616,24 +627,32 @@ async def main():
                     print(f"  Error: {table_status['error']}")
                 else:
                     print(f"  Total records: {table_status['total_records']:,}")
-                    print(f"  Records with embeddings: {table_status['records_with_embeddings']:,}")
-                    print(f"  Records without embeddings: {table_status['records_without_embeddings']:,}")
-                    print(f"  Embedding coverage: {table_status['embedding_coverage']:.2%}")
-                    print(f"  Needs processing: {'Yes' if table_status['needs_processing'] else 'No'}")
-        
+                    print(
+                        f"  Records with embeddings: {table_status['records_with_embeddings']:,}"
+                    )
+                    print(
+                        f"  Records without embeddings: {table_status['records_without_embeddings']:,}"
+                    )
+                    print(
+                        f"  Embedding coverage: {table_status['embedding_coverage']:.2%}"
+                    )
+                    print(
+                        f"  Needs processing: {'Yes' if table_status['needs_processing'] else 'No'}"
+                    )
+
         elif args.all_tables:
             # Process all tables
             results = await processor.process_all_tables(
-                force_refresh=args.force_refresh,
-                dry_run=args.dry_run,
-                limit=args.limit
+                force_refresh=args.force_refresh, dry_run=args.dry_run, limit=args.limit
             )
-            
+
             # Print summary
             print("\n=== Processing Summary ===")
             for table_name, stats in results.items():
-                print(f"{table_name}: {stats.successful_embeddings}/{stats.total_records} successful ({stats.success_rate:.2%})")
-        
+                print(
+                    f"{table_name}: {stats.successful_embeddings}/{stats.total_records} successful ({stats.success_rate:.2%})"
+                )
+
         else:
             # Process specific table
             table_enum = EmbeddingTable(args.table)
@@ -641,14 +660,16 @@ async def main():
                 table_enum,
                 force_refresh=args.force_refresh,
                 dry_run=args.dry_run,
-                limit=args.limit
+                limit=args.limit,
             )
-            
+
             print("\n=== Processing Complete ===")
             print(f"Table: {args.table}")
-            print(f"Successful: {stats.successful_embeddings}/{stats.total_records} ({stats.success_rate:.2%})")
+            print(
+                f"Successful: {stats.successful_embeddings}/{stats.total_records} ({stats.success_rate:.2%})"
+            )
             print(f"Duration: {stats.duration_seconds:.2f} seconds")
-    
+
     except KeyboardInterrupt:
         logger.info("Processing interrupted by user")
         sys.exit(1)
@@ -660,4 +681,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

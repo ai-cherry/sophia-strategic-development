@@ -416,9 +416,11 @@ class AgentDataTransformer:
         return {
             "talk_ratio": call_data.talk_ratio or 0.5,
             "participant_count": len(call_data.participants),
-            "engagement_level": "high"
-            if call_data.talk_ratio and 0.4 < call_data.talk_ratio < 0.6
-            else "medium",
+            "engagement_level": (
+                "high"
+                if call_data.talk_ratio and 0.4 < call_data.talk_ratio < 0.6
+                else "medium"
+            ),
         }
 
     def _classify_sentiment(self, score: float) -> str:
@@ -436,9 +438,11 @@ class AgentDataTransformer:
             "stage_advancement": any(
                 "next step" in str(step).lower() for step in call_data.next_steps
             ),
-            "engagement_level": "high"
-            if call_data.sentiment_score and call_data.sentiment_score > 0.7
-            else "medium",
+            "engagement_level": (
+                "high"
+                if call_data.sentiment_score and call_data.sentiment_score > 0.7
+                else "medium"
+            ),
             "decision_maker_involved": any(
                 "decision" in str(p).lower() for p in call_data.participants
             ),
@@ -605,16 +609,18 @@ class AgentDataTransformer:
             "duration": {
                 "actual": call_data.duration_seconds,
                 "benchmark": 1800,  # 30 minutes
-                "performance": "above"
-                if call_data.duration_seconds > 1800
-                else "below",
+                "performance": (
+                    "above" if call_data.duration_seconds > 1800 else "below"
+                ),
             },
             "engagement": {
                 "actual": self._calculate_buyer_engagement(call_data),
                 "benchmark": 0.7,
-                "performance": "meeting"
-                if self._calculate_buyer_engagement(call_data) >= 0.7
-                else "below",
+                "performance": (
+                    "meeting"
+                    if self._calculate_buyer_engagement(call_data) >= 0.7
+                    else "below"
+                ),
             },
         }
 
@@ -659,9 +665,11 @@ class AgentDataTransformer:
     def _calculate_team_impact(self, call_data: ProcessedCallData) -> Dict[str, Any]:
         """Calculate impact on team performance."""
         return {
-            "performance_contribution": "positive"
-            if call_data.sentiment_score and call_data.sentiment_score > 0.6
-            else "neutral",
+            "performance_contribution": (
+                "positive"
+                if call_data.sentiment_score and call_data.sentiment_score > 0.6
+                else "neutral"
+            ),
             "learning_opportunities": len(
                 self._identify_coaching_opportunities(call_data)
             ),

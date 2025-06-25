@@ -727,9 +727,9 @@ class GongDataQualityMonitor:
             if missing_fields:
                 return QualityIssue(
                     dimension=dimension,
-                    severity=AlertSeverity.HIGH
-                    if score < 0.5
-                    else AlertSeverity.MEDIUM,
+                    severity=(
+                        AlertSeverity.HIGH if score < 0.5 else AlertSeverity.MEDIUM
+                    ),
                     description=f"Data completeness below threshold: {score:.2%}",
                     impact=f"Missing required fields: {', '.join(missing_fields)}",
                     recommendation="Ensure all required fields are populated before processing",
@@ -1114,11 +1114,11 @@ class GongDataQualityMonitor:
         return {
             "success": success,
             "confidence": max(confidence, 0.0),
-            "reason": "Missing required fields"
-            if missing_fields
-            else "Low data quality"
-            if not success
-            else "OK",
+            "reason": (
+                "Missing required fields"
+                if missing_fields
+                else "Low data quality" if not success else "OK"
+            ),
             "missing_fields": missing_fields,
         }
 

@@ -561,9 +561,9 @@ class SecretManager:
                 action="expiration_warning",
                 status="warning",
                 additional_data={
-                    "expires_at": secret.expires_at.isoformat()
-                    if secret.expires_at
-                    else None,
+                    "expires_at": (
+                        secret.expires_at.isoformat() if secret.expires_at else None
+                    ),
                     "security_level": secret.security_level,
                     "rotation_interval_days": secret.rotation_interval_days,
                 },
