@@ -12,6 +12,8 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
+import pandas as pd
+
 # MCP imports
 from mcp.server import Server
 from mcp.server.stdio import stdio_server

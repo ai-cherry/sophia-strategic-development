@@ -359,7 +359,7 @@ class EnhancedAiMemoryMCPServer:
             )
 
             # Test the connection
-            test_response = await self.openai_client.embeddings.create(
+            await self.openai_client.embeddings.create(
                 input="test connection", model="text-embedding-3-small"
             )
 
@@ -505,7 +505,7 @@ class EnhancedAiMemoryMCPServer:
 
         for knowledge in knowledge_base:
             try:
-                memory_id = (
+                (
                     f"preloaded_{knowledge['category']}_{len(knowledge['tags'])}"
                 )
                 await self.store_memory(

@@ -193,7 +193,7 @@ class GongDeploymentTester:
                         return PhaseResult(
                             phase=DeploymentPhase.CREDENTIALS,
                             success=True,
-                            message=f"Gong credentials validated successfully",
+                            message="Gong credentials validated successfully",
                             details={
                                 "gong_key_prefix": gong_key[:8] + "...",
                                 "api_status": response.status,
@@ -530,7 +530,7 @@ class GongDeploymentTester:
             status = "✅" if phase_result.success else "❌"
             logger.info(f"{status} {phase_result.phase.value.upper()}: {phase_result.message}")
         
-        logger.info(f"\n🚀 NEXT STEPS:")
+        logger.info("\n🚀 NEXT STEPS:")
         for step in report["next_steps"][:5]:
             logger.info(f"  • {step}")
         

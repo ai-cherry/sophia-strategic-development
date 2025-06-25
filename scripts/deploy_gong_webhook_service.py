@@ -160,7 +160,7 @@ def main():
     print(f"Timestamp: {datetime.now().isoformat()}")
 
     # Check DNS
-    dns_ok = check_dns()
+    check_dns()
 
     # Deploy locally for testing
     print("\n🧪 Testing webhook service locally first...")

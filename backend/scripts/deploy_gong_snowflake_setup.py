@@ -27,7 +27,6 @@ import argparse
 
 import snowflake.connector
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

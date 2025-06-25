@@ -9,17 +9,15 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from enum import Enum
 from uuid import uuid4
 
-import pandas as pd
 from pydantic import BaseModel, Field
 
 import structlog
-from backend.agents.core.langgraph_agent_base import LangGraphAgentBase, AgentCapability, AgentContext
+from backend.agents.core.langgraph_agent_base import AgentContext
 from backend.integrations.gong_redis_client import (
     RedisNotificationClient,
     ProcessedCallData,
@@ -27,8 +25,6 @@ from backend.integrations.gong_redis_client import (
     NotificationType,
 )
 from backend.core.integration_registry import IntegrationRegistry
-from backend.integrations.gong_api_client_enhanced import GongAPIClientEnhanced
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 
 logger = structlog.get_logger()
 
@@ -1512,7 +1508,7 @@ class GongAgentIntegrationManager:
         """Handle responses from agents for bidirectional communication."""
         try:
             agent_type = response_data.get("agent_type")
-            original_event = response_data.get("original_event")
+            response_data.get("original_event")
             recommendations = response_data.get("recommendations", [])
 
             self.logger.info(
@@ -1560,7 +1556,7 @@ class GongAgentIntegrationManager:
 
     async def _update_gong_data(self, recommendation: Dict[str, Any]):
         """Update Gong data based on agent recommendation."""
-        update_type = recommendation.get("update_type")
+        recommendation.get("update_type")
         update_data = recommendation.get("update_data", {})
 
         # Send update notification

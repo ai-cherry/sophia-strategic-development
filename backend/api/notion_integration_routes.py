@@ -111,7 +111,7 @@ async def get_notion_health():
         total_pages = len(search_result.get("results", []))
 
         # Test getting users for health check
-        users_result = await notion_client.call_tool("get_users", {"page_size": 1})
+        await notion_client.call_tool("get_users", {"page_size": 1})
 
         return NotionIntegrationHealth(
             status="healthy",

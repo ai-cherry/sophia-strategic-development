@@ -437,7 +437,6 @@ class PIIDetectionRule(ValidationRule):
 
     async def validate(self, data: Dict[str, Any]) -> ValidationResult:
         """Check for potential PII."""
-        issues = []
         pii_found = []
 
         # Check transcript

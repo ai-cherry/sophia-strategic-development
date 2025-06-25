@@ -14,10 +14,9 @@ Features:
 """
 
 import asyncio
-import logging
 import time
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import aiohttp
@@ -663,7 +662,7 @@ class DeploymentValidator:
     def _log_validation_summary(self, report: DeploymentValidationReport) -> None:
         """Log validation summary"""
         
-        logger.info(f"🔍 Deployment Validation Complete")
+        logger.info("🔍 Deployment Validation Complete")
         logger.info(f"Overall Status: {report.overall_status}")
         logger.info(f"Total Checks: {report.total_checks}")
         logger.info(f"Passed: {report.passed_checks}")

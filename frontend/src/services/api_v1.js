@@ -1,11 +1,38 @@
-const API_BASE_URL = 'http://localhost:8000/api/v1'; // This should be in an env file
-const API_KEY = 'sophia-dashboard-prod-key'; // This should be stored securely
+// Environment-aware API URL configuration
+const getApiUrl = () => {
+  // React environment variables (prefixed with REACT_APP_) for Vercel compatibility
+  // Also support Vite environment variables (prefixed with VITE_) for local development
+  const apiUrl = process.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL;
+  const environment = process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV;
+  
+  if (apiUrl) {
+    return `${apiUrl}/api/v1`;
+  }
+  
+  // Fallback URLs based on environment
+  switch (environment) {
+    case 'production':
+      return 'https://api.sophia.payready.com/api/v1';
+    case 'staging':
+      return 'https://api.staging.sophia.payready.com/api/v1';
+    case 'development':
+    case 'dev':
+      return 'https://api.dev.sophia.payready.com/api/v1';
+    default:
+      // Local development fallback
+      return 'http://localhost:8000/api/v1';
+  }
+};
+
+const API_BASE_URL = getApiUrl();
+const API_KEY = process.env.REACT_APP_API_KEY || import.meta.env.VITE_API_KEY || 'sophia-dashboard-dev-key'; // Environment-specific API key
 
 const request = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = {
         'Content-Type': 'application/json',
         'X-API-KEY': API_KEY,
+        'X-Environment': process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV,
         ...options.headers,
     };
 
@@ -21,7 +48,11 @@ const request = async (endpoint, options = {}) => {
         }
         return await response.json();
     } catch (error) {
-        console.error('API call failed:', error);
+        console.error('API call failed:', {
+            url,
+            error: error.message,
+            environment: process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV
+        });
         throw error;
     }
 };
@@ -30,16 +61,16 @@ export const getDashboardMetrics = () => {
     return request('/dashboard/metrics');
 };
 
-export const getSalesCalls = () => {
-    return request('/sales/calls');
+export const getCEOMetrics = (timeRange = '30d') => {
+    return request(`/dashboard/ceo/metrics?timeRange=${timeRange}`);
 };
 
-export const getSalesAnalytics = () => {
-    return request('/sales/analytics');
+export const getKnowledgeStats = () => {
+    return request('/dashboard/knowledge/stats');
 };
 
-export const getSlackInsights = () => {
-    return request('/communications/slack');
+export const getProjectOverview = () => {
+    return request('/dashboard/project/overview');
 };
 
 export const querySnowflake = (query) => {
@@ -55,4 +86,18 @@ export const getAIInsights = (data) => {
 
 export const getHealth = () => {
     return request('/health');
+};
+
+export const sendChatMessage = (message, context = {}) => {
+    return request('/chat/message', {
+        method: 'POST',
+        body: JSON.stringify({ message, context }),
+    });
+};
+
+export const executeAction = (action, context = {}) => {
+    return request('/chat/action', {
+        method: 'POST',
+        body: JSON.stringify({ action, context }),
+    });
 };

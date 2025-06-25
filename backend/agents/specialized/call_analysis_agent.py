@@ -263,7 +263,7 @@ class CallAnalysisAgent(BaseAgent):
         """
         call_ids = task.get("call_ids", [])
         sales_rep = task.get("sales_rep")
-        date_range = task.get("date_range")
+        task.get("date_range")
         limit = task.get("limit", self.analysis_config["batch_size"])
 
         try:

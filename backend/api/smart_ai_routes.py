@@ -9,7 +9,7 @@ Provides comprehensive API endpoints for:
 - Performance optimization
 """
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
@@ -19,10 +19,8 @@ import logging
 from backend.services.smart_ai_service import (
     smart_ai_service,
     LLMRequest,
-    LLMResponse,
     TaskType,
     PerformanceTier,
-    LLMProvider,
     generate_executive_insight,
     generate_competitive_analysis,
     generate_code,

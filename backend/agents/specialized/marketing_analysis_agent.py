@@ -12,11 +12,10 @@ Provides comprehensive marketing analysis capabilities including:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
-import json
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.services.smart_ai_service import (

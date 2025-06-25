@@ -221,7 +221,7 @@ async def get_quality_metrics(
 
         # Extract metrics from result
         sophia_metrics = result.get("sophia_metrics", {})
-        cli_metrics = result.get("cli_metrics", {})
+        result.get("cli_metrics", {})
 
         # Calculate overall grade (simplified logic)
         total_files = sophia_metrics.get("total_files", 1)
@@ -411,7 +411,7 @@ async def get_dashboard_summary():
         # Extract key metrics
         health_checks = status_result.get("health_checks", {})
         sophia_metrics = quality_result.get("sophia_metrics", {})
-        security_summary = security_result.get("security_summary", {})
+        security_result.get("security_summary", {})
 
         return {
             "overall_health": (

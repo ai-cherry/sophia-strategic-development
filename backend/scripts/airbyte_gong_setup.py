@@ -23,7 +23,7 @@ import json
 import logging
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -454,7 +454,7 @@ class AirbyteGongOrchestrator:
                     "circuit_breaker_threshold": 15
                 },
                 "workspaceId": self.airbyte_config.workspace_id,
-                "name": f"Snowflake Destination - Sophia AI Production"
+                "name": "Snowflake Destination - Sophia AI Production"
             }
             
             # Create destination connector
@@ -464,7 +464,7 @@ class AirbyteGongOrchestrator:
             ) as response:
                 if response.status == 200:
                     result = await response.json()
-                    logger.info(f"✅ Snowflake destination created successfully")
+                    logger.info("✅ Snowflake destination created successfully")
                     return result
                 else:
                     error_text = await response.text()
@@ -555,7 +555,7 @@ class AirbyteGongOrchestrator:
                     "enableFailureNotifications": True
                 },
                 "status": "active",
-                "name": f"Gong → Snowflake Data Pipeline (Production)",
+                "name": "Gong → Snowflake Data Pipeline (Production)",
                 "namespaceDefinition": "destination",
                 "namespaceFormat": "${SOURCE_NAMESPACE}",
                 "prefix": "gong_",
@@ -579,7 +579,7 @@ class AirbyteGongOrchestrator:
             ) as response:
                 if response.status == 200:
                     result = await response.json()
-                    logger.info(f"✅ Connection created successfully")
+                    logger.info("✅ Connection created successfully")
                     return result
                 else:
                     error_text = await response.text()

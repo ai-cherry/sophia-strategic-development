@@ -17,7 +17,6 @@ Features:
 import asyncio
 import json
 import logging
-import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
@@ -96,7 +95,7 @@ class EnhancedGongSnowflakeDeployer:
         start_time = datetime.utcnow()
         
         try:
-            logger.info(f"🚀 Starting enhanced Gong Snowflake deployment")
+            logger.info("🚀 Starting enhanced Gong Snowflake deployment")
             logger.info(f"Environment: {self.config.environment.value}")
             logger.info(f"Database: {self.config.database}")
             logger.info(f"Deployment ID: {self.deployment_id}")
@@ -150,7 +149,7 @@ class EnhancedGongSnowflakeDeployer:
                 "dry_run": self.config.dry_run
             }
             
-            logger.info(f"✅ Enhanced Gong Snowflake deployment completed successfully")
+            logger.info("✅ Enhanced Gong Snowflake deployment completed successfully")
             logger.info(f"Total time: {total_time:.2f} seconds")
             
             return summary
@@ -707,14 +706,14 @@ async def main():
         
         # Print summary
         print(f"\n{'='*60}")
-        print(f"Enhanced Gong Snowflake Deployment Results")
+        print("Enhanced Gong Snowflake Deployment Results")
         print(f"{'='*60}")
         print(f"Deployment ID: {results['deployment_id']}")
         print(f"Environment: {results.get('environment', 'unknown')}")
         print(f"Status: {results['status']}")
         
         if results['status'] == 'SUCCESS':
-            print(f"✅ Deployment completed successfully!")
+            print("✅ Deployment completed successfully!")
             print(f"Total time: {results.get('total_time_seconds', 0):.2f} seconds")
             print(f"Completed phases: {len(results.get('completed_phases', []))}")
         else:

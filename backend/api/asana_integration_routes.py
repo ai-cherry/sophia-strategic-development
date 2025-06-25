@@ -414,7 +414,7 @@ async def get_dashboard_summary():
         active_projects = len([p for p in projects if not p.get("completed", False)])
 
         # Get recent activity (tasks completed in last 7 days)
-        recent_date = (datetime.now() - timedelta(days=7)).isoformat()
+        (datetime.now() - timedelta(days=7)).isoformat()
 
         # Calculate budget metrics
         total_budget = 0

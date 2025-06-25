@@ -20,7 +20,6 @@ from dataclasses import dataclass
 from enum import Enum
 import argparse
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)

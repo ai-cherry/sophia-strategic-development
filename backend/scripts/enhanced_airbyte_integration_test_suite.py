@@ -17,9 +17,8 @@ Usage:
 
 import asyncio
 import json
-import logging
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
@@ -27,7 +26,6 @@ import argparse
 
 import aiohttp
 import structlog
-import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
 from backend.scripts.airbyte_gong_setup import AirbyteGongOrchestrator, AirbyteConfig
@@ -132,7 +130,7 @@ class AirbyteIntegrationTestSuite:
             categories = list(TestCategory)
         
         try:
-            logger.info(f"🧪 Starting comprehensive Airbyte integration test suite")
+            logger.info("🧪 Starting comprehensive Airbyte integration test suite")
             logger.info(f"Environment: {self.environment}")
             logger.info(f"Test Categories: {[c.value for c in categories]}")
             
@@ -982,7 +980,7 @@ class AirbyteIntegrationTestSuite:
 
     def _log_test_summary(self, report: TestSuiteReport) -> None:
         """Log comprehensive test summary"""
-        logger.info(f"🧪 Test Suite Complete")
+        logger.info("🧪 Test Suite Complete")
         logger.info(f"Overall Status: {report.overall_status}")
         logger.info(f"Total Tests: {report.total_tests}")
         logger.info(f"Passed: {report.passed_tests}")

@@ -394,25 +394,6 @@ async def _get_gong_call_context(
         return []
 
     # Query for customer, product, and competitor information related to the call
-    context_query = f"""
-    SELECT DISTINCT
-        fk.record_id,
-        fk.data_type,
-        fk.title,
-        fk.description,
-        fk.metadata
-    FROM VW_COMPREHENSIVE_KNOWLEDGE_SEARCH fk
-    JOIN STG_TRANSFORMED.STG_GONG_CALLS gc ON (
-        (fk.KNOWLEDGE_TYPE = 'CUSTOMER' AND gc.HUBSPOT_COMPANY_ID = fk.metadata:hubspot_company_id::string) OR
-        (fk.KNOWLEDGE_TYPE = 'PRODUCT' AND fk.record_id IN (
-            SELECT DISTINCT VALUE 
-            FROM TABLE(FLATTEN(gc.KEY_TOPICS)) 
-            WHERE VALUE LIKE '%product%'
-        ))
-    )
-    WHERE gc.CALL_ID = '{call_id}'
-    LIMIT {limit}
-    """
 
     # This would be executed through the foundational service
     # For now, return empty list

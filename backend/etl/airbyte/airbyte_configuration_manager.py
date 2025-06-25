@@ -6,12 +6,8 @@ Production-ready Airbyte management with comprehensive error handling,
 retry logic, data quality validation, and performance monitoring.
 """
 
-import asyncio
-import json
-import logging
-import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple, Union
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import aiohttp

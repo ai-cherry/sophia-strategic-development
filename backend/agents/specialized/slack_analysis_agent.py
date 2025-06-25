@@ -252,7 +252,8 @@ class SlackAnalysisAgent(BaseAgent):
                     text[:500]
                 )
                 return sentiment_result.get("sentiment_score", 0.0)
-        except:
+        except (AttributeError, KeyError, ValueError, Exception) as e:
+            logger.warning(f"Failed to calculate sentiment: {e}")
             return 0.0
 
     async def _extract_key_topics(self, text: str) -> List[str]:
@@ -264,7 +265,8 @@ class SlackAnalysisAgent(BaseAgent):
                     topics_prompt, max_tokens=50
                 )
                 return [topic.strip() for topic in topics_result.split(",")[:3]]
-        except:
+        except (AttributeError, ValueError, Exception) as e:
+            logger.warning(f"Failed to extract topics: {e}")
             return ["General discussion"]
 
     async def _extract_action_items(self, text: str) -> List[str]:
@@ -280,7 +282,8 @@ class SlackAnalysisAgent(BaseAgent):
                     for action in actions_result.split("\n")
                     if action.strip()
                 ][:3]
-        except:
+        except (AttributeError, ValueError, Exception) as e:
+            logger.warning(f"Failed to extract action items: {e}")
             return []
 
     async def _extract_decisions(self, text: str) -> List[str]:
@@ -296,7 +299,8 @@ class SlackAnalysisAgent(BaseAgent):
                     for decision in decisions_result.split("\n")
                     if decision.strip()
                 ][:3]
-        except:
+        except (AttributeError, ValueError, Exception) as e:
+            logger.warning(f"Failed to extract decisions: {e}")
             return []
 
     def _calculate_business_value_score(

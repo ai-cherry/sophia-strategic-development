@@ -556,8 +556,8 @@ async def execute_action(request: Request):
     try:
         data = await request.json()
         action_id = data.get("action", "")
-        parameters = data.get("parameters", {})
-        context = data.get("context", {})
+        data.get("parameters", {})
+        data.get("context", {})
 
         # Enhanced action execution based on action type
         action_responses = {

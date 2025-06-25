@@ -251,7 +251,7 @@ class LargeDataImportService:
         chunk_size = self.batch_size
 
         async with aiofiles.open(job.source_file, "r", encoding="utf-8") as file:
-            content = await file.read()
+            await file.read()
 
         # Use pandas to process CSV efficiently
         df = pd.read_csv(job.source_file, chunksize=chunk_size)

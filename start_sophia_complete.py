@@ -310,7 +310,7 @@ async def main():
         manager.start_mcp_servers()
 
         # Start simplified backend
-        backend_started = manager.start_backend_simplified()
+        manager.start_backend_simplified()
 
         # Run health check
         await manager.run_system_health_check()

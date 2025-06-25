@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+DDD #!/usr/bin/env python3
 """
 Script to fix common syntax errors in Python files.
 """

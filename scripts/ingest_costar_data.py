@@ -119,7 +119,7 @@ async def process_directory(
 
 async def validate_file(file_path: Path) -> dict:
     """Validate a CoStar data file without importing."""
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
 
     validation_result = {
         "file_path": str(file_path),

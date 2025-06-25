@@ -171,7 +171,7 @@ class CoStarMCPServer:
                     # Check if already processed (simple check based on filename)
                     if not await self._is_file_already_processed(file_path):
                         logger.info(f"Processing new CoStar file: {file_path.name}")
-                        result = await self.process_file(file_path)
+                        await self.process_file(file_path)
                         processed_files.append(file_path.name)
 
                         # Move processed file to archive folder

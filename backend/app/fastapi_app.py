@@ -197,7 +197,7 @@ async def startup_event():
         # Log validation results with enhanced detail
         overall_status = validation_report.overall_status
         
-        logger.info(f"📊 Validation Summary:")
+        logger.info("📊 Validation Summary:")
         logger.info(f"   Overall Status: {overall_status}")
         logger.info(f"   Total Checks: {validation_report.total_checks}")
         logger.info(f"   Passed: {validation_report.passed_checks}")

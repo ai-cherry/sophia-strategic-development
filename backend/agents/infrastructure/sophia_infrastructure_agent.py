@@ -4,18 +4,18 @@ Builds on existing Agno framework with infrastructure intelligence
 """
 
 import asyncio
+import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
-import json
 
 from backend.agents.core.langgraph_agent_base import (
     LangGraphAgentBase, 
     AgentCapability, 
     AgentContext
 )
-from backend.core.integration_registry import IntegrationRegistry
 
+logger = logging.getLogger(__name__)
 
 # Mock Redis client to avoid redis_client compatibility issues with Python 3.11
 class MockRedisClient:
@@ -273,7 +273,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         
         optimization_analysis = await self._analyze_optimization_opportunities()
         
-        content = f"""
+        content = """
 ## Infrastructure Optimization Analysis
 
 ### Optimization Opportunities:

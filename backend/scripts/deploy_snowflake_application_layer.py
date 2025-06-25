@@ -750,7 +750,7 @@ class SnowflakeApplicationLayerDeployer:
         # Test embedding generation performance
         start_time = time.time()
         try:
-            test_embedding = await self.cortex_service.generate_embedding_in_snowflake(
+            await self.cortex_service.generate_embedding_in_snowflake(
                 text_column="'Test embedding performance'",
                 table_name="(SELECT 'test' as id, 'Test content' as text)",
                 store_embeddings=False,
@@ -763,7 +763,7 @@ class SnowflakeApplicationLayerDeployer:
         # Test vector search performance
         start_time = time.time()
         try:
-            search_results = (
+            (
                 await self.cortex_service.search_hubspot_deals_with_ai_memory(
                     query_text="test performance query",
                     top_k=5,

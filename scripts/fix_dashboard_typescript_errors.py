@@ -43,7 +43,6 @@ class DashboardTypeScriptFixer:
     def add_missing_imports(self, content: str, filename: str) -> str:
         """Add missing React and type imports"""
         lines = content.split("\n")
-        imports_added = False
 
         # Check if React is imported
         has_react_import = any(
@@ -60,7 +59,6 @@ class DashboardTypeScriptFixer:
                         i,
                         "import React, { useState, useEffect, useMemo } from 'react';",
                     )
-                    imports_added = True
                     break
 
         # Check for missing type imports

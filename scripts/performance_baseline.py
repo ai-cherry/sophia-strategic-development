@@ -101,8 +101,8 @@ class ConfigurationLoadBenchmark(PerformanceBenchmark):
 
             try:
                 # Simulate configuration reload
-                settings = config.as_enhanced_settings()
-                health = config.get_health_status()
+                config.as_enhanced_settings()
+                config.get_health_status()
 
                 end_time = time.perf_counter()
                 measurement = (end_time - start_time) * 1000  # Convert to ms
@@ -131,7 +131,7 @@ class MCPResponseBenchmark(PerformanceBenchmark):
 
             try:
                 # Test MCP tool execution
-                result = await mcp_server.execute_tool(
+                await mcp_server.execute_tool(
                     "store_conversation",
                     {
                         "content": f"Benchmark test {i}",
@@ -165,7 +165,7 @@ class AgentInstantiationBenchmark(PerformanceBenchmark):
 
             try:
                 # Create new agent instance
-                agent = SophiaInfrastructureAgent()
+                SophiaInfrastructureAgent()
 
                 end_time = time.perf_counter()
                 measurement = (end_time - start_time) * 1000  # Convert to ms

@@ -21,14 +21,12 @@ import asyncio
 import json
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 import argparse
 
-import pandas as pd
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer

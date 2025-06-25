@@ -148,7 +148,7 @@ async def upload_document(
 
         file_id = str(uuid.uuid4())
 
-        tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
+        [tag.strip() for tag in tags.split(",") if tag.strip()]
 
         return JSONResponse(
             content={

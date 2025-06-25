@@ -13,13 +13,12 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
-import json
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.agents.specialized.sales_coach_agent import SalesCoachAgent, CallAnalysisResult, CoachingRecommendation
+from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.services.smart_ai_service import (
     smart_ai_service,
     LLMRequest,

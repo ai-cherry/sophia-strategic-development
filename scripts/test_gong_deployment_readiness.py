@@ -11,7 +11,7 @@ import os
 import sys
 import traceback
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(
@@ -378,7 +378,7 @@ async def main():
         with open('gong_deployment_readiness_report.json', 'w') as f:
             json.dump(report, f, indent=2)
         
-        logger.info(f"\n📄 Full report saved to: gong_deployment_readiness_report.json")
+        logger.info("\n📄 Full report saved to: gong_deployment_readiness_report.json")
         
         # Exit with appropriate code
         if report['deployment_readiness_report']['overall_status'] == "READY_FOR_DEPLOYMENT":

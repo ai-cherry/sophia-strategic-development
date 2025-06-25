@@ -223,7 +223,7 @@ class SnowflakeAdminIntentClassifier:
     ) -> Dict[str, Any]:
         """Extract entities based on intent"""
         entities = {}
-        query_lower = query.lower()
+        query.lower()
 
         # Extract common entities
         schema_match = re.search(

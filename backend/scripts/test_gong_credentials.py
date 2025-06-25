@@ -86,7 +86,7 @@ class GongCredentialTester:
                             logger.info(f"✅ {display_name}: {value[:8]}...")
                         else:
                             logger.info(f"✅ {display_name}: {value}")
-                except Exception as e:
+                except Exception:
                     logger.debug(f"❌ {display_name}: Not found")
             
             if found_credentials:
@@ -181,7 +181,7 @@ class GongCredentialTester:
                         data = await response.json()
                         workspaces = data.get("workspaces", [])
                         
-                        logger.info(f"✅ Gong API: Connection successful")
+                        logger.info("✅ Gong API: Connection successful")
                         logger.info(f"📊 Found {len(workspaces)} workspaces")
                         
                         for workspace in workspaces[:3]:  # Show first 3
@@ -201,7 +201,7 @@ class GongCredentialTester:
                     
                     elif response.status == 401:
                         error_text = await response.text()
-                        logger.error(f"❌ Gong API: Authentication failed (401)")
+                        logger.error("❌ Gong API: Authentication failed (401)")
                         logger.error(f"Response: {error_text}")
                         
                         return {
@@ -334,19 +334,19 @@ class GongCredentialTester:
         
         # Best credentials status
         best = report["best_credentials"]
-        logger.info(f"\n🔑 Best Available Credentials:")
+        logger.info("\n🔑 Best Available Credentials:")
         logger.info(f"  Access Key: {'✅' if best['access_key_available'] else '❌'}")
         logger.info(f"  Client Secret: {'✅' if best['client_secret_available'] else '❌'}")
         logger.info(f"  API Test Ready: {'✅' if best['ready_for_api_test'] else '❌'}")
         
         # GitHub secrets
-        logger.info(f"\n📝 GitHub Organization Secrets:")
+        logger.info("\n📝 GitHub Organization Secrets:")
         for secret in report["github_organization_secrets"]["configured"]:
             logger.info(f"  📄 {secret}")
         logger.info(f"  Status: {report['github_organization_secrets']['sync_status']}")
         
         # Recommendations
-        logger.info(f"\n💡 Recommendations:")
+        logger.info("\n💡 Recommendations:")
         for rec in report["recommendations"]:
             logger.info(f"  {rec}")
         

@@ -1343,10 +1343,8 @@ class EnhancedUnifiedChatService:
         """Enhanced Gong call search using STG_TRANSFORMED tables"""
         try:
             # Extract search parameters from query
-            search_terms = []
             account_filter = None
             sentiment_filter = None
-            date_filter = None
             
             # Parse entities for search parameters
             for entity in processed_query.entities:
@@ -1364,7 +1362,7 @@ class EnhancedUnifiedChatService:
                 semantic_query += f" {account_filter}"
             
             # Search using AI Memory for semantic matching
-            memory_results = await self.ai_memory_server.search_memories(
+            await self.ai_memory_server.search_memories(
                 query=semantic_query,
                 category="gong_calls",
                 limit=10
