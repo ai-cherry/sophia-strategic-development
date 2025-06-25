@@ -1110,51 +1110,459 @@ class SnowflakeCortexService:
     async def search_gong_calls_with_ai_memory(
         self,
         query_text: str,
-        top_k: int = 5,
+        top_k: int = 10,
         similarity_threshold: float = 0.7,
-        call_type: Optional[str] = None,
-        sentiment_category: Optional[str] = None,
-        sales_rep: Optional[str] = None,
-        deal_id: Optional[str] = None,
+        call_direction: Optional[str] = None,
+        date_range_days: Optional[int] = None,
+        sentiment_filter: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        Search Gong calls using AI Memory embeddings with business filters
-
+        Enhanced semantic search across STG_GONG_CALLS with AI Memory integration
+        
         Args:
-            query_text: Search query
-            top_k: Number of results
-            similarity_threshold: Minimum similarity
-            call_type: Optional call type filter
-            sentiment_category: Optional sentiment filter (positive, negative, neutral)
-            sales_rep: Optional sales rep filter
-            deal_id: Optional deal ID filter
-
+            query_text: Natural language search query
+            top_k: Maximum number of results to return
+            similarity_threshold: Minimum similarity score (0.0 to 1.0)
+            call_direction: Filter by call direction ('Inbound', 'Outbound')
+            date_range_days: Filter calls from last N days
+            sentiment_filter: Filter by sentiment ('positive', 'negative', 'neutral')
+            
         Returns:
-            List of matching calls with similarity scores
+            List of matching Gong calls with similarity scores and AI Memory metadata
         """
-        # Build metadata filters
-        metadata_filters = {}
+        try:
+            # Generate embedding for the search query
+            query_embedding_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as query_embedding"
+            embedding_result = await self.execute_query(query_embedding_sql)
+            
+            if embedding_result.empty:
+                return []
+            
+            # Build the search query with filters
+            filters = ["AI_MEMORY_EMBEDDING IS NOT NULL"]
+            
+            if call_direction:
+                filters.append(f"CALL_DIRECTION = '{call_direction}'")
+            
+            if date_range_days:
+                filters.append(f"CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())")
+            
+            if sentiment_filter:
+                if sentiment_filter.lower() == 'positive':
+                    filters.append("SENTIMENT_SCORE > 0.3")
+                elif sentiment_filter.lower() == 'negative':
+                    filters.append("SENTIMENT_SCORE < -0.3")
+                elif sentiment_filter.lower() == 'neutral':
+                    filters.append("SENTIMENT_SCORE BETWEEN -0.3 AND 0.3")
+            
+            filter_clause = " AND ".join(filters)
+            
+            # Enhanced semantic search query
+            search_sql = f"""
+            WITH query_embedding AS (
+                SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as embedding
+            ),
+            similarity_search AS (
+                SELECT 
+                    gc.*,
+                    VECTOR_COSINE_SIMILARITY(gc.AI_MEMORY_EMBEDDING, qe.embedding) as SIMILARITY_SCORE,
+                    -- Enhanced metadata extraction
+                    gc.AI_MEMORY_METADATA:call_id::STRING as MEMORY_CALL_ID,
+                    gc.AI_MEMORY_METADATA:account_name::STRING as MEMORY_ACCOUNT_NAME,
+                    gc.AI_MEMORY_METADATA:deal_stage::STRING as MEMORY_DEAL_STAGE,
+                    gc.AI_MEMORY_METADATA:sentiment_score::FLOAT as MEMORY_SENTIMENT_SCORE,
+                    gc.AI_MEMORY_METADATA:talk_ratio::FLOAT as MEMORY_TALK_RATIO,
+                    gc.AI_MEMORY_METADATA:primary_user::STRING as MEMORY_PRIMARY_USER,
+                    gc.AI_MEMORY_METADATA:embedding_generated_at::TIMESTAMP_NTZ as MEMORY_EMBEDDING_TIMESTAMP
+                FROM STG_TRANSFORMED.STG_GONG_CALLS gc
+                CROSS JOIN query_embedding qe
+                WHERE {filter_clause}
+                AND VECTOR_COSINE_SIMILARITY(gc.AI_MEMORY_EMBEDDING, qe.embedding) >= {similarity_threshold}
+            )
+            SELECT 
+                CALL_ID,
+                CALL_TITLE,
+                CALL_DATETIME_UTC,
+                CALL_DURATION_SECONDS,
+                CALL_DIRECTION,
+                PRIMARY_USER_NAME,
+                PRIMARY_USER_EMAIL,
+                ACCOUNT_NAME,
+                CONTACT_NAME,
+                DEAL_STAGE,
+                DEAL_VALUE,
+                SENTIMENT_SCORE,
+                CALL_SUMMARY,
+                KEY_TOPICS,
+                RISK_INDICATORS,
+                NEXT_STEPS,
+                TALK_RATIO,
+                SIMILARITY_SCORE,
+                -- AI Memory metadata
+                MEMORY_CALL_ID,
+                MEMORY_ACCOUNT_NAME,
+                MEMORY_DEAL_STAGE,
+                MEMORY_SENTIMENT_SCORE,
+                MEMORY_TALK_RATIO,
+                MEMORY_PRIMARY_USER,
+                MEMORY_EMBEDDING_TIMESTAMP,
+                AI_MEMORY_UPDATED_AT
+            FROM similarity_search
+            ORDER BY SIMILARITY_SCORE DESC
+            LIMIT {top_k}
+            """
+            
+            results = await self.execute_query(search_sql)
+            
+            if results.empty:
+                return []
+            
+            # Convert to list of dictionaries with enhanced formatting
+            search_results = []
+            for _, row in results.iterrows():
+                result = {
+                    "call_id": row["CALL_ID"],
+                    "call_title": row["CALL_TITLE"],
+                    "call_datetime": row["CALL_DATETIME_UTC"].isoformat() if pd.notna(row["CALL_DATETIME_UTC"]) else None,
+                    "call_duration_seconds": int(row["CALL_DURATION_SECONDS"]) if pd.notna(row["CALL_DURATION_SECONDS"]) else 0,
+                    "call_direction": row["CALL_DIRECTION"],
+                    "primary_user": {
+                        "name": row["PRIMARY_USER_NAME"],
+                        "email": row["PRIMARY_USER_EMAIL"]
+                    },
+                    "account_info": {
+                        "account_name": row["ACCOUNT_NAME"],
+                        "contact_name": row["CONTACT_NAME"],
+                        "deal_stage": row["DEAL_STAGE"],
+                        "deal_value": float(row["DEAL_VALUE"]) if pd.notna(row["DEAL_VALUE"]) else None
+                    },
+                    "ai_insights": {
+                        "sentiment_score": float(row["SENTIMENT_SCORE"]) if pd.notna(row["SENTIMENT_SCORE"]) else None,
+                        "call_summary": row["CALL_SUMMARY"],
+                        "key_topics": row["KEY_TOPICS"],
+                        "risk_indicators": row["RISK_INDICATORS"],
+                        "next_steps": row["NEXT_STEPS"],
+                        "talk_ratio": float(row["TALK_RATIO"]) if pd.notna(row["TALK_RATIO"]) else None
+                    },
+                    "search_metadata": {
+                        "similarity_score": float(row["SIMILARITY_SCORE"]),
+                        "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat() if pd.notna(row["AI_MEMORY_UPDATED_AT"]) else None,
+                        "embedding_timestamp": row["MEMORY_EMBEDDING_TIMESTAMP"].isoformat() if pd.notna(row["MEMORY_EMBEDDING_TIMESTAMP"]) else None
+                    }
+                }
+                search_results.append(result)
+            
+            logger.info(f"Found {len(search_results)} Gong calls matching query: '{query_text}'")
+            return search_results
+            
+        except Exception as e:
+            logger.error(f"Error in Gong calls semantic search: {e}")
+            return []
 
-        if call_type:
-            metadata_filters["call_type"] = call_type
-        if sentiment_category:
-            metadata_filters["sentiment_category"] = sentiment_category
-        if sales_rep:
-            metadata_filters["primary_user_name"] = sales_rep
-        if deal_id:
-            metadata_filters["hubspot_deal_id"] = deal_id
+    async def search_gong_transcripts_with_ai_memory(
+        self,
+        query_text: str,
+        top_k: int = 10,
+        similarity_threshold: float = 0.7,
+        speaker_type: Optional[str] = None,
+        call_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Enhanced semantic search across STG_GONG_CALL_TRANSCRIPTS with AI Memory integration
+        
+        Args:
+            query_text: Natural language search query
+            top_k: Maximum number of results to return
+            similarity_threshold: Minimum similarity score (0.0 to 1.0)
+            speaker_type: Filter by speaker type ('Internal', 'External')
+            call_id: Filter by specific call ID
+            
+        Returns:
+            List of matching transcript segments with similarity scores
+        """
+        try:
+            # Build filters
+            filters = ["AI_MEMORY_EMBEDDING IS NOT NULL"]
+            
+            if speaker_type:
+                filters.append(f"SPEAKER_TYPE = '{speaker_type}'")
+            
+            if call_id:
+                filters.append(f"CALL_ID = '{call_id}'")
+            
+            filter_clause = " AND ".join(filters)
+            
+            # Enhanced transcript search query
+            search_sql = f"""
+            WITH query_embedding AS (
+                SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as embedding
+            ),
+            similarity_search AS (
+                SELECT 
+                    gt.*,
+                    VECTOR_COSINE_SIMILARITY(gt.AI_MEMORY_EMBEDDING, qe.embedding) as SIMILARITY_SCORE,
+                    -- Join with call data for context
+                    gc.CALL_TITLE,
+                    gc.ACCOUNT_NAME,
+                    gc.DEAL_STAGE,
+                    gc.CALL_DATETIME_UTC
+                FROM STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS gt
+                CROSS JOIN query_embedding qe
+                LEFT JOIN STG_TRANSFORMED.STG_GONG_CALLS gc ON gt.CALL_ID = gc.CALL_ID
+                WHERE {filter_clause}
+                AND VECTOR_COSINE_SIMILARITY(gt.AI_MEMORY_EMBEDDING, qe.embedding) >= {similarity_threshold}
+            )
+            SELECT 
+                TRANSCRIPT_ID,
+                CALL_ID,
+                SPEAKER_NAME,
+                SPEAKER_EMAIL,
+                SPEAKER_TYPE,
+                TRANSCRIPT_TEXT,
+                START_TIME_SECONDS,
+                END_TIME_SECONDS,
+                SEGMENT_DURATION_SECONDS,
+                SEGMENT_SENTIMENT,
+                SEGMENT_SUMMARY,
+                EXTRACTED_ENTITIES,
+                KEY_PHRASES,
+                SIMILARITY_SCORE,
+                -- Call context
+                CALL_TITLE,
+                ACCOUNT_NAME,
+                DEAL_STAGE,
+                CALL_DATETIME_UTC,
+                AI_MEMORY_UPDATED_AT
+            FROM similarity_search
+            ORDER BY SIMILARITY_SCORE DESC
+            LIMIT {top_k}
+            """
+            
+            results = await self.execute_query(search_sql)
+            
+            if results.empty:
+                return []
+            
+            # Convert to enhanced result format
+            search_results = []
+            for _, row in results.iterrows():
+                result = {
+                    "transcript_id": row["TRANSCRIPT_ID"],
+                    "call_id": row["CALL_ID"],
+                    "speaker": {
+                        "name": row["SPEAKER_NAME"],
+                        "email": row["SPEAKER_EMAIL"],
+                        "type": row["SPEAKER_TYPE"]
+                    },
+                    "content": {
+                        "transcript_text": row["TRANSCRIPT_TEXT"],
+                        "segment_summary": row["SEGMENT_SUMMARY"],
+                        "extracted_entities": row["EXTRACTED_ENTITIES"],
+                        "key_phrases": row["KEY_PHRASES"]
+                    },
+                    "timing": {
+                        "start_time_seconds": int(row["START_TIME_SECONDS"]) if pd.notna(row["START_TIME_SECONDS"]) else 0,
+                        "end_time_seconds": int(row["END_TIME_SECONDS"]) if pd.notna(row["END_TIME_SECONDS"]) else 0,
+                        "segment_duration_seconds": int(row["SEGMENT_DURATION_SECONDS"]) if pd.notna(row["SEGMENT_DURATION_SECONDS"]) else 0
+                    },
+                    "ai_insights": {
+                        "segment_sentiment": float(row["SEGMENT_SENTIMENT"]) if pd.notna(row["SEGMENT_SENTIMENT"]) else None,
+                        "similarity_score": float(row["SIMILARITY_SCORE"])
+                    },
+                    "call_context": {
+                        "call_title": row["CALL_TITLE"],
+                        "account_name": row["ACCOUNT_NAME"],
+                        "deal_stage": row["DEAL_STAGE"],
+                        "call_datetime": row["CALL_DATETIME_UTC"].isoformat() if pd.notna(row["CALL_DATETIME_UTC"]) else None
+                    },
+                    "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat() if pd.notna(row["AI_MEMORY_UPDATED_AT"]) else None
+                }
+                search_results.append(result)
+            
+            logger.info(f"Found {len(search_results)} transcript segments matching query: '{query_text}'")
+            return search_results
+            
+        except Exception as e:
+            logger.error(f"Error in Gong transcripts semantic search: {e}")
+            return []
 
-        # Use the enhanced vector search
-        results = await self.vector_search_business_table(
-            query_text=query_text,
-            table_name="ENRICHED_GONG_CALLS",
-            embedding_column="ai_memory_embedding",
-            top_k=top_k,
-            similarity_threshold=similarity_threshold,
-            metadata_filters=metadata_filters,
-        )
+    async def get_gong_call_analytics(
+        self,
+        date_range_days: int = 30,
+        include_ai_insights: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Get comprehensive Gong call analytics with AI insights
+        
+        Args:
+            date_range_days: Number of days to analyze
+            include_ai_insights: Whether to include AI-generated insights
+            
+        Returns:
+            Comprehensive analytics dictionary
+        """
+        try:
+            # Base analytics query
+            analytics_sql = f"""
+            SELECT 
+                COUNT(*) as total_calls,
+                COUNT(DISTINCT PRIMARY_USER_EMAIL) as unique_users,
+                COUNT(DISTINCT ACCOUNT_NAME) as unique_accounts,
+                AVG(CALL_DURATION_SECONDS) as avg_duration_seconds,
+                AVG(TALK_RATIO) as avg_talk_ratio,
+                AVG(SENTIMENT_SCORE) as avg_sentiment_score,
+                
+                -- Call direction breakdown
+                COUNT(CASE WHEN CALL_DIRECTION = 'Inbound' THEN 1 END) as inbound_calls,
+                COUNT(CASE WHEN CALL_DIRECTION = 'Outbound' THEN 1 END) as outbound_calls,
+                
+                -- Sentiment distribution
+                COUNT(CASE WHEN SENTIMENT_SCORE > 0.3 THEN 1 END) as positive_sentiment_calls,
+                COUNT(CASE WHEN SENTIMENT_SCORE < -0.3 THEN 1 END) as negative_sentiment_calls,
+                COUNT(CASE WHEN SENTIMENT_SCORE BETWEEN -0.3 AND 0.3 THEN 1 END) as neutral_sentiment_calls,
+                
+                -- Deal stage distribution
+                COUNT(CASE WHEN DEAL_STAGE IS NOT NULL THEN 1 END) as calls_with_deals,
+                SUM(CASE WHEN DEAL_VALUE IS NOT NULL THEN DEAL_VALUE ELSE 0 END) as total_deal_value,
+                
+                -- AI Memory integration stats
+                COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as calls_with_embeddings,
+                COUNT(CASE WHEN CALL_SUMMARY IS NOT NULL THEN 1 END) as calls_with_summaries,
+                COUNT(CASE WHEN KEY_TOPICS IS NOT NULL THEN 1 END) as calls_with_topics
+                
+            FROM STG_TRANSFORMED.STG_GONG_CALLS
+            WHERE CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())
+            """
+            
+            analytics_result = await self.execute_query(analytics_sql)
+            
+            if analytics_result.empty:
+                return {"error": "No analytics data available"}
+            
+            analytics_row = analytics_result.iloc[0]
+            
+            # Build comprehensive analytics response
+            analytics = {
+                "summary": {
+                    "date_range_days": date_range_days,
+                    "total_calls": int(analytics_row["TOTAL_CALLS"]),
+                    "unique_users": int(analytics_row["UNIQUE_USERS"]),
+                    "unique_accounts": int(analytics_row["UNIQUE_ACCOUNTS"]),
+                    "avg_duration_minutes": round(analytics_row["AVG_DURATION_SECONDS"] / 60, 1) if pd.notna(analytics_row["AVG_DURATION_SECONDS"]) else 0,
+                    "avg_talk_ratio": round(analytics_row["AVG_TALK_RATIO"], 2) if pd.notna(analytics_row["AVG_TALK_RATIO"]) else 0,
+                    "avg_sentiment_score": round(analytics_row["AVG_SENTIMENT_SCORE"], 2) if pd.notna(analytics_row["AVG_SENTIMENT_SCORE"]) else 0
+                },
+                "call_direction": {
+                    "inbound": int(analytics_row["INBOUND_CALLS"]),
+                    "outbound": int(analytics_row["OUTBOUND_CALLS"])
+                },
+                "sentiment_distribution": {
+                    "positive": int(analytics_row["POSITIVE_SENTIMENT_CALLS"]),
+                    "negative": int(analytics_row["NEGATIVE_SENTIMENT_CALLS"]),
+                    "neutral": int(analytics_row["NEUTRAL_SENTIMENT_CALLS"])
+                },
+                "deal_metrics": {
+                    "calls_with_deals": int(analytics_row["CALLS_WITH_DEALS"]),
+                    "total_deal_value": float(analytics_row["TOTAL_DEAL_VALUE"]) if pd.notna(analytics_row["TOTAL_DEAL_VALUE"]) else 0
+                },
+                "ai_memory_coverage": {
+                    "calls_with_embeddings": int(analytics_row["CALLS_WITH_EMBEDDINGS"]),
+                    "calls_with_summaries": int(analytics_row["CALLS_WITH_SUMMARIES"]),
+                    "calls_with_topics": int(analytics_row["CALLS_WITH_TOPICS"]),
+                    "embedding_coverage_percent": round(
+                        (analytics_row["CALLS_WITH_EMBEDDINGS"] / analytics_row["TOTAL_CALLS"] * 100) if analytics_row["TOTAL_CALLS"] > 0 else 0, 1
+                    )
+                }
+            }
+            
+            # Add AI insights if requested
+            if include_ai_insights:
+                insights_sql = f"""
+                SELECT 
+                    -- Top topics analysis
+                    FLATTEN(KEY_TOPICS) as topic_data,
+                    COUNT(*) as topic_frequency
+                FROM STG_TRANSFORMED.STG_GONG_CALLS
+                WHERE CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())
+                AND KEY_TOPICS IS NOT NULL
+                GROUP BY topic_data.value
+                ORDER BY topic_frequency DESC
+                LIMIT 10
+                """
+                
+                try:
+                    topics_result = await self.execute_query(insights_sql)
+                    
+                    if not topics_result.empty:
+                        analytics["ai_insights"] = {
+                            "top_topics": [
+                                {
+                                    "topic": row["TOPIC_DATA"],
+                                    "frequency": int(row["TOPIC_FREQUENCY"])
+                                }
+                                for _, row in topics_result.iterrows()
+                            ]
+                        }
+                except Exception as e:
+                    logger.warning(f"Could not generate AI insights: {e}")
+                    analytics["ai_insights"] = {"error": "AI insights unavailable"}
+            
+            analytics["generated_at"] = datetime.utcnow().isoformat()
+            
+            logger.info(f"Generated Gong call analytics for {date_range_days} days: {analytics['summary']['total_calls']} calls analyzed")
+            return analytics
+            
+        except Exception as e:
+            logger.error(f"Error generating Gong call analytics: {e}")
+            return {"error": str(e)}
 
-        return results
+    async def log_etl_job_status(self, job_log: Dict[str, Any]) -> bool:
+        """
+        Log ETL job status to OPS_MONITORING.ETL_JOB_LOGS table
+        
+        Args:
+            job_log: Dictionary containing job status information
+            
+        Returns:
+            True if logged successfully, False otherwise
+        """
+        try:
+            # Insert job log into monitoring table
+            insert_sql = f"""
+            INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
+                JOB_ID,
+                JOB_TYPE,
+                STATUS,
+                RECORDS_PROCESSED,
+                SUCCESS_RATE,
+                HEALTH_STATUS,
+                CONNECTION_ID,
+                SOURCE_TYPE,
+                DESTINATION_TYPE,
+                ERROR_MESSAGE,
+                METADATA
+            ) VALUES (
+                '{job_log.get("job_id", "")}',
+                '{job_log.get("job_type", "")}',
+                '{job_log.get("status", "")}',
+                {job_log.get("records_processed", 0)},
+                {job_log.get("success_rate", 0.0)},
+                '{job_log.get("health_status", "")}',
+                '{job_log.get("connection_id", "")}',
+                '{job_log.get("source_type", "")}',
+                '{job_log.get("destination_type", "")}',
+                '{job_log.get("error_message", "")}',
+                PARSE_JSON('{json.dumps(job_log.get("metadata", {}))}')
+            )
+            """
+            
+            await self.execute_query(insert_sql)
+            logger.info(f"ETL job status logged: {job_log.get('job_id', 'unknown')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to log ETL job status: {e}")
+            return False
 
 
 # Global service instance

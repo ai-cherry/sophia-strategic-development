@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+import time
 
 # Core imports
 from backend.core.auto_esc_config import get_config_value
@@ -50,6 +51,13 @@ class QueryIntent(Enum):
     KB_SEARCH_KNOWLEDGE = "kb_search_knowledge"
     KB_UPLOAD_DOCUMENT = "kb_upload_document"
     KB_MANAGE_CATEGORY = "kb_manage_category"
+    # Enhanced Gong-specific intents
+    GONG_CALL_SEARCH = "gong_call_search"
+    GONG_TRANSCRIPT_SEARCH = "gong_transcript_search"
+    GONG_ACCOUNT_INSIGHTS = "gong_account_insights"
+    GONG_SENTIMENT_ANALYSIS = "gong_sentiment_analysis"
+    GONG_TOPIC_ANALYSIS = "gong_topic_analysis"
+    GONG_COACHING_INSIGHTS = "gong_coaching_insights"
 
 
 class QueryComplexity(Enum):
@@ -822,6 +830,49 @@ class QueryProcessor:
 
         return plan
 
+    # Enhanced Gong call search patterns
+    gong_call_patterns = [
+        r"(?:search|find|show|get).*(?:gong|call|conversation).*(?:about|for|with).*([^.?!]+)",
+        r"(?:calls|conversations).*(?:about|regarding|with).*([^.?!]+)",
+        r"(?:gong|call).*(?:data|insights|analysis).*([^.?!]+)",
+        r"(?:show|find).*(?:calls|meetings).*(?:sentiment|positive|negative)",
+        r"(?:recent|latest).*(?:calls|gong).*(?:data|insights)"
+    ]
+    
+    gong_transcript_patterns = [
+        r"(?:search|find).*(?:transcript|conversation|discussion).*([^.?!]+)",
+        r"(?:what.*said|who.*mentioned).*([^.?!]+)",
+        r"(?:transcript|conversation).*(?:about|regarding).*([^.?!]+)",
+        r"(?:find|search).*(?:speaker|participant).*([^.?!]+)"
+    ]
+    
+    gong_account_patterns = [
+        r"(?:account|customer|client).*([A-Za-z][A-Za-z0-9\s]+).*(?:calls|insights|data)",
+        r"(?:calls|conversations).*(?:with|from).*([A-Za-z][A-Za-z0-9\s]+)",
+        r"(?:gong|call).*(?:data|insights).*(?:for|about).*([A-Za-z][A-Za-z0-9\s]+)"
+    ]
+    
+    gong_sentiment_patterns = [
+        r"(?:sentiment|mood|feeling).*(?:calls|conversations|gong)",
+        r"(?:positive|negative|neutral).*(?:calls|sentiment)",
+        r"(?:how.*feel|customer.*sentiment).*(?:calls|gong)",
+        r"(?:analyze|show).*(?:sentiment|mood).*(?:calls|data)"
+    ]
+    
+    gong_topic_patterns = [
+        r"(?:topics|themes|subjects).*(?:discussed|mentioned).*(?:calls|gong)",
+        r"(?:what.*talked|discussed).*(?:about|in).*(?:calls|meetings)",
+        r"(?:key|main|important).*(?:topics|themes).*(?:calls|conversations)",
+        r"(?:analyze|show).*(?:topics|themes).*(?:gong|calls)"
+    ]
+    
+    gong_coaching_patterns = [
+        r"(?:coaching|feedback|improvement).*(?:insights|recommendations)",
+        r"(?:sales|call).*(?:coaching|training|improvement)",
+        r"(?:performance|effectiveness).*(?:analysis|insights).*(?:calls|sales)",
+        r"(?:recommendations|suggestions).*(?:sales|calls|gong)"
+    ]
+
 
 class EnhancedUnifiedChatService:
     """
@@ -1285,6 +1336,572 @@ class EnhancedUnifiedChatService:
         """Handle predictive analytics queries"""
         # Implementation using advanced AI for predictions
         pass
+
+    async def _handle_gong_call_search(
+        self, processed_query: ProcessedQuery
+    ) -> QueryResponse:
+        """Handle Gong call search queries"""
+        try:
+            start_time = time.time()
+            
+            # Extract search parameters from query
+            query_text = processed_query.original_query
+            entities = processed_query.entities
+            time_filters = processed_query.time_filters
+            
+            # Extract specific parameters
+            sentiment_filter = None
+            call_direction = None
+            date_range_days = None
+            
+            # Parse sentiment filter
+            query_lower = query_text.lower()
+            if "positive" in query_lower:
+                sentiment_filter = "positive"
+            elif "negative" in query_lower:
+                sentiment_filter = "negative"
+            elif "neutral" in query_lower:
+                sentiment_filter = "neutral"
+            
+            # Parse call direction
+            if "inbound" in query_lower:
+                call_direction = "Inbound"
+            elif "outbound" in query_lower:
+                call_direction = "Outbound"
+            
+            # Parse date range
+            if time_filters.get("days"):
+                date_range_days = time_filters["days"]
+            elif "recent" in query_lower or "latest" in query_lower:
+                date_range_days = 7  # Default to last week
+            
+            # Perform semantic search using Cortex service
+            search_results = await self.cortex_service.search_gong_calls_with_ai_memory(
+                query_text=query_text,
+                top_k=10,
+                similarity_threshold=0.7,
+                call_direction=call_direction,
+                date_range_days=date_range_days,
+                sentiment_filter=sentiment_filter
+            )
+            
+            # Generate executive summary
+            total_calls = len(search_results)
+            avg_sentiment = sum(
+                call["ai_insights"]["sentiment_score"] or 0 
+                for call in search_results 
+                if call["ai_insights"]["sentiment_score"] is not None
+            ) / max(total_calls, 1)
+            
+            unique_accounts = len(set(
+                call["account_info"]["account_name"] 
+                for call in search_results 
+                if call["account_info"]["account_name"]
+            ))
+            
+            executive_summary = f"""
+            Found {total_calls} Gong calls matching your search criteria. 
+            Average sentiment score: {avg_sentiment:.2f} ({
+                'Positive' if avg_sentiment > 0.3 else 
+                'Negative' if avg_sentiment < -0.3 else 'Neutral'
+            }). 
+            Calls involve {unique_accounts} unique accounts.
+            """
+            
+            # Generate key insights
+            insights = []
+            
+            if search_results:
+                # Sentiment insights
+                positive_calls = sum(1 for call in search_results 
+                                   if call["ai_insights"]["sentiment_score"] and call["ai_insights"]["sentiment_score"] > 0.3)
+                if positive_calls > total_calls * 0.7:
+                    insights.append(f"High positive sentiment: {positive_calls}/{total_calls} calls have positive sentiment")
+                
+                # Topic insights
+                all_topics = []
+                for call in search_results:
+                    if call["ai_insights"]["key_topics"]:
+                        all_topics.extend(call["ai_insights"]["key_topics"])
+                
+                if all_topics:
+                    from collections import Counter
+                    top_topics = Counter(all_topics).most_common(3)
+                    insights.append(f"Top discussion topics: {', '.join([topic for topic, _ in top_topics])}")
+                
+                # Risk insights
+                high_risk_calls = sum(1 for call in search_results 
+                                    if call["ai_insights"]["risk_indicators"])
+                if high_risk_calls > 0:
+                    insights.append(f"Risk detected: {high_risk_calls} calls have identified risk indicators")
+            
+            # Generate recommendations
+            recommendations = []
+            
+            if avg_sentiment < 0:
+                recommendations.append("Consider follow-up coaching for calls with negative sentiment")
+            
+            if search_results:
+                calls_with_next_steps = sum(1 for call in search_results 
+                                          if call["ai_insights"]["next_steps"])
+                if calls_with_next_steps < total_calls * 0.8:
+                    recommendations.append("Ensure clear next steps are defined for all calls")
+            
+            # Create key metrics
+            key_metrics = {
+                "total_calls_found": total_calls,
+                "average_sentiment": round(avg_sentiment, 2),
+                "unique_accounts": unique_accounts,
+                "positive_sentiment_calls": sum(1 for call in search_results 
+                                              if call["ai_insights"]["sentiment_score"] and call["ai_insights"]["sentiment_score"] > 0.3),
+                "average_duration_minutes": round(
+                    sum(call["call_duration_seconds"] for call in search_results) / max(total_calls, 1) / 60, 1
+                ) if search_results else 0
+            }
+            
+            processing_time = time.time() - start_time
+            
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=executive_summary.strip(),
+                key_metrics=key_metrics,
+                insights=insights,
+                recommendations=recommendations,
+                data_sources=["Gong Calls", "AI Memory", "Snowflake Cortex"],
+                confidence=processed_query.confidence,
+                processing_time=processing_time,
+                follow_up_questions=[
+                    "Would you like to see transcript details for specific calls?",
+                    "Should I analyze sentiment trends over time?",
+                    "Do you want coaching recommendations for specific reps?"
+                ],
+                visualizations=[
+                    {
+                        "type": "sentiment_distribution",
+                        "data": search_results,
+                        "title": "Call Sentiment Distribution"
+                    },
+                    {
+                        "type": "call_timeline",
+                        "data": search_results,
+                        "title": "Call Activity Timeline"
+                    }
+                ]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error handling Gong call search: {e}")
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=f"Error searching Gong calls: {str(e)}",
+                key_metrics={},
+                insights=[],
+                recommendations=[],
+                data_sources=[],
+                confidence=0.0,
+                processing_time=0.0,
+                follow_up_questions=[]
+            )
+
+    async def _handle_gong_transcript_search(
+        self, processed_query: ProcessedQuery
+    ) -> QueryResponse:
+        """Handle Gong transcript search queries"""
+        try:
+            start_time = time.time()
+            
+            query_text = processed_query.original_query
+            
+            # Extract speaker type filter
+            speaker_type = None
+            if "internal" in query_text.lower():
+                speaker_type = "Internal"
+            elif "external" in query_text.lower() or "customer" in query_text.lower():
+                speaker_type = "External"
+            
+            # Perform transcript search
+            transcript_results = await self.cortex_service.search_gong_transcripts_with_ai_memory(
+                query_text=query_text,
+                top_k=15,
+                similarity_threshold=0.7,
+                speaker_type=speaker_type
+            )
+            
+            # Generate summary
+            total_segments = len(transcript_results)
+            unique_calls = len(set(segment["call_id"] for segment in transcript_results))
+            
+            avg_sentiment = sum(
+                segment["ai_insights"]["segment_sentiment"] or 0 
+                for segment in transcript_results 
+                if segment["ai_insights"]["segment_sentiment"] is not None
+            ) / max(total_segments, 1)
+            
+            executive_summary = f"""
+            Found {total_segments} transcript segments across {unique_calls} calls matching your search. 
+            Average segment sentiment: {avg_sentiment:.2f}. 
+            Results include both internal and external speaker perspectives.
+            """
+            
+            # Generate insights from transcript analysis
+            insights = []
+            
+            if transcript_results:
+                # Speaker insights
+                internal_segments = sum(1 for seg in transcript_results if seg["speaker"]["type"] == "Internal")
+                external_segments = total_segments - internal_segments
+                insights.append(f"Speaker distribution: {internal_segments} internal, {external_segments} external segments")
+                
+                # Entity insights
+                all_entities = []
+                for segment in transcript_results:
+                    if segment["content"]["extracted_entities"]:
+                        all_entities.extend(segment["content"]["extracted_entities"])
+                
+                if all_entities:
+                    from collections import Counter
+                    top_entities = Counter(all_entities).most_common(3)
+                    insights.append(f"Key entities mentioned: {', '.join([entity for entity, _ in top_entities])}")
+            
+            # Generate recommendations
+            recommendations = []
+            if avg_sentiment < 0:
+                recommendations.append("Review negative sentiment segments for coaching opportunities")
+            
+            if transcript_results:
+                recommendations.append("Consider creating talking points based on successful conversation patterns")
+            
+            key_metrics = {
+                "transcript_segments_found": total_segments,
+                "unique_calls": unique_calls,
+                "average_segment_sentiment": round(avg_sentiment, 2),
+                "internal_speaker_segments": sum(1 for seg in transcript_results if seg["speaker"]["type"] == "Internal"),
+                "external_speaker_segments": sum(1 for seg in transcript_results if seg["speaker"]["type"] == "External")
+            }
+            
+            processing_time = time.time() - start_time
+            
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=executive_summary.strip(),
+                key_metrics=key_metrics,
+                insights=insights,
+                recommendations=recommendations,
+                data_sources=["Gong Transcripts", "AI Memory", "Snowflake Cortex"],
+                confidence=processed_query.confidence,
+                processing_time=processing_time,
+                follow_up_questions=[
+                    "Would you like to see the actual transcript text?",
+                    "Should I analyze conversation patterns for coaching?",
+                    "Do you want to search for similar conversations?"
+                ],
+                visualizations=[
+                    {
+                        "type": "speaker_sentiment",
+                        "data": transcript_results,
+                        "title": "Speaker Sentiment Analysis"
+                    }
+                ]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error handling Gong transcript search: {e}")
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=f"Error searching Gong transcripts: {str(e)}",
+                key_metrics={},
+                insights=[],
+                recommendations=[],
+                data_sources=[],
+                confidence=0.0,
+                processing_time=0.0,
+                follow_up_questions=[]
+            )
+
+    async def _handle_gong_account_insights(
+        self, processed_query: ProcessedQuery
+    ) -> QueryResponse:
+        """Handle Gong account-specific insights queries"""
+        try:
+            start_time = time.time()
+            
+            # Extract account name from query
+            query_text = processed_query.original_query
+            entities = processed_query.entities
+            
+            # Try to extract account name from entities or query
+            account_name = None
+            for entity in entities:
+                if entity.startswith("company:"):
+                    account_name = entity.split(":", 1)[1].strip()
+                    break
+            
+            # If no account found in entities, try regex
+            if not account_name:
+                import re
+                account_match = re.search(r"(?:account|company|client)\s+([A-Za-z][A-Za-z0-9\s&]+)", query_text, re.IGNORECASE)
+                if account_match:
+                    account_name = account_match.group(1).strip()
+            
+            if not account_name:
+                return QueryResponse(
+                    query=processed_query.original_query,
+                    intent=processed_query.intent,
+                    executive_summary="Please specify an account name to search for insights.",
+                    key_metrics={},
+                    insights=[],
+                    recommendations=["Try: 'Show me Gong insights for Acme Corp'"],
+                    data_sources=[],
+                    confidence=0.0,
+                    processing_time=0.0,
+                    follow_up_questions=[]
+                )
+            
+            # Search for account-specific insights
+            account_insights = await self.ai_memory.search_gong_insights_by_account(
+                account_name=account_name,
+                limit=20,
+                include_transcripts=True
+            )
+            
+            # Generate comprehensive account analysis
+            call_level_insights = [insight for insight in account_insights if insight.get("insight_level") == "call"]
+            transcript_level_insights = [insight for insight in account_insights if insight.get("insight_level") == "transcript"]
+            
+            total_insights = len(account_insights)
+            
+            # Calculate account health metrics
+            sentiments = [insight.get("sentiment_score") for insight in call_level_insights if insight.get("sentiment_score") is not None]
+            avg_sentiment = sum(sentiments) / len(sentiments) if sentiments else 0
+            
+            executive_summary = f"""
+            Account Analysis for {account_name}: Found {total_insights} insights across {len(call_level_insights)} calls 
+            and {len(transcript_level_insights)} transcript segments. 
+            Overall sentiment: {avg_sentiment:.2f} ({'Positive' if avg_sentiment > 0.3 else 'Negative' if avg_sentiment < -0.3 else 'Neutral'}).
+            """
+            
+            # Generate account-specific insights
+            insights = []
+            
+            if call_level_insights:
+                # Deal stage insights
+                deal_stages = [insight.get("deal_stage") for insight in call_level_insights if insight.get("deal_stage")]
+                if deal_stages:
+                    from collections import Counter
+                    stage_counts = Counter(deal_stages)
+                    current_stage = stage_counts.most_common(1)[0][0]
+                    insights.append(f"Most recent deal stage: {current_stage}")
+                
+                # Risk analysis
+                risks = []
+                for insight in call_level_insights:
+                    if insight.get("risk_indicators"):
+                        risks.extend(insight["risk_indicators"])
+                
+                if risks:
+                    from collections import Counter
+                    top_risks = Counter(risks).most_common(2)
+                    insights.append(f"Key risks identified: {', '.join([risk for risk, _ in top_risks])}")
+                
+                # Relationship health
+                if avg_sentiment > 0.5:
+                    insights.append("Strong positive relationship - high engagement and satisfaction")
+                elif avg_sentiment < -0.3:
+                    insights.append("Relationship requires attention - negative sentiment trends detected")
+            
+            # Generate recommendations
+            recommendations = []
+            
+            if avg_sentiment < 0:
+                recommendations.append(f"Schedule relationship recovery call with {account_name}")
+                recommendations.append("Review recent interactions for improvement opportunities")
+            elif avg_sentiment > 0.5:
+                recommendations.append(f"Consider expansion opportunities with {account_name}")
+            
+            if call_level_insights:
+                recent_calls = sorted(call_level_insights, key=lambda x: x.get("call_datetime", ""), reverse=True)[:3]
+                if recent_calls:
+                    recommendations.append("Follow up on action items from recent calls")
+            
+            key_metrics = {
+                "total_insights": total_insights,
+                "call_level_insights": len(call_level_insights),
+                "transcript_level_insights": len(transcript_level_insights),
+                "average_sentiment": round(avg_sentiment, 2),
+                "account_name": account_name,
+                "sentiment_trend": "Positive" if avg_sentiment > 0.3 else "Negative" if avg_sentiment < -0.3 else "Neutral"
+            }
+            
+            processing_time = time.time() - start_time
+            
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=executive_summary.strip(),
+                key_metrics=key_metrics,
+                insights=insights,
+                recommendations=recommendations,
+                data_sources=["Gong Calls", "Gong Transcripts", "AI Memory"],
+                confidence=processed_query.confidence,
+                processing_time=processing_time,
+                follow_up_questions=[
+                    f"Would you like detailed call history for {account_name}?",
+                    "Should I analyze conversation topics with this account?",
+                    "Do you want to see risk mitigation strategies?"
+                ],
+                visualizations=[
+                    {
+                        "type": "account_sentiment_timeline",
+                        "data": call_level_insights,
+                        "title": f"{account_name} Sentiment Over Time"
+                    },
+                    {
+                        "type": "account_interaction_summary",
+                        "data": account_insights,
+                        "title": f"{account_name} Interaction Summary"
+                    }
+                ]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error handling Gong account insights: {e}")
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=f"Error retrieving account insights: {str(e)}",
+                key_metrics={},
+                insights=[],
+                recommendations=[],
+                data_sources=[],
+                confidence=0.0,
+                processing_time=0.0,
+                follow_up_questions=[]
+            )
+
+    async def _handle_gong_sentiment_analysis(
+        self, processed_query: ProcessedQuery
+    ) -> QueryResponse:
+        """Handle Gong sentiment analysis queries"""
+        try:
+            start_time = time.time()
+            
+            # Get comprehensive Gong analytics with sentiment focus
+            analytics = await self.cortex_service.get_gong_call_analytics(
+                date_range_days=30,  # Default to last 30 days
+                include_ai_insights=True
+            )
+            
+            if "error" in analytics:
+                raise Exception(analytics["error"])
+            
+            # Extract sentiment data
+            sentiment_dist = analytics["sentiment_distribution"]
+            total_calls = analytics["summary"]["total_calls"]
+            avg_sentiment = analytics["summary"]["avg_sentiment_score"]
+            
+            # Calculate sentiment percentages
+            positive_pct = (sentiment_dist["positive"] / total_calls * 100) if total_calls > 0 else 0
+            negative_pct = (sentiment_dist["negative"] / total_calls * 100) if total_calls > 0 else 0
+            neutral_pct = (sentiment_dist["neutral"] / total_calls * 100) if total_calls > 0 else 0
+            
+            executive_summary = f"""
+            Sentiment Analysis for {total_calls} calls over the last 30 days:
+            Overall sentiment score: {avg_sentiment:.2f}
+            Distribution: {positive_pct:.1f}% positive, {neutral_pct:.1f}% neutral, {negative_pct:.1f}% negative.
+            """
+            
+            # Generate sentiment insights
+            insights = []
+            
+            if positive_pct > 60:
+                insights.append("Strong positive sentiment trend - customer relationships are healthy")
+            elif negative_pct > 30:
+                insights.append("Concerning negative sentiment levels - immediate attention required")
+            
+            if avg_sentiment > 0.5:
+                insights.append("Exceptional customer satisfaction levels detected")
+            elif avg_sentiment < -0.3:
+                insights.append("Customer satisfaction below acceptable threshold")
+            
+            # Trend analysis
+            if analytics.get("ai_insights", {}).get("top_topics"):
+                top_topics = analytics["ai_insights"]["top_topics"][:3]
+                insights.append(f"Top discussion topics: {', '.join([topic['topic'] for topic in top_topics])}")
+            
+            # Generate recommendations
+            recommendations = []
+            
+            if negative_pct > 20:
+                recommendations.append("Implement immediate coaching for calls with negative sentiment")
+                recommendations.append("Review and improve customer interaction protocols")
+            
+            if positive_pct > 70:
+                recommendations.append("Identify and replicate successful conversation patterns")
+                recommendations.append("Consider case studies from high-performing interactions")
+            
+            recommendations.append("Schedule regular sentiment monitoring and reporting")
+            
+            key_metrics = {
+                "total_calls_analyzed": total_calls,
+                "average_sentiment_score": avg_sentiment,
+                "positive_calls": sentiment_dist["positive"],
+                "negative_calls": sentiment_dist["negative"],
+                "neutral_calls": sentiment_dist["neutral"],
+                "positive_percentage": round(positive_pct, 1),
+                "negative_percentage": round(negative_pct, 1),
+                "neutral_percentage": round(neutral_pct, 1),
+                "sentiment_health_score": round((positive_pct - negative_pct), 1)
+            }
+            
+            processing_time = time.time() - start_time
+            
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=executive_summary.strip(),
+                key_metrics=key_metrics,
+                insights=insights,
+                recommendations=recommendations,
+                data_sources=["Gong Calls", "Snowflake Cortex", "AI Analytics"],
+                confidence=processed_query.confidence,
+                processing_time=processing_time,
+                follow_up_questions=[
+                    "Would you like to see sentiment trends over time?",
+                    "Should I identify specific calls needing attention?",
+                    "Do you want coaching recommendations for negative sentiment calls?"
+                ],
+                visualizations=[
+                    {
+                        "type": "sentiment_pie_chart",
+                        "data": sentiment_dist,
+                        "title": "Call Sentiment Distribution"
+                    },
+                    {
+                        "type": "sentiment_trend",
+                        "data": analytics,
+                        "title": "Sentiment Trend Over Time"
+                    }
+                ]
+            )
+            
+        except Exception as e:
+            logger.error(f"Error handling Gong sentiment analysis: {e}")
+            return QueryResponse(
+                query=processed_query.original_query,
+                intent=processed_query.intent,
+                executive_summary=f"Error analyzing sentiment: {str(e)}",
+                key_metrics={},
+                insights=[],
+                recommendations=[],
+                data_sources=[],
+                confidence=0.0,
+                processing_time=0.0,
+                follow_up_questions=[]
+            )
 
 
 # Global service instance
