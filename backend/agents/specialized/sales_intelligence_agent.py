@@ -31,6 +31,11 @@ from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 
+# Import workflow interface
+from backend.workflows.multi_agent_workflow import (
+    AgentWorkflowInterface, WorkflowTask, TaskStatus, WorkflowResult, AgentRole
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -155,9 +160,9 @@ class PipelineAnalysis:
     analysis_timestamp: datetime = datetime.now()
 
 
-class SalesIntelligenceAgent(BaseAgent):
+class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
     """
-    Enhanced Sales Intelligence Agent
+    Enhanced Sales Intelligence Agent with Workflow Integration
     
     Capabilities:
     - Advanced deal risk assessment with AI insights
@@ -165,12 +170,14 @@ class SalesIntelligenceAgent(BaseAgent):
     - Competitor analysis and talking points
     - Pipeline forecasting and health analysis
     - Enhanced sales coaching with performance tracking
+    - Multi-agent workflow orchestration
     """
 
     def __init__(self):
         super().__init__()
         self.name = "sales_intelligence"
         self.description = "AI-powered sales intelligence and coaching"
+        self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
         self.cortex_service: Optional[SnowflakeCortexService] = None
@@ -1018,4 +1025,206 @@ class SalesIntelligenceAgent(BaseAgent):
 
         except Exception as e:
             logger.error(f"Error generating positioning strategy: {e}")
-            return "Focus on our unique value proposition and proven results." 
+            return "Focus on our unique value proposition and proven results."
+
+    # ============================================================================
+    # WORKFLOW INTERFACE IMPLEMENTATION
+    # ============================================================================
+
+    async def execute_workflow_task(self, task: WorkflowTask) -> WorkflowResult:
+        """Execute a workflow task for sales intelligence"""
+        start_time = datetime.now()
+        
+        try:
+            if not self.initialized:
+                await self.initialize()
+            
+            output_data = {}
+            
+            # Route to appropriate method based on task input
+            task_type = task.input_data.get("task_type", "").lower()
+            
+            if task_type == "deal_risk_assessment":
+                deal_id = task.input_data.get("deal_id")
+                if not deal_id:
+                    raise ValueError("deal_id required for deal_risk_assessment")
+                
+                assessment = await self.assess_deal_risk(deal_id)
+                if assessment:
+                    output_data = {
+                        "assessment": assessment.__dict__,
+                        "risk_level": assessment.risk_level.value,
+                        "risk_score": assessment.risk_score,
+                        "recommendations": assessment.recommendations
+                    }
+                else:
+                    output_data = {"error": "Failed to assess deal risk"}
+            
+            elif task_type == "generate_sales_email":
+                email_request = SalesEmailRequest(
+                    email_type=EmailType(task.input_data.get("email_type", "follow_up")),
+                    deal_id=task.input_data.get("deal_id"),
+                    recipient_name=task.input_data.get("recipient_name"),
+                    recipient_role=task.input_data.get("recipient_role"),
+                    context=task.input_data.get("context", ""),
+                    key_points=task.input_data.get("key_points", []),
+                    call_to_action=task.input_data.get("call_to_action", "Schedule a call"),
+                    tone=task.input_data.get("tone", "professional")
+                )
+                
+                email_result = await self.generate_sales_email(email_request)
+                output_data = email_result
+            
+            elif task_type == "competitor_analysis":
+                competitor_name = task.input_data.get("competitor_name")
+                deal_id = task.input_data.get("deal_id")
+                
+                if not competitor_name or not deal_id:
+                    raise ValueError("competitor_name and deal_id required for competitor_analysis")
+                
+                talking_points = await self.get_competitor_talking_points(competitor_name, deal_id)
+                if talking_points:
+                    output_data = talking_points.__dict__
+                else:
+                    output_data = {"error": "Failed to generate competitor talking points"}
+            
+            elif task_type == "pipeline_analysis":
+                sales_rep = task.input_data.get("sales_rep")
+                time_period = task.input_data.get("time_period_days", 90)
+                
+                analysis = await self.analyze_pipeline_health(sales_rep, time_period)
+                if analysis:
+                    output_data = analysis.__dict__
+                else:
+                    output_data = {"error": "Failed to analyze pipeline"}
+            
+            else:
+                # Generic sales intelligence analysis
+                query = task.input_data.get("query", "")
+                context = task.input_data.get("context", {})
+                
+                # Use SmartAI for general sales intelligence
+                insight = await generate_executive_insight(
+                    query=query,
+                    context=context,
+                    user_id="sales_intelligence_agent"
+                )
+                
+                output_data = {
+                    "insight": insight.content if insight else "No insight generated",
+                    "confidence": insight.confidence if insight else 0.0
+                }
+            
+            end_time = datetime.now()
+            execution_time = (end_time - start_time).total_seconds()
+            
+            return WorkflowResult(
+                task_id=task.task_id,
+                agent_type="sales_intelligence",
+                status=TaskStatus.COMPLETED,
+                output_data=output_data,
+                execution_time_seconds=execution_time,
+                start_time=start_time,
+                end_time=end_time
+            )
+            
+        except Exception as e:
+            end_time = datetime.now()
+            execution_time = (end_time - start_time).total_seconds()
+            
+            logger.error(f"Workflow task failed for {task.task_id}: {e}")
+            
+            return WorkflowResult(
+                task_id=task.task_id,
+                agent_type="sales_intelligence",
+                status=TaskStatus.FAILED,
+                output_data={"error": str(e)},
+                execution_time_seconds=execution_time,
+                start_time=start_time,
+                end_time=end_time
+            )
+
+    def get_agent_capabilities(self) -> Dict[str, Any]:
+        """Get agent capabilities for workflow planning"""
+        return {
+            "agent_type": "sales_intelligence",
+            "agent_role": self.agent_role.value,
+            "supported_tasks": [
+                "deal_risk_assessment",
+                "generate_sales_email", 
+                "competitor_analysis",
+                "pipeline_analysis",
+                "general_sales_intelligence"
+            ],
+            "input_requirements": {
+                "deal_risk_assessment": ["deal_id"],
+                "generate_sales_email": ["deal_id", "email_type", "recipient_name", "recipient_role"],
+                "competitor_analysis": ["competitor_name", "deal_id"],
+                "pipeline_analysis": [],
+                "general_sales_intelligence": ["query"]
+            },
+            "output_formats": {
+                "deal_risk_assessment": "DealRiskAssessment object with risk level and recommendations",
+                "generate_sales_email": "Email content with subject lines and quality metrics",
+                "competitor_analysis": "CompetitorTalkingPoints with differentiators and strategy",
+                "pipeline_analysis": "PipelineAnalysis with forecasting and health metrics"
+            },
+            "dependencies": ["hubspot", "gong", "ai_memory", "smart_ai_service"],
+            "estimated_execution_time_seconds": {
+                "deal_risk_assessment": 15,
+                "generate_sales_email": 20,
+                "competitor_analysis": 10,
+                "pipeline_analysis": 25
+            }
+        }
+
+    def can_handle_task(self, task: WorkflowTask) -> bool:
+        """Check if this agent can handle the given task"""
+        task_type = task.input_data.get("task_type", "").lower()
+        supported_tasks = [
+            "deal_risk_assessment", "generate_sales_email", "competitor_analysis",
+            "pipeline_analysis", "general_sales_intelligence"
+        ]
+        
+        return (
+            task_type in supported_tasks or
+            task.agent_type == "sales_intelligence" or
+            task.agent_role == AgentRole.ANALYZER
+        )
+
+    async def validate_task_input(self, task: WorkflowTask) -> Dict[str, Any]:
+        """Validate task input requirements"""
+        validation_result = {
+            "valid": True,
+            "errors": [],
+            "warnings": []
+        }
+        
+        task_type = task.input_data.get("task_type", "").lower()
+        
+        # Task-specific validation
+        if task_type == "deal_risk_assessment":
+            if not task.input_data.get("deal_id"):
+                validation_result["valid"] = False
+                validation_result["errors"].append("deal_id is required")
+        
+        elif task_type == "generate_sales_email":
+            required_fields = ["deal_id", "email_type", "recipient_name", "recipient_role"]
+            for field in required_fields:
+                if not task.input_data.get(field):
+                    validation_result["valid"] = False
+                    validation_result["errors"].append(f"{field} is required")
+        
+        elif task_type == "competitor_analysis":
+            if not task.input_data.get("competitor_name"):
+                validation_result["valid"] = False
+                validation_result["errors"].append("competitor_name is required")
+            if not task.input_data.get("deal_id"):
+                validation_result["valid"] = False
+                validation_result["errors"].append("deal_id is required")
+        
+        # Check service availability
+        if not self.initialized:
+            validation_result["warnings"].append("Agent not initialized - will initialize during execution")
+        
+        return validation_result 
