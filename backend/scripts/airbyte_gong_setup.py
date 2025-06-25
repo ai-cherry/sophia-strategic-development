@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import sys
+import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
@@ -35,6 +36,28 @@ from backend.core.auto_esc_config import get_config_value
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = structlog.get_logger()
+
+
+class ErrorType(Enum):
+    """Categorized error types for enhanced error handling"""
+    NETWORK_ERROR = "network_error"
+    AUTHENTICATION_ERROR = "authentication_error"
+    CONFIGURATION_ERROR = "configuration_error"
+    RATE_LIMIT_ERROR = "rate_limit_error"
+    TIMEOUT_ERROR = "timeout_error"
+    VALIDATION_ERROR = "validation_error"
+    INFRASTRUCTURE_ERROR = "infrastructure_error"
+    UNKNOWN_ERROR = "unknown_error"
+
+
+@dataclass
+class RetryConfig:
+    """Configuration for retry mechanisms"""
+    max_attempts: int = 3
+    base_delay: float = 1.0
+    max_delay: float = 60.0
+    exponential_base: float = 2.0
+    jitter: bool = True
 
 
 class AirbyteOperationMode(Enum):
@@ -110,6 +133,9 @@ class AirbyteGongOrchestrator:
         self.gong_source_id: Optional[str] = None
         self.snowflake_destination_id: Optional[str] = None
         self.connection_id: Optional[str] = None
+        
+        # Enhanced error handling and retry logic
+        self.retry_config = RetryConfig()
 
     async def initialize(self) -> None:
         """Initialize the orchestrator with configurations from Pulumi ESC"""
@@ -132,15 +158,16 @@ class AirbyteGongOrchestrator:
                 schema="RAW_AIRBYTE"
             )
             
-            # Initialize HTTP session
+            # Initialize HTTP session with enhanced configuration
             auth = aiohttp.BasicAuth(
                 self.airbyte_config.username, 
                 self.airbyte_config.password
             )
+            timeout = aiohttp.ClientTimeout(total=300, connect=30)
             self.session = aiohttp.ClientSession(
                 auth=auth,
                 headers=self.headers,
-                timeout=aiohttp.ClientTimeout(total=60)
+                timeout=timeout
             )
             
             logger.info("✅ Airbyte Gong Orchestrator initialized successfully")
@@ -149,36 +176,128 @@ class AirbyteGongOrchestrator:
             logger.error(f"Failed to initialize Airbyte orchestrator: {e}")
             raise
 
+    async def execute_with_retry(self, operation_func, operation_name: str, *args, **kwargs) -> Any:
+        """Execute operation with comprehensive retry logic and error handling"""
+        start_time = time.time()
+        last_error = None
+        
+        for attempt in range(self.retry_config.max_attempts):
+            try:
+                logger.info(f"Executing {operation_name} (attempt {attempt + 1}/{self.retry_config.max_attempts})")
+                
+                # Execute the operation
+                result = await operation_func(*args, **kwargs)
+                
+                execution_time = time.time() - start_time
+                logger.info(f"✅ {operation_name} completed successfully in {execution_time:.2f}s")
+                
+                return result
+                
+            except Exception as e:
+                last_error = e
+                error_type = self._classify_error(e)
+                execution_time = time.time() - start_time
+                
+                logger.warning(f"Operation {operation_name} failed on attempt {attempt + 1}: {e}")
+                
+                # Check if error is retryable
+                if error_type in [ErrorType.AUTHENTICATION_ERROR, ErrorType.CONFIGURATION_ERROR, ErrorType.VALIDATION_ERROR]:
+                    logger.error(f"Non-retryable error for {operation_name}: {error_type}")
+                    break
+                
+                # Calculate delay for next attempt
+                if attempt < self.retry_config.max_attempts - 1:
+                    delay = self._calculate_retry_delay(attempt, error_type)
+                    logger.info(f"Retrying {operation_name} in {delay:.2f} seconds...")
+                    await asyncio.sleep(delay)
+        
+        # All attempts failed
+        execution_time = time.time() - start_time
+        logger.error(f"❌ {operation_name} failed after {self.retry_config.max_attempts} attempts")
+        raise Exception(f"{operation_name} failed: {str(last_error)}")
+
+    def _classify_error(self, error: Exception) -> ErrorType:
+        """Classify error into appropriate error type"""
+        error_str = str(error).lower()
+        
+        if "network" in error_str or "connection" in error_str:
+            return ErrorType.NETWORK_ERROR
+        elif "auth" in error_str or "credential" in error_str or "unauthorized" in error_str:
+            return ErrorType.AUTHENTICATION_ERROR
+        elif "timeout" in error_str:
+            return ErrorType.TIMEOUT_ERROR
+        elif "rate limit" in error_str or "429" in error_str:
+            return ErrorType.RATE_LIMIT_ERROR
+        elif "config" in error_str or "invalid" in error_str:
+            return ErrorType.CONFIGURATION_ERROR
+        elif "validation" in error_str:
+            return ErrorType.VALIDATION_ERROR
+        else:
+            return ErrorType.UNKNOWN_ERROR
+
+    def _calculate_retry_delay(self, attempt: int, error_type: ErrorType) -> float:
+        """Calculate retry delay with exponential backoff and jitter"""
+        # Base delay calculation
+        delay = min(
+            self.retry_config.base_delay * (self.retry_config.exponential_base ** attempt),
+            self.retry_config.max_delay
+        )
+        
+        # Error-specific delay adjustments
+        if error_type == ErrorType.RATE_LIMIT_ERROR:
+            delay *= 2  # Longer delays for rate limiting
+        elif error_type == ErrorType.NETWORK_ERROR:
+            delay *= 1.5  # Moderate delays for network issues
+        
+        # Add jitter if enabled
+        if self.retry_config.jitter:
+            import random
+            delay += random.uniform(0, delay * 0.1)
+        
+        return delay
+
     async def setup_complete_pipeline(self) -> Dict[str, Any]:
         """Set up the complete Gong → Airbyte → Snowflake pipeline"""
         try:
             logger.info("🚀 Setting up complete Gong data pipeline...")
             
             # Step 1: Create Gong source connector
-            gong_source = await self._create_gong_source()
+            gong_source = await self.execute_with_retry(
+                self._create_gong_source, "create_gong_source"
+            )
             self.gong_source_id = gong_source["sourceId"]
             logger.info(f"✅ Gong source created: {self.gong_source_id}")
             
             # Step 2: Create Snowflake destination connector
-            snowflake_dest = await self._create_snowflake_destination()
+            snowflake_dest = await self.execute_with_retry(
+                self._create_snowflake_destination, "create_snowflake_destination"
+            )
             self.snowflake_destination_id = snowflake_dest["destinationId"]
             logger.info(f"✅ Snowflake destination created: {self.snowflake_destination_id}")
             
             # Step 3: Create connection between source and destination
-            connection = await self._create_connection()
+            connection = await self.execute_with_retry(
+                self._create_connection, "create_connection"
+            )
             self.connection_id = connection["connectionId"]
             logger.info(f"✅ Connection created: {self.connection_id}")
             
             # Step 4: Configure sync schedule (hourly)
-            await self._configure_sync_schedule()
+            await self.execute_with_retry(
+                self._configure_sync_schedule, "configure_sync_schedule"
+            )
             logger.info("✅ Sync schedule configured (hourly)")
             
             # Step 5: Test connection
-            test_result = await self._test_connection()
+            test_result = await self.execute_with_retry(
+                self._test_connection, "test_connection"
+            )
             logger.info(f"✅ Connection test: {'PASSED' if test_result else 'FAILED'}")
             
             # Step 6: Trigger initial sync
-            sync_job = await self._trigger_sync()
+            sync_job = await self.execute_with_retry(
+                self._trigger_sync, "trigger_initial_sync"
+            )
             logger.info(f"✅ Initial sync triggered: {sync_job.get('jobId')}")
             
             return {
@@ -275,6 +394,330 @@ class AirbyteGongOrchestrator:
             else:
                 error_text = await response.text()
                 raise Exception(f"Failed to create Gong source: {response.status} - {error_text}")
+
+    async def _create_snowflake_destination(self) -> Dict[str, Any]:
+        """Create Snowflake destination connector with enhanced configuration"""
+        try:
+            # Get destination definition ID for Snowflake
+            destination_definition_id = await self._get_destination_definition_id("Snowflake")
+            
+            # Enhanced Snowflake destination configuration
+            destination_config = {
+                "destinationDefinitionId": destination_definition_id,
+                "connectionConfiguration": {
+                    "host": self.snowflake_config.host,
+                    "role": self.snowflake_config.role,
+                    "warehouse": self.snowflake_config.warehouse,
+                    "database": self.snowflake_config.database,
+                    "schema": self.snowflake_config.schema,
+                    "username": self.snowflake_config.username,
+                    "password": self.snowflake_config.password,
+                    "jdbc_url_params": self.snowflake_config.jdbc_url_params,
+                    
+                    # Enhanced raw data storage configuration
+                    "raw_data_schema": "RAW_AIRBYTE",
+                    "purge_staging_data": False,  # Keep for debugging
+                    "loading_method": {
+                        "method": "Internal Staging",
+                        "purge_staging_data": False,
+                        "enable_staging_encryption": True
+                    },
+                    
+                    # Enhanced table and column naming
+                    "table_name_transformer": "snake_case",
+                    "column_name_transformer": "snake_case",
+                    "disable_type_dedupe": False,
+                    
+                    # Enhanced data type handling for Gong data
+                    "use_variant_type": True,  # Critical for VARIANT columns
+                    "flatten_nested_json": False,  # Preserve structure
+                    "enable_schema_evolution": True,
+                    
+                    # Performance and reliability configuration
+                    "batch_size": 50000,  # Optimized for Gong data volume
+                    "upload_threads": 6,   # Increased parallelism
+                    "compression": "gzip",
+                    "connection_pool_size": 10,
+                    "query_timeout": 300,
+                    "socket_timeout": 300,
+                    
+                    # Data quality and monitoring
+                    "enable_data_validation": True,
+                    "validate_records": True,
+                    "log_sql_statements": True,
+                    "enable_performance_monitoring": True,
+                    
+                    # Enhanced error handling
+                    "max_retries": 5,
+                    "retry_delay": 5,
+                    "enable_circuit_breaker": True,
+                    "circuit_breaker_threshold": 15
+                },
+                "workspaceId": self.airbyte_config.workspace_id,
+                "name": f"Snowflake Destination - Sophia AI Production"
+            }
+            
+            # Create destination connector
+            async with self.session.post(
+                f"{self.airbyte_config.base_url}/api/v1/destinations/create",
+                json=destination_config
+            ) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    logger.info(f"✅ Snowflake destination created successfully")
+                    return result
+                else:
+                    error_text = await response.text()
+                    raise Exception(f"Failed to create Snowflake destination: {response.status} - {error_text}")
+                    
+        except Exception as e:
+            logger.error(f"Error creating Snowflake destination: {e}")
+            raise
+
+    async def _create_connection(self) -> Dict[str, Any]:
+        """Create connection between Gong source and Snowflake destination"""
+        try:
+            if not self.gong_source_id or not self.snowflake_destination_id:
+                raise Exception("Source and destination must be created before connection")
+            
+            # Enhanced connection configuration
+            connection_config = {
+                "sourceId": self.gong_source_id,
+                "destinationId": self.snowflake_destination_id,
+                "syncCatalog": {
+                    "streams": [
+                        {
+                            "stream": {
+                                "name": "calls",
+                                "jsonSchema": {},
+                                "supportedSyncModes": ["incremental"]
+                            },
+                            "config": {
+                                "syncMode": "incremental",
+                                "destinationSyncMode": "append_dedup",
+                                "cursorField": ["metaData", "started"],
+                                "primaryKey": [["id"]],
+                                "selected": True,
+                                "fieldSelectionEnabled": False,
+                                # Enhanced sync configuration
+                                "syncFrequency": "hourly",
+                                "enableDataValidation": True,
+                                "maxRecordsPerSync": 10000,
+                                "enablePerformanceMonitoring": True
+                            }
+                        },
+                        {
+                            "stream": {
+                                "name": "call_transcripts",
+                                "jsonSchema": {},
+                                "supportedSyncModes": ["incremental"]
+                            },
+                            "config": {
+                                "syncMode": "incremental",
+                                "destinationSyncMode": "append_dedup",
+                                "cursorField": ["metaData", "started"],
+                                "primaryKey": [["callId"]],
+                                "selected": self.gong_config.include_transcripts,
+                                "fieldSelectionEnabled": False,
+                                "enableDataValidation": True,
+                                "maxRecordsPerSync": 5000  # Smaller batches for transcripts
+                            }
+                        },
+                        {
+                            "stream": {
+                                "name": "users",
+                                "jsonSchema": {},
+                                "supportedSyncModes": ["full_refresh"]
+                            },
+                            "config": {
+                                "syncMode": "full_refresh",
+                                "destinationSyncMode": "overwrite",
+                                "selected": True,
+                                "fieldSelectionEnabled": False,
+                                "enableDataValidation": True
+                            }
+                        }
+                    ]
+                },
+                # Enhanced scheduling configuration
+                "schedule": {
+                    "scheduleType": "cron",
+                    "cronExpression": "0 * * * * ?",  # Every hour
+                    "timeZone": "UTC"
+                },
+                "scheduleData": {
+                    "basicSchedule": {
+                        "timeUnit": "hours",
+                        "units": 1
+                    },
+                    "enableBackfill": True,
+                    "maxConcurrentSyncs": 1,
+                    "enableFailureNotifications": True
+                },
+                "status": "active",
+                "name": f"Gong → Snowflake Data Pipeline (Production)",
+                "namespaceDefinition": "destination",
+                "namespaceFormat": "${SOURCE_NAMESPACE}",
+                "prefix": "gong_",
+                "workspaceId": self.airbyte_config.workspace_id,
+                
+                # Enhanced connection configuration
+                "resourceRequirements": {
+                    "cpu_request": "0.5",
+                    "cpu_limit": "2.0",
+                    "memory_request": "1Gi",
+                    "memory_limit": "4Gi"
+                },
+                "operationIds": [],  # Can be used for custom transformations
+                "geography": "auto"
+            }
+            
+            # Create connection
+            async with self.session.post(
+                f"{self.airbyte_config.base_url}/api/v1/connections/create",
+                json=connection_config
+            ) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    logger.info(f"✅ Connection created successfully")
+                    return result
+                else:
+                    error_text = await response.text()
+                    raise Exception(f"Failed to create connection: {response.status} - {error_text}")
+                    
+        except Exception as e:
+            logger.error(f"Error creating connection: {e}")
+            raise
+
+    async def _configure_sync_schedule(self) -> bool:
+        """Configure automated sync schedule for the connection"""
+        try:
+            if not self.connection_id:
+                raise Exception("Connection must be created before configuring schedule")
+            
+            # Update connection with enhanced scheduling
+            schedule_config = {
+                "connectionId": self.connection_id,
+                "schedule": {
+                    "scheduleType": "cron",
+                    "cronExpression": "0 * * * * ?",  # Every hour
+                    "timeZone": "UTC"
+                },
+                "scheduleData": {
+                    "basicSchedule": {
+                        "timeUnit": "hours",
+                        "units": 1
+                    },
+                    "enableBackfill": True,
+                    "maxConcurrentSyncs": 1,
+                    "enableFailureNotifications": True,
+                    "retryPolicy": {
+                        "maxRetries": 3,
+                        "retryDelaySeconds": 300
+                    }
+                }
+            }
+            
+            async with self.session.patch(
+                f"{self.airbyte_config.base_url}/api/v1/connections/update",
+                json=schedule_config
+            ) as response:
+                if response.status == 200:
+                    logger.info("✅ Sync schedule configured successfully")
+                    return True
+                else:
+                    error_text = await response.text()
+                    raise Exception(f"Failed to configure sync schedule: {response.status} - {error_text}")
+                    
+        except Exception as e:
+            logger.error(f"Error configuring sync schedule: {e}")
+            raise
+
+    async def _test_connection(self) -> bool:
+        """Test the connection between source and destination"""
+        try:
+            if not self.connection_id:
+                raise Exception("Connection must be created before testing")
+            
+            # Test connection health
+            async with self.session.post(
+                f"{self.airbyte_config.base_url}/api/v1/connections/check",
+                json={"connectionId": self.connection_id}
+            ) as response:
+                if response.status == 200:
+                    test_result = await response.json()
+                    
+                    # Check if test passed
+                    if test_result.get("status") == "succeeded":
+                        logger.info("✅ Connection test passed")
+                        return True
+                    else:
+                        logger.warning(f"Connection test failed: {test_result.get('message', 'Unknown error')}")
+                        return False
+                else:
+                    error_text = await response.text()
+                    logger.error(f"Connection test API call failed: {response.status} - {error_text}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"Error testing connection: {e}")
+            return False
+
+    async def _trigger_sync(self) -> Dict[str, Any]:
+        """Trigger a manual sync job for the connection"""
+        try:
+            if not self.connection_id:
+                raise Exception("Connection must be created before triggering sync")
+            
+            # Trigger sync job
+            sync_config = {
+                "connectionId": self.connection_id,
+                "withRefreshedCatalog": False  # Use existing catalog
+            }
+            
+            async with self.session.post(
+                f"{self.airbyte_config.base_url}/api/v1/connections/sync",
+                json=sync_config
+            ) as response:
+                if response.status == 200:
+                    sync_result = await response.json()
+                    logger.info(f"✅ Sync job triggered successfully: {sync_result.get('jobId')}")
+                    return sync_result
+                else:
+                    error_text = await response.text()
+                    raise Exception(f"Failed to trigger sync: {response.status} - {error_text}")
+                    
+        except Exception as e:
+            logger.error(f"Error triggering sync: {e}")
+            raise
+
+    async def _get_source_definition_id(self, source_name: str) -> str:
+        """Get source definition ID with enhanced error handling"""
+        async with self.session.get(
+            f"{self.airbyte_config.base_url}/api/v1/source_definitions/list"
+        ) as response:
+            if response.status == 200:
+                definitions = await response.json()
+                for definition in definitions.get("sourceDefinitions", []):
+                    if source_name.lower() in definition.get("name", "").lower():
+                        return definition["sourceDefinitionId"]
+                raise Exception(f"Source definition for '{source_name}' not found")
+            else:
+                raise Exception(f"Failed to fetch source definitions: {response.status}")
+
+    async def _get_destination_definition_id(self, destination_name: str) -> str:
+        """Get destination definition ID with enhanced error handling"""
+        async with self.session.get(
+            f"{self.airbyte_config.base_url}/api/v1/destination_definitions/list"
+        ) as response:
+            if response.status == 200:
+                definitions = await response.json()
+                for definition in definitions.get("destinationDefinitions", []):
+                    if destination_name.lower() in definition.get("name", "").lower():
+                        return definition["destinationDefinitionId"]
+                raise Exception(f"Destination definition for '{destination_name}' not found")
+            else:
+                raise Exception(f"Failed to fetch destination definitions: {response.status}")
 
     async def monitor_sync_jobs(self) -> Dict[str, Any]:
         """Monitor sync job status and provide health metrics"""

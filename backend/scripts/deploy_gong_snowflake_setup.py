@@ -494,10 +494,44 @@ class GongSnowflakeDeployer:
         """
         await self._execute_sql("create_transform_calls_proc", transform_calls_proc)
 
+    async def execute_manus_ai_ddl(self, ddl_file_path: str) -> Dict[str, Any]:
+        """Execute Manus AI's consolidated DDL script"""
+        try:
+            logger.info(f"📜 Executing Manus AI DDL from: {ddl_file_path}")
+            
+            with open(ddl_file_path, 'r') as f:
+                ddl_content = f.read()
+            
+            # Split DDL into individual statements
+            statements = [stmt.strip() for stmt in ddl_content.split(';') if stmt.strip()]
+            
+            executed_count = 0
+            for i, statement in enumerate(statements):
+                if statement:
+                    await self._execute_sql(f"manus_ddl_statement_{i+1}", statement + ';')
+                    executed_count += 1
+            
+            result = {
+                "success": True,
+                "statements_executed": executed_count,
+                "ddl_file": ddl_file_path
+            }
+            
+            await self._log_step("manus_ddl_execution", f"Executed {executed_count} DDL statements", True)
+            return result
+            
+        except Exception as e:
+            await self._log_step("manus_ddl_execution", f"DDL execution failed: {e}", False)
+            return {
+                "success": False,
+                "error": str(e),
+                "ddl_file": ddl_file_path
+            }
+
     async def _create_ai_embedding_procedures(self) -> None:
         """Create procedures for AI embedding generation"""
         
-        # Generate AI embeddings procedure
+        # Generate AI embeddings procedure using Snowflake Cortex
         embedding_proc = f"""
         CREATE OR REPLACE PROCEDURE {self.config.database}.{self.config.stg_schema}.GENERATE_AI_EMBEDDINGS()
         RETURNS STRING

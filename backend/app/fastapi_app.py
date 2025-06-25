@@ -8,6 +8,7 @@ Focuses on stability and scale without over-complexity.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+import os
 
 # Import route modules
 from backend.api.llm_strategy_routes import router as llm_router
@@ -16,12 +17,15 @@ from backend.api.asana_integration_routes import router as asana_router
 from backend.api.notion_integration_routes import router as notion_router
 from backend.api.codacy_integration_routes import router as codacy_router
 
-# Import configuration validation
-from backend.core.config_validator import validate_startup_configuration
+# Import enhanced configuration validation
+from backend.core.config_validator import validate_deployment_readiness
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Get environment
+ENVIRONMENT = os.getenv("SOPHIA_ENVIRONMENT", "dev")
 
 # Create FastAPI app
 app = FastAPI(
@@ -57,142 +61,204 @@ async def read_root() -> dict[str, str]:
         "service": "Sophia AI Platform",
         "version": "1.0.0",
         "message": "Enterprise AI orchestrator ready",
+        "environment": ENVIRONMENT
     }
 
 
 @app.get("/api/health", tags=["health"])
 async def api_health_check() -> dict[str, str]:
-    """Comprehensive API health check."""
+    """Comprehensive API health check with deployment validation."""
     try:
-        # Import here to avoid circular imports
-        from backend.core.config_validator import quick_health_check
+        # Perform deployment readiness validation
+        validation_report = await validate_deployment_readiness(ENVIRONMENT)
 
-        # Perform quick health check
-        is_healthy = await quick_health_check()
-
-        if is_healthy:
-            return {
-                "status": "healthy",
-                "api_version": "1.0.0",
-                "services": {
-                    "llm_strategy": "available",
-                    "data_flow": "available",
-                    "asana_integration": "available",
-                    "notion_integration": "available",
-                    "codacy_integration": "available",
-                    "core_systems": "operational",
-                    "configuration": "validated",
-                },
-                "message": "All systems operational",
-            }
+        # Map deployment status to health status
+        if validation_report.overall_status == "READY":
+            status = "healthy"
+            message = "All systems operational and deployment ready"
+        elif validation_report.overall_status == "PARTIAL":
+            status = "degraded"
+            message = "Core systems operational with some warnings"
         else:
-            return {
-                "status": "degraded",
-                "api_version": "1.0.0",
-                "services": {
-                    "llm_strategy": "available",
-                    "data_flow": "available",
-                    "asana_integration": "available",
-                    "notion_integration": "available",
-                    "codacy_integration": "available",
-                    "core_systems": "degraded",
-                    "configuration": "issues_detected",
-                },
-                "message": "Some external services may be unavailable",
-            }
+            status = "unhealthy"
+            message = "Critical configuration issues detected"
+
+        return {
+            "status": status,
+            "api_version": "1.0.0",
+            "environment": ENVIRONMENT,
+            "deployment_status": validation_report.overall_status,
+            "services": {
+                "llm_strategy": "available",
+                "data_flow": "available",
+                "asana_integration": "available",
+                "notion_integration": "available",
+                "codacy_integration": "available",
+                "core_systems": status,
+                "configuration": "validated",
+            },
+            "validation_summary": {
+                "total_checks": validation_report.total_checks,
+                "passed_checks": validation_report.passed_checks,
+                "failed_checks": validation_report.failed_checks,
+                "warning_checks": validation_report.warning_checks,
+                "critical_failures": len(validation_report.critical_failures)
+            },
+            "message": message,
+        }
+        
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {
-            "status": "degraded",
+            "status": "unhealthy",
             "error": str(e),
-            "message": "Some systems may be unavailable",
+            "message": "Health check system failure",
+            "environment": ENVIRONMENT
         }
 
 
-@app.get("/api/config-validation", tags=["health"])
-async def get_configuration_validation() -> dict:
-    """Get detailed configuration validation report."""
+@app.get("/api/deployment-validation", tags=["health"])
+async def get_deployment_validation() -> dict:
+    """Get comprehensive deployment validation report."""
     try:
-        # Perform comprehensive validation without failing fast
-        validation_report = await validate_startup_configuration(fail_fast=False)
-        return validation_report
-    except Exception as e:
-        logger.error(f"Configuration validation failed: {e}")
+        # Perform comprehensive deployment validation
+        validation_report = await validate_deployment_readiness(ENVIRONMENT)
+        
+        # Convert to API response format
         return {
-            "validation_timestamp": "error",
+            "overall_status": validation_report.overall_status,
+            "environment": validation_report.environment,
+            "validation_timestamp": validation_report.validation_timestamp.isoformat(),
+            "execution_time": validation_report.execution_time,
+            "summary": {
+                "total_checks": validation_report.total_checks,
+                "passed_checks": validation_report.passed_checks,
+                "failed_checks": validation_report.failed_checks,
+                "warning_checks": validation_report.warning_checks,
+            },
+            "critical_failures": [
+                {
+                    "service": f.service.value,
+                    "check_name": f.check_name,
+                    "message": f.message,
+                    "details": f.details
+                } for f in validation_report.critical_failures
+            ],
+            "warnings": [
+                {
+                    "service": w.service.value,
+                    "check_name": w.check_name,
+                    "message": w.message,
+                    "details": w.details
+                } for w in validation_report.warnings
+            ],
+            "recommendations": validation_report.recommendations,
+            "deployment_ready": validation_report.overall_status == "READY"
+        }
+        
+    except Exception as e:
+        logger.error(f"Deployment validation failed: {e}")
+        return {
             "overall_status": "ERROR",
+            "environment": ENVIRONMENT,
+            "validation_timestamp": "error",
+            "execution_time": 0.0,
             "summary": {
                 "total_checks": 0,
-                "successful": 0,
-                "warnings": 0,
-                "failures": 1,
-                "skipped": 0,
+                "passed_checks": 0,
+                "failed_checks": 1,
+                "warning_checks": 0,
             },
-            "critical_failures": [str(e)],
-            "detailed_results": [],
+            "critical_failures": [
+                {
+                    "service": "validation_system",
+                    "check_name": "system_error",
+                    "message": f"Validation system error: {str(e)}",
+                    "details": None
+                }
+            ],
+            "warnings": [],
+            "recommendations": ["Fix deployment validation system before proceeding"],
+            "deployment_ready": False
         }
 
 
-# Startup event
+# Startup event with enhanced validation
 @app.on_event("startup")
 async def startup_event():
-    """Initialize services on startup with comprehensive validation."""
-    logger.info("🚀 Starting Sophia AI Platform...")
+    """Initialize services on startup with comprehensive deployment validation."""
+    logger.info(f"🚀 Starting Sophia AI Platform in {ENVIRONMENT} environment...")
 
     try:
-        # Perform comprehensive configuration validation
-        logger.info("🔍 Validating critical configurations...")
-        validation_report = await validate_startup_configuration(fail_fast=False)
+        # Perform comprehensive deployment readiness validation
+        logger.info("🔍 Performing deployment readiness validation...")
+        validation_report = await validate_deployment_readiness(ENVIRONMENT)
 
-        # Log validation results
-        overall_status = validation_report.get("overall_status", "UNKNOWN")
-        summary = validation_report.get("summary", {})
+        # Log validation results with enhanced detail
+        overall_status = validation_report.overall_status
+        
+        logger.info(f"📊 Validation Summary:")
+        logger.info(f"   Overall Status: {overall_status}")
+        logger.info(f"   Total Checks: {validation_report.total_checks}")
+        logger.info(f"   Passed: {validation_report.passed_checks}")
+        logger.info(f"   Failed: {validation_report.failed_checks}")
+        logger.info(f"   Warnings: {validation_report.warning_checks}")
+        logger.info(f"   Execution Time: {validation_report.execution_time:.2f}s")
 
-        if overall_status == "HEALTHY":
-            logger.info("✅ All configurations validated successfully")
-        elif overall_status == "WARNING":
-            logger.warning(
-                f"⚠️  Configuration validation completed with {summary.get('warnings', 0)} warnings"
-            )
-            logger.warning("   Some optional services may have limited functionality")
-        elif overall_status in ["DEGRADED", "FAILED"]:
-            logger.error(
-                f"❌ Configuration validation found {summary.get('failures', 0)} critical issues"
-            )
-
+        # Handle different validation outcomes
+        if overall_status == "READY":
+            logger.info("✅ All deployment validations passed - system ready for production")
+            
+        elif overall_status == "PARTIAL":
+            logger.warning(f"⚠️  Deployment validation completed with {len(validation_report.warnings)} warnings")
+            logger.warning("   Core functionality available but some features may be limited")
+            
+            # Log warnings
+            for warning in validation_report.warnings:
+                logger.warning(f"   • {warning.service.value}: {warning.message}")
+                
+        elif overall_status == "NOT_READY":
+            logger.error(f"❌ Deployment validation failed with {len(validation_report.critical_failures)} critical issues")
+            logger.error("   System is NOT ready for production deployment")
+            
             # Log critical failures
-            for failure in validation_report.get("critical_failures", []):
-                logger.error(f"   • {failure}")
+            for failure in validation_report.critical_failures:
+                logger.error(f"   • {failure.service.value}: {failure.message}")
+            
+            # Log recommendations
+            logger.error("📋 Required Actions:")
+            for rec in validation_report.recommendations:
+                logger.error(f"   {rec}")
+            
+            # For production environments, fail fast on critical issues
+            if ENVIRONMENT.lower() == "prod":
+                logger.error("🚨 PRODUCTION DEPLOYMENT BLOCKED - Critical failures must be resolved")
+                raise RuntimeError(f"Production deployment blocked: {len(validation_report.critical_failures)} critical failures")
+            else:
+                logger.warning("🔄 Continuing startup in development mode despite critical issues...")
 
-            # In production, you might want to fail here for critical services
-            # For now, we'll continue with warnings
-            logger.warning("🔄 Continuing startup despite configuration issues...")
-
-        # Log detailed service status
-        for result in validation_report.get("detailed_results", []):
-            service = result.get("service", "Unknown")
-            status = result.get("status", "unknown")
-            message = result.get("message", "No message")
-
-            if status == "success":
-                logger.info(f"   ✅ {service}: {message}")
-            elif status == "warning":
-                logger.warning(f"   ⚠️  {service}: {message}")
-            elif status == "failure":
-                logger.error(f"   ❌ {service}: {message}")
-            elif status == "skipped":
-                logger.info(f"   ⏭️  {service}: {message}")
+        # Log recommendations if any
+        if validation_report.recommendations:
+            logger.info("📋 Recommendations:")
+            for rec in validation_report.recommendations:
+                logger.info(f"   {rec}")
 
     except Exception as e:
-        logger.error(f"❌ Configuration validation failed: {e}")
-        logger.warning("🔄 Continuing startup without validation...")
+        logger.error(f"❌ Deployment validation failed: {e}")
+        
+        # For production, fail fast on validation errors
+        if ENVIRONMENT.lower() == "prod":
+            logger.error("🚨 PRODUCTION STARTUP FAILED - Validation system error")
+            raise RuntimeError(f"Production startup failed: {str(e)}")
+        else:
+            logger.warning("🔄 Continuing startup without validation in development mode...")
 
     # Continue with normal startup
     logger.info("✅ FastAPI app initialized")
     logger.info("✅ CORS middleware configured")
     logger.info("✅ API routes registered")
-    logger.info("✅ Code quality integration enabled")
-    logger.info("🚀 Sophia AI Platform ready for requests")
+    logger.info("✅ Enhanced deployment validation enabled")
+    logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
 
 
 # Shutdown event

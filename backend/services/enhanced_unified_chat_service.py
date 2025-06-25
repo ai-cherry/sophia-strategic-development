@@ -1340,165 +1340,225 @@ class EnhancedUnifiedChatService:
     async def _handle_gong_call_search(
         self, processed_query: ProcessedQuery
     ) -> QueryResponse:
-        """Handle Gong call search queries"""
+        """Enhanced Gong call search using STG_TRANSFORMED tables"""
         try:
-            start_time = time.time()
-            
             # Extract search parameters from query
-            query_text = processed_query.original_query
-            entities = processed_query.entities
-            time_filters = processed_query.time_filters
-            
-            # Extract specific parameters
+            search_terms = []
+            account_filter = None
             sentiment_filter = None
-            call_direction = None
-            date_range_days = None
+            date_filter = None
             
-            # Parse sentiment filter
-            query_lower = query_text.lower()
-            if "positive" in query_lower:
-                sentiment_filter = "positive"
-            elif "negative" in query_lower:
-                sentiment_filter = "negative"
-            elif "neutral" in query_lower:
-                sentiment_filter = "neutral"
+            # Parse entities for search parameters
+            for entity in processed_query.entities:
+                if entity.startswith("company:"):
+                    account_filter = entity.split(":", 1)[1]
+                elif "sentiment" in processed_query.original_query.lower():
+                    if "positive" in processed_query.original_query.lower():
+                        sentiment_filter = "> 0.5"
+                    elif "negative" in processed_query.original_query.lower():
+                        sentiment_filter = "< -0.5"
             
-            # Parse call direction
-            if "inbound" in query_lower:
-                call_direction = "Inbound"
-            elif "outbound" in query_lower:
-                call_direction = "Outbound"
+            # Build semantic search query for Gong calls
+            semantic_query = processed_query.original_query
+            if account_filter:
+                semantic_query += f" {account_filter}"
             
-            # Parse date range
-            if time_filters.get("days"):
-                date_range_days = time_filters["days"]
-            elif "recent" in query_lower or "latest" in query_lower:
-                date_range_days = 7  # Default to last week
-            
-            # Perform semantic search using Cortex service
-            search_results = await self.cortex_service.search_gong_calls_with_ai_memory(
-                query_text=query_text,
-                top_k=10,
-                similarity_threshold=0.7,
-                call_direction=call_direction,
-                date_range_days=date_range_days,
-                sentiment_filter=sentiment_filter
+            # Search using AI Memory for semantic matching
+            memory_results = await self.ai_memory_server.search_memories(
+                query=semantic_query,
+                category="gong_calls",
+                limit=10
             )
             
-            # Generate executive summary
-            total_calls = len(search_results)
-            avg_sentiment = sum(
-                call["ai_insights"]["sentiment_score"] or 0 
-                for call in search_results 
-                if call["ai_insights"]["sentiment_score"] is not None
-            ) / max(total_calls, 1)
+            # Get detailed call data from STG_TRANSFORMED tables
+            database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
             
-            unique_accounts = len(set(
-                call["account_info"]["account_name"] 
-                for call in search_results 
-                if call["account_info"]["account_name"]
-            ))
+            # Build SQL query for structured data
+            sql_filters = ["1=1"]  # Base condition
             
-            executive_summary = f"""
-            Found {total_calls} Gong calls matching your search criteria. 
-            Average sentiment score: {avg_sentiment:.2f} ({
-                'Positive' if avg_sentiment > 0.3 else 
-                'Negative' if avg_sentiment < -0.3 else 'Neutral'
-            }). 
-            Calls involve {unique_accounts} unique accounts.
+            if account_filter:
+                sql_filters.append(f"(ACCOUNT_NAME ILIKE '%{account_filter}%' OR CONTACT_NAME ILIKE '%{account_filter}%')")
+            
+            if sentiment_filter:
+                sql_filters.append(f"SENTIMENT_SCORE {sentiment_filter}")
+            
+            if processed_query.time_filters.get("period"):
+                if processed_query.time_filters["type"] == "current":
+                    days = processed_query.time_filters["days"]
+                    sql_filters.append(f"CALL_DATETIME_UTC >= DATEADD('day', -{days}, CURRENT_TIMESTAMP())")
+            
+            calls_query = f"""
+            SELECT 
+                CALL_ID,
+                CALL_TITLE,
+                CALL_DATETIME_UTC,
+                CALL_DURATION_SECONDS,
+                CALL_DIRECTION,
+                PRIMARY_USER_NAME,
+                ACCOUNT_NAME,
+                CONTACT_NAME,
+                DEAL_STAGE,
+                DEAL_VALUE,
+                SENTIMENT_SCORE,
+                CALL_SUMMARY,
+                KEY_TOPICS,
+                RISK_INDICATORS,
+                NEXT_STEPS,
+                TALK_RATIO,
+                INTERACTIVITY_SCORE,
+                QUESTIONS_ASKED_COUNT
+            FROM {database}.STG_TRANSFORMED.STG_GONG_CALLS
+            WHERE {' AND '.join(sql_filters)}
+            ORDER BY CALL_DATETIME_UTC DESC
+            LIMIT 20
             """
             
-            # Generate key insights
-            insights = []
+            calls_data = await self.cortex_service.execute_query(calls_query)
             
-            if search_results:
-                # Sentiment insights
-                positive_calls = sum(1 for call in search_results 
-                                   if call["ai_insights"]["sentiment_score"] and call["ai_insights"]["sentiment_score"] > 0.3)
-                if positive_calls > total_calls * 0.7:
-                    insights.append(f"High positive sentiment: {positive_calls}/{total_calls} calls have positive sentiment")
+            # Generate insights using Snowflake Cortex
+            if len(calls_data) > 0:
+                # Aggregate insights
+                total_calls = len(calls_data)
+                avg_sentiment = calls_data['SENTIMENT_SCORE'].mean() if 'SENTIMENT_SCORE' in calls_data.columns else 0
+                avg_duration = calls_data['CALL_DURATION_SECONDS'].mean() / 60  # Convert to minutes
+                avg_talk_ratio = calls_data['TALK_RATIO'].mean() if 'TALK_RATIO' in calls_data.columns else 0
                 
-                # Topic insights
+                # Extract key topics and risks
                 all_topics = []
-                for call in search_results:
-                    if call["ai_insights"]["key_topics"]:
-                        all_topics.extend(call["ai_insights"]["key_topics"])
+                all_risks = []
+                for _, call in calls_data.iterrows():
+                    if call.get('KEY_TOPICS'):
+                        try:
+                            topics = json.loads(call['KEY_TOPICS']) if isinstance(call['KEY_TOPICS'], str) else call['KEY_TOPICS']
+                            if isinstance(topics, list):
+                                all_topics.extend(topics)
+                        except:
+                            pass
+                    
+                    if call.get('RISK_INDICATORS'):
+                        try:
+                            risks = json.loads(call['RISK_INDICATORS']) if isinstance(call['RISK_INDICATORS'], str) else call['RISK_INDICATORS']
+                            if isinstance(risks, list):
+                                all_risks.extend(risks)
+                        except:
+                            pass
+                
+                # Generate executive summary using Cortex
+                summary_prompt = f"""
+                Analyze these {total_calls} Gong calls:
+                - Average sentiment: {avg_sentiment:.2f}
+                - Average duration: {avg_duration:.1f} minutes
+                - Average talk ratio: {avg_talk_ratio:.1%}
+                - Key topics discussed: {', '.join(set(all_topics[:10]))}
+                - Risk indicators: {', '.join(set(all_risks[:5]))}
+                
+                Provide executive insights and recommendations.
+                """
+                
+                executive_summary = await self.cortex_service.complete_text(
+                    summary_prompt,
+                    model="mistral-large"
+                )
+                
+                # Build detailed insights
+                insights = [
+                    f"Found {total_calls} calls matching your criteria",
+                    f"Average sentiment score: {avg_sentiment:.2f} ({'Positive' if avg_sentiment > 0 else 'Negative' if avg_sentiment < 0 else 'Neutral'})",
+                    f"Average call duration: {avg_duration:.1f} minutes",
+                    f"Average talk ratio: {avg_talk_ratio:.1%}"
+                ]
                 
                 if all_topics:
-                    from collections import Counter
-                    top_topics = Counter(all_topics).most_common(3)
-                    insights.append(f"Top discussion topics: {', '.join([topic for topic, _ in top_topics])}")
+                    top_topics = list(set(all_topics))[:5]
+                    insights.append(f"Most discussed topics: {', '.join(top_topics)}")
                 
-                # Risk insights
-                high_risk_calls = sum(1 for call in search_results 
-                                    if call["ai_insights"]["risk_indicators"])
-                if high_risk_calls > 0:
-                    insights.append(f"Risk detected: {high_risk_calls} calls have identified risk indicators")
-            
-            # Generate recommendations
-            recommendations = []
-            
-            if avg_sentiment < 0:
-                recommendations.append("Consider follow-up coaching for calls with negative sentiment")
-            
-            if search_results:
-                calls_with_next_steps = sum(1 for call in search_results 
-                                          if call["ai_insights"]["next_steps"])
-                if calls_with_next_steps < total_calls * 0.8:
-                    recommendations.append("Ensure clear next steps are defined for all calls")
-            
-            # Create key metrics
-            key_metrics = {
-                "total_calls_found": total_calls,
-                "average_sentiment": round(avg_sentiment, 2),
-                "unique_accounts": unique_accounts,
-                "positive_sentiment_calls": sum(1 for call in search_results 
-                                              if call["ai_insights"]["sentiment_score"] and call["ai_insights"]["sentiment_score"] > 0.3),
-                "average_duration_minutes": round(
-                    sum(call["call_duration_seconds"] for call in search_results) / max(total_calls, 1) / 60, 1
-                ) if search_results else 0
-            }
-            
-            processing_time = time.time() - start_time
-            
-            return QueryResponse(
-                query=processed_query.original_query,
-                intent=processed_query.intent,
-                executive_summary=executive_summary.strip(),
-                key_metrics=key_metrics,
-                insights=insights,
-                recommendations=recommendations,
-                data_sources=["Gong Calls", "AI Memory", "Snowflake Cortex"],
-                confidence=processed_query.confidence,
-                processing_time=processing_time,
-                follow_up_questions=[
-                    "Would you like to see transcript details for specific calls?",
-                    "Should I analyze sentiment trends over time?",
-                    "Do you want coaching recommendations for specific reps?"
-                ],
-                visualizations=[
+                if all_risks:
+                    insights.append(f"Risk indicators identified in {len(set(all_risks))} calls")
+                
+                # Generate recommendations
+                recommendations = []
+                if avg_sentiment < -0.2:
+                    recommendations.append("🚨 Low sentiment detected - review customer concerns and provide coaching")
+                elif avg_sentiment > 0.5:
+                    recommendations.append("✅ Positive sentiment trend - identify and replicate successful approaches")
+                
+                if avg_talk_ratio < 0.4:
+                    recommendations.append("📢 Low talk ratio - encourage more customer engagement")
+                elif avg_talk_ratio > 0.7:
+                    recommendations.append("👂 High talk ratio - ensure adequate listening time")
+                
+                if all_risks:
+                    recommendations.append("⚠️ Review identified risk indicators and develop mitigation strategies")
+                
+                # Key metrics
+                key_metrics = {
+                    "total_calls": total_calls,
+                    "avg_sentiment": round(avg_sentiment, 3),
+                    "avg_duration_minutes": round(avg_duration, 1),
+                    "avg_talk_ratio": round(avg_talk_ratio, 3),
+                    "positive_calls": len([c for _, c in calls_data.iterrows() if c.get('SENTIMENT_SCORE', 0) > 0.2]),
+                    "negative_calls": len([c for _, c in calls_data.iterrows() if c.get('SENTIMENT_SCORE', 0) < -0.2]),
+                    "high_value_calls": len([c for _, c in calls_data.iterrows() if c.get('DEAL_VALUE', 0) > 50000])
+                }
+                
+                # Create visualizations data
+                visualizations = [
                     {
                         "type": "sentiment_distribution",
-                        "data": search_results,
-                        "title": "Call Sentiment Distribution"
+                        "title": "Call Sentiment Distribution",
+                        "data": calls_data[['CALL_ID', 'SENTIMENT_SCORE']].to_dict('records') if 'SENTIMENT_SCORE' in calls_data.columns else []
                     },
                     {
-                        "type": "call_timeline",
-                        "data": search_results,
-                        "title": "Call Activity Timeline"
+                        "type": "timeline",
+                        "title": "Calls Timeline",
+                        "data": calls_data[['CALL_DATETIME_UTC', 'CALL_TITLE', 'SENTIMENT_SCORE']].to_dict('records')
                     }
                 ]
-            )
+                
+                return QueryResponse(
+                    query=processed_query.original_query,
+                    intent=processed_query.intent,
+                    executive_summary=executive_summary or f"Analysis of {total_calls} Gong calls with average sentiment of {avg_sentiment:.2f}",
+                    key_metrics=key_metrics,
+                    insights=insights,
+                    recommendations=recommendations,
+                    data_sources=["STG_TRANSFORMED.STG_GONG_CALLS", "AI_MEMORY.MEMORY_RECORDS"],
+                    confidence=0.9,
+                    processing_time=0.0,
+                    follow_up_questions=[
+                        "Would you like to see transcript details for any specific call?",
+                        "Should I analyze sentiment trends over time?",
+                        "Do you want coaching recommendations for specific reps?"
+                    ],
+                    visualizations=visualizations
+                )
             
+            else:
+                return QueryResponse(
+                    query=processed_query.original_query,
+                    intent=processed_query.intent,
+                    executive_summary="No Gong calls found matching your search criteria.",
+                    key_metrics={"total_calls": 0},
+                    insights=["No calls found with the specified criteria"],
+                    recommendations=["Try broadening your search criteria or check data availability"],
+                    data_sources=["STG_TRANSFORMED.STG_GONG_CALLS"],
+                    confidence=0.8,
+                    processing_time=0.0,
+                    follow_up_questions=[
+                        "Would you like to search with different criteria?",
+                        "Should I check recent data ingestion status?"
+                    ]
+                )
+                
         except Exception as e:
-            logger.error(f"Error handling Gong call search: {e}")
+            logger.error(f"Error in Gong call search: {e}")
             return QueryResponse(
                 query=processed_query.original_query,
                 intent=processed_query.intent,
-                executive_summary=f"Error searching Gong calls: {str(e)}",
+                executive_summary=f"Error occurred while searching Gong calls: {str(e)}",
                 key_metrics={},
                 insights=[],
-                recommendations=[],
+                recommendations=["Please try again or contact support"],
                 data_sources=[],
                 confidence=0.0,
                 processing_time=0.0,

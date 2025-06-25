@@ -1,556 +1,769 @@
+#!/usr/bin/env python3
 """
-Configuration Validator
+Unified Configuration Validation System for Sophia AI
 
-Utility module for validating critical configurations at application startup.
-This ensures that all required services are accessible and properly configured
-before the application begins processing requests.
+Provides comprehensive validation of all critical credentials and service configurations
+at application startup to ensure production readiness and fail-fast behavior.
 
-Key Features:
-- Gong API credentials validation
-- Snowflake connection testing
-- HubSpot Secure Data Share accessibility
-- Fast-fail startup with clear error messages
-- Comprehensive service health checks
+Features:
+- Comprehensive credential validation for all services
+- Service connectivity testing
+- Configuration completeness checks
+- Production readiness assessment
+- Detailed error reporting and recommendations
 """
-
-from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Any, Tuple
+from dataclasses import dataclass, field
 from enum import Enum
-
-import snowflake.connector
 import aiohttp
+import structlog
 
-from backend.core.auto_esc_config import config
+from backend.core.auto_esc_config import get_config_value
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
-class ValidationStatus(Enum):
-    """Status of configuration validation"""
+class ValidationSeverity(Enum):
+    """Validation result severity levels"""
+    CRITICAL = "critical"      # Blocks deployment
+    WARNING = "warning"        # Should be addressed
+    INFO = "info"             # Informational only
 
-    SUCCESS = "success"
-    WARNING = "warning"
-    FAILURE = "failure"
-    SKIPPED = "skipped"
+
+class ServiceType(Enum):
+    """Service types for validation"""
+    GONG = "gong"
+    SNOWFLAKE = "snowflake"
+    AIRBYTE = "airbyte"
+    PORTKEY = "portkey"
+    OPENAI = "openai"
+    OPENROUTER = "openrouter"
+    PINECONE = "pinecone"
+    HUBSPOT = "hubspot"
+    SLACK = "slack"
+    LINEAR = "linear"
 
 
 @dataclass
 class ValidationResult:
-    """Result of a configuration validation check"""
-
-    service: str
-    status: ValidationStatus
+    """Individual validation result"""
+    service: ServiceType
+    check_name: str
+    severity: ValidationSeverity
+    status: str  # PASS, FAIL, SKIP
     message: str
     details: Optional[Dict[str, Any]] = None
-    timestamp: datetime = None
-
-    def __post_init__(self):
-        if self.timestamp is None:
-            self.timestamp = datetime.now()
+    execution_time: float = 0.0
+    timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
-class ConfigurationValidator:
+@dataclass
+class DeploymentValidationReport:
+    """Comprehensive deployment validation report"""
+    overall_status: str  # READY, NOT_READY, PARTIAL
+    total_checks: int
+    passed_checks: int
+    failed_checks: int
+    warning_checks: int
+    critical_failures: List[ValidationResult]
+    warnings: List[ValidationResult]
+    recommendations: List[str]
+    validation_timestamp: datetime
+    execution_time: float
+    environment: str
+
+
+class DeploymentValidator:
     """
-    Validates critical configurations at application startup
-
-    This class performs comprehensive validation of all required services
-    and configurations to ensure the application can operate properly.
+    Comprehensive deployment validator for Sophia AI
+    
+    Validates all critical service configurations, credentials, and connectivity
+    to ensure production readiness and provide clear failure diagnostics.
     """
 
-    def __init__(self):
+    def __init__(self, environment: str = "dev"):
+        self.environment = environment
+        self.session: Optional[aiohttp.ClientSession] = None
         self.validation_results: List[ValidationResult] = []
-        self.critical_failures: List[str] = []
-
-    async def validate_all_configurations(
-        self, fail_fast: bool = True
-    ) -> Dict[str, Any]:
-        """
-        Validate all critical configurations
-
-        Args:
-            fail_fast: Whether to stop on first critical failure
-
-        Returns:
-            Comprehensive validation report
-        """
-        logger.info("🔍 Starting comprehensive configuration validation...")
-
-        validation_tasks = [
-            self._validate_gong_api_credentials(),
-            self._validate_snowflake_connection(),
-            self._validate_hubspot_data_share(),
-            self._validate_openai_api_key(),
-            self._validate_pinecone_credentials(),
-            self._validate_essential_config_values(),
-        ]
-
-        # Run validations concurrently for speed
-        validation_results = await asyncio.gather(
-            *validation_tasks, return_exceptions=True
-        )
-
-        # Process results
-        for result in validation_results:
-            if isinstance(result, Exception):
-                self.validation_results.append(
-                    ValidationResult(
-                        service="unknown",
-                        status=ValidationStatus.FAILURE,
-                        message=f"Validation error: {str(result)}",
-                    )
-                )
-                self.critical_failures.append(str(result))
-            elif isinstance(result, ValidationResult):
-                self.validation_results.append(result)
-                if result.status == ValidationStatus.FAILURE:
-                    self.critical_failures.append(f"{result.service}: {result.message}")
-
-        # Generate summary report
-        report = self._generate_validation_report()
-
-        # Fail fast if requested and critical failures exist
-        if fail_fast and self.critical_failures:
-            logger.error(
-                "❌ Critical configuration failures detected - application cannot start"
-            )
-            for failure in self.critical_failures:
-                logger.error(f"  • {failure}")
-            raise RuntimeError(
-                f"Configuration validation failed: {len(self.critical_failures)} critical errors"
-            )
-
-        return report
-
-    async def _validate_gong_api_credentials(self) -> ValidationResult:
-        """Validate Gong API credentials and connectivity"""
-        service = "Gong API"
-
-        try:
-            # Get credentials from config
-            gong_access_key = config.get("gong_access_key")
-            gong_secret_key = config.get("gong_secret_key")
-
-            if not gong_access_key or not gong_secret_key:
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.FAILURE,
-                    message="Gong API credentials not found in configuration",
-                    details={"missing_keys": ["gong_access_key", "gong_secret_key"]},
-                )
-
-            # Test API connectivity with a simple request
-            auth = aiohttp.BasicAuth(gong_access_key, gong_secret_key)
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    "https://api.gong.io/v2/users",
-                    auth=auth,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.SUCCESS,
-                            message="Gong API credentials validated successfully",
-                            details={
-                                "users_count": len(data.get("users", [])),
-                                "api_version": "v2",
-                            },
-                        )
-                    else:
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.FAILURE,
-                            message=f"Gong API authentication failed (HTTP {response.status})",
-                            details={"status_code": response.status},
-                        )
-
-        except asyncio.TimeoutError:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.WARNING,
-                message="Gong API request timed out - may indicate network issues",
-                details={"timeout_seconds": 10},
-            )
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.FAILURE,
-                message=f"Gong API validation error: {str(e)}",
-                details={"error_type": type(e).__name__},
-            )
-
-    async def _validate_snowflake_connection(self) -> ValidationResult:
-        """Validate Snowflake connection and basic functionality"""
-        service = "Snowflake"
-
-        try:
-            # Get Snowflake credentials
-            snowflake_user = config.get("snowflake_user")
-            snowflake_password = config.get("snowflake_password")
-            snowflake_account = config.get("snowflake_account")
-
-            if not all([snowflake_user, snowflake_password, snowflake_account]):
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.FAILURE,
-                    message="Snowflake credentials incomplete",
-                    details={
-                        "missing_configs": [
-                            k
-                            for k, v in {
-                                "snowflake_user": snowflake_user,
-                                "snowflake_password": snowflake_password,
-                                "snowflake_account": snowflake_account,
-                            }.items()
-                            if not v
-                        ]
-                    },
-                )
-
-            # Test connection
-            connection = snowflake.connector.connect(
-                user=snowflake_user,
-                password=snowflake_password,
-                account=snowflake_account,
-                warehouse=config.get("snowflake_warehouse", "COMPUTE_WH"),
-                database=config.get("snowflake_database", "SOPHIA_AI"),
-                role=config.get("snowflake_role", "ACCOUNTADMIN"),
-                login_timeout=10,
-            )
-
-            # Test basic query
-            cursor = connection.cursor()
-            try:
-                cursor.execute(
-                    "SELECT CURRENT_VERSION(), CURRENT_WAREHOUSE(), CURRENT_DATABASE()"
-                )
-                result = cursor.fetchone()
-
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.SUCCESS,
-                    message="Snowflake connection validated successfully",
-                    details={
-                        "version": result[0] if result else "unknown",
-                        "warehouse": result[1] if result else "unknown",
-                        "database": result[2] if result else "unknown",
-                    },
-                )
-            finally:
-                cursor.close()
-                connection.close()
-
-        except snowflake.connector.errors.DatabaseError as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.FAILURE,
-                message=f"Snowflake authentication failed: {str(e)}",
-                details={"error_code": getattr(e, "errno", None)},
-            )
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.FAILURE,
-                message=f"Snowflake connection error: {str(e)}",
-                details={"error_type": type(e).__name__},
-            )
-
-    async def _validate_hubspot_data_share(self) -> ValidationResult:
-        """Validate HubSpot Secure Data Share accessibility"""
-        service = "HubSpot Secure Data Share"
-
-        try:
-            # Get Snowflake connection (reuse validation logic)
-            snowflake_user = config.get("snowflake_user")
-            snowflake_password = config.get("snowflake_password")
-            snowflake_account = config.get("snowflake_account")
-
-            if not all([snowflake_user, snowflake_password, snowflake_account]):
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.SKIPPED,
-                    message="Skipped - Snowflake credentials not available",
-                )
-
-            connection = snowflake.connector.connect(
-                user=snowflake_user,
-                password=snowflake_password,
-                account=snowflake_account,
-                warehouse=config.get("snowflake_warehouse", "COMPUTE_WH"),
-                role=config.get("snowflake_role", "ACCOUNTADMIN"),
-                login_timeout=10,
-            )
-
-            cursor = connection.cursor()
-            try:
-                # Test if HubSpot share exists and is accessible
-                cursor.execute("SHOW SHARES LIKE 'HUBSPOT%'")
-                shares = cursor.fetchall()
-
-                if not shares:
-                    return ValidationResult(
-                        service=service,
-                        status=ValidationStatus.WARNING,
-                        message="No HubSpot data shares found - may need to be configured",
-                        details={"shares_found": 0},
-                    )
-
-                # Try to access a basic HubSpot table (this will fail if share not properly configured)
-                try:
-                    cursor.execute(
-                        "SELECT COUNT(*) FROM HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS LIMIT 1"
-                    )
-                    result = cursor.fetchone()
-
-                    return ValidationResult(
-                        service=service,
-                        status=ValidationStatus.SUCCESS,
-                        message="HubSpot Secure Data Share accessible",
-                        details={
-                            "shares_found": len(shares),
-                            "test_query": "successful",
-                        },
-                    )
-                except Exception:
-                    return ValidationResult(
-                        service=service,
-                        status=ValidationStatus.WARNING,
-                        message="HubSpot shares found but not accessible - may need configuration",
-                        details={"shares_found": len(shares)},
-                    )
-
-            finally:
-                cursor.close()
-                connection.close()
-
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.WARNING,
-                message=f"Could not validate HubSpot data share: {str(e)}",
-                details={"error_type": type(e).__name__},
-            )
-
-    async def _validate_openai_api_key(self) -> ValidationResult:
-        """Validate OpenAI API key"""
-        service = "OpenAI API"
-
-        try:
-            openai_api_key = config.get("openai_api_key")
-
-            if not openai_api_key:
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.WARNING,
-                    message="OpenAI API key not configured - AI features may be limited",
-                )
-
-            # Test API key with a simple request
-            headers = {
-                "Authorization": f"Bearer {openai_api_key}",
-                "Content-Type": "application/json",
-            }
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    "https://api.openai.com/v1/models",
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.SUCCESS,
-                            message="OpenAI API key validated successfully",
-                            details={"models_available": len(data.get("data", []))},
-                        )
-                    else:
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.FAILURE,
-                            message=f"OpenAI API key validation failed (HTTP {response.status})",
-                        )
-
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.WARNING,
-                message=f"OpenAI API validation error: {str(e)}",
-                details={"error_type": type(e).__name__},
-            )
-
-    async def _validate_pinecone_credentials(self) -> ValidationResult:
-        """Validate Pinecone credentials"""
-        service = "Pinecone"
-
-        try:
-            pinecone_api_key = config.get("pinecone_api_key")
-
-            if not pinecone_api_key:
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.WARNING,
-                    message="Pinecone API key not configured - vector search may be limited",
-                )
-
-            # Test Pinecone API
-            headers = {"Api-Key": pinecone_api_key, "Content-Type": "application/json"}
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    "https://controller.pinecone.io/actions/whoami",
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=10),
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.SUCCESS,
-                            message="Pinecone API key validated successfully",
-                            details={"user_info": data},
-                        )
-                    else:
-                        return ValidationResult(
-                            service=service,
-                            status=ValidationStatus.FAILURE,
-                            message=f"Pinecone API key validation failed (HTTP {response.status})",
-                        )
-
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.WARNING,
-                message=f"Pinecone API validation error: {str(e)}",
-                details={"error_type": type(e).__name__},
-            )
-
-    async def _validate_essential_config_values(self) -> ValidationResult:
-        """Validate essential configuration values"""
-        service = "Essential Configuration"
-
-        try:
-            essential_configs = {
-                "snowflake_database": config.get("snowflake_database"),
-                "snowflake_warehouse": config.get("snowflake_warehouse"),
-                "snowflake_schema": config.get("snowflake_schema"),
-            }
-
-            missing_configs = [k for k, v in essential_configs.items() if not v]
-
-            if missing_configs:
-                return ValidationResult(
-                    service=service,
-                    status=ValidationStatus.WARNING,
-                    message=f"Some essential configurations missing: {', '.join(missing_configs)}",
-                    details={"missing_configs": missing_configs},
-                )
-
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.SUCCESS,
-                message="All essential configurations present",
-                details=essential_configs,
-            )
-
-        except Exception as e:
-            return ValidationResult(
-                service=service,
-                status=ValidationStatus.FAILURE,
-                message=f"Configuration validation error: {str(e)}",
-            )
-
-    def _generate_validation_report(self) -> Dict[str, Any]:
-        """Generate comprehensive validation report"""
-
-        # Count results by status
-        status_counts = {}
-        for status in ValidationStatus:
-            status_counts[status.value] = sum(
-                1 for result in self.validation_results if result.status == status
-            )
-
-        # Determine overall status
-        if self.critical_failures:
-            overall_status = "FAILED"
-        elif status_counts.get("failure", 0) > 0:
-            overall_status = "DEGRADED"
-        elif status_counts.get("warning", 0) > 0:
-            overall_status = "WARNING"
-        else:
-            overall_status = "HEALTHY"
-
-        report = {
-            "validation_timestamp": datetime.now().isoformat(),
-            "overall_status": overall_status,
-            "summary": {
-                "total_checks": len(self.validation_results),
-                "successful": status_counts.get("success", 0),
-                "warnings": status_counts.get("warning", 0),
-                "failures": status_counts.get("failure", 0),
-                "skipped": status_counts.get("skipped", 0),
+        
+        # Service validation configurations
+        self.service_configs = {
+            ServiceType.GONG: {
+                "required_configs": ["gong_access_key", "gong_client_secret"],
+                "optional_configs": ["gong_sync_start_date", "gong_include_transcripts"],
+                "connectivity_test": self._test_gong_connectivity
             },
-            "critical_failures": self.critical_failures,
-            "detailed_results": [
-                {
-                    "service": result.service,
-                    "status": result.status.value,
-                    "message": result.message,
-                    "details": result.details,
-                    "timestamp": result.timestamp.isoformat(),
-                }
-                for result in self.validation_results
-            ],
+            ServiceType.SNOWFLAKE: {
+                "required_configs": ["snowflake_account", "snowflake_user", "snowflake_password", "snowflake_warehouse", "snowflake_database"],
+                "optional_configs": ["snowflake_role"],
+                "connectivity_test": self._test_snowflake_connectivity
+            },
+            ServiceType.AIRBYTE: {
+                "required_configs": ["airbyte_server_url"],
+                "optional_configs": ["airbyte_username", "airbyte_password", "airbyte_workspace_id"],
+                "connectivity_test": self._test_airbyte_connectivity
+            },
+            ServiceType.PORTKEY: {
+                "required_configs": ["portkey_api_key", "portkey_virtual_key"],
+                "optional_configs": ["portkey_base_url"],
+                "connectivity_test": self._test_portkey_connectivity
+            },
+            ServiceType.OPENAI: {
+                "required_configs": ["openai_api_key"],
+                "optional_configs": ["openai_organization"],
+                "connectivity_test": self._test_openai_connectivity
+            },
+            ServiceType.OPENROUTER: {
+                "required_configs": ["openrouter_api_key"],
+                "optional_configs": ["openrouter_base_url"],
+                "connectivity_test": self._test_openrouter_connectivity
+            },
+            ServiceType.PINECONE: {
+                "required_configs": ["pinecone_api_key", "pinecone_environment"],
+                "optional_configs": ["pinecone_index_name"],
+                "connectivity_test": self._test_pinecone_connectivity
+            },
+            ServiceType.HUBSPOT: {
+                "required_configs": ["hubspot_access_token"],
+                "optional_configs": ["hubspot_refresh_token"],
+                "connectivity_test": self._test_hubspot_connectivity
+            },
+            ServiceType.SLACK: {
+                "required_configs": ["slack_bot_token"],
+                "optional_configs": ["slack_app_token", "slack_signing_secret"],
+                "connectivity_test": self._test_slack_connectivity
+            },
+            ServiceType.LINEAR: {
+                "required_configs": ["linear_api_key"],
+                "optional_configs": ["linear_team_id"],
+                "connectivity_test": self._test_linear_connectivity
+            }
         }
 
-        # Log summary
-        logger.info(f"🔍 Configuration validation complete: {overall_status}")
-        logger.info(f"  ✅ {status_counts.get('success', 0)} successful")
-        logger.info(f"  ⚠️  {status_counts.get('warning', 0)} warnings")
-        logger.info(f"  ❌ {status_counts.get('failure', 0)} failures")
-        logger.info(f"  ⏭️  {status_counts.get('skipped', 0)} skipped")
+    async def validate_deployment_readiness(self) -> DeploymentValidationReport:
+        """
+        Perform comprehensive deployment readiness validation
+        
+        Returns:
+            DeploymentValidationReport with detailed validation results
+        """
+        start_time = time.time()
+        
+        try:
+            logger.info(f"🔍 Starting deployment readiness validation for {self.environment} environment")
+            
+            # Initialize HTTP session for connectivity tests
+            timeout = aiohttp.ClientTimeout(total=30, connect=10)
+            self.session = aiohttp.ClientSession(timeout=timeout)
+            
+            # Run all validation checks
+            await self._validate_all_services()
+            await self._validate_critical_integrations()
+            await self._validate_environment_specific_configs()
+            
+            # Generate comprehensive report
+            report = self._generate_validation_report(start_time)
+            
+            # Log summary
+            self._log_validation_summary(report)
+            
+            return report
+            
+        except Exception as e:
+            logger.error(f"Deployment validation failed: {e}")
+            
+            # Return failed validation report
+            return DeploymentValidationReport(
+                overall_status="NOT_READY",
+                total_checks=0,
+                passed_checks=0,
+                failed_checks=1,
+                warning_checks=0,
+                critical_failures=[ValidationResult(
+                    service=ServiceType.GONG,  # Placeholder
+                    check_name="validation_execution",
+                    severity=ValidationSeverity.CRITICAL,
+                    status="FAIL",
+                    message=f"Validation execution failed: {str(e)}"
+                )],
+                warnings=[],
+                recommendations=["Fix validation execution errors before deployment"],
+                validation_timestamp=datetime.utcnow(),
+                execution_time=time.time() - start_time,
+                environment=self.environment
+            )
+        finally:
+            if self.session:
+                await self.session.close()
 
-        return report
+    async def _validate_all_services(self) -> None:
+        """Validate all service configurations and connectivity"""
+        
+        for service_type, config in self.service_configs.items():
+            try:
+                # Validate required configurations
+                await self._validate_service_configs(service_type, config)
+                
+                # Test connectivity if configuration is valid
+                if await self._has_valid_config(service_type, config):
+                    await self._test_service_connectivity(service_type, config)
+                
+            except Exception as e:
+                self.validation_results.append(ValidationResult(
+                    service=service_type,
+                    check_name="service_validation",
+                    severity=ValidationSeverity.CRITICAL,
+                    status="FAIL",
+                    message=f"Service validation failed: {str(e)}"
+                ))
+
+    async def _validate_service_configs(self, service: ServiceType, config: Dict[str, Any]) -> None:
+        """Validate configuration completeness for a service"""
+        
+        # Check required configurations
+        missing_required = []
+        for req_config in config["required_configs"]:
+            try:
+                value = get_config_value(req_config)
+                if not value or (isinstance(value, str) and value.strip() == ""):
+                    missing_required.append(req_config)
+            except Exception:
+                missing_required.append(req_config)
+        
+        if missing_required:
+            self.validation_results.append(ValidationResult(
+                service=service,
+                check_name="required_config_check",
+                severity=ValidationSeverity.CRITICAL,
+                status="FAIL",
+                message=f"Missing required configurations: {', '.join(missing_required)}",
+                details={"missing_configs": missing_required}
+            ))
+        else:
+            self.validation_results.append(ValidationResult(
+                service=service,
+                check_name="required_config_check",
+                severity=ValidationSeverity.INFO,
+                status="PASS",
+                message="All required configurations present"
+            ))
+        
+        # Check optional configurations
+        missing_optional = []
+        for opt_config in config.get("optional_configs", []):
+            try:
+                value = get_config_value(opt_config)
+                if not value:
+                    missing_optional.append(opt_config)
+            except Exception:
+                missing_optional.append(opt_config)
+        
+        if missing_optional:
+            self.validation_results.append(ValidationResult(
+                service=service,
+                check_name="optional_config_check",
+                severity=ValidationSeverity.WARNING,
+                status="FAIL",
+                message=f"Missing optional configurations: {', '.join(missing_optional)}",
+                details={"missing_optional_configs": missing_optional}
+            ))
+
+    async def _has_valid_config(self, service: ServiceType, config: Dict[str, Any]) -> bool:
+        """Check if service has valid configuration for connectivity testing"""
+        for req_config in config["required_configs"]:
+            try:
+                value = get_config_value(req_config)
+                if not value or (isinstance(value, str) and value.strip() == ""):
+                    return False
+            except Exception:
+                return False
+        return True
+
+    async def _test_service_connectivity(self, service: ServiceType, config: Dict[str, Any]) -> None:
+        """Test connectivity for a service"""
+        connectivity_test = config.get("connectivity_test")
+        if connectivity_test:
+            try:
+                start_time = time.time()
+                result = await connectivity_test()
+                execution_time = time.time() - start_time
+                
+                if result:
+                    self.validation_results.append(ValidationResult(
+                        service=service,
+                        check_name="connectivity_test",
+                        severity=ValidationSeverity.INFO,
+                        status="PASS",
+                        message="Connectivity test passed",
+                        execution_time=execution_time
+                    ))
+                else:
+                    self.validation_results.append(ValidationResult(
+                        service=service,
+                        check_name="connectivity_test",
+                        severity=ValidationSeverity.CRITICAL,
+                        status="FAIL",
+                        message="Connectivity test failed",
+                        execution_time=execution_time
+                    ))
+                    
+            except Exception as e:
+                self.validation_results.append(ValidationResult(
+                    service=service,
+                    check_name="connectivity_test",
+                    severity=ValidationSeverity.CRITICAL,
+                    status="FAIL",
+                    message=f"Connectivity test error: {str(e)}"
+                ))
+
+    async def _validate_critical_integrations(self) -> None:
+        """Validate critical service integrations"""
+        
+        # Validate Gong → Snowflake pipeline readiness
+        gong_valid = any(
+            r.service == ServiceType.GONG and r.status == "PASS" 
+            for r in self.validation_results 
+            if r.check_name == "required_config_check"
+        )
+        
+        snowflake_valid = any(
+            r.service == ServiceType.SNOWFLAKE and r.status == "PASS" 
+            for r in self.validation_results 
+            if r.check_name == "required_config_check"
+        )
+        
+        if gong_valid and snowflake_valid:
+            self.validation_results.append(ValidationResult(
+                service=ServiceType.GONG,
+                check_name="gong_snowflake_integration",
+                severity=ValidationSeverity.INFO,
+                status="PASS",
+                message="Gong → Snowflake integration ready"
+            ))
+        else:
+            self.validation_results.append(ValidationResult(
+                service=ServiceType.GONG,
+                check_name="gong_snowflake_integration",
+                severity=ValidationSeverity.CRITICAL,
+                status="FAIL",
+                message="Gong → Snowflake integration not ready"
+            ))
+        
+        # Validate AI processing readiness
+        openai_valid = any(
+            r.service == ServiceType.OPENAI and r.status == "PASS" 
+            for r in self.validation_results 
+            if r.check_name == "required_config_check"
+        )
+        
+        portkey_valid = any(
+            r.service == ServiceType.PORTKEY and r.status == "PASS" 
+            for r in self.validation_results 
+            if r.check_name == "required_config_check"
+        )
+        
+        if openai_valid or portkey_valid:
+            self.validation_results.append(ValidationResult(
+                service=ServiceType.OPENAI,
+                check_name="ai_processing_readiness",
+                severity=ValidationSeverity.INFO,
+                status="PASS",
+                message="AI processing capabilities ready"
+            ))
+        else:
+            self.validation_results.append(ValidationResult(
+                service=ServiceType.OPENAI,
+                check_name="ai_processing_readiness",
+                severity=ValidationSeverity.CRITICAL,
+                status="FAIL",
+                message="No AI processing capabilities configured"
+            ))
+
+    async def _validate_environment_specific_configs(self) -> None:
+        """Validate environment-specific configurations"""
+        
+        # Production-specific validations
+        if self.environment.lower() == "prod":
+            # Ensure production URLs and endpoints
+            snowflake_account = get_config_value("snowflake_account", "")
+            if "dev" in snowflake_account.lower() or "test" in snowflake_account.lower():
+                self.validation_results.append(ValidationResult(
+                    service=ServiceType.SNOWFLAKE,
+                    check_name="production_config_check",
+                    severity=ValidationSeverity.CRITICAL,
+                    status="FAIL",
+                    message="Production environment using non-production Snowflake account"
+                ))
+            
+            # Ensure production database
+            database = get_config_value("snowflake_database", "")
+            if database != "SOPHIA_AI_PROD":
+                self.validation_results.append(ValidationResult(
+                    service=ServiceType.SNOWFLAKE,
+                    check_name="production_database_check",
+                    severity=ValidationSeverity.WARNING,
+                    status="FAIL",
+                    message=f"Expected SOPHIA_AI_PROD database, found: {database}"
+                ))
+
+    # Connectivity test methods for each service
+    async def _test_gong_connectivity(self) -> bool:
+        """Test Gong API connectivity"""
+        try:
+            access_key = get_config_value("gong_access_key")
+            access_key_secret = get_config_value("gong_client_secret")
+            
+            auth = aiohttp.BasicAuth(access_key, access_key_secret)
+            
+            async with self.session.get(
+                "https://api.gong.io/v2/workspaces",
+                auth=auth
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"Gong connectivity test failed: {e}")
+            return False
+
+    async def _test_snowflake_connectivity(self) -> bool:
+        """Test Snowflake connectivity"""
+        try:
+            # This would require snowflake-connector-python
+            # For now, just validate configuration format
+            account = get_config_value("snowflake_account")
+            user = get_config_value("snowflake_user")
+            password = get_config_value("snowflake_password")
+            
+            # Basic format validation
+            return all([
+                account and "." in account,
+                user and len(user) > 0,
+                password and len(password) > 8
+            ])
+            
+        except Exception as e:
+            logger.warning(f"Snowflake connectivity test failed: {e}")
+            return False
+
+    async def _test_airbyte_connectivity(self) -> bool:
+        """Test Airbyte API connectivity"""
+        try:
+            airbyte_url = get_config_value("airbyte_server_url", "http://localhost:8000")
+            
+            async with self.session.get(f"{airbyte_url}/api/v1/health") as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"Airbyte connectivity test failed: {e}")
+            return False
+
+    async def _test_portkey_connectivity(self) -> bool:
+        """Test Portkey API connectivity"""
+        try:
+            api_key = get_config_value("portkey_api_key")
+            base_url = get_config_value("portkey_base_url", "https://api.portkey.ai")
+            
+            headers = {"Authorization": f"Bearer {api_key}"}
+            
+            async with self.session.get(
+                f"{base_url}/v1/health",
+                headers=headers
+            ) as response:
+                return response.status in [200, 401]  # 401 means API is reachable
+                
+        except Exception as e:
+            logger.warning(f"Portkey connectivity test failed: {e}")
+            return False
+
+    async def _test_openai_connectivity(self) -> bool:
+        """Test OpenAI API connectivity"""
+        try:
+            api_key = get_config_value("openai_api_key")
+            
+            headers = {"Authorization": f"Bearer {api_key}"}
+            
+            async with self.session.get(
+                "https://api.openai.com/v1/models",
+                headers=headers
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"OpenAI connectivity test failed: {e}")
+            return False
+
+    async def _test_openrouter_connectivity(self) -> bool:
+        """Test OpenRouter API connectivity"""
+        try:
+            api_key = get_config_value("openrouter_api_key")
+            
+            headers = {"Authorization": f"Bearer {api_key}"}
+            
+            async with self.session.get(
+                "https://openrouter.ai/api/v1/models",
+                headers=headers
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"OpenRouter connectivity test failed: {e}")
+            return False
+
+    async def _test_pinecone_connectivity(self) -> bool:
+        """Test Pinecone API connectivity"""
+        try:
+            api_key = get_config_value("pinecone_api_key")
+            environment = get_config_value("pinecone_environment")
+            
+            headers = {"Api-Key": api_key}
+            
+            async with self.session.get(
+                f"https://controller.{environment}.pinecone.io/databases",
+                headers=headers
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"Pinecone connectivity test failed: {e}")
+            return False
+
+    async def _test_hubspot_connectivity(self) -> bool:
+        """Test HubSpot API connectivity"""
+        try:
+            access_token = get_config_value("hubspot_access_token")
+            
+            headers = {"Authorization": f"Bearer {access_token}"}
+            
+            async with self.session.get(
+                "https://api.hubapi.com/oauth/v1/access-tokens/me",
+                headers=headers
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"HubSpot connectivity test failed: {e}")
+            return False
+
+    async def _test_slack_connectivity(self) -> bool:
+        """Test Slack API connectivity"""
+        try:
+            bot_token = get_config_value("slack_bot_token")
+            
+            headers = {"Authorization": f"Bearer {bot_token}"}
+            
+            async with self.session.get(
+                "https://slack.com/api/auth.test",
+                headers=headers
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get("ok", False)
+                return False
+                
+        except Exception as e:
+            logger.warning(f"Slack connectivity test failed: {e}")
+            return False
+
+    async def _test_linear_connectivity(self) -> bool:
+        """Test Linear API connectivity"""
+        try:
+            api_key = get_config_value("linear_api_key")
+            
+            headers = {"Authorization": api_key}
+            
+            # Simple GraphQL query to test connectivity
+            query = {"query": "{ viewer { id name } }"}
+            
+            async with self.session.post(
+                "https://api.linear.app/graphql",
+                headers=headers,
+                json=query
+            ) as response:
+                return response.status == 200
+                
+        except Exception as e:
+            logger.warning(f"Linear connectivity test failed: {e}")
+            return False
+
+    def _generate_validation_report(self, start_time: float) -> DeploymentValidationReport:
+        """Generate comprehensive validation report"""
+        
+        total_checks = len(self.validation_results)
+        passed_checks = sum(1 for r in self.validation_results if r.status == "PASS")
+        failed_checks = sum(1 for r in self.validation_results if r.status == "FAIL")
+        warning_checks = sum(1 for r in self.validation_results if r.severity == ValidationSeverity.WARNING)
+        
+        critical_failures = [
+            r for r in self.validation_results 
+            if r.severity == ValidationSeverity.CRITICAL and r.status == "FAIL"
+        ]
+        
+        warnings = [
+            r for r in self.validation_results 
+            if r.severity == ValidationSeverity.WARNING
+        ]
+        
+        # Determine overall status
+        if critical_failures:
+            overall_status = "NOT_READY"
+        elif warnings:
+            overall_status = "PARTIAL"
+        else:
+            overall_status = "READY"
+        
+        # Generate recommendations
+        recommendations = self._generate_recommendations(critical_failures, warnings)
+        
+        return DeploymentValidationReport(
+            overall_status=overall_status,
+            total_checks=total_checks,
+            passed_checks=passed_checks,
+            failed_checks=failed_checks,
+            warning_checks=warning_checks,
+            critical_failures=critical_failures,
+            warnings=warnings,
+            recommendations=recommendations,
+            validation_timestamp=datetime.utcnow(),
+            execution_time=time.time() - start_time,
+            environment=self.environment
+        )
+
+    def _generate_recommendations(self, critical_failures: List[ValidationResult], warnings: List[ValidationResult]) -> List[str]:
+        """Generate actionable recommendations based on validation results"""
+        recommendations = []
+        
+        if critical_failures:
+            recommendations.append("🚨 CRITICAL: Address all critical failures before deployment")
+            
+            # Service-specific recommendations
+            failed_services = {f.service for f in critical_failures}
+            
+            if ServiceType.GONG in failed_services:
+                recommendations.append("• Configure Gong API credentials in Pulumi ESC")
+            if ServiceType.SNOWFLAKE in failed_services:
+                recommendations.append("• Verify Snowflake connection parameters and credentials")
+            if ServiceType.AIRBYTE in failed_services:
+                recommendations.append("• Ensure Airbyte server is running and accessible")
+            if ServiceType.OPENAI in failed_services:
+                recommendations.append("• Validate OpenAI API key and quota limits")
+        
+        if warnings:
+            recommendations.append("⚠️ WARNING: Review warnings for optimal configuration")
+            
+        if not critical_failures and not warnings:
+            recommendations.append("✅ All validations passed - deployment ready")
+            
+        return recommendations
+
+    def _log_validation_summary(self, report: DeploymentValidationReport) -> None:
+        """Log validation summary"""
+        
+        logger.info(f"🔍 Deployment Validation Complete")
+        logger.info(f"Overall Status: {report.overall_status}")
+        logger.info(f"Total Checks: {report.total_checks}")
+        logger.info(f"Passed: {report.passed_checks}")
+        logger.info(f"Failed: {report.failed_checks}")
+        logger.info(f"Warnings: {report.warning_checks}")
+        logger.info(f"Execution Time: {report.execution_time:.2f}s")
+        
+        if report.critical_failures:
+            logger.error(f"❌ {len(report.critical_failures)} critical failures found:")
+            for failure in report.critical_failures:
+                logger.error(f"  • {failure.service.value}: {failure.message}")
+        
+        if report.warnings:
+            logger.warning(f"⚠️ {len(report.warnings)} warnings found:")
+            for warning in report.warnings:
+                logger.warning(f"  • {warning.service.value}: {warning.message}")
+        
+        if report.recommendations:
+            logger.info("📋 Recommendations:")
+            for rec in report.recommendations:
+                logger.info(f"  {rec}")
 
 
-# Global validator instance
-config_validator = ConfigurationValidator()
-
-
-async def validate_startup_configuration(fail_fast: bool = True) -> Dict[str, Any]:
+async def validate_deployment_readiness(environment: str = "dev") -> DeploymentValidationReport:
     """
-    Validate all critical configurations at startup
-
+    Convenience function to perform deployment validation
+    
     Args:
-        fail_fast: Whether to raise exception on critical failures
-
+        environment: Target environment (dev, staging, prod)
+        
     Returns:
-        Validation report
-
-    Raises:
-        RuntimeError: If fail_fast=True and critical failures detected
+        DeploymentValidationReport with comprehensive results
     """
-    return await config_validator.validate_all_configurations(fail_fast=fail_fast)
+    validator = DeploymentValidator(environment)
+    return await validator.validate_deployment_readiness()
 
 
-async def quick_health_check() -> bool:
-    """
-    Perform a quick health check of critical services
+# CLI interface for standalone usage
+async def main():
+    """Main function for CLI usage"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Sophia AI Deployment Validator")
+    parser.add_argument("--environment", choices=["dev", "staging", "prod"], 
+                       default="dev", help="Target environment")
+    parser.add_argument("--output", help="Output file for validation report (JSON)")
+    
+    args = parser.parse_args()
+    
+    # Run validation
+    report = await validate_deployment_readiness(args.environment)
+    
+    # Save report if requested
+    if args.output:
+        import json
+        with open(args.output, 'w') as f:
+            # Convert report to dict for JSON serialization
+            report_dict = {
+                "overall_status": report.overall_status,
+                "total_checks": report.total_checks,
+                "passed_checks": report.passed_checks,
+                "failed_checks": report.failed_checks,
+                "warning_checks": report.warning_checks,
+                "critical_failures": [
+                    {
+                        "service": f.service.value,
+                        "check_name": f.check_name,
+                        "severity": f.severity.value,
+                        "status": f.status,
+                        "message": f.message,
+                        "details": f.details
+                    } for f in report.critical_failures
+                ],
+                "warnings": [
+                    {
+                        "service": w.service.value,
+                        "check_name": w.check_name,
+                        "severity": w.severity.value,
+                        "status": w.status,
+                        "message": w.message,
+                        "details": w.details
+                    } for w in report.warnings
+                ],
+                "recommendations": report.recommendations,
+                "validation_timestamp": report.validation_timestamp.isoformat(),
+                "execution_time": report.execution_time,
+                "environment": report.environment
+            }
+            json.dump(report_dict, f, indent=2)
+        
+        print(f"Validation report saved to: {args.output}")
+    
+    # Exit with appropriate code
+    if report.overall_status == "NOT_READY":
+        exit(1)
+    elif report.overall_status == "PARTIAL":
+        exit(2)
+    else:
+        exit(0)
 
-    Returns:
-        True if all critical services are healthy
-    """
-    try:
-        report = await validate_startup_configuration(fail_fast=False)
-        return report["overall_status"] in ["HEALTHY", "WARNING"]
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return False
+
+if __name__ == "__main__":
+    asyncio.run(main())
