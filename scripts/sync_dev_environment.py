@@ -10,9 +10,8 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import git
-import aiohttp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

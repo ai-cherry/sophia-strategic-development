@@ -199,7 +199,7 @@ if __name__ == "__main__":
                             healthy_count += 1
                         else:
                             print(f"🔴 {service_name}: HTTP {response.status}")
-                except Exception as e:
+                except Exception:
                     print(f"🔴 {service_name}: UNREACHABLE")
         
         print(f"\\n📊 System Health: {healthy_count}/{len(services)} services healthy")

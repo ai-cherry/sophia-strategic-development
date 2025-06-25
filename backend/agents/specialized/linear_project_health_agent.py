@@ -4,10 +4,9 @@ Linear Project Health Monitoring Agent
 AI-driven project health analysis and risk detection for Linear issues
 """
 
-import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum

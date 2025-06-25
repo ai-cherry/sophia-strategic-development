@@ -13,8 +13,7 @@ import time
 import requests
 import docker
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

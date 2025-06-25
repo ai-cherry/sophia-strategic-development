@@ -4,12 +4,9 @@ Infrastructure Validation Script
 Validates that all infrastructure components are properly configured
 """
 
-import os
 import sys
-import yaml
-import json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 
 def check_file_exists(filepath: str) -> Tuple[bool, str]:
@@ -153,7 +150,7 @@ def main():
     passed = sum(1 for success, _ in all_results if success)
     failed = total - passed
     
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"Total checks: {total}")
     print(f"Passed: {passed}")
     print(f"Failed: {failed}")

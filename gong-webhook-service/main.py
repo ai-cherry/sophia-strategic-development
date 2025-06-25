@@ -7,9 +7,8 @@ Designed to pass Gong's webhook test and be production-ready.
 from datetime import datetime
 import os
 import logging
-from typing import Optional
 
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, PlainTextResponse
 import uvicorn
 

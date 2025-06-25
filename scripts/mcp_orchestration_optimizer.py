@@ -12,12 +12,9 @@ This script:
 
 import os
 import json
-import yaml
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
-import subprocess
 
 class MCPOrchestrationOptimizer:
     """Optimize MCP orchestration according to the new streamlined plan"""

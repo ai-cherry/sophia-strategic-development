@@ -4,12 +4,10 @@ Sophia AI Infrastructure Modernization - Day 1 Execution Script
 Automated cleanup and foundation setup
 """
 
-import os
 import shutil
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Tuple
 import subprocess
 import asyncio
 
@@ -242,7 +240,7 @@ __version__ = "2.0.0"
                     py_file.write_text(content)
                     updates_made += 1
                     
-            except Exception as e:
+            except Exception:
                 continue
                 
         self.log_action("update_imports", "success", 

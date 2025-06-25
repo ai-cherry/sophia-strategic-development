@@ -7,8 +7,8 @@ import asyncio
 import json
 import logging
 import re
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple, Set
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -249,7 +249,7 @@ class IntelligentContextDetector:
         # Filter by confidence threshold
         high_confidence_contexts = [
             ctx for ctx in merged_contexts 
-            if ctx.confidence >= ctx.context_type.value if hasattr(ctx.context_type, 'value') else 0.6
+            if ctx.confidence >= (ctx.context_type.value if hasattr(ctx.context_type, 'value') else 0.6)
         ]
         
         return high_confidence_contexts
@@ -669,17 +669,17 @@ class AutoDiscoveryOrchestrator:
         
         # Related files
         if context.related_files:
-            content_parts.append(f"\n## Related Files:")
+            content_parts.append("\n## Related Files:")
             for file in context.related_files:
                 content_parts.append(f"- {file}")
         
         # Context and reasoning
-        content_parts.append(f"\n## Context:")
+        content_parts.append("\n## Context:")
         content_parts.append(context.reasoning)
         
         # Original conversation excerpt (limited)
         conversation_excerpt = conversation[:1000] + "..." if len(conversation) > 1000 else conversation
-        content_parts.append(f"\n## Conversation Excerpt:")
+        content_parts.append("\n## Conversation Excerpt:")
         content_parts.append(f"```\n{conversation_excerpt}\n```")
         
         return "\n".join(content_parts)

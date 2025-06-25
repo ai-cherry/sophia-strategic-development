@@ -15,17 +15,13 @@ Key Features:
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 import json
 
 import snowflake.connector
-import pandas as pd
-import numpy as np
 
 from backend.core.auto_esc_config import config
 
@@ -676,11 +672,11 @@ class SnowflakeCortexService:
                 
             except Exception as cortex_error:
                 if "insufficient credits" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(f"Insufficient Snowflake credits for embedding generation")
+                    raise CortexEmbeddingError("Insufficient Snowflake credits for embedding generation")
                 elif "model not available" in str(cortex_error).lower():
                     raise CortexEmbeddingError(f"Model {model} not available in Snowflake Cortex")
                 elif "text too long" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(f"Text content exceeds model limits")
+                    raise CortexEmbeddingError("Text content exceeds model limits")
                 else:
                     raise CortexEmbeddingError(f"Cortex embedding error: {cortex_error}")
             

@@ -30,8 +30,8 @@ import argparse
 import logging
 import sys
 import os
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+from typing import List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import json
@@ -39,7 +39,6 @@ import time
 
 import snowflake.connector
 import structlog
-from tqdm import tqdm
 
 # Import Sophia AI components
 from backend.core.auto_esc_config import config
@@ -130,7 +129,7 @@ class SnowflakeApplicationLayerDeployer:
         # Connection details
         self.connection = None
         self.database = f"SOPHIA_AI_{self.environment}"
-        self.warehouse = f"WH_SOPHIA_AI_PROCESSING"
+        self.warehouse = "WH_SOPHIA_AI_PROCESSING"
         
         # Deployment tracking
         self.deployment_id = f"DEPLOY_{self.environment}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"

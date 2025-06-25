@@ -8,7 +8,7 @@ Natural language interface for Snowflake administration through LangChain SQL Ag
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 # MCP imports
 from mcp.server import Server
@@ -22,9 +22,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from backend.agents.specialized.snowflake_admin_agent import (
     SnowflakeAdminAgent,
-    AdminTaskRequest,
     SnowflakeEnvironment,
-    AdminTaskType,
     execute_snowflake_admin_task,
     confirm_snowflake_admin_task
 )

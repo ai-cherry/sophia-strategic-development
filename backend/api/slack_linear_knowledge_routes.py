@@ -4,8 +4,8 @@ Provides endpoints for Slack conversation and Linear issue knowledge management
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_session

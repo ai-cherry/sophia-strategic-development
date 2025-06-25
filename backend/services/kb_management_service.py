@@ -4,13 +4,12 @@ Knowledge Base Management Service
 Natural language-driven KB entity and article management with NLU capabilities
 """
 
-import asyncio
 import json
 import logging
 import re
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple, Union
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 

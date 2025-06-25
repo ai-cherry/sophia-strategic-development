@@ -5,10 +5,8 @@ Shows how @ai_memory and @codacy work together for intelligent development
 """
 
 import asyncio
-import json
 import aiohttp
 from datetime import datetime
-from typing import Dict, Any
 
 
 class MCPIntegrationDemo:
@@ -140,20 +138,20 @@ def authenticate_user(password, username):
                     if response.status == 200:
                         result = await response.json()
                         
-                        print(f"✅ Analysis completed:")
+                        print("✅ Analysis completed:")
                         print(f"   Total Issues: {result.get('total_issues', 0)}")
                         print(f"   Language: {result.get('language', 'unknown')}")
                         
                         # Show severity breakdown
                         severity = result.get('severity_breakdown', {})
-                        print(f"   Severity Breakdown:")
+                        print("   Severity Breakdown:")
                         print(f"     - Errors: {severity.get('error', 0)}")
                         print(f"     - Warnings: {severity.get('warning', 0)}")
                         print(f"     - Info: {severity.get('info', 0)}")
                         
                         # Show first few issues
                         issues = result.get('issues', [])
-                        print(f"\n   Top Issues Found:")
+                        print("\n   Top Issues Found:")
                         for i, issue in enumerate(issues[:3]):
                             print(f"     {i+1}. Line {issue.get('line', '?')}: {issue.get('message', 'Unknown')}")
                             print(f"        Type: {issue.get('type', 'unknown')} | Severity: {issue.get('severity', 'unknown')}")
@@ -161,7 +159,7 @@ def authenticate_user(password, username):
                         # Show suggestions
                         suggestions = result.get('suggestions', [])
                         if suggestions:
-                            print(f"\n   Automated Suggestions:")
+                            print("\n   Automated Suggestions:")
                             for suggestion in suggestions[:3]:
                                 print(f"     - {suggestion}")
                                 
@@ -266,7 +264,7 @@ def authenticate_user(username: str, password: str, stored_hash: str, salt: str)
                 async with session.post(f"{self.codacy_url}/execute", json=payload) as response:
                     if response.status == 200:
                         result = await response.json()
-                        print(f"✅ Secure implementation analysis:")
+                        print("✅ Secure implementation analysis:")
                         print(f"   Total Issues: {result.get('total_issues', 0)}")
                         
                         severity = result.get('severity_breakdown', {})
@@ -342,16 +340,16 @@ Security Review: Passed Codacy analysis with 0 security issues
                             print(f"🟢 {service_name}: OPERATIONAL")
                         else:
                             print(f"🔴 {service_name}: ISSUES ({response.status})")
-            except Exception as e:
+            except Exception:
                 print(f"🔴 {service_name}: UNREACHABLE")
         
-        print(f"\n🎯 Enhanced Integration Features:")
-        print(f"   ✅ Automatic context detection and storage")
-        print(f"   ✅ Real-time security vulnerability scanning")
-        print(f"   ✅ Context-aware memory retrieval")
-        print(f"   ✅ Intelligent code quality analysis")
-        print(f"   ✅ Automated workflow triggers")
-        print(f"   ✅ Natural language command processing")
+        print("\n🎯 Enhanced Integration Features:")
+        print("   ✅ Automatic context detection and storage")
+        print("   ✅ Real-time security vulnerability scanning")
+        print("   ✅ Context-aware memory retrieval")
+        print("   ✅ Intelligent code quality analysis")
+        print("   ✅ Automated workflow triggers")
+        print("   ✅ Natural language command processing")
     
     async def run_complete_demonstration(self):
         """Run the complete enhanced MCP integration demonstration"""

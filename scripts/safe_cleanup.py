@@ -4,13 +4,11 @@ Safe Cleanup Script for Sophia AI
 Phase 1B: Remove deprecated code and legacy artifacts with backup
 """
 
-import os
 import shutil
 import json
 import re
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Set
 import argparse
 
 
@@ -148,7 +146,7 @@ class SafeCleanup:
                         path.unlink()
                     else:
                         shutil.rmtree(path)
-                    print(f"    ✓ Removed")
+                    print("    ✓ Removed")
                 except Exception as e:
                     print(f"    ✗ Failed: {e}")
         
@@ -158,7 +156,7 @@ class SafeCleanup:
             for target in self.approval_required:
                 path = target["path"]
                 print(f"  {target['type']}: {path.relative_to(self.root_path)} - {target['reason']}")
-                print(f"    → Requires stakeholder approval before removal")
+                print("    → Requires stakeholder approval before removal")
         
         if self.dry_run:
             print("\n[DRY RUN] No files were actually removed. Run without --dry-run to execute.")
@@ -216,8 +214,8 @@ class SafeCleanup:
                 f.write(f"- [ ] **{path}**\n")
                 f.write(f"  - Type: {item['type']}\n")
                 f.write(f"  - Reason: {item['reason']}\n")
-                f.write(f"  - Approved by: ____________\n")
-                f.write(f"  - Date: ____________\n\n")
+                f.write("  - Approved by: ____________\n")
+                f.write("  - Date: ____________\n\n")
             
             f.write("\n## Approval Process\n\n")
             f.write("1. Review each item with relevant stakeholders\n")

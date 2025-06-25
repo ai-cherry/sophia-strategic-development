@@ -7,8 +7,8 @@ import asyncio
 import json
 import logging
 import re
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple, Union
+from datetime import datetime
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -19,8 +19,6 @@ from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.workflows.langgraph_agent_orchestration import LangGraphWorkflowOrchestrator
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
-from backend.services.kb_management_service import KBManagementService
 
 logger = logging.getLogger(__name__)
 

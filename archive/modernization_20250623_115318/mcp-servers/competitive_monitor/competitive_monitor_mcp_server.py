@@ -4,14 +4,12 @@ Real-time monitoring of competitive landscape for strategic intelligence
 """
 
 import os
-import json
 import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
-import aiohttp
 from pydantic import BaseModel, Field
 from redis import Redis
 from dotenv import load_dotenv
@@ -22,7 +20,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from slack_sdk.webhook import WebhookClient
-import schedule
 
 from backend.agents.core.base_agent import BaseAgent
 

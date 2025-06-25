@@ -5,11 +5,10 @@ Sophia AI MCP Server Testing and Monitoring Suite
 
 import asyncio
 import aiohttp
-import json
 import time
 import sys
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, Any
 import psutil
 
 class MCPServerMonitor:
@@ -128,7 +127,7 @@ def main():
         async def continuous_monitor():
             while True:
                 await monitor.run_health_check()
-                print(f"\n⏰ Next check in 30 seconds... (Ctrl+C to stop)")
+                print("\n⏰ Next check in 30 seconds... (Ctrl+C to stop)")
                 try:
                     await asyncio.sleep(30)
                 except KeyboardInterrupt:

@@ -4,13 +4,10 @@ Sophia AI Infrastructure Modernization - Kickoff Script
 Executes Phase 1 cleanup and preparation tasks
 """
 
-import os
-import sys
 import json
-import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List
 import asyncio
 import logging
 

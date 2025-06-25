@@ -10,7 +10,7 @@ import statistics
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import git
 import subprocess
 
@@ -667,7 +667,7 @@ def main():
         
         # Print summary
         scores = metrics["overall_scores"]
-        print(f"\n📊 Development Health Summary:")
+        print("\n📊 Development Health Summary:")
         print(f"Overall Health: {scores['overall_health']:.1f}/100")
         print(f"Quality: {scores['code_quality']:.1f}/100")
         print(f"Testing: {scores['testing_maturity']:.1f}/100")

@@ -4,12 +4,11 @@ Sophia AI Codebase Audit Script
 Phase 1A: Comprehensive audit of all modules, services, agents, and documentation
 """
 
-import os
 import json
 import re
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List
 from collections import defaultdict
 
 

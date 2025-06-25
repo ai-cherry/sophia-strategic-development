@@ -9,13 +9,12 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
+from datetime import datetime
+from typing import Dict, Any, Optional, Callable
 from dataclasses import dataclass
 from enum import Enum
 
 import redis.asyncio as redis_client
-from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.auto_esc_config import config
 
 logger = logging.getLogger(__name__)
@@ -63,7 +62,7 @@ class CircuitBreaker:
             if self._should_attempt_reset():
                 self.state = CircuitBreakerState.HALF_OPEN
             else:
-                raise Exception(f"Circuit breaker OPEN - service unavailable")
+                raise Exception("Circuit breaker OPEN - service unavailable")
         
         try:
             result = await func(*args, **kwargs)

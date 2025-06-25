@@ -8,15 +8,13 @@ import asyncio
 import json
 import csv
 import logging
-import os
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 import uuid
 
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService, FoundationalDataType
 

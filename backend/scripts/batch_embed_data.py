@@ -24,18 +24,15 @@ import asyncio
 import argparse
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import json
-import time
 
 import structlog
 from tqdm import tqdm
 
 # Import Sophia AI components
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.snowflake_config_manager import SnowflakeConfigManager
 
@@ -647,7 +644,7 @@ async def main():
                 limit=args.limit
             )
             
-            print(f"\n=== Processing Complete ===")
+            print("\n=== Processing Complete ===")
             print(f"Table: {args.table}")
             print(f"Successful: {stats.successful_embeddings}/{stats.total_records} ({stats.success_rate:.2%})")
             print(f"Duration: {stats.duration_seconds:.2f} seconds")

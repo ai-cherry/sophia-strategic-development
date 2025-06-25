@@ -4,13 +4,10 @@ Sophia AI Infrastructure Cleanup - Phase 1
 Removes legacy files, consolidates infrastructure, and prepares for modernization
 """
 
-import os
 import shutil
 import json
-import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
 
 class InfrastructureCleanup:
     def __init__(self):
@@ -338,7 +335,7 @@ dns_service = DNSManagerService()
             action.get("count", 1) 
             for action in self.report["actions"]
         )
-        print(f"\n📈 Summary:")
+        print("\n📈 Summary:")
         print(f"   • Total actions: {total_actions}")
         print(f"   • Errors: {len(self.report['errors'])}")
         

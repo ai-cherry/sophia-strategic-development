@@ -3,18 +3,14 @@ Foundational Knowledge Service
 Manages Pay Ready's foundational business information and integrates it with the existing knowledge base
 """
 
-import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
 
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.knowledge_service import KnowledgeService
 from backend.core.logger import logger

@@ -6,9 +6,6 @@ Comprehensive Gong Webhook Diagnosis Script
 import socket
 import ssl
 import requests
-import json
-import subprocess
-import sys
 from datetime import datetime
 
 def check_dns_resolution(domain):
@@ -18,7 +15,7 @@ def check_dns_resolution(domain):
     try:
         # Get IP addresses
         ips = socket.gethostbyname_ex(domain)
-        print(f"✅ DNS Resolution successful")
+        print("✅ DNS Resolution successful")
         print(f"   Hostname: {ips[0]}")
         print(f"   Aliases: {ips[1]}")
         print(f"   IP Addresses: {ips[2]}")
@@ -36,7 +33,7 @@ def check_ssl_certificate(domain):
         with socket.create_connection((domain, 443), timeout=10) as sock:
             with context.wrap_socket(sock, server_hostname=domain) as ssock:
                 cert = ssock.getpeercert()
-                print(f"✅ SSL Certificate valid")
+                print("✅ SSL Certificate valid")
                 print(f"   Subject: {cert.get('subject', 'N/A')}")
                 print(f"   Issuer: {cert.get('issuer', 'N/A')}")
                 print(f"   Not Before: {cert.get('notBefore', 'N/A')}")
@@ -52,7 +49,7 @@ def check_ssl_certificate(domain):
 
 def check_server_connectivity(url):
     """Check if the server is reachable"""
-    print(f"\n🌐 Server Connectivity Check")
+    print("\n🌐 Server Connectivity Check")
     print("=" * 60)
     try:
         # Check health endpoint
@@ -78,7 +75,7 @@ def check_server_connectivity(url):
 
 def test_webhook_endpoint(url):
     """Test the webhook endpoint with a simulated request"""
-    print(f"\n🧪 Webhook Endpoint Test")
+    print("\n🧪 Webhook Endpoint Test")
     print("=" * 60)
     try:
         # Send empty POST request (simulating Gong test)
@@ -97,7 +94,7 @@ def test_webhook_endpoint(url):
         print(f"Response Body: {response.text[:500]}")
         
         if response.status_code == 200:
-            print(f"✅ Webhook endpoint returned 200 OK")
+            print("✅ Webhook endpoint returned 200 OK")
             return True
         else:
             print(f"⚠️  Webhook endpoint returned {response.status_code}")
@@ -109,7 +106,7 @@ def test_webhook_endpoint(url):
 
 def check_public_key_endpoint(base_url):
     """Check if the public key endpoint is accessible"""
-    print(f"\n🔑 Public Key Endpoint Check")
+    print("\n🔑 Public Key Endpoint Check")
     print("=" * 60)
     try:
         public_key_url = base_url.replace('/webhook/gong/calls', '/webhook/gong/public-key')
@@ -119,7 +116,7 @@ def check_public_key_endpoint(base_url):
         print(f"Response Status: {response.status_code}")
         
         if response.status_code == 200:
-            print(f"✅ Public key endpoint accessible")
+            print("✅ Public key endpoint accessible")
             print(f"Public Key Preview: {response.text[:100]}...")
             return True
         else:
@@ -132,7 +129,7 @@ def check_public_key_endpoint(base_url):
 
 def check_ip_connectivity(ip):
     """Check if the IP is reachable"""
-    print(f"\n🖥️  Direct IP Connectivity Check")
+    print("\n🖥️  Direct IP Connectivity Check")
     print("=" * 60)
     try:
         # Try to connect to the IP on port 443

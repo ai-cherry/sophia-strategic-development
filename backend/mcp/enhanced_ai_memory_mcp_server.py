@@ -8,8 +8,8 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
 
 # MCP imports
@@ -19,7 +19,6 @@ from mcp.types import Tool, TextContent
 
 # Enhanced imports
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer as BaseAiMemoryMCPServer
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 

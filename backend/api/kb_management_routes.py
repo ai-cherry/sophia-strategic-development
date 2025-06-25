@@ -6,14 +6,10 @@ Provides endpoints for natural language KB management and document upload
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from typing import List, Optional, Dict, Any
-from datetime import datetime
-import json
-import logging
 from pydantic import BaseModel
 
-from backend.core.database import get_session
 from backend.core.auth import get_current_user
-from backend.services.kb_management_service import KBManagementService, KBProcessingResult
+from backend.services.kb_management_service import KBManagementService
 from backend.core.cache_manager import DashboardCacheManager
 from backend.core.logger import logger
 

@@ -6,12 +6,11 @@ Transforms raw Airbyte data into structured format for knowledge base integratio
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import datetime
+from typing import Dict, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.snowflake_config_manager import SnowflakeConfigManager
 

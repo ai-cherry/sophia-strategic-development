@@ -5,14 +5,12 @@ Test suite for natural language command processing and GitHub integration
 """
 
 import asyncio
-import json
 import logging
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 import unittest
-from unittest.mock import Mock, patch, MagicMock
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -710,7 +708,7 @@ def main():
     success_count = total_tests - failures - errors
     success_rate = (success_count / total_tests) * 100 if total_tests > 0 else 0
     
-    logger.info(f"\n📊 Test Summary:")
+    logger.info("\n📊 Test Summary:")
     logger.info(f"Total Tests: {total_tests}")
     logger.info(f"Passed: {success_count}")
     logger.info(f"Failed: {failures}")

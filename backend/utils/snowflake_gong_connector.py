@@ -13,14 +13,12 @@ Key Features:
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
 import snowflake.connector
-import pandas as pd
 
 from backend.core.auto_esc_config import config
 

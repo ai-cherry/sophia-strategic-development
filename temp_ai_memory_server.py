@@ -1,8 +1,7 @@
 
 import asyncio
-import json
 from datetime import datetime
-from aiohttp import web, ClientSession
+from aiohttp import web
 import logging
 
 logging.basicConfig(level=logging.INFO)

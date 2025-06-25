@@ -4,11 +4,10 @@ Documentation Cleanup Script
 Removes obsolete, duplicate, and one-time-use documentation files
 """
 
-import os
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Dict
 import json
 
 
@@ -257,7 +256,7 @@ class DocumentationCleaner:
         self.generate_cleanup_log()
         
         # Summary
-        print(f"\n=== Summary ===")
+        print("\n=== Summary ===")
         print(f"Files removed: {len(self.removed_files)}")
         print(f"Files moved: {len(self.moved_files)}")
         if not self.dry_run:

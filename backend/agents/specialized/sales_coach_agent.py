@@ -7,10 +7,9 @@ through Snowflake Cortex, combined with HubSpot deal context for comprehensive i
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -298,7 +297,7 @@ class SalesCoachAgent(BaseAgent):
                     deal_context=f"Deal stage: {analysis.deal_stage}, Value: ${analysis.deal_value:,.2f}" if analysis.deal_value else None,
                     supporting_evidence=[
                         f"Overall sentiment score: {analysis.overall_sentiment:.2f}",
-                        f"Multiple negative sentiment segments detected in transcript"
+                        "Multiple negative sentiment segments detected in transcript"
                     ]
                 ))
             
@@ -630,7 +629,7 @@ class SalesCoachAgent(BaseAgent):
                     category=CoachingCategory.SENTIMENT_IMPROVEMENT,
                     priority=CoachingPriority.HIGH,
                     title="Declining Sentiment Trend",
-                    description=f"Sentiment declining compared to recent calls",
+                    description="Sentiment declining compared to recent calls",
                     specific_feedback=f"Your recent call sentiment ({current_analysis.overall_sentiment:.2f}) is below your recent average ({avg_historical_sentiment:.2f}). Let's identify what's changed.",
                     suggested_actions=[
                         "Review recent successful calls to identify what worked",

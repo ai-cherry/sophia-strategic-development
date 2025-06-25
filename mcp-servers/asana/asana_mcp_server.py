@@ -9,17 +9,15 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Sequence
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 import aiohttp
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
-    CallToolRequest,
     CallToolResult,
-    ListToolsRequest,
     ListToolsResult,
     TextContent,
     Tool,

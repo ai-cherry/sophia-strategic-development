@@ -7,10 +7,9 @@ Part of the permanent GitHub → Pulumi ESC → Backend secret management soluti
 
 import os
 import subprocess
-import sys
 import json
 import logging
-from typing import Dict, Optional
+from typing import Dict
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -187,11 +186,11 @@ class GitHubSecretsLoader:
         print(f"\n📊 Total secrets: {len(secrets)}/{len(self.required_secrets)}")
         
         # Show integration status
-        print(f"\n🔗 INTEGRATION STATUS:")
-        print(f"   • GitHub Organization: ai-cherry")
-        print(f"   • Pulumi ESC: scoobyjava-org/default/sophia-ai-production")
+        print("\n🔗 INTEGRATION STATUS:")
+        print("   • GitHub Organization: ai-cherry")
+        print("   • Pulumi ESC: scoobyjava-org/default/sophia-ai-production")
         print(f"   • Local Environment: {len(self.load_from_local_env())} variables")
-        print(f"   • Auto-sync: GitHub Actions → Pulumi ESC → Backend")
+        print("   • Auto-sync: GitHub Actions → Pulumi ESC → Backend")
 
 
 def main():
@@ -210,8 +209,8 @@ def main():
     # Print status report
     loader.print_status_report(secrets)
     
-    print(f"\n🚀 Secrets loaded! Use: source .env.secrets")
-    print(f"   Or run: python load_github_secrets.py && source .env.secrets && python start_enhanced_mcp_servers.py")
+    print("\n🚀 Secrets loaded! Use: source .env.secrets")
+    print("   Or run: python load_github_secrets.py && source .env.secrets && python start_enhanced_mcp_servers.py")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 import statistics
 
 # Add project root to path
@@ -22,7 +22,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from backend.core.auto_esc_config import config
 from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
 from backend.agents.infrastructure.sophia_infrastructure_agent import SophiaInfrastructureAgent
-from backend.agents.core.base_agent import Task
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -395,7 +394,7 @@ class SophiaPerformanceBenchmarker:
         # System info
         sys_info = report.get("system_info", {})
         if sys_info and "error" not in sys_info:
-            print(f"\n💻 System Info:")
+            print("\n💻 System Info:")
             print(f"  CPU: {sys_info.get('cpu_count', 'unknown')} cores")
             print(f"  Memory: {sys_info.get('memory_total', 'unknown')} GB total")
             print(f"  Python: {sys_info.get('python_version', 'unknown')}")

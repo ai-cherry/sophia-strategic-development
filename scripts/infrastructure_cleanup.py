@@ -4,7 +4,6 @@ Infrastructure Cleanup Script
 Removes legacy and broken infrastructure files to streamline the codebase
 """
 
-import os
 import sys
 from pathlib import Path
 from typing import List, Tuple
@@ -88,7 +87,7 @@ def main():
     total_files = len(legacy_results) + len(pattern_results)
     successful = sum(1 for _, success in legacy_results + pattern_results if success)
     
-    print(f"\n=== Summary ===")
+    print("\n=== Summary ===")
     print(f"Total files processed: {total_files}")
     print(f"Successfully {'would remove' if dry_run else 'removed'}: {successful}")
     print(f"Failed: {total_files - successful}")

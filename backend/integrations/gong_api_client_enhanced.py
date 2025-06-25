@@ -19,7 +19,7 @@ from typing import Any, Callable, Dict, List, Optional
 from urllib.parse import urljoin
 
 import aiohttp
-import redis.asyncio as redis_client
+import redis.asyncio as redis
 import structlog
 from pydantic import BaseModel, Field, validator
 from prometheus_client import Counter, Histogram, Gauge

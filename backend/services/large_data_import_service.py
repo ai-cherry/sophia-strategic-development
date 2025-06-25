@@ -5,25 +5,20 @@ Slack message exports, and other large file uploads for the knowledge base.
 """
 
 import asyncio
-import csv
 import json
 import logging
 import os
 import tempfile
 import zipfile
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union, BinaryIO
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 import uuid
 import pandas as pd
-from pathlib import Path
 
 import aiofiles
-import aiohttp
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.knowledge_service import KnowledgeService
 from backend.core.logger import logger

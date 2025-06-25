@@ -7,7 +7,7 @@ Enhances remaining documentation for AI coders and maintainers
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 import json
 
 
@@ -314,7 +314,7 @@ Use the tags in each document to find related content quickly.
         self.generate_enhancement_report()
         
         # Summary
-        print(f"\n=== Summary ===")
+        print("\n=== Summary ===")
         print(f"Files enhanced: {len(self.enhanced_files)}")
         print("\nDocumentation is now optimized for AI coders!")
 

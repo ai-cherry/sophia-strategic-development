@@ -7,12 +7,10 @@ AI-enhanced code analysis optimized for Cursor GitHub integration
 import argparse
 import json
 import logging
-import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 import ast
 import git

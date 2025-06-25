@@ -12,7 +12,7 @@ import sys
 import time
 import aiohttp
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

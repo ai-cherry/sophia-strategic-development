@@ -1,17 +1,12 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import JSONResponse
 import os
 import httpx
-import asyncio
 import time
-from typing import Dict, List, Any, Optional
-import json
-from datetime import datetime, timedelta
+from typing import Dict, List
+from datetime import datetime
 import logging
 
-from backend.core.auto_esc_config import config
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.integrations.gong_api_client_enhanced import EnhancedGongAPIClient
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

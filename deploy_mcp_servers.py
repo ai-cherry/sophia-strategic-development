@@ -4,7 +4,6 @@ Simple MCP Server Deployment Script
 Starts essential MCP servers for Sophia AI
 """
 
-import asyncio
 import subprocess
 import time
 import sys
@@ -79,11 +78,11 @@ class MCPServerDeployer:
                 # Give the server time to start
                 time.sleep(2)
         
-        print(f"\n📊 Deployment Summary:")
+        print("\n📊 Deployment Summary:")
         print(f"   ✅ Successfully started: {success_count}/{len(essential_servers)} servers")
         
         if success_count > 0:
-            print(f"\n🔗 Server Status:")
+            print("\n🔗 Server Status:")
             for server in self.servers:
                 status = "🟢 Running" if server['process'].poll() is None else "🔴 Stopped"
                 print(f"   {server['name']}: {status} (Port {server['port']})")

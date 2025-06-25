@@ -266,8 +266,8 @@ async def update_foundational_record(
             raise HTTPException(status_code=404, detail="Record not found or update failed")
         
         # Invalidate cache
-        await cache_manager.invalidate_pattern(f"foundational_*")
-        await cache_manager.invalidate_pattern(f"knowledge_stats:*")
+        await cache_manager.invalidate_pattern("foundational_*")
+        await cache_manager.invalidate_pattern("knowledge_stats:*")
         
         return {
             "status": "success",

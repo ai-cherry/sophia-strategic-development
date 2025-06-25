@@ -24,7 +24,6 @@ from backend.models.knowledge import (
 )
 from backend.core.cache_manager import DashboardCacheManager
 from backend.core.logger import logger
-from backend.integrations.vector_stores import PineconeClient, WeaviateClient
 
 router = APIRouter(prefix="/api/v1/knowledge", tags=["knowledge"])
 

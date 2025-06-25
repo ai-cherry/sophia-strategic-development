@@ -9,8 +9,6 @@ import subprocess
 import time
 import sys
 import os
-import signal
-import json
 from pathlib import Path
 from aiohttp import web
 import logging

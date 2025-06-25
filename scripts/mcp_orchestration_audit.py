@@ -7,14 +7,12 @@ This script performs a comprehensive audit of all MCP servers and AI agents
 to support the modernization effort.
 """
 
-import os
 import json
 import glob
 import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
-import subprocess
+from typing import Dict, List, Any
 import argparse
 
 class MCPOrchestrationAuditor:

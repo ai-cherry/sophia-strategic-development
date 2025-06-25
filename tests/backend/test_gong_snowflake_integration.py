@@ -11,10 +11,8 @@ Tests cover:
 
 import pytest
 import asyncio
-from unittest.mock import Mock, patch, AsyncMock, MagicMock
+from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timedelta
-import json
-import uuid
 
 # Import modules under test
 from backend.etl.gong.ingest_gong_data import (
@@ -25,18 +23,14 @@ from backend.etl.gong.ingest_gong_data import (
     IngestionState
 )
 from backend.utils.snowflake_gong_connector import (
-    SnowflakeGongConnector,
-    get_gong_connector
+    SnowflakeGongConnector
 )
 from backend.utils.snowflake_cortex_service import (
     analyze_gong_call_sentiment,
-    summarize_gong_call_with_context,
-    find_similar_gong_calls,
-    get_gong_coaching_insights
+    find_similar_gong_calls
 )
 from backend.agents.specialized.sales_coach_agent import (
-    SalesCoachAgent,
-    CoachingInsight
+    SalesCoachAgent
 )
 from backend.agents.specialized.call_analysis_agent import (
     CallAnalysisAgent,

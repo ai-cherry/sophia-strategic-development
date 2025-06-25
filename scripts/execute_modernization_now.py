@@ -4,12 +4,10 @@ Sophia AI Infrastructure Modernization - Immediate Execution
 Simplified version for immediate cleanup and modernization
 """
 
-import os
 import shutil
 import json
 from datetime import datetime
 from pathlib import Path
-import subprocess
 
 def main():
     """Execute immediate modernization tasks"""

@@ -8,12 +8,10 @@ import asyncio
 import json
 import logging
 import os
-import subprocess
 import tempfile
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Set
-from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
 from enum import Enum
 
 import ast
@@ -25,7 +23,6 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 # Security analysis
-import bandit
 from bandit.core import manager as bandit_manager
 from bandit.core import config as bandit_config
 

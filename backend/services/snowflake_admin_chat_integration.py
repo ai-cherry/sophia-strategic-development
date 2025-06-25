@@ -16,8 +16,6 @@ from backend.agents.specialized.snowflake_admin_agent import (
     AdminTaskRequest,
     AdminTaskResponse,
     SnowflakeEnvironment,
-    AdminTaskType,
-    execute_snowflake_admin_task,
     confirm_snowflake_admin_task
 )
 

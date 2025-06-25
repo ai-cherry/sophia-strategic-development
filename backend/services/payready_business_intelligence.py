@@ -3,7 +3,6 @@ Pay Ready Business Intelligence Orchestrator
 Integrates all BI agents with existing Sophia + Buzz architecture
 """
 
-import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
@@ -14,7 +13,6 @@ from backend.agents.core.base_agent import BaseAgent
 from backend.core.sophia_engine import SophiaAIEngine
 from backend.integrations.buzz_integration import BuzzAISystem
 from backend.mcp.mcp_gateway import MCPGateway
-from backend.core.auto_esc_config import config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

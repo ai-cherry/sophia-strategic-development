@@ -7,7 +7,7 @@ Focuses on stability and ease of use without over-complexity.
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from pydantic import BaseModel
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 import logging
 from datetime import datetime
 

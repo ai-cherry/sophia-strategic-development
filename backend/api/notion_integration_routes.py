@@ -3,7 +3,6 @@ Notion Integration API Routes for Sophia AI
 Provides endpoints for Notion knowledge base and strategic planning data via MCP server.
 """
 
-import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
@@ -13,7 +12,6 @@ import aiohttp
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-from backend.core.auto_esc_config import config
 
 logger = logging.getLogger(__name__)
 

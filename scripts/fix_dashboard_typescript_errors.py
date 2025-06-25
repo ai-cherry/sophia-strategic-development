@@ -4,10 +4,8 @@ Fix TypeScript errors in the new dashboard components.
 This script addresses the linter issues identified in the dashboard integration plan.
 """
 
-import os
 import re
 import json
-from typing import Dict, List, Tuple
 from pathlib import Path
 
 class DashboardTypeScriptFixer:

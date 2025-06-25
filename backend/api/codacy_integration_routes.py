@@ -3,17 +3,15 @@ Codacy Integration API Routes for Sophia AI
 Provides endpoints for code quality analysis and security scanning via MCP server.
 """
 
-import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import aiohttp
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-from backend.core.auto_esc_config import config
 
 logger = logging.getLogger(__name__)
 

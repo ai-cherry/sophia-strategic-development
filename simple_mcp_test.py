@@ -3,7 +3,6 @@
 
 import asyncio
 import aiohttp
-import sys
 from datetime import datetime
 
 async def test_server(name, port):
