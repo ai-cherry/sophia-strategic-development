@@ -1,0 +1,260 @@
+{{- range $serverName, $config := .Values.mcpServers }}
+{{- if $config.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $config.name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $config.name }}
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: sophia-ai-platform
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion }}
+    sophia.ai/mcp-server-type: {{ $serverName }}
+    sophia.ai/environment: {{ $.Values.global.environment }}
+spec:
+  replicas: {{ $config.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $config.name }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $config.name }}
+        app.kubernetes.io/component: mcp-server
+        app.kubernetes.io/part-of: sophia-ai-platform
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        sophia.ai/mcp-server-type: {{ $serverName }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ $config.port }}"
+        prometheus.io/path: "/metrics"
+        pulumi.com/esc-environment: {{ $.Values.global.pulumiEscEnv }}
+        sophia.ai/config-checksum: {{ $config | toJson | sha256sum }}
+    spec:
+      serviceAccountName: {{ $.Values.serviceAccount.name }}
+      securityContext:
+        {{- toYaml $.Values.global.securityContext | nindent 8 }}
+      
+      {{- if $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      
+      {{- if $.Values.tolerations }}
+      tolerations:
+        {{- toYaml $.Values.tolerations | nindent 8 }}
+      {{- end }}
+      
+      {{- if $.Values.affinity }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+      {{- end }}
+      
+      initContainers:
+        - name: config-loader
+          image: alpine:3.18
+          command:
+            - sh
+            - -c
+            - |
+              echo "Loading configuration for {{ $serverName }} MCP server..."
+              # Create required directories
+              mkdir -p /shared/config /shared/logs
+              # Set proper permissions
+              chown 1000:2000 /shared/config /shared/logs
+              echo "Configuration loaded successfully"
+          volumeMounts:
+            - name: shared-config
+              mountPath: /shared
+          securityContext:
+            runAsUser: 0  # Need root to set ownership
+      
+      containers:
+        - name: mcp-server
+          image: {{ $.Values.global.imageRegistry }}/{{ $config.image.repository }}:{{ $config.image.tag | default $.Values.global.imageTag }}
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          
+          ports:
+            - name: http
+              containerPort: {{ $config.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          
+          env:
+            # Standard environment variables
+            - name: PORT
+              value: "{{ $config.port }}"
+            - name: ENVIRONMENT
+              value: {{ $.Values.global.environment }}
+            - name: PULUMI_ESC_ENV
+              value: {{ $.Values.global.pulumiEscEnv }}
+            - name: LOG_LEVEL
+              value: {{ $.Values.mcpGateway.config.logLevel }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            
+            # Server-specific environment variables
+            {{- range $config.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          
+          envFrom:
+            # Load secrets from Kubernetes secret
+            - secretRef:
+                name: sophia-mcp-secrets
+                optional: true
+            # Load config from ConfigMap
+            - configMapRef:
+                name: sophia-mcp-config
+                optional: true
+          
+          volumeMounts:
+            - name: shared-config
+              mountPath: /config
+            - name: shared-config
+              mountPath: /logs
+              subPath: logs
+            {{- if and (eq $serverName "aiMemory") $config.persistence.enabled }}
+            - name: ai-memory-data
+              mountPath: /data/ai-memory
+            {{- end }}
+          
+          resources:
+            {{- toYaml $config.resources | nindent 12 }}
+          
+          {{- if $config.readinessProbe }}
+          readinessProbe:
+            {{- toYaml $config.readinessProbe | nindent 12 }}
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          {{- end }}
+          
+          {{- if $config.livenessProbe }}
+          livenessProbe:
+            {{- toYaml $config.livenessProbe | nindent 12 }}
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          {{- end }}
+          
+          # Startup probe for slower-starting servers
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ $config.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30  # 5 minutes to start
+          
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+      
+      volumes:
+        - name: shared-config
+          emptyDir: {}
+        {{- if and (eq $serverName "aiMemory") $config.persistence.enabled }}
+        - name: ai-memory-data
+          persistentVolumeClaim:
+            claimName: {{ $config.name }}-data
+        {{- end }}
+      
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+          - name: edns0
+
+{{- if and (eq $serverName "aiMemory") $config.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $config.name }}-data
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $config.name }}
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/part-of: sophia-ai-platform
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+spec:
+  accessModes:
+    {{- toYaml $.Values.storage.accessModes | nindent 4 }}
+  storageClassName: {{ $config.persistence.storageClass | default $.Values.storage.storageClass }}
+  resources:
+    requests:
+      storage: {{ $config.persistence.size }}
+{{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $config.name }}-service
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $config.name }}
+    app.kubernetes.io/component: mcp-server
+    app.kubernetes.io/part-of: sophia-ai-platform
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    sophia.ai/mcp-server-type: {{ $serverName }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ $config.port }}"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ $config.port }}
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ $config.name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+
+{{- end }}
+{{- end }} 

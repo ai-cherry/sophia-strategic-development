@@ -1,0 +1,573 @@
+name: Sophia AI - Enhanced Release Management
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'           # Production releases (v1.0.0)
+      - 'v*.*.*-rc*'       # Release candidates (v1.0.0-rc1)
+      - 'v*.*.*-beta*'     # Beta releases (v1.0.0-beta1)
+      - 'v*.*.*-alpha*'    # Alpha releases (v1.0.0-alpha1)
+
+env:
+  SOPHIA_RELEASE_VERSION: ${{ github.ref_name }}
+  PULUMI_ORG: scoobyjava-org
+
+jobs:
+  # Phase 1: Release Validation
+  validate-release:
+    name: 🔍 Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_type: ${{ steps.determine-type.outputs.type }}
+      target_environment: ${{ steps.determine-type.outputs.environment }}
+      is_production: ${{ steps.determine-type.outputs.is_production }}
+      is_valid: ${{ steps.determine-type.outputs.is_valid }}
+      components: ${{ steps.detect-changes.outputs.components }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog generation
+      
+      - name: 🏷️ Determine Release Type
+        id: determine-type
+        run: |
+          echo "Analyzing release tag: ${{ github.ref_name }}"
+          
+          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "type=production" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "is_production=true" >> $GITHUB_OUTPUT
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Production release detected"
+          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
+            echo "type=release-candidate" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "is_production=false" >> $GITHUB_OUTPUT
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Release candidate detected"
+          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta[0-9]+$ ]]; then
+            echo "type=beta" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "is_production=false" >> $GITHUB_OUTPUT
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Beta release detected"
+          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha[0-9]+$ ]]; then
+            echo "type=alpha" >> $GITHUB_OUTPUT
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "is_production=false" >> $GITHUB_OUTPUT
+            echo "is_valid=true" >> $GITHUB_OUTPUT
+            echo "✅ Alpha release detected"
+          else
+            echo "type=invalid" >> $GITHUB_OUTPUT
+            echo "is_valid=false" >> $GITHUB_OUTPUT
+            echo "❌ Invalid release tag format"
+            exit 1
+          fi
+      
+      - name: 🔍 Detect Changed Components
+        id: detect-changes
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found, assuming all components changed"
+            COMPONENTS='["infrastructure","mcp_servers","frontend","data_pipeline","integration"]'
+          else
+            echo "Comparing changes from $PREV_TAG to ${{ github.ref_name }}"
+            
+            CHANGED_COMPONENTS=()
+            
+            # Check infrastructure changes
+            if git diff --name-only $PREV_TAG..HEAD | grep -E "^infrastructure/|^pulumi/" > /dev/null; then
+              CHANGED_COMPONENTS+=("infrastructure")
+            fi
+            
+            # Check MCP server changes
+            if git diff --name-only $PREV_TAG..HEAD | grep -E "^mcp-servers/|^backend/mcp/" > /dev/null; then
+              CHANGED_COMPONENTS+=("mcp_servers")
+            fi
+            
+            # Check frontend changes
+            if git diff --name-only $PREV_TAG..HEAD | grep -E "^frontend/|^sophia-dashboard/" > /dev/null; then
+              CHANGED_COMPONENTS+=("frontend")
+            fi
+            
+            # Check data pipeline changes
+            if git diff --name-only $PREV_TAG..HEAD | grep -E "^backend/etl/|^backend/snowflake_setup/" > /dev/null; then
+              CHANGED_COMPONENTS+=("data_pipeline")
+            fi
+            
+            # Check integration changes
+            if git diff --name-only $PREV_TAG..HEAD | grep -E "^backend/integrations/|^backend/agents/" > /dev/null; then
+              CHANGED_COMPONENTS+=("integration")
+            fi
+            
+            # Convert to JSON array
+            COMPONENTS=$(printf '%s\n' "${CHANGED_COMPONENTS[@]}" | jq -R . | jq -s .)
+          fi
+          
+          echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+          echo "📦 Changed components: $COMPONENTS"
+      
+      - name: 🔐 Setup Pulumi ESC
+        run: |
+          echo "Setting up Pulumi ESC for environment validation..."
+          curl -fsSL https://get.pulumi.com | sh
+          export PATH=$PATH:$HOME/.pulumi/bin
+          
+          # Test ESC connectivity
+          pulumi env open scoobyjava-org/sophia-ai-${{ steps.determine-type.outputs.environment }} --format json > /dev/null
+          echo "✅ Pulumi ESC connectivity verified"
+
+  # Phase 2: Pre-deployment Security & Quality Checks
+  security-checks:
+    name: 🛡️ Security & Quality Checks
+    runs-on: ubuntu-latest
+    needs: validate-release
+    if: needs.validate-release.outputs.is_valid == 'true'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔒 Secret Scanning
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+      
+      - name: 🐍 Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install bandit safety
+      
+      - name: 🔍 Security Analysis
+        run: |
+          echo "🔍 Running security analysis..."
+          bandit -r backend/ -f json -o security-report.json || true
+          safety check --json --output safety-report.json || true
+          
+          # Enhanced secret audit
+          python scripts/enhanced_secret_standardization.py
+          
+          echo "✅ Security analysis completed"
+      
+      - name: 📊 Upload Security Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports-${{ github.ref_name }}
+          path: |
+            security-report.json
+            safety-report.json
+            enhanced_secret_standardization_report.json
+
+  # Phase 3: Infrastructure Deployment
+  deploy-infrastructure:
+    name: 🏗️ Deploy Infrastructure
+    runs-on: ubuntu-latest
+    needs: [validate-release, security-checks]
+    if: |
+      needs.validate-release.outputs.is_valid == 'true' && 
+      contains(fromJson(needs.validate-release.outputs.components), 'infrastructure')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔐 Setup Pulumi & Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: infrastructure/package-lock.json
+      
+      - name: 📦 Install Pulumi
+        run: |
+          curl -fsSL https://get.pulumi.com | sh
+          export PATH=$PATH:$HOME/.pulumi/bin
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+      
+      - name: 📦 Install Dependencies
+        working-directory: infrastructure
+        run: npm ci
+      
+      - name: 🚀 Start Deployment Tracking
+        run: |
+          python -c "
+          import asyncio
+          from backend.monitoring.enhanced_deployment_tracker import deployment_tracker, ComponentType, Environment
+          
+          async def start_tracking():
+              deployment_id = await deployment_tracker.start_deployment(
+                  ComponentType.INFRASTRUCTURE,
+                  Environment.${{ needs.validate-release.outputs.environment }}.upper(),
+                  '${{ github.ref_name }}',
+                  metadata={
+                      'github_workflow': '${{ github.workflow }}',
+                      'github_run_id': '${{ github.run_id }}',
+                      'release_type': '${{ needs.validate-release.outputs.release_type }}'
+                  }
+              )
+              print(f'DEPLOYMENT_ID={deployment_id}')
+              return deployment_id
+          
+          deployment_id = asyncio.run(start_tracking())
+          " >> $GITHUB_OUTPUT
+        env:
+          GITHUB_OUTPUT: ${{ github.output }}
+      
+      - name: 🏗️ Deploy Infrastructure
+        working-directory: infrastructure
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.SOPHIA_PULUMI_TOKEN_PROD }}
+          PULUMI_CONFIG_PASSPHRASE: ""
+        run: |
+          echo "🚀 Deploying infrastructure for ${{ needs.validate-release.outputs.environment }}"
+          
+          # Select appropriate stack
+          pulumi stack select sophia-infrastructure-${{ needs.validate-release.outputs.environment }} --create
+          
+          # Set version configuration
+          pulumi config set version ${{ github.ref_name }}
+          pulumi config set environment ${{ needs.validate-release.outputs.environment }}
+          
+          # Deploy with enhanced error handling
+          if pulumi up --yes --skip-preview; then
+            echo "✅ Infrastructure deployment successful"
+            echo "DEPLOYMENT_SUCCESS=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Infrastructure deployment failed"
+            echo "DEPLOYMENT_SUCCESS=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: 📊 Complete Deployment Tracking
+        if: always()
+        run: |
+          python -c "
+          import asyncio
+          from backend.monitoring.enhanced_deployment_tracker import deployment_tracker
+          
+          async def complete_tracking():
+              success = '${{ steps.deploy.outputs.DEPLOYMENT_SUCCESS }}' == 'true'
+              await deployment_tracker.complete_deployment(
+                  '${{ steps.start-tracking.outputs.DEPLOYMENT_ID }}',
+                  success,
+                  None if success else 'Infrastructure deployment failed'
+              )
+          
+          asyncio.run(complete_tracking())
+          "
+
+  # Phase 4: MCP Servers Deployment
+  deploy-mcp-servers:
+    name: 🤖 Deploy MCP Servers
+    runs-on: ubuntu-latest
+    needs: [validate-release, deploy-infrastructure]
+    if: |
+      always() &&
+      needs.validate-release.outputs.is_valid == 'true' && 
+      contains(fromJson(needs.validate-release.outputs.components), 'mcp_servers') &&
+      (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Kubernetes Tools
+        run: |
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          
+          # Install Helm
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+      
+      - name: 🔐 Configure Kubernetes Access
+        env:
+          KUBECONFIG_DATA: ${{ secrets.SOPHIA_KUBECONFIG_PROD }}
+        run: |
+          echo "$KUBECONFIG_DATA" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          
+          # Verify connection
+          kubectl cluster-info
+      
+      - name: 🚀 Deploy MCP Servers with Helm
+        working-directory: infrastructure/kubernetes/helm
+        run: |
+          echo "🚀 Deploying MCP servers for ${{ needs.validate-release.outputs.environment }}"
+          
+          # Create namespace if it doesn't exist
+          kubectl create namespace sophia-mcp --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Deploy with Helm
+          helm upgrade --install sophia-mcp ./sophia-mcp \
+            --namespace sophia-mcp \
+            --set global.imageTag=${{ github.ref_name }} \
+            --set global.environment=${{ needs.validate-release.outputs.environment }} \
+            --set global.pulumiEscEnv=scoobyjava-org/sophia-ai-${{ needs.validate-release.outputs.environment }} \
+            --wait --timeout=600s
+          
+          echo "✅ MCP servers deployment completed"
+      
+      - name: 🔍 Verify MCP Servers Health
+        run: |
+          echo "🔍 Verifying MCP servers health..."
+          
+          # Wait for all deployments to be ready
+          kubectl wait --for=condition=Available --timeout=300s \
+            deployment/sophia-mcp-ai-memory \
+            deployment/sophia-mcp-snowflake-admin \
+            deployment/sophia-mcp-linear \
+            deployment/sophia-mcp-asana \
+            deployment/sophia-mcp-gong \
+            -n sophia-mcp
+          
+          # Check health endpoints
+          kubectl get pods -n sophia-mcp
+          kubectl get services -n sophia-mcp
+          
+          echo "✅ All MCP servers are healthy"
+
+  # Phase 5: Frontend Deployment
+  deploy-frontend:
+    name: 🌐 Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [validate-release, deploy-infrastructure]
+    if: |
+      always() &&
+      needs.validate-release.outputs.is_valid == 'true' && 
+      contains(fromJson(needs.validate-release.outputs.components), 'frontend') &&
+      (needs.deploy-infrastructure.result == 'success' || needs.deploy-infrastructure.result == 'skipped')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: 📦 Install Dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: 🏗️ Build Frontend
+        working-directory: frontend
+        env:
+          NODE_ENV: production
+          VITE_ENVIRONMENT: ${{ needs.validate-release.outputs.environment }}
+          VITE_VERSION: ${{ github.ref_name }}
+        run: |
+          echo "🏗️ Building frontend for ${{ needs.validate-release.outputs.environment }}"
+          npm run build
+          echo "✅ Frontend build completed"
+      
+      - name: 🚀 Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.SOPHIA_VERCEL_TOKEN_PROD }}
+          VERCEL_ORG_ID: ${{ secrets.SOPHIA_VERCEL_TEAM_ID_PROD }}
+        run: |
+          npm install -g vercel@latest
+          
+          cd frontend
+          
+          if [ "${{ needs.validate-release.outputs.environment }}" = "production" ]; then
+            echo "🚀 Deploying to production"
+            vercel deploy --prod --token $VERCEL_TOKEN --confirm
+          else
+            echo "🚀 Deploying to staging"
+            vercel deploy --token $VERCEL_TOKEN --confirm
+          fi
+          
+          echo "✅ Frontend deployment completed"
+
+  # Phase 6: Integration Testing
+  integration-tests:
+    name: 🧪 Integration Testing
+    runs-on: ubuntu-latest
+    needs: [validate-release, deploy-mcp-servers, deploy-frontend]
+    if: |
+      always() &&
+      needs.validate-release.outputs.is_valid == 'true' &&
+      (needs.deploy-mcp-servers.result == 'success' || needs.deploy-mcp-servers.result == 'skipped') &&
+      (needs.deploy-frontend.result == 'success' || needs.deploy-frontend.result == 'skipped')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio requests
+      
+      - name: 🧪 Run Integration Tests
+        env:
+          ENVIRONMENT: ${{ needs.validate-release.outputs.environment }}
+          PULUMI_ESC_ENV: scoobyjava-org/sophia-ai-${{ needs.validate-release.outputs.environment }}
+        run: |
+          echo "🧪 Running integration tests for ${{ needs.validate-release.outputs.environment }}"
+          
+          # Run comprehensive integration tests
+          python -m pytest tests/integration/ -v --tb=short
+          
+          # Run MCP server health checks
+          python scripts/test_mcp_servers_health.py
+          
+          # Run end-to-end API tests
+          python scripts/test_api_endpoints.py
+          
+          echo "✅ All integration tests passed"
+
+  # Phase 7: Release Notes & Notifications
+  release-notes:
+    name: 📝 Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: [validate-release, integration-tests]
+    if: |
+      always() &&
+      needs.validate-release.outputs.is_valid == 'true' &&
+      (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📝 Generate Release Notes
+        id: release-notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: release } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: '${{ github.ref_name }}',
+              name: 'Sophia AI ${{ github.ref_name }}',
+              body: `
+            ## 🚀 Sophia AI Release ${{ github.ref_name }}
+            
+            **Release Type**: ${{ needs.validate-release.outputs.release_type }}
+            **Environment**: ${{ needs.validate-release.outputs.environment }}
+            **Components Updated**: ${JSON.stringify(${{ needs.validate-release.outputs.components }})}
+            
+            ### 🔄 Changed Components
+            ${{ join(fromJson(needs.validate-release.outputs.components), ', ') }}
+            
+            ### 📊 Deployment Summary
+            - **Infrastructure**: ${{ needs.deploy-infrastructure.result || 'skipped' }}
+            - **MCP Servers**: ${{ needs.deploy-mcp-servers.result || 'skipped' }}
+            - **Frontend**: ${{ needs.deploy-frontend.result || 'skipped' }}
+            - **Integration Tests**: ${{ needs.integration-tests.result || 'skipped' }}
+            
+            ### 🔗 Links
+            - **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - **Commit**: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+            
+            ---
+            
+            **Automated release generated by Sophia AI Enhanced Release Management**
+              `,
+              generate_release_notes: true,
+              prerelease: ${{ needs.validate-release.outputs.is_production != 'true' }},
+              make_latest: ${{ needs.validate-release.outputs.is_production == 'true' }}
+            });
+            
+            return release.html_url;
+      
+      - name: 📢 Send Release Notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SOPHIA_SLACK_WEBHOOK_PROD }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "🚀 Sophia AI Release ${{ github.ref_name }} deployed successfully!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*🚀 Sophia AI Release ${{ github.ref_name }}*\n\n*Type:* ${{ needs.validate-release.outputs.release_type }}\n*Environment:* ${{ needs.validate-release.outputs.environment }}\n*Components:* ${{ join(fromJson(needs.validate-release.outputs.components), ', ') }}"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Release"
+                      },
+                      "url": "${{ steps.release-notes.outputs.result }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Workflow"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }' \
+            $SLACK_WEBHOOK
+
+  # Phase 8: Environment Promotion (Optional)
+  promote-release:
+    name: 🔄 Promote Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, release-notes]
+    if: |
+      always() &&
+      needs.validate-release.outputs.is_valid == 'true' &&
+      needs.release-notes.result == 'success' &&
+      (needs.validate-release.outputs.release_type == 'beta' || needs.validate-release.outputs.release_type == 'release-candidate')
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 🔄 Create Promotion Tag
+        run: |
+          if [ "${{ needs.validate-release.outputs.release_type }}" = "beta" ]; then
+            # Promote beta to release candidate
+            RC_VERSION=$(echo ${{ github.ref_name }} | sed 's/-beta/-rc/')
+            echo "🔄 Promoting ${{ github.ref_name }} to $RC_VERSION"
+            git tag $RC_VERSION
+            git push origin $RC_VERSION
+          elif [ "${{ needs.validate-release.outputs.release_type }}" = "release-candidate" ]; then
+            # Promote RC to production (manual approval required)
+            echo "🔄 Release candidate ready for production promotion"
+            echo "Create production tag manually: $(echo ${{ github.ref_name }} | sed 's/-rc[0-9]*//')"
+          fi 

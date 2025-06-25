@@ -1,38 +1,43 @@
 {
   "name": "sophia-ai-infrastructure",
-  "version": "1.0.0",
-  "description": "Sophia AI Infrastructure as Code with Pulumi + Cursor AI Integration",
+  "version": "2.0.0",
+  "description": "Sophia AI Platform - Infrastructure as Code with TypeScript Pulumi",
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node index.ts",
     "deploy": "pulumi up",
-    "preview": "pulumi preview",
     "destroy": "pulumi destroy",
-    "mcp-server": "ts-node enhanced-pulumi-mcp-server.ts",
-    "n8n": "n8n start"
+    "preview": "pulumi preview",
+    "refresh": "pulumi refresh",
+    "stack:init": "pulumi stack init",
+    "stack:select": "pulumi stack select",
+    "config:set": "pulumi config set",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.100.0",
-    "@pulumi/aws": "^6.15.0",
-    "@pulumi/docker": "^4.5.0",
-    "@modelcontextprotocol/sdk": "^0.4.0",
-    "n8n": "^1.45.0"
+    "@pulumi/pulumi": "^3.90.1",
+    "@pulumi/aws": "^6.10.0",
+    "@pulumi/kubernetes": "^4.4.0",
+    "@pulumi/docker": "^4.5.1",
+    "@pulumi/github": "^5.21.0",
+    "@pulumiverse/vercel": "^1.7.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.0",
-    "ts-node": "^10.9.0"
+    "@types/node": "^20.8.0",
+    "typescript": "^5.2.2"
   },
   "keywords": [
     "pulumi",
     "infrastructure",
-    "ai",
-    "sophia",
-    "mcp",
-    "cursor"
+    "typescript",
+    "aws",
+    "kubernetes",
+    "vercel",
+    "sophia-ai"
   ],
-  "author": "Sophia AI Team",
-  "license": "MIT"
+  "author": "Sophia AI Platform Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
