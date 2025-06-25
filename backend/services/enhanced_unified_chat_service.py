@@ -19,6 +19,8 @@ from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.workflows.langgraph_agent_orchestration import LangGraphWorkflowOrchestrator
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.kb_management_service import KBManagementService
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,15 @@ class QueryIntent(Enum):
     PREDICTIVE_INSIGHTS = "predictive_insights"
     ACTION_ITEMS = "action_items"
     SNOWFLAKE_ADMIN = "snowflake_admin"
+    # New KB management intents
+    KB_ADD_ENTITY = "kb_add_entity"
+    KB_UPDATE_ENTITY = "kb_update_entity"
+    KB_DELETE_ENTITY = "kb_delete_entity"
+    KB_ADD_ARTICLE = "kb_add_article"
+    KB_UPDATE_ARTICLE = "kb_update_article"
+    KB_SEARCH_KNOWLEDGE = "kb_search_knowledge"
+    KB_UPLOAD_DOCUMENT = "kb_upload_document"
+    KB_MANAGE_CATEGORY = "kb_manage_category"
 
 
 class QueryComplexity(Enum):
@@ -87,6 +98,26 @@ class QueryResponse:
     processing_time: float
     follow_up_questions: List[str]
     visualizations: List[Dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class KBEntity:
+    """Knowledge Base entity structure"""
+    entity_type: str  # 'employee', 'customer', 'product', 'competitor', etc.
+    entity_id: Optional[str] = None
+    attributes: Dict[str, Any] = field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class KBArticle:
+    """Knowledge Base article structure"""
+    title: str
+    content: str
+    category: str
+    tags: List[str] = field(default_factory=list)
+    article_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 class IntentClassifier:
@@ -188,6 +219,42 @@ class IntentClassifier:
                 "phrases": ["what will happen", "forecast", "prediction", "future outlook"],
                 "entities": ["metric", "period", "scenario"],
                 "complexity_indicators": ["model", "probability", "scenario"]
+            },
+            
+            # Knowledge Base Management Intents
+            QueryIntent.KB_ADD_ENTITY: {
+                "keywords": ["add", "create", "new", "employee", "customer", "product", "competitor"],
+                "phrases": ["add employee", "create customer", "new product", "define competitor"],
+                "entities": ["name", "email", "department", "skills", "company", "description"],
+                "complexity_indicators": ["attributes", "metadata", "properties"]
+            },
+            
+            QueryIntent.KB_UPDATE_ENTITY: {
+                "keywords": ["update", "modify", "change", "edit", "employee", "customer", "product"],
+                "phrases": ["update employee", "modify customer", "change product", "edit competitor"],
+                "entities": ["id", "name", "attribute", "value"],
+                "complexity_indicators": ["multiple", "batch", "bulk"]
+            },
+            
+            QueryIntent.KB_ADD_ARTICLE: {
+                "keywords": ["add", "create", "write", "article", "knowledge", "document", "content"],
+                "phrases": ["add article", "create knowledge", "write document", "new content"],
+                "entities": ["title", "category", "content", "tags"],
+                "complexity_indicators": ["detailed", "comprehensive", "structured"]
+            },
+            
+            QueryIntent.KB_SEARCH_KNOWLEDGE: {
+                "keywords": ["search", "find", "lookup", "knowledge", "who", "what", "where"],
+                "phrases": ["search for", "find information", "lookup knowledge", "who knows"],
+                "entities": ["topic", "person", "skill", "expertise"],
+                "complexity_indicators": ["semantic", "related", "similar"]
+            },
+            
+            QueryIntent.KB_UPLOAD_DOCUMENT: {
+                "keywords": ["upload", "import", "load", "document", "file", "pdf", "docx"],
+                "phrases": ["upload document", "import file", "load content", "process document"],
+                "entities": ["file", "document", "content", "type"],
+                "complexity_indicators": ["extract", "parse", "process"]
             }
         }
     

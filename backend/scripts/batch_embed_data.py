@@ -37,7 +37,7 @@ from tqdm import tqdm
 # Import Sophia AI components
 from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.core.config_manager import get_config
+from backend.core.snowflake_config_manager import SnowflakeConfigManager
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)
@@ -49,6 +49,18 @@ class EmbeddingTable(Enum):
     GONG_CALL_TRANSCRIPTS = "STG_GONG_CALL_TRANSCRIPTS"
     HUBSPOT_DEALS = "STG_HUBSPOT_DEALS"
     GONG_CALLS = "STG_GONG_CALLS"
+    # New data sources
+    SLACK_MESSAGES = "STG_SLACK_MESSAGES"
+    SLACK_CONVERSATIONS = "STG_SLACK_CONVERSATIONS"
+    LINEAR_ISSUES = "STG_LINEAR_ISSUES"
+    KB_ARTICLES = "KB_ARTICLES"
+    KB_ENTITIES = "KB_ENTITIES"
+    KB_UNSTRUCTURED_DOCUMENTS = "KB_UNSTRUCTURED_DOCUMENTS"
+    # Foundational knowledge
+    FOUNDATIONAL_EMPLOYEES = "FOUNDATIONAL_KNOWLEDGE.EMPLOYEES"
+    FOUNDATIONAL_CUSTOMERS = "FOUNDATIONAL_KNOWLEDGE.CUSTOMERS"
+    FOUNDATIONAL_PRODUCTS = "FOUNDATIONAL_KNOWLEDGE.PRODUCTS_SERVICES"
+    FOUNDATIONAL_COMPETITORS = "FOUNDATIONAL_KNOWLEDGE.COMPETITORS"
 
 
 @dataclass
@@ -100,12 +112,13 @@ class BatchEmbeddingProcessor:
     
     def __init__(self):
         self.cortex_service = SnowflakeCortexService()
+        self.config_manager = SnowflakeConfigManager()
         self.stats = ProcessingStats()
         
-        # Load configuration
-        self.default_batch_size = get_config("cortex.batch_processing_size", 50)
-        self.default_model = get_config("ai_memory.embedding_model", "e5-base-v2")
-        self.max_retries = get_config("cortex.retry_attempts", 3)
+        # Default configuration
+        self.default_batch_size = 50
+        self.default_model = "e5-base-v2"
+        self.max_retries = 3
         
         # Table configurations
         self.table_configs = {
@@ -130,6 +143,90 @@ class BatchEmbeddingProcessor:
                 id_column="CALL_ID",
                 text_column="CALL_TITLE || ' - ' || COALESCE(ACCOUNT_NAME, '') || ' - ' || COALESCE(DEAL_STAGE, '')",
                 where_condition="CALL_TITLE IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            # New Slack configurations
+            EmbeddingTable.SLACK_MESSAGES: EmbeddingConfig(
+                table_name="SLACK_DATA.STG_SLACK_MESSAGES",
+                id_column="MESSAGE_ID",
+                text_column="MESSAGE_TEXT",
+                where_condition="MESSAGE_TEXT IS NOT NULL AND LENGTH(MESSAGE_TEXT) > 5",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.SLACK_CONVERSATIONS: EmbeddingConfig(
+                table_name="SLACK_DATA.STG_SLACK_CONVERSATIONS",
+                id_column="CONVERSATION_ID",
+                text_column="CONVERSATION_TITLE || ' - ' || COALESCE(CONVERSATION_SUMMARY, '')",
+                where_condition="CONVERSATION_TITLE IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            # Linear configurations
+            EmbeddingTable.LINEAR_ISSUES: EmbeddingConfig(
+                table_name="LINEAR_DATA.STG_LINEAR_ISSUES",
+                id_column="ISSUE_ID",
+                text_column="ISSUE_TITLE || ' - ' || COALESCE(ISSUE_DESCRIPTION, '') || ' - ' || COALESCE(PROJECT_NAME, '')",
+                where_condition="ISSUE_TITLE IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            # Knowledge Base configurations
+            EmbeddingTable.KB_ARTICLES: EmbeddingConfig(
+                table_name="KNOWLEDGE_BASE.KB_ARTICLES",
+                id_column="ARTICLE_ID",
+                text_column="ARTICLE_TITLE || ' - ' || COALESCE(ARTICLE_SUMMARY, '') || ' - ' || COALESCE(SUBSTR(ARTICLE_CONTENT, 1, 1000), '')",
+                where_condition="ARTICLE_TITLE IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.KB_ENTITIES: EmbeddingConfig(
+                table_name="KNOWLEDGE_BASE.KB_ENTITIES",
+                id_column="ENTITY_ID",
+                text_column="ENTITY_NAME || ' - ' || COALESCE(ENTITY_DESCRIPTION, '') || ' - ' || COALESCE(ENTITY_TYPE, '')",
+                where_condition="ENTITY_NAME IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.KB_UNSTRUCTURED_DOCUMENTS: EmbeddingConfig(
+                table_name="KNOWLEDGE_BASE.KB_UNSTRUCTURED_DOCUMENTS",
+                id_column="DOCUMENT_ID",
+                text_column="DOCUMENT_TITLE || ' - ' || COALESCE(DOCUMENT_SUMMARY, '') || ' - ' || COALESCE(SUBSTR(EXTRACTED_TEXT, 1, 2000), '')",
+                where_condition="DOCUMENT_TITLE IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            # Foundational Knowledge configurations
+            EmbeddingTable.FOUNDATIONAL_EMPLOYEES: EmbeddingConfig(
+                table_name="FOUNDATIONAL_KNOWLEDGE.EMPLOYEES",
+                id_column="EMPLOYEE_ID",
+                text_column="FULL_NAME || ' - ' || COALESCE(JOB_TITLE, '') || ' - ' || COALESCE(DEPARTMENT, '') || ' - ' || COALESCE(ARRAY_TO_STRING(PRIMARY_SKILLS, ' '), '')",
+                where_condition="FULL_NAME IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.FOUNDATIONAL_CUSTOMERS: EmbeddingConfig(
+                table_name="FOUNDATIONAL_KNOWLEDGE.CUSTOMERS",
+                id_column="CUSTOMER_ID",
+                text_column="COMPANY_NAME || ' - ' || COALESCE(INDUSTRY, '') || ' - ' || COALESCE(CUSTOMER_TIER, '') || ' - ' || COALESCE(HEADQUARTERS_CITY, '')",
+                where_condition="COMPANY_NAME IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.FOUNDATIONAL_PRODUCTS: EmbeddingConfig(
+                table_name="FOUNDATIONAL_KNOWLEDGE.PRODUCTS_SERVICES",
+                id_column="PRODUCT_ID",
+                text_column="PRODUCT_NAME || ' - ' || COALESCE(PRODUCT_DESCRIPTION, '') || ' - ' || COALESCE(PRODUCT_CATEGORY, '') || ' - ' || COALESCE(VALUE_PROPOSITION, '')",
+                where_condition="PRODUCT_NAME IS NOT NULL",
+                batch_size=self.default_batch_size,
+                model=self.default_model
+            ),
+            EmbeddingTable.FOUNDATIONAL_COMPETITORS: EmbeddingConfig(
+                table_name="FOUNDATIONAL_KNOWLEDGE.COMPETITORS",
+                id_column="COMPETITOR_ID",
+                text_column="COMPANY_NAME || ' - ' || COALESCE(COMPANY_DESCRIPTION, '') || ' - ' || COALESCE(MARKET_SEGMENT, '') || ' - ' || COALESCE(COMPETITIVE_TIER, '')",
+                where_condition="COMPANY_NAME IS NOT NULL",
                 batch_size=self.default_batch_size,
                 model=self.default_model
             )
