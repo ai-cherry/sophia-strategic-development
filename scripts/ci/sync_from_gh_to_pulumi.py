@@ -36,6 +36,7 @@ class PulumiESCSync:
         self.env_path = f"{self.pulumi_org}/default/{self.pulumi_env}"
         
         # GitHub secrets to Pulumi ESC path mapping
+        # CRITICAL: These GitHub secret names must match exactly what's in the organization
         self.secret_mappings = {
             # AI Services
             "OPENAI_API_KEY": "values.sophia.ai.openai.api_key",
@@ -93,8 +94,8 @@ class PulumiESCSync:
             "GRAFANA_PASSWORD": "values.sophia.monitoring.grafana.password",
             "PROMETHEUS_URL": "values.sophia.monitoring.prometheus.url",
             
-            # Cloud Infrastructure
-            "LAMBDA_API_KEY": "values.sophia.cloud.lambda.api_key",
+            # Cloud Infrastructure - FIXED: Use correct secret names
+            "LAMBDA_LABS_API_KEY": "values.sophia.cloud.lambda_labs.api_key",
             "VERCEL_ACCESS_TOKEN": "values.sophia.cloud.vercel.access_token",
             "VULTR_API_KEY": "values.sophia.cloud.vultr.api_key",
             
