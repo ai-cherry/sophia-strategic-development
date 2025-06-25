@@ -75,7 +75,10 @@ class GongAPIError(Exception):
     """Exception raised for Gong API errors."""
 
     def __init__(
-        self, status_code: int, message: str, details: Optional[Dict[str, Any]] = None
+        self,
+        status_code: int,
+        message: str,
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.status_code = status_code
         self.message = message
@@ -97,7 +100,9 @@ class GongAPIClient:
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = aiohttp.ClientTimeout(total=timeout)
-        self.rate_limiter = AsyncRateLimiter(rate_limit, burst_limit=burst_limit)
+        self.rate_limiter = AsyncRateLimiter(
+            rate_limit, burst_limit=burst_limit
+        )
         self.retry_manager = RetryManager()
         self.logger = logger.bind(component="gong_api_client")
         self._session: Optional[aiohttp.ClientSession] = None
@@ -143,7 +148,9 @@ class GongAPIClient:
 
         async def _request():
             async with self.rate_limiter:
-                self.logger.info(f"Making {method} request", url=url, params=params)
+                self.logger.info(
+                    f"Making {method} request", url=url, params=params
+                )
 
                 async with self._session.request(
                     method, url, params=params, json=json_data
@@ -159,13 +166,21 @@ class GongAPIClient:
                     # Handle rate limiting
                     if response.status == 429:
                         api_rate_limit_hits.inc()
-                        retry_after = int(response.headers.get("Retry-After", 60))
+                        retry_after = int(
+                            response.headers.get("Retry-After", 60)
+                        )
                         raise RateLimitError(retry_after)
 
                     # Handle other errors
-                    api_calls_total.labels(endpoint=endpoint, status="error").inc()
-                    error_message = response_data.get("message", "Unknown error")
-                    raise GongAPIError(response.status, error_message, response_data)
+                    api_calls_total.labels(
+                        endpoint=endpoint, status="error"
+                    ).inc()
+                    error_message = response_data.get(
+                        "message", "Unknown error"
+                    )
+                    raise GongAPIError(
+                        response.status, error_message, response_data
+                    )
 
         # Use retry manager if enabled
         if retry:
@@ -185,7 +200,9 @@ class GongAPIClient:
         return GongCallData(
             call_id=call_data.get("id", call_id),
             title=call_data.get("title", ""),
-            scheduled_start=datetime.fromisoformat(call_data.get("scheduledStart", "")),
+            scheduled_start=datetime.fromisoformat(
+                call_data.get("scheduledStart", "")
+            ),
             started=datetime.fromisoformat(call_data.get("started", "")),
             duration=call_data.get("duration", 0),
             primary_user_id=call_data.get("primaryUserId", ""),
@@ -206,7 +223,9 @@ class GongAPIClient:
         """Get call transcript."""
         self.logger.info("Fetching call transcript", call_id=call_id)
 
-        response = await self._make_request("GET", f"/v2/calls/{call_id}/transcript")
+        response = await self._make_request(
+            "GET", f"/v2/calls/{call_id}/transcript"
+        )
 
         transcript_data = response.get("callTranscript", {})
 
@@ -222,7 +241,9 @@ class GongAPIClient:
         """Get call analytics and insights."""
         self.logger.info("Fetching call analytics", call_id=call_id)
 
-        response = await self._make_request("GET", f"/v2/calls/{call_id}/analytics")
+        response = await self._make_request(
+            "GET", f"/v2/calls/{call_id}/analytics"
+        )
 
         analytics = response.get("analytics", {})
 
@@ -237,11 +258,15 @@ class GongAPIClient:
             engagement_score=analytics.get("engagementScore"),
         )
 
-    async def get_call_participants(self, call_id: str) -> List[Dict[str, Any]]:
+    async def get_call_participants(
+        self, call_id: str
+    ) -> List[Dict[str, Any]]:
         """Get detailed participant information."""
         self.logger.info("Fetching call participants", call_id=call_id)
 
-        response = await self._make_request("GET", f"/v2/calls/{call_id}/participants")
+        response = await self._make_request(
+            "GET", f"/v2/calls/{call_id}/participants"
+        )
 
         return response.get("participants", [])
 
@@ -290,7 +315,9 @@ class GongAPIClient:
                 results[name] = await task
             except GongAPIError as e:
                 self.logger.warning(
-                    f"Failed to fetch {name} data", call_id=call_id, error=str(e)
+                    f"Failed to fetch {name} data",
+                    call_id=call_id,
+                    error=str(e),
                 )
                 results[name] = None
             except Exception as e:
@@ -309,8 +336,12 @@ class GongAPIClient:
             "transcript": (
                 results["transcript"].dict() if results["transcript"] else None
             ),
-            "analytics": results["analytics"].dict() if results["analytics"] else None,
-            "participants": results["participants"] if results["participants"] else [],
+            "analytics": (
+                results["analytics"].dict() if results["analytics"] else None
+            ),
+            "participants": (
+                results["participants"] if results["participants"] else []
+            ),
         }
 
         return enhanced_data
@@ -329,6 +360,8 @@ class GongAPIClient:
 
     async def get_meeting_details(self, meeting_id: str) -> Dict[str, Any]:
         """Get meeting details and attendees."""
-        response = await self._make_request("GET", f"/v2/meetings/{meeting_id}")
+        response = await self._make_request(
+            "GET", f"/v2/meetings/{meeting_id}"
+        )
 
         return response.get("meeting", {})
