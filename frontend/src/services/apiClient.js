@@ -14,15 +14,18 @@ const getApiUrl = () => {
   // Fallback URLs based on environment
   switch (environment) {
     case 'production':
-      return 'https://api.sophia.payready.com';
+      // Use the exposed backend URL for production
+      return 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer';
     case 'staging':
       return 'https://api.staging.sophia.payready.com';
     case 'development':
     case 'dev':
       return 'https://api.dev.sophia.payready.com';
     default:
-      // Local development fallback
-      return 'http://localhost:8000/api/v1';
+      // Local development fallback - also use exposed URL for sandbox environment
+      return window.location.hostname === 'localhost' 
+        ? 'http://localhost:8000' 
+        : 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer';
   }
 };
 
@@ -82,3 +85,4 @@ export const fetchAgnoPerformanceMetrics = async () => {
   const response = await apiClient.get('/metrics/agno-performance');
   return response.data;
 };
+
