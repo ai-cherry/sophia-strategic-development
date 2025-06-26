@@ -1,0 +1,63 @@
+{
+  "mcpServers": {
+    "sophia-figma-dev-mode": {
+      "command": "python",
+      "args": ["../mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "env": {
+        "FIGMA_PERSONAL_ACCESS_TOKEN": ""
+      },
+      "description": "Sophia AI Figma Dev Mode MCP Server for design-to-code automation",
+      "capabilities": [
+        "design_token_extraction",
+        "component_analysis", 
+        "design_context_parsing"
+      ],
+      "port": 9001,
+      "auto_start": true
+    },
+    "sophia-ui-ux-agent": {
+      "command": "python", 
+      "args": ["../mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "env": {
+        "OPENAI_API_KEY": "",
+        "OPENROUTER_API_KEY": ""
+      },
+      "description": "Sophia AI LangChain UI/UX Agent for intelligent design automation",
+      "capabilities": [
+        "component_generation",
+        "design_analysis",
+        "design_system_validation",
+        "accessibility_optimization"
+      ],
+      "port": 9002,
+      "auto_start": true,
+      "depends_on": ["sophia-figma-dev-mode"]
+    }
+  },
+  "workflowTriggers": {
+    "auto_triggers": {
+      "on_figma_url_detected": {
+        "pattern": "https://www.figma.com/file/",
+        "action": "extract_design_context",
+        "server": "sophia-figma-dev-mode"
+      },
+      "on_component_creation": {
+        "pattern": "*.component.tsx",
+        "action": "validate_design_system", 
+        "server": "sophia-ui-ux-agent"
+      }
+    }
+  },
+  "integrationSettings": {
+    "cursor": {
+      "enable_live_feedback": true,
+      "enable_auto_completion": true,
+      "enable_design_hints": true
+    },
+    "sophia_ai": {
+      "dashboard_integration": true,
+      "enhanced_ceo_dashboard": true,
+      "vercel_deployment": true
+    }
+  }
+}
