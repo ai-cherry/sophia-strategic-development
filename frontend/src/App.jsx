@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
+import './styles/executive-theme.css';
 
 // Import enhanced CEO dashboard
 import CEODashboardLayout from './components/dashboard/CEODashboard/CEODashboardLayout';

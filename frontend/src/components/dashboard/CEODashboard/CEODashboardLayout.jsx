@@ -100,61 +100,66 @@ const CEODashboardLayout = () => {
   const hasErrors = metricsError || teamError || marketError || connectionError;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <div className="min-h-screen">
+      {/* Executive Header */}
+      <div className="sticky top-0 z-20 executive-header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">S</span>
+              <div className="flex items-center space-x-4">
+                <div className="executive-icon-lg gradient-purple-blue">
+                  <i className="fas fa-crown"></i>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">CEO Dashboard</h1>
-                  <p className="text-sm text-gray-500">Executive Command Center</p>
+                  <h1 className="text-2xl font-bold text-white">CEO Dashboard</h1>
+                  <p className="text-executive-secondary">Executive Command Center</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               {/* Time Range Filters */}
-              <div className="flex space-x-1">
+              <div className="flex space-x-2">
                 {timeRangeOptions.map((option) => (
-                  <Button
+                  <button
                     key={option.value}
-                    variant={timeRange === option.value ? 'default' : 'outline'}
-                    size="sm"
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      timeRange === option.value
+                        ? 'time-range-active'
+                        : 'time-range-inactive hover:bg-opacity-80'
+                    }`}
                     onClick={() => handleTimeRangeChange(option.value)}
                     disabled={isInitialLoading || refreshing}
                   >
                     {option.label}
-                  </Button>
+                  </button>
                 ))}
               </div>
 
               {/* Refresh Button */}
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                className="executive-icon hover-scale hover-glow"
                 onClick={handleRefresh}
                 disabled={refreshing}
+                style={{ background: 'rgba(75, 85, 99, 0.5)' }}
               >
                 {refreshing ? (
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+                  <i className="fas fa-spinner fa-spin"></i>
                 ) : (
-                  '🔄'
+                  <i className="fas fa-sync-alt"></i>
                 )}
-              </Button>
+              </button>
 
               {/* Connection Status */}
-              <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${
-                  isHealthy ? 'bg-green-500' : 'bg-red-500'
-                }`} />
-                <span className="text-sm text-gray-600">
-                  {isHealthy ? 'Connected' : 'Offline'}
-                </span>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full pulse-dot ${
+                    isHealthy ? 'status-online' : 'status-offline'
+                  }`}></div>
+                  <span className="text-sm text-executive-secondary">
+                    {isHealthy ? 'Connected' : 'Offline'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -163,67 +168,83 @@ const CEODashboardLayout = () => {
 
       {/* Connection Error Alert */}
       {connectionError && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <Alert variant="destructive">
-            <AlertDescription>
-              Connection issue detected. Some data may be outdated. 
-              <Button variant="outline" size="sm" className="ml-2" onClick={handleRefresh}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="glassmorphism-card alert-error p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <i className="fas fa-exclamation-triangle text-red-500"></i>
+                <span className="text-executive-secondary">
+                  Connection issue detected. Some data may be outdated.
+                </span>
+              </div>
+              <button
+                className="btn-executive-secondary"
+                onClick={handleRefresh}
+              >
+                <i className="fas fa-redo mr-2"></i>
                 Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Search Bar */}
+      {/* Executive Search */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex space-x-2">
-              <Input
+        <div className="glassmorphism-card p-6">
+          <div className="flex items-center space-x-4">
+            <div className="executive-icon gradient-purple-blue">
+              <i className="fas fa-search"></i>
+            </div>
+            <div className="flex-1 relative">
+              <input
+                type="text"
                 placeholder="Search across all executive data..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-                className="flex-1"
+                className="w-full bg-transparent border-0 text-white text-lg placeholder-executive-muted focus:outline-none"
               />
-              <Button onClick={() => handleSearch(searchQuery)}>
-                🔍 Search
-              </Button>
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
             </div>
-          </CardContent>
-        </Card>
+            <button
+              className="btn-executive-primary"
+              onClick={() => handleSearch(searchQuery)}
+            >
+              <i className="fas fa-search mr-2"></i>
+              Search
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Main Dashboard Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isInitialLoading ? (
-          // Loading State
-          <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          // Executive Loading State
+          <div className="space-y-8">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {[...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-8 w-32" />
-                        <Skeleton className="h-3 w-24" />
-                      </div>
-                      <Skeleton className="h-12 w-12 rounded-full" />
+                <div key={i} className="glassmorphism-card p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-3">
+                      <div className="skeleton h-4 w-20"></div>
+                      <div className="skeleton h-8 w-32"></div>
+                      <div className="skeleton h-3 w-24"></div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="skeleton h-12 w-12 rounded-full"></div>
+                  </div>
+                </div>
               ))}
             </div>
             <div className="grid gap-6 lg:grid-cols-2">
-              <Skeleton className="h-96" />
-              <Skeleton className="h-96" />
+              <div className="glassmorphism-card skeleton" style={{ height: '400px' }}></div>
+              <div className="glassmorphism-card skeleton" style={{ height: '400px' }}></div>
             </div>
           </div>
         ) : (
-          // Main Content
-          <div className="space-y-6">
+          // Executive Dashboard Content
+          <div className="space-y-8">
             {/* Executive KPI Grid */}
             <ExecutiveKPIGrid
               metrics={ceoMetrics}
@@ -233,9 +254,9 @@ const CEODashboardLayout = () => {
             />
 
             {/* Main Analytics Grid */}
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-8 lg:grid-cols-3">
               {/* Left Column - 2/3 width */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-8">
                 {/* Revenue Projections */}
                 <RevenueProjectionChart
                   data={ceoMetrics?.revenueData}
@@ -254,7 +275,7 @@ const CEODashboardLayout = () => {
               </div>
 
               {/* Right Column - 1/3 width */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {/* Market Analytics */}
                 <MarketAnalyticsChart
                   data={marketData}
