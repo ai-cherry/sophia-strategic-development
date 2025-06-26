@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus, Target, AlertTriangle } from 'lucide-react';
-import { glassmorphism, colors, typography, animations } from '../lib/design-system.js';
+import { glassmorphism, colors, typography, animations } from '../../lib/design-system.js';
 
 const KPICard = ({
   title,

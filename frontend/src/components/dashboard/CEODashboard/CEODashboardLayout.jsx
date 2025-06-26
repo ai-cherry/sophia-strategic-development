@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../../services/apiClient';
 import { useChatInterface } from '../../../hooks/useChatInterface';
 import { useBackendConnection } from '../../../hooks/useBackendConnection';
+import ExecutiveKPIGrid from './components/ExecutiveKPIGrid';
 
 // KPI Card Component
 const KPICard = ({ title, value, target, change, trend, icon, color = 'purple' }) => {
@@ -16,82 +17,16 @@ const KPICard = ({ title, value, target, change, trend, icon, color = 'purple' }
   const changeColor = change > 0 ? 'text-green-400' : change < 0 ? 'text-red-400' : 'text-gray-400';
 
   return (
-<<<<<<< HEAD
     <div className={`bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-${color}-500 transition-all duration-300 hover:shadow-lg hover:shadow-${color}-500/20`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`p-2 bg-${color}-500/20 rounded-lg`}>
             <span className="text-2xl">{icon}</span>
-=======
-    <div className="min-h-screen">
-      {/* Executive Header */}
-      <div className="sticky top-0 z-20 executive-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-4">
-                <div className="executive-icon-lg gradient-purple-blue">
-                  <i className="fas fa-crown"></i>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white">CEO Dashboard</h1>
-                  <p className="text-executive-secondary">Executive Command Center</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-6">
-              {/* Time Range Filters */}
-              <div className="flex space-x-2">
-                {timeRangeOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      timeRange === option.value
-                        ? 'time-range-active'
-                        : 'time-range-inactive hover:bg-opacity-80'
-                    }`}
-                    onClick={() => handleTimeRangeChange(option.value)}
-                    disabled={isInitialLoading || refreshing}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Refresh Button */}
-              <button
-                className="executive-icon hover-scale hover-glow"
-                onClick={handleRefresh}
-                disabled={refreshing}
-                style={{ background: 'rgba(75, 85, 99, 0.5)' }}
-              >
-                {refreshing ? (
-                  <i className="fas fa-spinner fa-spin"></i>
-                ) : (
-                  <i className="fas fa-sync-alt"></i>
-                )}
-              </button>
-
-              {/* Connection Status */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full pulse-dot ${
-                    isHealthy ? 'status-online' : 'status-offline'
-                  }`}></div>
-                  <span className="text-sm text-executive-secondary">
-                    {isHealthy ? 'Connected' : 'Offline'}
-                  </span>
-                </div>
-              </div>
-            </div>
->>>>>>> 28336639693e9537cc10d264c0726f97d138a7b4
           </div>
           <h3 className="text-gray-300 text-sm font-medium">{title}</h3>
         </div>
         <span className="text-lg">{trendIcon}</span>
       </div>
-<<<<<<< HEAD
       
       <div className="space-y-2">
         <div className="flex items-baseline space-x-2">
@@ -111,143 +46,6 @@ const KPICard = ({ title, value, target, change, trend, icon, color = 'purple' }
                 style={{ width: `${Math.min((value / target) * 100, 100)}%` }}
               />
             </div>
-=======
-
-      {/* Connection Error Alert */}
-      {connectionError && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="glassmorphism-card alert-error p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <i className="fas fa-exclamation-triangle text-red-500"></i>
-                <span className="text-executive-secondary">
-                  Connection issue detected. Some data may be outdated.
-                </span>
-              </div>
-              <button
-                className="btn-executive-secondary"
-                onClick={handleRefresh}
-              >
-                <i className="fas fa-redo mr-2"></i>
-                Retry
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Executive Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div className="glassmorphism-card p-6">
-          <div className="flex items-center space-x-4">
-            <div className="executive-icon gradient-purple-blue">
-              <i className="fas fa-search"></i>
-            </div>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Search across all executive data..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
-                className="w-full bg-transparent border-0 text-white text-lg placeholder-executive-muted focus:outline-none"
-              />
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
-            </div>
-            <button
-              className="btn-executive-primary"
-              onClick={() => handleSearch(searchQuery)}
-            >
-              <i className="fas fa-search mr-2"></i>
-              Search
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isInitialLoading ? (
-          // Executive Loading State
-          <div className="space-y-8">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="glassmorphism-card p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-3">
-                      <div className="skeleton h-4 w-20"></div>
-                      <div className="skeleton h-8 w-32"></div>
-                      <div className="skeleton h-3 w-24"></div>
-                    </div>
-                    <div className="skeleton h-12 w-12 rounded-full"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="glassmorphism-card skeleton" style={{ height: '400px' }}></div>
-              <div className="glassmorphism-card skeleton" style={{ height: '400px' }}></div>
-            </div>
-          </div>
-        ) : (
-          // Executive Dashboard Content
-          <div className="space-y-8">
-            {/* Executive KPI Grid */}
-            <ExecutiveKPIGrid
-              metrics={ceoMetrics}
-              loading={metricsLoading}
-              error={metricsError}
-              timeRange={timeRange}
-            />
-
-            {/* Main Analytics Grid */}
-            <div className="grid gap-8 lg:grid-cols-3">
-              {/* Left Column - 2/3 width */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Revenue Projections */}
-                <RevenueProjectionChart
-                  data={ceoMetrics?.revenueData}
-                  loading={metricsLoading}
-                  error={metricsError}
-                  timeRange={timeRange}
-                />
-
-                {/* Team Performance */}
-                <TeamPerformancePanel
-                  data={teamData}
-                  loading={teamLoading}
-                  error={teamError}
-                  timeRange={timeRange}
-                />
-              </div>
-
-              {/* Right Column - 1/3 width */}
-              <div className="space-y-8">
-                {/* Market Analytics */}
-                <MarketAnalyticsChart
-                  data={marketData}
-                  loading={marketLoading}
-                  error={marketError}
-                  timeRange={timeRange}
-                />
-
-                {/* Strategic Alerts */}
-                <StrategicAlertsPanel
-                  alerts={ceoMetrics?.alerts}
-                  loading={metricsLoading}
-                  error={metricsError}
-                />
-              </div>
-            </div>
-
-            {/* Executive Chat Interface */}
-            <ExecutiveChatInterface
-              messages={messages}
-              onSendMessage={sendMessage}
-              isConnected={chatConnected}
-              connectionStatus={wsStatus}
-            />
->>>>>>> 28336639693e9537cc10d264c0726f97d138a7b4
           </div>
         )}
       </div>
@@ -414,62 +212,150 @@ const CEODashboardLayout = () => {
   const [teamData, setTeamData] = useState(null);
   const [marketData, setMarketData] = useState(null);
   const [alertsData, setAlertsData] = useState([]);
-  const [revenueData, setRevenueData] = useState(null);
 
-  // Load dashboard data
-  const loadDashboardData = async () => {
-    setLoading(true);
-    try {
-      const [kpis, team, market, alerts, revenue] = await Promise.all([
-        api.getCEOKPIs(timeRange),
-        api.getTeamPerformance(timeRange),
-        api.getMarketData(),
-        api.getStrategicAlerts(),
-        api.getRevenueProjections()
-      ]);
-      
-      setKpiData(kpis);
-      setTeamData(team);
-      setMarketData(market);
-      setAlertsData(alerts);
-      setRevenueData(revenue);
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
-    } finally {
-      setLoading(false);
+  // Time range options
+  const timeRangeOptions = [
+    { value: '7d', label: '7 Days' },
+    { value: '30d', label: '30 Days' },
+    { value: '90d', label: '90 Days' },
+    { value: '1y', label: '1 Year' }
+  ];
+
+  // Mock data for demonstration
+  const mockKPIData = [
+    {
+      title: 'Total Revenue',
+      value: 2400000,
+      target: 2500000,
+      change: 12.5,
+      trend: 'up',
+      icon: '💰',
+      color: 'green'
+    },
+    {
+      title: 'Active Deals',
+      value: 156,
+      target: 150,
+      change: 8.2,
+      trend: 'up',
+      icon: '🎯',
+      color: 'blue'
+    },
+    {
+      title: 'Team Efficiency',
+      value: 94,
+      target: 90,
+      change: 2.1,
+      trend: 'up',
+      icon: '⚡',
+      color: 'purple'
+    },
+    {
+      title: 'Customer Satisfaction',
+      value: 4.8,
+      target: 4.5,
+      change: 5.2,
+      trend: 'up',
+      icon: '⭐',
+      color: 'yellow'
     }
+  ];
+
+  const mockTeamData = [
+    { department: 'sales', performance: 105, target: 100, trend: 'up' },
+    { department: 'marketing', performance: 92, target: 95, trend: 'down' },
+    { department: 'engineering', performance: 98, target: 95, trend: 'up' },
+    { department: 'support', performance: 87, target: 90, trend: 'down' }
+  ];
+
+  const mockMarketData = [
+    { name: 'Our Company', value: 35, color: '#8B5CF6' },
+    { name: 'Competitor A', value: 28, color: '#EF4444' },
+    { name: 'Competitor B', value: 22, color: '#F59E0B' },
+    { name: 'Others', value: 15, color: '#6B7280' }
+  ];
+
+  const mockAlertsData = [
+    {
+      type: 'success',
+      title: 'Q4 Revenue Target Achieved',
+      message: 'Exceeded quarterly revenue target by 12.5%',
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: 'warning',
+      title: 'Marketing Performance Below Target',
+      message: 'Marketing team performance at 92% of target',
+      timestamp: new Date().toISOString()
+    },
+    {
+      type: 'info',
+      title: 'New Market Opportunity',
+      message: 'Potential expansion opportunity in European market',
+      timestamp: new Date().toISOString()
+    }
+  ];
+
+  const mockRevenueData = {
+    projections: [
+      { month: 'Jan', actual: 2100000, projected: 2000000 },
+      { month: 'Feb', actual: 2300000, projected: 2200000 },
+      { month: 'Mar', actual: 2400000, projected: 2300000 },
+      { month: 'Apr', actual: null, projected: 2500000 },
+      { month: 'May', actual: null, projected: 2600000 },
+      { month: 'Jun', actual: null, projected: 2700000 }
+    ]
   };
 
   useEffect(() => {
-    loadDashboardData();
+    // Simulate loading
+    setTimeout(() => {
+      setKpiData(mockKPIData);
+      setTeamData(mockTeamData);
+      setMarketData(mockMarketData);
+      setAlertsData(mockAlertsData);
+      setLoading(false);
+    }, 1000);
   }, [timeRange]);
 
-  const handleChatSubmit = async (e) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-    
-    try {
-      await sendMessage(chatInput);
-      setChatInput('');
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
+  const handleTimeRangeChange = (newRange) => {
+    setTimeRange(newRange);
+    setLoading(true);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
+  const handleSearch = (query) => {
+    console.log('Searching for:', query);
     // Implement search functionality
-    console.log('Searching for:', searchQuery);
+  };
+
+  const handleRefresh = () => {
+    setLoading(true);
+    // Simulate refresh
+    setTimeout(() => setLoading(false), 1000);
+  };
+
+  const handleSendMessage = () => {
+    if (chatInput.trim()) {
+      sendMessage(chatInput);
+      setChatInput('');
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading Executive Dashboard...</p>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-8">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-800 rounded-xl p-6 h-32"></div>
+              ))}
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="bg-gray-800 rounded-xl h-96"></div>
+              <div className="bg-gray-800 rounded-xl h-96"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -477,243 +363,185 @@ const CEODashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
-            >
-              <span>←</span>
-              <span>Back to Home</span>
-            </button>
-            <div className="h-6 w-px bg-gray-600"></div>
-            <h1 className="text-2xl font-bold">CEO Dashboard</h1>
-            <span className="text-sm text-gray-400">Executive Command Center</span>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs ${
-              connectionStatus.connected 
-                ? 'bg-green-500/20 text-green-400' 
-                : 'bg-red-500/20 text-red-400'
-            }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                connectionStatus.connected ? 'bg-green-400' : 'bg-red-400'
-              }`}></div>
-              <span>{connectionStatus.connected ? 'Online' : 'Offline'}</span>
+      {/* Executive Header */}
+      <div className="sticky top-0 z-20 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">👑</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">CEO Dashboard</h1>
+                  <p className="text-gray-400">Executive Command Center</p>
+                </div>
+              </div>
             </div>
-            
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-purple-500"
-            >
-              <option value="7d">7 Days</option>
-              <option value="30d">30 Days</option>
-              <option value="90d">90 Days</option>
-              <option value="1y">1 Year</option>
-            </select>
-            
-            <button
-              onClick={loadDashboardData}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-1 rounded-lg text-sm transition-colors"
-            >
-              Refresh
-            </button>
+
+            <div className="flex items-center space-x-6">
+              {/* Time Range Filters */}
+              <div className="flex space-x-2">
+                {timeRangeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      timeRange === option.value
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                    onClick={() => handleTimeRangeChange(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Refresh Button */}
+              <button
+                className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+                onClick={handleRefresh}
+              >
+                <span className="text-xl">🔄</span>
+              </button>
+
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'
+                }`}></div>
+                <span className="text-sm text-gray-400">
+                  {connectionStatus === 'connected' ? 'Connected' : 'Offline'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mt-4">
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search across all executive data..."
-              className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
-            />
+      </div>
+
+      {/* Executive Search */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-xl">🔍</span>
+            </div>
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search across all executive data..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
+                className="w-full bg-transparent border-0 text-white text-lg placeholder-gray-400 focus:outline-none"
+              />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+            </div>
             <button
-              type="submit"
-              className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              onClick={() => handleSearch(searchQuery)}
             >
               Search
             </button>
           </div>
-        </form>
-      </header>
-
-      {/* Main Content */}
-      <main className="p-6 space-y-6">
-        {/* KPI Grid */}
-        {kpiData && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Executive KPIs</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <KPICard
-                title="Revenue"
-                value={kpiData.revenue.current}
-                target={kpiData.revenue.target}
-                change={kpiData.revenue.change}
-                trend={kpiData.revenue.trend}
-                icon="💰"
-                color="green"
-              />
-              <KPICard
-                title="Active Deals"
-                value={kpiData.deals.current}
-                target={kpiData.deals.target}
-                change={kpiData.deals.change}
-                trend={kpiData.deals.trend}
-                icon="🤝"
-                color="blue"
-              />
-              <KPICard
-                title="Efficiency"
-                value={kpiData.efficiency.current}
-                target={kpiData.efficiency.target}
-                change={kpiData.efficiency.change}
-                trend={kpiData.efficiency.trend}
-                icon="⚡"
-                color="yellow"
-              />
-              <KPICard
-                title="ARR"
-                value={kpiData.arr.current}
-                target={kpiData.arr.target}
-                change={kpiData.arr.change}
-                trend={kpiData.arr.trend}
-                icon="📈"
-                color="purple"
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Charts and Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Revenue Chart */}
-          {revenueData && (
-            <RevenueChart data={revenueData} />
-          )}
-          
-          {/* Market Share */}
-          {marketData && (
-            <MarketShareChart data={marketData.marketShare} />
-          )}
         </div>
+      </div>
 
-        {/* Team Performance */}
-        {teamData && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Team Performance</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {Object.entries(teamData).map(([dept, data]) => (
-                <TeamPerformanceCard
-                  key={dept}
-                  department={dept}
-                  performance={data.performance}
-                  target={data.target}
-                  trend={data.trend}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Strategic Alerts */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Strategic Alerts</h2>
-          <div className="space-y-4">
-            {alertsData.length > 0 ? (
-              alertsData.map(alert => (
-                <StrategicAlert key={alert.id} alert={alert} />
-              ))
-            ) : (
-              <div className="bg-gray-800 rounded-lg p-6 text-center">
-                <span className="text-2xl mb-2 block">⚠️</span>
-                <p className="text-gray-400">No alerts at this time</p>
-              </div>
-            )}
+      {/* Main Dashboard Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Executive KPI Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {kpiData?.map((kpi, index) => (
+              <KPICard key={index} {...kpi} />
+            ))}
           </div>
-        </section>
 
-        {/* Executive AI Assistant */}
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Executive AI Assistant</h2>
-          <div className="bg-gray-800 rounded-xl border border-gray-700">
-            {/* Chat Messages */}
-            <div className="p-6 space-y-4 max-h-64 overflow-y-auto">
-              {messages.length > 0 ? (
-                messages.map((message, index) => (
-                  <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender === 'user' 
-                        ? 'bg-purple-600 text-white' 
-                        : 'bg-gray-700 text-gray-100'
-                    }`}>
-                      <p className="text-sm">{message.text}</p>
-                      <span className="text-xs opacity-70">
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center text-gray-400">
-                  <span className="text-2xl mb-2 block">🤖</span>
-                  <p>No messages yet. Ask me about your business metrics!</p>
+          {/* Main Analytics Grid */}
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Left Column - 2/3 width */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Revenue Projections */}
+              <RevenueChart data={mockRevenueData} />
+
+              {/* Team Performance */}
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-white text-lg font-semibold mb-4">Team Performance</h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {teamData?.map((team, index) => (
+                    <TeamPerformanceCard key={index} {...team} />
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
+
+            {/* Right Column - 1/3 width */}
+            <div className="space-y-8">
+              {/* Market Analytics */}
+              <MarketShareChart data={marketData} />
+
+              {/* Strategic Alerts */}
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-white text-lg font-semibold mb-4">Strategic Alerts</h3>
+                <div className="space-y-4">
+                  {alertsData?.map((alert, index) => (
+                    <StrategicAlert key={index} alert={alert} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Executive Chat Interface */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h3 className="text-white text-lg font-semibold mb-4">Executive Assistant</h3>
             
-            {/* Chat Input */}
-            <form onSubmit={handleChatSubmit} className="border-t border-gray-700 p-4">
-              <div className="flex space-x-2">
+            <div className="space-y-4">
+              {/* Messages */}
+              <div className="h-64 bg-gray-900 rounded-lg p-4 overflow-y-auto">
+                {messages.length === 0 ? (
+                  <div className="text-gray-400 text-center py-8">
+                    Ask me anything about your business metrics, team performance, or strategic insights.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {messages.map((message, index) => (
+                      <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.sender === 'user' 
+                            ? 'bg-purple-600 text-white' 
+                            : 'bg-gray-700 text-gray-100'
+                        }`}>
+                          {message.text}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Input */}
+              <div className="flex space-x-4">
                 <input
                   type="text"
+                  placeholder="Ask about metrics, trends, or strategic insights..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask about revenue, team performance, market trends..."
-                  className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  className="flex-1 bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                 />
                 <button
-                  type="submit"
-                  disabled={!chatInput.trim()}
-                  className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                  onClick={handleSendMessage}
+                  disabled={!chatInput.trim() || !isConnected}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Send
                 </button>
               </div>
-              
-              <div className="flex items-center justify-between mt-2">
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setChatInput('What is our current revenue performance?')}
-                    className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded transition-colors"
-                  >
-                    Ask about revenue
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChatInput('How is our team performing?')}
-                    className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded transition-colors"
-                  >
-                    Team performance
-                  </button>
-                </div>
-                
-                <span className={`text-xs ${isConnected ? 'text-green-400' : 'text-red-400'}`}>
-                  Chat {isConnected ? 'Connected' : 'Disconnected'}
-                </span>
-              </div>
-            </form>
+            </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
     </div>
   );
 };

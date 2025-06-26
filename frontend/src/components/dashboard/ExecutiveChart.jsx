@@ -21,7 +21,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { glassmorphism, colors, typography } from '../lib/design-system.js';
+import { glassmorphism, colors, typography } from '../../lib/design-system.js';
 
 // Custom tooltip component
 const CustomTooltip = ({ active, payload, label, labelFormatter, valueFormatter }) => {

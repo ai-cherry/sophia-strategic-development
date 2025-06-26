@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import KPICard, { RevenueCard, MetricCard, AlertCard } from './KPICard.jsx';
 import ExecutiveChart, { RevenueChart, PerformanceChart, MarketShareChart } from './ExecutiveChart.jsx';
-import { glassmorphism, layout, typography, animations } from '../lib/design-system.js';
+import { glassmorphism, layout, typography, animations } from '../../lib/design-system.js';
 
 // Mock data for demonstration
 const mockKPIData = [

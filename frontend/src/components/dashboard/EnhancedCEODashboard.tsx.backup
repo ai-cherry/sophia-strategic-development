@@ -1,0 +1,586 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Minus, 
+  DollarSign, 
+  Users, 
+  Activity, 
+  Target, 
+  Briefcase,
+  AlertTriangle,
+  CheckCircle2,
+  BarChart3,
+  PieChart,
+  LineChart
+} from 'lucide-react';
+import { Button } from '../ui/button';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Progress } from '../ui/progress';
+import EnhancedUnifiedChatInterface from '../shared/EnhancedUnifiedChatInterface';
+import {
+  BarChart,
+  Bar,
+  Line,
+  LineChart as RechartsLineChart,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  AreaChart
+} from 'recharts';
+import { Input } from '../ui/input';
+import { Skeleton } from '../ui/skeleton';
+import SophiaLiveChatInterface from '../shared/SophiaLiveChatInterface';
+import apiClient from '../../services/apiClient';
+
+// Types
+interface KPICardProps {
+  title: string;
+  value: string;
+  change?: number | string;
+  trend?: 'up' | 'down';
+  icon?: React.ComponentType<{ className?: string }>;
+  loading: boolean;
+  error: string | null;
+}
+
+interface SearchResult {
+  title: string;
+  description: string;
+  metadata?: {
+    category?: string;
+    date?: string;
+  };
+}
+
+interface SearchResultsProps {
+  results: SearchResult[] | null;
+  onClose: () => void;
+  loading: boolean;
+}
+
+// Loading skeleton components
+const KPICardSkeleton = () => (
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <Skeleton className="h-12 w-12 rounded-full" />
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const ChartSkeleton = () => (
+  <Card>
+    <CardHeader>
+      <Skeleton className="h-6 w-48" />
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-64 w-full" />
+    </CardContent>
+  </Card>
+);
+
+// KPI Card Component
+const KPICard: React.FC<KPICardProps> = ({ title, value, change, trend, icon: Icon, loading, error }) => {
+  if (loading) return <KPICardSkeleton />;
+  
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Alert variant="destructive">
+            <AlertDescription>
+              Failed to load {title.toLowerCase()}
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const isPositive = trend === 'up' || (typeof change === 'number' && change > 0);
+  const changeValue = typeof change === 'number' ? `${change > 0 ? '+' : ''}${change.toFixed(1)}%` : change;
+
+  return (
+    <Card className="hover:shadow-lg transition-shadow duration-200">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-3xl font-bold">{value}</p>
+            {change && (
+              <p className={`text-sm flex items-center ${
+                isPositive ? 'text-green-600' : 'text-red-600'
+              }`}>
+                <span className="mr-1">
+                  {isPositive ? '↗' : '↘'}
+                </span>
+                {changeValue}
+              </p>
+            )}
+          </div>
+          {Icon && (
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Icon className="h-6 w-6 text-primary" />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Search Results Component
+const SearchResults: React.FC<SearchResultsProps> = ({ results, onClose, loading }) => {
+  if (!results && !loading) return null;
+
+  return (
+    <Card className="absolute top-full left-0 right-0 mt-2 z-50 max-h-96 overflow-y-auto">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-lg">Search Results</CardTitle>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          ✕
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="space-y-2">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        ) : results && results.length > 0 ? (
+          <div className="space-y-3">
+            {results.map((result, index) => (
+              <div key={index} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                <h4 className="font-medium text-sm">{result.title}</h4>
+                <p className="text-sm text-muted-foreground mt-1">{result.description}</p>
+                {result.metadata && (
+                  <div className="flex gap-2 mt-2">
+                    {result.metadata.category && (
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                        {result.metadata.category}
+                      </span>
+                    )}
+                    {result.metadata.date && (
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(result.metadata.date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground text-center py-4">
+            No results found. Try a different search term.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// Main CEO Dashboard Component
+const EnhancedCEODashboard = () => {
+  // State management
+  const [timeRange, setTimeRange] = useState('30d');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  
+  // Loading states
+  const [loadingKPIs, setLoadingKPIs] = useState(true);
+  const [loadingCharts, setLoadingCharts] = useState(true);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  
+  // Data states
+  const [kpiData, setKpiData] = useState({});
+  const [dashboardData, setDashboardData] = useState({});
+  
+  // Error states
+  const [kpiError, setKpiError] = useState(null);
+  const [chartError, setChartError] = useState(null);
+  const [searchError, setSearchError] = useState(null);
+  const [globalError, setGlobalError] = useState(null);
+
+  // Time range options
+  const timeRangeOptions = [
+    { value: '7d', label: '7 Days' },
+    { value: '30d', label: '30 Days' },
+    { value: '90d', label: '90 Days' },
+    { value: '1y', label: '1 Year' }
+  ];
+
+  // Load dashboard data
+  const loadDashboardData = useCallback(async (selectedTimeRange) => {
+    try {
+      setGlobalError(null);
+      
+      // Load KPIs
+      setLoadingKPIs(true);
+      setKpiError(null);
+      const kpiResult = await apiClient.getCEOKPIs(selectedTimeRange);
+      
+      if (kpiResult.success) {
+        setKpiData(kpiResult.data);
+      } else {
+        setKpiError(kpiResult.error);
+      }
+      setLoadingKPIs(false);
+
+      // Load dashboard metrics
+      setLoadingCharts(true);
+      setChartError(null);
+      const dashboardResult = await apiClient.getCEODashboardData(selectedTimeRange);
+      
+      if (dashboardResult.success) {
+        setDashboardData(dashboardResult.data);
+      } else {
+        setChartError(dashboardResult.error);
+      }
+      setLoadingCharts(false);
+
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      setGlobalError(error.message || 'Failed to load dashboard data');
+      setLoadingKPIs(false);
+      setLoadingCharts(false);
+    }
+  }, []);
+
+  // Initial data load
+  useEffect(() => {
+    loadDashboardData(timeRange);
+  }, [timeRange, loadDashboardData]);
+
+  // Handle time range change
+  const handleTimeRangeChange = (newTimeRange) => {
+    setTimeRange(newTimeRange);
+    // Data will be reloaded via useEffect dependency
+  };
+
+  // Handle search
+  const handleSearch = async (query = searchQuery) => {
+    if (!query.trim()) {
+      setShowSearchResults(false);
+      return;
+    }
+
+    setLoadingSearch(true);
+    setSearchError(null);
+    
+    try {
+      const result = await apiClient.searchCEODashboard(query, timeRange);
+      
+      if (result.success) {
+        setSearchResults(result.data.results || []);
+        setShowSearchResults(true);
+      } else {
+        setSearchError(result.error);
+        setShowSearchResults(false);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError(error.message || 'Search failed');
+      setShowSearchResults(false);
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  const handleSearchKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Mock KPI data with error handling
+  const getKPIValue = (key, defaultValue = 'N/A') => {
+    if (loadingKPIs) return defaultValue;
+    return kpiData[key] || defaultValue;
+  };
+
+  const getKPIChange = (key, defaultValue = null) => {
+    if (loadingKPIs) return defaultValue;
+    return kpiData[`${key}_change`] || defaultValue;
+  };
+
+  return (
+    <div className="space-y-6 p-6 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+      {/* Header Section */}
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">CEO Dashboard</h1>
+          <p className="text-muted-foreground">
+            Executive overview and business intelligence
+          </p>
+        </div>
+        
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+          {/* Time Range Filters */}
+          <div className="flex space-x-1">
+            {timeRangeOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant={timeRange === option.value ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTimeRangeChange(option.value)}
+                disabled={loadingKPIs || loadingCharts}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Global Error Alert */}
+      {globalError && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            {globalError}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2"
+              onClick={() => loadDashboardData(timeRange)}
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Search Section */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="relative">
+            <div className="flex space-x-2">
+              <Input
+                placeholder="Search across all business data..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleSearchKeyPress}
+                className="flex-1"
+              />
+              <Button 
+                onClick={() => handleSearch()}
+                disabled={loadingSearch || !searchQuery.trim()}
+              >
+                {loadingSearch ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  '🔍'
+                )}
+              </Button>
+            </div>
+            
+            {searchError && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertDescription>{searchError}</AlertDescription>
+              </Alert>
+            )}
+
+            <SearchResults
+              results={searchResults}
+              loading={loadingSearch}
+              onClose={() => setShowSearchResults(false)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          title="Total Revenue"
+          value={getKPIValue('revenue', '$0')}
+          change={getKPIChange('revenue', 0)}
+          trend="up"
+          icon={({ className }) => <div className={className}>💰</div>}
+          loading={loadingKPIs}
+          error={kpiError}
+        />
+        <KPICard
+          title="Active Deals"
+          value={getKPIValue('active_deals', '0')}
+          change={getKPIChange('active_deals', 0)}
+          trend="up"
+          icon={({ className }) => <div className={className}>🤝</div>}
+          loading={loadingKPIs}
+          error={kpiError}
+        />
+        <KPICard
+          title="Customer Health"
+          value={getKPIValue('customer_health', '0%')}
+          change={getKPIChange('customer_health', 0)}
+          trend="up"
+          icon={({ className }) => <div className={className}>❤️</div>}
+          loading={loadingKPIs}
+          error={kpiError}
+        />
+        <KPICard
+          title="Team Performance"
+          value={getKPIValue('team_performance', '0%')}
+          change={getKPIChange('team_performance', 0)}
+          trend="up"
+          icon={({ className }) => <div className={className}>⭐</div>}
+          loading={loadingKPIs}
+          error={kpiError}
+        />
+      </div>
+
+      {/* Charts and Analytics */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Revenue Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loadingCharts ? (
+              <Skeleton className="h-64 w-full" />
+            ) : chartError ? (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  Failed to load revenue chart
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="ml-2"
+                    onClick={() => loadDashboardData(timeRange)}
+                  >
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="h-64 flex items-center justify-center bg-muted/20 rounded">
+                <div className="text-center text-muted-foreground">
+                  <div className="text-4xl mb-2">📈</div>
+                  <p>Revenue chart would render here</p>
+                  <p className="text-sm mt-1">
+                    Time range: {timeRangeOptions.find(o => o.value === timeRange)?.label}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Performance Metrics */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Team Performance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loadingCharts ? (
+              <Skeleton className="h-64 w-full" />
+            ) : chartError ? (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  Failed to load performance metrics
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="ml-2"
+                    onClick={() => loadDashboardData(timeRange)}
+                  >
+                    Retry
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="h-64 flex items-center justify-center bg-muted/20 rounded">
+                <div className="text-center text-muted-foreground">
+                  <div className="text-4xl mb-2">📊</div>
+                  <p>Performance metrics would render here</p>
+                  <p className="text-sm mt-1">
+                    Time range: {timeRangeOptions.find(o => o.value === timeRange)?.label}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chat Interface */}
+      <Card>
+        <CardHeader>
+          <CardTitle>AI Assistant</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-96">
+            <SophiaLiveChatInterface
+              userId="ceo_user"
+              context="ceo_dashboard"
+              className="h-full"
+              onUpload={(uploadResult) => {
+                console.log('File uploaded:', uploadResult);
+                // Optionally refresh data after file upload
+                if (uploadResult.requires_refresh) {
+                  loadDashboardData(timeRange);
+                }
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+            <Button variant="outline" className="justify-start">
+              📊 View Financial Reports
+            </Button>
+            <Button variant="outline" className="justify-start">
+              🎯 Review Goals Progress
+            </Button>
+            <Button variant="outline" className="justify-start">
+              👥 Team Performance Review
+            </Button>
+            <Button variant="outline" className="justify-start">
+              📈 Market Analysis
+            </Button>
+            <Button variant="outline" className="justify-start">
+              🔄 Refresh All Data
+            </Button>
+            <Button variant="outline" className="justify-start">
+              ⚙️ Dashboard Settings
+            </Button>
+            <Button variant="outline" className="justify-start">
+              📋 Export Report
+            </Button>
+            <Button variant="outline" className="justify-start">
+              🚨 View Alerts
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default EnhancedCEODashboard;
