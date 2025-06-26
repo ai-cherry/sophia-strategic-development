@@ -252,7 +252,7 @@ export const EnhancedCEODashboard: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {kpiData.map((\1: any, \2: number) => (
+        {kpiData.map((kpi: any, index: number) => (
           <KPICard key={index} {...kpi} />
         ))}
       </div>
@@ -311,7 +311,7 @@ export const EnhancedCEODashboard: React.FC = () => {
             </CardHeader>
             <CardContent className="">
               <div className="space-y-4">
-                {teamPerformanceData.map((\1: any, \2: number) => (
+                {teamPerformanceData.map((team: any, index: number) => (
                   <div key={index} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{team.team}</span>
@@ -354,7 +354,7 @@ export const EnhancedCEODashboard: React.FC = () => {
                     fill="#8884d8"
                     dataKey="marketShare"
                   >
-                    {competitorData.map((\1: any, \2: number) => (
+                    {competitorData.map((competitor: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
