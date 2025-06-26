@@ -31,16 +31,21 @@ export default defineConfig({
     target: 'es2020',
     chunkSizeWarningLimit: 1000,
   },
-  // Server configuration for development
+  // Server configuration for development - ALLOW ALL HOSTS
   server: {
     port: 3000,
-    host: true,
+    host: '0.0.0.0',
     cors: true,
+    allowedHosts: 'all',
+    hmr: {
+      host: 'localhost'
+    }
   },
   // Preview configuration
   preview: {
     port: 3000,
-    host: true,
+    host: '0.0.0.0',
+    cors: true
   },
   // Environment variable configuration
   envPrefix: ['VITE_'],
@@ -63,3 +68,4 @@ export default defineConfig({
     ],
   },
 })
+
