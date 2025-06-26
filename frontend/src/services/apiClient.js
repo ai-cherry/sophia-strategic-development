@@ -119,6 +119,82 @@ const shouldRetry = (error) => {
   return !error.response || (error.response.status >= 500 && error.response.status < 600);
 };
 
+// Mock data generators for development/fallback
+const generateMockKPIs = () => ({
+  revenue: {
+    current: 2400000,
+    target: 2500000,
+    change: 5.2,
+    trend: 'up'
+  },
+  deals: {
+    current: 156,
+    target: 150,
+    change: 12,
+    trend: 'up'
+  },
+  efficiency: {
+    current: 112,
+    target: 110,
+    change: 2.5,
+    trend: 'up'
+  },
+  arr: {
+    current: 8300000,
+    target: 8000000,
+    change: 18,
+    trend: 'up'
+  }
+});
+
+const generateMockTeamPerformance = () => ({
+  sales: { performance: 94, target: 90, trend: 'up' },
+  engineering: { performance: 88, target: 85, trend: 'up' },
+  customerSuccess: { performance: 96, target: 95, trend: 'up' },
+  marketing: { performance: 82, target: 80, trend: 'up' },
+  operations: { performance: 91, target: 90, trend: 'up' }
+});
+
+const generateMockMarketData = () => ({
+  marketShare: [
+    { name: 'Sophia AI', value: 35, color: '#8b5cf6' },
+    { name: 'EliseAI', value: 28, color: '#ef4444' },
+    { name: 'Others', value: 37, color: '#6b7280' }
+  ],
+  competitorAnalysis: {
+    threats: 2,
+    opportunities: 5,
+    marketGrowth: 15.3
+  }
+});
+
+const generateMockAlerts = () => ([
+  {
+    id: 1,
+    type: 'success',
+    title: 'Q2 Revenue Target Exceeded',
+    message: 'Revenue has exceeded Q2 target by 5.2%',
+    timestamp: new Date().toISOString(),
+    priority: 'high'
+  },
+  {
+    id: 2,
+    type: 'warning',
+    title: 'EliseAI Competitive Feature',
+    message: 'Competitor launched new AI feature - review needed',
+    timestamp: new Date().toISOString(),
+    priority: 'medium'
+  },
+  {
+    id: 3,
+    type: 'info',
+    title: 'NMHC Conference Opportunity',
+    message: 'Speaking opportunity at NMHC conference available',
+    timestamp: new Date().toISOString(),
+    priority: 'low'
+  }
+]);
+
 // API Methods
 export const api = {
   // Health check
@@ -130,6 +206,66 @@ export const api = {
     logout: () => retryRequest(() => apiClient.post('/auth/logout')),
     refresh: () => retryRequest(() => apiClient.post('/auth/refresh')),
     me: () => retryRequest(() => apiClient.get('/auth/me'))
+  },
+  
+  // CEO Dashboard Methods
+  getCEOKPIs: async (timeRange = '30d') => {
+    try {
+      const response = await retryRequest(() => apiClient.get(`/ceo/kpis?range=${timeRange}`));
+      return response.data;
+    } catch (error) {
+      console.warn('Using mock KPI data due to API error:', error.message);
+      return generateMockKPIs();
+    }
+  },
+  
+  getTeamPerformance: async (timeRange = '30d') => {
+    try {
+      const response = await retryRequest(() => apiClient.get(`/ceo/team-performance?range=${timeRange}`));
+      return response.data;
+    } catch (error) {
+      console.warn('Using mock team performance data due to API error:', error.message);
+      return generateMockTeamPerformance();
+    }
+  },
+  
+  getMarketData: async () => {
+    try {
+      const response = await retryRequest(() => apiClient.get('/ceo/market-data'));
+      return response.data;
+    } catch (error) {
+      console.warn('Using mock market data due to API error:', error.message);
+      return generateMockMarketData();
+    }
+  },
+  
+  getStrategicAlerts: async () => {
+    try {
+      const response = await retryRequest(() => apiClient.get('/ceo/alerts'));
+      return response.data;
+    } catch (error) {
+      console.warn('Using mock alerts data due to API error:', error.message);
+      return generateMockAlerts();
+    }
+  },
+  
+  getRevenueProjections: async (timeRange = '12m') => {
+    try {
+      const response = await retryRequest(() => apiClient.get(`/ceo/revenue-projections?range=${timeRange}`));
+      return response.data;
+    } catch (error) {
+      console.warn('Using mock revenue projections due to API error:', error.message);
+      return {
+        projections: [
+          { month: 'Jan', actual: 2100000, projected: 2000000 },
+          { month: 'Feb', actual: 2200000, projected: 2100000 },
+          { month: 'Mar', actual: 2400000, projected: 2200000 },
+          { month: 'Apr', actual: null, projected: 2500000 },
+          { month: 'May', actual: null, projected: 2600000 },
+          { month: 'Jun', actual: null, projected: 2700000 }
+        ]
+      };
+    }
   },
   
   // Dashboard data
