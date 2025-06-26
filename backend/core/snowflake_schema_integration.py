@@ -1,0 +1,576 @@
+#!/usr/bin/env python3
+"""
+Snowflake Schema Integration for Sophia AI
+Comprehensive integration with all 6 schemas from the Snowflake breakdown
+"""
+
+import logging
+import json
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
+from enum import Enum
+import snowflake.connector
+from snowflake.connector import DictCursor
+
+logger = logging.getLogger(__name__)
+
+class SchemaType(str, Enum):
+    UNIVERSAL_CHAT = "UNIVERSAL_CHAT"
+    AI_MEMORY = "AI_MEMORY"
+    APOLLO_IO = "APOLLO_IO"
+    PROJECT_MANAGEMENT = "PROJECT_MANAGEMENT"
+    GONG_INTEGRATION = "GONG_INTEGRATION"
+    HUBSPOT_INTEGRATION = "HUBSPOT_INTEGRATION"
+
+@dataclass
+class SnowflakeCredentials:
+    """Production Snowflake credentials from schema breakdown"""
+    account: str = "ZNB04675"
+    user: str = "SCOOBYJAVA15" 
+    password: str = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A"
+    role: str = "ACCOUNTADMIN"
+    database: str = "SOPHIA_AI_PROD"
+    warehouse: str = "SOPHIA_AI_WH"
+
+class SnowflakeSchemaIntegration:
+    """Enhanced Snowflake integration supporting all 6 schemas"""
+    
+    def __init__(self, credentials: SnowflakeCredentials = None):
+        self.credentials = credentials or SnowflakeCredentials()
+        self.connection = None
+        
+        # Schema table mappings for enhanced operations
+        self.schema_tables = {
+            SchemaType.UNIVERSAL_CHAT: {
+                "knowledge_categories": "KNOWLEDGE_CATEGORIES",
+                "knowledge_sources": "KNOWLEDGE_SOURCES",
+                "knowledge_base_entries": "KNOWLEDGE_BASE_ENTRIES", 
+                "knowledge_embeddings": "KNOWLEDGE_EMBEDDINGS",
+                "knowledge_usage_analytics": "KNOWLEDGE_USAGE_ANALYTICS",
+                "conversation_sessions": "CONVERSATION_SESSIONS",
+                "conversation_messages": "CONVERSATION_MESSAGES",
+                "conversation_context": "CONVERSATION_CONTEXT",
+                "user_management": "USER_MANAGEMENT",
+                "teaching_sessions": "TEACHING_SESSIONS",
+                "knowledge_weights": "KNOWLEDGE_WEIGHTS",
+                "internet_search_sessions": "INTERNET_SEARCH_SESSIONS",
+                "dynamic_scraping_sessions": "DYNAMIC_SCRAPING_SESSIONS",
+                "system_analytics": "SYSTEM_ANALYTICS"
+            },
+            SchemaType.AI_MEMORY: {
+                "business_memory_categories": "BUSINESS_MEMORY_CATEGORIES",
+                "memory_entries": "MEMORY_ENTRIES",
+                "memory_embeddings": "MEMORY_EMBEDDINGS", 
+                "memory_relationships": "MEMORY_RELATIONSHIPS",
+                "memory_access_patterns": "MEMORY_ACCESS_PATTERNS"
+            },
+            SchemaType.PROJECT_MANAGEMENT: {
+                "projects": "PROJECTS",
+                "issues": "ISSUES",
+                "team_members": "TEAM_MEMBERS",
+                "project_health_metrics": "PROJECT_HEALTH_METRICS"
+            },
+            SchemaType.APOLLO_IO: {
+                "raw_contacts": "RAW_CONTACTS",
+                "raw_companies": "RAW_COMPANIES",
+                "contacts_enriched": "CONTACTS_ENRICHED",
+                "companies_enriched": "COMPANIES_ENRICHED",
+                "data_quality_metrics": "DATA_QUALITY_METRICS"
+            },
+            SchemaType.GONG_INTEGRATION: {
+                "calls": "CALLS",
+                "call_participants": "CALL_PARTICIPANTS", 
+                "call_analytics": "CALL_ANALYTICS"
+            },
+            SchemaType.HUBSPOT_INTEGRATION: {
+                "contacts": "CONTACTS",
+                "companies": "COMPANIES",
+                "deals": "DEALS"
+            }
+        }
+
+    async def connect(self):
+        """Connect to Snowflake with comprehensive configuration"""
+        try:
+            self.connection = snowflake.connector.connect(
+                account=self.credentials.account,
+                user=self.credentials.user,
+                password=self.credentials.password,
+                role=self.credentials.role,
+                database=self.credentials.database,
+                warehouse=self.credentials.warehouse,
+                schema=SchemaType.UNIVERSAL_CHAT.value
+            )
+            logger.info("✅ Connected to comprehensive Snowflake deployment")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            raise
+
+    async def execute_query(self, query: str, params: Optional[tuple] = None, schema: SchemaType = None) -> List[Dict[str, Any]]:
+        """Execute query with schema context"""
+        try:
+            cursor = self.connection.cursor(DictCursor)
+            
+            if schema:
+                cursor.execute(f"USE SCHEMA {schema.value}")
+            
+            cursor.execute(query, params or ())
+            results = cursor.fetchall()
+            cursor.close()
+            return results
+        except Exception as e:
+            logger.error(f"Query execution failed: {e}")
+            raise
+
+    def get_table_name(self, schema: SchemaType, table_key: str) -> str:
+        """Get fully qualified table name"""
+        table_name = self.schema_tables.get(schema, {}).get(table_key)
+        if not table_name:
+            raise ValueError(f"Table {table_key} not found in schema {schema}")
+        return f"{self.credentials.database}.{schema.value}.{table_name}"
+
+    # ===============================================================================
+    # ENHANCED KNOWLEDGE BASE OPERATIONS (Supporting Large File Processing)
+    # ===============================================================================
+
+    async def insert_knowledge_entry_enhanced(
+        self,
+        entry_id: str,
+        title: str,
+        content: str,
+        category_id: str = "general",
+        source_id: str = "src_manual",
+        importance_score: float = 1.0,
+        is_foundational: bool = False,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+        file_path: str = None,
+        file_size_bytes: int = None,
+        chunk_index: int = 0,
+        total_chunks: int = 1,
+        created_by: str = "system"
+    ) -> bool:
+        """Enhanced knowledge entry insertion supporting chunking and large files"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'knowledge_base_entries')}
+        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE, 
+         IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
+         CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
+        """
+        
+        params = (
+            entry_id, title, content, category_id, source_id, importance_score,
+            is_foundational, json.dumps(tags or []), json.dumps(metadata or {}),
+            file_path, file_size_bytes, chunk_index, total_chunks, created_by
+        )
+        
+        await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
+        return True
+
+    async def insert_knowledge_embedding(
+        self,
+        embedding_id: str,
+        entry_id: str,
+        embedding_vector: List[float],
+        chunk_text: str,
+        chunk_index: int = 0,
+        embedding_model: str = "snowflake-arctic-embed-m"
+    ) -> bool:
+        """Insert knowledge embeddings for semantic search"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'knowledge_embeddings')}
+        (EMBEDDING_ID, ENTRY_ID, EMBEDDING_MODEL, EMBEDDING_VECTOR, CHUNK_TEXT, CHUNK_INDEX, CREATED_AT)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+        """
+        
+        params = (
+            embedding_id, entry_id, embedding_model,
+            json.dumps(embedding_vector), chunk_text, chunk_index
+        )
+        
+        await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
+        return True
+
+    async def hybrid_search_knowledge(
+        self,
+        query: str,
+        limit: int = 10,
+        category_filter: str = None,
+        importance_threshold: float = 0.5
+    ) -> List[Dict[str, Any]]:
+        """Enhanced hybrid search across knowledge base"""
+        
+        search_query = f"""
+        SELECT 
+            k.ENTRY_ID,
+            k.TITLE,
+            k.CONTENT,
+            k.CATEGORY_ID,
+            c.CATEGORY_NAME,
+            k.IMPORTANCE_SCORE,
+            k.IS_FOUNDATIONAL,
+            k.CHUNK_INDEX,
+            k.TOTAL_CHUNKS,
+            k.FILE_PATH,
+            k.METADATA,
+            k.CREATED_AT,
+            -- Relevance scoring
+            CASE 
+                WHEN UPPER(k.TITLE) LIKE UPPER(?) THEN 2.0
+                WHEN UPPER(k.CONTENT) LIKE UPPER(?) THEN 1.5
+                ELSE 1.0
+            END * k.IMPORTANCE_SCORE as RELEVANCE_SCORE
+        FROM {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'knowledge_base_entries')} k
+        JOIN {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'knowledge_categories')} c 
+          ON k.CATEGORY_ID = c.CATEGORY_ID
+        WHERE k.IMPORTANCE_SCORE >= ?
+        AND (UPPER(k.TITLE) LIKE UPPER(?) OR UPPER(k.CONTENT) LIKE UPPER(?))
+        """
+        
+        search_term = f"%{query}%"
+        params = [search_term, search_term, importance_threshold, search_term, search_term]
+        
+        if category_filter:
+            search_query += " AND k.CATEGORY_ID = ?"
+            params.append(category_filter)
+        
+        search_query += " ORDER BY RELEVANCE_SCORE DESC, k.CREATED_AT DESC LIMIT ?"
+        params.append(limit)
+        
+        results = await self.execute_query(search_query, tuple(params), SchemaType.UNIVERSAL_CHAT)
+        
+        # Add similarity scores for compatibility
+        for result in results:
+            result['similarity_score'] = result.get('RELEVANCE_SCORE', 1.0) / 2.0
+        
+        return results
+
+    # ===============================================================================
+    # AI MEMORY OPERATIONS (Supporting Large Context Windows)
+    # ===============================================================================
+
+    async def insert_memory_entry(
+        self,
+        memory_id: str,
+        category_id: str,
+        memory_type: str,
+        title: str,
+        content: str,
+        importance_score: float = 1.0,
+        confidence_level: float = 1.0,
+        source_system: str = "sophia_ai",
+        source_id: str = None,
+        related_entities: List[str] = None,
+        tags: List[str] = None,
+        metadata: Dict[str, Any] = None,
+        expires_at: str = None
+    ) -> bool:
+        """Insert AI memory entry for enhanced context management"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.AI_MEMORY, 'memory_entries')}
+        (MEMORY_ID, CATEGORY_ID, MEMORY_TYPE, TITLE, CONTENT, IMPORTANCE_SCORE,
+         CONFIDENCE_LEVEL, SOURCE_SYSTEM, SOURCE_ID, RELATED_ENTITIES, TAGS,
+         METADATA, EXPIRES_AT, CREATED_AT, UPDATED_AT)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
+        """
+        
+        params = (
+            memory_id, category_id, memory_type, title, content,
+            importance_score, confidence_level, source_system, source_id,
+            json.dumps(related_entities or []), json.dumps(tags or []),
+            json.dumps(metadata or {}), expires_at
+        )
+        
+        await self.execute_query(query, params, SchemaType.AI_MEMORY)
+        return True
+
+    async def create_memory_relationship(
+        self,
+        relationship_id: str,
+        source_memory_id: str,
+        target_memory_id: str,
+        relationship_type: str,
+        strength: float = 1.0,
+        confidence: float = 1.0
+    ) -> bool:
+        """Create relationship between memory entries for cross-document context"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.AI_MEMORY, 'memory_relationships')}
+        (RELATIONSHIP_ID, SOURCE_MEMORY_ID, TARGET_MEMORY_ID, RELATIONSHIP_TYPE,
+         STRENGTH, CONFIDENCE, CREATED_AT)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+        """
+        
+        params = (relationship_id, source_memory_id, target_memory_id, 
+                 relationship_type, strength, confidence)
+        
+        await self.execute_query(query, params, SchemaType.AI_MEMORY)
+        return True
+
+    async def get_related_memories(
+        self,
+        memory_id: str,
+        relationship_types: List[str] = None,
+        min_strength: float = 0.5
+    ) -> List[Dict[str, Any]]:
+        """Get related memories for context synthesis"""
+        
+        query = f"""
+        SELECT 
+            m.MEMORY_ID,
+            m.TITLE,
+            m.CONTENT,
+            m.MEMORY_TYPE,
+            m.IMPORTANCE_SCORE,
+            m.CONFIDENCE_LEVEL,
+            r.RELATIONSHIP_TYPE,
+            r.STRENGTH
+        FROM {self.get_table_name(SchemaType.AI_MEMORY, 'memory_relationships')} r
+        JOIN {self.get_table_name(SchemaType.AI_MEMORY, 'memory_entries')} m
+          ON (r.TARGET_MEMORY_ID = m.MEMORY_ID OR r.SOURCE_MEMORY_ID = m.MEMORY_ID)
+        WHERE (r.SOURCE_MEMORY_ID = ? OR r.TARGET_MEMORY_ID = ?)
+        AND r.STRENGTH >= ?
+        AND m.MEMORY_ID != ?
+        """
+        
+        params = [memory_id, memory_id, min_strength, memory_id]
+        
+        if relationship_types:
+            placeholders = ','.join(['?' for _ in relationship_types])
+            query += f" AND r.RELATIONSHIP_TYPE IN ({placeholders})"
+            params.extend(relationship_types)
+        
+        query += " ORDER BY r.STRENGTH DESC, m.IMPORTANCE_SCORE DESC"
+        
+        return await self.execute_query(query, tuple(params), SchemaType.AI_MEMORY)
+
+    # ===============================================================================
+    # CONVERSATION OPERATIONS (Enhanced with Context)
+    # ===============================================================================
+
+    async def create_conversation_session_enhanced(
+        self,
+        session_id: str,
+        user_id: str,
+        session_name: str = None,
+        session_type: str = "chat",
+        context_summary: str = None
+    ) -> bool:
+        """Create enhanced conversation session with context support"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'conversation_sessions')}
+        (SESSION_ID, USER_ID, SESSION_NAME, SESSION_TYPE, CONTEXT_SUMMARY,
+         IS_ACTIVE, TOTAL_MESSAGES, STARTED_AT, LAST_ACTIVITY_AT)
+        VALUES (?, ?, ?, ?, ?, TRUE, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
+        """
+        
+        params = (session_id, user_id, session_name, session_type, context_summary)
+        await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
+        return True
+
+    async def save_conversation_message_enhanced(
+        self,
+        message_id: str,
+        session_id: str,
+        user_id: str,
+        message_type: str,
+        message_content: str,
+        knowledge_entries_used: List[str] = None,
+        processing_time_ms: int = None,
+        model_used: str = None,
+        confidence_score: float = None,
+        metadata: Dict[str, Any] = None
+    ) -> bool:
+        """Save conversation message with enhanced metadata tracking"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'conversation_messages')}
+        (MESSAGE_ID, SESSION_ID, USER_ID, MESSAGE_TYPE, MESSAGE_CONTENT,
+         KNOWLEDGE_ENTRIES_USED, PROCESSING_TIME_MS, MODEL_USED, CONFIDENCE_SCORE,
+         METADATA, CREATED_AT)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+        """
+        
+        params = (
+            message_id, session_id, user_id, message_type, message_content,
+            json.dumps(knowledge_entries_used or []), processing_time_ms,
+            model_used, confidence_score, json.dumps(metadata or {})
+        )
+        
+        await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
+        
+        # Update session activity
+        update_query = f"""
+        UPDATE {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'conversation_sessions')}
+        SET LAST_ACTIVITY_AT = CURRENT_TIMESTAMP(),
+            TOTAL_MESSAGES = TOTAL_MESSAGES + 1
+        WHERE SESSION_ID = ?
+        """
+        
+        await self.execute_query(update_query, (session_id,), SchemaType.UNIVERSAL_CHAT)
+        return True
+
+    # ===============================================================================
+    # ANALYTICS OPERATIONS (Enhanced Monitoring)
+    # ===============================================================================
+
+    async def log_system_analytics(
+        self,
+        analytics_id: str,
+        metric_type: str,
+        metric_name: str,
+        metric_value: float,
+        metric_unit: str = None,
+        dimensions: Dict[str, Any] = None,
+        aggregation_period: str = "real_time"
+    ) -> bool:
+        """Log comprehensive system analytics"""
+        
+        query = f"""
+        INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'system_analytics')}
+        (ANALYTICS_ID, METRIC_TYPE, METRIC_NAME, METRIC_VALUE, METRIC_UNIT,
+         DIMENSIONS, AGGREGATION_PERIOD, TIMESTAMP)
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+        """
+        
+        params = (
+            analytics_id, metric_type, metric_name, metric_value,
+            metric_unit, json.dumps(dimensions or {}), aggregation_period
+        )
+        
+        await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
+        return True
+
+    async def get_analytics_summary(
+        self,
+        metric_types: List[str] = None,
+        hours_back: int = 24
+    ) -> Dict[str, Any]:
+        """Get comprehensive analytics summary"""
+        
+        query = f"""
+        SELECT 
+            METRIC_TYPE,
+            METRIC_NAME,
+            COUNT(*) as METRIC_COUNT,
+            AVG(METRIC_VALUE) as AVG_VALUE,
+            MIN(METRIC_VALUE) as MIN_VALUE,
+            MAX(METRIC_VALUE) as MAX_VALUE,
+            MAX(TIMESTAMP) as LATEST_TIMESTAMP
+        FROM {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'system_analytics')}
+        WHERE TIMESTAMP >= DATEADD(hour, -?, CURRENT_TIMESTAMP())
+        """
+        
+        params = [hours_back]
+        
+        if metric_types:
+            placeholders = ','.join(['?' for _ in metric_types])
+            query += f" AND METRIC_TYPE IN ({placeholders})"
+            params.extend(metric_types)
+        
+        query += " GROUP BY METRIC_TYPE, METRIC_NAME ORDER BY METRIC_TYPE, METRIC_NAME"
+        
+        results = await self.execute_query(query, tuple(params), SchemaType.UNIVERSAL_CHAT)
+        
+        # Organize by metric type
+        analytics_summary = {}
+        for result in results:
+            metric_type = result['METRIC_TYPE']
+            if metric_type not in analytics_summary:
+                analytics_summary[metric_type] = {}
+            
+            analytics_summary[metric_type][result['METRIC_NAME']] = {
+                'count': result['METRIC_COUNT'],
+                'avg_value': result['AVG_VALUE'],
+                'min_value': result['MIN_VALUE'],
+                'max_value': result['MAX_VALUE'],
+                'latest_timestamp': result['LATEST_TIMESTAMP']
+            }
+        
+        return analytics_summary
+
+    # ===============================================================================
+    # UTILITY OPERATIONS
+    # ===============================================================================
+
+    async def get_comprehensive_health_check(self) -> Dict[str, Any]:
+        """Get health status for all schemas"""
+        
+        health_status = {}
+        
+        for schema in SchemaType:
+            try:
+                # Test schema access
+                test_query = f"SELECT CURRENT_SCHEMA() as schema_name"
+                await self.execute_query(test_query, schema=schema)
+                
+                # Get table counts
+                table_info = {}
+                for table_key, table_name in self.schema_tables.get(schema, {}).items():
+                    try:
+                        count_query = f"SELECT COUNT(*) as row_count FROM {table_name}"
+                        result = await self.execute_query(count_query, schema=schema)
+                        table_info[table_key] = result[0]['ROW_COUNT'] if result else 0
+                    except Exception as e:
+                        table_info[table_key] = f"Error: {str(e)}"
+                
+                health_status[schema.value] = {
+                    "status": "healthy",
+                    "tables": table_info
+                }
+                
+            except Exception as e:
+                health_status[schema.value] = {
+                    "status": "error",
+                    "error": str(e)
+                }
+        
+        return health_status
+
+    async def ensure_categories_exist(self):
+        """Ensure foundational categories exist"""
+        
+        categories = [
+            ("customers", "Customer Information", "Customer lists, contact details, and relationship data", True, 2.0),
+            ("products", "Product Information", "Product descriptions, specifications, and documentation", True, 2.0),
+            ("employees", "Employee Information", "Employee directory, roles, and organizational structure", True, 1.8),
+            ("policies", "Company Policies", "Internal policies, procedures, and guidelines", True, 1.5),
+            ("competitive", "Competitive Intelligence", "Competitor analysis and market research", False, 1.3),
+            ("industry", "Industry Information", "Industry trends, news, and analysis", False, 1.2),
+            ("general", "General Knowledge", "General business information and miscellaneous content", False, 1.0)
+        ]
+        
+        for cat_id, name, desc, is_foundational, weight in categories:
+            try:
+                insert_query = f"""
+                INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, 'knowledge_categories')}
+                (CATEGORY_ID, CATEGORY_NAME, DESCRIPTION, IS_FOUNDATIONAL, IMPORTANCE_WEIGHT, CREATED_AT, UPDATED_AT)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
+                """
+                
+                await self.execute_query(
+                    insert_query, 
+                    (cat_id, name, desc, is_foundational, weight),
+                    SchemaType.UNIVERSAL_CHAT
+                )
+                
+            except Exception:
+                # Category likely already exists
+                pass
+
+    async def disconnect(self):
+        """Clean disconnect from Snowflake"""
+        if self.connection:
+            self.connection.close()
+            logger.info("Disconnected from comprehensive Snowflake deployment")
+
+# Global instance for application use
+snowflake_integration = SnowflakeSchemaIntegration() 

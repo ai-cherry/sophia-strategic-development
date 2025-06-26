@@ -29,10 +29,15 @@ security = HTTPBearer()
 CEO_ACCESS_TOKEN = os.getenv("CEO_ACCESS_TOKEN", "sophia_ceo_access_2024")
 ADMIN_USER_ID = "ceo_user"
 
-# Snowflake Configuration (from prompts)
-SNOWFLAKE_CONFIG = {
+# ===============================================================================
+# SNOWFLAKE SCHEMA INTEGRATION ENHANCEMENT
+# Adding support for comprehensive schema structure with chunking, embeddings, and analytics
+# ===============================================================================
+
+# Enhanced Snowflake Configuration (from comprehensive schema)
+ENHANCED_SNOWFLAKE_CONFIG = {
     "account": "ZNB04675",
-    "user": "SCOOBYJAVA15",
+    "user": "SCOOBYJAVA15", 
     "password": "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
     "role": "ACCOUNTADMIN",
     "database": "SOPHIA_AI_PROD",
@@ -424,6 +429,247 @@ async def health_check():
             "error": str(e),
             "timestamp": datetime.now().isoformat()
         }
+
+# Enhanced Snowflake Service with comprehensive schema support
+class EnhancedSnowflakeService(SnowflakeService):
+    """Enhanced Snowflake service supporting comprehensive schema structure"""
+    
+    def __init__(self):
+        super().__init__()
+        # Override configuration with enhanced settings
+        global SNOWFLAKE_CONFIG
+        SNOWFLAKE_CONFIG = ENHANCED_SNOWFLAKE_CONFIG
+        
+        # Schema support for multiple schemas
+        self.supported_schemas = [
+            "UNIVERSAL_CHAT",      # Primary chat and knowledge
+            "AI_MEMORY",          # Advanced memory management
+            "APOLLO_IO",          # Sales intelligence
+            "PROJECT_MANAGEMENT", # Project intelligence
+            "GONG_INTEGRATION",   # Call intelligence
+            "HUBSPOT_INTEGRATION" # CRM intelligence
+        ]
+
+    async def search_knowledge_enhanced(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Enhanced knowledge search using comprehensive schema structure"""
+        # Enhanced search with chunking and importance scoring
+        search_query = """
+        SELECT 
+            k.ENTRY_ID,
+            k.TITLE,
+            k.CONTENT,
+            k.CATEGORY_ID,
+            c.CATEGORY_NAME,
+            k.IMPORTANCE_SCORE,
+            k.IS_FOUNDATIONAL,
+            k.CHUNK_INDEX,
+            k.TOTAL_CHUNKS,
+            k.FILE_PATH,
+            k.FILE_SIZE_BYTES,
+            k.METADATA,
+            k.CREATED_AT,
+            -- Enhanced relevance scoring
+            CASE 
+                WHEN UPPER(k.TITLE) LIKE UPPER(%s) THEN 2.0
+                WHEN UPPER(k.CONTENT) LIKE UPPER(%s) THEN 1.5
+                ELSE 1.0
+            END * k.IMPORTANCE_SCORE as RELEVANCE_SCORE
+        FROM KNOWLEDGE_BASE_ENTRIES k
+        JOIN KNOWLEDGE_CATEGORIES c ON k.CATEGORY_ID = c.CATEGORY_ID
+        WHERE (UPPER(k.TITLE) LIKE UPPER(%s) OR UPPER(k.CONTENT) LIKE UPPER(%s))
+        ORDER BY RELEVANCE_SCORE DESC, k.IS_FOUNDATIONAL DESC, k.CREATED_AT DESC
+        LIMIT %s
+        """
+        
+        search_term = f"%{query}%"
+        results = await self.execute_query(search_query, (search_term, search_term, search_term, search_term, limit))
+        
+        # Add similarity scores for compatibility
+        for result in results:
+            result['similarity_score'] = min(result.get('RELEVANCE_SCORE', 1.0) / 2.0, 1.0)
+        
+        return results
+
+    async def save_message_enhanced(
+        self, 
+        session_id: str, 
+        user_id: str, 
+        content: str, 
+        message_type: str = "user", 
+        metadata: Optional[Dict] = None,
+        knowledge_entries_used: List[str] = None,
+        processing_time_ms: int = None,
+        model_used: str = None,
+        confidence_score: float = None
+    ) -> str:
+        """Enhanced message saving with comprehensive metadata"""
+        message_id = str(uuid4())
+        
+        # Enhanced query with all metadata fields from comprehensive schema
+        query = """
+        INSERT INTO CONVERSATION_MESSAGES 
+        (MESSAGE_ID, SESSION_ID, USER_ID, MESSAGE_TYPE, MESSAGE_CONTENT, 
+         KNOWLEDGE_ENTRIES_USED, PROCESSING_TIME_MS, MODEL_USED, CONFIDENCE_SCORE,
+         METADATA, CREATED_AT)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        now = datetime.now()
+        enhanced_metadata = {
+            **(metadata or {}),
+            "enhanced_processing": True,
+            "schema_version": "comprehensive_v1",
+            "timestamp": now.isoformat()
+        }
+        
+        await self.execute_query(query, (
+            message_id, session_id, user_id, message_type, content,
+            json.dumps(knowledge_entries_used or []),
+            processing_time_ms,
+            model_used,
+            confidence_score,
+            json.dumps(enhanced_metadata),
+            now
+        ))
+        
+        # Update session activity with enhanced tracking
+        update_query = """
+        UPDATE CONVERSATION_SESSIONS 
+        SET LAST_ACTIVITY_AT = %s, TOTAL_MESSAGES = TOTAL_MESSAGES + 1
+        WHERE SESSION_ID = %s
+        """
+        await self.execute_query(update_query, (now, session_id))
+        
+        return message_id
+
+    async def log_knowledge_usage(
+        self,
+        entry_id: str,
+        user_id: str,
+        query_text: str,
+        relevance_score: float,
+        session_id: str,
+        access_method: str = "chat"
+    ):
+        """Log knowledge usage for analytics using comprehensive schema"""
+        usage_id = str(uuid4())
+        
+        query = """
+        INSERT INTO KNOWLEDGE_USAGE_ANALYTICS
+        (USAGE_ID, ENTRY_ID, USER_ID, QUERY_TEXT, RELEVANCE_SCORE, 
+         ACCESS_METHOD, SESSION_ID, ACCESSED_AT)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        await self.execute_query(query, (
+            usage_id, entry_id, user_id, query_text, relevance_score,
+            access_method, session_id, datetime.now()
+        ))
+
+    async def log_system_analytics(
+        self,
+        metric_type: str,
+        metric_name: str,
+        metric_value: float,
+        dimensions: Dict[str, Any] = None
+    ):
+        """Log system analytics using comprehensive schema"""
+        analytics_id = str(uuid4())
+        
+        query = """
+        INSERT INTO SYSTEM_ANALYTICS
+        (ANALYTICS_ID, METRIC_TYPE, METRIC_NAME, METRIC_VALUE, DIMENSIONS, TIMESTAMP)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        await self.execute_query(query, (
+            analytics_id, metric_type, metric_name, metric_value,
+            json.dumps(dimensions or {}), datetime.now()
+        ))
+
+    async def generate_ai_response_enhanced(self, query: str, context: List[Dict[str, Any]]) -> str:
+        """Enhanced AI response generation with comprehensive context"""
+        start_time = datetime.now()
+        
+        if context:
+            # Enhanced context processing with chunking awareness
+            context_items = []
+            for item in context[:5]:  # Top 5 items
+                chunk_info = ""
+                if item.get('CHUNK_INDEX') is not None and item.get('TOTAL_CHUNKS', 1) > 1:
+                    chunk_info = f" (Part {item['CHUNK_INDEX'] + 1} of {item['TOTAL_CHUNKS']})"
+                
+                importance_indicator = ""
+                if item.get('IS_FOUNDATIONAL'):
+                    importance_indicator = " [FOUNDATIONAL]"
+                elif item.get('IMPORTANCE_SCORE', 1.0) > 1.5:
+                    importance_indicator = " [HIGH PRIORITY]"
+                
+                context_items.append({
+                    'title': item['TITLE'] + chunk_info + importance_indicator,
+                    'content': item['CONTENT'][:300] + "..." if len(item['CONTENT']) > 300 else item['CONTENT'],
+                    'category': item.get('CATEGORY_NAME', 'General'),
+                    'relevance': item.get('similarity_score', 0.8)
+                })
+            
+            # Group by category for better organization
+            by_category = {}
+            for item in context_items:
+                category = item['category']
+                if category not in by_category:
+                    by_category[category] = []
+                by_category[category].append(item)
+            
+            response_parts = [
+                f'Based on our comprehensive knowledge base, here\'s what I found regarding "{query}":',
+                ""
+            ]
+            
+            for category, items in by_category.items():
+                response_parts.append(f"**{category}:**")
+                for item in items:
+                    response_parts.append(f"• **{item['title']}**: {item['content']}")
+                response_parts.append("")
+            
+            response_parts.extend([
+                "**Additional Information:**",
+                "I can provide more details about any specific item mentioned above, or search for related information across our business data.",
+                "",
+                f"*Search completed across {len(context)} knowledge entries with enhanced relevance scoring.*"
+            ])
+            
+            response = "\n".join(response_parts)
+            
+        else:
+            response = f"""I understand you're asking about "{query}". 
+
+While I don't have specific information about this in our current knowledge base, I'm equipped with comprehensive search capabilities across multiple business domains including:
+
+• **Customer Information** - Contact details, relationships, and business data
+• **Product Information** - Specifications, documentation, and service details  
+• **Employee Information** - Directory, roles, and organizational structure
+• **Business Intelligence** - Sales data, project management, and analytics
+
+You can upload additional documents to expand our knowledge base, or try rephrasing your question to help me find relevant information."""
+
+        # Log response analytics
+        processing_time = (datetime.now() - start_time).total_seconds() * 1000
+        await self.log_system_analytics(
+            "response_generation",
+            "chat_response_time_ms", 
+            processing_time,
+            {
+                "query_length": len(query),
+                "context_items": len(context),
+                "response_length": len(response),
+                "has_context": len(context) > 0
+            }
+        )
+        
+        return response
+
+# Replace the original SnowflakeService with enhanced version
+snowflake_service = EnhancedSnowflakeService()
 
 if __name__ == "__main__":
     uvicorn.run(
