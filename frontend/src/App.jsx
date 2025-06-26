@@ -4,7 +4,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import UnifiedDashboardLayout from './components/shared/UnifiedDashboardLayout';
 import EnhancedCEODashboard from './components/dashboard/EnhancedCEODashboard';
 import EnhancedKnowledgeDashboard from './components/dashboard/EnhancedKnowledgeDashboard';
-import EnhancedProjectDashboard from './components/dashboard/EnhancedProjectDashboard';
+import { EnhancedProjectDashboard } from './components/dashboard/EnhancedProjectDashboard';
 import './App.css';
 
 // Main App Component with Full Dashboard
