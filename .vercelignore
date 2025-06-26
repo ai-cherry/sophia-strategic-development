@@ -1,9 +1,25 @@
+# Backend files
 backend/
 mcp-servers/
 scripts/
 docs/
 *.py
-*.md
+__pycache__/
+.pytest_cache/
+
+# Development files
 .git/
-node_modules/
 .env*
+*.log
+.DS_Store
+node_modules/
+
+# Documentation
+*.md
+!README.md
+
+# Config files
+.gitignore
+requirements*.txt
+docker-compose*.yml
+Dockerfile*
