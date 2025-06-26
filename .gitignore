@@ -212,3 +212,4 @@ ipython_config.py
 
 # Auto-generated secrets
 .env.secrets
+.vercel
