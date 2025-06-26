@@ -1,138 +1,50 @@
 import { useState, useEffect, useCallback } from 'react';
-import { checkConnection, createWebSocketConnection } from '../services/apiClient';
+import apiClient from '../services/apiClient';
 
-// Custom hook for managing backend connection status
 export const useBackendConnection = () => {
-  const [connectionStatus, setConnectionStatus] = useState({
-    connected: false,
-    status: 'checking',
-    error: null,
-    latency: null,
-    lastChecked: null
-  });
-  
-  const [websocket, setWebsocket] = useState(null);
-  const [wsStatus, setWsStatus] = useState('disconnected');
+  const [isHealthy, setIsHealthy] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
+  const [error, setError] = useState(null);
+  const [lastCheck, setLastCheck] = useState(null);
 
-  // Check backend connection
-  const checkBackendConnection = useCallback(async () => {
+  const checkConnection = useCallback(async () => {
     try {
-      setConnectionStatus(prev => ({ ...prev, status: 'checking' }));
+      setConnectionStatus('checking');
+      const result = await apiClient.healthCheck();
       
-      const result = await checkConnection();
-      
-      setConnectionStatus({
-        connected: result.connected,
-        status: result.connected ? 'connected' : 'disconnected',
-        error: result.error || null,
-        latency: result.latency,
-        lastChecked: new Date()
-      });
-      
-      return result;
-    } catch (error) {
-      setConnectionStatus({
-        connected: false,
-        status: 'error',
-        error: error.message,
-        latency: null,
-        lastChecked: new Date()
-      });
-      
-      return { connected: false, error: error.message };
+      if (result.success) {
+        setIsHealthy(true);
+        setConnectionStatus('connected');
+        setError(null);
+      } else {
+        setIsHealthy(false);
+        setConnectionStatus('error');
+        setError(result.error);
+      }
+    } catch (err) {
+      setIsHealthy(false);
+      setConnectionStatus('error');
+      setError(err.message);
+    } finally {
+      setLastCheck(new Date());
     }
   }, []);
 
-  // Initialize WebSocket connection
-  const connectWebSocket = useCallback(() => {
-    if (websocket) {
-      websocket.close();
-    }
-
-    const ws = createWebSocketConnection();
-    
-    if (ws) {
-      ws.onopen = () => {
-        setWsStatus('connected');
-        console.log('✅ WebSocket connected');
-      };
-      
-      ws.onclose = () => {
-        setWsStatus('disconnected');
-        console.log('❌ WebSocket disconnected');
-        
-        // Attempt to reconnect after 5 seconds
-        setTimeout(() => {
-          if (connectionStatus.connected) {
-            connectWebSocket();
-          }
-        }, 5000);
-      };
-      
-      ws.onerror = (error) => {
-        setWsStatus('error');
-        console.error('❌ WebSocket error:', error);
-      };
-      
-      setWebsocket(ws);
-    } else {
-      setWsStatus('error');
-    }
-  }, [websocket, connectionStatus.connected]);
-
-  // Send WebSocket message
-  const sendWebSocketMessage = useCallback((message) => {
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify(message));
-      return true;
-    }
-    return false;
-  }, [websocket]);
-
-  // Initial connection check
   useEffect(() => {
-    checkBackendConnection();
-    
-    // Set up periodic connection checks every 30 seconds
-    const interval = setInterval(checkBackendConnection, 30000);
-    
+    // Initial check
+    checkConnection();
+
+    // Set up periodic health checks every 30 seconds
+    const interval = setInterval(checkConnection, 30000);
+
     return () => clearInterval(interval);
-  }, [checkBackendConnection]);
-
-  // Initialize WebSocket when backend is connected
-  useEffect(() => {
-    if (connectionStatus.connected && wsStatus === 'disconnected') {
-      connectWebSocket();
-    }
-  }, [connectionStatus.connected, wsStatus, connectWebSocket]);
-
-  // Cleanup WebSocket on unmount
-  useEffect(() => {
-    return () => {
-      if (websocket) {
-        websocket.close();
-      }
-    };
-  }, [websocket]);
+  }, [checkConnection]);
 
   return {
-    // Connection status
-    ...connectionStatus,
-    
-    // WebSocket status
-    wsStatus,
-    websocket,
-    
-    // Methods
-    checkConnection: checkBackendConnection,
-    connectWebSocket,
-    sendWebSocketMessage,
-    
-    // Computed properties
-    isHealthy: connectionStatus.connected && connectionStatus.status === 'connected',
-    isWebSocketReady: wsStatus === 'connected'
+    isHealthy,
+    connectionStatus,
+    error,
+    lastCheck,
+    refresh: checkConnection
   };
-};
-
-export default useBackendConnection;
-
+}; 
