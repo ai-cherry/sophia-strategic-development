@@ -47,4 +47,7 @@ ruff==0.1.6
 # Additional utilities
 python-dateutil==2.8.2
 pytz==2023.3
-uuid==1.30 
+uuid==1.30
+
+# System and Process Management
+psutil==5.9.6 

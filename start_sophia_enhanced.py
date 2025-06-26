@@ -10,6 +10,7 @@ import time
 import subprocess
 import signal
 import logging
+import psutil
 from pathlib import Path
 
 # Configure logging
@@ -25,6 +26,32 @@ class SophiaDeploymentManager:
         self.backend_process = None
         self.frontend_process = None
         self.project_root = Path(__file__).parent
+        
+    def kill_port_processes(self, port):
+        """Kill any processes using the specified port"""
+        try:
+            # Find processes using the port
+            for proc in psutil.process_iter(['pid', 'name', 'connections']):
+                try:
+                    connections = proc.info['connections']
+                    if connections:
+                        for conn in connections:
+                            if conn.laddr.port == port:
+                                logger.info(f"🔧 Killing process {proc.info['pid']} ({proc.info['name']}) using port {port}")
+                                proc.kill()
+                                proc.wait()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+        except Exception as e:
+            logger.warning(f"⚠️  Could not kill processes on port {port}: {e}")
+            
+    def clear_ports(self):
+        """Clear ports 8000 and 3000 before starting services"""
+        logger.info("🔧 Clearing ports for deployment...")
+        self.kill_port_processes(8000)
+        self.kill_port_processes(3000)
+        time.sleep(2)  # Give processes time to fully terminate
+        logger.info("✅ Ports cleared")
         
     def signal_handler(self, signum, frame):
         """Handle graceful shutdown"""
@@ -214,11 +241,15 @@ class SophiaDeploymentManager:
         print("   ✅ Real-time Dashboard Updates")
         print("   ✅ Executive KPI Monitoring")
         print("   ✅ Mobile-Responsive Design")
+        print("   ✅ Linear Project Management Integration")
+        print("   ✅ Apollo.io Business Intelligence")
+        print("   ✅ Vercel Production Deployment Ready")
         print("📝 Test Steps:")
         print("   1. Open http://localhost:3000 in your browser")
         print("   2. Click on the AI Assistant tab in the sidebar")
         print("   3. Start chatting with Sophia AI!")
         print("   4. Try uploading a document via the Upload button")
+        print("   5. Test Linear project management features")
         print("🛑 To stop: Press Ctrl+C")
         print("="*60)
         
@@ -252,6 +283,9 @@ class SophiaDeploymentManager:
         
         try:
             logger.info("🚀 Starting Sophia AI Enhanced Deployment...")
+            
+            # Clear ports first
+            self.clear_ports()
             
             # Check environment
             if not self.check_environment():

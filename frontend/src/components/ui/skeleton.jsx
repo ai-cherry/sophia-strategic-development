@@ -1,15 +1,11 @@
+import React from 'react';
 import { cn } from "@/lib/utils"
 
-function Skeleton({
-  className,
-  ...props
-}) {
+export const Skeleton = ({ className = '', ...props }) => {
   return (
-    <div
-      data-slot="skeleton"
-      className={cn("bg-accent animate-pulse rounded-md", className)}
-      {...props} />
+    <div 
+      className={`animate-pulse bg-gray-300 rounded ${className}`}
+      {...props}
+    />
   );
-}
-
-export { Skeleton }
+};
