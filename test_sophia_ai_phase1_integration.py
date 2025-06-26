@@ -5,7 +5,6 @@ Validates all core services and orchestration
 """
 
 import asyncio
-import json
 import sys
 from datetime import datetime
 
@@ -354,7 +353,7 @@ async def run_comprehensive_integration_test():
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"{status} {test_name}")
 
-    print(f"\n🎯 OVERALL RESULTS:")
+    print("\n🎯 OVERALL RESULTS:")
     print(f"   Tests Passed: {passed_tests}/{total_tests}")
     print(f"   Success Rate: {passed_tests/total_tests:.1%}")
     print(f"   Test Duration: {test_duration:.2f} seconds")

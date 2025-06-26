@@ -5,11 +5,9 @@ Provides enterprise-grade foundation for all MCP servers with unified AI process
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional, Callable
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
-import asyncio
 import aiohttp
-import json
 import time
 import traceback
 from dataclasses import dataclass
@@ -471,7 +469,7 @@ class StandardizedMCPServer(ABC):
                 try:
                     result = await func(*args, **kwargs)
                     return result
-                except Exception as e:
+                except Exception:
                     status = "error"
                     raise
                 finally:

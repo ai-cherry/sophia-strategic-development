@@ -5,7 +5,6 @@ Executes the migration plan from secret audit results
 """
 
 import json
-import os
 import re
 from pathlib import Path
 from typing import Dict, List
@@ -103,7 +102,7 @@ class SecretStandardizer:
         
         # Extract existing mappings
         mappings_end = content.find('        }', mappings_start)
-        existing_mappings = content[mappings_start:mappings_end + 9]
+        content[mappings_start:mappings_end + 9]
         
         # Generate new mappings
         new_mappings = []
@@ -250,7 +249,7 @@ class SecretStandardizer:
             print(f"  Secrets: {len(phase_data['secrets'])}")
             print(f"  Action: {phase_data['action']}")
         
-        print(f"\n🔧 GITHUB ACTIONS CLEANUP:")
+        print("\n🔧 GITHUB ACTIONS CLEANUP:")
         print(f"  High complexity workflows: {len(github_cleanup['high_complexity_workflows'])}")
         print(f"  Consolidation candidates: {len(github_cleanup['consolidation_candidates'])}")
         

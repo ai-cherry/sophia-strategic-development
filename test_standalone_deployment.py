@@ -7,7 +7,6 @@ Tests all core functionality without import conflicts
 import asyncio
 import json
 import logging
-from datetime import datetime
 import sys
 
 # Required packages test
@@ -60,7 +59,7 @@ class SimpleTestSuite:
             connection = snowflake.connector.connect(**SNOWFLAKE_CONFIG)
             cursor = connection.cursor()
             cursor.execute("SELECT 1 as test")
-            result = cursor.fetchone()
+            cursor.fetchone()
             cursor.execute("SHOW TABLES IN SCHEMA UNIVERSAL_CHAT")
             tables = cursor.fetchall()
             cursor.close()

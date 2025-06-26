@@ -5,7 +5,7 @@ Provides endpoints for Linear project management data via MCP server.
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import aiohttp

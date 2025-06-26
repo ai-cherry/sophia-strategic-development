@@ -3,16 +3,12 @@ Sophia AI - Enhanced Deployment Tracking & Monitoring System
 Provides real-time deployment monitoring, tracking, and automated rollback capabilities
 """
 
-import json
 import os
-import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
-import subprocess
 import logging
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

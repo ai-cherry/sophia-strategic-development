@@ -4,17 +4,15 @@ Enhanced Unified Chat Service for Sophia AI
 Production-ready FastAPI service with WebSocket support and Snowflake integration
 """
 
-import asyncio
 import logging
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
 from uuid import uuid4
 import snowflake.connector
 from snowflake.connector import DictCursor
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel

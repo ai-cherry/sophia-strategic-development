@@ -6,12 +6,10 @@ Addresses: Critical Priority Item - Prevent service disruption
 """
 
 import logging
-import json
 import asyncio
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timedelta
 from dataclasses import dataclass
-import aiohttp
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.socket_mode.async_client import AsyncSocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest

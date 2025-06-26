@@ -5,10 +5,8 @@ Shows how the agent enhances the existing CEO dashboard
 """
 
 import asyncio
-import json
 import logging
 import requests
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

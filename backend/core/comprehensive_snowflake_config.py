@@ -4,10 +4,18 @@ Comprehensive Snowflake Configuration for Sophia AI
 Maps to the complete schema breakdown with enhanced support for all features
 """
 
+import json
 import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
+from uuid import uuid4
+
+# Import snowflake connector to fix undefined name error
+try:
+    import snowflake.connector
+except ImportError:
+    snowflake = None
 
 logger = logging.getLogger(__name__)
 
@@ -166,8 +174,6 @@ class ComprehensiveSnowflakeManager:
     async def connect(self):
         """Connect to Snowflake with comprehensive error handling"""
         try:
-            import snowflake.connector
-            
             self.connection = snowflake.connector.connect(
                 account=self.config.account,
                 user=self.config.user,
@@ -244,7 +250,6 @@ class ComprehensiveSnowflakeManager:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
         
-        import json
         
         params = (
             entry_id, title, content, category_id, source_id, importance_score,
@@ -272,7 +277,6 @@ class ComprehensiveSnowflakeManager:
         VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
         
-        import json
         
         params = (
             embedding_id, entry_id, embedding_model, 
@@ -309,7 +313,6 @@ class ComprehensiveSnowflakeManager:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
         
-        import json
         
         params = (
             memory_id, category_id, memory_type, title, content,
@@ -388,8 +391,6 @@ class ComprehensiveSnowflakeManager:
     ) -> bool:
         """Log system metrics for monitoring"""
         
-        from uuid import uuid4
-        
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, TableType.SYSTEM_ANALYTICS)}
         (ANALYTICS_ID, METRIC_TYPE, METRIC_NAME, METRIC_VALUE, METRIC_UNIT,
@@ -397,7 +398,6 @@ class ComprehensiveSnowflakeManager:
         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
         
-        import json
         
         params = (
             str(uuid4()), metric_type, metric_name, metric_value,
@@ -453,7 +453,6 @@ class ComprehensiveSnowflakeManager:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
         
-        import json
         
         params = (
             message_id, session_id, user_id, message_type, message_content,

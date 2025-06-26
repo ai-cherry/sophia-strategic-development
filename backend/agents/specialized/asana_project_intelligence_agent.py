@@ -16,7 +16,6 @@ from enum import Enum
 import json
 
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.smart_ai_service import SmartAIService

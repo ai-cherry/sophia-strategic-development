@@ -6,9 +6,8 @@ Placeholder for ingesting web research data into AI_WEB_RESEARCH schema
 
 import asyncio
 import logging
-import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
 from dataclasses import dataclass
 import pandas as pd
 import aiohttp
@@ -539,7 +538,7 @@ async def main():
         # Run full sync
         results = await ingestor.run_full_web_research_sync()
         
-        print(f"✅ AI Web Research ingestion completed successfully!")
+        print("✅ AI Web Research ingestion completed successfully!")
         print(f"📊 Results: {results}")
         
     except Exception as e:

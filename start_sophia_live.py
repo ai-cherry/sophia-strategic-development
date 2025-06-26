@@ -7,7 +7,6 @@ Starts both backend and frontend services for immediate testing
 import os
 import sys
 import subprocess
-import threading
 import time
 import signal
 import logging

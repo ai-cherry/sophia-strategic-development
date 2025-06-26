@@ -4,10 +4,8 @@ Sophia AI - Comprehensive Secret Naming Audit & Standardization
 Analyzes GitHub secrets, Pulumi ESC mappings, and codebase references
 """
 
-import os
 import re
 import json
-import subprocess
 from typing import Dict, List, Set, Tuple
 from dataclasses import dataclass, asdict
 from pathlib import Path
@@ -120,7 +118,7 @@ class SecretAuditor:
         
         for match in matches:
             github_secret = match.group(1)
-            pulumi_path = match.group(2)
+            match.group(2)
             self.pulumi_esc_secrets.add(github_secret)
             
             # Get line number

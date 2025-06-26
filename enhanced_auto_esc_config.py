@@ -2,7 +2,7 @@
 Enhanced Sophia AI Configuration with Environment-Aware Secret Management
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 import os

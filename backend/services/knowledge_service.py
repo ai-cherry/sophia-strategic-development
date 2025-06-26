@@ -4,21 +4,16 @@ Knowledge Service for Sophia AI
 Comprehensive knowledge management with file upload, processing, and search
 """
 
-import asyncio
 import logging
 import json
-import os
-import csv
 import io
 from datetime import datetime
-from typing import Dict, List, Optional, Any, BinaryIO
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
 from pathlib import Path
 import snowflake.connector
 from snowflake.connector import DictCursor
 from pydantic import BaseModel
-import aiofiles
-import mimetypes
 # Optional imports - will fallback gracefully if not available
 try:
     import pandas as pd

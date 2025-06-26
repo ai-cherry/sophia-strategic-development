@@ -5,11 +5,10 @@ Comprehensive monitoring system for the MCP ecosystem with Prometheus, Grafana, 
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Callable
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 
 from backend.monitoring.mcp_metrics_collector import (

@@ -6,10 +6,9 @@ Extracts data from operational Pay Ready SQL database and loads into Snowflake P
 
 import asyncio
 import logging
-import os
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 import pandas as pd
 import snowflake.connector
 from sqlalchemy import create_engine, text
@@ -261,7 +260,7 @@ class PayReadyCoreDataIngestor:
                 ))
             
             # MERGE into main table
-            merge_result = cursor.execute("""
+            cursor.execute("""
                 MERGE INTO PAYMENT_TRANSACTIONS AS target
                 USING TEMP_PAYMENT_TRANSACTIONS AS source
                 ON target.TRANSACTION_ID = source.TRANSACTION_ID
@@ -348,7 +347,7 @@ class PayReadyCoreDataIngestor:
                 ))
             
             # MERGE into main table
-            merge_result = cursor.execute("""
+            cursor.execute("""
                 MERGE INTO CUSTOMER_FEATURES AS target
                 USING TEMP_CUSTOMER_FEATURES AS source
                 ON target.FEATURE_ID = source.FEATURE_ID
@@ -438,7 +437,7 @@ class PayReadyCoreDataIngestor:
             results['customer_features'] = await self.load_customer_features(features_df)
             
             # Extract and load business rules
-            rules_df = await self.extract_business_rules()
+            await self.extract_business_rules()
             # Note: Business rules loading would be implemented similarly
             
             # Generate AI embeddings
@@ -501,7 +500,7 @@ async def main():
         # Run incremental sync by default
         results = await ingestor.run_incremental_sync()
         
-        print(f"✅ Pay Ready Core Data ingestion completed successfully!")
+        print("✅ Pay Ready Core Data ingestion completed successfully!")
         print(f"📊 Results: {results}")
         
     except Exception as e:

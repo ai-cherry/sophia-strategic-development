@@ -6,7 +6,6 @@ Comprehensive integration with all 6 schemas from the Snowflake breakdown
 
 import logging
 import json
-from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -509,7 +508,7 @@ class SnowflakeSchemaIntegration:
         for schema in SchemaType:
             try:
                 # Test schema access
-                test_query = f"SELECT CURRENT_SCHEMA() as schema_name"
+                test_query = "SELECT CURRENT_SCHEMA() as schema_name"
                 await self.execute_query(test_query, schema=schema)
                 
                 # Get table counts

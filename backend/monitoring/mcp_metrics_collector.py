@@ -5,16 +5,14 @@ Comprehensive metrics collection and monitoring for all MCP servers
 
 import asyncio
 import logging
-import time
-import json
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Set, Callable
+from typing import Dict, Any, List, Optional, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict, deque
 
 import psutil
-from prometheus_client import Counter, Histogram, Gauge, Info, Summary, start_http_server, CollectorRegistry, REGISTRY
+from prometheus_client import Counter, Histogram, Gauge, Info, Summary, start_http_server
 
 logger = logging.getLogger(__name__)
 

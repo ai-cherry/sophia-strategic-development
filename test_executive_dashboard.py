@@ -4,10 +4,7 @@ Executive Dashboard Transformation Test Suite
 Testing the glassmorphism design and Chart.js integration
 """
 
-import os
 import sys
-import subprocess
-import time
 import requests
 from pathlib import Path
 
@@ -152,7 +149,7 @@ class ExecutiveDashboardTester:
                 
                 missing_exports = []
                 for export in required_exports:
-                    if f"export const {export}" not in content and f"export {{" not in content:
+                    if f"export const {export}" not in content and "export {" not in content:
                         missing_exports.append(export)
                         
                 if not missing_exports:
@@ -182,8 +179,8 @@ class ExecutiveDashboardTester:
         
         # Runtime tests
         print("\n🌐 RUNTIME TESTS:")
-        backend_ok = self.test_backend_health()
-        frontend_ok = self.test_frontend_accessibility()
+        self.test_backend_health()
+        self.test_frontend_accessibility()
         
         # Summary
         print("\n" + "=" * 60)

@@ -5,11 +5,8 @@ Comprehensive API endpoints for knowledge management and chat integration
 """
 
 import logging
-import json
-import asyncio
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -18,7 +15,6 @@ import os
 # Import our services
 from backend.services.knowledge_service import (
     knowledge_service, 
-    KnowledgeEntry, 
     KnowledgeStats, 
     UploadResponse, 
     SearchFilters

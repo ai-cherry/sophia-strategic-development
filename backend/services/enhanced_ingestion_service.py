@@ -9,14 +9,12 @@ import logging
 import json
 import io
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, AsyncIterator
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
-from pathlib import Path
 from enum import Enum
 import snowflake.connector
 from snowflake.connector import DictCursor
 from pydantic import BaseModel
-import aiofiles
 
 # Enhanced imports with fallbacks
 try:
@@ -519,7 +517,7 @@ class EnhancedIngestionService:
             """
             
             await self.execute_query(create_query, (
-                category_id, category_name, f"Auto-created category", datetime.now()
+                category_id, category_name, "Auto-created category", datetime.now()
             ))
 
     def _estimate_completion_time(self, file_size: int, file_type: str) -> datetime:

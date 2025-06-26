@@ -4,12 +4,10 @@ Sophia AI Phase 1 API Routes
 Unified API for Enhanced Knowledge Base, Interactive Sales Coach, and Memory Preservation
 """
 
-import asyncio
-import json
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from backend.services.sophia_ai_orchestrator import (

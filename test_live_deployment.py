@@ -68,7 +68,7 @@ class SophiaTestSuite:
             
             # Test basic query
             cursor.execute("SELECT 1 as test")
-            result = cursor.fetchone()
+            cursor.fetchone()
             
             # Test schema access
             cursor.execute("SHOW TABLES IN SCHEMA UNIVERSAL_CHAT")
@@ -423,7 +423,7 @@ async def main():
             "timestamp": datetime.now().isoformat()
         }, f, indent=2)
     
-    print(f"\n📄 Detailed results saved to test_results.json")
+    print("\n📄 Detailed results saved to test_results.json")
     
     if success:
         print("\n🎯 SYSTEM READY FOR LIVE TESTING!")

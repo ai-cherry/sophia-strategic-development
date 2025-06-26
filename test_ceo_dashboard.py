@@ -5,8 +5,6 @@ Tests all new components and functionality
 """
 
 import requests
-import json
-import time
 from datetime import datetime
 
 class CEODashboardTester:

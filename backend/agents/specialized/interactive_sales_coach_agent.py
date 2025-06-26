@@ -4,10 +4,8 @@ Interactive Sales Coach Agent with Slack Integration
 Priority #1: AI sales coach providing real-time coaching via Slack
 """
 
-import asyncio
-import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
@@ -593,7 +591,7 @@ I can help you with:
             "type": "feedback_received",
             "feedback_type": feedback_type,
             "reaction": reaction,
-            "message": f"Thanks for the feedback! I'll use this to improve my coaching.",
+            "message": "Thanks for the feedback! I'll use this to improve my coaching.",
         }
 
     async def _analyze_passive_slack_activity(

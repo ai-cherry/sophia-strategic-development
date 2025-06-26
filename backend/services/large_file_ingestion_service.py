@@ -8,14 +8,12 @@ import asyncio
 import logging
 import json
 import io
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, AsyncIterator
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
-from pathlib import Path
 from enum import Enum
 import snowflake.connector
 from snowflake.connector import DictCursor
-from pydantic import BaseModel
 
 # Enhanced imports with fallbacks
 try:
@@ -110,13 +108,13 @@ class FileProcessor:
             df = pd.read_csv(io.BytesIO(file_content))
             
             text = f"# CSV Dataset: {filename}\n\n"
-            text += f"**Dataset Overview:**\n"
+            text += "**Dataset Overview:**\n"
             text += f"- Total Records: {len(df):,}\n"
             text += f"- Columns: {len(df.columns)}\n"
             text += f"- Column Names: {', '.join(df.columns)}\n\n"
             
             # Add data type information
-            text += f"**Column Details:**\n"
+            text += "**Column Details:**\n"
             for col in df.columns:
                 dtype = str(df[col].dtype)
                 non_null = df[col].count()
@@ -124,7 +122,7 @@ class FileProcessor:
             text += "\n"
             
             # Include all data rows for full context
-            text += f"**Complete Dataset:**\n"
+            text += "**Complete Dataset:**\n"
             for index, row in df.iterrows():
                 row_data = []
                 for col, val in row.items():
@@ -153,7 +151,7 @@ class FileProcessor:
             elif isinstance(data, list):
                 text += f"**Structure:** Array with {len(data)} items\n\n"
             
-            text += f"**Complete JSON Content:**\n"
+            text += "**Complete JSON Content:**\n"
             text += json.dumps(data, indent=2, ensure_ascii=False)
             
             return text
@@ -167,7 +165,7 @@ class FileProcessor:
         try:
             pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_content))
             text = f"# PDF Document: {filename}\n\n"
-            text += f"**Document Info:**\n"
+            text += "**Document Info:**\n"
             text += f"- Total Pages: {len(pdf_reader.pages)}\n"
             
             # Extract metadata if available
@@ -224,7 +222,7 @@ class FileProcessor:
                 # Use pandas for comprehensive Excel processing
                 all_sheets = pd.read_excel(io.BytesIO(file_content), sheet_name=None)
                 text = f"# Excel Workbook: {filename}\n\n"
-                text += f"**Workbook Info:**\n"
+                text += "**Workbook Info:**\n"
                 text += f"- Total Sheets: {len(all_sheets)}\n"
                 text += f"- Sheet Names: {', '.join(all_sheets.keys())}\n\n"
                 
@@ -234,7 +232,7 @@ class FileProcessor:
                     text += f"- Column Names: {', '.join(df.columns)}\n\n"
                     
                     # Include all data
-                    text += f"**Complete Data:**\n"
+                    text += "**Complete Data:**\n"
                     text += df.to_string(index=False)
                     text += "\n\n"
                 
@@ -251,7 +249,7 @@ class FileProcessor:
         try:
             presentation = pptx.Presentation(io.BytesIO(file_content))
             text = f"# PowerPoint Presentation: {filename}\n\n"
-            text += f"**Presentation Info:**\n"
+            text += "**Presentation Info:**\n"
             text += f"- Total Slides: {len(presentation.slides)}\n\n"
             
             for slide_num, slide in enumerate(presentation.slides):
@@ -476,7 +474,7 @@ class LargeFileIngestionService:
             # Process chunks into knowledge entries
             entries_created = 0
             for i, chunk in enumerate(chunks):
-                entry_id = await self._create_knowledge_entry(chunk, job_data['filename'])
+                await self._create_knowledge_entry(chunk, job_data['filename'])
                 entries_created += 1
                 
                 progress = 20 + (70 * (i + 1) / total_chunks)  # 20-90% for chunk processing

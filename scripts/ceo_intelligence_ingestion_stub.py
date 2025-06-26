@@ -8,7 +8,7 @@ import asyncio
 import logging
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
 from dataclasses import dataclass
 import pandas as pd
 import hashlib
@@ -442,11 +442,11 @@ class CEOIntelligenceIngestor:
             results['strategic_plans'] = await self.load_strategic_plans(strategic_plans_df, user_id)
             
             # Extract and load board materials
-            board_materials_df = await self.extract_board_materials_data()
+            await self.extract_board_materials_data()
             # results['board_materials'] = await self.load_board_materials(board_materials_df, user_id)
             
             # Extract and load competitive intelligence
-            competitive_intel_df = await self.extract_competitive_intelligence_data()
+            await self.extract_competitive_intelligence_data()
             # results['competitive_intelligence'] = await self.load_competitive_intelligence(competitive_intel_df, user_id)
             
             # Generate AI embeddings
@@ -489,7 +489,7 @@ async def main():
         # Run secure sync
         results = await ingestor.run_secure_ceo_intelligence_sync(ceo_user_id)
         
-        print(f"✅ CEO Intelligence ingestion completed successfully! (CONFIDENTIAL)")
+        print("✅ CEO Intelligence ingestion completed successfully! (CONFIDENTIAL)")
         print(f"📊 Results: {results}")
         
     except PermissionError as e:

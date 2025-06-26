@@ -8,8 +8,7 @@ Addresses: Performance optimization and cost reduction requirements
 import logging
 import json
 import asyncio
-import hashlib
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
 from enum import Enum

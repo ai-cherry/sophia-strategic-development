@@ -6,9 +6,7 @@ Placeholder for ingesting property management data into PROPERTY_ASSETS schema
 
 import asyncio
 import logging
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, Any
 from dataclasses import dataclass
 import pandas as pd
 
@@ -510,7 +508,7 @@ async def main():
         # Run full sync
         results = await ingestor.run_full_property_sync()
         
-        print(f"✅ Property Assets ingestion completed successfully!")
+        print("✅ Property Assets ingestion completed successfully!")
         print(f"📊 Results: {results}")
         
     except Exception as e:

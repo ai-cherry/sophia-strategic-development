@@ -9,7 +9,6 @@ import logging
 import sys
 import traceback
 from datetime import datetime
-from typing import Dict, Any, List
 
 # Configure logging
 logging.basicConfig(
@@ -55,12 +54,12 @@ async def test_standardized_mcp_server():
     
     try:
         from backend.mcp.base.standardized_mcp_server import (
-            StandardizedMCPServer, MCPServerConfig, SyncPriority, HealthStatus, HealthCheckResult
+            MCPServerConfig, SyncPriority, HealthStatus, HealthCheckResult
         )
         results.add_result("Import StandardizedMCPServer", True)
         
         # Test config creation
-        config = MCPServerConfig(
+        MCPServerConfig(
             server_name="test_server",
             port=3001,
             sync_priority=SyncPriority.HIGH,
@@ -74,7 +73,7 @@ async def test_standardized_mcp_server():
         results.add_result("Enum definitions", True)
         
         # Test HealthCheckResult
-        health_result = HealthCheckResult(
+        HealthCheckResult(
             component="test",
             status=HealthStatus.HEALTHY,
             response_time_ms=50.0
@@ -105,11 +104,11 @@ async def test_enhanced_cortex_service():
         results.add_result("Create AIProcessingConfig", True)
         
         # Test service instantiation
-        service = EnhancedSnowflakeCortexService(config)
+        EnhancedSnowflakeCortexService(config)
         results.add_result("Create Cortex service instance", True)
         
         # Test data structures
-        embedding_result = EmbeddingResult(
+        EmbeddingResult(
             text="test",
             embedding=[0.1, 0.2, 0.3],
             model="e5-base-v2",
@@ -118,7 +117,7 @@ async def test_enhanced_cortex_service():
         )
         results.add_result("Create EmbeddingResult", True)
         
-        search_result = SemanticSearchResult(
+        SemanticSearchResult(
             content="test content",
             similarity_score=0.85,
             metadata={},
@@ -127,7 +126,7 @@ async def test_enhanced_cortex_service():
         )
         results.add_result("Create SemanticSearchResult", True)
         
-        ai_insight = AIInsight(
+        AIInsight(
             insight_type="business",
             content="Test insight",
             confidence_score=0.9,
@@ -153,11 +152,11 @@ async def test_sync_orchestrator():
         results.add_result("Import CrossPlatformSyncOrchestrator", True)
         
         # Test orchestrator creation
-        orchestrator = CrossPlatformSyncOrchestrator()
+        CrossPlatformSyncOrchestrator()
         results.add_result("Create sync orchestrator", True)
         
         # Test sync configuration
-        sync_config = SyncConfiguration(
+        SyncConfiguration(
             platform="test_platform",
             data_type="test_data",
             priority=SyncPriority.HIGH,
@@ -166,7 +165,7 @@ async def test_sync_orchestrator():
         results.add_result("Create SyncConfiguration", True)
         
         # Test data structures
-        sync_result = SyncResult(
+        SyncResult(
             platform="test",
             data_type="test",
             status=SyncStatus.SUCCESS,
@@ -174,7 +173,7 @@ async def test_sync_orchestrator():
         )
         results.add_result("Create SyncResult", True)
         
-        data_conflict = DataConflict(
+        DataConflict(
             conflict_id="test_conflict",
             conflict_type=ConflictType.DUPLICATE_RECORD,
             platforms=["platform1", "platform2"],
@@ -202,7 +201,7 @@ async def test_multi_agent_workflow():
     try:
         from backend.workflows.multi_agent_workflow import (
             MultiAgentWorkflow, WorkflowDefinition, WorkflowTask, AgentRole,
-            WorkflowPriority, WorkflowStatus, TaskStatus, WorkflowResult,
+            WorkflowStatus, TaskStatus, WorkflowResult,
             WorkflowExecution, AgentWorkflowInterface
         )
         results.add_result("Import MultiAgentWorkflow", True)
@@ -226,11 +225,11 @@ async def test_multi_agent_workflow():
         results.add_result("Create WorkflowDefinition", True)
         
         # Test workflow creation
-        workflow = MultiAgentWorkflow(workflow_def)
+        MultiAgentWorkflow(workflow_def)
         results.add_result("Create MultiAgentWorkflow", True)
         
         # Test workflow execution structure
-        execution = WorkflowExecution(
+        WorkflowExecution(
             workflow_id="test",
             execution_id="test_exec",
             status=WorkflowStatus.PENDING,
@@ -239,7 +238,7 @@ async def test_multi_agent_workflow():
         results.add_result("Create WorkflowExecution", True)
         
         # Test workflow result
-        workflow_result = WorkflowResult(
+        WorkflowResult(
             task_id="test",
             agent_type="test",
             status=TaskStatus.COMPLETED,
@@ -252,7 +251,7 @@ async def test_multi_agent_workflow():
         
         # Test agent interface (abstract)
         try:
-            interface = AgentWorkflowInterface()
+            AgentWorkflowInterface()
             # This should not be instantiable directly
             results.add_result("AgentWorkflowInterface instantiation", True)
         except:
@@ -269,7 +268,7 @@ async def test_metrics_collector():
     
     try:
         from backend.monitoring.mcp_metrics_collector import (
-            MCPMetricsCollector, MetricType, AlertSeverity, Alert
+            MCPMetricsCollector, AlertSeverity, Alert
         )
         results.add_result("Import MCPMetricsCollector", True)
         
@@ -278,7 +277,7 @@ async def test_metrics_collector():
         results.add_result("Create MCPMetricsCollector", True)
         
         # Test alert creation
-        alert = Alert(
+        Alert(
             alert_id="test_alert",
             severity=AlertSeverity.WARNING,
             message="Test alert message",
@@ -333,11 +332,11 @@ async def test_component_integration():
         from backend.monitoring.mcp_metrics_collector import MCPMetricsCollector
         
         # Create components
-        orchestrator = CrossPlatformSyncOrchestrator()
-        metrics_collector = MCPMetricsCollector("integration_test")
+        CrossPlatformSyncOrchestrator()
+        MCPMetricsCollector("integration_test")
         
         # Test that they can be used together
-        config = MCPServerConfig(
+        MCPServerConfig(
             server_name="integration_test",
             port=3001,
             sync_priority=SyncPriority.HIGH,

@@ -4,12 +4,10 @@ LangChain UI/UX Agent for Sophia AI
 Leverages LangChain Agents v0.3 (June 2025) for design automation workflows
 """
 
-import asyncio
-import json
 import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -147,7 +145,7 @@ class UIUXAgent:
                 return "connected"
             else:
                 return f"error_{response.status_code}"
-        except:
+        except Exception:
             return "disconnected"
     
     async def _get_design_context(self, file_id: str, node_id: str) -> Dict[str, Any]:
@@ -207,11 +205,12 @@ class UIUXAgent:
         """Generate React component code"""
         component_name = hints.get('suggested_component_name', 'GeneratedComponent')
         
-        return f'''import React from 'react';
-import {{ {component_name}Props }} from './{hints.get("suggested_file_name", "component")}.types';
+        # Generate React component code using string formatting to avoid f-string conflicts
+        template = '''import React from 'react';
+import {{ {component_name}Props }} from './{file_name}.types';
 
 /**
- * {metadata.get("description", f"Generated {component_name} component")}
+ * {description}
  * Auto-generated from Figma design using Sophia AI UI/UX Agent
  */
 export const {component_name}: React.FC<{component_name}Props> = ({{
@@ -232,7 +231,7 @@ export const {component_name}: React.FC<{component_name}Props> = ({{
       onClick={{onClick}}
       role="button"
       tabIndex={{0}}
-      {...props}
+      {{...props}}
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-white">{{title}}</h3>
@@ -250,6 +249,12 @@ export const {component_name}: React.FC<{component_name}Props> = ({{
 }};
 
 export default {component_name};'''
+        
+        return template.format(
+            component_name=component_name,
+            file_name=hints.get("suggested_file_name", "component"),
+            description=metadata.get("description", f"Generated {component_name} component")
+        )
     
     async def _generate_typescript_types(self, metadata: Dict, hints: Dict) -> str:
         """Generate TypeScript type definitions"""
@@ -373,7 +378,8 @@ function Dashboard() {{
     
     async def _analyze_design(self, file_id: str, node_id: str) -> Dict[str, Any]:
         """Analyze design for implementation insights"""
-        design_context = await self._get_design_context(file_id, node_id)
+        # Get design context but we don't use it in this mock implementation
+        await self._get_design_context(file_id, node_id)
         
         return {
             "analysis_timestamp": datetime.utcnow().isoformat(),

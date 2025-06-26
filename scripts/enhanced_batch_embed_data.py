@@ -8,8 +8,7 @@ PROPERTY_ASSETS, AI_WEB_RESEARCH, and CEO_INTELLIGENCE schemas
 import asyncio
 import logging
 import json
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass
 
 from backend.core.auto_esc_config import get_config_value
@@ -582,7 +581,7 @@ async def main():
         for table, stats in after_stats.items():
             print(f"  {table}: {stats['embedding_coverage_percent']}% coverage ({stats['records_with_embeddings']}/{stats['total_records']} records)")
         
-        print(f"\n✅ Enhanced batch embedding processing completed successfully!")
+        print("\n✅ Enhanced batch embedding processing completed successfully!")
         print(f"📈 Processing results: {json.dumps(results, indent=2)}")
         
     except Exception as e:

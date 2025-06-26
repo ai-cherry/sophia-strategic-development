@@ -7,7 +7,6 @@ Built on the StandardizedMCPServer base class with Snowflake Cortex integration
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import re
 from datetime import datetime
@@ -455,7 +454,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 recent_memories = await self.recall_memory("", limit=10)
                 for memory in recent_memories:
                     try:
-                        insights = await self.cortex_service.generate_ai_insights(
+                        await self.cortex_service.generate_ai_insights(
                             content=memory.get("content", ""),
                             context="memory_analysis"
                         )

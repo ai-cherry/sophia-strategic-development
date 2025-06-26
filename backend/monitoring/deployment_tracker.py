@@ -5,16 +5,13 @@ Provides real-time deployment monitoring, tracking, and automated rollback capab
 
 import json
 import os
-import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
 import subprocess
 import logging
-from pathlib import Path
 
-from backend.core.auto_esc_config import config
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
@@ -342,7 +339,7 @@ class EnhancedDeploymentTracker:
                 target_version = await self._get_last_successful_version(component, environment)
             
             if not target_version:
-                logger.error(f"❌ No target version found for rollback")
+                logger.error("❌ No target version found for rollback")
                 return None
             
             # Generate deployment ID for rollback
@@ -588,7 +585,7 @@ class EnhancedDeploymentTracker:
                 "pulumi stack output --json > deployment-status.json"
             ],
             ComponentType.MCP_SERVERS: [
-                f"helm upgrade sophia-mcp ./infrastructure/kubernetes/helm/sophia-mcp",
+                "helm upgrade sophia-mcp ./infrastructure/kubernetes/helm/sophia-mcp",
                 f"--set global.imageTag={target_version}",
                 f"--set global.environment={environment.value}",
                 "--wait --timeout=300s",
@@ -596,7 +593,7 @@ class EnhancedDeploymentTracker:
             ],
             ComponentType.FRONTEND: [
                 f"vercel env pull .env.{environment.value}",
-                f"vercel deploy --prod" if environment == Environment.PRODUCTION else "vercel deploy",
+                "vercel deploy --prod" if environment == Environment.PRODUCTION else "vercel deploy",
                 "vercel alias set"
             ]
         }

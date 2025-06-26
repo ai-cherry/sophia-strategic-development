@@ -4,24 +4,19 @@ Sophia Universal Chat API Routes
 RESTful and WebSocket endpoints for the ultimate conversational AI experience
 """
 
-import asyncio
 import logging
 import json
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Depends, Request
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from pydantic import BaseModel
-import asyncio
 
 from backend.services.sophia_universal_chat_service import (
     SophiaUniversalChatService, 
-    UserProfile, 
-    SearchResult,
     SophiaPersonality,
     UserAccessLevel,
     SearchContext
 )
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

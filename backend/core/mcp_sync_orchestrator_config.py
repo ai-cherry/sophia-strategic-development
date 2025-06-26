@@ -7,7 +7,7 @@ Centralized configuration and initialization for all MCP servers with sync orche
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 from backend.core.cross_platform_sync_orchestrator import (
     CrossPlatformSyncOrchestrator, SyncConfiguration, SyncPriority

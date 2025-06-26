@@ -5,11 +5,10 @@ Analyzes existing workflows and creates reusable templates to reduce from 25+ to
 """
 
 import json
-import os
 import re
 import yaml
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 
@@ -132,7 +131,7 @@ class GitHubActionsConsolidator:
     def _determine_consolidation_group(self, name: str, triggers: List[str], jobs: List[str], content: str) -> str:
         """Determine which consolidation group a workflow belongs to."""
         name_lower = name.lower()
-        content_lower = content.lower()
+        content.lower()
         
         # Deployment-related workflows
         if any(keyword in name_lower for keyword in ["deploy", "deployment", "infrastructure", "pulumi"]):
@@ -266,7 +265,7 @@ def main():
     for group, count in report["consolidation_groups"].items():
         print(f"{group.title().replace('_', ' ')}: {count} workflows")
     
-    print(f"\n✅ Consolidation report saved: github_actions_consolidation_report.json")
+    print("\n✅ Consolidation report saved: github_actions_consolidation_report.json")
     print("🎯 Next: Create reusable workflow templates")
 
 if __name__ == "__main__":

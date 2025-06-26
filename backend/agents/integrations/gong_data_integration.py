@@ -26,6 +26,13 @@ from backend.integrations.gong_redis_client import (
 )
 from backend.core.integration_registry import IntegrationRegistry
 
+# Try to import LangGraph agent pool - this resolves the F821 undefined name error
+try:
+    from backend.agents.core.langgraph_agent_base import LangGraphAgentPool
+except ImportError:
+    # Define a placeholder if not available
+    LangGraphAgentPool = None
+
 logger = structlog.get_logger()
 
 
@@ -791,8 +798,6 @@ class LangGraphAgentWorkflowOrchestrator:
     """
 
     def __init__(self, agent_pool: Optional['LangGraphAgentPool'] = None):
-        from backend.agents.core.langgraph_agent_base import LangGraphAgentPool
-        
         self.agent_pool = agent_pool or LangGraphAgentPool(pool_size=3)
         self.logger = logger.bind(component="langgraph_agent_workflow_orchestrator")
         self.active_workflows: Dict[str, Dict[str, Any]] = {}

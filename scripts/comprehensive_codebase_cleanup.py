@@ -4,13 +4,11 @@ Comprehensive Codebase Cleanup for Sophia AI
 Identifies and removes duplications, conflicts, and confusion throughout the codebase
 """
 
-import os
 import shutil
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Set, Tuple
 import hashlib
 import re
 

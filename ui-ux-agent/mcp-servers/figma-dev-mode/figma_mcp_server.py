@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Figma Dev Mode MCP Server for Sophia AI UI/UX Agent System
-Leverages the Figma Dev Mode MCP Server (June 2025) for design-to-code automation
+Sophia AI Figma Dev Mode MCP Server
+Integrates with Figma Dev Mode API for design token extraction and component analysis
+Uses Pulumi ESC integration for secure credential management
 """
 
-import asyncio
-import json
 import logging
 import os
 from datetime import datetime
@@ -15,14 +14,45 @@ import requests
 from fastapi import FastAPI, HTTPException
 import uvicorn
 
+# Import Pulumi ESC configuration management
+try:
+    import sys
+    sys.path.append('../../backend')
+    from backend.core.auto_esc_config import get_config_value
+    PULUMI_ESC_AVAILABLE = True
+except ImportError:
+    PULUMI_ESC_AVAILABLE = False
+    get_config_value = None
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Security: Use existing Sophia AI credential management
-FIGMA_TOKEN = os.getenv('FIGMA_PERSONAL_ACCESS_TOKEN')
-if not FIGMA_TOKEN:
-    logger.warning("FIGMA_PERSONAL_ACCESS_TOKEN not found - some features will be disabled")
+# Configuration with Pulumi ESC integration
+def get_figma_credentials():
+    """Get Figma credentials using Pulumi ESC strategy"""
+    if PULUMI_ESC_AVAILABLE and get_config_value:
+        try:
+            # Try Pulumi ESC first (production pattern)
+            figma_pat = get_config_value('FIGMA_PAT')
+            if figma_pat:
+                logger.info("✅ Using Figma PAT from Pulumi ESC")
+                return figma_pat
+        except Exception as e:
+            logger.warning(f"Pulumi ESC access failed: {e}")
+    
+    # Fallback to environment variable
+    figma_pat = os.getenv('FIGMA_PAT') or os.getenv('FIGMA_PERSONAL_ACCESS_TOKEN')
+    if figma_pat:
+        logger.info("✅ Using Figma PAT from environment variable")
+        return figma_pat
+    
+    logger.warning("⚠️  No Figma PAT found - running in mock mode")
+    return None
+
+FIGMA_PAT = get_figma_credentials()
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 
 FIGMA_API_BASE = "https://api.figma.com/v1"
 
@@ -60,12 +90,12 @@ class SecureCredentialManager:
     @staticmethod
     def get_figma_token() -> Optional[str]:
         """Retrieve Figma token from environment variables populated by Pulumi ESC"""
-        return os.getenv('FIGMA_PERSONAL_ACCESS_TOKEN')
+        return FIGMA_PAT
     
     @staticmethod
     def validate_credentials() -> bool:
         """Validate that all required credentials are available"""
-        return bool(os.getenv('FIGMA_PERSONAL_ACCESS_TOKEN'))
+        return bool(FIGMA_PAT)
 
 class FigmaAPIClient:
     """Figma API client with enterprise-grade error handling"""

@@ -8,9 +8,9 @@ Addresses: Real-time processing gap identified in observations
 import logging
 import json
 import asyncio
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Any, Set
 from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 import websockets
 from websockets.server import WebSocketServerProtocol

@@ -4,11 +4,9 @@ Enhanced Knowledge Base Service with Interactive Teaching
 Priority #1: Critical NOW implementation for Sophia AI
 """
 
-import asyncio
-import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import datetime
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from enum import Enum
 

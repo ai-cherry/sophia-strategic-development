@@ -4,10 +4,8 @@ Sophia AI Standalone Server for Live Testing
 Bypasses existing backend import conflicts by running as standalone service
 """
 
-import asyncio
 import logging
 import json
-import os
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from uuid import uuid4
@@ -105,7 +103,7 @@ class SnowflakeService:
             VALUES (%s, %s, %s, %s)
             """
             await self.execute_query(create_cat_query, (
-                category_id, category_id.title(), f"Auto-created category", datetime.now()
+                category_id, category_id.title(), "Auto-created category", datetime.now()
             ))
         
         # Insert knowledge entry

@@ -4,7 +4,6 @@ Startup script for Sophia AI Backend Services
 Launches enhanced chat service and knowledge dashboard for live testing
 """
 
-import asyncio
 import logging
 import os
 import sys

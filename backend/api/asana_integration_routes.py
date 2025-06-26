@@ -10,10 +10,9 @@ Comprehensive API endpoints for Asana project management integration including:
 - Chat service integration
 """
 
-import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from datetime import datetime
+from typing import Optional
 import json
 
 from fastapi import APIRouter, HTTPException, Depends, Query, Path, BackgroundTasks

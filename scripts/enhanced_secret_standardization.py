@@ -7,7 +7,6 @@ Implements SOPHIA_{SERVICE}_{TYPE}_{ENV} pattern with advanced Pulumi ESC integr
 import json
 import os
 import re
-import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional
@@ -89,38 +88,6 @@ class EnhancedSecretStandardizer:
         """Generate enhanced secret mappings with SOPHIA_ prefix and environment awareness."""
         
         # Define enhanced service mappings
-        service_mappings = {
-            # Platform secrets
-            ("PULUMI", "platform"): ("PULUMI", "TOKEN"),
-            ("GITHUB", "platform"): ("GITHUB", "TOKEN"),
-            ("DOCKER", "platform"): ("DOCKER", "TOKEN"),
-            
-            # Infrastructure secrets
-            ("VERCEL", "infrastructure"): ("VERCEL", "TOKEN"),
-            ("NAMECHEAP", "infrastructure"): ("NAMECHEAP", "API_KEY"),
-            ("LAMBDA", "infrastructure"): ("LAMBDA_LABS", "API_KEY"),
-            
-            # Data platform secrets
-            ("SNOWFLAKE", "data"): ("SNOWFLAKE", "PASSWORD"),
-            ("PINECONE", "data"): ("PINECONE", "API_KEY"),
-            ("WEAVIATE", "data"): ("WEAVIATE", "API_KEY"),
-            
-            # Integration secrets
-            ("LINEAR", "integration"): ("LINEAR", "API_KEY"),
-            ("ASANA", "integration"): ("ASANA", "API_KEY"),
-            ("GONG", "integration"): ("GONG", "ACCESS_KEY"),
-            ("APOLLO", "integration"): ("APOLLO", "API_KEY"),
-            ("HUBSPOT", "integration"): ("HUBSPOT", "ACCESS_TOKEN"),
-            
-            # AI services secrets
-            ("OPENAI", "ai"): ("OPENAI", "API_KEY"),
-            ("ANTHROPIC", "ai"): ("ANTHROPIC", "API_KEY"),
-            ("PORTKEY", "ai"): ("PORTKEY", "API_KEY"),
-            
-            # Communication secrets
-            ("SLACK", "communication"): ("SLACK", "BOT_TOKEN"),
-            ("DISCORD", "communication"): ("DISCORD", "BOT_TOKEN"),
-        }
         
         mappings = []
         
@@ -292,9 +259,9 @@ class EnhancedSecretStandardizer:
                 f"  OLD_VALUE=$(gh secret list --org ai-cherry --json name,value | jq -r '.[] | select(.name==\"{mapping.old_name}\") | .value')",
                 f"  gh secret set {mapping.new_name} --body \"$OLD_VALUE\" --org ai-cherry",
                 f"  echo '✅ Migrated {mapping.old_name} -> {mapping.new_name}'",
-                f"else",
+                "else",
                 f"  echo '⚠️  {mapping.old_name} not found'",
-                f"fi",
+                "fi",
                 "",
             ])
         
@@ -545,14 +512,14 @@ def main():
     print(f"Migration phases: {summary['migration_phases']}")
     print(f"Naming pattern: {summary['naming_pattern']}")
     
-    print(f"\n📁 FILES GENERATED:")
+    print("\n📁 FILES GENERATED:")
     print("- enhanced_secret_standardization_report.json")
     print("- enhanced_auto_esc_config.py")
     print("- migration_scripts/phase1_critical.sh")
     print("- migration_scripts/phase2_production.sh")
     print("- migration_scripts/phase3_environments.sh")
     
-    print(f"\n🎯 NEXT STEPS:")
+    print("\n🎯 NEXT STEPS:")
     print("1. Review generated migration scripts")
     print("2. Execute: ./migration_scripts/phase1_critical.sh")
     print("3. Update backend/core/auto_esc_config.py")

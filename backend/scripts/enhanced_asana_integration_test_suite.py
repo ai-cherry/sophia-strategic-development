@@ -14,8 +14,8 @@ import asyncio
 import logging
 import json
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import argparse
@@ -350,7 +350,7 @@ class EnhancedAsanaIntegrationTestSuite:
         start_time = time.time()
         try:
             # Execute transformation procedure
-            transform_result = await self.cortex_service.execute_query(
+            await self.cortex_service.execute_query(
                 "CALL TRANSFORM_ASANA_PROJECTS()"
             )
             execution_time = time.time() - start_time
@@ -993,13 +993,13 @@ async def main():
     )
     
     try:
-        results = await test_suite.run_all_tests()
+        await test_suite.run_all_tests()
         report = test_suite.generate_test_report()
         
         # Print summary
         summary = report["test_suite_summary"]
-        print(f"\n🧪 Asana Integration Test Suite Results")
-        print(f"=" * 50)
+        print("\n🧪 Asana Integration Test Suite Results")
+        print("=" * 50)
         print(f"Environment: {summary['environment']}")
         print(f"Total Tests: {summary['total_tests']}")
         print(f"Passed: {summary['passed_tests']}")
@@ -1008,13 +1008,13 @@ async def main():
         print(f"Execution Time: {summary['total_execution_time']:.1f}s")
         
         # Print category breakdown
-        print(f"\n📊 Category Breakdown:")
+        print("\n📊 Category Breakdown:")
         for category, stats in report["category_statistics"].items():
             print(f"  {category}: {stats['passed']}/{stats['total']} ({stats['success_rate']:.1%})")
         
         # Print failed tests
         if report["failed_tests"]:
-            print(f"\n❌ Failed Tests:")
+            print("\n❌ Failed Tests:")
             for failed_test in report["failed_tests"]:
                 print(f"  - {failed_test['test_name']} ({failed_test['category']}): {failed_test['message']}")
         

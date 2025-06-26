@@ -6,10 +6,8 @@ Configures Airbyte source for NetSuite and creates transformation procedures for
 
 import asyncio
 import logging
-import json
-from typing import Dict, List, Optional, Any
+from typing import Dict, Any
 from dataclasses import dataclass
-import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
 from backend.etl.airbyte.airbyte_configuration_manager import AirbyteConfigurationManager
@@ -498,7 +496,7 @@ async def main():
         await orchestrator.initialize()
         pipeline_info = await orchestrator.setup_complete_netsuite_pipeline()
         
-        print(f"✅ NetSuite Airbyte pipeline setup completed successfully!")
+        print("✅ NetSuite Airbyte pipeline setup completed successfully!")
         print(f"📊 Pipeline info: {pipeline_info}")
         
     except Exception as e:

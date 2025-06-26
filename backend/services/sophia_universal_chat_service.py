@@ -15,14 +15,11 @@ Features:
 
 import asyncio
 import logging
-import json
-import re
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Union, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import httpx
-from urllib.parse import urlparse, quote
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.enhanced_snowflake_cortex_service import SnowflakeCortexService

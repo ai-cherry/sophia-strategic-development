@@ -5,11 +5,10 @@ Orchestrates Enhanced Knowledge Base, Interactive Sales Coach, and Memory Preser
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 
 from backend.services.enhanced_knowledge_base_service import (
@@ -350,11 +349,6 @@ class SophiaAIOrchestrator:
 
             if is_sales_content and ingestion_result.get("success"):
                 # Notify sales coach of new knowledge
-                coaching_context = {
-                    "knowledge_added": ingestion_result,
-                    "content_type": "sales_knowledge",
-                    "user_id": request.user_id,
-                }
 
                 # Future: Could trigger sales team notifications
                 supporting_responses.append(
@@ -538,11 +532,6 @@ class SophiaAIOrchestrator:
 
             # If teaching is sales-related, notify sales coach
             if self._is_sales_related_content(teaching_data.get("feedback", "")):
-                coaching_context = {
-                    "teaching_session": kb_teaching_result,
-                    "user_id": request.user_id,
-                    "source": "teaching_session",
-                }
 
                 # Future: Could enhance sales coach with teaching insights
                 supporting_responses.append(

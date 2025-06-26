@@ -4,11 +4,10 @@ Enhanced Chat Context Service for Sophia AI
 Provides large contextual windows and intelligent context management
 """
 
-import asyncio
 import logging
 import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
 import snowflake.connector
 from snowflake.connector import DictCursor
@@ -371,7 +370,7 @@ class EnhancedChatContextService:
         """Generate enhanced AI response using large contextual windows"""
         
         context_items = context.get('context_items', [])
-        context_summary = context.get('context_summary', '')
+        context.get('context_summary', '')
         
         if not context_items:
             return f"""I understand you're asking about "{query}". 
@@ -427,7 +426,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         
         # Add conversation context if relevant
         if conversation_items and len(conversation_items) > 2:
-            response_parts.append(f"\n**Continuing our conversation:** Based on our discussion, I can provide more specific details about any aspect you'd like to explore further.")
+            response_parts.append("\n**Continuing our conversation:** Based on our discussion, I can provide more specific details about any aspect you'd like to explore further.")
         
         # Add helpful suggestions
         response_parts.extend([

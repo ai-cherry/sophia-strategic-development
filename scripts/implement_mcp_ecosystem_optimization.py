@@ -15,24 +15,14 @@ import asyncio
 import logging
 import time
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # Import our new optimization components
 from backend.mcp.base.standardized_mcp_server import (
     StandardizedMCPServer, MCPServerConfig, SyncPriority, HealthStatus, HealthCheckResult
 )
-from backend.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService, AIProcessingConfig, CortexModel
-)
-from backend.core.cross_platform_sync_orchestrator import (
-    CrossPlatformSyncOrchestrator, SyncConfiguration, SyncStatus
-)
 from backend.workflows.multi_agent_workflow import (
-    MultiAgentWorkflow, WorkflowDefinition, WorkflowTask, AgentRole, 
-    WorkflowPriority, AgentWorkflowInterface, ProjectIntelligenceWorkflow
-)
-from backend.monitoring.mcp_metrics_collector import (
-    MCPMetricsCollector, AlertSeverity, Alert
+    AgentWorkflowInterface
 )
 
 # Configure logging
@@ -213,7 +203,7 @@ class ExampleSalesIntelligenceAgent(AgentWorkflowInterface):
         logger.info("🧠 Sales Intelligence Agent: Synthesizing cross-platform data...")
         await asyncio.sleep(0.4)
         
-        dependency_results = input_data.get('dependency_results', {})
+        input_data.get('dependency_results', {})
         
         # Simulate sophisticated cross-platform synthesis
         synthesis = {

@@ -8,7 +8,7 @@ import asyncio
 import logging
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict
 from datetime import datetime
 import json
 
@@ -107,7 +107,7 @@ class SnowflakeStabilityDeployer:
         try:
             for query in resource_monitor_queries:
                 await self.cortex_service.execute_query(query)
-                logger.info(f"✅ Resource monitor created successfully")
+                logger.info("✅ Resource monitor created successfully")
             
             self.deployment_status["resource_monitors"]["status"] = "completed"
             self.deployment_status["resource_monitors"]["details"] = [

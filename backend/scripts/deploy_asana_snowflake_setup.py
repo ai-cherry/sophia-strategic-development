@@ -16,7 +16,6 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)
@@ -837,7 +836,7 @@ async def main():
         
         if args.execute_all:
             results = await deployer.deploy_all_asana_infrastructure()
-            print(f"✅ Complete Asana infrastructure deployment completed")
+            print("✅ Complete Asana infrastructure deployment completed")
             
             # Print summary
             for category, category_results in results.items():

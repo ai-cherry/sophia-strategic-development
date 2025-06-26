@@ -7,9 +7,8 @@ No complex import dependencies - uses direct Snowflake connector.
 
 import snowflake.connector
 import logging
-import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict
 from datetime import datetime
 import json
 

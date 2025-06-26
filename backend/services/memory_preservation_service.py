@@ -5,11 +5,10 @@ Priority #1: Ensures deep memory preservation during Snowflake Cortex migration
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
 from enum import Enum
 import hashlib
 

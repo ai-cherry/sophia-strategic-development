@@ -5,9 +5,8 @@ Unified AI processing using pure Snowflake Cortex for embeddings, LLM, and analy
 
 import json
 import logging
-import asyncio
-from typing import Dict, Any, List, Optional, Union
-from datetime import datetime, timedelta
+from typing import Dict, Any, List, Optional
+from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
 
@@ -167,7 +166,6 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         """
         try:
             results = []
-            uncached_texts = []
             
             # Process in batches to avoid Snowflake limits
             batch_size = min(self.config.batch_size, 20)

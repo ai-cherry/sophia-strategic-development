@@ -5,15 +5,14 @@ Orchestrates data synchronization across all MCP servers with priority-based sch
 
 import asyncio
 import logging
-import json
 import time
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Set, Tuple
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 
-from backend.mcp.base.standardized_mcp_server import SyncPriority, MCPServerConfig
+from backend.mcp.base.standardized_mcp_server import SyncPriority
 from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
 logger = logging.getLogger(__name__)

@@ -14,7 +14,6 @@ from enum import Enum
 import aiohttp
 import structlog
 import asyncio
-import json
 import time
 import random
 

@@ -6,11 +6,10 @@ Advanced Vercel deployment optimization, performance monitoring, and analytics
 
 import json
 import os
-import requests
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
+from datetime import datetime
 import asyncio
 import aiohttp
 
@@ -143,7 +142,7 @@ class VercelOptimizer:
             start_time = time.time()
             
             try:
-                async with session.get(f"https://{deployment_url}", timeout=30) as response:
+                async with session.get(f"https://{deployment_url}", timeout=30):
                     load_time = time.time() - start_time
                     
                     # Simulate realistic metrics based on load time
@@ -246,7 +245,7 @@ class VercelOptimizer:
                 {
                     "source": "/dashboard",
                     "destination": "/dashboard/overview",
-                    "permanent": false
+                    "permanent": False
                 }
             ],
             
@@ -523,7 +522,7 @@ class VercelOptimizer:
                 score = audit.get("performance_summary", {}).get("overall_score", 0)
                 print(f"{env.upper()}: {score}/100 performance score")
                 
-        print(f"\n✅ Optimization report saved: vercel_optimization_report.json")
+        print("\n✅ Optimization report saved: vercel_optimization_report.json")
         
         return report
 
