@@ -17,6 +17,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depe
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 import uvicorn
 
 logging.basicConfig(level=logging.INFO)
@@ -198,11 +199,23 @@ class ConnectionManager:
 snowflake_service = SnowflakeService()
 manager = ConnectionManager()
 
+# Lifespan manager for FastAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await snowflake_service.connect()
+    logger.info("🚀 Sophia AI Standalone Server started successfully")
+    yield
+    # Shutdown
+    await snowflake_service.disconnect()
+    logger.info("Sophia AI Standalone Server shut down")
+
 # Create FastAPI app
 app = FastAPI(
     title="Sophia AI Standalone Server",
     description="Live testing server for Sophia AI knowledge management",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -212,16 +225,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("startup")
-async def startup_event():
-    await snowflake_service.connect()
-    logger.info("🚀 Sophia AI Standalone Server started successfully")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await snowflake_service.disconnect()
-    logger.info("Sophia AI Standalone Server shut down")
 
 # Routes
 @app.get("/")

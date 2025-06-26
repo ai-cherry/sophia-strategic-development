@@ -1,33 +1,75 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "name": "sophia-ai-ceo-dashboard",
+  "alias": ["app.sophia-intel.ai", "sophia-ai.vercel.app"],
+  "regions": ["iad1"],
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "cd frontend && npm install",
+  "framework": "vite",
   "rewrites": [
+    {
+      "source": "/dashboard/ceo-enhanced",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/ceo",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": "/index.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "VITE_DEPLOYMENT_ENV": "production",
+    "VITE_BUILD_VERSION": "2.0.0",
+    "VITE_ENABLE_ENHANCED_DASHBOARD": "true",
+    "VITE_ENABLE_CHART_JS_DASHBOARD": "true",
+    "VITE_ENABLE_REAL_TIME_CHARTS": "true",
+    "VITE_GLASSMORPHISM_ENABLED": "true",
+    "VITE_DESIGN_SYSTEM_MODE": "production",
+    "VITE_ENABLE_PERFORMANCE_MONITORING": "true"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production",
+      "VITE_DEPLOYMENT_ENV": "production"
+    }
+  },
+  "functions": {
+    "frontend/dist/**": {
+      "maxDuration": 10
+    }
+  },
+  "github": {
+    "enabled": true,
+    "autoAlias": true,
+    "silent": false
+  }
 }
 

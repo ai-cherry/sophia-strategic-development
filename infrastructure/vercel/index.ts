@@ -98,13 +98,13 @@ const cleanup = new command.local.Command("vercel-cleanup", {
 });
 
 // =====================================================================
-// 2. VERCEL PROJECT CREATION
+// 2. VERCEL PROJECT CREATION - UPDATED FOR VITE
 // =====================================================================
 
-// Production project
+// Production project - Updated for Vite + React
 const prodProject = new vercel.Project("sophia-ai-production", {
-    name: "sophia-ai-frontend-prod",
-    framework: "nextjs",
+    name: "sophia-ai-ceo-dashboard-prod",
+    framework: "vite",
     gitRepository: {
         type: "github",
         repo: githubRepo,
@@ -112,15 +112,15 @@ const prodProject = new vercel.Project("sophia-ai-production", {
     },
     rootDirectory: rootDirectory,
     buildCommand: "npm run build",
-    outputDirectory: ".next",
+    outputDirectory: "dist",
     installCommand: "npm ci",
     teamId: vercelTeamId,
 }, { dependsOn: [cleanup] });
 
-// Development project
+// Development project - Updated for Vite + React
 const devProject = new vercel.Project("sophia-ai-development", {
-    name: "sophia-ai-frontend-dev",
-    framework: "nextjs",
+    name: "sophia-ai-ceo-dashboard-dev",
+    framework: "vite",
     gitRepository: {
         type: "github",
         repo: githubRepo,
@@ -128,51 +128,136 @@ const devProject = new vercel.Project("sophia-ai-development", {
     },
     rootDirectory: rootDirectory,
     buildCommand: "npm run build",
-    outputDirectory: ".next",
+    outputDirectory: "dist",
     installCommand: "npm ci",
     teamId: vercelTeamId,
 }, { dependsOn: [cleanup] });
 
 // =====================================================================
-// 3. ENVIRONMENT VARIABLES
+// 3. ENHANCED CEO DASHBOARD ENVIRONMENT VARIABLES
 // =====================================================================
 
-// Production environment variables
-new vercel.ProjectEnvironmentVariable("prod-api-url", {
+// Production environment variables - Enhanced Dashboard
+const prodEnvVars = [
+    // Basic configuration
+    { key: "VITE_DEPLOYMENT_ENV", value: "production" },
+    { key: "VITE_BUILD_VERSION", value: "2.0.0" },
+    { key: "VITE_BACKEND_URL", value: "https://api.sophia-intel.ai" },
+    { key: "VITE_WS_URL", value: "wss://api.sophia-intel.ai" },
+    
+    // Enhanced Dashboard Features
+    { key: "VITE_ENABLE_ENHANCED_DASHBOARD", value: "true" },
+    { key: "VITE_ENABLE_CHART_JS_DASHBOARD", value: "true" },
+    { key: "VITE_ENABLE_REAL_TIME_CHARTS", value: "true" },
+    { key: "VITE_ENABLE_FIGMA_INTEGRATION", value: "true" },
+    
+    // Design System
+    { key: "VITE_GLASSMORPHISM_ENABLED", value: "true" },
+    { key: "VITE_DESIGN_SYSTEM_MODE", value: "production" },
+    
+    // Monitoring & Analytics
+    { key: "VITE_ENABLE_PERFORMANCE_MONITORING", value: "true" },
+    { key: "VITE_ANALYTICS_ENABLED", value: "false" },
+    { key: "VITE_DEBUG_MODE", value: "false" },
+    
+    // Security
+    { key: "VITE_CEO_ACCESS_TOKEN", value: "sophia_ceo_access_2024" },
+    { key: "VITE_ADMIN_MODE", value: "false" }
+];
+
+// Development environment variables - Enhanced Dashboard
+const devEnvVars = [
+    // Basic configuration
+    { key: "VITE_DEPLOYMENT_ENV", value: "development" },
+    { key: "VITE_BUILD_VERSION", value: "2.0.0-dev" },
+    { key: "VITE_BACKEND_URL", value: "https://dev.api.sophia-intel.ai" },
+    { key: "VITE_WS_URL", value: "wss://dev.api.sophia-intel.ai" },
+    
+    // Enhanced Dashboard Features
+    { key: "VITE_ENABLE_ENHANCED_DASHBOARD", value: "true" },
+    { key: "VITE_ENABLE_CHART_JS_DASHBOARD", value: "true" },
+    { key: "VITE_ENABLE_REAL_TIME_CHARTS", value: "true" },
+    { key: "VITE_ENABLE_FIGMA_INTEGRATION", value: "true" },
+    
+    // Design System
+    { key: "VITE_GLASSMORPHISM_ENABLED", value: "true" },
+    { key: "VITE_DESIGN_SYSTEM_MODE", value: "development" },
+    
+    // Monitoring & Analytics
+    { key: "VITE_ENABLE_PERFORMANCE_MONITORING", value: "true" },
+    { key: "VITE_ANALYTICS_ENABLED", value: "false" },
+    { key: "VITE_DEBUG_MODE", value: "true" },
+    
+    // Security
+    { key: "VITE_CEO_ACCESS_TOKEN", value: "sophia_ceo_access_2024" },
+    { key: "VITE_ADMIN_MODE", value: "true" }
+];
+
+// Create production environment variables
+prodEnvVars.forEach((envVar, index) => {
+    new vercel.ProjectEnvironmentVariable(`prod-${envVar.key.toLowerCase()}`, {
+        projectId: prodProject.id,
+        targets: ["production"],
+        key: envVar.key,
+        value: envVar.value,
+        teamId: vercelTeamId,
+    });
+});
+
+// Create development environment variables
+devEnvVars.forEach((envVar, index) => {
+    new vercel.ProjectEnvironmentVariable(`dev-${envVar.key.toLowerCase()}`, {
+        projectId: devProject.id,
+        targets: ["production", "preview", "development"],
+        key: envVar.key,
+        value: envVar.value,
+        teamId: vercelTeamId,
+    });
+});
+
+// =====================================================================
+// 4. FIGMA INTEGRATION ENVIRONMENT VARIABLES (SECURE)
+// =====================================================================
+
+// Note: These should be set manually in Vercel dashboard or via GitHub secrets
+// as they contain sensitive tokens
+
+// Production Figma Variables (to be set manually)
+new vercel.ProjectEnvironmentVariable("prod-figma-token", {
     projectId: prodProject.id,
     targets: ["production"],
-    key: "NEXT_PUBLIC_API_URL",
-    value: "https://api.sophia-intel.ai",
+    key: "VITE_FIGMA_PERSONAL_ACCESS_TOKEN",
+    value: "PLACEHOLDER_SET_IN_VERCEL_DASHBOARD",
     teamId: vercelTeamId,
 });
 
-new vercel.ProjectEnvironmentVariable("prod-environment", {
+new vercel.ProjectEnvironmentVariable("prod-figma-file-key", {
     projectId: prodProject.id,
     targets: ["production"],
-    key: "NEXT_PUBLIC_ENVIRONMENT",
-    value: "production",
+    key: "VITE_FIGMA_FILE_KEY",
+    value: "PLACEHOLDER_SET_IN_VERCEL_DASHBOARD",
     teamId: vercelTeamId,
 });
 
-// Development environment variables
-new vercel.ProjectEnvironmentVariable("dev-api-url", {
+// Development Figma Variables (to be set manually)
+new vercel.ProjectEnvironmentVariable("dev-figma-token", {
     projectId: devProject.id,
     targets: ["production", "preview", "development"],
-    key: "NEXT_PUBLIC_API_URL",
-    value: "https://dev.api.sophia-intel.ai",
+    key: "VITE_FIGMA_PERSONAL_ACCESS_TOKEN",
+    value: "PLACEHOLDER_SET_IN_VERCEL_DASHBOARD",
     teamId: vercelTeamId,
 });
 
-new vercel.ProjectEnvironmentVariable("dev-environment", {
+new vercel.ProjectEnvironmentVariable("dev-figma-file-key", {
     projectId: devProject.id,
     targets: ["production", "preview", "development"],
-    key: "NEXT_PUBLIC_ENVIRONMENT",
-    value: "development",
+    key: "VITE_FIGMA_FILE_KEY",
+    value: "PLACEHOLDER_SET_IN_VERCEL_DASHBOARD",
     teamId: vercelTeamId,
 });
 
 // =====================================================================
-// 4. CUSTOM DOMAINS
+// 5. CUSTOM DOMAINS
 // =====================================================================
 
 // Production domain
@@ -190,7 +275,58 @@ const devDomain = new vercel.ProjectDomain("dev-domain", {
 });
 
 // =====================================================================
-// 5. NAMECHEAP DNS AUTOMATION
+// 6. ENHANCED SPA ROUTING CONFIGURATION
+// =====================================================================
+
+// Create vercel.json configuration for SPA routing
+const vercelConfig = {
+    version: 2,
+    rewrites: [
+        {
+            source: "/dashboard/ceo-enhanced",
+            destination: "/index.html"
+        },
+        {
+            source: "/dashboard/ceo",
+            destination: "/index.html"
+        },
+        {
+            source: "/dashboard/(.*)",
+            destination: "/index.html"
+        },
+        {
+            source: "/(.*)",
+            destination: "/index.html"
+        }
+    ],
+    headers: [
+        {
+            source: "/assets/(.*)",
+            headers: [
+                {
+                    key: "Cache-Control",
+                    value: "public, max-age=31536000, immutable"
+                }
+            ]
+        },
+        {
+            source: "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))",
+            headers: [
+                {
+                    key: "Cache-Control",
+                    value: "public, max-age=86400"
+                }
+            ]
+        }
+    ]
+};
+
+// Write vercel.json to frontend directory
+const vercelConfigPath = "../../frontend/vercel.json";
+fs.writeFileSync(vercelConfigPath, JSON.stringify(vercelConfig, null, 2));
+
+// =====================================================================
+// 7. NAMECHEAP DNS AUTOMATION (UNCHANGED)
 // =====================================================================
 
 // Create Namecheap DNS management script
@@ -363,7 +499,7 @@ const namecheapScriptPath = "/tmp/namecheap_dns.py";
 fs.writeFileSync(namecheapScriptPath, namecheapScript);
 
 // =====================================================================
-// 6. DOMAIN VERIFICATION RETRIEVAL
+// 8. DOMAIN VERIFICATION RETRIEVAL
 // =====================================================================
 
 // Script to get verification values from Vercel
@@ -442,7 +578,7 @@ const dnsSetup = new command.local.Command("dns-setup", {
 }, { dependsOn: [prodDomain, devDomain] });
 
 // =====================================================================
-// 7. DOMAIN VERIFICATION STATUS CHECK
+// 9. DOMAIN VERIFICATION STATUS CHECK
 // =====================================================================
 
 // Script to check domain verification status
@@ -456,10 +592,34 @@ check_domain_status() {
     echo "$domain: $status"
 }
 
+echo "Enhanced CEO Dashboard Deployment Status:"
+echo "========================================"
+echo "Projects Created:"
+echo "- Production: sophia-ai-ceo-dashboard-prod"
+echo "- Development: sophia-ai-ceo-dashboard-dev"
+echo ""
+echo "Framework: Vite + React"
+echo "Build Output: dist/"
+echo "Features Enabled:"
+echo "- Enhanced CEO Dashboard"
+echo "- Chart.js Dashboard"
+echo "- Figma Integration"
+echo "- Real-time Charts"
+echo "- Glassmorphism Design"
+echo ""
 echo "Domain Verification Status:"
 echo "=========================="
 check_domain_status "app.sophia-intel.ai"
 check_domain_status "dev.app.sophia-intel.ai"
+echo ""
+echo "Manual Configuration Required:"
+echo "============================"
+echo "1. Set VITE_FIGMA_PERSONAL_ACCESS_TOKEN in Vercel dashboard"
+echo "2. Set VITE_FIGMA_FILE_KEY in Vercel dashboard"
+echo "3. Configure backend API endpoints"
+echo "4. Test dashboard routes:"
+echo "   - /dashboard/ceo (Chart.js Dashboard)"
+echo "   - /dashboard/ceo-enhanced (Figma + Enhanced Dashboard)"
 `;
 
 const statusCheckPath = "/tmp/status-check.sh";
@@ -474,26 +634,40 @@ const statusCheck = new command.local.Command("status-check", {
 }, { dependsOn: [dnsSetup] });
 
 // =====================================================================
-// 8. EXPORTS
+// 10. EXPORTS
 // =====================================================================
 
 export const productionProjectId = prodProject.id;
 export const developmentProjectId = devProject.id;
 export const productionProjectName = prodProject.name;
 export const developmentProjectName = devProject.name;
-export const productionUrl = `https://sophia-ai-frontend-prod.vercel.app`;
-export const developmentUrl = `https://sophia-ai-frontend-dev.vercel.app`;
+export const productionUrl = `https://sophia-ai-ceo-dashboard-prod.vercel.app`;
+export const developmentUrl = `https://sophia-ai-ceo-dashboard-dev.vercel.app`;
 export const productionCustomDomain = `https://app.${domain}`;
 export const developmentCustomDomain = `https://dev.app.${domain}`;
 export const cleanupStatus = cleanup.stdout;
 export const dnsSetupStatus = dnsSetup.stdout;
 export const verificationStatus = statusCheck.stdout;
 
-// Configuration summary
+// Enhanced Configuration Summary
 export const configurationSummary = {
     repository: githubRepo,
     rootDirectory: rootDirectory,
+    framework: "vite",
+    buildOutput: "dist",
     domain: domain,
+    features: {
+        enhancedDashboard: true,
+        chartJsDashboard: true,
+        figmaIntegration: true,
+        realTimeCharts: true,
+        glassmorphism: true
+    },
+    routes: {
+        enhancedCEO: "/dashboard/ceo-enhanced",
+        originalCEO: "/dashboard/ceo",
+        dashboardHub: "/dashboard"
+    },
     deleteLegacyProjects: deleteLegacyProjects,
     automatedDNS: pulumi.all([namecheapApiUser, namecheapApiKey]).apply(
         ([user, key]) => !!(user && key)
