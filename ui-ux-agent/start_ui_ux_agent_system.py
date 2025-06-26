@@ -132,6 +132,23 @@ class EnhancedUIUXAgentSystemManager:
             logger.error(f"❌ Failed to start Enhanced UI/UX Agent: {e}")
             raise
     
+    async def _wait_for_server(self, port, name):
+        """Wait for server to be ready"""
+        logger.info(f"⏳ Waiting for {name} on port {port}...")
+        
+        for attempt in range(30):  # Wait up to 30 seconds
+            try:
+                response = requests.get(f"http://localhost:{port}/health", timeout=2)
+                if response.status_code == 200:
+                    logger.info(f"✅ {name} is ready")
+                    return
+            except Exception:
+                pass
+            
+            await asyncio.sleep(1)
+        
+        logger.warning(f"⚠️  {name} may not be fully ready, continuing...")
+    
     async def _initialize_dashboard_takeover(self):
         """Initialize dashboard takeover capabilities"""
         logger.info("📊 Initializing Dashboard Takeover Capabilities...")
