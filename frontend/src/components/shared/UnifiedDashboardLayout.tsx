@@ -232,7 +232,7 @@ export const UnifiedDashboardLayout: React.FC<UnifiedDashboardLayoutProps> = ({
                         No new notifications
                       </div>
                     ) : (
-                      notifications.map((\1: any, \2: number) => (
+                      notifications.map((notification: any, index: number) => (
                         <DropdownMenuItem key={index} className="p-3">
                           <div className="flex flex-col">
                             <span className="font-medium">{notification.title}</span>
