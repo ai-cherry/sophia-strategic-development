@@ -9,9 +9,9 @@ pydantic==2.5.0
 # HTTP client for API integrations
 requests==2.31.0
 
-# LangChain for AI agent workflows (v0.3 compatible)
+# LangChain for AI agent workflows (v0.3 compatible - fixed versions)
 langchain==0.1.0
-langchain-core==0.1.0
+langchain-core>=0.1.7,<0.2
 langchain-community==0.0.10
 
 # OpenAI integration (compatible with existing Sophia AI setup)
@@ -30,3 +30,4 @@ pytest-asyncio==0.21.1
 # - snowflake-connector-python
 # - redis
 # - psycopg2-binary
+
