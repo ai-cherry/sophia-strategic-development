@@ -1,27 +1,9 @@
-# Ignore backend files
 backend/
-requirements.txt
-sophia_standalone_server.py
-start_sophia_*.py
-*.log
-
-# Ignore development files
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-
-# Ignore infrastructure files
-infrastructure/
 mcp-servers/
 scripts/
-config/
-.github/
-
-# Ignore documentation
 docs/
+*.py
 *.md
-
-# Ignore archives and temp files
-archive/
-temp_* 
+.git/
+node_modules/
+.env*
