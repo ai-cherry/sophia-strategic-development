@@ -4,6 +4,12 @@ import './App.css';
 
 // Simple Dashboard Component
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800">
       <div className="container mx-auto px-4 py-8">
@@ -17,15 +23,15 @@ const Dashboard = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white/10 rounded-xl p-6 border border-white/20">
+            <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all cursor-pointer">
               <h3 className="text-xl font-semibold text-white mb-2">Analytics</h3>
               <p className="text-white/70">Business intelligence and reporting</p>
             </div>
-            <div className="bg-white/10 rounded-xl p-6 border border-white/20">
+            <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all cursor-pointer">
               <h3 className="text-xl font-semibold text-white mb-2">Chat Interface</h3>
               <p className="text-white/70">AI-powered conversation platform</p>
             </div>
-            <div className="bg-white/10 rounded-xl p-6 border border-white/20">
+            <div className="bg-white/10 rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all cursor-pointer">
               <h3 className="text-xl font-semibold text-white mb-2">Knowledge Base</h3>
               <p className="text-white/70">Document management and search</p>
             </div>
@@ -33,7 +39,7 @@ const Dashboard = () => {
           
           <div className="text-center">
             <button 
-              onClick={() => window.location.href = '/'}
+              onClick={handleBackToHome}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               Back to Home
@@ -56,7 +62,12 @@ const LandingPage = () => {
 
   const checkBackendStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/health');
+      // Use production backend URL when deployed
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer'
+        : 'http://localhost:8000';
+      
+      const response = await fetch(`${backendUrl}/health`);
       if (response.ok) {
         setBackendStatus('connected');
       } else {
@@ -69,12 +80,20 @@ const LandingPage = () => {
 
   const testBackend = async () => {
     try {
-      const response = await fetch('http://localhost:8000/health');
+      const backendUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer'
+        : 'http://localhost:8000';
+      
+      const response = await fetch(`${backendUrl}/health`);
       const data = await response.json();
       alert(`Backend Status: ${JSON.stringify(data, null, 2)}`);
     } catch (error) {
       alert(`Backend Error: ${error.message}`);
     }
+  };
+
+  const handleLaunchDashboard = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -133,14 +152,14 @@ const LandingPage = () => {
 
         <div className="flex gap-4 justify-center">
           <button 
-            onClick={() => navigate('/dashboard')}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"
+            onClick={handleLaunchDashboard}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center cursor-pointer"
           >
             Launch Dashboard
           </button>
           <button 
             onClick={testBackend}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
           >
             Test Backend
           </button>

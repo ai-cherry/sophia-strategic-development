@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function SimpleApp() {
   const [backendStatus, setBackendStatus] = useState('Testing...')
+  const navigate = useNavigate()
   
   useEffect(() => {
-    // Test backend connection
-    fetch('http://localhost:8000/health')
+    // Test backend connection - use production backend URL
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer'
+      : 'http://localhost:8000'
+    
+    fetch(`${backendUrl}/health`)
       .then(response => response.json())
       .then(data => {
         setBackendStatus('✅ Connected')
@@ -14,6 +20,17 @@ function SimpleApp() {
         setBackendStatus('❌ Disconnected')
       })
   }, [])
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard')
+  }
+
+  const handleBackendTest = () => {
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer'
+      : 'http://localhost:8000'
+    window.open(`${backendUrl}/health`, '_blank')
+  }
 
   return (
     <div style={{ 
@@ -115,7 +132,7 @@ function SimpleApp() {
           }}
           onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
           onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-          onClick={() => window.location.href = '/dashboard'}
+          onClick={handleDashboardClick}
           >
             Launch Dashboard
           </button>
@@ -139,7 +156,7 @@ function SimpleApp() {
             e.target.style.background = 'transparent'
             e.target.style.color = '#667eea'
           }}
-          onClick={() => window.open('http://localhost:8000/health', '_blank')}
+          onClick={handleBackendTest}
           >
             Test Backend
           </button>
