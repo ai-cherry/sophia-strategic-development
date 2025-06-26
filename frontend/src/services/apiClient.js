@@ -12,17 +12,71 @@ class SophiaApiService {
     this.retryDelay = 1000; // 1 second
   }
 
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   getApiUrl() {
     // Production vs Development URL handling
     if (window.location.hostname === 'app.sophia-intel.ai') {
       return 'https://api.sophia-intel.ai';
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     
     // Check environment variables
     const envApiUrl = process.env.REACT_APP_API_URL || process.env.VITE_API_URL;
     if (envApiUrl) {
       return envApiUrl;
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     
     // Default fallback
     return window.location.hostname === 'localhost' 
@@ -30,9 +84,45 @@ class SophiaApiService {
       : 'https://api.sophia-intel.ai';
   }
 
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   getWsUrl() {
     const apiUrl = this.getApiUrl();
     return apiUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   /**
@@ -53,6 +143,24 @@ class SophiaApiService {
         ...defaultHeaders,
         ...options.headers
       }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     };
 
     for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
@@ -64,6 +172,24 @@ class SophiaApiService {
           const error = await this.handleErrorResponse(response);
           throw error;
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
         // Check content type
         const contentType = response.headers.get('content-type');
@@ -85,6 +211,24 @@ class SophiaApiService {
           throw new Error('Service temporarily unavailable. Please try again later.');
         }
 
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
         // Parse JSON safely
         try {
           const data = await response.json();
@@ -94,6 +238,24 @@ class SophiaApiService {
           this.logError('json_parse_error', { url: fullUrl, error: parseError.message });
           throw new Error('Invalid response format. Please try again later.');
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
       } catch (error) {
         // If it's our last attempt, throw the error
@@ -114,10 +276,82 @@ class SophiaApiService {
           
           throw error;
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
         
         // Wait before retrying
         await new Promise(resolve => setTimeout(resolve, this.retryDelay * attempt));
       }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   }
 
@@ -148,11 +382,65 @@ class SophiaApiService {
         } else {
           errorMessage = errorData || errorMessage;
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
       }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     } catch {
       // Fallback for cases where we can't read the response
       errorMessage = `Service error (${response.status}). Please try again later.`;
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
     // Create user-friendly error messages based on status code
     switch (response.status) {
@@ -178,10 +466,46 @@ class SophiaApiService {
         break;
     }
 
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
     const error = new Error(errorMessage);
     error.status = response.status;
     error.details = errorDetails;
     return error;
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   /**
@@ -205,6 +529,42 @@ class SophiaApiService {
       // Silently fail - don't break the main application
       console.warn('Failed to log error to backend:', logError);
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   // ============================================================================
@@ -214,6 +574,42 @@ class SophiaApiService {
   async healthCheck() {
     try {
       const data = await this.enhancedFetch('/health');
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -231,11 +627,83 @@ class SophiaApiService {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   async getCEOKPIs(timeRange = '30d') {
     try {
       const data = await this.enhancedFetch(`/api/v1/ceo/kpis?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -253,6 +721,42 @@ class SophiaApiService {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   async searchCEODashboard(query, timeRange = '30d') {
@@ -265,6 +769,132 @@ class SophiaApiService {
           scope: 'dashboard'
         })
       });
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -286,6 +916,42 @@ class SophiaApiService {
           context: 'ceo_dashboard'
         })
       });
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
       return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
@@ -327,6 +993,24 @@ class SophiaApiService {
               timestamp: new Date().toISOString()
             });
           }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
         };
 
         ws.onerror = (error) => {
@@ -355,13 +1039,67 @@ class SophiaApiService {
               if (!isIntentionallyClosed) {
                 connect();
               }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
             }, delay);
           } else if (reconnectAttempts >= maxReconnectAttempts) {
             console.error('Max reconnection attempts reached');
             if (onError) {
               onError(new Error('Connection lost. Please refresh the page to reconnect.'));
             }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
           }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
         };
 
       } catch (connectionError) {
@@ -372,6 +1110,24 @@ class SophiaApiService {
         });
         if (onError) onError(connectionError);
       }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     };
 
     // Initial connection
@@ -387,12 +1143,48 @@ class SophiaApiService {
           console.warn('WebSocket not connected, message not sent:', data);
           return false;
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
       },
       close: () => {
         isIntentionallyClosed = true;
         if (ws) {
           ws.close();
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
       },
       getReadyState: () => ws ? ws.readyState : WebSocket.CLOSED,
       reconnect: () => {
@@ -401,8 +1193,62 @@ class SophiaApiService {
           reconnectAttempts = 0;
           connect();
         }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
       }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
     };
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   // ============================================================================
@@ -427,6 +1273,42 @@ class SophiaApiService {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   // ============================================================================
@@ -444,6 +1326,42 @@ class SophiaApiService {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
   async getLinearHealth() {
@@ -453,8 +1371,62 @@ class SophiaApiService {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 }
+
+  async getTeamPerformance(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/team-performance?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getMarketData(timeRange = '30d') {
+    try {
+      const data = await this.enhancedFetch(`/api/v1/ceo/market-data?time_range=${timeRange}`);
+      return { success: true, data };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
 // Export singleton instance
 const apiClient = new SophiaApiService();
