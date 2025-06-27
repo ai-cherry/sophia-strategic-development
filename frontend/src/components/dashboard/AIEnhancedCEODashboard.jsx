@@ -109,7 +109,7 @@ const AIEnhancedCEODashboard = () => {
         <EnhancedKPICard title="Revenue" value={dashboardData?.revenue?.current} previousValue={dashboardData?.revenue?.previous} format="currency" insight={insights.find(i => i.metrics_affected?.includes('revenue'))} prediction={predictions.revenue_forecasting} />
         <EnhancedKPICard title="Customer Satisfaction" value={dashboardData?.satisfaction?.current} previousValue={dashboardData?.satisfaction?.previous} format="percentage" insight={insights.find(i => i.metrics_affected?.includes('customer_satisfaction'))} prediction={predictions.customer_satisfaction_prediction} />
         <EnhancedKPICard title="Sales Pipeline" value={dashboardData?.pipeline?.current} previousValue={dashboardData?.pipeline?.previous} format="currency" insight={insights.find(i => i.metrics_affected?.includes('pipeline_value'))} prediction={predictions.sales_pipeline_prediction} />
-        <EnhancedKPICard title="Team Performance" value={8.5} previousValue={8.2} format="score" />
+        <EnhancedKPICard title="Team Performance" value={dashboardData?.team_performance?.current} previousValue={dashboardData?.team_performance?.previous} format="score" insight={insights.find(i => i.metrics_affected?.includes('team_performance'))} prediction={predictions.team_performance_prediction}/>
       </div>
 
        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
