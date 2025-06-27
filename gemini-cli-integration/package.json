@@ -1,0 +1,45 @@
+{
+  "name": "sophia-ai-gemini-cli-integration",
+  "version": "1.0.0",
+  "description": "Google Gemini CLI integration with Sophia AI MCP servers",
+  "main": "index.js",
+  "scripts": {
+    "setup": "./setup-gemini-cli.sh",
+    "start": "./start-mcp-servers.sh",
+    "stop": "./stop-mcp-servers.sh",
+    "test": "./test-integration.sh",
+    "install-gemini": "npm install -g @google/gemini-cli",
+    "health-check": "python gemini_mcp_integration.py --action status",
+    "monitor": "python gemini_mcp_integration.py --action monitor"
+  },
+  "keywords": [
+    "sophia-ai",
+    "gemini-cli",
+    "mcp",
+    "ai",
+    "business-intelligence",
+    "regulatory-compliance"
+  ],
+  "author": "Sophia AI Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/gemini-cli": "^1.0.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/server-sequentialthinking": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-cherry/sophia-main.git",
+    "directory": "gemini-cli-integration"
+  },
+  "bugs": {
+    "url": "https://github.com/ai-cherry/sophia-main/issues"
+  },
+  "homepage": "https://github.com/ai-cherry/sophia-main/tree/main/gemini-cli-integration#readme"
+}
+

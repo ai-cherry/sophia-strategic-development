@@ -7,6 +7,7 @@ import './styles/executive-theme.css';
 // Import enhanced CEO dashboard
 import CEODashboardLayout from './components/dashboard/CEODashboard/CEODashboardLayout';
 import EnhancedCEODashboard from './components/dashboard/EnhancedCEODashboard';
+import StreamlinedUltraEnhancedCEODashboard from './components/dashboard/StreamlinedUltraEnhancedCEODashboard';
 import { useBackendConnection } from './hooks/useBackendConnection';
 
 // Home Page Component
@@ -26,6 +27,10 @@ const HomePage = () => {
 
   const handleLaunchEnhancedCEODashboard = () => {
     navigate('/dashboard/ceo-enhanced');
+  };
+
+  const handleLaunchUltraEnhancedCEODashboard = () => {
+    navigate('/dashboard/ceo-ultra');
   };
 
   const handleDashboardHub = () => {
@@ -95,6 +100,13 @@ const HomePage = () => {
       <section className="max-w-4xl mx-auto px-6 text-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
+            onClick={handleLaunchUltraEnhancedCEODashboard}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+          >
+            🚀 Launch Ultra-Enhanced CEO Dashboard
+          </button>
+          
+          <button
             onClick={handleLaunchEnhancedCEODashboard}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
           >
@@ -105,7 +117,7 @@ const HomePage = () => {
             onClick={handleLaunchCEODashboard}
             className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
           >
-            Launch CEO Dashboard (Legacy)
+            🚀 Launch CEO Dashboard (Enhanced)
           </button>
           
           <button
@@ -134,8 +146,10 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard/ceo" element={<CEODashboardLayout />} />
+            <Route path="/dashboard/ceo" element={<StreamlinedUltraEnhancedCEODashboard />} />
+            <Route path="/dashboard/ceo-legacy" element={<CEODashboardLayout />} />
             <Route path="/dashboard/ceo-enhanced" element={<EnhancedCEODashboard />} />
+            <Route path="/dashboard/ceo-ultra" element={<StreamlinedUltraEnhancedCEODashboard />} />
             <Route path="/dashboard/*" element={<div>Dashboard Hub Coming Soon</div>} />
           </Routes>
         </div>
