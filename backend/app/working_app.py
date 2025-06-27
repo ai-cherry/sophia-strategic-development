@@ -1,8 +1,7 @@
 """
-Sophia AI FastAPI App
+Working Sophia AI FastAPI App
 
-Practical FastAPI application with data flow management and LLM strategy.
-Focuses on stability and scale without over-complexity.
+FastAPI application with data flow management and LLM strategy.
 """
 
 from fastapi import FastAPI
@@ -17,15 +16,12 @@ from backend.api.asana_integration_routes import router as asana_router
 from backend.api.notion_integration_routes import router as notion_router
 from backend.api.codacy_integration_routes import router as codacy_router
 
-# Import enhanced configuration validation
-from backend.core.config_validator import validate_deployment_readiness
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Get environment
-ENVIRONMENT = os.getenv("SOPHIA_ENVIRONMENT", "dev")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 
 # Create FastAPI app
 app = FastAPI(
@@ -54,7 +50,7 @@ app.include_router(codacy_router)
 
 
 @app.get("/", tags=["health"])
-async def read_root() -> dict[str, str]:
+async def read_root():
     """Basic health check endpoint."""
     return {
         "status": "healthy",
@@ -66,8 +62,8 @@ async def read_root() -> dict[str, str]:
 
 
 @app.get("/api/health", tags=["health"])
-async def api_health_check() -> dict:
-    """Simple API health check without external connectivity tests."""
+async def api_health_check():
+    """Simple API health check with configuration validation."""
     try:
         # Check if we can load basic configuration
         from backend.core.auto_esc_config import get_config_value
@@ -125,73 +121,6 @@ async def api_health_check() -> dict:
         }
 
 
-@app.get("/api/deployment-validation", tags=["health"])
-async def get_deployment_validation() -> dict:
-    """Get comprehensive deployment validation report."""
-    try:
-        # Perform comprehensive deployment validation
-        validation_report = await validate_deployment_readiness(ENVIRONMENT)
-        
-        # Convert to API response format
-        return {
-            "overall_status": validation_report.overall_status,
-            "environment": validation_report.environment,
-            "validation_timestamp": validation_report.validation_timestamp.isoformat(),
-            "execution_time": validation_report.execution_time,
-            "summary": {
-                "total_checks": validation_report.total_checks,
-                "passed_checks": validation_report.passed_checks,
-                "failed_checks": validation_report.failed_checks,
-                "warning_checks": validation_report.warning_checks,
-            },
-            "critical_failures": [
-                {
-                    "service": f.service.value,
-                    "check_name": f.check_name,
-                    "message": f.message,
-                    "details": f.details
-                } for f in validation_report.critical_failures
-            ],
-            "warnings": [
-                {
-                    "service": w.service.value,
-                    "check_name": w.check_name,
-                    "message": w.message,
-                    "details": w.details
-                } for w in validation_report.warnings
-            ],
-            "recommendations": validation_report.recommendations,
-            "deployment_ready": validation_report.overall_status == "READY"
-        }
-        
-    except Exception as e:
-        logger.error(f"Deployment validation failed: {e}")
-        return {
-            "overall_status": "ERROR",
-            "environment": ENVIRONMENT,
-            "validation_timestamp": "error",
-            "execution_time": 0.0,
-            "summary": {
-                "total_checks": 0,
-                "passed_checks": 0,
-                "failed_checks": 1,
-                "warning_checks": 0,
-            },
-            "critical_failures": [
-                {
-                    "service": "validation_system",
-                    "check_name": "system_error",
-                    "message": f"Validation system error: {str(e)}",
-                    "details": None
-                }
-            ],
-            "warnings": [],
-            "recommendations": ["Fix deployment validation system before proceeding"],
-            "deployment_ready": False
-        }
-
-
-# Startup event with enhanced validation
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup with basic validation."""
@@ -223,15 +152,13 @@ async def startup_event():
             logger.warning("🔄 Continuing startup in development mode despite errors...")
 
     logger.info("✅ FastAPI app initialized")
-    logger.info("✅ CORS middleware configured")
+    logger.info("✅ CORS middleware configured")  
     logger.info("✅ API routes registered")
     logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
 
 
-# Shutdown event
 @app.on_event("shutdown")
 async def shutdown_event():
     """Clean up resources on shutdown."""
     logger.info("Shutting down Sophia AI Platform...")
-    # Add cleanup logic here if needed
     logger.info("✅ Sophia AI Platform shutdown complete")
