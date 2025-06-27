@@ -1,5 +1,4 @@
 """
-from backend.core.performance_monitor import performance_monitor
 Snowflake Admin Agent
 LangChain-powered natural language interface for Snowflake administration tasks
 """
@@ -181,8 +180,6 @@ class SnowflakeAdminAgent:
         ]
 
     async def initialize(self):
-    @performance_monitor.track_performance
-    @performance_monitor.track_performance
         """Initialize the Snowflake admin agent"""
         if self.initialized:
             return
@@ -270,7 +267,7 @@ class SnowflakeAdminAgent:
                 **auth_config,
             }
 
-            connection = await connection_manager.get_connection()
+            connection = snowflake.connector.connect(**connection_params)
             self.connections[environment] = connection
 
             # Create SQLDatabase for LangChain
@@ -411,7 +408,6 @@ Thought: I should understand what the user wants to do and determine if it's a s
         return False
 
     async def execute_admin_task(self, request: AdminTaskRequest) -> AdminTaskResponse:
-    @performance_monitor.track_performance
         """
         Execute a Snowflake admin task based on natural language request
 
@@ -561,7 +557,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         logger.error(f"Batch execution failed, falling back to individual: {batch_error}")
                         # Fallback to individual execution for action statements
                         for statement in action_statements:
-                            await cursor.execute(statement)
+                            cursor.execute(statement)
                             logger.info(f"Executed confirmed SQL: {statement}")
 
                 # Execute query statements and collect results
@@ -576,8 +572,8 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         logger.error(f"Query batch failed, falling back to individual: {query_error}")
                         # Fallback to individual execution for queries
                         for statement in query_statements:
-                            await cursor.execute(statement)
-                            rows = await cursor.fetchall()
+                            cursor.execute(statement)
+                            rows = cursor.fetchall()
                             results.extend(rows)
                             logger.info(f"Executed confirmed SQL: {statement}")
 
@@ -612,7 +608,6 @@ Thought: I should understand what the user wants to do and determine if it's a s
             )
 
     async def get_environment_info(
-    @performance_monitor.track_performance
         self, environment: SnowflakeEnvironment
     ) -> Dict[str, Any]:
         """Get information about a Snowflake environment"""
@@ -634,10 +629,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
             }
 
             # Get current session information
-            await cursor.execute(
+            cursor.execute(
                 "SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE(), CURRENT_SCHEMA()"
             )
-            session_info = await cursor.fetchone()
+            session_info = cursor.fetchone()
 
             if session_info:
                 info.update(

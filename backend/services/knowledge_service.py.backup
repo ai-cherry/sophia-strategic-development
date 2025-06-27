@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from backend.core.optimized_connection_manager import connection_manager
-from backend.core.performance_monitor import performance_monitor
 """
 Knowledge Service for Sophia AI
 Comprehensive knowledge management with file upload, processing, and search
@@ -105,11 +103,9 @@ class EnhancedKnowledgeService:
         self.upload_dir.mkdir(parents=True, exist_ok=True)
 
     async def connect(self):
-    @performance_monitor.track_performance
-    @performance_monitor.track_performance
         """Connect to Snowflake with enhanced configuration"""
         try:
-            self.connection = await connection_manager.get_connection()
+            self.connection = snowflake.connector.connect(**self.snowflake_config)
             await self._ensure_enhanced_schema_tables()
             logger.info("✅ Enhanced Knowledge Service connected with comprehensive schema support")
         except Exception as e:
@@ -134,7 +130,7 @@ class EnhancedKnowledgeService:
         
         for cat_id, name, desc, is_foundational, weight in categories:
             try:
-                await cursor.execute("""
+                cursor.execute("""
                 INSERT INTO KNOWLEDGE_CATEGORIES 
                 (CATEGORY_ID, CATEGORY_NAME, DESCRIPTION, IS_FOUNDATIONAL, IMPORTANCE_WEIGHT, CREATED_AT, UPDATED_AT)
                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
@@ -153,7 +149,7 @@ class EnhancedKnowledgeService:
         
         for src_id, name, src_type, is_active in sources:
             try:
-                await cursor.execute("""
+                cursor.execute("""
                 INSERT INTO KNOWLEDGE_SOURCES 
                 (SOURCE_ID, SOURCE_NAME, SOURCE_TYPE, IS_ACTIVE, CREATED_AT, UPDATED_AT)
                 VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
@@ -165,7 +161,6 @@ class EnhancedKnowledgeService:
         cursor.close()
 
     async def store_knowledge_entry_enhanced(
-    @performance_monitor.track_performance
         self,
         title: str,
         content: str,
@@ -196,7 +191,7 @@ class EnhancedKnowledgeService:
             "processing_timestamp": datetime.now().isoformat()
         }
         
-        await cursor.execute("""
+        cursor.execute("""
         INSERT INTO KNOWLEDGE_BASE_ENTRIES 
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE, 
          IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
@@ -213,7 +208,6 @@ class EnhancedKnowledgeService:
         return entry_id
 
     async def process_file_with_chunking(
-    @performance_monitor.track_performance
         self,
         filename: str,
         file_content: bytes,
@@ -467,8 +461,8 @@ class EnhancedKnowledgeService:
         search_query += " ORDER BY RELEVANCE_SCORE DESC, k.IS_FOUNDATIONAL DESC, k.CREATED_AT DESC LIMIT ?"
         params.append(limit)
         
-        await cursor.execute(search_query, params)
-        results = await cursor.fetchall()
+        cursor.execute(search_query, params)
+        results = cursor.fetchall()
         cursor.close()
         
         # Enhanced result processing
@@ -495,14 +489,13 @@ class EnhancedKnowledgeService:
         return enhanced_results
 
     async def get_knowledge_analytics(self) -> Dict[str, Any]:
-    @performance_monitor.track_performance
         """Get comprehensive knowledge base analytics"""
         cursor = self.connection.cursor(DictCursor)
         
         analytics = {}
         
         # Overall statistics
-        await cursor.execute("""
+        cursor.execute("""
         SELECT 
             COUNT(*) as TOTAL_ENTRIES,
             COUNT(DISTINCT CATEGORY_ID) as TOTAL_CATEGORIES,
@@ -513,11 +506,11 @@ class EnhancedKnowledgeService:
         FROM KNOWLEDGE_BASE_ENTRIES
         """)
         
-        overall_stats = await cursor.fetchone()
+        overall_stats = cursor.fetchone()
         analytics['overall'] = overall_stats
         
         # Category breakdown
-        await cursor.execute("""
+        cursor.execute("""
         SELECT 
             c.CATEGORY_NAME,
             c.IMPORTANCE_WEIGHT,
@@ -531,11 +524,11 @@ class EnhancedKnowledgeService:
         ORDER BY ENTRY_COUNT DESC
         """)
         
-        category_stats = await cursor.fetchall()
+        category_stats = cursor.fetchall()
         analytics['by_category'] = category_stats
         
         # Recent activity
-        await cursor.execute("""
+        cursor.execute("""
         SELECT 
             DATE(CREATED_AT) as ACTIVITY_DATE,
             COUNT(*) as ENTRIES_ADDED,
@@ -546,7 +539,7 @@ class EnhancedKnowledgeService:
         ORDER BY ACTIVITY_DATE DESC
         """)
         
-        recent_activity = await cursor.fetchall()
+        recent_activity = cursor.fetchall()
         analytics['recent_activity'] = recent_activity
         
         cursor.close()

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from backend.core.optimized_connection_manager import connection_manager
-from backend.core.performance_monitor import performance_monitor
 """
 Enhanced Chat Context Service for Sophia AI
 Provides large contextual windows and intelligent context management
@@ -73,11 +71,9 @@ class EnhancedChatContextService:
         self.context_window = ContextWindow()
         
     async def connect(self):
-    @performance_monitor.track_performance
-    @performance_monitor.track_performance
         """Connect to Snowflake"""
         try:
-            self.connection = await connection_manager.get_connection()
+            self.connection = snowflake.connector.connect(**self.snowflake_config)
             logger.info("✅ Enhanced Chat Context Service connected")
         except Exception as e:
             logger.error(f"❌ Connection failed: {e}")
@@ -160,7 +156,7 @@ class EnhancedChatContextService:
         cursor = self.connection.cursor(DictCursor)
         
         # Get last 20 messages for context
-        await cursor.execute("""
+        cursor.execute("""
         SELECT MESSAGE_ID, CONTENT, MESSAGE_TYPE, CREATED_AT
         FROM CONVERSATION_MESSAGES
         WHERE SESSION_ID = %s AND USER_ID = %s
@@ -168,14 +164,13 @@ class EnhancedChatContextService:
         LIMIT 20
         """, (session_id, user_id))
         
-        results = await cursor.fetchall()
+        results = cursor.fetchall()
         cursor.close()
         
         # Return in chronological order
         return list(reversed(results))
     
     async def _get_knowledge_context(self, query: str, user_id: str, limit: int = 10) -> List[Dict]:
-    @performance_monitor.track_performance
         """Get relevant knowledge base entries with enhanced search"""
         cursor = self.connection.cursor(DictCursor)
         
@@ -224,8 +219,8 @@ class EnhancedChatContextService:
         
         for strategy_query in search_strategies:
             try:
-                await cursor.execute(strategy_query)
-                results = await cursor.fetchall()
+                cursor.execute(strategy_query)
+                results = cursor.fetchall()
                 
                 for result in results:
                     if result['ENTRY_ID'] not in seen_entry_ids:
@@ -249,7 +244,6 @@ class EnhancedChatContextService:
         return all_results[:limit]
     
     async def _get_cross_document_context(self, query: str, user_id: str, limit: int = 5) -> List[Dict]:
-    @performance_monitor.track_performance
         """Get cross-document context by finding related entries across different documents"""
         cursor = self.connection.cursor(DictCursor)
         
@@ -285,8 +279,8 @@ class EnhancedChatContextService:
         """
         
         try:
-            await cursor.execute(search_query)
-            results = await cursor.fetchall()
+            cursor.execute(search_query)
+            results = cursor.fetchall()
             cursor.close()
             return results
         except Exception as e:
@@ -367,7 +361,6 @@ class EnhancedChatContextService:
             return "Context available from various sources"
     
     async def generate_enhanced_response(
-    @performance_monitor.track_performance
         self, 
         query: str, 
         context: Dict[str, Any], 
@@ -474,7 +467,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         }
         
         cursor = self.connection.cursor()
-        await cursor.execute("""
+        cursor.execute("""
         INSERT INTO CONVERSATION_MESSAGES 
         (MESSAGE_ID, SESSION_ID, USER_ID, CONTENT, MESSAGE_TYPE, CREATED_AT, METADATA)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -487,12 +480,11 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         return message_id
     
     async def get_session_analytics(self, session_id: str, user_id: str) -> Dict[str, Any]:
-    @performance_monitor.track_performance
         """Get analytics for a chat session"""
         cursor = self.connection.cursor(DictCursor)
         
         # Get session statistics
-        await cursor.execute("""
+        cursor.execute("""
         SELECT 
             COUNT(*) as total_messages,
             COUNT(CASE WHEN MESSAGE_TYPE = 'user' THEN 1 END) as user_messages,
@@ -504,7 +496,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         WHERE SESSION_ID = %s AND USER_ID = %s
         """, (session_id, user_id))
         
-        stats = await cursor.fetchone()
+        stats = cursor.fetchone()
         cursor.close()
         
         # Calculate session duration

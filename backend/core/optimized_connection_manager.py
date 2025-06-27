@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import snowflake.connector
-import snowflake.connector.pooling
+from snowflake.connector import DictCursor
 from backend.core.auto_esc_config import config
 
 logger = logging.getLogger(__name__)
