@@ -1,0 +1,5 @@
+{
+  "name": "database-query",
+  "description": "Generate optimized database queries",
+  "template": "Generate an optimized database query for:\n- Database: {database_type}\n- Query Type: {query_type}\n- Purpose: {purpose}\n- Tables: {tables}\n- Requirements: {requirements}\n\nSophia AI Context:\n{performance_requirements}\n{security_requirements}\n{business_logic}\n\nEnsure the query follows best practices:\n- Use proper indexing strategies\n- Include performance optimization\n- Add security measures (SQL injection prevention)\n- Include error handling\n- Add comprehensive comments\n- Consider scalability implications"
+}

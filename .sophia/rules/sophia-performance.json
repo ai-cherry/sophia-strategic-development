@@ -1,0 +1,12 @@
+{
+  "name": "sophia-performance",
+  "description": "Sophia AI performance standards",
+  "rules": [
+    "API responses must be <200ms for critical paths",
+    "Database queries must be <100ms average",
+    "Use async/await for I/O operations",
+    "Implement proper caching strategies",
+    "Add performance monitoring and logging",
+    "Optimize for scalability and concurrency"
+  ]
+}

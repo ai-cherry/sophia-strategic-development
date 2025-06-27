@@ -1,0 +1,5 @@
+{
+  "name": "python-api",
+  "description": "Generate Python API endpoints with FastAPI",
+  "template": "Generate a Python API endpoint with these specifications:\n- Use FastAPI with async/await patterns\n- Include proper Pydantic models for request/response\n- Add comprehensive error handling with proper HTTP status codes\n- Include authentication/authorization if needed\n- Add logging with structured format\n- Include type hints for all functions\n- Add OpenAPI documentation\n- Follow Sophia AI backend patterns\n\nEndpoint: {endpoint_name}\nMethod: {http_method}\nPurpose: {purpose}\nParameters: {parameters}\n\nBusiness Context from Sophia AI:\n{business_requirements}\n{security_requirements}\n{integration_requirements}"
+}

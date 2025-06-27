@@ -1,0 +1,13 @@
+{
+  "name": "sophia-security",
+  "description": "Sophia AI security standards",
+  "rules": [
+    "Never hardcode API keys or secrets",
+    "Use Pulumi ESC for credential management",
+    "Implement proper input validation",
+    "Add comprehensive error handling",
+    "Include security headers for web endpoints",
+    "Use HTTPS for all external communications",
+    "Implement proper authentication/authorization"
+  ]
+}

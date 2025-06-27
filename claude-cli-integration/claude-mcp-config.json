@@ -1,0 +1,270 @@
+{
+  "mcpServers": {
+    "sophia-ai-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "ai-intelligence",
+        "MCP_SERVER_PORT": "8091",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia AI Intelligence MCP Server - AI model routing and optimization for Claude",
+      "capabilities": [
+        "model_routing",
+        "cost_optimization", 
+        "semantic_caching",
+        "performance_monitoring",
+        "claude_integration"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-data-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "data-intelligence",
+        "MCP_SERVER_PORT": "8092",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Data Intelligence MCP Server - Enhanced data ops for Claude analysis",
+      "capabilities": [
+        "data_warehousing",
+        "vector_search",
+        "web_scraping",
+        "etl_pipelines",
+        "claude_data_analysis"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-infrastructure": {
+      "command": "python", 
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "infrastructure",
+        "MCP_SERVER_PORT": "8093",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Infrastructure MCP Server - Claude-powered infrastructure management",
+      "capabilities": [
+        "gpu_orchestration",
+        "container_management", 
+        "infrastructure_as_code",
+        "ci_cd_automation",
+        "claude_devops"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-business-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "business-intelligence", 
+        "MCP_SERVER_PORT": "8094",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Business Intelligence MCP Server - Claude-enhanced business analysis",
+      "capabilities": [
+        "project_management",
+        "team_communication",
+        "sales_intelligence", 
+        "customer_support",
+        "claude_business_insights"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-figma-dev-mode": {
+      "command": "python",
+      "args": ["ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "env": {
+        "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
+        "PYTHONPATH": "/app"
+      },
+      "description": "Sophia Figma Dev Mode MCP Server - Claude-powered design analysis",
+      "capabilities": [
+        "design_token_extraction",
+        "component_analysis",
+        "design_context_parsing",
+        "claude_design_insights"
+      ],
+      "auto_start": false,
+      "health_check": {
+        "enabled": true,
+        "interval": 60,
+        "timeout": 10
+      }
+    },
+    "sophia-ui-ux-agent": {
+      "command": "python",
+      "args": ["ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "env": {
+        "ANTHROPIC_API_KEY": "YOUR_CLAUDE_KEY_HERE",
+        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+        "PYTHONPATH": "/app"
+      },
+      "description": "Sophia UI/UX Agent MCP Server - Claude-enhanced design automation",
+      "capabilities": [
+        "component_generation",
+        "design_analysis", 
+        "design_system_validation",
+        "accessibility_optimization",
+        "claude_ui_assistance"
+      ],
+      "auto_start": false,
+      "depends_on": ["sophia-figma-dev-mode"],
+      "health_check": {
+        "enabled": true,
+        "interval": 60,
+        "timeout": 15
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "description": "Sequential Thinking MCP Server - Enhanced reasoning for Claude",
+      "capabilities": [
+        "step_by_step_reasoning",
+        "complex_problem_solving",
+        "logical_analysis",
+        "claude_reasoning_chains"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 5
+      }
+    }
+  },
+  "globalSettings": {
+    "defaultTimeout": 30000,
+    "maxRetries": 3,
+    "healthCheckInterval": 60000,
+    "enableMetrics": true,
+    "enableTracing": true,
+    "logLevel": "info",
+    "claudeCliIntegration": {
+      "enabled": true,
+      "contextWindow": 200000,
+      "maxRequestsPerMinute": 40,
+      "maxRequestsPerDay": 500,
+      "enableCheckpointing": true,
+      "enableFileOperations": true,
+      "modelName": "claude-3-5-sonnet-20241022"
+    }
+  },
+  "routing": {
+    "strategy": "intelligent",
+    "fallback": "sophia-ai-intelligence",
+    "rules": [
+      {
+        "pattern": "ai.*|model.*|intelligence.*|reasoning.*",
+        "server": "sophia-ai-intelligence"
+      },
+      {
+        "pattern": "data.*|database.*|snowflake.*|query.*|analytics.*",
+        "server": "sophia-data-intelligence"
+      },
+      {
+        "pattern": "deploy.*|infrastructure.*|docker.*|kubernetes.*|pulumi.*",
+        "server": "sophia-infrastructure"
+      },
+      {
+        "pattern": "business.*|sales.*|marketing.*|crm.*|hubspot.*",
+        "server": "sophia-business-intelligence"
+      },
+      {
+        "pattern": "design.*|figma.*|ui.*|ux.*|component.*",
+        "server": "sophia-figma-dev-mode"
+      },
+      {
+        "pattern": "dashboard.*|frontend.*|react.*|typescript.*",
+        "server": "sophia-ui-ux-agent"
+      }
+    ]
+  },
+  "workflows": {
+    "codebase_analysis": {
+      "servers": ["sophia-ai-intelligence", "sophia-data-intelligence"],
+      "parallel": true,
+      "timeout": 120000
+    },
+    "infrastructure_deployment": {
+      "servers": ["sophia-infrastructure", "sophia-ai-intelligence"],
+      "parallel": false,
+      "timeout": 300000
+    },
+    "design_automation": {
+      "servers": ["sophia-figma-dev-mode", "sophia-ui-ux-agent"],
+      "parallel": false,
+      "timeout": 180000
+    },
+    "business_intelligence": {
+      "servers": ["sophia-business-intelligence", "sophia-data-intelligence"],
+      "parallel": true,
+      "timeout": 90000
+    }
+  },
+  "security": {
+    "authentication": {
+      "enabled": true,
+      "type": "jwt",
+      "secretSource": "pulumi-esc"
+    },
+    "claudeCliSecurity": {
+      "enableSandboxing": true,
+      "restrictFileAccess": true,
+      "allowedDirectories": ["/app", "/tmp/claude-workspace"],
+      "maxFileSize": "50MB",
+      "allowedFileTypes": [".py", ".js", ".ts", ".json", ".md", ".sql", ".yaml", ".yml"]
+    },
+    "rateLimiting": {
+      "enabled": true,
+      "requestsPerMinute": 40,
+      "burstLimit": 10
+    }
+  },
+  "performance": {
+    "caching": {
+      "enabled": true,
+      "ttl": 3600,
+      "maxSize": "1GB"
+    },
+    "compression": {
+      "enabled": true,
+      "level": 6
+    },
+    "optimization": {
+      "parallelRequests": true,
+      "requestBatching": true,
+      "responseStreaming": true
+    }
+  }
+} 

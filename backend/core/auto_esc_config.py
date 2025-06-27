@@ -349,6 +349,18 @@ class AutoESCConfig:
             )
 
             if result.returncode != 0:
+                # Check for specific authentication errors
+                if "invalid access token" in result.stderr:
+                    logger.error(
+                        "❌ PULUMI_ACCESS_TOKEN is invalid! This should be synced from GitHub Organization Secrets."
+                    )
+                    logger.error(
+                        "💡 Fix: Update PULUMI_ACCESS_TOKEN in GitHub Organization Secrets (ai-cherry org)"
+                    )
+                    logger.error(
+                        "🔄 GitHub Secrets → Pulumi ESC sync should handle this automatically"
+                    )
+                
                 logger.error(
                     "pulumi env open failed for stack %s (returncode %d): %s",
                     stack,
@@ -363,7 +375,7 @@ class AutoESCConfig:
             self._last_loaded = datetime.now(timezone.utc)
 
             logger.info(
-                "Loaded ESC configuration: key_count=%d stack='%s' environment='%s'",
+                "✅ Loaded ESC configuration: key_count=%d stack='%s' environment='%s'",
                 len(self._config or {}),
                 stack,
                 environment,
@@ -386,11 +398,15 @@ class AutoESCConfig:
 
     def _fallback_to_env_vars(self) -> None:
         """Fallback to environment variables when ESC is unavailable."""
-        logger.warning("Falling back to environment variables")
+        logger.warning("⚠️  Falling back to environment variables")
+        logger.warning("🔧 Expected: GitHub Organization Secrets → Pulumi ESC → Sophia AI Backend")
+        logger.warning("📍 Current: Using limited environment variables as fallback")
 
-        # Load critical environment variables as fallback
+        # Enhanced fallback with Gemini and Anthropic keys the user mentioned
         env_mappings = {
             "openai_api_key": "OPENAI_API_KEY",
+            "anthropic_api_key": "ANTHROPIC_API_KEY",  # User mentioned this
+            "gemini_api_key": "GEMINI_API_KEY",  # User mentioned this
             "snowflake_account": "SNOWFLAKE_ACCOUNT",
             "snowflake_user": "SNOWFLAKE_USER",
             "snowflake_password": "SNOWFLAKE_PASSWORD",
@@ -407,13 +423,19 @@ class AutoESCConfig:
             "agent_communication_secret": "AGENT_COMMUNICATION_SECRET",
             "jwt_secret": "JWT_SECRET",
             "encryption_key": "ENCRYPTION_KEY",
+            "pinecone_api_key": "PINECONE_API_KEY",
+            "linear_api_key": "LINEAR_API_KEY",
+            "hubspot_access_token": "HUBSPOT_ACCESS_TOKEN",
+            "lambda_labs_api_key": "LAMBDA_LABS_API_KEY",
         }
 
         fallback_config = {}
+        keys_found = 0
         for config_key, env_key in env_mappings.items():
             value = os.getenv(env_key)
-            if value:
+            if value and value != "your-token-here":  # Skip placeholder values
                 fallback_config[config_key] = value
+                keys_found += 1
 
         # Set environment-specific defaults
         environment = os.getenv("ENVIRONMENT", "staging")
@@ -424,7 +446,7 @@ class AutoESCConfig:
         self._config = fallback_config
         logger.info(
             "Fallback configuration loaded: key_count=%d environment='%s'",
-            len(fallback_config),
+            keys_found,
             environment,
         )
 

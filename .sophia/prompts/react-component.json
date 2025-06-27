@@ -1,0 +1,5 @@
+{
+  "name": "react-component",
+  "description": "Generate React components with TypeScript",
+  "template": "Generate a React component with the following requirements:\n- Use TypeScript with proper type definitions\n- Follow modern React patterns (hooks, functional components)\n- Include proper error handling\n- Add accessibility features (ARIA labels, keyboard navigation)\n- Use Sophia AI's glassmorphism design system\n- Include comprehensive JSDoc comments\n- Add prop validation\n\nComponent: {component_name}\nPurpose: {purpose}\nProps: {props}\n\nAdditional Context from Sophia AI:\n{business_context}\n{design_context}\n{performance_requirements}"
+}

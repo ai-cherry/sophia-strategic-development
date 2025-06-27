@@ -2,7 +2,12 @@
   "mcpServers": {
     "sophia-ai-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "ai-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "ai-intelligence",
@@ -13,7 +18,7 @@
       "description": "Sophia AI Intelligence MCP Server - AI model routing, monitoring, and optimization",
       "capabilities": [
         "model_routing",
-        "cost_optimization", 
+        "cost_optimization",
         "semantic_caching",
         "performance_monitoring",
         "drift_detection"
@@ -27,7 +32,12 @@
     },
     "sophia-data-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "data-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "data-intelligence",
@@ -51,8 +61,13 @@
       }
     },
     "sophia-infrastructure": {
-      "command": "python", 
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "infrastructure"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "infrastructure",
@@ -63,7 +78,7 @@
       "description": "Sophia Infrastructure MCP Server - Infrastructure management and deployment",
       "capabilities": [
         "gpu_orchestration",
-        "container_management", 
+        "container_management",
         "infrastructure_as_code",
         "ci_cd_automation"
       ],
@@ -76,10 +91,15 @@
     },
     "sophia-business-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "business-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
-        "MCP_SERVER_TYPE": "business-intelligence", 
+        "MCP_SERVER_TYPE": "business-intelligence",
         "MCP_SERVER_PORT": "8094",
         "PULUMI_ORG": "scoobyjava-org",
         "PULUMI_STACK": "sophia-ai-production"
@@ -88,7 +108,7 @@
       "capabilities": [
         "project_management",
         "team_communication",
-        "sales_intelligence", 
+        "sales_intelligence",
         "customer_support",
         "crm_integration"
       ],
@@ -101,7 +121,10 @@
     },
     "sophia-regulatory-compliance": {
       "command": "python",
-      "args": ["-m", "backend.agents.compliance.regulatory_compliance_orchestrator"],
+      "args": [
+        "-m",
+        "backend.agents.compliance.regulatory_compliance_orchestrator"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_PORT": "8095",
@@ -125,7 +148,9 @@
     },
     "sophia-figma-dev-mode": {
       "command": "python",
-      "args": ["ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "args": [
+        "ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"
+      ],
       "env": {
         "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
         "PYTHONPATH": "/app"
@@ -145,7 +170,9 @@
     },
     "sophia-ui-ux-agent": {
       "command": "python",
-      "args": ["ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "args": [
+        "ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"
+      ],
       "env": {
         "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
         "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
@@ -154,12 +181,14 @@
       "description": "Sophia UI/UX Agent MCP Server - Intelligent design automation",
       "capabilities": [
         "component_generation",
-        "design_analysis", 
+        "design_analysis",
         "design_system_validation",
         "accessibility_optimization"
       ],
       "auto_start": false,
-      "depends_on": ["sophia-figma-dev-mode"],
+      "depends_on": [
+        "sophia-figma-dev-mode"
+      ],
       "health_check": {
         "enabled": true,
         "interval": 60,
@@ -168,7 +197,10 @@
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequentialthinking"
+      ],
       "description": "Sequential Thinking MCP Server - Enhanced reasoning capabilities",
       "capabilities": [
         "step_by_step_reasoning",
@@ -196,7 +228,8 @@
       "maxRequestsPerMinute": 60,
       "maxRequestsPerDay": 1000,
       "enableCheckpointing": true,
-      "enableFileOperations": true
+      "enableFileOperations": true,
+      "modelName": "gemini-2.5-pro"
     }
   },
   "routing": {
@@ -209,7 +242,7 @@
       },
       {
         "pattern": "data.*|database.*|warehouse.*|etl.*",
-        "server": "sophia-data-intelligence", 
+        "server": "sophia-data-intelligence",
         "priority": 1
       },
       {
@@ -365,4 +398,3 @@
   "version": "1.0.0",
   "lastUpdated": "2025-06-26T20:00:00Z"
 }
-

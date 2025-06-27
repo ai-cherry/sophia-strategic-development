@@ -1,0 +1,56 @@
+{
+  "mcpServers": {
+    "sophia-figma-dev-mode": {
+      "url": "http://localhost:9001",
+      "description": "Figma Dev Mode MCP Server - Claude Enhanced",
+      "capabilities": ["design_analysis", "claude_design_insights", "component_generation"]
+    },
+    "sophia-ui-ux-agent": {
+      "url": "http://localhost:9002", 
+      "description": "UI/UX Agent MCP Server - Claude Powered",
+      "capabilities": ["component_generation", "claude_ui_assistance", "accessibility_optimization"]
+    },
+    "codacy-quality": {
+      "url": "http://localhost:3008",
+      "description": "Codacy Code Quality Analysis - Claude Enhanced",
+      "capabilities": ["code_analysis", "security_scanning", "quality_metrics", "claude_code_review"]
+    },
+    "ai-memory": {
+      "url": "http://localhost:9000",
+      "description": "AI Memory & Context Management - Claude Integration",
+      "capabilities": ["context_storage", "smart_recall", "conversation_memory", "claude_context_enhancement"]
+    }
+  },
+  "globalSettings": {
+    "claudeApiSettings": {
+      "enabled": true,
+      "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "baseUrl": "https://api.anthropic.com/v1/messages"
+    },
+    "modelConfiguration": {
+      "primaryModel": "claude-3-5-sonnet-20241119",
+      "codingModel": "claude-3-5-sonnet-20241119",
+      "analysisModel": "claude-3-5-sonnet-20241119",
+      "fallbackModel": "claude-3-5-sonnet-20241022"
+    },
+    "intelligentRouting": {
+      "enabled": true,
+      "codingKeywords": ["code", "function", "class", "python", "javascript", "react", "typescript", "sql", "debug", "refactor", "implement"],
+      "analysisKeywords": ["analyze", "review", "explain", "compare", "evaluate", "assess", "understand"],
+      "designKeywords": ["design", "ui", "ux", "component", "layout", "styling", "figma", "dashboard"]
+    },
+    "modelSettings": {
+      "contextWindow": 200000,
+      "temperature": 0.1,
+      "maxTokens": 8000,
+      "topP": 0.95
+    },
+    "features": {
+      "mcpIntegration": true,
+      "contextEnhancement": true,
+      "intelligentModelSelection": true,
+      "codeGeneration": true,
+      "designAnalysis": true
+    }
+  }
+}

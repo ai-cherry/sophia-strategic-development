@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from backend.agents.specialized.asana_project_intelligence_agent import AsanaProjectIntelligenceAgent
-from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
+from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
@@ -65,7 +65,7 @@ class AsanaSyncRequest(BaseModel):
 
 # Service instances (will be initialized on startup)
 intelligence_agent: Optional[AsanaProjectIntelligenceAgent] = None
-chat_service: Optional[EnhancedUnifiedChatService] = None
+chat_service: Optional[SophiaUniversalChatService] = None
 airbyte_manager: Optional[EnhancedAirbyteManager] = None
 cortex_service: Optional[SnowflakeCortexService] = None
 ai_memory_service: Optional[EnhancedAiMemoryMCPServer] = None
@@ -81,11 +81,11 @@ async def get_intelligence_agent() -> AsanaProjectIntelligenceAgent:
         await intelligence_agent.initialize()
     return intelligence_agent
 
-async def get_chat_service() -> EnhancedUnifiedChatService:
+async def get_chat_service() -> SophiaUniversalChatService:
     """Get or initialize the chat service"""
     global chat_service
     if chat_service is None:
-        chat_service = EnhancedUnifiedChatService()
+        chat_service = SophiaUniversalChatService()
         await chat_service.initialize()
     return chat_service
 
@@ -501,7 +501,7 @@ async def get_overdue_tasks(
 @router.post("/chat/query")
 async def process_asana_chat_query(
     request: AsanaQueryRequest,
-    chat_service: EnhancedUnifiedChatService = Depends(get_chat_service)
+    chat_service: SophiaUniversalChatService = Depends(get_chat_service)
 ):
     """
     Process natural language queries about Asana data through the chat service

@@ -1,0 +1,12 @@
+{
+  "name": "sophia-business",
+  "description": "Sophia AI business logic standards",
+  "rules": [
+    "Always consider Pay Ready business context",
+    "Implement metrics for revenue and customer health",
+    "Focus on actionable insights for sales coaching",
+    "Prioritize real-time data processing",
+    "Include executive dashboard integration",
+    "Add comprehensive business intelligence features"
+  ]
+}

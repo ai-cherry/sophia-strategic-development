@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "sophia_ai": {
+    "models": {
+      "primary": "claude-3-5-sonnet-20241119",
+      "coding": "claude-3-5-sonnet-20241119",
+      "analysis": "claude-3-5-sonnet-20241119"
+    },
+    "endpoints": {
+      "backend": "http://localhost:8000",
+      "unified_assistant": "python unified_ai_assistant.py",
+      "claude_cli": "./claude-cli-integration/claude chat"
+    }
+  },
+  "integrations": {
+    "enabled": [
+      "github",
+      "linear",
+      "slack"
+    ],
+    "context_gathering": true,
+    "auto_prompt_generation": true
+  },
+  "workflow": {
+    "auto_context": true,
+    "intelligent_routing": true,
+    "business_context": true,
+    "security_scanning": true
+  }
+}

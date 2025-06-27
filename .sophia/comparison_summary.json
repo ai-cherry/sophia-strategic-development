@@ -1,0 +1,52 @@
+{
+  "sophia_ai": {
+    "strengths": [
+      "Latest Claude Sonnet 4 with intelligent routing",
+      "Unique business intelligence integration",
+      "Real-time executive dashboards",
+      "Infrastructure automation (Pulumi, Docker, K8s)",
+      "Multi-platform support (CLI, Web, Extensions, API)",
+      "Enterprise-grade security with Pulumi ESC",
+      "MCP server orchestration",
+      "AI Memory with business context",
+      "Cross-functional workflow automation"
+    ],
+    "use_cases": [
+      "Enterprise development with business intelligence",
+      "Executive decision support",
+      "Full-stack development with infrastructure automation",
+      "Business-critical applications",
+      "Multi-platform development workflows"
+    ]
+  },
+  "zencoder": {
+    "strengths": [
+      "Platform integration with 20+ tools",
+      "Customizable AI agents",
+      "Chrome extension for workflow integration",
+      "Enterprise compliance features",
+      "Cross-repository understanding"
+    ],
+    "limitations": [
+      "Code-focused only (no business intelligence)",
+      "No infrastructure management",
+      "Limited to VS Code/JetBrains",
+      "No executive dashboard capabilities"
+    ]
+  },
+  "cursor_companion": {
+    "strengths": [
+      "Structured prompt and rule management",
+      "Project-specific customization",
+      "CLI-based management",
+      "Cursor IDE integration"
+    ],
+    "limitations": [
+      "Cursor IDE only",
+      "No platform integration",
+      "No business intelligence",
+      "No infrastructure capabilities",
+      "Limited AI model options"
+    ]
+  }
+}
