@@ -1,71 +1,53 @@
 {
-  "mcpServers": {
+  "version": "1.0",
+  "description": "Sophia AI MCP Server Configuration with Environment Stabilization",
+  "environment": {
+    "ENVIRONMENT": "prod",
+    "PULUMI_ORG": "scoobyjava-org",
+    "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}"
+  },
+  "servers": {
     "ai_memory": {
       "command": "python",
       "args": [
         "-m",
-        "backend.mcp.ai_memory_mcp_server"
+        "mcp-servers.ai_memory.ai_memory_mcp_server"
       ],
       "env": {
+        "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "PULUMI_STACK": "sophia-ai-production"
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}"
       },
       "capabilities": {
+        "memory_storage": true,
         "semantic_search": true,
-        "auto_discovery": true,
         "context_awareness": true,
-        "intelligent_categorization": true
+        "auto_discovery": true
       },
       "auto_triggers": {
-        "on_file_save": true,
-        "on_commit": true,
-        "on_branch_switch": true,
-        "on_architecture_discussion": true,
-        "on_file_change": true,
-        "on_save": true
-      },
-      "workflow_automation": {
-        "auto_store_context": true,
-        "smart_recall": true,
-        "file_specific_memory": true,
-        "pattern_recognition": true
-      },
-      "performance": {
-        "cache_enabled": true,
-        "batch_operations": true,
-        "async_processing": true
+        "on_conversation": true,
+        "on_code_change": true,
+        "on_architecture_discussion": true
       }
     },
     "codacy": {
-      "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.codacy.codacy_mcp_server"
-      ],
-      "capabilities": {
-        "real_time_analysis": true,
-        "security_scanning": true,
-        "ast_analysis": true,
-        "quality_metrics": true,
-        "fix_suggestions": true
+      "type": "http",
+      "baseUrl": "http://localhost:3008",
+      "description": "Codacy MCP Server - Comprehensive code quality orchestrator with security analysis and intelligent recommendations",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
       },
+      "capabilities": [
+        "security_analysis",
+        "code_complexity",
+        "performance_analysis",
+        "sophia_ai_checks"
+      ],
       "auto_triggers": {
         "on_file_save": true,
-        "on_code_change": true,
-        "on_security_review": true,
-        "on_file_change": true,
-        "on_save": true
-      },
-      "analysis_settings": {
-        "complexity_threshold": 10,
-        "security_level": "strict",
-        "style_checking": true,
-        "performance_analysis": true
-      },
-      "integration": {
-        "github_integration": true,
-        "pr_comments": true,
-        "automated_fixes": false
+        "on_code_analysis": true,
+        "on_security_scan": true
       }
     },
     "asana": {
@@ -75,19 +57,14 @@
         "mcp-servers.asana.asana_mcp_server"
       ],
       "env": {
+        "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "PULUMI_STACK": "sophia-ai-production"
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}"
       },
       "capabilities": {
         "task_management": true,
-        "project_tracking": true,
-        "team_collaboration": true,
-        "progress_monitoring": true
-      },
-      "integration": {
-        "github_issues": true,
-        "development_workflow": true,
-        "automated_updates": true
+        "project_analytics": true,
+        "team_insights": true
       }
     },
     "notion": {
@@ -97,49 +74,87 @@
         "mcp-servers.notion.notion_mcp_server"
       ],
       "env": {
+        "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "PULUMI_STACK": "sophia-ai-production"
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}"
       },
       "capabilities": {
-        "document_management": true,
-        "knowledge_base": true,
-        "project_documentation": true,
-        "team_wiki": true
-      },
-      "auto_triggers": {
-        "on_architecture_decision": true,
-        "on_documentation_update": true,
-        "on_project_milestone": true,
-        "on_file_change": true,
-        "on_save": true
+        "knowledge_management": true,
+        "documentation": true,
+        "collaboration": true
       }
     },
-    "sophia_intelligence": {
+    "linear": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.linear.linear_mcp_server"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_ACCESS_TOKEN": "${PULUMI_ACCESS_TOKEN}"
+      },
+      "capabilities": {
+        "issue_management": true,
+        "project_tracking": true,
+        "team_velocity": true,
+        "ai_insights": true
+      }
+    },
+    "github": {
       "type": "http",
-      "baseUrl": "http://localhost:8092",
-      "description": "Sophia AI Intelligence MCP Server - Handles AI model routing, business intelligence, and analytical tasks",
+      "baseUrl": "http://localhost:8091",
+      "description": "GitHub MCP Server - Repository management and CI/CD integration",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
       "capabilities": [
-        "agent_creation",
-        "business_analysis",
-        "data_insights",
-        "ai_orchestration"
+        "repository_management",
+        "ci_cd_integration",
+        "issue_tracking",
+        "pull_request_management"
       ]
     },
-    "sophia_business": {
+    "slack": {
+      "type": "http",
+      "baseUrl": "http://localhost:8092",
+      "description": "Slack MCP Server - Team communication and workflow automation",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
+      "capabilities": [
+        "team_communication",
+        "workflow_automation",
+        "notification_management",
+        "sentiment_analysis"
+      ]
+    },
+    "postgres": {
       "type": "http",
       "baseUrl": "http://localhost:8093",
-      "description": "Sophia Business Intelligence MCP Server - Manages CRM, sales data, and business metrics",
+      "description": "PostgreSQL MCP Server - Database operations and analytics",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
       "capabilities": [
-        "crm_integration",
-        "sales_analysis",
-        "customer_health",
-        "revenue_tracking"
+        "database_operations",
+        "data_analytics",
+        "schema_management",
+        "performance_monitoring"
       ]
     },
     "sophia_data": {
       "type": "http",
       "baseUrl": "http://localhost:8094",
       "description": "Sophia Data Intelligence MCP Server - Handles data processing, ETL, and data pipeline management",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
       "capabilities": [
         "data_processing",
         "etl_pipelines",
@@ -151,6 +166,10 @@
       "type": "http",
       "baseUrl": "http://localhost:8095",
       "description": "Sophia Infrastructure MCP Server - Manages deployments, scaling, and infrastructure operations",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
       "capabilities": [
         "deployment_management",
         "infrastructure_scaling",
@@ -165,6 +184,7 @@
         "mcp-servers.snowflake_admin.snowflake_admin_mcp_server"
       ],
       "env": {
+        "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
         "PULUMI_STACK": "sophia-ai-production"
       },
@@ -204,118 +224,84 @@
     "logLevel": "info",
     "autoMemoryStorage": true,
     "intelligentRouting": true,
-    "contextAwareness": true
+    "contextAwareness": true,
+    "environmentValidation": true
   },
-  "development": {
-    "auto_reload": true,
-    "debug_mode": true,
-    "verbose_logging": true,
-    "fast_feedback": true
+  "globalEnvironment": {
+    "ENVIRONMENT": "prod",
+    "PULUMI_ORG": "scoobyjava-org",
+    "LOG_LEVEL": "INFO"
+  },
+  "autoTriggers": {
+    "onFileChange": [
+      "ai_memory.auto_store_context",
+      "codacy.analyze_file"
+    ],
+    "onCommit": [
+      "ai_memory.store_conversation",
+      "codacy.security_scan"
+    ],
+    "onPullRequest": [
+      "codacy.analyze_code",
+      "ai_memory.recall_memory"
+    ]
   },
   "workflows": {
-    "onCodeChange": {
-      "triggers": [
-        "codacy.analyze_file",
-        "ai_memory.store_context"
-      ],
-      "conditions": [
-        "file_size < 10000",
-        "file_type in ['py', 'js', 'ts']"
+    "code_review": {
+      "triggers": ["file_save", "commit"],
+      "sequence": [
+        "codacy.analyze_code",
+        "ai_memory.smart_recall",
+        "ai_memory.auto_store_context"
       ]
     },
-    "onArchitecturalDiscussion": {
-      "triggers": [
+    "architecture_discussion": {
+      "triggers": ["conversation_keywords"],
+      "keywords": ["architecture", "design", "pattern", "structure"],
+      "sequence": [
+        "ai_memory.recall_memory",
         "ai_memory.store_conversation"
-      ],
-      "category": "architecture"
+      ]
     },
-    "onBugFix": {
-      "triggers": [
-        "ai_memory.store_conversation",
-        "codacy.security_scan"
-      ],
-      "category": "bug_solution"
-    },
-    "onSnowflakeAdminQuery": {
-      "triggers": [
-        "snowflake_admin.execute_admin_task",
-        "ai_memory.store_context"
-      ],
-      "category": "database_administration",
-      "conditions": [
-        "query_contains_snowflake_keywords",
-        "user_has_admin_permissions"
+    "bug_analysis": {
+      "triggers": ["error_detection", "bug_keywords"],
+      "keywords": ["bug", "error", "issue", "fix"],
+      "sequence": [
+        "ai_memory.recall_memory",
+        "codacy.security_scan",
+        "ai_memory.store_conversation"
       ]
     }
   },
-  "github_integration": {
-    "auto_sync": true,
-    "branch_awareness": true,
-    "pr_integration": true,
-    "issue_linking": true,
-    "workflow_triggers": {
-      "on_push": [
-        "ai_memory",
-        "codacy"
-      ],
-      "on_pr": [
-        "codacy",
-        "ai_memory"
-      ],
-      "on_branch_switch": [
-        "ai_memory"
-      ],
-      "on_commit": [
-        "ai_memory",
-        "codacy"
-      ]
+  "healthChecks": {
+    "enabled": true,
+    "interval": 60000,
+    "endpoints": {
+      "ai_memory": "http://localhost:9000/health",
+      "codacy": "http://localhost:3008/health",
+      "github": "http://localhost:8091/health",
+      "slack": "http://localhost:8092/health",
+      "postgres": "http://localhost:8093/health",
+      "sophia_data": "http://localhost:8094/health",
+      "sophia_infrastructure": "http://localhost:8095/health"
     }
   },
-  "cursor_optimizations": {
-    "intelligent_code_completion": true,
-    "context_aware_suggestions": true,
-    "ai_powered_refactoring": true,
-    "automated_documentation": true,
-    "smart_error_handling": true,
-    "performance_monitoring": true
-  },
-  "development_workflow": {
-    "auto_format_on_save": true,
-    "lint_on_change": true,
-    "test_on_commit": true,
-    "security_scan_on_pr": true
-  },
-  "ai_assistance": {
-    "natural_language_commands": true,
-    "contextual_help": true,
-    "code_explanation": true,
-    "optimization_suggestions": true
+  "security": {
+    "secretMasking": true,
+    "auditLogging": true,
+    "environmentValidation": true,
+    "requireHealthyServices": true
   },
   "performance": {
-    "connection_pooling": true,
-    "request_batching": true,
-    "async_operations": true,
-    "caching": {
-      "enabled": true,
-      "ttl": 300,
-      "max_size": 1000
-    },
-    "timeouts": {
-      "connection": 10,
-      "request": 30,
-      "keepalive": 60
-    }
+    "enableCaching": true,
+    "parallelExecution": true,
+    "intelligentRouting": true,
+    "resourceOptimization": true
   },
   "monitoring": {
-    "health_checks": true,
-    "performance_metrics": true,
-    "error_tracking": true,
-    "usage_analytics": true
-  },
-  "logging": {
-    "level": "INFO",
-    "format": "json",
-    "correlation_ids": true,
-    "structured_logging": true
+    "enabled": true,
+    "metricsCollection": true,
+    "performanceTracking": true,
+    "errorReporting": true
   }
 }

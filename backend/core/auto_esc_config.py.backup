@@ -442,7 +442,7 @@ class AutoESCConfig:
                 keys_found += 1
 
         # Set environment-specific defaults
-        environment = os.getenv("ENVIRONMENT", "prod")
+        environment = os.getenv("ENVIRONMENT", "staging")
         fallback_config["environment"] = environment
         fallback_config["platform_name"] = "sophia-ai-platform"
         fallback_config["platform_version"] = "v2.0.0"
@@ -543,7 +543,7 @@ class AutoESCConfig:
 
     def _get_minimal_enhanced_settings(self) -> EnhancedSettings:
         """Return minimal enhanced settings to prevent total failure."""
-        environment = os.getenv("ENVIRONMENT", "prod")
+        environment = os.getenv("ENVIRONMENT", "staging")
 
         minimal_data = {
             "platform_name": "sophia-ai-platform",
@@ -601,7 +601,7 @@ class AutoESCConfig:
             "last_loaded": last_loaded,
             "cache_age_seconds": cache_age,
             "cache_valid": not self._should_refresh_cache(),
-            "environment": os.getenv("ENVIRONMENT", "prod"),
+            "environment": os.getenv("ENVIRONMENT", "staging"),
             "pulumi_org": os.getenv("PULUMI_ORG", "scoobyjava-org"),
         }
 

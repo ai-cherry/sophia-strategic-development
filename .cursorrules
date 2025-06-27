@@ -55,6 +55,100 @@ gong_key = config.gong_access_key
 - ✅ Automatic backend configuration loading
 - ✅ GitHub Actions for secret synchronization
 
+## 🔒 **ENVIRONMENT STABILIZATION RULES (CRITICAL)**
+
+### **🎯 PRODUCTION-FIRST ENVIRONMENT POLICY**
+**MANDATORY RULES - NEVER BREAK THESE:**
+
+1. **ALWAYS DEFAULT TO PRODUCTION**
+   ```bash
+   # CORRECT - Always default to production
+   ENVIRONMENT="${ENV:-prod}"
+   
+   # WRONG - Never default to staging
+   ENVIRONMENT="${ENV:-staging}"  # ❌ FORBIDDEN
+   ```
+
+2. **ENVIRONMENT VARIABLE HIERARCHY**
+   ```python
+   # Priority order for environment detection:
+   # 1. Explicit ENVIRONMENT variable (highest priority)
+   # 2. Git branch detection (main=prod, develop=staging)
+   # 3. Pulumi stack context
+   # 4. ALWAYS fallback to "prod" (never staging, never fail)
+   ```
+
+3. **STACK NAMING STANDARDS**
+   ```python
+   STACK_MAPPING = {
+       "prod": "sophia-ai-production",          # ✅ Production stack
+       "staging": "sophia-ai-platform-staging", # ✅ Staging stack  
+       "dev": "sophia-ai-platform-dev"          # ✅ Development stack
+   }
+   ```
+
+4. **PERSISTENT ENVIRONMENT SETUP**
+   ```bash
+   # All environment variables MUST be set persistently
+   export ENVIRONMENT="prod"
+   export PULUMI_ORG="scoobyjava-org"
+   # Add to ~/.bashrc, ~/.zshrc, ~/.profile
+   ```
+
+### **🐳 DOCKER & CONTAINER ENVIRONMENT RULES**
+
+1. **ALL containers MUST inherit environment:**
+   ```dockerfile
+   ENV ENVIRONMENT=prod
+   ENV PULUMI_ORG=scoobyjava-org
+   ENV PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
+   ```
+
+2. **Docker Compose MUST include environment:**
+   ```yaml
+   environment:
+     - ENVIRONMENT=prod
+     - PULUMI_ORG=scoobyjava-org
+     - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
+   ```
+
+### **🔧 MCP SERVER ENVIRONMENT RULES**
+
+1. **ALL MCP servers MUST validate environment on startup**
+2. **ALL MCP servers MUST use centralized environment detection**
+3. **NO hardcoded environment values in MCP server code**
+4. **Environment health checks MUST be included**
+
+### **📝 CODING STANDARDS WITH ENVIRONMENT AWARENESS**
+
+1. **Environment Detection Pattern:**
+   ```python
+   # CORRECT - Use centralized environment detection
+   from backend.core.auto_esc_config import get_config_value
+   
+   # WRONG - Direct environment variable access
+   os.getenv("SOME_SECRET")  # ❌ Use centralized config instead
+   ```
+
+2. **Error Handling with Environment Context:**
+   ```python
+   try:
+       config_value = get_config_value("some_key")
+   except Exception as e:
+       logger.error(f"Config error in {os.getenv('ENVIRONMENT', 'unknown')} environment: {e}")
+       # Always provide fallback
+   ```
+
+3. **Health Check Integration:**
+   ```python
+   # ALL services MUST include environment health validation
+   def validate_environment():
+       env = os.getenv("ENVIRONMENT")
+       if env != "prod":
+           logger.warning(f"Not in production environment: {env}")
+       return env in ["prod", "staging", "dev"]
+   ```
+
 ## 🧠 **ENHANCED MCP INTEGRATION (CRITICAL FOR CURSOR AI)**
 
 ### **🔄 AUTOMATIC WORKFLOW INTEGRATION**
@@ -337,7 +431,8 @@ frontend/
 6. Follow the established patterns in the codebase
 7. Prioritize performance and scalability
 8. Include relevant tests
-9. **LAST**: Store the conversation in AI memory
+9. **VALIDATE ENVIRONMENT**: Ensure ENVIRONMENT="prod" is used
+10. **LAST**: Store the conversation in AI memory
 
 ## Avoid:
 - Hardcoded values (use configuration)
@@ -346,6 +441,8 @@ frontend/
 - Unclear variable names
 - Complex nested logic without comments
 - Security vulnerabilities (exposed secrets, etc.)
+- **DEFAULTING TO STAGING ENVIRONMENT** (Always use production)
+- **MANUAL ENVIRONMENT VARIABLE SETUP** (Use centralized config)
 
 Remember: You're building an enterprise-grade AI orchestrator that will handle critical business operations for Pay Ready. Code quality, reliability, and performance are paramount.
 
@@ -722,15 +819,17 @@ Trigger Sequence:
 2. Codacy: Analyze code quality
 3. GitHub: Check for conflicts
 4. MCP: Update relevant servers
+5. Environment: Validate environment configuration
 ```
 
 ### **On Commit**
 ```
 Trigger Sequence:
 1. Pre-commit Analysis: Run security and quality checks
-2. AI Memory: Store commit context and decisions
-3. GitHub Actions: Trigger relevant workflows
-4. Notification: Update team on significant changes
+2. Environment Validation: Ensure ENVIRONMENT=prod
+3. AI Memory: Store commit context and decisions
+4. GitHub Actions: Trigger relevant workflows
+5. Notification: Update team on significant changes
 ```
 
 ### **On Branch Switch**
@@ -745,16 +844,18 @@ Trigger Sequence:
 ### **On Pull Request**
 ```
 Trigger Sequence:
-1. Code Review: Generate AI-powered code review
-2. Testing: Run comprehensive test suite
-3. Documentation: Update relevant documentation
-4. Deployment: Prepare deployment artifacts
+1. Environment Check: Validate environment configuration
+2. Code Review: Generate AI-powered code review
+3. Testing: Run comprehensive test suite
+4. Documentation: Update relevant documentation
+5. Deployment: Prepare deployment artifacts
 ```
 
 ## 🛡️ **SECURITY & COMPLIANCE INTEGRATION**
 
 ### **Automated Security Checks**
 - **Secret Scanning**: Prevent hardcoded secrets from being committed
+- **Environment Validation**: Ensure proper environment configuration
 - **Dependency Scanning**: Check for vulnerable dependencies
 - **Code Analysis**: Scan for security vulnerabilities
 - **Compliance Checking**: Ensure code meets compliance requirements
@@ -770,6 +871,7 @@ Trigger Sequence:
 ### **MCP Server Development**
 When working on MCP servers:
 - **Auto-discovery**: Automatically discover and configure new MCP servers
+- **Environment Validation**: Ensure MCP servers use correct environment
 - **Health Monitoring**: Implement health checks for all MCP servers
 - **Performance Optimization**: Optimize MCP server performance automatically
 - **Documentation**: Generate MCP server documentation automatically
