@@ -54,9 +54,9 @@
     "status": "active",
     "priority": "medium"
   },
-  "airbyte": {
+  "estuary": {
     "type": "data_pipeline",
-    "description": "Airbyte Cloud data pipeline integration",
+    "description": "Estuary Flow data pipeline integration",
     "config_keys": ["api_url", "workspace_id"],
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",

@@ -26,7 +26,7 @@ Sophia AI is Pay Ready's **central business intelligence nervous system** - a un
 
 ### **Complete Data Flow**
 ```
-Business Data → Airbyte/Estuary → Lambda Labs → Snowflake + Vectors → MCP Servers → AI Agents → Contextualized Output
+Business Data → Estuary/Estuary → Lambda Labs → Snowflake + Vectors → MCP Servers → AI Agents → Contextualized Output
 ```
 
 ### **Core Components**
@@ -164,7 +164,7 @@ curl http://localhost:8080/health  # Snowflake MCP
 Gong Calls ────┐
 HubSpot CRM ───┤
 Slack Messages ┤
-Linear Issues ─┤ → Airbyte → Lambda Labs → Snowflake → MCP → AI Agents → Dashboards
+Linear Issues ─┤ → Estuary → Lambda Labs → Snowflake → MCP → AI Agents → Dashboards
 GitHub Commits ┤              Processing     + Pinecone   Servers
 CoStar Data ───┤                                          
 Apollo.io ─────┤

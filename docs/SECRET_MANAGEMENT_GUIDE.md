@@ -58,7 +58,7 @@ related_docs: none
   - [Vector Database Integration](#vector-database-integration)
   - [Snowflake Integration](#snowflake-integration)
   - [Estuary Integration](#estuary-integration)
-  - [Airbyte Integration](#airbyte-integration)
+  - [Estuary Integration](#estuary-integration)
   - [Environment Configuration](#environment-configuration)
 - [Optional Environment Variables](#optional-environment-variables)
 - [Usage Guide](#usage-guide)

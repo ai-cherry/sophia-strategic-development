@@ -4,7 +4,7 @@ Comprehensive Gong Deployment Test Script
 
 Executes the complete Gong data pipeline deployment and validation plan including:
 1. Pre-flight credential checks
-2. Airbyte setup and sync
+2. Estuary setup and sync
 3. Snowflake DDL deployment
 4. End-to-end testing
 5. Application integration validation
@@ -12,7 +12,7 @@ Executes the complete Gong data pipeline deployment and validation plan includin
 Usage:
     python backend/scripts/test_gong_deployment.py --phase all
     python backend/scripts/test_gong_deployment.py --phase credentials
-    python backend/scripts/test_gong_deployment.py --phase airbyte
+    python backend/scripts/test_gong_deployment.py --phase estuary
     python backend/scripts/test_gong_deployment.py --phase snowflake
     python backend/scripts/test_gong_deployment.py --phase testing
     python backend/scripts/test_gong_deployment.py --phase chat
@@ -31,8 +31,8 @@ from enum import Enum
 import argparse
 
 from backend.core.auto_esc_config import get_config_value
-from backend.scripts.airbyte_gong_setup import AirbyteGongOrchestrator, AirbyteConfig
-from backend.scripts.enhanced_airbyte_integration_test_suite import AirbyteIntegrationTestSuite
+from backend.scripts.estuary_gong_setup import EstuaryGongOrchestrator, EstuaryConfig
+from backend.scripts.enhanced_estuary_integration_test_suite import EstuaryIntegrationTestSuite
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
 
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 class DeploymentPhase(Enum):
     """Deployment phases"""
     CREDENTIALS = "credentials"
-    AIRBYTE = "airbyte"
+    ESTUARY = "estuary"
     SNOWFLAKE = "snowflake"
     TESTING = "testing"
     CHAT = "chat"
@@ -120,8 +120,8 @@ class GongDeploymentTester:
             
             if phase == DeploymentPhase.CREDENTIALS:
                 result = await self._test_credentials()
-            elif phase == DeploymentPhase.AIRBYTE:
-                result = await self._execute_airbyte_setup()
+            elif phase == DeploymentPhase.ESTUARY:
+                result = await self._execute_estuary_setup()
             elif phase == DeploymentPhase.SNOWFLAKE:
                 result = await self._execute_snowflake_deployment()
             elif phase == DeploymentPhase.TESTING:
@@ -222,29 +222,29 @@ class GongDeploymentTester:
                 execution_time=time.time() - start_time
             )
 
-    async def _execute_airbyte_setup(self) -> PhaseResult:
-        """Phase 2: Execute Airbyte setup"""
+    async def _execute_estuary_setup(self) -> PhaseResult:
+        """Phase 2: Execute Estuary setup"""
         start_time = time.time()
         
         try:
-            # Initialize Airbyte orchestrator
-            airbyte_config = AirbyteConfig(
-                base_url=get_config_value("airbyte_server_url", "http://localhost:8000"),
-                workspace_id=get_config_value("airbyte_workspace_id", "default")
+            # Initialize Estuary orchestrator
+            estuary_config = EstuaryConfig(
+                base_url=get_config_value("estuary_server_url", "http://localhost:8000"),
+                workspace_id=get_config_value("estuary_workspace_id", "default")
             )
             
-            orchestrator = AirbyteGongOrchestrator(airbyte_config)
+            orchestrator = EstuaryGongOrchestrator(estuary_config)
             await orchestrator.initialize()
             
             # Execute setup
-            logger.info("Setting up Airbyte pipeline...")
+            logger.info("Setting up Estuary pipeline...")
             setup_result = await orchestrator.setup_complete_pipeline()
             
             if setup_result.get("success"):
                 return PhaseResult(
-                    phase=DeploymentPhase.AIRBYTE,
+                    phase=DeploymentPhase.ESTUARY,
                     success=True,
-                    message="Airbyte setup completed successfully",
+                    message="Estuary setup completed successfully",
                     details={
                         "gong_source_id": setup_result.get("gong_source_id"),
                         "snowflake_destination_id": setup_result.get("snowflake_destination_id"),
@@ -256,18 +256,18 @@ class GongDeploymentTester:
                 )
             else:
                 return PhaseResult(
-                    phase=DeploymentPhase.AIRBYTE,
+                    phase=DeploymentPhase.ESTUARY,
                     success=False,
-                    message=f"Airbyte setup failed: {setup_result.get('error', 'Unknown error')}",
+                    message=f"Estuary setup failed: {setup_result.get('error', 'Unknown error')}",
                     details=setup_result.get("partial_setup", {}),
                     execution_time=time.time() - start_time
                 )
                 
         except Exception as e:
             return PhaseResult(
-                phase=DeploymentPhase.AIRBYTE,
+                phase=DeploymentPhase.ESTUARY,
                 success=False,
-                message=f"Airbyte setup failed: {str(e)}",
+                message=f"Estuary setup failed: {str(e)}",
                 execution_time=time.time() - start_time
             )
 
@@ -302,7 +302,7 @@ class GongDeploymentTester:
                     "ddl_file": ddl_file,
                     "deployment_method": "execute_manus_ai_ddl()",
                     "target_database": "SOPHIA_AI_DEV",
-                    "schemas": ["RAW_AIRBYTE", "STG_TRANSFORMED", "AI_MEMORY", "OPS_MONITORING"]
+                    "schemas": ["RAW_ESTUARY", "STG_TRANSFORMED", "AI_MEMORY", "OPS_MONITORING"]
                 },
                 execution_time=time.time() - start_time
             )
@@ -321,7 +321,7 @@ class GongDeploymentTester:
         
         try:
             # Initialize test suite
-            test_suite = AirbyteIntegrationTestSuite(environment=self.environment)
+            test_suite = EstuaryIntegrationTestSuite(environment=self.environment)
             
             # Run comprehensive tests
             logger.info("Running comprehensive test suite...")
@@ -469,7 +469,7 @@ class GongDeploymentTester:
         if not failed_phases:
             next_steps.extend([
                 "🎉 All phases completed successfully!",
-                "Monitor Airbyte sync jobs for continued data flow",
+                "Monitor Estuary sync jobs for continued data flow",
                 "Set up automated monitoring and alerting",
                 "Begin production data analysis and insights generation",
                 "Train team on new Gong data capabilities"
@@ -478,8 +478,8 @@ class GongDeploymentTester:
             for phase_result in failed_phases:
                 if phase_result.phase == DeploymentPhase.CREDENTIALS:
                     next_steps.append("🔑 Update Gong credentials in Pulumi ESC")
-                elif phase_result.phase == DeploymentPhase.AIRBYTE:
-                    next_steps.append("🔧 Debug Airbyte configuration and connectivity")
+                elif phase_result.phase == DeploymentPhase.ESTUARY:
+                    next_steps.append("🔧 Debug Estuary configuration and connectivity")
                 elif phase_result.phase == DeploymentPhase.SNOWFLAKE:
                     next_steps.append("📜 Obtain and deploy Manus AI's consolidated DDL")
                 elif phase_result.phase == DeploymentPhase.TESTING:
@@ -497,8 +497,8 @@ class GongDeploymentTester:
             if not phase_result.success:
                 if phase_result.phase == DeploymentPhase.CREDENTIALS:
                     recommendations.append("Verify Pulumi ESC access and Gong API key scopes")
-                elif phase_result.phase == DeploymentPhase.AIRBYTE:
-                    recommendations.append("Check Airbyte server status and network connectivity")
+                elif phase_result.phase == DeploymentPhase.ESTUARY:
+                    recommendations.append("Check Estuary server status and network connectivity")
                 elif phase_result.phase == DeploymentPhase.TESTING:
                     recommendations.append("Review failed tests for data quality and integration issues")
         
@@ -552,7 +552,7 @@ async def main():
     if args.phase == "all":
         phases = [
             DeploymentPhase.CREDENTIALS,
-            DeploymentPhase.AIRBYTE,
+            DeploymentPhase.ESTUARY,
             DeploymentPhase.SNOWFLAKE,
             DeploymentPhase.TESTING,
             DeploymentPhase.CHAT

@@ -82,7 +82,7 @@ The CEO dashboard now includes comprehensive LLM strategy controls:
 ```
 Business Data Sources → Ingestion Layer → Processing Layer → Storage Layer → Intelligence Layer → Output Layer
         ↓                    ↓               ↓              ↓               ↓              ↓
-[Gong, HubSpot,     → [Airbyte/Estuary] → [Lambda Labs] → [Snowflake +] → [MCP Servers] → [Dashboards
+[Gong, HubSpot,     → [Estuary/Estuary] → [Lambda Labs] → [Snowflake +] → [MCP Servers] → [Dashboards
  Slack, Linear,                                            Pinecone]      + AI Agents]     + APIs]
  CoStar, Apollo]                                                          + Portkey LLMs
 ```

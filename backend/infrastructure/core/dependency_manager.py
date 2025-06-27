@@ -39,18 +39,18 @@ class DependencyManager:
     def _initialize_default_dependencies(self):
         """Initialize default dependencies based on platform relationships."""
         # Data flow dependencies
-        self.add_dependency("snowflake", "airbyte", DependencyType.DATA_FLOW, 
-                          critical=True, description="Airbyte loads data into Snowflake")
-        self.add_dependency("gong", "airbyte", DependencyType.DATA_FLOW,
-                          description="Airbyte extracts data from Gong")
-        self.add_dependency("slack", "airbyte", DependencyType.DATA_FLOW,
-                          description="Airbyte extracts data from Slack")
-        self.add_dependency("hubspot", "airbyte", DependencyType.DATA_FLOW,
-                          description="Airbyte extracts data from HubSpot")
-        self.add_dependency("usergems", "airbyte", DependencyType.DATA_FLOW,
-                          description="Airbyte extracts data from UserGems")
-        self.add_dependency("apollo", "airbyte", DependencyType.DATA_FLOW,
-                          description="Airbyte extracts data from Apollo.io")
+        self.add_dependency("snowflake", "estuary", DependencyType.DATA_FLOW, 
+                          critical=True, description="Estuary loads data into Snowflake")
+        self.add_dependency("gong", "estuary", DependencyType.DATA_FLOW,
+                          description="Estuary extracts data from Gong")
+        self.add_dependency("slack", "estuary", DependencyType.DATA_FLOW,
+                          description="Estuary extracts data from Slack")
+        self.add_dependency("hubspot", "estuary", DependencyType.DATA_FLOW,
+                          description="Estuary extracts data from HubSpot")
+        self.add_dependency("usergems", "estuary", DependencyType.DATA_FLOW,
+                          description="Estuary extracts data from UserGems")
+        self.add_dependency("apollo", "estuary", DependencyType.DATA_FLOW,
+                          description="Estuary extracts data from Apollo.io")
         
         # Configuration dependencies
         self.add_dependency("snowflake", "gong", DependencyType.CONFIGURATION,

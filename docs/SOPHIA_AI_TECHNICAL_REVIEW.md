@@ -113,7 +113,7 @@ python
    # Proposed 4-server architecture
    mcp_servers = {
        "sophia-ai-intelligence": ["arize", "openrouter", "portkey", "huggingface", "together_ai"],
-       "sophia-data-intelligence": ["snowflake", "pinecone", "apify", "tavily", "airbyte"],
+       "sophia-data-intelligence": ["snowflake", "pinecone", "apify", "tavily", "estuary"],
        "sophia-infrastructure": ["lambda_labs", "docker", "pulumi", "github"],
        "sophia-business-intelligence": ["retool", "linear", "slack", "gong"]
    }

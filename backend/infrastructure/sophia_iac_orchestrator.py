@@ -30,7 +30,7 @@ from langchain.callbacks.base import BaseCallbackHandler
 
 # Platform adapters
 from backend.infrastructure.adapters.snowflake_adapter import SnowflakeAdapter
-from backend.infrastructure.adapters.airbyte_adapter import AirbyteAdapter
+from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
 from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
 from backend.infrastructure.adapters.lambda_labs_adapter import LambdaLabsAdapter
 from backend.infrastructure.adapters.slack_adapter import SlackAdapter
@@ -151,7 +151,7 @@ class SophiaIaCOrchestrator:
         """Initialize all platform adapters."""
         # Data Stack
         self.platform_adapters["snowflake"] = SnowflakeAdapter("snowflake", PlatformType.DATA_STACK)
-        self.platform_adapters["airbyte"] = AirbyteAdapter("airbyte", PlatformType.DATA_STACK)
+        self.platform_adapters["estuary"] = EstuaryAdapter("estuary", PlatformType.DATA_STACK)
         self.platform_adapters["hubspot"] = HubSpotAdapter("hubspot", PlatformType.DATA_STACK)
         self.platform_adapters["gong"] = GongAdapter("gong", PlatformType.DATA_STACK)
         self.platform_adapters["usergems"] = UserGemsAdapter("usergems", PlatformType.DATA_STACK)
@@ -194,7 +194,7 @@ Your capabilities include:
 - Handling rollbacks and error recovery
 
 Platforms you manage:
-Data Stack: Snowflake, Airbyte, HubSpot, Gong, UserGems, Apollo.io
+Data Stack: Snowflake, Estuary, HubSpot, Gong, UserGems, Apollo.io
 Dev Stack: Vercel, Lambda Labs, Figma
 AI Stack: Portkey, OpenRouter
 Ops Stack: Slack, Linear, Asana

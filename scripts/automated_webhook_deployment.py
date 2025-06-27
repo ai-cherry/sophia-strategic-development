@@ -41,10 +41,10 @@ class AutomatedWebhookDeployment:
                 ],
                 "auth": "signature"
             },
-            "airbyte": {
+            "estuary": {
                 "endpoints": [
-                    "/webhook/airbyte/sync-completed",
-                    "/webhook/airbyte/sync-failed"
+                    "/webhook/estuary/sync-completed",
+                    "/webhook/estuary/sync-failed"
                 ],
                 "auth": "bearer"
             },

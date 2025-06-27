@@ -314,7 +314,7 @@ class GongCredentialTester:
         else:
             recommendations.extend([
                 "✅ Credentials found - ready for Gong API testing",
-                "🚀 Proceed with Airbyte setup once API connectivity confirmed",
+                "🚀 Proceed with Estuary setup once API connectivity confirmed",
                 "📊 Run full deployment test suite"
             ])
         

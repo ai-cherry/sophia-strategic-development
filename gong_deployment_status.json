@@ -25,9 +25,9 @@
       "timestamp": "2025-06-25T03:59:46.002596"
     },
     {
-      "phase": "airbyte",
+      "phase": "estuary",
       "success": false,
-      "message": "Airbyte setup failed: create_gong_source failed: Cannot connect to host localhost:8000 ssl:default [Connect call failed ('127.0.0.1', 8000)]",
+      "message": "Estuary setup failed: create_gong_source failed: Cannot connect to host localhost:8000 ssl:default [Connect call failed ('127.0.0.1', 8000)]",
       "details": {
         "gong_source_id": null,
         "snowflake_destination_id": null,
@@ -89,14 +89,14 @@
   ],
   "next_steps": [
     "\ud83d\udd11 Update Gong credentials in Pulumi ESC",
-    "\ud83d\udd27 Debug Airbyte configuration and connectivity",
+    "\ud83d\udd27 Debug Estuary configuration and connectivity",
     "\ud83d\udcdc Obtain and deploy Manus AI's consolidated DDL",
     "\ud83e\uddea Review and fix failed test cases",
     "\ud83d\udcac Debug chat service integration issues"
   ],
   "recommendations": [
     "Verify Pulumi ESC access and Gong API key scopes",
-    "Check Airbyte server status and network connectivity",
+    "Check Estuary server status and network connectivity",
     "Review failed tests for data quality and integration issues",
     "Set up continuous monitoring for the Gong data pipeline",
     "Implement automated data quality checks",

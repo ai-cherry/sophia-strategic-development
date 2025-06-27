@@ -38,7 +38,7 @@
 
 ```
 INGESTION → PROCESSING → STORAGE → INTELLIGENCE → OUTPUT
-Airbyte     Lambda Labs   Snowflake   MCP Servers   Dashboards
+Estuary     Lambda Labs   Snowflake   MCP Servers   Dashboards
 Estuary     Chunking      Pinecone    AI Agents     APIs
 Webhooks    Vectorize     Redis       Portkey LLMs  Alerts
 APIs        Meta-tag      Files       n8n Flows     Reports
@@ -49,10 +49,10 @@ APIs        Meta-tag      Files       n8n Flows     Reports
 ### Multi-Source Collection with Stability Patterns
 
 **External Sources & Reliability:**
-- Gong.io → Airbyte Connector → Retry + Circuit Breaker
-- HubSpot CRM → Airbyte Connector → Rate Limiting + Backoff
+- Gong.io → Estuary Connector → Retry + Circuit Breaker
+- HubSpot CRM → Estuary Connector → Rate Limiting + Backoff
 - Slack → Real-time Webhooks → Queue + Dead Letter
-- Linear → Airbyte Connector → Incremental Sync
+- Linear → Estuary Connector → Incremental Sync
 - GitHub → Webhook + Polling → Event Deduplication
 - CoStar → Scheduled Batch → Checkpointing
 - Apollo.io → API Polling → Delta Loading
@@ -746,7 +746,7 @@ The key to success is maintaining focus on practical, high-impact improvements w
 
 #### Layer 3: Service Integration Matrix
 ```
-Data Stack:     Snowflake, Airbyte, HubSpot, Gong, UserGems, Apollo.io
+Data Stack:     Snowflake, Estuary, HubSpot, Gong, UserGems, Apollo.io
 Dev Stack:      Vercel, Lambda Labs, GitHub, Figma
 AI Stack:       Portkey, OpenRouter, Vector DBs
 Ops Stack:      Slack, Linear, Asana, Monitoring
@@ -762,7 +762,7 @@ Ops Stack:      Slack, Linear, Asana, Monitoring
 - **Webhooks**: Snowflake notifications for data pipeline events
 - **Verdict**: **CLI + MCP + LangChain Wrapper + Webhooks**
 
-### **Airbyte** 🔄
+### **Estuary** 🔄
 **Current**: Manual setup + API attempts
 **Optimal**:
 - **Primary**: API + SDK (for connection management)
@@ -938,7 +938,7 @@ class InfrastructureState:
 4. **Webhook Router** - Centralized event handling
 
 ### Phase 2: Platform Adapters
-1. **Data Stack Adapter** - Snowflake, Airbyte, HubSpot, Gong
+1. **Data Stack Adapter** - Snowflake, Estuary, HubSpot, Gong
 2. **Dev Stack Adapter** - Vercel, Lambda Labs, GitHub, Figma
 3. **AI Stack Adapter** - Portkey, OpenRouter, Vector DBs
 4. **Ops Stack Adapter** - Slack, Linear, Asana

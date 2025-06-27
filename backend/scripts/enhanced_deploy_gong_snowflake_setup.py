@@ -62,7 +62,7 @@ class DeploymentConfig:
     validation_enabled: bool = True
     
     # Schema configurations
-    raw_schema: str = "RAW_AIRBYTE"
+    raw_schema: str = "RAW_ESTUARY"
     stg_schema: str = "STG_TRANSFORMED"
     ops_schema: str = "OPS_MONITORING"
     ai_memory_schema: str = "AI_MEMORY"
@@ -109,7 +109,7 @@ class EnhancedGongSnowflakeDeployer:
             # Execute deployment phases
             deployment_phases = [
                 (DeploymentPhase.SCHEMA_CREATION, self._deploy_schemas),
-                (DeploymentPhase.RAW_TABLES, self._deploy_raw_airbyte_tables),
+                (DeploymentPhase.RAW_TABLES, self._deploy_raw_estuary_tables),
                 (DeploymentPhase.STG_TABLES, self._deploy_stg_transformed_tables),
                 (DeploymentPhase.PROCEDURES, self._deploy_transformation_procedures),
                 (DeploymentPhase.TASKS, self._deploy_automated_tasks),
@@ -193,7 +193,7 @@ class EnhancedGongSnowflakeDeployer:
     async def _deploy_schemas(self) -> None:
         """Deploy all required schemas"""
         schemas = [
-            (self.config.raw_schema, "Raw Airbyte ingestion data"),
+            (self.config.raw_schema, "Raw Estuary ingestion data"),
             (self.config.stg_schema, "Staged and transformed data"),
             (self.config.ops_schema, "Operational monitoring and logging"),
             (self.config.ai_memory_schema, "AI Memory and semantic search")
@@ -206,23 +206,23 @@ class EnhancedGongSnowflakeDeployer:
             """
             await self._execute_sql(f"create_schema_{schema_name}", sql)
 
-    async def _deploy_raw_airbyte_tables(self) -> None:
-        """Deploy RAW_AIRBYTE tables with enhanced structure"""
+    async def _deploy_raw_estuary_tables(self) -> None:
+        """Deploy RAW_ESTUARY tables with enhanced structure"""
         
         # Enhanced RAW_GONG_CALLS_RAW table
         calls_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW (
-            _AIRBYTE_AB_ID VARCHAR(64) PRIMARY KEY,
-            _AIRBYTE_EMITTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-            _AIRBYTE_NORMALIZED_AT TIMESTAMP_LTZ,
-            _AIRBYTE_RAW_GONG_CALLS_HASHID VARCHAR(64),
-            _AIRBYTE_DATA VARIANT NOT NULL,
+            _ESTUARY_AB_ID VARCHAR(64) PRIMARY KEY,
+            _ESTUARY_EMITTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+            _ESTUARY_NORMALIZED_AT TIMESTAMP_LTZ,
+            _ESTUARY_RAW_GONG_CALLS_HASHID VARCHAR(64),
+            _ESTUARY_DATA VARIANT NOT NULL,
             
             -- Enhanced extraction helper columns
-            CALL_ID VARCHAR(255) AS (_AIRBYTE_DATA:id::VARCHAR),
-            CALL_STARTED_AT TIMESTAMP_LTZ AS (TRY_TO_TIMESTAMP(_AIRBYTE_DATA:started::STRING)),
-            CALL_DIRECTION VARCHAR(50) AS (_AIRBYTE_DATA:direction::VARCHAR),
-            CALL_DURATION_SECONDS NUMBER AS (_AIRBYTE_DATA:duration::NUMBER),
+            CALL_ID VARCHAR(255) AS (_ESTUARY_DATA:id::VARCHAR),
+            CALL_STARTED_AT TIMESTAMP_LTZ AS (TRY_TO_TIMESTAMP(_ESTUARY_DATA:started::STRING)),
+            CALL_DIRECTION VARCHAR(50) AS (_ESTUARY_DATA:direction::VARCHAR),
+            CALL_DURATION_SECONDS NUMBER AS (_ESTUARY_DATA:duration::NUMBER),
             
             -- Enhanced processing tracking
             PROCESSED BOOLEAN DEFAULT FALSE,
@@ -241,23 +241,23 @@ class EnhancedGongSnowflakeDeployer:
             SOURCE_SYSTEM VARCHAR(100) DEFAULT 'gong',
             INGESTION_BATCH_ID VARCHAR(255)
         )
-        COMMENT = 'Enhanced raw Gong calls data from Airbyte with quality tracking';
+        COMMENT = 'Enhanced raw Gong calls data from Estuary with quality tracking';
         """
         await self._execute_sql("create_raw_calls", calls_sql)
         
         # Enhanced RAW_GONG_TRANSCRIPTS_RAW table
         transcripts_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.raw_schema}.RAW_GONG_TRANSCRIPTS_RAW (
-            _AIRBYTE_AB_ID VARCHAR(64) PRIMARY KEY,
-            _AIRBYTE_EMITTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-            _AIRBYTE_NORMALIZED_AT TIMESTAMP_LTZ,
-            _AIRBYTE_RAW_GONG_TRANSCRIPTS_HASHID VARCHAR(64),
-            _AIRBYTE_DATA VARIANT NOT NULL,
+            _ESTUARY_AB_ID VARCHAR(64) PRIMARY KEY,
+            _ESTUARY_EMITTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+            _ESTUARY_NORMALIZED_AT TIMESTAMP_LTZ,
+            _ESTUARY_RAW_GONG_TRANSCRIPTS_HASHID VARCHAR(64),
+            _ESTUARY_DATA VARIANT NOT NULL,
             
             -- Enhanced extraction helper columns
-            CALL_ID VARCHAR(255) AS (_AIRBYTE_DATA:callId::VARCHAR),
-            TRANSCRIPT_LENGTH NUMBER AS (LENGTH(_AIRBYTE_DATA:transcript::STRING)),
-            SPEAKER_COUNT NUMBER AS (ARRAY_SIZE(_AIRBYTE_DATA:speakers)),
+            CALL_ID VARCHAR(255) AS (_ESTUARY_DATA:callId::VARCHAR),
+            TRANSCRIPT_LENGTH NUMBER AS (LENGTH(_ESTUARY_DATA:transcript::STRING)),
+            SPEAKER_COUNT NUMBER AS (ARRAY_SIZE(_ESTUARY_DATA:speakers)),
             
             -- Enhanced processing tracking
             PROCESSED BOOLEAN DEFAULT FALSE,
@@ -276,7 +276,7 @@ class EnhancedGongSnowflakeDeployer:
             SOURCE_SYSTEM VARCHAR(100) DEFAULT 'gong',
             INGESTION_BATCH_ID VARCHAR(255)
         )
-        COMMENT = 'Enhanced raw Gong transcripts data from Airbyte with quality tracking';
+        COMMENT = 'Enhanced raw Gong transcripts data from Estuary with quality tracking';
         """
         await self._execute_sql("create_raw_transcripts", transcripts_sql)
 
@@ -459,11 +459,11 @@ class EnhancedGongSnowflakeDeployer:
             MERGE INTO {self.config.database}.{self.config.stg_schema}.STG_GONG_CALLS AS target
             USING (
                 SELECT 
-                    _AIRBYTE_DATA:id::VARCHAR AS CALL_ID,
-                    _AIRBYTE_DATA:title::VARCHAR AS CALL_TITLE,
-                    _AIRBYTE_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
-                    _AIRBYTE_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
-                    _AIRBYTE_DATA:direction::VARCHAR AS CALL_DIRECTION,
+                    _ESTUARY_DATA:id::VARCHAR AS CALL_ID,
+                    _ESTUARY_DATA:title::VARCHAR AS CALL_TITLE,
+                    _ESTUARY_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
+                    _ESTUARY_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
+                    _ESTUARY_DATA:direction::VARCHAR AS CALL_DIRECTION,
                     CURRENT_TIMESTAMP() AS UPDATED_AT
                 FROM {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW 
                 WHERE PROCESSED = FALSE
@@ -513,13 +513,13 @@ class EnhancedGongSnowflakeDeployer:
     async def _deploy_permissions(self) -> None:
         """Deploy role-based permissions"""
         
-        # Grant permissions to Airbyte role
-        airbyte_permissions = f"""
-        GRANT USAGE ON DATABASE {self.config.database} TO ROLE ROLE_SOPHIA_AIRBYTE_INGEST;
-        GRANT USAGE ON SCHEMA {self.config.database}.{self.config.raw_schema} TO ROLE ROLE_SOPHIA_AIRBYTE_INGEST;
-        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA {self.config.database}.{self.config.raw_schema} TO ROLE ROLE_SOPHIA_AIRBYTE_INGEST;
+        # Grant permissions to Estuary role
+        estuary_permissions = f"""
+        GRANT USAGE ON DATABASE {self.config.database} TO ROLE ROLE_SOPHIA_ESTUARY_INGEST;
+        GRANT USAGE ON SCHEMA {self.config.database}.{self.config.raw_schema} TO ROLE ROLE_SOPHIA_ESTUARY_INGEST;
+        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA {self.config.database}.{self.config.raw_schema} TO ROLE ROLE_SOPHIA_ESTUARY_INGEST;
         """
-        await self._execute_sql("grant_airbyte_permissions", airbyte_permissions)
+        await self._execute_sql("grant_estuary_permissions", estuary_permissions)
 
     async def _validate_deployment(self) -> None:
         """Validate the deployment"""
@@ -687,7 +687,7 @@ async def main():
         environment=DeploymentEnvironment(args.env),
         database=f"SOPHIA_AI_{args.env.upper()}",
         warehouse="WH_SOPHIA_ETL_TRANSFORM" if args.env == "dev" else f"WH_SOPHIA_{args.env.upper()}",
-        role="ROLE_SOPHIA_AIRBYTE_INGEST" if args.env == "dev" else f"ROLE_SOPHIA_{args.env.upper()}",
+        role="ROLE_SOPHIA_ESTUARY_INGEST" if args.env == "dev" else f"ROLE_SOPHIA_{args.env.upper()}",
         dry_run=args.dry_run,
         force_deploy=args.force_deploy,
         rollback_enabled=not args.disable_rollback,

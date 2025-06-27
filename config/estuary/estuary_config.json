@@ -1,0 +1,36 @@
+{
+  "estuary": {
+    "tenant": "Pay_Ready",
+    "api_url": "https://api.estuary.dev",
+    "dashboard_url": "https://dashboard.estuary.dev",
+    "cli_tool": "flowctl",
+    "authentication": {
+      "method": "token",
+      "access_token_env": "ESTUARY_ACCESS_TOKEN",
+      "refresh_token_env": "ESTUARY_REFRESH_TOKEN"
+    },
+    "connectors": {
+      "github": {
+        "image": "ghcr.io/estuary/source-github:dev",
+        "config_template": "github_capture_template.yaml"
+      },
+      "hubspot": {
+        "image": "ghcr.io/estuary/source-hubspot:dev",
+        "config_template": "hubspot_capture_template.yaml"
+      },
+      "slack": {
+        "image": "ghcr.io/estuary/source-slack:dev",
+        "config_template": "slack_capture_template.yaml"
+      },
+      "snowflake": {
+        "image": "ghcr.io/estuary/materialize-snowflake:dev",
+        "config_template": "snowflake_materialization_template.yaml"
+      }
+    },
+    "real_time_processing": {
+      "enabled": true,
+      "latency_target": "100ms",
+      "exactly_once_delivery": true
+    }
+  }
+}

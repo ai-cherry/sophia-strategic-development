@@ -94,31 +94,31 @@
         "handler": "handle_hubspot_webhook"
       },
       {
-        "path": "/webhook/airbyte/sync-completed",
-        "platform": "airbyte",
+        "path": "/webhook/estuary/sync-completed",
+        "platform": "estuary",
         "events": [
           "sync.completed"
         ],
         "auth_type": "bearer",
-        "handler": "handle_airbyte_webhook"
+        "handler": "handle_estuary_webhook"
       },
       {
-        "path": "/webhook/airbyte/sync-failed",
-        "platform": "airbyte",
+        "path": "/webhook/estuary/sync-failed",
+        "platform": "estuary",
         "events": [
           "sync.failed"
         ],
         "auth_type": "bearer",
-        "handler": "handle_airbyte_webhook"
+        "handler": "handle_estuary_webhook"
       },
       {
-        "path": "/webhook/airbyte/connection-status",
-        "platform": "airbyte",
+        "path": "/webhook/estuary/connection-status",
+        "platform": "estuary",
         "events": [
           "connection.status_change"
         ],
         "auth_type": "bearer",
-        "handler": "handle_airbyte_webhook"
+        "handler": "handle_estuary_webhook"
       },
       {
         "path": "/webhook/vercel/deployment",

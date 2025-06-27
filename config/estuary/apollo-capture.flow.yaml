@@ -1,0 +1,22 @@
+captures:
+  Pay_Ready/apollo-capture:
+    bindings:
+    - resource:
+        endpoint: contacts
+      target: Pay_Ready/apollo-contacts
+    - resource:
+        endpoint: opportunities
+      target: Pay_Ready/apollo-opportunities
+    endpoint:
+      connector:
+        config:
+          authentication:
+            api_key: ${APOLLO_API_KEY}
+            type: api_key
+          base_url: https://api.apollo.io/v1
+          endpoints:
+          - name: contacts
+            path: /contacts/search
+          - name: opportunities
+            path: /opportunities
+        image: ghcr.io/estuary/source-http-inbound:dev

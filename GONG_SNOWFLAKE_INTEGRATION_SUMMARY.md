@@ -44,7 +44,7 @@ TASK_PROCESS_TRANSCRIPTS_CORTEX    -- Every 2 hours
 ```
 
 #### **Configuration and Documentation** (`README.md`)
-- **Setup Instructions**: Multiple ingestion options (Python, Airbyte, Fivetran)
+- **Setup Instructions**: Multiple ingestion options (Python, Estuary, Fivetran)
 - **Troubleshooting Guide**: Common issues and recovery procedures
 - **Performance Optimization**: Indexing, caching, and scaling recommendations
 - **Security Best Practices**: Secret management and access control

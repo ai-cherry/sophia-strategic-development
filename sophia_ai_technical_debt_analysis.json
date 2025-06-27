@@ -425,7 +425,7 @@
       "refactoring_priority": "CRITICAL"
     },
     {
-      "path": "backend/scripts/enhanced_airbyte_integration_test_suite.py",
+      "path": "backend/scripts/enhanced_estuary_integration_test_suite.py",
       "lines": 1090,
       "complexity_score": 737.2,
       "change_frequency": 4,
@@ -594,7 +594,7 @@
         "debt_score": 245.8
       },
       {
-        "path": "backend/etl/airbyte/airbyte_configuration_manager.py",
+        "path": "backend/etl/estuary/estuary_configuration_manager.py",
         "debt_score": 365.6
       },
       {
@@ -650,7 +650,7 @@
         "debt_score": 426.7
       },
       {
-        "path": "backend/scripts/enhanced_airbyte_integration_test_suite.py",
+        "path": "backend/scripts/enhanced_estuary_integration_test_suite.py",
         "debt_score": 456.6
       },
       {
@@ -706,7 +706,7 @@
         "debt_score": 176.6
       },
       {
-        "path": "backend/infrastructure/adapters/airbyte_adapter.py",
+        "path": "backend/infrastructure/adapters/estuary_adapter.py",
         "debt_score": 217.5
       },
       {
@@ -827,7 +827,7 @@
         ]
       },
       {
-        "path": "backend/etl/airbyte/airbyte_configuration_manager.py",
+        "path": "backend/etl/estuary/estuary_configuration_manager.py",
         "lines": 810,
         "complexity": 605.2,
         "issues": [
@@ -1000,7 +1000,7 @@
         ]
       },
       {
-        "path": "backend/scripts/enhanced_airbyte_integration_test_suite.py",
+        "path": "backend/scripts/enhanced_estuary_integration_test_suite.py",
         "lines": 1090,
         "complexity": 737.2,
         "issues": [

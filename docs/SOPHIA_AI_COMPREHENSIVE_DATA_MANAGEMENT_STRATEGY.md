@@ -21,13 +21,13 @@ Sophia AI implements a **unified enterprise intelligence ecosystem** that transf
 
 ### **Data Flow Pipeline**
 ```
-Raw Data Sources → Airbyte/Estuary → Lambda Labs Processing → Snowflake + Vectors → MCP Servers → AI Agents → Contextualized Output
+Raw Data Sources → Estuary/Estuary → Lambda Labs Processing → Snowflake + Vectors → MCP Servers → AI Agents → Contextualized Output
 ```
 
 ### **Component Interaction Map**
 
 #### **1. Data Ingestion Layer**
-- **Airbyte Connectors**: Automated data extraction from all business systems
+- **Estuary Connectors**: Automated data extraction from all business systems
 - **Estuary Streaming**: Real-time data pipelines for time-sensitive insights
 - **Sources**: Gong, HubSpot, Slack, Linear, Notion, Asana, CoStar, Apollo.io, Pay Ready SQL, Knowledge Base
 
@@ -100,7 +100,7 @@ Raw Data Sources → Airbyte/Estuary → Lambda Labs Processing → Snowflake + 
 ### **1. Ingestion & Initial Processing**
 ```python
 # Example: Gong call processing
-Raw Call Audio → Gong Transcription API → Airbyte Connector → Lambda Chunking
+Raw Call Audio → Gong Transcription API → Estuary Connector → Lambda Chunking
 → Contextual Analysis → Security Classification → Snowflake Storage
 ```
 
@@ -230,7 +230,7 @@ Sophia → Updates talking point effectiveness scoring → Retrains retrieval we
 - 🔄 Pinecone vector database setup and indexing
 
 ### **Phase 2: Data Pipeline (Weeks 3-4)**
-- 🔄 Airbyte connector deployment for all data sources
+- 🔄 Estuary Flow connector deployment for all data sources
 - 🔄 Lambda Labs processing pipeline implementation
 - 🔄 n8n workflow automation setup
 - 🔄 MCP server network deployment
@@ -287,7 +287,7 @@ AI_MEMORY_MCP_URL=https://ai-memory.sophia-intel.ai
 
 # Workflow Automation
 N8N_ENDPOINT=https://n8n.sophia-intel.ai
-AIRBYTE_URL=https://airbyte.sophia-intel.ai
+ESTUARY_URL=https://estuary.sophia-intel.ai
 ```
 
 ### **Security Configuration**
@@ -313,7 +313,7 @@ encryption:
 ## **✅ Next Steps**
 
 1. **Deploy Core Infrastructure**: Snowflake schemas, Pinecone indexes, MCP servers
-2. **Configure Data Pipelines**: Airbyte connectors, Lambda processing, n8n workflows  
+2. **Configure Data Pipelines**: Estuary Flow connectors, Lambda processing, n8n workflows  
 3. **Implement AI Agents**: Deploy specialized intelligence agents
 4. **Enable Conversational Training**: Executive training interface
 5. **Validate SOC2 Compliance**: Security audit and certification

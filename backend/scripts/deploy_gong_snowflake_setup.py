@@ -3,7 +3,7 @@
 Snowflake Gong Setup Deployment Script
 
 Executes Manus AI's finalized Snowflake DDL for Gong data pipeline including:
-- RAW_AIRBYTE target tables with VARIANT columns
+- RAW_ESTUARY target tables with VARIANT columns
 - STG_TRANSFORMED Gong tables with AI memory columns  
 - PII policies and security
 - Transformation/embedding stored procedures
@@ -50,7 +50,7 @@ class SnowflakeDeploymentConfig:
     role: str
     
     # Environment-specific settings
-    raw_schema: str = "RAW_AIRBYTE"
+    raw_schema: str = "RAW_ESTUARY"
     stg_schema: str = "STG_TRANSFORMED"
     ops_schema: str = "OPS_MONITORING"
     ai_memory_schema: str = "AI_MEMORY"
@@ -62,7 +62,7 @@ class GongSnowflakeDeployer:
     
     Capabilities:
     - Execute Manus AI's finalized DDL for all schemas
-    - Create RAW_AIRBYTE tables with proper VARIANT columns
+    - Create RAW_ESTUARY tables with proper VARIANT columns
     - Set up STG_TRANSFORMED tables with AI Memory integration
     - Configure PII policies and security
     - Deploy transformation and embedding procedures
@@ -90,7 +90,7 @@ class GongSnowflakeDeployer:
                 password=get_config_value("snowflake_password"),
                 warehouse="WH_SOPHIA_ETL_TRANSFORM",
                 database="SOPHIA_AI_DEV",
-                role="ROLE_SOPHIA_AIRBYTE_INGEST"
+                role="ROLE_SOPHIA_ESTUARY_INGEST"
             )
         elif self.env == DeploymentEnvironment.PROD:
             return SnowflakeDeploymentConfig(

@@ -154,7 +154,7 @@ class GitHubActionsConsolidator:
             return "documentation"
             
         # Data pipeline and ETL
-        if any(keyword in name_lower for keyword in ["gong", "airbyte", "etl", "pipeline", "data"]):
+        if any(keyword in name_lower for keyword in ["gong", "estuary", "etl", "pipeline", "data"]):
             return "data_pipeline"
             
         # Integration and MCP

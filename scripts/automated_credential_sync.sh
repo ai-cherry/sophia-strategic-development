@@ -11,9 +11,9 @@ pulumi config set --path sophia-ai:snowflake_account "${SNOWFLAKE_ACCOUNT}"
 pulumi config set --path sophia-ai:snowflake_user "${SNOWFLAKE_USER}" 
 pulumi config set --path sophia-ai:sophia_ai_token "${SOPHIA_AI_TOKEN}" --secret
 
-pulumi config set --path sophia-ai:airbyte_client_id "${AIRBYTE_CLIENT_ID}"
-pulumi config set --path sophia-ai:airbyte_client_secret "${AIRBYTE_CLIENT_SECRET}" --secret
-pulumi config set --path sophia-ai:airbyte_access_token "${AIRBYTE_ACCESS_TOKEN}" --secret
+pulumi config set --path sophia-ai:estuary_client_id "${ESTUARY_CLIENT_ID}"
+pulumi config set --path sophia-ai:estuary_client_secret "${ESTUARY_CLIENT_SECRET}" --secret
+pulumi config set --path sophia-ai:estuary_access_token "${ESTUARY_ACCESS_TOKEN}" --secret
 
 pulumi config set --path sophia-ai:gong_access_key "${GONG_ACCESS_KEY}" --secret
 pulumi config set --path sophia-ai:gong_client_secret "${GONG_CLIENT_SECRET}" --secret

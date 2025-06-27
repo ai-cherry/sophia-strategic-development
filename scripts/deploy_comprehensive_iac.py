@@ -38,7 +38,7 @@ class PlatformIntegrationMatrix:
             "justification": "Snowflake's strength is in SQL and bulk operations. CLI provides infrastructure control, Python SDK enables programmatic access, LangChain MCP provides intelligent query generation."
         },
         
-        "airbyte": {
+        "estuary": {
             "primary": "API + SDK",
             "secondary": "CLI wrapper",
             "webhooks": "Bidirectional (sync status, failures)",
@@ -49,7 +49,7 @@ class PlatformIntegrationMatrix:
                 "automation": "LangChain for smart pipeline creation",
                 "real_time": "Webhook notifications + API polling"
             },
-            "justification": "Airbyte's API is comprehensive for automation. Webhooks provide real-time sync status. LangChain can intelligently match sources to destinations."
+            "justification": "Estuary's API is comprehensive for automation. Webhooks provide real-time sync status. LangChain can intelligently match sources to destinations."
         },
         
         "gong": {
@@ -258,7 +258,7 @@ class PlatformIntegrationMatrix:
                                            if p["langchain_integration"] != "Basic"])
             },
             "by_category": {
-                "data_stack": ["snowflake", "airbyte", "gong", "slack", "hubspot"],
+                "data_stack": ["snowflake", "estuary", "gong", "slack", "hubspot"],
                 "dev_stack": ["vercel", "lambda_labs", "figma"],
                 "ai_stack": ["portkey", "openrouter"],
                 "ops_stack": ["linear", "asana"],
@@ -290,7 +290,7 @@ class PlatformIntegrationMatrix:
                 "category": "LangChain Integration",
                 "recommendation": "Prioritize LangChain MCP servers for platforms with complex configuration",
                 "priority": "Medium",
-                "platforms": ["snowflake", "airbyte", "portkey"]
+                "platforms": ["snowflake", "estuary", "portkey"]
             },
             {
                 "category": "Real-time Monitoring",
@@ -331,7 +331,7 @@ async def deploy_comprehensive_iac_system():
     test_commands = [
         "Get the status of all data stack platforms",
         "Optimize Snowflake performance and sync schemas",
-        "Create Gong and Slack sources in Airbyte",
+        "Create Gong and Slack sources in Estuary",
         "Check dependencies between platforms"
     ]
     

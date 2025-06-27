@@ -152,7 +152,7 @@ The Gong Pipeline Integration provides comprehensive access to Gong call data th
 
 ## Architecture
 ```
-Gong API → Airbyte → RAW_AIRBYTE → STG_TRANSFORMED → AI_MEMORY → Sophia AI Services
+Gong API → Estuary → RAW_ESTUARY → STG_TRANSFORMED → AI_MEMORY → Sophia AI Services
 ```
 
 ## Key Tables

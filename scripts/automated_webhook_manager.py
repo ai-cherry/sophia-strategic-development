@@ -70,18 +70,18 @@ class AutomatedWebhookManager:
                 }
             },
             
-            "airbyte": {
-                "platform_api_base": "https://api.airbyte.com/v1",
+            "estuary": {
+                "platform_api_base": "https://api.estuary.dev/v1",
                 "webhook_endpoints": [
-                    {"path": "/webhook/airbyte/sync-completed", "events": ["sync.completed"]},
-                    {"path": "/webhook/airbyte/sync-failed", "events": ["sync.failed"]},
-                    {"path": "/webhook/airbyte/connection-status", "events": ["connection.status_change"]}
+                    {"path": "/webhook/estuary/sync-completed", "events": ["sync.completed"]},
+                    {"path": "/webhook/estuary/sync-failed", "events": ["sync.failed"]},
+                    {"path": "/webhook/estuary/connection-status", "events": ["connection.status_change"]}
                 ],
                 "auth_type": "bearer",
                 "credentials": {
-                    "client_id": os.getenv("AIRBYTE_CLIENT_ID"),
-                    "client_secret": os.getenv("AIRBYTE_CLIENT_SECRET"),
-                    "access_token": os.getenv("AIRBYTE_ACCESS_TOKEN")
+                    "client_id": os.getenv("ESTUARY_CLIENT_ID"),
+                    "client_secret": os.getenv("ESTUARY_CLIENT_SECRET"),
+                    "access_token": os.getenv("ESTUARY_ACCESS_TOKEN")
                 }
             },
             
@@ -194,8 +194,8 @@ class AutomatedWebhookManager:
                 result = await self._configure_slack_webhook(webhook_url, endpoint_config, config["credentials"])
             elif platform == "hubspot":
                 result = await self._configure_hubspot_webhook(webhook_url, endpoint_config, config["credentials"])
-            elif platform == "airbyte":
-                result = await self._configure_airbyte_webhook(webhook_url, endpoint_config, config["credentials"])
+            elif platform == "estuary":
+                result = await self._configure_estuary_webhook(webhook_url, endpoint_config, config["credentials"])
             elif platform == "vercel":
                 result = await self._configure_vercel_webhook(webhook_url, endpoint_config, config["credentials"])
             elif platform == "linear":
@@ -282,10 +282,10 @@ class AutomatedWebhookManager:
             "config": webhook_config
         }
     
-    async def _configure_airbyte_webhook(self, webhook_url: str, endpoint_config: Dict, credentials: Dict) -> Dict[str, Any]:
-        """Configure Airbyte webhook automatically."""
+    async def _configure_estuary_webhook(self, webhook_url: str, endpoint_config: Dict, credentials: Dict) -> Dict[str, Any]:
+        """Configure Estuary webhook automatically."""
         if not credentials.get("access_token"):
-            return {"success": False, "error": "Missing Airbyte access token"}
+            return {"success": False, "error": "Missing Estuary access token"}
         
         webhook_config = {
             "url": webhook_url,
@@ -298,7 +298,7 @@ class AutomatedWebhookManager:
         
         return {
             "success": True,
-            "webhook_id": f"airbyte_webhook_{hash(webhook_url)}",
+            "webhook_id": f"estuary_webhook_{hash(webhook_url)}",
             "config": webhook_config
         }
     

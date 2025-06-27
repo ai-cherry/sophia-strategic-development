@@ -87,7 +87,7 @@ python scripts/health_check.py
 
 ### **Data Stack**
 - **Snowflake** - Data warehouse and analytics
-- **Airbyte** - Data pipeline orchestration
+- **Estuary** - Data pipeline orchestration
 - **Gong** - Sales conversation intelligence
 - **Slack** - Team communication analysis
 - **HubSpot** - CRM and customer data
@@ -287,7 +287,7 @@ pytest --cov=backend tests/
 
 ### **For Data Teams**
 - **[Snowflake Integration Analysis](./sophia-ai-snowflake-ecosystem-integration-analysis.md)** - Data warehouse setup
-- **[Airbyte Integration Guide](./docs/AIRBYTE_INTEGRATION_GUIDE.md)** - Data pipeline configuration
+- **[Estuary Integration Guide](./docs/ESTUARY_INTEGRATION_GUIDE.md)** - Data pipeline configuration
 
 ---
 

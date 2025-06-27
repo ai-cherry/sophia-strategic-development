@@ -145,8 +145,8 @@ class SnowflakeConfigManager:
                 
                 results["schemas_updated"].append("ai_memory_schema")
             
-            # Create/update Gong and Slack schemas for Airbyte integration
-            await self._create_airbyte_schemas(results)
+            # Create/update Gong and Slack schemas for Estuary integration
+            await self._create_estuary_schemas(results)
             
             # Create/update memory system integration
             await self._create_memory_integration(results)
@@ -161,9 +161,9 @@ class SnowflakeConfigManager:
         
         return results
     
-    async def _create_airbyte_schemas(self, results: Dict[str, Any]):
-        """Create schemas and tables for Airbyte data integration."""
-        print("🔗 Creating Airbyte integration schemas...")
+    async def _create_estuary_schemas(self, results: Dict[str, Any]):
+        """Create schemas and tables for Estuary data integration."""
+        print("🔗 Creating Estuary integration schemas...")
         
         # Gong schema and tables
         gong_schema_sql = """
@@ -180,9 +180,9 @@ class SnowflakeConfigManager:
             recording_url VARCHAR(1000),
             transcript_url VARCHAR(1000),
             metadata VARIANT,
-            _airbyte_ab_id VARCHAR(255),
-            _airbyte_emitted_at TIMESTAMP,
-            _airbyte_normalized_at TIMESTAMP,
+            _estuary_ab_id VARCHAR(255),
+            _estuary_emitted_at TIMESTAMP,
+            _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
@@ -197,9 +197,9 @@ class SnowflakeConfigManager:
             end_time_seconds INTEGER,
             sentiment_score FLOAT,
             keywords VARIANT,
-            _airbyte_ab_id VARCHAR(255),
-            _airbyte_emitted_at TIMESTAMP,
-            _airbyte_normalized_at TIMESTAMP,
+            _estuary_ab_id VARCHAR(255),
+            _estuary_emitted_at TIMESTAMP,
+            _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
         """
@@ -221,9 +221,9 @@ class SnowflakeConfigManager:
             reactions VARIANT,
             attachments VARIANT,
             metadata VARIANT,
-            _airbyte_ab_id VARCHAR(255),
-            _airbyte_emitted_at TIMESTAMP,
-            _airbyte_normalized_at TIMESTAMP,
+            _estuary_ab_id VARCHAR(255),
+            _estuary_emitted_at TIMESTAMP,
+            _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
         
@@ -235,9 +235,9 @@ class SnowflakeConfigManager:
             member_count INTEGER,
             purpose TEXT,
             topic TEXT,
-            _airbyte_ab_id VARCHAR(255),
-            _airbyte_emitted_at TIMESTAMP,
-            _airbyte_normalized_at TIMESTAMP,
+            _estuary_ab_id VARCHAR(255),
+            _estuary_emitted_at TIMESTAMP,
+            _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
@@ -252,10 +252,10 @@ class SnowflakeConfigManager:
             results["schemas_created"].append("SOPHIA_SLACK_RAW")
             results["tables_created"].extend(["slack_messages", "slack_channels"])
             
-            print("✅ Airbyte schemas created successfully")
+            print("✅ Estuary schemas created successfully")
             
         except Exception as e:
-            error_msg = f"Airbyte schema creation error: {str(e)}"
+            error_msg = f"Estuary schema creation error: {str(e)}"
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
     

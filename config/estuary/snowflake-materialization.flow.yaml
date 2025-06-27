@@ -1,0 +1,18 @@
+materializations:
+  Pay_Ready/snowflake-sophia-ai:
+    bindings: []
+    endpoint:
+      connector:
+        config:
+          account: UHDECNO-CVB64222
+          advanced:
+            deltaUpdates: true
+            updateDelay: 0s
+          database: SOPHIA_AI
+          host: UHDECNO-CVB64222.snowflakecomputing.com
+          password: ${SNOWFLAKE_PAT_TOKEN}
+          role: ACCOUNTADMIN
+          schema: ESTUARY_STAGING
+          user: SCOOBYJAVA15
+          warehouse: CORTEX_COMPUTE_WH
+        image: ghcr.io/estuary/materialize-snowflake:dev

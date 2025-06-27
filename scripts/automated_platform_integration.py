@@ -22,7 +22,7 @@ async def automated_platform_integration():
     integration_commands = [
         # Data Stack Integration
         "Configure Snowflake with optimized schemas and performance settings",
-        "Setup Airbyte with Gong, Slack, and HubSpot sources to Snowflake destination",
+        "Setup Estuary with Gong, Slack, and HubSpot sources to Snowflake destination",
         "Configure Gong webhooks with JWT authentication",
         "Setup Slack bot with event subscriptions and commands",
         "Configure HubSpot webhooks for CRM events",

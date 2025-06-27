@@ -44,9 +44,9 @@
     "owner": "ml-team",
     "dependencies": []
   },
-  "airbyte": {
+  "estuary": {
     "type": "api",
-    "description": "Airbyte data integration platform",
+    "description": "Estuary data integration platform",
     "config_keys": [],
     "secret_keys": ["api_key", "password"],
     "rotation_schedule": "60d",

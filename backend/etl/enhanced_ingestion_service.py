@@ -3,7 +3,7 @@
 from typing import Dict, List, Any
 import asyncio
 from datetime import datetime
-from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager, SourceType
+from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager, SourceType
 from backend.services.semantic_layer_service import SemanticLayerService
 import logging
 
@@ -11,19 +11,19 @@ logger = logging.getLogger(__name__)
 
 class EnhancedIngestionService:
     """
-    Enhanced data ingestion service combining Airbyte and OpenFlow.
+    Enhanced data ingestion service combining Estuary and OpenFlow.
     Provides intelligent data quality management and real-time processing.
     """
     
     def __init__(self):
-        self.airbyte_manager = EnhancedAirbyteManager()
+        self.estuary_manager = EnhancedEstuaryManager()
         self.semantic_service = SemanticLayerService()
         self.openflow_enabled = False  # Enable when OpenFlow becomes available
         
     async def setup_enhanced_pipelines(self) -> bool:
         """Setup enhanced data pipelines with quality monitoring"""
         try:
-            await self.airbyte_manager.initialize()
+            await self.estuary_manager.initialize()
 
             enhanced_connections = [
                 {
@@ -65,12 +65,12 @@ class EnhancedIngestionService:
     async def _setup_enhanced_connection(self, config: Dict[str, Any]) -> bool:
         """Setup individual enhanced connection with quality rules"""
         try:
-            # Create or update Airbyte connection
+            # Create or update Estuary connection
             # Using a conceptual method name from the manager
-            result = await self.airbyte_manager.setup_source_pipeline(config['source'].value)
+            result = await self.estuary_manager.setup_source_pipeline(config['source'].value)
             
             if result.status.value != 'success':
-                 raise Exception(f"Failed to create airbyte connection for {config['source'].value}: {result.error_message}")
+                 raise Exception(f"Failed to create estuary materialization for {config['source'].value}: {result.error_message}")
 
             # Create quality monitoring tables
             quality_table_sql = f"""

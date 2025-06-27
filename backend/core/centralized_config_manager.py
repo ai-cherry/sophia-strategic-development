@@ -203,11 +203,11 @@ class CentralizedConfigManager:
                 "env_vars": ["PORTKEY_API_KEY"],
                 "default": None
             },
-            "airbyte_server_url": {
+            "estuary_server_url": {
                 "required": False,
                 "sensitive": False,
-                "description": "Airbyte server URL",
-                "env_vars": ["AIRBYTE_SERVER_URL"],
+                "description": "Estuary server URL",
+                "env_vars": ["ESTUARY_SERVER_URL"],
                 "default": "http://localhost:8000"
             },
             

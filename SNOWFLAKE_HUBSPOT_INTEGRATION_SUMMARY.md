@@ -13,7 +13,7 @@ This document summarizes the strategic architectural shift to leverage Snowflake
 - **Preserve dashboard functionality** while enhancing with Snowflake capabilities
 
 ### 2. HubSpot Data Access Evolution
-- **Current**: Traditional ETL via Airbyte/custom ingestion
+- **Current**: Traditional ETL via Estuary/custom ingestion
 - **Enhanced**: Direct access via HubSpot Secure Data Sharing within Snowflake
 - **Benefit**: Real-time CRM data access without ETL delays
 - **Implementation**: `backend/utils/snowflake_hubspot_connector.py`
@@ -87,7 +87,7 @@ await service.vector_search_in_snowflake(query_text, vector_table)
 
 #### Traditional Pattern (Maintained)
 ```
-HubSpot API → Airbyte/ETL → PostgreSQL/Redis → AI Processing → Dashboards
+HubSpot API → Estuary/ETL → PostgreSQL/Redis → AI Processing → Dashboards
 ```
 
 #### Enhanced Pattern (Added)

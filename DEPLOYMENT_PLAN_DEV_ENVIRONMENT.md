@@ -380,14 +380,14 @@ WHERE table_schema = 'CONFIG';
 
 ## **🔍 CRITICAL MONITORING POINTS**
 
-### **1. Airbyte Data Flow Verification**
+### **1. Estuary Data Flow Verification**
 ```sql
--- Check Airbyte raw data ingestion
+-- Check Estuary raw data ingestion
 SELECT 
     table_name,
     COUNT(*) as record_count,
     MAX(CREATED_AT) as latest_record
-FROM RAW_AIRBYTE.GONG_CALLS_RAW
+FROM RAW_ESTUARY.GONG_CALLS_RAW
 GROUP BY table_name;
 ```
 

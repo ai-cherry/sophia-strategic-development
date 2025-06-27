@@ -9,7 +9,7 @@
   "by_category": {
     "data_stack": [
       "snowflake",
-      "airbyte",
+      "estuary",
       "gong",
       "slack",
       "hubspot"
@@ -46,7 +46,7 @@
       },
       "justification": "Snowflake's strength is in SQL and bulk operations. CLI provides infrastructure control, Python SDK enables programmatic access, LangChain MCP provides intelligent query generation."
     },
-    "airbyte": {
+    "estuary": {
       "primary": "API + SDK",
       "secondary": "CLI wrapper",
       "webhooks": "Bidirectional (sync status, failures)",
@@ -57,7 +57,7 @@
         "automation": "LangChain for smart pipeline creation",
         "real_time": "Webhook notifications + API polling"
       },
-      "justification": "Airbyte's API is comprehensive for automation. Webhooks provide real-time sync status. LangChain can intelligently match sources to destinations."
+      "justification": "Estuary's API is comprehensive for automation. Webhooks provide real-time sync status. LangChain can intelligently match sources to destinations."
     },
     "gong": {
       "primary": "API + Webhooks",
@@ -246,7 +246,7 @@
       "priority": "Medium",
       "platforms": [
         "snowflake",
-        "airbyte",
+        "estuary",
         "portkey"
       ]
     },

@@ -29,7 +29,7 @@ class CircuitBreakerState(Enum):
 @dataclass
 class DataSource:
     name: str
-    source_type: str  # airbyte, webhook, api_poll, batch
+    source_type: str  # estuary, webhook, api_poll, batch
     endpoint: str
     reliability_pattern: str  # circuit_breaker, retry, queue
     health_status: str = "healthy"
@@ -223,15 +223,15 @@ class DataFlowManager:
     async def _register_data_sources(self):
         """Register all data sources with their reliability patterns"""
         sources = [
-            DataSource("gong", "airbyte", config.gong_api_base_url, "circuit_breaker"),
+            DataSource("gong", "estuary", config.gong_api_base_url, "circuit_breaker"),
             DataSource(
-                "hubspot", "airbyte", config.hubspot_api_base_url, "circuit_breaker"
+                "hubspot", "estuary", config.hubspot_api_base_url, "circuit_breaker"
             ),
             # TODO: HYBRID APPROACH - Maintain existing HubSpot ingestion for training/interaction
             # PLUS add Snowflake Secure Data Sharing for enterprise analytics
             # See backend/utils/snowflake_hubspot_connector.py for blended access patterns
             DataSource("slack", "webhook", config.slack_webhook_url, "queue"),
-            DataSource("linear", "airbyte", config.linear_api_base_url, "retry"),
+            DataSource("linear", "estuary", config.linear_api_base_url, "retry"),
             DataSource("github", "webhook", config.github_webhook_url, "queue"),
             DataSource("costar", "batch", config.costar_api_base_url, "retry"),
             DataSource(

@@ -1514,7 +1514,7 @@ The Sophia AI platform is now **production-ready** with comprehensive Vercel int
   - Pulumi ESC credential integration
   - Rate limiting and retry logic
   - Transaction management with rollback
-  - Raw data landing in `RAW_AIRBYTE` schema
+  - Raw data landing in `RAW_ESTUARY` schema
   - Transformation to `STG_TRANSFORMED` tables
   - AI enrichment using Snowflake Cortex
   - Comprehensive logging and monitoring
@@ -1596,7 +1596,7 @@ Frontend (Vercel)
 
 Backend (Direct Python Pipeline)
 ├── sophia_data_pipeline_ultimate.py
-├── Gong API → RAW_AIRBYTE → STG_TRANSFORMED
+├── Gong API → RAW_ESTUARY → STG_TRANSFORMED
 ├── AI enrichment via Snowflake Cortex
 └── Scheduled execution (cron: every 6 hours)
 ```
@@ -1667,7 +1667,7 @@ All 10+ required secrets are properly configured:
 - **Robust error handling** with retry logic and monitoring
 
 ### **Operational Excellence**
-- **Automated Gong data pipeline** replacing unreliable Airbyte
+- **Automated Gong data pipeline** replacing unreliable Estuary
 - **Natural language chat integration** with real-time data
 - **AI-powered insights** via Snowflake Cortex
 - **Comprehensive logging and monitoring** for troubleshooting
@@ -1845,7 +1845,7 @@ Located in `infrastructure/integration_registry.json`:
 - **Snowflake**: Database integration with 90-day key rotation
 - **Pinecone**: Vector database for AI embeddings
 - **OpenAI/Anthropic**: AI model providers
-- **Airbyte**: Data pipeline integration
+- **Estuary**: Data pipeline integration
 - **Estuary**: Real-time data streaming
 
 ### Integration Configuration

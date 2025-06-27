@@ -1,0 +1,29 @@
+{
+  "values": {
+    "sophia-ai": {
+      "environmentVariables": {
+        "SNOWFLAKE_ACCOUNT": "${pulumi.stack.outputs.snowflake_account}",
+        "SNOWFLAKE_USER": "${pulumi.stack.outputs.snowflake_user}",
+        "SOPHIA_AI_TOKEN": "${pulumi.stack.outputs.sophia_ai_token}",
+        "AIRBYTE_CLIENT_ID": "${pulumi.stack.outputs.airbyte_client_id}",
+        "AIRBYTE_CLIENT_SECRET": "${pulumi.stack.outputs.airbyte_client_secret}",
+        "AIRBYTE_ACCESS_TOKEN": "${pulumi.stack.outputs.airbyte_access_token}",
+        "GONG_ACCESS_KEY": "${pulumi.stack.outputs.gong_access_key}",
+        "GONG_CLIENT_SECRET": "${pulumi.stack.outputs.gong_client_secret}",
+        "SLACK_BOT_TOKEN": "${pulumi.stack.outputs.slack_bot_token}",
+        "SLACK_APP_TOKEN": "${pulumi.stack.outputs.slack_app_token}",
+        "HUBSPOT_ACCESS_TOKEN": "${pulumi.stack.outputs.hubspot_access_token}",
+        "VERCEL_TOKEN": "${pulumi.stack.outputs.vercel_token}",
+        "LAMBDA_LABS_API_KEY": "${pulumi.stack.outputs.lambda_labs_api_key}",
+        "PORTKEY_API_KEY": "${pulumi.stack.outputs.portkey_api_key}",
+        "OPENROUTER_API_KEY": "${pulumi.stack.outputs.openrouter_api_key}",
+        "LINEAR_API_KEY": "${pulumi.stack.outputs.linear_api_key}",
+        "ASANA_ACCESS_TOKEN": "${pulumi.stack.outputs.asana_access_token}",
+        "USERGEMS_API_KEY": "${pulumi.stack.outputs.usergems_api_key}",
+        "APOLLO_API_KEY": "${pulumi.stack.outputs.apollo_api_key}",
+        "SOPHIA_WEBHOOK_BASE_URL": "${pulumi.stack.outputs.webhook_base_url}",
+        "SOPHIA_IaC_ORCHESTRATOR_PORT": "9013"
+      }
+    }
+  }
+}

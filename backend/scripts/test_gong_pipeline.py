@@ -3,7 +3,7 @@
 Comprehensive Gong Data Pipeline Test Suite
 
 Tests the complete end-to-end Gong data pipeline in SOPHIA_AI_DEV:
-- Airbyte sync validation
+- Estuary sync validation
 - Raw data landing verification
 - Transformation procedure testing
 - AI Memory integration testing
@@ -12,7 +12,7 @@ Tests the complete end-to-end Gong data pipeline in SOPHIA_AI_DEV:
 
 Usage:
     python backend/scripts/test_gong_pipeline.py --test-suite all
-    python backend/scripts/test_gong_pipeline.py --test-suite airbyte
+    python backend/scripts/test_gong_pipeline.py --test-suite estuary
     python backend/scripts/test_gong_pipeline.py --test-suite transformation
     python backend/scripts/test_gong_pipeline.py --test-suite ai-memory
 """
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class TestSuite(Enum):
     """Available test suites"""
     ALL = "all"
-    AIRBYTE = "airbyte"
+    ESTUARY = "estuary"
     TRANSFORMATION = "transformation"
     AI_MEMORY = "ai-memory"
     PII_POLICIES = "pii-policies"
@@ -60,7 +60,7 @@ class GongPipelineTestSuite:
     Comprehensive test suite for Gong data pipeline
     
     Test Categories:
-    1. Airbyte Sync Validation
+    1. Estuary Sync Validation
     2. Raw Data Landing Verification
     3. Transformation Procedure Testing
     4. AI Memory Integration Testing
@@ -98,8 +98,8 @@ class GongPipelineTestSuite:
             
             if suite == TestSuite.ALL:
                 await self._run_all_tests()
-            elif suite == TestSuite.AIRBYTE:
-                await self._test_airbyte_sync()
+            elif suite == TestSuite.ESTUARY:
+                await self._test_estuary_sync()
             elif suite == TestSuite.TRANSFORMATION:
                 await self._test_transformation_procedures()
             elif suite == TestSuite.AI_MEMORY:
@@ -148,17 +148,17 @@ class GongPipelineTestSuite:
 
     async def _run_all_tests(self) -> None:
         """Run all test categories"""
-        await self._test_airbyte_sync()
+        await self._test_estuary_sync()
         await self._test_transformation_procedures()
         await self._test_ai_memory_integration()
         await self._test_pii_policies()
         await self._test_performance_metrics()
 
-    async def _test_airbyte_sync(self) -> None:
-        """Test Airbyte sync validation"""
-        logger.info("🔄 Testing Airbyte sync validation...")
+    async def _test_estuary_sync(self) -> None:
+        """Test Estuary sync validation"""
+        logger.info("🔄 Testing Estuary sync validation...")
         
-        # Test 1: Verify RAW_AIRBYTE tables exist and have data
+        # Test 1: Verify RAW_ESTUARY tables exist and have data
         await self._execute_test(
             "raw_tables_exist",
             self._verify_raw_tables_exist
@@ -317,13 +317,13 @@ class GongPipelineTestSuite:
     # Individual test implementations
     
     async def _verify_raw_tables_exist(self) -> Dict[str, Any]:
-        """Verify RAW_AIRBYTE tables exist and have proper structure"""
+        """Verify RAW_ESTUARY tables exist and have proper structure"""
         async with self.cortex_service as cortex:
             # Check if tables exist
             tables_query = f"""
             SELECT table_name, row_count
             FROM {self.database}.INFORMATION_SCHEMA.TABLES 
-            WHERE table_schema = 'RAW_AIRBYTE' 
+            WHERE table_schema = 'RAW_ESTUARY' 
             AND table_name IN ('RAW_GONG_CALLS_RAW', 'RAW_GONG_TRANSCRIPTS_RAW')
             """
             
@@ -332,13 +332,13 @@ class GongPipelineTestSuite:
             if len(result) >= 2:
                 return {
                     "success": True,
-                    "message": f"Found {len(result)} required RAW_AIRBYTE tables",
+                    "message": f"Found {len(result)} required RAW_ESTUARY tables",
                     "details": {"tables": result.to_dict('records')}
                 }
             else:
                 return {
                     "success": False,
-                    "message": f"Missing RAW_AIRBYTE tables. Found: {len(result)}/2"
+                    "message": f"Missing RAW_ESTUARY tables. Found: {len(result)}/2"
                 }
 
     async def _verify_recent_data_ingestion(self) -> Dict[str, Any]:
@@ -350,7 +350,7 @@ class GongPipelineTestSuite:
                 COUNT(*) as total_records,
                 MAX(INGESTED_AT) as latest_ingestion,
                 MIN(INGESTED_AT) as earliest_ingestion
-            FROM {self.database}.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
+            FROM {self.database}.RAW_ESTUARY.RAW_GONG_CALLS_RAW
             WHERE INGESTED_AT >= DATEADD(hour, -24, CURRENT_TIMESTAMP())
             """
             
@@ -375,9 +375,9 @@ class GongPipelineTestSuite:
             structure_query = f"""
             SELECT 
                 COUNT(*) as total_records,
-                COUNT(CASE WHEN _AIRBYTE_DATA IS NOT NULL THEN 1 END) as valid_variant_records,
+                COUNT(CASE WHEN _ESTUARY_DATA IS NOT NULL THEN 1 END) as valid_variant_records,
                 COUNT(CASE WHEN CALL_ID IS NOT NULL THEN 1 END) as valid_call_ids
-            FROM {self.database}.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
+            FROM {self.database}.RAW_ESTUARY.RAW_GONG_CALLS_RAW
             LIMIT 1000
             """
             
@@ -403,7 +403,7 @@ class GongPipelineTestSuite:
             SELECT 
                 COUNT(*) as total_errors,
                 COUNT(DISTINCT PROCESSING_ERROR) as unique_error_types
-            FROM {self.database}.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
+            FROM {self.database}.RAW_ESTUARY.RAW_GONG_CALLS_RAW
             WHERE PROCESSING_ERROR IS NOT NULL
             """
             
@@ -731,7 +731,7 @@ class GongPipelineTestSuite:
             monitoring_query = f"""
             SELECT 
                 COUNT(*) as total_logs,
-                COUNT(CASE WHEN JOB_TYPE = 'airbyte_gong_sync' THEN 1 END) as airbyte_logs,
+                COUNT(CASE WHEN JOB_TYPE = 'estuary_gong_sync' THEN 1 END) as estuary_logs,
                 MAX(LOG_TIMESTAMP) as latest_log
             FROM {self.database}.OPS_MONITORING.ETL_JOB_LOGS
             WHERE LOG_TIMESTAMP >= DATEADD(day, -1, CURRENT_TIMESTAMP())
@@ -761,7 +761,7 @@ class GongPipelineTestSuite:
 async def main():
     """Main function for CLI usage"""
     parser = argparse.ArgumentParser(description="Test Gong Data Pipeline")
-    parser.add_argument("--test-suite", choices=["all", "airbyte", "transformation", "ai-memory", "pii-policies", "performance"],
+    parser.add_argument("--test-suite", choices=["all", "estuary", "transformation", "ai-memory", "pii-policies", "performance"],
                        default="all", help="Test suite to run")
     parser.add_argument("--output-file", help="Output file for test results (JSON)")
     

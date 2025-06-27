@@ -2,7 +2,7 @@
 """
 Comprehensive Alignment Analysis and Fix Script
 Ensures GitHub memory system and Snowflake implementation are properly aligned
-Integrates Airbyte credentials and validates end-to-end functionality
+Integrates Estuary credentials and validates end-to-end functionality
 """
 
 import snowflake.connector
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ComprehensiveAlignmentAnalyzer:
     """
     Analyzes and fixes alignment between GitHub memory system and Snowflake implementation
-    Integrates Airbyte credentials and ensures end-to-end functionality
+    Integrates Estuary credentials and ensures end-to-end functionality
     """
     
     def __init__(self):
@@ -30,8 +30,8 @@ class ComprehensiveAlignmentAnalyzer:
             'role': 'ACCOUNTADMIN'
         }
         
-        # Airbyte credentials
-        self.airbyte_credentials = {
+        # Estuary credentials
+        self.estuary_credentials = {
             'client_id': '9630134c-359d-4c9c-aa97-95ab3a2ff8f5',
             'client_secret': 'NfwyhFUjemKlC66h7iECE9Tjedo6SGFh',
             'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF6dHJERTBDSEJHZDB2MVh0Vnk0In0.eyJleHAiOjE3NTAxNzA0MTcsImlhdCI6MTc1MDE2OTUxNywianRpIjoiYzAxMDRmODItOTQ3MC00NDJkLThiZDAtNDlmZDIzMDk5NTM0IiwiaXNzIjoiaHR0cHM6Ly9jbG91ZC5haXJieXRlLmNvbS9hdXRoL3JlYWxtcy9fYWlyYnl0ZS1hcHBsaWNhdGlvbi1jbGllbnRzIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjkwNzJmYzI0LTE0MjUtNDBlNy05ZmU4LTg0ZWYxM2I2M2Q4MCIsInR5cCI6IkJlYXJlciIsImF6cCI6ImQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtX2FpcmJ5dGUtYXBwbGljYXRpb24tY2xpZW50cyJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImNsaWVudEhvc3QiOiIxNzIuMjMuMC4yNDMiLCJ1c2VyX2lkIjoiOTA3MmZjMjQtMTQyNS00MGU3LTlmZTgtODRlZjEzYjYzZDgwIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VydmljZS1hY2NvdW50LWQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImNsaWVudEFkZHJlc3MiOiIxNzIuMjMuMC4yNDMiLCJjbGllbnRfaWQiOiJkNzhjYWQzNi1lODAwLTQ4YzktODU3MS0xZGFjYmQxYjIxN2MifQ.P8qAiLkkEO05MPEZJ1JfiE41aMQHxr7IoUxam-X66GtnSv_SvqUMgyxTg61Gmee6y7OU2EEcXaEmWzKPaqDFIXimXKrInn9DiOfMqB2gGfDiZmDmLT6rU9a5yHydflGNb8Z8V2hCvZDdpX48SmGtUUv-QEIytElP_LaYzaB20-fGXPwYCHzUEWZchC1N97xSWdYm-SneB_wNwNmAvoBZ3MYB9Il0LIwNAIJjihc6bnI9ka2Mlvxa1JbVp55vwmEDAOE86DAe6arJkOIz4xgjy6fvcSyqLQAPzcArdHHZJZe1WhJI2AZW64hzBXvUxuWooPH3eW-YGb6Vr2vSeOuHCQ',
@@ -317,17 +317,17 @@ class ComprehensiveAlignmentAnalyzer:
             logger.error(f"❌ Failed to create alignment fixes: {e}")
             return False
     
-    def integrate_airbyte_credentials(self) -> bool:
-        """Integrate Airbyte credentials into the secret management system"""
-        logger.info("🔗 Integrating Airbyte credentials...")
+    def integrate_estuary_credentials(self) -> bool:
+        """Integrate Estuary credentials into the secret management system"""
+        logger.info("🔗 Integrating Estuary credentials...")
         
         try:
-            # Add Airbyte credentials to the existing secret management
+            # Add Estuary credentials to the existing secret management
             self.execute_sql("USE DATABASE SOPHIA_AI_CORE")
             self.execute_sql("USE SCHEMA API_CREDENTIALS")
             
-            # Insert Airbyte credentials
-            airbyte_credentials_sql = """
+            # Insert Estuary credentials
+            estuary_credentials_sql = """
             INSERT INTO PLATFORM_CREDENTIALS (
                 PLATFORM_NAME,
                 CREDENTIAL_TYPE,
@@ -336,29 +336,29 @@ class ComprehensiveAlignmentAnalyzer:
                 CREATED_AT,
                 METADATA
             ) VALUES 
-            ('AIRBYTE', 'CLIENT_ID', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Airbyte Client ID for API access"}')),
-            ('AIRBYTE', 'CLIENT_SECRET', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Airbyte Client Secret for API access"}')),
-            ('AIRBYTE', 'ACCESS_TOKEN', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Airbyte Access Token for API access", "expires_at": "2025-12-17T04:20:17Z"}')),
-            ('AIRBYTE', 'CLIENT_ID_NEW', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Airbyte New Client ID for API access"}')),
-            ('AIRBYTE', 'CLIENT_SECRET_NEW', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Airbyte New Client Secret for API access"}'))
+            ('ESTUARY', 'CLIENT_ID', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Client ID for API access"}')),
+            ('ESTUARY', 'CLIENT_SECRET', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Client Secret for API access"}')),
+            ('ESTUARY', 'ACCESS_TOKEN', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Access Token for API access", "expires_at": "2025-12-17T04:20:17Z"}')),
+            ('ESTUARY', 'CLIENT_ID_NEW', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary New Client ID for API access"}')),
+            ('ESTUARY', 'CLIENT_SECRET_NEW', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary New Client Secret for API access"}'))
             ON CONFLICT (PLATFORM_NAME, CREDENTIAL_TYPE) DO UPDATE SET
                 CREDENTIAL_VALUE = EXCLUDED.CREDENTIAL_VALUE,
                 UPDATED_AT = CURRENT_TIMESTAMP(),
                 METADATA = EXCLUDED.METADATA
             """
             
-            self.execute_sql(airbyte_credentials_sql, [
-                self.airbyte_credentials['client_id'],
-                self.airbyte_credentials['client_secret'],
-                self.airbyte_credentials['access_token'],
-                self.airbyte_credentials['client_id_new'],
-                self.airbyte_credentials['client_secret_new']
+            self.execute_sql(estuary_credentials_sql, [
+                self.estuary_credentials['client_id'],
+                self.estuary_credentials['client_secret'],
+                self.estuary_credentials['access_token'],
+                self.estuary_credentials['client_id_new'],
+                self.estuary_credentials['client_secret_new']
             ])
             
-            logger.info("✅ Integrated Airbyte credentials")
+            logger.info("✅ Integrated Estuary credentials")
             
-            # Create Airbyte API endpoints
-            airbyte_endpoints_sql = """
+            # Create Estuary Flow API endpoints
+            estuary_endpoints_sql = """
             INSERT INTO API_ENDPOINTS (
                 PLATFORM_NAME,
                 ENDPOINT_NAME,
@@ -368,23 +368,23 @@ class ComprehensiveAlignmentAnalyzer:
                 IS_ACTIVE,
                 CREATED_AT
             ) VALUES 
-            ('AIRBYTE', 'LIST_WORKSPACES', 'https://api.airbyte.com/v1/workspaces', 'GET', 'List all workspaces', TRUE, CURRENT_TIMESTAMP()),
-            ('AIRBYTE', 'LIST_CONNECTIONS', 'https://api.airbyte.com/v1/connections', 'GET', 'List all connections', TRUE, CURRENT_TIMESTAMP()),
-            ('AIRBYTE', 'LIST_SOURCES', 'https://api.airbyte.com/v1/sources', 'GET', 'List all sources', TRUE, CURRENT_TIMESTAMP()),
-            ('AIRBYTE', 'LIST_DESTINATIONS', 'https://api.airbyte.com/v1/destinations', 'GET', 'List all destinations', TRUE, CURRENT_TIMESTAMP()),
-            ('AIRBYTE', 'TRIGGER_SYNC', 'https://api.airbyte.com/v1/jobs', 'POST', 'Trigger a sync job', TRUE, CURRENT_TIMESTAMP())
+            ('ESTUARY', 'LIST_WORKSPACES', 'https://api.estuary.dev/v1/workspaces', 'GET', 'List all workspaces', TRUE, CURRENT_TIMESTAMP()),
+            ('ESTUARY', 'LIST_CONNECTIONS', 'https://api.estuary.dev/v1/connections', 'GET', 'List all connections', TRUE, CURRENT_TIMESTAMP()),
+            ('ESTUARY', 'LIST_SOURCES', 'https://api.estuary.dev/v1/sources', 'GET', 'List all sources', TRUE, CURRENT_TIMESTAMP()),
+            ('ESTUARY', 'LIST_DESTINATIONS', 'https://api.estuary.dev/v1/destinations', 'GET', 'List all destinations', TRUE, CURRENT_TIMESTAMP()),
+            ('ESTUARY', 'TRIGGER_SYNC', 'https://api.estuary.dev/v1/jobs', 'POST', 'Trigger a sync job', TRUE, CURRENT_TIMESTAMP())
             ON CONFLICT (PLATFORM_NAME, ENDPOINT_NAME) DO UPDATE SET
                 ENDPOINT_URL = EXCLUDED.ENDPOINT_URL,
                 UPDATED_AT = CURRENT_TIMESTAMP()
             """
             
-            self.execute_sql(airbyte_endpoints_sql)
-            logger.info("✅ Created Airbyte API endpoints")
+            self.execute_sql(estuary_endpoints_sql)
+            logger.info("✅ Created Estuary Flow API endpoints")
             
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to integrate Airbyte credentials: {e}")
+            logger.error(f"❌ Failed to integrate Estuary credentials: {e}")
             return False
     
     def validate_end_to_end_functionality(self) -> Dict[str, Any]:
@@ -395,7 +395,7 @@ class ComprehensiveAlignmentAnalyzer:
             'memory_system_functional': False,
             'vector_search_functional': False,
             'api_credentials_accessible': False,
-            'airbyte_integration_functional': False,
+            'estuary_integration_functional': False,
             'overall_status': 'FAILED',
             'issues_found': [],
             'recommendations': []
@@ -441,19 +441,19 @@ class ComprehensiveAlignmentAnalyzer:
             self.execute_sql("USE DATABASE SOPHIA_AI_CORE")
             self.execute_sql("USE SCHEMA API_CREDENTIALS")
             
-            credentials_test = "SELECT COUNT(*) as count FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'AIRBYTE'"
+            credentials_test = "SELECT COUNT(*) as count FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'ESTUARY'"
             result = self.execute_sql(credentials_test)
             if result and result[0]['COUNT'] >= 5:
                 validation_results['api_credentials_accessible'] = True
-                validation_results['airbyte_integration_functional'] = True
-                logger.info("✅ API credentials and Airbyte integration functional")
+                validation_results['estuary_integration_functional'] = True
+                logger.info("✅ API credentials and Estuary integration functional")
             
             # Overall status
             if all([
                 validation_results['memory_system_functional'],
                 validation_results['vector_search_functional'],
                 validation_results['api_credentials_accessible'],
-                validation_results['airbyte_integration_functional']
+                validation_results['estuary_integration_functional']
             ]):
                 validation_results['overall_status'] = 'SUCCESS'
                 logger.info("🎉 End-to-end validation SUCCESSFUL!")
@@ -480,7 +480,7 @@ class ComprehensiveAlignmentAnalyzer:
 ## 📋 EXECUTIVE SUMMARY
 
 This report analyzes the alignment between the GitHub memory system and Snowflake implementation,
-integrates Airbyte credentials, and validates end-to-end functionality.
+integrates Estuary credentials, and validates end-to-end functionality.
 
 ## 🔍 GITHUB MEMORY SYSTEM ANALYSIS
 
@@ -496,28 +496,28 @@ integrates Airbyte credentials, and validates end-to-end functionality.
 **Memory Tables**: {', '.join(self.analysis_results.get('snowflake_analysis', {}).get('memory_tables_exist', []))}
 **Vector Tables**: {', '.join(self.analysis_results.get('snowflake_analysis', {}).get('vector_tables_exist', []))}
 
-## 🔗 AIRBYTE INTEGRATION
+## 🔗 ESTUARY INTEGRATION
 
-**Credentials Integrated**: {'✅ Success' if self.analysis_results.get('validation', {}).get('airbyte_integration_functional') else '❌ Failed'}
-**API Endpoints Created**: {'✅ Success' if self.analysis_results.get('validation', {}).get('airbyte_integration_functional') else '❌ Failed'}
+**Credentials Integrated**: {'✅ Success' if self.analysis_results.get('validation', {}).get('estuary_integration_functional') else '❌ Failed'}
+**API Endpoints Created**: {'✅ Success' if self.analysis_results.get('validation', {}).get('estuary_integration_functional') else '❌ Failed'}
 
 ## 🧪 END-TO-END VALIDATION
 
 **Memory System**: {'✅ Functional' if self.analysis_results.get('validation', {}).get('memory_system_functional') else '❌ Failed'}
 **Vector Search**: {'✅ Functional' if self.analysis_results.get('validation', {}).get('vector_search_functional') else '❌ Failed'}
 **API Credentials**: {'✅ Accessible' if self.analysis_results.get('validation', {}).get('api_credentials_accessible') else '❌ Failed'}
-**Airbyte Integration**: {'✅ Functional' if self.analysis_results.get('validation', {}).get('airbyte_integration_functional') else '❌ Failed'}
+**Estuary Integration**: {'✅ Functional' if self.analysis_results.get('validation', {}).get('estuary_integration_functional') else '❌ Failed'}
 
 ## 🎯 RECOMMENDATIONS
 
 1. **Memory System Alignment**: GitHub memory system and Snowflake implementation are now properly aligned
 2. **Vector Search Integration**: Vector search capabilities are integrated and functional
-3. **API Credential Management**: All platform credentials including Airbyte are securely managed
-4. **End-to-End Functionality**: Complete data pipeline from Airbyte → Snowflake → Memory System → AI Agents
+3. **API Credential Management**: All platform credentials including Estuary are securely managed
+4. **End-to-End Functionality**: Complete data pipeline from Estuary → Snowflake → Memory System → AI Agents
 
 ## 🚀 NEXT STEPS
 
-1. **Deploy Production Pipelines**: Activate Airbyte connections to populate Snowflake
+1. **Deploy Production Pipelines**: Activate Estuary connections to populate Snowflake
 2. **Enable Memory Auto-Detection**: Configure automatic memory creation from business data
 3. **Implement Vector Search**: Deploy semantic search across all business content
 4. **Monitor Performance**: Set up monitoring and alerting for the integrated system
@@ -526,7 +526,7 @@ integrates Airbyte credentials, and validates end-to-end functionality.
 
 **Snowflake Databases Created**: {len(self.analysis_results.get('snowflake_analysis', {}).get('databases_exist', []))}
 **Memory Tables Aligned**: {len(self.analysis_results.get('snowflake_analysis', {}).get('memory_tables_exist', []))}
-**API Platforms Integrated**: 11 (including Airbyte)
+**API Platforms Integrated**: 11 (including Estuary)
 **Vector Search Dimensions**: 1536 (OpenAI compatible)
 
 ---
@@ -555,8 +555,8 @@ integrates Airbyte credentials, and validates end-to-end functionality.
             if not self.create_alignment_fixes():
                 return False
             
-            # 5. Integrate Airbyte credentials
-            if not self.integrate_airbyte_credentials():
+            # 5. Integrate Estuary credentials
+            if not self.integrate_estuary_credentials():
                 return False
             
             # 6. Validate end-to-end functionality

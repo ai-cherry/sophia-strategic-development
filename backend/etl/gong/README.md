@@ -30,7 +30,7 @@ backend/etl/gong/
 ├── ingest_gong_data.py          # Python ingestion script
 ├── snowflake_gong_schema.sql    # DDL and transformation logic
 └── config/                      # Configuration files (optional)
-    ├── airbyte_gong_config.json # Airbyte connector config
+    ├── estuary_gong_config.json # Estuary Flow connector config
     └── fivetran_gong_config.json # Fivetran connector config
 ```
 
@@ -79,9 +79,9 @@ python backend/etl/gong/ingest_gong_data.py \
     --no-transcripts
 ```
 
-### Option 2: Airbyte Connector (Recommended for Production Scale)
+### Option 2: Estuary Connector (Recommended for Production Scale)
 
-#### Airbyte Configuration
+#### Estuary Configuration
 ```json
 {
   "source": {
@@ -116,9 +116,9 @@ python backend/etl/gong/ingest_gong_data.py \
 
 #### Expected Raw Data Structure
 ```sql
--- Airbyte will create these tables automatically:
--- _airbyte_raw_calls (VARIANT column with full JSON)
--- _airbyte_raw_call_transcripts (VARIANT column with transcript JSON)
+-- Estuary will create these tables automatically:
+-- _estuary_raw_calls (VARIANT column with full JSON)
+-- _estuary_raw_call_transcripts (VARIANT column with transcript JSON)
 
 -- Example raw JSON structure:
 {

@@ -116,7 +116,7 @@ class PulumiESCSync:
             "NPM_API_TOKEN": "values.sophia.development.npm.api_token",
             
             # Data Integration
-            "AIRBYTE_ACCESS_TOKEN": "values.sophia.integration.airbyte.access_token",
+            "ESTUARY_ACCESS_TOKEN": "values.sophia.integration.estuary.access_token",
             "ESTUARY_ACCESS_TOKEN": "values.sophia.integration.estuary.access_token",
             "PIPEDREAM_API_KEY": "values.sophia.integration.pipedream.api_key",
             

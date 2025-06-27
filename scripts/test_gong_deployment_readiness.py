@@ -37,7 +37,7 @@ class GongDeploymentTester:
             ("Pulumi ESC Integration", self.test_pulumi_esc_integration),
             ("Gong API Connectivity", self.test_gong_api_connectivity),
             ("Snowflake Connectivity", self.test_snowflake_connectivity),
-            ("Airbyte Integration", self.test_airbyte_integration),
+            ("Estuary Integration", self.test_estuary_integration),
             ("AI Memory Integration", self.test_ai_memory_integration),
             ("Backend Services", self.test_backend_services),
         ]
@@ -218,29 +218,29 @@ class GongDeploymentTester:
                 "error": f"Snowflake test failed: {str(e)}"
             }
     
-    async def test_airbyte_integration(self) -> Dict[str, Any]:
-        """Test Airbyte integration."""
+    async def test_estuary_integration(self) -> Dict[str, Any]:
+        """Test Estuary integration."""
         try:
-            # Check if Airbyte orchestrator file exists
+            # Check if Estuary orchestrator file exists
             import os
-            airbyte_file = "backend/scripts/airbyte_gong_setup.py"
+            estuary_file = "backend/scripts/estuary_gong_setup.py"
             
-            if not os.path.exists(airbyte_file):
+            if not os.path.exists(estuary_file):
                 return {
                     "status": "FAIL",
-                    "error": f"Airbyte orchestrator file not found: {airbyte_file}"
+                    "error": f"Estuary orchestrator file not found: {estuary_file}"
                 }
             
             return {
                 "status": "PASS",
-                "message": "Airbyte integration files available",
+                "message": "Estuary integration files available",
                 "orchestrator_file_exists": True
             }
             
         except Exception as e:
             return {
                 "status": "ERROR",
-                "error": f"Airbyte test failed: {str(e)}"
+                "error": f"Estuary test failed: {str(e)}"
             }
     
     async def test_ai_memory_integration(self) -> Dict[str, Any]:

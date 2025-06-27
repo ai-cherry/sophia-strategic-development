@@ -56,9 +56,9 @@ jobs:
         pulumi config set --path sophia-ai:snowflake_user "${{ secrets.SNOWFLAKE_USER }}"
         pulumi config set --path sophia-ai:sophia_ai_token "${{ secrets.SOPHIA_AI_TOKEN }}" --secret
         
-        pulumi config set --path sophia-ai:airbyte_client_id "${{ secrets.AIRBYTE_CLIENT_ID }}"
-        pulumi config set --path sophia-ai:airbyte_client_secret "${{ secrets.AIRBYTE_CLIENT_SECRET }}" --secret
-        pulumi config set --path sophia-ai:airbyte_access_token "${{ secrets.AIRBYTE_ACCESS_TOKEN }}" --secret
+        pulumi config set --path sophia-ai:estuary_client_id "${{ secrets.ESTUARY_CLIENT_ID }}"
+        pulumi config set --path sophia-ai:estuary_client_secret "${{ secrets.ESTUARY_CLIENT_SECRET }}" --secret
+        pulumi config set --path sophia-ai:estuary_access_token "${{ secrets.ESTUARY_ACCESS_TOKEN }}" --secret
         
         pulumi config set --path sophia-ai:gong_access_key "${{ secrets.GONG_ACCESS_KEY }}" --secret
         pulumi config set --path sophia-ai:gong_client_secret "${{ secrets.GONG_CLIENT_SECRET }}" --secret
@@ -96,9 +96,9 @@ jobs:
         SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
         SOPHIA_AI_TOKEN: ${{ secrets.SOPHIA_AI_TOKEN }}
         
-        AIRBYTE_CLIENT_ID: ${{ secrets.AIRBYTE_CLIENT_ID }}
-        AIRBYTE_CLIENT_SECRET: ${{ secrets.AIRBYTE_CLIENT_SECRET }}
-        AIRBYTE_ACCESS_TOKEN: ${{ secrets.AIRBYTE_ACCESS_TOKEN }}
+        ESTUARY_CLIENT_ID: ${{ secrets.ESTUARY_CLIENT_ID }}
+        ESTUARY_CLIENT_SECRET: ${{ secrets.ESTUARY_CLIENT_SECRET }}
+        ESTUARY_ACCESS_TOKEN: ${{ secrets.ESTUARY_ACCESS_TOKEN }}
         
         GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
         GONG_CLIENT_SECRET: ${{ secrets.GONG_CLIENT_SECRET }}
@@ -200,7 +200,7 @@ jobs:
             "State Management with Rollback"
           ],
           "platforms_integrated": [
-            "Snowflake", "Airbyte", "Gong", "Slack", "HubSpot",
+            "Snowflake", "Estuary", "Gong", "Slack", "HubSpot",
             "Vercel", "Lambda Labs", "Figma",
             "Portkey", "OpenRouter",
             "Linear", "Asana",

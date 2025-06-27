@@ -3,7 +3,7 @@
 Enhanced Asana Integration Test Suite
 
 Comprehensive testing framework for Asana integration including:
-- Airbyte connectivity and data ingestion
+- Estuary connectivity and data ingestion
 - Snowflake transformation and AI enrichment
 - Project intelligence and analytics
 - Chat service integration
@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import argparse
 
-from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
+from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.agents.specialized.asana_project_intelligence_agent import AsanaProjectIntelligenceAgent
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
@@ -72,7 +72,7 @@ class EnhancedAsanaIntegrationTestSuite:
             environment=environment,
             include_data_validation=include_data_validation,
             performance_thresholds={
-                "airbyte_setup_max_time": 300.0,  # 5 minutes
+                "estuary_setup_max_time": 300.0,  # 5 minutes
                 "data_transformation_max_time": 120.0,  # 2 minutes
                 "ai_enrichment_max_time": 180.0,  # 3 minutes
                 "query_response_max_time": 5.0,  # 5 seconds
@@ -83,7 +83,7 @@ class EnhancedAsanaIntegrationTestSuite:
         )
         
         # Service instances
-        self.airbyte_manager = None
+        self.estuary_manager = None
         self.cortex_service = None
         self.intelligence_agent = None
         self.chat_service = None
@@ -94,8 +94,8 @@ class EnhancedAsanaIntegrationTestSuite:
         try:
             logger.info("🔧 Initializing test services")
             
-            self.airbyte_manager = EnhancedAirbyteManager(self.environment)
-            await self.airbyte_manager.initialize()
+            self.estuary_manager = EnhancedEstuaryManager(self.environment)
+            await self.estuary_manager.initialize()
             
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
@@ -126,7 +126,7 @@ class EnhancedAsanaIntegrationTestSuite:
         # Test Asana API connectivity
         start_time = time.time()
         try:
-            result = await self.airbyte_manager.test_source_connection("asana")
+            result = await self.estuary_manager.test_source_connection("asana")
             execution_time = time.time() - start_time
             
             if result.status.value == "success":
@@ -185,39 +185,39 @@ class EnhancedAsanaIntegrationTestSuite:
                 details={"exception": str(e)}
             ))
         
-        # Test Airbyte server connectivity
+        # Test Estuary server connectivity
         start_time = time.time()
         try:
-            health_status = await self.airbyte_manager.perform_health_check()
+            health_status = await self.estuary_manager.perform_health_check()
             execution_time = time.time() - start_time
             
             if health_status.get("overall_status") in ["healthy", "degraded"]:
                 results.append(TestResult(
-                    test_name="airbyte_server_connectivity",
+                    test_name="estuary_server_connectivity",
                     category=TestCategory.CONNECTIVITY,
                     status="PASS",
                     execution_time=execution_time,
-                    message="Airbyte server connectivity successful",
+                    message="Estuary server connectivity successful",
                     details={"health_status": health_status}
                 ))
             else:
                 results.append(TestResult(
-                    test_name="airbyte_server_connectivity",
+                    test_name="estuary_server_connectivity",
                     category=TestCategory.CONNECTIVITY,
                     status="FAIL",
                     execution_time=execution_time,
-                    message="Airbyte server unhealthy",
+                    message="Estuary server unhealthy",
                     details={"health_status": health_status}
                 ))
                 
         except Exception as e:
             execution_time = time.time() - start_time
             results.append(TestResult(
-                test_name="airbyte_server_connectivity",
+                test_name="estuary_server_connectivity",
                 category=TestCategory.CONNECTIVITY,
                 status="FAIL",
                 execution_time=execution_time,
-                message=f"Airbyte server test error: {str(e)}",
+                message=f"Estuary server test error: {str(e)}",
                 details={"exception": str(e)}
             ))
         
@@ -228,10 +228,10 @@ class EnhancedAsanaIntegrationTestSuite:
         logger.info("📥 Running data ingestion tests")
         results = []
         
-        # Test Airbyte pipeline setup
+        # Test Estuary pipeline setup
         start_time = time.time()
         try:
-            pipeline_results = await self.airbyte_manager.setup_complete_asana_pipeline()
+            pipeline_results = await self.estuary_manager.setup_complete_asana_pipeline()
             execution_time = time.time() - start_time
             
             # Check if all pipeline components were successful
@@ -246,7 +246,7 @@ class EnhancedAsanaIntegrationTestSuite:
                     category=TestCategory.DATA_INGESTION,
                     status="PASS",
                     execution_time=execution_time,
-                    message="Asana Airbyte pipeline setup successful",
+                    message="Asana Estuary pipeline setup successful",
                     details={"pipeline_results": {k: v.status.value for k, v in pipeline_results.items()}},
                     metrics={"setup_time": execution_time}
                 ))
@@ -286,9 +286,9 @@ class EnhancedAsanaIntegrationTestSuite:
                 raw_data_query = """
                 SELECT 
                     COUNT(*) as total_records,
-                    COUNT(DISTINCT _airbyte_data:gid) as unique_gids
-                FROM RAW_AIRBYTE._AIRBYTE_RAW_ASANA_PROJECTS
-                WHERE _airbyte_emitted_at >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
+                    COUNT(DISTINCT _estuary_data:gid) as unique_gids
+                FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS
+                WHERE _estuary_emitted_at >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
                 """
                 
                 result = await self.cortex_service.execute_query(raw_data_query)
@@ -814,7 +814,7 @@ class EnhancedAsanaIntegrationTestSuite:
         # Test overall data quality
         start_time = time.time()
         try:
-            quality_metrics = await self.airbyte_manager.validate_asana_data_quality()
+            quality_metrics = await self.estuary_manager.validate_asana_data_quality()
             execution_time = time.time() - start_time
             
             if quality_metrics.quality_score >= self.test_suite.performance_thresholds["min_data_quality_score"]:
@@ -901,8 +901,8 @@ class EnhancedAsanaIntegrationTestSuite:
     async def cleanup_services(self) -> None:
         """Clean up test services"""
         try:
-            if self.airbyte_manager:
-                await self.airbyte_manager.cleanup()
+            if self.estuary_manager:
+                await self.estuary_manager.cleanup()
             if self.cortex_service:
                 await self.cortex_service.close()
             if self.intelligence_agent:

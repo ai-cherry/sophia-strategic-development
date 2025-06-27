@@ -1,0 +1,106 @@
+{
+  "deployment_summary": {
+    "environment": "dev",
+    "overall_success": false,
+    "successful_phases": 0,
+    "total_phases": 5,
+    "success_rate": 0.0,
+    "total_execution_time": 9.376911878585815,
+    "timestamp": "2025-06-25T03:59:55.031416"
+  },
+  "phase_results": [
+    {
+      "phase": "credentials",
+      "success": false,
+      "message": "Gong credentials not available in Pulumi ESC",
+      "details": {
+        "gong_key_available": false,
+        "gong_secret_available": false,
+        "environment_vars": {
+          "PULUMI_ORG": "Not set",
+          "SOPHIA_ENVIRONMENT": "Not set"
+        }
+      },
+      "execution_time": 0.3480031490325928,
+      "timestamp": "2025-06-25T03:59:46.002596"
+    },
+    {
+      "phase": "airbyte",
+      "success": false,
+      "message": "Airbyte setup failed: create_gong_source failed: Cannot connect to host localhost:8000 ssl:default [Connect call failed ('127.0.0.1', 8000)]",
+      "details": {
+        "gong_source_id": null,
+        "snowflake_destination_id": null,
+        "connection_id": null
+      },
+      "execution_time": 4.9533069133758545,
+      "timestamp": "2025-06-25T03:59:50.955988"
+    },
+    {
+      "phase": "snowflake",
+      "success": false,
+      "message": "Manus AI DDL file not found: backend/snowflake_setup/manus_ai_final_gong_ddl.sql",
+      "details": {
+        "expected_file": "backend/snowflake_setup/manus_ai_final_gong_ddl.sql",
+        "current_directory": "/Users/lynnmusil/sophia-main",
+        "available_files": [
+          "foundational_knowledge_schema.sql",
+          "slack_integration_schema.sql",
+          "config_schema.sql",
+          "stg_transformed_schema.sql",
+          "sample_developer_queries_extended.md",
+          "ai_usage_analytics_schema.sql",
+          "ops_monitoring_schema.sql",
+          "ai_memory_schema.sql",
+          "sample_developer_queries.md"
+        ]
+      },
+      "execution_time": 0.00011587142944335938,
+      "timestamp": "2025-06-25T03:59:50.956193"
+    },
+    {
+      "phase": "testing",
+      "success": false,
+      "message": "Test suite completed: 0/0 tests passed (0.0%)",
+      "details": {
+        "total_tests": 0,
+        "passed_tests": 0,
+        "failed_tests": 1,
+        "skipped_tests": 0,
+        "error_tests": 1,
+        "overall_status": "ERROR",
+        "performance_metrics": {},
+        "recommendations": [
+          "Fix test suite execution errors"
+        ],
+        "failed_test_names": []
+      },
+      "execution_time": 3.031582832336426,
+      "timestamp": "2025-06-25T03:59:53.987805"
+    },
+    {
+      "phase": "chat",
+      "success": false,
+      "message": "Chat integration test failed: Can't instantiate abstract class SalesCoachAgent with abstract methods _agent_initialize, _execute_task",
+      "details": null,
+      "execution_time": 1.0434210300445557,
+      "timestamp": "2025-06-25T03:59:55.031304"
+    }
+  ],
+  "next_steps": [
+    "\ud83d\udd11 Update Gong credentials in Pulumi ESC",
+    "\ud83d\udd27 Debug Airbyte configuration and connectivity",
+    "\ud83d\udcdc Obtain and deploy Manus AI's consolidated DDL",
+    "\ud83e\uddea Review and fix failed test cases",
+    "\ud83d\udcac Debug chat service integration issues"
+  ],
+  "recommendations": [
+    "Verify Pulumi ESC access and Gong API key scopes",
+    "Check Airbyte server status and network connectivity",
+    "Review failed tests for data quality and integration issues",
+    "Set up continuous monitoring for the Gong data pipeline",
+    "Implement automated data quality checks",
+    "Create dashboards for pipeline health monitoring",
+    "Document deployment procedures for future reference"
+  ]
+}

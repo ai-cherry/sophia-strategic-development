@@ -428,7 +428,7 @@ async def test_agent_instantiation_speed():
 - **[ENHANCED_ARCHITECTURE_RECOMMENDATIONS.md](ENHANCED_ARCHITECTURE_RECOMMENDATIONS.md)** - Best practices
 
 ### **Integration Guides**
-- **[AIRBYTE_INTEGRATION_GUIDE.md](AIRBYTE_INTEGRATION_GUIDE.md)** - Data ingestion
+- **[ESTUARY_INTEGRATION_GUIDE.md](ESTUARY_INTEGRATION_GUIDE.md)** - Data ingestion
 - **[CURSOR_MCP_INTEGRATION_GUIDE.md](CURSOR_MCP_INTEGRATION_GUIDE.md)** - IDE integration
 
 ---

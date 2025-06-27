@@ -129,7 +129,7 @@ class SnowflakeAdapter(PlatformAdapter):
             }
             
             # Dependencies
-            dependencies = ["airbyte"]  # Airbyte loads data into Snowflake
+            dependencies = ["estuary"]  # Estuary loads data into Snowflake
             
             self.config_manager.close_connection()
             self.last_health_check = datetime.now()

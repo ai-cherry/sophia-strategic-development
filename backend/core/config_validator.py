@@ -38,7 +38,7 @@ class ServiceType(Enum):
     """Service types for validation"""
     GONG = "gong"
     SNOWFLAKE = "snowflake"
-    AIRBYTE = "airbyte"
+    ESTUARY = "estuary"
     PORTKEY = "portkey"
     OPENAI = "openai"
     OPENROUTER = "openrouter"
@@ -102,10 +102,10 @@ class DeploymentValidator:
                 "optional_configs": ["snowflake_role"],
                 "connectivity_test": self._test_snowflake_connectivity
             },
-            ServiceType.AIRBYTE: {
-                "required_configs": ["airbyte_server_url"],
-                "optional_configs": ["airbyte_username", "airbyte_password", "airbyte_workspace_id"],
-                "connectivity_test": self._test_airbyte_connectivity
+            ServiceType.ESTUARY: {
+                "required_configs": ["estuary_server_url"],
+                "optional_configs": ["estuary_username", "estuary_password", "estuary_workspace_id"],
+                "connectivity_test": self._test_estuary_connectivity
             },
             ServiceType.PORTKEY: {
                 "required_configs": ["portkey_api_key", "portkey_virtual_key"],
@@ -449,16 +449,16 @@ class DeploymentValidator:
             logger.warning(f"Snowflake connectivity test failed: {e}")
             return False
 
-    async def _test_airbyte_connectivity(self) -> bool:
-        """Test Airbyte API connectivity"""
+    async def _test_estuary_connectivity(self) -> bool:
+        """Test Estuary Flow API connectivity"""
         try:
-            airbyte_url = get_config_value("airbyte_server_url", "http://localhost:8000")
+            estuary_url = get_config_value("estuary_server_url", "http://localhost:8000")
             
-            async with self.session.get(f"{airbyte_url}/api/v1/health") as response:
+            async with self.session.get(f"{estuary_url}/api/v1/health") as response:
                 return response.status == 200
                 
         except Exception as e:
-            logger.warning(f"Airbyte connectivity test failed: {e}")
+            logger.warning(f"Estuary connectivity test failed: {e}")
             return False
 
     async def _test_portkey_connectivity(self) -> bool:
@@ -646,8 +646,8 @@ class DeploymentValidator:
                 recommendations.append("• Configure Gong API credentials in Pulumi ESC")
             if ServiceType.SNOWFLAKE in failed_services:
                 recommendations.append("• Verify Snowflake connection parameters and credentials")
-            if ServiceType.AIRBYTE in failed_services:
-                recommendations.append("• Ensure Airbyte server is running and accessible")
+            if ServiceType.ESTUARY in failed_services:
+                recommendations.append("• Ensure Estuary server is running and accessible")
             if ServiceType.OPENAI in failed_services:
                 recommendations.append("• Validate OpenAI API key and quota limits")
         

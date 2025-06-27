@@ -80,7 +80,7 @@ I have conducted a thorough review of all Python scripts and GitHub Actions work
 - `HUBSPOT_ACCESS_TOKEN` ⚠️ **VERIFY EXISTS**
 - `SLACK_BOT_TOKEN` ⚠️ **VERIFY EXISTS**
 - `LINEAR_API_KEY` ⚠️ **VERIFY EXISTS**
-- `AIRBYTE_ACCESS_TOKEN` ⚠️ **VERIFY EXISTS**
+- `ESTUARY_ACCESS_TOKEN` ⚠️ **VERIFY EXISTS**
 
 ## 📊 **PULUMI ESC ENVIRONMENT VERIFICATION**
 

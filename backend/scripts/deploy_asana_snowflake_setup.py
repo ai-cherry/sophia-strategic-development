@@ -133,58 +133,58 @@ class AsanaSnowflakeDeployer:
                 AI_MEMORY_METADATA
             )
             SELECT 
-                _AIRBYTE_DATA:gid::VARCHAR AS PROJECT_GID,
-                _AIRBYTE_DATA:name::VARCHAR AS PROJECT_NAME,
-                _AIRBYTE_DATA:notes::VARCHAR AS PROJECT_DESCRIPTION,
-                COALESCE(_AIRBYTE_DATA:current_status:text::VARCHAR, 'ACTIVE') AS PROJECT_STATUS,
-                _AIRBYTE_DATA:color::VARCHAR AS PROJECT_COLOR,
-                _AIRBYTE_DATA:owner:gid::VARCHAR AS OWNER_GID,
-                _AIRBYTE_DATA:owner:name::VARCHAR AS OWNER_NAME,
-                _AIRBYTE_DATA:team:gid::VARCHAR AS TEAM_GID,
-                _AIRBYTE_DATA:team:name::VARCHAR AS TEAM_NAME,
-                _AIRBYTE_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
-                _AIRBYTE_DATA:workspace:name::VARCHAR AS WORKSPACE_NAME,
-                COALESCE(_AIRBYTE_DATA:archived::BOOLEAN, FALSE) AS IS_ARCHIVED,
-                COALESCE(_AIRBYTE_DATA:public::BOOLEAN, FALSE) AS IS_PUBLIC,
-                _AIRBYTE_DATA:created_at::TIMESTAMP_LTZ AS CREATED_AT,
-                _AIRBYTE_DATA:modified_at::TIMESTAMP_LTZ AS MODIFIED_AT,
-                _AIRBYTE_DATA:due_date::DATE AS DUE_DATE,
-                _AIRBYTE_DATA:start_date::DATE AS START_DATE,
-                COALESCE(_AIRBYTE_DATA:completion_percentage::FLOAT, 0.0) AS COMPLETION_PERCENTAGE,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:followers), 0) AS FOLLOWER_COUNT,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:members), 0) AS MEMBER_COUNT,
-                COALESCE(_AIRBYTE_DATA:task_count::NUMBER, 0) AS TASK_COUNT,
-                COALESCE(_AIRBYTE_DATA:completed_task_count::NUMBER, 0) AS COMPLETED_TASK_COUNT,
-                COALESCE(_AIRBYTE_DATA:incomplete_task_count::NUMBER, 0) AS INCOMPLETE_TASK_COUNT,
+                _ESTUARY_DATA:gid::VARCHAR AS PROJECT_GID,
+                _ESTUARY_DATA:name::VARCHAR AS PROJECT_NAME,
+                _ESTUARY_DATA:notes::VARCHAR AS PROJECT_DESCRIPTION,
+                COALESCE(_ESTUARY_DATA:current_status:text::VARCHAR, 'ACTIVE') AS PROJECT_STATUS,
+                _ESTUARY_DATA:color::VARCHAR AS PROJECT_COLOR,
+                _ESTUARY_DATA:owner:gid::VARCHAR AS OWNER_GID,
+                _ESTUARY_DATA:owner:name::VARCHAR AS OWNER_NAME,
+                _ESTUARY_DATA:team:gid::VARCHAR AS TEAM_GID,
+                _ESTUARY_DATA:team:name::VARCHAR AS TEAM_NAME,
+                _ESTUARY_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
+                _ESTUARY_DATA:workspace:name::VARCHAR AS WORKSPACE_NAME,
+                COALESCE(_ESTUARY_DATA:archived::BOOLEAN, FALSE) AS IS_ARCHIVED,
+                COALESCE(_ESTUARY_DATA:public::BOOLEAN, FALSE) AS IS_PUBLIC,
+                _ESTUARY_DATA:created_at::TIMESTAMP_LTZ AS CREATED_AT,
+                _ESTUARY_DATA:modified_at::TIMESTAMP_LTZ AS MODIFIED_AT,
+                _ESTUARY_DATA:due_date::DATE AS DUE_DATE,
+                _ESTUARY_DATA:start_date::DATE AS START_DATE,
+                COALESCE(_ESTUARY_DATA:completion_percentage::FLOAT, 0.0) AS COMPLETION_PERCENTAGE,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:followers), 0) AS FOLLOWER_COUNT,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:members), 0) AS MEMBER_COUNT,
+                COALESCE(_ESTUARY_DATA:task_count::NUMBER, 0) AS TASK_COUNT,
+                COALESCE(_ESTUARY_DATA:completed_task_count::NUMBER, 0) AS COMPLETED_TASK_COUNT,
+                COALESCE(_ESTUARY_DATA:incomplete_task_count::NUMBER, 0) AS INCOMPLETE_TASK_COUNT,
                 CASE 
-                    WHEN _AIRBYTE_DATA:due_date IS NOT NULL AND _AIRBYTE_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
-                    WHEN _AIRBYTE_DATA:completion_percentage::FLOAT > 80 THEN 'MEDIUM'
+                    WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
+                    WHEN _ESTUARY_DATA:completion_percentage::FLOAT > 80 THEN 'MEDIUM'
                     ELSE 'LOW'
                 END AS PRIORITY_LEVEL,
-                _AIRBYTE_DATA:notes::VARCHAR AS PROJECT_NOTES,
-                _AIRBYTE_DATA:custom_fields AS CUSTOM_FIELDS,
-                _AIRBYTE_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
+                _ESTUARY_DATA:notes::VARCHAR AS PROJECT_NOTES,
+                _ESTUARY_DATA:custom_fields AS CUSTOM_FIELDS,
+                _ESTUARY_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
                 CASE 
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL AND _AIRBYTE_DATA:name IS NOT NULL THEN 0.95
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL THEN 0.75
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:name IS NOT NULL THEN 0.95
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
                 END AS CONFIDENCE_SCORE,
                 OBJECT_CONSTRUCT(
-                    'source_table', 'RAW_AIRBYTE._AIRBYTE_RAW_ASANA_PROJECTS',
+                    'source_table', 'RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS',
                     'transformation_date', CURRENT_TIMESTAMP()::STRING,
-                    'asana_gid', _AIRBYTE_DATA:gid::VARCHAR,
-                    'has_description', CASE WHEN _AIRBYTE_DATA:notes IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'has_due_date', CASE WHEN _AIRBYTE_DATA:due_date IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'member_count', COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:members), 0),
-                    'follower_count', COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:followers), 0)
+                    'asana_gid', _ESTUARY_DATA:gid::VARCHAR,
+                    'has_description', CASE WHEN _ESTUARY_DATA:notes IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'has_due_date', CASE WHEN _ESTUARY_DATA:due_date IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'member_count', COALESCE(ARRAY_SIZE(_ESTUARY_DATA:members), 0),
+                    'follower_count', COALESCE(ARRAY_SIZE(_ESTUARY_DATA:followers), 0)
                 ) AS AI_MEMORY_METADATA
-            FROM RAW_AIRBYTE._AIRBYTE_RAW_ASANA_PROJECTS
-            WHERE _AIRBYTE_DATA:gid IS NOT NULL
+            FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS
+            WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_PROJECTS 
-                WHERE PROJECT_GID = _AIRBYTE_DATA:gid::VARCHAR
+                WHERE PROJECT_GID = _ESTUARY_DATA:gid::VARCHAR
             );
             
             GET DIAGNOSTICS processed_count = ROW_COUNT;
@@ -269,75 +269,75 @@ class AsanaSnowflakeDeployer:
                 AI_MEMORY_METADATA
             )
             SELECT 
-                _AIRBYTE_DATA:gid::VARCHAR AS TASK_GID,
-                _AIRBYTE_DATA:name::VARCHAR AS TASK_NAME,
-                _AIRBYTE_DATA:notes::VARCHAR AS TASK_DESCRIPTION,
+                _ESTUARY_DATA:gid::VARCHAR AS TASK_GID,
+                _ESTUARY_DATA:name::VARCHAR AS TASK_NAME,
+                _ESTUARY_DATA:notes::VARCHAR AS TASK_DESCRIPTION,
                 CASE 
-                    WHEN _AIRBYTE_DATA:completed::BOOLEAN = TRUE THEN 'COMPLETED'
-                    WHEN _AIRBYTE_DATA:due_date IS NOT NULL AND _AIRBYTE_DATA:due_date::DATE < CURRENT_DATE THEN 'OVERDUE'
-                    WHEN _AIRBYTE_DATA:due_date IS NOT NULL AND _AIRBYTE_DATA:due_date::DATE <= CURRENT_DATE + 7 THEN 'DUE_SOON'
+                    WHEN _ESTUARY_DATA:completed::BOOLEAN = TRUE THEN 'COMPLETED'
+                    WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'OVERDUE'
+                    WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE <= CURRENT_DATE + 7 THEN 'DUE_SOON'
                     ELSE 'IN_PROGRESS'
                 END AS TASK_STATUS,
-                COALESCE(_AIRBYTE_DATA:completed::BOOLEAN, FALSE) AS IS_COMPLETED,
-                _AIRBYTE_DATA:completed_at::TIMESTAMP_LTZ AS COMPLETED_AT,
-                _AIRBYTE_DATA:assignee:gid::VARCHAR AS ASSIGNEE_GID,
-                _AIRBYTE_DATA:assignee:name::VARCHAR AS ASSIGNEE_NAME,
-                _AIRBYTE_DATA:assignee:email::VARCHAR AS ASSIGNEE_EMAIL,
+                COALESCE(_ESTUARY_DATA:completed::BOOLEAN, FALSE) AS IS_COMPLETED,
+                _ESTUARY_DATA:completed_at::TIMESTAMP_LTZ AS COMPLETED_AT,
+                _ESTUARY_DATA:assignee:gid::VARCHAR AS ASSIGNEE_GID,
+                _ESTUARY_DATA:assignee:name::VARCHAR AS ASSIGNEE_NAME,
+                _ESTUARY_DATA:assignee:email::VARCHAR AS ASSIGNEE_EMAIL,
                 CASE 
-                    WHEN ARRAY_SIZE(_AIRBYTE_DATA:projects) > 0 
-                    THEN _AIRBYTE_DATA:projects[0]:gid::VARCHAR
+                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0 
+                    THEN _ESTUARY_DATA:projects[0]:gid::VARCHAR
                     ELSE NULL
                 END AS PROJECT_GID,
                 CASE 
-                    WHEN ARRAY_SIZE(_AIRBYTE_DATA:projects) > 0 
-                    THEN _AIRBYTE_DATA:projects[0]:name::VARCHAR
+                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0 
+                    THEN _ESTUARY_DATA:projects[0]:name::VARCHAR
                     ELSE NULL
                 END AS PROJECT_NAME,
-                _AIRBYTE_DATA:parent:gid::VARCHAR AS PARENT_TASK_GID,
-                _AIRBYTE_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
-                _AIRBYTE_DATA:created_at::TIMESTAMP_LTZ AS CREATED_AT,
-                _AIRBYTE_DATA:modified_at::TIMESTAMP_LTZ AS MODIFIED_AT,
-                _AIRBYTE_DATA:due_on::DATE AS DUE_DATE,
-                _AIRBYTE_DATA:due_at::TIMESTAMP_LTZ AS DUE_TIME,
-                _AIRBYTE_DATA:start_on::DATE AS START_DATE,
+                _ESTUARY_DATA:parent:gid::VARCHAR AS PARENT_TASK_GID,
+                _ESTUARY_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
+                _ESTUARY_DATA:created_at::TIMESTAMP_LTZ AS CREATED_AT,
+                _ESTUARY_DATA:modified_at::TIMESTAMP_LTZ AS MODIFIED_AT,
+                _ESTUARY_DATA:due_on::DATE AS DUE_DATE,
+                _ESTUARY_DATA:due_at::TIMESTAMP_LTZ AS DUE_TIME,
+                _ESTUARY_DATA:start_on::DATE AS START_DATE,
                 CASE 
-                    WHEN _AIRBYTE_DATA:due_date IS NOT NULL AND _AIRBYTE_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
-                    WHEN _AIRBYTE_DATA:due_date IS NOT NULL AND _AIRBYTE_DATA:due_date::DATE <= CURRENT_DATE + 3 THEN 'MEDIUM'
+                    WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
+                    WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE <= CURRENT_DATE + 3 THEN 'MEDIUM'
                     ELSE 'LOW'
                 END AS PRIORITY_LEVEL,
-                _AIRBYTE_DATA:notes::VARCHAR AS TASK_NOTES,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:subtasks), 0) AS SUBTASK_COUNT,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:dependencies), 0) AS DEPENDENCY_COUNT,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:followers), 0) AS FOLLOWER_COUNT,
-                COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:attachments), 0) AS ATTACHMENT_COUNT,
-                COALESCE(_AIRBYTE_DATA:num_hearts::NUMBER, 0) AS STORY_COUNT,
-                _AIRBYTE_DATA:estimated_hours::FLOAT AS ESTIMATED_HOURS,
-                _AIRBYTE_DATA:actual_hours::FLOAT AS ACTUAL_HOURS,
-                _AIRBYTE_DATA:tags AS TAGS,
-                _AIRBYTE_DATA:custom_fields AS CUSTOM_FIELDS,
-                _AIRBYTE_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
+                _ESTUARY_DATA:notes::VARCHAR AS TASK_NOTES,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:subtasks), 0) AS SUBTASK_COUNT,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:dependencies), 0) AS DEPENDENCY_COUNT,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:followers), 0) AS FOLLOWER_COUNT,
+                COALESCE(ARRAY_SIZE(_ESTUARY_DATA:attachments), 0) AS ATTACHMENT_COUNT,
+                COALESCE(_ESTUARY_DATA:num_hearts::NUMBER, 0) AS STORY_COUNT,
+                _ESTUARY_DATA:estimated_hours::FLOAT AS ESTIMATED_HOURS,
+                _ESTUARY_DATA:actual_hours::FLOAT AS ACTUAL_HOURS,
+                _ESTUARY_DATA:tags AS TAGS,
+                _ESTUARY_DATA:custom_fields AS CUSTOM_FIELDS,
+                _ESTUARY_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
                 CASE 
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL AND _AIRBYTE_DATA:name IS NOT NULL THEN 0.95
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL THEN 0.75
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:name IS NOT NULL THEN 0.95
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
                 END AS CONFIDENCE_SCORE,
                 OBJECT_CONSTRUCT(
-                    'source_table', 'RAW_AIRBYTE._AIRBYTE_RAW_ASANA_TASKS',
+                    'source_table', 'RAW_ESTUARY._ESTUARY_RAW_ASANA_TASKS',
                     'transformation_date', CURRENT_TIMESTAMP()::STRING,
-                    'asana_gid', _AIRBYTE_DATA:gid::VARCHAR,
-                    'has_assignee', CASE WHEN _AIRBYTE_DATA:assignee:gid IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'has_due_date', CASE WHEN _AIRBYTE_DATA:due_on IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'has_description', CASE WHEN _AIRBYTE_DATA:notes IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'project_count', COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:projects), 0),
-                    'subtask_count', COALESCE(ARRAY_SIZE(_AIRBYTE_DATA:subtasks), 0)
+                    'asana_gid', _ESTUARY_DATA:gid::VARCHAR,
+                    'has_assignee', CASE WHEN _ESTUARY_DATA:assignee:gid IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'has_due_date', CASE WHEN _ESTUARY_DATA:due_on IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'has_description', CASE WHEN _ESTUARY_DATA:notes IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'project_count', COALESCE(ARRAY_SIZE(_ESTUARY_DATA:projects), 0),
+                    'subtask_count', COALESCE(ARRAY_SIZE(_ESTUARY_DATA:subtasks), 0)
                 ) AS AI_MEMORY_METADATA
-            FROM RAW_AIRBYTE._AIRBYTE_RAW_ASANA_TASKS
-            WHERE _AIRBYTE_DATA:gid IS NOT NULL
+            FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_TASKS
+            WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_TASKS 
-                WHERE TASK_GID = _AIRBYTE_DATA:gid::VARCHAR
+                WHERE TASK_GID = _ESTUARY_DATA:gid::VARCHAR
             );
             
             GET DIAGNOSTICS processed_count = ROW_COUNT;
@@ -401,35 +401,35 @@ class AsanaSnowflakeDeployer:
                 AI_MEMORY_METADATA
             )
             SELECT 
-                _AIRBYTE_DATA:gid::VARCHAR AS USER_GID,
-                _AIRBYTE_DATA:name::VARCHAR AS USER_NAME,
-                _AIRBYTE_DATA:email::VARCHAR AS USER_EMAIL,
-                _AIRBYTE_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
-                _AIRBYTE_DATA:workspace:name::VARCHAR AS WORKSPACE_NAME,
-                COALESCE(_AIRBYTE_DATA:is_active::BOOLEAN, TRUE) AS IS_ACTIVE,
-                _AIRBYTE_DATA:role::VARCHAR AS ROLE,
-                _AIRBYTE_DATA:department::VARCHAR AS DEPARTMENT,
-                _AIRBYTE_DATA:photo:image_128x128::VARCHAR AS PHOTO_URL,
+                _ESTUARY_DATA:gid::VARCHAR AS USER_GID,
+                _ESTUARY_DATA:name::VARCHAR AS USER_NAME,
+                _ESTUARY_DATA:email::VARCHAR AS USER_EMAIL,
+                _ESTUARY_DATA:workspace:gid::VARCHAR AS WORKSPACE_GID,
+                _ESTUARY_DATA:workspace:name::VARCHAR AS WORKSPACE_NAME,
+                COALESCE(_ESTUARY_DATA:is_active::BOOLEAN, TRUE) AS IS_ACTIVE,
+                _ESTUARY_DATA:role::VARCHAR AS ROLE,
+                _ESTUARY_DATA:department::VARCHAR AS DEPARTMENT,
+                _ESTUARY_DATA:photo:image_128x128::VARCHAR AS PHOTO_URL,
                 CURRENT_TIMESTAMP() AS CREATED_AT,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
                 CASE 
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL AND _AIRBYTE_DATA:email IS NOT NULL THEN 0.95
-                    WHEN _AIRBYTE_DATA:gid IS NOT NULL THEN 0.75
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:email IS NOT NULL THEN 0.95
+                    WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
                 END AS CONFIDENCE_SCORE,
                 OBJECT_CONSTRUCT(
-                    'source_table', 'RAW_AIRBYTE._AIRBYTE_RAW_ASANA_USERS',
+                    'source_table', 'RAW_ESTUARY._ESTUARY_RAW_ASANA_USERS',
                     'transformation_date', CURRENT_TIMESTAMP()::STRING,
-                    'asana_gid', _AIRBYTE_DATA:gid::VARCHAR,
-                    'has_email', CASE WHEN _AIRBYTE_DATA:email IS NOT NULL THEN TRUE ELSE FALSE END,
-                    'has_photo', CASE WHEN _AIRBYTE_DATA:photo IS NOT NULL THEN TRUE ELSE FALSE END
+                    'asana_gid', _ESTUARY_DATA:gid::VARCHAR,
+                    'has_email', CASE WHEN _ESTUARY_DATA:email IS NOT NULL THEN TRUE ELSE FALSE END,
+                    'has_photo', CASE WHEN _ESTUARY_DATA:photo IS NOT NULL THEN TRUE ELSE FALSE END
                 ) AS AI_MEMORY_METADATA
-            FROM RAW_AIRBYTE._AIRBYTE_RAW_ASANA_USERS
-            WHERE _AIRBYTE_DATA:gid IS NOT NULL
+            FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_USERS
+            WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_USERS 
-                WHERE USER_GID = _AIRBYTE_DATA:gid::VARCHAR
+                WHERE USER_GID = _ESTUARY_DATA:gid::VARCHAR
             );
             
             GET DIAGNOSTICS processed_count = ROW_COUNT;

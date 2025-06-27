@@ -39,7 +39,7 @@
         "pinecone",
         "apify",
         "tavily",
-        "airbyte",
+        "estuary",
         "estuary"
       ],
       "features": [

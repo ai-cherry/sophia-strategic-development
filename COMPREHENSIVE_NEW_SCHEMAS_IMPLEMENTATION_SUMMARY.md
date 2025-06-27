@@ -45,12 +45,12 @@ async def extract_customer_features(self, since_date: Optional[datetime] = None)
 async def extract_business_rules(self, since_date: Optional[datetime] = None) -> pd.DataFrame
 ```
 
-### **2. NETSUITE_DATA Airbyte Integration**
-**File**: `backend/etl/netsuite/airbyte_netsuite_setup.py`
+### **2. NETSUITE_DATA Estuary Integration**
+**File**: `backend/etl/netsuite/estuary_netsuite_setup.py`
 
-**Strategy**: Airbyte for automated NetSuite data extraction with Snowflake transformation
+**Strategy**: Estuary for automated NetSuite data extraction with Snowflake transformation
 **Key Features**:
-- **Airbyte Source**: NetSuite connector with incremental sync
+- **Estuary Source**: NetSuite connector with incremental sync
 - **Data Streams**: Accounts, transactions, purchase orders, expense reports, vendors
 - **Transformation Procedures**: Snowflake stored procedures for data processing
 - **Automation**: Scheduled tasks every 6 hours for continuous data flow

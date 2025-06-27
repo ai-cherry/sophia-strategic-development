@@ -1,0 +1,25 @@
+captures:
+  Pay_Ready/hubspot-capture:
+    bindings:
+    - resource:
+        stream: contacts
+      target: Pay_Ready/hubspot-contacts
+    - resource:
+        stream: deals
+      target: Pay_Ready/hubspot-deals
+    - resource:
+        stream: companies
+      target: Pay_Ready/hubspot-companies
+    - resource:
+        stream: tickets
+      target: Pay_Ready/hubspot-tickets
+    endpoint:
+      connector:
+        config:
+          credentials:
+            client_id: ${HUBSPOT_CLIENT_ID}
+            client_secret: ${HUBSPOT_CLIENT_SECRET}
+            credentials_title: OAuth Credentials
+            refresh_token: ${HUBSPOT_REFRESH_TOKEN}
+          start_date: '2024-01-01T00:00:00Z'
+        image: ghcr.io/estuary/source-hubspot:dev

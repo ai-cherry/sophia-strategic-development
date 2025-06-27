@@ -26,8 +26,8 @@ class AlignmentIssuesFixer:
             'role': 'ACCOUNTADMIN'
         }
         
-        # Airbyte credentials
-        self.airbyte_credentials = {
+        # Estuary credentials
+        self.estuary_credentials = {
             'client_id': '9630134c-359d-4c9c-aa97-95ab3a2ff8f5',
             'client_secret': 'NfwyhFUjemKlC66h7iECE9Tjedo6SGFh',
             'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF6dHJERTBDSEJHZDB2MVh0Vnk0In0.eyJleHAiOjE3NTAxNzA0MTcsImlhdCI6MTc1MDE2OTUxNywianRpIjoiYzAxMDRmODItOTQ3MC00NDJkLThiZDAtNDlmZDIzMDk5NTM0IiwiaXNzIjoiaHR0cHM6Ly9jbG91ZC5haXJieXRlLmNvbS9hdXRoL3JlYWxtcy9fYWlyYnl0ZS1hcHBsaWNhdGlvbi1jbGllbnRzIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjkwNzJmYzI0LTE0MjUtNDBlNy05ZmU4LTg0ZWYxM2I2M2Q4MCIsInR5cCI6IkJlYXJlciIsImF6cCI6ImQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtX2FpcmJ5dGUtYXBwbGljYXRpb24tY2xpZW50cyJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImNsaWVudEhvc3QiOiIxNzIuMjMuMC4yNDMiLCJ1c2VyX2lkIjoiOTA3MmZjMjQtMTQyNS00MGU3LTlmZTgtODRlZjEzYjYzZDgwIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2VydmljZS1hY2NvdW50LWQ3OGNhZDM2LWU4MDAtNDhjOS04NTcxLTFkYWNiZDFiMjE3YyIsImNsaWVudEFkZHJlc3MiOiIxNzIuMjMuMC4yNDMiLCJjbGllbnRfaWQiOiJkNzhjYWQzNi1lODAwLTQ4YzktODU3MS0xZGFjYmQxYjIxN2MifQ.P8qAiLkkEO05MPEZJ1JfiE41aMQHxr7IoUxam-X66GtnSv_SvqUMgyxTg61Gmee6y7OU2EEcXaEmWzKPaqDFIXimXKrInn9DiOfMqB2gGfDiZmDmLT6rU9a5yHydflGNb8Z8V2hCvZDdpX48SmGtUUv-QEIytElP_LaYzaB20-fGXPwYCHzUEWZchC1N97xSWdYm-SneB_wNwNmAvoBZ3MYB9Il0LIwNAIJjihc6bnI9ka2Mlvxa1JbVp55vwmEDAOE86DAe6arJkOIz4xgjy6fvcSyqLQAPzcArdHHZJZe1WhJI2AZW64hzBXvUxuWooPH3eW-YGb6Vr2vSeOuHCQ',
@@ -207,9 +207,9 @@ class AlignmentIssuesFixer:
             logger.error(f"❌ Failed to fix vector tables: {e}")
             return False
     
-    def fix_airbyte_credentials(self) -> bool:
-        """Fix Airbyte credential insertion with proper Snowflake syntax"""
-        logger.info("🔧 Fixing Airbyte credential insertion...")
+    def fix_estuary_credentials(self) -> bool:
+        """Fix Estuary credential insertion with proper Snowflake syntax"""
+        logger.info("🔧 Fixing Estuary credential insertion...")
         
         try:
             # Ensure we're in the right context
@@ -217,15 +217,15 @@ class AlignmentIssuesFixer:
             self.execute_sql("USE SCHEMA API_CREDENTIALS")
             
             # Check if credentials already exist and delete them
-            self.execute_sql("DELETE FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'AIRBYTE'")
+            self.execute_sql("DELETE FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'ESTUARY'")
             
-            # Insert Airbyte credentials using proper Snowflake syntax (no ON CONFLICT)
+            # Insert Estuary credentials using proper Snowflake syntax (no ON CONFLICT)
             credentials = [
-                ('AIRBYTE', 'CLIENT_ID', self.airbyte_credentials['client_id'], 'Airbyte Client ID for API access'),
-                ('AIRBYTE', 'CLIENT_SECRET', self.airbyte_credentials['client_secret'], 'Airbyte Client Secret for API access'),
-                ('AIRBYTE', 'ACCESS_TOKEN', self.airbyte_credentials['access_token'], 'Airbyte Access Token for API access'),
-                ('AIRBYTE', 'CLIENT_ID_NEW', self.airbyte_credentials['client_id_new'], 'Airbyte New Client ID for API access'),
-                ('AIRBYTE', 'CLIENT_SECRET_NEW', self.airbyte_credentials['client_secret_new'], 'Airbyte New Client Secret for API access')
+                ('ESTUARY', 'CLIENT_ID', self.estuary_credentials['client_id'], 'Estuary Client ID for API access'),
+                ('ESTUARY', 'CLIENT_SECRET', self.estuary_credentials['client_secret'], 'Estuary Client Secret for API access'),
+                ('ESTUARY', 'ACCESS_TOKEN', self.estuary_credentials['access_token'], 'Estuary Access Token for API access'),
+                ('ESTUARY', 'CLIENT_ID_NEW', self.estuary_credentials['client_id_new'], 'Estuary New Client ID for API access'),
+                ('ESTUARY', 'CLIENT_SECRET_NEW', self.estuary_credentials['client_secret_new'], 'Estuary New Client Secret for API access')
             ]
             
             for platform, cred_type, cred_value, description in credentials:
@@ -243,17 +243,17 @@ class AlignmentIssuesFixer:
                 metadata = f'{{"description": "{description}"}}'
                 self.execute_sql(insert_sql, [platform, cred_type, cred_value, metadata])
             
-            logger.info("✅ Fixed Airbyte credentials insertion")
+            logger.info("✅ Fixed Estuary credentials insertion")
             
             # Fix API endpoints
-            self.execute_sql("DELETE FROM API_ENDPOINTS WHERE PLATFORM_NAME = 'AIRBYTE'")
+            self.execute_sql("DELETE FROM API_ENDPOINTS WHERE PLATFORM_NAME = 'ESTUARY'")
             
             endpoints = [
-                ('AIRBYTE', 'LIST_WORKSPACES', 'https://api.airbyte.com/v1/workspaces', 'GET', 'List all workspaces'),
-                ('AIRBYTE', 'LIST_CONNECTIONS', 'https://api.airbyte.com/v1/connections', 'GET', 'List all connections'),
-                ('AIRBYTE', 'LIST_SOURCES', 'https://api.airbyte.com/v1/sources', 'GET', 'List all sources'),
-                ('AIRBYTE', 'LIST_DESTINATIONS', 'https://api.airbyte.com/v1/destinations', 'GET', 'List all destinations'),
-                ('AIRBYTE', 'TRIGGER_SYNC', 'https://api.airbyte.com/v1/jobs', 'POST', 'Trigger a sync job')
+                ('ESTUARY', 'LIST_WORKSPACES', 'https://api.estuary.dev/v1/workspaces', 'GET', 'List all workspaces'),
+                ('ESTUARY', 'LIST_CONNECTIONS', 'https://api.estuary.dev/v1/connections', 'GET', 'List all connections'),
+                ('ESTUARY', 'LIST_SOURCES', 'https://api.estuary.dev/v1/sources', 'GET', 'List all sources'),
+                ('ESTUARY', 'LIST_DESTINATIONS', 'https://api.estuary.dev/v1/destinations', 'GET', 'List all destinations'),
+                ('ESTUARY', 'TRIGGER_SYNC', 'https://api.estuary.dev/v1/jobs', 'POST', 'Trigger a sync job')
             ]
             
             for platform, endpoint_name, url, method, description in endpoints:
@@ -271,12 +271,12 @@ class AlignmentIssuesFixer:
                 
                 self.execute_sql(insert_sql, [platform, endpoint_name, url, method, description])
             
-            logger.info("✅ Fixed Airbyte API endpoints")
+            logger.info("✅ Fixed Estuary Flow API endpoints")
             
             return True
             
         except Exception as e:
-            logger.error(f"❌ Failed to fix Airbyte credentials: {e}")
+            logger.error(f"❌ Failed to fix Estuary credentials: {e}")
             return False
     
     def validate_fixes(self) -> bool:
@@ -335,15 +335,15 @@ class AlignmentIssuesFixer:
             self.execute_sql("USE DATABASE SOPHIA_AI_CORE")
             self.execute_sql("USE SCHEMA API_CREDENTIALS")
             
-            credentials_test = "SELECT COUNT(*) as count FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'AIRBYTE'"
+            credentials_test = "SELECT COUNT(*) as count FROM PLATFORM_CREDENTIALS WHERE PLATFORM_NAME = 'ESTUARY'"
             result = self.execute_sql(credentials_test)
             if result and result[0]['COUNT'] >= 5:
-                logger.info("✅ Airbyte credentials validation successful")
+                logger.info("✅ Estuary credentials validation successful")
             
-            endpoints_test = "SELECT COUNT(*) as count FROM API_ENDPOINTS WHERE PLATFORM_NAME = 'AIRBYTE'"
+            endpoints_test = "SELECT COUNT(*) as count FROM API_ENDPOINTS WHERE PLATFORM_NAME = 'ESTUARY'"
             result = self.execute_sql(endpoints_test)
             if result and result[0]['COUNT'] >= 5:
-                logger.info("✅ Airbyte endpoints validation successful")
+                logger.info("✅ Estuary endpoints validation successful")
             
             logger.info("🎉 All fixes validated successfully!")
             return True
@@ -369,8 +369,8 @@ class AlignmentIssuesFixer:
             if not self.fix_vector_tables():
                 return False
             
-            # 4. Fix Airbyte credentials
-            if not self.fix_airbyte_credentials():
+            # 4. Fix Estuary credentials
+            if not self.fix_estuary_credentials():
                 return False
             
             # 5. Validate fixes

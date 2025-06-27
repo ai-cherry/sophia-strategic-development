@@ -25,7 +25,7 @@ The Gong data pipeline implementation is **100% code-complete** and ready for im
 |-----------|--------|---------|
 | **Gong Credentials** | 🟡 **PENDING** | New credentials being configured in Pulumi ESC |
 | **Manus AI DDL** | 🟡 **PENDING** | Consolidated DDL script expected at `backend/snowflake_setup/manus_ai_final_gong_ddl.sql` |
-| **Airbyte Server** | 🟡 **PENDING** | Requires credentials and server availability |
+| **Estuary Server** | 🟡 **PENDING** | Requires credentials and server availability |
 | **Snowflake Access** | ✅ **RESOLVED** | Network access confirmed by your team |
 
 ## 📋 **DEPLOYMENT EXECUTION PLAN**
@@ -40,22 +40,22 @@ python -c "from backend.core.auto_esc_config import get_config_value; print('Gon
 # If this fails, deployment must pause until credentials are available
 ```
 
-### **Phase 2: Airbyte Setup (5-10 minutes)**
+### **Phase 2: Estuary Setup (5-10 minutes)**
 
 ```bash
-# 2. Set up complete Airbyte pipeline
-python backend/scripts/airbyte_gong_setup.py --mode setup --environment dev
+# 2. Set up complete Estuary pipeline
+python backend/scripts/estuary_gong_setup.py --mode setup --environment dev
 
-# 3. Test Airbyte connection
-python backend/scripts/airbyte_gong_setup.py --mode test --environment dev
+# 3. Test Estuary connection
+python backend/scripts/estuary_gong_setup.py --mode test --environment dev
 
 # 4. Trigger initial sync
-python backend/scripts/airbyte_gong_setup.py --mode sync --environment dev
+python backend/scripts/estuary_gong_setup.py --mode sync --environment dev
 ```
 
 **Expected Outputs:**
 - Gong source connector created successfully
-- Snowflake destination configured for RAW_AIRBYTE schema
+- Snowflake destination configured for RAW_ESTUARY schema
 - Connection established with hourly sync schedule
 - Initial sync job triggered with job ID
 
@@ -71,7 +71,7 @@ python backend/scripts/deploy_gong_snowflake_setup.py --env dev --dry-run
 
 **Expected Outputs:**
 - All DDL statements executed successfully
-- RAW_AIRBYTE, STG_TRANSFORMED, AI_MEMORY schemas created
+- RAW_ESTUARY, STG_TRANSFORMED, AI_MEMORY schemas created
 - STG_GONG_CALLS and STG_GONG_CALL_TRANSCRIPTS tables ready
 - Transformation procedures and tasks activated
 
@@ -79,14 +79,14 @@ python backend/scripts/deploy_gong_snowflake_setup.py --env dev --dry-run
 
 ```bash
 # 7. Run full test suite
-python backend/scripts/enhanced_airbyte_integration_test_suite.py --environment dev --test-category all --output gong_pipeline_test_results_dev.json
+python backend/scripts/enhanced_estuary_integration_test_suite.py --environment dev --test-category all --output gong_pipeline_test_results_dev.json
 
 # 8. Quick status check
 python backend/scripts/test_gong_deployment.py --phase all --output gong_deployment_final_status.json
 ```
 
 **Expected Validation Points:**
-- ✅ RAW_AIRBYTE data landing from Gong API
+- ✅ RAW_ESTUARY data landing from Gong API
 - ✅ STG_TRANSFORMED table population with AI insights
 - ✅ AI embedding generation using Snowflake Cortex
 - ✅ PII masking policies effective
@@ -134,8 +134,8 @@ asyncio.run(test_gong_queries())
 
 ### **Technical Validation**
 - [ ] Gong API credentials validated and functional
-- [ ] Airbyte sync jobs completing successfully (>95% success rate)
-- [ ] Raw data landing in RAW_AIRBYTE tables with proper VARIANT structure
+- [ ] Estuary sync jobs completing successfully (>95% success rate)
+- [ ] Raw data landing in RAW_ESTUARY tables with proper VARIANT structure
 - [ ] STG_TRANSFORMED tables populated with AI-enriched data
 - [ ] AI Memory embeddings generated for semantic search
 - [ ] PII masking policies protecting sensitive data
@@ -152,7 +152,7 @@ asyncio.run(test_gong_queries())
 ### **Immediate Requirements**
 1. **Gong API Credentials**: Must be available in Pulumi ESC as `gong_access_key` and `gong_client_secret`
 2. **Manus AI DDL**: Consolidated script must be placed at `backend/snowflake_setup/manus_ai_final_gong_ddl.sql`
-3. **Airbyte Server**: Must be accessible at configured URL (default: localhost:8000)
+3. **Estuary Server**: Must be accessible at configured URL (default: localhost:8000)
 
 ### **Infrastructure Requirements**
 - **Snowflake Access**: ✅ Confirmed working
@@ -164,7 +164,7 @@ asyncio.run(test_gong_queries())
 | Phase | Duration | Dependencies |
 |-------|----------|-------------|
 | **Pre-Flight Checks** | 2 minutes | Gong credentials available |
-| **Airbyte Setup** | 5-10 minutes | Airbyte server accessible |
+| **Estuary Setup** | 5-10 minutes | Estuary server accessible |
 | **Snowflake DDL** | 3-5 minutes | Manus AI DDL file available |
 | **Testing** | 10-15 minutes | All previous phases complete |
 | **Validation** | 5 minutes | Application services running |
@@ -182,9 +182,9 @@ echo $SOPHIA_ENVIRONMENT
 python -c "from backend.core.auto_esc_config import get_config_value; print('Available keys:', [k for k in ['gong_access_key', 'gong_client_secret'] if get_config_value(k)])"
 ```
 
-### **If Airbyte Connection Fails**
+### **If Estuary Connection Fails**
 ```bash
-# Check Airbyte server status
+# Check Estuary server status
 curl -f http://localhost:8000/api/v1/health
 
 # Verify Gong API directly
@@ -203,8 +203,8 @@ python -c "from backend.utils.snowflake_cortex_service import SnowflakeCortexSer
 ## 🎉 **POST-DEPLOYMENT VALIDATION**
 
 ### **Immediate Checks (First 30 minutes)**
-- [ ] Airbyte sync job completed successfully
-- [ ] Raw data visible in RAW_AIRBYTE tables
+- [ ] Estuary sync job completed successfully
+- [ ] Raw data visible in RAW_ESTUARY tables
 - [ ] Transformation procedures executed without errors
 - [ ] AI embeddings generated for call data
 - [ ] Sample natural language queries return results
@@ -221,7 +221,7 @@ python -c "from backend.utils.snowflake_cortex_service import SnowflakeCortexSer
 ### **If Deployment Issues Occur**
 1. **Check deployment status**: `cat gong_deployment_final_status.json`
 2. **Review test results**: `cat gong_pipeline_test_results_dev.json`
-3. **Check service logs**: Application and Airbyte logs for errors
+3. **Check service logs**: Application and Estuary logs for errors
 4. **Escalate to**: Manus AI for DDL issues, Infrastructure team for connectivity
 
 ### **Success Metrics**

@@ -2,16 +2,16 @@
 
 ## Executive Summary
 
-The Gong.io data pipeline integration for Sophia AI has been **comprehensively implemented** with production-ready components across all requested areas. The implementation includes complete Airbyte orchestration, Snowflake infrastructure deployment, AI Memory integration, and full system testing capabilities.
+The Gong.io data pipeline integration for Sophia AI has been **comprehensively implemented** with production-ready components across all requested areas. The implementation includes complete Estuary orchestration, Snowflake infrastructure deployment, AI Memory integration, and full system testing capabilities.
 
 **Overall Status: ✅ COMPLETE AND PRODUCTION-READY**
 
 ---
 
-## I. Airbyte Configuration & Orchestration ✅ COMPLETE
+## I. Estuary Configuration & Orchestration ✅ COMPLETE
 
 ### Implementation Status
-- **Script Location**: `backend/scripts/airbyte_gong_setup.py`
+- **Script Location**: `backend/scripts/estuary_gong_setup.py`
 - **Status**: Fully implemented with 384 lines of production-ready code
 - **Key Features**:
   - ✅ Automated Gong source connector configuration
@@ -45,10 +45,10 @@ The Gong.io data pipeline integration for Sophia AI has been **comprehensively i
 
 #### Target Infrastructure
 - **Database**: `SOPHIA_AI_DEV`
-- **Schema**: `RAW_AIRBYTE`
+- **Schema**: `RAW_ESTUARY`
 - **Tables**: `RAW_GONG_CALLS_RAW`, `RAW_GONG_TRANSCRIPTS_RAW`
 - **User**: `SCOOBYJAVA15`
-- **Role**: `ROLE_SOPHIA_AIRBYTE_INGEST`
+- **Role**: `ROLE_SOPHIA_ESTUARY_INGEST`
 - **Warehouse**: `WH_SOPHIA_ETL_TRANSFORM`
 
 #### Advanced Features
@@ -71,8 +71,8 @@ The Gong.io data pipeline integration for Sophia AI has been **comprehensively i
 
 #### Schema Architecture
 ```sql
--- RAW_AIRBYTE Schema
-CREATE SCHEMA RAW_AIRBYTE;
+-- RAW_ESTUARY Schema
+CREATE SCHEMA RAW_ESTUARY;
   - RAW_GONG_CALLS_RAW (with VARIANT columns)
   - RAW_GONG_TRANSCRIPTS_RAW (with VARIANT columns)
 
@@ -119,7 +119,7 @@ CREATE TABLE STG_GONG_CALLS (
 ```
 
 #### Transformation Procedures
-- **`TRANSFORM_RAW_GONG_CALLS()`**: Converts raw Airbyte data to structured format
+- **`TRANSFORM_RAW_GONG_CALLS()`**: Converts raw Estuary data to structured format
 - **`TRANSFORM_RAW_GONG_TRANSCRIPTS()`**: Processes transcript data with speaker analysis
 - **`GENERATE_AI_EMBEDDINGS()`**: Creates embeddings using Snowflake Cortex `e5-base-v2`
 
@@ -233,8 +233,8 @@ async def search_gong_insights_by_account(
 
 ### Test Suite Categories
 
-#### 1. Airbyte Sync Validation
-- ✅ RAW_AIRBYTE tables existence and structure
+#### 1. Estuary Sync Validation
+- ✅ RAW_ESTUARY tables existence and structure
 - ✅ Recent data ingestion verification
 - ✅ VARIANT column structure validation
 - ✅ Processing error detection
@@ -270,7 +270,7 @@ async def search_gong_insights_by_account(
 python backend/scripts/test_gong_pipeline.py --test-suite all
 
 # Run specific test categories
-python backend/scripts/test_gong_pipeline.py --test-suite airbyte
+python backend/scripts/test_gong_pipeline.py --test-suite estuary
 python backend/scripts/test_gong_pipeline.py --test-suite transformation
 python backend/scripts/test_gong_pipeline.py --test-suite ai-memory
 ```
@@ -507,7 +507,7 @@ Advanced pattern matching for Gong-specific queries:
 
 ### Immediate Actions (Ready for Production)
 1. **✅ Infrastructure Deployment**: Run deployment scripts in production environment
-2. **✅ Airbyte Configuration**: Configure Gong source connector
+2. **✅ Estuary Configuration**: Configure Gong source connector
 3. **✅ Data Pipeline Activation**: Enable automated data ingestion
 4. **✅ User Training**: Conduct team training on new capabilities
 
@@ -523,7 +523,7 @@ Advanced pattern matching for Gong-specific queries:
 
 The Gong.io data pipeline integration for Sophia AI is **100% complete and production-ready**. The implementation exceeds the original requirements with:
 
-- **Comprehensive Infrastructure**: Complete Airbyte + Snowflake pipeline
+- **Comprehensive Infrastructure**: Complete Estuary + Snowflake pipeline
 - **Advanced AI Integration**: Triple storage strategy with dual embeddings
 - **Production-Ready Code**: 4,000+ lines of tested, documented code
 - **Enterprise Security**: PII protection and role-based access control
@@ -539,7 +539,7 @@ The Gong.io data pipeline integration for Sophia AI is **100% complete and produ
 
 | Component | Status | Lines of Code | Key Features |
 |-----------|--------|---------------|--------------|
-| Airbyte Setup | ✅ Complete | 384 | Automated connector config, rate limiting, monitoring |
+| Estuary Setup | ✅ Complete | 384 | Automated connector config, rate limiting, monitoring |
 | Snowflake Deployment | ✅ Complete | 722 | Idempotent deployment, AI Memory integration, PII policies |
 | Test Suite | ✅ Complete | 803 | 6 test categories, 20+ individual tests |
 | Cortex Service | ✅ Enhanced | 2130 | Gong-specific methods, semantic search, analytics |

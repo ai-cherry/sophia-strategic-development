@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from backend.agents.specialized.asana_project_intelligence_agent import AsanaProjectIntelligenceAgent
 from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
-from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
+from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
@@ -68,7 +68,7 @@ class AsanaSyncRequest(BaseModel):
 # Service instances (will be initialized on startup)
 intelligence_agent: Optional[AsanaProjectIntelligenceAgent] = None
 chat_service: Optional[SophiaUniversalChatService] = None
-airbyte_manager: Optional[EnhancedAirbyteManager] = None
+estuary_manager: Optional[EnhancedEstuaryManager] = None
 cortex_service: Optional[SnowflakeCortexService] = None
 ai_memory_service: Optional[EnhancedAiMemoryMCPServer] = None
 
@@ -91,13 +91,13 @@ async def get_chat_service() -> SophiaUniversalChatService:
         await chat_service.initialize()
     return chat_service
 
-async def get_airbyte_manager() -> EnhancedAirbyteManager:
-    """Get or initialize the Airbyte manager"""
-    global airbyte_manager
-    if airbyte_manager is None:
-        airbyte_manager = EnhancedAirbyteManager("dev")  # TODO: Make environment configurable
-        await airbyte_manager.initialize()
-    return airbyte_manager
+async def get_estuary_manager() -> EnhancedEstuaryManager:
+    """Get or initialize the Estuary manager"""
+    global estuary_manager
+    if estuary_manager is None:
+        estuary_manager = EnhancedEstuaryManager("dev")  # TODO: Make environment configurable
+        await estuary_manager.initialize()
+    return estuary_manager
 
 async def get_cortex_service() -> SnowflakeCortexService:
     """Get or initialize the Cortex service"""
@@ -540,7 +540,7 @@ async def process_asana_chat_query(
 async def analyze_asana_chat_query(
     request: AsanaQueryRequest,
     current_user: dict = Depends(get_current_user),
-    airbyte_manager: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+    estuary_manager: EnhancedEstuaryManager = Depends(get_estuary_manager)
 ):
     """Analyze a natural language query related to Asana projects."""
     try:
@@ -574,7 +574,7 @@ async def analyze_asana_chat_query(
 async def trigger_asana_sync(
     request: AsanaSyncRequest,
     background_tasks: BackgroundTasks,
-    airbyte: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+    estuary: EnhancedEstuaryManager = Depends(get_estuary_manager)
 ):
     """
     Trigger Asana data synchronization
@@ -584,7 +584,7 @@ async def trigger_asana_sync(
             # Trigger full pipeline setup
             background_tasks.add_task(
                 _run_full_sync_pipeline,
-                airbyte
+                estuary
             )
             
             return JSONResponse(content={
@@ -595,7 +595,7 @@ async def trigger_asana_sync(
         else:
             # Trigger incremental sync
             # This would typically trigger an existing connection
-            health_status = await airbyte.perform_health_check()
+            health_status = await estuary.perform_health_check()
             
             return JSONResponse(content={
                 "message": "Incremental sync status checked",
@@ -609,14 +609,14 @@ async def trigger_asana_sync(
 
 @router.get("/sync/status")
 async def get_sync_status(
-    airbyte: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+    estuary: EnhancedEstuaryManager = Depends(get_estuary_manager)
 ):
     """
     Get current synchronization status
     """
     try:
-        health_status = await airbyte.perform_health_check()
-        data_quality = await airbyte.validate_asana_data_quality()
+        health_status = await estuary.perform_health_check()
+        data_quality = await estuary.validate_asana_data_quality()
         
         return JSONResponse(content={
             "health_status": health_status,
@@ -716,7 +716,7 @@ async def health_check():
         services_status = {
             "intelligence_agent": intelligence_agent is not None,
             "chat_service": chat_service is not None,
-            "airbyte_manager": airbyte_manager is not None,
+            "estuary_manager": estuary_manager is not None,
             "cortex_service": cortex_service is not None
         }
         
@@ -733,11 +733,11 @@ async def health_check():
         raise HTTPException(status_code=500, detail=str(e))
 
 # Background task functions
-async def _run_full_sync_pipeline(airbyte_manager: EnhancedAirbyteManager):
+async def _run_full_sync_pipeline(estuary_manager: EnhancedEstuaryManager):
     """Background task to run full sync pipeline"""
     try:
         logger.info("Starting full Asana sync pipeline")
-        results = await airbyte_manager.setup_complete_asana_pipeline()
+        results = await estuary_manager.setup_complete_asana_pipeline()
         
         success_count = sum(1 for result in results.values() if result.status.value == "success")
         total_count = len(results)
@@ -750,15 +750,15 @@ async def _run_full_sync_pipeline(airbyte_manager: EnhancedAirbyteManager):
 # Cleanup function for application shutdown
 async def cleanup_asana_services():
     """Cleanup function to be called on application shutdown"""
-    global intelligence_agent, chat_service, airbyte_manager, cortex_service, ai_memory_service
+    global intelligence_agent, chat_service, estuary_manager, cortex_service, ai_memory_service
     
     try:
         if intelligence_agent:
             await intelligence_agent.close()
         if chat_service:
             await chat_service.close()
-        if airbyte_manager:
-            await airbyte_manager.cleanup()
+        if estuary_manager:
+            await estuary_manager.cleanup()
         if cortex_service:
             await cortex_service.close()
         if ai_memory_service:

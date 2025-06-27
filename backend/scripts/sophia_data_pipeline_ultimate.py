@@ -3,11 +3,11 @@
 Sophia AI Ultimate Data Pipeline - Direct Python Implementation
 
 This is the PRIMARY method for ingesting Gong data into Snowflake for Sophia AI.
-Replaces Airbyte integration due to API access issues.
+Replaces Estuary integration due to API access issues.
 
 Features:
 - Direct Gong API integration with proper authentication
-- Raw data landing in RAW_AIRBYTE schema (for consistency)
+- Raw data landing in RAW_ESTUARY schema (for consistency)
 - Comprehensive transformation to STG_TRANSFORMED tables
 - AI enrichment using Snowflake Cortex
 - PII masking and security compliance
@@ -240,7 +240,7 @@ class SnowflakeDataLoader:
         self.password = get_config_value("snowflake_password")
         self.database = "SOPHIA_AI_DEV"  # Use DEV environment as specified
         self.warehouse = "WH_SOPHIA_ETL_TRANSFORM"
-        self.role = "ROLE_SOPHIA_AIRBYTE_INGEST"
+        self.role = "ROLE_SOPHIA_ESTUARY_INGEST"
         
         if not all([self.account, self.user, self.password]):
             raise ValueError("Snowflake credentials not found in Pulumi ESC configuration")
@@ -281,7 +281,7 @@ class SnowflakeDataLoader:
     async def _ensure_schemas_exist(self):
         """Ensure required schemas exist"""
         schemas = [
-            "RAW_AIRBYTE",           # Raw data landing
+            "RAW_ESTUARY",           # Raw data landing
             "STG_TRANSFORMED",       # Structured staging tables
             "AI_MEMORY",            # AI Memory integration
             "OPS_MONITORING"        # Operational monitoring
@@ -301,7 +301,7 @@ class SnowflakeDataLoader:
     async def load_raw_calls(self, calls_data: List[Dict[str, Any]]) -> int:
         """Load raw calls data with transaction management"""
         if self.config.dry_run:
-            logger.info(f"[DRY RUN] Would load {len(calls_data)} calls to RAW_AIRBYTE.RAW_GONG_CALLS_RAW")
+            logger.info(f"[DRY RUN] Would load {len(calls_data)} calls to RAW_ESTUARY.RAW_GONG_CALLS_RAW")
             return len(calls_data)
         
         cursor = self.connection.cursor()
@@ -313,8 +313,8 @@ class SnowflakeDataLoader:
             
             # Updated to match Manus AI DDL structure
             insert_sql = """
-            INSERT INTO RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
-            (_AIRBYTE_AB_ID, _AIRBYTE_EMITTED_AT, _AIRBYTE_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
+            INSERT INTO RAW_ESTUARY.RAW_GONG_CALLS_RAW 
+            (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
             
@@ -323,13 +323,13 @@ class SnowflakeDataLoader:
             
             for call in calls_data:
                 try:
-                    # Generate unique Airbyte ID
-                    airbyte_id = str(uuid.uuid4())
+                    # Generate unique Estuary ID
+                    estuary_id = str(uuid.uuid4())
                     
                     cursor.execute(insert_sql, (
-                        airbyte_id,
+                        estuary_id,
                         current_time,
-                        json.dumps(call),  # Store as VARIANT in _AIRBYTE_DATA
+                        json.dumps(call),  # Store as VARIANT in _ESTUARY_DATA
                         current_time,
                         correlation_id,
                         False
@@ -342,7 +342,7 @@ class SnowflakeDataLoader:
             
             # Commit transaction
             cursor.execute("COMMIT")
-            logger.info(f"✅ Loaded {loaded_count} calls to RAW_AIRBYTE.RAW_GONG_CALLS_RAW")
+            logger.info(f"✅ Loaded {loaded_count} calls to RAW_ESTUARY.RAW_GONG_CALLS_RAW")
             
         except Exception as e:
             # Rollback on error
@@ -357,7 +357,7 @@ class SnowflakeDataLoader:
     async def load_raw_transcripts(self, transcripts_data: List[Dict[str, Any]]) -> int:
         """Load raw transcripts data with transaction management"""
         if self.config.dry_run:
-            logger.info(f"[DRY RUN] Would load {len(transcripts_data)} transcripts to RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW")
+            logger.info(f"[DRY RUN] Would load {len(transcripts_data)} transcripts to RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW")
             return len(transcripts_data)
         
         cursor = self.connection.cursor()
@@ -369,8 +369,8 @@ class SnowflakeDataLoader:
             
             # Updated to match Manus AI DDL structure
             insert_sql = """
-            INSERT INTO RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW 
-            (_AIRBYTE_AB_ID, _AIRBYTE_EMITTED_AT, _AIRBYTE_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
+            INSERT INTO RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW 
+            (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
             
@@ -379,13 +379,13 @@ class SnowflakeDataLoader:
             
             for transcript in transcripts_data:
                 try:
-                    # Generate unique Airbyte ID
-                    airbyte_id = str(uuid.uuid4())
+                    # Generate unique Estuary ID
+                    estuary_id = str(uuid.uuid4())
                     
                     cursor.execute(insert_sql, (
-                        airbyte_id,
+                        estuary_id,
                         current_time,
-                        json.dumps(transcript),  # Store as VARIANT in _AIRBYTE_DATA
+                        json.dumps(transcript),  # Store as VARIANT in _ESTUARY_DATA
                         current_time,
                         correlation_id,
                         False
@@ -398,7 +398,7 @@ class SnowflakeDataLoader:
             
             # Commit transaction
             cursor.execute("COMMIT")
-            logger.info(f"✅ Loaded {loaded_count} transcripts to RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW")
+            logger.info(f"✅ Loaded {loaded_count} transcripts to RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW")
             
         except Exception as e:
             # Rollback on error

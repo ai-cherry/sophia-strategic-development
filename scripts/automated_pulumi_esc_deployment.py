@@ -98,10 +98,10 @@ class PulumiESCIntegratedDeployment:
                         "SNOWFLAKE_USER": "${pulumi.stack.outputs.snowflake_user}",
                         "SOPHIA_AI_TOKEN": "${pulumi.stack.outputs.sophia_ai_token}",
                         
-                        # Airbyte Configuration
-                        "AIRBYTE_CLIENT_ID": "${pulumi.stack.outputs.airbyte_client_id}",
-                        "AIRBYTE_CLIENT_SECRET": "${pulumi.stack.outputs.airbyte_client_secret}",
-                        "AIRBYTE_ACCESS_TOKEN": "${pulumi.stack.outputs.airbyte_access_token}",
+                        # Estuary Configuration
+                        "ESTUARY_CLIENT_ID": "${pulumi.stack.outputs.estuary_client_id}",
+                        "ESTUARY_CLIENT_SECRET": "${pulumi.stack.outputs.estuary_client_secret}",
+                        "ESTUARY_ACCESS_TOKEN": "${pulumi.stack.outputs.estuary_access_token}",
                         
                         # Gong Configuration
                         "GONG_ACCESS_KEY": "${pulumi.stack.outputs.gong_access_key}",
@@ -167,9 +167,9 @@ pulumi config set --path sophia-ai:snowflake_account "${{SNOWFLAKE_ACCOUNT}}"
 pulumi config set --path sophia-ai:snowflake_user "${{SNOWFLAKE_USER}}" 
 pulumi config set --path sophia-ai:sophia_ai_token "${{SOPHIA_AI_TOKEN}}" --secret
 
-pulumi config set --path sophia-ai:airbyte_client_id "${{AIRBYTE_CLIENT_ID}}"
-pulumi config set --path sophia-ai:airbyte_client_secret "${{AIRBYTE_CLIENT_SECRET}}" --secret
-pulumi config set --path sophia-ai:airbyte_access_token "${{AIRBYTE_ACCESS_TOKEN}}" --secret
+pulumi config set --path sophia-ai:estuary_client_id "${{ESTUARY_CLIENT_ID}}"
+pulumi config set --path sophia-ai:estuary_client_secret "${{ESTUARY_CLIENT_SECRET}}" --secret
+pulumi config set --path sophia-ai:estuary_access_token "${{ESTUARY_ACCESS_TOKEN}}" --secret
 
 pulumi config set --path sophia-ai:gong_access_key "${{GONG_ACCESS_KEY}}" --secret
 pulumi config set --path sophia-ai:gong_client_secret "${{GONG_CLIENT_SECRET}}" --secret
@@ -253,10 +253,10 @@ class AutomatedWebhookDeployment:
                 ],
                 "auth": "signature"
             }},
-            "airbyte": {{
+            "estuary": {{
                 "endpoints": [
-                    "/webhook/airbyte/sync-completed",
-                    "/webhook/airbyte/sync-failed"
+                    "/webhook/estuary/sync-completed",
+                    "/webhook/estuary/sync-failed"
                 ],
                 "auth": "bearer"
             }},
@@ -344,7 +344,7 @@ async def automated_platform_integration():
     integration_commands = [
         # Data Stack Integration
         "Configure Snowflake with optimized schemas and performance settings",
-        "Setup Airbyte with Gong, Slack, and HubSpot sources to Snowflake destination",
+        "Setup Estuary with Gong, Slack, and HubSpot sources to Snowflake destination",
         "Configure Gong webhooks with JWT authentication",
         "Setup Slack bot with event subscriptions and commands",
         "Configure HubSpot webhooks for CRM events",

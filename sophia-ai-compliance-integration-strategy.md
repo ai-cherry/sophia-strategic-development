@@ -464,7 +464,7 @@ The API-first design approach ensures that all regulatory intelligence capabilit
 
 ### Data Architecture and Storage Strategy
 
-The data architecture for regulatory compliance monitoring extends Sophia AI's existing multi-database strategy while adding specialized capabilities for regulatory content storage and analysis. The architecture maintains the existing data pipeline approach of Airbyte → PostgreSQL → Redis → Vector DBs while adding specialized processing for regulatory content.
+The data architecture for regulatory compliance monitoring extends Sophia AI's existing multi-database strategy while adding specialized capabilities for regulatory content storage and analysis. The architecture maintains the existing data pipeline approach of Estuary → PostgreSQL → Redis → Vector DBs while adding specialized processing for regulatory content.
 
 The regulatory data warehouse utilizes Snowflake's native capabilities for handling both structured and unstructured data while providing specialized schemas for regulatory documents, compliance requirements, and jurisdictional mappings. The warehouse design supports both real-time regulatory monitoring and historical compliance analysis while maintaining compatibility with existing business intelligence workflows.
 

@@ -152,7 +152,7 @@ def main():
         "backend/core/deployment_oversight_system.py",
         "backend/database/schema_migration_system.py",
         "backend/imports/data_import_api_feeds.py",
-        "backend/integrations/airbyte_integration.py",
+        "backend/integrations/estuary_integration.py",
         "backend/integrations/apify_integration.py",
         "backend/integrations/apollo_integration.py",
         "backend/integrations/estuary_flow_integration.py",

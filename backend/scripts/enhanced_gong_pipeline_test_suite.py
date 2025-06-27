@@ -288,7 +288,7 @@ class EnhancedGongPipelineTestSuite:
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             cursor = snowflake.connection.cursor()
             try:
-                required_schemas = ["RAW_AIRBYTE", "STG_TRANSFORMED", "AI_MEMORY", "OPS_MONITORING"]
+                required_schemas = ["RAW_ESTUARY", "STG_TRANSFORMED", "AI_MEMORY", "OPS_MONITORING"]
                 schema_status = {}
                 
                 for schema in required_schemas:
@@ -312,7 +312,7 @@ class EnhancedGongPipelineTestSuite:
         await self._run_test("test_error_handling", "ingestion", self._test_error_handling)
 
     async def _test_raw_data_landing(self) -> Dict[str, Any]:
-        """Test raw data landing in RAW_AIRBYTE schema"""
+        """Test raw data landing in RAW_ESTUARY schema"""
         # Run a small test pipeline
         pipeline = SophiaDataPipelineUltimate(self.test_config)
         

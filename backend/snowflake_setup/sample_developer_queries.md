@@ -1119,14 +1119,14 @@ ORDER BY nce.CALL_ID, similarity_score DESC;
 ```sql
 -- Monitor the health of the Gong data pipeline
 SELECT 
-    'RAW_AIRBYTE.RAW_GONG_CALLS_RAW' as table_name,
+    'RAW_ESTUARY.RAW_GONG_CALLS_RAW' as table_name,
     COUNT(*) as total_records,
     COUNT(CASE WHEN PROCESSED = TRUE THEN 1 END) as processed_records,
     COUNT(CASE WHEN PROCESSED = FALSE THEN 1 END) as pending_records,
     COUNT(CASE WHEN PROCESSING_ERROR IS NOT NULL THEN 1 END) as error_records,
     MAX(INGESTED_AT) as latest_ingestion,
     MIN(INGESTED_AT) as earliest_ingestion
-FROM RAW_AIRBYTE.RAW_GONG_CALLS_RAW
+FROM RAW_ESTUARY.RAW_GONG_CALLS_RAW
 
 UNION ALL
 

@@ -13,7 +13,7 @@
 ### **For Experienced Developers**
 1. **[Infrastructure Management Architecture](./INFRASTRUCTURE_MANAGEMENT_ARCHITECTURE.md)** - IaC and centralized management
 2. **[MCP Port Strategy](./MCP_PORT_STRATEGY.md)** - Model Context Protocol server architecture
-3. **[Airbyte Integration Guide](./AIRBYTE_INTEGRATION_GUIDE.md)** - Data pipeline configuration
+3. **[Estuary Integration Guide](./ESTUARY_INTEGRATION_GUIDE.md)** - Data pipeline configuration
 
 ---
 
@@ -31,7 +31,7 @@
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | [Platform Integration Guidelines](./PLATFORM_INTEGRATION_GUIDELINES.md) | External platform integration | Integration developers |
-| [Airbyte Integration Guide](./AIRBYTE_INTEGRATION_GUIDE.md) | Data pipeline configuration | Data engineers |
+| [Estuary Integration Guide](./ESTUARY_INTEGRATION_GUIDE.md) | Data pipeline configuration | Data engineers |
 | [Platform Integration Matrix](./PLATFORM_INTEGRATION_MATRIX.json) | Platform-specific configurations | All developers |
 
 ### **🛠️ Operations & Deployment**

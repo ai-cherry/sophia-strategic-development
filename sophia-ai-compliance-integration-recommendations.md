@@ -126,7 +126,7 @@ The existing Model Context Protocol server structure provides the ideal framewor
 The current Snowflake Cortex AI capabilities provide advanced analytics and machine learning directly within the data warehouse, enabling sophisticated regulatory intelligence analysis while maintaining data security and governance standards. The integration supports natural language querying of compliance requirements, automated generation of compliance reports, and predictive analytics for enforcement likelihood assessment.
 
 **Data Pipeline Architecture Compatibility**
-The existing data pipeline approach of Airbyte → PostgreSQL → Redis → Vector DBs provides the foundation for regulatory data processing while specialized processors handle legal and regulatory content. The multi-database strategy optimizes performance for different query types while maintaining compatibility with existing knowledge management systems and search interfaces.
+The existing data pipeline approach of Estuary → PostgreSQL → Redis → Vector DBs provides the foundation for regulatory data processing while specialized processors handle legal and regulatory content. The multi-database strategy optimizes performance for different query types while maintaining compatibility with existing knowledge management systems and search interfaces.
 
 ### Strategic Technology Decisions
 

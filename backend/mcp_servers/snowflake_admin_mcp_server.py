@@ -81,13 +81,13 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
                     "message": f"Query executed successfully, returned {len(result) if result else 0} rows"
                 }
                 
-            elif tool_name == "create_airbyte_integration":
-                # Create specific integration for Airbyte data sources
-                await self._setup_airbyte_integration()
+            elif tool_name == "create_estuary_integration":
+                # Create specific integration for Estuary data sources
+                await self._setup_estuary_integration()
                 return {
                     "success": True,
-                    "data": {"integration": "airbyte_ready"},
-                    "message": "Airbyte integration configured"
+                    "data": {"integration": "estuary_ready"},
+                    "message": "Estuary integration configured"
                 }
                 
             else:
@@ -106,22 +106,22 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
         finally:
             self.snowflake_manager.close_connection()
     
-    async def _setup_airbyte_integration(self):
-        """Set up specific Airbyte integration configurations."""
-        # Create Airbyte-specific roles and permissions
-        airbyte_setup_sql = """
-        -- Create Airbyte service role
-        CREATE ROLE IF NOT EXISTS AIRBYTE_SERVICE_ROLE;
+    async def _setup_estuary_integration(self):
+        """Set up specific Estuary integration configurations."""
+        # Create Estuary-specific roles and permissions
+        estuary_setup_sql = """
+        -- Create Estuary service role
+        CREATE ROLE IF NOT EXISTS ESTUARY_SERVICE_ROLE;
         
         -- Grant necessary permissions
-        GRANT USAGE ON DATABASE SOPHIA_AI_CORE TO ROLE AIRBYTE_SERVICE_ROLE;
-        GRANT USAGE ON SCHEMA SOPHIA_GONG_RAW TO ROLE AIRBYTE_SERVICE_ROLE;
-        GRANT USAGE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE AIRBYTE_SERVICE_ROLE;
-        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_GONG_RAW TO ROLE AIRBYTE_SERVICE_ROLE;
-        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_SLACK_RAW TO ROLE AIRBYTE_SERVICE_ROLE;
+        GRANT USAGE ON DATABASE SOPHIA_AI_CORE TO ROLE ESTUARY_SERVICE_ROLE;
+        GRANT USAGE ON SCHEMA SOPHIA_GONG_RAW TO ROLE ESTUARY_SERVICE_ROLE;
+        GRANT USAGE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE ESTUARY_SERVICE_ROLE;
+        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_GONG_RAW TO ROLE ESTUARY_SERVICE_ROLE;
+        GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_SLACK_RAW TO ROLE ESTUARY_SERVICE_ROLE;
         
-        -- Create Airbyte monitoring table
-        CREATE TABLE IF NOT EXISTS SOPHIA_AI_CORE.PUBLIC.airbyte_sync_log (
+        -- Create Estuary monitoring table
+        CREATE TABLE IF NOT EXISTS SOPHIA_AI_CORE.PUBLIC.estuary_sync_log (
             sync_id VARCHAR(255),
             source_type VARCHAR(100),
             sync_start_time TIMESTAMP,
@@ -133,7 +133,7 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
         );
         """
         
-        self.snowflake_manager.execute_query(airbyte_setup_sql, fetch_results=False)
+        self.snowflake_manager.execute_query(estuary_setup_sql, fetch_results=False)
     
     def get_available_tools(self) -> List[Dict[str, Any]]:
         """Return list of available tools for this MCP server."""
@@ -165,8 +165,8 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
                 }
             },
             {
-                "name": "create_airbyte_integration",
-                "description": "Set up Airbyte integration configurations",
+                "name": "create_estuary_integration",
+                "description": "Set up Estuary integration configurations",
                 "parameters": {}
             }
         ]

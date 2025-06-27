@@ -86,12 +86,12 @@ Environment Variables:
 - SNOWFLAKE_ROLE
 ```
 
-#### **Airbyte (Data Integration)**
+#### **Estuary (Data Integration)**
 ```yaml
 Integration Type: API + Webhook
-MCP Server: airbyte_integration (Port 9013)
+MCP Server: estuary_integration (Port 9013)
 Authentication: Client ID/Secret + Access Token
-Data Flow: Source → Airbyte → Snowflake → Sophia AI
+Data Flow: Source → Estuary → Snowflake → Sophia AI
 Real-time: Yes (via webhooks)
 Batch: Yes (via scheduled syncs)
 
@@ -102,10 +102,10 @@ Key Capabilities:
 - Error handling and retry logic
 
 Environment Variables:
-- AIRBYTE_CLIENT_ID
-- AIRBYTE_CLIENT_SECRET
-- AIRBYTE_ACCESS_TOKEN
-- AIRBYTE_WORKSPACE_ID
+- ESTUARY_CLIENT_ID
+- ESTUARY_CLIENT_SECRET
+- ESTUARY_ACCESS_TOKEN
+- ESTUARY_WORKSPACE_ID
 ```
 
 #### **Gong (Sales Intelligence)**
@@ -2725,11 +2725,11 @@ related_docs: none
 ---
 
 # Pay Ready Comprehensive Integration Strategy
-## Multi-Source Data Architecture with Claude MCP and Airbyte Cloud
+## Multi-Source Data Architecture with Claude MCP and Estuary Flow
 
 ## Table of Contents
 
-- [Multi-Source Data Architecture with Claude MCP and Airbyte Cloud](#multi-source-data-architecture-with-claude-mcp-and-airbyte-cloud)
+- [Multi-Source Data Architecture with Claude MCP and Estuary Flow](#multi-source-data-architecture-with-claude-mcp-and-estuary-cloud)
 - [Executive Summary](#executive-summary)
   - [Key Strategic Objectives](#key-strategic-objectives)
 - [Current Infrastructure Assessment](#current-infrastructure-assessment)
@@ -2751,7 +2751,7 @@ related_docs: none
   - [🎯 Natural Language Query Examples](#🎯-natural-language-query-examples)
   - [📊 Predictive Analytics](#📊-predictive-analytics)
 - [Technical Implementation Details](#technical-implementation-details)
-  - [🔧 Airbyte Cloud Configuration](#🔧-airbyte-cloud-configuration)
+  - [🔧 Estuary Flow Configuration](#🔧-estuary-cloud-configuration)
   - [🗄️ Database Performance Optimization](#🗄️-database-performance-optimization)
   - [🔍 Natural Language Processing](#🔍-natural-language-processing)
 - [Security and Compliance Framework](#security-and-compliance-framework)
@@ -2786,7 +2786,7 @@ related_docs: none
 
 ## Executive Summary
 
-This document outlines the comprehensive integration strategy for Pay Ready's multi-source business intelligence platform, combining Gong.io conversation intelligence, Salesforce CRM, HubSpot marketing automation, Slack communications, and internal SQL databases into a unified, natural language-accessible system powered by Claude MCP and Airbyte Cloud.
+This document outlines the comprehensive integration strategy for Pay Ready's multi-source business intelligence platform, combining Gong.io conversation intelligence, Salesforce CRM, HubSpot marketing automation, Slack communications, and internal SQL databases into a unified, natural language-accessible system powered by Claude MCP and Estuary Flow.
 
 ### Key Strategic Objectives
 
@@ -2811,13 +2811,13 @@ This document outlines the comprehensive integration strategy for Pay Ready's mu
 
 **Data Sources Ready for Integration:**
 - **Gong.io**: 13,069 calls available via API (810MB estimated data)
-- **Airbyte Cloud**: Account configured with dbt integration
+- **Estuary Flow**: Account configured with dbt integration
 - **Claude Max**: API access with GitHub integration
 - **Sophia AI**: Natural language processing at 95%+ accuracy
 
 ### 🔧 Integration Capabilities
 
-**Airbyte Cloud Configuration:**
+**Estuary Flow Configuration:**
 - **Workspace ID**: Active with dbt Cloud integration
 - **Pre-built Connectors**: Gong, Salesforce, HubSpot, Slack available
 - **Sync Strategy**: Hourly (Gong) to Daily (Slack) based on data velocity
@@ -2881,7 +2881,7 @@ sql
 ### Phase 1: Foundation (Weeks 1-2)
 **Status: Ready for Implementation**
 
-**Week 1: Airbyte Cloud Setup**
+**Week 1: Estuary Flow Setup**
 - ✅ Configure Gong connector with Pay Ready credentials
 - ✅ Set up PostgreSQL destination to Sophia database
 - ✅ Create hourly sync schedule for conversation data
@@ -3020,7 +3020,7 @@ python
 
 ## Technical Implementation Details
 
-### 🔧 Airbyte Cloud Configuration
+### 🔧 Estuary Flow Configuration
 
 **Connector Setup:**
 ```yaml
@@ -3128,7 +3128,7 @@ python
 
 **Current Monthly Costs:**
 - **Lambda Labs Server**: $432/month (1x A10 GPU)
-- **Airbyte Cloud**: $50-100/month (estimated based on connectors)
+- **Estuary Flow**: $50-100/month (estimated based on connectors)
 - **Pinecone**: $70/month (1M vectors, 1 pod)
 - **Claude API**: $50-150/month (estimated usage)
 - **Total Estimated**: $602-752/month
@@ -3231,8 +3231,8 @@ python
 
 ### ✅ Immediate Actions (Week 1)
 
-**Airbyte Cloud Setup:**
-- [ ] Verify Airbyte Cloud access with provided credentials
+**Estuary Flow Setup:**
+- [ ] Verify Estuary Flow access with provided credentials
 - [ ] Configure Gong source connector with Pay Ready API keys
 - [ ] Set up PostgreSQL destination to Sophia database
 - [ ] Create initial sync schedule (hourly for Gong data)
@@ -3288,10 +3288,10 @@ python
 
 This comprehensive integration strategy positions Pay Ready at the forefront of AI-powered business intelligence for the apartment industry. By combining Gong's conversation intelligence, Salesforce CRM data, HubSpot marketing insights, and Slack communications into a unified, natural language-accessible platform, Pay Ready will gain unprecedented visibility into customer relationships, sales performance, and market opportunities.
 
-The integration of Claude MCP for intelligent analysis and Airbyte Cloud for seamless data synchronization creates a scalable, maintainable architecture that can evolve with Pay Ready's growing business needs. The focus on apartment industry-specific insights, compliance requirements, and predictive analytics ensures that this platform delivers immediate business value while establishing a foundation for long-term competitive advantage.
+The integration of Claude MCP for intelligent analysis and Estuary Flow for seamless data synchronization creates a scalable, maintainable architecture that can evolve with Pay Ready's growing business needs. The focus on apartment industry-specific insights, compliance requirements, and predictive analytics ensures that this platform delivers immediate business value while establishing a foundation for long-term competitive advantage.
 
 **Next Steps:**
-1. **Execute Phase 1 implementation** with Airbyte Cloud and Gong integration
+1. **Execute Phase 1 implementation** with Estuary Flow and Gong integration
 2. **Begin interactive data dictionary development** with Claude MCP assistance
 3. **Prepare for multi-source integration** by obtaining necessary API credentials
 4. **Plan natural language interface enhancement** for the admin website
@@ -3600,11 +3600,11 @@ related_docs: none
 ---
 
 # Pay Ready Multi-Source Integration - Implementation Summary
-## Claude MCP + Airbyte Cloud + Gong Integration Strategy
+## Claude MCP + Estuary Flow + Gong Integration Strategy
 
 ## Table of Contents
 
-- [Claude MCP + Airbyte Cloud + Gong Integration Strategy](#claude-mcp-+-airbyte-cloud-+-gong-integration-strategy)
+- [Claude MCP + Estuary Flow + Gong Integration Strategy](#claude-mcp-+-estuary-cloud-+-gong-integration-strategy)
 - [🎉 INTEGRATION DEMONSTRATION SUCCESS](#🎉-integration-demonstration-success)
   - [✅ Key Achievements](#✅-key-achievements)
 - [🚀 GONG INTEGRATION OPPORTUNITY ANALYSIS](#🚀-gong-integration-opportunity-analysis)
@@ -3663,7 +3663,7 @@ related_docs: none
 - ✅ **Vector Storage**: Pinecone + Weaviate configured for semantic search
 - ✅ **API Gateway**: Kong AI Gateway with semantic caching active
 - ✅ **Admin Interface**: React website with natural language capabilities
-- ✅ **Data Sources**: Gong API (13,069 calls), Airbyte Cloud configured
+- ✅ **Data Sources**: Gong API (13,069 calls), Estuary Flow configured
 
 **Data Dictionary Framework:**
 - ✅ **Core Fields**: 4 standardized fields defined with apartment industry context
@@ -3717,7 +3717,7 @@ related_docs: none
 
 ### Week 1: Foundation & Gong Integration
 **Deliverables:**
-- ✅ Airbyte Gong connector configured and operational
+- ✅ Estuary Gong connector configured and operational
 - ✅ 13,069 calls imported into unified PostgreSQL schema
 - ✅ Basic conversation analytics and sentiment analysis
 - ✅ Natural language query interface enhanced
@@ -3782,7 +3782,7 @@ related_docs: none
 - **PostgreSQL pgvector**: Integrated vector search for relational queries
 
 ### Data Pipeline: ✅ READY
-**Airbyte Cloud Configuration:**
+**Estuary Flow Configuration:**
 - Hourly sync for Gong conversation data (high value)
 - 4-hour sync for Salesforce CRM updates
 - 6-hour sync for HubSpot marketing data
@@ -3842,7 +3842,7 @@ json
 ### Infrastructure Investment
 **Monthly Costs:**
 - Lambda Labs Server: $432/month (1x A10 GPU)
-- Airbyte Cloud: $75/month (estimated for 4 connectors)
+- Estuary Flow: $75/month (estimated for 4 connectors)
 - Pinecone: $70/month (1M vectors)
 - Claude API: $100/month (estimated usage)
 - **Total**: ~$677/month
@@ -3859,7 +3859,7 @@ json
 ## 🎯 IMMEDIATE NEXT STEPS
 
 ### Phase 1: Gong Integration (This Week)
-1. ✅ **Airbyte Configuration**: Set up Gong connector with Pay Ready credentials
+1. ✅ **Estuary Configuration**: Set up Gong connector with Pay Ready credentials
 2. ✅ **Data Import**: Begin importing 13,069 calls from last 90 days
 3. ✅ **Keyword Tracking**: Implement apartment industry keyword libraries
 4. ✅ **Analytics Dashboard**: Deploy conversation intelligence insights
@@ -3924,7 +3924,7 @@ json
 Pay Ready's multi-source business intelligence platform is **100% ready for implementation** with:
 
 ✅ **Complete Infrastructure**: Database, APIs, vector storage, and natural language interface
-✅ **Working Integrations**: Claude MCP, Gong API, and Airbyte Cloud operational
+✅ **Working Integrations**: Claude MCP, Gong API, and Estuary Flow operational
 ✅ **Strategic Roadmap**: 30-day implementation plan with clear milestones
 ✅ **Business Case**: $800K+ annual ROI with 9,877% return on investment
 ✅ **Competitive Advantage**: Unique conversation intelligence for apartment industry
@@ -4367,10 +4367,10 @@ The Sophia AI conversational interface is now production-ready and provides a co
 ================================================================================
 
 
-## From: AIRBYTE_INTEGRATION_GUIDE.md
+## From: ESTUARY_INTEGRATION_GUIDE.md
 ----------------------------------------
 
-This comprehensive guide provides both automated and manual configuration options for setting up Airbyte data integration with Gong and Slack sources flowing into Snowflake.
+This comprehensive guide provides both automated and manual configuration options for setting up Estuary data integration with Gong and Slack sources flowing into Snowflake.
 
 ## 📋 Prerequisites
 
@@ -4378,7 +4378,7 @@ This comprehensive guide provides both automated and manual configuration option
 - **Snowflake**: Account, User, Password/Token, Role, Warehouse, Database
 - **Gong**: Access Key, Secret Key
 - **Slack**: Bot Token, Channel Access
-- **Airbyte**: Client ID, Client Secret, Access Token
+- **Estuary**: Client ID, Client Secret, Access Token
 
 ### Snowflake Configuration
 ```json
@@ -4405,16 +4405,16 @@ This comprehensive guide provides both automated and manual configuration option
 ### ✅ Completed Infrastructure
 - **Snowflake Schemas**: SOPHIA_GONG_RAW, SOPHIA_SLACK_RAW
 - **Tables**: gong_calls, gong_transcripts, slack_messages, slack_channels
-- **Airbyte-ready columns**: All tables include _airbyte_ab_id, _airbyte_emitted_at, _airbyte_normalized_at
+- **Estuary-ready columns**: All tables include _estuary_ab_id, _estuary_emitted_at, _estuary_normalized_at
 - **Memory Integration**: SOPHIA_AI_MEMORY schema with unified views
 - **Analytics Layer**: SOPHIA_SEMANTIC with cross-platform insights
 
-## 🔧 Manual Airbyte Configuration
+## 🔧 Manual Estuary Configuration
 
 Since API authentication requires updated tokens, follow these manual steps:
 
-### Step 1: Access Airbyte Cloud
-1. Navigate to [https://cloud.airbyte.com/](https://cloud.airbyte.com/)
+### Step 1: Access Estuary Flow
+1. Navigate to [https://dashboard.estuary.dev/](https://dashboard.estuary.dev/)
 2. Login with: `lynn@payready.com` / `Huskers1983$`
 
 ### Step 2: Create Snowflake Destination
@@ -4472,13 +4472,13 @@ Since API authentication requires updated tokens, follow these manual steps:
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    Gong     │───▶│   Airbyte   │───▶│  Snowflake  │
+│    Gong     │───▶│   Estuary   │───▶│  Snowflake  │
 │   Calls     │    │ Integration │    │ GONG_RAW    │
 │ Transcripts │    │             │    │             │
 └─────────────┘    └─────────────┘    └─────────────┘
                                                │
 ┌─────────────┐    ┌─────────────┐           ▼
-│   Slack     │───▶│   Airbyte   │    ┌─────────────┐
+│   Slack     │───▶│   Estuary   │    ┌─────────────┐
 │  Messages   │    │ Integration │───▶│  Snowflake  │
 │  Channels   │    │             │    │ SLACK_RAW   │
 └─────────────┘    └─────────────┘    └─────────────┘
@@ -4536,7 +4536,7 @@ Since API authentication requires updated tokens, follow these manual steps:
    ```
 
 2. **Monitor Sync Status**:
-   - Check Airbyte dashboard for sync frequency and success rates
+   - Check Estuary dashboard for sync frequency and success rates
    - Verify data freshness in Snowflake tables
    - Monitor for any sync errors or failures
 
@@ -4575,7 +4575,7 @@ The Snowflake Admin MCP Server (port 9012) provides programmatic access to:
    - Check for column name conflicts
 
 3. **Data Sync Issues**:
-   - Monitor Airbyte connection logs
+   - Monitor Estuary connection logs
    - Verify source API rate limits
    - Check destination table permissions
 
@@ -4606,7 +4606,7 @@ The Snowflake Admin MCP Server (port 9012) provides programmatic access to:
 ## 📞 Support
 
 For technical issues:
-- Check Airbyte documentation: [https://docs.airbyte.com/](https://docs.airbyte.com/)
+- Check Estuary Flow documentation: [https://docs.estuary.dev/](https://docs.estuary.dev/)
 - Snowflake support: [https://support.snowflake.com/](https://support.snowflake.com/)
 - Gong API documentation: [https://us-66463.app.gong.io/settings/api/documentation](https://us-66463.app.gong.io/settings/api/documentation)
 
@@ -8991,7 +8991,7 @@ The Gong Pipeline Integration provides comprehensive access to Gong call data th
 
 ## Architecture
 ```
-Gong API → Airbyte → RAW_AIRBYTE → STG_TRANSFORMED → AI_MEMORY → Sophia AI Services
+Gong API → Estuary → RAW_ESTUARY → STG_TRANSFORMED → AI_MEMORY → Sophia AI Services
 ```
 
 ## Key Tables
@@ -9031,7 +9031,7 @@ ORDER BY CALL_DATETIME_UTC DESC;
 ### Required Secrets (Pulumi ESC)
 - `gong_access_key`: Gong API access key
 - `gong_client_secret`: Gong API client secret
-- `airbyte_server_url`: Airbyte server URL
+- `estuary_server_url`: Estuary server URL
 - `snowflake_*`: Snowflake connection parameters
 
 ## Deployment
@@ -9041,14 +9041,14 @@ ORDER BY CALL_DATETIME_UTC DESC;
 python backend/scripts/deploy_gong_snowflake_setup.py --env dev
 ```
 
-### Phase 2: Airbyte Setup
+### Phase 2: Estuary Setup
 ```bash
-python backend/scripts/airbyte_gong_setup.py --setup-complete-pipeline
+python backend/scripts/estuary_gong_setup.py --setup-complete-pipeline
 ```
 
 ### Phase 3: Testing
 ```bash
-python backend/scripts/enhanced_airbyte_integration_test_suite.py --environment dev
+python backend/scripts/enhanced_estuary_integration_test_suite.py --environment dev
 ```
 
 ## Business Value

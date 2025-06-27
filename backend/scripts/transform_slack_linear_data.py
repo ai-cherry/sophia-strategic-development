@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Slack & Linear Data Transformation Script
-Transforms raw Airbyte data into structured format for knowledge base integration
+Transforms raw Estuary data into structured format for knowledge base integration
 """
 
 import asyncio

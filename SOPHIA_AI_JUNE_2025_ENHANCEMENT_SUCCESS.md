@@ -180,7 +180,7 @@ Based on your IaC analysis, we're ready to deploy:
 - **Pulumi Automation API**: Latest infrastructure management
 - **Lambda Labs Kubernetes**: GPU-optimized AI workloads
 - **Docker MCP Integration**: Containerized MCP servers
-- **Snowflake + Airbyte**: Data pipeline automation
+- **Snowflake + Estuary**: Data pipeline automation
 - **Pinecone Vector DB**: AI-native vector operations
 
 ### **Model Selection for IaC** 🎯
