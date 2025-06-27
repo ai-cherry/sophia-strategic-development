@@ -1,0 +1,560 @@
+"""
+Snowflake Cortex Agent Service for Sophia AI
+Manages AI agents with JWT authentication and tool execution
+"""
+
+import os
+import json
+import asyncio
+import logging
+from typing import Dict, List, Any, Optional, AsyncGenerator
+from datetime import datetime, timedelta
+import jwt
+import httpx
+from pydantic import BaseModel, Field
+import snowflake.connector
+from snowflake.connector import DictCursor
+from snowflake.cortex import Cortex
+import yaml
+from pathlib import Path
+
+from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_snowflake_connection
+
+logger = logging.getLogger(__name__)
+
+# JWT Configuration
+JWT_SECRET = get_config_value("jwt_secret", "sophia-ai-cortex-secret")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# Agent Request/Response Models
+class AgentRequest(BaseModel):
+    """Request model for agent invocation"""
+    prompt: str
+    context: Optional[Dict[str, Any]] = None
+    tools: Optional[List[str]] = None
+    max_tokens: Optional[int] = 4096
+    temperature: Optional[float] = 0.7
+    stream: Optional[bool] = False
+
+class AgentResponse(BaseModel):
+    """Response model for agent execution"""
+    agent_name: str
+    response: str
+    tools_used: List[str] = []
+    tokens_used: int
+    execution_time: float
+    metadata: Dict[str, Any] = {}
+
+class CortexTool(BaseModel):
+    """Tool definition for Cortex agents"""
+    name: str
+    description: str
+    parameters: Dict[str, Any]
+    handler: Optional[str] = None
+
+class CortexAgentConfig(BaseModel):
+    """Configuration for a Cortex agent"""
+    name: str
+    model: str = "mistral-large"
+    temperature: float = 0.7
+    max_tokens: int = 4096
+    tools: List[CortexTool] = []
+    system_prompt: Optional[str] = None
+    jwt_required: bool = True
+
+class CortexAgentService:
+    """Service for managing Snowflake Cortex AI agents"""
+    
+    def __init__(self):
+        self.agents: Dict[str, CortexAgentConfig] = {}
+        self.cortex_client = None
+        self.snowflake_conn = None
+        self._load_agent_configs()
+        
+    def _load_agent_configs(self):
+        """Load agent configurations from YAML file"""
+        config_path = Path(__file__).parent.parent / "config" / "cortex_agents.yaml"
+        
+        if config_path.exists():
+            with open(config_path, 'r') as f:
+                configs = yaml.safe_load(f)
+                
+            for agent_name, config in configs.get('agents', {}).items():
+                # Convert tool definitions
+                tools = []
+                for tool_dict in config.get('tools', []):
+                    tools.append(CortexTool(**tool_dict))
+                
+                self.agents[agent_name] = CortexAgentConfig(
+                    name=agent_name,
+                    model=config.get('model', 'mistral-large'),
+                    temperature=config.get('temperature', 0.7),
+                    max_tokens=config.get('max_tokens', 4096),
+                    tools=tools,
+                    system_prompt=config.get('system_prompt'),
+                    jwt_required=config.get('jwt_required', True)
+                )
+        else:
+            # Default agents if no config file
+            self._create_default_agents()
+    
+    def _create_default_agents(self):
+        """Create default agent configurations"""
+        # Snowflake Operations Agent
+        self.agents['snowflake_ops'] = CortexAgentConfig(
+            name='snowflake_ops',
+            model='mistral-large',
+            temperature=0.1,
+            tools=[
+                CortexTool(
+                    name='execute_query',
+                    description='Execute SQL query on Snowflake',
+                    parameters={'query': 'string', 'warehouse': 'string'}
+                ),
+                CortexTool(
+                    name='optimize_query',
+                    description='Analyze and optimize SQL query',
+                    parameters={'query': 'string'}
+                ),
+                CortexTool(
+                    name='manage_schema',
+                    description='Create or modify database schema',
+                    parameters={'operation': 'string', 'schema': 'object'}
+                )
+            ],
+            system_prompt="You are a Snowflake database expert. Help users with SQL queries, performance optimization, and schema management."
+        )
+        
+        # Semantic Memory Agent
+        self.agents['semantic_memory'] = CortexAgentConfig(
+            name='semantic_memory',
+            model='mistral-7b',
+            temperature=0.3,
+            tools=[
+                CortexTool(
+                    name='store_memory',
+                    description='Store information with embeddings',
+                    parameters={'content': 'string', 'metadata': 'object'}
+                ),
+                CortexTool(
+                    name='recall_memory',
+                    description='Retrieve similar memories',
+                    parameters={'query': 'string', 'limit': 'integer'}
+                ),
+                CortexTool(
+                    name='search_context',
+                    description='Semantic search across all data',
+                    parameters={'query': 'string', 'filters': 'object'}
+                )
+            ],
+            system_prompt="You are a memory management agent. Store and retrieve information using semantic search."
+        )
+        
+        # Business Intelligence Agent
+        self.agents['business_intelligence'] = CortexAgentConfig(
+            name='business_intelligence',
+            model='mistral-large',
+            temperature=0.2,
+            tools=[
+                CortexTool(
+                    name='analyze_metrics',
+                    description='Analyze business metrics',
+                    parameters={'metric_type': 'string', 'time_range': 'string'}
+                ),
+                CortexTool(
+                    name='generate_insights',
+                    description='Generate AI-powered business insights',
+                    parameters={'data_source': 'string', 'focus_area': 'string'}
+                ),
+                CortexTool(
+                    name='forecast_trends',
+                    description='Forecast business trends',
+                    parameters={'metric': 'string', 'horizon': 'integer'}
+                )
+            ],
+            system_prompt="You are a business intelligence expert. Analyze data, generate insights, and help with strategic decisions."
+        )
+    
+    async def initialize(self):
+        """Initialize Snowflake connection and Cortex client"""
+        try:
+            # Get Snowflake connection
+            self.snowflake_conn = await get_snowflake_connection()
+            
+            # Initialize Cortex client
+            self.cortex_client = Cortex(self.snowflake_conn)
+            
+            logger.info("✅ Cortex Agent Service initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Cortex Agent Service: {e}")
+            raise
+    
+    def generate_jwt(self, user_id: str, agent_name: str) -> str:
+        """Generate JWT token for agent access"""
+        payload = {
+            'user_id': user_id,
+            'agent_name': agent_name,
+            'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
+            'iat': datetime.utcnow()
+        }
+        
+        return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    def verify_jwt(self, token: str) -> Dict[str, Any]:
+        """Verify JWT token"""
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise ValueError("Token has expired")
+        except jwt.InvalidTokenError:
+            raise ValueError("Invalid token")
+    
+    async def invoke_agent(
+        self, 
+        agent_name: str, 
+        request: AgentRequest,
+        jwt_token: Optional[str] = None
+    ) -> AgentResponse:
+        """Invoke a Cortex agent"""
+        start_time = datetime.now()
+        
+        # Get agent configuration
+        if agent_name not in self.agents:
+            raise ValueError(f"Agent '{agent_name}' not found")
+        
+        agent_config = self.agents[agent_name]
+        
+        # Verify JWT if required
+        if agent_config.jwt_required and not jwt_token:
+            raise ValueError("JWT token required for this agent")
+        
+        if jwt_token:
+            try:
+                self.verify_jwt(jwt_token)
+            except ValueError as e:
+                raise ValueError(f"JWT verification failed: {e}")
+        
+        # Prepare the prompt with system context
+        full_prompt = ""
+        if agent_config.system_prompt:
+            full_prompt += f"System: {agent_config.system_prompt}\n\n"
+        
+        if request.context:
+            full_prompt += f"Context: {json.dumps(request.context)}\n\n"
+        
+        full_prompt += f"User: {request.prompt}"
+        
+        # Execute tools if requested
+        tools_used = []
+        tool_results = {}
+        
+        if request.tools:
+            for tool_name in request.tools:
+                tool = next((t for t in agent_config.tools if t.name == tool_name), None)
+                if tool:
+                    tool_result = await self._execute_tool(agent_name, tool, request.context)
+                    tool_results[tool_name] = tool_result
+                    tools_used.append(tool_name)
+        
+        # Add tool results to prompt
+        if tool_results:
+            full_prompt += f"\n\nTool Results: {json.dumps(tool_results)}"
+        
+        # Call Cortex model
+        try:
+            response = await self._call_cortex_model(
+                model=agent_config.model,
+                prompt=full_prompt,
+                temperature=request.temperature or agent_config.temperature,
+                max_tokens=request.max_tokens or agent_config.max_tokens,
+                stream=request.stream
+            )
+            
+            execution_time = (datetime.now() - start_time).total_seconds()
+            
+            return AgentResponse(
+                agent_name=agent_name,
+                response=response['text'],
+                tools_used=tools_used,
+                tokens_used=response.get('tokens_used', 0),
+                execution_time=execution_time,
+                metadata={
+                    'model': agent_config.model,
+                    'temperature': request.temperature or agent_config.temperature,
+                    'tool_results': tool_results
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Error invoking agent {agent_name}: {e}")
+            raise
+    
+    async def _call_cortex_model(
+        self,
+        model: str,
+        prompt: str,
+        temperature: float,
+        max_tokens: int,
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        """Call Snowflake Cortex model"""
+        if not self.cortex_client:
+            await self.initialize()
+        
+        try:
+            # Use Cortex Complete function
+            query = f"""
+            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+                '{model}',
+                '{prompt.replace("'", "''")}',
+                {{
+                    'temperature': {temperature},
+                    'max_tokens': {max_tokens}
+                }}
+            ) as response
+            """
+            
+            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor.execute(query)
+            result = cursor.fetchone()
+            
+            response_data = json.loads(result['RESPONSE'])
+            
+            return {
+                'text': response_data.get('choices', [{}])[0].get('text', ''),
+                'tokens_used': response_data.get('usage', {}).get('total_tokens', 0)
+            }
+            
+        except Exception as e:
+            logger.error(f"Cortex model call failed: {e}")
+            raise
+    
+    async def _execute_tool(
+        self,
+        agent_name: str,
+        tool: CortexTool,
+        context: Optional[Dict[str, Any]]
+    ) -> Any:
+        """Execute a tool for an agent"""
+        # Tool handlers based on agent and tool name
+        tool_handlers = {
+            'snowflake_ops': {
+                'execute_query': self._execute_query_tool,
+                'optimize_query': self._optimize_query_tool,
+                'manage_schema': self._manage_schema_tool
+            },
+            'semantic_memory': {
+                'store_memory': self._store_memory_tool,
+                'recall_memory': self._recall_memory_tool,
+                'search_context': self._search_context_tool
+            },
+            'business_intelligence': {
+                'analyze_metrics': self._analyze_metrics_tool,
+                'generate_insights': self._generate_insights_tool,
+                'forecast_trends': self._forecast_trends_tool
+            }
+        }
+        
+        handler = tool_handlers.get(agent_name, {}).get(tool.name)
+        
+        if handler:
+            return await handler(tool.parameters, context)
+        else:
+            return f"Tool {tool.name} not implemented"
+    
+    # Tool implementations
+    async def _execute_query_tool(self, params: Dict, context: Dict) -> Any:
+        """Execute SQL query tool"""
+        query = params.get('query', '')
+        warehouse = params.get('warehouse', 'COMPUTE_WH')
+        
+        try:
+            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor.execute(f"USE WAREHOUSE {warehouse}")
+            cursor.execute(query)
+            
+            results = cursor.fetchall()
+            return {
+                'success': True,
+                'row_count': len(results),
+                'data': results[:100]  # Limit to 100 rows
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def _store_memory_tool(self, params: Dict, context: Dict) -> Any:
+        """Store memory with embeddings"""
+        content = params.get('content', '')
+        metadata = params.get('metadata', {})
+        
+        try:
+            # Generate embedding using Cortex
+            embedding_query = f"""
+            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(
+                'e5-base-v2',
+                '{content.replace("'", "''")}'
+            ) as embedding
+            """
+            
+            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor.execute(embedding_query)
+            result = cursor.fetchone()
+            
+            # Store in vector table
+            insert_query = """
+            INSERT INTO SOPHIA_AI.CORTEX_VECTORS.embeddings 
+            (id, source_type, content, embedding, metadata)
+            VALUES (?, ?, ?, ?, ?)
+            """
+            
+            import uuid
+            cursor.execute(insert_query, (
+                str(uuid.uuid4()),
+                'cortex_agent',
+                content,
+                result['EMBEDDING'],
+                json.dumps(metadata)
+            ))
+            
+            return {
+                'success': True,
+                'message': 'Memory stored successfully'
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def _recall_memory_tool(self, params: Dict, context: Dict) -> Any:
+        """Recall similar memories using Cortex Search"""
+        query = params.get('query', '')
+        limit = params.get('limit', 10)
+        
+        try:
+            # Use Cortex Search service
+            search_query = f"""
+            SELECT content, metadata, 
+                   VECTOR_DISTANCE(embedding, 
+                     SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query.replace("'", "''")}')
+                   ) as distance
+            FROM SOPHIA_AI.CORTEX_VECTORS.embeddings
+            ORDER BY distance ASC
+            LIMIT {limit}
+            """
+            
+            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor.execute(search_query)
+            results = cursor.fetchall()
+            
+            return {
+                'success': True,
+                'memories': results
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def handle_stream(
+        self,
+        websocket,
+        agent_name: str,
+        request: AgentRequest,
+        jwt_token: Optional[str] = None
+    ) -> AsyncGenerator[str, None]:
+        """Handle streaming responses for WebSocket connections"""
+        # Verify agent and JWT
+        if agent_name not in self.agents:
+            yield json.dumps({'error': f"Agent '{agent_name}' not found"})
+            return
+        
+        agent_config = self.agents[agent_name]
+        
+        if agent_config.jwt_required and not jwt_token:
+            yield json.dumps({'error': 'JWT token required'})
+            return
+        
+        # Stream response chunks
+        try:
+            # This would integrate with Cortex streaming API when available
+            response = await self.invoke_agent(agent_name, request, jwt_token)
+            
+            # Simulate streaming by chunking response
+            chunk_size = 50
+            for i in range(0, len(response.response), chunk_size):
+                chunk = response.response[i:i+chunk_size]
+                yield json.dumps({
+                    'chunk': chunk,
+                    'done': i + chunk_size >= len(response.response)
+                })
+                await asyncio.sleep(0.1)  # Simulate streaming delay
+                
+        except Exception as e:
+            yield json.dumps({'error': str(e)})
+    
+    async def list_agents(self) -> List[Dict[str, Any]]:
+        """List all available agents"""
+        agents_list = []
+        
+        for agent_name, config in self.agents.items():
+            agents_list.append({
+                'name': agent_name,
+                'model': config.model,
+                'description': config.system_prompt or 'No description',
+                'tools': [{'name': t.name, 'description': t.description} for t in config.tools],
+                'jwt_required': config.jwt_required
+            })
+        
+        return agents_list
+    
+    # Additional tool implementations would go here...
+    async def _optimize_query_tool(self, params: Dict, context: Dict) -> Any:
+        """Optimize SQL query using Cortex"""
+        return {'message': 'Query optimization not yet implemented'}
+    
+    async def _manage_schema_tool(self, params: Dict, context: Dict) -> Any:
+        """Manage database schema"""
+        return {'message': 'Schema management not yet implemented'}
+    
+    async def _search_context_tool(self, params: Dict, context: Dict) -> Any:
+        """Search across all data sources"""
+        return {'message': 'Context search not yet implemented'}
+    
+    async def _analyze_metrics_tool(self, params: Dict, context: Dict) -> Any:
+        """Analyze business metrics"""
+        return {'message': 'Metrics analysis not yet implemented'}
+    
+    async def _generate_insights_tool(self, params: Dict, context: Dict) -> Any:
+        """Generate business insights"""
+        return {'message': 'Insights generation not yet implemented'}
+    
+    async def _forecast_trends_tool(self, params: Dict, context: Dict) -> Any:
+        """Forecast business trends"""
+        return {'message': 'Trend forecasting not yet implemented'}
+
+# Singleton instance
+_cortex_service = None
+
+def get_cortex_service() -> CortexAgentService:
+    """Get or create Cortex Agent Service instance"""
+    global _cortex_service
+    if _cortex_service is None:
+        _cortex_service = CortexAgentService()
+    return _cortex_service
+
+# FastAPI dependency
+async def get_cortex_agent_service() -> CortexAgentService:
+    """FastAPI dependency for Cortex Agent Service"""
+    service = get_cortex_service()
+    if not service.snowflake_conn:
+        await service.initialize()
+    return service

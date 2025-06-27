@@ -1,0 +1,203 @@
+collections:
+  Pay_Ready/github-commits:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        sha:
+          type: string
+        author_name:
+          type: string
+        author_email:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        repository:
+          type: string
+        branch:
+          type: string
+        additions:
+          type: integer
+        deletions:
+          type: integer
+      required:
+        - id
+        - sha
+        - author_email
+    key:
+      - /id
+  Pay_Ready/github-pull-requests:
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        state:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        merged_at:
+          type: string
+          format: date-time
+        author:
+          type: string
+        repository:
+          type: string
+      required:
+        - id
+        - number
+    key:
+      - /id
+  Pay_Ready/github-issues:
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        state:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        author:
+          type: string
+        repository:
+          type: string
+      required:
+        - id
+        - number
+    key:
+      - /id
+  Pay_Ready/hubspot-contacts:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        company:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/hubspot-deals:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        dealname:
+          type: string
+        amount:
+          type: number
+        dealstage:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/hubspot-companies:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/slack-messages:
+    schema:
+      type: object
+      properties:
+        ts:
+          type: string
+        channel:
+          type: string
+        user_id:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - ts
+        - channel
+    key:
+      - /ts
+      - /channel
+  Pay_Ready/slack-channels:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        is_channel:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+      required:
+        - id
+    key:
+      - /id
+

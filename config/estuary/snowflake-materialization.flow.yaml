@@ -1,6 +1,30 @@
 materializations:
   Pay_Ready/snowflake-sophia-ai:
-    bindings: []
+    bindings:
+    - resource:
+        table: GITHUB_COMMITS
+      source: Pay_Ready/github-commits
+    - resource:
+        table: GITHUB_PULL_REQUESTS
+      source: Pay_Ready/github-pull-requests
+    - resource:
+        table: GITHUB_ISSUES
+      source: Pay_Ready/github-issues
+    - resource:
+        table: HUBSPOT_CONTACTS
+      source: Pay_Ready/hubspot-contacts
+    - resource:
+        table: HUBSPOT_DEALS
+      source: Pay_Ready/hubspot-deals
+    - resource:
+        table: HUBSPOT_COMPANIES
+      source: Pay_Ready/hubspot-companies
+    - resource:
+        table: SLACK_MESSAGES
+      source: Pay_Ready/slack-messages
+    - resource:
+        table: SLACK_CHANNELS
+      source: Pay_Ready/slack-channels
     endpoint:
       connector:
         config:
@@ -10,7 +34,7 @@ materializations:
             updateDelay: 0s
           database: SOPHIA_AI
           host: UHDECNO-CVB64222.snowflakecomputing.com
-          password: ${SNOWFLAKE_PAT_TOKEN}
+          password: eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A
           role: ACCOUNTADMIN
           schema: ESTUARY_STAGING
           user: SCOOBYJAVA15

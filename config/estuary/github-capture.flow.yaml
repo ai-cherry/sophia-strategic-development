@@ -10,9 +10,6 @@ captures:
     - resource:
         stream: issues
       target: Pay_Ready/github-issues
-    - resource:
-        stream: repositories
-      target: Pay_Ready/github-repositories
     endpoint:
       connector:
         config:

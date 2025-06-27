@@ -1,0 +1,261 @@
+---
+collections:
+  Pay_Ready/github-commits:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        sha:
+          type: string
+        author_name:
+          type: string
+        author_email:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        repository:
+          type: string
+        branch:
+          type: string
+        additions:
+          type: integer
+        deletions:
+          type: integer
+      required:
+        - id
+        - sha
+        - author_email
+    key:
+      - /id
+  Pay_Ready/github-issues:
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        state:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        author:
+          type: string
+        repository:
+          type: string
+      required:
+        - id
+        - number
+    key:
+      - /id
+  Pay_Ready/github-pull-requests:
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        state:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        merged_at:
+          type: string
+          format: date-time
+        author:
+          type: string
+        repository:
+          type: string
+      required:
+        - id
+        - number
+    key:
+      - /id
+  Pay_Ready/hubspot-companies:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/hubspot-contacts:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        company:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/hubspot-deals:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        dealname:
+          type: string
+        amount:
+          type: number
+        dealstage:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        properties:
+          type: object
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/slack-channels:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        is_channel:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+      required:
+        - id
+    key:
+      - /id
+  Pay_Ready/slack-messages:
+    schema:
+      type: object
+      properties:
+        ts:
+          type: string
+        channel:
+          type: string
+        user_id:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - ts
+        - channel
+    key:
+      - /ts
+      - /channel
+materializations:
+  Pay_Ready/snowflake-sophia-ai:
+    endpoint:
+      connector:
+        image: "ghcr.io/estuary/materialize-snowflake:dev"
+        config:
+          host: UHDECNO-CVB64222.snowflakecomputing.com
+          account: UHDECNO-CVB64222
+          user: SCOOBYJAVA15
+          password: eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A
+          role: ACCOUNTADMIN
+          warehouse: CORTEX_COMPUTE_WH
+          database: SOPHIA_AI
+          schema: ESTUARY_STAGING
+          advanced:
+            updateDelay: 0s
+            deltaUpdates: true
+    bindings:
+      - resource:
+          table: GITHUB_COMMITS
+        source: Pay_Ready/github-commits
+        fields:
+          recommended: true
+      - resource:
+          table: GITHUB_PULL_REQUESTS
+        source: Pay_Ready/github-pull-requests
+        fields:
+          recommended: true
+      - resource:
+          table: GITHUB_ISSUES
+        source: Pay_Ready/github-issues
+        fields:
+          recommended: true
+      - resource:
+          table: HUBSPOT_CONTACTS
+        source: Pay_Ready/hubspot-contacts
+        fields:
+          recommended: true
+      - resource:
+          table: HUBSPOT_DEALS
+        source: Pay_Ready/hubspot-deals
+        fields:
+          recommended: true
+      - resource:
+          table: HUBSPOT_COMPANIES
+        source: Pay_Ready/hubspot-companies
+        fields:
+          recommended: true
+      - resource:
+          table: SLACK_MESSAGES
+        source: Pay_Ready/slack-messages
+        fields:
+          recommended: true
+      - resource:
+          table: SLACK_CHANNELS
+        source: Pay_Ready/slack-channels
+        fields:
+          recommended: true

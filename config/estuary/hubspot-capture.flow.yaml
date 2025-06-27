@@ -10,9 +10,6 @@ captures:
     - resource:
         stream: companies
       target: Pay_Ready/hubspot-companies
-    - resource:
-        stream: tickets
-      target: Pay_Ready/hubspot-tickets
     endpoint:
       connector:
         config:

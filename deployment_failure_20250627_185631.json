@@ -1,0 +1,17 @@
+{
+  "phase": "infrastructure_preparation",
+  "steps_completed": [
+    "configuration_backup",
+    "environment_validation"
+  ],
+  "errors": [
+    "Phase 1: Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: UHDECNO-CVB64222.snowflakecomputing.com:443. Invalid OAuth access token. [5880b711-2aaf-4695-b955-0522026df5ab]"
+  ],
+  "warnings": [
+    "Optional variables missing: ['gong_access_key', 'slack_bot_token', 'hubspot_access_token']"
+  ],
+  "start_time": "2025-06-27T18:56:31.024690",
+  "components_deployed": {},
+  "end_time": "2025-06-27T18:56:31.429215",
+  "failure_reason": "Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: UHDECNO-CVB64222.snowflakecomputing.com:443. Invalid OAuth access token. [5880b711-2aaf-4695-b955-0522026df5ab]"
+}
