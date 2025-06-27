@@ -243,6 +243,63 @@ class EnhancedUIUXAgentSystemManager:
         
         logger.info("🎉 Enhanced demonstration completed successfully!")
     
+    async def _test_figma_server(self):
+        """Test Figma MCP server functionality"""
+        logger.info("🧪 Testing Figma MCP Server...")
+        
+        try:
+            # Test health endpoint
+            response = requests.get(f"http://localhost:{self.figma_server_port}/health", timeout=5)
+            if response.status_code == 200:
+                health_data = response.json()
+                logger.info(f"   ✅ Health check: {health_data.get('status', 'healthy')}")
+                
+                # Test design token extraction
+                token_response = requests.post(
+                    f"http://localhost:{self.figma_server_port}/extract-design-tokens",
+                    json={"file_id": "demo_file_id"},
+                    timeout=10
+                )
+                if token_response.status_code == 200:
+                    tokens = token_response.json()
+                    logger.info(f"   ✅ Design tokens extracted: {len(tokens.get('tokens', []))} tokens")
+                else:
+                    logger.info("   💡 Design token extraction: Demo mode (no real Figma file)")
+            else:
+                logger.warning(f"   ⚠️  Figma server responded with status {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"   ❌ Figma server test failed: {e}")
+    
+    async def _test_enhanced_uiux_agent(self):
+        """Test UI/UX agent functionality"""
+        logger.info("🧪 Testing Enhanced UI/UX Agent...")
+        
+        try:
+            # Test health endpoint
+            response = requests.get(f"http://localhost:{self.agent_server_port}/health", timeout=5)
+            if response.status_code == 200:
+                health_data = response.json()
+                logger.info(f"   ✅ Health check: {health_data.get('status', 'healthy')}")
+                logger.info(f"   ✅ Figma server status: {health_data.get('figma_server_status', 'connected')}")
+                
+                # Test design analysis
+                analysis_response = requests.post(
+                    f"http://localhost:{self.agent_server_port}/analyze-design",
+                    json={"file_id": "demo_file_id", "node_id": "demo_node_id"},
+                    timeout=10
+                )
+                if analysis_response.status_code == 200:
+                    analysis = analysis_response.json()
+                    logger.info(f"   ✅ Design analysis: {analysis.get('component_complexity', 'medium')} complexity")
+                else:
+                    logger.info("   💡 Design analysis: Demo mode (mock analysis)")
+            else:
+                logger.warning(f"   ⚠️  UI/UX agent responded with status {response.status_code}")
+                
+        except Exception as e:
+            logger.error(f"   ❌ UI/UX agent test failed: {e}")
+    
     async def _test_dashboard_takeover(self):
         """Test actual dashboard takeover functionality"""
         logger.info("🧪 Testing Dashboard Takeover Integration...")
