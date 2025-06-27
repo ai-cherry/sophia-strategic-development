@@ -1,0 +1,30 @@
+{
+  "comment": "Single source of truth for all MCP server port assignments.",
+  "port_ranges": {
+    "core_services": "9000-9099",
+    "business_intelligence": "9100-9199",
+    "data_integrations": "9200-9299",
+    "development_tools": "9300-9399"
+  },
+  "servers": {
+    "ai_memory": 9000,
+    "figma": 9001,
+    "ui_ux_agent": 9002,
+    "codacy": 9003,
+    "asana": 9004,
+    "notion": 9005,
+    "linear": 9006,
+    "github": 9007,
+    "slack": 9008,
+    "postgres": 9009,
+    "sophia_data": 9010,
+    "sophia_infrastructure": 9011,
+    "snowflake_admin": 9012,
+    "gong": 9100,
+    "hubspot": 9101,
+    "apollo_io": 9200,
+    "estuary": 9201,
+    "docker": 9300,
+    "pulumi": 9301
+  }
+} 

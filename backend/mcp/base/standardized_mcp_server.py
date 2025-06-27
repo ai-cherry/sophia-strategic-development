@@ -12,6 +12,8 @@ import time
 import traceback
 from dataclasses import dataclass
 from enum import Enum
+import json
+from pathlib import Path
 
 from prometheus_client import Counter, Histogram, Gauge, Info
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -71,6 +73,10 @@ class StandardizedMCPServer(ABC):
     
     def __init__(self, config: MCPServerConfig):
         self.config = config
+        
+        # Load port from centralized config
+        self._load_port_from_config()
+
         self.server_name = config.server_name
         self.cortex_service: Optional[SnowflakeCortexService] = None
         self.session: Optional[aiohttp.ClientSession] = None
@@ -553,4 +559,21 @@ class StandardizedMCPServer(ABC):
             return True
         except Exception as e:
             logger.error(f"Failed to store data in {table_name}: {e}")
-            return False 
+            return False
+
+    def _load_port_from_config(self) -> None:
+        """Loads the server's port from the centralized mcp_ports.json file."""
+        ports_config_path = Path.cwd() / "config" / "mcp_ports.json"
+        if not ports_config_path.exists():
+            logger.warning("mcp_ports.json not found. Using default port from config.")
+            return
+
+        with open(ports_config_path, 'r') as f:
+            ports_config = json.load(f)
+        
+        server_port = ports_config.get("servers", {}).get(self.config.server_name)
+        if server_port:
+            self.config.port = server_port
+            logger.info(f"Loaded port {server_port} for {self.config.server_name} from config.")
+        else:
+            logger.warning(f"Port for {self.config.server_name} not found in mcp_ports.json. Using default.") 

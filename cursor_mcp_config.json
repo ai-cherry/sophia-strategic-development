@@ -98,7 +98,6 @@
     },
     "github": {
       "type": "http",
-      "baseUrl": "http://localhost:8091",
       "description": "GitHub MCP Server - Repository management and CI/CD integration",
       "env": {
         "ENVIRONMENT": "prod",
@@ -113,7 +112,6 @@
     },
     "slack": {
       "type": "http",
-      "baseUrl": "http://localhost:8092",
       "description": "Slack MCP Server - Team communication and workflow automation",
       "env": {
         "ENVIRONMENT": "prod",
@@ -128,7 +126,6 @@
     },
     "postgres": {
       "type": "http",
-      "baseUrl": "http://localhost:8093",
       "description": "PostgreSQL MCP Server - Database operations and analytics",
       "env": {
         "ENVIRONMENT": "prod",
@@ -143,7 +140,6 @@
     },
     "sophia_data": {
       "type": "http",
-      "baseUrl": "http://localhost:8094",
       "description": "Sophia Data Intelligence MCP Server - Handles data processing, ETL, and data pipeline management",
       "env": {
         "ENVIRONMENT": "prod",
@@ -158,7 +154,6 @@
     },
     "sophia_infrastructure": {
       "type": "http",
-      "baseUrl": "http://localhost:8095",
       "description": "Sophia Infrastructure MCP Server - Manages deployments, scaling, and infrastructure operations",
       "env": {
         "ENVIRONMENT": "prod",
@@ -269,16 +264,7 @@
   },
   "healthChecks": {
     "enabled": true,
-    "interval": 60000,
-    "endpoints": {
-      "ai_memory": "http://localhost:9000/health",
-      "codacy": "http://localhost:3008/health",
-      "github": "http://localhost:8091/health",
-      "slack": "http://localhost:8092/health",
-      "postgres": "http://localhost:8093/health",
-      "sophia_data": "http://localhost:8094/health",
-      "sophia_infrastructure": "http://localhost:8095/health"
-    }
+    "interval": 60000
   },
   "security": {
     "secretMasking": true,
