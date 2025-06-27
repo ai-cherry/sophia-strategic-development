@@ -5,7 +5,7 @@ import json
 from dataclasses import dataclass
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.services.vector_indexing_service import VectorIndexingService
-from backend.mcp.mcp_client import MCPClient
+from backend.mcp_servers.mcp_client import MCPClient
 import logging
 
 logger = logging.getLogger(__name__)

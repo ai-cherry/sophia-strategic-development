@@ -16,7 +16,7 @@ from typing import Dict, List, Any, Optional
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from backend.mcp.base.standardized_mcp_server import StandardizedMCPServer
+from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer
 from scripts.snowflake_config_manager import SnowflakeConfigManager
 
 class SnowflakeAdminMCPServer(StandardizedMCPServer):

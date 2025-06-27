@@ -12,7 +12,7 @@ from typing import Dict, List, Any
 from backend.core.cross_platform_sync_orchestrator import (
     CrossPlatformSyncOrchestrator, SyncConfiguration, SyncPriority
 )
-from backend.mcp.base.standardized_mcp_server import MCPServerConfig, SyncPriority as ServerSyncPriority
+from backend.mcp_servers.base.standardized_mcp_server import MCPServerConfig, SyncPriority as ServerSyncPriority
 from backend.monitoring.mcp_metrics_collector import MCPMetricsCollector
 
 logger = logging.getLogger(__name__)

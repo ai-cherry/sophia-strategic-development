@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from backend.core.auto_esc_config import get_config_value
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
 
 logger = logging.getLogger(__name__)
 

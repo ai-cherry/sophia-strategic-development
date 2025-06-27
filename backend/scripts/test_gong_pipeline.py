@@ -29,7 +29,7 @@ import argparse
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

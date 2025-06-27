@@ -23,7 +23,7 @@ import httpx
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.enhanced_snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.smart_ai_service import SmartAIService
 
 logging.basicConfig(level=logging.INFO)

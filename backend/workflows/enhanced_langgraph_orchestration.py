@@ -27,7 +27,7 @@ except ImportError:
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
 from backend.agents.specialized.slack_analysis_agent import SlackAnalysisAgent

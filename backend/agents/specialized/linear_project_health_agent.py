@@ -13,7 +13,7 @@ from enum import Enum
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 

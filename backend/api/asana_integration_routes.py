@@ -23,7 +23,7 @@ from backend.agents.specialized.asana_project_intelligence_agent import AsanaPro
 from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
 from backend.core.auth import get_current_user
 

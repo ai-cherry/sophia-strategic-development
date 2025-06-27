@@ -30,7 +30,7 @@ import structlog
 from backend.core.auto_esc_config import get_config_value
 from backend.scripts.airbyte_gong_setup import AirbyteGongOrchestrator, AirbyteConfig
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = structlog.get_logger(__name__)
 

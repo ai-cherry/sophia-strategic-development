@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import get_session
 from backend.core.auth import get_current_user
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.core.cache_manager import DashboardCacheManager
 from backend.core.logger import logger
 

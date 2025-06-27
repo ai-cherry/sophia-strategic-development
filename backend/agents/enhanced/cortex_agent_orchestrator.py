@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from backend.agents.core.base_agent import BaseAgent
 from backend.services.snowflake_intelligence_service import SnowflakeIntelligenceService
-from backend.mcp.mcp_client import MCPClient
+from backend.mcp_servers.mcp_client import MCPClient
 import logging
 
 # Import specialized agents

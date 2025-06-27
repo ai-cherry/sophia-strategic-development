@@ -17,7 +17,7 @@ from backend.agents.core.base_agent import BaseAgent
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
 
 logger = logging.getLogger(__name__)
 

@@ -188,7 +188,7 @@ class LangGraphAgentBase(ABC):
             # Initialize services with lazy loading to avoid circular imports
             from backend.services.smart_ai_service import SmartAIService
             from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-            from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+            from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
             
             self.smart_ai_service = SmartAIService()
             await self.smart_ai_service.initialize()

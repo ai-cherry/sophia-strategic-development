@@ -19,7 +19,7 @@ from pydantic import BaseModel
 import os
 import httpx
 
-from backend.mcp.costar_mcp_server import costar_server
+from backend.mcp_servers.costar_mcp_server import costar_server
 
 logger = logging.getLogger(__name__)
 

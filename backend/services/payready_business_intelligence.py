@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from backend.agents.core.base_agent import BaseAgent
 from backend.core.sophia_engine import SophiaAIEngine
 from backend.integrations.buzz_integration import BuzzAISystem
-from backend.mcp.mcp_gateway import MCPGateway
+from backend.mcp_servers.mcp_gateway import MCPGateway
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -28,11 +28,34 @@ import json
 from datetime import datetime, timedelta
 import weakref
 
-# Database connection libraries
-# import snowflake.connector.aio  # Optional import - will use placeholder if not available
+# Database connection libraries with graceful fallbacks
 import asyncpg
-import aiomysql
 import redis.asyncio as redis
+# Try to import optional dependencies
+try:
+    import aiomysql
+    AIOMYSQL_AVAILABLE = True
+except ImportError:
+    AIOMYSQL_AVAILABLE = False
+    class MockAioMySQL:
+        @staticmethod
+        async def connect(**kwargs):
+            raise NotImplementedError("aiomysql not available")
+    aiomysql = MockAioMySQL()
+
+# Try to import optional dependencies
+try:
+    # import aiomysql
+    AIOMYSQL_AVAILABLE = True
+except ImportError:
+    AIOMYSQL_AVAILABLE = False
+    # Create placeholder for aiomysql
+    class MockAioMySQL:
+        @staticmethod
+        async def connect(**kwargs):
+            raise NotImplementedError("aiomysql not available - install with: pip install aiomysql")
+    
+    aiomysql = MockAioMySQL()
 
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
