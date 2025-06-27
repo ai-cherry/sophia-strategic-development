@@ -17,6 +17,8 @@ from pathlib import Path
 
 from prometheus_client import Counter, Histogram, Gauge, Info
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from fastapi import FastAPI, APIRouter
+import uvicorn
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +96,40 @@ class StandardizedMCPServer(ABC):
         # Initialize metrics if enabled
         if config.enable_metrics:
             self._initialize_metrics()
+        
+        self.app = FastAPI(
+            title=f"{self.server_name.replace('_', ' ').title()} MCP Server",
+            version="2.0.0"
+        )
+        self._setup_routes()
     
+    def _setup_routes(self):
+        """Sets up the default API routes for the server."""
+        router = APIRouter()
+        router.add_api_route("/health", self.get_health_endpoint, methods=["GET"], summary="Health Check")
+        # In a full implementation, tool listing and execution would also be routes
+        self.app.include_router(router)
+    
+    async def get_health_endpoint(self) -> Dict[str, Any]:
+        """The FastAPI endpoint for health checks."""
+        return await self.comprehensive_health_check()
+    
+    async def start(self):
+        """Starts the MCP server using uvicorn."""
+        logger.info(f"Starting {self.server_name} server on port {self.config.port}...")
+        
+        # Ensure server is initialized before starting
+        await self.initialize()
+
+        uvicorn_config = uvicorn.Config(
+            self.app, 
+            host="0.0.0.0", 
+            port=self.config.port, 
+            log_level="info"
+        )
+        server = uvicorn.Server(uvicorn_config)
+        await server.serve()
+
     def _initialize_metrics(self) -> None:
         """Initialize Prometheus metrics for monitoring."""
         try:
