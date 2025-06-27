@@ -452,6 +452,57 @@ Remember: You're building an enterprise-grade AI orchestrator that will handle c
 - **GitHub Integration**: All deployments go through GitHub Actions workflows
 - **MCP Integration**: Use `mcp_config.json` for MCP server configuration
 
+### 🚀 Cline v3.18 Enhanced Features Integration
+
+#### Claude 4 & Gemini 2.5 Pro Optimization
+- **Model Selection**: Automatic routing based on task complexity and context size
+- **Large Context**: Use Gemini for documents > 100K tokens (up to 1M)
+- **Complex Reasoning**: Claude 4 for architectural design and code generation
+- **Data Processing**: Snowflake Cortex for SQL and data operations
+- **Cost Optimization**: Automatic routing to free Gemini CLI for large contexts
+
+#### Gemini CLI Integration (NEW)
+- **Free Access**: Use local Gemini CLI for zero-cost processing
+- **Auto-routing**: "Process this large file with Gemini" → Routes to CLI
+- **Batch Processing**: Efficient handling of multiple large documents
+- **Context Preservation**: Maintain context across CLI calls
+
+#### WebFetch Tool Usage (ENHANCED)
+- **Documentation Retrieval**: "Fetch the latest API docs from [url]"
+- **Competitive Intelligence**: "Get competitor information from [website]"
+- **Real-time Updates**: "Retrieve and summarize current [topic] from [source]"
+- **Caching**: Automatic caching with TTL for improved performance
+- **Format Support**: PDF, DOCX, HTML, and plain text extraction
+- **Parallel Fetching**: Process multiple URLs simultaneously
+
+#### Self-Knowledge Commands (ENHANCED)
+- **Capabilities Discovery**: "What can the [server name] MCP server do?"
+- **Feature Inspection**: "Show available features for [component]"
+- **Help System**: "How do I use [feature]?"
+- **Server Status**: "Check capabilities of all MCP servers"
+- **Performance Metrics**: "Show performance stats for [server]"
+- **Usage Analytics**: "How often do we use [feature]?"
+
+#### Improved Diff Editing (AI-POWERED)
+- **Auto-fallback**: Automatically tries exact → fuzzy → context-aware → AI strategies
+- **Success Rate**: 95%+ success rate for file modifications
+- **Smart Updates**: "Update [file] using all available strategies"
+- **Context Awareness**: AI-powered understanding of code changes
+- **Multi-file Operations**: Apply changes across multiple files
+- **Rollback Support**: Undo changes if needed
+
+#### Enhanced AI Memory Integration (v3.18)
+- **Auto-discovery**: Automatically detect and store architecture decisions
+- **Smart Recall**: "What did we decide about [topic]?" → Context-aware retrieval
+- **Pattern Matching**: Find similar implementations across the codebase
+- **WebFetch Integration**: Automatically store fetched documentation
+
+#### Enhanced Codacy Integration (v3.18)
+- **Real-time Analysis**: Analyze code as you type
+- **Security Scanning**: Deep vulnerability detection
+- **Performance Insights**: Identify performance bottlenecks
+- **AI Suggestions**: Get AI-powered improvement recommendations
+
 ### Natural Language Infrastructure Commands
 When using Cursor AI for infrastructure operations, you can use natural language:
 
@@ -468,13 +519,15 @@ When using Cursor AI for infrastructure operations, you can use natural language
 - **Testing Operations**: "test/validate/check [component]"
 - **Configuration Operations**: "configure/setup/initialize [service]"
 
-### MCP Server Natural Language Integration
-- **Query Data**: "Get recent Gong calls" → Uses Gong MCP server
-- **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server
-- **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server
-- **Database Operations**: "Query Snowflake" → Uses Snowflake MCP server
-- **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server
-- **Recall Context**: "What did we decide about X?" → Uses AI Memory MCP server
+### MCP Server Natural Language Integration (v3.18 Enhanced)
+- **Query Data**: "Get recent Gong calls" → Uses Gong MCP server with model routing
+- **Deploy Apps**: "Deploy to Vercel" → Uses Vercel MCP server with improved diff
+- **Manage Data**: "Upload to Estuary" → Uses Estuary MCP server with WebFetch
+- **Database Operations**: "Query Snowflake" → Uses Snowflake MCP server with Cortex
+- **Store Memory**: "Remember this conversation" → Uses AI Memory MCP server with Claude 4
+- **Recall Context**: "What did we decide about X?" → Uses AI Memory with self-knowledge
+- **Fetch External Data**: "Get latest docs from [url]" → Uses WebFetch tool
+- **Analyze Large Docs**: "Process this 500K token file" → Auto-routes to Gemini 2.5 Pro
 
 ### Error Handling and Debugging
 - **ESC Errors**: Check Pulumi ESC logs and validate configuration

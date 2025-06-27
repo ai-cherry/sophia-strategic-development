@@ -253,15 +253,19 @@ class SnowflakeCortexService:
             query += f" WHERE {conditions}"
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            columns = [desc[0] for desc in cursor.description]
-            results = cursor.fetchall()
-
+            # Use connection manager instead of direct cursor
+            results = await self.connection_manager.execute_query(query)
+            
             sentiment_analysis = []
             for row in results:
-                record = dict(zip(columns, row))
+                # Convert row to dictionary format
+                record = {
+                    'id': row[0],
+                    'text': row[1],
+                    'sentiment_score': row[2],
+                    'sentiment_label': row[3],
+                    'analyzed_at': row[4]
+                }
                 sentiment_analysis.append(record)
 
             logger.info(
@@ -272,9 +276,6 @@ class SnowflakeCortexService:
         except Exception as e:
             logger.error(f"Error analyzing sentiment with Cortex: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def generate_embedding_in_snowflake(
         self,

@@ -1,0 +1,123 @@
+{
+  "version": "3.18.0",
+  "features": {
+    "claude4_optimization": {
+      "enabled": true,
+      "default_model": "claude-3-5-sonnet-20241022",
+      "context_window": 200000,
+      "optimizations": {
+        "improved_reasoning": true,
+        "enhanced_code_generation": true,
+        "better_error_handling": true
+      }
+    },
+    "gemini_cli_provider": {
+      "enabled": true,
+      "auth_method": "local_cli",
+      "model": "gemini-2.5-pro",
+      "context_window": 1000000,
+      "rate_limits": {
+        "per_minute": 60,
+        "per_day": 1000
+      },
+      "features": {
+        "free_access": true,
+        "web_fetch": true,
+        "large_context": true
+      }
+    },
+    "webfetch_tool": {
+      "enabled": true,
+      "cache_enabled": true,
+      "cache_ttl": 3600,
+      "supported_formats": ["html", "markdown", "text", "pdf"],
+      "max_cache_size_mb": 100,
+      "timeout_seconds": 30
+    },
+    "self_knowledge": {
+      "enabled": true,
+      "capability_discovery": true,
+      "feature_introspection": true,
+      "dynamic_help": true,
+      "capability_endpoints": {
+        "list_capabilities": "/capabilities",
+        "list_features": "/features",
+        "get_help": "/help"
+      }
+    },
+    "improved_diff_editing": {
+      "enabled": true,
+      "strategies": ["exact", "fuzzy", "context_aware", "auto"],
+      "auto_fallback": true,
+      "success_threshold": 0.95,
+      "max_attempts": 3
+    }
+  },
+  "model_routing": {
+    "enabled": true,
+    "rules": [
+      {
+        "name": "large_context",
+        "condition": "context_size > 100000",
+        "model": "gemini-2.5-pro",
+        "reason": "Gemini handles large context windows efficiently"
+      },
+      {
+        "name": "complex_reasoning",
+        "condition": "task_type in ['analyze', 'architect', 'design']",
+        "model": "claude-3-5-sonnet",
+        "reason": "Claude 4 excels at complex reasoning"
+      },
+      {
+        "name": "code_generation",
+        "condition": "task_type == 'code'",
+        "model": "claude-3-5-sonnet",
+        "reason": "Claude 4 has superior code generation"
+      },
+      {
+        "name": "web_research",
+        "condition": "requires_web_fetch == true",
+        "model": "gemini-2.5-pro",
+        "reason": "Gemini integrates well with web content"
+      },
+      {
+        "name": "data_processing",
+        "condition": "task_type == 'data' and has_snowflake",
+        "model": "snowflake_cortex",
+        "reason": "Native Snowflake integration"
+      }
+    ],
+    "fallback_model": "claude-3-5-sonnet"
+  },
+  "mcp_server_enhancements": {
+    "webfetch_enabled_servers": [
+      "ai_memory",
+      "sophia-business-intelligence",
+      "sophia-regulatory-compliance",
+      "sophia-ai-intelligence",
+      "competitive_monitor"
+    ],
+    "self_knowledge_servers": [
+      "all"
+    ],
+    "improved_diff_servers": [
+      "ai_memory",
+      "codacy",
+      "sophia-infrastructure"
+    ]
+  },
+  "performance_optimizations": {
+    "parallel_processing": true,
+    "intelligent_caching": true,
+    "request_batching": true,
+    "connection_pooling": true,
+    "async_operations": true
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "prometheus_export": true,
+    "health_checks": true,
+    "performance_tracking": true,
+    "error_tracking": true
+  }
+}

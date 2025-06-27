@@ -2,415 +2,626 @@
 """
 🚀 Performance Monitor for Sophia AI
 Comprehensive performance tracking and alerting system
+
+Phase 2 Performance Optimization - Monitoring Component
+
+Provides comprehensive performance tracking and optimization monitoring:
+- Real-time performance metrics collection
+- Automated performance threshold detection
+- Performance regression detection
+- System health monitoring
+- Performance optimization recommendations
+
+Key Features:
+- Sub-millisecond performance tracking
+- Automated alerting for performance degradation
+- Performance trend analysis
+- Resource utilization monitoring
+- Query performance optimization tracking
 """
 
 import asyncio
 import json
 import logging
 import time
+import psutil
+import threading
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Union
-import threading
 from datetime import datetime, timedelta
+import statistics
 
 logger = logging.getLogger(__name__)
 
-class PerformanceLevel(Enum):
-    EXCELLENT = "excellent"
-    GOOD = "good"
+class PerformanceLevel(str, Enum):
+    """Performance level classifications"""
+    EXCELLENT = "excellent"     # < 50ms
+    GOOD = "good"              # 50-200ms
+    ACCEPTABLE = "acceptable"   # 200-1000ms
+    SLOW = "slow"              # 1000-5000ms
+    CRITICAL = "critical"      # > 5000ms
+
+class AlertSeverity(str, Enum):
+    """Alert severity levels"""
+    INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
+    EMERGENCY = "emergency"
 
 @dataclass
 class PerformanceMetric:
-    """Individual performance metric tracking"""
+    """Individual performance metric"""
     name: str
     value: float
-    timestamp: float
-    level: PerformanceLevel
-    context: Dict[str, Any] = field(default_factory=dict)
+    unit: str
+    timestamp: datetime
+    tags: Dict[str, str] = field(default_factory=dict)
+    threshold_ms: Optional[float] = None
+    level: Optional[PerformanceLevel] = None
 
 @dataclass
-class PerformanceThreshold:
-    """Performance threshold configuration"""
-    warning_threshold: float
-    critical_threshold: float
-    measurement_window: int = 60  # seconds
-    min_samples: int = 5
+class PerformanceAlert:
+    """Performance alert data"""
+    metric_name: str
+    severity: AlertSeverity
+    message: str
+    current_value: float
+    threshold_value: float
+    timestamp: datetime
+    tags: Dict[str, str] = field(default_factory=dict)
+
+@dataclass
+class SystemResourceMetrics:
+    """System resource utilization metrics"""
+    cpu_percent: float
+    memory_percent: float
+    memory_available_mb: float
+    disk_usage_percent: float
+    network_io_mbps: float
+    timestamp: datetime
+
+class PerformanceTracker:
+    """Individual performance metric tracker"""
+    
+    def __init__(self, name: str, threshold_ms: float = 1000):
+        self.name = name
+        self.threshold_ms = threshold_ms
+        self.measurements: deque = deque(maxlen=1000)  # Keep last 1000 measurements
+        self.total_calls = 0
+        self.total_time_ms = 0.0
+        self.min_time_ms = float('inf')
+        self.max_time_ms = 0.0
+        
+    def record(self, duration_ms: float, tags: Optional[Dict[str, str]] = None):
+        """Record a performance measurement"""
+        self.measurements.append({
+            'duration_ms': duration_ms,
+            'timestamp': datetime.now(),
+            'tags': tags or {}
+        })
+        
+        self.total_calls += 1
+        self.total_time_ms += duration_ms
+        self.min_time_ms = min(self.min_time_ms, duration_ms)
+        self.max_time_ms = max(self.max_time_ms, duration_ms)
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get comprehensive statistics"""
+        if not self.measurements:
+            return {
+                'name': self.name,
+                'total_calls': 0,
+                'avg_time_ms': 0,
+                'min_time_ms': 0,
+                'max_time_ms': 0,
+                'p95_time_ms': 0,
+                'p99_time_ms': 0,
+                'threshold_ms': self.threshold_ms,
+                'threshold_violations': 0,
+                'level': PerformanceLevel.EXCELLENT
+            }
+        
+        durations = [m['duration_ms'] for m in self.measurements]
+        avg_time = self.total_time_ms / self.total_calls
+        
+        # Calculate percentiles
+        sorted_durations = sorted(durations)
+        p95_time = sorted_durations[int(len(sorted_durations) * 0.95)]
+        p99_time = sorted_durations[int(len(sorted_durations) * 0.99)]
+        
+        # Count threshold violations
+        threshold_violations = sum(1 for d in durations if d > self.threshold_ms)
+        
+        # Determine performance level
+        level = self._determine_performance_level(avg_time)
+        
+        return {
+            'name': self.name,
+            'total_calls': self.total_calls,
+            'avg_time_ms': round(avg_time, 2),
+            'min_time_ms': round(self.min_time_ms, 2),
+            'max_time_ms': round(self.max_time_ms, 2),
+            'p95_time_ms': round(p95_time, 2),
+            'p99_time_ms': round(p99_time, 2),
+            'threshold_ms': self.threshold_ms,
+            'threshold_violations': threshold_violations,
+            'violation_rate_percent': round((threshold_violations / len(durations)) * 100, 2),
+            'level': level,
+            'recent_trend': self._calculate_trend()
+        }
+    
+    def _determine_performance_level(self, avg_time_ms: float) -> PerformanceLevel:
+        """Determine performance level based on average time"""
+        if avg_time_ms < 50:
+            return PerformanceLevel.EXCELLENT
+        elif avg_time_ms < 200:
+            return PerformanceLevel.GOOD
+        elif avg_time_ms < 1000:
+            return PerformanceLevel.ACCEPTABLE
+        elif avg_time_ms < 5000:
+            return PerformanceLevel.SLOW
+        else:
+            return PerformanceLevel.CRITICAL
+    
+    def _calculate_trend(self) -> str:
+        """Calculate performance trend (improving/degrading/stable)"""
+        if len(self.measurements) < 20:
+            return "insufficient_data"
+        
+        # Compare recent vs older measurements
+        recent = [m['duration_ms'] for m in list(self.measurements)[-10:]]
+        older = [m['duration_ms'] for m in list(self.measurements)[-20:-10]]
+        
+        recent_avg = statistics.mean(recent)
+        older_avg = statistics.mean(older)
+        
+        change_percent = ((recent_avg - older_avg) / older_avg) * 100
+        
+        if change_percent < -10:
+            return "improving"
+        elif change_percent > 10:
+            return "degrading"
+        else:
+            return "stable"
 
 class PerformanceMonitor:
     """
-    Comprehensive performance monitoring system
+    🚀 Comprehensive Performance Monitor - Phase 2 Implementation
     
     Features:
     - Real-time performance tracking
-    - Configurable thresholds and alerting
+    - Automated threshold monitoring
     - Performance regression detection
-    - Automated performance optimization suggestions
-    - Integration with connection manager
+    - Resource utilization monitoring
+    - Performance optimization recommendations
     """
     
-    def __init__(self, max_history: int = 10000):
-        self.max_history = max_history
-        self._metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=max_history))
-        self._thresholds: Dict[str, PerformanceThreshold] = {}
-        self._alerts: List[Dict[str, Any]] = []
+    def __init__(self):
+        self.trackers: Dict[str, PerformanceTracker] = {}
+        self.alerts: deque = deque(maxlen=1000)
+        self.system_metrics: deque = deque(maxlen=288)  # 24 hours at 5-minute intervals
+        self.start_time = time.time()
+        
+        # Performance thresholds (ms)
+        self.default_thresholds = {
+            'database_query': 100,
+            'api_request': 200,
+            'cache_operation': 10,
+            'file_operation': 500,
+            'network_request': 1000,
+            'batch_operation': 5000
+        }
+        
+        # Background monitoring
+        self._monitoring_active = False
+        self._monitor_task = None
+        
+        # Thread safety
         self._lock = threading.Lock()
+    
+    def start_monitoring(self):
+        """Start background performance monitoring"""
+        if self._monitoring_active:
+            return
         
-        # Performance counters
-        self._counters = defaultdict(int)
-        self._timers = defaultdict(list)
-        
-        # Default thresholds
-        self._setup_default_thresholds()
-
-    def _setup_default_thresholds(self):
-        """Setup default performance thresholds"""
-        self._thresholds.update({
-            'database_query': PerformanceThreshold(100, 500),  # ms
-            'api_request': PerformanceThreshold(200, 1000),    # ms
-            'agent_processing': PerformanceThreshold(500, 2000), # ms
-            'memory_usage': PerformanceThreshold(70, 85),      # %
-            'cpu_usage': PerformanceThreshold(80, 95),         # %
-            'cache_hit_ratio': PerformanceThreshold(70, 50),   # % (inverted)
-            'error_rate': PerformanceThreshold(5, 10),         # %
-        })
-
+        self._monitoring_active = True
+        self._monitor_task = asyncio.create_task(self._background_monitor())
+        logger.info("🚀 Performance monitoring started")
+    
+    def stop_monitoring(self):
+        """Stop background performance monitoring"""
+        self._monitoring_active = False
+        if self._monitor_task:
+            self._monitor_task.cancel()
+        logger.info("🔄 Performance monitoring stopped")
+    
     def monitor_performance(self, metric_name: str, threshold_ms: Optional[float] = None):
-        """
-        Decorator for automatic performance monitoring
-        
-        Args:
-            metric_name: Name of the metric to track
-            threshold_ms: Optional custom threshold in milliseconds
-        """
-        def decorator(func: Callable) -> Callable:
+        """Decorator for automatic performance monitoring"""
+        def decorator(func: Callable):
             @wraps(func)
             async def async_wrapper(*args, **kwargs):
                 start_time = time.time()
+                
                 try:
                     result = await func(*args, **kwargs)
-                    execution_time = (time.time() - start_time) * 1000  # Convert to ms
-                    
-                    # Record metric
-                    self.record_metric(
-                        metric_name,
-                        execution_time,
-                        context={
-                            'function': func.__name__,
-                            'args_count': len(args),
-                            'kwargs_count': len(kwargs),
-                            'success': True
-                        }
-                    )
-                    
-                    # Check threshold if provided
-                    if threshold_ms and execution_time > threshold_ms:
-                        self._create_alert(
-                            metric_name,
-                            f"Function {func.__name__} exceeded threshold: {execution_time:.2f}ms > {threshold_ms}ms",
-                            PerformanceLevel.WARNING
-                        )
-                    
-                    return result
-                    
+                    success = True
+                    error = None
                 except Exception as e:
-                    execution_time = (time.time() - start_time) * 1000
-                    
-                    # Record failed metric
-                    self.record_metric(
-                        metric_name,
-                        execution_time,
-                        context={
-                            'function': func.__name__,
-                            'args_count': len(args),
-                            'kwargs_count': len(kwargs),
-                            'success': False,
-                            'error': str(e)
-                        }
-                    )
-                    
-                    self._create_alert(
-                        metric_name,
-                        f"Function {func.__name__} failed after {execution_time:.2f}ms: {e}",
-                        PerformanceLevel.CRITICAL
-                    )
-                    
+                    success = False
+                    error = str(e)
                     raise
+                finally:
+                    duration_ms = (time.time() - start_time) * 1000
+                    
+                    tags = {
+                        'function': func.__name__,
+                        'success': str(success),
+                        'module': func.__module__
+                    }
+                    
+                    if error:
+                        tags['error'] = error[:100]  # Truncate long errors
+                    
+                    self.record_metric(metric_name, duration_ms, tags, threshold_ms)
+                
+                return result
             
             @wraps(func)
             def sync_wrapper(*args, **kwargs):
                 start_time = time.time()
+                
                 try:
                     result = func(*args, **kwargs)
-                    execution_time = (time.time() - start_time) * 1000
-                    
-                    self.record_metric(
-                        metric_name,
-                        execution_time,
-                        context={
-                            'function': func.__name__,
-                            'args_count': len(args),
-                            'kwargs_count': len(kwargs),
-                            'success': True
-                        }
-                    )
-                    
-                    if threshold_ms and execution_time > threshold_ms:
-                        self._create_alert(
-                            metric_name,
-                            f"Function {func.__name__} exceeded threshold: {execution_time:.2f}ms > {threshold_ms}ms",
-                            PerformanceLevel.WARNING
-                        )
-                    
-                    return result
-                    
+                    success = True
+                    error = None
                 except Exception as e:
-                    execution_time = (time.time() - start_time) * 1000
-                    
-                    self.record_metric(
-                        metric_name,
-                        execution_time,
-                        context={
-                            'function': func.__name__,
-                            'args_count': len(args),
-                            'kwargs_count': len(kwargs),
-                            'success': False,
-                            'error': str(e)
-                        }
-                    )
-                    
-                    self._create_alert(
-                        metric_name,
-                        f"Function {func.__name__} failed after {execution_time:.2f}ms: {e}",
-                        PerformanceLevel.CRITICAL
-                    )
-                    
+                    success = False
+                    error = str(e)
                     raise
+                finally:
+                    duration_ms = (time.time() - start_time) * 1000
+                    
+                    tags = {
+                        'function': func.__name__,
+                        'success': str(success),
+                        'module': func.__module__
+                    }
+                    
+                    if error:
+                        tags['error'] = error[:100]
+                    
+                    self.record_metric(metric_name, duration_ms, tags, threshold_ms)
+                
+                return result
             
             return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
         
         return decorator
-
+    
     def record_metric(
         self,
-        name: str,
-        value: float,
-        level: Optional[PerformanceLevel] = None,
-        context: Optional[Dict[str, Any]] = None
+        metric_name: str,
+        duration_ms: float,
+        tags: Optional[Dict[str, str]] = None,
+        threshold_ms: Optional[float] = None
     ):
         """Record a performance metric"""
         with self._lock:
-            # Determine performance level if not provided
-            if level is None:
-                level = self._determine_performance_level(name, value)
+            # Get or create tracker
+            if metric_name not in self.trackers:
+                effective_threshold = threshold_ms or self._get_default_threshold(metric_name)
+                self.trackers[metric_name] = PerformanceTracker(metric_name, effective_threshold)
             
-            metric = PerformanceMetric(
-                name=name,
-                value=value,
-                timestamp=time.time(),
-                level=level,
-                context=context or {}
+            tracker = self.trackers[metric_name]
+            tracker.record(duration_ms, tags)
+            
+            # Check for threshold violations
+            if duration_ms > tracker.threshold_ms:
+                self._create_alert(
+                    metric_name,
+                    AlertSeverity.WARNING,
+                    f"Performance threshold exceeded: {duration_ms:.2f}ms > {tracker.threshold_ms}ms",
+                    duration_ms,
+                    tracker.threshold_ms,
+                    tags or {}
+                )
+    
+    def _get_default_threshold(self, metric_name: str) -> float:
+        """Get default threshold for metric type"""
+        for pattern, threshold in self.default_thresholds.items():
+            if pattern in metric_name.lower():
+                return threshold
+        return 1000  # Default 1 second
+    
+    def _create_alert(
+        self,
+        metric_name: str,
+        severity: AlertSeverity,
+        message: str,
+        current_value: float,
+        threshold_value: float,
+        tags: Dict[str, str]
+    ):
+        """Create performance alert"""
+        alert = PerformanceAlert(
+            metric_name=metric_name,
+            severity=severity,
+            message=message,
+            current_value=current_value,
+            threshold_value=threshold_value,
+            timestamp=datetime.now(),
+            tags=tags
+        )
+        
+        self.alerts.append(alert)
+        
+        # Log critical alerts
+        if severity in [AlertSeverity.CRITICAL, AlertSeverity.EMERGENCY]:
+            logger.warning(f"🚨 Performance Alert: {message}")
+    
+    async def _background_monitor(self):
+        """Background monitoring loop"""
+        while self._monitoring_active:
+            try:
+                # Collect system metrics
+                await self._collect_system_metrics()
+                
+                # Check for performance regressions
+                await self._check_performance_regressions()
+                
+                # Cleanup old data
+                await self._cleanup_old_data()
+                
+                # Wait 5 minutes before next check
+                await asyncio.sleep(300)
+                
+            except Exception as e:
+                logger.error(f"Background monitoring error: {e}")
+                await asyncio.sleep(60)  # Shorter retry on error
+    
+    async def _collect_system_metrics(self):
+        """Collect system resource metrics"""
+        try:
+            # CPU usage
+            cpu_percent = psutil.cpu_percent(interval=1)
+            
+            # Memory usage
+            memory = psutil.virtual_memory()
+            memory_percent = memory.percent
+            memory_available_mb = memory.available / 1024 / 1024
+            
+            # Disk usage
+            disk = psutil.disk_usage('/')
+            disk_usage_percent = disk.percent
+            
+            # Network I/O (simplified)
+            network_io_mbps = 0.0  # Placeholder - would need more complex calculation
+            
+            metrics = SystemResourceMetrics(
+                cpu_percent=cpu_percent,
+                memory_percent=memory_percent,
+                memory_available_mb=memory_available_mb,
+                disk_usage_percent=disk_usage_percent,
+                network_io_mbps=network_io_mbps,
+                timestamp=datetime.now()
             )
             
-            self._metrics[name].append(metric)
+            self.system_metrics.append(metrics)
             
-            # Update counters
-            self._counters[f"{name}_total"] += 1
-            self._counters[f"{name}_{level.value}"] += 1
+            # Create alerts for resource issues
+            if cpu_percent > 90:
+                self._create_alert(
+                    "system_cpu",
+                    AlertSeverity.CRITICAL,
+                    f"High CPU usage: {cpu_percent:.1f}%",
+                    cpu_percent,
+                    90,
+                    {"resource": "cpu"}
+                )
             
-            # Check for alerts
-            self._check_threshold_alerts(name, value)
-
-    def _determine_performance_level(self, name: str, value: float) -> PerformanceLevel:
-        """Determine performance level based on thresholds"""
-        if name not in self._thresholds:
-            return PerformanceLevel.GOOD
-        
-        threshold = self._thresholds[name]
-        
-        # Handle inverted metrics (like cache hit ratio)
-        if name in ['cache_hit_ratio']:
-            if value < threshold.critical_threshold:
-                return PerformanceLevel.CRITICAL
-            elif value < threshold.warning_threshold:
-                return PerformanceLevel.WARNING
-            else:
-                return PerformanceLevel.EXCELLENT
-        else:
-            if value > threshold.critical_threshold:
-                return PerformanceLevel.CRITICAL
-            elif value > threshold.warning_threshold:
-                return PerformanceLevel.WARNING
-            elif value < threshold.warning_threshold * 0.5:
-                return PerformanceLevel.EXCELLENT
-            else:
-                return PerformanceLevel.GOOD
-
-    def _check_threshold_alerts(self, name: str, value: float):
-        """Check if metric exceeds thresholds and create alerts"""
-        if name not in self._thresholds:
-            return
-        
-        threshold = self._thresholds[name]
-        level = self._determine_performance_level(name, value)
-        
-        if level in [PerformanceLevel.WARNING, PerformanceLevel.CRITICAL]:
-            self._create_alert(
-                name,
-                f"Metric {name} exceeded threshold: {value:.2f}",
-                level
-            )
-
-    def _create_alert(self, metric_name: str, message: str, level: PerformanceLevel):
-        """Create a performance alert"""
-        alert = {
-            'metric_name': metric_name,
-            'message': message,
-            'level': level.value,
-            'timestamp': time.time(),
-            'datetime': datetime.now().isoformat()
-        }
-        
-        self._alerts.append(alert)
-        
-        # Keep only recent alerts
-        if len(self._alerts) > 1000:
-            self._alerts = self._alerts[-500:]
-        
-        # Log alert
-        if level == PerformanceLevel.CRITICAL:
-            logger.error(f"🚨 CRITICAL PERFORMANCE ALERT: {message}")
-        elif level == PerformanceLevel.WARNING:
-            logger.warning(f"⚠️ PERFORMANCE WARNING: {message}")
-
-    def get_metrics_summary(self, metric_name: Optional[str] = None) -> Dict[str, Any]:
-        """Get summary of performance metrics"""
+            if memory_percent > 85:
+                self._create_alert(
+                    "system_memory",
+                    AlertSeverity.WARNING,
+                    f"High memory usage: {memory_percent:.1f}%",
+                    memory_percent,
+                    85,
+                    {"resource": "memory"}
+                )
+            
+        except Exception as e:
+            logger.error(f"System metrics collection failed: {e}")
+    
+    async def _check_performance_regressions(self):
+        """Check for performance regressions"""
         with self._lock:
-            if metric_name:
-                if metric_name not in self._metrics:
-                    return {}
+            for tracker in self.trackers.values():
+                stats = tracker.get_stats()
                 
-                metrics = list(self._metrics[metric_name])
-                if not metrics:
-                    return {}
+                # Check for degrading trends
+                if stats['recent_trend'] == 'degrading':
+                    self._create_alert(
+                        tracker.name,
+                        AlertSeverity.WARNING,
+                        f"Performance degradation detected: {stats['avg_time_ms']:.2f}ms average",
+                        stats['avg_time_ms'],
+                        tracker.threshold_ms,
+                        {"trend": "degrading"}
+                    )
                 
-                values = [m.value for m in metrics]
-                recent_values = [m.value for m in metrics if time.time() - m.timestamp < 300]  # Last 5 minutes
-                
-                return {
-                    'name': metric_name,
-                    'total_samples': len(values),
-                    'recent_samples': len(recent_values),
-                    'avg': sum(values) / len(values),
-                    'recent_avg': sum(recent_values) / len(recent_values) if recent_values else 0,
-                    'min': min(values),
-                    'max': max(values),
-                    'p95': sorted(values)[int(len(values) * 0.95)] if values else 0,
-                    'p99': sorted(values)[int(len(values) * 0.99)] if values else 0,
-                    'current_level': metrics[-1].level.value if metrics else 'unknown'
-                }
-            else:
-                # Summary of all metrics
-                summary = {}
-                for name in self._metrics:
-                    summary[name] = self.get_metrics_summary(name)
-                
-                return summary
-
-    def get_recent_alerts(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Get recent performance alerts"""
-        with self._lock:
-            return self._alerts[-limit:] if self._alerts else []
-
+                # Check for high violation rates
+                if stats['violation_rate_percent'] > 20:
+                    self._create_alert(
+                        tracker.name,
+                        AlertSeverity.CRITICAL,
+                        f"High threshold violation rate: {stats['violation_rate_percent']:.1f}%",
+                        stats['violation_rate_percent'],
+                        20,
+                        {"metric": "violation_rate"}
+                    )
+    
+    async def _cleanup_old_data(self):
+        """Cleanup old performance data"""
+        # Alerts older than 24 hours
+        cutoff_time = datetime.now() - timedelta(hours=24)
+        
+        while self.alerts and self.alerts[0].timestamp < cutoff_time:
+            self.alerts.popleft()
+        
+        # System metrics older than 24 hours
+        while self.system_metrics and self.system_metrics[0].timestamp < cutoff_time:
+            self.system_metrics.popleft()
+    
     def get_performance_report(self) -> Dict[str, Any]:
-        """Generate comprehensive performance report"""
+        """Get comprehensive performance report"""
         with self._lock:
-            report = {
-                'timestamp': datetime.now().isoformat(),
-                'summary': {
-                    'total_metrics': len(self._metrics),
-                    'total_samples': sum(len(metrics) for metrics in self._metrics.values()),
-                    'active_alerts': len([a for a in self._alerts if time.time() - a['timestamp'] < 300]),
-                    'critical_alerts': len([a for a in self._alerts if a['level'] == 'critical' and time.time() - a['timestamp'] < 300])
-                },
-                'metrics': self.get_metrics_summary(),
-                'recent_alerts': self.get_recent_alerts(20),
-                'recommendations': self._generate_recommendations()
-            }
+            # Tracker statistics
+            tracker_stats = {}
+            for name, tracker in self.trackers.items():
+                tracker_stats[name] = tracker.get_stats()
             
-            return report
-
+            # Recent alerts
+            recent_alerts = [
+                {
+                    'metric_name': alert.metric_name,
+                    'severity': alert.severity,
+                    'message': alert.message,
+                    'timestamp': alert.timestamp.isoformat(),
+                    'current_value': alert.current_value,
+                    'threshold_value': alert.threshold_value
+                }
+                for alert in list(self.alerts)[-10:]  # Last 10 alerts
+            ]
+            
+            # System metrics summary
+            system_summary = {}
+            if self.system_metrics:
+                latest_system = self.system_metrics[-1]
+                system_summary = {
+                    'cpu_percent': latest_system.cpu_percent,
+                    'memory_percent': latest_system.memory_percent,
+                    'memory_available_mb': latest_system.memory_available_mb,
+                    'disk_usage_percent': latest_system.disk_usage_percent,
+                    'timestamp': latest_system.timestamp.isoformat()
+                }
+            
+            # Overall health score
+            health_score = self._calculate_health_score()
+            
+            # Performance recommendations
+            recommendations = self._generate_recommendations()
+            
+            return {
+                'uptime_seconds': time.time() - self.start_time,
+                'health_score': health_score,
+                'tracker_stats': tracker_stats,
+                'recent_alerts': recent_alerts,
+                'system_metrics': system_summary,
+                'recommendations': recommendations,
+                'monitoring_active': self._monitoring_active,
+                'total_trackers': len(self.trackers),
+                'total_alerts': len(self.alerts)
+            }
+    
+    def _calculate_health_score(self) -> float:
+        """Calculate overall system health score (0-100)"""
+        if not self.trackers:
+            return 100.0
+        
+        scores = []
+        
+        with self._lock:
+            for tracker in self.trackers.values():
+                stats = tracker.get_stats()
+                
+                # Score based on performance level
+                level_scores = {
+                    PerformanceLevel.EXCELLENT: 100,
+                    PerformanceLevel.GOOD: 80,
+                    PerformanceLevel.ACCEPTABLE: 60,
+                    PerformanceLevel.SLOW: 40,
+                    PerformanceLevel.CRITICAL: 20
+                }
+                
+                base_score = level_scores.get(stats['level'], 50)
+                
+                # Reduce score for high violation rates
+                violation_penalty = stats['violation_rate_percent'] * 0.5
+                score = max(0, base_score - violation_penalty)
+                
+                scores.append(score)
+        
+        return round(sum(scores) / len(scores), 1)
+    
     def _generate_recommendations(self) -> List[str]:
         """Generate performance optimization recommendations"""
         recommendations = []
         
-        # Check database performance
-        if 'database_query' in self._metrics:
-            db_summary = self.get_metrics_summary('database_query')
-            if db_summary.get('recent_avg', 0) > 200:
-                recommendations.append("Consider implementing connection pooling for database queries")
-            if db_summary.get('p95', 0) > 500:
-                recommendations.append("Optimize slow database queries - 95th percentile > 500ms")
-        
-        # Check API performance
-        if 'api_request' in self._metrics:
-            api_summary = self.get_metrics_summary('api_request')
-            if api_summary.get('recent_avg', 0) > 300:
-                recommendations.append("API response times are high - consider caching or optimization")
-        
-        # Check memory usage
-        if 'memory_usage' in self._metrics:
-            mem_summary = self.get_metrics_summary('memory_usage')
-            if mem_summary.get('recent_avg', 0) > 80:
-                recommendations.append("High memory usage detected - implement memory optimization")
-        
-        # Check cache performance
-        if 'cache_hit_ratio' in self._metrics:
-            cache_summary = self.get_metrics_summary('cache_hit_ratio')
-            if cache_summary.get('recent_avg', 0) < 60:
-                recommendations.append("Low cache hit ratio - review caching strategy")
-        
-        return recommendations
-
-    def set_threshold(
-        self,
-        metric_name: str,
-        warning_threshold: float,
-        critical_threshold: float,
-        measurement_window: int = 60
-    ):
-        """Set custom performance threshold"""
-        self._thresholds[metric_name] = PerformanceThreshold(
-            warning_threshold=warning_threshold,
-            critical_threshold=critical_threshold,
-            measurement_window=measurement_window
-        )
-
-    def clear_metrics(self, metric_name: Optional[str] = None):
-        """Clear performance metrics"""
         with self._lock:
-            if metric_name:
-                if metric_name in self._metrics:
-                    self._metrics[metric_name].clear()
-            else:
-                self._metrics.clear()
-                self._alerts.clear()
-                self._counters.clear()
-
-    @asynccontextmanager
-    async def measure_performance(self, metric_name: str, context: Optional[Dict[str, Any]] = None):
-        """Context manager for measuring performance"""
-        start_time = time.time()
-        try:
-            yield
-        finally:
-            execution_time = (time.time() - start_time) * 1000
-            self.record_metric(metric_name, execution_time, context=context)
+            for tracker in self.trackers.values():
+                stats = tracker.get_stats()
+                
+                if stats['level'] in [PerformanceLevel.SLOW, PerformanceLevel.CRITICAL]:
+                    recommendations.append(
+                        f"Optimize {tracker.name}: avg {stats['avg_time_ms']:.1f}ms "
+                        f"(target: <{tracker.threshold_ms}ms)"
+                    )
+                
+                if stats['violation_rate_percent'] > 10:
+                    recommendations.append(
+                        f"Reduce {tracker.name} threshold violations: "
+                        f"{stats['violation_rate_percent']:.1f}% > 10%"
+                    )
+                
+                if stats['recent_trend'] == 'degrading':
+                    recommendations.append(
+                        f"Investigate {tracker.name} performance degradation"
+                    )
+        
+        # System-level recommendations
+        if self.system_metrics:
+            latest = self.system_metrics[-1]
+            
+            if latest.cpu_percent > 80:
+                recommendations.append("Consider CPU optimization or scaling")
+            
+            if latest.memory_percent > 80:
+                recommendations.append("Consider memory optimization or scaling")
+            
+            if latest.disk_usage_percent > 90:
+                recommendations.append("Disk space cleanup required")
+        
+        return recommendations[:10]  # Top 10 recommendations
+    
+    def get_metric_stats(self, metric_name: str) -> Optional[Dict[str, Any]]:
+        """Get statistics for specific metric"""
+        with self._lock:
+            tracker = self.trackers.get(metric_name)
+            return tracker.get_stats() if tracker else None
+    
+    def get_recent_alerts(self, severity: Optional[AlertSeverity] = None) -> List[Dict[str, Any]]:
+        """Get recent alerts, optionally filtered by severity"""
+        alerts = list(self.alerts)
+        
+        if severity:
+            alerts = [a for a in alerts if a.severity == severity]
+        
+        return [
+            {
+                'metric_name': alert.metric_name,
+                'severity': alert.severity,
+                'message': alert.message,
+                'timestamp': alert.timestamp.isoformat(),
+                'current_value': alert.current_value,
+                'threshold_value': alert.threshold_value,
+                'tags': alert.tags
+            }
+            for alert in alerts[-20:]  # Last 20 alerts
+        ]
 
 # Global performance monitor instance
 performance_monitor = PerformanceMonitor()
