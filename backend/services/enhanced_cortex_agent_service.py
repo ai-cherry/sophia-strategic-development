@@ -110,12 +110,11 @@ class EnhancedCortexAgentService(CortexAgentService):
         self.analytics_schema = "REAL_TIME_ANALYTICS"
         
     async def get_advanced_connection(self) -> snowflake.connector.SnowflakeConnection:
-        """Get connection to advanced Snowflake database with PAT token"""
+        """Get connection to advanced Snowflake database with PAT token as password"""
         config = {
             'account': get_config_value('snowflake_account'),
             'user': get_config_value('snowflake_user'),
-            'token': get_config_value('snowflake_password'),  # PAT token
-            'authenticator': 'oauth',
+            'password': get_config_value('snowflake_password'),  # PAT token as password
             'role': 'ACCOUNTADMIN',
             'warehouse': 'AI_COMPUTE_WH',
             'database': self.advanced_database,

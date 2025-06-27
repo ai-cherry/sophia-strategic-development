@@ -117,9 +117,10 @@ def get_integration_config() -> Dict[str, Any]:
 def initialize_default_config():
     """Initialize default configuration values"""
     
-    # Snowflake defaults
+    # Snowflake defaults with correct PAT configuration
     set_config_value('snowflake_account', 'UHDECNO-CVB64222')
-    set_config_value('snowflake_user', 'MUSILLYNN')
+    set_config_value('snowflake_user', 'SCOOBYJAVA15')
+    set_config_value('snowflake_password', 'eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A')
     set_config_value('snowflake_role', 'ACCOUNTADMIN')
     set_config_value('snowflake_warehouse', 'AI_COMPUTE_WH')
     set_config_value('snowflake_database', 'SOPHIA_AI_ADVANCED')
@@ -134,7 +135,7 @@ def initialize_default_config():
     set_config_value('jwt_algorithm', 'HS256')
     set_config_value('jwt_expiration_hours', '24')
     
-    logger.info("Default configuration initialized")
+    logger.info("Default configuration initialized with PAT authentication")
 
 # Initialize defaults on import
 initialize_default_config()
