@@ -132,6 +132,50 @@ class EnhancedUIUXAgentSystemManager:
             logger.error(f"❌ Failed to start Enhanced UI/UX Agent: {e}")
             raise
     
+    async def _wait_for_server(self, port, service_name):
+        """Wait for a server to become available"""
+        logger.info(f"⏳ Waiting for {service_name} on port {port}...")
+        
+        for attempt in range(30):  # Wait up to 30 seconds
+            try:
+                response = requests.get(f"http://localhost:{port}/health", timeout=2)
+                if response.status_code == 200:
+                    logger.info(f"✅ {service_name} is ready on port {port}")
+                    return True
+            except Exception:
+                pass
+            
+            await asyncio.sleep(1)
+        
+        logger.warning(f"⚠️  {service_name} not responding on port {port} after 30 seconds")
+        return False
+    
+    async def _test_figma_server(self):
+        """Test Figma MCP server functionality"""
+        logger.info("🧪 Testing Enhanced Figma MCP Server...")
+        
+        try:
+            response = requests.get(f"http://localhost:{self.figma_server_port}/health")
+            if response.status_code == 200:
+                logger.info("   ✅ Figma MCP Server responding")
+            else:
+                logger.warning("   ⚠️  Figma MCP Server health check failed")
+        except Exception as e:
+            logger.error(f"   ❌ Figma MCP Server test failed: {e}")
+    
+    async def _test_enhanced_uiux_agent(self):
+        """Test enhanced UI/UX agent functionality"""
+        logger.info("🧪 Testing Enhanced UI/UX Agent...")
+        
+        try:
+            response = requests.get(f"http://localhost:{self.agent_server_port}/health")
+            if response.status_code == 200:
+                logger.info("   ✅ Enhanced UI/UX Agent responding")
+            else:
+                logger.warning("   ⚠️  Enhanced UI/UX Agent health check failed")
+        except Exception as e:
+            logger.error(f"   ❌ Enhanced UI/UX Agent test failed: {e}")
+    
     async def _initialize_dashboard_takeover(self):
         """Initialize dashboard takeover capabilities"""
         logger.info("📊 Initializing Dashboard Takeover Capabilities...")
