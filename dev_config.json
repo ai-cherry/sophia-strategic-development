@@ -1,0 +1,48 @@
+{
+  "mode": "development_bypass",
+  "timestamp": "2025-06-27T13:17:52.413547",
+  "esc_bypass": true,
+  "available_services": {
+    "snowflake": {
+      "config_available": true,
+      "account": "UHDECNO-CVB64222",
+      "user": "SCOOBYJAVA15",
+      "needs_password": true,
+      "ready_for_testing": true
+    },
+    "llm_services": {
+      "OpenAI": false,
+      "Anthropic": false,
+      "Portkey": false,
+      "OpenRouter": false,
+      "TestMode": true
+    },
+    "mcp_servers": {
+      "total_found": 16,
+      "servers": [
+        "sophia_business_intelligence",
+        "docker",
+        "linear",
+        "snowflake_admin",
+        "snowflake",
+        "sophia_infrastructure",
+        "notion",
+        "postgres",
+        "github",
+        "sophia_data_intelligence",
+        "ai_memory",
+        "codacy",
+        "slack",
+        "sophia_ai_intelligence",
+        "pulumi",
+        "asana"
+      ],
+      "fallback_ready": [
+        "ai_memory",
+        "codacy",
+        "snowflake_admin"
+      ],
+      "ready_for_phase1": true
+    }
+  }
+}
