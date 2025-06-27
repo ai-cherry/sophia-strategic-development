@@ -1,0 +1,670 @@
+# Comprehensive Estuary Flow Configuration for Sophia AI Platform
+# Advanced multi-source data integration with real-time AI processing
+
+collections:
+  # Gong.io Collections
+  Pay_Ready/gong/calls:
+    schema:
+      type: object
+      properties:
+        call_id: { type: string }
+        customer_id: { type: string }
+        customer_name: { type: string }
+        call_timestamp: { type: string, format: date-time }
+        call_duration: { type: integer }
+        call_transcript: { type: string }
+        speaker_segments: 
+          type: array
+          items:
+            type: object
+            properties:
+              speaker: { type: string }
+              text: { type: string }
+              timestamp: { type: string }
+              sentiment_score: { type: number }
+        call_recording_url: { type: string }
+        deal_id: { type: string }
+        opportunity_stage: { type: string }
+        ai_insights:
+          type: object
+          properties:
+            sentiment_analysis: { type: string }
+            key_topics: { type: array, items: { type: string } }
+            action_items: { type: array, items: { type: string } }
+            risk_assessment: { type: string }
+    key: [call_id]
+
+  Pay_Ready/gong/conversation_analytics:
+    schema:
+      type: object
+      properties:
+        conversation_id: { type: string }
+        customer_id: { type: string }
+        call_id: { type: string }
+        talk_time_ratio: { type: number }
+        longest_monologue: { type: number }
+        questions_asked: { type: integer }
+        competitor_mentions: { type: array, items: { type: string } }
+        pricing_discussions: { type: boolean }
+        next_steps_defined: { type: boolean }
+        engagement_score: { type: number }
+        created_timestamp: { type: string, format: date-time }
+    key: [conversation_id]
+
+  # Slack Collections
+  Pay_Ready/slack/messages:
+    schema:
+      type: object
+      properties:
+        message_id: { type: string }
+        channel_id: { type: string }
+        channel_name: { type: string }
+        user_id: { type: string }
+        user_name: { type: string }
+        message_text: { type: string }
+        message_timestamp: { type: string, format: date-time }
+        thread_ts: { type: string }
+        reply_count: { type: integer }
+        reactions: { type: array, items: { type: string } }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              file_id: { type: string }
+              file_name: { type: string }
+              file_type: { type: string }
+              file_url: { type: string }
+        customer_id: { type: string }
+        urgency_level: { type: string }
+        sentiment_score: { type: number }
+        ai_classification: { type: string }
+    key: [message_id]
+
+  Pay_Ready/slack/channels:
+    schema:
+      type: object
+      properties:
+        channel_id: { type: string }
+        channel_name: { type: string }
+        channel_purpose: { type: string }
+        is_private: { type: boolean }
+        member_count: { type: integer }
+        created_timestamp: { type: string, format: date-time }
+        last_activity: { type: string, format: date-time }
+        customer_related: { type: boolean }
+        deal_related: { type: boolean }
+    key: [channel_id]
+
+  # HubSpot Collections
+  Pay_Ready/hubspot/contacts:
+    schema:
+      type: object
+      properties:
+        contact_id: { type: string }
+        customer_id: { type: string }
+        email: { type: string }
+        first_name: { type: string }
+        last_name: { type: string }
+        company: { type: string }
+        phone: { type: string }
+        lifecycle_stage: { type: string }
+        lead_status: { type: string }
+        created_date: { type: string, format: date-time }
+        last_modified_date: { type: string, format: date-time }
+        last_activity_date: { type: string, format: date-time }
+        properties:
+          type: object
+          additionalProperties: true
+        engagement_score: { type: number }
+        churn_risk_score: { type: number }
+    key: [contact_id]
+
+  Pay_Ready/hubspot/deals:
+    schema:
+      type: object
+      properties:
+        deal_id: { type: string }
+        deal_name: { type: string }
+        customer_id: { type: string }
+        deal_stage: { type: string }
+        deal_value: { type: number }
+        probability: { type: number }
+        close_date: { type: string, format: date-time }
+        owner_id: { type: string }
+        owner_name: { type: string }
+        created_date: { type: string, format: date-time }
+        last_modified_date: { type: string, format: date-time }
+        source: { type: string }
+        deal_type: { type: string }
+        properties:
+          type: object
+          additionalProperties: true
+        ai_risk_assessment: { type: string }
+        competitive_situation: { type: string }
+        next_best_action: { type: string }
+    key: [deal_id]
+
+  Pay_Ready/hubspot/companies:
+    schema:
+      type: object
+      properties:
+        company_id: { type: string }
+        customer_id: { type: string }
+        company_name: { type: string }
+        domain: { type: string }
+        industry: { type: string }
+        employee_count: { type: integer }
+        annual_revenue: { type: number }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        created_date: { type: string, format: date-time }
+        last_modified_date: { type: string, format: date-time }
+        lifecycle_stage: { type: string }
+        properties:
+          type: object
+          additionalProperties: true
+        relationship_health: { type: string }
+        expansion_opportunity: { type: number }
+    key: [company_id]
+
+  # Intercom Collections
+  Pay_Ready/intercom/conversations:
+    schema:
+      type: object
+      properties:
+        conversation_id: { type: string }
+        customer_id: { type: string }
+        user_id: { type: string }
+        assignee_id: { type: string }
+        conversation_state: { type: string }
+        conversation_rating: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        waiting_since: { type: string, format: date-time }
+        snoozed_until: { type: string, format: date-time }
+        source_type: { type: string }
+        source_id: { type: string }
+        tags: { type: array, items: { type: string } }
+        priority: { type: string }
+        sentiment_score: { type: number }
+        resolution_time: { type: integer }
+        first_response_time: { type: integer }
+        satisfaction_rating: { type: integer }
+    key: [conversation_id]
+
+  Pay_Ready/intercom/messages:
+    schema:
+      type: object
+      properties:
+        message_id: { type: string }
+        conversation_id: { type: string }
+        customer_id: { type: string }
+        author_type: { type: string }
+        author_id: { type: string }
+        message_type: { type: string }
+        message_body: { type: string }
+        delivered_as: { type: string }
+        created_at: { type: string, format: date-time }
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string }
+              name: { type: string }
+              url: { type: string }
+              content_type: { type: string }
+        sentiment_score: { type: number }
+        urgency_classification: { type: string }
+        intent_classification: { type: string }
+    key: [message_id]
+
+  Pay_Ready/intercom/users:
+    schema:
+      type: object
+      properties:
+        user_id: { type: string }
+        customer_id: { type: string }
+        email: { type: string }
+        name: { type: string }
+        phone: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        session_count: { type: integer }
+        unsubscribed_from_emails: { type: boolean }
+        location_data:
+          type: object
+          properties:
+            city: { type: string }
+            region: { type: string }
+            country: { type: string }
+        custom_attributes:
+          type: object
+          additionalProperties: true
+        segments: { type: array, items: { type: string } }
+        tags: { type: array, items: { type: string } }
+        satisfaction_score: { type: number }
+        engagement_level: { type: string }
+    key: [user_id]
+
+  # Proprietary SQL Collections
+  Pay_Ready/proprietary/customer_accounts:
+    schema:
+      type: object
+      properties:
+        account_id: { type: string }
+        customer_id: { type: string }
+        account_number: { type: string }
+        account_type: { type: string }
+        account_status: { type: string }
+        balance: { type: number }
+        credit_limit: { type: number }
+        payment_terms: { type: string }
+        created_date: { type: string, format: date-time }
+        last_payment_date: { type: string, format: date-time }
+        last_payment_amount: { type: number }
+        days_past_due: { type: integer }
+        collection_status: { type: string }
+        risk_score: { type: number }
+        compliance_flags: { type: array, items: { type: string } }
+    key: [account_id]
+
+  Pay_Ready/proprietary/payment_history:
+    schema:
+      type: object
+      properties:
+        payment_id: { type: string }
+        account_id: { type: string }
+        customer_id: { type: string }
+        payment_date: { type: string, format: date-time }
+        payment_amount: { type: number }
+        payment_method: { type: string }
+        payment_status: { type: string }
+        transaction_id: { type: string }
+        processing_fee: { type: number }
+        failure_reason: { type: string }
+        created_timestamp: { type: string, format: date-time }
+    key: [payment_id]
+
+  Pay_Ready/proprietary/collection_activities:
+    schema:
+      type: object
+      properties:
+        activity_id: { type: string }
+        account_id: { type: string }
+        customer_id: { type: string }
+        activity_type: { type: string }
+        activity_date: { type: string, format: date-time }
+        agent_id: { type: string }
+        contact_method: { type: string }
+        outcome: { type: string }
+        notes: { type: string }
+        next_action: { type: string }
+        next_action_date: { type: string, format: date-time }
+        compliance_verified: { type: boolean }
+        fdcpa_compliant: { type: boolean }
+        created_timestamp: { type: string, format: date-time }
+    key: [activity_id]
+
+# Materializations to Snowflake
+materializations:
+  Pay_Ready/snowflake/unified_customer_intelligence:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-snowflake:dev
+        config:
+          host: UHDECNO-CVB64222.snowflakecomputing.com
+          user: SCOOBYJAVA15
+          password: eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A
+          database: SOPHIA_AI_ADVANCED
+          schema: ESTUARY_MATERIALIZED
+          warehouse: REALTIME_ANALYTICS_WH
+          role: ACCOUNTADMIN
+    bindings:
+      # Gong Data Materialization
+      - resource:
+          table: gong_calls_multimodal
+          delta_updates: true
+        source: Pay_Ready/gong/calls
+        fields:
+          recommended: true
+          include:
+            call_id: {}
+            customer_id: {}
+            customer_name: {}
+            call_timestamp: {}
+            call_transcript: {}
+            ai_insights: {}
+          exclude: []
+
+      - resource:
+          table: gong_conversation_analytics
+          delta_updates: true
+        source: Pay_Ready/gong/conversation_analytics
+        fields:
+          recommended: true
+
+      # Slack Data Materialization
+      - resource:
+          table: slack_messages_multimodal
+          delta_updates: true
+        source: Pay_Ready/slack/messages
+        fields:
+          recommended: true
+          include:
+            message_id: {}
+            customer_id: {}
+            message_text: {}
+            message_timestamp: {}
+            attachments: {}
+            sentiment_score: {}
+          exclude: []
+
+      - resource:
+          table: slack_channels
+          delta_updates: true
+        source: Pay_Ready/slack/channels
+        fields:
+          recommended: true
+
+      # HubSpot Data Materialization
+      - resource:
+          table: hubspot_contacts_enhanced
+          delta_updates: true
+        source: Pay_Ready/hubspot/contacts
+        fields:
+          recommended: true
+          include:
+            contact_id: {}
+            customer_id: {}
+            email: {}
+            engagement_score: {}
+            churn_risk_score: {}
+          exclude: []
+
+      - resource:
+          table: hubspot_deals_enhanced
+          delta_updates: true
+        source: Pay_Ready/hubspot/deals
+        fields:
+          recommended: true
+          include:
+            deal_id: {}
+            customer_id: {}
+            deal_name: {}
+            deal_value: {}
+            ai_risk_assessment: {}
+          exclude: []
+
+      - resource:
+          table: hubspot_companies_enhanced
+          delta_updates: true
+        source: Pay_Ready/hubspot/companies
+        fields:
+          recommended: true
+
+      # Intercom Data Materialization
+      - resource:
+          table: intercom_conversations_enhanced
+          delta_updates: true
+        source: Pay_Ready/intercom/conversations
+        fields:
+          recommended: true
+          include:
+            conversation_id: {}
+            customer_id: {}
+            sentiment_score: {}
+            resolution_time: {}
+            satisfaction_rating: {}
+          exclude: []
+
+      - resource:
+          table: intercom_messages_enhanced
+          delta_updates: true
+        source: Pay_Ready/intercom/messages
+        fields:
+          recommended: true
+          include:
+            message_id: {}
+            customer_id: {}
+            message_body: {}
+            sentiment_score: {}
+            urgency_classification: {}
+          exclude: []
+
+      - resource:
+          table: intercom_users_enhanced
+          delta_updates: true
+        source: Pay_Ready/intercom/users
+        fields:
+          recommended: true
+
+      # Proprietary SQL Data Materialization
+      - resource:
+          table: customer_accounts_enhanced
+          delta_updates: true
+        source: Pay_Ready/proprietary/customer_accounts
+        fields:
+          recommended: true
+          include:
+            account_id: {}
+            customer_id: {}
+            balance: {}
+            collection_status: {}
+            risk_score: {}
+            compliance_flags: {}
+          exclude: []
+
+      - resource:
+          table: payment_history_enhanced
+          delta_updates: true
+        source: Pay_Ready/proprietary/payment_history
+        fields:
+          recommended: true
+
+      - resource:
+          table: collection_activities_enhanced
+          delta_updates: true
+        source: Pay_Ready/proprietary/collection_activities
+        fields:
+          recommended: true
+          include:
+            activity_id: {}
+            customer_id: {}
+            activity_type: {}
+            outcome: {}
+            fdcpa_compliant: {}
+          exclude: []
+
+# Captures (to be configured with actual API credentials)
+captures:
+  Pay_Ready/gong/capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-gong:dev
+        config:
+          # Gong API configuration
+          api_key: ${GONG_API_KEY}
+          api_secret: ${GONG_API_SECRET}
+          start_date: "2024-01-01T00:00:00Z"
+          lookback_window: 30
+    bindings:
+      - resource:
+          stream: calls
+          syncMode: incremental
+        target: Pay_Ready/gong/calls
+      - resource:
+          stream: conversation_analytics
+          syncMode: incremental
+        target: Pay_Ready/gong/conversation_analytics
+
+  Pay_Ready/slack/capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-slack:dev
+        config:
+          # Slack API configuration
+          api_token: ${SLACK_BOT_TOKEN}
+          start_date: "2024-01-01T00:00:00Z"
+          lookback_window: 7
+          include_private_channels: false
+    bindings:
+      - resource:
+          stream: messages
+          syncMode: incremental
+        target: Pay_Ready/slack/messages
+      - resource:
+          stream: channels
+          syncMode: incremental
+        target: Pay_Ready/slack/channels
+
+  Pay_Ready/hubspot/capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-hubspot:dev
+        config:
+          # HubSpot API configuration
+          api_key: ${HUBSPOT_API_KEY}
+          start_date: "2024-01-01T00:00:00Z"
+    bindings:
+      - resource:
+          stream: contacts
+          syncMode: incremental
+        target: Pay_Ready/hubspot/contacts
+      - resource:
+          stream: deals
+          syncMode: incremental
+        target: Pay_Ready/hubspot/deals
+      - resource:
+          stream: companies
+          syncMode: incremental
+        target: Pay_Ready/hubspot/companies
+
+  Pay_Ready/intercom/capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-intercom:dev
+        config:
+          # Intercom API configuration
+          access_token: ${INTERCOM_ACCESS_TOKEN}
+          start_date: "2024-01-01T00:00:00Z"
+    bindings:
+      - resource:
+          stream: conversations
+          syncMode: incremental
+        target: Pay_Ready/intercom/conversations
+      - resource:
+          stream: messages
+          syncMode: incremental
+        target: Pay_Ready/intercom/messages
+      - resource:
+          stream: users
+          syncMode: incremental
+        target: Pay_Ready/intercom/users
+
+  Pay_Ready/proprietary/capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-postgres:dev
+        config:
+          # Proprietary database configuration
+          host: ${PROPRIETARY_DB_HOST}
+          port: ${PROPRIETARY_DB_PORT}
+          user: ${PROPRIETARY_DB_USER}
+          password: ${PROPRIETARY_DB_PASSWORD}
+          database: ${PROPRIETARY_DB_NAME}
+          schemas: ["public", "collections", "payments"]
+    bindings:
+      - resource:
+          stream: customer_accounts
+          syncMode: incremental
+        target: Pay_Ready/proprietary/customer_accounts
+      - resource:
+          stream: payment_history
+          syncMode: incremental
+        target: Pay_Ready/proprietary/payment_history
+      - resource:
+          stream: collection_activities
+          syncMode: incremental
+        target: Pay_Ready/proprietary/collection_activities
+
+# Transforms for AI Processing
+transforms:
+  Pay_Ready/ai_processing/sentiment_analysis:
+    source:
+      name: Pay_Ready/unified_text_content
+      partitions:
+        include:
+          source_system: [gong, slack, intercom]
+    shuffle:
+      key: [customer_id]
+    lambda: |
+      import json
+      
+      def transform(source):
+          # AI-powered sentiment analysis transform
+          for record in source:
+              # Extract text content based on source system
+              text_content = ""
+              if record.get('source_system') == 'gong':
+                  text_content = record.get('call_transcript', '')
+              elif record.get('source_system') == 'slack':
+                  text_content = record.get('message_text', '')
+              elif record.get('source_system') == 'intercom':
+                  text_content = record.get('message_body', '')
+              
+              # Simulate AI sentiment analysis (would integrate with Snowflake Cortex)
+              sentiment_score = 0.0  # Placeholder for actual AI processing
+              urgency_level = 'normal'  # Placeholder for urgency classification
+              
+              # Enhance record with AI insights
+              record['ai_sentiment_score'] = sentiment_score
+              record['ai_urgency_level'] = urgency_level
+              record['ai_processed_timestamp'] = '2025-06-27T19:25:00Z'
+              
+              yield record
+
+  Pay_Ready/ai_processing/customer_intelligence:
+    source:
+      name: Pay_Ready/unified_customer_data
+      partitions:
+        include:
+          customer_id: ["*"]
+    shuffle:
+      key: [customer_id]
+    lambda: |
+      import json
+      from collections import defaultdict
+      
+      def transform(source):
+          # Customer intelligence aggregation transform
+          customer_data = defaultdict(list)
+          
+          for record in source:
+              customer_id = record.get('customer_id')
+              if customer_id:
+                  customer_data[customer_id].append(record)
+          
+          for customer_id, records in customer_data.items():
+              # Aggregate customer intelligence
+              total_interactions = len(records)
+              avg_sentiment = sum(r.get('sentiment_score', 0) for r in records) / total_interactions if total_interactions > 0 else 0
+              
+              # Generate customer intelligence summary
+              intelligence_summary = {
+                  'customer_id': customer_id,
+                  'total_interactions': total_interactions,
+                  'avg_sentiment_score': avg_sentiment,
+                  'interaction_sources': list(set(r.get('source_system') for r in records)),
+                  'last_interaction': max(r.get('timestamp', '') for r in records),
+                  'churn_risk_indicators': [],  # Placeholder for AI analysis
+                  'engagement_level': 'medium',  # Placeholder for AI classification
+                  'next_best_actions': [],  # Placeholder for AI recommendations
+                  'ai_processed_timestamp': '2025-06-27T19:25:00Z'
+              }
+              
+              yield intelligence_summary
+
