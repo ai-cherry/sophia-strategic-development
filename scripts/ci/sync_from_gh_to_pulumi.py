@@ -99,6 +99,7 @@ class PulumiESCSync:
             "LAMBDA_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
             "VERCEL_ACCESS_TOKEN": "values.sophia.infrastructure.vercel.access_token",
             "VULTR_API_KEY": "values.sophia.infrastructure.vultr.api_key",
+            "PULUMI_ACCESS_TOKEN": "values.sophia.infrastructure.pulumi.access_token",
             
             # Research Tools
             "APIFY_API_TOKEN": "values.sophia.research.apify.api_token",
