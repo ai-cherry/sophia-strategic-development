@@ -105,7 +105,14 @@ class EnhancedGongIntegration:
     """Comprehensive Gong integration for conversational AI"""
     
     def __init__(self):
-        self.gong_client = EnhancedGongAPIClient()
+        try:
+            # Get Gong API key from configuration
+            gong_api_key = get_config_value("gong_access_key")
+            self.gong_client = EnhancedGongAPIClient(gong_api_key) if gong_api_key else None
+        except Exception as e:
+            logger.warning(f"Gong client initialization failed: {e}")
+            self.gong_client = None
+        
         self.cortex_service = EnhancedSnowflakeCortexService()
         
         # Initialize interaction analyzers
@@ -273,6 +280,10 @@ class EnhancedGongIntegration:
                                  end_date: datetime) -> List[CustomerInteraction]:
         """Fetch and analyze customer calls from Gong"""
         try:
+            if not self.gong_client:
+                logger.warning("Gong client not available")
+                return []
+                
             calls_data = await self.gong_client.get_calls_for_customer(
                 customer_id, start_date, end_date
             )
@@ -292,6 +303,10 @@ class EnhancedGongIntegration:
                                   end_date: datetime) -> List[CustomerInteraction]:
         """Fetch and analyze customer emails from Gong"""
         try:
+            if not self.gong_client:
+                logger.warning("Gong client not available")
+                return []
+                
             emails_data = await self.gong_client.get_emails_for_customer(
                 customer_id, start_date, end_date
             )
@@ -311,6 +326,10 @@ class EnhancedGongIntegration:
                                     end_date: datetime) -> List[CustomerInteraction]:
         """Fetch and analyze customer meetings from Gong"""
         try:
+            if not self.gong_client:
+                logger.warning("Gong client not available")
+                return []
+                
             meetings_data = await self.gong_client.get_meetings_for_customer(
                 customer_id, start_date, end_date
             )
@@ -330,6 +349,10 @@ class EnhancedGongIntegration:
                                            end_date: datetime) -> List[CustomerInteraction]:
         """Fetch and analyze upcoming calendar events"""
         try:
+            if not self.gong_client:
+                logger.warning("Gong client not available")
+                return []
+                
             calendar_data = await self.gong_client.get_calendar_events_for_customer(
                 customer_id, start_date, end_date
             )
