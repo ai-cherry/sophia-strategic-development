@@ -2,6 +2,7 @@
 
 *Unified, AI-powered business intelligence platform for Pay Ready*
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/15cc14442b9b4879ba8a00e02d614443)](https://app.codacy.com/gh/ai-cherry/sophia-main/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Performance](https://img.shields.io/badge/Performance-Optimized-green)](docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md)
 [![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-blue)](config/services/optimization.yaml)
 [![SOC2](https://img.shields.io/badge/Security-SOC2_Compliant-orange)](docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md)
