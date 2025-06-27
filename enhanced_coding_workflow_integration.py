@@ -384,7 +384,7 @@ Include:
             
             # Get design context from UI/UX agent
             try:
-                design_response = requests.get(f"http://localhost:9001/api/design_system", timeout=5)
+                design_response = requests.get("http://localhost:9001/api/design_system", timeout=5)
                 if design_response.status_code == 200:
                     business_context["design_context"] = "Glassmorphism design system, WCAG 2.1 AA compliance"
             except Exception as e:

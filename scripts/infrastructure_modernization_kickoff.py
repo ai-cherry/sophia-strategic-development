@@ -7,7 +7,7 @@ Executes Phase 1 cleanup and preparation tasks
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List
 import asyncio
 import logging
 

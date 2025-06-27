@@ -1,9 +1,8 @@
 # File: backend/services/automated_insights_service.py
 
 from typing import Dict, List, Any, Optional
-import json
 from datetime import datetime, timedelta
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.services.predictive_analytics_service import PredictiveAnalyticsService

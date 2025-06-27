@@ -308,41 +308,31 @@ Always provide practical, actionable responses that leverage the available MCP c
             print(f"💬 {response}")
             print("-" * 50)
 
-# CLI Interface
-async def main():
-    """Main CLI interface for Claude MCP Integration"""
-    parser = argparse.ArgumentParser(description="Sophia AI - Claude CLI with Latest Models")
-    parser.add_argument("--config", default="claude-cli-integration/claude_mcp_config.json")
-    
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+def main():
+    """Main entry point for Claude CLI"""
+    parser = argparse.ArgumentParser(description="Enhanced Claude CLI for Sophia AI")
+    subparsers = parser.add_subparsers(dest="command", required=True)
     
     # Chat command
-    chat_parser = subparsers.add_parser("chat", help="Chat with latest Claude models")
+    chat_parser = subparsers.add_parser("chat", help="Chat with Claude")
     chat_parser.add_argument("message", help="Message to send to Claude")
     
     # Servers command
-    servers_parser = subparsers.add_parser("servers", help="List MCP servers")
+    subparsers.add_parser("servers", help="List MCP servers")
     
     # Health command
-    health_parser = subparsers.add_parser("health", help="Check server health")
+    subparsers.add_parser("health", help="Check server health")
     
     # Demo command
-    demo_parser = subparsers.add_parser("demo", help="Demonstrate latest integration")
+    subparsers.add_parser("demo", help="Demonstrate latest integration")
     
     # Models command
-    models_parser = subparsers.add_parser("models", help="Show model configuration")
+    subparsers.add_parser("models", help="Show model configuration")
     
     args = parser.parse_args()
     
-    if not args.command:
-        print("🚀 Sophia AI Claude CLI (Latest Models)")
-        print("Available commands: chat, servers, health, demo, models")
-        parser.print_help()
-        return
-    
-    # Initialize Claude MCP integration
-    claude_mcp = ClaudeMCPIntegration(args.config)
-    await claude_mcp.start_session()
+    claude_mcp = ClaudeMCPIntegration()
+    asyncio.run(claude_mcp.start_session())
     
     try:
         if args.command == "chat":
@@ -386,4 +376,4 @@ async def main():
         await claude_mcp.close_session()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

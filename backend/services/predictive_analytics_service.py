@@ -1,7 +1,6 @@
 # File: backend/services/predictive_analytics_service.py
 
 from typing import Dict, List, Any, Optional, Tuple
-import json
 from datetime import datetime
 from dataclasses import dataclass, field
 from backend.services.semantic_layer_service import SemanticLayerService
@@ -74,10 +73,10 @@ class PredictiveAnalyticsService:
         """Create ML model using Snowflake ML functions (conceptual)."""
         logger.info(f"Creating ML model: {config['model_id']}")
         try:
-            training_data_query = self._generate_training_data_query(config)
+            # training_data_query = self._generate_training_data_query(config)
             
             # This is a conceptual query.
-            create_model_sql = f"CREATE OR REPLACE MODEL SOPHIA_ML.{config['model_id'].upper()} ...;"
+            # create_model_sql = f"CREATE OR REPLACE MODEL SOPHIA_ML.{config['model_id'].upper()} ...;"
             # await self.semantic_service._execute_query(create_model_sql)
             logger.info(f"Conceptual model created: {config['model_id']}")
             return True

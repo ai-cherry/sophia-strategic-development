@@ -9,11 +9,9 @@ import paths and dependency handling.
 import asyncio
 import json
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -588,7 +586,7 @@ async def main():
         else:
             print("⚠️ Some tests failed. Review the test report for details.")
         
-        print(f"📊 Detailed reports available at:")
+        print("📊 Detailed reports available at:")
         print(f"   - JSON: {report_json}")
         print(f"   - Markdown: {report_md}")
         

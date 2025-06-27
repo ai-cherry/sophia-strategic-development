@@ -9,7 +9,6 @@ from __future__ import annotations
 import logging
 from typing import Dict, Optional
 
-from backend.core.auto_esc_config import config
 from backend.security.secret_management import SecretManager
 
 logger = logging.getLogger(__name__)

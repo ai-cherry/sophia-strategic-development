@@ -228,10 +228,13 @@ class CortexAgentOrchestrator:
         return agents[0]
         
     async def _execute_agent_task(self, agent_id: str, task: AgentTask, results: Dict) -> AgentResult:
+        # Mock implementation
         start_time = asyncio.get_event_loop().time()
-        agent = self.registered_agents[agent_id]
-        # This is a mock execution
-        await asyncio.sleep(0.5) 
+        # The 'agent' variable is not used, so it can be removed.
+        # agent = self.registered_agents[agent_id]
+        
+        # In real implementation, we would call agent.submit_task and await result
+        await asyncio.sleep(0.5)
         execution_time = asyncio.get_event_loop().time() - start_time
         return AgentResult(task.task_id, agent_id, 'completed', {"mock_result": "data from non-cortex agent"}, execution_time, 0.85)
     

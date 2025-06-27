@@ -1,12 +1,10 @@
 # File: backend/services/comprehensive_memory_service.py
 
-import asyncio
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import List, Any, Optional
 import json
 
 from backend.agents.enhanced.data_models import MemoryRecord
-from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService, CortexModel
+from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 from backend.core.hierarchical_cache import HierarchicalCache
 from backend.utils.logging import get_logger
 

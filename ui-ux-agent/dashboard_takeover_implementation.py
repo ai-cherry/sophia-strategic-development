@@ -498,8 +498,11 @@ class DashboardTakeoverManager:
 
 async def main():
     """Execute dashboard takeover demonstration"""
-    manager = DashboardTakeoverManager()
+    # manager = DashboardTakeoverManager()
     logger.info("🎬 Dashboard Takeover Implementation Ready")
+    # In a real application, you would call methods on the manager instance.
+    # For this demonstration, we are just showing the initialization.
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     asyncio.run(main()) 

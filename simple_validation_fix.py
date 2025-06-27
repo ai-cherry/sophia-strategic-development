@@ -8,7 +8,6 @@ without relying on complex import structures that might fail.
 
 import json
 import logging
-import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -393,7 +392,7 @@ class SimpleValidationFix:
         with open('/home/ubuntu/simple_validation_results.json', 'w') as f:
             json.dump(self.validation_results, f, indent=2)
         
-        logger.info(f"📄 Detailed results saved to: /home/ubuntu/simple_validation_results.json")
+        logger.info("📄 Detailed results saved to: /home/ubuntu/simple_validation_results.json")
         
         return success_rate == 100
 

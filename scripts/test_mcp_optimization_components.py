@@ -202,7 +202,7 @@ async def test_multi_agent_workflow():
         from backend.workflows.multi_agent_workflow import (
             MultiAgentWorkflow, WorkflowDefinition, WorkflowTask, AgentRole,
             WorkflowStatus, TaskStatus, WorkflowResult,
-            WorkflowExecution, AgentWorkflowInterface
+            WorkflowExecution
         )
         results.add_result("Import MultiAgentWorkflow", True)
         

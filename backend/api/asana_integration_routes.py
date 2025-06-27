@@ -12,7 +12,7 @@ Comprehensive API endpoints for Asana project management integration including:
 
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 import json
 
 from fastapi import APIRouter, HTTPException, Depends, Query, Path, BackgroundTasks
@@ -24,6 +24,9 @@ from backend.services.sophia_universal_chat_service import SophiaUniversalChatSe
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
+from backend.services.asana_project_intelligence_service import AsanaProjectIntelligenceService
+from backend.core.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -532,6 +535,38 @@ async def process_asana_chat_query(
         
     except Exception as e:
         logger.error(f"Failed to process chat query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/chat_analyze", response_model=Dict[str, Any])
+async def analyze_asana_chat_query(
+    request: AsanaChatRequest,
+    current_user: dict = Depends(get_current_user),
+    airbyte_manager: EnhancedAirbyteManager = Depends(get_airbyte_manager)
+):
+    """Analyze a natural language query related to Asana projects."""
+    try:
+        # Create query context
+        context = QueryContext(
+            query=request.query,
+            context={
+                "user_id": request.user_id,
+                "user_role": request.user_role,
+                "asana_project_ids": request.project_ids,
+            }
+        )
+        
+        # In a real implementation, you would use a more sophisticated
+        # chat service that can route the query and context.
+        # For now, we'll simulate a response.
+        
+        return {
+            "success": True,
+            "query": request.query,
+            "response": f"Analysis for '{request.query}' would be performed here.",
+            "context_received": context,
+        }
+    except Exception as e:
+        logger.error(f"Failed to analyze chat query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # DATA PIPELINE ENDPOINTS

@@ -12,7 +12,6 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
 
 # Enhanced dependencies with better error handling
 try:
@@ -48,7 +47,6 @@ from backend.core.hierarchical_cache import HierarchicalCache
 from backend.agents.enhanced.data_models import MemoryRecord
 
 # Import the Snowflake Gong connector
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 
 # Import the ComprehensiveMemoryService
 from backend.services.comprehensive_memory_service import ComprehensiveMemoryService, MemoryRecord

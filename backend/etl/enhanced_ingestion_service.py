@@ -196,7 +196,7 @@ class EnhancedIngestionService:
             try:
                 # The rule SQL would need to be adapted to the specific table name.
                 # This is a simplified representation.
-                check_sql = rule['sql'].replace('{table}', f'{schema_name}.example_table')
+                # check_sql = rule['sql'].replace('{table}', f'{schema_name}.example_table')
                 # result = await self.semantic_service._execute_query(check_sql)
                 # This is mocked as the tables don't exist yet.
                 failure_count = 0 
@@ -210,13 +210,13 @@ class EnhancedIngestionService:
                         quality_results['critical_failures'] += 1
                 
                 # Log quality check result
-                log_sql = """
-                INSERT INTO DATA_QUALITY.QUALITY_CHECK_LOG
-                (check_id, schema_name, rule_name, status, failure_count, severity)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                """
+                # log_sql = """
+                # INSERT INTO DATA_QUALITY.QUALITY_CHECK_LOG
+                # (check_id, schema_name, rule_name, status, failure_count, severity)
+                # VALUES (%s, %s, %s, %s, %s, %s)
+                # """
                 
-                check_id = f"{schema_name}_{rule['rule_name']}_{int(datetime.now().timestamp())}"
+                # check_id = f"{schema_name}_{rule['rule_name']}_{int(datetime.now().timestamp())}"
                 # await self.semantic_service._execute_query(log_sql, [
                 #     check_id, schema_name, rule['rule_name'],
                 #     'PASSED' if passed else 'FAILED',
