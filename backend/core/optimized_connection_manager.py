@@ -31,21 +31,10 @@ import weakref
 # Database connection libraries with graceful fallbacks
 import asyncpg
 import redis.asyncio as redis
-# Try to import optional dependencies
+
+# Try to import optional dependencies with graceful fallbacks
 try:
     import aiomysql
-    AIOMYSQL_AVAILABLE = True
-except ImportError:
-    AIOMYSQL_AVAILABLE = False
-    class MockAioMySQL:
-        @staticmethod
-        async def connect(**kwargs):
-            raise NotImplementedError("aiomysql not available")
-    aiomysql = MockAioMySQL()
-
-# Try to import optional dependencies
-try:
-    # import aiomysql
     AIOMYSQL_AVAILABLE = True
 except ImportError:
     AIOMYSQL_AVAILABLE = False
