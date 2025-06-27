@@ -12,17 +12,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 
-from backend.mcp.base.standardized_mcp_server import SyncPriority
+from backend.mcp.base.standardized_mcp_server import SyncPriority as ServerSyncPriority
 from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
 logger = logging.getLogger(__name__)
-
-class SyncPriority(Enum):
-    """Data synchronization priority levels."""
-    REAL_TIME = "real_time"    # <1 minute
-    HIGH = "high"              # <5 minutes  
-    MEDIUM = "medium"          # <30 minutes
-    LOW = "low"                # <24 hours
 
 class SyncStatus(Enum):
     """Synchronization status enumeration."""
@@ -46,7 +39,7 @@ class SyncConfiguration:
     """Configuration for data synchronization."""
     platform: str
     data_type: str
-    priority: SyncPriority
+    priority: ServerSyncPriority
     sync_interval_minutes: int
     batch_size: int = 100
     retry_attempts: int = 3
@@ -306,7 +299,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="linear", 
                 data_type="issues", 
-                priority=SyncPriority.REAL_TIME,
+                priority=ServerSyncPriority.REAL_TIME,
                 sync_interval_minutes=1,
                 batch_size=50,
                 enable_ai_processing=True
@@ -314,7 +307,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="asana", 
                 data_type="tasks", 
-                priority=SyncPriority.REAL_TIME,
+                priority=ServerSyncPriority.REAL_TIME,
                 sync_interval_minutes=1,
                 batch_size=50,
                 enable_ai_processing=True
@@ -322,7 +315,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="gong", 
                 data_type="calls", 
-                priority=SyncPriority.REAL_TIME,
+                priority=ServerSyncPriority.REAL_TIME,
                 sync_interval_minutes=2,
                 batch_size=25,
                 enable_ai_processing=True
@@ -330,7 +323,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="hubspot", 
                 data_type="deals", 
-                priority=SyncPriority.REAL_TIME,
+                priority=ServerSyncPriority.REAL_TIME,
                 sync_interval_minutes=2,
                 batch_size=25,
                 enable_ai_processing=True
@@ -340,7 +333,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="linear", 
                 data_type="projects", 
-                priority=SyncPriority.HIGH,
+                priority=ServerSyncPriority.HIGH,
                 sync_interval_minutes=5,
                 batch_size=100,
                 sync_dependencies=["linear_issues"]
@@ -348,7 +341,7 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="asana", 
                 data_type="projects", 
-                priority=SyncPriority.HIGH,
+                priority=ServerSyncPriority.HIGH,
                 sync_interval_minutes=5,
                 batch_size=100,
                 sync_dependencies=["asana_tasks"]
@@ -356,14 +349,14 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="hubspot", 
                 data_type="contacts", 
-                priority=SyncPriority.HIGH,
+                priority=ServerSyncPriority.HIGH,
                 sync_interval_minutes=10,
                 batch_size=200
             ),
             SyncConfiguration(
                 platform="gong", 
                 data_type="transcripts", 
-                priority=SyncPriority.HIGH,
+                priority=ServerSyncPriority.HIGH,
                 sync_interval_minutes=5,
                 batch_size=50,
                 sync_dependencies=["gong_calls"],
@@ -374,21 +367,21 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="linear", 
                 data_type="teams", 
-                priority=SyncPriority.MEDIUM,
+                priority=ServerSyncPriority.MEDIUM,
                 sync_interval_minutes=30,
                 batch_size=50
             ),
             SyncConfiguration(
                 platform="asana", 
                 data_type="teams", 
-                priority=SyncPriority.MEDIUM,
+                priority=ServerSyncPriority.MEDIUM,
                 sync_interval_minutes=30,
                 batch_size=50
             ),
             SyncConfiguration(
                 platform="notion", 
                 data_type="pages", 
-                priority=SyncPriority.MEDIUM,
+                priority=ServerSyncPriority.MEDIUM,
                 sync_interval_minutes=60,
                 batch_size=100,
                 enable_ai_processing=True
@@ -398,14 +391,14 @@ class CrossPlatformSyncOrchestrator:
             SyncConfiguration(
                 platform="codacy", 
                 data_type="metrics", 
-                priority=SyncPriority.LOW,
+                priority=ServerSyncPriority.LOW,
                 sync_interval_minutes=1440,  # Daily
                 batch_size=1000
             ),
             SyncConfiguration(
                 platform="snowflake_admin", 
                 data_type="query_history", 
-                priority=SyncPriority.LOW,
+                priority=ServerSyncPriority.LOW,
                 sync_interval_minutes=720,  # 12 hours
                 batch_size=500
             ),
@@ -446,7 +439,7 @@ class CrossPlatformSyncOrchestrator:
             priority_groups = self._group_configs_by_priority()
             
             # Execute syncs by priority (real-time first, then high, medium, low)
-            for priority in [SyncPriority.REAL_TIME, SyncPriority.HIGH, SyncPriority.MEDIUM, SyncPriority.LOW]:
+            for priority in [ServerSyncPriority.REAL_TIME, ServerSyncPriority.HIGH, ServerSyncPriority.MEDIUM, ServerSyncPriority.LOW]:
                 if priority in priority_groups:
                     priority_results = await self._execute_priority_group(
                         priority_groups[priority], 
@@ -489,7 +482,7 @@ class CrossPlatformSyncOrchestrator:
             
             return orchestration_result
     
-    def _group_configs_by_priority(self) -> Dict[SyncPriority, List[SyncConfiguration]]:
+    def _group_configs_by_priority(self) -> Dict[ServerSyncPriority, List[SyncConfiguration]]:
         """Group sync configurations by priority."""
         priority_groups = defaultdict(list)
         for config in self.sync_configs:
@@ -513,7 +506,7 @@ class CrossPlatformSyncOrchestrator:
         
         # For real-time and high priority, run in parallel
         # For medium and low priority, run with limited concurrency
-        if configs[0].priority in [SyncPriority.REAL_TIME, SyncPriority.HIGH]:
+        if configs[0].priority in [ServerSyncPriority.REAL_TIME, ServerSyncPriority.HIGH]:
             # Run all in parallel for speed
             tasks = [self._sync_platform_data(config) for config in configs_to_sync]
             results = await asyncio.gather(*tasks, return_exceptions=True)

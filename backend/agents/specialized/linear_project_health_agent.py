@@ -358,7 +358,7 @@ class LinearProjectHealthAgent(BaseAgent):
         """Counts issues based on their status and labels."""
         completed = len([i for i in issues if i.status.lower() in ["done", "completed", "closed"]])
         in_progress = len([i for i in issues if i.status.lower() in ["in progress", "in review"]])
-        blocked = len([i for i in issues if "blocked" in i.status.lower() or "blocked" in [l.lower() for l in i.labels]])
+        blocked = len([i for i in issues if "blocked" in i.status.lower() or "blocked" in [label.lower() for label in i.labels]])
         
         now = datetime.now()
         overdue = len([i for i in issues if i.due_date and i.due_date < now and i.status.lower() not in ["done", "completed", "closed"]])

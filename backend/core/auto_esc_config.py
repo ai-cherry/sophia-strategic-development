@@ -628,32 +628,21 @@ config = AutoESCConfig()
 
 
 def get_config_value(key: str, default: Any | None = None) -> Any | None:
-    """Get configuration value using the global config instance.
-
-    This function provides backward compatibility for modules that expect
-    a simple get_config_value function.
-
-    Args:
-        key: Configuration key to retrieve
-        default: Default value if key is not found
-
-    Returns:
-        Configuration value or default
-    """
-    return config.get(key, default)
+    """Get a configuration value from Pulumi ESC."""
+    global _esc_config
+    if _esc_config is None:
+        _esc_config = AutoESCConfig()
+    return _esc_config.get(key, default)
 
 
-def get_config_value(key: str, default: Any | None = None) -> Any | None:
-    """Get configuration value using the global config instance.
+# The async version is removed to prevent redefinition and confusion.
+# async def get_config_value(key: str, default: Any | None = None) -> Any | None:
+#     """Get a configuration value from Pulumi ESC (async version)."""
+#     global _esc_config
+#     if _esc_config is None:
+#         _esc_config = AutoESCConfig()
+#     return _esc_config.get(key, default)
 
-    This function provides backward compatibility for modules that expect
-    a simple get_config_value function.
-
-    Args:
-        key: Configuration key to retrieve
-        default: Default value if key is not found
-
-    Returns:
-        Configuration value or default
-    """
-    return config.get(key, default)
+# Set production environment by default if not already set
+if not os.getenv("ENVIRONMENT"):
+    os.environ["ENVIRONMENT"] = "prod"

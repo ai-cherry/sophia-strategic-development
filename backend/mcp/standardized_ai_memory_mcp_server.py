@@ -130,12 +130,16 @@ class ConversationAnalyzer:
     def _calculate_importance(self, content: str) -> float:
         score = 0.3
         for keyword in self.high_importance_keywords:
-            if keyword in content: score += 0.1
+            if keyword in content:
+                score += 0.1
         for patterns in self.importance_patterns.values():
             for pattern in patterns:
-                if re.search(pattern, content): score += 0.15
-        if len(content) > 1000: score += 0.1
-        if "```" in content: score += 0.2
+                if re.search(pattern, content):
+                    score += 0.15
+        if len(content) > 1000:
+            score += 0.1
+        if "```" in content:
+            score += 0.2
         return min(score, 1.0)
     
     def _detect_category(self, content: str) -> str:
@@ -148,12 +152,14 @@ class ConversationAnalyzer:
         tags = []
         tech_patterns = {"python": r"\bpython\b", "react": r"\breact\b", "docker": r"\bdocker\b"}
         for tag, pattern in tech_patterns.items():
-            if re.search(pattern, content): tags.append(tag)
+            if re.search(pattern, content):
+                tags.append(tag)
         return tags
     
     def _get_analysis_reason(self, content: str, score: float) -> str:
         reasons = []
-        if score > 0.8: reasons.append("High importance keywords detected")
+        if score > 0.8:
+            reasons.append("High importance keywords detected")
         return "; ".join(reasons) if reasons else "Standard content analysis"
 
 
@@ -309,7 +315,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
     
     async def _preload_ai_coding_knowledge(self):
         """Pre-load helpful AI coding knowledge for developers"""
-        if self.preloaded_knowledge: return
+        if self.preloaded_knowledge:
+            return
         knowledge_base = [
             {
                 "content": "When using Cursor IDE with MCP servers, use @server_name commands to interact with specific tools. For example: @ai_memory store this conversation...",

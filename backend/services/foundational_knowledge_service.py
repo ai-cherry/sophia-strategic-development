@@ -12,10 +12,9 @@ from enum import Enum
 
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.knowledge_service import KnowledgeService
 from backend.core.logger import logger
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class FoundationalDataType(Enum):

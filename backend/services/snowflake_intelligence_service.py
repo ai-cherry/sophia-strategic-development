@@ -220,7 +220,8 @@ class SnowflakeIntelligenceService:
         """Placeholder for summarizing structured data."""
         summary_parts = []
         for key, value in data.items():
-            if key.startswith('_'): continue
+            if key.startswith('_'):
+                continue
             if isinstance(value, list) and len(value) > 0:
                 summary_parts.append(f"- Found {len(value)} records for '{key}'.")
         return "\n".join(summary_parts) or "No structured data found."
