@@ -1,11 +1,9 @@
 # File: backend/services/semantic_layer_service.py
 
-import asyncio
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 import snowflake.connector
 from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
-from backend.core.auto_esc_config import get_config_value
 from backend.utils.logging import get_logger
 
 logger = get_logger(__name__)

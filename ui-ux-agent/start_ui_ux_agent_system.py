@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import requests
+import psutil
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -403,19 +404,21 @@ class EnhancedUIUXAgentSystemManager:
         """Clean up processes"""
         logger.info("🧹 Cleaning up processes...")
         
-        for name, process in self.processes:
+        for process in self.processes:
             try:
-                process.terminate()
-                process.wait(timeout=5)
-                logger.info(f"✅ {name} stopped")
+                if psutil.pid_exists(process.pid):
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except psutil.TimeoutExpired:
+                        process.kill()
+            except psutil.NoSuchProcess:
+                pass
             except Exception as e:
-                logger.warning(f"⚠️  Failed to stop {name}: {e}")
-                try:
-                    process.kill()
-                except:
-                    pass
-        
-        logger.info("✅ UI/UX Agent System shutdown complete")
+                logger.debug(f"Could not terminate process {process.pid}: {e}")
+
+        self.processes.clear()
+        logger.info("✅ All UI/UX agent system processes stopped")
 
 async def main():
     """Main entry point"""

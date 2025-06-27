@@ -5,7 +5,6 @@ Helps configure Anthropic API key for Sophia AI
 """
 
 import os
-import sys
 from pathlib import Path
 
 def setup_claude_api():

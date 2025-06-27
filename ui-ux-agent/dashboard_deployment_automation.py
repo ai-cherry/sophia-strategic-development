@@ -6,9 +6,7 @@ Ensures seamless dashboard updates and production deployment
 """
 
 import asyncio
-import json
 import logging
-import os
 import subprocess
 import requests
 from datetime import datetime
@@ -401,7 +399,7 @@ export default Enhanced{target['component']};
                 logger.warning("   ⚠️  Lint check has warnings")
                 return 80
                 
-        except Exception as e:
+        except Exception:
             logger.info("   ℹ️  Lint check skipped (not critical)")
             return 90
     

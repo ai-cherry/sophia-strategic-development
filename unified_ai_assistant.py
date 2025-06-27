@@ -6,12 +6,8 @@ Natural language interface to ALL AI solutions, agents, and tools
 
 import asyncio
 import subprocess
-import os
 import sys
-import json
 import requests
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 
 class UnifiedAIAssistant:
     """Master interface for all AI solutions in Sophia AI with latest models"""
@@ -100,7 +96,7 @@ class UnifiedAIAssistant:
         
         print(f"🎯 Intent: {intent.upper()}")
         print(f"🧠 Selected Model: {selected_model}")
-        print(f"🔄 Processing...")
+        print("🔄 Processing...")
         
         try:
             if intent == "coding":
@@ -132,7 +128,7 @@ class UnifiedAIAssistant:
             else:
                 # Fallback to unified chat
                 return await self._fallback_to_chat(query, "coding")
-        except Exception as e:
+        except Exception:
             return await self._fallback_to_chat(query, "coding")
     
     async def _handle_infrastructure(self, query: str) -> str:
@@ -231,7 +227,7 @@ class UnifiedAIAssistant:
                         status.append(f"✅ {name}: Healthy")
                     else:
                         status.append(f"❌ {name}: Unhealthy")
-                except:
+                except requests.exceptions.RequestException:
                     status.append(f"❌ {name}: Offline")
             
             return f"🔗 **MCP Server Status:**\n\n{chr(10).join(status)}\n\nQuery: {query}\n\nMCP capabilities:\n- AI Memory storage and recall\n- Code quality analysis\n- Design system integration\n- Real-time context management"
@@ -262,7 +258,7 @@ class UnifiedAIAssistant:
             # Ultimate fallback
             return f"🤖 **Sophia AI Response** (Model: {model}):\n\nI understand you're asking: {query}\n\nSophia AI Platform Status:\n✅ Unified AI Assistant: Active\n✅ Latest Models: {model}\n✅ MCP Integration: Available\n✅ Business Intelligence: Ready\n\nAll systems operational and ready to assist with your business needs!"
             
-        except Exception as e:
+        except Exception:
             return f"🤖 **Sophia AI Fallback:** System available but experiencing connectivity issues. Query: {query}"
 
     def show_status(self) -> str:
@@ -271,19 +267,19 @@ class UnifiedAIAssistant:
             # Check backend
             backend_status = "❌ Offline"
             try:
-                response = requests.get(f"{self.base_url}/health", timeout=5)
+                response = requests.get(f"{self.base_url}/health", timeout=2)
                 if response.status_code == 200:
                     backend_status = "✅ Online"
-            except:
+            except requests.exceptions.RequestException:
                 pass
             
             # Check frontend
             frontend_status = "❌ Offline"
             try:
-                response = requests.get(f"{self.frontend_url}", timeout=5)
+                response = requests.get(f"{self.frontend_url}", timeout=2)
                 if response.status_code == 200:
                     frontend_status = "✅ Online"
-            except:
+            except requests.exceptions.RequestException:
                 pass
             
             # Check MCP servers
@@ -302,7 +298,7 @@ class UnifiedAIAssistant:
                         mcp_status.append(f"✅ {name}")
                     else:
                         mcp_status.append(f"❌ {name}")
-                except:
+                except requests.exceptions.RequestException:
                     mcp_status.append(f"❌ {name}")
             
             return f"""

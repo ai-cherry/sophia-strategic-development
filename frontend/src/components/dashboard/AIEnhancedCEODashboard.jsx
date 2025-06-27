@@ -6,10 +6,10 @@ import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Loader2, TrendingUp, TrendingDown, AlertTriangle, Lightbulb } from 'lucide-react';
 import EnhancedKPICard from './EnhancedKPICard';
-// Assuming these components exist or will be created
-// import { EnhancedExecutiveChart } from './EnhancedExecutiveChart';
-// import { AutomatedInsightsPanel } from './AutomatedInsightsPanel';
-// import { PredictiveAnalyticsWidget } from './PredictiveAnalyticsWidget';
+// Mock components for layout purposes
+const EnhancedExecutiveChart = () => <div className="h-64 bg-gray-700/50 rounded-lg flex items-center justify-center"><p>Executive Chart</p></div>;
+const AutomatedInsightsPanel = ({ insights }) => <Card className="bg-white/10 backdrop-blur-xl border-white/20 h-full"><CardHeader><CardTitle>Automated Insights</CardTitle></CardHeader><CardContent>{insights.length} insights available</CardContent></Card>;
+const PredictiveAnalyticsWidget = ({ title }) => <Card className="bg-white/10 backdrop-blur-xl border-white/20"><CardHeader><CardTitle>{title}</CardTitle></CardHeader><CardContent>Prediction data here</CardContent></Card>;
 
 const AIEnhancedCEODashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -22,17 +22,18 @@ const AIEnhancedCEODashboard = () => {
   const [queryLoading, setQueryLoading] = useState(false);
 
   const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const metricsResponse = await fetch('/api/intelligence/dashboard/enhanced-metrics', {
+      const response = await fetch('/api/intelligence/dashboard/enhanced-metrics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer faketoken' },
-        body: JSON.stringify({ timeRange: selectedTimeRange })
+        body: JSON.stringify({ timeRange: selectedTimeRange, include_predictions: true })
       });
-      const metricsData = await metricsResponse.json();
-      setDashboardData(metricsData.metrics);
-      setInsights(metricsData.insights || []);
-      setPredictions(metricsData.predictions || {});
+      if (!response.ok) throw new Error('Failed to fetch dashboard metrics');
+      const data = await response.json();
+      setDashboardData(data.metrics);
+      setInsights(data.insights || []);
+      setPredictions(data.predictions || {});
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -40,10 +41,10 @@ const AIEnhancedCEODashboard = () => {
     }
   }, [selectedTimeRange]);
 
-  const handleNaturalLanguageQuery = async () => {
+  const handleNaturalLanguageQuery = useCallback(async () => {
     if (!naturalLanguageQuery.trim()) return;
+    setQueryLoading(true);
     try {
-      setQueryLoading(true);
       const response = await fetch('/api/intelligence/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer faketoken' },
@@ -52,12 +53,11 @@ const AIEnhancedCEODashboard = () => {
       const result = await response.json();
       setQueryResponse(result);
     } catch (error) {
-      console.error('Failed to process natural language query:', error);
-      setQueryResponse({ answer: 'I encountered an error processing your query.', confidence_score: 0, sources_used: [] });
+      setQueryResponse({ answer: 'I encountered an error processing your query.', confidence_score: 0 });
     } finally {
       setQueryLoading(false);
     }
-  };
+  }, [naturalLanguageQuery]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -75,12 +75,12 @@ const AIEnhancedCEODashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6 text-white">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">AI-Enhanced Executive Command Center</h1>
+        <h1 className="text-4xl font-bold">AI-Enhanced Executive Command Center</h1>
         <p className="text-slate-300">Powered by Snowflake Intelligence & Cortex AI</p>
       </div>
-      
+
       <Card className="bg-white/10 backdrop-blur-xl border-white/20 mb-6">
-        <CardHeader><CardTitle>Ask Anything About Your Business</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center"><Lightbulb className="mr-2"/>Ask Anything About Your Business</CardTitle></CardHeader>
         <CardContent>
           <div className="flex gap-2">
             <Input
@@ -104,18 +104,24 @@ const AIEnhancedCEODashboard = () => {
           )}
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <EnhancedKPICard
-            title="Revenue"
-            value={dashboardData?.revenue?.current || 0}
-            previousValue={dashboardData?.revenue?.previous || 0}
-            format="currency"
-            insight={insights.find(i => i.metrics_affected?.includes('revenue'))}
-            prediction={predictions.revenue_prediction}
-        />
-        {/* Add more EnhancedKPICard instances for other metrics */}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <EnhancedKPICard title="Revenue" value={dashboardData?.revenue?.current} previousValue={dashboardData?.revenue?.previous} format="currency" insight={insights.find(i => i.metrics_affected?.includes('revenue'))} prediction={predictions.revenue_forecasting} />
+        <EnhancedKPICard title="Customer Satisfaction" value={dashboardData?.satisfaction?.current} previousValue={dashboardData?.satisfaction?.previous} format="percentage" insight={insights.find(i => i.metrics_affected?.includes('customer_satisfaction'))} prediction={predictions.customer_satisfaction_prediction} />
+        <EnhancedKPICard title="Sales Pipeline" value={dashboardData?.pipeline?.current} previousValue={dashboardData?.pipeline?.previous} format="currency" insight={insights.find(i => i.metrics_affected?.includes('pipeline_value'))} prediction={predictions.sales_pipeline_prediction} />
+        <EnhancedKPICard title="Team Performance" value={8.5} previousValue={8.2} format="score" />
       </div>
+
+       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+         <div className="lg:col-span-2"><EnhancedExecutiveChart /></div>
+         <AutomatedInsightsPanel insights={insights} />
+       </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PredictiveAnalyticsWidget title="Customer Churn Risk" />
+        <PredictiveAnalyticsWidget title="Sales Forecast" />
+      </div>
+
     </div>
   );
 };

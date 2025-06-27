@@ -7,7 +7,6 @@ Implements capabilities similar to Zencoder and cursor-companion
 import os
 import json
 import subprocess
-import sys
 from pathlib import Path
 
 def setup_enhanced_workflow():

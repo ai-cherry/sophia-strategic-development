@@ -4,14 +4,15 @@ Enhanced Coding Workflow Integration for Sophia AI
 Combines the best of Zencoder, cursor-companion, and Sophia AI capabilities
 """
 
-import os
 import json
 import asyncio
 import requests
 import subprocess
 from typing import Dict, List, Any, Optional
 from pathlib import Path
-from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SophiaEnhancedCodingWorkflow:
     """
@@ -383,10 +384,11 @@ Include:
             
             # Get design context from UI/UX agent
             try:
-                design_response = requests.get("http://localhost:9002/health", timeout=5)
+                design_response = requests.get(f"http://localhost:9001/api/design_system", timeout=5)
                 if design_response.status_code == 200:
                     business_context["design_context"] = "Glassmorphism design system, WCAG 2.1 AA compliance"
-            except:
+            except Exception as e:
+                logger.warning(f"Could not connect to design system MCP, using default. Error: {e}")
                 business_context["design_context"] = "Modern responsive design required"
                 
         except Exception as e:

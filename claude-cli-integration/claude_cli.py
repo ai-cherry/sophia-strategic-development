@@ -8,9 +8,8 @@ import asyncio
 import json
 import logging
 import os
-import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 import aiohttp
 import argparse
 
@@ -36,7 +35,7 @@ class ClaudeMCPIntegration:
             if self.config_path.exists():
                 with open(self.config_path, 'r') as f:
                     self.config = json.load(f)
-                logger.info(f"✅ Loaded Claude MCP configuration with latest models")
+                logger.info("✅ Loaded Claude MCP configuration with latest models")
             else:
                 logger.error(f"❌ Configuration file not found: {self.config_path}")
         except Exception as e:
@@ -93,7 +92,7 @@ class ClaudeMCPIntegration:
             return {"status": "error", "message": f"Unknown server: {server_name}"}
         
         server_config = self.config["mcpServers"][server_name]
-        url = server_config.get("url", f"http://localhost:9001")
+        url = server_config.get("url", "http://localhost:9001")
         
         try:
             async with self.session.get(f"{url}/health") as response:
@@ -111,7 +110,7 @@ class ClaudeMCPIntegration:
             return {"error": f"Unknown server: {server_name}"}
         
         server_config = self.config["mcpServers"][server_name]
-        url = server_config.get("url", f"http://localhost:9001")
+        url = server_config.get("url", "http://localhost:9001")
         
         try:
             if data:
@@ -271,14 +270,14 @@ Always provide practical, actionable responses that leverage the available MCP c
         
         # Show model configuration
         model_config = self.config.get("globalSettings", {}).get("modelConfiguration", {})
-        print(f"\n🧠 **Model Configuration:**")
+        print("\n🧠 **Model Configuration:**")
         print(f"   Primary Model: {model_config.get('primaryModel', 'N/A')}")
         print(f"   Coding Model: {model_config.get('codingModel', 'N/A')}")
         print(f"   Analysis Model: {model_config.get('analysisModel', 'N/A')}")
         print(f"   API Status: {'✅ Connected' if self.anthropic_api_key else '❌ API Key Missing'}")
         
         # Check server health
-        print(f"\n📊 **MCP Server Health Check:**")
+        print("\n📊 **MCP Server Health Check:**")
         servers = await self.list_servers()
         
         for server_name, server_info in servers.items():
@@ -292,7 +291,7 @@ Always provide practical, actionable responses that leverage the available MCP c
                 print(f"      🔧 Capabilities: {', '.join(capabilities)}")
         
         # Test Claude integration
-        print(f"\n🤖 **Claude Enhanced Integration Test:**")
+        print("\n🤖 **Claude Enhanced Integration Test:**")
         
         test_queries = [
             "Generate a Python function to analyze sales data",
@@ -347,7 +346,7 @@ async def main():
     
     try:
         if args.command == "chat":
-            print(f"🤖 Processing with intelligent model selection...")
+            print("🤖 Processing with intelligent model selection...")
             response = await claude_mcp.claude_enhanced_query(args.message)
             print(f"\n{response}")
         

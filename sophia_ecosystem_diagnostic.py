@@ -5,12 +5,11 @@ Addresses the PULUMI_ACCESS_TOKEN issue and tests complete ecosystem including C
 """
 
 import os
-import sys
 import subprocess
 import json
 import logging
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -198,7 +197,7 @@ def main():
     with open('sophia_ecosystem_report.json', 'w') as f:
         json.dump(report, f, indent=2)
     
-    print(f"\n📄 Full report saved: sophia_ecosystem_report.json")
+    print("\n📄 Full report saved: sophia_ecosystem_report.json")
     
     # Summary
     issues = []

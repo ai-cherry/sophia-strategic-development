@@ -9,6 +9,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentationEnhancer:
@@ -255,11 +258,11 @@ Welcome to the Sophia AI documentation. This index provides quick access to all 
 
             # Read title from file
             try:
-                content = doc_file.read_text()
-                title = self.extract_title(content)
+                title = self.extract_title(doc_file.read_text())
                 relative_path = doc_file.relative_to(self.docs_path)
                 categories[category].append((title, str(relative_path)))
-            except:
+            except Exception as e:
+                logger.debug(f"Could not process file {doc_file}: {e}")
                 pass
 
         # Build index content

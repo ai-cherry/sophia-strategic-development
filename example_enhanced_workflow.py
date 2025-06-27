@@ -7,7 +7,6 @@ Demonstrates Sophia AI's superior capabilities vs Zencoder/cursor-companion
 import asyncio
 import json
 import subprocess
-from pathlib import Path
 
 async def demo_enhanced_workflow():
     """Demonstrate enhanced coding workflow capabilities"""
@@ -163,7 +162,7 @@ Requirements:
         else:
             print("   ✅ Business intelligence system ready")
             
-    except Exception as e:
+    except Exception:
         print("   ✅ Business intelligence capabilities available")
     
     # 8. Next steps

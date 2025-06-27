@@ -5,7 +5,6 @@ Similar to cursor-companion but integrated with Sophia AI
 """
 
 import json
-import sys
 import argparse
 from pathlib import Path
 

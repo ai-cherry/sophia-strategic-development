@@ -48,11 +48,11 @@ class MCPServerMonitor:
                         result["status"] = "healthy"
                         try:
                             result["data"] = await response.json()
-                        except:
+                        except aiohttp.ContentTypeError:
                             result["data"] = await response.text()
                     else:
                         result["status"] = "unhealthy"
-                        result["error"] = f"HTTP {response.status}"
+                        result["error"] = await response.text()
 
         except Exception as e:
             result["status"] = "unreachable"
@@ -83,9 +83,21 @@ class MCPServerMonitor:
                                 "pid": conn.pid,
                                 "name": proc.name(),
                             }
-                        except:
+                            if proc.pid == conn.pid:
+                                try:
+                                    result["process_info"] = {
+                                        "cpu_percent": proc.cpu_percent(),
+                                        "memory_mb": proc.memory_info().rss / (1024 * 1024),
+                                        "threads": proc.num_threads(),
+                                        "name": proc.name(),
+                                    }
+                                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                    pass
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
                             pass
                     break
+            except psutil.NoSuchProcess:
+                result["process_info"] = "not_found"
 
         return port_status
 

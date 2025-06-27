@@ -54,7 +54,7 @@ def main():
     
     # Check 1: Environment Variables
     env_ok, env_issues = check_environment_variables()
-    print(f"Environment Variables: {✅ if env_ok else ❌}")
+    print(f"Environment Variables: {'✅' if env_ok else '❌'}")
     if not env_ok:
         overall_health = False
         for issue in env_issues:
@@ -63,7 +63,7 @@ def main():
     
     # Check 2: Pulumi Authentication
     auth_ok, auth_error = check_pulumi_auth()
-    print(f"Pulumi Authentication: {✅ if auth_ok else ❌}")
+    print(f"Pulumi Authentication: {'✅' if auth_ok else '❌'}")
     if not auth_ok:
         overall_health = False
         print(f"  - {auth_error}")
@@ -71,7 +71,7 @@ def main():
     
     # Check 3: Stack Access
     stack_ok, stack_info = check_stack_access()
-    print(f"Stack Access: {✅ if stack_ok else ❌}")
+    print(f"Stack Access: {'✅' if stack_ok else '❌'}")
     if stack_ok:
         print(f"  - {stack_info}")
     else:
@@ -80,7 +80,7 @@ def main():
     print()
     
     # Overall Status
-    print(f"Overall Health: {✅ HEALTHY if overall_health else ❌ ISSUES DETECTED}")
+    print(f"Overall Health: {'✅ HEALTHY' if overall_health else '❌ ISSUES DETECTED'}")
     
     if not overall_health:
         print()

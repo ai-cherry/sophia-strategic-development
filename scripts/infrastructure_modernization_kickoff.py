@@ -7,7 +7,7 @@ Executes Phase 1 cleanup and preparation tasks
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import List
+from typing import List, Dict, Any
 import asyncio
 import logging
 
@@ -95,12 +95,12 @@ class InfrastructureModernizationKickoff:
 
     def _has_syntax_errors(self, file_path: Path) -> bool:
         """Check if a Python file has syntax errors"""
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
+            try:
                 compile(f.read(), str(file_path), "exec")
-            return False
-        except:
-            return True
+            except Exception:
+                return False
+        return True
 
     async def analyze_typescript_infrastructure(self):
         """Analyze TypeScript infrastructure files for migration"""

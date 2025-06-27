@@ -54,8 +54,8 @@ class DashboardIntegrationDemo:
                 logger.info("   ✅ Backend API: Operational")
             else:
                 logger.warning(f"   ⚠️  Backend API: Status {response.status_code}")
-        except:
-            logger.warning("   ❌ Backend API: Not accessible")
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"   ❌ Backend API: Not accessible ({e})")
         
         # Check frontend
         try:
@@ -64,8 +64,8 @@ class DashboardIntegrationDemo:
                 logger.info("   ✅ Frontend App: Operational")
             else:
                 logger.warning(f"   ⚠️  Frontend App: Status {response.status_code}")
-        except:
-            logger.warning("   ❌ Frontend App: Not accessible")
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"   ❌ Frontend App: Not accessible ({e})")
         
         # Check enhanced dashboard routes
         dashboard_routes = [
@@ -80,8 +80,8 @@ class DashboardIntegrationDemo:
                     logger.info(f"   ✅ {route}: Accessible")
                 else:
                     logger.warning(f"   ⚠️  {route}: Status {response.status_code}")
-            except:
-                logger.warning(f"   ❌ {route}: Not accessible")
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"   ❌ {route}: Not accessible ({e})")
     
     async def _demo_design_analysis(self):
         """Demonstrate design analysis capabilities"""
@@ -221,7 +221,7 @@ class DashboardIntegrationDemo:
         logger.info("   ♿ Full accessibility compliance across all components")
         logger.info("   🚀 Sub-2-second load times with optimized code generation")
         logger.info("   🔄 Real-time design updates from Figma to production")
-        logger.info("   �� Comprehensive test coverage for all generated components")
+        logger.info("    Comprehensive test coverage for all generated components")
 
 async def main():
     """Main demonstration entry point"""

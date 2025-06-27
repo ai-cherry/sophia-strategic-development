@@ -1,7 +1,6 @@
 # File: backend/services/snowflake_intelligence_service.py
 
-from typing import Dict, List, Any, Optional, AsyncGenerator
-import asyncio
+from typing import Dict, List, Any
 import json
 from dataclasses import dataclass
 from backend.services.semantic_layer_service import SemanticLayerService

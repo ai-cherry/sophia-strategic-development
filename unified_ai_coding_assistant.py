@@ -8,9 +8,8 @@ import asyncio
 import subprocess
 import os
 import sys
-import json
 import httpx
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
 import logging
 
@@ -150,7 +149,7 @@ class UnifiedAICodingAssistant:
             async with httpx.AsyncClient(timeout=2) as client:
                 response = await client.get(f"http://localhost:{port}/health")
                 return response.status_code == 200
-        except:
+        except httpx.RequestError:
             return False
 
     async def _check_service_health(self):

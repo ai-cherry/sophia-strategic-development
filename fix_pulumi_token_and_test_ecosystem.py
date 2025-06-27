@@ -9,9 +9,8 @@ import sys
 import subprocess
 import json
 import logging
-import asyncio
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -366,13 +365,13 @@ def main():
     # Generate and print recommendations
     recommendations = fixer.generate_fix_recommendations(results)
     if recommendations:
-        print(f"\n🔧 FIX RECOMMENDATIONS:")
+        print("\n🔧 FIX RECOMMENDATIONS:")
         for rec in recommendations:
             print(f"  {rec}")
     
     # Test Codacy MCP specifically (user asked about it)
     codacy_test = fixer.run_codacy_mcp_test()
-    print(f"\n🤖 CODACY MCP SERVER TEST:")
+    print("\n🤖 CODACY MCP SERVER TEST:")
     print(f"  Status: {codacy_test['status']}")
     print(f"  Message: {codacy_test['message']}")
     
@@ -389,11 +388,11 @@ def main():
             "recommendations": recommendations
         }, f, indent=2)
     
-    print(f"\n📄 Detailed report saved to: sophia_ecosystem_diagnostic.json")
+    print("\n📄 Detailed report saved to: sophia_ecosystem_diagnostic.json")
     
     # Summary
     if not fixer.issues_found:
-        print(f"\n🎉 SUCCESS: Sophia AI ecosystem is healthy!")
+        print("\n🎉 SUCCESS: Sophia AI ecosystem is healthy!")
     else:
         print(f"\n⚠️  ATTENTION: {len(fixer.issues_found)} issues need fixing")
         print("💡 Follow the fix recommendations above")

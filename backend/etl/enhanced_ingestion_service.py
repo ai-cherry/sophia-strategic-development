@@ -1,9 +1,8 @@
 # File: backend/etl/enhanced_ingestion_service.py
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import asyncio
-import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager, SourceType
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.utils.logging import get_logger

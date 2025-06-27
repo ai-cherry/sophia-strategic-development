@@ -377,11 +377,12 @@ Examples:
             traceback.print_exc()
         sys.exit(1)
     finally:
-        # Cleanup
-        if "server" in locals():
+        # Clean up
+        for server in self.running_servers.values():
             try:
                 await server.close()
-            except:
+            except Exception as e:
+                logger.warning(f"Failed to close server gracefully: {e}")
                 pass
 
 

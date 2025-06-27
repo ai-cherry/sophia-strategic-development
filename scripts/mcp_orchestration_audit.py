@@ -14,6 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MCPOrchestrationAuditor:
@@ -333,11 +336,12 @@ class MCPOrchestrationAuditor:
         for py_file in self.project_root.rglob("*.py"):
             if "__pycache__" not in str(py_file):
                 try:
-                    with open(py_file, "r") as f:
+                    with open(py_file, "r", encoding="utf-8") as f:
                         content = f.read()
                         if pattern in content:
                             matches.append(str(py_file))
-                except:
+                except Exception as e:
+                    logger.debug(f"Could not read file {py_file}: {e}")
                     pass
         return matches
 

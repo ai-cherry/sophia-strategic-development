@@ -12,6 +12,7 @@ import signal
 import logging
 import psutil
 from pathlib import Path
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -198,30 +199,26 @@ class SophiaDeploymentManager:
         max_retries = 30
         for i in range(max_retries):
             try:
-                import requests
-                response = requests.get("http://localhost:8000/health", timeout=2)
+                response = requests.get("http://localhost:8000/health", timeout=3)
                 if response.status_code == 200:
                     logger.info("✅ Backend health check passed")
                     break
-            except:
+            except requests.exceptions.RequestException:
                 if i == max_retries - 1:
                     logger.warning("⚠️  Backend health check failed, but continuing...")
-                else:
-                    time.sleep(2)
+            time.sleep(2)
         
         # Test frontend availability
         for i in range(max_retries):
             try:
-                import requests
-                response = requests.get("http://localhost:3000", timeout=2)
+                response = requests.get("http://localhost:3000", timeout=3)
                 if response.status_code == 200:
                     logger.info("✅ Frontend accessibility check passed")
                     break
-            except:
+            except requests.exceptions.RequestException:
                 if i == max_retries - 1:
                     logger.warning("⚠️  Frontend accessibility check failed, but continuing...")
-                else:
-                    time.sleep(2)
+            time.sleep(2)
                     
     def display_startup_info(self):
         """Display startup information"""
@@ -258,20 +255,22 @@ class SophiaDeploymentManager:
         logger.info("🧹 Cleaning up processes...")
         
         if self.backend_process:
+            logger.info("✅ Stopping Sophia AI Backend...")
+            self.backend_process.terminate()
             try:
-                self.backend_process.terminate()
                 self.backend_process.wait(timeout=5)
                 logger.info("✅ Backend stopped")
-            except:
+            except subprocess.TimeoutExpired:
                 self.backend_process.kill()
                 logger.info("✅ Backend force stopped")
                 
         if self.frontend_process:
+            logger.info("✅ Stopping Sophia AI Frontend...")
+            self.frontend_process.terminate()
             try:
-                self.frontend_process.terminate()
                 self.frontend_process.wait(timeout=5)
                 logger.info("✅ Frontend stopped")
-            except:
+            except subprocess.TimeoutExpired:
                 self.frontend_process.kill()
                 logger.info("✅ Frontend force stopped")
                 

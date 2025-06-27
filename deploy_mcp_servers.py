@@ -9,6 +9,10 @@ import time
 import sys
 import os
 from pathlib import Path
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class MCPServerDeployer:
@@ -49,11 +53,10 @@ class MCPServerDeployer:
     def check_server_health(self, port: int):
         """Check if a server is responding"""
         try:
-            import requests
-
             response = requests.get(f"http://localhost:{port}/health", timeout=5)
             return response.status_code == 200
-        except:
+        except Exception as e:
+            logger.debug(f"Health check for port {port} failed: {e}")
             return False
 
     def deploy_essential_servers(self):
@@ -100,12 +103,12 @@ class MCPServerDeployer:
                 server["process"].terminate()
                 server["process"].wait(timeout=5)
                 print(f"✅ Stopped {server['name']}")
-            except:
+            except Exception:
                 try:
                     server["process"].kill()
                     print(f"🔴 Force killed {server['name']}")
-                except:
-                    print(f"❌ Failed to stop {server['name']}")
+                except Exception as e:
+                    print(f"❌ Failed to stop {server['name']}: {e}")
 
 
 def main():

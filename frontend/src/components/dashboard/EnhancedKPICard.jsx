@@ -17,7 +17,7 @@ const EnhancedKPICard = ({
   const [showDetails, setShowDetails] = useState(false);
 
   const calculateChange = () => {
-    if (previousValue === null || previousValue === 0) return 0;
+    if (previousValue === null || previousValue === undefined || value === null || value === undefined || previousValue === 0) return 0;
     return ((value - previousValue) / previousValue) * 100;
   };
 
@@ -63,7 +63,7 @@ const EnhancedKPICard = ({
       
       <CardContent className="pt-0">
         <p className="text-3xl font-bold">{formatValue(value)}</p>
-        {previousValue !== null && (
+        {previousValue !== null && previousValue !== undefined && (
           <div className={`flex items-center text-sm ${isPositive ? "text-green-400" : isNegative ? "text-red-400" : "text-gray-400"}`}>
             {isPositive && <TrendingUp className="w-4 h-4 mr-1" />}
             {isNegative && <TrendingDown className="w-4 h-4 mr-1" />}

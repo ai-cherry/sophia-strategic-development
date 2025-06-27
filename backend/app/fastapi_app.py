@@ -22,7 +22,6 @@ from backend.core.config_validator import validate_deployment_readiness
 
 # Import SchemaDiscoveryService and get_logger
 from backend.services.schema_discovery_service import SchemaDiscoveryService
-from backend.utils.logging import get_logger
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
