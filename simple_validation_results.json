@@ -1,0 +1,84 @@
+{
+  "enhanced_settings": {
+    "status": "PASSED",
+    "found": 10,
+    "fields": [
+      "asana_pat_token: Optional[str] = None",
+      "salesforce_access_token: Optional[str] = None",
+      "slack_client_id: Optional[str] = None",
+      "slack_client_secret: Optional[str] = None",
+      "slack_signing_secret: Optional[str] = None",
+      "slack_app_token: Optional[str] = None",
+      "slack_refresh_token: Optional[str] = None",
+      "slack_socket_token: Optional[str] = None",
+      "hubspot_client_secret: Optional[str] = None",
+      "gong_access_key_secret: Optional[str] = None"
+    ]
+  },
+  "secret_manager": {
+    "status": "PASSED",
+    "found": 4,
+    "methods": [
+      "async def _validate_extended_api_services",
+      "async def _validate_asana_credentials",
+      "async def _validate_salesforce_credentials",
+      "async def _validate_slack_enhanced_credentials"
+    ]
+  },
+  "secure_credential_service": {
+    "status": "PASSED",
+    "found": 10,
+    "components": [
+      "class SecureCredentialService",
+      "async def get_api_credentials",
+      "async def get_platform_endpoints",
+      "async def health_check",
+      "platform == \"asana\"",
+      "platform == \"salesforce\"",
+      "platform == \"slack\"",
+      "platform == \"hubspot\"",
+      "platform == \"gong\"",
+      "platform == \"linear\""
+    ],
+    "file_size": 6608
+  },
+  "workflow_file": {
+    "status": "PASSED",
+    "found": 10,
+    "mappings": [
+      "ASANA_PAT_TOKEN=${{ secrets.ASANA_PAT_TOKEN }}",
+      "SALESFORCE_ACCESS_TOKEN=${{ secrets.SALESFORCE_ACCESS_TOKEN }}",
+      "SLACK_CLIENT_ID=${{ secrets.SLACK_CLIENT_ID }}",
+      "SLACK_CLIENT_SECRET=${{ secrets.SLACK_CLIENT_SECRET }}",
+      "SLACK_SIGNING_SECRET=${{ secrets.SLACK_SIGNING_SECRET }}",
+      "SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}",
+      "SLACK_REFRESH_TOKEN=${{ secrets.SLACK_REFRESH_TOKEN }}",
+      "SLACK_SOCKET_TOKEN=${{ secrets.SLACK_SOCKET_TOKEN }}",
+      "HUBSPOT_CLIENT_SECRET=${{ secrets.HUBSPOT_CLIENT_SECRET }}",
+      "GONG_ACCESS_KEY_SECRET=${{ secrets.GONG_ACCESS_KEY_SECRET }}"
+    ]
+  },
+  "github_secrets": {
+    "status": "PASSED",
+    "found": 10,
+    "secrets": [
+      "ASANA_PAT_TOKEN",
+      "SALESFORCE_ACCESS_TOKEN",
+      "SLACK_CLIENT_ID",
+      "SLACK_CLIENT_SECRET",
+      "SLACK_SIGNING_SECRET",
+      "SLACK_APP_TOKEN",
+      "SLACK_REFRESH_TOKEN",
+      "SLACK_SOCKET_TOKEN",
+      "HUBSPOT_CLIENT_SECRET",
+      "GONG_ACCESS_KEY_SECRET"
+    ]
+  },
+  "summary": {
+    "total_validations": 5,
+    "passed_validations": 5,
+    "success_rate": "100.0%",
+    "timestamp": "2025-06-27T01:51:43.301554",
+    "overall_status": "PERFECT"
+  }
+}
