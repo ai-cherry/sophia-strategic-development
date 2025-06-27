@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 
 class AgentCapability(Enum):
     """Available agent capabilities for the Cortex-enhanced orchestrator."""
@@ -41,5 +42,35 @@ class AgentResult:
     execution_time: float
     confidence_score: float
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class MemoryRecord:
+    """Canonical model for a single memory record, ensuring consistency across the platform."""
+    id: str
+    content: str
+    category: str
+    tags: List[str] = field(default_factory=list)
+    embedding: Optional[List[float]] = None
+    
+    # Timestamps
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    last_accessed_at: Optional[datetime] = None
+    
+    # Metadata for intelligence and retrieval
+    importance_score: float = 0.5
+    confidence_score: float = 1.0
+    usage_count: int = 0
+    
+    # Contextual links to business entities
+    deal_id: Optional[str] = None
+    call_id: Optional[str] = None
+    contact_id: Optional[str] = None
+    
+    # Source and detection information
+    source_system: str = "sophia_ai"
+    auto_detected: bool = False
+    
+    # Additional unstructured metadata
+    additional_metadata: Dict[str, Any] = field(default_factory=dict)
 
 # You can add other relevant data models for the enhanced agent framework here. 
