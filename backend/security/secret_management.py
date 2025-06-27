@@ -154,6 +154,7 @@ class SecretManager:
             validation_results.update(await self._validate_ai_services())
             validation_results.update(await self._validate_infrastructure_secrets())
             validation_results.update(await self._validate_monitoring_secrets())
+            validation_results.update(await self._validate_extended_api_services())
 
             # Log validation summary
             successful = sum(1 for result in validation_results.values() if result)
@@ -265,6 +266,92 @@ class SecretManager:
             )
 
         return results
+
+    async def _validate_extended_api_services(self) -> Dict[str, bool]:
+        """Validate extended API service secrets."""
+        results = {}
+
+        # Asana
+        if self.config.asana_pat_token:
+            results["asana"] = await self._validate_asana_credentials()
+
+        # Salesforce
+        if self.config.salesforce_access_token:
+            results["salesforce"] = await self._validate_salesforce_credentials()
+
+        # Enhanced Slack
+        if (self.config.slack_client_secret and 
+            self.config.slack_signing_secret and 
+            self.config.slack_app_token):
+            results["slack_enhanced"] = await self._validate_slack_enhanced_credentials()
+
+        return results
+
+    async def _validate_asana_credentials(self) -> bool:
+        """Validate Asana API credentials."""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    "https://app.asana.com/api/1.0/users/me",
+                    headers={
+                        "Authorization": f"Bearer {self.config.asana_pat_token}",
+                        "Content-Type": "application/json",
+                    },
+                    timeout=10,
+                )
+
+                success = response.status_code == 200
+                self.logger.info("Asana API validation", success=success)
+                return success
+
+        except Exception as e:
+            self.logger.error(f"Asana API validation failed: {e}")
+            return False
+
+    async def _validate_salesforce_credentials(self) -> bool:
+        """Validate Salesforce API credentials."""
+        try:
+            # Basic token format validation
+            token = self.config.salesforce_access_token
+            
+            if not token or len(token) < 50:
+                return False
+            
+            # Salesforce tokens have specific format characteristics
+            if not token.startswith(('00D', '6Cel')):
+                return False
+
+            self.logger.info("Salesforce credentials format validated")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Salesforce validation failed: {e}")
+            return False
+
+    async def _validate_slack_enhanced_credentials(self) -> bool:
+        """Validate enhanced Slack credentials."""
+        try:
+            # Validate token formats
+            client_secret = self.config.slack_client_secret
+            signing_secret = self.config.slack_signing_secret
+            app_token = self.config.slack_app_token
+
+            if not all([client_secret, signing_secret, app_token]):
+                return False
+
+            # Basic format validation
+            if (len(client_secret) < 30 or 
+                len(signing_secret) < 30 or 
+                not app_token.startswith('xapp-')):
+                return False
+
+            self.logger.info("Enhanced Slack credentials format validated")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Enhanced Slack validation failed: {e}")
+            return False
+
 
     async def _validate_jwt_keys(self) -> bool:
         """Validate JWT key pair."""

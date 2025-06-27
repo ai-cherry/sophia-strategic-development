@@ -136,6 +136,23 @@ class EnhancedSettings(BaseModel):
     linear_api_key: Optional[str] = None
     notion_api_key: Optional[str] = None
 
+    # Extended API integrations (Sophia AI Enhancement)
+    asana_pat_token: Optional[str] = None
+    salesforce_access_token: Optional[str] = None
+    
+    # Enhanced Slack integration
+    slack_client_id: Optional[str] = None
+    slack_client_secret: Optional[str] = None
+    slack_signing_secret: Optional[str] = None
+    slack_app_token: Optional[str] = None
+    slack_refresh_token: Optional[str] = None
+    slack_socket_token: Optional[str] = None
+    
+    # Enhanced HubSpot integration
+    hubspot_client_secret: Optional[str] = None
+    
+    # Enhanced Gong integration
+    gong_access_key_secret: Optional[str] = None
     # Infrastructure
     lambda_labs_api_key: Optional[str] = None
     lambda_labs_control_plane_ip: Optional[str] = None
