@@ -31,24 +31,18 @@
       }
     },
     "codacy": {
-      "type": "http",
-      "baseUrl": "http://localhost:3008",
-      "description": "Codacy MCP Server - Comprehensive code quality orchestrator with security analysis and intelligent recommendations",
+      "command": "python",
+      "args": ["-m", "mcp-servers.codacy.codacy_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       },
       "capabilities": [
-        "security_analysis",
-        "code_complexity",
-        "performance_analysis",
-        "sophia_ai_checks"
+        "static_analysis",
+        "security_scanning",
+        "code_quality_metrics"
       ],
-      "auto_triggers": {
-        "on_file_save": true,
-        "on_code_analysis": true,
-        "on_security_scan": true
-      }
+      "description": "Provides on-demand code and security analysis via the Codacy API."
     },
     "asana": {
       "command": "python",

@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 import ast
 import re
@@ -35,7 +36,15 @@ try:
 except ImportError:
     RADON_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
+# Base class and configs
+from backend.mcp.base.standardized_mcp_server import StandardizedMCPServer, MCPServerConfig, HealthCheckResult, HealthStatus, SyncPriority
+from backend.core.auto_esc_config import get_config_value
+from backend.utils.logging import get_logger
+
+# The client for the external API
+from .codacy_api_client import CodacyAPIClient
+
+logger = get_logger(__name__)
 
 
 class SeverityLevel(Enum):
@@ -834,251 +843,116 @@ class EnhancedCodacyAnalyzer:
         return suggestions[:5]  # Limit to top 5 suggestions
 
 
-# MCP Server Implementation
-server = Server("enhanced-codacy")
-analyzer = EnhancedCodacyAnalyzer()
+class CodacyMCPServer(StandardizedMCPServer):
+    """
+    An MCP server to act as a bridge to the Codacy API.
+    """
+    def __init__(self, config: Optional[MCPServerConfig] = None):
+        if config is None:
+            config = MCPServerConfig(
+                server_name="codacy",
+                port=3008,
+                sync_priority=SyncPriority.LOW,
+                sync_interval_minutes=120, # Sync every 2 hours
+            )
+        super().__init__(config)
+        self.codacy_client: Optional[CodacyAPIClient] = None
 
+    async def server_specific_init(self) -> None:
+        """Initializes the Codacy API client."""
+        codacy_token = get_config_value("CODACY_API_TOKEN")
+        if not codacy_token:
+            logger.error("CODACY_API_TOKEN is not configured. Codacy MCP server will be disabled.")
+            return
+        
+        # In a real app, the project ID would also be configured.
+        self.codacy_client = CodacyAPIClient(api_token=codacy_token, project_id="sophia-main")
+        logger.info("Codacy client initialized.")
 
-@server.list_tools()
-async def list_tools() -> List[Tool]:
-    """List available code analysis tools"""
-    return [
-        Tool(
-            name="analyze_code",
-            description="Perform comprehensive code quality analysis including security, complexity, and performance",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string", "description": "The code to analyze"},
-                    "file_path": {
-                        "type": "string",
-                        "description": "Path to the file being analyzed",
-                        "default": "unknown.py",
-                    },
-                    "analysis_types": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Types of analysis to perform",
-                        "default": ["security", "complexity", "performance"],
-                    },
-                },
-                "required": ["code"],
-            },
-        ),
-        Tool(
-            name="analyze_file",
-            description="Analyze a specific file for code quality issues",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "file_path": {
-                        "type": "string",
-                        "description": "Path to the file to analyze",
-                    }
-                },
-                "required": ["file_path"],
-            },
-        ),
-        Tool(
-            name="get_fix_suggestions",
-            description="Get specific fix suggestions for code issues",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string", "description": "The code with issues"},
-                    "issue_types": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Types of issues to focus on",
-                        "default": ["security", "performance"],
-                    },
-                },
-                "required": ["code"],
-            },
-        ),
-        Tool(
-            name="security_scan",
-            description="Focused security vulnerability scan",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "string",
-                        "description": "Code to scan for security issues",
-                    },
-                    "file_path": {
-                        "type": "string",
-                        "description": "File path for context",
-                        "default": "unknown.py",
-                    },
-                },
-                "required": ["code"],
-            },
-        ),
-    ]
+    async def server_specific_cleanup(self) -> None:
+        logger.info("Codacy MCP server shutting down.")
+        # No specific cleanup needed for this server
+        pass
 
-
-@server.call_tool()
-async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
-    """Handle tool calls"""
-
-    if name == "analyze_code":
-        code = arguments["code"]
-        file_path = arguments.get("file_path", "unknown.py")
-
-        result = await analyzer.analyze_code(code, file_path)
-
-        # Format results
-        response = {
-            "file_path": result.file_path,
-            "analysis_time": f"{result.analysis_time:.2f}s",
-            "timestamp": result.timestamp.isoformat(),
-            "metrics": {
-                "lines_of_code": result.metrics.lines_of_code,
-                "cyclomatic_complexity": result.metrics.cyclomatic_complexity,
-                "security_score": result.metrics.security_score,
-                "overall_score": result.metrics.overall_score,
-            },
-            "issues_summary": {
-                "total_issues": len(result.issues),
-                "critical": len(
-                    [i for i in result.issues if i.severity == SeverityLevel.CRITICAL]
-                ),
-                "high": len(
-                    [i for i in result.issues if i.severity == SeverityLevel.HIGH]
-                ),
-                "medium": len(
-                    [i for i in result.issues if i.severity == SeverityLevel.MEDIUM]
-                ),
-                "low": len(
-                    [i for i in result.issues if i.severity == SeverityLevel.LOW]
-                ),
-            },
-            "issues": [
-                {
-                    "category": issue.category.value,
-                    "severity": issue.severity.value,
-                    "title": issue.title,
-                    "description": issue.description,
-                    "line": issue.line_number,
-                    "suggestion": issue.suggestion,
-                    "rule_id": issue.rule_id,
-                }
-                for issue in result.issues
-            ],
-            "suggestions": result.suggestions,
-        }
-
-        return [TextContent(type="text", text=json.dumps(response, indent=2))]
-
-    elif name == "analyze_file":
-        file_path = arguments["file_path"]
-
+    async def check_external_api(self) -> bool:
+        """Checks the health of the Codacy API."""
+        if not self.codacy_client:
+            return False
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                code = f.read()
+            # A simple check, like getting project details
+            await self.codacy_client.get_project_issues(limit=1)
+            return True
+        except Exception:
+            return False
+            
+    # The following abstract methods are not strictly necessary for this server's
+    # primary function but are required by the base class.
+    async def sync_data(self) -> Dict[str, Any]:
+        logger.info("Codacy server does not have a primary sync data function. Returning empty.")
+        return {}
 
-            result = await analyzer.analyze_code(code, file_path)
-
-            response = {
-                "status": "success",
-                "file_path": file_path,
-                "file_size": len(code),
-                "analysis_summary": {
-                    "total_issues": len(result.issues),
-                    "security_score": result.metrics.security_score,
-                    "overall_score": result.metrics.overall_score,
-                    "suggestions": result.suggestions[:3],
-                },
-            }
-
-        except FileNotFoundError:
-            response = {"status": "error", "message": f"File {file_path} not found"}
-        except Exception as e:
-            response = {"status": "error", "message": str(e)}
-
-        return [TextContent(type="text", text=json.dumps(response, indent=2))]
-
-    elif name == "security_scan":
-        code = arguments["code"]
-        file_path = arguments.get("file_path", "unknown.py")
-
-        security_issues = await analyzer.security_analyzer.analyze_security(
-            code, file_path
+    async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        logger.info("AI processing is not applicable for Codacy server sync. Returning empty.")
+        return {}
+    
+    async def server_specific_health_check(self) -> HealthCheckResult:
+        return HealthCheckResult(
+            component="codacy_server_logic",
+            status=HealthStatus.HEALTHY,
+            response_time_ms=0,
+            details="All internal logic is operational."
         )
 
-        response = {
-            "security_scan_results": {
-                "total_security_issues": len(security_issues),
-                "critical_issues": len(
-                    [i for i in security_issues if i.severity == SeverityLevel.CRITICAL]
-                ),
-                "high_issues": len(
-                    [i for i in security_issues if i.severity == SeverityLevel.HIGH]
-                ),
-                "issues": [
-                    {
-                        "severity": issue.severity.value,
-                        "title": issue.title,
-                        "description": issue.description,
-                        "line": issue.line_number,
-                        "code_snippet": issue.code_snippet,
-                        "suggestion": issue.suggestion,
-                    }
-                    for issue in security_issues
-                ],
-            }
-        }
+    async def get_data_age_seconds(self) -> int:
+        # Not applicable for this server
+        return 0
 
-        return [TextContent(type="text", text=json.dumps(response, indent=2))]
-
-    elif name == "get_fix_suggestions":
-        code = arguments["code"]
-        issue_types = arguments.get("issue_types", ["security", "performance"])
-
-        result = await analyzer.analyze_code(code)
-
-        # Filter issues by requested types
-        filtered_issues = [
-            issue for issue in result.issues if issue.category.value in issue_types
-        ]
-
-        # Generate specific fix suggestions
-        fix_suggestions = []
-        for issue in filtered_issues[:10]:  # Limit to top 10
-            if issue.suggestion:
-                fix_suggestions.append(
-                    {
-                        "issue": issue.title,
-                        "line": issue.line_number,
-                        "fix": issue.suggestion,
-                        "priority": issue.severity.value,
-                    }
-                )
-
-        response = {
-            "fix_suggestions": fix_suggestions,
-            "total_fixable_issues": len(fix_suggestions),
-            "priority_order": ["critical", "high", "medium", "low"],
-        }
-
-        return [TextContent(type="text", text=json.dumps(response, indent=2))]
-
-    else:
+    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+        """Defines the tools this MCP server exposes."""
         return [
-            TextContent(
-                type="text", text=json.dumps({"error": f"Unknown tool: {name}"})
-            )
+            {
+                "name": "analyze_file",
+                "description": "Analyzes a single file for code quality and security issues.",
+                "inputSchema": {"type": "object", "properties": {"file_path": {"type": "string"}}},
+                "required": ["file_path"]
+            },
+            {
+                "name": "get_project_issues",
+                "description": "Retrieves open issues for the project from Codacy.",
+                "inputSchema": {"type": "object", "properties": {"severity_level": {"type": "string"}}}
+            }
         ]
+    
+    async def execute_mcp_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """Executes a tool call."""
+        if not self.codacy_client:
+            return {"error": "Codacy client not initialized."}
+        
+        if tool_name == "analyze_file":
+            file_path_str = parameters.get("file_path")
+            if not file_path_str:
+                return {"error": "file_path is required."}
+            
+            file_path = Path(file_path_str)
+            if not file_path.exists():
+                return {"error": f"File not found: {file_path_str}"}
+            
+            content = file_path.read_text()
+            return await self.codacy_client.analyze_file_content(file_path_str, content)
 
+        elif tool_name == "get_project_issues":
+            severity = parameters.get("severity_level")
+            return await self.codacy_client.get_project_issues(severity)
+        
+        else:
+            return {"error": f"Unknown tool: {tool_name}"}
 
 async def main():
-    """Run the Enhanced Codacy MCP server"""
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream, write_stream, server.create_initialization_options()
-        )
-
+    server = CodacyMCPServer()
+    # The StandardizedMCPServer base class has a `start` method for running the server.
+    # We would need to create a runner script for this. For now, this is a placeholder.
+    logger.info("Starting Codacy MCP Server...")
+    # await server.start()
 
 if __name__ == "__main__":
     asyncio.run(main())

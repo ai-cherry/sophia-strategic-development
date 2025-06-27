@@ -2,35 +2,21 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies including Codacy CLI
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    nodejs \
-    npm \
-    && rm -rf /var/lib/apt/lists/*
+# Copy only necessary files
+COPY mcp-servers/codacy/requirements.txt .
+COPY backend/ /app/backend
+COPY mcp-servers/codacy/ /app/mcp-servers/codacy/
 
-# Install Codacy CLI
-RUN curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh | bash
-
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the MCP server code
-COPY codacy_mcp_server.py .
+# Set environment variables for production-first operation
+ENV ENVIRONMENT="prod"
+ENV PULUMI_ORG="scoobyjava-org"
+ENV LOG_LEVEL="INFO"
+ENV PYTHONPATH="/app"
 
-# Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
-ENV CODACY_WORKSPACE_PATH=/workspace
+# Expose the port the server will run on
+EXPOSE 3008
 
-# Create workspace directory
-RUN mkdir -p /workspace
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys; sys.exit(0)"
-
-# Run the MCP server
-CMD ["python", "codacy_mcp_server.py"] 
+CMD ["uvicorn", "mcp-servers.codacy.codacy_mcp_server:app", "--host", "0.0.0.0", "--port", "3008"] 
