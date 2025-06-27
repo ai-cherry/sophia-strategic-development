@@ -1,0 +1,81 @@
+# Sophia AI - Declarative Semantic Layer Configuration
+# This file defines the rules for building the semantic layer dynamically.
+# It allows the system to adapt to new data sources and schema changes
+# without requiring code modifications.
+
+entities:
+  - name: Customer
+    primary_key: customer_id
+    base_table: FOUNDATIONAL_KNOWLEDGE.CUSTOMERS
+    description: "Represents a single customer account, enriched with data from all touchpoints."
+    enrichment_sources:
+      - source_table: GONG_DATA.CALLS
+        join_on:
+          from_column: customer_id
+          to_column: customer_id
+        join_type: LEFT
+        metrics:
+          - name: total_gong_calls
+            agg: COUNT(DISTINCT call_id)
+            description: "Total number of calls recorded in Gong."
+      - source_table: SLACK_DATA.MESSAGES
+        join_on:
+          # This demonstrates a more complex join based on text matching
+          from_column: company_name
+          to_column: message_text
+        join_type: FUZZY_TEXT_MATCH # A custom join type the generator will handle
+        metrics:
+          - name: total_slack_mentions
+            agg: COUNT(DISTINCT message_id)
+            description: "Total number of times the customer was mentioned in Slack."
+      - source_table: INTERCOM_DATA.TICKETS # Assuming this schema exists
+        join_on:
+          from_column: customer_id
+          to_column: customer_id
+        join_type: LEFT
+        metrics:
+          - name: total_support_tickets
+            agg: COUNT(DISTINCT ticket_id)
+            description: "Total number of support tickets filed."
+
+  - name: Employee
+    primary_key: employee_id
+    base_table: FOUNDATIONAL_KNOWLEDGE.EMPLOYEES
+    description: "Represents a Pay Ready employee, enriched with performance and activity data."
+    enrichment_sources:
+      - source_table: GONG_DATA.CALL_PARTICIPANTS
+        join_on:
+          from_column: email
+          to_column: participant_email
+        join_type: LEFT
+        # This is a multi-step enrichment
+        chain_join:
+          table: GONG_DATA.CALLS
+          join_on:
+            from_column: call_id
+            to_column: call_id
+        metrics:
+          - name: calls_participated
+            agg: COUNT(DISTINCT call_id)
+            description: "Total number of sales calls the employee participated in."
+          - name: avg_talk_time_pct
+            agg: AVG(talk_time_percentage)
+            description: "Average percentage of time the employee spoke during calls."
+
+      - source_table: PROJECT_MANAGEMENT.PROJECT_ASSIGNMENTS # Assuming this schema exists
+        join_on:
+          from_column: employee_id
+          to_column: employee_id
+        join_type: LEFT
+        metrics:
+          - name: active_projects
+            agg: COUNT(DISTINCT project_id)
+            description: "Number of projects the employee is currently assigned to."
+
+# Configuration for the generator service
+generation_config:
+  target_schema: SOPHIA_SEMANTIC
+  view_prefix: "" # No prefix, use entity name directly (e.g., CUSTOMER_360)
+  view_suffix: "_360"
+  run_on_startup: true
+  rebuild_schedule_cron: "0 0 * * *" # Daily at midnight UTC 

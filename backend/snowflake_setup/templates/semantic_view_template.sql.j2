@@ -1,0 +1,29 @@
+-- Jinja2 Template for Dynamic Semantic View Generation
+-- This template translates the semantic_layer_config.yaml into Snowflake SQL.
+
+CREATE OR REPLACE VIEW {{ view_name }} AS
+WITH base AS (
+    SELECT * FROM {{ base_table }}
+)
+{% for enrichment in enrichments %}
+, enrichment_{{ loop.index }} AS (
+    SELECT
+        source.{{ enrichment.join_on.to_column }} AS join_key,
+        {% for metric in enrichment.metrics %}
+        {{ metric.agg }} AS {{ metric.name }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    FROM {{ enrichment.source_table }} AS source
+    GROUP BY 1
+)
+{% endfor %}
+SELECT
+    b.*,
+    {% for enrichment in enrichments %}
+    {% for metric in enrichment.metrics %}
+    e{{ loop.parent.loop.index }}.{{ metric.name }}{% if not loop.last or not loop.parent.last %},{% endif %}
+    {% endfor %}
+    {% endfor %}
+FROM base b
+{% for enrichment in enrichments %}
+LEFT JOIN enrichment_{{ loop.index }} e{{ loop.index }} ON b.{{ enrichment.join_on.from_column }} = e{{ loop.index }}.join_key
+{% endfor %}; 

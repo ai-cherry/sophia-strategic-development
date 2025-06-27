@@ -20,6 +20,10 @@ from backend.api.codacy_integration_routes import router as codacy_router
 # Import enhanced configuration validation
 from backend.core.config_validator import validate_deployment_readiness
 
+# Import SchemaDiscoveryService and get_logger
+from backend.services.schema_discovery_service import SchemaDiscoveryService
+from backend.utils.logging import get_logger
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -242,6 +246,15 @@ async def startup_event():
             logger.info("📋 Recommendations:")
             for rec in validation_report.recommendations:
                 logger.info(f"   {rec}")
+
+        # Initialize and apply semantic layer
+        logger.info("Initializing and applying semantic layer...")
+        discovery_service = SchemaDiscoveryService()
+        success = await discovery_service.apply_semantic_layer()
+        if success:
+            logger.info("Semantic layer applied successfully during startup.")
+        else:
+            logger.error("Failed to apply semantic layer during startup.")
 
     except Exception as e:
         logger.error(f"❌ Deployment validation failed: {e}")
