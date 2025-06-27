@@ -117,7 +117,7 @@ const HomePage = () => {
             onClick={handleLaunchCEODashboard}
             className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
           >
-            Launch CEO Dashboard (Legacy)
+            🚀 Launch CEO Dashboard (Enhanced)
           </button>
           
           <button
@@ -146,7 +146,8 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard/ceo" element={<CEODashboardLayout />} />
+            <Route path="/dashboard/ceo" element={<StreamlinedUltraEnhancedCEODashboard />} />
+            <Route path="/dashboard/ceo-legacy" element={<CEODashboardLayout />} />
             <Route path="/dashboard/ceo-enhanced" element={<EnhancedCEODashboard />} />
             <Route path="/dashboard/ceo-ultra" element={<StreamlinedUltraEnhancedCEODashboard />} />
             <Route path="/dashboard/*" element={<div>Dashboard Hub Coming Soon</div>} />
