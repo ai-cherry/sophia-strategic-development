@@ -7,9 +7,9 @@ from typing import Dict, Any, List
 from jinja2 import Environment, FileSystemLoader
 
 from backend.services.semantic_layer_service import SemanticLayerService
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class SchemaDiscoveryService:
     """

@@ -26,7 +26,7 @@ from backend.services.smart_ai_service import (
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 
 logger = logging.getLogger(__name__)

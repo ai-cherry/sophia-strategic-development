@@ -5,9 +5,9 @@ import asyncio
 from datetime import datetime
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager, SourceType
 from backend.services.semantic_layer_service import SemanticLayerService
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class EnhancedIngestionService:
     """

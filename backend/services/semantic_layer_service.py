@@ -4,9 +4,9 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 import snowflake.connector
 from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class SemanticLayerService:
     """

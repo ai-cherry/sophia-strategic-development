@@ -11,7 +11,8 @@ import json
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase, AgentCapability
 from backend.services.smart_ai_service import LLMRequest, TaskType, smart_ai_service
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from mcp_servers.ai_memory.ai_memory_mcp_server import StandardizedAiMemoryMCPServer as EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.services.comprehensive_memory_service import ComprehensiveMemoryService
+from backend.services.smart_ai_service import SmartAIService
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,12 @@ class RiskLevel(Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
+class MemoryCategory:
+    """Memory categories for AI storage"""
+    ASANA_PROJECT_ANALYSIS = "asana_project_analysis"
+    ASANA_TEAM_INSIGHTS = "asana_team_insights"
+    ASANA_RISK_ASSESSMENT = "asana_risk_assessment"
 
 @dataclass
 class AsanaProjectMetrics:

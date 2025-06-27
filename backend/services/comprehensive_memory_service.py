@@ -6,7 +6,7 @@ import json
 from backend.agents.enhanced.data_models import MemoryRecord
 from backend.utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 from backend.core.hierarchical_cache import HierarchicalCache
-from backend.utils.logging import get_logger
+import logging
 
 try:
     import pinecone
@@ -14,7 +14,7 @@ try:
 except ImportError:
     PINECONE_AVAILABLE = False
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class ComprehensiveMemoryService:
     """

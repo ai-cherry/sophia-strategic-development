@@ -8,9 +8,9 @@ import json
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.integrations.gong_api_client import GongAPIClient
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class VectorDocument:
