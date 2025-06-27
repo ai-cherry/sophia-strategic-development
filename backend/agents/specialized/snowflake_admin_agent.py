@@ -519,23 +519,63 @@ Thought: I should understand what the user wants to do and determine if it's a s
             cursor = connection.cursor(DictCursor)
 
             try:
-                # Split and execute multiple statements if needed
+                # OPTIMIZED: Use batch operations instead of individual executions
                 statements = [
                     stmt.strip() for stmt in confirmed_sql.split(";") if stmt.strip()
                 ]
-                results = []
+                
+                if not statements:
+                    return AdminTaskResponse(
+                        success=False,
+                        message="No valid SQL statements to execute",
+                        environment=request.target_environment,
+                        execution_time=time.time() - start_time
+                    )
 
+                # Separate SELECT/SHOW statements from DDL/DML statements
+                query_statements = []
+                action_statements = []
+                
                 for statement in statements:
-                    cursor.execute(statement)
+                    upper_stmt = statement.upper().strip()
+                    if upper_stmt.startswith(("SELECT", "SHOW", "DESCRIBE")):
+                        query_statements.append(statement)
+                    else:
+                        action_statements.append(statement)
 
-                    # Fetch results if it's a SELECT statement
-                    if statement.upper().strip().startswith(
-                        "SELECT"
-                    ) or statement.upper().strip().startswith("SHOW"):
-                        rows = cursor.fetchall()
-                        results.extend(rows)
+                results = []
+                
+                # Execute action statements in batch (DDL/DML)
+                if action_statements:
+                    try:
+                        # Use optimized connection manager for batch execution
+                        from backend.core.optimized_connection_manager import connection_manager
+                        batch_queries = [(stmt, None) for stmt in action_statements]
+                        await connection_manager.execute_batch_queries(batch_queries)
+                        logger.info(f"Executed {len(action_statements)} action statements in batch")
+                    except Exception as batch_error:
+                        logger.error(f"Batch execution failed, falling back to individual: {batch_error}")
+                        # Fallback to individual execution for action statements
+                        for statement in action_statements:
+                            cursor.execute(statement)
+                            logger.info(f"Executed confirmed SQL: {statement}")
 
-                    logger.info(f"Executed confirmed SQL: {statement}")
+                # Execute query statements and collect results
+                if query_statements:
+                    try:
+                        # Use optimized connection manager for query batch
+                        for statement in query_statements:
+                            query_results = await connection_manager.execute_query(statement)
+                            results.extend(query_results)
+                            logger.info(f"Executed query: {statement}")
+                    except Exception as query_error:
+                        logger.error(f"Query batch failed, falling back to individual: {query_error}")
+                        # Fallback to individual execution for queries
+                        for statement in query_statements:
+                            cursor.execute(statement)
+                            rows = cursor.fetchall()
+                            results.extend(rows)
+                            logger.info(f"Executed confirmed SQL: {statement}")
 
                 return AdminTaskResponse(
                     success=True,

@@ -105,7 +105,10 @@ class SnowflakeCortexService:
     """
 
     def __init__(self):
-        self.connection = None
+        # Remove individual connection - use optimized connection manager
+        from backend.core.optimized_connection_manager import connection_manager
+        self.connection_manager = connection_manager
+        
         self.database = config.get("snowflake_database", "SOPHIA_AI")
         self.schema = config.get("snowflake_schema", "AI_PROCESSING")
         self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
@@ -126,7 +129,8 @@ class SnowflakeCortexService:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit - cleanup resources"""
-        await self.close()
+        # No need to close individual connection - managed by connection manager
+        pass
 
     async def initialize(self) -> None:
         """Initialize Snowflake connection for Cortex AI processing"""
@@ -134,21 +138,19 @@ class SnowflakeCortexService:
             return
 
         try:
-            self.connection = snowflake.connector.connect(
-                user=config.get("snowflake_user"),
-                password=config.get("snowflake_password"),
-                account=config.get("snowflake_account"),
-                warehouse=self.warehouse,
-                database=self.database,
-                schema=self.schema,
-                role=config.get("snowflake_role", "ACCOUNTADMIN"),
-            )
+            # Use connection manager instead of individual connection
+            await self.connection_manager.initialize()
+            
+            # Set database and schema context
+            await self.connection_manager.execute_query(f"USE DATABASE {self.database}")
+            await self.connection_manager.execute_query(f"USE SCHEMA {self.schema}")
+            await self.connection_manager.execute_query(f"USE WAREHOUSE {self.warehouse}")
 
             # Ensure vector tables exist
             await self._create_vector_tables()
 
             self.initialized = True
-            logger.info("✅ Snowflake Cortex service initialized successfully")
+            logger.info("✅ Snowflake Cortex service initialized successfully with optimized connection manager")
 
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
@@ -195,15 +197,18 @@ class SnowflakeCortexService:
         query += " ORDER BY id"
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            columns = [desc[0] for desc in cursor.description]
-            results = cursor.fetchall()
-
+            # Use connection manager instead of direct cursor
+            results = await self.connection_manager.execute_query(query)
+            
             summaries = []
             for row in results:
-                record = dict(zip(columns, row))
+                # Convert row to dictionary format
+                record = {
+                    'id': row[0],
+                    'original_text': row[1], 
+                    'ai_summary': row[2],
+                    'processed_at': row[3]
+                }
                 summaries.append(record)
 
             logger.info(f"Generated {len(summaries)} text summaries using Cortex")
@@ -212,9 +217,6 @@ class SnowflakeCortexService:
         except Exception as e:
             logger.error(f"Error generating summaries with Cortex: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def analyze_sentiment_in_snowflake(
         self, text_column: str, table_name: str, conditions: Optional[str] = None
