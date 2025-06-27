@@ -1,0 +1,7 @@
+-- Placeholder for entity relationship definitions
+-- This file will define the relationships between different
+-- semantic views, enabling more complex cross-source analysis.
+-- Example:
+-- ALTER VIEW SOPHIA_SEMANTIC.CUSTOMER_360
+-- ADD CONSTRAINT fk_employee_owner
+-- FOREIGN KEY (account_owner_id) REFERENCES SOPHIA_SEMANTIC.EMPLOYEE_360 (employee_id); 
