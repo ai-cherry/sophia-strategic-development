@@ -149,13 +149,41 @@ gong_key = config.gong_access_key
        return env in ["prod", "staging", "dev"]
    ```
 
-## 🧠 **ENHANCED MCP INTEGRATION (CRITICAL FOR CURSOR AI)**
+## 🧠 **ENHANCED MCP INTEGRATION WITH CLINE v3.18**
+
+### **📍 HOW TO USE CLINE v3.18 FEATURES (You're Already Here!)**
+
+**IMPORTANT**: The chat window where you interact with Cline IS the interface for all v3.18 features. You don't need to look for another icon or panel - everything works right here in this chat!
+
+### **🚀 Natural Language Commands in THIS Chat**
+
+Just type these commands naturally in the Cline chat (where you're typing now):
+
+#### **AI Memory Commands**
+- **"Remember this [topic/decision/code]"** - Stores in AI memory
+- **"What did we decide about [topic]?"** - Recalls past decisions
+- **"Show similar [patterns/code]"** - Finds related implementations
+
+#### **Large File Processing (FREE with Gemini!)**
+- **"Process this large file with Gemini"** - Uses free Gemini for big files
+- **"Analyze this 500K token document"** - Auto-routes to Gemini 2.5 Pro
+- **"Summarize our 90-day Slack history"** - Handles massive datasets
+
+#### **Web Content Fetching**
+- **"Fetch docs from [URL]"** - Retrieves and converts to markdown
+- **"Get latest [topic] from web"** - Searches and summarizes
+- **"Download competitor info from [website]"** - Competitive intelligence
+
+#### **Business Tool Integration**
+- **Linear**: "Create Linear issue for [task]", "Show my Linear tasks"
+- **Snowflake**: "Query Snowflake for [data]", "Run large query with Gemini"
+- **Slack**: "Analyze #[channel]", "Find messages about [topic]"
+- **Gong**: "Summarize recent calls", "Find calls discussing [keyword]"
 
 ### **🔄 AUTOMATIC WORKFLOW INTEGRATION**
-Cursor AI MUST automatically integrate with MCP servers for seamless development:
 
-#### **AI Memory Auto-Discovery (@ai_memory)**
-1. **INTELLIGENT AUTO-STORAGE**: Automatically detect and store:
+#### **AI Memory Auto-Discovery**
+1. **INTELLIGENT AUTO-STORAGE**: Cline automatically detects and stores:
    - Architecture discussions with decision rationale
    - Bug fixes with root cause analysis
    - Code patterns and implementation strategies
@@ -163,17 +191,16 @@ Cursor AI MUST automatically integrate with MCP servers for seamless development
    - Security implementation decisions
    - Refactoring approaches and outcomes
 
-2. **CONTEXT-AWARE RECALL**: Before any coding task, automatically:
-   - Query relevant past decisions: `@ai_memory.smart_recall("current task context")`
-   - Surface similar patterns from project history
-   - Provide continuity with previous architectural choices
-   - Suggest proven solutions from past implementations
+2. **CONTEXT-AWARE RECALL**: Before any coding task, Cline automatically:
+   - Queries relevant past decisions
+   - Surfaces similar patterns from project history
+   - Provides continuity with previous architectural choices
+   - Suggests proven solutions from past implementations
 
-3. **ENHANCED MEMORY TOOLS**:
-   - `ai_memory.auto_store_context`: Intelligent conversation analysis and storage
-   - `ai_memory.smart_recall`: Context-aware memory retrieval with file awareness
-   - `ai_memory.store_conversation`: Manual conversation storage with categorization
-   - `ai_memory.recall_memory`: Traditional search with semantic matching
+3. **SIMPLE NATURAL LANGUAGE USE**:
+   - Just say: "Remember this architectural decision"
+   - Just ask: "What did we decide about the database?"
+   - Just request: "Show me similar bug fixes"
 
 #### **Real-time Code Analysis (@codacy)**
 1. **AUTOMATIC CODE QUALITY**: On every significant code change:
