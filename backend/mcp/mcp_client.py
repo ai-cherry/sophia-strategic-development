@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 import aiohttp
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class MCPClient:
     """A generic client for interacting with various MCP servers."""

@@ -7,14 +7,14 @@ from enum import Enum
 from backend.agents.core.base_agent import BaseAgent
 from backend.services.snowflake_intelligence_service import SnowflakeIntelligenceService
 from backend.mcp.mcp_client import MCPClient
-from backend.utils.logging import get_logger
+import logging
 
 # Import specialized agents
 from backend.agents.specialized.sales_intelligence_agent import SalesIntelligenceAgent
 from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
 from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class AgentCapability(Enum):
     """Available agent capabilities"""

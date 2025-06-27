@@ -1,11 +1,4 @@
-#!/usr/bin/env python3
-"""
-Asana Project Intelligence Agent
-
-Advanced project intelligence agent that analyzes Asana project data,
-provides health scoring, risk assessment, and predictive insights.
-Integrates with existing Sophia AI infrastructure and LangGraph workflows.
-"""
+from __future__ import annotations
 
 import asyncio
 import logging
@@ -15,9 +8,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 
-from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
+from backend.agents.core.langgraph_agent_base import LangGraphAgentBase, AgentCapability
+from backend.services.smart_ai_service import LLMRequest, TaskType, smart_ai_service
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.comprehensive_memory_service import ComprehensiveMemoryService
 from backend.services.smart_ai_service import SmartAIService
 
 logger = logging.getLogger(__name__)
@@ -36,6 +30,12 @@ class RiskLevel(Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
+class MemoryCategory:
+    """Memory categories for AI storage"""
+    ASANA_PROJECT_ANALYSIS = "asana_project_analysis"
+    ASANA_TEAM_INSIGHTS = "asana_team_insights"
+    ASANA_RISK_ASSESSMENT = "asana_risk_assessment"
 
 @dataclass
 class AsanaProjectMetrics:

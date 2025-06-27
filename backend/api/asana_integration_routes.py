@@ -23,9 +23,8 @@ from backend.agents.specialized.asana_project_intelligence_agent import AsanaPro
 from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
 from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteManager
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
-from backend.services.asana_project_intelligence_service import AsanaProjectIntelligenceService
 from backend.core.auth import get_current_user
 
 logger = logging.getLogger(__name__)
@@ -539,7 +538,7 @@ async def process_asana_chat_query(
 
 @router.post("/chat_analyze", response_model=Dict[str, Any])
 async def analyze_asana_chat_query(
-    request: AsanaChatRequest,
+    request: AsanaQueryRequest,
     current_user: dict = Depends(get_current_user),
     airbyte_manager: EnhancedAirbyteManager = Depends(get_airbyte_manager)
 ):

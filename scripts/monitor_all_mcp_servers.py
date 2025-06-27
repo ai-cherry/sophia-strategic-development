@@ -8,21 +8,38 @@ import time
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table
+import logging
+import sys
+
+# Add project root to path
+project_root = Path.cwd()
+sys.path.insert(0, str(project_root))
+
+from backend.utils.logging import get_logger
 
 console = Console()
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = get_logger(__name__)
 
 async def get_server_health(session, server_name, port):
     """Fetches the health status of a single server."""
     url = f"http://localhost:{port}/health"
+    logger.info(f"Checking health for {server_name} at {url}...")
     try:
         async with session.get(url, timeout=2) as response:
+            logger.info(f"Received status {response.status} from {server_name}")
             if response.status == 200:
                 data = await response.json()
                 return {"name": server_name, "port": port, "status": "✅ Online", "details": data}
             else:
                 return {"name": server_name, "port": port, "status": "❌ Unhealthy", "details": {"status_code": response.status}}
-    except (aiohttp.ClientError, asyncio.TimeoutError):
-        return {"name": server_name, "port": port, "status": "🔥 OFFLINE", "details": {}}
+    except asyncio.TimeoutError:
+        logger.warning(f"Timeout connecting to {server_name} at {url}")
+        return {"name": server_name, "port": port, "status": "🔥 OFFLINE (Timeout)", "details": {}}
+    except aiohttp.ClientError as e:
+        logger.error(f"Client error connecting to {server_name} at {url}: {e}")
+        return {"name": server_name, "port": port, "status": f"🔥 OFFLINE (Error)", "details": {}}
 
 def display_dashboard(server_statuses):
     """Displays the monitoring dashboard in the terminal."""

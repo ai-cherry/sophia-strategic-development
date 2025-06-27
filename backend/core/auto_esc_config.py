@@ -627,6 +627,10 @@ class AutoESCConfig:
 config = AutoESCConfig()
 
 
+# Singleton instance
+_esc_config: Optional[AutoESCConfig] = None
+
+
 def get_config_value(key: str, default: Any | None = None) -> Any | None:
     """Get a configuration value from Pulumi ESC."""
     global _esc_config
@@ -634,14 +638,6 @@ def get_config_value(key: str, default: Any | None = None) -> Any | None:
         _esc_config = AutoESCConfig()
     return _esc_config.get(key, default)
 
-
-# The async version is removed to prevent redefinition and confusion.
-# async def get_config_value(key: str, default: Any | None = None) -> Any | None:
-#     """Get a configuration value from Pulumi ESC (async version)."""
-#     global _esc_config
-#     if _esc_config is None:
-#         _esc_config = AutoESCConfig()
-#     return _esc_config.get(key, default)
 
 # Set production environment by default if not already set
 if not os.getenv("ENVIRONMENT"):

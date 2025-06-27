@@ -948,11 +948,12 @@ class CodacyMCPServer(StandardizedMCPServer):
             return {"error": f"Unknown tool: {tool_name}"}
 
 async def main():
+    """Initializes and starts the Codacy MCP server."""
     server = CodacyMCPServer()
-    # The StandardizedMCPServer base class has a `start` method for running the server.
-    # We would need to create a runner script for this. For now, this is a placeholder.
-    logger.info("Starting Codacy MCP Server...")
-    # await server.start()
+    await server.start()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Codacy MCP Server stopped by user.")

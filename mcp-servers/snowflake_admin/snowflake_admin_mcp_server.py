@@ -79,13 +79,13 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
     # which would be called by the base class logic (not shown here, but assumed).
 
 async def main():
+    """Initializes and starts the Snowflake Admin MCP server."""
     server = SnowflakeAdminMCPServer()
-    # In a real scenario, a generic runner would start this server.
-    await server.initialize()
-    logger.info("Snowflake Admin MCP Server running...")
-    # Keep it running
-    await asyncio.Event().wait()
+    await server.start()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Snowflake Admin MCP Server stopped by user.")

@@ -24,7 +24,7 @@ from backend.etl.airbyte.airbyte_configuration_manager import EnhancedAirbyteMan
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.agents.specialized.asana_project_intelligence_agent import AsanaProjectIntelligenceAgent
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService, QueryContext
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

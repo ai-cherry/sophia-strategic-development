@@ -6,9 +6,15 @@ import time
 import psutil
 from pathlib import Path
 import logging
+import sys
+import os
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Add project root to path to allow for module imports
+project_root = Path.cwd()
+sys.path.insert(0, str(project_root))
 
 def get_process_by_port(port):
     """Find a process using a specific port."""
@@ -48,21 +54,24 @@ def main():
         logger.info(f"--- Preparing to start {server_name} on port {port} ---")
         kill_process_by_port(port)
         
-        # This assumes a convention where the server's main script is in mcp-servers/{server_name}/
-        # and is runnable. This is a simplification. A real script might read this
-        # command from another config file.
-        # For now, we only start the servers we have implemented.
-        implemented_servers = ["codacy", "snowflake_admin"]
-        if server_name in implemented_servers:
-            cmd = ["python", "-m", f"mcp-servers.{server_name}.{server_name}_mcp_server"]
+        server_script_path = Path.cwd() / "mcp-servers" / server_name / f"{server_name}_mcp_server.py"
+        
+        if server_script_path.exists():
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(project_root) + os.pathsep + env.get("PYTHONPATH", "")
+            cmd = ["python", "-m", server_script_path]
             try:
-                proc = subprocess.Popen(cmd)
+                # We can add logging to a file to see the output of each server
+                log_file = Path.cwd() / "logs" / f"{server_name}.log"
+                log_file.parent.mkdir(exist_ok=True)
+                with open(log_file, 'w') as lf:
+                    proc = subprocess.Popen(cmd, env=env, stdout=lf, stderr=lf)
                 processes[server_name] = proc
                 logger.info(f"Started {server_name} with PID: {proc.pid}")
-            except FileNotFoundError:
-                logger.error(f"Could not find the script for server: {server_name}. Skipping.")
+            except Exception as e:
+                logger.error(f"Could not start server {server_name}: {e}")
         else:
-            logger.info(f"Server '{server_name}' is not implemented yet. Skipping.")
+            logger.info(f"Server script for '{server_name}' not found at {server_script_path}. Skipping.")
 
     logger.info("\n--- All implemented MCP servers have been started. ---")
     logger.info("Press Ctrl+C to stop all servers.")

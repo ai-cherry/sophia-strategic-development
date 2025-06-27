@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.services.vector_indexing_service import VectorIndexingService
 from backend.mcp.mcp_client import MCPClient
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class IntelligenceQuery:

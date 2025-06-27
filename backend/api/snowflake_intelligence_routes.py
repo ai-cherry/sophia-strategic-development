@@ -9,9 +9,9 @@ from backend.services.automated_insights_service import AutomatedInsightsService
 from backend.services.predictive_analytics_service import PredictiveAnalyticsService
 # A mock for auth dependency, in a real app this would be more robust
 from backend.core.auth import get_current_user
-from backend.utils.logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/intelligence", tags=["snowflake-intelligence"])
 
 # Pydantic models for request/response

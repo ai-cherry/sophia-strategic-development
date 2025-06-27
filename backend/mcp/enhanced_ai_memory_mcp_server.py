@@ -20,9 +20,6 @@ from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
 # Enhanced imports
-from backend.mcp.ai_memory_mcp_server import (
-    EnhancedAiMemoryMCPServer as BaseAiMemoryMCPServer,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -110,22 +107,23 @@ class EnhancedMemoryMetadata:
     kb_keywords: Optional[List[str]] = None
 
 
-class EnhancedAiMemoryMCPServer(BaseAiMemoryMCPServer):
+class EnhancedAiMemoryMCPServer:
     """Enhanced AI Memory MCP Server with new data source integration"""
 
     def __init__(self):
-        super().__init__()
         self.server_name = "enhanced-ai-memory"
-
+        
+        # Initialize basic attributes
+        self.initialized = False
+        self.cortex_service = None
+        
         # Enhanced category exclusions
-        self.category_exclusions.update(
-            {
-                # Exclude test and temporary categories
-                "test_category",
-                "temp_data",
-                "debug_info",
-            }
-        )
+        self.category_exclusions = {
+            # Exclude test and temporary categories
+            "test_category",
+            "temp_data",
+            "debug_info",
+        }
 
     async def store_slack_conversation_memory(
         self,

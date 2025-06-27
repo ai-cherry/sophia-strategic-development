@@ -39,7 +39,7 @@ from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.mcp.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 
