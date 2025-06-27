@@ -1,0 +1,368 @@
+{
+  "mcpServers": {
+    "sophia-ai-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "ai-intelligence",
+        "MCP_SERVER_PORT": "8091",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia AI Intelligence MCP Server - AI model routing, monitoring, and optimization",
+      "capabilities": [
+        "model_routing",
+        "cost_optimization", 
+        "semantic_caching",
+        "performance_monitoring",
+        "drift_detection"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-data-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "data-intelligence",
+        "MCP_SERVER_PORT": "8092",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Data Intelligence MCP Server - Data collection, storage, and pipeline management",
+      "capabilities": [
+        "data_warehousing",
+        "vector_search",
+        "web_scraping",
+        "etl_pipelines",
+        "real_time_sync"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-infrastructure": {
+      "command": "python", 
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "infrastructure",
+        "MCP_SERVER_PORT": "8093",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Infrastructure MCP Server - Infrastructure management and deployment",
+      "capabilities": [
+        "gpu_orchestration",
+        "container_management", 
+        "infrastructure_as_code",
+        "ci_cd_automation"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-business-intelligence": {
+      "command": "python",
+      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_TYPE": "business-intelligence", 
+        "MCP_SERVER_PORT": "8094",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Business Intelligence MCP Server - Business tools and communication platforms",
+      "capabilities": [
+        "project_management",
+        "team_communication",
+        "sales_intelligence", 
+        "customer_support",
+        "crm_integration"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      }
+    },
+    "sophia-regulatory-compliance": {
+      "command": "python",
+      "args": ["-m", "backend.agents.compliance.regulatory_compliance_orchestrator"],
+      "env": {
+        "PYTHONPATH": "/app",
+        "MCP_SERVER_PORT": "8095",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PULUMI_STACK": "sophia-ai-production"
+      },
+      "description": "Sophia Regulatory Compliance MCP Server - AI-powered regulatory monitoring and analysis",
+      "capabilities": [
+        "regulatory_intelligence",
+        "compliance_monitoring",
+        "legal_research",
+        "risk_assessment",
+        "alert_management"
+      ],
+      "auto_start": false,
+      "health_check": {
+        "enabled": true,
+        "interval": 60,
+        "timeout": 15
+      }
+    },
+    "sophia-figma-dev-mode": {
+      "command": "python",
+      "args": ["ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"],
+      "env": {
+        "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
+        "PYTHONPATH": "/app"
+      },
+      "description": "Sophia Figma Dev Mode MCP Server - Design-to-code automation",
+      "capabilities": [
+        "design_token_extraction",
+        "component_analysis",
+        "design_context_parsing"
+      ],
+      "auto_start": false,
+      "health_check": {
+        "enabled": true,
+        "interval": 60,
+        "timeout": 10
+      }
+    },
+    "sophia-ui-ux-agent": {
+      "command": "python",
+      "args": ["ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"],
+      "env": {
+        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
+        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+        "PYTHONPATH": "/app"
+      },
+      "description": "Sophia UI/UX Agent MCP Server - Intelligent design automation",
+      "capabilities": [
+        "component_generation",
+        "design_analysis", 
+        "design_system_validation",
+        "accessibility_optimization"
+      ],
+      "auto_start": false,
+      "depends_on": ["sophia-figma-dev-mode"],
+      "health_check": {
+        "enabled": true,
+        "interval": 60,
+        "timeout": 15
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "description": "Sequential Thinking MCP Server - Enhanced reasoning capabilities",
+      "capabilities": [
+        "step_by_step_reasoning",
+        "complex_problem_solving",
+        "logical_analysis"
+      ],
+      "auto_start": true,
+      "health_check": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 5
+      }
+    }
+  },
+  "globalSettings": {
+    "defaultTimeout": 30000,
+    "maxRetries": 3,
+    "healthCheckInterval": 60000,
+    "enableMetrics": true,
+    "enableTracing": true,
+    "logLevel": "info",
+    "geminiCliIntegration": {
+      "enabled": true,
+      "contextWindow": 1000000,
+      "maxRequestsPerMinute": 60,
+      "maxRequestsPerDay": 1000,
+      "enableCheckpointing": true,
+      "enableFileOperations": true
+    }
+  },
+  "routing": {
+    "strategy": "intelligent",
+    "rules": [
+      {
+        "pattern": "ai.*|model.*|intelligence.*",
+        "server": "sophia-ai-intelligence",
+        "priority": 1
+      },
+      {
+        "pattern": "data.*|database.*|warehouse.*|etl.*",
+        "server": "sophia-data-intelligence", 
+        "priority": 1
+      },
+      {
+        "pattern": "infra.*|deploy.*|container.*|docker.*",
+        "server": "sophia-infrastructure",
+        "priority": 1
+      },
+      {
+        "pattern": "business.*|crm.*|sales.*|customer.*",
+        "server": "sophia-business-intelligence",
+        "priority": 1
+      },
+      {
+        "pattern": "compliance.*|regulatory.*|legal.*|risk.*",
+        "server": "sophia-regulatory-compliance",
+        "priority": 2
+      },
+      {
+        "pattern": "figma.*|design.*|ui.*|ux.*",
+        "server": "sophia-figma-dev-mode",
+        "priority": 2
+      },
+      {
+        "pattern": "component.*|frontend.*|react.*",
+        "server": "sophia-ui-ux-agent",
+        "priority": 2
+      },
+      {
+        "pattern": "think.*|reason.*|analyze.*",
+        "server": "sequential-thinking",
+        "priority": 3
+      }
+    ],
+    "fallback": "sophia-ai-intelligence"
+  },
+  "workflows": {
+    "gemini_cli_triggers": {
+      "on_codebase_analysis": {
+        "triggers": [
+          "sophia-ai-intelligence.analyze_codebase",
+          "sophia-data-intelligence.extract_metrics"
+        ],
+        "conditions": [
+          "file_count > 10",
+          "project_type in ['python', 'javascript', 'typescript']"
+        ]
+      },
+      "on_compliance_query": {
+        "triggers": [
+          "sophia-regulatory-compliance.analyze_requirements",
+          "sequential-thinking.reason_about_compliance"
+        ],
+        "conditions": [
+          "query_contains_regulatory_keywords",
+          "user_has_compliance_permissions"
+        ]
+      },
+      "on_design_analysis": {
+        "triggers": [
+          "sophia-figma-dev-mode.extract_design_context",
+          "sophia-ui-ux-agent.validate_design_system"
+        ],
+        "conditions": [
+          "figma_url_detected",
+          "design_file_modified"
+        ]
+      },
+      "on_business_intelligence": {
+        "triggers": [
+          "sophia-business-intelligence.generate_insights",
+          "sophia-data-intelligence.query_warehouse"
+        ],
+        "conditions": [
+          "business_query_detected",
+          "dashboard_access_requested"
+        ]
+      }
+    }
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "port": 9090,
+      "path": "/metrics"
+    },
+    "grafana": {
+      "enabled": true,
+      "port": 3001,
+      "dashboards": [
+        "gemini-cli-overview",
+        "mcp-server-health",
+        "performance-metrics",
+        "usage-analytics"
+      ]
+    },
+    "logging": {
+      "level": "INFO",
+      "format": "json",
+      "correlation_ids": true,
+      "structured_logging": true
+    }
+  },
+  "security": {
+    "authentication": {
+      "enabled": true,
+      "type": "jwt",
+      "secretSource": "pulumi-esc"
+    },
+    "rateLimit": {
+      "enabled": true,
+      "requestsPerMinute": 100,
+      "burstSize": 200
+    },
+    "encryption": {
+      "enabled": true,
+      "algorithm": "AES-256-GCM"
+    },
+    "geminiCliSecurity": {
+      "enableSandboxing": true,
+      "restrictFileAccess": true,
+      "allowedDirectories": [
+        "/app",
+        "/tmp/gemini-workspace"
+      ],
+      "blockedCommands": [
+        "rm -rf",
+        "sudo",
+        "chmod 777"
+      ]
+    }
+  },
+  "performance": {
+    "connection_pooling": true,
+    "request_batching": true,
+    "async_operations": true,
+    "caching": {
+      "enabled": true,
+      "ttl": 300,
+      "max_size": 1000,
+      "gemini_context_cache": {
+        "enabled": true,
+        "ttl": 3600,
+        "max_context_size": 500000
+      }
+    },
+    "timeouts": {
+      "connection": 10,
+      "request": 30,
+      "keepalive": 60,
+      "gemini_request": 120
+    }
+  },
+  "version": "1.0.0",
+  "lastUpdated": "2025-06-26T20:00:00Z"
+}
+
