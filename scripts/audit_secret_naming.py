@@ -332,41 +332,40 @@ class SecretAuditor:
         """Generate comprehensive analysis report."""
         print("📋 Generating analysis report...")
         
-        # Summary statistics
         total_secrets = len(self.analysis_results)
         consistent_secrets = len([a for a in self.analysis_results if a.is_consistent])
-        
-        # Action breakdown
-        actions = {}
-        for analysis in self.analysis_results:
-            action = analysis.action_required
-            if action not in actions:
-                actions[action] = []
-            actions[action].append(analysis.current_name)
-        
-        # Service breakdown
-        services = {}
-        for analysis in self.analysis_results:
-            service = analysis.service
-            if service not in services:
-                services[service] = []
-            services[service].append(analysis.current_name)
         
         report = {
             'summary': {
                 'total_secrets': total_secrets,
                 'consistent_secrets': consistent_secrets,
-                'consistency_rate': f"{(consistent_secrets/total_secrets*100):.1f}%" if total_secrets > 0 else "0%",
+                'consistency_rate': f"{(consistent_secrets / total_secrets * 100):.1f}%" if total_secrets > 0 else "0%",
                 'github_secrets': len(self.github_secrets),
                 'pulumi_esc_secrets': len(self.pulumi_esc_secrets),
                 'code_references': len(self.code_references)
             },
-            'actions_required': actions,
-            'services': services,
+            'actions_required': self._summarize_actions(),
+            'services': self._summarize_services(),
             'detailed_analysis': [asdict(analysis) for analysis in self.analysis_results]
         }
         
         return report
+
+    def _summarize_actions(self) -> Dict[str, List[str]]:
+        """Summarize required actions for secrets."""
+        actions: Dict[str, List[str]] = {}
+        for analysis in self.analysis_results:
+            action = analysis.action_required
+            actions.setdefault(action, []).append(analysis.current_name)
+        return actions
+
+    def _summarize_services(self) -> Dict[str, List[str]]:
+        """Summarize secrets by service."""
+        services: Dict[str, List[str]] = {}
+        for analysis in self.analysis_results:
+            service = analysis.service
+            services.setdefault(service, []).append(analysis.current_name)
+        return services
 
     def generate_migration_plan(self) -> Dict:
         """Generate specific migration plan with commands."""

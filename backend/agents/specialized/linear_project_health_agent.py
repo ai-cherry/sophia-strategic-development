@@ -331,90 +331,91 @@ class LinearProjectHealthAgent(BaseAgent):
     def _calculate_project_metrics(
         self, issues: List[LinearIssue]
     ) -> ProjectHealthMetrics:
-        """Calculate basic project metrics"""
+        """Calculate basic project metrics by orchestrating helper methods."""
         total_issues = len(issues)
-
         if total_issues == 0:
-            return ProjectHealthMetrics(
-                total_issues=0,
-                completed_issues=0,
-                in_progress_issues=0,
-                blocked_issues=0,
-                overdue_issues=0,
-                completion_rate=0.0,
-                velocity_trend="stable",
-                avg_cycle_time=0.0,
-                team_utilization=0.0,
-                quality_score=0.0,
-            )
+            return ProjectHealthMetrics(0, 0, 0, 0, 0, 0.0, "stable", 0.0, 0.0, 0.0)
 
-        # Count issues by status
-        completed_issues = len(
-            [i for i in issues if i.status.lower() in ["done", "completed", "closed"]]
-        )
-        in_progress_issues = len(
-            [i for i in issues if i.status.lower() in ["in progress", "in review"]]
-        )
-        blocked_issues = len(
-            [
-                i
-                for i in issues
-                if "blocked" in i.status.lower()
-                or "blocked" in [l.lower() for l in i.labels]
-            ]
-        )
-
-        # Count overdue issues
-        now = datetime.now()
-        overdue_issues = len(
-            [
-                i
-                for i in issues
-                if i.due_date
-                and i.due_date < now
-                and i.status.lower() not in ["done", "completed", "closed"]
-            ]
-        )
-
-        # Calculate completion rate
-        completion_rate = completed_issues / total_issues if total_issues > 0 else 0
-
-        # Calculate average cycle time (simplified)
-        completed_with_times = [
-            i
-            for i in issues
-            if i.status.lower() in ["done", "completed", "closed"]
-            and i.created_at
-            and i.updated_at
-        ]
-        avg_cycle_time = 0.0
-        if completed_with_times:
-            cycle_times = [
-                (i.updated_at - i.created_at).days for i in completed_with_times
-            ]
-            avg_cycle_time = sum(cycle_times) / len(cycle_times)
-
-        # Calculate team utilization (simplified)
-        assignees = set(i.assignee for i in issues if i.assignee)
-        team_utilization = min(
-            in_progress_issues / len(assignees) if assignees else 0, 1.0
-        )
-
-        # Calculate quality score (based on issue descriptions and comments)
+        status_counts = self._count_issues_by_status(issues)
+        avg_cycle_time = self._calculate_avg_cycle_time(issues)
+        team_utilization = self._calculate_team_utilization(issues, status_counts['in_progress'])
         quality_score = self._calculate_quality_score(issues)
 
         return ProjectHealthMetrics(
             total_issues=total_issues,
-            completed_issues=completed_issues,
-            in_progress_issues=in_progress_issues,
-            blocked_issues=blocked_issues,
-            overdue_issues=overdue_issues,
-            completion_rate=completion_rate,
-            velocity_trend="stable",  # Would be calculated from historical data
+            completed_issues=status_counts['completed'],
+            in_progress_issues=status_counts['in_progress'],
+            blocked_issues=status_counts['blocked'],
+            overdue_issues=status_counts['overdue'],
+            completion_rate=status_counts['completed'] / total_issues if total_issues > 0 else 0.0,
+            velocity_trend="stable",  # Placeholder, requires historical data
             avg_cycle_time=avg_cycle_time,
             team_utilization=team_utilization,
             quality_score=quality_score,
         )
+
+    def _count_issues_by_status(self, issues: List[LinearIssue]) -> Dict[str, int]:
+        """Counts issues based on their status and labels."""
+        completed = len([i for i in issues if i.status.lower() in ["done", "completed", "closed"]])
+        in_progress = len([i for i in issues if i.status.lower() in ["in progress", "in review"]])
+        blocked = len([i for i in issues if "blocked" in i.status.lower() or "blocked" in [l.lower() for l in i.labels]])
+        
+        now = datetime.now()
+        overdue = len([i for i in issues if i.due_date and i.due_date < now and i.status.lower() not in ["done", "completed", "closed"]])
+        
+        return {"completed": completed, "in_progress": in_progress, "blocked": blocked, "overdue": overdue}
+
+    def _calculate_avg_cycle_time(self, issues: List[LinearIssue]) -> float:
+        """Calculates the average cycle time for completed issues."""
+        completed_with_times = [i for i in issues if i.status.lower() in ["done", "completed", "closed"] and i.created_at and i.updated_at]
+        if not completed_with_times:
+            return 0.0
+        
+        cycle_times = [(i.updated_at - i.created_at).days for i in completed_with_times]
+        return sum(cycle_times) / len(cycle_times)
+
+    def _calculate_team_utilization(self, issues: List[LinearIssue], in_progress_issues: int) -> float:
+        """Calculates team utilization based on assigned in-progress issues."""
+        assignees = set(i.assignee for i in issues if i.assignee)
+        if not assignees:
+            return 0.0
+        return min(in_progress_issues / len(assignees), 1.0)
+
+    def _calculate_quality_score(self, issues: List[LinearIssue]) -> float:
+        """Calculate quality score based on issue documentation"""
+        if not issues:
+            return 0.0
+
+        quality_factors = []
+
+        for issue in issues:
+            score = 0.0
+
+            # Description quality
+            if issue.description and len(issue.description) > 50:
+                score += 0.4
+            elif issue.description and len(issue.description) > 20:
+                score += 0.2
+
+            # Title quality
+            if issue.title and len(issue.title) > 10:
+                score += 0.2
+
+            # Labels usage
+            if issue.labels:
+                score += 0.2
+
+            # Priority assignment
+            if issue.priority:
+                score += 0.1
+
+            # Estimate provided
+            if issue.estimate:
+                score += 0.1
+
+            quality_factors.append(min(score, 1.0))
+
+        return sum(quality_factors) / len(quality_factors)
 
     async def _assess_project_risks(
         self,
@@ -764,42 +765,6 @@ class LinearProjectHealthAgent(BaseAgent):
                 reverse=True,
             )[:3],
         }
-
-    def _calculate_quality_score(self, issues: List[LinearIssue]) -> float:
-        """Calculate quality score based on issue documentation"""
-        if not issues:
-            return 0.0
-
-        quality_factors = []
-
-        for issue in issues:
-            score = 0.0
-
-            # Description quality
-            if issue.description and len(issue.description) > 50:
-                score += 0.4
-            elif issue.description and len(issue.description) > 20:
-                score += 0.2
-
-            # Title quality
-            if issue.title and len(issue.title) > 10:
-                score += 0.2
-
-            # Labels usage
-            if issue.labels:
-                score += 0.2
-
-            # Priority assignment
-            if issue.priority:
-                score += 0.1
-
-            # Estimate provided
-            if issue.estimate:
-                score += 0.1
-
-            quality_factors.append(min(score, 1.0))
-
-        return sum(quality_factors) / len(quality_factors)
 
     async def _get_historical_health_reports(
         self, project_id: str, days: int

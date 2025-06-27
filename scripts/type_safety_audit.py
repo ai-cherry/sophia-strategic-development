@@ -73,33 +73,37 @@ def analyze_file(file_path: Path) -> Dict[str, Any]:
         analyzer = TypeAnnotationAnalyzer()
         analyzer.visit(tree)
 
-        # Calculate statistics
-        total_functions = len(analyzer.functions)
-        functions_with_complete_types = sum(
-            1
-            for f in analyzer.functions
-            if f["has_return_type"]
-            and all(p["has_type"] or p["name"] == "self" for p in f["parameters"])
-        )
-
-        return {
-            "file": str(file_path),
-            "total_functions": total_functions,
-            "functions_with_complete_types": functions_with_complete_types,
-            "type_coverage": (
-                (functions_with_complete_types / total_functions * 100)
-                if total_functions > 0
-                else 100
-            ),
-            "functions": analyzer.functions,
-            "classes": analyzer.classes,
-            "missing_annotations": [
-                f for f in analyzer.functions if f["missing_annotations"]
-            ],
-        }
+        return _calculate_file_stats(file_path, analyzer)
+        
     except Exception as e:
         logger.error(f"Error analyzing {file_path}: {e}")
         return {"file": str(file_path), "error": str(e)}
+
+def _calculate_file_stats(file_path: Path, analyzer: TypeAnnotationAnalyzer) -> Dict[str, Any]:
+    """Calculates type coverage statistics for a file."""
+    total_functions = len(analyzer.functions)
+    functions_with_complete_types = sum(
+        1
+        for f in analyzer.functions
+        if f["has_return_type"]
+        and all(p["has_type"] or p["name"] == "self" for p in f["parameters"])
+    )
+
+    return {
+        "file": str(file_path),
+        "total_functions": total_functions,
+        "functions_with_complete_types": functions_with_complete_types,
+        "type_coverage": (
+            (functions_with_complete_types / total_functions * 100)
+            if total_functions > 0
+            else 100
+        ),
+        "functions": analyzer.functions,
+        "classes": analyzer.classes,
+        "missing_annotations": [
+            f for f in analyzer.functions if f["missing_annotations"]
+        ],
+    }
 
 
 def generate_mypy_config() -> None:

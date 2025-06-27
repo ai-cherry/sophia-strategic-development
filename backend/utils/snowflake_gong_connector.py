@@ -373,99 +373,71 @@ class SnowflakeGongConnector:
             if cursor:
                 cursor.close()
 
+    def _get_rep_performance_query(self, sales_rep: str, date_range_days: int) -> str:
+        """Builds the SQL query for sales rep performance metrics."""
+        return f"""
+        SELECT 
+            gc.PRIMARY_USER_NAME,
+            COUNT(*) as total_calls,
+            AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
+            AVG(gc.TALK_RATIO) as avg_talk_ratio,
+            AVG(gc.CALL_DURATION_SECONDS) as avg_duration,
+            AVG(gc.QUESTIONS_ASKED_COUNT) as avg_questions,
+            COUNT(CASE WHEN gc.SENTIMENT_SCORE > 0.6 THEN 1 END) as positive_calls,
+            COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
+            COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals,
+            COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won
+        FROM {self.tables['calls']} gc
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
+        WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        GROUP BY gc.PRIMARY_USER_NAME
+        """
+
+    def _get_coaching_opportunities_query(self, sales_rep: str, date_range_days: int) -> str:
+        """Builds the SQL query for identifying coaching opportunities."""
+        return f"""
+        SELECT 
+            COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as needs_sentiment_coaching,
+            COUNT(CASE WHEN gc.TALK_RATIO > 0.8 THEN 1 END) as needs_talk_ratio_coaching,
+            COUNT(CASE WHEN gc.QUESTIONS_ASKED_COUNT < 3 THEN 1 END) as needs_discovery_coaching,
+            STRING_AGG(
+                CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN gc.CALL_TITLE || ' (' || DATE(gc.CALL_DATETIME_UTC) || ')' ELSE NULL END, ', '
+            ) as low_sentiment_calls
+        FROM {self.tables['calls']} gc
+        WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        """
+
     async def get_sales_rep_performance(
         self, sales_rep: str, date_range_days: int = 30
     ) -> Dict[str, Any]:
-        """
-        Get performance analysis for a specific sales rep
-
-        Args:
-            sales_rep: Sales representative name
-            date_range_days: Days back to analyze
-
-        Returns:
-            Comprehensive performance analysis
-        """
+        """Get performance analysis for a specific sales rep"""
         if not self.initialized:
             await self.initialize()
 
-        query = f"""
-        WITH rep_performance AS (
-            SELECT 
-                gc.PRIMARY_USER_NAME,
-                COUNT(*) as total_calls,
-                AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
-                AVG(gc.TALK_RATIO) as avg_talk_ratio,
-                AVG(gc.CALL_DURATION_SECONDS) as avg_duration,
-                AVG(gc.QUESTIONS_ASKED_COUNT) as avg_questions,
-                
-                -- Performance categories
-                COUNT(CASE WHEN gc.SENTIMENT_SCORE > 0.6 THEN 1 END) as positive_calls,
-                COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
-                COUNT(CASE WHEN gc.TALK_RATIO > 0.7 THEN 1 END) as high_talk_ratio_calls,
-                COUNT(CASE WHEN gc.TALK_RATIO < 0.4 THEN 1 END) as low_talk_ratio_calls,
-                
-                -- Deal outcomes
-                COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals,
-                COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won,
-                COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Lost', 'Closed - Lost') THEN 1 END) as deals_lost,
-                SUM(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN hd.DEAL_AMOUNT ELSE 0 END) as revenue_won,
-                
-                -- Time analysis
-                MIN(gc.CALL_DATETIME_UTC) as first_call_date,
-                MAX(gc.CALL_DATETIME_UTC) as last_call_date
-                
-            FROM {self.tables['calls']} gc
-            LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-            
-            WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
-            AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-            
-            GROUP BY gc.PRIMARY_USER_NAME
-        ),
-        coaching_opportunities AS (
-            SELECT 
-                COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as needs_sentiment_coaching,
-                COUNT(CASE WHEN gc.TALK_RATIO > 0.8 THEN 1 END) as needs_talk_ratio_coaching,
-                COUNT(CASE WHEN gc.QUESTIONS_ASKED_COUNT < 3 THEN 1 END) as needs_discovery_coaching,
-                
-                STRING_AGG(
-                    CASE WHEN gc.SENTIMENT_SCORE < 0.3 
-                    THEN gc.CALL_TITLE || ' (' || DATE(gc.CALL_DATETIME_UTC) || ')'
-                    ELSE NULL END, 
-                    ', '
-                ) as low_sentiment_calls
-                
-            FROM {self.tables['calls']} gc
-            WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
-            AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-        )
+        performance_query = self._get_rep_performance_query(sales_rep, date_range_days)
+        coaching_query = self._get_coaching_opportunities_query(sales_rep, date_range_days)
+        
+        full_query = f"""
+        WITH rep_performance AS ({performance_query}),
+             coaching_opportunities AS ({coaching_query})
         SELECT 
             rp.*,
-            co.needs_sentiment_coaching,
-            co.needs_talk_ratio_coaching,
-            co.needs_discovery_coaching,
-            co.low_sentiment_calls,
-            
-            -- Performance scores
+            co.*,
             CASE 
                 WHEN rp.avg_sentiment > 0.6 AND rp.avg_talk_ratio BETWEEN 0.4 AND 0.7 THEN 'Excellent'
-                WHEN rp.avg_sentiment > 0.4 AND rp.avg_talk_ratio BETWEEN 0.3 AND 0.8 THEN 'Good'
-                WHEN rp.avg_sentiment > 0.2 THEN 'Needs Improvement'
+                WHEN rp.avg_sentiment > 0.4 THEN 'Good'
                 ELSE 'Requires Coaching'
             END as performance_category,
-            
-            ROUND((rp.avg_sentiment + 1) * 50, 1) as sentiment_score_pct,
-            ROUND(rp.positive_calls::FLOAT / rp.total_calls * 100, 1) as positive_call_rate,
             ROUND(CASE WHEN rp.unique_deals > 0 THEN rp.deals_won::FLOAT / rp.unique_deals * 100 ELSE 0 END, 1) as win_rate
-            
         FROM rep_performance rp
         CROSS JOIN coaching_opportunities co
         """
 
         try:
             cursor = self.connection.cursor()
-            cursor.execute(query)
+            cursor.execute(full_query)
 
             result = cursor.fetchone()
             if not result:
@@ -476,7 +448,6 @@ class SnowflakeGongConnector:
 
             logger.info(f"Retrieved performance analysis for {sales_rep}")
             return performance_data
-
         except Exception as e:
             logger.error(f"Error getting sales rep performance: {e}")
             raise

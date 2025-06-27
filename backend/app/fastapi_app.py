@@ -193,84 +193,70 @@ async def startup_event():
     logger.info(f"🚀 Starting Sophia AI Platform in {ENVIRONMENT} environment...")
 
     try:
-        # Perform comprehensive deployment readiness validation
-        logger.info("🔍 Performing deployment readiness validation...")
-        validation_report = await validate_deployment_readiness(ENVIRONMENT)
+        await _perform_startup_validation()
+        await _initialize_semantic_layer()
 
-        # Log validation results with enhanced detail
-        overall_status = validation_report.overall_status
+    except Exception as e:
+        logger.error(f"❌ Startup sequence failed: {e}", exc_info=True)
+        if ENVIRONMENT.lower() == "prod":
+            logger.error("🚨 PRODUCTION STARTUP FAILED")
+            raise RuntimeError(f"Production startup failed: {str(e)}")
+        else:
+            logger.warning("🔄 Continuing startup in development mode despite errors...")
+
+    logger.info("✅ FastAPI app initialized")
+    logger.info("✅ CORS middleware configured")
+    logger.info("✅ API routes registered")
+    logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
+
+async def _perform_startup_validation():
+    """Performs and logs the comprehensive deployment readiness validation."""
+    logger.info("🔍 Performing deployment readiness validation...")
+    validation_report = await validate_deployment_readiness(ENVIRONMENT)
+    _log_validation_summary(validation_report)
+    _handle_validation_outcome(validation_report)
+
+def _log_validation_summary(report):
+    """Logs the summary of the validation report."""
+    logger.info("📊 Validation Summary:")
+    logger.info(f"   Overall Status: {report.overall_status}")
+    logger.info(f"   Total Checks: {report.total_checks}, Passed: {report.passed_checks}, Failed: {report.failed_checks}, Warnings: {report.warning_checks}")
+    logger.info(f"   Execution Time: {report.execution_time:.2f}s")
+    if report.recommendations:
+        logger.info("📋 Recommendations:")
+        for rec in report.recommendations:
+            logger.info(f"   - {rec}")
+
+def _handle_validation_outcome(report):
+    """Handles the different outcomes of the deployment validation."""
+    if report.overall_status == "PARTIAL":
+        logger.warning(f"⚠️  Deployment validation completed with {len(report.warnings)} warnings.")
+        for warning in report.warnings:
+            logger.warning(f"   • {warning.service.value}: {warning.message}")
+            
+    elif report.overall_status == "NOT_READY":
+        logger.error(f"❌ Deployment validation failed with {len(report.critical_failures)} critical issues.")
+        for failure in report.critical_failures:
+            logger.error(f"   • {failure.service.value}: {failure.message}")
         
-        logger.info("📊 Validation Summary:")
-        logger.info(f"   Overall Status: {overall_status}")
-        logger.info(f"   Total Checks: {validation_report.total_checks}")
-        logger.info(f"   Passed: {validation_report.passed_checks}")
-        logger.info(f"   Failed: {validation_report.failed_checks}")
-        logger.info(f"   Warnings: {validation_report.warning_checks}")
-        logger.info(f"   Execution Time: {validation_report.execution_time:.2f}s")
+        if ENVIRONMENT.lower() == "prod":
+            logger.error("🚨 PRODUCTION DEPLOYMENT BLOCKED - Critical failures must be resolved")
+            raise RuntimeError(f"Production deployment blocked: {len(report.critical_failures)} critical failures")
+        else:
+            logger.warning("🔄 Continuing startup in development mode despite critical issues...")
 
-        # Handle different validation outcomes
-        if overall_status == "READY":
-            logger.info("✅ All deployment validations passed - system ready for production")
-            
-        elif overall_status == "PARTIAL":
-            logger.warning(f"⚠️  Deployment validation completed with {len(validation_report.warnings)} warnings")
-            logger.warning("   Core functionality available but some features may be limited")
-            
-            # Log warnings
-            for warning in validation_report.warnings:
-                logger.warning(f"   • {warning.service.value}: {warning.message}")
-                
-        elif overall_status == "NOT_READY":
-            logger.error(f"❌ Deployment validation failed with {len(validation_report.critical_failures)} critical issues")
-            logger.error("   System is NOT ready for production deployment")
-            
-            # Log critical failures
-            for failure in validation_report.critical_failures:
-                logger.error(f"   • {failure.service.value}: {failure.message}")
-            
-            # Log recommendations
-            logger.error("📋 Required Actions:")
-            for rec in validation_report.recommendations:
-                logger.error(f"   {rec}")
-            
-            # For production environments, fail fast on critical issues
-            if ENVIRONMENT.lower() == "prod":
-                logger.error("🚨 PRODUCTION DEPLOYMENT BLOCKED - Critical failures must be resolved")
-                raise RuntimeError(f"Production deployment blocked: {len(validation_report.critical_failures)} critical failures")
-            else:
-                logger.warning("🔄 Continuing startup in development mode despite critical issues...")
-
-        # Log recommendations if any
-        if validation_report.recommendations:
-            logger.info("📋 Recommendations:")
-            for rec in validation_report.recommendations:
-                logger.info(f"   {rec}")
-
-        # Initialize and apply semantic layer
-        logger.info("Initializing and applying semantic layer...")
+async def _initialize_semantic_layer():
+    """Initializes and applies the semantic layer."""
+    logger.info("Initializing and applying semantic layer...")
+    try:
         discovery_service = SchemaDiscoveryService()
         success = await discovery_service.apply_semantic_layer()
         if success:
             logger.info("Semantic layer applied successfully during startup.")
         else:
             logger.error("Failed to apply semantic layer during startup.")
-
     except Exception as e:
-        logger.error(f"❌ Deployment validation failed: {e}")
-        
-        # For production, fail fast on validation errors
-        if ENVIRONMENT.lower() == "prod":
-            logger.error("🚨 PRODUCTION STARTUP FAILED - Validation system error")
-            raise RuntimeError(f"Production startup failed: {str(e)}")
-        else:
-            logger.warning("🔄 Continuing startup without validation in development mode...")
-
-    # Continue with normal startup
-    logger.info("✅ FastAPI app initialized")
-    logger.info("✅ CORS middleware configured")
-    logger.info("✅ API routes registered")
-    logger.info("✅ Enhanced deployment validation enabled")
-    logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
+        logger.error(f"Error during semantic layer initialization: {e}", exc_info=True)
 
 
 # Shutdown event
