@@ -35,7 +35,7 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
         ):
             line = re.sub(r":\.$", ":", line)
             if line != original_line:
-                fixes_made.append(f"Line {i+1}: Removed period after colon")
+                fixes_made.append(f"Line {i + 1}: Removed period after colon")
 
         # Fix 2: Remove periods at the end of method/function definitions
         # Pattern: def __init__(self):. -> def __init__(self):
@@ -43,7 +43,7 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
             line = re.sub(r":\.$", ":", line)
             if line != original_line:
                 fixes_made.append(
-                    f"Line {i+1}: Removed period after function definition"
+                    f"Line {i + 1}: Removed period after function definition"
                 )
 
         # Fix 3: Remove periods at the end of assignments or statements
@@ -64,14 +64,16 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
                 if not re.search(r"\)\.$", line):  # Method calls can end with ).
                     line = line.rstrip(".").rstrip()
                     if line != original_line:
-                        fixes_made.append(f"Line {i+1}: Removed trailing period")
+                        fixes_made.append(f"Line {i + 1}: Removed trailing period")
 
         # Fix 4: Fix method calls with misplaced periods
         # Pattern: method(). -> method()
         if re.search(r"\(\)\.\s*$", line):
             line = re.sub(r"\(\)\.\s*$", "()", line)
             if line != original_line:
-                fixes_made.append(f"Line {i+1}: Fixed method call with trailing period")
+                fixes_made.append(
+                    f"Line {i + 1}: Fixed method call with trailing period"
+                )
 
         # Fix 5: Fix docstrings that start incorrectly
         # Pattern: def func():."""Doc -> def func():\n    """Doc
@@ -83,7 +85,7 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
                 docstring = match.group(3)
                 lines[i] = f"{indent}{func_def}"
                 lines.insert(i + 1, f"{indent}    {docstring}")
-                fixes_made.append(f"Line {i+1}: Fixed docstring placement")
+                fixes_made.append(f"Line {i + 1}: Fixed docstring placement")
                 continue
 
         # Fix 6: Fix return statements with periods
@@ -91,14 +93,14 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
         if re.match(r"^(\s*)return\s+.*\.$", line) and "..." not in line:
             line = line.rstrip(".")
             if line != original_line:
-                fixes_made.append(f"Line {i+1}: Fixed return statement")
+                fixes_made.append(f"Line {i + 1}: Fixed return statement")
 
         # Fix 7: Fix list/dict definitions with trailing periods
         # Pattern: list = [. -> list = [
         if re.search(r"[\[\{]\.$", line):
             line = re.sub(r"([\[\{])\.$", r"\1", line)
             if line != original_line:
-                fixes_made.append(f"Line {i+1}: Fixed list/dict opening bracket")
+                fixes_made.append(f"Line {i + 1}: Fixed list/dict opening bracket")
 
         lines[i] = line
 

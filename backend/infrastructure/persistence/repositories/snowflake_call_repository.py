@@ -11,35 +11,38 @@ import json
 from backend.application.ports.repositories.call_repository import CallRepository
 from backend.domain.entities.call import Call
 from backend.domain.value_objects.sentiment import Sentiment
-from backend.domain.value_objects.call_participant import CallParticipant, ParticipantRole
+from backend.domain.value_objects.call_participant import (
+    CallParticipant,
+    ParticipantRole,
+)
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 
 class SnowflakeCallRepository(CallRepository):
     """
     Snowflake implementation of the CallRepository interface.
-    
+
     This adapter implements the CallRepository port using Snowflake
     as the persistence mechanism.
     """
-    
+
     def __init__(self, snowflake_service: SnowflakeCortexService):
         """
         Initialize the repository with a Snowflake service.
-        
+
         Args:
             snowflake_service: The Snowflake service for database operations
         """
         self.snowflake = snowflake_service
         self.table_name = "ENRICHED_GONG_CALLS"
-    
+
     async def get_by_id(self, call_id: str) -> Optional[Call]:
         """
         Retrieve a call by its ID.
-        
+
         Args:
             call_id: The unique identifier of the call
-            
+
         Returns:
             Optional[Call]: The call if found, None otherwise
         """
@@ -47,21 +50,21 @@ class SnowflakeCallRepository(CallRepository):
         SELECT * FROM {self.table_name}
         WHERE CALL_ID = %s
         """
-        
+
         result = await self.snowflake.execute_query(query, (call_id,))
-        
+
         if result and len(result) > 0:
             return self._map_row_to_call(result[0])
-        
+
         return None
-    
+
     async def get_by_external_id(self, external_id: str) -> Optional[Call]:
         """
         Retrieve a call by its external system ID.
-        
+
         Args:
             external_id: The external system identifier
-            
+
         Returns:
             Optional[Call]: The call if found, None otherwise
         """
@@ -69,26 +72,22 @@ class SnowflakeCallRepository(CallRepository):
         SELECT * FROM {self.table_name}
         WHERE GONG_CALL_ID = %s
         """
-        
+
         result = await self.snowflake.execute_query(query, (external_id,))
-        
+
         if result and len(result) > 0:
             return self._map_row_to_call(result[0])
-        
+
         return None
-    
-    async def get_recent_calls(
-        self, 
-        limit: int = 10,
-        offset: int = 0
-    ) -> List[Call]:
+
+    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> List[Call]:
         """
         Get recent calls ordered by scheduled date.
-        
+
         Args:
             limit: Maximum number of calls to return
             offset: Number of calls to skip for pagination
-            
+
         Returns:
             List[Call]: List of recent calls
         """
@@ -97,23 +96,21 @@ class SnowflakeCallRepository(CallRepository):
         ORDER BY SCHEDULED_AT DESC
         LIMIT %s OFFSET %s
         """
-        
+
         result = await self.snowflake.execute_query(query, (limit, offset))
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     async def get_calls_by_date_range(
-        self,
-        start_date: datetime,
-        end_date: datetime
+        self, start_date: datetime, end_date: datetime
     ) -> List[Call]:
         """
         Get calls within a specific date range.
-        
+
         Args:
             start_date: Start of the date range
             end_date: End of the date range
-            
+
         Returns:
             List[Call]: List of calls in the date range
         """
@@ -122,18 +119,17 @@ class SnowflakeCallRepository(CallRepository):
         WHERE SCHEDULED_AT BETWEEN %s AND %s
         ORDER BY SCHEDULED_AT
         """
-        
+
         result = await self.snowflake.execute_query(
-            query, 
-            (start_date.isoformat(), end_date.isoformat())
+            query, (start_date.isoformat(), end_date.isoformat())
         )
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     async def get_calls_requiring_followup(self) -> List[Call]:
         """
         Get all calls that require followup based on business rules.
-        
+
         Returns:
             List[Call]: List of calls requiring followup
         """
@@ -143,32 +139,34 @@ class SnowflakeCallRepository(CallRepository):
            OR ARRAY_SIZE(AI_RISKS) > 0  -- Has identified risks
         ORDER BY SCHEDULED_AT DESC
         """
-        
+
         result = await self.snowflake.execute_query(query)
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     async def save(self, call: Call) -> Call:
         """
         Persist a call.
-        
+
         Args:
             call: The call to save
-            
+
         Returns:
             Call: The saved call with any updates
         """
         # Prepare data for insertion
-        participants_json = json.dumps([
-            {
-                'email': p.email,
-                'name': p.name,
-                'role': p.role.value,
-                'is_decision_maker': p.is_decision_maker
-            }
-            for p in call.participants
-        ])
-        
+        participants_json = json.dumps(
+            [
+                {
+                    "email": p.email,
+                    "name": p.name,
+                    "role": p.role.value,
+                    "is_decision_maker": p.is_decision_maker,
+                }
+                for p in call.participants
+            ]
+        )
+
         query = f"""
         INSERT INTO {self.table_name} (
             CALL_ID, GONG_CALL_ID, TITLE, SCHEDULED_AT,
@@ -176,43 +174,48 @@ class SnowflakeCallRepository(CallRepository):
             AI_SENTIMENT, TALK_RATIO, NEXT_STEPS, AI_TOPICS
         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
-        await self.snowflake.execute_query(query, (
-            call.id,
-            call.external_id,
-            call.title,
-            call.scheduled_at.isoformat(),
-            call.duration_seconds,
-            participants_json,
-            call.transcript,
-            call.sentiment.score if call.sentiment else None,
-            call.talk_ratio,
-            json.dumps(call.next_steps) if call.next_steps else '[]',
-            json.dumps(call.topics) if call.topics else '[]'
-        ))
-        
+
+        await self.snowflake.execute_query(
+            query,
+            (
+                call.id,
+                call.external_id,
+                call.title,
+                call.scheduled_at.isoformat(),
+                call.duration_seconds,
+                participants_json,
+                call.transcript,
+                call.sentiment.score if call.sentiment else None,
+                call.talk_ratio,
+                json.dumps(call.next_steps) if call.next_steps else "[]",
+                json.dumps(call.topics) if call.topics else "[]",
+            ),
+        )
+
         return call
-    
+
     async def update(self, call: Call) -> Call:
         """
         Update an existing call.
-        
+
         Args:
             call: The call with updated data
-            
+
         Returns:
             Call: The updated call
         """
-        participants_json = json.dumps([
-            {
-                'email': p.email,
-                'name': p.name,
-                'role': p.role.value,
-                'is_decision_maker': p.is_decision_maker
-            }
-            for p in call.participants
-        ])
-        
+        participants_json = json.dumps(
+            [
+                {
+                    "email": p.email,
+                    "name": p.name,
+                    "role": p.role.value,
+                    "is_decision_maker": p.is_decision_maker,
+                }
+                for p in call.participants
+            ]
+        )
+
         query = f"""
         UPDATE {self.table_name}
         SET TITLE = %s,
@@ -227,29 +230,32 @@ class SnowflakeCallRepository(CallRepository):
             UPDATED_AT = CURRENT_TIMESTAMP()
         WHERE CALL_ID = %s
         """
-        
-        await self.snowflake.execute_query(query, (
-            call.title,
-            call.scheduled_at.isoformat(),
-            call.duration_seconds,
-            participants_json,
-            call.transcript,
-            call.sentiment.score if call.sentiment else None,
-            call.talk_ratio,
-            json.dumps(call.next_steps) if call.next_steps else '[]',
-            json.dumps(call.topics) if call.topics else '[]',
-            call.id
-        ))
-        
+
+        await self.snowflake.execute_query(
+            query,
+            (
+                call.title,
+                call.scheduled_at.isoformat(),
+                call.duration_seconds,
+                participants_json,
+                call.transcript,
+                call.sentiment.score if call.sentiment else None,
+                call.talk_ratio,
+                json.dumps(call.next_steps) if call.next_steps else "[]",
+                json.dumps(call.topics) if call.topics else "[]",
+                call.id,
+            ),
+        )
+
         return call
-    
+
     async def delete(self, call_id: str) -> bool:
         """
         Delete a call by ID.
-        
+
         Args:
             call_id: The ID of the call to delete
-            
+
         Returns:
             bool: True if deleted, False if not found
         """
@@ -257,19 +263,19 @@ class SnowflakeCallRepository(CallRepository):
         DELETE FROM {self.table_name}
         WHERE CALL_ID = %s
         """
-        
+
         result = await self.snowflake.execute_query(query, (call_id,))
-        
+
         # Check if any rows were affected
         return result is not None
-    
+
     async def search_by_participant_email(self, email: str) -> List[Call]:
         """
         Search for calls by participant email.
-        
+
         Args:
             email: The email address to search for
-            
+
         Returns:
             List[Call]: List of calls with the participant
         """
@@ -281,15 +287,15 @@ class SnowflakeCallRepository(CallRepository):
         )
         ORDER BY SCHEDULED_AT DESC
         """
-        
+
         result = await self.snowflake.execute_query(query, (email,))
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     async def get_high_value_calls(self) -> List[Call]:
         """
         Get all high-value calls based on business rules.
-        
+
         Returns:
             List[Call]: List of high-value calls
         """
@@ -302,18 +308,18 @@ class SnowflakeCallRepository(CallRepository):
           )
         ORDER BY SCHEDULED_AT DESC
         """
-        
+
         result = await self.snowflake.execute_query(query)
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     async def get_by_deal(self, deal_id: str) -> List[Call]:
         """
         Retrieve calls associated with a specific deal.
-        
+
         Args:
             deal_id: The ID of the deal
-            
+
         Returns:
             List[Call]: List of calls associated with the deal
         """
@@ -322,52 +328,52 @@ class SnowflakeCallRepository(CallRepository):
         WHERE DEAL_ID = %s
         ORDER BY SCHEDULED_AT DESC
         """
-        
+
         result = await self.snowflake.execute_query(query, (deal_id,))
-        
+
         return [self._map_row_to_call(row) for row in result]
-    
+
     def _map_row_to_call(self, row: dict) -> Call:
         """
         Map a database row to a Call entity.
-        
+
         Args:
             row: Database row as a dictionary
-            
+
         Returns:
             Call: The mapped Call entity
         """
         # Parse participants
-        participants_data = json.loads(row.get('PARTICIPANTS', '[]'))
+        participants_data = json.loads(row.get("PARTICIPANTS", "[]"))
         participants = [
             CallParticipant(
-                email=p['email'],
-                name=p['name'],
-                role=ParticipantRole(p['role']),
-                is_decision_maker=p.get('is_decision_maker', False)
+                email=p["email"],
+                name=p["name"],
+                role=ParticipantRole(p["role"]),
+                is_decision_maker=p.get("is_decision_maker", False),
             )
             for p in participants_data
         ]
-        
+
         # Parse sentiment
         sentiment = None
-        if row.get('AI_SENTIMENT') is not None:
-            sentiment = Sentiment(score=float(row['AI_SENTIMENT']))
-        
+        if row.get("AI_SENTIMENT") is not None:
+            sentiment = Sentiment(score=float(row["AI_SENTIMENT"]))
+
         # Parse lists
-        next_steps = json.loads(row.get('NEXT_STEPS', '[]'))
-        topics = json.loads(row.get('AI_TOPICS', '[]'))
-        
+        next_steps = json.loads(row.get("NEXT_STEPS", "[]"))
+        topics = json.loads(row.get("AI_TOPICS", "[]"))
+
         return Call(
-            id=row['CALL_ID'],
-            external_id=row['GONG_CALL_ID'],
-            title=row['TITLE'],
-            scheduled_at=datetime.fromisoformat(row['SCHEDULED_AT']),
-            duration_seconds=row['DURATION_SECONDS'],
+            id=row["CALL_ID"],
+            external_id=row["GONG_CALL_ID"],
+            title=row["TITLE"],
+            scheduled_at=datetime.fromisoformat(row["SCHEDULED_AT"]),
+            duration_seconds=row["DURATION_SECONDS"],
             participants=participants,
-            transcript=row.get('TRANSCRIPT'),
+            transcript=row.get("TRANSCRIPT"),
             sentiment=sentiment,
-            talk_ratio=row.get('TALK_RATIO'),
+            talk_ratio=row.get("TALK_RATIO"),
             next_steps=next_steps if next_steps else None,
-            topics=topics if topics else None
-        ) 
+            topics=topics if topics else None,
+        )

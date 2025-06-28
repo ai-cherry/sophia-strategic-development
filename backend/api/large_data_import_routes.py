@@ -388,10 +388,10 @@ async def validate_import_file(
             try:
                 temp_file.write(content)
                 temp_file.flush()
-                validations["estimated_records"] = (
-                    await import_service._estimate_record_count(
-                        temp_file.name, import_data_type
-                    )
+                validations[
+                    "estimated_records"
+                ] = await import_service._estimate_record_count(
+                    temp_file.name, import_data_type
                 )
             finally:
                 temp_file.close()

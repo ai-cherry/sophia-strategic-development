@@ -316,9 +316,9 @@ class TimeConsistencyRule(ValidationRule):
                 # Check for significant delays (>30 minutes)
                 delay = (start_dt - scheduled_dt).total_seconds()
                 if delay > 1800:
-                    issues.append(f"Call started {delay/60:.0f} minutes late")
+                    issues.append(f"Call started {delay / 60:.0f} minutes late")
                 elif delay < -300:  # Started >5 min early
-                    issues.append(f"Call started {abs(delay)/60:.0f} minutes early")
+                    issues.append(f"Call started {abs(delay) / 60:.0f} minutes early")
 
         except Exception as e:
             issues.append(f"Timestamp parsing error: {str(e)}")

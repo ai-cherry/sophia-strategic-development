@@ -4,7 +4,7 @@ Snowflake Gong Setup Deployment Script
 
 Executes Manus AI's finalized Snowflake DDL for Gong data pipeline including:
 - RAW_ESTUARY target tables with VARIANT columns
-- STG_TRANSFORMED Gong tables with AI memory columns  
+- STG_TRANSFORMED Gong tables with AI memory columns
 - PII policies and security
 - Transformation/embedding stored procedures
 - Automated scheduling tasks
@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 class DeploymentEnvironment(Enum):
     """Deployment environments"""
+
     DEV = "dev"
     STAGING = "staging"
     PROD = "prod"
@@ -42,13 +43,14 @@ class DeploymentEnvironment(Enum):
 @dataclass
 class SnowflakeDeploymentConfig:
     """Snowflake deployment configuration"""
+
     account: str
     user: str
     password: str
     warehouse: str
     database: str
     role: str
-    
+
     # Environment-specific settings
     raw_schema: str = "RAW_ESTUARY"
     stg_schema: str = "STG_TRANSFORMED"
@@ -59,7 +61,7 @@ class SnowflakeDeploymentConfig:
 class GongSnowflakeDeployer:
     """
     Deploys complete Gong data pipeline infrastructure to Snowflake
-    
+
     Capabilities:
     - Execute Manus AI's finalized DDL for all schemas
     - Create RAW_ESTUARY tables with proper VARIANT columns
@@ -74,10 +76,10 @@ class GongSnowflakeDeployer:
         self.env = env
         self.dry_run = dry_run
         self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
-        
+
         # Load environment-specific configuration
         self.config = self._load_config()
-        
+
         # Track deployment progress
         self.deployment_log: List[Dict[str, Any]] = []
 
@@ -90,7 +92,7 @@ class GongSnowflakeDeployer:
                 password=get_config_value("snowflake_password"),
                 warehouse="WH_SOPHIA_ETL_TRANSFORM",
                 database="SOPHIA_AI_DEV",
-                role="ROLE_SOPHIA_ESTUARY_INGEST"
+                role="ROLE_SOPHIA_ESTUARY_INGEST",
             )
         elif self.env == DeploymentEnvironment.PROD:
             return SnowflakeDeploymentConfig(
@@ -99,7 +101,7 @@ class GongSnowflakeDeployer:
                 password=get_config_value("snowflake_password"),
                 warehouse="WH_SOPHIA_PRODUCTION",
                 database="SOPHIA_AI_PROD",
-                role="ROLE_SOPHIA_PRODUCTION"
+                role="ROLE_SOPHIA_PRODUCTION",
             )
         else:
             raise ValueError(f"Unsupported environment: {self.env}")
@@ -107,24 +109,28 @@ class GongSnowflakeDeployer:
     async def deploy_complete_pipeline(self) -> Dict[str, Any]:
         """Deploy the complete Gong data pipeline to Snowflake"""
         try:
-            logger.info(f"🚀 Starting Gong Snowflake deployment for {self.env.value.upper()} environment")
-            
+            logger.info(
+                f"🚀 Starting Gong Snowflake deployment for {self.env.value.upper()} environment"
+            )
+
             if self.dry_run:
                 logger.info("🔍 DRY RUN MODE - No changes will be made")
-            
+
             # Initialize connection
             await self._initialize_connection()
-            
+
             # Execute Manus AI's consolidated DDL script
             ddl_file_path = "backend/snowflake_setup/manus_ai_final_gong_ddl_v2.sql"
             ddl_result = await self.execute_manus_ai_ddl(ddl_file_path)
-            
+
             if not ddl_result["success"]:
-                raise Exception(f"DDL execution failed: {ddl_result.get('error', 'Unknown error')}")
-            
+                raise Exception(
+                    f"DDL execution failed: {ddl_result.get('error', 'Unknown error')}"
+                )
+
             # Verify deployment
             await self._verify_deployment()
-            
+
             deployment_summary = {
                 "success": True,
                 "environment": self.env.value,
@@ -138,20 +144,20 @@ class GongSnowflakeDeployer:
                     "Execute transformation procedures",
                     "Test AI Memory integration",
                     "Activate automated tasks: ALTER TASK TASK_TRANSFORM_GONG_CALLS RESUME;",
-                    "Verify data quality monitoring"
-                ]
+                    "Verify data quality monitoring",
+                ],
             }
-            
+
             logger.info("✅ Gong Snowflake deployment completed successfully")
             return deployment_summary
-            
+
         except Exception as e:
             logger.error(f"❌ Deployment failed: {e}")
             return {
                 "success": False,
                 "error": str(e),
                 "environment": self.env.value,
-                "deployment_log": self.deployment_log
+                "deployment_log": self.deployment_log,
             }
         finally:
             await self._cleanup()
@@ -160,61 +166,65 @@ class GongSnowflakeDeployer:
         """Execute Manus AI's consolidated DDL script"""
         try:
             logger.info(f"📜 Executing Manus AI DDL from: {ddl_file_path}")
-            
+
             # Read the DDL file
-            with open(ddl_file_path, 'r') as file:
+            with open(ddl_file_path, "r") as file:
                 ddl_content = file.read()
-            
+
             if self.dry_run:
                 logger.info("[DRY RUN] Would execute Manus AI DDL script")
-                await self._log_step("execute_manus_ddl", "DRY RUN - DDL script validated", True)
+                await self._log_step(
+                    "execute_manus_ddl", "DRY RUN - DDL script validated", True
+                )
                 return {"success": True, "dry_run": True, "statements_executed": 0}
-            
+
             # Split DDL into individual statements
-            statements = [stmt.strip() for stmt in ddl_content.split(';') if stmt.strip()]
+            statements = [
+                stmt.strip() for stmt in ddl_content.split(";") if stmt.strip()
+            ]
             executed_count = 0
             failed_count = 0
-            
+
             cursor = self.connection.cursor()
-            
+
             try:
                 for i, statement in enumerate(statements):
-                    if not statement or statement.startswith('--'):
+                    if not statement or statement.startswith("--"):
                         continue
-                    
+
                     try:
-                        logger.info(f"Executing statement {i+1}/{len(statements)}")
+                        logger.info(f"Executing statement {i + 1}/{len(statements)}")
                         cursor.execute(statement)
                         executed_count += 1
-                        
+
                     except Exception as stmt_error:
                         failed_count += 1
-                        logger.warning(f"Statement {i+1} failed: {stmt_error}")
+                        logger.warning(f"Statement {i + 1} failed: {stmt_error}")
                         # Continue with other statements for DDL operations
                         continue
-                
+
                 await self._log_step(
-                    "execute_manus_ddl", 
-                    f"Executed {executed_count} statements, {failed_count} failed", 
-                    failed_count == 0
+                    "execute_manus_ddl",
+                    f"Executed {executed_count} statements, {failed_count} failed",
+                    failed_count == 0,
                 )
-                
+
                 return {
                     "success": failed_count == 0,
                     "statements_executed": executed_count,
                     "statements_failed": failed_count,
-                    "total_statements": len(statements)
+                    "total_statements": len(statements),
                 }
-                
+
             finally:
                 cursor.close()
-            
+
         except FileNotFoundError:
             error_msg = f"DDL file not found: {ddl_file_path}"
             logger.error(error_msg)
             await self._log_step("execute_manus_ddl", error_msg, False)
             return {"success": False, "error": error_msg}
-            
+
         except Exception as e:
             error_msg = f"Failed to execute Manus AI DDL: {e}"
             logger.error(error_msg)
@@ -225,41 +235,47 @@ class GongSnowflakeDeployer:
         """Verify that the deployment was successful"""
         try:
             cursor = self.connection.cursor()
-            
+
             # Check that key tables exist
             tables_to_check = [
                 f"{self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW",
                 f"{self.config.database}.{self.config.raw_schema}.RAW_GONG_CALL_TRANSCRIPTS_RAW",
                 f"{self.config.database}.{self.config.stg_schema}.STG_GONG_CALLS",
-                f"{self.config.database}.{self.config.stg_schema}.STG_GONG_CALL_TRANSCRIPTS"
+                f"{self.config.database}.{self.config.stg_schema}.STG_GONG_CALL_TRANSCRIPTS",
             ]
-            
+
             for table in tables_to_check:
                 cursor.execute(f"SELECT COUNT(*) FROM {table} LIMIT 1")
                 # If this doesn't throw an error, table exists
                 logger.info(f"✅ Verified table exists: {table}")
-            
+
             # Check that procedures exist
             procedures_to_check = [
                 f"{self.config.database}.{self.config.stg_schema}.TRANSFORM_RAW_GONG_CALLS",
                 f"{self.config.database}.{self.config.stg_schema}.TRANSFORM_RAW_GONG_TRANSCRIPTS",
-                f"{self.config.database}.{self.config.stg_schema}.ENRICH_GONG_CALLS_WITH_AI"
+                f"{self.config.database}.{self.config.stg_schema}.ENRICH_GONG_CALLS_WITH_AI",
             ]
-            
+
             for procedure in procedures_to_check:
-                cursor.execute(f"SHOW PROCEDURES LIKE '{procedure.split('.')[-1]}' IN SCHEMA {self.config.database}.{self.config.stg_schema}")
+                cursor.execute(
+                    f"SHOW PROCEDURES LIKE '{procedure.split('.')[-1]}' IN SCHEMA {self.config.database}.{self.config.stg_schema}"
+                )
                 result = cursor.fetchone()
                 if result:
                     logger.info(f"✅ Verified procedure exists: {procedure}")
                 else:
                     logger.warning(f"⚠️ Procedure not found: {procedure}")
-            
+
             cursor.close()
-            await self._log_step("verify_deployment", "Deployment verification completed", True)
-            
+            await self._log_step(
+                "verify_deployment", "Deployment verification completed", True
+            )
+
         except Exception as e:
             logger.warning(f"Deployment verification failed: {e}")
-            await self._log_step("verify_deployment", f"Verification failed: {e}", False)
+            await self._log_step(
+                "verify_deployment", f"Verification failed: {e}", False
+            )
 
     async def _initialize_connection(self) -> None:
         """Initialize Snowflake connection"""
@@ -270,11 +286,11 @@ class GongSnowflakeDeployer:
                 password=self.config.password,
                 warehouse=self.config.warehouse,
                 database=self.config.database,
-                role=self.config.role
+                role=self.config.role,
             )
-            
+
             await self._log_step("connection", "Snowflake connection established", True)
-            
+
         except Exception as e:
             await self._log_step("connection", f"Failed to connect: {e}", False)
             raise
@@ -285,13 +301,13 @@ class GongSnowflakeDeployer:
             logger.info(f"[DRY RUN] Would execute: {step_name}")
             await self._log_step(step_name, "DRY RUN - SQL validated", True)
             return
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(sql)
             cursor.close()
             await self._log_step(step_name, "SQL executed successfully", True)
-            
+
         except Exception as e:
             await self._log_step(step_name, f"SQL execution failed: {e}", False)
             raise
@@ -302,10 +318,10 @@ class GongSnowflakeDeployer:
             "step": step,
             "message": message,
             "success": success,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
         self.deployment_log.append(log_entry)
-        
+
         if success:
             logger.info(f"✅ {step}: {message}")
         else:
@@ -320,26 +336,31 @@ class GongSnowflakeDeployer:
 
 async def main():
     """Main deployment function"""
-    parser = argparse.ArgumentParser(description='Deploy Gong Snowflake infrastructure')
-    parser.add_argument('--env', choices=['dev', 'staging', 'prod'], default='dev',
-                       help='Deployment environment')
-    parser.add_argument('--dry-run', action='store_true',
-                       help='Perform dry run without making changes')
-    
+    parser = argparse.ArgumentParser(description="Deploy Gong Snowflake infrastructure")
+    parser.add_argument(
+        "--env",
+        choices=["dev", "staging", "prod"],
+        default="dev",
+        help="Deployment environment",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Perform dry run without making changes"
+    )
+
     args = parser.parse_args()
-    
+
     try:
         env = DeploymentEnvironment(args.env)
         deployer = GongSnowflakeDeployer(env, dry_run=args.dry_run)
-        
+
         result = await deployer.deploy_complete_pipeline()
-        
+
         # Print results
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("DEPLOYMENT SUMMARY")
-        print("="*80)
+        print("=" * 80)
         print(json.dumps(result, indent=2, default=str))
-        
+
         if result["success"]:
             print("\n🎉 Deployment completed successfully!")
             if not args.dry_run:
@@ -349,7 +370,7 @@ async def main():
         else:
             print(f"\n💥 Deployment failed: {result.get('error', 'Unknown error')}")
             sys.exit(1)
-            
+
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         sys.exit(1)

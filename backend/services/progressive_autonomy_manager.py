@@ -5,15 +5,12 @@ Manages AI agent autonomy progression from recommendations to full automation
 Based on confidence levels, user approval patterns, and business impact assessment
 """
 
-import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
-import json
 
-from ..core.auto_esc_config import get_config_value
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
 logger = logging.getLogger(__name__)
@@ -21,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class AutonomyLevel(Enum):
     """AI autonomy progression levels"""
+
     RECOMMENDATION = "recommendation"
     CONDITIONAL_EXECUTION = "conditional_execution"
     FULL_AUTONOMY = "full_autonomy"
@@ -28,6 +26,7 @@ class AutonomyLevel(Enum):
 
 class ActionCategory(Enum):
     """Business action categories for autonomy management"""
+
     CUSTOMER_OUTREACH = "customer_outreach"
     DEAL_MANAGEMENT = "deal_management"
     DATA_PROCESSING = "data_processing"
@@ -41,6 +40,7 @@ class ActionCategory(Enum):
 @dataclass
 class AutonomyRule:
     """Autonomy rule definition"""
+
     category: ActionCategory
     current_level: AutonomyLevel
     confidence_threshold: float
@@ -53,6 +53,7 @@ class AutonomyRule:
 @dataclass
 class ActionRequest:
     """Action request for autonomy evaluation"""
+
     action_id: str
     category: ActionCategory
     description: str
@@ -67,6 +68,7 @@ class ActionRequest:
 @dataclass
 class AutonomyDecision:
     """Autonomy decision result"""
+
     action_id: str
     autonomy_level: AutonomyLevel
     should_execute: bool
@@ -80,6 +82,7 @@ class AutonomyDecision:
 @dataclass
 class UserApprovalPattern:
     """User approval pattern tracking"""
+
     category: ActionCategory
     total_requests: int
     approvals: int
@@ -91,13 +94,13 @@ class UserApprovalPattern:
 
 class ProgressiveAutonomyManager:
     """Manages AI agent autonomy progression with learning capabilities"""
-    
+
     def __init__(self):
         self.cortex_service = EnhancedSnowflakeCortexService()
         self.autonomy_rules = self._initialize_autonomy_rules()
         self.user_patterns = {}
         self.action_history = []
-        
+
     def _initialize_autonomy_rules(self) -> Dict[ActionCategory, AutonomyRule]:
         """Initialize default autonomy rules for each action category"""
         return {
@@ -108,7 +111,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.7,
                 approval_history_weight=0.3,
                 success_rate_threshold=0.80,
-                risk_tolerance=0.3
+                risk_tolerance=0.3,
             ),
             ActionCategory.DEAL_MANAGEMENT: AutonomyRule(
                 category=ActionCategory.DEAL_MANAGEMENT,
@@ -117,7 +120,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.8,
                 approval_history_weight=0.4,
                 success_rate_threshold=0.85,
-                risk_tolerance=0.2
+                risk_tolerance=0.2,
             ),
             ActionCategory.DATA_PROCESSING: AutonomyRule(
                 category=ActionCategory.DATA_PROCESSING,
@@ -126,7 +129,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.5,
                 approval_history_weight=0.2,
                 success_rate_threshold=0.90,
-                risk_tolerance=0.5
+                risk_tolerance=0.5,
             ),
             ActionCategory.REPORT_GENERATION: AutonomyRule(
                 category=ActionCategory.REPORT_GENERATION,
@@ -135,7 +138,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.6,
                 approval_history_weight=0.2,
                 success_rate_threshold=0.88,
-                risk_tolerance=0.4
+                risk_tolerance=0.4,
             ),
             ActionCategory.WORKFLOW_AUTOMATION: AutonomyRule(
                 category=ActionCategory.WORKFLOW_AUTOMATION,
@@ -144,7 +147,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.7,
                 approval_history_weight=0.25,
                 success_rate_threshold=0.90,
-                risk_tolerance=0.3
+                risk_tolerance=0.3,
             ),
             ActionCategory.COMMUNICATION: AutonomyRule(
                 category=ActionCategory.COMMUNICATION,
@@ -153,7 +156,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.6,
                 approval_history_weight=0.35,
                 success_rate_threshold=0.85,
-                risk_tolerance=0.25
+                risk_tolerance=0.25,
             ),
             ActionCategory.ANALYTICS: AutonomyRule(
                 category=ActionCategory.ANALYTICS,
@@ -162,7 +165,7 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.4,
                 approval_history_weight=0.1,
                 success_rate_threshold=0.92,
-                risk_tolerance=0.6
+                risk_tolerance=0.6,
             ),
             ActionCategory.RESOURCE_ALLOCATION: AutonomyRule(
                 category=ActionCategory.RESOURCE_ALLOCATION,
@@ -171,45 +174,53 @@ class ProgressiveAutonomyManager:
                 impact_threshold=0.9,
                 approval_history_weight=0.5,
                 success_rate_threshold=0.95,
-                risk_tolerance=0.1
-            )
+                risk_tolerance=0.1,
+            ),
         }
-    
-    async def evaluate_action_autonomy(self, action_request: ActionRequest) -> AutonomyDecision:
+
+    async def evaluate_action_autonomy(
+        self, action_request: ActionRequest
+    ) -> AutonomyDecision:
         """Evaluate appropriate autonomy level for a specific action"""
         try:
             # Get current autonomy rule for action category
             rule = self.autonomy_rules.get(action_request.category)
             if not rule:
-                return self._get_fallback_decision(action_request, "Unknown action category")
-            
+                return self._get_fallback_decision(
+                    action_request, "Unknown action category"
+                )
+
             # Calculate approval history influence
-            approval_influence = await self._calculate_approval_influence(action_request.category)
-            
+            approval_influence = await self._calculate_approval_influence(
+                action_request.category
+            )
+
             # Calculate success rate influence
-            success_influence = await self._calculate_success_rate_influence(action_request.category)
-            
+            success_influence = await self._calculate_success_rate_influence(
+                action_request.category
+            )
+
             # Calculate adjusted confidence score
             adjusted_confidence = self._calculate_adjusted_confidence(
                 action_request.confidence_score,
                 approval_influence,
                 success_influence,
-                rule
+                rule,
             )
-            
+
             # Determine autonomy level
             autonomy_level = self._determine_autonomy_level(
                 adjusted_confidence,
                 action_request.impact_score,
                 action_request.risk_score,
-                rule
+                rule,
             )
-            
+
             # Generate decision reasoning
             reasoning = await self._generate_decision_reasoning(
                 action_request, rule, adjusted_confidence, autonomy_level
             )
-            
+
             # Create autonomy decision
             decision = AutonomyDecision(
                 action_id=action_request.action_id,
@@ -219,27 +230,28 @@ class ProgressiveAutonomyManager:
                 confidence=adjusted_confidence,
                 reasoning=reasoning,
                 estimated_impact=self._estimate_impact(action_request.impact_score),
-                risk_assessment=self._assess_risk(action_request.risk_score)
+                risk_assessment=self._assess_risk(action_request.risk_score),
             )
-            
+
             # Store decision for learning
             await self._store_decision_for_learning(action_request, decision)
-            
+
             return decision
-            
+
         except Exception as e:
             logger.error(f"Error evaluating action autonomy: {e}")
             return self._get_fallback_decision(action_request, f"Error: {e}")
-    
-    async def update_approval_pattern(self, action_id: str, approved: bool, 
-                                    response_time_seconds: float) -> None:
+
+    async def update_approval_pattern(
+        self, action_id: str, approved: bool, response_time_seconds: float
+    ) -> None:
         """Update user approval patterns based on response"""
         try:
             # Find the action request
             action_request = await self._get_action_request(action_id)
             if not action_request:
                 return
-            
+
             # Update user approval pattern
             category = action_request.category
             if category not in self.user_patterns:
@@ -250,33 +262,35 @@ class ProgressiveAutonomyManager:
                     rejections=0,
                     approval_rate=0.0,
                     avg_response_time=0.0,
-                    last_interaction=datetime.now()
+                    last_interaction=datetime.now(),
                 )
-            
+
             pattern = self.user_patterns[category]
             pattern.total_requests += 1
-            
+
             if approved:
                 pattern.approvals += 1
             else:
                 pattern.rejections += 1
-            
+
             pattern.approval_rate = pattern.approvals / pattern.total_requests
             pattern.avg_response_time = (
-                (pattern.avg_response_time * (pattern.total_requests - 1) + response_time_seconds) /
-                pattern.total_requests
-            )
+                pattern.avg_response_time * (pattern.total_requests - 1)
+                + response_time_seconds
+            ) / pattern.total_requests
             pattern.last_interaction = datetime.now()
-            
+
             # Update autonomy rules based on patterns
             await self._update_autonomy_rules_from_patterns()
-            
+
             # Store pattern update
-            await self._store_approval_pattern_update(action_request, approved, response_time_seconds)
-            
+            await self._store_approval_pattern_update(
+                action_request, approved, response_time_seconds
+            )
+
         except Exception as e:
             logger.error(f"Error updating approval pattern: {e}")
-    
+
     async def get_autonomy_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive autonomy management dashboard"""
         try:
@@ -288,29 +302,31 @@ class ProgressiveAutonomyManager:
                 "autonomy_progression": await self._get_autonomy_progression_trends(),
                 "performance_metrics": await self._get_performance_metrics(),
                 "recommendations": await self._get_autonomy_recommendations(),
-                "last_updated": datetime.now().isoformat()
+                "last_updated": datetime.now().isoformat(),
             }
-            
+
             return dashboard_data
-            
+
         except Exception as e:
             logger.error(f"Error generating autonomy dashboard: {e}")
             return self._get_fallback_dashboard()
-    
+
     async def _calculate_approval_influence(self, category: ActionCategory) -> float:
         """Calculate approval history influence on autonomy decisions"""
         if category not in self.user_patterns:
             return 0.5  # Neutral influence
-        
+
         pattern = self.user_patterns[category]
-        
+
         # Weight recent interactions more heavily
         days_since_last = (datetime.now() - pattern.last_interaction).days
         recency_weight = max(0.1, 1.0 - (days_since_last / 30))
-        
+
         return pattern.approval_rate * recency_weight
-    
-    async def _calculate_success_rate_influence(self, category: ActionCategory) -> float:
+
+    async def _calculate_success_rate_influence(
+        self, category: ActionCategory
+    ) -> float:
         """Calculate success rate influence from historical performance"""
         try:
             # Query Snowflake for historical success rates
@@ -321,78 +337,93 @@ class ProgressiveAutonomyManager:
             WHERE category = '{category.value}'
             AND action_date >= CURRENT_DATE - 90
             """
-            
+
             result = await self.cortex_service.execute_query(sql_query)
-            
+
             if result and result[0]:
-                return float(result[0].get('SUCCESS_RATE', 0.8))
-            
+                return float(result[0].get("SUCCESS_RATE", 0.8))
+
         except Exception as e:
             logger.error(f"Error calculating success rate influence: {e}")
-        
+
         # Default success rate assumption
         return 0.8
-    
-    def _calculate_adjusted_confidence(self, base_confidence: float, 
-                                     approval_influence: float,
-                                     success_influence: float,
-                                     rule: AutonomyRule) -> float:
+
+    def _calculate_adjusted_confidence(
+        self,
+        base_confidence: float,
+        approval_influence: float,
+        success_influence: float,
+        rule: AutonomyRule,
+    ) -> float:
         """Calculate adjusted confidence score incorporating user patterns"""
-        
+
         # Weighted combination of factors
         adjusted = (
-            base_confidence * 0.6 +
-            approval_influence * rule.approval_history_weight +
-            success_influence * 0.2
+            base_confidence * 0.6
+            + approval_influence * rule.approval_history_weight
+            + success_influence * 0.2
         )
-        
+
         # Ensure confidence stays within bounds
         return max(0.0, min(1.0, adjusted))
-    
-    def _determine_autonomy_level(self, confidence: float, impact: float, 
-                                risk: float, rule: AutonomyRule) -> AutonomyLevel:
+
+    def _determine_autonomy_level(
+        self, confidence: float, impact: float, risk: float, rule: AutonomyRule
+    ) -> AutonomyLevel:
         """Determine appropriate autonomy level based on scores and rules"""
-        
+
         # High-risk actions always require approval
         if risk > (1.0 - rule.risk_tolerance):
             return AutonomyLevel.RECOMMENDATION
-        
+
         # Full autonomy criteria
-        if (confidence >= rule.confidence_threshold and 
-            impact >= rule.impact_threshold and
-            risk <= rule.risk_tolerance):
+        if (
+            confidence >= rule.confidence_threshold
+            and impact >= rule.impact_threshold
+            and risk <= rule.risk_tolerance
+        ):
             return AutonomyLevel.FULL_AUTONOMY
-        
+
         # Conditional execution criteria
-        elif (confidence >= (rule.confidence_threshold - 0.1) and
-              impact >= (rule.impact_threshold - 0.2)):
+        elif confidence >= (rule.confidence_threshold - 0.1) and impact >= (
+            rule.impact_threshold - 0.2
+        ):
             return AutonomyLevel.CONDITIONAL_EXECUTION
-        
+
         # Default to recommendation
         else:
             return AutonomyLevel.RECOMMENDATION
-    
-    async def _generate_decision_reasoning(self, action_request: ActionRequest,
-                                         rule: AutonomyRule, adjusted_confidence: float,
-                                         autonomy_level: AutonomyLevel) -> str:
+
+    async def _generate_decision_reasoning(
+        self,
+        action_request: ActionRequest,
+        rule: AutonomyRule,
+        adjusted_confidence: float,
+        autonomy_level: AutonomyLevel,
+    ) -> str:
         """Generate human-readable reasoning for autonomy decision"""
-        
+
         reasoning_parts = [
             f"Action category: {action_request.category.value}",
             f"Confidence: {adjusted_confidence:.2f} (threshold: {rule.confidence_threshold})",
             f"Impact: {action_request.impact_score:.2f} (threshold: {rule.impact_threshold})",
-            f"Risk: {action_request.risk_score:.2f} (tolerance: {rule.risk_tolerance})"
+            f"Risk: {action_request.risk_score:.2f} (tolerance: {rule.risk_tolerance})",
         ]
-        
+
         if autonomy_level == AutonomyLevel.FULL_AUTONOMY:
-            reasoning_parts.append("High confidence and appropriate impact/risk profile allows autonomous execution")
+            reasoning_parts.append(
+                "High confidence and appropriate impact/risk profile allows autonomous execution"
+            )
         elif autonomy_level == AutonomyLevel.CONDITIONAL_EXECUTION:
-            reasoning_parts.append("Moderate confidence allows execution with monitoring")
+            reasoning_parts.append(
+                "Moderate confidence allows execution with monitoring"
+            )
         else:
             reasoning_parts.append("Confidence or risk profile requires human approval")
-        
+
         return " | ".join(reasoning_parts)
-    
+
     def _estimate_impact(self, impact_score: float) -> str:
         """Convert impact score to readable assessment"""
         if impact_score >= 0.8:
@@ -403,7 +434,7 @@ class ProgressiveAutonomyManager:
             return "Low Impact"
         else:
             return "Minimal Impact"
-    
+
     def _assess_risk(self, risk_score: float) -> str:
         """Convert risk score to readable assessment"""
         if risk_score >= 0.8:
@@ -414,27 +445,31 @@ class ProgressiveAutonomyManager:
             return "Low Risk"
         else:
             return "Minimal Risk"
-    
+
     async def _update_autonomy_rules_from_patterns(self) -> None:
         """Update autonomy rules based on user approval patterns"""
         for category, pattern in self.user_patterns.items():
             if category in self.autonomy_rules:
                 rule = self.autonomy_rules[category]
-                
+
                 # Adjust confidence threshold based on approval rate
                 if pattern.approval_rate > 0.9 and pattern.total_requests > 10:
                     # High approval rate - can lower threshold slightly
-                    rule.confidence_threshold = max(0.6, rule.confidence_threshold - 0.02)
+                    rule.confidence_threshold = max(
+                        0.6, rule.confidence_threshold - 0.02
+                    )
                 elif pattern.approval_rate < 0.6 and pattern.total_requests > 5:
                     # Low approval rate - raise threshold
-                    rule.confidence_threshold = min(0.95, rule.confidence_threshold + 0.05)
-    
+                    rule.confidence_threshold = min(
+                        0.95, rule.confidence_threshold + 0.05
+                    )
+
     # Dashboard and reporting methods
     async def _calculate_overall_autonomy_score(self) -> Dict[str, float]:
         """Calculate overall autonomy maturity score"""
         total_score = 0
         category_count = len(self.autonomy_rules)
-        
+
         for rule in self.autonomy_rules.values():
             if rule.current_level == AutonomyLevel.FULL_AUTONOMY:
                 total_score += 1.0
@@ -442,15 +477,15 @@ class ProgressiveAutonomyManager:
                 total_score += 0.6
             else:
                 total_score += 0.2
-        
+
         overall_score = total_score / category_count if category_count > 0 else 0
-        
+
         return {
             "score": overall_score,
             "percentage": overall_score * 100,
-            "grade": self._get_autonomy_grade(overall_score)
+            "grade": self._get_autonomy_grade(overall_score),
         }
-    
+
     def _get_autonomy_grade(self, score: float) -> str:
         """Convert autonomy score to letter grade"""
         if score >= 0.9:
@@ -465,59 +500,67 @@ class ProgressiveAutonomyManager:
             return "C"
         else:
             return "D"
-    
+
     def _get_category_autonomy_summary(self) -> List[Dict[str, Any]]:
         """Get summary of autonomy levels by category"""
         summary = []
-        
+
         for category, rule in self.autonomy_rules.items():
-            summary.append({
-                "category": category.value,
-                "current_level": rule.current_level.value,
-                "confidence_threshold": rule.confidence_threshold,
-                "success_rate_threshold": rule.success_rate_threshold,
-                "risk_tolerance": rule.risk_tolerance
-            })
-        
+            summary.append(
+                {
+                    "category": category.value,
+                    "current_level": rule.current_level.value,
+                    "confidence_threshold": rule.confidence_threshold,
+                    "success_rate_threshold": rule.success_rate_threshold,
+                    "risk_tolerance": rule.risk_tolerance,
+                }
+            )
+
         return summary
-    
+
     def _get_approval_patterns_summary(self) -> List[Dict[str, Any]]:
         """Get summary of user approval patterns"""
         summary = []
-        
+
         for category, pattern in self.user_patterns.items():
-            summary.append({
-                "category": category.value,
-                "approval_rate": pattern.approval_rate,
-                "total_requests": pattern.total_requests,
-                "avg_response_time": pattern.avg_response_time,
-                "last_interaction": pattern.last_interaction.isoformat()
-            })
-        
+            summary.append(
+                {
+                    "category": category.value,
+                    "approval_rate": pattern.approval_rate,
+                    "total_requests": pattern.total_requests,
+                    "avg_response_time": pattern.avg_response_time,
+                    "last_interaction": pattern.last_interaction.isoformat(),
+                }
+            )
+
         return summary
-    
+
     # Utility and fallback methods
-    async def _store_decision_for_learning(self, action_request: ActionRequest,
-                                         decision: AutonomyDecision) -> None:
+    async def _store_decision_for_learning(
+        self, action_request: ActionRequest, decision: AutonomyDecision
+    ) -> None:
         """Store decision data for machine learning improvements"""
         try:
             # Store in Snowflake for historical analysis
-            await self.cortex_service.store_autonomy_decision({
-                "action_id": action_request.action_id,
-                "category": action_request.category.value,
-                "confidence_score": action_request.confidence_score,
-                "impact_score": action_request.impact_score,
-                "risk_score": action_request.risk_score,
-                "autonomy_level": decision.autonomy_level.value,
-                "should_execute": decision.should_execute,
-                "timestamp": action_request.timestamp.isoformat()
-            })
-            
+            await self.cortex_service.store_autonomy_decision(
+                {
+                    "action_id": action_request.action_id,
+                    "category": action_request.category.value,
+                    "confidence_score": action_request.confidence_score,
+                    "impact_score": action_request.impact_score,
+                    "risk_score": action_request.risk_score,
+                    "autonomy_level": decision.autonomy_level.value,
+                    "should_execute": decision.should_execute,
+                    "timestamp": action_request.timestamp.isoformat(),
+                }
+            )
+
         except Exception as e:
             logger.error(f"Error storing decision for learning: {e}")
-    
-    def _get_fallback_decision(self, action_request: ActionRequest, 
-                             reason: str) -> AutonomyDecision:
+
+    def _get_fallback_decision(
+        self, action_request: ActionRequest, reason: str
+    ) -> AutonomyDecision:
         """Fallback decision when evaluation fails"""
         return AutonomyDecision(
             action_id=action_request.action_id,
@@ -527,9 +570,9 @@ class ProgressiveAutonomyManager:
             confidence=0.5,
             reasoning=f"Fallback decision: {reason}",
             estimated_impact="Unknown",
-            risk_assessment="Unknown"
+            risk_assessment="Unknown",
         )
-    
+
     def _get_fallback_dashboard(self) -> Dict[str, Any]:
         """Fallback dashboard when data unavailable"""
         return {
@@ -539,46 +582,50 @@ class ProgressiveAutonomyManager:
             "recent_decisions": [],
             "autonomy_progression": {"error": "Data temporarily unavailable"},
             "performance_metrics": {"error": "Data temporarily unavailable"},
-            "recommendations": ["Review autonomy configuration", "Check data connectivity"],
+            "recommendations": [
+                "Review autonomy configuration",
+                "Check data connectivity",
+            ],
             "last_updated": datetime.now().isoformat(),
-            "status": "degraded"
+            "status": "degraded",
         }
-    
+
     # Placeholder methods for future implementation
     async def _get_action_request(self, action_id: str) -> Optional[ActionRequest]:
         """Get action request by ID"""
         # TODO: Implement action request retrieval
         return None
-    
-    async def _store_approval_pattern_update(self, action_request: ActionRequest,
-                                           approved: bool, response_time: float) -> None:
+
+    async def _store_approval_pattern_update(
+        self, action_request: ActionRequest, approved: bool, response_time: float
+    ) -> None:
         """Store approval pattern update"""
         # TODO: Implement pattern storage
         pass
-    
+
     async def _get_recent_decisions(self, limit: int) -> List[Dict[str, Any]]:
         """Get recent autonomy decisions"""
         # TODO: Implement recent decisions retrieval
         return []
-    
+
     async def _get_autonomy_progression_trends(self) -> Dict[str, Any]:
         """Get autonomy progression trends over time"""
         # TODO: Implement trend analysis
         return {"trend": "stable", "direction": "improving"}
-    
+
     async def _get_performance_metrics(self) -> Dict[str, Any]:
         """Get performance metrics for autonomous actions"""
         # TODO: Implement performance metrics
         return {"success_rate": 0.85, "efficiency_gain": 0.40}
-    
+
     async def _get_autonomy_recommendations(self) -> List[str]:
         """Get recommendations for autonomy improvements"""
         # TODO: Implement intelligent recommendations
         return [
             "Consider increasing autonomy for data processing tasks",
-            "Monitor approval patterns for optimization opportunities"
+            "Monitor approval patterns for optimization opportunities",
         ]
 
 
 # Service instance for dependency injection
-progressive_autonomy_manager = ProgressiveAutonomyManager() 
+progressive_autonomy_manager = ProgressiveAutonomyManager()

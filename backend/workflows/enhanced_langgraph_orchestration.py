@@ -76,7 +76,7 @@ class WorkflowState(TypedDict):
     slack_data: Optional[Dict[str, Any]]
     linear_data: Optional[Dict[str, Any]]
     kb_data: Optional[Dict[str, Any]]
-    
+
     # New fields for Marketing and Sales Intelligence
     marketing_data: Optional[Dict[str, Any]]
     sales_data: Optional[Dict[str, Any]]
@@ -90,7 +90,7 @@ class WorkflowState(TypedDict):
     slack_insights: Optional[Dict[str, Any]]
     linear_health: Optional[Dict[str, Any]]
     kb_insights: Optional[Dict[str, Any]]
-    
+
     # New analysis results for Marketing and Sales Intelligence
     marketing_insights: Optional[Dict[str, Any]]
     sales_intelligence: Optional[Dict[str, Any]]
@@ -267,7 +267,9 @@ class SlackAnalysisAgent:
             "sentiment_summary": (
                 "positive"
                 if avg_sentiment > 0.1
-                else "negative" if avg_sentiment < -0.1 else "neutral"
+                else "negative"
+                if avg_sentiment < -0.1
+                else "neutral"
             ),
         }
 
@@ -417,7 +419,9 @@ class LinearAnalysisAgent:
             "overall_health": (
                 "healthy"
                 if avg_health_score > 0.7
-                else "at_risk" if avg_health_score > 0.5 else "critical"
+                else "at_risk"
+                if avg_health_score > 0.5
+                else "critical"
             ),
         }
 
@@ -629,12 +633,15 @@ class KnowledgeCuratorAgent:
 
 # New Marketing and Sales Intelligence Agents for LangGraph Integration
 
+
 @dataclass
 class MarketingAnalysisLangGraphAgent:
     """Enhanced Marketing Analysis Agent for LangGraph integration"""
 
     name: str = "marketing_analysis_agent"
-    description: str = "Analyzes marketing campaigns and generates content recommendations"
+    description: str = (
+        "Analyzes marketing campaigns and generates content recommendations"
+    )
 
     # Service integrations
     cortex_service: Optional[SnowflakeCortexService] = None
@@ -666,20 +673,22 @@ class MarketingAnalysisLangGraphAgent:
             logger.error(f"Failed to initialize Marketing Analysis Agent: {e}")
             raise
 
-    async def analyze_marketing_performance(self, state: WorkflowState) -> WorkflowState:
+    async def analyze_marketing_performance(
+        self, state: WorkflowState
+    ) -> WorkflowState:
         """Analyze marketing performance for the workflow"""
         if not self.initialized:
             await self.initialize()
 
         try:
             query = state.get("query", "")
-            
+
             # Determine analysis type from query
             analysis_type = self._determine_marketing_analysis_type(query)
-            
+
             # Get marketing data based on analysis type
             marketing_data = await self._get_marketing_data(analysis_type, query)
-            
+
             if not marketing_data:
                 state["marketing_insights"] = {
                     "message": "No relevant marketing data found",
@@ -691,7 +700,7 @@ class MarketingAnalysisLangGraphAgent:
             insights = await self.marketing_agent.comprehensive_marketing_analysis(
                 campaigns=marketing_data.get("campaigns", []),
                 customers=marketing_data.get("customers", []),
-                competitors=marketing_data.get("competitors", [])
+                competitors=marketing_data.get("competitors", []),
             )
 
             # Store marketing data and insights
@@ -700,12 +709,19 @@ class MarketingAnalysisLangGraphAgent:
 
             # Generate content recommendations if requested
             if "content" in query.lower() or analysis_type == "content_generation":
-                content_recs = await self._generate_content_recommendations(insights, query)
+                content_recs = await self._generate_content_recommendations(
+                    insights, query
+                )
                 state["content_recommendations"] = content_recs
 
             # Perform competitive analysis if requested
-            if "competitor" in query.lower() or analysis_type == "competitive_intelligence":
-                competitive_analysis = await self._perform_competitive_analysis(insights, query)
+            if (
+                "competitor" in query.lower()
+                or analysis_type == "competitive_intelligence"
+            ):
+                competitive_analysis = await self._perform_competitive_analysis(
+                    insights, query
+                )
                 state["competitive_analysis"] = competitive_analysis
 
             logger.info(f"Completed marketing analysis: {analysis_type}")
@@ -719,7 +735,7 @@ class MarketingAnalysisLangGraphAgent:
     def _determine_marketing_analysis_type(self, query: str) -> str:
         """Determine the type of marketing analysis needed"""
         query_lower = query.lower()
-        
+
         if "campaign" in query_lower and "performance" in query_lower:
             return "campaign_performance"
         elif "content" in query_lower or "generate" in query_lower:
@@ -731,11 +747,13 @@ class MarketingAnalysisLangGraphAgent:
         else:
             return "comprehensive"
 
-    async def _get_marketing_data(self, analysis_type: str, query: str) -> Dict[str, Any]:
+    async def _get_marketing_data(
+        self, analysis_type: str, query: str
+    ) -> Dict[str, Any]:
         """Get relevant marketing data based on analysis type"""
         # In production, this would query STG_MARKETING_CAMPAIGNS, STG_CUSTOMER_DATA, etc.
         # For now, return structured data based on analysis needs
-        
+
         data = {
             "campaigns": [],
             "customers": [],
@@ -744,9 +762,9 @@ class MarketingAnalysisLangGraphAgent:
             "audience": "general",
             "context": {},
             "criteria": ["behavior", "demographics"],
-            "focus": ["positioning", "messaging"]
+            "focus": ["positioning", "messaging"],
         }
-        
+
         # Parse specific parameters from query
         if "email" in query.lower():
             data["content_type"] = "email"
@@ -754,10 +772,12 @@ class MarketingAnalysisLangGraphAgent:
             data["content_type"] = "social_media"
         elif "blog" in query.lower():
             data["content_type"] = "blog_post"
-        
+
         return data
 
-    async def _generate_content_recommendations(self, insights: Dict[str, Any], query: str) -> Dict[str, Any]:
+    async def _generate_content_recommendations(
+        self, insights: Dict[str, Any], query: str
+    ) -> Dict[str, Any]:
         """Generate content recommendations based on insights"""
         try:
             # Use SmartAIService for advanced content generation
@@ -774,25 +794,29 @@ class MarketingAnalysisLangGraphAgent:
             4. Call-to-action suggestions
             5. Performance optimization tips
             """
-            
-            content_recommendations = await self.smart_ai_service.generate_response({
-                "prompt": content_prompt,
-                "task_type": "content_generation",
-                "model_preference": "balanced",
-                "max_tokens": 500
-            })
-            
+
+            content_recommendations = await self.smart_ai_service.generate_response(
+                {
+                    "prompt": content_prompt,
+                    "task_type": "content_generation",
+                    "model_preference": "balanced",
+                    "max_tokens": 500,
+                }
+            )
+
             return {
                 "recommendations": content_recommendations.get("response", ""),
                 "generated_at": datetime.now().isoformat(),
-                "source": "smart_ai_service"
+                "source": "smart_ai_service",
             }
-            
+
         except Exception as e:
             logger.error(f"Error generating content recommendations: {e}")
             return {"error": f"Content generation failed: {str(e)}"}
 
-    async def _perform_competitive_analysis(self, insights: Dict[str, Any], query: str) -> Dict[str, Any]:
+    async def _perform_competitive_analysis(
+        self, insights: Dict[str, Any], query: str
+    ) -> Dict[str, Any]:
         """Perform competitive analysis based on insights"""
         try:
             # Use SmartAIService for competitive intelligence
@@ -809,20 +833,22 @@ class MarketingAnalysisLangGraphAgent:
             4. Strategic recommendations
             5. Tactical next steps
             """
-            
-            competitive_analysis = await self.smart_ai_service.generate_response({
-                "prompt": competitive_prompt,
-                "task_type": "competitive_analysis",
-                "model_preference": "performance",
-                "max_tokens": 600
-            })
-            
+
+            competitive_analysis = await self.smart_ai_service.generate_response(
+                {
+                    "prompt": competitive_prompt,
+                    "task_type": "competitive_analysis",
+                    "model_preference": "performance",
+                    "max_tokens": 600,
+                }
+            )
+
             return {
                 "analysis": competitive_analysis.get("response", ""),
                 "generated_at": datetime.now().isoformat(),
-                "source": "smart_ai_service"
+                "source": "smart_ai_service",
             }
-            
+
         except Exception as e:
             logger.error(f"Error in competitive analysis: {e}")
             return {"error": f"Competitive analysis failed: {str(e)}"}
@@ -877,13 +903,13 @@ class SalesIntelligenceLangGraphAgent:
         try:
             query = state.get("query", "")
             deal_id = state.get("deal_id")
-            
+
             # Determine analysis type from query
             analysis_type = self._determine_sales_analysis_type(query)
-            
+
             # Get sales data
             sales_data = await self._get_sales_data(analysis_type, deal_id, query)
-            
+
             if not sales_data:
                 state["sales_intelligence"] = {
                     "message": "No relevant sales data found",
@@ -896,7 +922,7 @@ class SalesIntelligenceLangGraphAgent:
                 deal_id=deal_id,
                 include_risk_assessment=True,
                 include_competitive_analysis=True,
-                include_forecasting=True
+                include_forecasting=True,
             )
 
             # Store sales data and insights
@@ -909,13 +935,18 @@ class SalesIntelligenceLangGraphAgent:
                     deal_id=deal_id or sales_data.get("deal_id"),
                     hubspot_data=sales_data.get("hubspot_data", {}),
                     gong_data=sales_data.get("gong_data", {}),
-                    risk_factors=sales_data.get("risk_factors", [])
+                    risk_factors=sales_data.get("risk_factors", []),
                 )
                 state["deal_risk_assessment"] = risk_assessment
 
             # Generate competitive analysis if needed
-            if "competitor" in query.lower() or analysis_type == "competitor_talking_points":
-                competitive_analysis = await self._enhance_competitive_analysis(insights, query)
+            if (
+                "competitor" in query.lower()
+                or analysis_type == "competitor_talking_points"
+            ):
+                competitive_analysis = await self._enhance_competitive_analysis(
+                    insights, query
+                )
                 state["competitive_analysis"] = competitive_analysis
 
             logger.info(f"Completed sales intelligence analysis: {analysis_type}")
@@ -929,7 +960,7 @@ class SalesIntelligenceLangGraphAgent:
     def _determine_sales_analysis_type(self, query: str) -> str:
         """Determine the type of sales analysis needed"""
         query_lower = query.lower()
-        
+
         if "risk" in query_lower and "deal" in query_lower:
             return "deal_risk_assessment"
         elif "email" in query_lower or "follow" in query_lower:
@@ -941,59 +972,71 @@ class SalesIntelligenceLangGraphAgent:
         else:
             return "comprehensive"
 
-    async def _get_sales_data(self, analysis_type: str, deal_id: Optional[str], query: str) -> Dict[str, Any]:
+    async def _get_sales_data(
+        self, analysis_type: str, deal_id: Optional[str], query: str
+    ) -> Dict[str, Any]:
         """Get relevant sales data based on analysis type"""
         try:
             data = {}
-            
+
             # Get HubSpot data if deal_id provided
             if deal_id:
                 async with self.hubspot_connector as connector:
                     hubspot_deals = await connector.query_hubspot_deals(limit=10)
                     if not hubspot_deals.empty:
-                        deal_data = hubspot_deals[hubspot_deals['DEAL_ID'] == deal_id]
+                        deal_data = hubspot_deals[hubspot_deals["DEAL_ID"] == deal_id]
                         if not deal_data.empty:
                             data["hubspot_data"] = deal_data.iloc[0].to_dict()
                             data["deal_id"] = deal_id
                             data["deal_context"] = {
                                 "deal_name": data["hubspot_data"].get("DEAL_NAME"),
-                                "company_name": data["hubspot_data"].get("COMPANY_NAME"),
+                                "company_name": data["hubspot_data"].get(
+                                    "COMPANY_NAME"
+                                ),
                                 "deal_stage": data["hubspot_data"].get("DEAL_STAGE"),
-                                "amount": data["hubspot_data"].get("AMOUNT")
+                                "amount": data["hubspot_data"].get("AMOUNT"),
                             }
-            
+
             # Get Gong data if available
             async with self.gong_connector as connector:
                 recent_calls = await connector.get_calls_for_coaching(
-                    date_range_days=30,
-                    limit=5
+                    date_range_days=30, limit=5
                 )
                 data["gong_data"] = recent_calls
                 data["recent_calls"] = recent_calls[:3]  # Most recent 3 calls
-            
+
             # Set default values based on analysis type
             if analysis_type == "deal_risk_assessment":
-                data["risk_factors"] = ["timeline", "budget", "decision_maker", "competition"]
+                data["risk_factors"] = [
+                    "timeline",
+                    "budget",
+                    "decision_maker",
+                    "competition",
+                ]
             elif analysis_type == "sales_email_generation":
                 data["email_type"] = "follow_up"
                 data["personalization"] = {}
             elif analysis_type == "competitor_talking_points":
                 # Extract competitor from query
                 competitors = ["salesforce", "hubspot", "pipedrive", "zoho"]
-                data["competitor"] = next((c for c in competitors if c in query.lower()), "unknown")
+                data["competitor"] = next(
+                    (c for c in competitors if c in query.lower()), "unknown"
+                )
                 data["competitive_situation"] = {}
             elif analysis_type == "pipeline_health":
                 data["time_period"] = "current_quarter"
                 data["segments"] = {}
                 data["forecast_horizon"] = 90
-            
+
             return data
-            
+
         except Exception as e:
             logger.error(f"Error getting sales data: {e}")
             return {}
 
-    async def _enhance_competitive_analysis(self, insights: Dict[str, Any], query: str) -> Dict[str, Any]:
+    async def _enhance_competitive_analysis(
+        self, insights: Dict[str, Any], query: str
+    ) -> Dict[str, Any]:
         """Enhance competitive analysis using SmartAIService"""
         try:
             competitive_prompt = f"""
@@ -1009,20 +1052,22 @@ class SalesIntelligenceLangGraphAgent:
             4. Win/loss analysis insights
             5. Strategic recommendations
             """
-            
-            enhanced_analysis = await self.smart_ai_service.generate_response({
-                "prompt": competitive_prompt,
-                "task_type": "competitive_analysis",
-                "model_preference": "performance",
-                "max_tokens": 700
-            })
-            
+
+            enhanced_analysis = await self.smart_ai_service.generate_response(
+                {
+                    "prompt": competitive_prompt,
+                    "task_type": "competitive_analysis",
+                    "model_preference": "performance",
+                    "max_tokens": 700,
+                }
+            )
+
             return {
                 "enhanced_analysis": enhanced_analysis.get("response", ""),
                 "generated_at": datetime.now().isoformat(),
-                "source": "smart_ai_service"
+                "source": "smart_ai_service",
             }
-            
+
         except Exception as e:
             logger.error(f"Error enhancing competitive analysis: {e}")
             return {"error": f"Competitive analysis enhancement failed: {str(e)}"}
@@ -1103,27 +1148,35 @@ class SupervisorAgent:
         # New Marketing Intelligence workflows
         elif workflow_type == WorkflowType.MARKETING_INTELLIGENCE.value:
             state["next_action"] = "analyze_marketing"
-            
+
         elif workflow_type == WorkflowType.CAMPAIGN_OPTIMIZATION.value:
             state["next_action"] = "analyze_marketing"
-            
+
         elif workflow_type == WorkflowType.COMPETITIVE_ANALYSIS.value:
             # Determine if this is marketing or sales focused
-            if any(keyword in query.lower() for keyword in ["campaign", "content", "audience", "brand"]):
+            if any(
+                keyword in query.lower()
+                for keyword in ["campaign", "content", "audience", "brand"]
+            ):
                 state["next_action"] = "analyze_marketing"
-            elif any(keyword in query.lower() for keyword in ["deal", "sales", "pipeline", "revenue"]):
+            elif any(
+                keyword in query.lower()
+                for keyword in ["deal", "sales", "pipeline", "revenue"]
+            ):
                 state["next_action"] = "analyze_sales"
             else:
                 # Default to both for comprehensive competitive analysis
-                state["next_action"] = "analyze_marketing"  # Start with marketing, then sales
+                state["next_action"] = (
+                    "analyze_marketing"  # Start with marketing, then sales
+                )
 
         # New Sales Intelligence workflows
         elif workflow_type == WorkflowType.SALES_INTELLIGENCE.value:
             state["next_action"] = "analyze_sales"
-            
+
         elif workflow_type == WorkflowType.DEAL_RISK_ASSESSMENT.value:
             state["next_action"] = "analyze_sales"
-            
+
         elif workflow_type == WorkflowType.REVENUE_INTELLIGENCE.value:
             state["next_action"] = "analyze_sales"
 
@@ -1365,7 +1418,7 @@ class EnhancedLangGraphWorkflowOrchestrator:
         self.slack_analysis_agent = SlackAnalysisAgent()
         self.linear_analysis_agent = LinearAnalysisAgent()
         self.knowledge_curator_agent = KnowledgeCuratorAgent()
-        
+
         # New Marketing and Sales Intelligence agents
         self.marketing_analysis_agent = MarketingAnalysisLangGraphAgent()
         self.sales_intelligence_agent = SalesIntelligenceLangGraphAgent()
@@ -1386,7 +1439,7 @@ class EnhancedLangGraphWorkflowOrchestrator:
             await self.slack_analysis_agent.initialize()
             await self.linear_analysis_agent.initialize()
             await self.knowledge_curator_agent.initialize()
-            
+
             # Initialize new Marketing and Sales Intelligence agents
             await self.marketing_analysis_agent.initialize()
             await self.sales_intelligence_agent.initialize()
@@ -1396,7 +1449,9 @@ class EnhancedLangGraphWorkflowOrchestrator:
                 self.workflow_graph = self._create_enhanced_workflow_graph()
 
             self.initialized = True
-            logger.info("✅ Enhanced LangGraph Workflow Orchestrator initialized with Marketing and Sales Intelligence")
+            logger.info(
+                "✅ Enhanced LangGraph Workflow Orchestrator initialized with Marketing and Sales Intelligence"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize Enhanced LangGraph Orchestrator: {e}")
@@ -1420,15 +1475,16 @@ class EnhancedLangGraphWorkflowOrchestrator:
             "curate_knowledge", self.knowledge_curator_agent.curate_knowledge
         )
         workflow.add_node("generate_coaching", self.sales_coach_agent.generate_coaching)
-        
+
         # Add new Marketing and Sales Intelligence nodes
         workflow.add_node(
-            "analyze_marketing", self.marketing_analysis_agent.analyze_marketing_performance
+            "analyze_marketing",
+            self.marketing_analysis_agent.analyze_marketing_performance,
         )
         workflow.add_node(
             "analyze_sales", self.sales_intelligence_agent.analyze_sales_intelligence
         )
-        
+
         workflow.add_node(
             "synthesize_insights", self.supervisor.synthesize_final_insights
         )

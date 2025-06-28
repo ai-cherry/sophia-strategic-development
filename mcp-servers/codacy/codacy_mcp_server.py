@@ -5,8 +5,6 @@ Provides comprehensive code quality analysis, security scanning, and automated f
 """
 
 import asyncio
-import json
-import logging
 import os
 import tempfile
 from datetime import datetime
@@ -19,9 +17,6 @@ import ast
 import re
 
 # MCP imports
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
 
 # Security analysis
 from bandit.core import manager as bandit_manager
@@ -37,8 +32,13 @@ except ImportError:
     RADON_AVAILABLE = False
 
 # Base class and configs
-from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer, MCPServerConfig, HealthCheckResult, HealthStatus, SyncPriority
-from backend.core.simple_config import get_codacy_api_token
+from backend.mcp_servers.base.standardized_mcp_server import (
+    StandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckResult,
+    HealthStatus,
+    SyncPriority,
+)
 from backend.utils.logging import get_logger
 
 # The client for the external API
@@ -637,7 +637,6 @@ class PerformanceAnalyzer:
                     and node.func.attr == "sort"
                     and isinstance(node.func.value.ctx, ast.Load)
                 ):
-
                     issues.append(
                         CodeIssue(
                             category=IssueCategory.PERFORMANCE,
@@ -694,9 +693,10 @@ class EnhancedCodacyAnalyzer:
             all_issues.extend(security_issues)
 
             # Complexity analysis
-            complexity_issues, complexity_metrics = (
-                await self.complexity_analyzer.analyze_complexity(code, file_path)
-            )
+            (
+                complexity_issues,
+                complexity_metrics,
+            ) = await self.complexity_analyzer.analyze_complexity(code, file_path)
             all_issues.extend(complexity_issues)
             all_metrics.update(complexity_metrics)
 
@@ -847,13 +847,14 @@ class CodacyMCPServer(StandardizedMCPServer):
     """
     An MCP server to act as a bridge to the Codacy API.
     """
+
     def __init__(self, config: Optional[MCPServerConfig] = None):
         if config is None:
             config = MCPServerConfig(
                 server_name="codacy",
                 port=3008,
                 sync_priority=SyncPriority.LOW,
-                sync_interval_minutes=120, # Sync every 2 hours
+                sync_interval_minutes=120,  # Sync every 2 hours
             )
         super().__init__(config)
         self.codacy_client: Optional[CodacyAPIClient] = None
@@ -862,11 +863,15 @@ class CodacyMCPServer(StandardizedMCPServer):
         """Initializes the Codacy API client."""
         codacy_token = get_config_value("CODACY_API_TOKEN")
         if not codacy_token:
-            logger.error("CODACY_API_TOKEN is not configured. Codacy MCP server will be disabled.")
+            logger.error(
+                "CODACY_API_TOKEN is not configured. Codacy MCP server will be disabled."
+            )
             return
-        
+
         # In a real app, the project ID would also be configured.
-        self.codacy_client = CodacyAPIClient(api_token=codacy_token, project_id="sophia-main")
+        self.codacy_client = CodacyAPIClient(
+            api_token=codacy_token, project_id="sophia-main"
+        )
         logger.info("Codacy client initialized.")
 
     async def server_specific_cleanup(self) -> None:
@@ -884,23 +889,27 @@ class CodacyMCPServer(StandardizedMCPServer):
             return True
         except Exception:
             return False
-            
+
     # The following abstract methods are not strictly necessary for this server's
     # primary function but are required by the base class.
     async def sync_data(self) -> Dict[str, Any]:
-        logger.info("Codacy server does not have a primary sync data function. Returning empty.")
+        logger.info(
+            "Codacy server does not have a primary sync data function. Returning empty."
+        )
         return {}
 
     async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        logger.info("AI processing is not applicable for Codacy server sync. Returning empty.")
+        logger.info(
+            "AI processing is not applicable for Codacy server sync. Returning empty."
+        )
         return {}
-    
+
     async def server_specific_health_check(self) -> HealthCheckResult:
         return HealthCheckResult(
             component="codacy_server_logic",
             status=HealthStatus.HEALTHY,
             response_time_ms=0,
-            details="All internal logic is operational."
+            details="All internal logic is operational.",
         )
 
     async def get_data_age_seconds(self) -> int:
@@ -913,44 +922,54 @@ class CodacyMCPServer(StandardizedMCPServer):
             {
                 "name": "analyze_file",
                 "description": "Analyzes a single file for code quality and security issues.",
-                "inputSchema": {"type": "object", "properties": {"file_path": {"type": "string"}}},
-                "required": ["file_path"]
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"file_path": {"type": "string"}},
+                },
+                "required": ["file_path"],
             },
             {
                 "name": "get_project_issues",
                 "description": "Retrieves open issues for the project from Codacy.",
-                "inputSchema": {"type": "object", "properties": {"severity_level": {"type": "string"}}}
-            }
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"severity_level": {"type": "string"}},
+                },
+            },
         ]
-    
-    async def execute_mcp_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def execute_mcp_tool(
+        self, tool_name: str, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Executes a tool call."""
         if not self.codacy_client:
             return {"error": "Codacy client not initialized."}
-        
+
         if tool_name == "analyze_file":
             file_path_str = parameters.get("file_path")
             if not file_path_str:
                 return {"error": "file_path is required."}
-            
+
             file_path = Path(file_path_str)
             if not file_path.exists():
                 return {"error": f"File not found: {file_path_str}"}
-            
+
             content = file_path.read_text()
             return await self.codacy_client.analyze_file_content(file_path_str, content)
 
         elif tool_name == "get_project_issues":
             severity = parameters.get("severity_level")
             return await self.codacy_client.get_project_issues(severity)
-        
+
         else:
             return {"error": f"Unknown tool: {tool_name}"}
+
 
 async def main():
     """Initializes and starts the Codacy MCP server."""
     server = CodacyMCPServer()
     await server.start()
+
 
 if __name__ == "__main__":
     try:

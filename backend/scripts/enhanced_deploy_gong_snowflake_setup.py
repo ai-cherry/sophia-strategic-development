@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 class DeploymentEnvironment(Enum):
     """Deployment environments"""
+
     DEV = "dev"
     STAGING = "staging"
     PROD = "prod"
@@ -40,6 +41,7 @@ class DeploymentEnvironment(Enum):
 
 class DeploymentPhase(Enum):
     """Deployment phases for rollback capabilities"""
+
     SCHEMA_CREATION = "schema_creation"
     RAW_TABLES = "raw_tables"
     STG_TABLES = "stg_tables"
@@ -52,6 +54,7 @@ class DeploymentPhase(Enum):
 @dataclass
 class DeploymentConfig:
     """Enhanced deployment configuration"""
+
     environment: DeploymentEnvironment
     database: str
     warehouse: str
@@ -60,7 +63,7 @@ class DeploymentConfig:
     force_deploy: bool = False
     rollback_enabled: bool = True
     validation_enabled: bool = True
-    
+
     # Schema configurations
     raw_schema: str = "RAW_ESTUARY"
     stg_schema: str = "STG_TRANSFORMED"
@@ -71,7 +74,7 @@ class DeploymentConfig:
 class EnhancedGongSnowflakeDeployer:
     """
     Enhanced Gong Snowflake Deployer
-    
+
     Production-ready deployment with:
     - Comprehensive error handling and rollback
     - Data quality validation procedures
@@ -84,28 +87,30 @@ class EnhancedGongSnowflakeDeployer:
         self.config = config
         self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
         self.cortex_service: Optional[SnowflakeCortexService] = None
-        
+
         # Deployment tracking
         self.deployment_log: List[Dict[str, Any]] = []
-        self.deployment_id = f"GONG_DEPLOY_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        self.deployment_id = (
+            f"GONG_DEPLOY_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        )
         self.completed_phases: List[DeploymentPhase] = []
 
     async def deploy_complete_infrastructure(self) -> Dict[str, Any]:
         """Deploy complete Gong infrastructure with enhanced error handling"""
         start_time = datetime.utcnow()
-        
+
         try:
             logger.info("🚀 Starting enhanced Gong Snowflake deployment")
             logger.info(f"Environment: {self.config.environment.value}")
             logger.info(f"Database: {self.config.database}")
             logger.info(f"Deployment ID: {self.deployment_id}")
-            
+
             if self.config.dry_run:
                 logger.info("🔍 DRY RUN MODE - No changes will be made")
-            
+
             # Initialize connections
             await self._initialize_connections()
-            
+
             # Execute deployment phases
             deployment_phases = [
                 (DeploymentPhase.SCHEMA_CREATION, self._deploy_schemas),
@@ -114,28 +119,30 @@ class EnhancedGongSnowflakeDeployer:
                 (DeploymentPhase.PROCEDURES, self._deploy_transformation_procedures),
                 (DeploymentPhase.TASKS, self._deploy_automated_tasks),
                 (DeploymentPhase.PERMISSIONS, self._deploy_permissions),
-                (DeploymentPhase.VALIDATION, self._validate_deployment)
+                (DeploymentPhase.VALIDATION, self._validate_deployment),
             ]
-            
+
             for phase, deploy_func in deployment_phases:
                 try:
                     logger.info(f"📋 Executing phase: {phase.value}")
                     await deploy_func()
                     self.completed_phases.append(phase)
                     await self._log_phase_completion(phase, "SUCCESS")
-                    
+
                 except Exception as e:
                     await self._log_phase_completion(phase, "FAILED", str(e))
-                    
+
                     if self.config.rollback_enabled:
-                        logger.warning(f"⚠️ Phase {phase.value} failed, initiating rollback")
+                        logger.warning(
+                            f"⚠️ Phase {phase.value} failed, initiating rollback"
+                        )
                         await self._rollback_deployment()
-                    
+
                     raise Exception(f"Deployment failed at phase {phase.value}: {e}")
-            
+
             # Generate deployment summary
             total_time = (datetime.utcnow() - start_time).total_seconds()
-            
+
             summary = {
                 "deployment_id": self.deployment_id,
                 "status": "SUCCESS",
@@ -146,23 +153,23 @@ class EnhancedGongSnowflakeDeployer:
                 "total_time_seconds": total_time,
                 "completed_phases": [phase.value for phase in self.completed_phases],
                 "deployment_log": self.deployment_log,
-                "dry_run": self.config.dry_run
+                "dry_run": self.config.dry_run,
             }
-            
+
             logger.info("✅ Enhanced Gong Snowflake deployment completed successfully")
             logger.info(f"Total time: {total_time:.2f} seconds")
-            
+
             return summary
-            
+
         except Exception as e:
             logger.error(f"❌ Deployment failed: {e}")
-            
+
             return {
                 "deployment_id": self.deployment_id,
                 "status": "FAILED",
                 "error": str(e),
                 "completed_phases": [phase.value for phase in self.completed_phases],
-                "deployment_log": self.deployment_log
+                "deployment_log": self.deployment_log,
             }
         finally:
             await self._cleanup_connections()
@@ -177,15 +184,15 @@ class EnhancedGongSnowflakeDeployer:
                 password=get_config_value("snowflake_password"),
                 warehouse=self.config.warehouse,
                 database=self.config.database,
-                role=self.config.role
+                role=self.config.role,
             )
-            
+
             # Initialize Cortex service for advanced operations
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             logger.info("✅ Database connections initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize connections: {e}")
             raise
@@ -196,9 +203,9 @@ class EnhancedGongSnowflakeDeployer:
             (self.config.raw_schema, "Raw Estuary ingestion data"),
             (self.config.stg_schema, "Staged and transformed data"),
             (self.config.ops_schema, "Operational monitoring and logging"),
-            (self.config.ai_memory_schema, "AI Memory and semantic search")
+            (self.config.ai_memory_schema, "AI Memory and semantic search"),
         ]
-        
+
         for schema_name, description in schemas:
             sql = f"""
             CREATE SCHEMA IF NOT EXISTS {self.config.database}.{schema_name}
@@ -208,7 +215,7 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _deploy_raw_estuary_tables(self) -> None:
         """Deploy RAW_ESTUARY tables with enhanced structure"""
-        
+
         # Enhanced RAW_GONG_CALLS_RAW table
         calls_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW (
@@ -244,7 +251,7 @@ class EnhancedGongSnowflakeDeployer:
         COMMENT = 'Enhanced raw Gong calls data from Estuary with quality tracking';
         """
         await self._execute_sql("create_raw_calls", calls_sql)
-        
+
         # Enhanced RAW_GONG_TRANSCRIPTS_RAW table
         transcripts_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.raw_schema}.RAW_GONG_TRANSCRIPTS_RAW (
@@ -282,7 +289,7 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _deploy_stg_transformed_tables(self) -> None:
         """Deploy STG_TRANSFORMED tables with AI Memory integration"""
-        
+
         # Enhanced STG_GONG_CALLS table
         stg_calls_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.stg_schema}.STG_GONG_CALLS (
@@ -362,7 +369,7 @@ class EnhancedGongSnowflakeDeployer:
         COMMENT = 'Enhanced structured Gong calls with comprehensive AI Memory integration and quality tracking';
         """
         await self._execute_sql("create_stg_calls", stg_calls_sql)
-        
+
         # Enhanced STG_GONG_CALL_TRANSCRIPTS table
         stg_transcripts_sql = f"""
         CREATE TABLE IF NOT EXISTS {self.config.database}.{self.config.stg_schema}.STG_GONG_CALL_TRANSCRIPTS (
@@ -427,20 +434,22 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _deploy_transformation_procedures(self) -> None:
         """Deploy enhanced transformation procedures"""
-        
+
         # Load and execute the enhanced transformation procedures
         procedures_file = "backend/etl/snowflake/gong_transformation_procedures.sql"
-        
+
         try:
-            with open(procedures_file, 'r') as f:
+            with open(procedures_file, "r") as f:
                 procedures_sql = f.read()
-            
+
             # Replace database placeholder if needed
-            procedures_sql = procedures_sql.replace("SOPHIA_AI_DEV", self.config.database)
-            
+            procedures_sql = procedures_sql.replace(
+                "SOPHIA_AI_DEV", self.config.database
+            )
+
             # Execute the procedures
             await self._execute_sql("deploy_transformation_procedures", procedures_sql)
-            
+
         except FileNotFoundError:
             logger.warning(f"Procedures file not found: {procedures_file}")
             # Fallback to basic procedure creation
@@ -448,7 +457,7 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _create_basic_transformation_procedures(self) -> None:
         """Create basic transformation procedures as fallback"""
-        
+
         basic_transform_proc = f"""
         CREATE OR REPLACE PROCEDURE {self.config.database}.{self.config.stg_schema}.TRANSFORM_GONG_CALLS_ENHANCED()
         RETURNS STRING
@@ -492,7 +501,7 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _deploy_automated_tasks(self) -> None:
         """Deploy automated tasks for data processing"""
-        
+
         # Task for hourly transformation
         transform_task_sql = f"""
         CREATE OR REPLACE TASK {self.config.database}.{self.config.stg_schema}.TASK_TRANSFORM_GONG_CALLS
@@ -503,7 +512,7 @@ class EnhancedGongSnowflakeDeployer:
         CALL {self.config.database}.{self.config.stg_schema}.TRANSFORM_GONG_CALLS_ENHANCED();
         """
         await self._execute_sql("create_transform_task", transform_task_sql)
-        
+
         # Resume the task
         resume_task_sql = f"""
         ALTER TASK {self.config.database}.{self.config.stg_schema}.TASK_TRANSFORM_GONG_CALLS RESUME;
@@ -512,7 +521,7 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _deploy_permissions(self) -> None:
         """Deploy role-based permissions"""
-        
+
         # Grant permissions to Estuary role
         estuary_permissions = f"""
         GRANT USAGE ON DATABASE {self.config.database} TO ROLE ROLE_SOPHIA_ESTUARY_INGEST;
@@ -523,28 +532,33 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _validate_deployment(self) -> None:
         """Validate the deployment"""
-        
+
         if not self.config.validation_enabled:
             logger.info("⏭️ Validation disabled, skipping validation phase")
             return
-        
+
         # Validate schemas exist
         schema_validation = f"""
         SELECT schema_name 
         FROM {self.config.database}.INFORMATION_SCHEMA.SCHEMATA 
         WHERE schema_name IN ('{self.config.raw_schema}', '{self.config.stg_schema}', '{self.config.ops_schema}', '{self.config.ai_memory_schema}')
         """
-        
+
         result = await self._execute_query(schema_validation)
-        expected_schemas = {self.config.raw_schema, self.config.stg_schema, self.config.ops_schema, self.config.ai_memory_schema}
+        expected_schemas = {
+            self.config.raw_schema,
+            self.config.stg_schema,
+            self.config.ops_schema,
+            self.config.ai_memory_schema,
+        }
         found_schemas = {row[0] for row in result}
-        
+
         if not expected_schemas.issubset(found_schemas):
             missing_schemas = expected_schemas - found_schemas
             raise Exception(f"Missing schemas: {missing_schemas}")
-        
+
         logger.info("✅ Schema validation passed")
-        
+
         # Validate key tables exist
         table_validation = f"""
         SELECT table_name 
@@ -552,26 +566,26 @@ class EnhancedGongSnowflakeDeployer:
         WHERE table_schema = '{self.config.stg_schema}' 
         AND table_name IN ('STG_GONG_CALLS', 'STG_GONG_CALL_TRANSCRIPTS')
         """
-        
+
         result = await self._execute_query(table_validation)
-        expected_tables = {'STG_GONG_CALLS', 'STG_GONG_CALL_TRANSCRIPTS'}
+        expected_tables = {"STG_GONG_CALLS", "STG_GONG_CALL_TRANSCRIPTS"}
         found_tables = {row[0] for row in result}
-        
+
         if not expected_tables.issubset(found_tables):
             missing_tables = expected_tables - found_tables
             raise Exception(f"Missing tables: {missing_tables}")
-        
+
         logger.info("✅ Table validation passed")
 
     async def _rollback_deployment(self) -> None:
         """Rollback deployment to previous state"""
-        
+
         if not self.config.rollback_enabled:
             logger.warning("⚠️ Rollback disabled, manual cleanup required")
             return
-        
+
         logger.info("🔄 Initiating deployment rollback...")
-        
+
         # Rollback in reverse order of completed phases
         for phase in reversed(self.completed_phases):
             try:
@@ -582,45 +596,49 @@ class EnhancedGongSnowflakeDeployer:
 
     async def _rollback_phase(self, phase: DeploymentPhase) -> None:
         """Rollback a specific deployment phase"""
-        
+
         if phase == DeploymentPhase.TASKS:
             # Suspend tasks
             suspend_sql = f"""
             ALTER TASK IF EXISTS {self.config.database}.{self.config.stg_schema}.TASK_TRANSFORM_GONG_CALLS SUSPEND;
             """
             await self._execute_sql(f"rollback_{phase.value}", suspend_sql)
-        
+
         # Add more rollback logic for other phases as needed
 
     async def _execute_sql(self, operation_name: str, sql: str) -> None:
         """Execute SQL with enhanced error handling and logging"""
-        
+
         if self.config.dry_run:
             logger.info(f"[DRY RUN] {operation_name}: {sql[:100]}...")
             return
-        
+
         try:
             cursor = self.connection.cursor()
             cursor.execute(sql)
-            
-            self.deployment_log.append({
-                "operation": operation_name,
-                "status": "SUCCESS",
-                "timestamp": datetime.utcnow().isoformat(),
-                "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql
-            })
-            
+
+            self.deployment_log.append(
+                {
+                    "operation": operation_name,
+                    "status": "SUCCESS",
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql,
+                }
+            )
+
             logger.info(f"✅ {operation_name} completed successfully")
-            
+
         except Exception as e:
-            self.deployment_log.append({
-                "operation": operation_name,
-                "status": "FAILED",
-                "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
-                "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql
-            })
-            
+            self.deployment_log.append(
+                {
+                    "operation": operation_name,
+                    "status": "FAILED",
+                    "error": str(e),
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql,
+                }
+            )
+
             logger.error(f"❌ {operation_name} failed: {e}")
             raise
         finally:
@@ -636,20 +654,22 @@ class EnhancedGongSnowflakeDeployer:
         finally:
             cursor.close()
 
-    async def _log_phase_completion(self, phase: DeploymentPhase, status: str, error: str = None) -> None:
+    async def _log_phase_completion(
+        self, phase: DeploymentPhase, status: str, error: str = None
+    ) -> None:
         """Log phase completion"""
-        
+
         log_entry = {
             "deployment_id": self.deployment_id,
             "phase": phase.value,
             "status": status,
             "timestamp": datetime.utcnow().isoformat(),
-            "environment": self.config.environment.value
+            "environment": self.config.environment.value,
         }
-        
+
         if error:
             log_entry["error"] = error
-        
+
         self.deployment_log.append(log_entry)
 
     async def _cleanup_connections(self) -> None:
@@ -666,68 +686,91 @@ class EnhancedGongSnowflakeDeployer:
 
 async def main():
     """Main function for CLI usage"""
-    parser = argparse.ArgumentParser(description="Enhanced Gong Snowflake Setup Deployment")
-    parser.add_argument("--env", choices=["dev", "staging", "prod"], default="dev",
-                       help="Deployment environment")
-    parser.add_argument("--dry-run", action="store_true",
-                       help="Perform dry run without making changes")
-    parser.add_argument("--force-deploy", action="store_true",
-                       help="Force deployment even if validation fails")
-    parser.add_argument("--disable-rollback", action="store_true",
-                       help="Disable automatic rollback on failure")
-    parser.add_argument("--disable-validation", action="store_true",
-                       help="Disable deployment validation")
-    parser.add_argument("--output", default="deployment_results.json",
-                       help="Output file for deployment results")
-    
+    parser = argparse.ArgumentParser(
+        description="Enhanced Gong Snowflake Setup Deployment"
+    )
+    parser.add_argument(
+        "--env",
+        choices=["dev", "staging", "prod"],
+        default="dev",
+        help="Deployment environment",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Perform dry run without making changes"
+    )
+    parser.add_argument(
+        "--force-deploy",
+        action="store_true",
+        help="Force deployment even if validation fails",
+    )
+    parser.add_argument(
+        "--disable-rollback",
+        action="store_true",
+        help="Disable automatic rollback on failure",
+    )
+    parser.add_argument(
+        "--disable-validation",
+        action="store_true",
+        help="Disable deployment validation",
+    )
+    parser.add_argument(
+        "--output",
+        default="deployment_results.json",
+        help="Output file for deployment results",
+    )
+
     args = parser.parse_args()
-    
+
     # Create deployment configuration
     config = DeploymentConfig(
         environment=DeploymentEnvironment(args.env),
         database=f"SOPHIA_AI_{args.env.upper()}",
-        warehouse="WH_SOPHIA_ETL_TRANSFORM" if args.env == "dev" else f"WH_SOPHIA_{args.env.upper()}",
-        role="ROLE_SOPHIA_ESTUARY_INGEST" if args.env == "dev" else f"ROLE_SOPHIA_{args.env.upper()}",
+        warehouse="WH_SOPHIA_ETL_TRANSFORM"
+        if args.env == "dev"
+        else f"WH_SOPHIA_{args.env.upper()}",
+        role="ROLE_SOPHIA_ESTUARY_INGEST"
+        if args.env == "dev"
+        else f"ROLE_SOPHIA_{args.env.upper()}",
         dry_run=args.dry_run,
         force_deploy=args.force_deploy,
         rollback_enabled=not args.disable_rollback,
-        validation_enabled=not args.disable_validation
+        validation_enabled=not args.disable_validation,
     )
-    
+
     # Initialize and run deployment
     deployer = EnhancedGongSnowflakeDeployer(config)
-    
+
     try:
         results = await deployer.deploy_complete_infrastructure()
-        
+
         # Save results to file
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(results, f, indent=2)
-        
+
         # Print summary
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("Enhanced Gong Snowflake Deployment Results")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Deployment ID: {results['deployment_id']}")
         print(f"Environment: {results.get('environment', 'unknown')}")
         print(f"Status: {results['status']}")
-        
-        if results['status'] == 'SUCCESS':
+
+        if results["status"] == "SUCCESS":
             print("✅ Deployment completed successfully!")
             print(f"Total time: {results.get('total_time_seconds', 0):.2f} seconds")
             print(f"Completed phases: {len(results.get('completed_phases', []))}")
         else:
             print(f"❌ Deployment failed: {results.get('error', 'Unknown error')}")
             print(f"Completed phases: {results.get('completed_phases', [])}")
-        
+
         print(f"\nDetailed results saved to: {args.output}")
-        
-        return 0 if results['status'] == 'SUCCESS' else 1
-        
+
+        return 0 if results["status"] == "SUCCESS" else 1
+
     except Exception as e:
         print(f"❌ Deployment execution failed: {e}")
         return 1
 
 
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

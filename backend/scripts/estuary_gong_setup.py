@@ -40,6 +40,7 @@ logger = structlog.get_logger()
 
 class ErrorType(Enum):
     """Categorized error types for enhanced error handling"""
+
     NETWORK_ERROR = "network_error"
     AUTHENTICATION_ERROR = "authentication_error"
     CONFIGURATION_ERROR = "configuration_error"
@@ -53,6 +54,7 @@ class ErrorType(Enum):
 @dataclass
 class RetryConfig:
     """Configuration for retry mechanisms"""
+
     max_attempts: int = 3
     base_delay: float = 1.0
     max_delay: float = 60.0
@@ -62,6 +64,7 @@ class RetryConfig:
 
 class EstuaryOperationMode(Enum):
     """Estuary operation modes"""
+
     SETUP = "setup"
     TEST = "test"
     MONITOR = "monitor"
@@ -71,6 +74,7 @@ class EstuaryOperationMode(Enum):
 @dataclass
 class EstuaryConfig:
     """Estuary configuration"""
+
     base_url: str
     username: str = "estuary"
     password: str = "password"
@@ -80,13 +84,14 @@ class EstuaryConfig:
 @dataclass
 class GongSourceConfig:
     """Gong source connector configuration"""
+
     access_key: str
     access_key_secret: str
     start_date: str = "2024-01-01T00:00:00Z"
     call_types: List[str] = None
     include_transcripts: bool = True
     sync_mode: str = "incremental"
-    
+
     def __post_init__(self):
         if self.call_types is None:
             self.call_types = ["inbound", "outbound"]
@@ -95,6 +100,7 @@ class GongSourceConfig:
 @dataclass
 class SnowflakeDestinationConfig:
     """Snowflake destination connector configuration"""
+
     host: str
     role: str = "ROLE_SOPHIA_ESTUARY_INGEST"
     warehouse: str = "WH_SOPHIA_ETL_TRANSFORM"
@@ -108,7 +114,7 @@ class SnowflakeDestinationConfig:
 class EstuaryGongOrchestrator:
     """
     Orchestrates Estuary setup for Gong data pipeline
-    
+
     Capabilities:
     - Configure Gong source connector with proper API scopes
     - Set up Snowflake destination for RAW_ESTUARY schema
@@ -122,18 +128,18 @@ class EstuaryGongOrchestrator:
         self.session: Optional[aiohttp.ClientSession] = None
         self.headers = {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
-        
+
         # Configuration from Pulumi ESC
         self.gong_config: Optional[GongSourceConfig] = None
         self.snowflake_config: Optional[SnowflakeDestinationConfig] = None
-        
+
         # Estuary resource IDs (will be populated during setup)
         self.gong_source_id: Optional[str] = None
         self.snowflake_destination_id: Optional[str] = None
         self.connection_id: Optional[str] = None
-        
+
         # Enhanced error handling and retry logic
         self.retry_config = RetryConfig()
 
@@ -144,85 +150,106 @@ class EstuaryGongOrchestrator:
             self.gong_config = GongSourceConfig(
                 access_key=get_config_value("gong_access_key"),
                 access_key_secret=get_config_value("gong_client_secret"),
-                start_date=get_config_value("gong_sync_start_date", "2024-01-01T00:00:00Z"),
+                start_date=get_config_value(
+                    "gong_sync_start_date", "2024-01-01T00:00:00Z"
+                ),
                 include_transcripts=True,
-                sync_mode="incremental"
+                sync_mode="incremental",
             )
-            
+
             self.snowflake_config = SnowflakeDestinationConfig(
                 host=f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
                 username=get_config_value("snowflake_user", "SCOOBYJAVA15"),
                 password=get_config_value("snowflake_password"),
-                warehouse=get_config_value("snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"),
+                warehouse=get_config_value(
+                    "snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"
+                ),
                 database=get_config_value("snowflake_database", "SOPHIA_AI_DEV"),
-                schema="RAW_ESTUARY"
+                schema="RAW_ESTUARY",
             )
-            
+
             # Initialize HTTP session with enhanced configuration
             auth = aiohttp.BasicAuth(
-                self.estuary_config.username, 
-                self.estuary_config.password
+                self.estuary_config.username, self.estuary_config.password
             )
             timeout = aiohttp.ClientTimeout(total=300, connect=30)
             self.session = aiohttp.ClientSession(
-                auth=auth,
-                headers=self.headers,
-                timeout=timeout
+                auth=auth, headers=self.headers, timeout=timeout
             )
-            
+
             logger.info("✅ Estuary Gong Orchestrator initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Estuary orchestrator: {e}")
             raise
 
-    async def execute_with_retry(self, operation_func, operation_name: str, *args, **kwargs) -> Any:
+    async def execute_with_retry(
+        self, operation_func, operation_name: str, *args, **kwargs
+    ) -> Any:
         """Execute operation with comprehensive retry logic and error handling"""
         start_time = time.time()
         last_error = None
-        
+
         for attempt in range(self.retry_config.max_attempts):
             try:
-                logger.info(f"Executing {operation_name} (attempt {attempt + 1}/{self.retry_config.max_attempts})")
-                
+                logger.info(
+                    f"Executing {operation_name} (attempt {attempt + 1}/{self.retry_config.max_attempts})"
+                )
+
                 # Execute the operation
                 result = await operation_func(*args, **kwargs)
-                
+
                 execution_time = time.time() - start_time
-                logger.info(f"✅ {operation_name} completed successfully in {execution_time:.2f}s")
-                
+                logger.info(
+                    f"✅ {operation_name} completed successfully in {execution_time:.2f}s"
+                )
+
                 return result
-                
+
             except Exception as e:
                 last_error = e
                 error_type = self._classify_error(e)
                 execution_time = time.time() - start_time
-                
-                logger.warning(f"Operation {operation_name} failed on attempt {attempt + 1}: {e}")
-                
+
+                logger.warning(
+                    f"Operation {operation_name} failed on attempt {attempt + 1}: {e}"
+                )
+
                 # Check if error is retryable
-                if error_type in [ErrorType.AUTHENTICATION_ERROR, ErrorType.CONFIGURATION_ERROR, ErrorType.VALIDATION_ERROR]:
-                    logger.error(f"Non-retryable error for {operation_name}: {error_type}")
+                if error_type in [
+                    ErrorType.AUTHENTICATION_ERROR,
+                    ErrorType.CONFIGURATION_ERROR,
+                    ErrorType.VALIDATION_ERROR,
+                ]:
+                    logger.error(
+                        f"Non-retryable error for {operation_name}: {error_type}"
+                    )
                     break
-                
+
                 # Calculate delay for next attempt
                 if attempt < self.retry_config.max_attempts - 1:
                     delay = self._calculate_retry_delay(attempt, error_type)
                     logger.info(f"Retrying {operation_name} in {delay:.2f} seconds...")
                     await asyncio.sleep(delay)
-        
+
         # All attempts failed
         execution_time = time.time() - start_time
-        logger.error(f"❌ {operation_name} failed after {self.retry_config.max_attempts} attempts")
+        logger.error(
+            f"❌ {operation_name} failed after {self.retry_config.max_attempts} attempts"
+        )
         raise Exception(f"{operation_name} failed: {str(last_error)}")
 
     def _classify_error(self, error: Exception) -> ErrorType:
         """Classify error into appropriate error type"""
         error_str = str(error).lower()
-        
+
         if "network" in error_str or "connection" in error_str:
             return ErrorType.NETWORK_ERROR
-        elif "auth" in error_str or "credential" in error_str or "unauthorized" in error_str:
+        elif (
+            "auth" in error_str
+            or "credential" in error_str
+            or "unauthorized" in error_str
+        ):
             return ErrorType.AUTHENTICATION_ERROR
         elif "timeout" in error_str:
             return ErrorType.TIMEOUT_ERROR
@@ -239,67 +266,71 @@ class EstuaryGongOrchestrator:
         """Calculate retry delay with exponential backoff and jitter"""
         # Base delay calculation
         delay = min(
-            self.retry_config.base_delay * (self.retry_config.exponential_base ** attempt),
-            self.retry_config.max_delay
+            self.retry_config.base_delay
+            * (self.retry_config.exponential_base**attempt),
+            self.retry_config.max_delay,
         )
-        
+
         # Error-specific delay adjustments
         if error_type == ErrorType.RATE_LIMIT_ERROR:
             delay *= 2  # Longer delays for rate limiting
         elif error_type == ErrorType.NETWORK_ERROR:
             delay *= 1.5  # Moderate delays for network issues
-        
+
         # Add jitter if enabled
         if self.retry_config.jitter:
             import random
+
             delay += random.uniform(0, delay * 0.1)
-        
+
         return delay
 
     async def setup_complete_pipeline(self) -> Dict[str, Any]:
         """Set up the complete Gong → Estuary → Snowflake pipeline"""
         try:
             logger.info("🚀 Setting up complete Gong data pipeline...")
-            
+
             # Step 1: Create Gong source connector
             gong_source = await self.execute_with_retry(
                 self._create_gong_source, "create_gong_source"
             )
             self.gong_source_id = gong_source["sourceId"]
             logger.info(f"✅ Gong source created: {self.gong_source_id}")
-            
+
             # Step 2: Create Snowflake destination connector
             snowflake_dest = await self.execute_with_retry(
                 self._create_snowflake_destination, "create_snowflake_destination"
             )
             self.snowflake_destination_id = snowflake_dest["destinationId"]
-            logger.info(f"✅ Snowflake destination created: {self.snowflake_destination_id}")
-            
+            logger.info(
+                f"✅ Snowflake destination created: {self.snowflake_destination_id}"
+            )
+
             # Step 3: Create connection between source and destination
             connection = await self.execute_with_retry(
                 self._create_connection, "create_connection"
             )
             self.connection_id = connection["connectionId"]
             logger.info(f"✅ Connection created: {self.connection_id}")
-            
+
             # Step 4: Configure sync schedule (hourly)
             await self.execute_with_retry(
                 self._configure_sync_schedule, "configure_sync_schedule"
             )
             logger.info("✅ Sync schedule configured (hourly)")
-            
+
             # Step 5: Test connection
             test_result = await self.execute_with_retry(
                 self._test_connection, "test_connection"
             )
             logger.info(f"✅ Connection test: {'PASSED' if test_result else 'FAILED'}")
-            
+
             # Step 6: Trigger initial sync
             sync_job = await self.execute_with_retry(
                 self._trigger_sync, "trigger_initial_sync"
             )
             logger.info(f"✅ Initial sync triggered: {sync_job.get('jobId')}")
-            
+
             return {
                 "success": True,
                 "gong_source_id": self.gong_source_id,
@@ -311,10 +342,10 @@ class EstuaryGongOrchestrator:
                     "Monitor sync job progress",
                     "Verify data landing in RAW_ESTUARY tables",
                     "Activate Snowflake transformation tasks",
-                    "Test AI Memory integration"
-                ]
+                    "Test AI Memory integration",
+                ],
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to set up Gong pipeline: {e}")
             return {
@@ -323,84 +354,83 @@ class EstuaryGongOrchestrator:
                 "partial_setup": {
                     "gong_source_id": self.gong_source_id,
                     "snowflake_destination_id": self.snowflake_destination_id,
-                    "connection_id": self.connection_id
-                }
+                    "connection_id": self.connection_id,
+                },
             }
 
     async def _create_gong_source(self) -> Dict[str, Any]:
         """Create Gong source connector with proper API scopes"""
         source_definition_id = await self._get_source_definition_id("Gong")
-        
+
         source_config = {
             "sourceDefinitionId": source_definition_id,
             "connectionConfiguration": {
                 "access_key": self.gong_config.access_key,
                 "access_key_secret": self.gong_config.access_key_secret,
                 "start_date": self.gong_config.start_date,
-                
                 # Gong API scopes and endpoints (based on Manus AI guidance)
                 "api_endpoints": {
                     "calls": {
                         "enabled": True,
                         "endpoint": "/v2/calls",
                         "incremental_field": "metaData.started",
-                        "sync_mode": "incremental_append_dedup"
+                        "sync_mode": "incremental_append_dedup",
                     },
                     "call_transcripts": {
                         "enabled": self.gong_config.include_transcripts,
                         "endpoint": "/v2/calls/{call_id}/transcript",
                         "incremental_field": "metaData.started",
-                        "sync_mode": "incremental_append_dedup"
+                        "sync_mode": "incremental_append_dedup",
                     },
                     "users": {
                         "enabled": True,
                         "endpoint": "/v2/users",
-                        "sync_mode": "full_refresh_overwrite"
+                        "sync_mode": "full_refresh_overwrite",
                     },
                     "workspaces": {
                         "enabled": True,
                         "endpoint": "/v2/workspaces",
-                        "sync_mode": "full_refresh_overwrite"
-                    }
+                        "sync_mode": "full_refresh_overwrite",
+                    },
                 },
-                
                 # API rate limiting and retry configuration
                 "api_rate_limit": 2.5,  # requests per second
                 "api_timeout": 30,
                 "retry_attempts": 3,
                 "retry_backoff_factor": 2,
-                
                 # Data filtering and transformation
                 "call_types": self.gong_config.call_types,
                 "include_internal_calls": False,
                 "include_recorded_calls_only": True,
                 "minimum_call_duration_seconds": 60,
-                
                 # Incremental sync configuration
                 "lookback_window_days": 1,  # Re-sync last day to catch updates
                 "cursor_field": "metaData.started",
-                "dedupe_field": "id"
+                "dedupe_field": "id",
             },
             "workspaceId": self.estuary_config.workspace_id,
-            "name": "Gong Source - Sophia AI Production"
+            "name": "Gong Source - Sophia AI Production",
         }
-        
+
         async with self.session.post(
-            f"{self.estuary_config.base_url}/api/v1/sources/create",
-            json=source_config
+            f"{self.estuary_config.base_url}/api/v1/sources/create", json=source_config
         ) as response:
             if response.status == 200:
                 return await response.json()
             else:
                 error_text = await response.text()
-                raise Exception(f"Failed to create Gong source: {response.status} - {error_text}")
+                raise Exception(
+                    f"Failed to create Gong source: {response.status} - {error_text}"
+                )
 
     async def _create_snowflake_destination(self) -> Dict[str, Any]:
         """Create Snowflake destination connector with enhanced configuration"""
         try:
             # Get destination definition ID for Snowflake
-            destination_definition_id = await self._get_destination_definition_id("Snowflake")
-            
+            destination_definition_id = await self._get_destination_definition_id(
+                "Snowflake"
+            )
+
             # Enhanced Snowflake destination configuration
             destination_config = {
                 "destinationDefinitionId": destination_definition_id,
@@ -413,54 +443,48 @@ class EstuaryGongOrchestrator:
                     "username": self.snowflake_config.username,
                     "password": self.snowflake_config.password,
                     "jdbc_url_params": self.snowflake_config.jdbc_url_params,
-                    
                     # Enhanced raw data storage configuration
                     "raw_data_schema": "RAW_ESTUARY",
                     "purge_staging_data": False,  # Keep for debugging
                     "loading_method": {
                         "method": "Internal Staging",
                         "purge_staging_data": False,
-                        "enable_staging_encryption": True
+                        "enable_staging_encryption": True,
                     },
-                    
                     # Enhanced table and column naming
                     "table_name_transformer": "snake_case",
                     "column_name_transformer": "snake_case",
                     "disable_type_dedupe": False,
-                    
                     # Enhanced data type handling for Gong data
                     "use_variant_type": True,  # Critical for VARIANT columns
                     "flatten_nested_json": False,  # Preserve structure
                     "enable_schema_evolution": True,
-                    
                     # Performance and reliability configuration
                     "batch_size": 50000,  # Optimized for Gong data volume
-                    "upload_threads": 6,   # Increased parallelism
+                    "upload_threads": 6,  # Increased parallelism
                     "compression": "gzip",
                     "connection_pool_size": 10,
                     "query_timeout": 300,
                     "socket_timeout": 300,
-                    
                     # Data quality and monitoring
                     "enable_data_validation": True,
                     "validate_records": True,
                     "log_sql_statements": True,
                     "enable_performance_monitoring": True,
-                    
                     # Enhanced error handling
                     "max_retries": 5,
                     "retry_delay": 5,
                     "enable_circuit_breaker": True,
-                    "circuit_breaker_threshold": 15
+                    "circuit_breaker_threshold": 15,
                 },
                 "workspaceId": self.estuary_config.workspace_id,
-                "name": "Snowflake Destination - Sophia AI Production"
+                "name": "Snowflake Destination - Sophia AI Production",
             }
-            
+
             # Create destination connector
             async with self.session.post(
                 f"{self.estuary_config.base_url}/api/v1/destinations/create",
-                json=destination_config
+                json=destination_config,
             ) as response:
                 if response.status == 200:
                     result = await response.json()
@@ -468,8 +492,10 @@ class EstuaryGongOrchestrator:
                     return result
                 else:
                     error_text = await response.text()
-                    raise Exception(f"Failed to create Snowflake destination: {response.status} - {error_text}")
-                    
+                    raise Exception(
+                        f"Failed to create Snowflake destination: {response.status} - {error_text}"
+                    )
+
         except Exception as e:
             logger.error(f"Error creating Snowflake destination: {e}")
             raise
@@ -478,8 +504,10 @@ class EstuaryGongOrchestrator:
         """Create connection between Gong source and Snowflake destination"""
         try:
             if not self.gong_source_id or not self.snowflake_destination_id:
-                raise Exception("Source and destination must be created before connection")
-            
+                raise Exception(
+                    "Source and destination must be created before connection"
+                )
+
             # Enhanced connection configuration
             connection_config = {
                 "sourceId": self.gong_source_id,
@@ -490,7 +518,7 @@ class EstuaryGongOrchestrator:
                             "stream": {
                                 "name": "calls",
                                 "jsonSchema": {},
-                                "supportedSyncModes": ["incremental"]
+                                "supportedSyncModes": ["incremental"],
                             },
                             "config": {
                                 "syncMode": "incremental",
@@ -503,14 +531,14 @@ class EstuaryGongOrchestrator:
                                 "syncFrequency": "hourly",
                                 "enableDataValidation": True,
                                 "maxRecordsPerSync": 10000,
-                                "enablePerformanceMonitoring": True
-                            }
+                                "enablePerformanceMonitoring": True,
+                            },
                         },
                         {
                             "stream": {
                                 "name": "call_transcripts",
                                 "jsonSchema": {},
-                                "supportedSyncModes": ["incremental"]
+                                "supportedSyncModes": ["incremental"],
                             },
                             "config": {
                                 "syncMode": "incremental",
@@ -520,39 +548,36 @@ class EstuaryGongOrchestrator:
                                 "selected": self.gong_config.include_transcripts,
                                 "fieldSelectionEnabled": False,
                                 "enableDataValidation": True,
-                                "maxRecordsPerSync": 5000  # Smaller batches for transcripts
-                            }
+                                "maxRecordsPerSync": 5000,  # Smaller batches for transcripts
+                            },
                         },
                         {
                             "stream": {
                                 "name": "users",
                                 "jsonSchema": {},
-                                "supportedSyncModes": ["full_refresh"]
+                                "supportedSyncModes": ["full_refresh"],
                             },
                             "config": {
                                 "syncMode": "full_refresh",
                                 "destinationSyncMode": "overwrite",
                                 "selected": True,
                                 "fieldSelectionEnabled": False,
-                                "enableDataValidation": True
-                            }
-                        }
+                                "enableDataValidation": True,
+                            },
+                        },
                     ]
                 },
                 # Enhanced scheduling configuration
                 "schedule": {
                     "scheduleType": "cron",
                     "cronExpression": "0 * * * * ?",  # Every hour
-                    "timeZone": "UTC"
+                    "timeZone": "UTC",
                 },
                 "scheduleData": {
-                    "basicSchedule": {
-                        "timeUnit": "hours",
-                        "units": 1
-                    },
+                    "basicSchedule": {"timeUnit": "hours", "units": 1},
                     "enableBackfill": True,
                     "maxConcurrentSyncs": 1,
-                    "enableFailureNotifications": True
+                    "enableFailureNotifications": True,
                 },
                 "status": "active",
                 "name": "Gong → Snowflake Data Pipeline (Production)",
@@ -560,22 +585,21 @@ class EstuaryGongOrchestrator:
                 "namespaceFormat": "${SOURCE_NAMESPACE}",
                 "prefix": "gong_",
                 "workspaceId": self.estuary_config.workspace_id,
-                
                 # Enhanced connection configuration
                 "resourceRequirements": {
                     "cpu_request": "0.5",
                     "cpu_limit": "2.0",
                     "memory_request": "1Gi",
-                    "memory_limit": "4Gi"
+                    "memory_limit": "4Gi",
                 },
                 "operationIds": [],  # Can be used for custom transformations
-                "geography": "auto"
+                "geography": "auto",
             }
-            
+
             # Create connection
             async with self.session.post(
                 f"{self.estuary_config.base_url}/api/v1/connections/create",
-                json=connection_config
+                json=connection_config,
             ) as response:
                 if response.status == 200:
                     result = await response.json()
@@ -583,8 +607,10 @@ class EstuaryGongOrchestrator:
                     return result
                 else:
                     error_text = await response.text()
-                    raise Exception(f"Failed to create connection: {response.status} - {error_text}")
-                    
+                    raise Exception(
+                        f"Failed to create connection: {response.status} - {error_text}"
+                    )
+
         except Exception as e:
             logger.error(f"Error creating connection: {e}")
             raise
@@ -593,42 +619,40 @@ class EstuaryGongOrchestrator:
         """Configure automated sync schedule for the connection"""
         try:
             if not self.connection_id:
-                raise Exception("Connection must be created before configuring schedule")
-            
+                raise Exception(
+                    "Connection must be created before configuring schedule"
+                )
+
             # Update connection with enhanced scheduling
             schedule_config = {
                 "connectionId": self.connection_id,
                 "schedule": {
                     "scheduleType": "cron",
                     "cronExpression": "0 * * * * ?",  # Every hour
-                    "timeZone": "UTC"
+                    "timeZone": "UTC",
                 },
                 "scheduleData": {
-                    "basicSchedule": {
-                        "timeUnit": "hours",
-                        "units": 1
-                    },
+                    "basicSchedule": {"timeUnit": "hours", "units": 1},
                     "enableBackfill": True,
                     "maxConcurrentSyncs": 1,
                     "enableFailureNotifications": True,
-                    "retryPolicy": {
-                        "maxRetries": 3,
-                        "retryDelaySeconds": 300
-                    }
-                }
+                    "retryPolicy": {"maxRetries": 3, "retryDelaySeconds": 300},
+                },
             }
-            
+
             async with self.session.patch(
                 f"{self.estuary_config.base_url}/api/v1/connections/update",
-                json=schedule_config
+                json=schedule_config,
             ) as response:
                 if response.status == 200:
                     logger.info("✅ Sync schedule configured successfully")
                     return True
                 else:
                     error_text = await response.text()
-                    raise Exception(f"Failed to configure sync schedule: {response.status} - {error_text}")
-                    
+                    raise Exception(
+                        f"Failed to configure sync schedule: {response.status} - {error_text}"
+                    )
+
         except Exception as e:
             logger.error(f"Error configuring sync schedule: {e}")
             raise
@@ -638,27 +662,31 @@ class EstuaryGongOrchestrator:
         try:
             if not self.connection_id:
                 raise Exception("Connection must be created before testing")
-            
+
             # Test connection health
             async with self.session.post(
                 f"{self.estuary_config.base_url}/api/v1/connections/check",
-                json={"connectionId": self.connection_id}
+                json={"connectionId": self.connection_id},
             ) as response:
                 if response.status == 200:
                     test_result = await response.json()
-                    
+
                     # Check if test passed
                     if test_result.get("status") == "succeeded":
                         logger.info("✅ Connection test passed")
                         return True
                     else:
-                        logger.warning(f"Connection test failed: {test_result.get('message', 'Unknown error')}")
+                        logger.warning(
+                            f"Connection test failed: {test_result.get('message', 'Unknown error')}"
+                        )
                         return False
                 else:
                     error_text = await response.text()
-                    logger.error(f"Connection test API call failed: {response.status} - {error_text}")
+                    logger.error(
+                        f"Connection test API call failed: {response.status} - {error_text}"
+                    )
                     return False
-                    
+
         except Exception as e:
             logger.error(f"Error testing connection: {e}")
             return False
@@ -668,25 +696,29 @@ class EstuaryGongOrchestrator:
         try:
             if not self.connection_id:
                 raise Exception("Connection must be created before triggering sync")
-            
+
             # Trigger sync job
             sync_config = {
                 "connectionId": self.connection_id,
-                "withRefreshedCatalog": False  # Use existing catalog
+                "withRefreshedCatalog": False,  # Use existing catalog
             }
-            
+
             async with self.session.post(
                 f"{self.estuary_config.base_url}/api/v1/connections/sync",
-                json=sync_config
+                json=sync_config,
             ) as response:
                 if response.status == 200:
                     sync_result = await response.json()
-                    logger.info(f"✅ Sync job triggered successfully: {sync_result.get('jobId')}")
+                    logger.info(
+                        f"✅ Sync job triggered successfully: {sync_result.get('jobId')}"
+                    )
                     return sync_result
                 else:
                     error_text = await response.text()
-                    raise Exception(f"Failed to trigger sync: {response.status} - {error_text}")
-                    
+                    raise Exception(
+                        f"Failed to trigger sync: {response.status} - {error_text}"
+                    )
+
         except Exception as e:
             logger.error(f"Error triggering sync: {e}")
             raise
@@ -703,7 +735,9 @@ class EstuaryGongOrchestrator:
                         return definition["sourceDefinitionId"]
                 raise Exception(f"Source definition for '{source_name}' not found")
             else:
-                raise Exception(f"Failed to fetch source definitions: {response.status}")
+                raise Exception(
+                    f"Failed to fetch source definitions: {response.status}"
+                )
 
     async def _get_destination_definition_id(self, destination_name: str) -> str:
         """Get destination definition ID with enhanced error handling"""
@@ -715,9 +749,13 @@ class EstuaryGongOrchestrator:
                 for definition in definitions.get("destinationDefinitions", []):
                     if destination_name.lower() in definition.get("name", "").lower():
                         return definition["destinationDefinitionId"]
-                raise Exception(f"Destination definition for '{destination_name}' not found")
+                raise Exception(
+                    f"Destination definition for '{destination_name}' not found"
+                )
             else:
-                raise Exception(f"Failed to fetch destination definitions: {response.status}")
+                raise Exception(
+                    f"Failed to fetch destination definitions: {response.status}"
+                )
 
     async def monitor_sync_jobs(self) -> Dict[str, Any]:
         """Monitor sync job status and provide health metrics"""
@@ -725,27 +763,32 @@ class EstuaryGongOrchestrator:
             # Get recent jobs for the connection
             async with self.session.get(
                 f"{self.estuary_config.base_url}/api/v1/jobs/list",
-                params={
-                    "connectionId": self.connection_id,
-                    "limit": 10
-                }
+                params={"connectionId": self.connection_id, "limit": 10},
             ) as response:
                 if response.status == 200:
                     jobs_data = await response.json()
                     jobs = jobs_data.get("jobs", [])
-                    
+
                     # Analyze job health
                     total_jobs = len(jobs)
-                    successful_jobs = sum(1 for job in jobs if job.get("status") == "succeeded")
-                    failed_jobs = sum(1 for job in jobs if job.get("status") == "failed")
-                    running_jobs = sum(1 for job in jobs if job.get("status") == "running")
-                    
+                    successful_jobs = sum(
+                        1 for job in jobs if job.get("status") == "succeeded"
+                    )
+                    failed_jobs = sum(
+                        1 for job in jobs if job.get("status") == "failed"
+                    )
+                    running_jobs = sum(
+                        1 for job in jobs if job.get("status") == "running"
+                    )
+
                     # Get latest job details
                     latest_job = jobs[0] if jobs else None
-                    
+
                     # Calculate success rate
-                    success_rate = (successful_jobs / total_jobs * 100) if total_jobs > 0 else 0
-                    
+                    success_rate = (
+                        (successful_jobs / total_jobs * 100) if total_jobs > 0 else 0
+                    )
+
                     return {
                         "connection_id": self.connection_id,
                         "total_jobs": total_jobs,
@@ -756,15 +799,23 @@ class EstuaryGongOrchestrator:
                         "latest_job": {
                             "job_id": latest_job.get("id") if latest_job else None,
                             "status": latest_job.get("status") if latest_job else None,
-                            "started_at": latest_job.get("createdAt") if latest_job else None,
-                            "records_synced": latest_job.get("recordsSynced", 0) if latest_job else 0
+                            "started_at": latest_job.get("createdAt")
+                            if latest_job
+                            else None,
+                            "records_synced": latest_job.get("recordsSynced", 0)
+                            if latest_job
+                            else 0,
                         },
-                        "health_status": "healthy" if success_rate > 80 else "degraded" if success_rate > 50 else "unhealthy",
-                        "monitoring_timestamp": datetime.utcnow().isoformat()
+                        "health_status": "healthy"
+                        if success_rate > 80
+                        else "degraded"
+                        if success_rate > 50
+                        else "unhealthy",
+                        "monitoring_timestamp": datetime.utcnow().isoformat(),
                     }
                 else:
                     return {"error": f"Failed to fetch jobs: {response.status}"}
-                    
+
         except Exception as e:
             logger.error(f"Failed to monitor sync jobs: {e}")
             return {"error": str(e)}
@@ -778,46 +829,51 @@ class EstuaryGongOrchestrator:
 async def main():
     """Main function for CLI usage"""
     parser = argparse.ArgumentParser(description="Estuary Gong Integration Setup")
-    parser.add_argument("--mode", choices=["setup", "test", "monitor", "sync"], 
-                       default="setup", help="Operation mode")
-    parser.add_argument("--estuary-url", default="http://localhost:8000", 
-                       help="Estuary server URL")
-    parser.add_argument("--workspace-id", default="default", 
-                       help="Estuary workspace ID")
-    
+    parser.add_argument(
+        "--mode",
+        choices=["setup", "test", "monitor", "sync"],
+        default="setup",
+        help="Operation mode",
+    )
+    parser.add_argument(
+        "--estuary-url", default="http://localhost:8000", help="Estuary server URL"
+    )
+    parser.add_argument(
+        "--workspace-id", default="default", help="Estuary workspace ID"
+    )
+
     args = parser.parse_args()
-    
+
     # Initialize Estuary configuration
     estuary_config = EstuaryConfig(
-        base_url=args.estuary_url,
-        workspace_id=args.workspace_id
+        base_url=args.estuary_url, workspace_id=args.workspace_id
     )
-    
+
     orchestrator = EstuaryGongOrchestrator(estuary_config)
-    
+
     try:
         await orchestrator.initialize()
-        
+
         if args.mode == "setup":
             result = await orchestrator.setup_complete_pipeline()
             print(json.dumps(result, indent=2))
-            
+
         elif args.mode == "monitor":
             status = await orchestrator.monitor_sync_jobs()
             print(json.dumps(status, indent=2))
-            
+
         elif args.mode == "test":
             test_result = await orchestrator._test_connection()
             print(f"Connection test: {'PASSED' if test_result else 'FAILED'}")
-            
+
         elif args.mode == "sync":
             sync_result = await orchestrator._trigger_sync()
             print(json.dumps(sync_result, indent=2))
-            
+
     except Exception as e:
         logger.error(f"Operation failed: {e}")
         sys.exit(1)
-        
+
     finally:
         await orchestrator.cleanup()
 

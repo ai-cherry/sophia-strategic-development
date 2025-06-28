@@ -92,12 +92,12 @@ class DocumentationEnhancer:
     def add_metadata_header(self, content: str, metadata: Dict) -> str:
         """Add metadata header to markdown file"""
         metadata_yaml = f"""---
-title: {metadata['title']}
-description: {metadata['description']}
-tags: {', '.join(metadata['tags'])}
-last_updated: {metadata['last_updated']}
-dependencies: {', '.join(metadata['dependencies']) if metadata['dependencies'] else 'none'}
-related_docs: {', '.join(metadata['related_docs']) if metadata['related_docs'] else 'none'}
+title: {metadata["title"]}
+description: {metadata["description"]}
+tags: {", ".join(metadata["tags"])}
+last_updated: {metadata["last_updated"]}
+dependencies: {", ".join(metadata["dependencies"]) if metadata["dependencies"] else "none"}
+related_docs: {", ".join(metadata["related_docs"]) if metadata["related_docs"] else "none"}
 ---
 
 """

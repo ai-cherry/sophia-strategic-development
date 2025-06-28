@@ -171,7 +171,7 @@ async def get_projects(
         projects = []
         for project in result.get("projects", []):
             metrics = project.get("metrics", {})
-            
+
             projects.append(
                 LinearProjectSummary(
                     id=project["id"],
@@ -258,9 +258,7 @@ async def get_issues(
                         else None
                     ),
                     team=(
-                        issue.get("team", {}).get("name")
-                        if issue.get("team")
-                        else None
+                        issue.get("team", {}).get("name") if issue.get("team") else None
                     ),
                     project=(
                         issue.get("project", {}).get("name")
@@ -296,7 +294,7 @@ async def get_issue_details(issue_id: str):
 
 @router.get("/teams", response_model=List[LinearTeamSummary])
 async def get_teams(
-    include_archived: bool = Query(False, description="Include archived teams")
+    include_archived: bool = Query(False, description="Include archived teams"),
 ):
     """Get teams in the workspace."""
     try:
@@ -307,7 +305,7 @@ async def get_teams(
         teams = []
         for team in result.get("teams", []):
             metrics = team.get("metrics", {})
-            
+
             teams.append(
                 LinearTeamSummary(
                     id=team["id"],
@@ -330,9 +328,7 @@ async def get_teams(
 async def get_team_members(team_id: str):
     """Get members of a specific team."""
     try:
-        result = await linear_client.call_tool(
-            "get_team_members", {"team_id": team_id}
-        )
+        result = await linear_client.call_tool("get_team_members", {"team_id": team_id})
         return result
     except Exception as e:
         logger.error(f"Error getting team members for {team_id}: {str(e)}")
@@ -343,7 +339,9 @@ async def get_team_members(team_id: str):
 
 @router.get("/search/issues", response_model=List[LinearIssueSummary])
 async def search_issues(
-    query: Optional[str] = Query(None, description="Search query for issue titles and descriptions"),
+    query: Optional[str] = Query(
+        None, description="Search query for issue titles and descriptions"
+    ),
     team_id: Optional[str] = Query(None, description="Limit search to specific team"),
     assignee_id: Optional[str] = Query(None, description="Filter by assignee ID"),
     state: Optional[str] = Query(None, description="Filter by issue state"),
@@ -378,9 +376,7 @@ async def search_issues(
                         else None
                     ),
                     team=(
-                        issue.get("team", {}).get("name")
-                        if issue.get("team")
-                        else None
+                        issue.get("team", {}).get("name") if issue.get("team") else None
                     ),
                     project=(
                         issue.get("project", {}).get("name")
@@ -396,7 +392,9 @@ async def search_issues(
         return issues
     except Exception as e:
         logger.error(f"Error searching Linear issues: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to search issues: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to search issues: {str(e)}"
+        )
 
 
 @router.get("/users/{user_id}/issues", response_model=List[LinearIssueSummary])
@@ -426,9 +424,7 @@ async def get_user_issues(
                     priority=issue.get("priority", 0),
                     assignee=user_id,
                     team=(
-                        issue.get("team", {}).get("name")
-                        if issue.get("team")
-                        else None
+                        issue.get("team", {}).get("name") if issue.get("team") else None
                     ),
                     project=(
                         issue.get("project", {}).get("name")
@@ -451,7 +447,7 @@ async def get_user_issues(
 
 @router.get("/users")
 async def get_workspace_users(
-    include_guests: bool = Query(False, description="Include guest users")
+    include_guests: bool = Query(False, description="Include guest users"),
 ):
     """Get users in the workspace."""
     try:
@@ -483,7 +479,9 @@ async def get_milestones(
         return result
     except Exception as e:
         logger.error(f"Error getting Linear milestones: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get milestones: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get milestones: {str(e)}"
+        )
 
 
 @router.get("/dashboard/summary")
@@ -504,15 +502,31 @@ async def get_dashboard_summary():
 
         # Calculate summary metrics
         total_projects = len(projects)
-        active_projects = len([p for p in projects if p.get("state", {}).get("name") not in ["completed", "canceled"]])
-        completed_projects = len([p for p in projects if p.get("state", {}).get("name") == "completed"])
+        active_projects = len(
+            [
+                p
+                for p in projects
+                if p.get("state", {}).get("name") not in ["completed", "canceled"]
+            ]
+        )
+        completed_projects = len(
+            [p for p in projects if p.get("state", {}).get("name") == "completed"]
+        )
 
         total_issues = len(issues)
-        completed_issues = len([i for i in issues if i.get("state", {}).get("type") == "completed"])
+        completed_issues = len(
+            [i for i in issues if i.get("state", {}).get("type") == "completed"]
+        )
         active_issues = total_issues - completed_issues
 
         # Priority distribution
-        priority_distribution = {"urgent": 0, "high": 0, "normal": 0, "low": 0, "none": 0}
+        priority_distribution = {
+            "urgent": 0,
+            "high": 0,
+            "normal": 0,
+            "low": 0,
+            "none": 0,
+        }
         for issue in issues:
             priority = issue.get("priority", 0)
             if priority == 1:
@@ -534,18 +548,18 @@ async def get_dashboard_summary():
             "total_projects": total_projects,
             "active_projects": active_projects,
             "completed_projects": completed_projects,
-            "project_completion_rate": (completed_projects / total_projects * 100) if total_projects > 0 else 0,
-            
+            "project_completion_rate": (completed_projects / total_projects * 100)
+            if total_projects > 0
+            else 0,
             "total_issues": total_issues,
             "active_issues": active_issues,
             "completed_issues": completed_issues,
-            "issue_completion_rate": (completed_issues / total_issues * 100) if total_issues > 0 else 0,
-            
+            "issue_completion_rate": (completed_issues / total_issues * 100)
+            if total_issues > 0
+            else 0,
             "priority_distribution": priority_distribution,
-            
             "total_teams": total_teams,
             "active_teams": active_teams,
-            
             "sync_time": datetime.now().isoformat(),
             "health_status": "healthy",
         }
@@ -559,13 +573,7 @@ async def get_dashboard_summary():
 # Helper functions
 def _map_linear_priority(priority: int) -> str:
     """Map Linear priority number to human-readable string."""
-    priority_map = {
-        0: "No Priority",
-        1: "Urgent",
-        2: "High", 
-        3: "Normal",
-        4: "Low"
-    }
+    priority_map = {0: "No Priority", 1: "Urgent", 2: "High", 3: "Normal", 4: "Low"}
     return priority_map.get(priority, "Unknown")
 
 
@@ -573,10 +581,10 @@ def _calculate_project_health(project: Dict[str, Any]) -> str:
     """Calculate project health based on various metrics."""
     # This is a simplified health calculation
     # In practice, you'd want more sophisticated logic
-    
+
     progress = project.get("progress", 0)
     state = project.get("state", {}).get("name", "")
-    
+
     if state in ["completed"]:
         return "completed"
     elif state in ["canceled"]:
@@ -593,14 +601,13 @@ def _calculate_team_velocity(team_data: Dict[str, Any]) -> float:
     """Calculate team velocity based on issue completion."""
     # This would typically look at historical data
     # For now, return a placeholder calculation
-    
+
     metrics = team_data.get("metrics", {})
     total_issues = metrics.get("total_issues", 0)
-    
+
     if total_issues == 0:
         return 0.0
-    
+
     # Simplified velocity calculation
     # In practice, you'd want to look at completed issues over time
     return min(total_issues * 0.1, 10.0)  # Cap at 10 for demo purposes
-

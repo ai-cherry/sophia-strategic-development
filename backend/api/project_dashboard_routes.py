@@ -178,7 +178,9 @@ async def get_project_stats_overview(
             }
 
         overview_data = await cache_manager.get_or_set(
-            cache_key, fetch_overview, ttl=120  # 2 minutes cache for overview
+            cache_key,
+            fetch_overview,
+            ttl=120,  # 2 minutes cache for overview
         )
 
         return overview_data

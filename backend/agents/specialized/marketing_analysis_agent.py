@@ -19,14 +19,17 @@ from enum import Enum
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.services.smart_ai_service import (
-    smart_ai_service, 
-    LLMRequest, 
+    smart_ai_service,
+    LLMRequest,
     TaskType,
-    generate_competitive_analysis
+    generate_competitive_analysis,
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+    MemoryCategory,
+)
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 
 logger = logging.getLogger(__name__)
@@ -34,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 class CampaignType(str, Enum):
     """Types of marketing campaigns"""
+
     EMAIL = "email"
     SOCIAL_MEDIA = "social_media"
     CONTENT = "content"
@@ -46,6 +50,7 @@ class CampaignType(str, Enum):
 
 class ContentType(str, Enum):
     """Types of marketing content"""
+
     BLOG_POST = "blog_post"
     EMAIL_COPY = "email_copy"
     SOCIAL_POST = "social_post"
@@ -58,6 +63,7 @@ class ContentType(str, Enum):
 
 class AudienceSegment(str, Enum):
     """Audience segmentation categories"""
+
     ENTERPRISE = "enterprise"
     SMB = "smb"
     STARTUP = "startup"
@@ -71,31 +77,32 @@ class AudienceSegment(str, Enum):
 @dataclass
 class CampaignAnalysis:
     """Campaign performance analysis result"""
+
     campaign_id: str
     campaign_name: str
     campaign_type: CampaignType
     start_date: datetime
     end_date: Optional[datetime]
-    
+
     # Performance metrics
     impressions: int
     clicks: int
     conversions: int
     revenue: float
     cost: float
-    
+
     # Calculated metrics
     ctr: float  # Click-through rate
     conversion_rate: float
     cpa: float  # Cost per acquisition
     roi: float  # Return on investment
-    
+
     # AI insights
     performance_score: float
     ai_summary: str
     optimization_recommendations: List[str]
     audience_insights: Dict[str, Any]
-    
+
     # Metadata
     confidence_score: float
     analysis_timestamp: datetime = datetime.now()
@@ -104,6 +111,7 @@ class CampaignAnalysis:
 @dataclass
 class ContentGenerationRequest:
     """Request for AI-generated marketing content"""
+
     content_type: ContentType
     topic: str
     target_audience: AudienceSegment
@@ -118,31 +126,32 @@ class ContentGenerationRequest:
 @dataclass
 class AudienceSegmentAnalysis:
     """Audience segment analysis result"""
+
     segment_name: str
     segment_type: AudienceSegment
     size: int
     engagement_score: float
     conversion_rate: float
     average_deal_size: float
-    
+
     # Behavioral insights
     preferred_channels: List[str]
     content_preferences: List[str]
     decision_factors: List[str]
     pain_points: List[str]
-    
+
     # AI insights
     ai_summary: str
     targeting_recommendations: List[str]
     content_suggestions: List[str]
-    
+
     confidence_score: float
 
 
 class MarketingAnalysisAgent(BaseAgent):
     """
     AI-Powered Marketing Analysis Agent
-    
+
     Capabilities:
     - Campaign performance analysis with AI insights
     - Content generation using SmartAIService
@@ -192,11 +201,11 @@ class MarketingAnalysisAgent(BaseAgent):
     ) -> Optional[CampaignAnalysis]:
         """
         Analyze marketing campaign performance with AI insights
-        
+
         Args:
             campaign_id: Campaign identifier
             include_ai_insights: Whether to include AI-generated insights
-            
+
         Returns:
             Comprehensive campaign analysis
         """
@@ -209,7 +218,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 campaign_data = await cortex.query_structured_data(
                     table="STG_MARKETING_CAMPAIGNS",
                     filters={"CAMPAIGN_ID": campaign_id},
-                    limit=1
+                    limit=1,
                 )
 
                 if not campaign_data:
@@ -245,9 +254,9 @@ class MarketingAnalysisAgent(BaseAgent):
                 analysis_prompt = f"""
                 Analyze this marketing campaign performance and provide insights:
                 
-                Campaign: {campaign_record.get('CAMPAIGN_NAME', 'Unknown')}
-                Type: {campaign_record.get('CAMPAIGN_TYPE', 'Unknown')}
-                Duration: {campaign_record.get('START_DATE')} to {campaign_record.get('END_DATE', 'Ongoing')}
+                Campaign: {campaign_record.get("CAMPAIGN_NAME", "Unknown")}
+                Type: {campaign_record.get("CAMPAIGN_TYPE", "Unknown")}
+                Duration: {campaign_record.get("START_DATE")} to {campaign_record.get("END_DATE", "Ongoing")}
                 
                 Performance Metrics:
                 - Impressions: {impressions:,}
@@ -274,7 +283,7 @@ class MarketingAnalysisAgent(BaseAgent):
                     performance_priority=True,
                     cost_sensitivity=0.8,
                     user_id="marketing_agent",
-                    metadata={"campaign_id": campaign_id}
+                    metadata={"campaign_id": campaign_id},
                 )
 
                 response = await smart_ai_service.generate_response(request)
@@ -291,13 +300,13 @@ class MarketingAnalysisAgent(BaseAgent):
                     """
 
                     recommendations_text = await cortex.complete_text_with_cortex(
-                        prompt=recommendations_prompt,
-                        max_tokens=300
+                        prompt=recommendations_prompt, max_tokens=300
                     )
 
                     if recommendations_text:
                         optimization_recommendations = [
-                            rec.strip() for rec in recommendations_text.split('\n')
+                            rec.strip()
+                            for rec in recommendations_text.split("\n")
                             if rec.strip() and any(char.isdigit() for char in rec[:5])
                         ]
 
@@ -310,7 +319,9 @@ class MarketingAnalysisAgent(BaseAgent):
             analysis = CampaignAnalysis(
                 campaign_id=campaign_id,
                 campaign_name=campaign_record.get("CAMPAIGN_NAME", "Unknown"),
-                campaign_type=CampaignType(campaign_record.get("CAMPAIGN_TYPE", "email").lower()),
+                campaign_type=CampaignType(
+                    campaign_record.get("CAMPAIGN_TYPE", "email").lower()
+                ),
                 start_date=campaign_record.get("START_DATE", datetime.now()),
                 end_date=campaign_record.get("END_DATE"),
                 impressions=impressions,
@@ -326,7 +337,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 ai_summary=ai_summary,
                 optimization_recommendations=optimization_recommendations,
                 audience_insights=audience_insights,
-                confidence_score=0.9
+                confidence_score=0.9,
             )
 
             # Store analysis in AI Memory
@@ -337,14 +348,14 @@ class MarketingAnalysisAgent(BaseAgent):
                     "campaign_analysis",
                     campaign_record.get("CAMPAIGN_TYPE", "unknown").lower(),
                     f"performance_{performance_score:.0f}",
-                    f"roi_{roi:.0f}"
+                    f"roi_{roi:.0f}",
                 ],
                 importance_score=0.8,
                 metadata={
                     "campaign_id": campaign_id,
                     "performance_score": performance_score,
-                    "roi": roi
-                }
+                    "roi": roi,
+                },
             )
 
             logger.info(f"Completed campaign analysis for {campaign_id}")
@@ -359,10 +370,10 @@ class MarketingAnalysisAgent(BaseAgent):
     ) -> Dict[str, Any]:
         """
         Generate marketing content using AI with brand and competitive context
-        
+
         Args:
             request: Content generation request
-            
+
         Returns:
             Generated content with metadata
         """
@@ -379,27 +390,27 @@ class MarketingAnalysisAgent(BaseAgent):
                 # Get product information
                 if request.product_context:
                     product_info = await self.knowledge_service.search_entities(
-                        query=request.product_context,
-                        entity_type="product",
-                        limit=3
+                        query=request.product_context, entity_type="product", limit=3
                     )
                     if product_info:
-                        product_context = "\n".join([
-                            f"- {item['name']}: {item['description']}"
-                            for item in product_info
-                        ])
+                        product_context = "\n".join(
+                            [
+                                f"- {item['name']}: {item['description']}"
+                                for item in product_info
+                            ]
+                        )
 
                 # Get competitor information
                 competitor_info = await self.knowledge_service.search_entities(
-                    query=request.topic,
-                    entity_type="competitor",
-                    limit=2
+                    query=request.topic, entity_type="competitor", limit=2
                 )
                 if competitor_info:
-                    competitor_context = "\n".join([
-                        f"- {item['name']}: {item['description']}"
-                        for item in competitor_info
-                    ])
+                    competitor_context = "\n".join(
+                        [
+                            f"- {item['name']}: {item['description']}"
+                            for item in competitor_info
+                        ]
+                    )
 
             # Build comprehensive content generation prompt
             content_prompt = self._build_content_prompt(
@@ -416,8 +427,8 @@ class MarketingAnalysisAgent(BaseAgent):
                 temperature=0.8,  # Higher creativity for content
                 metadata={
                     "content_type": request.content_type.value,
-                    "audience": request.target_audience.value
-                }
+                    "audience": request.target_audience.value,
+                },
             )
 
             response = await smart_ai_service.generate_response(llm_request)
@@ -437,12 +448,13 @@ class MarketingAnalysisAgent(BaseAgent):
                     """
 
                     variations_text = await cortex.complete_text_with_cortex(
-                        prompt=variation_prompt,
-                        max_tokens=800
+                        prompt=variation_prompt, max_tokens=800
                     )
 
                     if variations_text:
-                        variations = [v.strip() for v in variations_text.split("---") if v.strip()]
+                        variations = [
+                            v.strip() for v in variations_text.split("---") if v.strip()
+                        ]
 
             # Analyze content quality
             quality_score = await self._analyze_content_quality(
@@ -457,13 +469,13 @@ class MarketingAnalysisAgent(BaseAgent):
                     "content_generation",
                     request.content_type.value,
                     request.target_audience.value,
-                    request.tone
+                    request.tone,
                 ],
                 importance_score=0.7,
                 metadata={
                     "content_type": request.content_type.value,
-                    "quality_score": quality_score
-                }
+                    "quality_score": quality_score,
+                },
             )
 
             result = {
@@ -476,10 +488,12 @@ class MarketingAnalysisAgent(BaseAgent):
                 "generated_at": datetime.now().isoformat(),
                 "model_used": response.model,
                 "cost_usd": response.cost_usd,
-                "generation_time_ms": response.latency_ms
+                "generation_time_ms": response.latency_ms,
             }
 
-            logger.info(f"Generated {request.content_type.value} content for {request.target_audience.value}")
+            logger.info(
+                f"Generated {request.content_type.value} content for {request.target_audience.value}"
+            )
             return result
 
         except Exception as e:
@@ -491,10 +505,10 @@ class MarketingAnalysisAgent(BaseAgent):
     ) -> List[AudienceSegmentAnalysis]:
         """
         Analyze audience segments using Snowflake Cortex AI
-        
+
         Args:
             segment_criteria: Criteria for segmentation analysis
-            
+
         Returns:
             List of audience segment analyses
         """
@@ -519,8 +533,8 @@ class MarketingAnalysisAgent(BaseAgent):
                 
                 Dataset Overview:
                 - Total contacts: {len(customer_data)}
-                - Industries: {customer_data['INDUSTRY'].value_counts().head().to_dict() if 'INDUSTRY' in customer_data.columns else 'N/A'}
-                - Company sizes: {customer_data['COMPANY_SIZE'].value_counts().head().to_dict() if 'COMPANY_SIZE' in customer_data.columns else 'N/A'}
+                - Industries: {customer_data["INDUSTRY"].value_counts().head().to_dict() if "INDUSTRY" in customer_data.columns else "N/A"}
+                - Company sizes: {customer_data["COMPANY_SIZE"].value_counts().head().to_dict() if "COMPANY_SIZE" in customer_data.columns else "N/A"}
                 
                 Identify 5 distinct audience segments based on:
                 1. Company characteristics (size, industry, revenue)
@@ -537,42 +551,58 @@ class MarketingAnalysisAgent(BaseAgent):
                 """
 
                 segmentation_analysis = await cortex.complete_text_with_cortex(
-                    prompt=segmentation_prompt,
-                    max_tokens=1000
+                    prompt=segmentation_prompt, max_tokens=1000
                 )
 
                 # Process Cortex analysis into structured segments
                 if segmentation_analysis:
                     segment_lines = [
-                        line.strip() for line in segmentation_analysis.split('\n')
-                        if line.strip() and any(keyword in line.lower() for keyword in ['segment', 'group', 'audience'])
+                        line.strip()
+                        for line in segmentation_analysis.split("\n")
+                        if line.strip()
+                        and any(
+                            keyword in line.lower()
+                            for keyword in ["segment", "group", "audience"]
+                        )
                     ]
 
                     for i, segment_desc in enumerate(segment_lines[:5]):
                         # Create mock segment analysis (in production, this would use real data)
                         segment = AudienceSegmentAnalysis(
-                            segment_name=f"Segment {i+1}",
-                            segment_type=list(AudienceSegment)[i % len(AudienceSegment)],
+                            segment_name=f"Segment {i + 1}",
+                            segment_type=list(AudienceSegment)[
+                                i % len(AudienceSegment)
+                            ],
                             size=len(customer_data) // 5,  # Rough estimate
                             engagement_score=0.6 + (i * 0.1),
                             conversion_rate=2.5 + (i * 0.5),
                             average_deal_size=10000 + (i * 5000),
-                            preferred_channels=["email", "linkedin", "webinar"][i:i+2],
-                            content_preferences=["case_studies", "whitepapers", "demos"][i:i+2],
-                            decision_factors=["roi", "security", "ease_of_use"][i:i+2],
-                            pain_points=["cost", "complexity", "integration"][i:i+2],
+                            preferred_channels=["email", "linkedin", "webinar"][
+                                i : i + 2
+                            ],
+                            content_preferences=[
+                                "case_studies",
+                                "whitepapers",
+                                "demos",
+                            ][i : i + 2],
+                            decision_factors=["roi", "security", "ease_of_use"][
+                                i : i + 2
+                            ],
+                            pain_points=["cost", "complexity", "integration"][
+                                i : i + 2
+                            ],
                             ai_summary=segment_desc,
                             targeting_recommendations=[
                                 f"Focus on {list(AudienceSegment)[i % len(AudienceSegment)].value} messaging",
                                 "Emphasize ROI and business value",
-                                "Use case studies and social proof"
+                                "Use case studies and social proof",
                             ],
                             content_suggestions=[
                                 f"Create {ContentType.CASE_STUDY.value} content",
                                 f"Develop {ContentType.WHITEPAPER.value} resources",
-                                "Build interactive demos"
+                                "Build interactive demos",
                             ],
-                            confidence_score=0.8
+                            confidence_score=0.8,
                         )
                         segments.append(segment)
 
@@ -582,7 +612,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 category=MemoryCategory.MARKETING_AUDIENCE_INSIGHT,
                 tags=["audience_segmentation", "customer_analysis", "targeting"],
                 importance_score=0.8,
-                metadata={"segments_count": len(segments)}
+                metadata={"segments_count": len(segments)},
             )
 
             logger.info(f"Analyzed {len(segments)} audience segments")
@@ -597,11 +627,11 @@ class MarketingAnalysisAgent(BaseAgent):
     ) -> Dict[str, Any]:
         """
         Generate competitive analysis using SmartAIService and knowledge base
-        
+
         Args:
             competitor_name: Name of competitor to analyze
             analysis_focus: Focus area (positioning, pricing, features, marketing)
-            
+
         Returns:
             Comprehensive competitive analysis
         """
@@ -613,9 +643,7 @@ class MarketingAnalysisAgent(BaseAgent):
             competitor_context = ""
             if self.knowledge_service:
                 competitor_info = await self.knowledge_service.search_entities(
-                    query=competitor_name,
-                    entity_type="competitor",
-                    limit=1
+                    query=competitor_name, entity_type="competitor", limit=1
                 )
                 if competitor_info:
                     competitor_context = competitor_info[0].get("description", "")
@@ -656,8 +684,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 """
 
                 key_insights = await cortex.complete_text_with_cortex(
-                    prompt=insights_prompt,
-                    max_tokens=300
+                    prompt=insights_prompt, max_tokens=300
                 )
 
                 strategic_recommendations_prompt = f"""
@@ -669,8 +696,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 """
 
                 recommendations = await cortex.complete_text_with_cortex(
-                    prompt=strategic_recommendations_prompt,
-                    max_tokens=300
+                    prompt=strategic_recommendations_prompt, max_tokens=300
                 )
 
             # Store competitive analysis in AI Memory
@@ -681,30 +707,31 @@ class MarketingAnalysisAgent(BaseAgent):
                     "competitive_analysis",
                     competitor_name.lower().replace(" ", "_"),
                     analysis_focus,
-                    "marketing_intelligence"
+                    "marketing_intelligence",
                 ],
                 importance_score=0.9,
-                metadata={
-                    "competitor": competitor_name,
-                    "focus": analysis_focus
-                }
+                metadata={"competitor": competitor_name, "focus": analysis_focus},
             )
 
             result = {
                 "competitor": competitor_name,
                 "analysis_focus": analysis_focus,
                 "full_analysis": analysis_content,
-                "key_insights": key_insights.split('\n') if key_insights else [],
-                "strategic_recommendations": recommendations.split('\n') if recommendations else [],
+                "key_insights": key_insights.split("\n") if key_insights else [],
+                "strategic_recommendations": recommendations.split("\n")
+                if recommendations
+                else [],
                 "generated_at": datetime.now().isoformat(),
-                "confidence_score": 0.85
+                "confidence_score": 0.85,
             }
 
             logger.info(f"Generated competitive analysis for {competitor_name}")
             return result
 
         except Exception as e:
-            logger.error(f"Error generating competitive analysis for {competitor_name}: {e}")
+            logger.error(
+                f"Error generating competitive analysis for {competitor_name}: {e}"
+            )
             return {"error": str(e), "competitor": competitor_name}
 
     def _calculate_performance_score(
@@ -715,7 +742,7 @@ class MarketingAnalysisAgent(BaseAgent):
         ctr_score = min(ctr * 10, 30)  # Max 30 points for CTR
         conversion_score = min(conversion_rate * 5, 35)  # Max 35 points for conversion
         roi_score = min(roi / 2, 35)  # Max 35 points for ROI
-        
+
         return max(0, min(100, ctr_score + conversion_score + roi_score))
 
     async def _analyze_campaign_audience(
@@ -728,21 +755,18 @@ class MarketingAnalysisAgent(BaseAgent):
                 "primary_segments": ["enterprise", "smb"],
                 "engagement_by_segment": {
                     "enterprise": {"clicks": 450, "conversions": 23},
-                    "smb": {"clicks": 320, "conversions": 18}
+                    "smb": {"clicks": 320, "conversions": 18},
                 },
                 "geographic_distribution": {
                     "north_america": 0.6,
                     "europe": 0.3,
-                    "asia_pacific": 0.1
+                    "asia_pacific": 0.1,
                 },
-                "device_breakdown": {
-                    "desktop": 0.7,
-                    "mobile": 0.3
-                },
+                "device_breakdown": {"desktop": 0.7, "mobile": 0.3},
                 "time_engagement": {
                     "peak_hours": ["9-11am", "2-4pm"],
-                    "peak_days": ["Tuesday", "Wednesday", "Thursday"]
-                }
+                    "peak_days": ["Tuesday", "Wednesday", "Thursday"],
+                },
             }
         except Exception as e:
             logger.error(f"Error analyzing campaign audience: {e}")
@@ -753,7 +777,7 @@ class MarketingAnalysisAgent(BaseAgent):
         request: ContentGenerationRequest,
         product_context: str,
         competitor_context: str,
-        brand_context: str
+        brand_context: str,
     ) -> str:
         """Build comprehensive content generation prompt"""
         prompt = f"""
@@ -784,7 +808,7 @@ class MarketingAnalysisAgent(BaseAgent):
             ContentType.AD_COPY: "Focus on attention-grabbing headline, clear benefits, and compelling CTA",
             ContentType.LANDING_PAGE: "Include headline, value proposition, benefits, social proof, and conversion elements",
             ContentType.CASE_STUDY: "Include challenge, solution, implementation, and measurable results",
-            ContentType.WHITEPAPER: "Include executive summary, problem statement, solution analysis, and conclusions"
+            ContentType.WHITEPAPER: "Include executive summary, problem statement, solution analysis, and conclusions",
         }
 
         if request.content_type in content_requirements:
@@ -825,8 +849,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 """
 
                 score_text = await cortex.complete_text_with_cortex(
-                    prompt=quality_prompt,
-                    max_tokens=10
+                    prompt=quality_prompt, max_tokens=10
                 )
 
                 if score_text and score_text.strip().isdigit():
@@ -836,4 +859,4 @@ class MarketingAnalysisAgent(BaseAgent):
 
         except Exception as e:
             logger.error(f"Error analyzing content quality: {e}")
-            return 75.0  # Default score 
+            return 75.0  # Default score

@@ -11,30 +11,31 @@ Usage:
 """
 
 import os
-import re
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List
+
 
 class FastAPILifespanModernizer:
     """Modernizes FastAPI applications to use lifespan events"""
-    
+
     def __init__(self, backend_dir: str = "backend"):
         self.backend_dir = Path(backend_dir)
-        self.backup_dir = Path(f"backup_fastapi_modernization_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        self.backup_dir = Path(
+            f"backup_fastapi_modernization_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
         self.modifications = []
 
     def create_backup(self) -> None:
         """Create backup of files before modification"""
         print("📁 Creating backup of FastAPI files...")
-        
+
         files_to_backup = [
             "backend/app/fastapi_app.py",
             "backend/api/universal_chat_routes.py",
-            "backend/core/dependencies.py"  # Will create if doesn't exist
+            "backend/core/dependencies.py",  # Will create if doesn't exist
         ]
-        
+
         for file_path in files_to_backup:
             if os.path.exists(file_path):
                 backup_path = self.backup_dir / file_path
@@ -50,9 +51,9 @@ class FastAPILifespanModernizer:
     def create_dependencies_module(self) -> None:
         """Create the centralized dependencies module"""
         deps_file = self.backend_dir / "core" / "dependencies.py"
-        
+
         print(f"🔧 Creating dependencies module at {deps_file}...")
-        
+
         dependencies_content = '''"""
 Centralized Dependencies Module for Sophia AI
 
@@ -137,35 +138,37 @@ def get_request_chat_service(request):
     """FastAPI dependency that gets chat service from request app state"""
     return get_chat_service_from_app_state(request)
 '''
-        
+
         # Write the dependencies file
-        with open(deps_file, 'w', encoding='utf-8') as f:
+        with open(deps_file, "w", encoding="utf-8") as f:
             f.write(dependencies_content)
-        
-        self.modifications.append(f"Created centralized dependencies module at {deps_file}")
+
+        self.modifications.append(
+            f"Created centralized dependencies module at {deps_file}"
+        )
         print(f"  ✅ Created {deps_file}")
 
     def fix_universal_chat_routes(self) -> None:
         """Fix the universal chat routes to eliminate circular imports"""
         routes_file = self.backend_dir / "api" / "universal_chat_routes.py"
-        
+
         print(f"🔄 Fixing {routes_file}...")
-        
+
         if not routes_file.exists():
             print(f"  ⚠️ {routes_file} not found, skipping")
             return
-        
+
         # Read current content
-        with open(routes_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
+        with open(routes_file, "r", encoding="utf-8") as f:
+            f.read()
+
         # Create fixed content
         fixed_content = self._create_fixed_chat_routes()
-        
+
         # Write the fixed content
-        with open(routes_file, 'w', encoding='utf-8') as f:
+        with open(routes_file, "w", encoding="utf-8") as f:
             f.write(fixed_content)
-        
+
         self.modifications.append(f"Fixed circular imports in {routes_file}")
         print(f"  ✅ Fixed {routes_file}")
 
@@ -316,45 +319,47 @@ async def get_chat_capabilities(request: Request):
         """Run the complete modernization process"""
         print("🚀 Starting FastAPI Lifespan Modernization")
         print("=" * 50)
-        
+
         try:
             # Create backup
             self.create_backup()
-            
+
             # Create modernization directory if it doesn't exist
             modernization_dir = Path("scripts/modernization")
             modernization_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Create dependencies module
             self.create_dependencies_module()
-            
+
             # Modernize FastAPI app
             self.modernize_fastapi_app()
-            
+
             # Fix universal chat routes
             self.fix_universal_chat_routes()
-            
+
             # Summary
             print("\n🎉 Modernization completed successfully!")
             print("\n📝 Summary of changes:")
             for modification in self.modifications:
                 print(f"  ✅ {modification}")
-            
+
             print(f"\n💾 Backup created at: {self.backup_dir}")
             print("\n🔄 Next steps:")
             print("  2. Verify no deprecation warnings appear")
             print("  3. Test all API endpoints work correctly")
             print("  4. If successful, remove backup directory")
-            
+
         except Exception as e:
             print(f"\n❌ Modernization failed: {e}")
             print(f"💾 Backup available at: {self.backup_dir}")
             raise
+
 
 def main():
     """Main function"""
     modernizer = FastAPILifespanModernizer()
     modernizer.run_modernization()
 
+
 if __name__ == "__main__":
-    main() 
+    main()

@@ -377,7 +377,9 @@ class SnowflakeConfigManager:
             return (
                 default_value
                 if target_type is None
-                else target_type(default_value) if default_value is not None else None
+                else target_type(default_value)
+                if default_value is not None
+                else None
             )
 
     async def evaluate_feature_flag(

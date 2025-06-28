@@ -798,7 +798,7 @@ class MCPCoordinator:
 
         report_content = f"""# MCP Orchestration Optimization Report
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ## Summary
 

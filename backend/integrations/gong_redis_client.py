@@ -157,7 +157,9 @@ class RedisNotificationClient:
 
         # Store in Redis for persistence (with TTL)
         await self._store_notification(
-            f"call:{call_data.call_id}", message, ttl=86400  # 24 hours
+            f"call:{call_data.call_id}",
+            message,
+            ttl=86400,  # 24 hours
         )
 
         self.logger.info(
@@ -184,7 +186,9 @@ class RedisNotificationClient:
         # Store if requires response
         if email_data.requires_response:
             await self._store_notification(
-                f"email:{email_data.email_id}", message, ttl=172800  # 48 hours
+                f"email:{email_data.email_id}",
+                message,
+                ttl=172800,  # 48 hours
             )
 
         self.logger.info("Email notification sent", email_id=email_data.email_id)
@@ -208,7 +212,9 @@ class RedisNotificationClient:
 
         # Store meeting data
         await self._store_notification(
-            f"meeting:{meeting_data.meeting_id}", message, ttl=604800  # 7 days
+            f"meeting:{meeting_data.meeting_id}",
+            message,
+            ttl=604800,  # 7 days
         )
 
         self.logger.info(
@@ -308,7 +314,9 @@ class RedisNotificationClient:
 
         # Store error for analysis
         await self._store_notification(
-            f"error:{webhook_id}", message, ttl=604800  # 7 days
+            f"error:{webhook_id}",
+            message,
+            ttl=604800,  # 7 days
         )
 
         self.logger.error(

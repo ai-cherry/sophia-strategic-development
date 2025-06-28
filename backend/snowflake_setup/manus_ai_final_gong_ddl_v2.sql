@@ -170,93 +170,24 @@ COMMENT = 'Structured Gong call transcripts with AI processing and semantic sear
 
 -- Transform raw Gong calls to structured format
 CREATE OR REPLACE PROCEDURE TRANSFORM_RAW_GONG_CALLS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
-    execution_id STRING DEFAULT CONCAT('GONG_CALLS_', TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HHMMSS'));
+    result_message VARCHAR(1000);
+    execution_id VARCHAR(255) DEFAULT CONCAT('GONG_CALLS_', TO_VARCHAR(CURRENT_TIMESTAMP, 'YYYYMMDD_HHMMSS'));
 BEGIN
     
     -- Log transformation start
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, START_TIME, DETAILS)
     VALUES 
-    (execution_id, 'TRANSFORM_RAW_GONG_CALLS', 'TRANSFORMATION', 'RUNNING', CURRENT_TIMESTAMP(), 
+    (execution_id, 'TRANSFORM_RAW_GONG_CALLS', 'TRANSFORMATION', 'RUNNING', CURRENT_TIMESTAMP, 
      'Starting transformation of raw Gong calls to structured format');
     
-    -- Transform raw calls to structured format
-    MERGE INTO SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS AS target
-    USING (
-        SELECT 
-            _AIRBYTE_DATA:id::VARCHAR AS CALL_ID,
-            _AIRBYTE_DATA:title::VARCHAR AS CALL_TITLE,
-            _AIRBYTE_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
-            _AIRBYTE_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
-            _AIRBYTE_DATA:direction::VARCHAR AS CALL_DIRECTION,
-            _AIRBYTE_DATA:system::VARCHAR AS CALL_SYSTEM,
-            _AIRBYTE_DATA:scope::VARCHAR AS CALL_SCOPE,
-            _AIRBYTE_DATA:media::VARCHAR AS CALL_MEDIA,
-            _AIRBYTE_DATA:language::VARCHAR AS CALL_LANGUAGE,
-            _AIRBYTE_DATA:url::VARCHAR AS CALL_URL,
-            
-            -- Primary user extraction
-            COALESCE(_AIRBYTE_DATA:primaryUserId::VARCHAR, _AIRBYTE_DATA:ownerId::VARCHAR) AS PRIMARY_USER_ID,
-            COALESCE(_AIRBYTE_DATA:primaryUser.emailAddress::VARCHAR, _AIRBYTE_DATA:owner.emailAddress::VARCHAR) AS PRIMARY_USER_EMAIL,
-            CONCAT(
-                COALESCE(_AIRBYTE_DATA:primaryUser.firstName::VARCHAR, _AIRBYTE_DATA:owner.firstName::VARCHAR, ''),
-                ' ',
-                COALESCE(_AIRBYTE_DATA:primaryUser.lastName::VARCHAR, _AIRBYTE_DATA:owner.lastName::VARCHAR, '')
-            ) AS PRIMARY_USER_NAME,
-            
-            -- CRM data extraction
-            COALESCE(
-                _AIRBYTE_DATA:customData.hubspotDealId::VARCHAR,
-                _AIRBYTE_DATA:crmData.dealId::VARCHAR
-            ) AS HUBSPOT_DEAL_ID,
-            
-            COALESCE(
-                _AIRBYTE_DATA:customData.hubspotContactId::VARCHAR,
-                _AIRBYTE_DATA:crmData.contactId::VARCHAR
-            ) AS HUBSPOT_CONTACT_ID,
-            
-            COALESCE(
-                _AIRBYTE_DATA:customData.hubspotCompanyId::VARCHAR,
-                _AIRBYTE_DATA:crmData.companyId::VARCHAR
-            ) AS HUBSPOT_COMPANY_ID,
-            
-            -- Business context
-            COALESCE(_AIRBYTE_DATA:customData.dealStage::VARCHAR, _AIRBYTE_DATA:crmData.stage::VARCHAR) AS DEAL_STAGE,
-            COALESCE(_AIRBYTE_DATA:customData.dealValue::NUMBER, _AIRBYTE_DATA:crmData.value::NUMBER) AS DEAL_VALUE,
-            COALESCE(_AIRBYTE_DATA:customData.accountName::VARCHAR, _AIRBYTE_DATA:crmData.accountName::VARCHAR) AS ACCOUNT_NAME,
-            COALESCE(_AIRBYTE_DATA:customData.contactName::VARCHAR, _AIRBYTE_DATA:crmData.contactName::VARCHAR) AS CONTACT_NAME,
-            
-            -- Call metrics
-            TRY_CAST(_AIRBYTE_DATA:analytics.talkRatio::VARCHAR AS FLOAT) AS TALK_RATIO,
-            TRY_CAST(_AIRBYTE_DATA:analytics.longestMonologue::VARCHAR AS NUMBER) AS LONGEST_MONOLOGUE_SECONDS,
-            TRY_CAST(_AIRBYTE_DATA:analytics.interactivity::VARCHAR AS FLOAT) AS INTERACTIVITY_SCORE,
-            TRY_CAST(_AIRBYTE_DATA:analytics.questionsAsked::VARCHAR AS NUMBER) AS QUESTIONS_ASKED_COUNT,
-            
-            CURRENT_TIMESTAMP() AS UPDATED_AT,
-            'PENDING' AS VALIDATION_STATUS,
-            1.0 AS DATA_QUALITY_SCORE
-            
-        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
-        WHERE PROCESSED = FALSE
-          AND _AIRBYTE_DATA IS NOT NULL
-    ) AS source
-    ON target.CALL_ID = source.CALL_ID
-    WHEN MATCHED THEN UPDATE SET
-        CALL_TITLE = source.CALL_TITLE,
-        CALL_DATETIME_UTC = source.CALL_DATETIME_UTC,
-        CALL_DURATION_SECONDS = source.CALL_DURATION_SECONDS,
-        HUBSPOT_DEAL_ID = source.HUBSPOT_DEAL_ID,
-        DEAL_STAGE = source.DEAL_STAGE,
-        DEAL_VALUE = source.DEAL_VALUE,
-        TALK_RATIO = source.TALK_RATIO,
-        UPDATED_AT = source.UPDATED_AT
-    WHEN NOT MATCHED THEN INSERT (
+    -- First insert new records that don't exist
+    INSERT INTO SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS (
         CALL_ID, CALL_TITLE, CALL_DATETIME_UTC, CALL_DURATION_SECONDS,
         CALL_DIRECTION, CALL_SYSTEM, CALL_SCOPE, CALL_MEDIA, CALL_LANGUAGE, CALL_URL,
         PRIMARY_USER_ID, PRIMARY_USER_EMAIL, PRIMARY_USER_NAME,
@@ -264,59 +195,137 @@ BEGIN
         DEAL_STAGE, DEAL_VALUE, ACCOUNT_NAME, CONTACT_NAME,
         TALK_RATIO, LONGEST_MONOLOGUE_SECONDS, INTERACTIVITY_SCORE, QUESTIONS_ASKED_COUNT,
         UPDATED_AT, VALIDATION_STATUS, DATA_QUALITY_SCORE
-    ) VALUES (
-        source.CALL_ID, source.CALL_TITLE, source.CALL_DATETIME_UTC, source.CALL_DURATION_SECONDS,
-        source.CALL_DIRECTION, source.CALL_SYSTEM, source.CALL_SCOPE, source.CALL_MEDIA, source.CALL_LANGUAGE, source.CALL_URL,
-        source.PRIMARY_USER_ID, source.PRIMARY_USER_EMAIL, source.PRIMARY_USER_NAME,
-        source.HUBSPOT_DEAL_ID, source.HUBSPOT_CONTACT_ID, source.HUBSPOT_COMPANY_ID,
-        source.DEAL_STAGE, source.DEAL_VALUE, source.ACCOUNT_NAME, source.CONTACT_NAME,
-        source.TALK_RATIO, source.LONGEST_MONOLOGUE_SECONDS, source.INTERACTIVITY_SCORE, source.QUESTIONS_ASKED_COUNT,
-        source.UPDATED_AT, source.VALIDATION_STATUS, source.DATA_QUALITY_SCORE
-    );
+    )
+    SELECT 
+        _AIRBYTE_DATA:id::VARCHAR AS CALL_ID,
+        _AIRBYTE_DATA:title::VARCHAR AS CALL_TITLE,
+        _AIRBYTE_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
+        _AIRBYTE_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
+        _AIRBYTE_DATA:direction::VARCHAR AS CALL_DIRECTION,
+        _AIRBYTE_DATA:system::VARCHAR AS CALL_SYSTEM,
+        _AIRBYTE_DATA:scope::VARCHAR AS CALL_SCOPE,
+        _AIRBYTE_DATA:media::VARCHAR AS CALL_MEDIA,
+        _AIRBYTE_DATA:language::VARCHAR AS CALL_LANGUAGE,
+        _AIRBYTE_DATA:url::VARCHAR AS CALL_URL,
+            
+        -- Primary user extraction
+        COALESCE(_AIRBYTE_DATA:primaryUserId::VARCHAR, _AIRBYTE_DATA:ownerId::VARCHAR) AS PRIMARY_USER_ID,
+        COALESCE(_AIRBYTE_DATA:primaryUser.emailAddress::VARCHAR, _AIRBYTE_DATA:owner.emailAddress::VARCHAR) AS PRIMARY_USER_EMAIL,
+        CONCAT(
+            COALESCE(_AIRBYTE_DATA:primaryUser.firstName::VARCHAR, _AIRBYTE_DATA:owner.firstName::VARCHAR, ''),
+            ' ',
+            COALESCE(_AIRBYTE_DATA:primaryUser.lastName::VARCHAR, _AIRBYTE_DATA:owner.lastName::VARCHAR, '')
+        ) AS PRIMARY_USER_NAME,
+            
+        -- CRM data extraction
+        COALESCE(
+            _AIRBYTE_DATA:customData.hubspotDealId::VARCHAR,
+            _AIRBYTE_DATA:crmData.dealId::VARCHAR
+        ) AS HUBSPOT_DEAL_ID,
+            
+        COALESCE(
+            _AIRBYTE_DATA:customData.hubspotContactId::VARCHAR,
+            _AIRBYTE_DATA:crmData.contactId::VARCHAR
+        ) AS HUBSPOT_CONTACT_ID,
+            
+        COALESCE(
+            _AIRBYTE_DATA:customData.hubspotCompanyId::VARCHAR,
+            _AIRBYTE_DATA:crmData.companyId::VARCHAR
+        ) AS HUBSPOT_COMPANY_ID,
+            
+        -- Business context
+        COALESCE(_AIRBYTE_DATA:customData.dealStage::VARCHAR, _AIRBYTE_DATA:crmData.stage::VARCHAR) AS DEAL_STAGE,
+        COALESCE(_AIRBYTE_DATA:customData.dealValue::NUMBER, _AIRBYTE_DATA:crmData.value::NUMBER) AS DEAL_VALUE,
+        COALESCE(_AIRBYTE_DATA:customData.accountName::VARCHAR, _AIRBYTE_DATA:crmData.accountName::VARCHAR) AS ACCOUNT_NAME,
+        COALESCE(_AIRBYTE_DATA:customData.contactName::VARCHAR, _AIRBYTE_DATA:crmData.contactName::VARCHAR) AS CONTACT_NAME,
+            
+        -- Call metrics
+        TRY_CAST(_AIRBYTE_DATA:analytics.talkRatio::VARCHAR AS FLOAT) AS TALK_RATIO,
+        TRY_CAST(_AIRBYTE_DATA:analytics.longestMonologue::VARCHAR AS NUMBER) AS LONGEST_MONOLOGUE_SECONDS,
+        TRY_CAST(_AIRBYTE_DATA:analytics.interactivity::VARCHAR AS FLOAT) AS INTERACTIVITY_SCORE,
+        TRY_CAST(_AIRBYTE_DATA:analytics.questionsAsked::VARCHAR AS NUMBER) AS QUESTIONS_ASKED_COUNT,
+            
+        CURRENT_TIMESTAMP AS UPDATED_AT,
+        'PENDING' AS VALIDATION_STATUS,
+        1.0 AS DATA_QUALITY_SCORE
+            
+    FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW src
+    WHERE src.PROCESSED = FALSE
+      AND src._AIRBYTE_DATA IS NOT NULL
+      AND NOT EXISTS (
+          SELECT 1 FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS tgt
+          WHERE tgt.CALL_ID = src._AIRBYTE_DATA:id::VARCHAR
+      );
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count inserted records
+    SELECT COUNT(*) INTO processed_count 
+    FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS
+    WHERE CREATED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
+    
+    -- Then update existing records
+    UPDATE SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS tgt
+    SET 
+        CALL_TITLE = src.CALL_TITLE,
+        CALL_DATETIME_UTC = src.CALL_DATETIME_UTC,
+        CALL_DURATION_SECONDS = src.CALL_DURATION_SECONDS,
+        HUBSPOT_DEAL_ID = src.HUBSPOT_DEAL_ID,
+        DEAL_STAGE = src.DEAL_STAGE,
+        DEAL_VALUE = src.DEAL_VALUE,
+        TALK_RATIO = src.TALK_RATIO,
+        UPDATED_AT = CURRENT_TIMESTAMP
+    FROM (
+        SELECT 
+            _AIRBYTE_DATA:id::VARCHAR AS CALL_ID,
+            _AIRBYTE_DATA:title::VARCHAR AS CALL_TITLE,
+            _AIRBYTE_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
+            _AIRBYTE_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
+            COALESCE(_AIRBYTE_DATA:customData.hubspotDealId::VARCHAR, _AIRBYTE_DATA:crmData.dealId::VARCHAR) AS HUBSPOT_DEAL_ID,
+            COALESCE(_AIRBYTE_DATA:customData.dealStage::VARCHAR, _AIRBYTE_DATA:crmData.stage::VARCHAR) AS DEAL_STAGE,
+            COALESCE(_AIRBYTE_DATA:customData.dealValue::NUMBER, _AIRBYTE_DATA:crmData.value::NUMBER) AS DEAL_VALUE,
+            TRY_CAST(_AIRBYTE_DATA:analytics.talkRatio::VARCHAR AS FLOAT) AS TALK_RATIO
+        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
+        WHERE PROCESSED = FALSE AND _AIRBYTE_DATA IS NOT NULL
+    ) src
+    WHERE tgt.CALL_ID = src.CALL_ID;
     
     -- Mark raw records as processed
     UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
-    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
+    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE AND _AIRBYTE_DATA IS NOT NULL;
     
     -- Log completion
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, RECORDS_PROCESSED, DETAILS)
     VALUES 
-    (execution_id, 'TRANSFORM_RAW_GONG_CALLS', 'TRANSFORMATION', 'SUCCESS', CURRENT_TIMESTAMP(), 
+    (execution_id, 'TRANSFORM_RAW_GONG_CALLS', 'TRANSFORMATION', 'SUCCESS', CURRENT_TIMESTAMP, 
      processed_count, CONCAT('Successfully processed ', processed_count, ' Gong call records'));
     
-    RETURN CONCAT('Processed ', processed_count, ' Gong call records successfully');
+    -- Generate result message
+    SET result_message = CONCAT('Processed ', processed_count, ' Gong call records successfully');
     
-EXCEPTION
-    WHEN OTHER THEN
-        INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
-        (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, ERROR_MESSAGE)
-        VALUES 
-        (execution_id, 'TRANSFORM_RAW_GONG_CALLS', 'TRANSFORMATION', 'FAILED', CURRENT_TIMESTAMP(), SQLERRM);
-        
-        RETURN CONCAT('Error processing Gong calls: ', SQLERRM);
+    -- Output the result
+    SELECT result_message;
+    
+    -- Handle errors with TRY-CATCH block in calling code
 END;
 $$;
 
 -- Transform raw Gong transcripts to structured format
 CREATE OR REPLACE PROCEDURE TRANSFORM_RAW_GONG_TRANSCRIPTS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
-    execution_id STRING DEFAULT CONCAT('GONG_TRANSCRIPTS_', TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HHMMSS'));
+    result_message VARCHAR(1000);
+    execution_id VARCHAR(255) DEFAULT CONCAT('GONG_TRANSCRIPTS_', TO_VARCHAR(CURRENT_TIMESTAMP, 'YYYYMMDD_HHMMSS'));
 BEGIN
     
     -- Log transformation start
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, START_TIME, DETAILS)
     VALUES 
-    (execution_id, 'TRANSFORM_RAW_GONG_TRANSCRIPTS', 'TRANSFORMATION', 'RUNNING', CURRENT_TIMESTAMP(), 
+    (execution_id, 'TRANSFORM_RAW_GONG_TRANSCRIPTS', 'TRANSFORMATION', 'RUNNING', CURRENT_TIMESTAMP, 
      'Starting transformation of raw Gong transcripts to structured format');
     
     -- Transform transcript segments
@@ -339,7 +348,7 @@ BEGIN
         segment.VALUE:endTime::NUMBER AS END_TIME_SECONDS,
         (segment.VALUE:endTime::NUMBER - segment.VALUE:startTime::NUMBER) AS SEGMENT_DURATION_SECONDS,
         ARRAY_SIZE(SPLIT(segment.VALUE:text::VARCHAR, ' ')) AS WORD_COUNT,
-        CURRENT_TIMESTAMP() AS CREATED_AT
+        CURRENT_TIMESTAMP AS CREATED_AT
     FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW raw,
          LATERAL FLATTEN(input => raw._AIRBYTE_DATA:transcript.segments) segment
     WHERE raw.PROCESSED = FALSE
@@ -350,49 +359,49 @@ BEGIN
           WHERE stg.TRANSCRIPT_ID = CONCAT(raw.CALL_ID, '_', segment.INDEX)
       );
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS
+    WHERE CREATED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
     
     -- Mark raw records as processed
     UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALL_TRANSCRIPTS_RAW 
-    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
+    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE AND _AIRBYTE_DATA IS NOT NULL;
     
     -- Log completion
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, RECORDS_PROCESSED, DETAILS)
     VALUES 
-    (execution_id, 'TRANSFORM_RAW_GONG_TRANSCRIPTS', 'TRANSFORMATION', 'SUCCESS', CURRENT_TIMESTAMP(), 
+    (execution_id, 'TRANSFORM_RAW_GONG_TRANSCRIPTS', 'TRANSFORMATION', 'SUCCESS', CURRENT_TIMESTAMP, 
      processed_count, CONCAT('Successfully processed ', processed_count, ' Gong transcript segments'));
     
-    RETURN CONCAT('Processed ', processed_count, ' Gong transcript segments successfully');
+    -- Generate result message
+    SET result_message = CONCAT('Processed ', processed_count, ' Gong transcript segments successfully');
     
-EXCEPTION
-    WHEN OTHER THEN
-        INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
-        (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, ERROR_MESSAGE)
-        VALUES 
-        (execution_id, 'TRANSFORM_RAW_GONG_TRANSCRIPTS', 'TRANSFORMATION', 'FAILED', CURRENT_TIMESTAMP(), SQLERRM);
-        
-        RETURN CONCAT('Error processing Gong transcripts: ', SQLERRM);
+    -- Output the result
+    SELECT result_message;
+    
+    -- Handle errors with TRY-CATCH block in calling code
 END;
 $$;
 
 -- AI enrichment procedure for Gong calls using Snowflake Cortex
 CREATE OR REPLACE PROCEDURE ENRICH_GONG_CALLS_WITH_AI()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
-    execution_id STRING DEFAULT CONCAT('GONG_AI_ENRICHMENT_', TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HHMMSS'));
+    result_message VARCHAR(1000);
+    execution_id VARCHAR(255) DEFAULT CONCAT('GONG_AI_ENRICHMENT_', TO_VARCHAR(CURRENT_TIMESTAMP, 'YYYYMMDD_HHMMSS'));
 BEGIN
     
     -- Log AI enrichment start
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, START_TIME, DETAILS)
     VALUES 
-    (execution_id, 'ENRICH_GONG_CALLS_WITH_AI', 'AI_ENRICHMENT', 'RUNNING', CURRENT_TIMESTAMP(), 
+    (execution_id, 'ENRICH_GONG_CALLS_WITH_AI', 'AI_ENRICHMENT', 'RUNNING', CURRENT_TIMESTAMP, 
      'Starting AI enrichment of Gong calls using Snowflake Cortex');
     
     -- Update calls with AI-generated insights
@@ -426,36 +435,37 @@ BEGIN
         AI_MEMORY_METADATA = OBJECT_CONSTRUCT(
             'source_type', 'GONG_CALL',
             'call_id', CALL_ID,
-            'processed_date', CURRENT_TIMESTAMP()::STRING
+            'processed_date', CURRENT_TIMESTAMP::VARCHAR
         ),
         
-        AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP(),
+        AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP,
         PROCESSED_BY_CORTEX = TRUE,
-        CORTEX_PROCESSED_AT = CURRENT_TIMESTAMP()
+        CORTEX_PROCESSED_AT = CURRENT_TIMESTAMP
         
     WHERE PROCESSED_BY_CORTEX = FALSE
       AND CALL_TITLE IS NOT NULL
       AND CALL_DURATION_SECONDS > 60;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS
+    WHERE PROCESSED_BY_CORTEX = TRUE
+    AND CORTEX_PROCESSED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
     
     -- Log completion
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
     (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, RECORDS_PROCESSED, DETAILS)
     VALUES 
-    (execution_id, 'ENRICH_GONG_CALLS_WITH_AI', 'AI_ENRICHMENT', 'SUCCESS', CURRENT_TIMESTAMP(), 
+    (execution_id, 'ENRICH_GONG_CALLS_WITH_AI', 'AI_ENRICHMENT', 'SUCCESS', CURRENT_TIMESTAMP, 
      processed_count, CONCAT('Successfully AI-enriched ', processed_count, ' Gong calls'));
     
-    RETURN CONCAT('AI-enriched ', processed_count, ' Gong calls successfully');
+    -- Generate result message
+    SET result_message = CONCAT('AI-enriched ', processed_count, ' Gong calls successfully');
     
-EXCEPTION
-    WHEN OTHER THEN
-        INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_JOB_LOGS 
-        (JOB_ID, JOB_NAME, JOB_TYPE, STATUS, END_TIME, ERROR_MESSAGE)
-        VALUES 
-        (execution_id, 'ENRICH_GONG_CALLS_WITH_AI', 'AI_ENRICHMENT', 'FAILED', CURRENT_TIMESTAMP(), SQLERRM);
-        
-        RETURN CONCAT('Error in AI enrichment: ', SQLERRM);
+    -- Output the result
+    SELECT result_message;
+    
+    -- Handle errors with TRY-CATCH block in calling code
 END;
 $$;
 

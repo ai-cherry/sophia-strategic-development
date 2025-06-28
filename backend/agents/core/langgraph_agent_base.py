@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class AgentCapability(Enum):
     """Agent capability types for intelligent routing"""
-    
+
     SALES_INTELLIGENCE = "sales_intelligence"
     CALL_ANALYSIS = "call_analysis"
     MARKETING_ANALYSIS = "marketing_analysis"
@@ -36,7 +36,7 @@ class AgentCapability(Enum):
 
 class AgentStatus(Enum):
     """Agent execution status"""
-    
+
     PENDING = "pending"
     INITIALIZING = "initializing"
     READY = "ready"
@@ -49,7 +49,7 @@ class AgentStatus(Enum):
 @dataclass
 class AgentMetrics:
     """Performance metrics for agent monitoring"""
-    
+
     total_requests: int = 0
     successful_requests: int = 0
     failed_requests: int = 0
@@ -58,19 +58,21 @@ class AgentMetrics:
     instantiation_time_ms: float = 0.0
     memory_usage_mb: float = 0.0
     last_activity: Optional[datetime] = None
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage"""
         if self.total_requests == 0:
             return 0.0
         return (self.successful_requests / self.total_requests) * 100
-    
+
     def update_response_time(self, response_time_ms: float) -> None:
         """Update average response time with new measurement"""
         self.total_response_time_ms += response_time_ms
-        self.avg_response_time_ms = self.total_response_time_ms / max(1, self.total_requests)
-    
+        self.avg_response_time_ms = self.total_response_time_ms / max(
+            1, self.total_requests
+        )
+
     def record_request(self, success: bool, response_time_ms: float) -> None:
         """Record a new request with success status and timing"""
         self.total_requests += 1
@@ -78,7 +80,7 @@ class AgentMetrics:
             self.successful_requests += 1
         else:
             self.failed_requests += 1
-        
+
         self.update_response_time(response_time_ms)
         self.last_activity = datetime.now()
 
@@ -86,7 +88,7 @@ class AgentMetrics:
 @dataclass
 class AgentContext:
     """Context information for agent execution"""
-    
+
     request_id: str
     user_id: Optional[str] = None
     session_id: Optional[str] = None
@@ -99,11 +101,11 @@ class AgentContext:
 class LangGraphAgentBase(ABC):
     """
     Base class for all LangGraph-compatible agents in Sophia AI.
-    
+
     Provides optimized Python patterns for performance while maintaining
     LangGraph compatibility. Replaces AgnoMCPBridge functionality with
     pure Python implementation.
-    
+
     Key Features:
     - Async-first design for optimal I/O performance
     - Built-in performance monitoring and metrics
@@ -118,27 +120,27 @@ class LangGraphAgentBase(ABC):
         name: str,
         capabilities: List[str],
         mcp_integrations: List[str],
-        performance_target_ms: int = 200
+        performance_target_ms: int = 200,
     ):
         self.agent_type = agent_type
         self.name = name
         self.capabilities = capabilities
         self.mcp_integrations = mcp_integrations
         self.performance_target_ms = performance_target_ms
-        
+
         # Core services (will be initialized later to avoid circular imports)
         self.smart_ai_service = None
         self.cortex_service = None
         self.ai_memory = None
         self.integration_registry = IntegrationRegistry()
-        
+
         # Performance and state management
         self.metrics = AgentMetrics()
         self.status = AgentStatus.PENDING
         self.initialized = False
         self.cache: Dict[str, Any] = {}
         self.cache_ttl: Dict[str, datetime] = {}
-        
+
         # Configuration
         self.config = {
             "cache_ttl_seconds": 300,  # 5 minutes default cache
@@ -147,36 +149,36 @@ class LangGraphAgentBase(ABC):
             "enable_caching": True,
             "log_performance": True,
         }
-        
+
         logger.info(f"Initialized {self.name} agent with capabilities: {capabilities}")
 
     async def initialize(self) -> None:
         """Initialize the agent with all required services"""
         if self.initialized:
             return
-        
+
         start_time = time.time()
         self.status = AgentStatus.INITIALIZING
-        
+
         try:
             # Initialize core services
             await self._initialize_services()
-            
+
             # Register with integration registry
             await self.integration_registry.register(self.name, self)
-            
+
             # Perform agent-specific initialization
             await self._agent_specific_initialization()
-            
+
             # Record initialization metrics
             init_time_ms = (time.time() - start_time) * 1000
             self.metrics.instantiation_time_ms = init_time_ms
-            
+
             self.initialized = True
             self.status = AgentStatus.READY
-            
+
             logger.info(f"✅ {self.name} agent initialized in {init_time_ms:.2f}ms")
-            
+
         except Exception as e:
             self.status = AgentStatus.FAILED
             logger.error(f"❌ Failed to initialize {self.name} agent: {e}")
@@ -188,17 +190,19 @@ class LangGraphAgentBase(ABC):
             # Initialize services with lazy loading to avoid circular imports
             from backend.services.smart_ai_service import SmartAIService
             from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-            from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-            
+            from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
+                EnhancedAiMemoryMCPServer,
+            )
+
             self.smart_ai_service = SmartAIService()
             await self.smart_ai_service.initialize()
-            
+
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
-            
+
         except ImportError as e:
             logger.warning(f"Some services not available during initialization: {e}")
         except Exception as e:
@@ -211,29 +215,27 @@ class LangGraphAgentBase(ABC):
         pass
 
     async def process_request(
-        self,
-        request: Dict[str, Any],
-        context: Optional[AgentContext] = None
+        self, request: Dict[str, Any], context: Optional[AgentContext] = None
     ) -> Dict[str, Any]:
         """
         Process a request through the agent with performance monitoring
-        
+
         Args:
             request: The request payload
             context: Optional execution context
-            
+
         Returns:
             Agent response with metadata
         """
         if not self.initialized:
             await self.initialize()
-        
+
         start_time = time.time()
         request_id = context.request_id if context else f"req_{int(time.time() * 1000)}"
-        
+
         try:
             self.status = AgentStatus.RUNNING
-            
+
             # Check cache first if enabled
             cache_key = self._generate_cache_key(request)
             if self.config["enable_caching"] and cache_key in self.cache:
@@ -242,50 +244,57 @@ class LangGraphAgentBase(ABC):
                     cached_response["metadata"]["cache_hit"] = True
                     logger.debug(f"Cache hit for {self.name}: {cache_key}")
                     return cached_response
-            
+
             # Process the request
             response = await self._process_request_internal(request, context)
-            
+
             # Add metadata
             processing_time_ms = (time.time() - start_time) * 1000
             response["metadata"] = response.get("metadata", {})
-            response["metadata"].update({
-                "agent_name": self.name,
-                "agent_type": self.agent_type.value,
-                "request_id": request_id,
-                "processing_time_ms": processing_time_ms,
-                "cache_hit": False,
-                "capabilities_used": self.capabilities,
-                "mcp_integrations": self.mcp_integrations,
-                "performance_target_ms": self.performance_target_ms,
-                "performance_achieved": processing_time_ms <= self.performance_target_ms,
-            })
-            
+            response["metadata"].update(
+                {
+                    "agent_name": self.name,
+                    "agent_type": self.agent_type.value,
+                    "request_id": request_id,
+                    "processing_time_ms": processing_time_ms,
+                    "cache_hit": False,
+                    "capabilities_used": self.capabilities,
+                    "mcp_integrations": self.mcp_integrations,
+                    "performance_target_ms": self.performance_target_ms,
+                    "performance_achieved": processing_time_ms
+                    <= self.performance_target_ms,
+                }
+            )
+
             # Cache the response if enabled
             if self.config["enable_caching"] and cache_key:
                 self._cache_response(cache_key, response)
-            
+
             # Record metrics
             self.metrics.record_request(True, processing_time_ms)
             self.status = AgentStatus.COMPLETED
-            
+
             # Log performance if enabled
             if self.config["log_performance"]:
-                performance_status = "✅" if processing_time_ms <= self.performance_target_ms else "⚠️"
+                performance_status = (
+                    "✅" if processing_time_ms <= self.performance_target_ms else "⚠️"
+                )
                 logger.info(
                     f"{performance_status} {self.name} processed request in {processing_time_ms:.2f}ms "
                     f"(target: {self.performance_target_ms}ms)"
                 )
-            
+
             return response
-            
+
         except Exception as e:
             processing_time_ms = (time.time() - start_time) * 1000
             self.metrics.record_request(False, processing_time_ms)
             self.status = AgentStatus.FAILED
-            
-            logger.error(f"❌ {self.name} request failed after {processing_time_ms:.2f}ms: {e}")
-            
+
+            logger.error(
+                f"❌ {self.name} request failed after {processing_time_ms:.2f}ms: {e}"
+            )
+
             return {
                 "success": False,
                 "error": str(e),
@@ -295,14 +304,12 @@ class LangGraphAgentBase(ABC):
                     "request_id": request_id,
                     "processing_time_ms": processing_time_ms,
                     "error_type": type(e).__name__,
-                }
+                },
             }
 
     @abstractmethod
     async def _process_request_internal(
-        self,
-        request: Dict[str, Any],
-        context: Optional[AgentContext] = None
+        self, request: Dict[str, Any], context: Optional[AgentContext] = None
     ) -> Dict[str, Any]:
         """Internal request processing logic to be implemented by subclasses"""
         pass
@@ -311,11 +318,11 @@ class LangGraphAgentBase(ABC):
         """Generate cache key for request (can be overridden by subclasses)"""
         if not self.config["enable_caching"]:
             return None
-        
+
         # Simple hash-based cache key
         import hashlib
         import json
-        
+
         try:
             request_str = json.dumps(request, sort_keys=True)
             return hashlib.md5(request_str.encode()).hexdigest()
@@ -326,7 +333,7 @@ class LangGraphAgentBase(ABC):
         """Check if cached response is still valid"""
         if cache_key not in self.cache_ttl:
             return False
-        
+
         expiry_time = self.cache_ttl[cache_key]
         return datetime.now() < expiry_time
 
@@ -337,9 +344,11 @@ class LangGraphAgentBase(ABC):
             oldest_key = min(self.cache_ttl.keys(), key=lambda k: self.cache_ttl[k])
             del self.cache[oldest_key]
             del self.cache_ttl[oldest_key]
-        
+
         self.cache[cache_key] = response
-        self.cache_ttl[cache_key] = datetime.now().timestamp() + self.config["cache_ttl_seconds"]
+        self.cache_ttl[cache_key] = (
+            datetime.now().timestamp() + self.config["cache_ttl_seconds"]
+        )
 
     async def health_check(self) -> Dict[str, Any]:
         """Perform comprehensive health check"""
@@ -355,7 +364,9 @@ class LangGraphAgentBase(ABC):
                 "success_rate": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat() if self.metrics.last_activity else None,
+                "last_activity": self.metrics.last_activity.isoformat()
+                if self.metrics.last_activity
+                else None,
             },
             "cache_stats": {
                 "cache_size": len(self.cache),
@@ -366,11 +377,12 @@ class LangGraphAgentBase(ABC):
                 "target_ms": self.performance_target_ms,
                 "achieving_target": (
                     self.metrics.avg_response_time_ms <= self.performance_target_ms
-                    if self.metrics.avg_response_time_ms > 0 else True
+                    if self.metrics.avg_response_time_ms > 0
+                    else True
                 ),
-            }
+            },
         }
-        
+
         return health_status
 
     async def get_performance_metrics(self) -> Dict[str, Any]:
@@ -385,17 +397,22 @@ class LangGraphAgentBase(ABC):
                 "success_rate_percent": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat() if self.metrics.last_activity else None,
+                "last_activity": self.metrics.last_activity.isoformat()
+                if self.metrics.last_activity
+                else None,
             },
             "performance": {
                 "target_response_time_ms": self.performance_target_ms,
                 "achieving_target": (
                     self.metrics.avg_response_time_ms <= self.performance_target_ms
-                    if self.metrics.avg_response_time_ms > 0 else True
+                    if self.metrics.avg_response_time_ms > 0
+                    else True
                 ),
                 "performance_ratio": (
-                    self.performance_target_ms / max(1, self.metrics.avg_response_time_ms)
-                    if self.metrics.avg_response_time_ms > 0 else 1.0
+                    self.performance_target_ms
+                    / max(1, self.metrics.avg_response_time_ms)
+                    if self.metrics.avg_response_time_ms > 0
+                    else 1.0
                 ),
             },
             "cache": {
@@ -403,7 +420,7 @@ class LangGraphAgentBase(ABC):
                 "max_size": self.config["max_cache_size"],
                 "hit_ratio": "N/A",  # Would need additional tracking
                 "enabled": self.config["enable_caching"],
-            }
+            },
         }
 
     async def clear_cache(self) -> None:
@@ -415,15 +432,15 @@ class LangGraphAgentBase(ABC):
     async def shutdown(self) -> None:
         """Gracefully shutdown the agent"""
         logger.info(f"Shutting down {self.name} agent...")
-        
+
         # Clear cache
         await self.clear_cache()
-        
+
         # Reset metrics
         self.metrics = AgentMetrics()
-        
+
         # Update status
         self.status = AgentStatus.PENDING
         self.initialized = False
-        
+
         logger.info(f"✅ {self.name} agent shutdown complete")

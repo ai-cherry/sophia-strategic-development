@@ -332,11 +332,11 @@ class SlackAnalysisAgent(BaseAgent):
             memory_content = f"""
             Slack Conversation Analysis
             Channel: #{result.conversation.channel_name}
-            Participants: {', '.join(result.conversation.participants)}
+            Participants: {", ".join(result.conversation.participants)}
             
             Overall Sentiment: {result.overall_sentiment:.2f}
             Business Value: {result.business_value_score:.2f}
-            Topics: {', '.join(result.key_topics)}
+            Topics: {", ".join(result.key_topics)}
             Action Items: {len(result.action_items)}
             """
 

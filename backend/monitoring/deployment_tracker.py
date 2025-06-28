@@ -16,8 +16,10 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
+
 class DeploymentStatus(Enum):
     """Deployment status enumeration."""
+
     INITIATED = "INITIATED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
@@ -25,8 +27,10 @@ class DeploymentStatus(Enum):
     ROLLED_BACK = "ROLLED_BACK"
     ROLLBACK_IN_PROGRESS = "ROLLBACK_IN_PROGRESS"
 
+
 class ComponentType(Enum):
     """Component type enumeration."""
+
     INFRASTRUCTURE = "infrastructure"
     MCP_SERVERS = "mcp_servers"
     FRONTEND = "frontend"
@@ -34,15 +38,19 @@ class ComponentType(Enum):
     INTEGRATION = "integration"
     MONITORING = "monitoring"
 
+
 class Environment(Enum):
     """Deployment environment enumeration."""
+
     PRODUCTION = "production"
     STAGING = "staging"
     DEVELOPMENT = "development"
 
+
 @dataclass
 class DeploymentEvent:
     """Deployment event data structure."""
+
     deployment_id: str
     component: ComponentType
     environment: Environment
@@ -57,9 +65,11 @@ class DeploymentEvent:
     rollback_target: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
 
+
 @dataclass
 class DeploymentHealth:
     """Deployment health status."""
+
     component: ComponentType
     environment: Environment
     status: str
@@ -68,9 +78,11 @@ class DeploymentHealth:
     average_duration: float
     issues: List[str]
 
+
 @dataclass
 class RollbackPlan:
     """Rollback plan data structure."""
+
     deployment_id: str
     component: ComponentType
     environment: Environment
@@ -80,16 +92,17 @@ class RollbackPlan:
     estimated_duration: int
     risk_level: str
 
+
 class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
-    
+
     def __init__(self):
         self.snowflake_service = SnowflakeCortexService()
         self.deployment_history: List[DeploymentEvent] = []
         self.active_deployments: Dict[str, DeploymentEvent] = {}
-        
+
     async def initialize_tracking_schema(self) -> bool:
-        """Initialize deployment tracking schema in Snowflake.""" 
+        """Initialize deployment tracking schema in Snowflake."""
         try:
             schema_sql = """
             -- Deployment Tracking Schema
@@ -158,34 +171,36 @@ class EnhancedDeploymentTracker:
                 reason TEXT
             );
             """
-            
+
             await self.snowflake_service.execute_query(schema_sql)
             logger.info("✅ Deployment tracking schema initialized successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize deployment tracking schema: {e}")
             return False
 
-    def generate_deployment_id(self, component: ComponentType, environment: Environment) -> str:
+    def generate_deployment_id(
+        self, component: ComponentType, environment: Environment
+    ) -> str:
         """Generate unique deployment ID."""
         timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
         return f"{component.value}-{environment.value}-{timestamp}"
 
     async def start_deployment(
-        self, 
-        component: ComponentType, 
-        environment: Environment, 
+        self,
+        component: ComponentType,
+        environment: Environment,
         version: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> str:
         """Start tracking a new deployment."""
-        
+
         deployment_id = self.generate_deployment_id(component, environment)
-        
+
         # Gather GitHub context
         github_context = self._get_github_context()
-        
+
         deployment_event = DeploymentEvent(
             deployment_id=deployment_id,
             component=component,
@@ -196,78 +211,77 @@ class EnhancedDeploymentTracker:
             github_sha=github_context.get("sha"),
             github_ref=github_context.get("ref"),
             github_actor=github_context.get("actor"),
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
-        
+
         # Store in active deployments
         self.active_deployments[deployment_id] = deployment_event
-        
+
         # Store in Snowflake
         await self._store_deployment_event(deployment_event)
-        
+
         # Send notification
         await self._send_deployment_notification(deployment_event, "started")
-        
+
         logger.info(f"🚀 Started deployment tracking: {deployment_id}")
         return deployment_id
 
     async def update_deployment_status(
-        self, 
-        deployment_id: str, 
+        self,
+        deployment_id: str,
         status: DeploymentStatus,
-        error_message: Optional[str] = None
+        error_message: Optional[str] = None,
     ) -> bool:
         """Update deployment status."""
-        
+
         if deployment_id not in self.active_deployments:
-            logger.error(f"❌ Deployment {deployment_id} not found in active deployments")
+            logger.error(
+                f"❌ Deployment {deployment_id} not found in active deployments"
+            )
             return False
-        
+
         deployment = self.active_deployments[deployment_id]
         deployment.status = status
         deployment.error_message = error_message
-        
+
         if status in [DeploymentStatus.COMPLETED, DeploymentStatus.FAILED]:
             # Calculate duration
             deployment.duration_seconds = int(
                 (datetime.utcnow() - deployment.timestamp).total_seconds()
             )
-            
+
             # Move to history
             self.deployment_history.append(deployment)
             del self.active_deployments[deployment_id]
-        
+
         # Update in Snowflake
         await self._store_deployment_event(deployment)
-        
+
         # Send notification
         await self._send_deployment_notification(deployment, status.value.lower())
-        
+
         # Check if rollback is needed
         if status == DeploymentStatus.FAILED:
             await self._check_auto_rollback(deployment)
-        
+
         logger.info(f"📊 Updated deployment {deployment_id}: {status.value}")
         return True
 
     async def complete_deployment(
-        self, 
-        deployment_id: str, 
-        success: bool,
-        error_message: Optional[str] = None
+        self, deployment_id: str, success: bool, error_message: Optional[str] = None
     ) -> bool:
         """Complete deployment tracking."""
-        
+
         status = DeploymentStatus.COMPLETED if success else DeploymentStatus.FAILED
         return await self.update_deployment_status(deployment_id, status, error_message)
 
     async def get_deployment_health(
-        self, 
+        self,
         component: Optional[ComponentType] = None,
-        environment: Optional[Environment] = None
+        environment: Optional[Environment] = None,
     ) -> List[DeploymentHealth]:
         """Get deployment health status."""
-        
+
         query = """
         SELECT 
             component,
@@ -282,42 +296,41 @@ class EnhancedDeploymentTracker:
             avg_duration_seconds
         FROM DEPLOYMENT_HEALTH
         """
-        
+
         conditions = []
         if component:
             conditions.append(f"component = '{component.value}'")
         if environment:
             conditions.append(f"environment = '{environment.value}'")
-        
+
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
-        
+
         query += " ORDER BY component, environment"
-        
+
         try:
             results = await self.snowflake_service.execute_query(query)
-            
+
             health_status = []
             for row in results:
                 # Check for specific issues
                 issues = await self._detect_deployment_issues(
-                    ComponentType(row['COMPONENT']),
-                    Environment(row['ENVIRONMENT'])
+                    ComponentType(row["COMPONENT"]), Environment(row["ENVIRONMENT"])
                 )
-                
+
                 health = DeploymentHealth(
-                    component=ComponentType(row['COMPONENT']),
-                    environment=Environment(row['ENVIRONMENT']),
-                    status=row['STATUS'],
-                    last_deployment=row['LAST_DEPLOYMENT'],
-                    success_rate=float(row['SUCCESS_RATE']),
-                    average_duration=float(row['AVG_DURATION_SECONDS']),
-                    issues=issues
+                    component=ComponentType(row["COMPONENT"]),
+                    environment=Environment(row["ENVIRONMENT"]),
+                    status=row["STATUS"],
+                    last_deployment=row["LAST_DEPLOYMENT"],
+                    success_rate=float(row["SUCCESS_RATE"]),
+                    average_duration=float(row["AVG_DURATION_SECONDS"]),
+                    issues=issues,
                 )
                 health_status.append(health)
-            
+
             return health_status
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get deployment health: {e}")
             return []
@@ -326,34 +339,40 @@ class EnhancedDeploymentTracker:
         self,
         component: ComponentType,
         environment: Environment,
-        target_version: Optional[str] = None
+        target_version: Optional[str] = None,
     ) -> Optional[RollbackPlan]:
         """Generate rollback plan for a component."""
-        
+
         try:
             # Get current version
             current_version = await self._get_current_version(component, environment)
-            
+
             # Get target version (last successful deployment if not specified)
             if not target_version:
-                target_version = await self._get_last_successful_version(component, environment)
-            
+                target_version = await self._get_last_successful_version(
+                    component, environment
+                )
+
             if not target_version:
                 logger.error("❌ No target version found for rollback")
                 return None
-            
+
             # Generate deployment ID for rollback
             deployment_id = self.generate_deployment_id(component, environment)
-            
+
             # Define rollback steps based on component type
-            rollback_steps = self._get_rollback_steps(component, environment, target_version)
-            
+            rollback_steps = self._get_rollback_steps(
+                component, environment, target_version
+            )
+
             # Estimate duration based on historical data
-            estimated_duration = await self._estimate_rollback_duration(component, environment)
-            
+            estimated_duration = await self._estimate_rollback_duration(
+                component, environment
+            )
+
             # Assess risk level
             risk_level = self._assess_rollback_risk(component, environment)
-            
+
             rollback_plan = RollbackPlan(
                 deployment_id=deployment_id,
                 component=component,
@@ -362,19 +381,19 @@ class EnhancedDeploymentTracker:
                 target_version=target_version,
                 rollback_steps=rollback_steps,
                 estimated_duration=estimated_duration,
-                risk_level=risk_level
+                risk_level=risk_level,
             )
-            
+
             logger.info(f"📋 Generated rollback plan: {deployment_id}")
             return rollback_plan
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate rollback plan: {e}")
             return None
 
     async def execute_rollback(self, rollback_plan: RollbackPlan) -> bool:
         """Execute rollback plan."""
-        
+
         try:
             # Start rollback tracking
             rollback_id = await self.start_deployment(
@@ -384,40 +403,46 @@ class EnhancedDeploymentTracker:
                 metadata={
                     "rollback": True,
                     "original_version": rollback_plan.current_version,
-                    "rollback_reason": "automated_rollback"
-                }
+                    "rollback_reason": "automated_rollback",
+                },
             )
-            
-            await self.update_deployment_status(rollback_id, DeploymentStatus.ROLLBACK_IN_PROGRESS)
-            
+
+            await self.update_deployment_status(
+                rollback_id, DeploymentStatus.ROLLBACK_IN_PROGRESS
+            )
+
             # Execute rollback steps
             for i, step in enumerate(rollback_plan.rollback_steps):
-                logger.info(f"🔄 Executing rollback step {i+1}/{len(rollback_plan.rollback_steps)}: {step}")
-                
+                logger.info(
+                    f"🔄 Executing rollback step {i + 1}/{len(rollback_plan.rollback_steps)}: {step}"
+                )
+
                 success = await self._execute_rollback_step(step, rollback_plan)
-                
+
                 if not success:
                     await self.update_deployment_status(
-                        rollback_id, 
+                        rollback_id,
                         DeploymentStatus.FAILED,
-                        f"Rollback failed at step: {step}"
+                        f"Rollback failed at step: {step}",
                     )
                     return False
-            
+
             # Complete rollback
-            await self.update_deployment_status(rollback_id, DeploymentStatus.ROLLED_BACK)
-            
+            await self.update_deployment_status(
+                rollback_id, DeploymentStatus.ROLLED_BACK
+            )
+
             # Update component status
             await self._update_component_status(
                 rollback_plan.component,
                 rollback_plan.environment,
                 rollback_plan.target_version,
-                rollback_id
+                rollback_id,
             )
-            
+
             logger.info(f"✅ Rollback completed successfully: {rollback_id}")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Rollback execution failed: {e}")
             return False
@@ -429,12 +454,12 @@ class EnhancedDeploymentTracker:
             "ref": os.getenv("GITHUB_REF", ""),
             "actor": os.getenv("GITHUB_ACTOR", ""),
             "workflow": os.getenv("GITHUB_WORKFLOW", ""),
-            "job": os.getenv("GITHUB_JOB", "")
+            "job": os.getenv("GITHUB_JOB", ""),
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:
         """Store deployment event in Snowflake."""
-        
+
         try:
             query = """
             MERGE INTO SOPHIA_AI.DEPLOYMENT_TRACKING.DEPLOYMENT_EVENTS AS target
@@ -475,7 +500,7 @@ class EnhancedDeploymentTracker:
                     source.metadata
                 )
             """
-            
+
             params = [
                 event.deployment_id,
                 event.component.value,
@@ -489,34 +514,32 @@ class EnhancedDeploymentTracker:
                 event.github_actor,
                 event.error_message,
                 event.rollback_target,
-                json.dumps(event.metadata or {})
+                json.dumps(event.metadata or {}),
             ]
-            
+
             await self.snowflake_service.execute_query(query, params)
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to store deployment event: {e}")
             return False
 
     async def _send_deployment_notification(
-        self, 
-        event: DeploymentEvent, 
-        action: str
+        self, event: DeploymentEvent, action: str
     ) -> bool:
         """Send deployment notification."""
-        
+
         try:
             # Prepare notification message
             emoji_map = {
                 "started": "🚀",
                 "completed": "✅",
                 "failed": "❌",
-                "rolled_back": "🔄"
+                "rolled_back": "🔄",
             }
-            
+
             emoji = emoji_map.get(action, "📊")
-            
+
             message = f"""
 {emoji} **Deployment {action.title()}**
 • **Component**: {event.component.value}
@@ -524,134 +547,116 @@ class EnhancedDeploymentTracker:
 • **Version**: {event.version}
 • **ID**: {event.deployment_id}
 """
-            
+
             if event.duration_seconds:
                 message += f"• **Duration**: {event.duration_seconds}s\n"
-            
+
             if event.error_message:
                 message += f"• **Error**: {event.error_message}\n"
-            
+
             if event.github_sha:
                 message += f"• **Commit**: {event.github_sha[:8]}\n"
-            
+
             # Send to configured notification channels
             # (Implementation would depend on configured notification system)
             logger.info(f"📢 Deployment notification: {message}")
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to send deployment notification: {e}")
             return False
 
     async def _check_auto_rollback(self, event: DeploymentEvent) -> bool:
         """Check if automatic rollback should be triggered."""
-        
+
         # Auto-rollback criteria
         if event.environment == Environment.PRODUCTION:
             # Check failure rate in last hour
             recent_failures = await self._get_recent_failure_count(
-                event.component, 
-                event.environment, 
-                hours=1
+                event.component, event.environment, hours=1
             )
-            
+
             if recent_failures >= 2:  # 2 failures in 1 hour triggers auto-rollback
                 logger.warning(f"🚨 Auto-rollback triggered for {event.deployment_id}")
-                
+
                 rollback_plan = await self.generate_rollback_plan(
-                    event.component,
-                    event.environment
+                    event.component, event.environment
                 )
-                
+
                 if rollback_plan:
                     return await self.execute_rollback(rollback_plan)
-        
+
         return False
 
     def _get_rollback_steps(
-        self, 
-        component: ComponentType, 
-        environment: Environment, 
-        target_version: str
+        self, component: ComponentType, environment: Environment, target_version: str
     ) -> List[str]:
         """Get rollback steps for component type."""
-        
+
         rollback_steps = {
             ComponentType.INFRASTRUCTURE: [
                 f"pulumi stack select sophia-infrastructure-{environment.value}",
                 f"pulumi config set version {target_version}",
                 "pulumi up --yes --skip-preview",
-                "pulumi stack output --json > deployment-status.json"
+                "pulumi stack output --json > deployment-status.json",
             ],
             ComponentType.MCP_SERVERS: [
                 "helm upgrade sophia-mcp ./infrastructure/kubernetes/helm/sophia-mcp",
                 f"--set global.imageTag={target_version}",
                 f"--set global.environment={environment.value}",
                 "--wait --timeout=300s",
-                "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp"
+                "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp",
             ],
             ComponentType.FRONTEND: [
                 f"vercel env pull .env.{environment.value}",
-                "vercel deploy --prod" if environment == Environment.PRODUCTION else "vercel deploy",
-                "vercel alias set"
-            ]
+                "vercel deploy --prod"
+                if environment == Environment.PRODUCTION
+                else "vercel deploy",
+                "vercel alias set",
+            ],
         }
-        
-        return rollback_steps.get(component, [
-            f"echo 'No rollback steps defined for {component.value}'"
-        ])
 
-    async def _execute_rollback_step(self, step: str, rollback_plan: RollbackPlan) -> bool:
+        return rollback_steps.get(
+            component, [f"echo 'No rollback steps defined for {component.value}'"]
+        )
+
+    async def _execute_rollback_step(
+        self, step: str, rollback_plan: RollbackPlan
+    ) -> bool:
         """Execute individual rollback step."""
-        
+
         try:
             # Parse step and execute
             if step.startswith("pulumi"):
                 result = subprocess.run(
-                    step.split(), 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=300
+                    step.split(), capture_output=True, text=True, timeout=300
                 )
             elif step.startswith("helm"):
                 result = subprocess.run(
-                    step.split(), 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=600
+                    step.split(), capture_output=True, text=True, timeout=600
                 )
             elif step.startswith("kubectl"):
                 result = subprocess.run(
-                    step.split(), 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=300
+                    step.split(), capture_output=True, text=True, timeout=300
                 )
             elif step.startswith("vercel"):
                 result = subprocess.run(
-                    step.split(), 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=180
+                    step.split(), capture_output=True, text=True, timeout=180
                 )
             else:
                 # Generic shell command
                 result = subprocess.run(
-                    step, 
-                    shell=True, 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=120
+                    step, shell=True, capture_output=True, text=True, timeout=120
                 )
-            
+
             if result.returncode == 0:
                 logger.info(f"✅ Rollback step completed: {step}")
                 return True
             else:
                 logger.error(f"❌ Rollback step failed: {step} - {result.stderr}")
                 return False
-        
+
         except subprocess.TimeoutExpired:
             logger.error(f"⏱️ Rollback step timed out: {step}")
             return False
@@ -660,39 +665,35 @@ class EnhancedDeploymentTracker:
             return False
 
     async def _get_current_version(
-        self, 
-        component: ComponentType, 
-        environment: Environment
+        self, component: ComponentType, environment: Environment
     ) -> Optional[str]:
         """Get current deployed version."""
-        
+
         try:
             query = """
             SELECT version 
             FROM SOPHIA_AI.DEPLOYMENT_TRACKING.COMPONENT_STATUS 
             WHERE component = %s AND environment = %s
             """
-            
+
             results = await self.snowflake_service.execute_query(
                 query, [component.value, environment.value]
             )
-            
+
             if results:
-                return results[0]['VERSION']
-            
+                return results[0]["VERSION"]
+
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get current version: {e}")
             return None
 
     async def _get_last_successful_version(
-        self, 
-        component: ComponentType, 
-        environment: Environment
+        self, component: ComponentType, environment: Environment
     ) -> Optional[str]:
         """Get last successful deployment version."""
-        
+
         try:
             query = """
             SELECT version 
@@ -703,29 +704,27 @@ class EnhancedDeploymentTracker:
             ORDER BY timestamp DESC 
             LIMIT 1
             """
-            
+
             results = await self.snowflake_service.execute_query(
                 query, [component.value, environment.value]
             )
-            
+
             if results:
-                return results[0]['VERSION']
-            
+                return results[0]["VERSION"]
+
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get last successful version: {e}")
             return None
 
     async def _detect_deployment_issues(
-        self, 
-        component: ComponentType, 
-        environment: Environment
+        self, component: ComponentType, environment: Environment
     ) -> List[str]:
         """Detect deployment issues for a component."""
-        
+
         issues = []
-        
+
         try:
             # Check recent failure rate
             query = """
@@ -736,38 +735,42 @@ class EnhancedDeploymentTracker:
               AND environment = %s 
               AND timestamp >= DATEADD(DAY, -7, CURRENT_TIMESTAMP())
             """
-            
+
             results = await self.snowflake_service.execute_query(
                 query, [component.value, environment.value]
             )
-            
+
             if results:
-                total = results[0]['TOTAL_DEPLOYMENTS']
-                failed = results[0]['FAILED_DEPLOYMENTS']
-                
+                total = results[0]["TOTAL_DEPLOYMENTS"]
+                failed = results[0]["FAILED_DEPLOYMENTS"]
+
                 if total > 0 and (failed / total) > 0.2:  # More than 20% failure rate
-                    issues.append(f"High failure rate: {failed}/{total} deployments failed in last 7 days")
-            
+                    issues.append(
+                        f"High failure rate: {failed}/{total} deployments failed in last 7 days"
+                    )
+
             # Check deployment frequency
             if total == 0:
                 issues.append("No deployments in last 7 days")
-            
+
             # Add component-specific health checks
             if component == ComponentType.MCP_SERVERS:
                 # Check MCP server health
                 # (Implementation would check actual server endpoints)
                 pass
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to detect deployment issues: {e}")
             issues.append(f"Health check failed: {str(e)}")
-        
+
         return issues
+
 
 # Global deployment tracker instance
 deployment_tracker = EnhancedDeploymentTracker()
 
+
 async def initialize_deployment_tracking():
     """Initialize deployment tracking system."""
     await deployment_tracker.initialize_tracking_schema()
-    logger.info("🚀 Enhanced Deployment Tracking System initialized") 
+    logger.info("🚀 Enhanced Deployment Tracking System initialized")

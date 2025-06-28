@@ -10,12 +10,13 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from backend.agents.core.langgraph_agent_base import (
-    LangGraphAgentBase, 
-    AgentCapability, 
-    AgentContext
+    LangGraphAgentBase,
+    AgentCapability,
+    AgentContext,
 )
 
 logger = logging.getLogger(__name__)
+
 
 # Mock Redis client to avoid redis_client compatibility issues with Python 3.11
 class MockRedisClient:
@@ -55,7 +56,7 @@ class InfrastructureDecision:
 class SophiaInfrastructureAgent(LangGraphAgentBase):
     """
     LangGraph-compatible infrastructure agent for Sophia AI.
-    
+
     Provides intelligent infrastructure management and monitoring
     using pure Python LangGraph patterns.
     """
@@ -79,9 +80,9 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "github",
                 "snowflake",
             ],
-            performance_target_ms=150
+            performance_target_ms=150,
         )
-        
+
         # Infrastructure-specific state
         self.infrastructure_metrics = {}
         self.deployment_status = {}
@@ -92,12 +93,14 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         try:
             # Initialize infrastructure monitoring
             await self._initialize_infrastructure_monitoring()
-            
+
             # Set up resource tracking
             await self._initialize_resource_tracking()
-            
-            logger.info("✅ Sophia Infrastructure Agent initialized with LangGraph compatibility")
-            
+
+            logger.info(
+                "✅ Sophia Infrastructure Agent initialized with LangGraph compatibility"
+            )
+
         except Exception as e:
             logger.error(f"Failed to initialize infrastructure agent: {e}")
             raise
@@ -113,7 +116,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "active_deployments": 0,
             "service_health": {},
         }
-        
+
         logger.info("Infrastructure monitoring initialized")
 
     async def _initialize_resource_tracking(self) -> None:
@@ -124,18 +127,16 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "snowflake": {"status": "unknown", "warehouses": []},
             "github_actions": {"status": "unknown", "workflows": []},
         }
-        
+
         logger.info("Resource tracking initialized")
 
     async def _process_request_internal(
-        self,
-        request: Dict[str, Any],
-        context: Optional[AgentContext] = None
+        self, request: Dict[str, Any], context: Optional[AgentContext] = None
     ) -> Dict[str, Any]:
         """Process infrastructure-related requests"""
         query = request.get("query", "")
         query_lower = query.lower()
-        
+
         try:
             # Determine request type and route accordingly
             if "health" in query_lower or "status" in query_lower:
@@ -149,8 +150,10 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             elif "cost" in query_lower or "billing" in query_lower:
                 return await self._handle_cost_analysis_request(request, context)
             else:
-                return await self._handle_general_infrastructure_request(request, context)
-                
+                return await self._handle_general_infrastructure_request(
+                    request, context
+                )
+
         except Exception as e:
             logger.error(f"Infrastructure agent request processing failed: {e}")
             return {
@@ -160,22 +163,26 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "metadata": {
                     "error_type": "processing_error",
                     "agent_type": self.agent_type.value,
-                }
+                },
             }
 
     async def _handle_health_check_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle infrastructure health check requests"""
-        
+
         # Perform comprehensive health check
         health_status = await self._perform_infrastructure_health_check()
-        
+
         # Generate health summary
-        healthy_services = sum(1 for status in health_status.values() if status.get("healthy", False))
+        healthy_services = sum(
+            1 for status in health_status.values() if status.get("healthy", False)
+        )
         total_services = len(health_status)
-        health_percentage = (healthy_services / total_services * 100) if total_services > 0 else 0
-        
+        health_percentage = (
+            (healthy_services / total_services * 100) if total_services > 0 else 0
+        )
+
         content = f"""
 ## Infrastructure Health Report
 
@@ -183,14 +190,14 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 
 ### Service Status:
 """
-        
+
         for service, status in health_status.items():
             status_emoji = "✅" if status.get("healthy", False) else "❌"
             content += f"- {status_emoji} **{service.title()}**: {status.get('status', 'Unknown')}\n"
-        
+
         if health_percentage < 80:
             content += "\n⚠️ **Action Required**: Some services require attention."
-        
+
         return {
             "success": True,
             "content": content,
@@ -199,181 +206,201 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "healthy_services": healthy_services,
                 "total_services": total_services,
                 "detailed_status": health_status,
-                "recommended_actions": self._generate_health_recommendations(health_status),
-            }
+                "recommended_actions": self._generate_health_recommendations(
+                    health_status
+                ),
+            },
         }
 
     async def _handle_deployment_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle deployment-related requests"""
-        
+
         deployment_info = await self._get_deployment_status()
-        
+
         content = f"""
 ## Deployment Status
 
 ### Active Deployments:
-- **Frontend**: {deployment_info.get('frontend', {}).get('status', 'Unknown')}
-- **Backend**: {deployment_info.get('backend', {}).get('status', 'Unknown')}
-- **MCP Servers**: {deployment_info.get('mcp_servers', {}).get('count', 0)} active
+- **Frontend**: {deployment_info.get("frontend", {}).get("status", "Unknown")}
+- **Backend**: {deployment_info.get("backend", {}).get("status", "Unknown")}
+- **MCP Servers**: {deployment_info.get("mcp_servers", {}).get("count", 0)} active
 
 ### Recent Activity:
 """
-        
-        recent_deployments = deployment_info.get('recent', [])
+
+        recent_deployments = deployment_info.get("recent", [])
         for deployment in recent_deployments[:5]:
             content += f"- {deployment.get('timestamp', 'Unknown')}: {deployment.get('description', 'Deployment')}\n"
-        
+
         return {
             "success": True,
             "content": content,
             "metadata": {
                 "deployment_info": deployment_info,
-                "recommended_actions": ["Monitor deployment health", "Review deployment logs"],
-            }
+                "recommended_actions": [
+                    "Monitor deployment health",
+                    "Review deployment logs",
+                ],
+            },
         }
 
     async def _handle_monitoring_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle infrastructure monitoring requests"""
-        
+
         metrics = await self._collect_infrastructure_metrics()
-        
+
         content = f"""
 ## Infrastructure Metrics
 
 ### Resource Utilization:
-- **CPU Usage**: {metrics.get('cpu_usage', 0):.1f}%
-- **Memory Usage**: {metrics.get('memory_usage', 0):.1f}%
-- **Disk Usage**: {metrics.get('disk_usage', 0):.1f}%
-- **Network I/O**: {metrics.get('network_io', 0):.2f} MB/s
+- **CPU Usage**: {metrics.get("cpu_usage", 0):.1f}%
+- **Memory Usage**: {metrics.get("memory_usage", 0):.1f}%
+- **Disk Usage**: {metrics.get("disk_usage", 0):.1f}%
+- **Network I/O**: {metrics.get("network_io", 0):.2f} MB/s
 
 ### Performance Indicators:
-- **Response Time**: {metrics.get('avg_response_time', 0):.0f}ms
-- **Throughput**: {metrics.get('requests_per_second', 0):.1f} req/s
-- **Error Rate**: {metrics.get('error_rate', 0):.2f}%
+- **Response Time**: {metrics.get("avg_response_time", 0):.0f}ms
+- **Throughput**: {metrics.get("requests_per_second", 0):.1f} req/s
+- **Error Rate**: {metrics.get("error_rate", 0):.2f}%
 """
-        
+
         return {
             "success": True,
             "content": content,
             "metadata": {
                 "metrics": metrics,
                 "performance_score": self._calculate_performance_score(metrics),
-                "recommended_actions": self._generate_monitoring_recommendations(metrics),
-            }
+                "recommended_actions": self._generate_monitoring_recommendations(
+                    metrics
+                ),
+            },
         }
 
     async def _handle_optimization_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle infrastructure optimization requests"""
-        
+
         optimization_analysis = await self._analyze_optimization_opportunities()
-        
+
         content = """
 ## Infrastructure Optimization Analysis
 
 ### Optimization Opportunities:
 """
-        
-        for opportunity in optimization_analysis.get('opportunities', []):
+
+        for opportunity in optimization_analysis.get("opportunities", []):
             content += f"- **{opportunity.get('category', 'General')}**: {opportunity.get('description', 'Optimization available')}\n"
             content += f"  - Potential Impact: {opportunity.get('impact', 'Medium')}\n"
             content += f"  - Effort Required: {opportunity.get('effort', 'Medium')}\n\n"
-        
+
         content += f"""
-### Performance Score: {optimization_analysis.get('performance_score', 'N/A')}/100
+### Performance Score: {optimization_analysis.get("performance_score", "N/A")}/100
 
 ### Priority Recommendations:
 """
-        
-        for rec in optimization_analysis.get('priority_recommendations', []):
+
+        for rec in optimization_analysis.get("priority_recommendations", []):
             content += f"1. {rec}\n"
-        
+
         return {
             "success": True,
             "content": content,
             "metadata": {
                 "optimization_analysis": optimization_analysis,
-                "estimated_savings": optimization_analysis.get('estimated_savings', {}),
-            }
+                "estimated_savings": optimization_analysis.get("estimated_savings", {}),
+            },
         }
 
     async def _handle_cost_analysis_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle cost analysis requests"""
-        
+
         cost_analysis = await self._analyze_infrastructure_costs()
-        
+
         content = f"""
 ## Infrastructure Cost Analysis
 
 ### Monthly Cost Breakdown:
-- **Compute (Lambda Labs)**: ${cost_analysis.get('compute_cost', 0):.2f}
-- **Storage (Snowflake)**: ${cost_analysis.get('storage_cost', 0):.2f}
-- **Hosting (Vercel)**: ${cost_analysis.get('hosting_cost', 0):.2f}
-- **Other Services**: ${cost_analysis.get('other_cost', 0):.2f}
+- **Compute (Lambda Labs)**: ${cost_analysis.get("compute_cost", 0):.2f}
+- **Storage (Snowflake)**: ${cost_analysis.get("storage_cost", 0):.2f}
+- **Hosting (Vercel)**: ${cost_analysis.get("hosting_cost", 0):.2f}
+- **Other Services**: ${cost_analysis.get("other_cost", 0):.2f}
 
-**Total Monthly Cost**: ${cost_analysis.get('total_cost', 0):.2f}
+**Total Monthly Cost**: ${cost_analysis.get("total_cost", 0):.2f}
 
 ### Cost Optimization Opportunities:
 """
-        
-        for opportunity in cost_analysis.get('cost_optimizations', []):
-            content += f"- {opportunity.get('description', 'Cost optimization available')}\n"
-            content += f"  Potential Savings: ${opportunity.get('savings', 0):.2f}/month\n\n"
-        
+
+        for opportunity in cost_analysis.get("cost_optimizations", []):
+            content += (
+                f"- {opportunity.get('description', 'Cost optimization available')}\n"
+            )
+            content += (
+                f"  Potential Savings: ${opportunity.get('savings', 0):.2f}/month\n\n"
+            )
+
         return {
             "success": True,
             "content": content,
             "metadata": {
                 "cost_analysis": cost_analysis,
-                "total_monthly_cost": cost_analysis.get('total_cost', 0),
-                "potential_savings": sum(opt.get('savings', 0) for opt in cost_analysis.get('cost_optimizations', [])),
-            }
+                "total_monthly_cost": cost_analysis.get("total_cost", 0),
+                "potential_savings": sum(
+                    opt.get("savings", 0)
+                    for opt in cost_analysis.get("cost_optimizations", [])
+                ),
+            },
         }
 
     async def _handle_general_infrastructure_request(
         self, request: Dict[str, Any], context: Optional[AgentContext]
     ) -> Dict[str, Any]:
         """Handle general infrastructure requests"""
-        
+
         query = request.get("query", "")
-        
+
         # Use SmartAIService for general infrastructure questions
         if self.smart_ai_service:
             try:
-                ai_response = await self.smart_ai_service.generate_response({
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "You are Sophia's infrastructure intelligence agent. Provide helpful information about infrastructure management, deployment strategies, and system optimization."
-                        },
-                        {
-                            "role": "user", 
-                            "content": query
-                        }
-                    ],
-                    "task_type": "infrastructure_guidance",
-                    "model_preference": "balanced"
-                })
-                
+                ai_response = await self.smart_ai_service.generate_response(
+                    {
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": "You are Sophia's infrastructure intelligence agent. Provide helpful information about infrastructure management, deployment strategies, and system optimization.",
+                            },
+                            {"role": "user", "content": query},
+                        ],
+                        "task_type": "infrastructure_guidance",
+                        "model_preference": "balanced",
+                    }
+                )
+
                 return {
                     "success": True,
-                    "content": ai_response.get("content", "I can help with infrastructure questions. Please be more specific about what you'd like to know."),
+                    "content": ai_response.get(
+                        "content",
+                        "I can help with infrastructure questions. Please be more specific about what you'd like to know.",
+                    ),
                     "metadata": {
                         "ai_generated": True,
                         "model_used": ai_response.get("model_used"),
-                        "recommended_actions": ["Consider more specific infrastructure queries"],
-                    }
+                        "recommended_actions": [
+                            "Consider more specific infrastructure queries"
+                        ],
+                    },
                 }
             except Exception as e:
-                logger.warning(f"SmartAI service unavailable for infrastructure query: {e}")
-        
+                logger.warning(
+                    f"SmartAI service unavailable for infrastructure query: {e}"
+                )
+
         # Fallback response
         return {
             "success": True,
@@ -382,12 +409,12 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "fallback_response": True,
                 "suggested_queries": [
                     "Check infrastructure health",
-                    "Show deployment status", 
+                    "Show deployment status",
                     "Analyze performance metrics",
                     "Suggest optimizations",
-                    "Review infrastructure costs"
+                    "Review infrastructure costs",
                 ],
-            }
+            },
         }
 
     # Helper methods for infrastructure operations
@@ -405,13 +432,20 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
     async def _get_deployment_status(self) -> Dict[str, Any]:
         """Get current deployment status"""
         return {
-            "frontend": {"status": "deployed", "version": "latest", "health": "healthy"},
+            "frontend": {
+                "status": "deployed",
+                "version": "latest",
+                "health": "healthy",
+            },
             "backend": {"status": "deployed", "version": "latest", "health": "healthy"},
             "mcp_servers": {"count": 12, "status": "active", "health": "healthy"},
             "recent": [
-                {"timestamp": "2025-01-21 10:30", "description": "Backend deployment successful"},
+                {
+                    "timestamp": "2025-01-21 10:30",
+                    "description": "Backend deployment successful",
+                },
                 {"timestamp": "2025-01-21 09:15", "description": "MCP servers updated"},
-            ]
+            ],
         }
 
     async def _collect_infrastructure_metrics(self) -> Dict[str, Any]:
@@ -435,24 +469,21 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                     "category": "Compute",
                     "description": "Optimize Lambda Labs instance utilization",
                     "impact": "Medium",
-                    "effort": "Low"
+                    "effort": "Low",
                 },
                 {
                     "category": "Storage",
                     "description": "Implement Snowflake query optimization",
-                    "impact": "High", 
-                    "effort": "Medium"
-                }
+                    "impact": "High",
+                    "effort": "Medium",
+                },
             ],
             "priority_recommendations": [
                 "Implement query caching for Snowflake",
                 "Optimize MCP server resource allocation",
-                "Review deployment pipeline efficiency"
+                "Review deployment pipeline efficiency",
             ],
-            "estimated_savings": {
-                "cost": 150,
-                "performance": "15%"
-            }
+            "estimated_savings": {"cost": 150, "performance": "15%"},
         }
 
     async def _analyze_infrastructure_costs(self) -> Dict[str, Any]:
@@ -466,44 +497,45 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "cost_optimizations": [
                 {
                     "description": "Optimize Snowflake warehouse auto-suspend",
-                    "savings": 45.00
+                    "savings": 45.00,
                 },
-                {
-                    "description": "Right-size Lambda Labs instances",
-                    "savings": 78.50
-                }
-            ]
+                {"description": "Right-size Lambda Labs instances", "savings": 78.50},
+            ],
         }
 
-    def _generate_health_recommendations(self, health_status: Dict[str, Any]) -> List[str]:
+    def _generate_health_recommendations(
+        self, health_status: Dict[str, Any]
+    ) -> List[str]:
         """Generate health-based recommendations"""
         recommendations = []
-        
+
         for service, status in health_status.items():
             if not status.get("healthy", False):
                 recommendations.append(f"Investigate {service} service issues")
-        
+
         if not recommendations:
             recommendations.append("All services healthy - continue monitoring")
-        
+
         return recommendations
 
-    def _generate_monitoring_recommendations(self, metrics: Dict[str, Any]) -> List[str]:
+    def _generate_monitoring_recommendations(
+        self, metrics: Dict[str, Any]
+    ) -> List[str]:
         """Generate monitoring-based recommendations"""
         recommendations = []
-        
+
         if metrics.get("cpu_usage", 0) > 80:
             recommendations.append("High CPU usage detected - consider scaling")
-        
+
         if metrics.get("memory_usage", 0) > 85:
             recommendations.append("High memory usage - investigate memory leaks")
-        
+
         if metrics.get("error_rate", 0) > 1.0:
             recommendations.append("Elevated error rate - review application logs")
-        
+
         if not recommendations:
             recommendations.append("System performance within normal parameters")
-        
+
         return recommendations
 
     def _calculate_performance_score(self, metrics: Dict[str, Any]) -> int:
@@ -511,7 +543,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         cpu_score = max(0, 100 - metrics.get("cpu_usage", 0))
         memory_score = max(0, 100 - metrics.get("memory_usage", 0))
         error_score = max(0, 100 - (metrics.get("error_rate", 0) * 10))
-        
+
         return int((cpu_score + memory_score + error_score) / 3)
 
 

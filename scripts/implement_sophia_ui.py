@@ -24,62 +24,55 @@ from dataclasses import dataclass
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ImplementationConfig:
     """Configuration for the implementation process."""
+
     project_root: Path
     frontend_dir: Path
     backend_dir: Path
     infrastructure_dir: Path
-    target_environment: str = 'development'
+    target_environment: str = "development"
     skip_tests: bool = False
     force_rebuild: bool = False
 
+
 class SophiaUIImplementation:
     """Main implementation orchestrator for Sophia AI UI."""
-    
+
     def __init__(self, config: ImplementationConfig):
         self.config = config
         self.project_root = config.project_root
         self.frontend_dir = config.frontend_dir
         self.backend_dir = config.backend_dir
-        
+
     def run_phase(self, phase: str) -> bool:
         """Run a specific implementation phase."""
         try:
-            if phase == 'all':
+            if phase == "all":
                 return (
-                    self.setup_environment() and
-                    self.implement_frontend_components() and
-                    self.implement_backend_apis() and
-                    self.setup_deployment_pipeline() and
-                    self.run_tests() and
-                    self.deploy_application()
+                    self.setup_environment()
+                    and self.implement_frontend_components()
+                    and self.implement_backend_apis()
+                    and self.setup_deployment_pipeline()
+                    and self.run_tests()
+                    and self.deploy_application()
                 )
-            elif phase == 'frontend':
-                return (
-                    self.setup_environment() and
-                    self.implement_frontend_components()
-                )
-            elif phase == 'backend':
-                return (
-                    self.setup_environment() and
-                    self.implement_backend_apis()
-                )
-            elif phase == 'deploy':
-                return (
-                    self.setup_deployment_pipeline() and
-                    self.deploy_application()
-                )
+            elif phase == "frontend":
+                return self.setup_environment() and self.implement_frontend_components()
+            elif phase == "backend":
+                return self.setup_environment() and self.implement_backend_apis()
+            elif phase == "deploy":
+                return self.setup_deployment_pipeline() and self.deploy_application()
             else:
                 logger.error(f"Unknown phase: {phase}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Phase {phase} failed: {e}")
             return False
@@ -87,14 +80,18 @@ class SophiaUIImplementation:
     def setup_environment(self) -> bool:
         """Set up the development environment."""
         logger.info("🔧 Setting up development environment...")
-        
+
         try:
             # Create necessary directories
             directories = [
                 self.frontend_dir / "src" / "components" / "design-system" / "cards",
-                self.frontend_dir / "src" / "components" / "design-system" / "buttons", 
+                self.frontend_dir / "src" / "components" / "design-system" / "buttons",
                 self.frontend_dir / "src" / "components" / "design-system" / "forms",
-                self.frontend_dir / "src" / "components" / "design-system" / "navigation",
+                self.frontend_dir
+                / "src"
+                / "components"
+                / "design-system"
+                / "navigation",
                 self.frontend_dir / "src" / "components" / "dashboard",
                 self.frontend_dir / "src" / "components" / "shared",
                 self.frontend_dir / "src" / "lib",
@@ -103,29 +100,29 @@ class SophiaUIImplementation:
                 self.backend_dir / "websockets",
                 self.backend_dir / "services" / "chat",
             ]
-            
+
             for directory in directories:
                 directory.mkdir(parents=True, exist_ok=True)
-                
+
             # Install frontend dependencies
             if not self._run_command(
-                ["npm", "install"], 
+                ["npm", "install"],
                 cwd=self.frontend_dir,
-                description="Installing frontend dependencies"
+                description="Installing frontend dependencies",
             ):
                 return False
-                
+
             # Install backend dependencies
             if not self._run_command(
                 ["pip", "install", "-r", "requirements.txt"],
                 cwd=self.backend_dir,
-                description="Installing backend dependencies"
+                description="Installing backend dependencies",
             ):
                 return False
-                
+
             logger.info("✅ Environment setup completed")
             return True
-            
+
         except Exception as e:
             logger.error(f"Environment setup failed: {e}")
             return False
@@ -133,29 +130,29 @@ class SophiaUIImplementation:
     def implement_frontend_components(self) -> bool:
         """Implement all frontend UI components."""
         logger.info("🎨 Implementing frontend components...")
-        
+
         try:
             # Create utility functions
             self._create_utils_file()
-            
+
             # Create design system components
             self._create_design_system_components()
-            
+
             # Create dashboard components
             self._create_dashboard_components()
-            
+
             # Create shared components
             self._create_shared_components()
-            
+
             # Update package.json with necessary dependencies
             self._update_package_json()
-            
+
             # Create TypeScript configuration
             self._create_typescript_config()
-            
+
             logger.info("✅ Frontend components implemented")
             return True
-            
+
         except Exception as e:
             logger.error(f"Frontend implementation failed: {e}")
             return False
@@ -163,26 +160,26 @@ class SophiaUIImplementation:
     def implement_backend_apis(self) -> bool:
         """Implement backend FastAPI endpoints and WebSocket handlers."""
         logger.info("🔧 Implementing backend APIs...")
-        
+
         try:
             # Create chat WebSocket handler
             self._create_chat_websocket()
-            
+
             # Create dashboard API endpoints
             self._create_dashboard_apis()
-            
+
             # Create chat service
             self._create_chat_service()
-            
+
             # Update FastAPI app with new routes
             self._update_fastapi_app()
-            
+
             # Create database models if needed
             self._create_database_models()
-            
+
             logger.info("✅ Backend APIs implemented")
             return True
-            
+
         except Exception as e:
             logger.error(f"Backend implementation failed: {e}")
             return False
@@ -190,26 +187,26 @@ class SophiaUIImplementation:
     def setup_deployment_pipeline(self) -> bool:
         """Set up Pulumi infrastructure and deployment pipeline."""
         logger.info("🚀 Setting up deployment pipeline...")
-        
+
         try:
             # Create enhanced Pulumi configuration
             self._create_pulumi_config()
-            
+
             # Create Kubernetes manifests
             self._create_kubernetes_manifests()
-            
+
             # Create Docker configurations
             self._create_docker_configs()
-            
+
             # Create GitHub Actions workflows
             self._create_github_workflows()
-            
+
             # Create deployment scripts
             self._create_deployment_scripts()
-            
+
             logger.info("✅ Deployment pipeline setup completed")
             return True
-            
+
         except Exception as e:
             logger.error(f"Deployment setup failed: {e}")
             return False
@@ -219,37 +216,37 @@ class SophiaUIImplementation:
         if self.config.skip_tests:
             logger.info("⏭️  Skipping tests")
             return True
-            
+
         logger.info("🧪 Running test suite...")
-        
+
         try:
             # Run frontend tests
             if not self._run_command(
                 ["npm", "test", "--", "--watchAll=false"],
                 cwd=self.frontend_dir,
-                description="Running frontend tests"
+                description="Running frontend tests",
             ):
                 return False
-                
+
             # Run backend tests
             if not self._run_command(
                 ["python", "-m", "pytest", "tests/", "-v"],
                 cwd=self.backend_dir,
-                description="Running backend tests"
+                description="Running backend tests",
             ):
                 return False
-                
+
             # Run integration tests
             if not self._run_command(
                 ["python", "-m", "pytest", "tests/integration/", "-v"],
                 cwd=self.project_root,
-                description="Running integration tests"
+                description="Running integration tests",
             ):
                 return False
-                
+
             logger.info("✅ All tests passed")
             return True
-            
+
         except Exception as e:
             logger.error(f"Tests failed: {e}")
             return False
@@ -257,42 +254,42 @@ class SophiaUIImplementation:
     def deploy_application(self) -> bool:
         """Deploy the application to the target environment."""
         logger.info(f"🚀 Deploying to {self.config.target_environment}...")
-        
+
         try:
             # Build frontend
             if not self._run_command(
                 ["npm", "run", "build"],
                 cwd=self.frontend_dir,
-                description="Building frontend"
+                description="Building frontend",
             ):
                 return False
-                
+
             # Build Docker images
             if not self._build_docker_images():
                 return False
-                
+
             # Deploy with Pulumi
             if not self._deploy_with_pulumi():
                 return False
-                
+
             # Deploy to Vercel
             if not self._deploy_to_vercel():
                 return False
-                
+
             # Run health checks
             if not self._run_health_checks():
                 return False
-                
+
             logger.info("✅ Deployment completed successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"Deployment failed: {e}")
             return False
 
     def _create_utils_file(self):
         """Create utility functions for the frontend."""
-        utils_content = '''import { clsx, type ClassValue } from "clsx"
+        utils_content = """import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -343,19 +340,19 @@ export function throttle<T extends (...args: any[]) => any>(
     }
   };
 }
-'''
-        
+"""
+
         utils_file = self.frontend_dir / "src" / "lib" / "utils.ts"
-        with open(utils_file, 'w') as f:
+        with open(utils_file, "w") as f:
             f.write(utils_content)
 
     def _create_design_system_components(self):
         """Create design system components."""
         # GlassCard and MetricCard are already created above
         # Create additional components
-        
+
         # Button component
-        button_content = '''import React from 'react';
+        button_content = """import React from 'react';
 import { cn } from '../../../lib/utils';
 import { Loader2 } from 'lucide-react';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -423,16 +420,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-'''
-        
-        button_file = self.frontend_dir / "src" / "components" / "design-system" / "buttons" / "Button.tsx"
-        with open(button_file, 'w') as f:
+"""
+
+        button_file = (
+            self.frontend_dir
+            / "src"
+            / "components"
+            / "design-system"
+            / "buttons"
+            / "Button.tsx"
+        )
+        with open(button_file, "w") as f:
             f.write(button_content)
 
     def _create_dashboard_components(self):
         """Create dashboard-specific components."""
         # CEO Dashboard
-        ceo_dashboard_content = '''import React, { useState, useEffect } from 'react';
+        ceo_dashboard_content = """import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../design-system/buttons/Button';
 import MetricCard from '../design-system/cards/MetricCard';
@@ -580,10 +584,12 @@ export const CEODashboard: React.FC<CEODashboardProps> = ({ className }) => {
 };
 
 export default CEODashboard;
-'''
-        
-        ceo_file = self.frontend_dir / "src" / "components" / "dashboard" / "CEODashboard.tsx"
-        with open(ceo_file, 'w') as f:
+"""
+
+        ceo_file = (
+            self.frontend_dir / "src" / "components" / "dashboard" / "CEODashboard.tsx"
+        )
+        with open(ceo_file, "w") as f:
             f.write(ceo_dashboard_content)
 
     def _create_shared_components(self):
@@ -708,9 +714,9 @@ class ChatWebSocketManager:
 # Global manager instance
 chat_manager = ChatWebSocketManager()
 '''
-        
+
         websocket_file = self.backend_dir / "websockets" / "chat_websocket.py"
-        with open(websocket_file, 'w') as f:
+        with open(websocket_file, "w") as f:
             f.write(websocket_content)
 
     def _create_dashboard_apis(self):
@@ -775,26 +781,28 @@ async def dashboard_health():
         logger.error(f"Dashboard health check failed: {e}")
         raise HTTPException(status_code=503, detail="Dashboard services unhealthy")
 '''
-        
-        dashboard_api_file = self.backend_dir / "api" / "v1" / "dashboard" / "dashboard_routes.py"
-        with open(dashboard_api_file, 'w') as f:
+
+        dashboard_api_file = (
+            self.backend_dir / "api" / "v1" / "dashboard" / "dashboard_routes.py"
+        )
+        with open(dashboard_api_file, "w") as f:
             f.write(dashboard_api_content)
 
     def _update_package_json(self):
         """Update package.json with necessary dependencies."""
         package_json_path = self.frontend_dir / "package.json"
-        
+
         # Read existing package.json or create new one
         if package_json_path.exists():
-            with open(package_json_path, 'r') as f:
+            with open(package_json_path, "r") as f:
                 package_data = json.load(f)
         else:
             package_data = {
                 "name": "sophia-ai-frontend",
                 "version": "1.0.0",
-                "private": True
+                "private": True,
             }
-        
+
         # Add necessary dependencies
         dependencies = {
             "react": "^18.2.0",
@@ -809,9 +817,9 @@ async def dashboard_health():
             "tailwind-merge": "^1.14.0",
             "@radix-ui/react-slot": "^1.0.2",
             "recharts": "^2.8.0",
-            "framer-motion": "^10.16.0"
+            "framer-motion": "^10.16.0",
         }
-        
+
         dev_dependencies = {
             "@vitejs/plugin-react": "^4.0.0",
             "vite": "^4.4.0",
@@ -820,36 +828,30 @@ async def dashboard_health():
             "postcss": "^8.4.0",
             "eslint": "^8.45.0",
             "@typescript-eslint/eslint-plugin": "^6.0.0",
-            "@typescript-eslint/parser": "^6.0.0"
+            "@typescript-eslint/parser": "^6.0.0",
         }
-        
+
         scripts = {
             "dev": "vite",
             "build": "tsc && vite build",
             "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
             "preview": "vite preview",
             "test": "vitest",
-            "test:ui": "vitest --ui"
+            "test:ui": "vitest --ui",
         }
-        
+
         package_data.setdefault("dependencies", {}).update(dependencies)
         package_data.setdefault("devDependencies", {}).update(dev_dependencies)
         package_data.setdefault("scripts", {}).update(scripts)
-        
-        with open(package_json_path, 'w') as f:
+
+        with open(package_json_path, "w") as f:
             json.dump(package_data, f, indent=2)
 
     def _run_command(self, command: List[str], cwd: Path, description: str) -> bool:
         """Run a shell command and return success status."""
         logger.info(f"Running: {description}")
         try:
-            subprocess.run(
-                command,
-                cwd=cwd,
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            subprocess.run(command, cwd=cwd, capture_output=True, text=True, check=True)
             logger.info(f"✅ {description} completed")
             return True
         except subprocess.CalledProcessError as e:
@@ -859,41 +861,49 @@ async def dashboard_health():
     def _build_docker_images(self) -> bool:
         """Build Docker images for the application."""
         logger.info("🐳 Building Docker images...")
-        
+
         images = [
             ("sophia-backend", "Dockerfile"),
             ("sophia-frontend", "frontend/Dockerfile"),
-            ("mcp-gateway", "mcp-gateway/Dockerfile")
+            ("mcp-gateway", "mcp-gateway/Dockerfile"),
         ]
-        
+
         for image_name, dockerfile in images:
             if not self._run_command(
-                ["docker", "build", "-t", f"sophia-ai/{image_name}:latest", "-f", dockerfile, "."],
+                [
+                    "docker",
+                    "build",
+                    "-t",
+                    f"sophia-ai/{image_name}:latest",
+                    "-f",
+                    dockerfile,
+                    ".",
+                ],
                 cwd=self.project_root,
-                description=f"Building {image_name} image"
+                description=f"Building {image_name} image",
             ):
                 return False
-        
+
         return True
 
     def _deploy_with_pulumi(self) -> bool:
         """Deploy infrastructure with Pulumi."""
         logger.info("☸️ Deploying with Pulumi...")
-        
+
         return self._run_command(
             ["pulumi", "up", "--yes"],
             cwd=self.config.infrastructure_dir,
-            description="Deploying infrastructure with Pulumi"
+            description="Deploying infrastructure with Pulumi",
         )
 
     def _deploy_to_vercel(self) -> bool:
         """Deploy frontend to Vercel."""
         logger.info("🌐 Deploying to Vercel...")
-        
+
         return self._run_command(
             ["vercel", "--prod", "--yes"],
             cwd=self.frontend_dir,
-            description="Deploying frontend to Vercel"
+            description="Deploying frontend to Vercel",
         )
 
     def _run_health_checks(self) -> bool:
@@ -904,7 +914,7 @@ async def dashboard_health():
 
     def _create_typescript_config(self):
         """Create TypeScript configuration."""
-        tsconfig_content = '''{
+        tsconfig_content = """{
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -928,10 +938,10 @@ async def dashboard_health():
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
-}'''
-        
+}"""
+
         tsconfig_file = self.frontend_dir / "tsconfig.json"
-        with open(tsconfig_file, 'w') as f:
+        with open(tsconfig_file, "w") as f:
             f.write(tsconfig_content)
 
     def _create_pulumi_config(self):
@@ -974,34 +984,31 @@ async def dashboard_health():
         # This would create SQLAlchemy models
         pass
 
+
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Implement Sophia AI UI and deployment")
+    parser = argparse.ArgumentParser(
+        description="Implement Sophia AI UI and deployment"
+    )
     parser.add_argument(
         "--phase",
         choices=["all", "frontend", "backend", "deploy"],
         default="all",
-        help="Implementation phase to run"
+        help="Implementation phase to run",
     )
     parser.add_argument(
         "--environment",
         choices=["development", "staging", "production"],
         default="development",
-        help="Target environment"
+        help="Target environment",
     )
+    parser.add_argument("--skip-tests", action="store_true", help="Skip running tests")
     parser.add_argument(
-        "--skip-tests",
-        action="store_true",
-        help="Skip running tests"
+        "--force-rebuild", action="store_true", help="Force rebuild of all components"
     )
-    parser.add_argument(
-        "--force-rebuild",
-        action="store_true",
-        help="Force rebuild of all components"
-    )
-    
+
     args = parser.parse_args()
-    
+
     # Setup configuration
     project_root = Path(__file__).parent.parent
     config = ImplementationConfig(
@@ -1011,13 +1018,13 @@ def main():
         infrastructure_dir=project_root / "infrastructure",
         target_environment=args.environment,
         skip_tests=args.skip_tests,
-        force_rebuild=args.force_rebuild
+        force_rebuild=args.force_rebuild,
     )
-    
+
     # Run implementation
     implementation = SophiaUIImplementation(config)
     success = implementation.run_phase(args.phase)
-    
+
     if success:
         logger.info("🎉 Implementation completed successfully!")
         sys.exit(0)
@@ -1025,5 +1032,6 @@ def main():
         logger.error("❌ Implementation failed!")
         sys.exit(1)
 
+
 if __name__ == "__main__":
-    main() 
+    main()

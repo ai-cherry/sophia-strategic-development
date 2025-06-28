@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class MCPClient:
     """A generic client for interacting with various MCP servers."""
 
@@ -23,17 +24,21 @@ class MCPClient:
         if not config_file.exists():
             logger.error(f"MCP config file not found at: {config_path}")
             raise FileNotFoundError(f"MCP config file not found at: {config_path}")
-        
-        with open(config_file, 'r') as f:
+
+        with open(config_file, "r") as f:
             return json.load(f)
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Initializes and returns an aiohttp ClientSession."""
         if self.session is None or self.session.closed:
-            self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+            self.session = aiohttp.ClientSession(
+                timeout=aiohttp.ClientTimeout(total=60)
+            )
         return self.session
 
-    async def call_mcp_tool(self, server_name: str, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    async def call_mcp_tool(
+        self, server_name: str, tool_name: str, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Calls a specific tool on a specified MCP server.
         """
@@ -44,29 +49,36 @@ class MCPClient:
         base_url = server_config.get("baseUrl")
 
         if not base_url:
-            raise ValueError(f"No baseUrl configured for MCP server '{server_name}'. Only HTTP servers are supported by this client.")
+            raise ValueError(
+                f"No baseUrl configured for MCP server '{server_name}'. Only HTTP servers are supported by this client."
+            )
 
-        endpoint = f"{base_url}/mcp/call_tool" # A conceptual unified endpoint
+        endpoint = f"{base_url}/mcp/call_tool"  # A conceptual unified endpoint
         payload = {
             "tool_name": tool_name,
             "arguments": arguments,
         }
-        
+
         session = await self._get_session()
-        
+
         try:
-            logger.info(f"Calling tool '{tool_name}' on MCP server '{server_name}' with arguments: {arguments}")
+            logger.info(
+                f"Calling tool '{tool_name}' on MCP server '{server_name}' with arguments: {arguments}"
+            )
             async with session.post(endpoint, json=payload) as response:
                 response.raise_for_status()
                 return await response.json()
         except aiohttp.ClientError as e:
             logger.error(f"Error calling MCP server '{server_name}': {e}")
-            raise Exception(f"Failed to communicate with MCP server '{server_name}'.") from e
+            raise Exception(
+                f"Failed to communicate with MCP server '{server_name}'."
+            ) from e
 
     async def close(self):
         """Closes the aiohttp session."""
         if self.session:
             await self.session.close()
+
 
 async def main():
     # Example usage
@@ -77,7 +89,7 @@ async def main():
         analysis_result = await mcp_client.call_mcp_tool(
             server_name="codacy",
             tool_name="analyze_file",
-            arguments={"file_path": "backend/services/semantic_layer_service.py"}
+            arguments={"file_path": "backend/services/semantic_layer_service.py"},
         )
         print("Analysis Result:", analysis_result)
     except Exception as e:
@@ -85,5 +97,6 @@ async def main():
     finally:
         await mcp_client.close()
 
+
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -439,7 +439,7 @@ class SnowflakeApplicationLayerDeployer:
                 if statement.upper().startswith(("SELECT", "SHOW", "DESCRIBE")):
                     continue  # Skip query statements in deployment
 
-                logger.debug(f"Executing statement {i+1}/{len(statements)}")
+                logger.debug(f"Executing statement {i + 1}/{len(statements)}")
                 cursor.execute(statement)
 
             step.status = DeploymentStatus.COMPLETED

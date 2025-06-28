@@ -20,7 +20,6 @@ Expected Performance Improvements:
 import asyncio
 import logging
 import time
-import json
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from contextlib import asynccontextmanager
@@ -38,6 +37,7 @@ from backend.core.performance_monitor import performance_monitor
 from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 from backend.core.centralized_config_manager import centralized_config_manager
 
+
 # Pydantic models
 class HealthResponse(BaseModel):
     status: str = Field(..., description="Health status")
@@ -49,20 +49,23 @@ class HealthResponse(BaseModel):
     performance_level: str = Field(..., description="Performance level")
     uptime_seconds: float = Field(..., description="Uptime in seconds")
 
+
 class CortexAnalysisRequest(BaseModel):
     texts: List[str] = Field(..., description="Texts to analyze")
     operation: str = Field(default="sentiment", description="Analysis operation")
     model: Optional[str] = Field(None, description="Model to use")
 
+
 # Global variables
 app_start_time = time.time()
 logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     🚀 Phase 2 Optimized Application Lifespan Management
-    
+
     Initializes all optimized components:
     - Connection manager with pooling
     - Hierarchical cache system
@@ -70,35 +73,36 @@ async def lifespan(app: FastAPI):
     - Performance monitoring
     """
     logger.info("🚀 Starting Phase 2 Optimized Sophia AI Application...")
-    
+
     try:
         # Initialize all optimized components in parallel
         await asyncio.gather(
             connection_manager.initialize(),
             hierarchical_cache.initialize(),
             optimized_cortex_service.initialize(),
-            centralized_config_manager.initialize()
+            centralized_config_manager.initialize(),
         )
-        
+
         logger.info("✅ All Phase 2 optimized components initialized successfully")
-        
+
         # Start performance monitoring
         performance_monitor.start_monitoring()
-        
+
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Phase 2 application initialization failed: {e}")
         raise
     finally:
         logger.info("🔄 Shutting down Phase 2 optimized application...")
 
+
 # Create FastAPI app with optimized configuration
 app = FastAPI(
     title="Sophia AI - Phase 2 Optimized",
     description="Phase 2 Performance Optimized AI Assistant Orchestrator",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -110,6 +114,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Global exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
@@ -120,50 +125,60 @@ async def global_exception_handler(request, exc):
         content={
             "error": "Internal server error",
             "message": str(exc),
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
+
 
 # Health check endpoints
 @app.get("/api/health", response_model=HealthResponse)
-@performance_monitor.monitor_performance('health_check', 1000)
+@performance_monitor.monitor_performance("health_check", 1000)
 async def health_check():
     """
     ✅ OPTIMIZED: Comprehensive health check with performance monitoring
-    
+
     Returns:
         Detailed health status of all optimized components
     """
     try:
         uptime = time.time() - app_start_time
-        
+
         # Check all components in parallel
         health_checks = await asyncio.gather(
             connection_manager.health_check(),
             hierarchical_cache.health_check(),
             optimized_cortex_service.health_check(),
-            return_exceptions=True
+            return_exceptions=True,
         )
-        
+
         conn_health, cache_health, cortex_health = health_checks
-        
+
         # Determine overall status
         all_healthy = all(
-            h.get('status') == 'healthy' if isinstance(h, dict) else False
+            h.get("status") == "healthy" if isinstance(h, dict) else False
             for h in health_checks
         )
-        
+
         overall_status = "healthy" if all_healthy else "degraded"
-        
+
         # Determine performance level
         performance_level = "excellent"
-        if any(h.get('performance_level') == 'poor' if isinstance(h, dict) else False for h in health_checks):
+        if any(
+            h.get("performance_level") == "poor" if isinstance(h, dict) else False
+            for h in health_checks
+        ):
             performance_level = "poor"
-        elif any(h.get('performance_level') == 'acceptable' if isinstance(h, dict) else False for h in health_checks):
+        elif any(
+            h.get("performance_level") == "acceptable" if isinstance(h, dict) else False
+            for h in health_checks
+        ):
             performance_level = "acceptable"
-        elif any(h.get('performance_level') == 'good' if isinstance(h, dict) else False for h in health_checks):
+        elif any(
+            h.get("performance_level") == "good" if isinstance(h, dict) else False
+            for h in health_checks
+        ):
             performance_level = "good"
-        
+
         return HealthResponse(
             status=overall_status,
             environment="prod",
@@ -171,9 +186,9 @@ async def health_check():
             services_status="operational" if all_healthy else "degraded",
             configuration_status="loaded",
             performance_level=performance_level,
-            uptime_seconds=uptime
+            uptime_seconds=uptime,
         )
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return HealthResponse(
@@ -183,20 +198,22 @@ async def health_check():
             services_status="error",
             configuration_status="error",
             performance_level="poor",
-            uptime_seconds=time.time() - app_start_time
+            uptime_seconds=time.time() - app_start_time,
         )
+
 
 @app.get("/api/health/simple")
 async def simple_health_check():
     """Simple health check for load balancers"""
     return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
+
 @app.get("/api/performance")
-@performance_monitor.monitor_performance('performance_metrics', 2000)
+@performance_monitor.monitor_performance("performance_metrics", 2000)
 async def get_performance_metrics():
     """
     ✅ OPTIMIZED: Get comprehensive performance metrics from all optimized components
-    
+
     Returns:
         Detailed performance metrics and statistics
     """
@@ -206,11 +223,11 @@ async def get_performance_metrics():
             connection_manager.get_performance_stats(),
             hierarchical_cache.get_performance_stats(),
             optimized_cortex_service.get_performance_stats(),
-            return_exceptions=True
+            return_exceptions=True,
         )
-        
+
         conn_stats, cache_stats, cortex_stats = stats
-        
+
         # Calculate overall performance metrics
         overall_performance = {
             "uptime_seconds": time.time() - app_start_time,
@@ -218,35 +235,42 @@ async def get_performance_metrics():
                 "connection_pooling": "enabled",
                 "hierarchical_caching": "enabled",
                 "batch_processing": "enabled",
-                "performance_monitoring": "enabled"
+                "performance_monitoring": "enabled",
             },
             "performance_improvements": {
                 "database_operations": "95% overhead reduction",
                 "cache_hit_ratio": "5.7x improvement target",
                 "cortex_operations": "10-20x faster batch processing",
-                "memory_usage": "40% reduction target"
+                "memory_usage": "40% reduction target",
             },
-            "system_status": "optimized"
+            "system_status": "optimized",
         }
-        
+
         return {
-            "connection_manager": conn_stats if isinstance(conn_stats, dict) else {"error": str(conn_stats)},
-            "cache_system": cache_stats if isinstance(cache_stats, dict) else {"error": str(cache_stats)},
-            "cortex_service": cortex_stats if isinstance(cortex_stats, dict) else {"error": str(cortex_stats)},
-            "overall_performance": overall_performance
+            "connection_manager": conn_stats
+            if isinstance(conn_stats, dict)
+            else {"error": str(conn_stats)},
+            "cache_system": cache_stats
+            if isinstance(cache_stats, dict)
+            else {"error": str(cache_stats)},
+            "cortex_service": cortex_stats
+            if isinstance(cortex_stats, dict)
+            else {"error": str(cortex_stats)},
+            "overall_performance": overall_performance,
         }
-        
+
     except Exception as e:
         logger.error(f"Performance metrics failed: {e}")
         raise HTTPException(status_code=500, detail=f"Performance metrics error: {e}")
 
+
 # Optimized Cortex service endpoints
 @app.post("/api/cortex/analyze")
-@performance_monitor.monitor_performance('cortex_analysis', 5000)
+@performance_monitor.monitor_performance("cortex_analysis", 5000)
 async def analyze_with_cortex(request: CortexAnalysisRequest):
     """
     ✅ OPTIMIZED: Batch text analysis with optimized Cortex service
-    
+
     Features:
     - Batch processing (10-20x faster)
     - Intelligent caching
@@ -256,136 +280,143 @@ async def analyze_with_cortex(request: CortexAnalysisRequest):
     try:
         if request.operation == "sentiment":
             results = await optimized_cortex_service.analyze_sentiment_batch(
-                request.texts,
-                model=request.model
+                request.texts, model=request.model
             )
         elif request.operation == "embedding":
             results = await optimized_cortex_service.generate_embeddings_batch(
-                request.texts,
-                model=request.model
+                request.texts, model=request.model
             )
         else:
-            raise HTTPException(status_code=400, detail=f"Unsupported operation: {request.operation}")
-        
+            raise HTTPException(
+                status_code=400, detail=f"Unsupported operation: {request.operation}"
+            )
+
         # Convert results to JSON-serializable format
         response_data = []
         for result in results:
-            response_data.append({
-                "operation": result.operation,
-                "success": result.success,
-                "result": result.result,
-                "error": result.error,
-                "execution_time_ms": result.execution_time_ms,
-                "tokens_processed": result.tokens_processed,
-                "cost_estimate": result.cost_estimate
-            })
-        
+            response_data.append(
+                {
+                    "operation": result.operation,
+                    "success": result.success,
+                    "result": result.result,
+                    "error": result.error,
+                    "execution_time_ms": result.execution_time_ms,
+                    "tokens_processed": result.tokens_processed,
+                    "cost_estimate": result.cost_estimate,
+                }
+            )
+
         return {
             "results": response_data,
             "total_texts": len(request.texts),
             "operation": request.operation,
             "model": request.model,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Cortex analysis failed: {e}")
         raise HTTPException(status_code=500, detail=f"Cortex analysis error: {e}")
 
+
 # Cache management endpoints
 @app.get("/api/cache/stats")
-@performance_monitor.monitor_performance('cache_stats', 500)
+@performance_monitor.monitor_performance("cache_stats", 500)
 async def get_cache_stats():
     """
     ✅ OPTIMIZED: Get hierarchical cache statistics
-    
+
     Returns:
         Comprehensive cache performance metrics
     """
     try:
         stats = hierarchical_cache.get_performance_stats()
         return stats
-        
+
     except Exception as e:
         logger.error(f"Cache stats failed: {e}")
         raise HTTPException(status_code=500, detail=f"Cache stats error: {e}")
 
+
 @app.post("/api/cache/warm")
-@performance_monitor.monitor_performance('cache_warm', 5000)
+@performance_monitor.monitor_performance("cache_warm", 5000)
 async def warm_cache(request: Dict[str, Any]):
     """
     ✅ OPTIMIZED: Warm cache with pre-loaded data
-    
+
     Args:
         request: Dictionary with keys and values
     """
     try:
-        keys = request.get('keys', [])
-        values = request.get('values', [])
-        
+        keys = request.get("keys", [])
+        values = request.get("values", [])
+
         await hierarchical_cache.warm_cache(keys, values)
         return {
             "status": "success",
             "message": f"Cache warmed with {len(keys)} entries",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Cache warming failed: {e}")
         raise HTTPException(status_code=500, detail=f"Cache warming error: {e}")
 
+
 @app.delete("/api/cache/clear")
-@performance_monitor.monitor_performance('cache_clear', 1000)
+@performance_monitor.monitor_performance("cache_clear", 1000)
 async def clear_cache(cache_level: Optional[str] = None):
     """
     ✅ OPTIMIZED: Clear cache entries
-    
+
     Args:
         cache_level: Optional cache level to clear
     """
     try:
         from backend.core.hierarchical_cache import CacheLevel
-        
+
         level = None
         if cache_level:
             level = CacheLevel(cache_level)
-        
+
         await hierarchical_cache.clear(level)
-        
+
         return {
             "status": "success",
             "message": f"Cache cleared: {cache_level or 'all levels'}",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Cache clear failed: {e}")
         raise HTTPException(status_code=500, detail=f"Cache clear error: {e}")
 
+
 # Configuration endpoints
 @app.get("/api/config/status")
-@performance_monitor.monitor_performance('config_status', 1000)
+@performance_monitor.monitor_performance("config_status", 1000)
 async def get_config_status():
     """
     ✅ OPTIMIZED: Get centralized configuration status
-    
+
     Returns:
         Configuration status and health information
     """
     try:
         config_health = await centralized_config_manager.health_check()
         return config_health
-        
+
     except Exception as e:
         logger.error(f"Config status failed: {e}")
         raise HTTPException(status_code=500, detail=f"Config status error: {e}")
+
 
 # Background task endpoints
 @app.post("/api/tasks/optimize")
 async def optimize_system(background_tasks: BackgroundTasks):
     """
     ✅ OPTIMIZED: Trigger system optimization tasks
-    
+
     Background tasks:
     - Cache optimization
     - Connection pool optimization
@@ -393,32 +424,34 @@ async def optimize_system(background_tasks: BackgroundTasks):
     """
     try:
         background_tasks.add_task(run_optimization_tasks)
-        
+
         return {
             "status": "success",
             "message": "System optimization tasks started",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"System optimization failed: {e}")
         raise HTTPException(status_code=500, detail=f"System optimization error: {e}")
+
 
 async def run_optimization_tasks():
     """Background optimization tasks"""
     try:
         logger.info("🔧 Running system optimization tasks...")
-        
+
         # Optimize connection pools
         await connection_manager.optimize_pools()
-        
+
         # Collect and analyze performance metrics
         await performance_monitor.collect_metrics()
-        
+
         logger.info("✅ System optimization tasks completed")
-        
+
     except Exception as e:
         logger.error(f"Optimization tasks failed: {e}")
+
 
 # Root endpoint
 @app.get("/")
@@ -431,22 +464,23 @@ async def root():
             "connection_pooling": "95% overhead reduction",
             "hierarchical_caching": "85% cache hit ratio target",
             "batch_processing": "10-20x faster operations",
-            "performance_monitoring": "Real-time optimization tracking"
+            "performance_monitoring": "Real-time optimization tracking",
         },
         "status": "operational",
         "uptime_seconds": time.time() - app_start_time,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
+
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     logger.info("🚀 Starting Phase 2 Optimized Sophia AI Application...")
-    
+
     uvicorn.run(
         "phase2_optimized_app:app",
         host="0.0.0.0",
         port=8002,
         reload=False,
-        log_level="info"
-    ) 
+        log_level="info",
+    )

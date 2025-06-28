@@ -11,7 +11,7 @@ import re
 import json
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 import logging
@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FileMetrics:
     """Metrics for a single file"""
+
     path: str
     lines: int
     complexity_score: float
@@ -36,6 +37,7 @@ class FileMetrics:
 @dataclass
 class TechnicalDebtReport:
     """Complete technical debt analysis report"""
+
     timestamp: str
     total_files: int
     high_churn_files: List[FileMetrics]
@@ -48,7 +50,7 @@ class TechnicalDebtReport:
 
 class TechnicalDebtAnalyzer:
     """Analyzes codebase for technical debt and generates actionable insights"""
-    
+
     def __init__(self, repo_path: str = "."):
         self.repo_path = Path(repo_path)
         self.python_files = []
@@ -59,81 +61,104 @@ class TechnicalDebtAnalyzer:
             "deep_nesting": 5,  # nested levels
             "high_churn": 10,  # changes in 3 months
         }
-        
+
     def analyze_codebase(self) -> TechnicalDebtReport:
         """Perform comprehensive technical debt analysis"""
         logger.info("🔍 Starting technical debt analysis...")
-        
+
         # Discover Python files
         self._discover_python_files()
-        
+
         # Analyze git history
         self._analyze_git_history()
-        
+
         # Calculate metrics for each file
         file_metrics = []
         for file_path in self.python_files:
             metrics = self._analyze_file(file_path)
             if metrics:
                 file_metrics.append(metrics)
-        
+
         # Generate report
         report = self._generate_report(file_metrics)
-        
+
         logger.info(f"✅ Analysis complete: {len(file_metrics)} files analyzed")
         return report
-    
+
     def _discover_python_files(self):
         """Find all Python files in the repository"""
         self.python_files = []
         for root, dirs, files in os.walk(self.repo_path):
             # Skip virtual environment and other irrelevant directories
-            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ['__pycache__', '.venv', 'venv', 'node_modules']]
-            
+            dirs[:] = [
+                d
+                for d in dirs
+                if not d.startswith(".")
+                and d not in ["__pycache__", ".venv", "venv", "node_modules"]
+            ]
+
             for file in files:
-                if file.endswith('.py'):
+                if file.endswith(".py"):
                     file_path = Path(root) / file
                     self.python_files.append(file_path)
-        
+
         logger.info(f"📁 Discovered {len(self.python_files)} Python files")
-    
+
     def _analyze_git_history(self):
         """Analyze git history for change frequency patterns"""
         try:
             # Get change frequency for each file (last 3 months)
-            since_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
-            cmd = ['git', 'log', '--name-only', '--pretty=format:', f'--since={since_date}']
-            result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.repo_path)
-            
+            since_date = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+            cmd = [
+                "git",
+                "log",
+                "--name-only",
+                "--pretty=format:",
+                f"--since={since_date}",
+            ]
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, cwd=self.repo_path
+            )
+
             if result.returncode == 0:
-                files = [line.strip() for line in result.stdout.split('\n') if line.strip().endswith('.py')]
+                files = [
+                    line.strip()
+                    for line in result.stdout.split("\n")
+                    if line.strip().endswith(".py")
+                ]
                 self.git_history = {}
                 for file in files:
                     self.git_history[file] = self.git_history.get(file, 0) + 1
-            
-            logger.info(f"📊 Analyzed git history: {len(self.git_history)} files with changes")
-            
+
+            logger.info(
+                f"📊 Analyzed git history: {len(self.git_history)} files with changes"
+            )
+
         except Exception as e:
             logger.warning(f"⚠️ Could not analyze git history: {e}")
             self.git_history = {}
-    
+
     def _analyze_file(self, file_path: Path) -> FileMetrics:
         """Analyze a single file for technical debt indicators"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
-            
-            lines = len(content.split('\n'))
+
+            lines = len(content.split("\n"))
             relative_path = str(file_path.relative_to(self.repo_path))
-            
+
             # Calculate metrics
             complexity_score = self._calculate_complexity_score(content, lines)
             change_frequency = self.git_history.get(relative_path, 0)
             last_modified = self._get_last_modified(file_path)
             issues = self._identify_issues(content, lines, change_frequency)
-            technical_debt_score = self._calculate_debt_score(complexity_score, change_frequency, issues)
-            refactoring_priority = self._determine_priority(technical_debt_score, complexity_score, change_frequency)
-            
+            technical_debt_score = self._calculate_debt_score(
+                complexity_score, change_frequency, issues
+            )
+            refactoring_priority = self._determine_priority(
+                technical_debt_score, complexity_score, change_frequency
+            )
+
             return FileMetrics(
                 path=relative_path,
                 lines=lines,
@@ -142,97 +167,107 @@ class TechnicalDebtAnalyzer:
                 last_modified=last_modified,
                 technical_debt_score=technical_debt_score,
                 issues=issues,
-                refactoring_priority=refactoring_priority
+                refactoring_priority=refactoring_priority,
             )
-            
+
         except Exception as e:
             logger.warning(f"⚠️ Could not analyze {file_path}: {e}")
             return None
-    
+
     def _calculate_complexity_score(self, content: str, lines: int) -> float:
         """Calculate complexity score based on various factors"""
         score = 0.0
-        
+
         # File length penalty
         if lines > self.complexity_patterns["long_file"]:
             score += (lines / self.complexity_patterns["long_file"]) * 100
-        
+
         # Function complexity
-        functions = re.findall(r'def\s+\w+\([^)]*\):', content)
+        functions = re.findall(r"def\s+\w+\([^)]*\):", content)
         if functions:
             avg_function_lines = lines / len(functions)
             if avg_function_lines > self.complexity_patterns["complex_function"]:
-                score += (avg_function_lines / self.complexity_patterns["complex_function"]) * 50
-        
+                score += (
+                    avg_function_lines / self.complexity_patterns["complex_function"]
+                ) * 50
+
         # Import complexity
-        imports = re.findall(r'from\s+\S+\s+import|import\s+\S+', content)
+        imports = re.findall(r"from\s+\S+\s+import|import\s+\S+", content)
         if len(imports) > 20:
             score += (len(imports) / 20) * 30
-        
+
         # Nesting depth (approximate)
         max_indent = 0
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             if line.strip():
                 indent = len(line) - len(line.lstrip())
                 max_indent = max(max_indent, indent // 4)
-        
+
         if max_indent > self.complexity_patterns["deep_nesting"]:
             score += (max_indent / self.complexity_patterns["deep_nesting"]) * 40
-        
+
         # Class complexity
-        classes = re.findall(r'class\s+\w+.*:', content)
+        classes = re.findall(r"class\s+\w+.*:", content)
         if len(classes) > 5:
             score += (len(classes) / 5) * 25
-        
+
         return round(score, 1)
-    
-    def _identify_issues(self, content: str, lines: int, change_frequency: int) -> List[str]:
+
+    def _identify_issues(
+        self, content: str, lines: int, change_frequency: int
+    ) -> List[str]:
         """Identify specific technical debt issues"""
         issues = []
-        
+
         # File size issues
         if lines > 1000:
             issues.append("Monolithic file (>1000 lines)")
         elif lines > 500:
             issues.append("Large file (>500 lines)")
-        
+
         # Change frequency issues
         if change_frequency > 15:
             issues.append("Very high churn (>15 changes)")
         elif change_frequency > 10:
             issues.append("High churn (>10 changes)")
-        
+
         # Code smell patterns
-        if 'TODO' in content or 'FIXME' in content or 'HACK' in content:
+        if "TODO" in content or "FIXME" in content or "HACK" in content:
             issues.append("Contains TODO/FIXME/HACK comments")
-        
-        if content.count('try:') > 10:
+
+        if content.count("try:") > 10:
             issues.append("Excessive exception handling")
-        
-        if content.count('import') > 30:
+
+        if content.count("import") > 30:
             issues.append("Too many imports")
-        
-        if re.search(r'def\s+\w+\([^)]*\):[^def]*def\s+\w+\([^)]*\):[^def]*def\s+\w+\([^)]*\):', content, re.DOTALL):
+
+        if re.search(
+            r"def\s+\w+\([^)]*\):[^def]*def\s+\w+\([^)]*\):[^def]*def\s+\w+\([^)]*\):",
+            content,
+            re.DOTALL,
+        ):
             issues.append("Nested function definitions")
-        
+
         # Database connection patterns (potential N+1 issues)
-        if 'cursor.execute' in content and 'for ' in content:
+        if "cursor.execute" in content and "for " in content:
             issues.append("Potential N+1 query pattern")
-        
+
         # Async/sync mixing
-        if 'async def' in content and 'def ' in content:
+        if "async def" in content and "def " in content:
             issues.append("Mixed async/sync patterns")
-        
+
         return issues
-    
-    def _calculate_debt_score(self, complexity: float, churn: int, issues: List[str]) -> float:
+
+    def _calculate_debt_score(
+        self, complexity: float, churn: int, issues: List[str]
+    ) -> float:
         """Calculate overall technical debt score"""
         # Base score from complexity
         debt_score = complexity * 0.5
-        
+
         # Add churn penalty
         debt_score += churn * 2
-        
+
         # Add issue penalties
         issue_penalties = {
             "Monolithic file": 50,
@@ -246,16 +281,18 @@ class TechnicalDebtAnalyzer:
             "Potential N+1 query pattern": 30,
             "Mixed async/sync patterns": 15,
         }
-        
+
         for issue in issues:
             for pattern, penalty in issue_penalties.items():
                 if pattern in issue:
                     debt_score += penalty
                     break
-        
+
         return round(debt_score, 1)
-    
-    def _determine_priority(self, debt_score: float, complexity: float, churn: int) -> str:
+
+    def _determine_priority(
+        self, debt_score: float, complexity: float, churn: int
+    ) -> str:
         """Determine refactoring priority"""
         if debt_score > 200 or (complexity > 500 and churn > 15):
             return "CRITICAL"
@@ -265,43 +302,63 @@ class TechnicalDebtAnalyzer:
             return "MEDIUM"
         else:
             return "LOW"
-    
+
     def _get_last_modified(self, file_path: Path) -> str:
         """Get last modification date"""
         try:
             timestamp = os.path.getmtime(file_path)
-            return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+            return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
         except:
             return "unknown"
-    
+
     def _generate_report(self, file_metrics: List[FileMetrics]) -> TechnicalDebtReport:
         """Generate comprehensive technical debt report"""
         # Sort files by different criteria
-        high_churn = sorted([f for f in file_metrics if f.change_frequency >= 10], 
-                           key=lambda x: x.change_frequency, reverse=True)[:10]
-        
-        complex_files = sorted([f for f in file_metrics if f.complexity_score >= 200], 
-                              key=lambda x: x.complexity_score, reverse=True)[:10]
-        
-        debt_hotspots = sorted(file_metrics, key=lambda x: x.technical_debt_score, reverse=True)[:15]
-        
+        high_churn = sorted(
+            [f for f in file_metrics if f.change_frequency >= 10],
+            key=lambda x: x.change_frequency,
+            reverse=True,
+        )[:10]
+
+        complex_files = sorted(
+            [f for f in file_metrics if f.complexity_score >= 200],
+            key=lambda x: x.complexity_score,
+            reverse=True,
+        )[:10]
+
+        debt_hotspots = sorted(
+            file_metrics, key=lambda x: x.technical_debt_score, reverse=True
+        )[:15]
+
         # Analyze instability patterns
         instability_patterns = self._analyze_instability_patterns(file_metrics)
-        
+
         # Generate recommendations
-        recommendations = self._generate_recommendations(debt_hotspots, complex_files, high_churn)
-        
+        recommendations = self._generate_recommendations(
+            debt_hotspots, complex_files, high_churn
+        )
+
         # Calculate summary metrics
         summary_metrics = {
             "total_files_analyzed": len(file_metrics),
-            "files_with_high_churn": len([f for f in file_metrics if f.change_frequency >= 10]),
-            "files_with_high_complexity": len([f for f in file_metrics if f.complexity_score >= 200]),
-            "files_needing_immediate_attention": len([f for f in file_metrics if f.refactoring_priority == "CRITICAL"]),
-            "average_complexity_score": round(sum(f.complexity_score for f in file_metrics) / len(file_metrics), 1),
-            "average_debt_score": round(sum(f.technical_debt_score for f in file_metrics) / len(file_metrics), 1),
+            "files_with_high_churn": len(
+                [f for f in file_metrics if f.change_frequency >= 10]
+            ),
+            "files_with_high_complexity": len(
+                [f for f in file_metrics if f.complexity_score >= 200]
+            ),
+            "files_needing_immediate_attention": len(
+                [f for f in file_metrics if f.refactoring_priority == "CRITICAL"]
+            ),
+            "average_complexity_score": round(
+                sum(f.complexity_score for f in file_metrics) / len(file_metrics), 1
+            ),
+            "average_debt_score": round(
+                sum(f.technical_debt_score for f in file_metrics) / len(file_metrics), 1
+            ),
             "total_lines_of_code": sum(f.lines for f in file_metrics),
         }
-        
+
         return TechnicalDebtReport(
             timestamp=datetime.now().isoformat(),
             total_files=len(file_metrics),
@@ -310,137 +367,175 @@ class TechnicalDebtAnalyzer:
             debt_hotspots=debt_hotspots,
             instability_patterns=instability_patterns,
             recommendations=recommendations,
-            summary_metrics=summary_metrics
+            summary_metrics=summary_metrics,
         )
-    
-    def _analyze_instability_patterns(self, file_metrics: List[FileMetrics]) -> Dict[str, Any]:
+
+    def _analyze_instability_patterns(
+        self, file_metrics: List[FileMetrics]
+    ) -> Dict[str, Any]:
         """Analyze patterns that indicate instability"""
         patterns = {
             "configuration_files": [],
             "import_heavy_files": [],
             "error_handling_issues": [],
-            "architectural_concerns": []
+            "architectural_concerns": [],
         }
-        
+
         for file in file_metrics:
             # Configuration-related files
-            if any(keyword in file.path.lower() for keyword in ['config', 'settings', 'env']):
+            if any(
+                keyword in file.path.lower()
+                for keyword in ["config", "settings", "env"]
+            ):
                 if file.change_frequency > 5:
-                    patterns["configuration_files"].append({
-                        "path": file.path,
-                        "changes": file.change_frequency,
-                        "complexity": file.complexity_score
-                    })
-            
+                    patterns["configuration_files"].append(
+                        {
+                            "path": file.path,
+                            "changes": file.change_frequency,
+                            "complexity": file.complexity_score,
+                        }
+                    )
+
             # Import-heavy files
             if "Too many imports" in file.issues:
-                patterns["import_heavy_files"].append({
-                    "path": file.path,
-                    "complexity": file.complexity_score
-                })
-            
+                patterns["import_heavy_files"].append(
+                    {"path": file.path, "complexity": file.complexity_score}
+                )
+
             # Error handling issues
             if "Excessive exception handling" in file.issues:
-                patterns["error_handling_issues"].append({
-                    "path": file.path,
-                    "debt_score": file.technical_debt_score
-                })
-            
+                patterns["error_handling_issues"].append(
+                    {"path": file.path, "debt_score": file.technical_debt_score}
+                )
+
             # Architectural concerns
             if file.lines > 1500 or file.complexity_score > 500:
-                patterns["architectural_concerns"].append({
-                    "path": file.path,
-                    "lines": file.lines,
-                    "complexity": file.complexity_score,
-                    "issues": file.issues
-                })
-        
+                patterns["architectural_concerns"].append(
+                    {
+                        "path": file.path,
+                        "lines": file.lines,
+                        "complexity": file.complexity_score,
+                        "issues": file.issues,
+                    }
+                )
+
         return patterns
-    
-    def _generate_recommendations(self, debt_hotspots: List[FileMetrics], 
-                                 complex_files: List[FileMetrics], 
-                                 high_churn: List[FileMetrics]) -> List[Dict[str, Any]]:
+
+    def _generate_recommendations(
+        self,
+        debt_hotspots: List[FileMetrics],
+        complex_files: List[FileMetrics],
+        high_churn: List[FileMetrics],
+    ) -> List[Dict[str, Any]]:
         """Generate actionable recommendations"""
         recommendations = []
-        
+
         # Critical files needing immediate attention
-        critical_files = [f for f in debt_hotspots if f.refactoring_priority == "CRITICAL"]
+        critical_files = [
+            f for f in debt_hotspots if f.refactoring_priority == "CRITICAL"
+        ]
         if critical_files:
-            recommendations.append({
-                "priority": "IMMEDIATE",
-                "category": "Critical Refactoring",
-                "title": "Address Critical Technical Debt",
-                "description": f"Refactor {len(critical_files)} critical files with severe technical debt",
-                "files": [f.path for f in critical_files[:5]],
-                "estimated_effort": f"{len(critical_files) * 2}-{len(critical_files) * 4} days",
-                "impact": "High - Prevent system instability and development slowdown"
-            })
-        
+            recommendations.append(
+                {
+                    "priority": "IMMEDIATE",
+                    "category": "Critical Refactoring",
+                    "title": "Address Critical Technical Debt",
+                    "description": f"Refactor {len(critical_files)} critical files with severe technical debt",
+                    "files": [f.path for f in critical_files[:5]],
+                    "estimated_effort": f"{len(critical_files) * 2}-{len(critical_files) * 4} days",
+                    "impact": "High - Prevent system instability and development slowdown",
+                }
+            )
+
         # High churn files
         if high_churn:
-            recommendations.append({
-                "priority": "HIGH",
-                "category": "Stability Improvement",
-                "title": "Stabilize High-Churn Files",
-                "description": f"Refactor {len(high_churn)} frequently changing files",
-                "files": [f.path for f in high_churn[:3]],
-                "estimated_effort": f"{len(high_churn)} days",
-                "impact": "Medium-High - Reduce development friction and bugs"
-            })
-        
+            recommendations.append(
+                {
+                    "priority": "HIGH",
+                    "category": "Stability Improvement",
+                    "title": "Stabilize High-Churn Files",
+                    "description": f"Refactor {len(high_churn)} frequently changing files",
+                    "files": [f.path for f in high_churn[:3]],
+                    "estimated_effort": f"{len(high_churn)} days",
+                    "impact": "Medium-High - Reduce development friction and bugs",
+                }
+            )
+
         # Complex monolithic files
         monolithic = [f for f in complex_files if f.lines > 1000]
         if monolithic:
-            recommendations.append({
-                "priority": "HIGH",
-                "category": "Architecture Improvement",
-                "title": "Decompose Monolithic Files",
-                "description": f"Break down {len(monolithic)} large files into smaller modules",
-                "files": [f.path for f in monolithic[:3]],
-                "estimated_effort": f"{len(monolithic) * 3}-{len(monolithic) * 5} days",
-                "impact": "High - Improve maintainability and testability"
-            })
-        
+            recommendations.append(
+                {
+                    "priority": "HIGH",
+                    "category": "Architecture Improvement",
+                    "title": "Decompose Monolithic Files",
+                    "description": f"Break down {len(monolithic)} large files into smaller modules",
+                    "files": [f.path for f in monolithic[:3]],
+                    "estimated_effort": f"{len(monolithic) * 3}-{len(monolithic) * 5} days",
+                    "impact": "High - Improve maintainability and testability",
+                }
+            )
+
         # Performance optimization opportunities
-        n1_files = [f for f in debt_hotspots if any("N+1" in issue for issue in f.issues)]
+        n1_files = [
+            f for f in debt_hotspots if any("N+1" in issue for issue in f.issues)
+        ]
         if n1_files:
-            recommendations.append({
-                "priority": "MEDIUM-HIGH",
-                "category": "Performance Optimization",
-                "title": "Fix N+1 Query Patterns",
-                "description": f"Optimize {len(n1_files)} files with potential N+1 query issues",
-                "files": [f.path for f in n1_files[:5]],
-                "estimated_effort": f"{len(n1_files)} days",
-                "impact": "High - Significant performance improvement"
-            })
-        
+            recommendations.append(
+                {
+                    "priority": "MEDIUM-HIGH",
+                    "category": "Performance Optimization",
+                    "title": "Fix N+1 Query Patterns",
+                    "description": f"Optimize {len(n1_files)} files with potential N+1 query issues",
+                    "files": [f.path for f in n1_files[:5]],
+                    "estimated_effort": f"{len(n1_files)} days",
+                    "impact": "High - Significant performance improvement",
+                }
+            )
+
         return recommendations
-    
-    def save_report(self, report: TechnicalDebtReport, output_file: str = "technical_debt_analysis.json"):
+
+    def save_report(
+        self,
+        report: TechnicalDebtReport,
+        output_file: str = "technical_debt_analysis.json",
+    ):
         """Save the analysis report to JSON file"""
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(asdict(report), f, indent=2, default=str)
         logger.info(f"📄 Report saved to {output_file}")
-    
+
     def print_summary(self, report: TechnicalDebtReport):
         """Print a summary of the analysis"""
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("🔍 SOPHIA AI TECHNICAL DEBT ANALYSIS SUMMARY")
-        print("="*80)
-        
-        print(f"\n📊 OVERVIEW:")
-        print(f"   • Total files analyzed: {report.summary_metrics['total_files_analyzed']}")
-        print(f"   • Total lines of code: {report.summary_metrics['total_lines_of_code']:,}")
-        print(f"   • Average complexity score: {report.summary_metrics['average_complexity_score']}")
-        print(f"   • Average debt score: {report.summary_metrics['average_debt_score']}")
-        
-        print(f"\n🚨 CRITICAL ISSUES:")
-        critical_count = report.summary_metrics['files_needing_immediate_attention']
+        print("=" * 80)
+
+        print("\n📊 OVERVIEW:")
+        print(
+            f"   • Total files analyzed: {report.summary_metrics['total_files_analyzed']}"
+        )
+        print(
+            f"   • Total lines of code: {report.summary_metrics['total_lines_of_code']:,}"
+        )
+        print(
+            f"   • Average complexity score: {report.summary_metrics['average_complexity_score']}"
+        )
+        print(
+            f"   • Average debt score: {report.summary_metrics['average_debt_score']}"
+        )
+
+        print("\n🚨 CRITICAL ISSUES:")
+        critical_count = report.summary_metrics["files_needing_immediate_attention"]
         print(f"   • Files needing immediate attention: {critical_count}")
-        print(f"   • High churn files (>10 changes): {report.summary_metrics['files_with_high_churn']}")
-        print(f"   • Complex files (>200 complexity): {report.summary_metrics['files_with_high_complexity']}")
-        
-        print(f"\n🔥 TOP 5 TECHNICAL DEBT HOTSPOTS:")
+        print(
+            f"   • High churn files (>10 changes): {report.summary_metrics['files_with_high_churn']}"
+        )
+        print(
+            f"   • Complex files (>200 complexity): {report.summary_metrics['files_with_high_complexity']}"
+        )
+
+        print("\n🔥 TOP 5 TECHNICAL DEBT HOTSPOTS:")
         for i, file in enumerate(report.debt_hotspots[:5], 1):
             print(f"   {i}. {file.path}")
             print(f"      • Debt Score: {file.technical_debt_score}")
@@ -449,31 +544,31 @@ class TechnicalDebtAnalyzer:
             print(f"      • Priority: {file.refactoring_priority}")
             print(f"      • Issues: {', '.join(file.issues[:2])}")
             print()
-        
-        print(f"\n⚡ IMMEDIATE ACTIONS REQUIRED:")
+
+        print("\n⚡ IMMEDIATE ACTIONS REQUIRED:")
         for i, rec in enumerate(report.recommendations[:3], 1):
             print(f"   {i}. {rec['title']} ({rec['priority']})")
             print(f"      • {rec['description']}")
             print(f"      • Effort: {rec['estimated_effort']}")
             print(f"      • Impact: {rec['impact']}")
             print()
-        
-        print("="*80)
+
+        print("=" * 80)
 
 
 def main():
     """Main execution function"""
     analyzer = TechnicalDebtAnalyzer()
-    
+
     # Perform analysis
     report = analyzer.analyze_codebase()
-    
+
     # Save detailed report
     analyzer.save_report(report, "sophia_ai_technical_debt_analysis.json")
-    
+
     # Print summary
     analyzer.print_summary(report)
-    
+
     # Generate markdown report
     generate_markdown_report(report)
 
@@ -486,63 +581,63 @@ def generate_markdown_report(report: TechnicalDebtReport):
 
 ## Executive Summary
 
-This automated analysis examined **{report.summary_metrics['total_files_analyzed']} Python files** 
-({report.summary_metrics['total_lines_of_code']:,} lines of code) to identify technical debt patterns, 
+This automated analysis examined **{report.summary_metrics["total_files_analyzed"]} Python files** 
+({report.summary_metrics["total_lines_of_code"]:,} lines of code) to identify technical debt patterns, 
 code complexity issues, and refactoring priorities.
 
 ### Key Findings
-- **{report.summary_metrics['files_needing_immediate_attention']} files** require immediate attention
-- **{report.summary_metrics['files_with_high_churn']} files** show high change frequency (>10 changes)
-- **{report.summary_metrics['files_with_high_complexity']} files** have high complexity scores (>200)
-- **Average complexity score**: {report.summary_metrics['average_complexity_score']}
-- **Average technical debt score**: {report.summary_metrics['average_debt_score']}
+- **{report.summary_metrics["files_needing_immediate_attention"]} files** require immediate attention
+- **{report.summary_metrics["files_with_high_churn"]} files** show high change frequency (>10 changes)
+- **{report.summary_metrics["files_with_high_complexity"]} files** have high complexity scores (>200)
+- **Average complexity score**: {report.summary_metrics["average_complexity_score"]}
+- **Average technical debt score**: {report.summary_metrics["average_debt_score"]}
 
 ## Top Technical Debt Hotspots
 
 | Rank | File | Debt Score | Complexity | Changes | Priority | Key Issues |
 |------|------|------------|------------|---------|----------|------------|
 """
-    
+
     for i, file in enumerate(report.debt_hotspots[:10], 1):
-        issues = ', '.join(file.issues[:2]) if file.issues else 'None'
+        issues = ", ".join(file.issues[:2]) if file.issues else "None"
         markdown_content += f"| {i} | `{file.path}` | {file.technical_debt_score} | {file.complexity_score} | {file.change_frequency} | {file.refactoring_priority} | {issues} |\n"
-    
-    markdown_content += f"""
+
+    markdown_content += """
 ## High Change Frequency Files
 
 These files change frequently, indicating potential instability:
 
 """
-    
+
     for file in report.high_churn_files[:5]:
         markdown_content += f"- **{file.path}** - {file.change_frequency} changes, {file.complexity_score} complexity\n"
-    
-    markdown_content += f"""
+
+    markdown_content += """
 ## Immediate Action Items
 
 """
-    
+
     for i, rec in enumerate(report.recommendations[:5], 1):
         markdown_content += f"""
-### {i}. {rec['title']} ({rec['priority']})
+### {i}. {rec["title"]} ({rec["priority"]})
 
-**Description**: {rec['description']}
+**Description**: {rec["description"]}
 
-**Estimated Effort**: {rec['estimated_effort']}
+**Estimated Effort**: {rec["estimated_effort"]}
 
-**Expected Impact**: {rec['impact']}
+**Expected Impact**: {rec["impact"]}
 
 **Files to Address**:
 """
-        for file in rec.get('files', []):
+        for file in rec.get("files", []):
             markdown_content += f"- `{file}`\n"
-    
+
     # Save markdown report
     with open("sophia_ai_technical_debt_report.md", "w") as f:
         f.write(markdown_content)
-    
+
     logger.info("📄 Markdown report saved to sophia_ai_technical_debt_report.md")
 
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -10,14 +10,18 @@ from typing import Dict, Any
 from dataclasses import dataclass
 
 from backend.core.auto_esc_config import get_config_value
-from backend.etl.estuary.estuary_configuration_manager import EstuaryConfigurationManager
+from backend.etl.estuary.estuary_configuration_manager import (
+    EstuaryConfigurationManager,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class NetSuiteSourceConfig:
     """NetSuite source configuration for Estuary"""
+
     realm: str
     consumer_key: str
     consumer_secret: str
@@ -25,29 +29,30 @@ class NetSuiteSourceConfig:
     token_secret: str
     start_date: str = "2024-01-01T00:00:00Z"
 
+
 class EstuaryNetSuiteOrchestrator:
     """Orchestrates NetSuite data ingestion via Estuary"""
-    
+
     def __init__(self):
         self.config_manager = EstuaryConfigurationManager()
         self.netsuite_config = None
-        
+
     async def initialize(self) -> None:
         """Initialize NetSuite Estuary orchestrator"""
         try:
             await self.config_manager.initialize()
-            
+
             # Get NetSuite configuration from Pulumi ESC
             self.netsuite_config = NetSuiteSourceConfig(
                 realm=await get_config_value("netsuite_realm"),
                 consumer_key=await get_config_value("netsuite_consumer_key"),
                 consumer_secret=await get_config_value("netsuite_consumer_secret"),
                 token_id=await get_config_value("netsuite_token_id"),
-                token_secret=await get_config_value("netsuite_token_secret")
+                token_secret=await get_config_value("netsuite_token_secret"),
             )
-            
+
             logger.info("✅ NetSuite Estuary orchestrator initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize NetSuite orchestrator: {e}")
             raise
@@ -64,15 +69,15 @@ class EstuaryNetSuiteOrchestrator:
                     "token_id": self.netsuite_config.token_id,
                     "token_secret": self.netsuite_config.token_secret,
                     "start_date": self.netsuite_config.start_date,
-                    "window_in_days": 30
+                    "window_in_days": 30,
                 },
-                "name": "NetSuite-PayReady-Source"
+                "name": "NetSuite-PayReady-Source",
             }
-            
+
             source_response = await self.config_manager.create_source(source_config)
             logger.info(f"✅ Created NetSuite source: {source_response['sourceId']}")
             return source_response
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create NetSuite source: {e}")
             raise
@@ -84,7 +89,8 @@ class EstuaryNetSuiteOrchestrator:
             destination_config = {
                 "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",  # Snowflake destination ID
                 "connectionConfiguration": {
-                    "host": await get_config_value("snowflake_account") + ".snowflakecomputing.com",
+                    "host": await get_config_value("snowflake_account")
+                    + ".snowflakecomputing.com",
                     "role": "ACCOUNTADMIN",
                     "warehouse": "WH_SOPHIA_AI_PROCESSING",
                     "database": "SOPHIA_AI_DEV",
@@ -93,22 +99,26 @@ class EstuaryNetSuiteOrchestrator:
                     "password": await get_config_value("snowflake_password"),
                     "jdbc_url_params": "",
                     "raw_data_schema": "RAW_ESTUARY",
-                    "loading_method": {
-                        "method": "Standard"
-                    }
+                    "loading_method": {"method": "Standard"},
                 },
-                "name": "Snowflake-NetSuite-Destination"
+                "name": "Snowflake-NetSuite-Destination",
             }
-            
-            destination_response = await self.config_manager.create_destination(destination_config)
-            logger.info(f"✅ Created Snowflake destination for NetSuite: {destination_response['destinationId']}")
+
+            destination_response = await self.config_manager.create_destination(
+                destination_config
+            )
+            logger.info(
+                f"✅ Created Snowflake destination for NetSuite: {destination_response['destinationId']}"
+            )
             return destination_response
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create Snowflake destination: {e}")
             raise
 
-    async def _create_netsuite_connection(self, source_id: str, destination_id: str) -> Dict[str, Any]:
+    async def _create_netsuite_connection(
+        self, source_id: str, destination_id: str
+    ) -> Dict[str, Any]:
         """Create connection between NetSuite source and Snowflake destination"""
         try:
             # Define NetSuite streams to sync
@@ -117,89 +127,91 @@ class EstuaryNetSuiteOrchestrator:
                     "stream": {
                         "name": "accounts",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["lastModifiedDate"],
-                        "primary_key": [["internalId"]]
-                    }
+                        "primary_key": [["internalId"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "transactions",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["lastModifiedDate"],
-                        "primary_key": [["internalId"]]
-                    }
+                        "primary_key": [["internalId"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "purchase_orders",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["lastModifiedDate"],
-                        "primary_key": [["internalId"]]
-                    }
+                        "primary_key": [["internalId"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "expense_reports",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["lastModifiedDate"],
-                        "primary_key": [["internalId"]]
-                    }
+                        "primary_key": [["internalId"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "vendors",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["lastModifiedDate"],
-                        "primary_key": [["internalId"]]
-                    }
-                }
+                        "primary_key": [["internalId"]],
+                    },
+                },
             ]
-            
+
             connection_config = {
                 "sourceId": source_id,
                 "destinationId": destination_id,
-                "syncCatalog": {
-                    "streams": streams_config
-                },
+                "syncCatalog": {"streams": streams_config},
                 "schedule": {
                     "scheduleType": "cron",
-                    "cronExpression": "0 */6 * * *"  # Every 6 hours
+                    "cronExpression": "0 */6 * * *",  # Every 6 hours
                 },
                 "name": "NetSuite-to-Snowflake-Connection",
                 "namespaceDefinition": "source",
                 "namespaceFormat": "${SOURCE_NAMESPACE}",
-                "prefix": "netsuite_"
+                "prefix": "netsuite_",
             }
-            
-            connection_response = await self.config_manager.create_connection(connection_config)
-            logger.info(f"✅ Created NetSuite connection: {connection_response['connectionId']}")
+
+            connection_response = await self.config_manager.create_connection(
+                connection_config
+            )
+            logger.info(
+                f"✅ Created NetSuite connection: {connection_response['connectionId']}"
+            )
             return connection_response
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create NetSuite connection: {e}")
             raise
@@ -209,7 +221,7 @@ class EstuaryNetSuiteOrchestrator:
         try:
             snowflake_conn = await self.config_manager._get_snowflake_connection()
             cursor = snowflake_conn.cursor()
-            
+
             # Procedure to transform NetSuite accounts to general ledger
             cursor.execute("""
                 CREATE OR REPLACE PROCEDURE TRANSFORM_NETSUITE_ACCOUNTS()
@@ -286,7 +298,7 @@ class EstuaryNetSuiteOrchestrator:
                 END;
                 $$;
             """)
-            
+
             # Procedure to transform NetSuite purchase orders
             cursor.execute("""
                 CREATE OR REPLACE PROCEDURE TRANSFORM_NETSUITE_PURCHASE_ORDERS()
@@ -359,7 +371,7 @@ class EstuaryNetSuiteOrchestrator:
                 END;
                 $$;
             """)
-            
+
             # Procedure to transform NetSuite expense reports
             cursor.execute("""
                 CREATE OR REPLACE PROCEDURE TRANSFORM_NETSUITE_EXPENSE_REPORTS()
@@ -424,7 +436,7 @@ class EstuaryNetSuiteOrchestrator:
                 END;
                 $$;
             """)
-            
+
             # Create task to run transformations automatically
             cursor.execute("""
                 CREATE OR REPLACE TASK TASK_TRANSFORM_NETSUITE_DATA
@@ -438,15 +450,15 @@ class EstuaryNetSuiteOrchestrator:
                     CALL TRANSFORM_NETSUITE_EXPENSE_REPORTS();
                 END;
             """)
-            
+
             # Resume the task
             cursor.execute("ALTER TASK TASK_TRANSFORM_NETSUITE_DATA RESUME;")
-            
+
             cursor.close()
             snowflake_conn.close()
-            
+
             logger.info("✅ Created NetSuite transformation procedures and tasks")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create NetSuite transformation procedures: {e}")
             raise
@@ -455,55 +467,59 @@ class EstuaryNetSuiteOrchestrator:
         """Set up complete NetSuite data pipeline"""
         try:
             logger.info("🚀 Setting up complete NetSuite data pipeline")
-            
+
             # Create NetSuite source
             source_response = await self._create_netsuite_source()
-            source_id = source_response['sourceId']
-            
+            source_id = source_response["sourceId"]
+
             # Create Snowflake destination
             destination_response = await self._create_snowflake_destination()
-            destination_id = destination_response['destinationId']
-            
+            destination_id = destination_response["destinationId"]
+
             # Create connection
-            connection_response = await self._create_netsuite_connection(source_id, destination_id)
-            connection_id = connection_response['connectionId']
-            
+            connection_response = await self._create_netsuite_connection(
+                source_id, destination_id
+            )
+            connection_id = connection_response["connectionId"]
+
             # Create transformation procedures
             await self.create_transformation_procedures()
-            
+
             # Trigger initial sync
             await self.config_manager.trigger_sync(connection_id)
-            
+
             pipeline_info = {
-                'source_id': source_id,
-                'destination_id': destination_id,
-                'connection_id': connection_id,
-                'status': 'configured'
+                "source_id": source_id,
+                "destination_id": destination_id,
+                "connection_id": connection_id,
+                "status": "configured",
             }
-            
+
             logger.info(f"✅ NetSuite pipeline setup completed: {pipeline_info}")
             return pipeline_info
-            
+
         except Exception as e:
             logger.error(f"❌ NetSuite pipeline setup failed: {e}")
             raise
 
+
 async def main():
     """Main execution function"""
     orchestrator = EstuaryNetSuiteOrchestrator()
-    
+
     try:
         await orchestrator.initialize()
         pipeline_info = await orchestrator.setup_complete_netsuite_pipeline()
-        
+
         print("✅ NetSuite Estuary pipeline setup completed successfully!")
         print(f"📊 Pipeline info: {pipeline_info}")
-        
+
     except Exception as e:
         print(f"❌ NetSuite pipeline setup failed: {e}")
         return 1
-    
+
     return 0
 
+
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

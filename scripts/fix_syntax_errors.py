@@ -36,17 +36,17 @@ def fix_common_syntax_patterns(content):
         # Matches patterns like ").^", "].^", "}.^"
         line = re.sub(r"([)\]}])\.\s*$", r"\1", line)
         if line != original_line:
-            logger.info(f"Fixed trailing period after closing bracket on line {i+1}")
+            logger.info(f"Fixed trailing period after closing bracket on line {i + 1}")
 
         # Fix 2: Fix "try:." pattern
         line = re.sub(r"try:\.\s*$", "try:", line)
         if line != original_line:
-            logger.info(f"Fixed 'try:.' pattern on line {i+1}")
+            logger.info(f"Fixed 'try:.' pattern on line {i + 1}")
 
         # Fix 3: Fix common method/function definition errors
         line = re.sub(r"def\s+(\w+)\s*\([^)]*\)\s*:\.\s*$", r"def \1():", line)
         if line != original_line:
-            logger.info(f"Fixed method definition on line {i+1}")
+            logger.info(f"Fixed method definition on line {i + 1}")
 
         # Fix 4: Fix docstring followed by code on same line
         # Pattern: """docstring"""code -> """docstring"""\ncode
@@ -55,38 +55,38 @@ def fix_common_syntax_patterns(content):
             indent, docstring, code = match.groups()
             fixed_lines.append(f"{indent}{docstring}")
             fixed_lines.append(f"{indent}{code}")
-            logger.info(f"Split docstring and code on line {i+1}")
+            logger.info(f"Split docstring and code on line {i + 1}")
             continue
 
         # Fix 5: Fix improper string concatenation
         line = re.sub(r'"\\n"join\(', r'"\n".join(', line)
         if line != original_line:
-            logger.info(f"Fixed string join syntax on line {i+1}")
+            logger.info(f"Fixed string join syntax on line {i + 1}")
 
         # Fix 6: Fix return statement with trailing period
         line = re.sub(r"return\s+([^.]+)\.\s*$", r"return \1", line)
         if line != original_line:
-            logger.info(f"Fixed return statement on line {i+1}")
+            logger.info(f"Fixed return statement on line {i + 1}")
 
         # Fix 7: Fix assignment with trailing period
         line = re.sub(r"=\s*([^.]+)\.\s*$", r"= \1", line)
         if line != original_line:
-            logger.info(f"Fixed assignment statement on line {i+1}")
+            logger.info(f"Fixed assignment statement on line {i + 1}")
 
         # Fix 8: Fix if statement errors
         line = re.sub(r"if\s+([^:]+):\.\s*$", r"if \1:", line)
         if line != original_line:
-            logger.info(f"Fixed if statement on line {i+1}")
+            logger.info(f"Fixed if statement on line {i + 1}")
 
         # Fix 9: Fix logger statements with trailing period
         line = re.sub(r"(logger\.\w+\([^)]+\))\.\s*$", r"\1", line)
         if line != original_line:
-            logger.info(f"Fixed logger statement on line {i+1}")
+            logger.info(f"Fixed logger statement on line {i + 1}")
 
         # Fix 10: Fix await statements with trailing period
         line = re.sub(r"(await\s+[^.]+)\.\s*$", r"\1", line)
         if line != original_line:
-            logger.info(f"Fixed await statement on line {i+1}")
+            logger.info(f"Fixed await statement on line {i + 1}")
 
         fixed_lines.append(line)
 

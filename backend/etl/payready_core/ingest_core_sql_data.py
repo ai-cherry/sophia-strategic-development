@@ -20,62 +20,73 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class PayReadyDataIngestionConfig:
     """Configuration for Pay Ready data ingestion"""
+
     source_db_connection: str
     snowflake_connection: Dict[str, str]
     batch_size: int = 1000
     max_retries: int = 3
     sync_window_hours: int = 24
 
+
 class PayReadyCoreDataIngestor:
     """Ingests Pay Ready operational data into Snowflake PAYREADY_CORE_SQL schema"""
-    
+
     def __init__(self):
         self.config = None
         self.source_engine = None
         self.snowflake_conn = None
         self.cortex_service = None
-        
+
     async def initialize(self) -> None:
         """Initialize connections and services"""
         try:
             # Get configuration from Pulumi ESC
             self.config = PayReadyDataIngestionConfig(
-                source_db_connection=await get_config_value("payready_operational_db_connection"),
+                source_db_connection=await get_config_value(
+                    "payready_operational_db_connection"
+                ),
                 snowflake_connection={
                     "account": await get_config_value("snowflake_account"),
                     "user": await get_config_value("snowflake_user"),
                     "password": await get_config_value("snowflake_password"),
                     "database": "SOPHIA_AI_DEV",
                     "schema": "PAYREADY_CORE_SQL",
-                    "warehouse": "WH_SOPHIA_AI_PROCESSING"
-                }
+                    "warehouse": "WH_SOPHIA_AI_PROCESSING",
+                },
             )
-            
+
             # Initialize source database connection
             self.source_engine = create_engine(self.config.source_db_connection)
-            
+
             # Initialize Snowflake connection
-            self.snowflake_conn = snowflake.connector.connect(**self.config.snowflake_connection)
-            
+            self.snowflake_conn = snowflake.connector.connect(
+                **self.config.snowflake_connection
+            )
+
             # Initialize Cortex service for AI processing
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             logger.info("✅ Pay Ready Core Data Ingestor initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize Pay Ready ingestor: {e}")
             raise
 
-    async def extract_payment_transactions(self, since_date: Optional[datetime] = None) -> pd.DataFrame:
+    async def extract_payment_transactions(
+        self, since_date: Optional[datetime] = None
+    ) -> pd.DataFrame:
         """Extract payment transactions from operational database"""
         try:
             if since_date is None:
-                since_date = datetime.now() - timedelta(hours=self.config.sync_window_hours)
-            
+                since_date = datetime.now() - timedelta(
+                    hours=self.config.sync_window_hours
+                )
+
             query = """
             SELECT 
                 transaction_id,
@@ -108,26 +119,30 @@ class PayReadyCoreDataIngestor:
             OR updated_at >= :since_date
             ORDER BY processing_date DESC
             """
-            
+
             df = pd.read_sql_query(
-                text(query), 
-                self.source_engine, 
-                params={"since_date": since_date}
+                text(query), self.source_engine, params={"since_date": since_date}
             )
-            
-            logger.info(f"📊 Extracted {len(df)} payment transactions since {since_date}")
+
+            logger.info(
+                f"📊 Extracted {len(df)} payment transactions since {since_date}"
+            )
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract payment transactions: {e}")
             raise
 
-    async def extract_customer_features(self, since_date: Optional[datetime] = None) -> pd.DataFrame:
+    async def extract_customer_features(
+        self, since_date: Optional[datetime] = None
+    ) -> pd.DataFrame:
         """Extract customer features from operational database"""
         try:
             if since_date is None:
-                since_date = datetime.now() - timedelta(hours=self.config.sync_window_hours)
-            
+                since_date = datetime.now() - timedelta(
+                    hours=self.config.sync_window_hours
+                )
+
             query = """
             SELECT 
                 feature_id,
@@ -156,26 +171,28 @@ class PayReadyCoreDataIngestor:
             OR updated_at >= :since_date
             ORDER BY created_at DESC
             """
-            
+
             df = pd.read_sql_query(
-                text(query), 
-                self.source_engine, 
-                params={"since_date": since_date}
+                text(query), self.source_engine, params={"since_date": since_date}
             )
-            
+
             logger.info(f"📊 Extracted {len(df)} customer features since {since_date}")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract customer features: {e}")
             raise
 
-    async def extract_business_rules(self, since_date: Optional[datetime] = None) -> pd.DataFrame:
+    async def extract_business_rules(
+        self, since_date: Optional[datetime] = None
+    ) -> pd.DataFrame:
         """Extract business rules from operational database"""
         try:
             if since_date is None:
-                since_date = datetime.now() - timedelta(hours=self.config.sync_window_hours)
-            
+                since_date = datetime.now() - timedelta(
+                    hours=self.config.sync_window_hours
+                )
+
             query = """
             SELECT 
                 rule_id,
@@ -203,16 +220,14 @@ class PayReadyCoreDataIngestor:
             OR updated_at >= :since_date
             ORDER BY execution_order
             """
-            
+
             df = pd.read_sql_query(
-                text(query), 
-                self.source_engine, 
-                params={"since_date": since_date}
+                text(query), self.source_engine, params={"since_date": since_date}
             )
-            
+
             logger.info(f"📊 Extracted {len(df)} business rules since {since_date}")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract business rules: {e}")
             raise
@@ -223,17 +238,18 @@ class PayReadyCoreDataIngestor:
             if df.empty:
                 logger.info("No payment transactions to load")
                 return 0
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PAYMENT_TRANSACTIONS LIKE PAYMENT_TRANSACTIONS
             """)
-            
+
             # Insert data into temporary table
             for _, row in df.iterrows():
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_PAYMENT_TRANSACTIONS (
                         TRANSACTION_ID, CUSTOMER_ID, AMOUNT, CURRENCY, TRANSACTION_TYPE,
                         PAYMENT_METHOD, STATUS, PROCESSING_DATE, COMPLETED_DATE, FAILURE_REASON,
@@ -246,19 +262,35 @@ class PayReadyCoreDataIngestor:
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                         %s, %s, %s, %s
                     )
-                """, (
-                    row['transaction_id'], row['customer_id'], row['amount'], 
-                    row['currency'], row['transaction_type'], row['payment_method'],
-                    row['status'], row['processing_date'], row['completed_date'],
-                    row['failure_reason'], row['property_id'], row['unit_id'],
-                    row['lease_id'], row['invoice_id'], row['processor_name'],
-                    row['processor_transaction_id'], row['processor_fee'],
-                    row['processing_time_ms'], row['risk_score'], 
-                    json.dumps(row['fraud_flags']) if row['fraud_flags'] else None,
-                    row['compliance_status'], row['aml_status'],
-                    row['created_by'], row['updated_by']
-                ))
-            
+                """,
+                    (
+                        row["transaction_id"],
+                        row["customer_id"],
+                        row["amount"],
+                        row["currency"],
+                        row["transaction_type"],
+                        row["payment_method"],
+                        row["status"],
+                        row["processing_date"],
+                        row["completed_date"],
+                        row["failure_reason"],
+                        row["property_id"],
+                        row["unit_id"],
+                        row["lease_id"],
+                        row["invoice_id"],
+                        row["processor_name"],
+                        row["processor_transaction_id"],
+                        row["processor_fee"],
+                        row["processing_time_ms"],
+                        row["risk_score"],
+                        json.dumps(row["fraud_flags"]) if row["fraud_flags"] else None,
+                        row["compliance_status"],
+                        row["aml_status"],
+                        row["created_by"],
+                        row["updated_by"],
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO PAYMENT_TRANSACTIONS AS target
@@ -295,13 +327,15 @@ class PayReadyCoreDataIngestor:
                     source.CREATED_BY, source.UPDATED_BY
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
-            logger.info(f"✅ Loaded {rows_affected} payment transactions into Snowflake")
+
+            logger.info(
+                f"✅ Loaded {rows_affected} payment transactions into Snowflake"
+            )
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load payment transactions: {e}")
             raise
@@ -312,17 +346,18 @@ class PayReadyCoreDataIngestor:
             if df.empty:
                 logger.info("No customer features to load")
                 return 0
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_CUSTOMER_FEATURES LIKE CUSTOMER_FEATURES
             """)
-            
+
             # Insert data into temporary table
             for _, row in df.iterrows():
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_CUSTOMER_FEATURES (
                         FEATURE_ID, CUSTOMER_ID, FEATURE_NAME, FEATURE_CATEGORY, IS_ENABLED,
                         CONFIGURATION, DEFAULT_CONFIGURATION, CUSTOM_SETTINGS, FEATURE_TIER,
@@ -333,19 +368,37 @@ class PayReadyCoreDataIngestor:
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    row['feature_id'], row['customer_id'], row['feature_name'],
-                    row['feature_category'], row['is_enabled'],
-                    json.dumps(row['configuration']) if row['configuration'] else None,
-                    json.dumps(row['default_configuration']) if row['default_configuration'] else None,
-                    json.dumps(row['custom_settings']) if row['custom_settings'] else None,
-                    row['feature_tier'], row['requires_subscription'], row['monthly_fee'],
-                    row['activation_date'], row['last_used_date'], row['usage_count'],
-                    row['usage_frequency'], row['customer_satisfaction_impact'],
-                    row['retention_impact'], row['revenue_impact'],
-                    row['enabled_by'], row['disabled_by']
-                ))
-            
+                """,
+                    (
+                        row["feature_id"],
+                        row["customer_id"],
+                        row["feature_name"],
+                        row["feature_category"],
+                        row["is_enabled"],
+                        json.dumps(row["configuration"])
+                        if row["configuration"]
+                        else None,
+                        json.dumps(row["default_configuration"])
+                        if row["default_configuration"]
+                        else None,
+                        json.dumps(row["custom_settings"])
+                        if row["custom_settings"]
+                        else None,
+                        row["feature_tier"],
+                        row["requires_subscription"],
+                        row["monthly_fee"],
+                        row["activation_date"],
+                        row["last_used_date"],
+                        row["usage_count"],
+                        row["usage_frequency"],
+                        row["customer_satisfaction_impact"],
+                        row["retention_impact"],
+                        row["revenue_impact"],
+                        row["enabled_by"],
+                        row["disabled_by"],
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO CUSTOMER_FEATURES AS target
@@ -379,22 +432,24 @@ class PayReadyCoreDataIngestor:
                     source.REVENUE_IMPACT, source.ENABLED_BY, source.DISABLED_BY
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
+
             logger.info(f"✅ Loaded {rows_affected} customer features into Snowflake")
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load customer features: {e}")
             raise
 
-    async def generate_ai_embeddings(self, table_name: str, text_columns: List[str]) -> int:
+    async def generate_ai_embeddings(
+        self, table_name: str, text_columns: List[str]
+    ) -> int:
         """Generate AI embeddings for text columns in specified table"""
         try:
             cursor = self.snowflake_conn.cursor()
-            
+
             for column in text_columns:
                 # Generate embeddings for records without them
                 cursor.execute(f"""
@@ -410,13 +465,15 @@ class PayReadyCoreDataIngestor:
                     WHERE {column} IS NOT NULL 
                     AND AI_MEMORY_EMBEDDING IS NULL
                 """)
-                
+
                 rows_updated = cursor.rowcount
-                logger.info(f"✅ Generated embeddings for {rows_updated} records in {table_name}.{column}")
-            
+                logger.info(
+                    f"✅ Generated embeddings for {rows_updated} records in {table_name}.{column}"
+                )
+
             cursor.close()
             return rows_updated
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate embeddings for {table_name}: {e}")
             raise
@@ -425,28 +482,34 @@ class PayReadyCoreDataIngestor:
         """Run full synchronization of Pay Ready core data"""
         try:
             logger.info("🚀 Starting Pay Ready Core Data full sync")
-            
+
             results = {}
-            
+
             # Extract and load payment transactions
             payment_df = await self.extract_payment_transactions()
-            results['payment_transactions'] = await self.load_payment_transactions(payment_df)
-            
+            results["payment_transactions"] = await self.load_payment_transactions(
+                payment_df
+            )
+
             # Extract and load customer features
             features_df = await self.extract_customer_features()
-            results['customer_features'] = await self.load_customer_features(features_df)
-            
+            results["customer_features"] = await self.load_customer_features(
+                features_df
+            )
+
             # Extract and load business rules
             await self.extract_business_rules()
             # Note: Business rules loading would be implemented similarly
-            
+
             # Generate AI embeddings
-            await self.generate_ai_embeddings('PAYMENT_TRANSACTIONS', ['FAILURE_REASON'])
-            await self.generate_ai_embeddings('CUSTOMER_FEATURES', ['FEATURE_NAME'])
-            
+            await self.generate_ai_embeddings(
+                "PAYMENT_TRANSACTIONS", ["FAILURE_REASON"]
+            )
+            await self.generate_ai_embeddings("CUSTOMER_FEATURES", ["FEATURE_NAME"])
+
             logger.info(f"✅ Pay Ready Core Data sync completed: {results}")
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Pay Ready Core Data sync failed: {e}")
             raise
@@ -455,24 +518,32 @@ class PayReadyCoreDataIngestor:
         """Run incremental synchronization for recent changes"""
         try:
             since_date = datetime.now() - timedelta(hours=since_hours)
-            logger.info(f"🔄 Starting Pay Ready Core Data incremental sync since {since_date}")
-            
+            logger.info(
+                f"🔄 Starting Pay Ready Core Data incremental sync since {since_date}"
+            )
+
             results = {}
-            
+
             # Extract and load recent changes
             payment_df = await self.extract_payment_transactions(since_date)
-            results['payment_transactions'] = await self.load_payment_transactions(payment_df)
-            
+            results["payment_transactions"] = await self.load_payment_transactions(
+                payment_df
+            )
+
             features_df = await self.extract_customer_features(since_date)
-            results['customer_features'] = await self.load_customer_features(features_df)
-            
+            results["customer_features"] = await self.load_customer_features(
+                features_df
+            )
+
             # Generate embeddings for new records
-            await self.generate_ai_embeddings('PAYMENT_TRANSACTIONS', ['FAILURE_REASON'])
-            await self.generate_ai_embeddings('CUSTOMER_FEATURES', ['FEATURE_NAME'])
-            
+            await self.generate_ai_embeddings(
+                "PAYMENT_TRANSACTIONS", ["FAILURE_REASON"]
+            )
+            await self.generate_ai_embeddings("CUSTOMER_FEATURES", ["FEATURE_NAME"])
+
             logger.info(f"✅ Pay Ready Core Data incremental sync completed: {results}")
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Pay Ready Core Data incremental sync failed: {e}")
             raise
@@ -490,26 +561,28 @@ class PayReadyCoreDataIngestor:
         except Exception as e:
             logger.error(f"❌ Error closing connections: {e}")
 
+
 async def main():
     """Main execution function"""
     ingestor = PayReadyCoreDataIngestor()
-    
+
     try:
         await ingestor.initialize()
-        
+
         # Run incremental sync by default
         results = await ingestor.run_incremental_sync()
-        
+
         print("✅ Pay Ready Core Data ingestion completed successfully!")
         print(f"📊 Results: {results}")
-        
+
     except Exception as e:
         print(f"❌ Pay Ready Core Data ingestion failed: {e}")
         return 1
     finally:
         await ingestor.close()
-    
+
     return 0
 
+
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

@@ -9,11 +9,11 @@ Phase 1 Critical Stability Implementation:
 - Proper error handling and logging
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import logging
 import os
 
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 # Get environment with proper fallback
 ENVIRONMENT = os.getenv("ENVIRONMENT", os.getenv("SOPHIA_ENVIRONMENT", "dev"))
 
+
 # Response models for proper FastAPI validation
 class HealthResponse(BaseModel):
     status: str
@@ -38,6 +39,7 @@ class HealthResponse(BaseModel):
     version: str
     message: str
     environment: str
+
 
 class APIHealthResponse(BaseModel):
     status: str
@@ -49,6 +51,7 @@ class APIHealthResponse(BaseModel):
     openai_configured: bool
     gong_configured: bool
     message: str
+
 
 # Create FastAPI app with proper configuration
 app = FastAPI(
@@ -84,7 +87,7 @@ async def read_root() -> HealthResponse:
         service="Sophia AI Platform",
         version="1.0.0",
         message="Enterprise AI orchestrator ready",
-        environment=ENVIRONMENT
+        environment=ENVIRONMENT,
     )
 
 
@@ -94,17 +97,17 @@ async def api_health_check() -> APIHealthResponse:
     try:
         # Check if we can load basic configuration
         from backend.core.auto_esc_config import get_config_value
-        
+
         # Test basic config loading without external calls
         has_openai = False
         has_gong = False
-        
+
         try:
             openai_key = get_config_value("openai_api_key")
             has_openai = bool(openai_key and len(openai_key) > 10)
         except Exception as e:
             logger.debug(f"OpenAI config check: {e}")
-            
+
         try:
             gong_key = get_config_value("gong_access_key")
             has_gong = bool(gong_key and len(gong_key) > 10)
@@ -114,7 +117,7 @@ async def api_health_check() -> APIHealthResponse:
         # Determine overall status
         config_health = "healthy" if (has_openai or has_gong) else "degraded"
         services_status = "operational" if (has_openai or has_gong) else "degraded"
-        
+
         return APIHealthResponse(
             status=config_health,
             api_version="1.0.0",
@@ -124,9 +127,9 @@ async def api_health_check() -> APIHealthResponse:
             configuration_status="loaded",
             openai_configured=has_openai,
             gong_configured=has_gong,
-            message=f"Sophia AI Platform operational in {ENVIRONMENT} environment"
+            message=f"Sophia AI Platform operational in {ENVIRONMENT} environment",
         )
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return APIHealthResponse(
@@ -138,7 +141,7 @@ async def api_health_check() -> APIHealthResponse:
             configuration_status="error",
             openai_configured=False,
             gong_configured=False,
-            message=f"Health check system failure: {str(e)}"
+            message=f"Health check system failure: {str(e)}",
         )
 
 
@@ -153,26 +156,26 @@ async def config_status() -> Dict[str, Any]:
     """Configuration status without external connectivity tests."""
     try:
         from backend.core.auto_esc_config import get_config_value
-        
+
         config_checks = {
             "environment": ENVIRONMENT,
             "pulumi_esc_connected": False,
             "secrets_loaded": 0,
-            "services_configured": []
+            "services_configured": [],
         }
-        
+
         # Test configuration loading
         secrets_loaded = 0
         services_configured = []
-        
+
         # Check key services without external calls
         service_configs = [
             ("openai_api_key", "OpenAI"),
             ("gong_access_key", "Gong"),
             ("anthropic_api_key", "Anthropic"),
-            ("pinecone_api_key", "Pinecone")
+            ("pinecone_api_key", "Pinecone"),
         ]
-        
+
         for config_key, service_name in service_configs:
             try:
                 value = get_config_value(config_key)
@@ -181,13 +184,13 @@ async def config_status() -> Dict[str, Any]:
                     services_configured.append(service_name)
             except Exception as e:
                 logger.debug(f"Config check for {service_name}: {e}")
-        
+
         config_checks["secrets_loaded"] = secrets_loaded
         config_checks["services_configured"] = services_configured
         config_checks["pulumi_esc_connected"] = secrets_loaded > 0
-        
+
         return config_checks
-        
+
     except Exception as e:
         logger.error(f"Config status check failed: {e}")
         return {
@@ -195,7 +198,7 @@ async def config_status() -> Dict[str, Any]:
             "pulumi_esc_connected": False,
             "secrets_loaded": 0,
             "services_configured": [],
-            "error": str(e)
+            "error": str(e),
         }
 
 
@@ -209,8 +212,8 @@ async def global_exception_handler(request, exc):
         content={
             "status": "error",
             "message": "Internal server error",
-            "environment": ENVIRONMENT
-        }
+            "environment": ENVIRONMENT,
+        },
     )
 
 
@@ -223,48 +226,56 @@ async def startup_event():
     try:
         # Basic configuration check
         from backend.core.auto_esc_config import get_config_value
-        
+
         config_summary = {
             "openai": False,
             "gong": False,
             "anthropic": False,
-            "pinecone": False
+            "pinecone": False,
         }
-        
+
         # Test configuration loading for key services
         services_to_check = [
             ("openai_api_key", "openai"),
             ("gong_access_key", "gong"),
             ("anthropic_api_key", "anthropic"),
-            ("pinecone_api_key", "pinecone")
+            ("pinecone_api_key", "pinecone"),
         ]
-        
+
         for config_key, service in services_to_check:
             try:
                 value = get_config_value(config_key)
                 config_summary[service] = bool(value and len(value) > 10)
-                logger.info(f"✅ {service.title()} configuration: {'Loaded' if config_summary[service] else 'Missing'}")
+                logger.info(
+                    f"✅ {service.title()} configuration: {'Loaded' if config_summary[service] else 'Missing'}"
+                )
             except Exception as e:
                 logger.warning(f"⚠️ {service.title()} configuration issue: {e}")
                 config_summary[service] = False
 
         # Summary logging
         configured_services = sum(config_summary.values())
-        logger.info(f"📊 Configuration Summary: {configured_services}/4 services configured")
-        
+        logger.info(
+            f"📊 Configuration Summary: {configured_services}/4 services configured"
+        )
+
         if configured_services == 0:
             if ENVIRONMENT.lower() == "prod":
                 logger.error("🚨 PRODUCTION STARTUP FAILED: No services configured")
                 raise RuntimeError("Production startup failed: No API keys configured")
             else:
-                logger.warning("🔄 Development mode: Continuing with no configured services...")
-        
+                logger.warning(
+                    "🔄 Development mode: Continuing with no configured services..."
+                )
+
         # Success logging
         logger.info("✅ FastAPI app initialized")
         logger.info("✅ CORS middleware configured")
         logger.info("✅ API routes registered")
         logger.info("✅ Global exception handler configured")
-        logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
+        logger.info(
+            f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment"
+        )
 
     except Exception as e:
         logger.error(f"❌ Startup failed: {e}")
@@ -272,7 +283,9 @@ async def startup_event():
             logger.error("🚨 PRODUCTION STARTUP FAILED")
             raise RuntimeError(f"Production startup failed: {str(e)}")
         else:
-            logger.warning("🔄 Continuing startup in development mode despite errors...")
+            logger.warning(
+                "🔄 Continuing startup in development mode despite errors..."
+            )
 
 
 # Shutdown event
@@ -280,14 +293,14 @@ async def startup_event():
 async def shutdown_event():
     """Clean up resources on shutdown."""
     logger.info("🔄 Shutting down Sophia AI Platform...")
-    
+
     # Cleanup logic here if needed
     try:
         # Add any cleanup operations
         logger.info("✅ Resource cleanup completed")
     except Exception as e:
         logger.error(f"❌ Cleanup error: {e}")
-    
+
     logger.info("✅ Sophia AI Platform shutdown complete")
 
 
@@ -297,24 +310,24 @@ async def connection_manager_health() -> Dict[str, Any]:
     """Check the health of the optimized connection manager."""
     try:
         from backend.core.optimized_connection_manager import connection_manager
-        
+
         # Basic health check without actual database connection
         return {
             "status": "available",
             "connection_manager": "optimized",
             "pool_enabled": True,
-            "message": "Connection manager ready for Phase 1 deployment"
+            "message": "Connection manager ready for Phase 1 deployment",
         }
     except ImportError:
         return {
             "status": "not_deployed",
             "connection_manager": "standard",
             "pool_enabled": False,
-            "message": "Optimized connection manager not yet deployed"
+            "message": "Optimized connection manager not yet deployed",
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "message": "Connection manager health check failed"
+            "message": "Connection manager health check failed",
         }

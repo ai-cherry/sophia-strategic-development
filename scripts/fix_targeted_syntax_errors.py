@@ -70,7 +70,7 @@ def fix_file_syntax(file_path: Path) -> Tuple[bool, List[str]]:
                 ):
                     line = line.rstrip().rstrip(".")
                     if line != original_line:
-                        fixes.append(f"Line {i+1}: Removed trailing period")
+                        fixes.append(f"Line {i + 1}: Removed trailing period")
 
             # Fix specific patterns
             # Pattern: if condition:. -> if condition:
@@ -95,7 +95,7 @@ def fix_file_syntax(file_path: Path) -> Tuple[bool, List[str]]:
             line = re.sub(r"([\[\{])\.\s*$", r"\1", line)
 
             if line != original_line and original_line not in fixes:
-                fixes.append(f"Line {i+1}: Fixed syntax")
+                fixes.append(f"Line {i + 1}: Fixed syntax")
 
             fixed_lines.append(line)
 

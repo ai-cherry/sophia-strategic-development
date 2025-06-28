@@ -532,7 +532,6 @@ class SophiaAIOrchestrator:
 
             # If teaching is sales-related, notify sales coach
             if self._is_sales_related_content(teaching_data.get("feedback", "")):
-
                 # Future: Could enhance sales coach with teaching insights
                 supporting_responses.append(
                     {

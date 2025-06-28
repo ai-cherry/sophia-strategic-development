@@ -17,7 +17,10 @@ from backend.agents.core.base_agent import BaseAgent
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+    MemoryCategory,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -167,15 +170,15 @@ class SalesCoachAgent(BaseAgent):
                 summary_prompt = f"""
                 Analyze this sales call and provide key insights:
                 
-                Call: {call_data.get('CALL_TITLE', 'Unknown')}
-                Sales Rep: {call_data.get('PRIMARY_USER_NAME', 'Unknown')}
-                Duration: {call_data.get('CALL_DURATION_SECONDS', 0)} seconds
-                Participants: {call_data.get('PARTICIPANT_LIST', 'Unknown')}
+                Call: {call_data.get("CALL_TITLE", "Unknown")}
+                Sales Rep: {call_data.get("PRIMARY_USER_NAME", "Unknown")}
+                Duration: {call_data.get("CALL_DURATION_SECONDS", 0)} seconds
+                Participants: {call_data.get("PARTICIPANT_LIST", "Unknown")}
                 
                 Current metrics:
-                - Overall sentiment: {call_data.get('SENTIMENT_SCORE', 0):.2f}
-                - Talk ratio: {call_data.get('TALK_RATIO', 0):.2f}
-                - Questions asked: {call_data.get('QUESTIONS_ASKED_COUNT', 0)}
+                - Overall sentiment: {call_data.get("SENTIMENT_SCORE", 0):.2f}
+                - Talk ratio: {call_data.get("TALK_RATIO", 0):.2f}
+                - Questions asked: {call_data.get("QUESTIONS_ASKED_COUNT", 0)}
                 
                 Provide analysis on:
                 1. Call effectiveness and key outcomes
@@ -543,16 +546,16 @@ class SalesCoachAgent(BaseAgent):
                     Period: Last {time_period_days} days
                     
                     Performance Metrics:
-                    - Total calls: {rep_performance.get('TOTAL_CALLS', 0)}
-                    - Average sentiment: {rep_performance.get('AVG_SENTIMENT', 0):.2f}
-                    - Average talk ratio: {rep_performance.get('AVG_TALK_RATIO', 0):.2f}
-                    - Win rate: {rep_performance.get('WIN_RATE', 0):.1f}%
-                    - Revenue won: ${rep_performance.get('REVENUE_WON', 0):,.0f}
+                    - Total calls: {rep_performance.get("TOTAL_CALLS", 0)}
+                    - Average sentiment: {rep_performance.get("AVG_SENTIMENT", 0):.2f}
+                    - Average talk ratio: {rep_performance.get("AVG_TALK_RATIO", 0):.2f}
+                    - Win rate: {rep_performance.get("WIN_RATE", 0):.1f}%
+                    - Revenue won: ${rep_performance.get("REVENUE_WON", 0):,.0f}
                     
                     Coaching Needs:
-                    - Sentiment coaching needed: {rep_performance.get('NEEDS_SENTIMENT_COACHING', 0)} calls
-                    - Talk ratio coaching needed: {rep_performance.get('NEEDS_TALK_RATIO_COACHING', 0)} calls
-                    - Discovery coaching needed: {rep_performance.get('NEEDS_DISCOVERY_COACHING', 0)} calls
+                    - Sentiment coaching needed: {rep_performance.get("NEEDS_SENTIMENT_COACHING", 0)} calls
+                    - Talk ratio coaching needed: {rep_performance.get("NEEDS_TALK_RATIO_COACHING", 0)} calls
+                    - Discovery coaching needed: {rep_performance.get("NEEDS_DISCOVERY_COACHING", 0)} calls
                     
                     Provide:
                     1. Overall performance assessment

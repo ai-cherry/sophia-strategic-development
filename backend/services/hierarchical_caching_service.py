@@ -19,10 +19,12 @@ from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
+
 class CacheTier(str, Enum):
-    HOT = "hot"        # In-memory, ultra-fast access (<1ms)
-    WARM = "warm"      # Redis, fast access (<5ms)
-    COLD = "cold"      # Compressed storage, slower access (<50ms)
+    HOT = "hot"  # In-memory, ultra-fast access (<1ms)
+    WARM = "warm"  # Redis, fast access (<5ms)
+    COLD = "cold"  # Compressed storage, slower access (<50ms)
+
 
 class CacheType(str, Enum):
     QUERY_RESULT = "query_result"
@@ -32,9 +34,11 @@ class CacheType(str, Enum):
     KNOWLEDGE_ENTRY = "knowledge_entry"
     SEARCH_RESULT = "search_result"
 
+
 @dataclass
 class CacheEntry:
     """Cache entry with metadata"""
+
     key: str
     data: Any
     tier: CacheTier
@@ -49,9 +53,11 @@ class CacheEntry:
     miss_count: int = 0
     compression_ratio: float = 1.0
 
+
 @dataclass
 class CacheStats:
     """Cache performance statistics"""
+
     total_entries: int
     total_size_bytes: int
     hit_rate: float
@@ -61,76 +67,73 @@ class CacheStats:
     eviction_count: int
     memory_usage_mb: float
 
+
 class CacheTierInterface(ABC):
     """Abstract interface for cache tiers"""
-    
+
     @abstractmethod
     async def get(self, key: str) -> Optional[CacheEntry]:
         pass
-    
+
     @abstractmethod
     async def set(self, entry: CacheEntry) -> bool:
         pass
-    
+
     @abstractmethod
     async def delete(self, key: str) -> bool:
         pass
-    
+
     @abstractmethod
     async def exists(self, key: str) -> bool:
         pass
-    
+
     @abstractmethod
     async def get_stats(self) -> Dict[str, Any]:
         pass
 
+
 class HotCache(CacheTierInterface):
     """Hot tier - In-memory cache for ultra-fast access"""
-    
+
     def __init__(self, max_size_mb: int = 100):
         self.cache: Dict[str, CacheEntry] = {}
         self.max_size_bytes = max_size_mb * 1024 * 1024
         self.current_size_bytes = 0
         self.access_order: List[str] = []  # For LRU eviction
-        
-        self.stats = {
-            "hits": 0,
-            "misses": 0,
-            "evictions": 0,
-            "total_requests": 0
-        }
+
+        self.stats = {"hits": 0, "misses": 0, "evictions": 0, "total_requests": 0}
 
     async def get(self, key: str) -> Optional[CacheEntry]:
         """Get entry from hot cache"""
         start_time = datetime.now()
-        
+
         if key in self.cache:
             entry = self.cache[key]
-            
+
             # Check expiration
             if entry.expires_at <= datetime.now():
                 await self.delete(key)
                 self.stats["misses"] += 1
                 return None
-            
+
             # Update access info
             entry.access_count += 1
             entry.last_accessed = datetime.now()
             entry.hit_count += 1
-            
+
             # Update LRU order
             if key in self.access_order:
                 self.access_order.remove(key)
             self.access_order.append(key)
-            
+
             self.stats["hits"] += 1
             self.stats["total_requests"] += 1
-            
+
             response_time = (datetime.now() - start_time).total_seconds() * 1000
             logger.debug(f"🔥 HOT cache HIT: {key} ({response_time:.2f}ms)")
-            
+
             return entry
-        
+
         self.stats["misses"] += 1
         self.stats["total_requests"] += 1
         return None
@@ -139,22 +142,24 @@ class HotCache(CacheTierInterface):
         """Set entry in hot cache with LRU eviction"""
         try:
             # Check if we need to evict entries
-            while (self.current_size_bytes + entry.size_bytes > self.max_size_bytes 
-                   and self.access_order):
+            while (
+                self.current_size_bytes + entry.size_bytes > self.max_size_bytes
+                and self.access_order
+            ):
                 await self._evict_lru()
-            
+
             # Add new entry
             self.cache[entry.key] = entry
             self.current_size_bytes += entry.size_bytes
-            
+
             # Update access order
             if entry.key in self.access_order:
                 self.access_order.remove(entry.key)
             self.access_order.append(entry.key)
-            
+
             logger.debug(f"🔥 HOT cache SET: {entry.key} ({entry.size_bytes} bytes)")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error setting hot cache entry: {e}")
             return False
@@ -163,7 +168,7 @@ class HotCache(CacheTierInterface):
         """Evict least recently used entry"""
         if not self.access_order:
             return
-        
+
         lru_key = self.access_order.pop(0)
         if lru_key in self.cache:
             entry = self.cache[lru_key]
@@ -178,10 +183,10 @@ class HotCache(CacheTierInterface):
             entry = self.cache[key]
             self.current_size_bytes -= entry.size_bytes
             del self.cache[key]
-            
+
             if key in self.access_order:
                 self.access_order.remove(key)
-            
+
             return True
         return False
 
@@ -192,32 +197,34 @@ class HotCache(CacheTierInterface):
     async def get_stats(self) -> Dict[str, Any]:
         """Get hot cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
-        
+
         return {
             "tier": "hot",
             "entries": len(self.cache),
             "size_mb": self.current_size_bytes / (1024 * 1024),
             "max_size_mb": self.max_size_bytes / (1024 * 1024),
-            "utilization_percent": (self.current_size_bytes / self.max_size_bytes) * 100,
+            "utilization_percent": (self.current_size_bytes / self.max_size_bytes)
+            * 100,
             "hit_rate_percent": hit_rate,
-            "stats": self.stats
+            "stats": self.stats,
         }
+
 
 class WarmCache(CacheTierInterface):
     """Warm tier - Redis cache for fast access"""
-    
+
     def __init__(self, redis_url: str = "redis://localhost:6379", db: int = 0):
         self.redis_url = redis_url
         self.db = db
         self.redis_client = None
         self.key_prefix = "sophia:warm:"
-        
+
         self.stats = {
             "hits": 0,
             "misses": 0,
             "sets": 0,
             "deletes": 0,
-            "total_requests": 0
+            "total_requests": 0,
         }
 
     async def initialize(self):
@@ -234,44 +241,44 @@ class WarmCache(CacheTierInterface):
         """Get entry from warm cache"""
         if not self.redis_client:
             return None
-        
+
         start_time = datetime.now()
         redis_key = f"{self.key_prefix}{key}"
-        
+
         try:
             data = await self.redis_client.get(redis_key)
-            
+
             if data:
                 # Deserialize cache entry
                 entry_dict = json.loads(data)
                 entry = CacheEntry(**entry_dict)
-                
+
                 # Check expiration
                 if entry.expires_at <= datetime.now():
                     await self.delete(key)
                     self.stats["misses"] += 1
                     return None
-                
+
                 # Update access info
                 entry.access_count += 1
                 entry.last_accessed = datetime.now()
                 entry.hit_count += 1
-                
+
                 # Update in Redis
                 await self._update_entry_metadata(redis_key, entry)
-                
+
                 self.stats["hits"] += 1
                 self.stats["total_requests"] += 1
-                
+
                 response_time = (datetime.now() - start_time).total_seconds() * 1000
                 logger.debug(f"🔶 WARM cache HIT: {key} ({response_time:.2f}ms)")
-                
+
                 return entry
-            
+
             self.stats["misses"] += 1
             self.stats["total_requests"] += 1
             return None
-            
+
         except Exception as e:
             logger.error(f"Error getting warm cache entry: {e}")
             self.stats["misses"] += 1
@@ -281,28 +288,26 @@ class WarmCache(CacheTierInterface):
         """Set entry in warm cache"""
         if not self.redis_client:
             return False
-        
+
         try:
             redis_key = f"{self.key_prefix}{entry.key}"
-            
+
             # Serialize entry (excluding data for metadata storage)
             entry_dict = asdict(entry)
             entry_dict["created_at"] = entry.created_at.isoformat()
             entry_dict["expires_at"] = entry.expires_at.isoformat()
             if entry.last_accessed:
                 entry_dict["last_accessed"] = entry.last_accessed.isoformat()
-            
+
             # Store with TTL
             await self.redis_client.setex(
-                redis_key,
-                entry.ttl_seconds,
-                json.dumps(entry_dict)
+                redis_key, entry.ttl_seconds, json.dumps(entry_dict)
             )
-            
+
             self.stats["sets"] += 1
             logger.debug(f"🔶 WARM cache SET: {entry.key}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error setting warm cache entry: {e}")
             return False
@@ -315,7 +320,7 @@ class WarmCache(CacheTierInterface):
             entry_dict["expires_at"] = entry.expires_at.isoformat()
             if entry.last_accessed:
                 entry_dict["last_accessed"] = entry.last_accessed.isoformat()
-            
+
             await self.redis_client.set(redis_key, json.dumps(entry_dict))
         except Exception as e:
             logger.error(f"Error updating entry metadata: {e}")
@@ -324,16 +329,16 @@ class WarmCache(CacheTierInterface):
         """Delete entry from warm cache"""
         if not self.redis_client:
             return False
-        
+
         try:
             redis_key = f"{self.key_prefix}{key}"
             result = await self.redis_client.delete(redis_key)
-            
+
             if result:
                 self.stats["deletes"] += 1
                 return True
             return False
-            
+
         except Exception as e:
             logger.error(f"Error deleting warm cache entry: {e}")
             return False
@@ -342,7 +347,7 @@ class WarmCache(CacheTierInterface):
         """Check if key exists in warm cache"""
         if not self.redis_client:
             return False
-        
+
         try:
             redis_key = f"{self.key_prefix}{key}"
             return await self.redis_client.exists(redis_key)
@@ -353,7 +358,7 @@ class WarmCache(CacheTierInterface):
     async def get_stats(self) -> Dict[str, Any]:
         """Get warm cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
-        
+
         redis_stats = {}
         if self.redis_client:
             try:
@@ -362,25 +367,26 @@ class WarmCache(CacheTierInterface):
                     "used_memory_mb": info.get("used_memory", 0) / (1024 * 1024),
                     "connected_clients": info.get("connected_clients", 0),
                     "keyspace_hits": info.get("keyspace_hits", 0),
-                    "keyspace_misses": info.get("keyspace_misses", 0)
+                    "keyspace_misses": info.get("keyspace_misses", 0),
                 }
             except Exception as e:
                 logger.warning(f"Could not get Redis stats: {e}")
-        
+
         return {
             "tier": "warm",
             "hit_rate_percent": hit_rate,
             "stats": self.stats,
-            "redis_stats": redis_stats
+            "redis_stats": redis_stats,
         }
+
 
 class ColdCache(CacheTierInterface):
     """Cold tier - Compressed file storage for large data"""
-    
+
     def __init__(self, storage_path: str = "/tmp/sophia_cold_cache"):
         self.storage_path = storage_path
         self.index: Dict[str, Dict[str, Any]] = {}  # In-memory index
-        
+
         self.stats = {
             "hits": 0,
             "misses": 0,
@@ -388,42 +394,43 @@ class ColdCache(CacheTierInterface):
             "deletes": 0,
             "compressions": 0,
             "decompressions": 0,
-            "total_requests": 0
+            "total_requests": 0,
         }
-        
+
         # Create storage directory
         import os
+
         os.makedirs(storage_path, exist_ok=True)
 
     async def get(self, key: str) -> Optional[CacheEntry]:
         """Get entry from cold cache"""
         start_time = datetime.now()
-        
+
         if key not in self.index:
             self.stats["misses"] += 1
             self.stats["total_requests"] += 1
             return None
-        
+
         try:
             entry_info = self.index[key]
-            
+
             # Check expiration
             expires_at = datetime.fromisoformat(entry_info["expires_at"])
             if expires_at <= datetime.now():
                 await self.delete(key)
                 self.stats["misses"] += 1
                 return None
-            
+
             # Load and decompress data
             file_path = f"{self.storage_path}/{key}.gz"
-            
+
             with open(file_path, "rb") as f:
                 compressed_data = f.read()
-            
+
             # Decompress data
             decompressed_data = gzip.decompress(compressed_data)
             data = pickle.loads(decompressed_data)
-            
+
             # Create cache entry
             entry = CacheEntry(
                 key=key,
@@ -436,27 +443,29 @@ class ColdCache(CacheTierInterface):
                 expires_at=expires_at,
                 access_count=entry_info.get("access_count", 0) + 1,
                 hit_count=entry_info.get("hit_count", 0) + 1,
-                compression_ratio=entry_info.get("compression_ratio", 1.0)
+                compression_ratio=entry_info.get("compression_ratio", 1.0),
             )
-            
+
             entry.last_accessed = datetime.now()
-            
+
             # Update index
-            self.index[key].update({
-                "access_count": entry.access_count,
-                "hit_count": entry.hit_count,
-                "last_accessed": entry.last_accessed.isoformat()
-            })
-            
+            self.index[key].update(
+                {
+                    "access_count": entry.access_count,
+                    "hit_count": entry.hit_count,
+                    "last_accessed": entry.last_accessed.isoformat(),
+                }
+            )
+
             self.stats["hits"] += 1
             self.stats["decompressions"] += 1
             self.stats["total_requests"] += 1
-            
+
             response_time = (datetime.now() - start_time).total_seconds() * 1000
             logger.debug(f"🔵 COLD cache HIT: {key} ({response_time:.2f}ms)")
-            
+
             return entry
-            
+
         except Exception as e:
             logger.error(f"Error getting cold cache entry: {e}")
             self.stats["misses"] += 1
@@ -468,14 +477,14 @@ class ColdCache(CacheTierInterface):
             # Serialize and compress data
             serialized_data = pickle.dumps(entry.data)
             compressed_data = gzip.compress(serialized_data)
-            
+
             compression_ratio = len(serialized_data) / len(compressed_data)
-            
+
             # Save to file
             file_path = f"{self.storage_path}/{entry.key}.gz"
             with open(file_path, "wb") as f:
                 f.write(compressed_data)
-            
+
             # Update index
             self.index[entry.key] = {
                 "cache_type": entry.cache_type.value,
@@ -486,15 +495,17 @@ class ColdCache(CacheTierInterface):
                 "access_count": entry.access_count,
                 "hit_count": entry.hit_count,
                 "compression_ratio": compression_ratio,
-                "file_path": file_path
+                "file_path": file_path,
             }
-            
+
             self.stats["sets"] += 1
             self.stats["compressions"] += 1
-            
-            logger.debug(f"🔵 COLD cache SET: {entry.key} (compression: {compression_ratio:.2f}x)")
+
+            logger.debug(
+                f"🔵 COLD cache SET: {entry.key} (compression: {compression_ratio:.2f}x)"
+            )
             return True
-            
+
         except Exception as e:
             logger.error(f"Error setting cold cache entry: {e}")
             return False
@@ -506,15 +517,16 @@ class ColdCache(CacheTierInterface):
                 # Delete file
                 file_path = self.index[key]["file_path"]
                 import os
+
                 if os.path.exists(file_path):
                     os.remove(file_path)
-                
+
                 # Remove from index
                 del self.index[key]
                 self.stats["deletes"] += 1
                 return True
             return False
-            
+
         except Exception as e:
             logger.error(f"Error deleting cold cache entry: {e}")
             return False
@@ -523,7 +535,7 @@ class ColdCache(CacheTierInterface):
         """Check if key exists in cold cache"""
         if key not in self.index:
             return False
-        
+
         # Check expiration
         expires_at = datetime.fromisoformat(self.index[key]["expires_at"])
         return expires_at > datetime.now()
@@ -531,41 +543,46 @@ class ColdCache(CacheTierInterface):
     async def get_stats(self) -> Dict[str, Any]:
         """Get cold cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
-        
+
         total_size_bytes = sum(info["size_bytes"] for info in self.index.values())
-        avg_compression = sum(info.get("compression_ratio", 1.0) for info in self.index.values())
+        avg_compression = sum(
+            info.get("compression_ratio", 1.0) for info in self.index.values()
+        )
         avg_compression = avg_compression / max(len(self.index), 1)
-        
+
         return {
             "tier": "cold",
             "entries": len(self.index),
             "total_size_mb": total_size_bytes / (1024 * 1024),
             "hit_rate_percent": hit_rate,
             "average_compression_ratio": avg_compression,
-            "stats": self.stats
+            "stats": self.stats,
         }
+
 
 class HierarchicalCachingService:
     """
     Hierarchical Caching Service with three-tier architecture
     Provides sub-millisecond access to hot data with intelligent tiering
     """
-    
+
     def __init__(
         self,
         hot_cache_size_mb: int = 100,
         redis_url: str = "redis://localhost:6379",
-        cold_storage_path: str = "/tmp/sophia_cold_cache"
+        cold_storage_path: str = "/tmp/sophia_cold_cache",
     ):
         # Initialize cache tiers
         self.hot_cache = HotCache(hot_cache_size_mb)
         self.warm_cache = WarmCache(redis_url)
         self.cold_cache = ColdCache(cold_storage_path)
-        
+
         # Cache management
         self.promotion_threshold = 3  # Promote after 3 accesses
-        self.demotion_threshold = timedelta(hours=1)  # Demote after 1 hour of inactivity
-        
+        self.demotion_threshold = timedelta(
+            hours=1
+        )  # Demote after 1 hour of inactivity
+
         # Performance monitoring
         self.global_stats = {
             "total_requests": 0,
@@ -573,22 +590,22 @@ class HierarchicalCachingService:
             "total_misses": 0,
             "tier_hits": {"hot": 0, "warm": 0, "cold": 0},
             "promotion_count": 0,
-            "demotion_count": 0
+            "demotion_count": 0,
         }
-        
+
         # Background tasks
         self._maintenance_task = None
-        
+
         logger.info("✅ Hierarchical Caching Service initialized")
 
     async def initialize(self):
         """Initialize all cache tiers"""
         try:
             await self.warm_cache.initialize()
-            
+
             # Start background maintenance
             self._maintenance_task = asyncio.create_task(self._background_maintenance())
-            
+
             logger.info("✅ Hierarchical caching fully initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize caching service: {e}")
@@ -598,45 +615,45 @@ class HierarchicalCachingService:
         """Get data from hierarchical cache with intelligent promotion"""
         start_time = datetime.now()
         self.global_stats["total_requests"] += 1
-        
+
         # Try hot cache first
         entry = await self.hot_cache.get(key)
         if entry:
             self.global_stats["total_hits"] += 1
             self.global_stats["tier_hits"]["hot"] += 1
-            
+
             response_time = (datetime.now() - start_time).total_seconds() * 1000
             logger.debug(f"🚀 Cache HIT (HOT): {key} ({response_time:.2f}ms)")
             return entry.data
-        
+
         # Try warm cache
         entry = await self.warm_cache.get(key)
         if entry:
             self.global_stats["total_hits"] += 1
             self.global_stats["tier_hits"]["warm"] += 1
-            
+
             # Consider promotion to hot cache
             if entry.access_count >= self.promotion_threshold:
                 await self._promote_to_hot(entry)
-            
+
             response_time = (datetime.now() - start_time).total_seconds() * 1000
             logger.debug(f"🚀 Cache HIT (WARM): {key} ({response_time:.2f}ms)")
             return entry.data
-        
+
         # Try cold cache
         entry = await self.cold_cache.get(key)
         if entry:
             self.global_stats["total_hits"] += 1
             self.global_stats["tier_hits"]["cold"] += 1
-            
+
             # Consider promotion to warm cache
             if entry.access_count >= self.promotion_threshold:
                 await self._promote_to_warm(entry)
-            
+
             response_time = (datetime.now() - start_time).total_seconds() * 1000
             logger.debug(f"🚀 Cache HIT (COLD): {key} ({response_time:.2f}ms)")
             return entry.data
-        
+
         # Cache miss
         self.global_stats["total_misses"] += 1
         logger.debug(f"❌ Cache MISS: {key}")
@@ -648,14 +665,14 @@ class HierarchicalCachingService:
         data: Any,
         cache_type: CacheType,
         ttl_seconds: int = 3600,
-        tier: CacheTier = None
+        tier: CacheTier = None,
     ) -> bool:
         """Set data in hierarchical cache with intelligent placement"""
         try:
             # Calculate data size
             serialized_data = pickle.dumps(data)
             size_bytes = len(serialized_data)
-            
+
             # Create cache entry
             entry = CacheEntry(
                 key=key,
@@ -665,9 +682,9 @@ class HierarchicalCachingService:
                 size_bytes=size_bytes,
                 ttl_seconds=ttl_seconds,
                 created_at=datetime.now(),
-                expires_at=datetime.now() + timedelta(seconds=ttl_seconds)
+                expires_at=datetime.now() + timedelta(seconds=ttl_seconds),
             )
-            
+
             # Set in appropriate tier
             if entry.tier == CacheTier.HOT:
                 success = await self.hot_cache.set(entry)
@@ -675,29 +692,31 @@ class HierarchicalCachingService:
                 success = await self.warm_cache.set(entry)
             else:  # COLD
                 success = await self.cold_cache.set(entry)
-            
+
             if success:
                 logger.debug(f"✅ Cache SET ({entry.tier.value.upper()}): {key}")
-            
+
             return success
-            
+
         except Exception as e:
             logger.error(f"Error setting cache entry: {e}")
             return False
 
-    def _determine_optimal_tier(self, size_bytes: int, cache_type: CacheType) -> CacheTier:
+    def _determine_optimal_tier(
+        self, size_bytes: int, cache_type: CacheType
+    ) -> CacheTier:
         """Determine optimal cache tier based on size and type"""
-        
+
         # Small, frequently accessed data goes to hot cache
         if size_bytes < 10 * 1024:  # < 10KB
             if cache_type in [CacheType.USER_SESSION, CacheType.ANALYTICS]:
                 return CacheTier.HOT
-        
+
         # Medium size data goes to warm cache
         if size_bytes < 1024 * 1024:  # < 1MB
             if cache_type in [CacheType.QUERY_RESULT, CacheType.SEARCH_RESULT]:
                 return CacheTier.WARM
-        
+
         # Large data goes to cold cache
         return CacheTier.COLD
 
@@ -706,12 +725,12 @@ class HierarchicalCachingService:
         try:
             entry.tier = CacheTier.HOT
             success = await self.hot_cache.set(entry)
-            
+
             if success:
                 await self.warm_cache.delete(entry.key)
                 self.global_stats["promotion_count"] += 1
                 logger.debug(f"⬆️ PROMOTED to HOT: {entry.key}")
-                
+
         except Exception as e:
             logger.error(f"Error promoting to hot cache: {e}")
 
@@ -720,31 +739,31 @@ class HierarchicalCachingService:
         try:
             entry.tier = CacheTier.WARM
             success = await self.warm_cache.set(entry)
-            
+
             if success:
                 await self.cold_cache.delete(entry.key)
                 self.global_stats["promotion_count"] += 1
                 logger.debug(f"⬆️ PROMOTED to WARM: {entry.key}")
-                
+
         except Exception as e:
             logger.error(f"Error promoting to warm cache: {e}")
 
     async def delete(self, key: str) -> bool:
         """Delete key from all cache tiers"""
         results = []
-        
+
         results.append(await self.hot_cache.delete(key))
         results.append(await self.warm_cache.delete(key))
         results.append(await self.cold_cache.delete(key))
-        
+
         return any(results)
 
     async def exists(self, key: str) -> bool:
         """Check if key exists in any cache tier"""
         return (
-            await self.hot_cache.exists(key) or
-            await self.warm_cache.exists(key) or
-            await self.cold_cache.exists(key)
+            await self.hot_cache.exists(key)
+            or await self.warm_cache.exists(key)
+            or await self.cold_cache.exists(key)
         )
 
     async def _background_maintenance(self):
@@ -753,11 +772,11 @@ class HierarchicalCachingService:
             try:
                 # Run maintenance every 5 minutes
                 await asyncio.sleep(300)
-                
+
                 # Clean expired entries (handled by individual caches)
                 # Optimize cache distribution
                 await self._optimize_cache_distribution()
-                
+
             except Exception as e:
                 logger.error(f"Error in background maintenance: {e}")
 
@@ -775,25 +794,31 @@ class HierarchicalCachingService:
         hot_stats = await self.hot_cache.get_stats()
         warm_stats = await self.warm_cache.get_stats()
         cold_stats = await self.cold_cache.get_stats()
-        
+
         total_requests = self.global_stats["total_requests"]
         hit_rate = (self.global_stats["total_hits"] / max(total_requests, 1)) * 100
-        
+
         return {
             "global_stats": {
                 **self.global_stats,
                 "overall_hit_rate_percent": hit_rate,
-                "miss_rate_percent": 100 - hit_rate
+                "miss_rate_percent": 100 - hit_rate,
             },
-            "tier_stats": {
-                "hot": hot_stats,
-                "warm": warm_stats,
-                "cold": cold_stats
-            },
+            "tier_stats": {"hot": hot_stats, "warm": warm_stats, "cold": cold_stats},
             "performance": {
-                "sub_ms_access_rate": (self.global_stats["tier_hits"]["hot"] / max(total_requests, 1)) * 100,
-                "fast_access_rate": ((self.global_stats["tier_hits"]["hot"] + self.global_stats["tier_hits"]["warm"]) / max(total_requests, 1)) * 100
-            }
+                "sub_ms_access_rate": (
+                    self.global_stats["tier_hits"]["hot"] / max(total_requests, 1)
+                )
+                * 100,
+                "fast_access_rate": (
+                    (
+                        self.global_stats["tier_hits"]["hot"]
+                        + self.global_stats["tier_hits"]["warm"]
+                    )
+                    / max(total_requests, 1)
+                )
+                * 100,
+            },
         }
 
     async def flush_all(self):
@@ -802,16 +827,18 @@ class HierarchicalCachingService:
         self.hot_cache.cache.clear()
         self.hot_cache.current_size_bytes = 0
         self.hot_cache.access_order.clear()
-        
+
         if self.warm_cache.redis_client:
             await self.warm_cache.redis_client.flushdb()
-        
+
         self.cold_cache.index.clear()
         import shutil
+
         shutil.rmtree(self.cold_cache.storage_path, ignore_errors=True)
         import os
+
         os.makedirs(self.cold_cache.storage_path, exist_ok=True)
-        
+
         # Reset stats
         self.global_stats = {
             "total_requests": 0,
@@ -819,9 +846,9 @@ class HierarchicalCachingService:
             "total_misses": 0,
             "tier_hits": {"hot": 0, "warm": 0, "cold": 0},
             "promotion_count": 0,
-            "demotion_count": 0
+            "demotion_count": 0,
         }
-        
+
         logger.info("🧹 All cache tiers flushed")
 
     async def stop(self):
@@ -829,22 +856,25 @@ class HierarchicalCachingService:
         try:
             if self._maintenance_task:
                 self._maintenance_task.cancel()
-            
+
             if self.warm_cache.redis_client:
                 await self.warm_cache.redis_client.close()
-            
+
             logger.info("✅ Hierarchical Caching Service stopped")
-            
+
         except Exception as e:
             logger.error(f"Error stopping caching service: {e}")
+
 
 # Factory function
 async def create_caching_service(
     hot_cache_size_mb: int = 100,
     redis_url: str = "redis://localhost:6379",
-    cold_storage_path: str = "/tmp/sophia_cold_cache"
+    cold_storage_path: str = "/tmp/sophia_cold_cache",
 ) -> HierarchicalCachingService:
     """Create and initialize hierarchical caching service"""
-    service = HierarchicalCachingService(hot_cache_size_mb, redis_url, cold_storage_path)
+    service = HierarchicalCachingService(
+        hot_cache_size_mb, redis_url, cold_storage_path
+    )
     await service.initialize()
-    return service 
+    return service

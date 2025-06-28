@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 # Enhanced dependencies with better error handling
 try:
     import pinecone
+
     PINECONE_AVAILABLE = True
 except ImportError:
     PINECONE_AVAILABLE = False
@@ -23,6 +24,7 @@ except ImportError:
 
 try:
     from openai import AsyncOpenAI
+
     OPENAI_AVAILABLE = True
 except ImportError:
     OPENAI_AVAILABLE = False
@@ -30,12 +32,18 @@ except ImportError:
 
 # Import the standardized base class
 from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer, MCPServerConfig, SyncPriority, HealthStatus, HealthCheckResult
+    StandardizedMCPServer,
+    MCPServerConfig,
+    SyncPriority,
+    HealthStatus,
+    HealthCheckResult,
 )
 
 # Import enhanced Snowflake Cortex service
 from backend.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService, AIProcessingConfig, CortexModel
+    EnhancedSnowflakeCortexService,
+    AIProcessingConfig,
+    CortexModel,
 )
 
 # Import existing memory management components
@@ -49,14 +57,17 @@ from backend.agents.enhanced.data_models import MemoryRecord
 # Import the Snowflake Gong connector
 
 # Import the ComprehensiveMemoryService
-from backend.services.comprehensive_memory_service import ComprehensiveMemoryService, MemoryRecord
+from backend.services.comprehensive_memory_service import (
+    ComprehensiveMemoryService,
+    MemoryRecord,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class MemoryCategory:
     """Categories for AI memory storage."""
-    
+
     ARCHITECTURE = "architecture"
     BUG_SOLUTION = "bug_solution"
     CODE_DECISION = "code_decision"
@@ -64,14 +75,14 @@ class MemoryCategory:
     AI_CODING_PATTERN = "ai_coding_pattern"
     PERFORMANCE_TIP = "performance_tip"
     SECURITY_PATTERN = "security_pattern"
-    
+
     # Business intelligence categories from the enhanced server
     HUBSPOT_CONTACT_INSIGHT = "hubspot_contact_insight"
     HUBSPOT_DEAL_ANALYSIS = "hubspot_deal_analysis"
     HUBSPOT_SALES_PATTERN = "hubspot_sales_pattern"
     HUBSPOT_CUSTOMER_INTERACTION = "hubspot_customer_interaction"
     HUBSPOT_PIPELINE_INSIGHT = "hubspot_pipeline_insight"
-    
+
     # Gong-specific categories from the enhanced server
     GONG_CALL_SUMMARY = "gong_call_summary"
     GONG_CALL_INSIGHT = "gong_call_insight"
@@ -82,37 +93,66 @@ class MemoryCategory:
 
 class ConversationAnalyzer:
     """Analyzes conversations to auto-detect important content"""
-    
+
     def __init__(self):
         self.importance_patterns = {
             "architecture": [
-                r"decided to use", r"architecture decision", r"design pattern",
-                r"microservices", r"database schema", r"api design", r"system design"
+                r"decided to use",
+                r"architecture decision",
+                r"design pattern",
+                r"microservices",
+                r"database schema",
+                r"api design",
+                r"system design",
             ],
             "bug_solution": [
-                r"fixed the bug", r"solution was", r"error was caused by",
-                r"debugging showed", r"issue resolved", r"problem solved"
+                r"fixed the bug",
+                r"solution was",
+                r"error was caused by",
+                r"debugging showed",
+                r"issue resolved",
+                r"problem solved",
             ],
             "code_decision": [
-                r"chose to implement", r"decided to refactor", r"code structure",
-                r"implementation approach", r"coding standard"
+                r"chose to implement",
+                r"decided to refactor",
+                r"code structure",
+                r"implementation approach",
+                r"coding standard",
             ],
             "security_pattern": [
-                r"security vulnerability", r"authentication", r"authorization",
-                r"encryption", r"security best practice", r"secure coding"
+                r"security vulnerability",
+                r"authentication",
+                r"authorization",
+                r"encryption",
+                r"security best practice",
+                r"secure coding",
             ],
             "performance_tip": [
-                r"performance optimization", r"faster approach", r"bottleneck",
-                r"cache strategy", r"query optimization"
-            ]
+                r"performance optimization",
+                r"faster approach",
+                r"bottleneck",
+                r"cache strategy",
+                r"query optimization",
+            ],
         }
-        
+
         self.high_importance_keywords = [
-            "critical", "important", "remember", "decision", "solution",
-            "pattern", "best practice", "lesson learned", "mistake",
-            "breakthrough", "optimization", "security", "performance"
+            "critical",
+            "important",
+            "remember",
+            "decision",
+            "solution",
+            "pattern",
+            "best practice",
+            "lesson learned",
+            "mistake",
+            "breakthrough",
+            "optimization",
+            "security",
+            "performance",
         ]
-    
+
     def analyze_conversation(self, content: str) -> Dict[str, Any]:
         """Analyze conversation content for importance and categorization"""
         content_lower = content.lower()
@@ -120,13 +160,17 @@ class ConversationAnalyzer:
         category = self._detect_category(content_lower)
         tags = self._extract_tags(content_lower)
         should_auto_store = importance_score > 0.6
-        
+
         return {
-            "importance_score": importance_score, "category": category, "tags": tags,
+            "importance_score": importance_score,
+            "category": category,
+            "tags": tags,
             "should_auto_store": should_auto_store,
-            "analysis_reason": self._get_analysis_reason(content_lower, importance_score)
+            "analysis_reason": self._get_analysis_reason(
+                content_lower, importance_score
+            ),
         }
-    
+
     def _calculate_importance(self, content: str) -> float:
         score = 0.3
         for keyword in self.high_importance_keywords:
@@ -141,21 +185,28 @@ class ConversationAnalyzer:
         if "```" in content:
             score += 0.2
         return min(score, 1.0)
-    
+
     def _detect_category(self, content: str) -> str:
-        category_scores = {cat: sum(1 for p in pats if re.search(p, content)) for cat, pats in self.importance_patterns.items()}
+        category_scores = {
+            cat: sum(1 for p in pats if re.search(p, content))
+            for cat, pats in self.importance_patterns.items()
+        }
         if any(v > 0 for v in category_scores.values()):
             return max(category_scores, key=category_scores.get)
         return MemoryCategory.CODE_DECISION
-    
+
     def _extract_tags(self, content: str) -> List[str]:
         tags = []
-        tech_patterns = {"python": r"\bpython\b", "react": r"\breact\b", "docker": r"\bdocker\b"}
+        tech_patterns = {
+            "python": r"\bpython\b",
+            "react": r"\breact\b",
+            "docker": r"\bdocker\b",
+        }
         for tag, pattern in tech_patterns.items():
             if re.search(pattern, content):
                 tags.append(tag)
         return tags
-    
+
     def _get_analysis_reason(self, content: str, score: float) -> str:
         reasons = []
         if score > 0.8:
@@ -168,7 +219,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
     Standardized AI Memory MCP Server with enhanced Snowflake Cortex integration
     Built on the StandardizedMCPServer base class for consistency and monitoring
     """
-    
+
     def __init__(self, config: Optional[MCPServerConfig] = None):
         # Default configuration for AI Memory server
         if config is None:
@@ -180,28 +231,28 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 enable_metrics=True,
                 health_check_interval_seconds=30,
                 max_concurrent_requests=50,
-                request_timeout_seconds=30
+                request_timeout_seconds=30,
             )
-        
+
         super().__init__(config)
-        
+
         # AI Memory specific components
         self.memory_manager = ComprehensiveMemoryManager()
         self.memory_intelligence = ContextualMemoryIntelligence(self.memory_manager)
         self.cache = HierarchicalCache()
         self.conversation_analyzer = ConversationAnalyzer()
-        
+
         # AI services
         self.openai_client: Optional[Any] = None
         self.pinecone_index: Optional[Any] = None
         self.cortex_service: Optional[EnhancedSnowflakeCortexService] = None
-        
+
         # State tracking
         self.preloaded_knowledge = False
-        
+
         # Add ComprehensiveMemoryService
         self.memory_service = ComprehensiveMemoryService()
-    
+
     async def initialize_server(self) -> None:
         """Initialize AI Memory server with all services"""
         logger.info("Initializing AI Memory MCP Server with Snowflake Cortex...")
@@ -210,70 +261,81 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         await self._initialize_snowflake_cortex()
         await self._preload_ai_coding_knowledge()
         logger.info("AI Memory MCP Server initialized successfully")
-    
+
     async def cleanup_server(self) -> None:
         """Cleanup AI Memory server resources"""
         if self.openai_client:
             await self.openai_client.close()
-        
+
         # Clean up cache
         await self.cache.clear()
-        
+
         logger.info("AI Memory MCP Server cleaned up successfully")
-    
+
     async def _initialize_openai(self):
         """Initialize OpenAI client with proper configuration"""
         from backend.core.auto_esc_config import config
-        
+
         openai_api_key = config.get("openai_api_key")
-        
-        if not openai_api_key or openai_api_key in ["fallback-key", "sk-development-key-fallback"]:
-            logger.warning("No valid OpenAI API key found. Semantic search will be limited.")
+
+        if not openai_api_key or openai_api_key in [
+            "fallback-key",
+            "sk-development-key-fallback",
+        ]:
+            logger.warning(
+                "No valid OpenAI API key found. Semantic search will be limited."
+            )
             return
-        
+
         if not OPENAI_AVAILABLE:
-            logger.warning("OpenAI library not available. Install with: pip install openai")
+            logger.warning(
+                "OpenAI library not available. Install with: pip install openai"
+            )
             return
-        
+
         try:
             self.openai_client = AsyncOpenAI(
-                api_key=openai_api_key,
-                timeout=30.0,
-                max_retries=3
+                api_key=openai_api_key, timeout=30.0, max_retries=3
             )
-            
+
             # Test the connection
             await self.openai_client.embeddings.create(
-                input="test connection",
-                model="text-embedding-3-small"
+                input="test connection", model="text-embedding-3-small"
             )
-            
+
             logger.info("✅ OpenAI client initialized and tested successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize OpenAI client: {e}")
             self.openai_client = None
-    
+
     async def _initialize_pinecone(self):
         """Initialize Pinecone with proper configuration"""
         from backend.core.auto_esc_config import config
-        
+
         pinecone_api_key = config.get("pinecone_api_key")
         pinecone_environment = config.get("pinecone_environment", "us-east1-gcp")
-        
-        if not pinecone_api_key or pinecone_api_key in ["dev-pinecone-key", "fallback-key"]:
-            logger.warning("No valid Pinecone API key found. Vector search will be limited.")
+
+        if not pinecone_api_key or pinecone_api_key in [
+            "dev-pinecone-key",
+            "fallback-key",
+        ]:
+            logger.warning(
+                "No valid Pinecone API key found. Vector search will be limited."
+            )
             return
-        
+
         if not PINECONE_AVAILABLE:
-            logger.warning("Pinecone library not available. Install with: pip install pinecone-client")
+            logger.warning(
+                "Pinecone library not available. Install with: pip install pinecone-client"
+            )
             return
-        
+
         try:
             pinecone.init(api_key=pinecone_api_key, environment=pinecone_environment)
-            
+
             index_name = "sophia-ai-memory"
-            
+
             # Check if index exists, create if not
             if index_name not in pinecone.list_indexes():
                 logger.info(f"Creating Pinecone index: {index_name}")
@@ -283,19 +345,21 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     metric="cosine",
                     pods=1,
                     replicas=1,
-                    pod_type="p1.x1"
+                    pod_type="p1.x1",
                 )
-            
+
             self.pinecone_index = pinecone.Index(index_name)
-            
+
             # Test the connection
             stats = self.pinecone_index.describe_index_stats()
-            logger.info(f"✅ Pinecone initialized successfully. Vectors: {stats.total_vector_count}")
-            
+            logger.info(
+                f"✅ Pinecone initialized successfully. Vectors: {stats.total_vector_count}"
+            )
+
         except Exception as e:
             logger.error(f"Failed to initialize Pinecone: {e}")
             self.pinecone_index = None
-    
+
     async def _initialize_snowflake_cortex(self):
         """Initialize Enhanced Snowflake Cortex service"""
         try:
@@ -303,16 +367,16 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 embedding_model=CortexModel.E5_BASE_V2,
                 llm_model=CortexModel.LLAMA3_70B,
                 enable_caching=True,
-                cache_ttl_minutes=60
+                cache_ttl_minutes=60,
             )
-            
+
             self.cortex_service = EnhancedSnowflakeCortexService(config)
             logger.info("✅ Enhanced Snowflake Cortex service initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
             self.cortex_service = None
-    
+
     async def _preload_ai_coding_knowledge(self):
         """Pre-load helpful AI coding knowledge for developers"""
         if self.preloaded_knowledge:
@@ -321,7 +385,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             {
                 "content": "When using Cursor IDE with MCP servers, use @server_name commands to interact with specific tools. For example: @ai_memory store this conversation...",
                 "category": MemoryCategory.AI_CODING_PATTERN,
-                "tags": ["cursor", "mcp", "ai_assistance"], "importance_score": 0.9
+                "tags": ["cursor", "mcp", "ai_assistance"],
+                "importance_score": 0.9,
             },
         ]
         logger.info("Pre-loading AI coding knowledge base...")
@@ -332,16 +397,16 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 logger.warning(f"Failed to pre-load knowledge item: {e}")
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
-    
+
     async def sync_data(self) -> Dict[str, Any]:
         """Sync memory data with external systems"""
         try:
             sync_results = {
                 "memories_synced": 0,
                 "embeddings_updated": 0,
-                "cortex_insights_generated": 0
+                "cortex_insights_generated": 0,
             }
-            
+
             # Sync with Snowflake Cortex
             if self.cortex_service:
                 # Generate AI insights for recent memories
@@ -349,23 +414,22 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 for memory in recent_memories:
                     try:
                         await self.cortex_service.generate_ai_insights(
-                            content=memory.get("content", ""),
-                            context="memory_analysis"
+                            content=memory.get("content", ""), context="memory_analysis"
                         )
                         sync_results["cortex_insights_generated"] += 1
                     except Exception as e:
                         logger.error(f"Failed to generate Cortex insights: {e}")
-            
+
             # Update embeddings for memories without them
             memories_updated = await self._update_missing_embeddings()
             sync_results["embeddings_updated"] = memories_updated
-            
+
             return sync_results
-            
+
         except Exception as e:
             logger.error(f"Failed to sync memory data: {e}")
             raise
-    
+
     async def _update_missing_embeddings(self) -> int:
         """Update embeddings for memories that don't have them"""
         try:
@@ -376,58 +440,69 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         except Exception as e:
             logger.error(f"Failed to update missing embeddings: {e}")
             return 0
-    
+
     async def perform_health_checks(self) -> List[HealthCheckResult]:
         """Perform comprehensive health checks for AI Memory server"""
         health_checks = []
-        
+
         # Check OpenAI connection
-        openai_status = HealthStatus.HEALTHY if self.openai_client else HealthStatus.UNHEALTHY
-        health_checks.append(HealthCheckResult(
-            component="openai_client",
-            status=openai_status,
-            response_time_ms=0.0,
-            details="OpenAI client availability"
-        ))
-        
+        openai_status = (
+            HealthStatus.HEALTHY if self.openai_client else HealthStatus.UNHEALTHY
+        )
+        health_checks.append(
+            HealthCheckResult(
+                component="openai_client",
+                status=openai_status,
+                response_time_ms=0.0,
+                details="OpenAI client availability",
+            )
+        )
+
         # Check Pinecone connection
-        pinecone_status = HealthStatus.HEALTHY if self.pinecone_index else HealthStatus.UNHEALTHY
-        health_checks.append(HealthCheckResult(
-            component="pinecone_index",
-            status=pinecone_status,
-            response_time_ms=0.0,
-            details="Pinecone index availability"
-        ))
-        
+        pinecone_status = (
+            HealthStatus.HEALTHY if self.pinecone_index else HealthStatus.UNHEALTHY
+        )
+        health_checks.append(
+            HealthCheckResult(
+                component="pinecone_index",
+                status=pinecone_status,
+                response_time_ms=0.0,
+                details="Pinecone index availability",
+            )
+        )
+
         # Check Cortex service
-        cortex_status = HealthStatus.HEALTHY if self.cortex_service else HealthStatus.UNHEALTHY
-        health_checks.append(HealthCheckResult(
-            component="cortex_service",
-            status=cortex_status,
-            response_time_ms=0.0,
-            details="Snowflake Cortex service availability"
-        ))
-        
+        cortex_status = (
+            HealthStatus.HEALTHY if self.cortex_service else HealthStatus.UNHEALTHY
+        )
+        health_checks.append(
+            HealthCheckResult(
+                component="cortex_service",
+                status=cortex_status,
+                response_time_ms=0.0,
+                details="Snowflake Cortex service availability",
+            )
+        )
+
         # Check memory manager
         try:
             # Test memory manager functionality
-            await asyncio.wait_for(
-                self.memory_manager.get_memory_stats(),
-                timeout=5.0
-            )
+            await asyncio.wait_for(self.memory_manager.get_memory_stats(), timeout=5.0)
             memory_status = HealthStatus.HEALTHY
         except Exception:
             memory_status = HealthStatus.UNHEALTHY
-        
-        health_checks.append(HealthCheckResult(
-            component="memory_manager",
-            status=memory_status,
-            response_time_ms=0.0,
-            details="Memory manager functionality"
-        ))
-        
+
+        health_checks.append(
+            HealthCheckResult(
+                component="memory_manager",
+                status=memory_status,
+                response_time_ms=0.0,
+                details="Memory manager functionality",
+            )
+        )
+
         return health_checks
-    
+
     def get_mcp_tools(self) -> List[Dict[str, Any]]:
         """Get MCP tools for AI Memory server"""
         return [
@@ -438,13 +513,28 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     "type": "object",
                     "properties": {
                         "content": {"type": "string", "description": "Memory content"},
-                        "category": {"type": "string", "description": "Memory category"},
-                        "tags": {"type": "array", "items": {"type": "string"}, "description": "Memory tags"},
-                        "importance_score": {"type": "number", "minimum": 0, "maximum": 1, "description": "Importance score"},
-                        "auto_detected": {"type": "boolean", "description": "Whether auto-detected"}
+                        "category": {
+                            "type": "string",
+                            "description": "Memory category",
+                        },
+                        "tags": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Memory tags",
+                        },
+                        "importance_score": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1,
+                            "description": "Importance score",
+                        },
+                        "auto_detected": {
+                            "type": "boolean",
+                            "description": "Whether auto-detected",
+                        },
                     },
-                    "required": ["content", "category", "tags"]
-                }
+                    "required": ["content", "category", "tags"],
+                },
             },
             {
                 "name": "recall_memory",
@@ -453,11 +543,19 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     "type": "object",
                     "properties": {
                         "query": {"type": "string", "description": "Search query"},
-                        "category": {"type": "string", "description": "Optional category filter"},
-                        "limit": {"type": "integer", "minimum": 1, "maximum": 20, "description": "Max results"}
+                        "category": {
+                            "type": "string",
+                            "description": "Optional category filter",
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 20,
+                            "description": "Max results",
+                        },
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             },
             {
                 "name": "auto_store_conversation",
@@ -465,11 +563,18 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "content": {"type": "string", "description": "Conversation content"},
-                        "participants": {"type": "array", "items": {"type": "string"}, "description": "Participants"}
+                        "content": {
+                            "type": "string",
+                            "description": "Conversation content",
+                        },
+                        "participants": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Participants",
+                        },
                     },
-                    "required": ["content"]
-                }
+                    "required": ["content"],
+                },
             },
             {
                 "name": "get_ai_coding_tips",
@@ -477,13 +582,18 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "topic": {"type": "string", "description": "Optional topic filter"}
-                    }
-                }
-            }
+                        "topic": {
+                            "type": "string",
+                            "description": "Optional topic filter",
+                        }
+                    },
+                },
+            },
         ]
-    
-    async def execute_mcp_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def execute_mcp_tool(
+        self, tool_name: str, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Execute MCP tool requests"""
         try:
             if tool_name == "store_memory":
@@ -492,34 +602,34 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     category=parameters["category"],
                     tags=parameters["tags"],
                     importance_score=parameters.get("importance_score", 0.5),
-                    auto_detected=parameters.get("auto_detected", False)
+                    auto_detected=parameters.get("auto_detected", False),
                 )
-            
+
             elif tool_name == "recall_memory":
-                return {"memories": await self.recall_memory(
-                    query=parameters["query"],
-                    category=parameters.get("category"),
-                    limit=parameters.get("limit", 5)
-                )}
-            
+                return {
+                    "memories": await self.recall_memory(
+                        query=parameters["query"],
+                        category=parameters.get("category"),
+                        limit=parameters.get("limit", 5),
+                    )
+                }
+
             elif tool_name == "auto_store_conversation":
                 return await self.auto_store_conversation(
                     content=parameters["content"],
-                    participants=parameters.get("participants")
+                    participants=parameters.get("participants"),
                 )
-            
+
             elif tool_name == "get_ai_coding_tips":
-                return await self.get_ai_coding_tips(
-                    topic=parameters.get("topic")
-                )
-            
+                return await self.get_ai_coding_tips(topic=parameters.get("topic"))
+
             else:
                 raise ValueError(f"Unknown tool: {tool_name}")
-                
+
         except Exception as e:
             logger.error(f"Error executing tool {tool_name}: {e}")
             return {"error": str(e), "success": False}
-    
+
     # Core memory management methods
     async def get_embedding(self, text: str) -> List[float]:
         """Generate embedding for text using available services"""
@@ -528,23 +638,22 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             if self.cortex_service:
                 result = await self.cortex_service.generate_embedding(text)
                 return result.embedding
-            
+
             # Fallback to OpenAI
             if self.openai_client:
                 response = await self.openai_client.embeddings.create(
-                    input=text,
-                    model="text-embedding-3-small"
+                    input=text, model="text-embedding-3-small"
                 )
                 return response.data[0].embedding
-            
+
             # No embedding service available
             logger.warning("No embedding service available")
             return []
-            
+
         except Exception as e:
             logger.error(f"Failed to generate embedding: {e}")
             return []
-    
+
     async def store_memory(
         self,
         content: str,
@@ -552,12 +661,12 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         tags: List[str],
         importance_score: float = 0.5,
         auto_detected: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """Stores a memory by delegating to the ComprehensiveMemoryService."""
         try:
             memory_id = f"{category}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
-            
+
             # Create the canonical MemoryRecord object
             memory_record = MemoryRecord(
                 id=memory_id,
@@ -566,75 +675,67 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 tags=tags,
                 importance_score=importance_score,
                 auto_detected=auto_detected,
-                **kwargs # Pass any additional metadata
+                **kwargs,  # Pass any additional metadata
             )
 
             # Delegate to the centralized service
             stored_id = await self.memory_service.store_memory(memory_record)
-            
-            return { "success": True, "memory_id": stored_id }
-            
+
+            return {"success": True, "memory_id": stored_id}
+
         except Exception as e:
             logger.error(f"Failed to store memory via service: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
-    
+
     async def recall_memory(
-        self,
-        query: str,
-        category: Optional[str] = None,
-        limit: int = 5
+        self, query: str, category: Optional[str] = None, limit: int = 5
     ) -> List[Dict[str, Any]]:
         """Recalls memories by delegating to the ComprehensiveMemoryService."""
         try:
             recalled_records = await self.memory_service.recall_memories(
-                query=query,
-                top_k=limit,
-                category=category
+                query=query, top_k=limit, category=category
             )
             # Convert records to dicts for the response
             return [record.dict() for record in recalled_records]
         except Exception as e:
             logger.error(f"Failed to recall memory via service: {e}", exc_info=True)
             return []
-    
+
     async def auto_store_conversation(
-        self,
-        content: str,
-        participants: List[str] = None
+        self, content: str, participants: List[str] = None
     ) -> Dict[str, Any]:
         """Automatically analyze and store important conversations"""
         analysis = self.conversation_analyzer.analyze_conversation(content)
         if analysis["should_auto_store"]:
             result = await self.store_memory(
-                content=content, category=analysis["category"], tags=analysis["tags"] + ["auto_detected"],
-                importance_score=analysis["importance_score"], auto_detected=True
+                content=content,
+                category=analysis["category"],
+                tags=analysis["tags"] + ["auto_detected"],
+                importance_score=analysis["importance_score"],
+                auto_detected=True,
             )
-            result.update({"auto_stored": True, "analysis_reason": analysis["analysis_reason"]})
+            result.update(
+                {"auto_stored": True, "analysis_reason": analysis["analysis_reason"]}
+            )
             return result
         else:
             return {"auto_stored": False, "reason": "Importance score too low"}
-    
+
     async def get_ai_coding_tips(self, topic: Optional[str] = None) -> Dict[str, Any]:
         """Get AI coding tips for a specific topic"""
         try:
             query = topic if topic else "ai coding patterns best practices"
-            
+
             tips = await self.recall_memory(
-                query=query,
-                category=MemoryCategory.AI_CODING_PATTERN,
-                limit=5
+                query=query, category=MemoryCategory.AI_CODING_PATTERN, limit=5
             )
-            
-            return {
-                "topic": topic,
-                "tips": tips,
-                "total_found": len(tips)
-            }
-            
+
+            return {"topic": topic, "tips": tips, "total_found": len(tips)}
+
         except Exception as e:
             logger.error(f"Failed to get AI coding tips: {e}")
             return {"error": str(e), "tips": []}
-    
+
     async def _update_usage_count(self, memory_id: str):
         """Update usage count for a memory"""
         try:
@@ -642,10 +743,13 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         except Exception as e:
             logger.error(f"Failed to update usage count for {memory_id}: {e}")
 
-    async def store_hubspot_deal_analysis(self, deal_id: str, analysis_content: str, **kwargs) -> Dict[str, Any]:
+    async def store_hubspot_deal_analysis(
+        self, deal_id: str, analysis_content: str, **kwargs
+    ) -> Dict[str, Any]:
         """Enhanced HubSpot deal analysis storage with Snowflake Cortex integration"""
         # ... implementation from ai_memory_mcp_server.py ...
         pass
+
     # ... Other hubspot and gong specific methods ...
 
 
@@ -653,12 +757,12 @@ async def main() -> None:
     """Main function to run the AI Memory MCP Server"""
     config = MCPServerConfig(
         server_name="ai_memory",
-        port=9000, 
+        port=9000,
         sync_priority=SyncPriority.HIGH,
         sync_interval_minutes=5,
-        enable_metrics=True
+        enable_metrics=True,
     )
-    
+
     server = StandardizedAiMemoryMCPServer(config)
     await server.start()
 
@@ -668,4 +772,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("AI Memory MCP Server stopped by user.") 
+        logger.info("AI Memory MCP Server stopped by user.")

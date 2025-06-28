@@ -317,19 +317,38 @@ CREATE TABLE IF NOT EXISTS STG_HUBSPOT_CONTACTS (
 
 -- Procedure to refresh materialized HubSpot Deals table
 CREATE OR REPLACE PROCEDURE REFRESH_HUBSPOT_DEALS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
+    -- First insert new deals that don't exist
+    INSERT INTO STG_HUBSPOT_DEALS (
+        DEAL_ID, DEAL_NAME, DEAL_STAGE, DEAL_AMOUNT, CLOSE_DATE, CREATE_DATE,
+        PIPELINE_NAME, DEAL_OWNER, DEAL_OWNER_EMAIL, DEAL_SOURCE, DEAL_TYPE,
+        ASSOCIATED_CONTACT_ID, ASSOCIATED_COMPANY_ID,
+        DAYS_SINCE_CREATED, DAYS_TO_CLOSE, DEAL_STATUS,
+        LAST_REFRESHED
+    )
+    SELECT 
+        source.DEAL_ID, source.DEAL_NAME, source.DEAL_STAGE, source.DEAL_AMOUNT, 
+        source.CLOSE_DATE, source.CREATE_DATE,
+        source.PIPELINE_NAME, source.DEAL_OWNER, source.DEAL_OWNER_EMAIL, 
+        source.DEAL_SOURCE, source.DEAL_TYPE,
+        source.ASSOCIATED_CONTACT_ID, source.ASSOCIATED_COMPANY_ID,
+        source.DAYS_SINCE_CREATED, source.DAYS_TO_CLOSE, source.DEAL_STATUS,
+        source.LAST_REFRESHED
+    FROM V_STG_HUBSPOT_DEALS source
+    WHERE NOT EXISTS (
+        SELECT 1 FROM STG_HUBSPOT_DEALS target
+        WHERE target.DEAL_ID = source.DEAL_ID
+    );
     
-    -- Merge HubSpot deals from view into materialized table
-    MERGE INTO STG_HUBSPOT_DEALS AS target
-    USING V_STG_HUBSPOT_DEALS AS source
-    ON target.DEAL_ID = source.DEAL_ID
-    WHEN MATCHED THEN UPDATE SET
+    -- Then update existing deals
+    UPDATE STG_HUBSPOT_DEALS target
+    SET 
         DEAL_NAME = source.DEAL_NAME,
         DEAL_STAGE = source.DEAL_STAGE,
         DEAL_AMOUNT = source.DEAL_AMOUNT,
@@ -344,49 +363,56 @@ BEGIN
         DAYS_SINCE_CREATED = source.DAYS_SINCE_CREATED,
         DAYS_TO_CLOSE = source.DAYS_TO_CLOSE,
         DEAL_STATUS = source.DEAL_STATUS,
-        UPDATED_AT = CURRENT_TIMESTAMP(),
+        UPDATED_AT = CURRENT_TIMESTAMP,
         LAST_REFRESHED = source.LAST_REFRESHED
-    WHEN NOT MATCHED THEN INSERT (
-        DEAL_ID, DEAL_NAME, DEAL_STAGE, DEAL_AMOUNT, CLOSE_DATE, CREATE_DATE,
-        PIPELINE_NAME, DEAL_OWNER, DEAL_OWNER_EMAIL, DEAL_SOURCE, DEAL_TYPE,
-        ASSOCIATED_CONTACT_ID, ASSOCIATED_COMPANY_ID,
-        DAYS_SINCE_CREATED, DAYS_TO_CLOSE, DEAL_STATUS,
-        LAST_REFRESHED
-    ) VALUES (
-        source.DEAL_ID, source.DEAL_NAME, source.DEAL_STAGE, source.DEAL_AMOUNT, 
-        source.CLOSE_DATE, source.CREATE_DATE,
-        source.PIPELINE_NAME, source.DEAL_OWNER, source.DEAL_OWNER_EMAIL, 
-        source.DEAL_SOURCE, source.DEAL_TYPE,
-        source.ASSOCIATED_CONTACT_ID, source.ASSOCIATED_COMPANY_ID,
-        source.DAYS_SINCE_CREATED, source.DAYS_TO_CLOSE, source.DEAL_STATUS,
-        source.LAST_REFRESHED
-    );
+    FROM V_STG_HUBSPOT_DEALS source
+    WHERE target.DEAL_ID = source.DEAL_ID;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count
+    FROM STG_HUBSPOT_DEALS;
     
-    RETURN 'Refreshed ' || processed_count || ' HubSpot deals';
+    -- Generate result message
+    SET result_message = 'Refreshed ' || processed_count || ' HubSpot deals';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error refreshing HubSpot deals: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- Procedure to refresh materialized HubSpot Contacts table
 CREATE OR REPLACE PROCEDURE REFRESH_HUBSPOT_CONTACTS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
+    -- First insert new contacts that don't exist
+    INSERT INTO STG_HUBSPOT_CONTACTS (
+        CONTACT_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE, COMPANY_NAME,
+        JOB_TITLE, LIFECYCLE_STAGE, LEAD_STATUS, ASSOCIATED_COMPANY_ID,
+        CREATE_DATE, LAST_MODIFIED_DATE, LAST_ACTIVITY_DATE,
+        FULL_NAME, DAYS_SINCE_CREATED, DAYS_SINCE_LAST_ACTIVITY,
+        LAST_REFRESHED
+    )
+    SELECT 
+        source.CONTACT_ID, source.FIRST_NAME, source.LAST_NAME, source.EMAIL, 
+        source.PHONE, source.COMPANY_NAME, source.JOB_TITLE, source.LIFECYCLE_STAGE, 
+        source.LEAD_STATUS, source.ASSOCIATED_COMPANY_ID,
+        source.CREATE_DATE, source.LAST_MODIFIED_DATE, source.LAST_ACTIVITY_DATE,
+        source.FULL_NAME, source.DAYS_SINCE_CREATED, source.DAYS_SINCE_LAST_ACTIVITY,
+        source.LAST_REFRESHED
+    FROM V_STG_HUBSPOT_CONTACTS source
+    WHERE NOT EXISTS (
+        SELECT 1 FROM STG_HUBSPOT_CONTACTS target
+        WHERE target.CONTACT_ID = source.CONTACT_ID
+    );
     
-    -- Merge HubSpot contacts from view into materialized table
-    MERGE INTO STG_HUBSPOT_CONTACTS AS target
-    USING V_STG_HUBSPOT_CONTACTS AS source
-    ON target.CONTACT_ID = source.CONTACT_ID
-    WHEN MATCHED THEN UPDATE SET
+    -- Then update existing contacts
+    UPDATE STG_HUBSPOT_CONTACTS target
+    SET 
         FIRST_NAME = source.FIRST_NAME,
         LAST_NAME = source.LAST_NAME,
         EMAIL = source.EMAIL,
@@ -401,30 +427,20 @@ BEGIN
         FULL_NAME = source.FULL_NAME,
         DAYS_SINCE_CREATED = source.DAYS_SINCE_CREATED,
         DAYS_SINCE_LAST_ACTIVITY = source.DAYS_SINCE_LAST_ACTIVITY,
-        UPDATED_AT = CURRENT_TIMESTAMP(),
+        UPDATED_AT = CURRENT_TIMESTAMP,
         LAST_REFRESHED = source.LAST_REFRESHED
-    WHEN NOT MATCHED THEN INSERT (
-        CONTACT_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE, COMPANY_NAME,
-        JOB_TITLE, LIFECYCLE_STAGE, LEAD_STATUS, ASSOCIATED_COMPANY_ID,
-        CREATE_DATE, LAST_MODIFIED_DATE, LAST_ACTIVITY_DATE,
-        FULL_NAME, DAYS_SINCE_CREATED, DAYS_SINCE_LAST_ACTIVITY,
-        LAST_REFRESHED
-    ) VALUES (
-        source.CONTACT_ID, source.FIRST_NAME, source.LAST_NAME, source.EMAIL, 
-        source.PHONE, source.COMPANY_NAME, source.JOB_TITLE, source.LIFECYCLE_STAGE, 
-        source.LEAD_STATUS, source.ASSOCIATED_COMPANY_ID,
-        source.CREATE_DATE, source.LAST_MODIFIED_DATE, source.LAST_ACTIVITY_DATE,
-        source.FULL_NAME, source.DAYS_SINCE_CREATED, source.DAYS_SINCE_LAST_ACTIVITY,
-        source.LAST_REFRESHED
-    );
+    FROM V_STG_HUBSPOT_CONTACTS source
+    WHERE target.CONTACT_ID = source.CONTACT_ID;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count
+    FROM STG_HUBSPOT_CONTACTS;
     
-    RETURN 'Refreshed ' || processed_count || ' HubSpot contacts';
+    -- Generate result message
+    SET result_message = 'Refreshed ' || processed_count || ' HubSpot contacts';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error refreshing HubSpot contacts: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
@@ -434,71 +450,15 @@ $$;
 
 -- Enhanced procedure to transform raw Gong calls with AI Memory support
 CREATE OR REPLACE PROCEDURE TRANSFORM_RAW_GONG_CALLS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
-    
-    -- Insert/Update structured calls from RAW_AIRBYTE.GONG_CALLS_RAW
-    MERGE INTO STG_GONG_CALLS AS target
-    USING (
-        SELECT 
-            RAW_DATA:id::VARCHAR AS CALL_ID,
-            RAW_DATA:title::VARCHAR AS CALL_TITLE,
-            RAW_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
-            RAW_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
-            RAW_DATA:direction::VARCHAR AS CALL_DIRECTION,
-            RAW_DATA:system::VARCHAR AS CALL_SYSTEM,
-            RAW_DATA:scope::VARCHAR AS CALL_SCOPE,
-            RAW_DATA:media::VARCHAR AS CALL_MEDIA,
-            RAW_DATA:language::VARCHAR AS CALL_LANGUAGE,
-            RAW_DATA:url::VARCHAR AS CALL_URL,
-            
-            -- Primary user extraction
-            RAW_DATA:primaryUserId::VARCHAR AS PRIMARY_USER_ID,
-            RAW_DATA:primaryUser.emailAddress::VARCHAR AS PRIMARY_USER_EMAIL,
-            RAW_DATA:primaryUser.firstName::VARCHAR || ' ' || RAW_DATA:primaryUser.lastName::VARCHAR AS PRIMARY_USER_NAME,
-            
-            -- CRM data extraction (nested JSON)
-            RAW_DATA:customData.hubspotDealId::VARCHAR AS HUBSPOT_DEAL_ID,
-            RAW_DATA:customData.hubspotContactId::VARCHAR AS HUBSPOT_CONTACT_ID,
-            RAW_DATA:customData.hubspotCompanyId::VARCHAR AS HUBSPOT_COMPANY_ID,
-            RAW_DATA:customData.opportunityId::VARCHAR AS CRM_OPPORTUNITY_ID,
-            RAW_DATA:customData.accountId::VARCHAR AS CRM_ACCOUNT_ID,
-            
-            -- Business context
-            RAW_DATA:customData.dealStage::VARCHAR AS DEAL_STAGE,
-            RAW_DATA:customData.dealValue::NUMBER AS DEAL_VALUE,
-            RAW_DATA:customData.accountName::VARCHAR AS ACCOUNT_NAME,
-            RAW_DATA:customData.contactName::VARCHAR AS CONTACT_NAME,
-            
-            -- Call metrics (if available)
-            RAW_DATA:analytics.talkRatio::FLOAT AS TALK_RATIO,
-            RAW_DATA:analytics.longestMonologue::NUMBER AS LONGEST_MONOLOGUE_SECONDS,
-            RAW_DATA:analytics.interactivity::FLOAT AS INTERACTIVITY_SCORE,
-            RAW_DATA:analytics.questionsAsked::NUMBER AS QUESTIONS_ASKED_COUNT,
-            
-            CURRENT_TIMESTAMP() AS UPDATED_AT
-            
-        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW 
-        WHERE PROCESSED = FALSE
-    ) AS source
-    ON target.CALL_ID = source.CALL_ID
-    WHEN MATCHED THEN UPDATE SET
-        CALL_TITLE = source.CALL_TITLE,
-        CALL_DATETIME_UTC = source.CALL_DATETIME_UTC,
-        CALL_DURATION_SECONDS = source.CALL_DURATION_SECONDS,
-        CALL_DIRECTION = source.CALL_DIRECTION,
-        HUBSPOT_DEAL_ID = source.HUBSPOT_DEAL_ID,
-        HUBSPOT_CONTACT_ID = source.HUBSPOT_CONTACT_ID,
-        DEAL_STAGE = source.DEAL_STAGE,
-        DEAL_VALUE = source.DEAL_VALUE,
-        TALK_RATIO = source.TALK_RATIO,
-        UPDATED_AT = source.UPDATED_AT
-    WHEN NOT MATCHED THEN INSERT (
+    -- First insert new calls that don't exist
+    INSERT INTO STG_GONG_CALLS (
         CALL_ID, CALL_TITLE, CALL_DATETIME_UTC, CALL_DURATION_SECONDS,
         CALL_DIRECTION, CALL_SYSTEM, CALL_SCOPE, CALL_MEDIA, CALL_LANGUAGE, CALL_URL,
         PRIMARY_USER_ID, PRIMARY_USER_EMAIL, PRIMARY_USER_NAME,
@@ -507,42 +467,108 @@ BEGIN
         DEAL_STAGE, DEAL_VALUE, ACCOUNT_NAME, CONTACT_NAME,
         TALK_RATIO, LONGEST_MONOLOGUE_SECONDS, INTERACTIVITY_SCORE, QUESTIONS_ASKED_COUNT,
         UPDATED_AT
-    ) VALUES (
-        source.CALL_ID, source.CALL_TITLE, source.CALL_DATETIME_UTC, source.CALL_DURATION_SECONDS,
-        source.CALL_DIRECTION, source.CALL_SYSTEM, source.CALL_SCOPE, source.CALL_MEDIA, source.CALL_LANGUAGE, source.CALL_URL,
-        source.PRIMARY_USER_ID, source.PRIMARY_USER_EMAIL, source.PRIMARY_USER_NAME,
-        source.HUBSPOT_DEAL_ID, source.HUBSPOT_CONTACT_ID, source.HUBSPOT_COMPANY_ID,
-        source.CRM_OPPORTUNITY_ID, source.CRM_ACCOUNT_ID,
-        source.DEAL_STAGE, source.DEAL_VALUE, source.ACCOUNT_NAME, source.CONTACT_NAME,
-        source.TALK_RATIO, source.LONGEST_MONOLOGUE_SECONDS, source.INTERACTIVITY_SCORE, source.QUESTIONS_ASKED_COUNT,
-        source.UPDATED_AT
+    )
+    SELECT 
+        RAW_DATA:id::VARCHAR AS CALL_ID,
+        RAW_DATA:title::VARCHAR AS CALL_TITLE,
+        RAW_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
+        RAW_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
+        RAW_DATA:direction::VARCHAR AS CALL_DIRECTION,
+        RAW_DATA:system::VARCHAR AS CALL_SYSTEM,
+        RAW_DATA:scope::VARCHAR AS CALL_SCOPE,
+        RAW_DATA:media::VARCHAR AS CALL_MEDIA,
+        RAW_DATA:language::VARCHAR AS CALL_LANGUAGE,
+        RAW_DATA:url::VARCHAR AS CALL_URL,
+        
+        -- Primary user extraction
+        RAW_DATA:primaryUserId::VARCHAR AS PRIMARY_USER_ID,
+        RAW_DATA:primaryUser.emailAddress::VARCHAR AS PRIMARY_USER_EMAIL,
+        RAW_DATA:primaryUser.firstName::VARCHAR || ' ' || RAW_DATA:primaryUser.lastName::VARCHAR AS PRIMARY_USER_NAME,
+        
+        -- CRM data extraction (nested JSON)
+        RAW_DATA:customData.hubspotDealId::VARCHAR AS HUBSPOT_DEAL_ID,
+        RAW_DATA:customData.hubspotContactId::VARCHAR AS HUBSPOT_CONTACT_ID,
+        RAW_DATA:customData.hubspotCompanyId::VARCHAR AS HUBSPOT_COMPANY_ID,
+        RAW_DATA:customData.opportunityId::VARCHAR AS CRM_OPPORTUNITY_ID,
+        RAW_DATA:customData.accountId::VARCHAR AS CRM_ACCOUNT_ID,
+        
+        -- Business context
+        RAW_DATA:customData.dealStage::VARCHAR AS DEAL_STAGE,
+        RAW_DATA:customData.dealValue::NUMBER AS DEAL_VALUE,
+        RAW_DATA:customData.accountName::VARCHAR AS ACCOUNT_NAME,
+        RAW_DATA:customData.contactName::VARCHAR AS CONTACT_NAME,
+        
+        -- Call metrics (if available)
+        RAW_DATA:analytics.talkRatio::FLOAT AS TALK_RATIO,
+        RAW_DATA:analytics.longestMonologue::NUMBER AS LONGEST_MONOLOGUE_SECONDS,
+        RAW_DATA:analytics.interactivity::FLOAT AS INTERACTIVITY_SCORE,
+        RAW_DATA:analytics.questionsAsked::NUMBER AS QUESTIONS_ASKED_COUNT,
+        
+        CURRENT_TIMESTAMP AS UPDATED_AT
+    FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW src
+    WHERE PROCESSED = FALSE
+    AND NOT EXISTS (
+        SELECT 1 FROM STG_GONG_CALLS tgt
+        WHERE tgt.CALL_ID = src.RAW_DATA:id::VARCHAR
     );
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Then update existing calls
+    UPDATE STG_GONG_CALLS tgt
+    SET 
+        CALL_TITLE = src.CALL_TITLE,
+        CALL_DATETIME_UTC = src.CALL_DATETIME_UTC,
+        CALL_DURATION_SECONDS = src.CALL_DURATION_SECONDS,
+        CALL_DIRECTION = src.CALL_DIRECTION,
+        HUBSPOT_DEAL_ID = src.HUBSPOT_DEAL_ID,
+        HUBSPOT_CONTACT_ID = src.HUBSPOT_CONTACT_ID,
+        DEAL_STAGE = src.DEAL_STAGE,
+        DEAL_VALUE = src.DEAL_VALUE,
+        TALK_RATIO = src.TALK_RATIO,
+        UPDATED_AT = src.UPDATED_AT
+    FROM (
+        SELECT 
+            RAW_DATA:id::VARCHAR AS CALL_ID,
+            RAW_DATA:title::VARCHAR AS CALL_TITLE,
+            RAW_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
+            RAW_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
+            RAW_DATA:direction::VARCHAR AS CALL_DIRECTION,
+            RAW_DATA:customData.hubspotDealId::VARCHAR AS HUBSPOT_DEAL_ID,
+            RAW_DATA:customData.hubspotContactId::VARCHAR AS HUBSPOT_CONTACT_ID,
+            RAW_DATA:customData.dealStage::VARCHAR AS DEAL_STAGE,
+            RAW_DATA:customData.dealValue::NUMBER AS DEAL_VALUE,
+            RAW_DATA:analytics.talkRatio::FLOAT AS TALK_RATIO,
+            CURRENT_TIMESTAMP AS UPDATED_AT
+        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW
+        WHERE PROCESSED = FALSE
+    ) src
+    WHERE tgt.CALL_ID = src.CALL_ID;
     
     -- Mark raw records as processed
     UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW 
-    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
+    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE;
     
-    RETURN 'Processed ' || processed_count || ' Gong call records';
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count
+    FROM STG_GONG_CALLS;
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error processing Gong calls: ' || SQLERRM;
+    -- Generate result message
+    SET result_message = 'Processed ' || processed_count || ' Gong call records';
+    
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- Enhanced procedure to transform raw Gong transcripts with AI Memory support
 CREATE OR REPLACE PROCEDURE TRANSFORM_RAW_GONG_TRANSCRIPTS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
-    
     -- Insert transcript segments from RAW_AIRBYTE.GONG_CALL_TRANSCRIPTS_RAW
     INSERT INTO STG_GONG_CALL_TRANSCRIPTS (
         TRANSCRIPT_ID,
@@ -575,18 +601,20 @@ BEGIN
     WHERE PROCESSED = FALSE
     AND TRANSCRIPT_DATA:transcript IS NOT NULL;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM STG_GONG_CALL_TRANSCRIPTS;
     
     -- Mark raw transcripts as processed
     UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALL_TRANSCRIPTS_RAW 
-    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
+    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE;
     
-    RETURN 'Processed ' || processed_count || ' Gong transcript segments';
+    -- Generate result message
+    SET result_message = 'Processed ' || processed_count || ' Gong transcript segments';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error processing Gong transcripts: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
@@ -658,21 +686,33 @@ AS
 -- 8. GRANTS AND PERMISSIONS
 -- =====================================================================
 
--- Grant access to ROLE_SOPHIA_AI_AGENT_SERVICE for read operations
+-- Grant access to tables and views individually
 GRANT USAGE ON SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-GRANT SELECT ON ALL TABLES IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-GRANT SELECT ON ALL VIEWS IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-
--- Grant access to ROLE_SOPHIA_DEVELOPER for development
 GRANT USAGE ON SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
-GRANT SELECT ON ALL TABLES IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
-GRANT SELECT ON ALL VIEWS IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
 
--- Grant future permissions
-GRANT SELECT ON FUTURE TABLES IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-GRANT SELECT ON FUTURE VIEWS IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
-GRANT SELECT ON FUTURE VIEWS IN SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
+-- Grant access to specific tables for ROLE_SOPHIA_AI_AGENT_SERVICE
+GRANT SELECT ON TABLE STG_GONG_CALLS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON TABLE STG_GONG_CALL_TRANSCRIPTS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON TABLE STG_GONG_CALL_PARTICIPANTS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON TABLE STG_HUBSPOT_DEALS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON TABLE STG_HUBSPOT_CONTACTS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+
+-- Grant access to specific views for ROLE_SOPHIA_AI_AGENT_SERVICE
+GRANT SELECT ON VIEW V_STG_HUBSPOT_DEALS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON VIEW V_STG_HUBSPOT_CONTACTS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT SELECT ON VIEW V_STG_HUBSPOT_COMPANIES TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+
+-- Grant access to specific tables for ROLE_SOPHIA_DEVELOPER
+GRANT SELECT ON TABLE STG_GONG_CALLS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON TABLE STG_GONG_CALL_TRANSCRIPTS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON TABLE STG_GONG_CALL_PARTICIPANTS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON TABLE STG_HUBSPOT_DEALS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON TABLE STG_HUBSPOT_CONTACTS TO ROLE ROLE_SOPHIA_DEVELOPER;
+
+-- Grant access to specific views for ROLE_SOPHIA_DEVELOPER
+GRANT SELECT ON VIEW V_STG_HUBSPOT_DEALS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON VIEW V_STG_HUBSPOT_CONTACTS TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT SELECT ON VIEW V_STG_HUBSPOT_COMPANIES TO ROLE ROLE_SOPHIA_DEVELOPER;
 
 -- =====================================================================
 -- DEPLOYMENT NOTES

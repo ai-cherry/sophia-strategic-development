@@ -6,339 +6,288 @@
 -- =====================================
 -- PROCEDURE: Generate Customer AI Insights
 -- =====================================
-CREATE OR REPLACE PROCEDURE GENERATE_CUSTOMER_AI_INSIGHTS(customer_id VARCHAR)
-RETURNS VARIANT
-LANGUAGE PYTHON
+-- Note: ANSI SQL doesn't support Python stored procedures
+-- This is a simplified version using standard SQL
+CREATE PROCEDURE GENERATE_CUSTOMER_AI_INSIGHTS(IN customer_id VARCHAR(50), OUT status VARCHAR(50), OUT insights_generated INT)
+LANGUAGE SQL
 AS
-$$
-def main(session, customer_id):
-    import json
-    from datetime import datetime, timedelta
+BEGIN
+    DECLARE health_score DECIMAL(3,2);
+    DECLARE avg_sentiment DECIMAL(3,2);
+    DECLARE result_text VARCHAR(1000);
     
-    results = {
-        "customer_id": customer_id,
-        "insights_generated": 0,
-        "processing_time": datetime.now().isoformat(),
-        "status": "success"
-    }
+    -- Set default output values
+    SET status = 'success';
+    SET insights_generated = 0;
     
-    try:
-        # Get customer profile and recent interactions
-        customer_query = f'''
-        SELECT 
-            cp.*,
-            COUNT(ci.interaction_id) as total_interactions,
-            AVG(ci.sentiment_score) as avg_sentiment,
-            ARRAY_AGG(DISTINCT ci.interaction_type) as interaction_types
-        FROM CUSTOMER_PROFILES cp
-        LEFT JOIN CUSTOMER_INTERACTIONS ci ON cp.customer_id = ci.customer_id
-        WHERE cp.customer_id = '{customer_id}'
-        GROUP BY cp.customer_id, cp.customer_name, cp.company, cp.industry, 
-                 cp.customer_tier, cp.total_revenue, cp.health_score
-        '''
+    -- Get customer profile data
+    SELECT cp.health_score, 
+           AVG(ci.sentiment_score) AS avg_sentiment
+    INTO health_score, avg_sentiment
+    FROM CUSTOMER_PROFILES cp
+    LEFT JOIN CUSTOMER_INTERACTIONS ci ON cp.customer_id = ci.customer_id
+    WHERE cp.customer_id = customer_id
+    GROUP BY cp.customer_id, cp.health_score;
+    
+    -- Generate health score insight if low
+    IF health_score < 0.3 THEN
+        INSERT INTO CUSTOMER_AI_INSIGHTS (
+            insight_id, customer_id, insight_type, insight_title, 
+            insight_description, confidence_score, impact_score,
+            evidence, recommended_actions
+        ) VALUES (
+            CONCAT(customer_id, '_health_risk_', DATE_FORMAT(CURRENT_DATE, '%Y%m%d')),
+            customer_id,
+            'risk_factor',
+            'Low Customer Health Score Detected',
+            CONCAT('Customer health score of ', CAST(health_score AS VARCHAR(10)), ' indicates potential risk. Recent interactions show declining engagement.'),
+            0.85,
+            0.75,
+            CONCAT('Health score: ', CAST(health_score AS VARCHAR(10)), ', Below threshold of 0.5'),
+            'Schedule immediate check-in call, Review recent support tickets, Analyze usage patterns'
+        );
         
-        customer_data = session.sql(customer_query).collect()
+        SET insights_generated = insights_generated + 1;
+    
+    -- Generate health score insight if high
+    ELSEIF health_score > 0.8 THEN
+        INSERT INTO CUSTOMER_AI_INSIGHTS (
+            insight_id, customer_id, insight_type, insight_title,
+            insight_description, confidence_score, impact_score,
+            evidence, recommended_actions
+        ) VALUES (
+            CONCAT(customer_id, '_expansion_opp_', DATE_FORMAT(CURRENT_DATE, '%Y%m%d')),
+            customer_id,
+            'growth_opportunity',
+            'High Health Score - Expansion Opportunity',
+            CONCAT('Customer health score of ', CAST(health_score AS VARCHAR(10)), ' indicates strong satisfaction. Consider expansion opportunities.'),
+            0.78,
+            0.82,
+            CONCAT('Health score: ', CAST(health_score AS VARCHAR(10)), ', Above excellent threshold'),
+            'Present upsell opportunities, Schedule strategic account review, Explore new use cases'
+        );
         
-        if not customer_data:
-            results["status"] = "error"
-            results["message"] = f"Customer {customer_id} not found"
-            return results
+        SET insights_generated = insights_generated + 1;
+    END IF;
+    
+    -- Generate sentiment insight if negative
+    IF avg_sentiment < -0.2 THEN
+        INSERT INTO CUSTOMER_AI_INSIGHTS (
+            insight_id, customer_id, insight_type, insight_title,
+            insight_description, confidence_score, impact_score,
+            evidence, recommended_actions
+        ) VALUES (
+            CONCAT(customer_id, '_sentiment_risk_', DATE_FORMAT(CURRENT_DATE, '%Y%m%d')),
+            customer_id,
+            'behavior_pattern',
+            'Declining Sentiment Trend',
+            CONCAT('Average sentiment score of ', CAST(avg_sentiment AS VARCHAR(10)), ' indicates customer frustration or dissatisfaction.'),
+            0.82,
+            0.70,
+            CONCAT('Average sentiment: ', CAST(avg_sentiment AS VARCHAR(10)), ', Multiple negative interactions'),
+            'Immediate customer success intervention, Review support case history, Schedule feedback session'
+        );
         
-        customer = customer_data[0]
-        
-        # Generate health score insight
-        health_score = float(customer['HEALTH_SCORE']) if customer['HEALTH_SCORE'] else 0.5
-        
-        if health_score < 0.3:
-            insight_query = f'''
-            INSERT INTO CUSTOMER_AI_INSIGHTS (
-                insight_id, customer_id, insight_type, insight_title, 
-                insight_description, confidence_score, impact_score,
-                evidence, recommended_actions
-            ) VALUES (
-                '{customer_id}_health_risk_{datetime.now().strftime("%Y%m%d")}',
-                '{customer_id}',
-                'risk_factor',
-                'Low Customer Health Score Detected',
-                'Customer health score of {health_score:.2f} indicates potential risk. Recent interactions show declining engagement.',
-                0.85,
-                0.75,
-                ARRAY_CONSTRUCT('Health score: {health_score:.2f}', 'Below threshold of 0.5'),
-                ARRAY_CONSTRUCT('Schedule immediate check-in call', 'Review recent support tickets', 'Analyze usage patterns')
-            )
-            '''
-            session.sql(insight_query).collect()
-            results["insights_generated"] += 1
-            
-        elif health_score > 0.8:
-            insight_query = f'''
-            INSERT INTO CUSTOMER_AI_INSIGHTS (
-                insight_id, customer_id, insight_type, insight_title,
-                insight_description, confidence_score, impact_score,
-                evidence, recommended_actions
-            ) VALUES (
-                '{customer_id}_expansion_opp_{datetime.now().strftime("%Y%m%d")}',
-                '{customer_id}',
-                'growth_opportunity',
-                'High Health Score - Expansion Opportunity',
-                'Customer health score of {health_score:.2f} indicates strong satisfaction. Consider expansion opportunities.',
-                0.78,
-                0.82,
-                ARRAY_CONSTRUCT('Health score: {health_score:.2f}', 'Above excellent threshold'),
-                ARRAY_CONSTRUCT('Present upsell opportunities', 'Schedule strategic account review', 'Explore new use cases')
-            )
-            '''
-            session.sql(insight_query).collect()
-            results["insights_generated"] += 1
-        
-        # Sentiment analysis insight
-        avg_sentiment = float(customer['AVG_SENTIMENT']) if customer['AVG_SENTIMENT'] else 0.0
-        
-        if avg_sentiment < -0.2:
-            insight_query = f'''
-            INSERT INTO CUSTOMER_AI_INSIGHTS (
-                insight_id, customer_id, insight_type, insight_title,
-                insight_description, confidence_score, impact_score,
-                evidence, recommended_actions
-            ) VALUES (
-                '{customer_id}_sentiment_risk_{datetime.now().strftime("%Y%m%d")}',
-                '{customer_id}',
-                'behavior_pattern',
-                'Declining Sentiment Trend',
-                'Average sentiment score of {avg_sentiment:.2f} indicates customer frustration or dissatisfaction.',
-                0.82,
-                0.70,
-                ARRAY_CONSTRUCT('Average sentiment: {avg_sentiment:.2f}', 'Multiple negative interactions'),
-                ARRAY_CONSTRUCT('Immediate customer success intervention', 'Review support case history', 'Schedule feedback session')
-            )
-            '''
-            session.sql(insight_query).collect()
-            results["insights_generated"] += 1
-        
-        return results
-        
-    except Exception as e:
-        results["status"] = "error"
-        results["message"] = str(e)
-        return results
-$$;
+        SET insights_generated = insights_generated + 1;
+    END IF;
+    
+    -- Return results via SELECT
+    SET result_text = CONCAT('Generated ', CAST(insights_generated AS VARCHAR(10)), ' insights for customer ', customer_id);
+    SELECT result_text AS result;
+END;
 
 -- =====================================
 -- PROCEDURE: Update Customer Health Score
 -- =====================================
-CREATE OR REPLACE PROCEDURE UPDATE_CUSTOMER_HEALTH_SCORE(customer_id VARCHAR)
-RETURNS VARIANT
-LANGUAGE PYTHON
+CREATE PROCEDURE UPDATE_CUSTOMER_HEALTH_SCORE(IN customer_id VARCHAR(50), OUT status VARCHAR(50), OUT new_health_score DECIMAL(3,2))
+LANGUAGE SQL
 AS
-$$
-def main(session, customer_id):
-    import json
-    from datetime import datetime, timedelta
+BEGIN
+    DECLARE recency_score DECIMAL(3,2);
+    DECLARE sentiment_score DECIMAL(3,2);
+    DECLARE frequency_score DECIMAL(3,2);
+    DECLARE revenue_score DECIMAL(3,2);
+    DECLARE days_since_interaction INT;
+    DECLARE total_revenue DECIMAL(15,2);
+    DECLARE interaction_count INT;
+    DECLARE result_text VARCHAR(1000);
     
-    try:
-        # Calculate health score based on multiple factors
-        health_calculation = f'''
-        WITH customer_metrics AS (
-            SELECT 
-                cp.customer_id,
-                -- Interaction recency factor (0-1)
-                CASE 
-                    WHEN DATEDIFF(day, cp.last_interaction_date, CURRENT_DATE()) <= 7 THEN 1.0
-                    WHEN DATEDIFF(day, cp.last_interaction_date, CURRENT_DATE()) <= 30 THEN 0.8
-                    WHEN DATEDIFF(day, cp.last_interaction_date, CURRENT_DATE()) <= 60 THEN 0.5
-                    ELSE 0.2
-                END as recency_score,
-                
-                -- Sentiment factor (0-1)
-                COALESCE(
-                    (SELECT (AVG(sentiment_score) + 1) / 2 
-                     FROM CUSTOMER_INTERACTIONS 
-                     WHERE customer_id = cp.customer_id 
-                     AND interaction_date >= DATEADD(day, -90, CURRENT_DATE())), 
-                    0.5
-                ) as sentiment_score,
-                
-                -- Interaction frequency factor (0-1)
-                LEAST(1.0, 
-                    (SELECT COUNT(*) * 0.1 
-                     FROM CUSTOMER_INTERACTIONS 
-                     WHERE customer_id = cp.customer_id 
-                     AND interaction_date >= DATEADD(day, -30, CURRENT_DATE()))
-                ) as frequency_score,
-                
-                -- Revenue factor (0-1, normalized)
-                CASE 
-                    WHEN cp.total_revenue >= 100000 THEN 1.0
-                    WHEN cp.total_revenue >= 50000 THEN 0.8
-                    WHEN cp.total_revenue >= 25000 THEN 0.6
-                    WHEN cp.total_revenue >= 10000 THEN 0.4
-                    ELSE 0.2
-                END as revenue_score
-                
-            FROM CUSTOMER_PROFILES cp
-            WHERE cp.customer_id = '{customer_id}'
-        )
-        UPDATE CUSTOMER_PROFILES 
-        SET 
-            health_score = (
-                cm.recency_score * 0.3 + 
-                cm.sentiment_score * 0.4 + 
-                cm.frequency_score * 0.2 + 
-                cm.revenue_score * 0.1
-            ),
-            updated_at = CURRENT_TIMESTAMP()
-        FROM customer_metrics cm
-        WHERE CUSTOMER_PROFILES.customer_id = cm.customer_id
-        '''
-        
-        session.sql(health_calculation).collect()
-        
-        # Get updated health score
-        result_query = f'''
-        SELECT customer_id, health_score, updated_at
-        FROM CUSTOMER_PROFILES 
-        WHERE customer_id = '{customer_id}'
-        '''
-        
-        result = session.sql(result_query).collect()
-        
-        if result:
-            return {
-                "status": "success",
-                "customer_id": customer_id,
-                "new_health_score": float(result[0]['HEALTH_SCORE']),
-                "updated_at": result[0]['UPDATED_AT'].isoformat()
-            }
-        else:
-            return {
-                "status": "error",
-                "message": f"Customer {customer_id} not found"
-            }
-            
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
-$$;
+    -- Set default status
+    SET status = 'success';
+    
+    -- Get data for health score calculation
+    SELECT 
+        DATEDIFF(DAY, cp.last_interaction_date, CURRENT_DATE) AS days_since,
+        cp.total_revenue,
+        COUNT(ci.interaction_id) AS interaction_count,
+        AVG(ci.sentiment_score) AS avg_sentiment
+    INTO 
+        days_since_interaction, 
+        total_revenue, 
+        interaction_count,
+        sentiment_score
+    FROM CUSTOMER_PROFILES cp
+    LEFT JOIN CUSTOMER_INTERACTIONS ci 
+        ON cp.customer_id = ci.customer_id 
+        AND ci.interaction_date >= DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY)
+    WHERE cp.customer_id = customer_id
+    GROUP BY cp.customer_id, cp.last_interaction_date, cp.total_revenue;
+    
+    -- Calculate recency score
+    IF days_since_interaction <= 7 THEN SET recency_score = 1.0;
+    ELSEIF days_since_interaction <= 30 THEN SET recency_score = 0.8;
+    ELSEIF days_since_interaction <= 60 THEN SET recency_score = 0.5;
+    ELSE SET recency_score = 0.2;
+    END IF;
+    
+    -- Normalize sentiment score (from -1..1 to 0..1)
+    SET sentiment_score = (sentiment_score + 1) / 2;
+    
+    -- Calculate frequency score
+    SET frequency_score = LEAST(1.0, interaction_count * 0.1);
+    
+    -- Calculate revenue score
+    IF total_revenue >= 100000 THEN SET revenue_score = 1.0;
+    ELSEIF total_revenue >= 50000 THEN SET revenue_score = 0.8;
+    ELSEIF total_revenue >= 25000 THEN SET revenue_score = 0.6;
+    ELSEIF total_revenue >= 10000 THEN SET revenue_score = 0.4;
+    ELSE SET revenue_score = 0.2;
+    END IF;
+    
+    -- Calculate final health score
+    SET new_health_score = (
+        recency_score * 0.3 + 
+        sentiment_score * 0.4 + 
+        frequency_score * 0.2 + 
+        revenue_score * 0.1
+    );
+    
+    -- Update customer profile
+    UPDATE CUSTOMER_PROFILES 
+    SET 
+        health_score = new_health_score,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE customer_id = customer_id;
+    
+    -- Return results via SELECT
+    SET result_text = CONCAT('Updated health score to ', CAST(new_health_score AS VARCHAR(10)), ' for customer ', customer_id);
+    SELECT result_text AS result;
+END;
 
 -- =====================================
 -- PROCEDURE: Generate Customer Predictions
 -- =====================================
-CREATE OR REPLACE PROCEDURE GENERATE_CUSTOMER_PREDICTIONS(customer_id VARCHAR)
-RETURNS VARIANT
-LANGUAGE PYTHON
+CREATE PROCEDURE GENERATE_CUSTOMER_PREDICTIONS(IN customer_id VARCHAR(50), OUT status VARCHAR(50), OUT predictions_made INT)
+LANGUAGE SQL
 AS
-$$
-def main(session, customer_id):
-    import json
-    from datetime import datetime, timedelta
+BEGIN
+    DECLARE health_score DECIMAL(3,2);
+    DECLARE avg_sentiment DECIMAL(3,2);
+    DECLARE days_since_interaction INT;
+    DECLARE customer_tier VARCHAR(20);
+    DECLARE churn_risk DECIMAL(10,4);
+    DECLARE expansion_likelihood DECIMAL(10,4);
+    DECLARE churn_factors VARCHAR(1000);
+    DECLARE expansion_factors VARCHAR(1000);
+    DECLARE result_text VARCHAR(1000);
     
-    try:
-        # Get customer data for predictions
-        customer_query = f'''
-        SELECT 
-            cp.*,
-            COUNT(ci.interaction_id) as interaction_count,
-            AVG(ci.sentiment_score) as avg_sentiment,
-            DATEDIFF(day, MAX(ci.interaction_date), CURRENT_DATE()) as days_since_last_interaction
-        FROM CUSTOMER_PROFILES cp
-        LEFT JOIN CUSTOMER_INTERACTIONS ci ON cp.customer_id = ci.customer_id
-        WHERE cp.customer_id = '{customer_id}'
-        GROUP BY cp.customer_id, cp.customer_name, cp.health_score, cp.total_revenue, cp.customer_tier
-        '''
-        
-        customer_data = session.sql(customer_query).collect()
-        
-        if not customer_data:
-            return {"status": "error", "message": f"Customer {customer_id} not found"}
-        
-        customer = customer_data[0]
-        health_score = float(customer['HEALTH_SCORE']) if customer['HEALTH_SCORE'] else 0.5
-        avg_sentiment = float(customer['AVG_SENTIMENT']) if customer['AVG_SENTIMENT'] else 0.0
-        days_since_interaction = int(customer['DAYS_SINCE_LAST_INTERACTION']) if customer['DAYS_SINCE_LAST_INTERACTION'] else 0
-        
-        predictions_made = 0
-        
-        # Churn risk prediction
-        churn_risk = 0.5  # baseline
-        churn_factors = []
-        
-        if health_score < 0.3:
-            churn_risk += 0.3
-            churn_factors.append("Low health score")
-        if avg_sentiment < -0.2:
-            churn_risk += 0.2
-            churn_factors.append("Negative sentiment trend")
-        if days_since_interaction > 60:
-            churn_risk += 0.2
-            churn_factors.append("Extended silence period")
-        
-        churn_risk = min(0.95, churn_risk)  # Cap at 95%
-        
-        churn_insert = f'''
-        INSERT INTO CUSTOMER_PREDICTIONS (
-            prediction_id, customer_id, prediction_type, prediction_value,
-            prediction_confidence, prediction_factors, prediction_horizon_days, model_version
-        ) VALUES (
-            '{customer_id}_churn_{datetime.now().strftime("%Y%m%d")}',
-            '{customer_id}',
-            'churn_risk',
-            {churn_risk:.4f},
-            0.75,
-            ARRAY_CONSTRUCT{tuple(churn_factors) if churn_factors else '()'},
-            90,
-            'v1.0'
-        )
-        '''
-        session.sql(churn_insert).collect()
-        predictions_made += 1
-        
-        # Expansion opportunity prediction
-        expansion_likelihood = 0.2  # baseline
-        expansion_factors = []
-        
-        if health_score > 0.8:
-            expansion_likelihood += 0.4
-            expansion_factors.append("High health score")
-        if avg_sentiment > 0.3:
-            expansion_likelihood += 0.3
-            expansion_factors.append("Positive sentiment")
-        if customer['CUSTOMER_TIER'] == 'Enterprise':
-            expansion_likelihood += 0.2
-            expansion_factors.append("Enterprise tier customer")
-        
-        expansion_likelihood = min(0.95, expansion_likelihood)
-        
-        expansion_insert = f'''
-        INSERT INTO CUSTOMER_PREDICTIONS (
-            prediction_id, customer_id, prediction_type, prediction_value,
-            prediction_confidence, prediction_factors, prediction_horizon_days, model_version
-        ) VALUES (
-            '{customer_id}_expansion_{datetime.now().strftime("%Y%m%d")}',
-            '{customer_id}',
-            'expansion_opportunity',
-            {expansion_likelihood:.4f},
-            0.70,
-            ARRAY_CONSTRUCT{tuple(expansion_factors) if expansion_factors else '()'},
-            60,
-            'v1.0'
-        )
-        '''
-        session.sql(expansion_insert).collect()
-        predictions_made += 1
-        
-        return {
-            "status": "success",
-            "customer_id": customer_id,
-            "predictions_made": predictions_made,
-            "churn_risk": churn_risk,
-            "expansion_likelihood": expansion_likelihood
-        }
-        
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
-$$;
+    -- Set default values
+    SET status = 'success';
+    SET predictions_made = 0;
+    SET churn_risk = 0.5; -- baseline
+    SET expansion_likelihood = 0.2; -- baseline
+    SET churn_factors = '';
+    SET expansion_factors = '';
+    
+    -- Get customer data for predictions
+    SELECT 
+        cp.health_score,
+        cp.customer_tier,
+        AVG(ci.sentiment_score) AS avg_sentiment,
+        DATEDIFF(DAY, MAX(ci.interaction_date), CURRENT_DATE) AS days_since
+    INTO 
+        health_score,
+        customer_tier,
+        avg_sentiment,
+        days_since_interaction
+    FROM CUSTOMER_PROFILES cp
+    LEFT JOIN CUSTOMER_INTERACTIONS ci ON cp.customer_id = ci.customer_id
+    WHERE cp.customer_id = customer_id
+    GROUP BY cp.customer_id, cp.health_score, cp.customer_tier;
+    
+    -- Calculate churn risk and factors
+    IF health_score < 0.3 THEN
+        SET churn_risk = churn_risk + 0.3;
+        SET churn_factors = CONCAT(churn_factors, 'Low health score, ');
+    END IF;
+    
+    IF avg_sentiment < -0.2 THEN
+        SET churn_risk = churn_risk + 0.2;
+        SET churn_factors = CONCAT(churn_factors, 'Negative sentiment trend, ');
+    END IF;
+    
+    IF days_since_interaction > 60 THEN
+        SET churn_risk = churn_risk + 0.2;
+        SET churn_factors = CONCAT(churn_factors, 'Extended silence period, ');
+    END IF;
+    
+    -- Cap churn risk at 95%
+    IF churn_risk > 0.95 THEN SET churn_risk = 0.95; END IF;
+    
+    -- Insert churn prediction
+    INSERT INTO CUSTOMER_PREDICTIONS (
+        prediction_id, customer_id, prediction_type, prediction_value,
+        prediction_confidence, prediction_factors, prediction_horizon_days, model_version
+    ) VALUES (
+        CONCAT(customer_id, '_churn_', DATE_FORMAT(CURRENT_DATE, '%Y%m%d')),
+        customer_id,
+        'churn_risk',
+        churn_risk,
+        0.75,
+        churn_factors,
+        90,
+        'v1.0'
+    );
+    
+    SET predictions_made = predictions_made + 1;
+    
+    -- Calculate expansion likelihood and factors
+    IF health_score > 0.8 THEN
+        SET expansion_likelihood = expansion_likelihood + 0.4;
+        SET expansion_factors = CONCAT(expansion_factors, 'High health score, ');
+    END IF;
+    
+    IF avg_sentiment > 0.3 THEN
+        SET expansion_likelihood = expansion_likelihood + 0.3;
+        SET expansion_factors = CONCAT(expansion_factors, 'Positive sentiment, ');
+    END IF;
+    
+    IF customer_tier = 'Enterprise' THEN
+        SET expansion_likelihood = expansion_likelihood + 0.2;
+        SET expansion_factors = CONCAT(expansion_factors, 'Enterprise tier customer, ');
+    END IF;
+    
+    -- Cap expansion likelihood at 95%
+    IF expansion_likelihood > 0.95 THEN SET expansion_likelihood = 0.95; END IF;
+    
+    -- Insert expansion prediction
+    INSERT INTO CUSTOMER_PREDICTIONS (
+        prediction_id, customer_id, prediction_type, prediction_value,
+        prediction_confidence, prediction_factors, prediction_horizon_days, model_version
+    ) VALUES (
+        CONCAT(customer_id, '_expansion_', DATE_FORMAT(CURRENT_DATE, '%Y%m%d')),
+        customer_id,
+        'expansion_opportunity',
+        expansion_likelihood,
+        0.70,
+        expansion_factors,
+        60,
+        'v1.0'
+    );
+    
+    SET predictions_made = predictions_made + 1;
+    
+    -- Return results via SELECT
+    SET result_text = CONCAT('Generated ', CAST(predictions_made AS VARCHAR(10)), ' predictions for customer ', customer_id);
+    SELECT result_text AS result;
+END;

@@ -164,7 +164,9 @@ class SecretManager:
                 "Secret validation completed",
                 successful=successful,
                 total=total,
-                success_rate=f"{(successful/total*100):.1f}%" if total > 0 else "0%",
+                success_rate=f"{(successful / total * 100):.1f}%"
+                if total > 0
+                else "0%",
             )
 
             # Store audit event
@@ -280,10 +282,14 @@ class SecretManager:
             results["salesforce"] = await self._validate_salesforce_credentials()
 
         # Enhanced Slack
-        if (self.config.slack_client_secret and 
-            self.config.slack_signing_secret and 
-            self.config.slack_app_token):
-            results["slack_enhanced"] = await self._validate_slack_enhanced_credentials()
+        if (
+            self.config.slack_client_secret
+            and self.config.slack_signing_secret
+            and self.config.slack_app_token
+        ):
+            results[
+                "slack_enhanced"
+            ] = await self._validate_slack_enhanced_credentials()
 
         return results
 
@@ -313,12 +319,12 @@ class SecretManager:
         try:
             # Basic token format validation
             token = self.config.salesforce_access_token
-            
+
             if not token or len(token) < 50:
                 return False
-            
+
             # Salesforce tokens have specific format characteristics
-            if not token.startswith(('00D', '6Cel')):
+            if not token.startswith(("00D", "6Cel")):
                 return False
 
             self.logger.info("Salesforce credentials format validated")
@@ -340,9 +346,11 @@ class SecretManager:
                 return False
 
             # Basic format validation
-            if (len(client_secret) < 30 or 
-                len(signing_secret) < 30 or 
-                not app_token.startswith('xapp-')):
+            if (
+                len(client_secret) < 30
+                or len(signing_secret) < 30
+                or not app_token.startswith("xapp-")
+            ):
                 return False
 
             self.logger.info("Enhanced Slack credentials format validated")
@@ -351,7 +359,6 @@ class SecretManager:
         except Exception as e:
             self.logger.error(f"Enhanced Slack validation failed: {e}")
             return False
-
 
     async def _validate_jwt_keys(self) -> bool:
         """Validate JWT key pair."""

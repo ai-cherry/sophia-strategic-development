@@ -3,14 +3,12 @@ Portkey LLM Gateway Service for Sophia AI
 Unified gateway for multi-model LLM access with fallback and cost optimization
 """
 
-import os
 import asyncio
 import logging
 import httpx
-import json
 from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import backoff
 from pydantic import BaseModel
@@ -19,9 +17,11 @@ from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
+
 # Model configurations
 class ModelProvider(Enum):
     """Supported LLM providers"""
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
@@ -29,9 +29,11 @@ class ModelProvider(Enum):
     COHERE = "cohere"
     TOGETHER = "together"
 
+
 @dataclass
 class ModelConfig:
     """Configuration for an LLM model"""
+
     provider: ModelProvider
     model_id: str
     cost_per_1k_input: float
@@ -42,8 +44,10 @@ class ModelConfig:
     rate_limit_rpm: int = 60
     priority: int = 1  # Lower is higher priority
 
+
 class CompletionRequest(BaseModel):
     """Unified completion request format"""
+
     prompt: str
     max_tokens: Optional[int] = 4096
     temperature: Optional[float] = 0.7
@@ -54,8 +58,10 @@ class CompletionRequest(BaseModel):
     latency_target: Optional[int] = None  # Target response time in ms
     quality_preference: Optional[str] = "balanced"  # "speed", "quality", "balanced"
 
+
 class CompletionResponse(BaseModel):
     """Unified completion response format"""
+
     text: str
     model_used: str
     provider: str
@@ -65,216 +71,212 @@ class CompletionResponse(BaseModel):
     cached: bool = False
     fallback_used: bool = False
 
+
 class PortkeyGateway:
     """Unified LLM gateway with intelligent routing and fallback"""
-    
+
     def __init__(self):
         self.api_keys = self._load_api_keys()
         self.models = self._initialize_models()
         self.usage_tracker = {}
         self.cache = {}  # Simple in-memory cache
         self.circuit_breakers = {}
-        
+
     def _load_api_keys(self) -> Dict[str, str]:
         """Load API keys from Pulumi ESC"""
         return {
-            'openai': get_config_value('openai_api_key', ''),
-            'anthropic': get_config_value('anthropic_api_key', ''),
-            'google': get_config_value('google_api_key', ''),
-            'mistral': get_config_value('mistral_api_key', ''),
-            'cohere': get_config_value('cohere_api_key', ''),
-            'together': get_config_value('together_api_key', ''),
-            'portkey': get_config_value('portkey_api_key', '')
+            "openai": get_config_value("openai_api_key", ""),
+            "anthropic": get_config_value("anthropic_api_key", ""),
+            "google": get_config_value("google_api_key", ""),
+            "mistral": get_config_value("mistral_api_key", ""),
+            "cohere": get_config_value("cohere_api_key", ""),
+            "together": get_config_value("together_api_key", ""),
+            "portkey": get_config_value("portkey_api_key", ""),
         }
-    
+
     def _initialize_models(self) -> Dict[str, ModelConfig]:
         """Initialize available models with configurations"""
         return {
             # OpenAI Models
-            'gpt-4-turbo': ModelConfig(
+            "gpt-4-turbo": ModelConfig(
                 provider=ModelProvider.OPENAI,
-                model_id='gpt-4-turbo-preview',
+                model_id="gpt-4-turbo-preview",
                 cost_per_1k_input=0.01,
                 cost_per_1k_output=0.03,
                 max_tokens=128000,
-                priority=1
+                priority=1,
             ),
-            'gpt-4': ModelConfig(
+            "gpt-4": ModelConfig(
                 provider=ModelProvider.OPENAI,
-                model_id='gpt-4',
+                model_id="gpt-4",
                 cost_per_1k_input=0.03,
                 cost_per_1k_output=0.06,
                 max_tokens=8192,
-                priority=2
+                priority=2,
             ),
-            'gpt-3.5-turbo': ModelConfig(
+            "gpt-3.5-turbo": ModelConfig(
                 provider=ModelProvider.OPENAI,
-                model_id='gpt-3.5-turbo',
+                model_id="gpt-3.5-turbo",
                 cost_per_1k_input=0.0005,
                 cost_per_1k_output=0.0015,
                 max_tokens=16385,
-                priority=4
+                priority=4,
             ),
-            
             # Anthropic Models
-            'claude-3-opus': ModelConfig(
+            "claude-3-opus": ModelConfig(
                 provider=ModelProvider.ANTHROPIC,
-                model_id='claude-3-opus-20240229',
+                model_id="claude-3-opus-20240229",
                 cost_per_1k_input=0.015,
                 cost_per_1k_output=0.075,
                 max_tokens=200000,
-                priority=1
+                priority=1,
             ),
-            'claude-3-sonnet': ModelConfig(
+            "claude-3-sonnet": ModelConfig(
                 provider=ModelProvider.ANTHROPIC,
-                model_id='claude-3-sonnet-20240229',
+                model_id="claude-3-sonnet-20240229",
                 cost_per_1k_input=0.003,
                 cost_per_1k_output=0.015,
                 max_tokens=200000,
-                priority=2
+                priority=2,
             ),
-            'claude-3-haiku': ModelConfig(
+            "claude-3-haiku": ModelConfig(
                 provider=ModelProvider.ANTHROPIC,
-                model_id='claude-3-haiku-20240307',
+                model_id="claude-3-haiku-20240307",
                 cost_per_1k_input=0.00025,
                 cost_per_1k_output=0.00125,
                 max_tokens=200000,
-                priority=3
+                priority=3,
             ),
-            
             # Google Models
-            'gemini-pro': ModelConfig(
+            "gemini-pro": ModelConfig(
                 provider=ModelProvider.GOOGLE,
-                model_id='gemini-pro',
+                model_id="gemini-pro",
                 cost_per_1k_input=0.00025,
                 cost_per_1k_output=0.00125,
                 max_tokens=30720,
-                priority=3
+                priority=3,
             ),
-            
             # Mistral Models
-            'mistral-large': ModelConfig(
+            "mistral-large": ModelConfig(
                 provider=ModelProvider.MISTRAL,
-                model_id='mistral-large-latest',
+                model_id="mistral-large-latest",
                 cost_per_1k_input=0.008,
                 cost_per_1k_output=0.024,
                 max_tokens=32768,
-                priority=2
+                priority=2,
             ),
-            'mistral-medium': ModelConfig(
+            "mistral-medium": ModelConfig(
                 provider=ModelProvider.MISTRAL,
-                model_id='mistral-medium-latest',
+                model_id="mistral-medium-latest",
                 cost_per_1k_input=0.0027,
                 cost_per_1k_output=0.0081,
                 max_tokens=32768,
-                priority=3
+                priority=3,
             ),
-            
             # Together AI Models (for open source)
-            'mixtral-8x7b': ModelConfig(
+            "mixtral-8x7b": ModelConfig(
                 provider=ModelProvider.TOGETHER,
-                model_id='mistralai/Mixtral-8x7B-Instruct-v0.1',
+                model_id="mistralai/Mixtral-8x7B-Instruct-v0.1",
                 cost_per_1k_input=0.0006,
                 cost_per_1k_output=0.0006,
                 max_tokens=32768,
-                priority=4
+                priority=4,
             ),
-            'llama-3-70b': ModelConfig(
+            "llama-3-70b": ModelConfig(
                 provider=ModelProvider.TOGETHER,
-                model_id='meta-llama/Llama-3-70b-chat-hf',
+                model_id="meta-llama/Llama-3-70b-chat-hf",
                 cost_per_1k_input=0.0009,
                 cost_per_1k_output=0.0009,
                 max_tokens=8192,
-                priority=4
-            )
+                priority=4,
+            ),
         }
-    
+
     def _select_model(
-        self, 
-        request: CompletionRequest,
-        exclude_models: List[str] = []
+        self, request: CompletionRequest, exclude_models: List[str] = []
     ) -> ModelConfig:
         """Select the best model based on request requirements"""
         available_models = [
-            (name, config) for name, config in self.models.items()
+            (name, config)
+            for name, config in self.models.items()
             if name not in exclude_models and self._is_model_available(name)
         ]
-        
+
         if not available_models:
             raise ValueError("No available models found")
-        
+
         # Filter by cost limit
         if request.cost_limit:
             # Estimate tokens (rough approximation)
             estimated_input_tokens = len(request.prompt) / 4
             estimated_output_tokens = request.max_tokens / 2
-            
+
             available_models = [
-                (name, config) for name, config in available_models
-                if self._estimate_cost(config, estimated_input_tokens, estimated_output_tokens) <= request.cost_limit
+                (name, config)
+                for name, config in available_models
+                if self._estimate_cost(
+                    config, estimated_input_tokens, estimated_output_tokens
+                )
+                <= request.cost_limit
             ]
-        
+
         # Sort by quality preference
         if request.quality_preference == "speed":
             # Prefer faster, cheaper models
             available_models.sort(key=lambda x: (x[1].cost_per_1k_input, x[1].priority))
         elif request.quality_preference == "quality":
             # Prefer higher quality models
-            available_models.sort(key=lambda x: (x[1].priority, -x[1].cost_per_1k_input))
+            available_models.sort(
+                key=lambda x: (x[1].priority, -x[1].cost_per_1k_input)
+            )
         else:  # balanced
             # Balance between cost and quality
             available_models.sort(key=lambda x: (x[1].priority, x[1].cost_per_1k_input))
-        
+
         return available_models[0][1] if available_models else None
-    
+
     def _is_model_available(self, model_name: str) -> bool:
         """Check if model is available (not circuit broken, has API key)"""
         config = self.models.get(model_name)
         if not config:
             return False
-        
+
         # Check API key
         if not self.api_keys.get(config.provider.value):
             return False
-        
+
         # Check circuit breaker
-        if self.circuit_breakers.get(model_name, {}).get('is_open', False):
+        if self.circuit_breakers.get(model_name, {}).get("is_open", False):
             return False
-        
+
         return True
-    
+
     def _estimate_cost(
-        self, 
-        config: ModelConfig, 
-        input_tokens: float, 
-        output_tokens: float
+        self, config: ModelConfig, input_tokens: float, output_tokens: float
     ) -> float:
         """Estimate cost for a request"""
         input_cost = (input_tokens / 1000) * config.cost_per_1k_input
         output_cost = (output_tokens / 1000) * config.cost_per_1k_output
         return input_cost + output_cost
-    
+
     @backoff.on_exception(
         backoff.expo,
         (httpx.HTTPError, httpx.TimeoutException),
         max_tries=3,
-        max_time=30
+        max_time=30,
     )
     async def _call_provider(
-        self,
-        provider: ModelProvider,
-        model_id: str,
-        request: CompletionRequest
+        self, provider: ModelProvider, model_id: str, request: CompletionRequest
     ) -> Dict[str, Any]:
         """Call specific provider API with retry logic"""
         api_key = self.api_keys.get(provider.value)
         if not api_key:
             raise ValueError(f"API key not found for {provider.value}")
-        
+
         # Use Portkey API if available for unified interface
-        if self.api_keys.get('portkey'):
+        if self.api_keys.get("portkey"):
             return await self._call_via_portkey(provider, model_id, request)
-        
+
         # Direct provider calls
         if provider == ModelProvider.OPENAI:
             return await self._call_openai(model_id, request, api_key)
@@ -286,351 +288,336 @@ class PortkeyGateway:
             return await self._call_mistral(model_id, request, api_key)
         else:
             raise ValueError(f"Provider {provider.value} not implemented")
-    
+
     async def _call_via_portkey(
-        self,
-        provider: ModelProvider,
-        model_id: str,
-        request: CompletionRequest
+        self, provider: ModelProvider, model_id: str, request: CompletionRequest
     ) -> Dict[str, Any]:
         """Call via Portkey unified API"""
         async with httpx.AsyncClient() as client:
             headers = {
-                'x-portkey-api-key': self.api_keys['portkey'],
-                'x-portkey-provider': provider.value,
-                'x-portkey-retry-count': '3',
-                'x-portkey-cache': 'simple',
-                'Content-Type': 'application/json'
+                "x-portkey-api-key": self.api_keys["portkey"],
+                "x-portkey-provider": provider.value,
+                "x-portkey-retry-count": "3",
+                "x-portkey-cache": "simple",
+                "Content-Type": "application/json",
             }
-            
+
             # Add provider-specific headers
             provider_key = self.api_keys.get(provider.value)
             if provider_key:
                 if provider == ModelProvider.OPENAI:
-                    headers['x-portkey-openai-api-key'] = provider_key
+                    headers["x-portkey-openai-api-key"] = provider_key
                 elif provider == ModelProvider.ANTHROPIC:
-                    headers['x-portkey-anthropic-api-key'] = provider_key
+                    headers["x-portkey-anthropic-api-key"] = provider_key
                 # Add more providers as needed
-            
+
             payload = {
-                'model': model_id,
-                'messages': [{'role': 'user', 'content': request.prompt}],
-                'max_tokens': request.max_tokens,
-                'temperature': request.temperature,
-                'top_p': request.top_p,
-                'stream': request.stream
+                "model": model_id,
+                "messages": [{"role": "user", "content": request.prompt}],
+                "max_tokens": request.max_tokens,
+                "temperature": request.temperature,
+                "top_p": request.top_p,
+                "stream": request.stream,
             }
-            
+
             if request.functions:
-                payload['functions'] = request.functions
-            
+                payload["functions"] = request.functions
+
             response = await client.post(
-                'https://api.portkey.ai/v1/chat/completions',
+                "https://api.portkey.ai/v1/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=60.0
+                timeout=60.0,
             )
-            
+
             response.raise_for_status()
             return response.json()
-    
+
     async def _call_openai(
-        self, 
-        model_id: str, 
-        request: CompletionRequest, 
-        api_key: str
+        self, model_id: str, request: CompletionRequest, api_key: str
     ) -> Dict[str, Any]:
         """Direct OpenAI API call"""
         async with httpx.AsyncClient() as client:
             headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
             }
-            
+
             payload = {
-                'model': model_id,
-                'messages': [{'role': 'user', 'content': request.prompt}],
-                'max_tokens': request.max_tokens,
-                'temperature': request.temperature,
-                'top_p': request.top_p,
-                'stream': request.stream
+                "model": model_id,
+                "messages": [{"role": "user", "content": request.prompt}],
+                "max_tokens": request.max_tokens,
+                "temperature": request.temperature,
+                "top_p": request.top_p,
+                "stream": request.stream,
             }
-            
+
             if request.functions:
-                payload['functions'] = request.functions
-            
+                payload["functions"] = request.functions
+
             response = await client.post(
-                'https://api.openai.com/v1/chat/completions',
+                "https://api.openai.com/v1/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=60.0
+                timeout=60.0,
             )
-            
+
             response.raise_for_status()
             return response.json()
-    
+
     async def _call_anthropic(
-        self, 
-        model_id: str, 
-        request: CompletionRequest, 
-        api_key: str
+        self, model_id: str, request: CompletionRequest, api_key: str
     ) -> Dict[str, Any]:
         """Direct Anthropic API call"""
         async with httpx.AsyncClient() as client:
             headers = {
-                'x-api-key': api_key,
-                'anthropic-version': '2023-06-01',
-                'Content-Type': 'application/json'
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
             }
-            
+
             payload = {
-                'model': model_id,
-                'messages': [{'role': 'user', 'content': request.prompt}],
-                'max_tokens': request.max_tokens,
-                'temperature': request.temperature,
-                'top_p': request.top_p
+                "model": model_id,
+                "messages": [{"role": "user", "content": request.prompt}],
+                "max_tokens": request.max_tokens,
+                "temperature": request.temperature,
+                "top_p": request.top_p,
             }
-            
+
             response = await client.post(
-                'https://api.anthropic.com/v1/messages',
+                "https://api.anthropic.com/v1/messages",
                 headers=headers,
                 json=payload,
-                timeout=60.0
+                timeout=60.0,
             )
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             # Convert to OpenAI format for consistency
             return {
-                'choices': [{
-                    'message': {
-                        'role': 'assistant',
-                        'content': data['content'][0]['text']
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": data["content"][0]["text"],
+                        }
                     }
-                }],
-                'usage': {
-                    'prompt_tokens': data['usage']['input_tokens'],
-                    'completion_tokens': data['usage']['output_tokens'],
-                    'total_tokens': data['usage']['input_tokens'] + data['usage']['output_tokens']
-                }
+                ],
+                "usage": {
+                    "prompt_tokens": data["usage"]["input_tokens"],
+                    "completion_tokens": data["usage"]["output_tokens"],
+                    "total_tokens": data["usage"]["input_tokens"]
+                    + data["usage"]["output_tokens"],
+                },
             }
-    
+
     async def _call_google(
-        self, 
-        model_id: str, 
-        request: CompletionRequest, 
-        api_key: str
+        self, model_id: str, request: CompletionRequest, api_key: str
     ) -> Dict[str, Any]:
         """Direct Google Gemini API call"""
         # Implementation would go here
         raise NotImplementedError("Google Gemini direct call not implemented")
-    
+
     async def _call_mistral(
-        self, 
-        model_id: str, 
-        request: CompletionRequest, 
-        api_key: str
+        self, model_id: str, request: CompletionRequest, api_key: str
     ) -> Dict[str, Any]:
         """Direct Mistral API call"""
         async with httpx.AsyncClient() as client:
             headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
             }
-            
+
             payload = {
-                'model': model_id,
-                'messages': [{'role': 'user', 'content': request.prompt}],
-                'max_tokens': request.max_tokens,
-                'temperature': request.temperature,
-                'top_p': request.top_p
+                "model": model_id,
+                "messages": [{"role": "user", "content": request.prompt}],
+                "max_tokens": request.max_tokens,
+                "temperature": request.temperature,
+                "top_p": request.top_p,
             }
-            
+
             response = await client.post(
-                'https://api.mistral.ai/v1/chat/completions',
+                "https://api.mistral.ai/v1/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=60.0
+                timeout=60.0,
             )
-            
+
             response.raise_for_status()
             return response.json()
-    
+
     async def complete(
-        self, 
-        request: CompletionRequest,
-        retry_on_failure: bool = True
+        self, request: CompletionRequest, retry_on_failure: bool = True
     ) -> CompletionResponse:
         """Main completion method with fallback logic"""
         start_time = datetime.now()
         excluded_models = []
         fallback_used = False
-        
+
         # Check cache first
         cache_key = f"{request.prompt}:{request.max_tokens}:{request.temperature}"
         if cache_key in self.cache and not request.stream:
             cached_response = self.cache[cache_key]
             cached_response.cached = True
             return cached_response
-        
+
         while len(excluded_models) < len(self.models):
             try:
                 # Select best model
                 model_config = self._select_model(request, excluded_models)
                 if not model_config:
                     raise ValueError("No suitable models available")
-                
+
                 model_name = next(
-                    name for name, config in self.models.items()
+                    name
+                    for name, config in self.models.items()
                     if config == model_config
                 )
-                
+
                 logger.info(f"Using model: {model_name}")
-                
+
                 # Make API call
                 response_data = await self._call_provider(
-                    model_config.provider,
-                    model_config.model_id,
-                    request
+                    model_config.provider, model_config.model_id, request
                 )
-                
+
                 # Parse response
-                if 'choices' in response_data and response_data['choices']:
-                    text = response_data['choices'][0]['message']['content']
-                    usage = response_data.get('usage', {})
-                    
-                    input_tokens = usage.get('prompt_tokens', 0)
-                    output_tokens = usage.get('completion_tokens', 0)
-                    
+                if "choices" in response_data and response_data["choices"]:
+                    text = response_data["choices"][0]["message"]["content"]
+                    usage = response_data.get("usage", {})
+
+                    input_tokens = usage.get("prompt_tokens", 0)
+                    output_tokens = usage.get("completion_tokens", 0)
+
                     cost = self._estimate_cost(
-                        model_config,
-                        input_tokens,
-                        output_tokens
+                        model_config, input_tokens, output_tokens
                     )
-                    
-                    latency_ms = int((datetime.now() - start_time).total_seconds() * 1000)
-                    
+
+                    latency_ms = int(
+                        (datetime.now() - start_time).total_seconds() * 1000
+                    )
+
                     response = CompletionResponse(
                         text=text,
                         model_used=model_name,
                         provider=model_config.provider.value,
-                        tokens_used={
-                            'input': input_tokens,
-                            'output': output_tokens
-                        },
+                        tokens_used={"input": input_tokens, "output": output_tokens},
                         cost=cost,
                         latency_ms=latency_ms,
-                        fallback_used=fallback_used
+                        fallback_used=fallback_used,
                     )
-                    
+
                     # Cache successful response
                     if not request.stream:
                         self.cache[cache_key] = response
-                    
+
                     # Update usage tracking
                     self._update_usage(model_name, cost, input_tokens + output_tokens)
-                    
+
                     return response
                 else:
                     raise ValueError("Invalid response format")
-                    
+
             except Exception as e:
                 logger.error(f"Error with model {model_name}: {e}")
-                
+
                 # Update circuit breaker
                 self._update_circuit_breaker(model_name, success=False)
-                
+
                 # Add to excluded models
                 excluded_models.append(model_name)
                 fallback_used = True
-                
+
                 if not retry_on_failure or len(excluded_models) >= len(self.models):
                     raise
-                
+
                 # Continue to next model
-                logger.info(f"Falling back to next model...")
-        
+                logger.info("Falling back to next model...")
+
         raise ValueError("All models failed")
-    
+
     async def stream_complete(
-        self,
-        request: CompletionRequest
+        self, request: CompletionRequest
     ) -> AsyncGenerator[str, None]:
         """Stream completion responses"""
         request.stream = True
-        
+
         # For now, return non-streamed response chunked
         # In production, implement proper streaming
         response = await self.complete(request)
-        
+
         # Simulate streaming by yielding chunks
         chunk_size = 20
         for i in range(0, len(response.text), chunk_size):
-            yield response.text[i:i+chunk_size]
+            yield response.text[i : i + chunk_size]
             await asyncio.sleep(0.05)
-    
+
     def _update_usage(self, model_name: str, cost: float, tokens: int):
         """Update usage tracking"""
         if model_name not in self.usage_tracker:
             self.usage_tracker[model_name] = {
-                'total_cost': 0,
-                'total_tokens': 0,
-                'request_count': 0
+                "total_cost": 0,
+                "total_tokens": 0,
+                "request_count": 0,
             }
-        
-        self.usage_tracker[model_name]['total_cost'] += cost
-        self.usage_tracker[model_name]['total_tokens'] += tokens
-        self.usage_tracker[model_name]['request_count'] += 1
-    
+
+        self.usage_tracker[model_name]["total_cost"] += cost
+        self.usage_tracker[model_name]["total_tokens"] += tokens
+        self.usage_tracker[model_name]["request_count"] += 1
+
     def _update_circuit_breaker(self, model_name: str, success: bool):
         """Update circuit breaker state"""
         if model_name not in self.circuit_breakers:
             self.circuit_breakers[model_name] = {
-                'failure_count': 0,
-                'last_failure': None,
-                'is_open': False
+                "failure_count": 0,
+                "last_failure": None,
+                "is_open": False,
             }
-        
+
         breaker = self.circuit_breakers[model_name]
-        
+
         if success:
             # Reset on success
-            breaker['failure_count'] = 0
-            breaker['is_open'] = False
+            breaker["failure_count"] = 0
+            breaker["is_open"] = False
         else:
             # Increment failure count
-            breaker['failure_count'] += 1
-            breaker['last_failure'] = datetime.now()
-            
+            breaker["failure_count"] += 1
+            breaker["last_failure"] = datetime.now()
+
             # Open circuit if too many failures
-            if breaker['failure_count'] >= 5:
-                breaker['is_open'] = True
+            if breaker["failure_count"] >= 5:
+                breaker["is_open"] = True
                 logger.warning(f"Circuit breaker opened for {model_name}")
-    
+
     def get_usage_report(self) -> Dict[str, Any]:
         """Get usage report for all models"""
         return {
-            'usage_by_model': self.usage_tracker,
-            'total_cost': sum(u['total_cost'] for u in self.usage_tracker.values()),
-            'total_tokens': sum(u['total_tokens'] for u in self.usage_tracker.values()),
-            'total_requests': sum(u['request_count'] for u in self.usage_tracker.values()),
-            'circuit_breakers': {
+            "usage_by_model": self.usage_tracker,
+            "total_cost": sum(u["total_cost"] for u in self.usage_tracker.values()),
+            "total_tokens": sum(u["total_tokens"] for u in self.usage_tracker.values()),
+            "total_requests": sum(
+                u["request_count"] for u in self.usage_tracker.values()
+            ),
+            "circuit_breakers": {
                 name: {
-                    'is_open': breaker['is_open'],
-                    'failure_count': breaker['failure_count']
+                    "is_open": breaker["is_open"],
+                    "failure_count": breaker["failure_count"],
                 }
                 for name, breaker in self.circuit_breakers.items()
-            }
+            },
         }
-    
+
     def clear_cache(self):
         """Clear response cache"""
         self.cache.clear()
         logger.info("Cache cleared")
 
+
 # Singleton instance
 _portkey_gateway = None
+
 
 def get_portkey_gateway() -> PortkeyGateway:
     """Get or create Portkey Gateway instance"""

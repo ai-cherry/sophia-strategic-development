@@ -9,60 +9,63 @@ import json
 import subprocess
 from pathlib import Path
 
+
 def setup_enhanced_workflow():
     """Setup enhanced coding workflow capabilities"""
     print("🚀 Setting up Sophia AI Enhanced Coding Workflow...")
     print("   Combining Zencoder + cursor-companion + Sophia AI capabilities")
     print("=" * 70)
-    
+
     # 1. Create enhanced workflow structure
     print("\n📁 Creating enhanced workspace structure...")
     create_workspace_structure()
-    
+
     # 2. Install VS Code extension preparation
     print("\n💻 Preparing VS Code integration...")
     prepare_vscode_integration()
-    
+
     # 3. Create Chrome extension manifest
     print("\n🌐 Creating Chrome extension for platform integration...")
     create_chrome_extension()
-    
+
     # 4. Setup prompt and rule management
     print("\n📝 Setting up prompt and rule management...")
     setup_prompt_management()
-    
+
     # 5. Create workflow automation scripts
     print("\n🤖 Creating workflow automation...")
     create_workflow_automation()
-    
+
     # 6. Test integration
     print("\n🧪 Testing integration...")
     test_integration()
-    
+
     print("\n✅ Enhanced Coding Workflow setup complete!")
     show_usage_examples()
+
 
 def create_workspace_structure():
     """Create enhanced workspace structure"""
     directories = [
         ".sophia",
         ".sophia/prompts",
-        ".sophia/rules", 
+        ".sophia/rules",
         ".sophia/context",
         ".sophia/workflows",
         ".sophia/integrations",
         "sophia-vscode-extension",
-        "sophia-chrome-extension"
+        "sophia-chrome-extension",
     ]
-    
+
     for directory in directories:
         Path(directory).mkdir(exist_ok=True)
         print(f"  ✅ Created: {directory}")
 
+
 def prepare_vscode_integration():
     """Prepare VS Code extension"""
     # Create extension entry point
-    extension_code = '''
+    extension_code = """
 import * as vscode from 'vscode';
 import axios from 'axios';
 
@@ -286,14 +289,15 @@ class SophiaChatPanel {
 }
 
 export function deactivate() {}
-'''
-    
+"""
+
     extension_file = Path("sophia-vscode-extension/src/extension.ts")
     extension_file.parent.mkdir(exist_ok=True)
-    with open(extension_file, 'w') as f:
+    with open(extension_file, "w") as f:
         f.write(extension_code)
-    
+
     print("  ✅ VS Code extension prepared")
+
 
 def create_chrome_extension():
     """Create Chrome extension for platform integration"""
@@ -302,47 +306,40 @@ def create_chrome_extension():
         "name": "Sophia AI Platform Integration",
         "version": "1.0.0",
         "description": "Integrate Sophia AI with GitHub, Jira, Linear, and other platforms",
-        "permissions": [
-            "activeTab",
-            "storage",
-            "contextMenus",
-            "notifications"
-        ],
+        "permissions": ["activeTab", "storage", "contextMenus", "notifications"],
         "host_permissions": [
             "https://github.com/*",
             "https://*.atlassian.net/*",
             "https://linear.app/*",
             "https://app.linear.app/*",
             "https://slack.com/*",
-            "http://localhost:8000/*"
+            "http://localhost:8000/*",
         ],
         "content_scripts": [
             {
                 "matches": [
                     "https://github.com/*",
-                    "https://*.atlassian.net/*", 
+                    "https://*.atlassian.net/*",
                     "https://linear.app/*",
-                    "https://app.linear.app/*"
+                    "https://app.linear.app/*",
                 ],
-                "js": ["content.js"]
+                "js": ["content.js"],
             }
         ],
-        "background": {
-            "service_worker": "background.js"
-        },
+        "background": {"service_worker": "background.js"},
         "action": {
             "default_popup": "popup.html",
-            "default_title": "Sophia AI Assistant"
+            "default_title": "Sophia AI Assistant",
         },
         "icons": {
             "16": "icons/sophia-16.png",
             "48": "icons/sophia-48.png",
-            "128": "icons/sophia-128.png"
-        }
+            "128": "icons/sophia-128.png",
+        },
     }
-    
+
     # Content script for platform integration
-    content_script = '''
+    content_script = """
 // Sophia AI Platform Integration Content Script
 (function() {
     console.log('Sophia AI Platform Integration loaded');
@@ -469,10 +466,10 @@ def create_chrome_extension():
         });
     }
 })();
-'''
-    
+"""
+
     # Background script
-    background_script = '''
+    background_script = """
 // Sophia AI Background Script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'sendToSophia') {
@@ -523,22 +520,22 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         });
     }
 });
-'''
-    
+"""
+
     # Create Chrome extension files
     chrome_dir = Path("sophia-chrome-extension")
-    
-    with open(chrome_dir / "manifest.json", 'w') as f:
+
+    with open(chrome_dir / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2)
-    
-    with open(chrome_dir / "content.js", 'w') as f:
+
+    with open(chrome_dir / "content.js", "w") as f:
         f.write(content_script)
-    
-    with open(chrome_dir / "background.js", 'w') as f:
+
+    with open(chrome_dir / "background.js", "w") as f:
         f.write(background_script)
-    
+
     # Create popup HTML
-    popup_html = '''
+    popup_html = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -594,12 +591,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     </script>
 </body>
 </html>
-'''
-    
-    with open(chrome_dir / "popup.html", 'w') as f:
+"""
+
+    with open(chrome_dir / "popup.html", "w") as f:
         f.write(popup_html)
-    
+
     print("  ✅ Chrome extension created")
+
 
 def setup_prompt_management():
     """Setup prompt and rule management system"""
@@ -723,13 +721,14 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-    
-    with open("sophia_prompt_manager.py", 'w') as f:
+
+    with open("sophia_prompt_manager.py", "w") as f:
         f.write(cli_tool)
-    
+
     os.chmod("sophia_prompt_manager.py", 0o755)
-    
+
     print("  ✅ Prompt management CLI created")
+
 
 def create_workflow_automation():
     """Create workflow automation scripts"""
@@ -835,58 +834,81 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 '''
-    
-    with open("sophia_workflow_runner.py", 'w') as f:
+
+    with open("sophia_workflow_runner.py", "w") as f:
         f.write(workflow_runner)
-    
+
     os.chmod("sophia_workflow_runner.py", 0o755)
-    
+
     print("  ✅ Workflow automation created")
+
 
 def test_integration():
     """Test the integration"""
     try:
         # Test unified assistant
-        result = subprocess.run([
-            "python", "unified_ai_assistant.py", "status"
-        ], capture_output=True, text=True, timeout=10)
-        
+        result = subprocess.run(
+            ["python", "unified_ai_assistant.py", "status"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
         if result.returncode == 0:
             print("  ✅ Unified AI assistant working")
         else:
             print("  ⚠️ Unified AI assistant issues detected")
-        
+
         # Test Claude CLI
-        result = subprocess.run([
-            "python", "claude-cli-integration/claude_cli.py", "models"
-        ], capture_output=True, text=True, timeout=10)
-        
+        result = subprocess.run(
+            ["python", "claude-cli-integration/claude_cli.py", "models"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
         if result.returncode == 0:
             print("  ✅ Claude CLI working")
         else:
             print("  ⚠️ Claude CLI issues detected")
-            
+
     except Exception as e:
         print(f"  ⚠️ Testing error: {e}")
+
 
 def show_usage_examples():
     """Show usage examples"""
     print("\n🎯 **ENHANCED CODING WORKFLOW - USAGE EXAMPLES**")
     print("=" * 60)
-    
+
     examples = [
-        ("🔧 Initialize enhanced workspace", "python enhanced_coding_workflow_integration.py init"),
+        (
+            "🔧 Initialize enhanced workspace",
+            "python enhanced_coding_workflow_integration.py init",
+        ),
         ("📝 List available prompts", "python sophia_prompt_manager.py list prompts"),
-        ("🤖 Run issue-to-code workflow", 'python sophia_workflow_runner.py issue_to_code \'{"title":"Fix login bug","description":"Users cannot login"}\''),
-        ("💻 Generate code with context", "python enhanced_coding_workflow_integration.py generate --prompt react-component --context '{\"component_name\":\"UserAuth\"}'"),
-        ("🌐 Use Chrome extension", "1. Load sophia-chrome-extension in Chrome Dev Mode\\n   2. Visit GitHub/Linear/Jira\\n   3. Click 'Send to Sophia AI' button"),
-        ("💡 VS Code integration", "1. Install sophia-vscode-extension\\n   2. Use Ctrl+Shift+G for code generation\\n   3. Use Ctrl+Shift+S for chat")
+        (
+            "🤖 Run issue-to-code workflow",
+            'python sophia_workflow_runner.py issue_to_code \'{"title":"Fix login bug","description":"Users cannot login"}\'',
+        ),
+        (
+            "💻 Generate code with context",
+            'python enhanced_coding_workflow_integration.py generate --prompt react-component --context \'{"component_name":"UserAuth"}\'',
+        ),
+        (
+            "🌐 Use Chrome extension",
+            "1. Load sophia-chrome-extension in Chrome Dev Mode\\n   2. Visit GitHub/Linear/Jira\\n   3. Click 'Send to Sophia AI' button",
+        ),
+        (
+            "💡 VS Code integration",
+            "1. Install sophia-vscode-extension\\n   2. Use Ctrl+Shift+G for code generation\\n   3. Use Ctrl+Shift+S for chat",
+        ),
     ]
-    
+
     for desc, cmd in examples:
         print(f"\n{desc}:")
         print(f"   {cmd}")
-    
+
     print("\n🚀 **YOUR ADVANTAGES OVER ZENCODER & CURSOR-COMPANION:**")
     print("✅ Latest Claude Sonnet 4 with intelligent routing")
     print("✅ Business intelligence integration (unique)")
@@ -896,5 +918,6 @@ def show_usage_examples():
     print("✅ Enterprise-grade security with Pulumi ESC")
     print("✅ MCP server orchestration for specialized tasks")
 
+
 if __name__ == "__main__":
-    setup_enhanced_workflow() 
+    setup_enhanced_workflow()

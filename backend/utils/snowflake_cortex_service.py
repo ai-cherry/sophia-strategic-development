@@ -23,7 +23,6 @@ import json
 from datetime import datetime
 
 import pandas as pd
-import snowflake.connector
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -107,8 +106,9 @@ class SnowflakeCortexService:
     def __init__(self):
         # Remove individual connection - use optimized connection manager
         from backend.core.optimized_connection_manager import connection_manager
+
         self.connection_manager = connection_manager
-        
+
         self.database = get_config_value("snowflake_database", "SOPHIA_AI")
         self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
         self.warehouse = get_config_value("snowflake_warehouse", "COMPUTE_WH")
@@ -140,17 +140,21 @@ class SnowflakeCortexService:
         try:
             # Use connection manager instead of individual connection
             await self.connection_manager.initialize()
-            
+
             # Set database and schema context
             await self.connection_manager.execute_query(f"USE DATABASE {self.database}")
             await self.connection_manager.execute_query(f"USE SCHEMA {self.schema}")
-            await self.connection_manager.execute_query(f"USE WAREHOUSE {self.warehouse}")
+            await self.connection_manager.execute_query(
+                f"USE WAREHOUSE {self.warehouse}"
+            )
 
             # Ensure vector tables exist
             await self._create_vector_tables()
 
             self.initialized = True
-            logger.info("✅ Snowflake Cortex service initialized successfully with optimized connection manager")
+            logger.info(
+                "✅ Snowflake Cortex service initialized successfully with optimized connection manager"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize Snowflake Cortex service: {e}")
@@ -199,15 +203,15 @@ class SnowflakeCortexService:
         try:
             # Use connection manager instead of direct cursor
             results = await self.connection_manager.execute_query(query)
-            
+
             summaries = []
             for row in results:
                 # Convert row to dictionary format
                 record = {
-                    'id': row[0],
-                    'original_text': row[1], 
-                    'ai_summary': row[2],
-                    'processed_at': row[3]
+                    "id": row[0],
+                    "original_text": row[1],
+                    "ai_summary": row[2],
+                    "processed_at": row[3],
                 }
                 summaries.append(record)
 
@@ -255,16 +259,16 @@ class SnowflakeCortexService:
         try:
             # Use connection manager instead of direct cursor
             results = await self.connection_manager.execute_query(query)
-            
+
             sentiment_analysis = []
             for row in results:
                 # Convert row to dictionary format
                 record = {
-                    'id': row[0],
-                    'text': row[1],
-                    'sentiment_score': row[2],
-                    'sentiment_label': row[3],
-                    'analyzed_at': row[4]
+                    "id": row[0],
+                    "text": row[1],
+                    "sentiment_score": row[2],
+                    "sentiment_label": row[3],
+                    "analyzed_at": row[4],
                 }
                 sentiment_analysis.append(record)
 
@@ -315,15 +319,19 @@ class SnowflakeCortexService:
             query += f" WHERE {conditions}"
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            columns = [desc[0] for desc in cursor.description]
-            results = cursor.fetchall()
+            # Use connection manager instead of direct cursor
+            results = await self.execute_query(query)
 
             embeddings = []
             for row in results:
-                record = dict(zip(columns, row))
+                # Convert row to dictionary format
+                record = {
+                    "id": row[0],
+                    "text": row[1],
+                    "embedding_vector": row[2],
+                    "embedding_model": row[3],
+                    "embedded_at": row[4],
+                }
                 embeddings.append(record)
 
             # Optionally store embeddings in dedicated vector table
@@ -336,9 +344,6 @@ class SnowflakeCortexService:
         except Exception as e:
             logger.error(f"Error generating embeddings with Cortex: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def vector_search_in_snowflake(
         self,
@@ -1119,11 +1124,11 @@ class SnowflakeCortexService:
         similarity_threshold: float = 0.7,
         call_direction: Optional[str] = None,
         date_range_days: Optional[int] = None,
-        sentiment_filter: Optional[str] = None
+        sentiment_filter: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Enhanced semantic search across STG_GONG_CALLS with AI Memory integration
-        
+
         Args:
             query_text: Natural language search query
             top_k: Maximum number of results to return
@@ -1131,7 +1136,7 @@ class SnowflakeCortexService:
             call_direction: Filter by call direction ('Inbound', 'Outbound')
             date_range_days: Filter calls from last N days
             sentiment_filter: Filter by sentiment ('positive', 'negative', 'neutral')
-            
+
         Returns:
             List of matching Gong calls with similarity scores and AI Memory metadata
         """
@@ -1139,29 +1144,31 @@ class SnowflakeCortexService:
             # Generate embedding for the search query
             query_embedding_sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as query_embedding"
             embedding_result = await self.execute_query(query_embedding_sql)
-            
+
             if embedding_result.empty:
                 return []
-            
+
             # Build the search query with filters
             filters = ["AI_MEMORY_EMBEDDING IS NOT NULL"]
-            
+
             if call_direction:
                 filters.append(f"CALL_DIRECTION = '{call_direction}'")
-            
+
             if date_range_days:
-                filters.append(f"CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())")
-            
+                filters.append(
+                    f"CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())"
+                )
+
             if sentiment_filter:
-                if sentiment_filter.lower() == 'positive':
+                if sentiment_filter.lower() == "positive":
                     filters.append("SENTIMENT_SCORE > 0.3")
-                elif sentiment_filter.lower() == 'negative':
+                elif sentiment_filter.lower() == "negative":
                     filters.append("SENTIMENT_SCORE < -0.3")
-                elif sentiment_filter.lower() == 'neutral':
+                elif sentiment_filter.lower() == "neutral":
                     filters.append("SENTIMENT_SCORE BETWEEN -0.3 AND 0.3")
-            
+
             filter_clause = " AND ".join(filters)
-            
+
             # Enhanced semantic search query
             search_sql = f"""
             WITH query_embedding AS (
@@ -1216,50 +1223,68 @@ class SnowflakeCortexService:
             ORDER BY SIMILARITY_SCORE DESC
             LIMIT {top_k}
             """
-            
+
             results = await self.execute_query(search_sql)
-            
+
             if results.empty:
                 return []
-            
+
             # Convert to list of dictionaries with enhanced formatting
             search_results = []
             for _, row in results.iterrows():
                 result = {
                     "call_id": row["CALL_ID"],
                     "call_title": row["CALL_TITLE"],
-                    "call_datetime": row["CALL_DATETIME_UTC"].isoformat() if pd.notna(row["CALL_DATETIME_UTC"]) else None,
-                    "call_duration_seconds": int(row["CALL_DURATION_SECONDS"]) if pd.notna(row["CALL_DURATION_SECONDS"]) else 0,
+                    "call_datetime": row["CALL_DATETIME_UTC"].isoformat()
+                    if pd.notna(row["CALL_DATETIME_UTC"])
+                    else None,
+                    "call_duration_seconds": int(row["CALL_DURATION_SECONDS"])
+                    if pd.notna(row["CALL_DURATION_SECONDS"])
+                    else 0,
                     "call_direction": row["CALL_DIRECTION"],
                     "primary_user": {
                         "name": row["PRIMARY_USER_NAME"],
-                        "email": row["PRIMARY_USER_EMAIL"]
+                        "email": row["PRIMARY_USER_EMAIL"],
                     },
                     "account_info": {
                         "account_name": row["ACCOUNT_NAME"],
                         "contact_name": row["CONTACT_NAME"],
                         "deal_stage": row["DEAL_STAGE"],
-                        "deal_value": float(row["DEAL_VALUE"]) if pd.notna(row["DEAL_VALUE"]) else None
+                        "deal_value": float(row["DEAL_VALUE"])
+                        if pd.notna(row["DEAL_VALUE"])
+                        else None,
                     },
                     "ai_insights": {
-                        "sentiment_score": float(row["SENTIMENT_SCORE"]) if pd.notna(row["SENTIMENT_SCORE"]) else None,
+                        "sentiment_score": float(row["SENTIMENT_SCORE"])
+                        if pd.notna(row["SENTIMENT_SCORE"])
+                        else None,
                         "call_summary": row["CALL_SUMMARY"],
                         "key_topics": row["KEY_TOPICS"],
                         "risk_indicators": row["RISK_INDICATORS"],
                         "next_steps": row["NEXT_STEPS"],
-                        "talk_ratio": float(row["TALK_RATIO"]) if pd.notna(row["TALK_RATIO"]) else None
+                        "talk_ratio": float(row["TALK_RATIO"])
+                        if pd.notna(row["TALK_RATIO"])
+                        else None,
                     },
                     "search_metadata": {
                         "similarity_score": float(row["SIMILARITY_SCORE"]),
-                        "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat() if pd.notna(row["AI_MEMORY_UPDATED_AT"]) else None,
-                        "embedding_timestamp": row["MEMORY_EMBEDDING_TIMESTAMP"].isoformat() if pd.notna(row["MEMORY_EMBEDDING_TIMESTAMP"]) else None
-                    }
+                        "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat()
+                        if pd.notna(row["AI_MEMORY_UPDATED_AT"])
+                        else None,
+                        "embedding_timestamp": row[
+                            "MEMORY_EMBEDDING_TIMESTAMP"
+                        ].isoformat()
+                        if pd.notna(row["MEMORY_EMBEDDING_TIMESTAMP"])
+                        else None,
+                    },
                 }
                 search_results.append(result)
-            
-            logger.info(f"Found {len(search_results)} Gong calls matching query: '{query_text}'")
+
+            logger.info(
+                f"Found {len(search_results)} Gong calls matching query: '{query_text}'"
+            )
             return search_results
-            
+
         except Exception as e:
             logger.error(f"Error in Gong calls semantic search: {e}")
             return []
@@ -1270,33 +1295,33 @@ class SnowflakeCortexService:
         top_k: int = 10,
         similarity_threshold: float = 0.7,
         speaker_type: Optional[str] = None,
-        call_id: Optional[str] = None
+        call_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
         Enhanced semantic search across STG_GONG_CALL_TRANSCRIPTS with AI Memory integration
-        
+
         Args:
             query_text: Natural language search query
             top_k: Maximum number of results to return
             similarity_threshold: Minimum similarity score (0.0 to 1.0)
             speaker_type: Filter by speaker type ('Internal', 'External')
             call_id: Filter by specific call ID
-            
+
         Returns:
             List of matching transcript segments with similarity scores
         """
         try:
             # Build filters
             filters = ["AI_MEMORY_EMBEDDING IS NOT NULL"]
-            
+
             if speaker_type:
                 filters.append(f"SPEAKER_TYPE = '{speaker_type}'")
-            
+
             if call_id:
                 filters.append(f"CALL_ID = '{call_id}'")
-            
+
             filter_clause = " AND ".join(filters)
-            
+
             # Enhanced transcript search query
             search_sql = f"""
             WITH query_embedding AS (
@@ -1342,12 +1367,12 @@ class SnowflakeCortexService:
             ORDER BY SIMILARITY_SCORE DESC
             LIMIT {top_k}
             """
-            
+
             results = await self.execute_query(search_sql)
-            
+
             if results.empty:
                 return []
-            
+
             # Convert to enhanced result format
             search_results = []
             for _, row in results.iterrows():
@@ -1357,52 +1382,64 @@ class SnowflakeCortexService:
                     "speaker": {
                         "name": row["SPEAKER_NAME"],
                         "email": row["SPEAKER_EMAIL"],
-                        "type": row["SPEAKER_TYPE"]
+                        "type": row["SPEAKER_TYPE"],
                     },
                     "content": {
                         "transcript_text": row["TRANSCRIPT_TEXT"],
                         "segment_summary": row["SEGMENT_SUMMARY"],
                         "extracted_entities": row["EXTRACTED_ENTITIES"],
-                        "key_phrases": row["KEY_PHRASES"]
+                        "key_phrases": row["KEY_PHRASES"],
                     },
                     "timing": {
-                        "start_time_seconds": int(row["START_TIME_SECONDS"]) if pd.notna(row["START_TIME_SECONDS"]) else 0,
-                        "end_time_seconds": int(row["END_TIME_SECONDS"]) if pd.notna(row["END_TIME_SECONDS"]) else 0,
-                        "segment_duration_seconds": int(row["SEGMENT_DURATION_SECONDS"]) if pd.notna(row["SEGMENT_DURATION_SECONDS"]) else 0
+                        "start_time_seconds": int(row["START_TIME_SECONDS"])
+                        if pd.notna(row["START_TIME_SECONDS"])
+                        else 0,
+                        "end_time_seconds": int(row["END_TIME_SECONDS"])
+                        if pd.notna(row["END_TIME_SECONDS"])
+                        else 0,
+                        "segment_duration_seconds": int(row["SEGMENT_DURATION_SECONDS"])
+                        if pd.notna(row["SEGMENT_DURATION_SECONDS"])
+                        else 0,
                     },
                     "ai_insights": {
-                        "segment_sentiment": float(row["SEGMENT_SENTIMENT"]) if pd.notna(row["SEGMENT_SENTIMENT"]) else None,
-                        "similarity_score": float(row["SIMILARITY_SCORE"])
+                        "segment_sentiment": float(row["SEGMENT_SENTIMENT"])
+                        if pd.notna(row["SEGMENT_SENTIMENT"])
+                        else None,
+                        "similarity_score": float(row["SIMILARITY_SCORE"]),
                     },
                     "call_context": {
                         "call_title": row["CALL_TITLE"],
                         "account_name": row["ACCOUNT_NAME"],
                         "deal_stage": row["DEAL_STAGE"],
-                        "call_datetime": row["CALL_DATETIME_UTC"].isoformat() if pd.notna(row["CALL_DATETIME_UTC"]) else None
+                        "call_datetime": row["CALL_DATETIME_UTC"].isoformat()
+                        if pd.notna(row["CALL_DATETIME_UTC"])
+                        else None,
                     },
-                    "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat() if pd.notna(row["AI_MEMORY_UPDATED_AT"]) else None
+                    "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat()
+                    if pd.notna(row["AI_MEMORY_UPDATED_AT"])
+                    else None,
                 }
                 search_results.append(result)
-            
-            logger.info(f"Found {len(search_results)} transcript segments matching query: '{query_text}'")
+
+            logger.info(
+                f"Found {len(search_results)} transcript segments matching query: '{query_text}'"
+            )
             return search_results
-            
+
         except Exception as e:
             logger.error(f"Error in Gong transcripts semantic search: {e}")
             return []
 
     async def get_gong_call_analytics(
-        self,
-        date_range_days: int = 30,
-        include_ai_insights: bool = True
+        self, date_range_days: int = 30, include_ai_insights: bool = True
     ) -> Dict[str, Any]:
         """
         Get comprehensive Gong call analytics with AI insights
-        
+
         Args:
             date_range_days: Number of days to analyze
             include_ai_insights: Whether to include AI-generated insights
-            
+
         Returns:
             Comprehensive analytics dictionary
         """
@@ -1438,14 +1475,14 @@ class SnowflakeCortexService:
             FROM STG_TRANSFORMED.STG_GONG_CALLS
             WHERE CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())
             """
-            
+
             analytics_result = await self.execute_query(analytics_sql)
-            
+
             if analytics_result.empty:
                 return {"error": "No analytics data available"}
-            
+
             analytics_row = analytics_result.iloc[0]
-            
+
             # Build comprehensive analytics response
             analytics = {
                 "summary": {
@@ -1453,33 +1490,54 @@ class SnowflakeCortexService:
                     "total_calls": int(analytics_row["TOTAL_CALLS"]),
                     "unique_users": int(analytics_row["UNIQUE_USERS"]),
                     "unique_accounts": int(analytics_row["UNIQUE_ACCOUNTS"]),
-                    "avg_duration_minutes": round(analytics_row["AVG_DURATION_SECONDS"] / 60, 1) if pd.notna(analytics_row["AVG_DURATION_SECONDS"]) else 0,
-                    "avg_talk_ratio": round(analytics_row["AVG_TALK_RATIO"], 2) if pd.notna(analytics_row["AVG_TALK_RATIO"]) else 0,
-                    "avg_sentiment_score": round(analytics_row["AVG_SENTIMENT_SCORE"], 2) if pd.notna(analytics_row["AVG_SENTIMENT_SCORE"]) else 0
+                    "avg_duration_minutes": round(
+                        analytics_row["AVG_DURATION_SECONDS"] / 60, 1
+                    )
+                    if pd.notna(analytics_row["AVG_DURATION_SECONDS"])
+                    else 0,
+                    "avg_talk_ratio": round(analytics_row["AVG_TALK_RATIO"], 2)
+                    if pd.notna(analytics_row["AVG_TALK_RATIO"])
+                    else 0,
+                    "avg_sentiment_score": round(
+                        analytics_row["AVG_SENTIMENT_SCORE"], 2
+                    )
+                    if pd.notna(analytics_row["AVG_SENTIMENT_SCORE"])
+                    else 0,
                 },
                 "call_direction": {
                     "inbound": int(analytics_row["INBOUND_CALLS"]),
-                    "outbound": int(analytics_row["OUTBOUND_CALLS"])
+                    "outbound": int(analytics_row["OUTBOUND_CALLS"]),
                 },
                 "sentiment_distribution": {
                     "positive": int(analytics_row["POSITIVE_SENTIMENT_CALLS"]),
                     "negative": int(analytics_row["NEGATIVE_SENTIMENT_CALLS"]),
-                    "neutral": int(analytics_row["NEUTRAL_SENTIMENT_CALLS"])
+                    "neutral": int(analytics_row["NEUTRAL_SENTIMENT_CALLS"]),
                 },
                 "deal_metrics": {
                     "calls_with_deals": int(analytics_row["CALLS_WITH_DEALS"]),
-                    "total_deal_value": float(analytics_row["TOTAL_DEAL_VALUE"]) if pd.notna(analytics_row["TOTAL_DEAL_VALUE"]) else 0
+                    "total_deal_value": float(analytics_row["TOTAL_DEAL_VALUE"])
+                    if pd.notna(analytics_row["TOTAL_DEAL_VALUE"])
+                    else 0,
                 },
                 "ai_memory_coverage": {
-                    "calls_with_embeddings": int(analytics_row["CALLS_WITH_EMBEDDINGS"]),
+                    "calls_with_embeddings": int(
+                        analytics_row["CALLS_WITH_EMBEDDINGS"]
+                    ),
                     "calls_with_summaries": int(analytics_row["CALLS_WITH_SUMMARIES"]),
                     "calls_with_topics": int(analytics_row["CALLS_WITH_TOPICS"]),
                     "embedding_coverage_percent": round(
-                        (analytics_row["CALLS_WITH_EMBEDDINGS"] / analytics_row["TOTAL_CALLS"] * 100) if analytics_row["TOTAL_CALLS"] > 0 else 0, 1
-                    )
-                }
+                        (
+                            analytics_row["CALLS_WITH_EMBEDDINGS"]
+                            / analytics_row["TOTAL_CALLS"]
+                            * 100
+                        )
+                        if analytics_row["TOTAL_CALLS"] > 0
+                        else 0,
+                        1,
+                    ),
+                },
             }
-            
+
             # Add AI insights if requested
             if include_ai_insights:
                 insights_sql = f"""
@@ -1494,16 +1552,16 @@ class SnowflakeCortexService:
                 ORDER BY topic_frequency DESC
                 LIMIT 10
                 """
-                
+
                 try:
                     topics_result = await self.execute_query(insights_sql)
-                    
+
                     if not topics_result.empty:
                         analytics["ai_insights"] = {
                             "top_topics": [
                                 {
                                     "topic": row["TOPIC_DATA"],
-                                    "frequency": int(row["TOPIC_FREQUENCY"])
+                                    "frequency": int(row["TOPIC_FREQUENCY"]),
                                 }
                                 for _, row in topics_result.iterrows()
                             ]
@@ -1511,12 +1569,14 @@ class SnowflakeCortexService:
                 except Exception as e:
                     logger.warning(f"Could not generate AI insights: {e}")
                     analytics["ai_insights"] = {"error": "AI insights unavailable"}
-            
+
             analytics["generated_at"] = datetime.utcnow().isoformat()
-            
-            logger.info(f"Generated Gong call analytics for {date_range_days} days: {analytics['summary']['total_calls']} calls analyzed")
+
+            logger.info(
+                f"Generated Gong call analytics for {date_range_days} days: {analytics['summary']['total_calls']} calls analyzed"
+            )
             return analytics
-            
+
         except Exception as e:
             logger.error(f"Error generating Gong call analytics: {e}")
             return {"error": str(e)}
@@ -1524,10 +1584,10 @@ class SnowflakeCortexService:
     async def log_etl_job_status(self, job_log: Dict[str, Any]) -> bool:
         """
         Log ETL job status to OPS_MONITORING.ETL_JOB_LOGS table
-        
+
         Args:
             job_log: Dictionary containing job status information
-            
+
         Returns:
             True if logged successfully, False otherwise
         """
@@ -1560,14 +1620,59 @@ class SnowflakeCortexService:
                 PARSE_JSON('{json.dumps(job_log.get("metadata", {}))}')
             )
             """
-            
+
             await self.execute_query(insert_sql)
             logger.info(f"ETL job status logged: {job_log.get('job_id', 'unknown')}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to log ETL job status: {e}")
             return False
+
+    async def get_connection(self):
+        """
+        Get a Snowflake connection from the connection manager
+
+        Returns:
+            Snowflake connection instance via context manager
+        """
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Get connection from the optimized connection manager using context manager
+            from backend.core.optimized_connection_manager import ConnectionType
+
+            return self.connection_manager.pools[
+                ConnectionType.SNOWFLAKE
+            ].get_connection()
+        except Exception as e:
+            logger.error(f"Failed to get Snowflake connection: {e}")
+            raise
+
+    async def execute_query(self, query: str, params: Optional[tuple] = None):
+        """
+        Execute a query using the connection manager
+
+        Args:
+            query: SQL query to execute
+            params: Optional query parameters
+
+        Returns:
+            Query results
+        """
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            from backend.core.optimized_connection_manager import ConnectionType
+
+            return await self.connection_manager.execute_query(
+                query, params, ConnectionType.SNOWFLAKE
+            )
+        except Exception as e:
+            logger.error(f"Failed to execute query: {e}")
+            raise
 
 
 # Global service instance

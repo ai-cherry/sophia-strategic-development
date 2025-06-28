@@ -28,6 +28,7 @@ logger = structlog.get_logger()
 
 class LLMProvider(str, Enum):
     """LLM Provider types"""
+
     PORTKEY = "portkey"
     OPENROUTER = "openrouter"
     FALLBACK = "fallback"
@@ -35,6 +36,7 @@ class LLMProvider(str, Enum):
 
 class TaskType(str, Enum):
     """Task types for intelligent routing"""
+
     EXECUTIVE_INSIGHTS = "executive_insights"
     COMPETITIVE_ANALYSIS = "competitive_analysis"
     FINANCIAL_ANALYSIS = "financial_analysis"
@@ -49,6 +51,7 @@ class TaskType(str, Enum):
 
 class PerformanceTier(str, Enum):
     """Performance tiers for model selection"""
+
     TIER_1 = "tier_1"  # Premium models for critical tasks
     TIER_2 = "tier_2"  # Balanced performance/cost
     COST_OPTIMIZED = "cost_optimized"  # Cost-focused models
@@ -57,6 +60,7 @@ class PerformanceTier(str, Enum):
 @dataclass
 class LLMRequest:
     """Standardized LLM request structure"""
+
     messages: List[Dict[str, str]]
     task_type: TaskType
     model_preference: Optional[str] = None
@@ -77,6 +81,7 @@ class LLMRequest:
 @dataclass
 class LLMResponse:
     """Standardized LLM response structure"""
+
     content: str
     provider: LLMProvider
     model: str
@@ -97,7 +102,7 @@ class LLMResponse:
 class SmartAIService:
     """
     Enterprise Smart AI Service with parallel Portkey/OpenRouter strategy
-    
+
     Features:
     - Performance-prioritized intelligent routing
     - Parallel gateway architecture (not nested)
@@ -116,40 +121,48 @@ class SmartAIService:
                 "semantic_caching": True,
                 "smart_routing": True,
                 "load_balancing": True,
-                "cost_tracking": True
-            }
+                "cost_tracking": True,
+            },
         }
-        
+
         self.openrouter_config = {
             "endpoint": "https://openrouter.ai/api/v1/chat/completions",
             "api_key": get_config_value("OPENROUTER_API_KEY"),
             "features": {
                 "model_experimentation": True,
                 "niche_models": True,
-                "cost_optimization": True
-            }
+                "cost_optimization": True,
+            },
         }
 
         # Model tier configurations with performance priority
         self.model_tiers = {
             PerformanceTier.TIER_1: {
                 "models": ["gpt-4o", "claude-3-opus", "gemini-1.5-pro"],
-                "use_cases": ["executive_insights", "competitive_analysis", "financial_analysis"],
+                "use_cases": [
+                    "executive_insights",
+                    "competitive_analysis",
+                    "financial_analysis",
+                ],
                 "cost_multiplier": 1.0,
-                "preferred_provider": LLMProvider.PORTKEY
+                "preferred_provider": LLMProvider.PORTKEY,
             },
             PerformanceTier.TIER_2: {
                 "models": ["claude-3-haiku", "gpt-4-turbo", "deepseek-v3"],
-                "use_cases": ["code_generation", "document_analysis", "routine_queries"],
+                "use_cases": [
+                    "code_generation",
+                    "document_analysis",
+                    "routine_queries",
+                ],
                 "cost_multiplier": 0.6,
-                "preferred_provider": LLMProvider.PORTKEY
+                "preferred_provider": LLMProvider.PORTKEY,
             },
             PerformanceTier.COST_OPTIMIZED: {
                 "models": ["llama-3-70b", "qwen2-72b", "mixtral-8x22b"],
                 "use_cases": ["bulk_processing", "experimental", "creative_content"],
                 "cost_multiplier": 0.2,
-                "preferred_provider": LLMProvider.OPENROUTER
-            }
+                "preferred_provider": LLMProvider.OPENROUTER,
+            },
         }
 
         # Strategic model assignments (CEO-configurable)
@@ -161,7 +174,7 @@ class SmartAIService:
             TaskType.CODE_GENERATION: "deepseek-v3",
             TaskType.DOCUMENT_ANALYSIS: "claude-3-haiku",
             TaskType.CREATIVE_CONTENT: "mixtral-8x22b",
-            TaskType.EXPERIMENTAL: "llama-3-70b"
+            TaskType.EXPERIMENTAL: "llama-3-70b",
         }
 
         # Performance and cost tracking
@@ -184,7 +197,9 @@ class SmartAIService:
             self.snowflake_service = SnowflakeCortexService()
 
             self.initialized = True
-            logger.info("✅ Smart AI Service initialized with parallel gateway strategy")
+            logger.info(
+                "✅ Smart AI Service initialized with parallel gateway strategy"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize Smart AI Service: {e}")
@@ -198,10 +213,10 @@ class SmartAIService:
     async def generate_response(self, request: LLMRequest) -> LLMResponse:
         """
         Generate response using intelligent routing strategy
-        
+
         Args:
             request: Standardized LLM request
-            
+
         Returns:
             LLM response with comprehensive metadata
         """
@@ -214,13 +229,13 @@ class SmartAIService:
         try:
             # Select optimal strategy
             strategy = await self.select_strategy(request)
-            
+
             logger.info(
                 "🧠 Smart routing decision",
                 task_type=request.task_type.value,
                 provider=strategy["provider"].value,
                 model=strategy["model"],
-                reasoning=strategy["reasoning"]
+                reasoning=strategy["reasoning"],
             )
 
             # Execute request with selected strategy
@@ -247,14 +262,14 @@ class SmartAIService:
                 model=response.model,
                 latency_ms=response.latency_ms,
                 cost_usd=response.cost_usd,
-                cache_hit=response.cache_hit
+                cache_hit=response.cache_hit,
             )
 
             return response
 
         except Exception as e:
             logger.error(f"Error generating LLM response: {e}")
-            
+
             # Return error response
             return LLMResponse(
                 content=f"Error: {str(e)}",
@@ -266,16 +281,16 @@ class SmartAIService:
                 cache_hit=False,
                 quality_score=0.0,
                 error=str(e),
-                request_id=request_id
+                request_id=request_id,
             )
 
     async def select_strategy(self, request: LLMRequest) -> Dict[str, Any]:
         """
         Intelligent strategy selection with performance priority
-        
+
         Args:
             request: LLM request to route
-            
+
         Returns:
             Strategy configuration with provider, model, and reasoning
         """
@@ -287,7 +302,7 @@ class SmartAIService:
                 return {
                     "provider": provider,
                     "model": model,
-                    "reasoning": f"Explicit model preference: {model}"
+                    "reasoning": f"Explicit model preference: {model}",
                 }
 
             # Check strategic assignments (CEO-configurable)
@@ -297,7 +312,7 @@ class SmartAIService:
                 return {
                     "provider": provider,
                     "model": model,
-                    "reasoning": f"Strategic assignment for {request.task_type.value}"
+                    "reasoning": f"Strategic assignment for {request.task_type.value}",
                 }
 
             # Performance-prioritized routing
@@ -305,22 +320,23 @@ class SmartAIService:
                 # High performance requirement
                 tier = PerformanceTier.TIER_1
                 tier_config = self.model_tiers[tier]
-                
+
                 # Select best model for task type
                 suitable_models = [
-                    model for model in tier_config["models"]
+                    model
+                    for model in tier_config["models"]
                     if request.task_type.value in tier_config["use_cases"]
                 ]
-                
+
                 if suitable_models:
                     model = suitable_models[0]  # Best performance model
                 else:
                     model = tier_config["models"][0]  # Default to first tier 1 model
-                
+
                 return {
                     "provider": tier_config["preferred_provider"],
                     "model": model,
-                    "reasoning": f"Performance-prioritized: Tier 1 for high-stakes {request.task_type.value}"
+                    "reasoning": f"Performance-prioritized: Tier 1 for high-stakes {request.task_type.value}",
                 }
 
             # Experimental routing to OpenRouter
@@ -328,11 +344,11 @@ class SmartAIService:
                 tier = PerformanceTier.COST_OPTIMIZED
                 tier_config = self.model_tiers[tier]
                 model = tier_config["models"][0]  # First cost-optimized model
-                
+
                 return {
                     "provider": LLMProvider.OPENROUTER,
                     "model": model,
-                    "reasoning": "Experimental request routed to OpenRouter for model exploration"
+                    "reasoning": "Experimental request routed to OpenRouter for model exploration",
                 }
 
             # Cost-sensitive routing
@@ -340,32 +356,33 @@ class SmartAIService:
                 tier = PerformanceTier.COST_OPTIMIZED
                 tier_config = self.model_tiers[tier]
                 model = tier_config["models"][0]
-                
+
                 return {
                     "provider": tier_config["preferred_provider"],
                     "model": model,
-                    "reasoning": f"Cost-optimized routing for {request.task_type.value}"
+                    "reasoning": f"Cost-optimized routing for {request.task_type.value}",
                 }
 
             # Balanced routing (default)
             tier = PerformanceTier.TIER_2
             tier_config = self.model_tiers[tier]
-            
+
             # Select appropriate model for task
             suitable_models = [
-                model for model in tier_config["models"]
+                model
+                for model in tier_config["models"]
                 if request.task_type.value in tier_config["use_cases"]
             ]
-            
+
             if suitable_models:
                 model = suitable_models[0]
             else:
                 model = tier_config["models"][0]
-            
+
             return {
                 "provider": tier_config["preferred_provider"],
                 "model": model,
-                "reasoning": f"Balanced performance/cost for {request.task_type.value}"
+                "reasoning": f"Balanced performance/cost for {request.task_type.value}",
             }
 
         except Exception as e:
@@ -374,7 +391,7 @@ class SmartAIService:
             return {
                 "provider": LLMProvider.PORTKEY,
                 "model": "gpt-4o",
-                "reasoning": f"Fallback due to error: {str(e)}"
+                "reasoning": f"Fallback due to error: {str(e)}",
             }
 
     async def _call_portkey(
@@ -385,15 +402,19 @@ class SmartAIService:
             headers = {
                 "Authorization": f"Bearer {self.portkey_config['api_key']}",
                 "Content-Type": "application/json",
-                "x-portkey-virtual-key": self.portkey_config['virtual_key'],
-                "x-portkey-cache": "semantic" if strategy.get("use_cache", True) else "simple",
+                "x-portkey-virtual-key": self.portkey_config["virtual_key"],
+                "x-portkey-cache": "semantic"
+                if strategy.get("use_cache", True)
+                else "simple",
                 "x-portkey-trace-id": request_id,
-                "x-portkey-metadata": json.dumps({
-                    "task_type": request.task_type.value,
-                    "user_id": request.user_id,
-                    "session_id": request.session_id,
-                    "performance_priority": request.performance_priority
-                })
+                "x-portkey-metadata": json.dumps(
+                    {
+                        "task_type": request.task_type.value,
+                        "user_id": request.user_id,
+                        "session_id": request.session_id,
+                        "performance_priority": request.performance_priority,
+                    }
+                ),
             }
 
             payload = {
@@ -404,14 +425,12 @@ class SmartAIService:
                 "metadata": {
                     "request_id": request_id,
                     "task_type": request.task_type.value,
-                    "routing_strategy": "portkey_direct"
-                }
+                    "routing_strategy": "portkey_direct",
+                },
             }
 
             async with self.session.post(
-                self.portkey_config["endpoint"],
-                headers=headers,
-                json=payload
+                self.portkey_config["endpoint"], headers=headers, json=payload
             ) as response:
                 response.raise_for_status()
                 result = await response.json()
@@ -419,10 +438,10 @@ class SmartAIService:
                 # Extract response data
                 content = result["choices"][0]["message"]["content"]
                 usage = result.get("usage", {})
-                
+
                 # Check for cache hit
                 cache_hit = response.headers.get("x-portkey-cache-status") == "hit"
-                
+
                 # Calculate cost (estimated)
                 cost_usd = await self._calculate_cost(strategy["model"], usage)
 
@@ -435,7 +454,7 @@ class SmartAIService:
                     tokens_used=usage.get("total_tokens", 0),
                     cache_hit=cache_hit,
                     quality_score=0.9,  # High quality for Portkey
-                    request_id=request_id
+                    request_id=request_id,
                 )
 
         except Exception as e:
@@ -453,7 +472,7 @@ class SmartAIService:
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://sophia-intel.ai",
                 "X-Title": "Sophia AI Enterprise",
-                "X-Request-ID": request_id
+                "X-Request-ID": request_id,
             }
 
             # Map to OpenRouter model format if needed
@@ -467,14 +486,12 @@ class SmartAIService:
                 "metadata": {
                     "request_id": request_id,
                     "task_type": request.task_type.value,
-                    "routing_strategy": "openrouter_direct"
-                }
+                    "routing_strategy": "openrouter_direct",
+                },
             }
 
             async with self.session.post(
-                self.openrouter_config["endpoint"],
-                headers=headers,
-                json=payload
+                self.openrouter_config["endpoint"], headers=headers, json=payload
             ) as response:
                 response.raise_for_status()
                 result = await response.json()
@@ -482,7 +499,7 @@ class SmartAIService:
                 # Extract response data
                 content = result["choices"][0]["message"]["content"]
                 usage = result.get("usage", {})
-                
+
                 # Calculate cost from OpenRouter response
                 cost_usd = float(result.get("cost", 0.0))
 
@@ -495,7 +512,7 @@ class SmartAIService:
                     tokens_used=usage.get("total_tokens", 0),
                     cache_hit=False,  # OpenRouter doesn't report cache status
                     quality_score=0.8,  # Good quality for OpenRouter
-                    request_id=request_id
+                    request_id=request_id,
                 )
 
         except Exception as e:
@@ -508,7 +525,7 @@ class SmartAIService:
     ) -> LLMResponse:
         """Fallback to basic response when both gateways fail"""
         logger.warning("Using fallback response - both gateways failed")
-        
+
         return LLMResponse(
             content="I apologize, but I'm experiencing technical difficulties. Please try again in a moment.",
             provider=LLMProvider.FALLBACK,
@@ -519,7 +536,7 @@ class SmartAIService:
             cache_hit=False,
             quality_score=0.1,
             error="Gateway failures - using fallback",
-            request_id=request_id
+            request_id=request_id,
         )
 
     async def _log_usage_to_snowflake(
@@ -548,7 +565,7 @@ class SmartAIService:
                 "cost_sensitivity": request.cost_sensitivity,
                 "routing_reasoning": strategy.get("reasoning", ""),
                 "error": response.error,
-                "metadata": json.dumps(request.metadata or {})
+                "metadata": json.dumps(request.metadata or {}),
             }
 
             # Store in AI_USAGE_ANALYTICS table
@@ -569,12 +586,12 @@ class SmartAIService:
             "deepseek-v3": 0.0027,
             "llama-3-70b": 0.0009,
             "qwen2-72b": 0.0009,
-            "mixtral-8x22b": 0.0012
+            "mixtral-8x22b": 0.0012,
         }
 
         cost_per_1k = model_costs.get(model, 0.01)  # Default cost
         total_tokens = usage.get("total_tokens", 0)
-        
+
         return (total_tokens / 1000) * cost_per_1k
 
     def _get_provider_for_model(self, model: str) -> LLMProvider:
@@ -583,7 +600,7 @@ class SmartAIService:
         for tier_config in self.model_tiers.values():
             if model in tier_config["models"]:
                 return tier_config["preferred_provider"]
-        
+
         # Default to Portkey for unknown models
         return LLMProvider.PORTKEY
 
@@ -597,15 +614,15 @@ class SmartAIService:
             "deepseek-v3": "deepseek/deepseek-v3",
             "llama-3-70b": "meta-llama/llama-3-70b-instruct",
             "qwen2-72b": "qwen/qwen2-72b-instruct",
-            "mixtral-8x22b": "mistralai/mixtral-8x22b-instruct"
+            "mixtral-8x22b": "mistralai/mixtral-8x22b-instruct",
         }
-        
+
         return openrouter_mapping.get(model, model)
 
     async def _update_metrics(self, response: LLMResponse) -> None:
         """Update internal performance metrics"""
         model_key = f"{response.provider.value}:{response.model}"
-        
+
         if model_key not in self.usage_metrics:
             self.usage_metrics[model_key] = {
                 "total_requests": 0,
@@ -613,37 +630,43 @@ class SmartAIService:
                 "total_latency": 0,
                 "cache_hits": 0,
                 "errors": 0,
-                "avg_quality": 0.0
+                "avg_quality": 0.0,
             }
 
         metrics = self.usage_metrics[model_key]
         metrics["total_requests"] += 1
         metrics["total_cost"] += response.cost_usd
         metrics["total_latency"] += response.latency_ms
-        
+
         if response.cache_hit:
             metrics["cache_hits"] += 1
-        
+
         if response.error:
             metrics["errors"] += 1
-        
+
         # Update rolling average quality score
         current_avg = metrics["avg_quality"]
         total_requests = metrics["total_requests"]
         metrics["avg_quality"] = (
-            (current_avg * (total_requests - 1) + response.quality_score) / total_requests
-        )
+            current_avg * (total_requests - 1) + response.quality_score
+        ) / total_requests
 
     async def get_usage_analytics(self, time_period_hours: int = 24) -> Dict[str, Any]:
         """Get comprehensive usage analytics"""
         try:
             # Calculate summary metrics
-            total_requests = sum(m["total_requests"] for m in self.usage_metrics.values())
+            total_requests = sum(
+                m["total_requests"] for m in self.usage_metrics.values()
+            )
             total_cost = sum(m["total_cost"] for m in self.usage_metrics.values())
             total_cache_hits = sum(m["cache_hits"] for m in self.usage_metrics.values())
-            
-            cache_hit_rate = (total_cache_hits / total_requests) if total_requests > 0 else 0
-            avg_cost_per_request = (total_cost / total_requests) if total_requests > 0 else 0
+
+            cache_hit_rate = (
+                (total_cache_hits / total_requests) if total_requests > 0 else 0
+            )
+            avg_cost_per_request = (
+                (total_cost / total_requests) if total_requests > 0 else 0
+            )
 
             # Provider distribution
             provider_stats = {}
@@ -653,12 +676,12 @@ class SmartAIService:
                     provider_stats[provider] = {
                         "requests": 0,
                         "cost": 0.0,
-                        "avg_latency": 0
+                        "avg_latency": 0,
                     }
-                
+
                 provider_stats[provider]["requests"] += metrics["total_requests"]
                 provider_stats[provider]["cost"] += metrics["total_cost"]
-                
+
                 if metrics["total_requests"] > 0:
                     provider_stats[provider]["avg_latency"] += (
                         metrics["total_latency"] / metrics["total_requests"]
@@ -671,18 +694,23 @@ class SmartAIService:
                     "total_cost_usd": round(total_cost, 4),
                     "avg_cost_per_request": round(avg_cost_per_request, 4),
                     "cache_hit_rate": round(cache_hit_rate, 3),
-                    "cost_savings_from_cache": round(total_cost * cache_hit_rate * 0.8, 4)
+                    "cost_savings_from_cache": round(
+                        total_cost * cache_hit_rate * 0.8, 4
+                    ),
                 },
                 "provider_distribution": provider_stats,
                 "model_performance": self.usage_metrics,
-                "strategic_assignments": {k.value: v for k, v in self.strategic_assignments.items()},
+                "strategic_assignments": {
+                    k.value: v for k, v in self.strategic_assignments.items()
+                },
                 "gateway_health": {
                     "portkey_available": bool(self.portkey_config["api_key"]),
                     "openrouter_available": bool(self.openrouter_config["api_key"]),
                     "fallback_rate": sum(
                         m["errors"] for m in self.usage_metrics.values()
-                    ) / max(total_requests, 1)
-                }
+                    )
+                    / max(total_requests, 1),
+                },
             }
 
         except Exception as e:
@@ -704,8 +732,7 @@ class SmartAIService:
     def get_available_models(self) -> Dict[str, List[str]]:
         """Get available models by tier"""
         return {
-            tier.value: config["models"]
-            for tier, config in self.model_tiers.items()
+            tier.value: config["models"] for tier, config in self.model_tiers.items()
         }
 
 
@@ -727,23 +754,21 @@ async def generate_executive_insight(
         task_type=TaskType.EXECUTIVE_INSIGHTS,
         performance_priority=True,
         cost_sensitivity=1.0,  # Performance over cost
-        user_id=user_id
+        user_id=user_id,
     )
 
     response = await smart_ai_service.generate_response(request)
     return response.content
 
 
-async def generate_competitive_analysis(
-    prompt: str, user_id: str = "analyst"
-) -> str:
+async def generate_competitive_analysis(prompt: str, user_id: str = "analyst") -> str:
     """Generate competitive analysis with specialized models"""
     request = LLMRequest(
         messages=[{"role": "user", "content": prompt}],
         task_type=TaskType.COMPETITIVE_ANALYSIS,
         performance_priority=True,
         cost_sensitivity=0.8,
-        user_id=user_id
+        user_id=user_id,
     )
 
     response = await smart_ai_service.generate_response(request)
@@ -755,14 +780,14 @@ async def generate_code(
 ) -> str:
     """Generate code with specialized coding models"""
     enhanced_prompt = f"Generate {language} code for: {prompt}"
-    
+
     request = LLMRequest(
         messages=[{"role": "user", "content": enhanced_prompt}],
         task_type=TaskType.CODE_GENERATION,
         performance_priority=False,
         cost_sensitivity=0.4,
         user_id=user_id,
-        temperature=0.2  # Lower temperature for code
+        temperature=0.2,  # Lower temperature for code
     )
 
     response = await smart_ai_service.generate_response(request)
@@ -780,7 +805,7 @@ async def experimental_query(
         is_experimental=True,
         performance_priority=False,
         cost_sensitivity=0.1,
-        user_id=user_id
+        user_id=user_id,
     )
 
     response = await smart_ai_service.generate_response(request)

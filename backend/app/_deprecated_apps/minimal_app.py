@@ -22,6 +22,7 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
+
 @app.get("/")
 async def read_root():
     """Basic health check endpoint."""
@@ -30,8 +31,9 @@ async def read_root():
         "service": "Sophia AI Platform",
         "version": "1.0.0",
         "message": "Enterprise AI orchestrator ready",
-        "environment": ENVIRONMENT
+        "environment": ENVIRONMENT,
     }
+
 
 @app.get("/api/health")
 async def api_health_check():
@@ -41,34 +43,32 @@ async def api_health_check():
         "api_version": "1.0.0",
         "environment": ENVIRONMENT,
         "deployment_status": "OPERATIONAL",
-        "message": f"Sophia AI Platform operational in {ENVIRONMENT} environment"
+        "message": f"Sophia AI Platform operational in {ENVIRONMENT} environment",
     }
+
 
 @app.get("/api/test-config")
 async def test_config():
     """Test configuration loading."""
     try:
         from backend.core.auto_esc_config import get_config_value
-        
+
         openai_key = get_config_value("openai_api_key")
         gong_key = get_config_value("gong_access_key")
-        
+
         return {
             "status": "success",
             "openai_configured": bool(openai_key and len(openai_key) > 10),
             "gong_configured": bool(gong_key and len(gong_key) > 10),
-            "environment": ENVIRONMENT
+            "environment": ENVIRONMENT,
         }
     except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e),
-            "environment": ENVIRONMENT
-        }
+        return {"status": "error", "error": str(e), "environment": ENVIRONMENT}
+
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup."""
     logger.info(f"🚀 Starting Sophia AI Platform in {ENVIRONMENT} environment...")
     logger.info("✅ Minimal FastAPI app initialized")
-    logger.info(f"🚀 Sophia AI Platform ready for requests")
+    logger.info("🚀 Sophia AI Platform ready for requests")

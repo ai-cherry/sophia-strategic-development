@@ -13,7 +13,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from backend.core.auto_esc_config import get_config_value
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer, MemoryCategory
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+    MemoryCategory,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -951,7 +954,8 @@ class AutoDiscoveryOrchestrator:
 
             # Get memories from AI Memory system
             memories = await self.ai_memory.recall_memory(
-                query=enhanced_query, limit=limit * 2  # Get more to filter
+                query=enhanced_query,
+                limit=limit * 2,  # Get more to filter
             )
 
             # Filter and rank based on current context

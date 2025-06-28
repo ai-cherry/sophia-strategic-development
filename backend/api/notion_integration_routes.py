@@ -327,7 +327,7 @@ async def get_strategic_content(
 
 @router.get("/users")
 async def get_users(
-    page_size: int = Query(100, description="Number of users to return")
+    page_size: int = Query(100, description="Number of users to return"),
 ):
     """Get workspace users."""
     try:

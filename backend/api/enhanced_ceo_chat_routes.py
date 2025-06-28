@@ -10,21 +10,18 @@ Features:
 - CEO-level access controls and deep research
 """
 
-from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 import logging
-import asyncio
 import json
 from datetime import datetime
 
 from backend.services.enhanced_portkey_orchestrator import (
-    SophiaAI, 
-    TaskComplexity, 
-    EnhancedLLMResponse
+    SophiaAI,
+    TaskComplexity,
+    EnhancedLLMResponse,
 )
-from backend.core.simple_config import get_config_value
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/enhanced-ceo-chat", tags=["Enhanced CEO Chat"])
@@ -32,17 +29,23 @@ router = APIRouter(prefix="/api/v1/enhanced-ceo-chat", tags=["Enhanced CEO Chat"
 
 class ChatRequest(BaseModel):
     """Enhanced chat request"""
+
     message: str = Field(..., description="User message")
     complexity: str = Field(default="moderate", description="Task complexity")
-    cost_preference: str = Field(default="balanced", description="Cost optimization preference")
+    cost_preference: str = Field(
+        default="balanced", description="Cost optimization preference"
+    )
     context_type: str = Field(default="general", description="Context type")
     urgency: str = Field(default="normal", description="Urgency level")
     user_role: str = Field(default="user", description="User role for access control")
-    include_provider_info: bool = Field(default=True, description="Include provider selection info")
+    include_provider_info: bool = Field(
+        default=True, description="Include provider selection info"
+    )
 
 
 class ChatResponse(BaseModel):
     """Enhanced chat response"""
+
     content: str
     provider_used: str
     model_used: str
@@ -58,6 +61,7 @@ class ChatResponse(BaseModel):
 
 class CodeRequest(BaseModel):
     """Code generation request"""
+
     requirements: str = Field(..., description="Code requirements")
     language: str = Field(default="python", description="Programming language")
     complexity: str = Field(default="complex", description="Task complexity")
@@ -65,20 +69,27 @@ class CodeRequest(BaseModel):
 
 class BusinessAnalysisRequest(BaseModel):
     """Business analysis request"""
+
     query: str = Field(..., description="Business query")
-    context: Optional[Dict[str, Any]] = Field(default=None, description="Additional context")
+    context: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional context"
+    )
     depth: str = Field(default="comprehensive", description="Analysis depth")
 
 
 class ResearchRequest(BaseModel):
     """Research request"""
+
     topic: str = Field(..., description="Research topic")
     depth: str = Field(default="comprehensive", description="Research depth")
-    use_real_time: bool = Field(default=True, description="Use real-time data providers")
+    use_real_time: bool = Field(
+        default=True, description="Use real-time data providers"
+    )
 
 
 class ProviderStatusResponse(BaseModel):
     """Provider status response"""
+
     total_providers: int
     active_providers: int
     provider_details: Dict[str, Any]
@@ -113,7 +124,7 @@ def validate_ceo_access(user_role: str) -> bool:
 async def enhanced_chat(request: ChatRequest):
     """
     Enhanced chat with intelligent 11-provider routing
-    
+
     Features:
     - Intelligent provider selection based on task complexity
     - Cost optimization across 11 providers
@@ -128,32 +139,34 @@ async def enhanced_chat(request: ChatRequest):
             "complex": TaskComplexity.COMPLEX,
             "expert": TaskComplexity.EXPERT,
             "creative": TaskComplexity.CREATIVE,
-            "research": TaskComplexity.RESEARCH
+            "research": TaskComplexity.RESEARCH,
         }
-        
-        complexity_enum = complexity_map.get(request.complexity.lower(), TaskComplexity.MODERATE)
-        
+
+        complexity_enum = complexity_map.get(
+            request.complexity.lower(), TaskComplexity.MODERATE
+        )
+
         # Enhanced chat with provider intelligence
         response = await SophiaAI.chat(
             message=request.message,
             complexity=complexity_enum,
             cost_preference=request.cost_preference,
             context_type=request.context_type,
-            urgency=request.urgency
+            urgency=request.urgency,
         )
-        
+
         # Generate suggestions based on response
         suggestions = _generate_suggestions(response, request.context_type)
-        
+
         # Get provider info if requested
         provider_info = None
         if request.include_provider_info:
             provider_info = {
                 "tier": response.metadata.get("provider_tier", "unknown"),
                 "strengths": response.metadata.get("provider_strengths", []),
-                "fallbacks_attempted": response.fallbacks_attempted
+                "fallbacks_attempted": response.fallbacks_attempted,
             }
-        
+
         return ChatResponse(
             content=response.content,
             provider_used=response.provider_used,
@@ -165,9 +178,9 @@ async def enhanced_chat(request: ChatRequest):
             quality_score=response.quality_score,
             success=response.success,
             suggestions=suggestions,
-            provider_info=provider_info
+            provider_info=provider_info,
         )
-        
+
     except Exception as e:
         logger.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
@@ -180,21 +193,18 @@ async def code_expert(request: CodeRequest):
     Routes to DeepSeek, Qwen, or Mistral for optimal code generation
     """
     try:
-        complexity_enum = TaskComplexity.COMPLEX
-        
         response = await SophiaAI.code_expert(
-            requirements=request.requirements,
-            language=request.language
+            requirements=request.requirements, language=request.language
         )
-        
+
         suggestions = [
             "Review the generated code for edge cases",
-            "Run unit tests to validate functionality", 
+            "Run unit tests to validate functionality",
             "Consider performance optimization",
             "Add comprehensive documentation",
-            "Implement error handling"
+            "Implement error handling",
         ]
-        
+
         return ChatResponse(
             content=response.content,
             provider_used=response.provider_used,
@@ -205,9 +215,9 @@ async def code_expert(request: CodeRequest):
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
             success=response.success,
-            suggestions=suggestions
+            suggestions=suggestions,
         )
-        
+
     except Exception as e:
         logger.error(f"Code expert error: {e}")
         raise HTTPException(status_code=500, detail=f"Code generation failed: {str(e)}")
@@ -221,18 +231,17 @@ async def business_analyst(request: BusinessAnalysisRequest):
     """
     try:
         response = await SophiaAI.business_analyst(
-            query=request.query,
-            context=request.context
+            query=request.query, context=request.context
         )
-        
+
         suggestions = [
             "Schedule executive review meeting",
             "Prepare detailed implementation plan",
             "Conduct risk assessment workshop",
             "Analyze competitive landscape",
-            "Review financial projections"
+            "Review financial projections",
         ]
-        
+
         return ChatResponse(
             content=response.content,
             provider_used=response.provider_used,
@@ -243,12 +252,14 @@ async def business_analyst(request: BusinessAnalysisRequest):
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
             success=response.success,
-            suggestions=suggestions
+            suggestions=suggestions,
         )
-        
+
     except Exception as e:
         logger.error(f"Business analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Business analysis failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Business analysis failed: {str(e)}"
+        )
 
 
 @router.post("/research-assistant", response_model=ChatResponse)
@@ -260,23 +271,22 @@ async def research_assistant(request: ResearchRequest):
     try:
         # For research tasks, prefer real-time providers
         if request.use_real_time:
-            complexity_enum = TaskComplexity.RESEARCH
+            pass
         else:
-            complexity_enum = TaskComplexity.COMPLEX
-            
+            pass
+
         response = await SophiaAI.research_assistant(
-            topic=request.topic,
-            depth=request.depth
+            topic=request.topic, depth=request.depth
         )
-        
+
         suggestions = [
             "Verify information with additional sources",
             "Create detailed research report",
             "Schedule stakeholder briefing",
             "Monitor ongoing developments",
-            "Update strategic recommendations"
+            "Update strategic recommendations",
         ]
-        
+
         return ChatResponse(
             content=response.content,
             provider_used=response.provider_used,
@@ -287,9 +297,9 @@ async def research_assistant(request: ResearchRequest):
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
             success=response.success,
-            suggestions=suggestions
+            suggestions=suggestions,
         )
-        
+
     except Exception as e:
         logger.error(f"Research error: {e}")
         raise HTTPException(status_code=500, detail=f"Research failed: {str(e)}")
@@ -303,7 +313,7 @@ async def get_provider_status():
     """
     try:
         status = await SophiaAI.get_status()
-        
+
         # Determine system health
         active_ratio = status["active_providers"] / status["total_providers"]
         if active_ratio >= 0.8:
@@ -314,14 +324,14 @@ async def get_provider_status():
             system_health = "degraded"
         else:
             system_health = "critical"
-        
+
         return ProviderStatusResponse(
             total_providers=status["total_providers"],
             active_providers=status["active_providers"],
             provider_details=status["provider_details"],
-            system_health=system_health
+            system_health=system_health,
         )
-        
+
     except Exception as e:
         logger.error(f"Status error: {e}")
         raise HTTPException(status_code=500, detail=f"Status check failed: {str(e)}")
@@ -338,16 +348,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         while True:
             data = await websocket.receive_text()
             message_data = json.loads(data)
-            
+
             # Process chat request
             chat_request = ChatRequest(**message_data)
-            
+
             # Send immediate acknowledgment
             await manager.send_personal_message(
                 json.dumps({"type": "ack", "message": "Processing your request..."}),
-                websocket
+                websocket,
             )
-            
+
             # Process with enhanced orchestrator
             complexity_map = {
                 "simple": TaskComplexity.SIMPLE,
@@ -355,19 +365,21 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 "complex": TaskComplexity.COMPLEX,
                 "expert": TaskComplexity.EXPERT,
                 "creative": TaskComplexity.CREATIVE,
-                "research": TaskComplexity.RESEARCH
+                "research": TaskComplexity.RESEARCH,
             }
-            
-            complexity_enum = complexity_map.get(chat_request.complexity.lower(), TaskComplexity.MODERATE)
-            
+
+            complexity_enum = complexity_map.get(
+                chat_request.complexity.lower(), TaskComplexity.MODERATE
+            )
+
             response = await SophiaAI.chat(
                 message=chat_request.message,
                 complexity=complexity_enum,
                 cost_preference=chat_request.cost_preference,
                 context_type=chat_request.context_type,
-                urgency=chat_request.urgency
+                urgency=chat_request.urgency,
             )
-            
+
             # Send response
             response_data = {
                 "type": "response",
@@ -378,61 +390,62 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 "cost_estimate": response.cost_estimate,
                 "processing_time_ms": response.processing_time_ms,
                 "quality_score": response.quality_score,
-                "success": response.success
+                "success": response.success,
             }
-            
+
             await manager.send_personal_message(json.dumps(response_data), websocket)
-            
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
         await manager.send_personal_message(
-            json.dumps({"type": "error", "message": str(e)}),
-            websocket
+            json.dumps({"type": "error", "message": str(e)}), websocket
         )
 
 
-def _generate_suggestions(response: EnhancedLLMResponse, context_type: str) -> List[str]:
+def _generate_suggestions(
+    response: EnhancedLLMResponse, context_type: str
+) -> List[str]:
     """Generate contextual suggestions based on response and context"""
     base_suggestions = []
-    
+
     if context_type == "code":
         base_suggestions = [
             "Review code for security vulnerabilities",
             "Add comprehensive unit tests",
             "Optimize for performance",
-            "Add detailed documentation"
+            "Add detailed documentation",
         ]
     elif context_type == "business":
         base_suggestions = [
             "Schedule stakeholder review",
             "Prepare implementation timeline",
             "Conduct risk assessment",
-            "Review budget implications"
+            "Review budget implications",
         ]
     elif context_type == "research":
         base_suggestions = [
             "Verify with additional sources",
             "Create detailed report",
             "Monitor ongoing developments",
-            "Update strategic plans"
+            "Update strategic plans",
         ]
     else:
         base_suggestions = [
             "Review and validate results",
             "Consider next steps",
             "Gather additional context",
-            "Document key insights"
+            "Document key insights",
         ]
-    
+
     # Add provider-specific suggestions
     if response.cost_estimate > 0.01:
         base_suggestions.append("Consider cost optimization for future queries")
-    
+
     if response.processing_time_ms > 5000:
         base_suggestions.append("Consider simpler model for faster responses")
-    
+
     return base_suggestions[:3]  # Return top 3 suggestions
 
 
@@ -445,11 +458,11 @@ async def health_check():
             "status": "healthy",
             "active_providers": status["active_providers"],
             "total_providers": status["total_providers"],
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }

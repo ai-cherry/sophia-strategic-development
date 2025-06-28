@@ -177,8 +177,8 @@ class SnowflakeGongConnector:
                 ' | '
             ) as risk_indicators
             
-        FROM {self.tables['calls']} gc
-        LEFT JOIN {self.tables['transcripts']} t ON gc.CALL_ID = t.CALL_ID
+        FROM {self.tables["calls"]} gc
+        LEFT JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
         
@@ -282,7 +282,7 @@ class SnowflakeGongConnector:
                 
                 DATEDIFF('day', gc.CALL_DATETIME_UTC, hd.CLOSE_DATE) as days_to_close
                 
-            FROM {self.tables['calls']} gc
+            FROM {self.tables["calls"]} gc
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
             WHERE gc.CALL_ID = '{call_id}'
@@ -316,7 +316,7 @@ class SnowflakeGongConnector:
                     ' | '
                 ) as positive_moments
                 
-            FROM {self.tables['transcripts']}
+            FROM {self.tables["transcripts"]}
             WHERE CALL_ID = '{call_id}'
         ),
         participants_info AS (
@@ -325,7 +325,7 @@ class SnowflakeGongConnector:
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'External' THEN 1 END) as external_participants,
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'Internal' THEN 1 END) as internal_participants,
                 STRING_AGG(FULL_NAME || ' (' || PARTICIPANT_TYPE || ')', ', ') as participant_list
-            FROM {self.tables['participants']}
+            FROM {self.tables["participants"]}
             WHERE CALL_ID = '{call_id}'
         )
         SELECT 
@@ -387,14 +387,16 @@ class SnowflakeGongConnector:
             COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
             COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals,
             COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won
-        FROM {self.tables['calls']} gc
+        FROM {self.tables["calls"]} gc
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
         GROUP BY gc.PRIMARY_USER_NAME
         """
 
-    def _get_coaching_opportunities_query(self, sales_rep: str, date_range_days: int) -> str:
+    def _get_coaching_opportunities_query(
+        self, sales_rep: str, date_range_days: int
+    ) -> str:
         """Builds the SQL query for identifying coaching opportunities."""
         return f"""
         SELECT 
@@ -404,7 +406,7 @@ class SnowflakeGongConnector:
             STRING_AGG(
                 CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN gc.CALL_TITLE || ' (' || DATE(gc.CALL_DATETIME_UTC) || ')' ELSE NULL END, ', '
             ) as low_sentiment_calls
-        FROM {self.tables['calls']} gc
+        FROM {self.tables["calls"]} gc
         WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
         """
@@ -417,8 +419,10 @@ class SnowflakeGongConnector:
             await self.initialize()
 
         performance_query = self._get_rep_performance_query(sales_rep, date_range_days)
-        coaching_query = self._get_coaching_opportunities_query(sales_rep, date_range_days)
-        
+        coaching_query = self._get_coaching_opportunities_query(
+            sales_rep, date_range_days
+        )
+
         full_query = f"""
         WITH rep_performance AS ({performance_query}),
              coaching_opportunities AS ({coaching_query})
@@ -500,8 +504,8 @@ class SnowflakeGongConnector:
             
             AVG(t.SEGMENT_SENTIMENT) as avg_matching_sentiment
             
-        FROM {self.tables['calls']} gc
-        JOIN {self.tables['transcripts']} t ON gc.CALL_ID = t.CALL_ID
+        FROM {self.tables["calls"]} gc
+        JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
         
@@ -553,7 +557,7 @@ class SnowflakeGongConnector:
             END_TIME_SECONDS,
             SEGMENT_SENTIMENT,
             SEGMENT_SUMMARY
-        FROM {self.tables['transcripts']}
+        FROM {self.tables["transcripts"]}
         WHERE CALL_ID = '{call_id}'
         ORDER BY START_TIME_SECONDS
         """

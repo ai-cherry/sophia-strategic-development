@@ -3,67 +3,93 @@ Enhanced Snowflake Cortex API Routes for Sophia AI
 Advanced RESTful endpoints with multimodal support and real-time analytics
 """
 
-from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect, Header, UploadFile, File
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Depends,
+    WebSocket,
+    WebSocketDisconnect,
+    UploadFile,
+    File,
+)
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import json
 import logging
 from datetime import datetime
 import asyncio
-import base64
 
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
+
 
 # Import functions that will be defined later to avoid circular imports
 async def get_enhanced_cortex_agent_service():
     """Get enhanced Cortex agent service instance - defined later"""
-    from backend.services.enhanced_cortex_agent_service import get_enhanced_cortex_agent_service as _get_service
+    from backend.services.enhanced_cortex_agent_service import (
+        get_enhanced_cortex_agent_service as _get_service,
+    )
+
     return await _get_service()
+
 
 async def get_advanced_estuary_flow_manager():
     """Get advanced Estuary Flow manager instance - defined later"""
-    from backend.integrations.advanced_estuary_flow_manager import get_advanced_estuary_flow_manager as _get_manager
+    from backend.integrations.advanced_estuary_flow_manager import (
+        get_advanced_estuary_flow_manager as _get_manager,
+    )
+
     return await _get_manager()
+
 
 async def get_portkey_gateway():
     """Get Portkey gateway instance - placeholder"""
     return None
 
+
 # Import service classes for type hints
 try:
-    from backend.services.enhanced_cortex_agent_service import EnhancedCortexAgentService
+    from backend.services.enhanced_cortex_agent_service import (
+        EnhancedCortexAgentService,
+    )
 except ImportError:
     # Fallback for type hints
     EnhancedCortexAgentService = Any
 
+
 # Model definitions for API
 class MultimodalFile(BaseModel):
     """Model for multimodal file processing"""
+
     file_id: str
     file_type: str
     file_url: Optional[str] = None
     file_content: Optional[bytes] = None
     metadata: Dict[str, Any] = {}
 
+
 class MultimodalAgentRequest(BaseModel):
     """Enhanced agent request with multimodal support"""
+
     prompt: str
     files: List[MultimodalFile] = []
     processing_options: Dict[str, Any] = {}
     business_context: Optional[Dict[str, Any]] = None
 
+
 class AdvancedAnalyticsQuery(BaseModel):
     """Model for advanced analytics queries"""
+
     query_type: str
     parameters: Dict[str, Any]
     time_range: Optional[Dict[str, str]] = None
     filters: Dict[str, Any] = {}
 
+
 class AnalyticsResponse(BaseModel):
     """Response model for analytics queries"""
+
     query_type: str
     results: Dict[str, Any]
     insights: List[str]
@@ -71,8 +97,10 @@ class AnalyticsResponse(BaseModel):
     confidence_score: float
     metadata: Dict[str, Any] = {}
 
+
 class ComplianceAlert(BaseModel):
     """Model for compliance alerts"""
+
     alert_id: str
     severity: str
     category: str
@@ -81,17 +109,20 @@ class ComplianceAlert(BaseModel):
     recommended_actions: List[str]
     timestamp: datetime
 
+
 # Create router
 router = APIRouter(prefix="/api/v2/cortex", tags=["enhanced-cortex"])
 
 # Security
 security = HTTPBearer()
 
+
 async def verify_jwt_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
     """Verify JWT token from Authorization header"""
     return credentials.credentials
+
 
 # WebSocket connection manager
 class ConnectionManager:
@@ -116,19 +147,23 @@ class ConnectionManager:
                 # Remove disconnected connections
                 self.active_connections.remove(connection)
 
+
 manager = ConnectionManager()
 
 # Enhanced Multimodal Endpoints
+
 
 @router.post("/agents/multimodal/process")
 async def process_multimodal_content(
     request: MultimodalAgentRequest,
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> Dict[str, Any]:
     """
     Process multimodal content with AI analysis
-    
+
     Supports:
     - Audio files (Gong recordings)
     - Documents (contracts, proposals, meeting notes)
@@ -137,9 +172,9 @@ async def process_multimodal_content(
     """
     try:
         logger.info(f"Processing multimodal request with {len(request.files)} files")
-        
+
         response = await cortex_service.process_multimodal_request(request)
-        
+
         return {
             "success": True,
             "agent_response": response.dict(),
@@ -147,13 +182,16 @@ async def process_multimodal_content(
                 "files_processed": len(request.files),
                 "tools_used": response.tools_used,
                 "execution_time": response.execution_time,
-                "tokens_used": response.tokens_used
-            }
+                "tokens_used": response.tokens_used,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error processing multimodal content: {e}")
-        raise HTTPException(status_code=500, detail=f"Multimodal processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Multimodal processing failed: {str(e)}"
+        )
+
 
 @router.post("/agents/multimodal/upload")
 async def upload_multimodal_files(
@@ -161,11 +199,13 @@ async def upload_multimodal_files(
     prompt: str = "",
     business_context: Optional[str] = None,
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> Dict[str, Any]:
     """
     Upload and process multimodal files directly
-    
+
     Automatically detects file types and processes accordingly:
     - Audio: .mp3, .wav, .m4a (Gong recordings)
     - Documents: .pdf, .docx, .txt (contracts, proposals)
@@ -173,11 +213,11 @@ async def upload_multimodal_files(
     """
     try:
         multimodal_files = []
-        
+
         for file in files:
             # Read file content
             content = await file.read()
-            
+
             # Determine file type
             file_type = "document"  # default
             if file.content_type:
@@ -185,7 +225,7 @@ async def upload_multimodal_files(
                     file_type = "audio"
                 elif file.content_type.startswith("image/"):
                     file_type = "image"
-            
+
             multimodal_file = MultimodalFile(
                 file_id=f"{file.filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                 file_type=file_type,
@@ -194,21 +234,21 @@ async def upload_multimodal_files(
                     "filename": file.filename,
                     "content_type": file.content_type,
                     "size": len(content),
-                    "upload_timestamp": datetime.now().isoformat()
-                }
+                    "upload_timestamp": datetime.now().isoformat(),
+                },
             )
             multimodal_files.append(multimodal_file)
-        
+
         # Create multimodal request
         request = MultimodalAgentRequest(
             prompt=prompt,
             files=multimodal_files,
-            business_context=json.loads(business_context) if business_context else None
+            business_context=json.loads(business_context) if business_context else None,
         )
-        
+
         # Process the request
         response = await cortex_service.process_multimodal_request(request)
-        
+
         return {
             "success": True,
             "files_uploaded": len(files),
@@ -217,26 +257,31 @@ async def upload_multimodal_files(
                 {
                     "filename": f.filename,
                     "type": f.file_type,
-                    "size": len(f.file_content)
-                } for f in multimodal_files
-            ]
+                    "size": len(f.file_content),
+                }
+                for f in multimodal_files
+            ],
         }
-        
+
     except Exception as e:
         logger.error(f"Error uploading multimodal files: {e}")
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
 
+
 # Advanced Analytics Endpoints
+
 
 @router.post("/analytics/customer-intelligence")
 async def analyze_customer_intelligence(
     query: AdvancedAnalyticsQuery,
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> AnalyticsResponse:
     """
     Execute advanced customer intelligence analysis
-    
+
     Provides:
     - Real-time customer sentiment analysis
     - Churn risk assessment
@@ -246,33 +291,44 @@ async def analyze_customer_intelligence(
     try:
         query.query_type = "customer_intelligence"
         response = await cortex_service.execute_advanced_analytics(query)
-        
+
         # Broadcast update to connected clients
-        await manager.broadcast(json.dumps({
-            "type": "customer_intelligence_update",
-            "timestamp": datetime.now().isoformat(),
-            "summary": {
-                "total_customers": response.results.get("total_customers", 0),
-                "high_risk_customers": response.results.get("high_risk_customers", 0),
-                "avg_sentiment": response.results.get("avg_sentiment", 0)
-            }
-        }))
-        
+        await manager.broadcast(
+            json.dumps(
+                {
+                    "type": "customer_intelligence_update",
+                    "timestamp": datetime.now().isoformat(),
+                    "summary": {
+                        "total_customers": response.results.get("total_customers", 0),
+                        "high_risk_customers": response.results.get(
+                            "high_risk_customers", 0
+                        ),
+                        "avg_sentiment": response.results.get("avg_sentiment", 0),
+                    },
+                }
+            )
+        )
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error analyzing customer intelligence: {e}")
-        raise HTTPException(status_code=500, detail=f"Customer intelligence analysis failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Customer intelligence analysis failed: {str(e)}"
+        )
+
 
 @router.post("/analytics/sales-optimization")
 async def analyze_sales_optimization(
     query: AdvancedAnalyticsQuery,
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> AnalyticsResponse:
     """
     Execute sales optimization analysis
-    
+
     Provides:
     - Deal scoring and prioritization
     - Win probability analysis
@@ -282,33 +338,46 @@ async def analyze_sales_optimization(
     try:
         query.query_type = "sales_optimization"
         response = await cortex_service.execute_advanced_analytics(query)
-        
+
         # Broadcast update to connected clients
-        await manager.broadcast(json.dumps({
-            "type": "sales_optimization_update",
-            "timestamp": datetime.now().isoformat(),
-            "summary": {
-                "total_opportunities": response.results.get("total_opportunities", 0),
-                "total_pipeline_value": response.results.get("total_pipeline_value", 0),
-                "critical_deals": response.results.get("critical_deals", 0)
-            }
-        }))
-        
+        await manager.broadcast(
+            json.dumps(
+                {
+                    "type": "sales_optimization_update",
+                    "timestamp": datetime.now().isoformat(),
+                    "summary": {
+                        "total_opportunities": response.results.get(
+                            "total_opportunities", 0
+                        ),
+                        "total_pipeline_value": response.results.get(
+                            "total_pipeline_value", 0
+                        ),
+                        "critical_deals": response.results.get("critical_deals", 0),
+                    },
+                }
+            )
+        )
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error analyzing sales optimization: {e}")
-        raise HTTPException(status_code=500, detail=f"Sales optimization analysis failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Sales optimization analysis failed: {str(e)}"
+        )
+
 
 @router.post("/analytics/compliance-monitoring")
 async def analyze_compliance_monitoring(
     query: AdvancedAnalyticsQuery,
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> AnalyticsResponse:
     """
     Execute compliance monitoring analysis
-    
+
     Provides:
     - FDCPA compliance assessment
     - Risk factor identification
@@ -318,34 +387,48 @@ async def analyze_compliance_monitoring(
     try:
         query.query_type = "compliance_monitoring"
         response = await cortex_service.execute_advanced_analytics(query)
-        
+
         # Broadcast compliance update
-        await manager.broadcast(json.dumps({
-            "type": "compliance_monitoring_update",
-            "timestamp": datetime.now().isoformat(),
-            "summary": {
-                "compliance_score": response.results.get("compliance_score", 0),
-                "potential_violations": response.results.get("potential_violations", 0),
-                "total_communications": response.results.get("total_communications", 0)
-            }
-        }))
-        
+        await manager.broadcast(
+            json.dumps(
+                {
+                    "type": "compliance_monitoring_update",
+                    "timestamp": datetime.now().isoformat(),
+                    "summary": {
+                        "compliance_score": response.results.get("compliance_score", 0),
+                        "potential_violations": response.results.get(
+                            "potential_violations", 0
+                        ),
+                        "total_communications": response.results.get(
+                            "total_communications", 0
+                        ),
+                    },
+                }
+            )
+        )
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error analyzing compliance monitoring: {e}")
-        raise HTTPException(status_code=500, detail=f"Compliance monitoring analysis failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Compliance monitoring analysis failed: {str(e)}"
+        )
+
 
 # Real-time Monitoring Endpoints
+
 
 @router.get("/monitoring/compliance/alerts")
 async def get_compliance_alerts(
     token: str = Depends(verify_jwt_token),
-    cortex_service: EnhancedCortexAgentService = Depends(get_enhanced_cortex_agent_service)
+    cortex_service: EnhancedCortexAgentService = Depends(
+        get_enhanced_cortex_agent_service
+    ),
 ) -> Dict[str, Any]:
     """
     Get real-time compliance alerts
-    
+
     Returns:
     - Active compliance violations
     - Risk assessments
@@ -354,7 +437,7 @@ async def get_compliance_alerts(
     """
     try:
         alerts = await cortex_service.monitor_compliance_realtime()
-        
+
         return {
             "success": True,
             "alert_count": len(alerts),
@@ -363,23 +446,26 @@ async def get_compliance_alerts(
                 "critical_alerts": len([a for a in alerts if a.severity == "critical"]),
                 "high_alerts": len([a for a in alerts if a.severity == "high"]),
                 "medium_alerts": len([a for a in alerts if a.severity == "medium"]),
-                "low_alerts": len([a for a in alerts if a.severity == "low"])
+                "low_alerts": len([a for a in alerts if a.severity == "low"]),
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting compliance alerts: {e}")
-        raise HTTPException(status_code=500, detail=f"Compliance alerts retrieval failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Compliance alerts retrieval failed: {str(e)}"
+        )
+
 
 @router.get("/monitoring/system/health")
 async def get_system_health(
     token: str = Depends(verify_jwt_token),
-    estuary_manager = Depends(get_advanced_estuary_flow_manager)
+    estuary_manager=Depends(get_advanced_estuary_flow_manager),
 ) -> Dict[str, Any]:
     """
     Get comprehensive system health status
-    
+
     Monitors:
     - Estuary Flow performance
     - Snowflake warehouse utilization
@@ -389,56 +475,72 @@ async def get_system_health(
     try:
         # Get Estuary Flow performance
         flow_performance = await estuary_manager.monitor_flow_performance()
-        
+
         # Get system metrics
         system_health = {
             "overall_status": "healthy",
             "components": {
                 "estuary_flows": {
-                    "status": "healthy" if not flow_performance.get("alerts") else "warning",
-                    "performance": flow_performance
+                    "status": "healthy"
+                    if not flow_performance.get("alerts")
+                    else "warning",
+                    "performance": flow_performance,
                 },
                 "snowflake_warehouses": {
                     "status": "healthy",
-                    "active_warehouses": ["AI_COMPUTE_WH", "EMBEDDING_WH", "REALTIME_ANALYTICS_WH"]
+                    "active_warehouses": [
+                        "AI_COMPUTE_WH",
+                        "EMBEDDING_WH",
+                        "REALTIME_ANALYTICS_WH",
+                    ],
                 },
                 "ai_processing": {
                     "status": "healthy",
-                    "models_available": ["claude-3-5-sonnet", "gpt-4", "embedding-ada-002"]
-                }
+                    "models_available": [
+                        "claude-3-5-sonnet",
+                        "gpt-4",
+                        "embedding-ada-002",
+                    ],
+                },
             },
             "metrics": {
                 "data_latency": flow_performance.get("avg_latency", 0),
                 "throughput": flow_performance.get("throughput", 0),
-                "error_rate": flow_performance.get("error_rate", 0)
+                "error_rate": flow_performance.get("error_rate", 0),
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
         # Determine overall status
         if flow_performance.get("alerts"):
-            critical_alerts = [a for a in flow_performance["alerts"] if a.get("severity") == "critical"]
+            critical_alerts = [
+                a for a in flow_performance["alerts"] if a.get("severity") == "critical"
+            ]
             if critical_alerts:
                 system_health["overall_status"] = "critical"
             else:
                 system_health["overall_status"] = "warning"
-        
+
         return system_health
-        
+
     except Exception as e:
         logger.error(f"Error getting system health: {e}")
-        raise HTTPException(status_code=500, detail=f"System health check failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"System health check failed: {str(e)}"
+        )
+
 
 # Data Pipeline Management Endpoints
+
 
 @router.post("/pipeline/estuary/deploy")
 async def deploy_estuary_pipeline(
     token: str = Depends(verify_jwt_token),
-    estuary_manager = Depends(get_advanced_estuary_flow_manager)
+    estuary_manager=Depends(get_advanced_estuary_flow_manager),
 ) -> Dict[str, Any]:
     """
     Deploy advanced Estuary data pipeline
-    
+
     Deploys:
     - Multimodal data captures
     - AI-powered materializations
@@ -447,73 +549,86 @@ async def deploy_estuary_pipeline(
     """
     try:
         logger.info("Deploying advanced Estuary pipeline...")
-        
+
         # Deploy captures
         capture_results = await estuary_manager.setup_multimodal_captures()
-        
+
         # Deploy materializations
-        materialization_results = await estuary_manager.deploy_ai_powered_materializations()
-        
+        materialization_results = (
+            await estuary_manager.deploy_ai_powered_materializations()
+        )
+
         # Setup AI transforms
         transform_results = await estuary_manager.setup_ai_processing_transforms()
-        
+
         deployment_summary = {
             "success": True,
             "deployment_timestamp": datetime.now().isoformat(),
             "components_deployed": {
                 "captures": len(capture_results),
                 "materializations": len(materialization_results),
-                "transforms": len(transform_results)
+                "transforms": len(transform_results),
             },
             "results": {
                 "captures": capture_results,
                 "materializations": materialization_results,
-                "transforms": transform_results
-            }
+                "transforms": transform_results,
+            },
         }
-        
+
         # Broadcast deployment update
-        await manager.broadcast(json.dumps({
-            "type": "pipeline_deployment_complete",
-            "timestamp": datetime.now().isoformat(),
-            "summary": deployment_summary["components_deployed"]
-        }))
-        
+        await manager.broadcast(
+            json.dumps(
+                {
+                    "type": "pipeline_deployment_complete",
+                    "timestamp": datetime.now().isoformat(),
+                    "summary": deployment_summary["components_deployed"],
+                }
+            )
+        )
+
         return deployment_summary
-        
+
     except Exception as e:
         logger.error(f"Error deploying Estuary pipeline: {e}")
-        raise HTTPException(status_code=500, detail=f"Pipeline deployment failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Pipeline deployment failed: {str(e)}"
+        )
+
 
 @router.get("/pipeline/estuary/status")
 async def get_pipeline_status(
     token: str = Depends(verify_jwt_token),
-    estuary_manager = Depends(get_advanced_estuary_flow_manager)
+    estuary_manager=Depends(get_advanced_estuary_flow_manager),
 ) -> Dict[str, Any]:
     """
     Get current pipeline status and performance metrics
     """
     try:
         performance = await estuary_manager.monitor_flow_performance()
-        
+
         return {
             "success": True,
             "pipeline_status": "active",
             "performance_metrics": performance,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting pipeline status: {e}")
-        raise HTTPException(status_code=500, detail=f"Pipeline status check failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Pipeline status check failed: {str(e)}"
+        )
+
 
 # WebSocket Endpoints for Real-time Updates
+
 
 @router.websocket("/ws/realtime-analytics")
 async def websocket_realtime_analytics(websocket: WebSocket):
     """
     WebSocket endpoint for real-time analytics updates
-    
+
     Streams:
     - Customer intelligence updates
     - Sales optimization metrics
@@ -525,52 +640,58 @@ async def websocket_realtime_analytics(websocket: WebSocket):
         while True:
             # Send periodic updates
             await asyncio.sleep(30)  # Update every 30 seconds
-            
+
             # Get latest analytics
             cortex_service = await get_enhanced_cortex_agent_service()
-            
+
             # Send customer intelligence update
             try:
                 customer_query = AdvancedAnalyticsQuery(
-                    query_type="customer_intelligence",
-                    parameters={"limit": 10}
+                    query_type="customer_intelligence", parameters={"limit": 10}
                 )
-                customer_response = await cortex_service.execute_advanced_analytics(customer_query)
-                
+                customer_response = await cortex_service.execute_advanced_analytics(
+                    customer_query
+                )
+
                 await manager.send_personal_message(
-                    json.dumps({
-                        "type": "customer_intelligence",
-                        "data": customer_response.dict(),
-                        "timestamp": datetime.now().isoformat()
-                    }),
-                    websocket
+                    json.dumps(
+                        {
+                            "type": "customer_intelligence",
+                            "data": customer_response.dict(),
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    ),
+                    websocket,
                 )
             except Exception as e:
                 logger.error(f"Error sending customer intelligence update: {e}")
-            
+
             # Send compliance alerts
             try:
                 alerts = await cortex_service.monitor_compliance_realtime()
-                
+
                 await manager.send_personal_message(
-                    json.dumps({
-                        "type": "compliance_alerts",
-                        "data": [alert.dict() for alert in alerts],
-                        "timestamp": datetime.now().isoformat()
-                    }),
-                    websocket
+                    json.dumps(
+                        {
+                            "type": "compliance_alerts",
+                            "data": [alert.dict() for alert in alerts],
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    ),
+                    websocket,
                 )
             except Exception as e:
                 logger.error(f"Error sending compliance alerts: {e}")
-                
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
 
 @router.websocket("/ws/system-monitoring")
 async def websocket_system_monitoring(websocket: WebSocket):
     """
     WebSocket endpoint for system monitoring updates
-    
+
     Streams:
     - System health metrics
     - Performance indicators
@@ -581,41 +702,45 @@ async def websocket_system_monitoring(websocket: WebSocket):
     try:
         while True:
             await asyncio.sleep(60)  # Update every minute
-            
+
             # Get system health
             try:
                 estuary_manager = await get_advanced_estuary_flow_manager()
                 performance = await estuary_manager.monitor_flow_performance()
-                
+
                 await manager.send_personal_message(
-                    json.dumps({
-                        "type": "system_health",
-                        "data": performance,
-                        "timestamp": datetime.now().isoformat()
-                    }),
-                    websocket
+                    json.dumps(
+                        {
+                            "type": "system_health",
+                            "data": performance,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    ),
+                    websocket,
                 )
             except Exception as e:
                 logger.error(f"Error sending system monitoring update: {e}")
-                
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+
 # Advanced Configuration Endpoints
+
 
 @router.post("/config/optimize")
 async def optimize_system_configuration(
     token: str = Depends(verify_jwt_token),
-    estuary_manager = Depends(get_advanced_estuary_flow_manager)
+    estuary_manager=Depends(get_advanced_estuary_flow_manager),
 ) -> Dict[str, Any]:
     """
     AI-powered system configuration optimization
-    
+
     Analyzes current performance and provides optimization recommendations
     """
     try:
         optimizations = await estuary_manager.optimize_flow_configuration()
-        
+
         return {
             "success": True,
             "optimization_timestamp": datetime.now().isoformat(),
@@ -623,17 +748,20 @@ async def optimize_system_configuration(
             "estimated_improvements": {
                 "latency_reduction": "20-40%",
                 "cost_savings": "15-30%",
-                "throughput_increase": "25-50%"
-            }
+                "throughput_increase": "25-50%",
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error optimizing configuration: {e}")
-        raise HTTPException(status_code=500, detail=f"Configuration optimization failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Configuration optimization failed: {str(e)}"
+        )
+
 
 @router.get("/config/current")
 async def get_current_configuration(
-    token: str = Depends(verify_jwt_token)
+    token: str = Depends(verify_jwt_token),
 ) -> Dict[str, Any]:
     """
     Get current system configuration
@@ -644,26 +772,47 @@ async def get_current_configuration(
             "configuration": {
                 "snowflake": {
                     "database": "SOPHIA_AI_ADVANCED",
-                    "warehouses": ["AI_COMPUTE_WH", "EMBEDDING_WH", "REALTIME_ANALYTICS_WH"],
-                    "schemas": ["RAW_MULTIMODAL", "PROCESSED_AI", "REAL_TIME_ANALYTICS"]
+                    "warehouses": [
+                        "AI_COMPUTE_WH",
+                        "EMBEDDING_WH",
+                        "REALTIME_ANALYTICS_WH",
+                    ],
+                    "schemas": [
+                        "RAW_MULTIMODAL",
+                        "PROCESSED_AI",
+                        "REAL_TIME_ANALYTICS",
+                    ],
                 },
                 "estuary": {
-                    "captures": ["gong-multimodal", "slack-multimodal", "hubspot-multimodal"],
-                    "materializations": ["snowflake-multimodal-ai", "realtime-analytics"],
-                    "transforms": ["ai_sentiment_analysis", "ai_message_classification"]
+                    "captures": [
+                        "gong-multimodal",
+                        "slack-multimodal",
+                        "hubspot-multimodal",
+                    ],
+                    "materializations": [
+                        "snowflake-multimodal-ai",
+                        "realtime-analytics",
+                    ],
+                    "transforms": [
+                        "ai_sentiment_analysis",
+                        "ai_message_classification",
+                    ],
                 },
                 "ai_models": {
                     "primary": "claude-3-5-sonnet",
                     "embedding": "text-embedding-ada-002",
-                    "fallback": "gpt-4"
-                }
+                    "fallback": "gpt-4",
+                },
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting configuration: {e}")
-        raise HTTPException(status_code=500, detail=f"Configuration retrieval failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Configuration retrieval failed: {str(e)}"
+        )
+
 
 # Health check endpoint
 @router.get("/health")
@@ -673,6 +822,5 @@ async def health_check():
         "status": "healthy",
         "service": "enhanced-cortex-api",
         "version": "2.0.0",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
-

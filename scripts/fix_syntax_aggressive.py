@@ -74,7 +74,7 @@ def fix_file_aggressively(file_path: Path) -> Tuple[bool, List[str]]:
                 # If even number of quotes, likely not in a string
                 if single_quotes % 2 == 0 and double_quotes % 2 == 0:
                     line = line.rstrip().rstrip(".")
-                    fixes.append(f"Line {i+1}: Removed trailing period")
+                    fixes.append(f"Line {i + 1}: Removed trailing period")
 
             # Fix specific statement patterns
             # Pattern: variable = value.
@@ -108,12 +108,12 @@ def fix_file_aggressively(file_path: Path) -> Tuple[bool, List[str]]:
                     else:
                         fixed_lines.append(f'{indent}    """{rest}')
 
-                    fixes.append(f"Line {i+1}: Fixed docstring placement")
+                    fixes.append(f"Line {i + 1}: Fixed docstring placement")
                     i += 1
                     continue
 
             if line != original_line:
-                fixes.append(f"Line {i+1}: Fixed syntax")
+                fixes.append(f"Line {i + 1}: Fixed syntax")
 
             fixed_lines.append(line)
             i += 1
@@ -199,7 +199,7 @@ def main():
         print("\n📊 Summary:")
         print(f"Total error files: {total_errors}")
         print(f"Files fixed: {fixed_count}")
-        print(f"Success rate: {fixed_count/total_errors*100:.1f}%")
+        print(f"Success rate: {fixed_count / total_errors * 100:.1f}%")
 
         print("\n💡 Next steps:")
         print(

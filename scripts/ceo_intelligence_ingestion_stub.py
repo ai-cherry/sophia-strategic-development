@@ -21,36 +21,48 @@ from backend.services.kb_management_service import KBManagementService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class CEOIntelligenceConfig:
     """Configuration for CEO intelligence data ingestion"""
+
     secure_upload_path: str
     encryption_key: str
     authorized_users: List[str]
     retention_policy_days: int = 2555  # 7 years
     audit_level: str = "MAXIMUM"
 
+
 class CEOIntelligenceIngestor:
     """Secure ingestion of CEO intelligence data (CONFIDENTIAL ACCESS ONLY)"""
-    
+
     def __init__(self):
         self.config = None
         self.snowflake_conn = None
         self.cortex_service = None
         self.kb_service = None
-        
+
     async def initialize(self) -> None:
         """Initialize the CEO intelligence ingestor with maximum security"""
         try:
             # Get configuration from Pulumi ESC
             self.config = CEOIntelligenceConfig(
-                secure_upload_path=await get_config_value("ceo_intelligence_upload_path", "/secure/ceo_intelligence/"),
-                encryption_key=await get_config_value("ceo_intelligence_encryption_key"),
-                authorized_users=json.loads(await get_config_value("ceo_authorized_users", '["ceo@payready.com"]'))
+                secure_upload_path=await get_config_value(
+                    "ceo_intelligence_upload_path", "/secure/ceo_intelligence/"
+                ),
+                encryption_key=await get_config_value(
+                    "ceo_intelligence_encryption_key"
+                ),
+                authorized_users=json.loads(
+                    await get_config_value(
+                        "ceo_authorized_users", '["ceo@payready.com"]'
+                    )
+                ),
             )
-            
+
             # Initialize Snowflake connection with CEO role
             import snowflake.connector
+
             self.snowflake_conn = snowflake.connector.connect(
                 account=await get_config_value("snowflake_account"),
                 user=await get_config_value("snowflake_user"),
@@ -58,19 +70,21 @@ class CEOIntelligenceIngestor:
                 database="SOPHIA_AI_DEV",
                 schema="CEO_INTELLIGENCE",
                 warehouse="WH_SOPHIA_AI_PROCESSING",
-                role="CEO_ROLE"  # Highest privilege role
+                role="CEO_ROLE",  # Highest privilege role
             )
-            
+
             # Initialize Cortex service for AI processing
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             # Initialize KB service for document processing
             self.kb_service = KBManagementService()
             await self.kb_service.initialize()
-            
-            logger.info("✅ CEO Intelligence Ingestor initialized with maximum security")
-            
+
+            logger.info(
+                "✅ CEO Intelligence Ingestor initialized with maximum security"
+            )
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize CEO intelligence ingestor: {e}")
             raise
@@ -81,11 +95,11 @@ class CEOIntelligenceIngestor:
             if user_id not in self.config.authorized_users:
                 logger.warning(f"🚨 Unauthorized access attempt by user: {user_id}")
                 return False
-            
+
             # Log access attempt for audit
             await self._log_access_attempt(user_id, "AUTHORIZATION_CHECK", "SUCCESS")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to validate user authorization: {e}")
             await self._log_access_attempt(user_id, "AUTHORIZATION_CHECK", "ERROR")
@@ -95,21 +109,24 @@ class CEOIntelligenceIngestor:
         """Log access attempt for security audit"""
         try:
             cursor = self.snowflake_conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO CEO_INTELLIGENCE_AUDIT_LOG (
                     LOG_ID, USER_ID, ACTION, STATUS, TIMESTAMP, IP_ADDRESS, USER_AGENT
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s, %s
                 )
-            """, (
-                str(uuid.uuid4()),
-                user_id,
-                action,
-                status,
-                datetime.now(),
-                "127.0.0.1",  # Would get actual IP in production
-                "CEO_INTELLIGENCE_INGESTOR"
-            ))
+            """,
+                (
+                    str(uuid.uuid4()),
+                    user_id,
+                    action,
+                    status,
+                    datetime.now(),
+                    "127.0.0.1",  # Would get actual IP in production
+                    "CEO_INTELLIGENCE_INGESTOR",
+                ),
+            )
             cursor.close()
         except Exception as e:
             logger.error(f"❌ Failed to log access attempt: {e}")
@@ -120,43 +137,43 @@ class CEOIntelligenceIngestor:
             # Sample strategic plans data (would be replaced with secure document processing)
             sample_data = [
                 {
-                    'plan_id': 'STRATEGIC_PLAN_2025_001',
-                    'plan_title': 'Pay Ready 2025 Market Expansion Strategy',
-                    'executive_summary': 'Comprehensive strategy for expanding Pay Ready services into commercial real estate markets, targeting 40% revenue growth by Q4 2025.',
-                    'strategic_rationale': 'Market analysis indicates $12B opportunity in commercial PropTech payments. Our competitive advantages: established residential base, proven AI technology, regulatory compliance expertise.',
-                    'planning_period_start': datetime(2025, 1, 1),
-                    'planning_period_end': datetime(2025, 12, 31),
-                    'status': 'IN_EXECUTION',
-                    'priority_level': 'CRITICAL',
-                    'estimated_investment': 15000000.00,
-                    'projected_roi': 3.2,
-                    'risk_assessment': 'MEDIUM',
-                    'responsible_executive': 'CEO',
-                    'last_review_date': datetime.now() - timedelta(days=7),
-                    'next_review_date': datetime.now() + timedelta(days=30)
+                    "plan_id": "STRATEGIC_PLAN_2025_001",
+                    "plan_title": "Pay Ready 2025 Market Expansion Strategy",
+                    "executive_summary": "Comprehensive strategy for expanding Pay Ready services into commercial real estate markets, targeting 40% revenue growth by Q4 2025.",
+                    "strategic_rationale": "Market analysis indicates $12B opportunity in commercial PropTech payments. Our competitive advantages: established residential base, proven AI technology, regulatory compliance expertise.",
+                    "planning_period_start": datetime(2025, 1, 1),
+                    "planning_period_end": datetime(2025, 12, 31),
+                    "status": "IN_EXECUTION",
+                    "priority_level": "CRITICAL",
+                    "estimated_investment": 15000000.00,
+                    "projected_roi": 3.2,
+                    "risk_assessment": "MEDIUM",
+                    "responsible_executive": "CEO",
+                    "last_review_date": datetime.now() - timedelta(days=7),
+                    "next_review_date": datetime.now() + timedelta(days=30),
                 },
                 {
-                    'plan_id': 'STRATEGIC_PLAN_2025_002',
-                    'plan_title': 'AI-First Product Development Initiative',
-                    'executive_summary': 'Transformation of Pay Ready platform to AI-first architecture, implementing predictive analytics for payment optimization and tenant experience enhancement.',
-                    'strategic_rationale': 'AI differentiation critical for competitive moat. Investment in Sophia AI platform positions us as technology leader in PropTech payments space.',
-                    'planning_period_start': datetime(2025, 1, 1),
-                    'planning_period_end': datetime(2026, 6, 30),
-                    'status': 'PLANNING',
-                    'priority_level': 'HIGH',
-                    'estimated_investment': 8500000.00,
-                    'projected_roi': 2.8,
-                    'risk_assessment': 'HIGH',
-                    'responsible_executive': 'CTO',
-                    'last_review_date': datetime.now() - timedelta(days=14),
-                    'next_review_date': datetime.now() + timedelta(days=21)
-                }
+                    "plan_id": "STRATEGIC_PLAN_2025_002",
+                    "plan_title": "AI-First Product Development Initiative",
+                    "executive_summary": "Transformation of Pay Ready platform to AI-first architecture, implementing predictive analytics for payment optimization and tenant experience enhancement.",
+                    "strategic_rationale": "AI differentiation critical for competitive moat. Investment in Sophia AI platform positions us as technology leader in PropTech payments space.",
+                    "planning_period_start": datetime(2025, 1, 1),
+                    "planning_period_end": datetime(2026, 6, 30),
+                    "status": "PLANNING",
+                    "priority_level": "HIGH",
+                    "estimated_investment": 8500000.00,
+                    "projected_roi": 2.8,
+                    "risk_assessment": "HIGH",
+                    "responsible_executive": "CTO",
+                    "last_review_date": datetime.now() - timedelta(days=14),
+                    "next_review_date": datetime.now() + timedelta(days=21),
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
             logger.info(f"📊 Extracted {len(df)} strategic plans (CONFIDENTIAL)")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract strategic plans data: {e}")
             return pd.DataFrame()
@@ -167,39 +184,39 @@ class CEOIntelligenceIngestor:
             # Sample board materials data
             sample_data = [
                 {
-                    'material_id': 'BOARD_MAT_2024_Q4_001',
-                    'material_title': 'Q4 2024 Board Package - Financial Performance & Strategic Updates',
-                    'material_type': 'QUARTERLY_BOARD_PACKAGE',
-                    'material_content': 'Q4 2024 financial results: Revenue $24.5M (+32% YoY), Gross Margin 78%, Net Income $3.2M. Key achievements: Sophia AI platform launch, 15% customer acquisition growth, successful Series B funding round.',
-                    'board_meeting_date': datetime(2024, 12, 15),
-                    'confidentiality_level': 'BOARD_CONFIDENTIAL',
-                    'distribution_list': 'BOARD_MEMBERS_ONLY',
-                    'prepared_by': 'CEO',
-                    'reviewed_by': 'CFO',
-                    'approval_status': 'APPROVED',
-                    'material_version': '1.2',
-                    'retention_until': datetime(2031, 12, 15)
+                    "material_id": "BOARD_MAT_2024_Q4_001",
+                    "material_title": "Q4 2024 Board Package - Financial Performance & Strategic Updates",
+                    "material_type": "QUARTERLY_BOARD_PACKAGE",
+                    "material_content": "Q4 2024 financial results: Revenue $24.5M (+32% YoY), Gross Margin 78%, Net Income $3.2M. Key achievements: Sophia AI platform launch, 15% customer acquisition growth, successful Series B funding round.",
+                    "board_meeting_date": datetime(2024, 12, 15),
+                    "confidentiality_level": "BOARD_CONFIDENTIAL",
+                    "distribution_list": "BOARD_MEMBERS_ONLY",
+                    "prepared_by": "CEO",
+                    "reviewed_by": "CFO",
+                    "approval_status": "APPROVED",
+                    "material_version": "1.2",
+                    "retention_until": datetime(2031, 12, 15),
                 },
                 {
-                    'material_id': 'BOARD_MAT_2024_STRATEGIC_001',
-                    'material_title': 'Strategic Acquisition Analysis - PropTech Targets',
-                    'material_type': 'STRATEGIC_ANALYSIS',
-                    'material_content': 'Analysis of 5 strategic acquisition targets in PropTech space. Top candidate: TenantTech Solutions ($45M valuation, 200% revenue growth, complementary AI capabilities). Recommendation: Proceed with due diligence.',
-                    'board_meeting_date': datetime(2024, 11, 20),
-                    'confidentiality_level': 'TOP_SECRET',
-                    'distribution_list': 'BOARD_MEMBERS_ONLY',
-                    'prepared_by': 'CEO',
-                    'reviewed_by': 'BOARD_CHAIR',
-                    'approval_status': 'APPROVED',
-                    'material_version': '2.0',
-                    'retention_until': datetime(2031, 11, 20)
-                }
+                    "material_id": "BOARD_MAT_2024_STRATEGIC_001",
+                    "material_title": "Strategic Acquisition Analysis - PropTech Targets",
+                    "material_type": "STRATEGIC_ANALYSIS",
+                    "material_content": "Analysis of 5 strategic acquisition targets in PropTech space. Top candidate: TenantTech Solutions ($45M valuation, 200% revenue growth, complementary AI capabilities). Recommendation: Proceed with due diligence.",
+                    "board_meeting_date": datetime(2024, 11, 20),
+                    "confidentiality_level": "TOP_SECRET",
+                    "distribution_list": "BOARD_MEMBERS_ONLY",
+                    "prepared_by": "CEO",
+                    "reviewed_by": "BOARD_CHAIR",
+                    "approval_status": "APPROVED",
+                    "material_version": "2.0",
+                    "retention_until": datetime(2031, 11, 20),
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
             logger.info(f"📊 Extracted {len(df)} board materials (CONFIDENTIAL)")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract board materials data: {e}")
             return pd.DataFrame()
@@ -210,37 +227,39 @@ class CEOIntelligenceIngestor:
             # Sample competitive intelligence data
             sample_data = [
                 {
-                    'intelligence_id': 'COMP_INTEL_2024_001',
-                    'intelligence_title': 'AppFolio Strategic Vulnerabilities Analysis',
-                    'detailed_analysis': 'Deep analysis of AppFolio competitive position reveals key vulnerabilities: 1) Legacy architecture limiting AI integration speed, 2) High customer acquisition costs in commercial segment, 3) Regulatory compliance gaps in emerging markets. Strategic recommendation: Accelerate AI differentiation while they struggle with technical debt.',
-                    'strategic_implications': 'Window of opportunity for 18-24 months to establish AI leadership before AppFolio completes platform modernization. Recommend aggressive R&D investment and strategic partnerships.',
-                    'collection_date': datetime.now() - timedelta(days=5),
-                    'intelligence_source': 'INDUSTRY_ANALYSIS',
-                    'confidence_level': 'HIGH',
-                    'competitive_impact': 'CRITICAL',
-                    'recommended_actions': 'Accelerate Sophia AI roadmap, consider defensive patent strategy, evaluate acquisition of AI talent from competitors',
-                    'next_review_date': datetime.now() + timedelta(days=30),
-                    'responsible_analyst': 'STRATEGIC_INTELLIGENCE_TEAM'
+                    "intelligence_id": "COMP_INTEL_2024_001",
+                    "intelligence_title": "AppFolio Strategic Vulnerabilities Analysis",
+                    "detailed_analysis": "Deep analysis of AppFolio competitive position reveals key vulnerabilities: 1) Legacy architecture limiting AI integration speed, 2) High customer acquisition costs in commercial segment, 3) Regulatory compliance gaps in emerging markets. Strategic recommendation: Accelerate AI differentiation while they struggle with technical debt.",
+                    "strategic_implications": "Window of opportunity for 18-24 months to establish AI leadership before AppFolio completes platform modernization. Recommend aggressive R&D investment and strategic partnerships.",
+                    "collection_date": datetime.now() - timedelta(days=5),
+                    "intelligence_source": "INDUSTRY_ANALYSIS",
+                    "confidence_level": "HIGH",
+                    "competitive_impact": "CRITICAL",
+                    "recommended_actions": "Accelerate Sophia AI roadmap, consider defensive patent strategy, evaluate acquisition of AI talent from competitors",
+                    "next_review_date": datetime.now() + timedelta(days=30),
+                    "responsible_analyst": "STRATEGIC_INTELLIGENCE_TEAM",
                 },
                 {
-                    'intelligence_id': 'COMP_INTEL_2024_002',
-                    'intelligence_title': 'Buildium Market Expansion Intelligence',
-                    'detailed_analysis': 'Buildium planning aggressive expansion into payment processing space, targeting our core market. Intelligence indicates $50M investment in payment infrastructure, partnerships with major processors. Timeline: Q2 2025 launch.',
-                    'strategic_implications': 'Direct competitive threat to core business. Need to strengthen customer relationships and accelerate product differentiation before Buildium enters market.',
-                    'collection_date': datetime.now() - timedelta(days=3),
-                    'intelligence_source': 'MARKET_INTELLIGENCE',
-                    'confidence_level': 'MEDIUM',
-                    'competitive_impact': 'HIGH',
-                    'recommended_actions': 'Strengthen customer retention programs, accelerate unique AI features, consider strategic partnerships to block Buildium access',
-                    'next_review_date': datetime.now() + timedelta(days=14),
-                    'responsible_analyst': 'COMPETITIVE_INTELLIGENCE_TEAM'
-                }
+                    "intelligence_id": "COMP_INTEL_2024_002",
+                    "intelligence_title": "Buildium Market Expansion Intelligence",
+                    "detailed_analysis": "Buildium planning aggressive expansion into payment processing space, targeting our core market. Intelligence indicates $50M investment in payment infrastructure, partnerships with major processors. Timeline: Q2 2025 launch.",
+                    "strategic_implications": "Direct competitive threat to core business. Need to strengthen customer relationships and accelerate product differentiation before Buildium enters market.",
+                    "collection_date": datetime.now() - timedelta(days=3),
+                    "intelligence_source": "MARKET_INTELLIGENCE",
+                    "confidence_level": "MEDIUM",
+                    "competitive_impact": "HIGH",
+                    "recommended_actions": "Strengthen customer retention programs, accelerate unique AI features, consider strategic partnerships to block Buildium access",
+                    "next_review_date": datetime.now() + timedelta(days=14),
+                    "responsible_analyst": "COMPETITIVE_INTELLIGENCE_TEAM",
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
-            logger.info(f"📊 Extracted {len(df)} competitive intelligence reports (CONFIDENTIAL)")
+            logger.info(
+                f"📊 Extracted {len(df)} competitive intelligence reports (CONFIDENTIAL)"
+            )
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract competitive intelligence data: {e}")
             return pd.DataFrame()
@@ -251,24 +270,27 @@ class CEOIntelligenceIngestor:
             if df.empty:
                 logger.info("No strategic plans data to load")
                 return 0
-            
+
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
                 raise PermissionError("Unauthorized access to CEO intelligence data")
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_STRATEGIC_PLANS LIKE STRATEGIC_PLANS
             """)
-            
+
             # Insert data into temporary table with encryption
             for _, row in df.iterrows():
                 # Hash sensitive content for audit trail
-                content_hash = hashlib.sha256(row['strategic_rationale'].encode()).hexdigest()
-                
-                cursor.execute("""
+                content_hash = hashlib.sha256(
+                    row["strategic_rationale"].encode()
+                ).hexdigest()
+
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_STRATEGIC_PLANS (
                         PLAN_ID, PLAN_TITLE, EXECUTIVE_SUMMARY, STRATEGIC_RATIONALE,
                         PLANNING_PERIOD_START, PLANNING_PERIOD_END, STATUS, PRIORITY_LEVEL,
@@ -278,15 +300,27 @@ class CEOIntelligenceIngestor:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    row['plan_id'], row['plan_title'], row['executive_summary'],
-                    row['strategic_rationale'], row['planning_period_start'],
-                    row['planning_period_end'], row['status'], row['priority_level'],
-                    row['estimated_investment'], row['projected_roi'], row['risk_assessment'],
-                    row['responsible_executive'], row['last_review_date'],
-                    row['next_review_date'], user_id, content_hash
-                ))
-            
+                """,
+                    (
+                        row["plan_id"],
+                        row["plan_title"],
+                        row["executive_summary"],
+                        row["strategic_rationale"],
+                        row["planning_period_start"],
+                        row["planning_period_end"],
+                        row["status"],
+                        row["priority_level"],
+                        row["estimated_investment"],
+                        row["projected_roi"],
+                        row["risk_assessment"],
+                        row["responsible_executive"],
+                        row["last_review_date"],
+                        row["next_review_date"],
+                        user_id,
+                        content_hash,
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO STRATEGIC_PLANS AS target
@@ -321,16 +355,18 @@ class CEOIntelligenceIngestor:
                     source.NEXT_REVIEW_DATE, source.CREATED_BY, source.CONTENT_HASH
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
+
             # Log successful operation
             await self._log_access_attempt(user_id, "STRATEGIC_PLANS_LOAD", "SUCCESS")
-            
-            logger.info(f"✅ Loaded {rows_affected} strategic plans into Snowflake (CONFIDENTIAL)")
+
+            logger.info(
+                f"✅ Loaded {rows_affected} strategic plans into Snowflake (CONFIDENTIAL)"
+            )
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load strategic plans: {e}")
             await self._log_access_attempt(user_id, "STRATEGIC_PLANS_LOAD", "ERROR")
@@ -342,9 +378,9 @@ class CEOIntelligenceIngestor:
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
                 raise PermissionError("Unauthorized access to CEO intelligence data")
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Generate embeddings for strategic plans
             cursor.execute("""
                 UPDATE STRATEGIC_PLANS
@@ -365,9 +401,9 @@ class CEOIntelligenceIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             strategic_plans_updated = cursor.rowcount
-            
+
             # Generate embeddings for board materials
             cursor.execute("""
                 UPDATE BOARD_MATERIALS
@@ -387,9 +423,9 @@ class CEOIntelligenceIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             board_materials_updated = cursor.rowcount
-            
+
             # Generate embeddings for competitive intelligence
             cursor.execute("""
                 UPDATE COMPETITIVE_INTELLIGENCE
@@ -409,21 +445,31 @@ class CEOIntelligenceIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             competitive_intel_updated = cursor.rowcount
             cursor.close()
-            
-            total_updated = strategic_plans_updated + board_materials_updated + competitive_intel_updated
-            
+
+            total_updated = (
+                strategic_plans_updated
+                + board_materials_updated
+                + competitive_intel_updated
+            )
+
             # Log successful operation
-            await self._log_access_attempt(user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "SUCCESS")
-            
-            logger.info(f"✅ Generated embeddings for {total_updated} CEO intelligence records (CONFIDENTIAL)")
+            await self._log_access_attempt(
+                user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "SUCCESS"
+            )
+
+            logger.info(
+                f"✅ Generated embeddings for {total_updated} CEO intelligence records (CONFIDENTIAL)"
+            )
             return total_updated
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate CEO intelligence AI embeddings: {e}")
-            await self._log_access_attempt(user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "ERROR")
+            await self._log_access_attempt(
+                user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "ERROR"
+            )
             return 0
 
     async def run_secure_ceo_intelligence_sync(self, user_id: str) -> Dict[str, int]:
@@ -432,35 +478,45 @@ class CEOIntelligenceIngestor:
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
                 raise PermissionError("Unauthorized access to CEO intelligence data")
-            
+
             logger.info("🚀 Starting CEO Intelligence secure sync (CONFIDENTIAL)")
-            
+
             results = {}
-            
+
             # Extract and load strategic plans
             strategic_plans_df = await self.extract_strategic_plans_data()
-            results['strategic_plans'] = await self.load_strategic_plans(strategic_plans_df, user_id)
-            
+            results["strategic_plans"] = await self.load_strategic_plans(
+                strategic_plans_df, user_id
+            )
+
             # Extract and load board materials
             await self.extract_board_materials_data()
             # results['board_materials'] = await self.load_board_materials(board_materials_df, user_id)
-            
+
             # Extract and load competitive intelligence
             await self.extract_competitive_intelligence_data()
             # results['competitive_intelligence'] = await self.load_competitive_intelligence(competitive_intel_df, user_id)
-            
+
             # Generate AI embeddings
-            results['ai_embeddings'] = await self.generate_ceo_intelligence_ai_embeddings(user_id)
-            
+            results[
+                "ai_embeddings"
+            ] = await self.generate_ceo_intelligence_ai_embeddings(user_id)
+
             # Log successful operation
-            await self._log_access_attempt(user_id, "CEO_INTELLIGENCE_FULL_SYNC", "SUCCESS")
-            
-            logger.info(f"✅ CEO Intelligence secure sync completed: {results} (CONFIDENTIAL)")
+            await self._log_access_attempt(
+                user_id, "CEO_INTELLIGENCE_FULL_SYNC", "SUCCESS"
+            )
+
+            logger.info(
+                f"✅ CEO Intelligence secure sync completed: {results} (CONFIDENTIAL)"
+            )
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ CEO Intelligence secure sync failed: {e}")
-            await self._log_access_attempt(user_id, "CEO_INTELLIGENCE_FULL_SYNC", "ERROR")
+            await self._log_access_attempt(
+                user_id, "CEO_INTELLIGENCE_FULL_SYNC", "ERROR"
+            )
             raise
 
     async def close(self) -> None:
@@ -476,22 +532,23 @@ class CEOIntelligenceIngestor:
         except Exception as e:
             logger.error(f"❌ Error closing connections: {e}")
 
+
 async def main():
     """Main execution function (requires CEO authorization)"""
     ingestor = CEOIntelligenceIngestor()
-    
+
     try:
         await ingestor.initialize()
-        
+
         # Simulate CEO user access
         ceo_user_id = "ceo@payready.com"
-        
+
         # Run secure sync
         results = await ingestor.run_secure_ceo_intelligence_sync(ceo_user_id)
-        
+
         print("✅ CEO Intelligence ingestion completed successfully! (CONFIDENTIAL)")
         print(f"📊 Results: {results}")
-        
+
     except PermissionError as e:
         print(f"🚨 ACCESS DENIED: {e}")
         return 1
@@ -500,8 +557,9 @@ async def main():
         return 1
     finally:
         await ingestor.close()
-    
+
     return 0
 
+
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

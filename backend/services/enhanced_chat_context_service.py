@@ -72,9 +72,8 @@ class EnhancedChatContextService:
         self.connection = None
         self.context_window = ContextWindow()
         
+    @performance_monitor.track_performance
     async def connect(self):
-    @performance_monitor.track_performance
-    @performance_monitor.track_performance
         """Connect to Snowflake"""
         try:
             self.connection = await connection_manager.get_connection()

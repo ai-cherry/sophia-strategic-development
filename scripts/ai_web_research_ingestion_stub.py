@@ -18,23 +18,26 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class WebResearchConfig:
     """Configuration for web research data ingestion"""
+
     research_sources: List[str]
     api_keys: Dict[str, str]
     research_topics: List[str]
     update_frequency_hours: int = 24
 
+
 class AIWebResearchIngestor:
     """Ingests web research data into AI_WEB_RESEARCH schema"""
-    
+
     def __init__(self):
         self.config = None
         self.snowflake_conn = None
         self.cortex_service = None
         self.session = None
-        
+
     async def initialize(self) -> None:
         """Initialize the AI web research ingestor"""
         try:
@@ -42,30 +45,33 @@ class AIWebResearchIngestor:
             self.config = WebResearchConfig(
                 research_sources=[
                     "news_api",
-                    "google_trends", 
+                    "google_trends",
                     "industry_reports",
                     "competitor_websites",
-                    "patent_databases"
+                    "patent_databases",
                 ],
                 api_keys={
                     "news_api": await get_config_value("news_api_key", ""),
-                    "google_trends": await get_config_value("google_trends_api_key", ""),
-                    "crunchbase": await get_config_value("crunchbase_api_key", "")
+                    "google_trends": await get_config_value(
+                        "google_trends_api_key", ""
+                    ),
+                    "crunchbase": await get_config_value("crunchbase_api_key", ""),
                 },
                 research_topics=[
                     "fintech trends",
                     "property management technology",
                     "payment processing innovations",
                     "real estate technology",
-                    "financial services automation"
-                ]
+                    "financial services automation",
+                ],
             )
-            
+
             # Initialize HTTP session
             self.session = aiohttp.ClientSession()
-            
+
             # Initialize Snowflake connection
             import snowflake.connector
+
             self.snowflake_conn = snowflake.connector.connect(
                 account=await get_config_value("snowflake_account"),
                 user=await get_config_value("snowflake_user"),
@@ -73,15 +79,15 @@ class AIWebResearchIngestor:
                 database="SOPHIA_AI_DEV",
                 schema="AI_WEB_RESEARCH",
                 warehouse="WH_SOPHIA_AI_PROCESSING",
-                role="ACCOUNTADMIN"
+                role="ACCOUNTADMIN",
             )
-            
+
             # Initialize Cortex service for AI processing
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             logger.info("✅ AI Web Research Ingestor initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize AI web research ingestor: {e}")
             raise
@@ -92,37 +98,37 @@ class AIWebResearchIngestor:
             # Sample industry trends data (would be replaced with actual web scraping/API calls)
             sample_data = [
                 {
-                    'trend_id': 'TREND_001',
-                    'trend_title': 'AI-Powered Property Management Platforms',
-                    'trend_description': 'Integration of artificial intelligence in property management systems for automated maintenance scheduling, tenant screening, and rent optimization.',
-                    'key_insights': 'Market growing at 15% CAGR, major players include Buildium, AppFolio integrating AI features',
-                    'source_url': 'https://example.com/ai-property-management-trends',
-                    'publication_date': datetime.now() - timedelta(days=5),
-                    'relevance_score': 0.92,
-                    'business_impact_score': 0.85,
-                    'trend_category': 'TECHNOLOGY',
-                    'geographic_scope': 'NORTH_AMERICA',
-                    'industry_sector': 'PROPTECH'
+                    "trend_id": "TREND_001",
+                    "trend_title": "AI-Powered Property Management Platforms",
+                    "trend_description": "Integration of artificial intelligence in property management systems for automated maintenance scheduling, tenant screening, and rent optimization.",
+                    "key_insights": "Market growing at 15% CAGR, major players include Buildium, AppFolio integrating AI features",
+                    "source_url": "https://example.com/ai-property-management-trends",
+                    "publication_date": datetime.now() - timedelta(days=5),
+                    "relevance_score": 0.92,
+                    "business_impact_score": 0.85,
+                    "trend_category": "TECHNOLOGY",
+                    "geographic_scope": "NORTH_AMERICA",
+                    "industry_sector": "PROPTECH",
                 },
                 {
-                    'trend_id': 'TREND_002',
-                    'trend_title': 'Embedded Finance in Real Estate',
-                    'trend_description': 'Integration of financial services directly into real estate platforms, including lending, insurance, and payment processing.',
-                    'key_insights': 'Embedded finance market in real estate expected to reach $2.4B by 2025, driven by tenant demand for seamless financial experiences',
-                    'source_url': 'https://example.com/embedded-finance-real-estate',
-                    'publication_date': datetime.now() - timedelta(days=3),
-                    'relevance_score': 0.88,
-                    'business_impact_score': 0.91,
-                    'trend_category': 'FINTECH',
-                    'geographic_scope': 'GLOBAL',
-                    'industry_sector': 'FINANCIAL_SERVICES'
-                }
+                    "trend_id": "TREND_002",
+                    "trend_title": "Embedded Finance in Real Estate",
+                    "trend_description": "Integration of financial services directly into real estate platforms, including lending, insurance, and payment processing.",
+                    "key_insights": "Embedded finance market in real estate expected to reach $2.4B by 2025, driven by tenant demand for seamless financial experiences",
+                    "source_url": "https://example.com/embedded-finance-real-estate",
+                    "publication_date": datetime.now() - timedelta(days=3),
+                    "relevance_score": 0.88,
+                    "business_impact_score": 0.91,
+                    "trend_category": "FINTECH",
+                    "geographic_scope": "GLOBAL",
+                    "industry_sector": "FINANCIAL_SERVICES",
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
             logger.info(f"📊 Extracted {len(df)} industry trends")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract industry trends: {e}")
             return pd.DataFrame()
@@ -133,37 +139,37 @@ class AIWebResearchIngestor:
             # Sample competitor intelligence data
             sample_data = [
                 {
-                    'intelligence_id': 'INTEL_001',
-                    'competitor_name': 'AppFolio Inc.',
-                    'intelligence_summary': 'AppFolio announced new AI-powered maintenance prediction features and expanded into commercial property management',
-                    'detailed_analysis': 'AppFolio Q4 2024 earnings showed 23% revenue growth, driven by new AI features. Key competitive advantages: established customer base of 7M+ units, strong integration ecosystem. Threats: expanding into our target market segments.',
-                    'collection_date': datetime.now() - timedelta(days=2),
-                    'source_type': 'EARNINGS_REPORT',
-                    'threat_level': 'MEDIUM',
-                    'opportunity_level': 'LOW',
-                    'strategic_implications': 'Monitor their AI feature rollout, consider partnership opportunities in non-competing segments',
-                    'competitive_moat_impact': 0.65,
-                    'market_share_impact': 0.45
+                    "intelligence_id": "INTEL_001",
+                    "competitor_name": "AppFolio Inc.",
+                    "intelligence_summary": "AppFolio announced new AI-powered maintenance prediction features and expanded into commercial property management",
+                    "detailed_analysis": "AppFolio Q4 2024 earnings showed 23% revenue growth, driven by new AI features. Key competitive advantages: established customer base of 7M+ units, strong integration ecosystem. Threats: expanding into our target market segments.",
+                    "collection_date": datetime.now() - timedelta(days=2),
+                    "source_type": "EARNINGS_REPORT",
+                    "threat_level": "MEDIUM",
+                    "opportunity_level": "LOW",
+                    "strategic_implications": "Monitor their AI feature rollout, consider partnership opportunities in non-competing segments",
+                    "competitive_moat_impact": 0.65,
+                    "market_share_impact": 0.45,
                 },
                 {
-                    'intelligence_id': 'INTEL_002',
-                    'competitor_name': 'Buildium LLC',
-                    'intelligence_summary': 'Buildium acquired PropTech startup focusing on tenant communication automation, signaling expansion into AI-driven tenant experience',
-                    'detailed_analysis': 'Acquisition of TenantBot for $45M indicates Buildium commitment to AI-powered tenant services. This could threaten our tenant communication differentiators. Opportunity: they may struggle with integration complexity.',
-                    'collection_date': datetime.now() - timedelta(days=1),
-                    'source_type': 'ACQUISITION_NEWS',
-                    'threat_level': 'HIGH',
-                    'opportunity_level': 'MEDIUM',
-                    'strategic_implications': 'Accelerate our tenant AI roadmap, consider defensive acquisitions in communication automation space',
-                    'competitive_moat_impact': 0.78,
-                    'market_share_impact': 0.62
-                }
+                    "intelligence_id": "INTEL_002",
+                    "competitor_name": "Buildium LLC",
+                    "intelligence_summary": "Buildium acquired PropTech startup focusing on tenant communication automation, signaling expansion into AI-driven tenant experience",
+                    "detailed_analysis": "Acquisition of TenantBot for $45M indicates Buildium commitment to AI-powered tenant services. This could threaten our tenant communication differentiators. Opportunity: they may struggle with integration complexity.",
+                    "collection_date": datetime.now() - timedelta(days=1),
+                    "source_type": "ACQUISITION_NEWS",
+                    "threat_level": "HIGH",
+                    "opportunity_level": "MEDIUM",
+                    "strategic_implications": "Accelerate our tenant AI roadmap, consider defensive acquisitions in communication automation space",
+                    "competitive_moat_impact": 0.78,
+                    "market_share_impact": 0.62,
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
             logger.info(f"📊 Extracted {len(df)} competitor intelligence reports")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract competitor intelligence: {e}")
             return pd.DataFrame()
@@ -174,37 +180,37 @@ class AIWebResearchIngestor:
             # Sample partnership opportunities data
             sample_data = [
                 {
-                    'opportunity_id': 'PARTNER_001',
-                    'partner_name': 'Stripe Financial Connections',
-                    'opportunity_description': 'Integration with Stripe Financial Connections API for enhanced tenant financial verification and automated rent collection',
-                    'partnership_type': 'TECHNOLOGY_INTEGRATION',
-                    'strategic_fit_score': 0.89,
-                    'potential_value': 2500000.00,
-                    'implementation_complexity': 'MEDIUM',
-                    'timeline_estimate': '6-9 months',
-                    'key_benefits': 'Improved tenant screening accuracy, reduced payment failures, enhanced financial insights',
-                    'potential_risks': 'Integration complexity, regulatory compliance requirements',
-                    'next_steps': 'Schedule technical discovery call, review API documentation, assess compliance requirements'
+                    "opportunity_id": "PARTNER_001",
+                    "partner_name": "Stripe Financial Connections",
+                    "opportunity_description": "Integration with Stripe Financial Connections API for enhanced tenant financial verification and automated rent collection",
+                    "partnership_type": "TECHNOLOGY_INTEGRATION",
+                    "strategic_fit_score": 0.89,
+                    "potential_value": 2500000.00,
+                    "implementation_complexity": "MEDIUM",
+                    "timeline_estimate": "6-9 months",
+                    "key_benefits": "Improved tenant screening accuracy, reduced payment failures, enhanced financial insights",
+                    "potential_risks": "Integration complexity, regulatory compliance requirements",
+                    "next_steps": "Schedule technical discovery call, review API documentation, assess compliance requirements",
                 },
                 {
-                    'opportunity_id': 'PARTNER_002',
-                    'partner_name': 'Plaid Open Banking',
-                    'opportunity_description': 'Partnership with Plaid for open banking integration, enabling real-time tenant financial health monitoring',
-                    'partnership_type': 'DATA_PARTNERSHIP',
-                    'strategic_fit_score': 0.82,
-                    'potential_value': 1800000.00,
-                    'implementation_complexity': 'HIGH',
-                    'timeline_estimate': '9-12 months',
-                    'key_benefits': 'Real-time financial insights, predictive rent payment modeling, enhanced tenant experience',
-                    'potential_risks': 'Data privacy concerns, regulatory compliance, technical integration challenges',
-                    'next_steps': 'Legal review of data sharing agreements, technical feasibility assessment'
-                }
+                    "opportunity_id": "PARTNER_002",
+                    "partner_name": "Plaid Open Banking",
+                    "opportunity_description": "Partnership with Plaid for open banking integration, enabling real-time tenant financial health monitoring",
+                    "partnership_type": "DATA_PARTNERSHIP",
+                    "strategic_fit_score": 0.82,
+                    "potential_value": 1800000.00,
+                    "implementation_complexity": "HIGH",
+                    "timeline_estimate": "9-12 months",
+                    "key_benefits": "Real-time financial insights, predictive rent payment modeling, enhanced tenant experience",
+                    "potential_risks": "Data privacy concerns, regulatory compliance, technical integration challenges",
+                    "next_steps": "Legal review of data sharing agreements, technical feasibility assessment",
+                },
             ]
-            
+
             df = pd.DataFrame(sample_data)
             logger.info(f"📊 Extracted {len(df)} partnership opportunities")
             return df
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to extract partnership opportunities: {e}")
             return pd.DataFrame()
@@ -215,17 +221,18 @@ class AIWebResearchIngestor:
             if df.empty:
                 logger.info("No industry trends data to load")
                 return 0
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_INDUSTRY_TRENDS LIKE INDUSTRY_TRENDS
             """)
-            
+
             # Insert data into temporary table
             for _, row in df.iterrows():
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_INDUSTRY_TRENDS (
                         TREND_ID, TREND_TITLE, TREND_DESCRIPTION, KEY_INSIGHTS, SOURCE_URL,
                         PUBLICATION_DATE, RELEVANCE_SCORE, BUSINESS_IMPACT_SCORE,
@@ -233,13 +240,22 @@ class AIWebResearchIngestor:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    row['trend_id'], row['trend_title'], row['trend_description'],
-                    row['key_insights'], row['source_url'], row['publication_date'],
-                    row['relevance_score'], row['business_impact_score'],
-                    row['trend_category'], row['geographic_scope'], row['industry_sector']
-                ))
-            
+                """,
+                    (
+                        row["trend_id"],
+                        row["trend_title"],
+                        row["trend_description"],
+                        row["key_insights"],
+                        row["source_url"],
+                        row["publication_date"],
+                        row["relevance_score"],
+                        row["business_impact_score"],
+                        row["trend_category"],
+                        row["geographic_scope"],
+                        row["industry_sector"],
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO INDUSTRY_TRENDS AS target
@@ -263,13 +279,13 @@ class AIWebResearchIngestor:
                     source.TREND_CATEGORY, source.GEOGRAPHIC_SCOPE, source.INDUSTRY_SECTOR
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
+
             logger.info(f"✅ Loaded {rows_affected} industry trends into Snowflake")
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load industry trends: {e}")
             return 0
@@ -280,17 +296,18 @@ class AIWebResearchIngestor:
             if df.empty:
                 logger.info("No competitor intelligence data to load")
                 return 0
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_COMPETITOR_INTELLIGENCE LIKE COMPETITOR_INTELLIGENCE
             """)
-            
+
             # Insert data into temporary table
             for _, row in df.iterrows():
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_COMPETITOR_INTELLIGENCE (
                         INTELLIGENCE_ID, COMPETITOR_NAME, INTELLIGENCE_SUMMARY, DETAILED_ANALYSIS,
                         COLLECTION_DATE, SOURCE_TYPE, THREAT_LEVEL, OPPORTUNITY_LEVEL,
@@ -298,13 +315,22 @@ class AIWebResearchIngestor:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    row['intelligence_id'], row['competitor_name'], row['intelligence_summary'],
-                    row['detailed_analysis'], row['collection_date'], row['source_type'],
-                    row['threat_level'], row['opportunity_level'], row['strategic_implications'],
-                    row['competitive_moat_impact'], row['market_share_impact']
-                ))
-            
+                """,
+                    (
+                        row["intelligence_id"],
+                        row["competitor_name"],
+                        row["intelligence_summary"],
+                        row["detailed_analysis"],
+                        row["collection_date"],
+                        row["source_type"],
+                        row["threat_level"],
+                        row["opportunity_level"],
+                        row["strategic_implications"],
+                        row["competitive_moat_impact"],
+                        row["market_share_impact"],
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO COMPETITOR_INTELLIGENCE AS target
@@ -330,13 +356,15 @@ class AIWebResearchIngestor:
                     source.COMPETITIVE_MOAT_IMPACT, source.MARKET_SHARE_IMPACT
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
-            logger.info(f"✅ Loaded {rows_affected} competitor intelligence reports into Snowflake")
+
+            logger.info(
+                f"✅ Loaded {rows_affected} competitor intelligence reports into Snowflake"
+            )
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load competitor intelligence: {e}")
             return 0
@@ -347,17 +375,18 @@ class AIWebResearchIngestor:
             if df.empty:
                 logger.info("No partnership opportunities data to load")
                 return 0
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Create temporary table
             cursor.execute("""
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PARTNERSHIP_OPPORTUNITIES LIKE PARTNERSHIP_OPPORTUNITIES
             """)
-            
+
             # Insert data into temporary table
             for _, row in df.iterrows():
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO TEMP_PARTNERSHIP_OPPORTUNITIES (
                         OPPORTUNITY_ID, PARTNER_NAME, OPPORTUNITY_DESCRIPTION, PARTNERSHIP_TYPE,
                         STRATEGIC_FIT_SCORE, POTENTIAL_VALUE, IMPLEMENTATION_COMPLEXITY,
@@ -365,13 +394,22 @@ class AIWebResearchIngestor:
                     ) VALUES (
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
-                """, (
-                    row['opportunity_id'], row['partner_name'], row['opportunity_description'],
-                    row['partnership_type'], row['strategic_fit_score'], row['potential_value'],
-                    row['implementation_complexity'], row['timeline_estimate'],
-                    row['key_benefits'], row['potential_risks'], row['next_steps']
-                ))
-            
+                """,
+                    (
+                        row["opportunity_id"],
+                        row["partner_name"],
+                        row["opportunity_description"],
+                        row["partnership_type"],
+                        row["strategic_fit_score"],
+                        row["potential_value"],
+                        row["implementation_complexity"],
+                        row["timeline_estimate"],
+                        row["key_benefits"],
+                        row["potential_risks"],
+                        row["next_steps"],
+                    ),
+                )
+
             # MERGE into main table
             cursor.execute("""
                 MERGE INTO PARTNERSHIP_OPPORTUNITIES AS target
@@ -398,13 +436,15 @@ class AIWebResearchIngestor:
                     source.KEY_BENEFITS, source.POTENTIAL_RISKS, source.NEXT_STEPS
                 )
             """)
-            
+
             rows_affected = cursor.rowcount
             cursor.close()
-            
-            logger.info(f"✅ Loaded {rows_affected} partnership opportunities into Snowflake")
+
+            logger.info(
+                f"✅ Loaded {rows_affected} partnership opportunities into Snowflake"
+            )
             return rows_affected
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to load partnership opportunities: {e}")
             return 0
@@ -413,7 +453,7 @@ class AIWebResearchIngestor:
         """Generate AI embeddings for web research data"""
         try:
             cursor = self.snowflake_conn.cursor()
-            
+
             # Generate embeddings for industry trends
             cursor.execute("""
                 UPDATE INDUSTRY_TRENDS
@@ -432,9 +472,9 @@ class AIWebResearchIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             trends_updated = cursor.rowcount
-            
+
             # Generate embeddings for competitor intelligence
             cursor.execute("""
                 UPDATE COMPETITOR_INTELLIGENCE
@@ -453,9 +493,9 @@ class AIWebResearchIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             intelligence_updated = cursor.rowcount
-            
+
             # Generate embeddings for partnership opportunities
             cursor.execute("""
                 UPDATE PARTNERSHIP_OPPORTUNITIES
@@ -474,14 +514,16 @@ class AIWebResearchIngestor:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
             """)
-            
+
             partnerships_updated = cursor.rowcount
             cursor.close()
-            
+
             total_updated = trends_updated + intelligence_updated + partnerships_updated
-            logger.info(f"✅ Generated embeddings for {total_updated} web research records")
+            logger.info(
+                f"✅ Generated embeddings for {total_updated} web research records"
+            )
             return total_updated
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate web research AI embeddings: {e}")
             return 0
@@ -490,27 +532,31 @@ class AIWebResearchIngestor:
         """Run full synchronization of web research data"""
         try:
             logger.info("🚀 Starting AI Web Research full sync")
-            
+
             results = {}
-            
+
             # Extract and load industry trends
             trends_df = await self.extract_industry_trends()
-            results['industry_trends'] = await self.load_industry_trends(trends_df)
-            
+            results["industry_trends"] = await self.load_industry_trends(trends_df)
+
             # Extract and load competitor intelligence
             intelligence_df = await self.extract_competitor_intelligence()
-            results['competitor_intelligence'] = await self.load_competitor_intelligence(intelligence_df)
-            
+            results[
+                "competitor_intelligence"
+            ] = await self.load_competitor_intelligence(intelligence_df)
+
             # Extract and load partnership opportunities
             partnerships_df = await self.extract_partnership_opportunities()
-            results['partnership_opportunities'] = await self.load_partnership_opportunities(partnerships_df)
-            
+            results[
+                "partnership_opportunities"
+            ] = await self.load_partnership_opportunities(partnerships_df)
+
             # Generate AI embeddings
-            results['ai_embeddings'] = await self.generate_web_research_ai_embeddings()
-            
+            results["ai_embeddings"] = await self.generate_web_research_ai_embeddings()
+
             logger.info(f"✅ AI Web Research sync completed: {results}")
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ AI Web Research sync failed: {e}")
             raise
@@ -528,26 +574,28 @@ class AIWebResearchIngestor:
         except Exception as e:
             logger.error(f"❌ Error closing connections: {e}")
 
+
 async def main():
     """Main execution function"""
     ingestor = AIWebResearchIngestor()
-    
+
     try:
         await ingestor.initialize()
-        
+
         # Run full sync
         results = await ingestor.run_full_web_research_sync()
-        
+
         print("✅ AI Web Research ingestion completed successfully!")
         print(f"📊 Results: {results}")
-        
+
     except Exception as e:
         print(f"❌ AI Web Research ingestion failed: {e}")
         return 1
     finally:
         await ingestor.close()
-    
+
     return 0
 
+
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

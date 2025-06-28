@@ -9,8 +9,4 @@ from .call_repository import CallRepository
 from .deal_repository import DealRepository
 from .contact_repository import ContactRepository
 
-__all__ = [
-    'CallRepository',
-    'DealRepository',
-    'ContactRepository'
-]
+__all__ = ["CallRepository", "DealRepository", "ContactRepository"]

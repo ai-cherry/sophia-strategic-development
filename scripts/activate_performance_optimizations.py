@@ -25,16 +25,13 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime
 from typing import Dict, Any, List
 from pathlib import Path
-import subprocess
 import sys
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -42,28 +39,28 @@ logger = logging.getLogger(__name__)
 class SophiaAIPerformanceActivator:
     """
     PRODUCTION-READY Performance Optimization Activator
-    
+
     Activates all performance optimizations and validates the system
     """
-    
+
     def __init__(self, base_path: str = "/home/ubuntu/sophia-main"):
         self.base_path = Path(base_path)
         self.activation_results = {
-            'redis_deployment': False,
-            'connection_optimization': False,
-            'cache_optimization': False,
-            'monitoring_integration': False,
-            'service_updates': False,
-            'validation_passed': False,
-            'overall_success': False
+            "redis_deployment": False,
+            "connection_optimization": False,
+            "cache_optimization": False,
+            "monitoring_integration": False,
+            "service_updates": False,
+            "validation_passed": False,
+            "overall_success": False,
         }
-        
+
         self.performance_targets = {
-            'connection_time': 0.01,      # 10ms target
-            'cache_hit_ratio': 0.8,       # 80% target
-            'response_time': 0.2,         # 200ms target
-            'error_rate': 0.01,           # 1% target
-            'system_health_score': 80     # 80/100 target
+            "connection_time": 0.01,  # 10ms target
+            "cache_hit_ratio": 0.8,  # 80% target
+            "response_time": 0.2,  # 200ms target
+            "error_rate": 0.01,  # 1% target
+            "system_health_score": 80,  # 80/100 target
         }
 
     async def activate_all_optimizations(self) -> Dict[str, Any]:
@@ -72,114 +69,120 @@ class SophiaAIPerformanceActivator:
         """
         logger.info("🚀 STARTING SOPHIA AI PERFORMANCE OPTIMIZATION ACTIVATION")
         logger.info("=" * 70)
-        
+
         activation_start = time.time()
-        
+
         try:
             # Phase 1: Activate Redis L2 Cache
             logger.info("📊 Phase 1: Activating Redis L2 Cache...")
             redis_success = await self._activate_redis_cache()
-            self.activation_results['redis_deployment'] = redis_success
-            
+            self.activation_results["redis_deployment"] = redis_success
+
             if redis_success:
                 logger.info("✅ Redis L2 Cache activated successfully")
             else:
                 logger.error("❌ Redis L2 Cache activation failed")
-            
+
             # Phase 2: Activate Connection Optimization
             logger.info("🔗 Phase 2: Activating Connection Optimization...")
             connection_success = await self._activate_connection_optimization()
-            self.activation_results['connection_optimization'] = connection_success
-            
+            self.activation_results["connection_optimization"] = connection_success
+
             if connection_success:
                 logger.info("✅ Connection optimization activated successfully")
             else:
                 logger.error("❌ Connection optimization activation failed")
-            
+
             # Phase 3: Activate Cache Optimization
             logger.info("⚡ Phase 3: Activating Cache Optimization...")
             cache_success = await self._activate_cache_optimization()
-            self.activation_results['cache_optimization'] = cache_success
-            
+            self.activation_results["cache_optimization"] = cache_success
+
             if cache_success:
                 logger.info("✅ Cache optimization activated successfully")
             else:
                 logger.error("❌ Cache optimization activation failed")
-            
+
             # Phase 4: Activate Performance Monitoring
             logger.info("📈 Phase 4: Activating Performance Monitoring...")
             monitoring_success = await self._activate_performance_monitoring()
-            self.activation_results['monitoring_integration'] = monitoring_success
-            
+            self.activation_results["monitoring_integration"] = monitoring_success
+
             if monitoring_success:
                 logger.info("✅ Performance monitoring activated successfully")
             else:
                 logger.error("❌ Performance monitoring activation failed")
-            
+
             # Phase 5: Update Service Integrations
             logger.info("🔧 Phase 5: Updating Service Integrations...")
             service_success = await self._update_service_integrations()
-            self.activation_results['service_updates'] = service_success
-            
+            self.activation_results["service_updates"] = service_success
+
             if service_success:
                 logger.info("✅ Service integrations updated successfully")
             else:
                 logger.error("❌ Service integration updates failed")
-            
+
             # Phase 6: Comprehensive Validation
             logger.info("🧪 Phase 6: Running Comprehensive Validation...")
             validation_success = await self._run_comprehensive_validation()
-            self.activation_results['validation_passed'] = validation_success
-            
+            self.activation_results["validation_passed"] = validation_success
+
             if validation_success:
                 logger.info("✅ Comprehensive validation passed")
             else:
                 logger.error("❌ Comprehensive validation failed")
-            
+
             # Calculate overall success
-            success_count = sum(1 for success in self.activation_results.values() if success)
+            success_count = sum(
+                1 for success in self.activation_results.values() if success
+            )
             total_phases = len(self.activation_results) - 1  # Exclude overall_success
             success_rate = (success_count / total_phases) * 100
-            
-            self.activation_results['overall_success'] = success_rate >= 80
-            
+
+            self.activation_results["overall_success"] = success_rate >= 80
+
             activation_time = time.time() - activation_start
-            
+
             # Generate final report
             final_report = {
-                'activation_status': 'completed',
-                'activation_time': activation_time,
-                'success_rate': success_rate,
-                'phases_completed': success_count,
-                'total_phases': total_phases,
-                'results': self.activation_results,
-                'performance_improvements': await self._calculate_performance_improvements(),
-                'recommendations': self._generate_recommendations()
+                "activation_status": "completed",
+                "activation_time": activation_time,
+                "success_rate": success_rate,
+                "phases_completed": success_count,
+                "total_phases": total_phases,
+                "results": self.activation_results,
+                "performance_improvements": await self._calculate_performance_improvements(),
+                "recommendations": self._generate_recommendations(),
             }
-            
+
             # Log final results
             logger.info("=" * 70)
             logger.info("🎉 SOPHIA AI PERFORMANCE OPTIMIZATION ACTIVATION COMPLETE")
             logger.info(f"⏱️  Total Time: {activation_time:.2f} seconds")
             logger.info(f"📊 Success Rate: {success_rate:.1f}%")
             logger.info(f"✅ Phases Completed: {success_count}/{total_phases}")
-            
-            if self.activation_results['overall_success']:
-                logger.info("🏆 OVERALL STATUS: SUCCESS - Performance optimizations are active!")
+
+            if self.activation_results["overall_success"]:
+                logger.info(
+                    "🏆 OVERALL STATUS: SUCCESS - Performance optimizations are active!"
+                )
                 logger.info("🚀 Expected 3-5x performance improvement is now available")
             else:
-                logger.warning("⚠️  OVERALL STATUS: PARTIAL - Some optimizations may need attention")
-            
+                logger.warning(
+                    "⚠️  OVERALL STATUS: PARTIAL - Some optimizations may need attention"
+                )
+
             logger.info("=" * 70)
-            
+
             return final_report
-            
+
         except Exception as e:
             logger.error(f"💥 Activation failed with error: {e}")
             return {
-                'activation_status': 'failed',
-                'error': str(e),
-                'results': self.activation_results
+                "activation_status": "failed",
+                "error": str(e),
+                "results": self.activation_results,
             }
 
     async def _activate_redis_cache(self) -> bool:
@@ -188,17 +191,21 @@ class SophiaAIPerformanceActivator:
             # Import and run Redis deployment
             sys.path.append(str(self.base_path))
             from scripts.deploy_redis_infrastructure import deploy_redis_for_sophia_ai
-            
+
             deployment_result = await deploy_redis_for_sophia_ai()
-            
-            if deployment_result.get('deployment_status') == 'completed':
+
+            if deployment_result.get("deployment_status") == "completed":
                 logger.info(f"Redis Version: {deployment_result.get('redis_version')}")
-                logger.info(f"Performance Score: {deployment_result.get('performance_score', 0)}/100")
+                logger.info(
+                    f"Performance Score: {deployment_result.get('performance_score', 0)}/100"
+                )
                 return True
             else:
-                logger.error(f"Redis deployment failed: {deployment_result.get('error')}")
+                logger.error(
+                    f"Redis deployment failed: {deployment_result.get('error')}"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error activating Redis cache: {e}")
             return False
@@ -208,24 +215,28 @@ class SophiaAIPerformanceActivator:
         try:
             # Test connection manager
             from backend.core.optimized_connection_manager import connection_manager
-            
+
             # Initialize connection manager
             await connection_manager.initialize()
-            
+
             # Test connection performance
             start_time = time.time()
-            async with connection_manager.get_connection() as conn:
+            async with connection_manager.get_connection():
                 # Test connection
                 pass
             connection_time = time.time() - start_time
-            
-            if connection_time <= self.performance_targets['connection_time']:
-                logger.info(f"Connection time: {connection_time:.3f}s (Target: {self.performance_targets['connection_time']:.3f}s)")
+
+            if connection_time <= self.performance_targets["connection_time"]:
+                logger.info(
+                    f"Connection time: {connection_time:.3f}s (Target: {self.performance_targets['connection_time']:.3f}s)"
+                )
                 return True
             else:
-                logger.warning(f"Connection time {connection_time:.3f}s exceeds target {self.performance_targets['connection_time']:.3f}s")
+                logger.warning(
+                    f"Connection time {connection_time:.3f}s exceeds target {self.performance_targets['connection_time']:.3f}s"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error activating connection optimization: {e}")
             return False
@@ -235,29 +246,31 @@ class SophiaAIPerformanceActivator:
         try:
             # Test optimized cache
             from backend.core.optimized_cache import optimized_cache
-            
+
             # Test cache performance
             test_key = "performance_test_key"
             test_value = {"test": "data", "timestamp": time.time()}
-            
+
             # Test set operation
             start_time = time.time()
             await optimized_cache.set(test_key, test_value, ttl=60)
             set_time = time.time() - start_time
-            
+
             # Test get operation
             start_time = time.time()
             retrieved_value = await optimized_cache.get(test_key)
             get_time = time.time() - start_time
-            
+
             # Validate cache functionality
-            if retrieved_value and retrieved_value.get('test') == 'data':
-                logger.info(f"Cache set time: {set_time:.3f}s, get time: {get_time:.3f}s")
+            if retrieved_value and retrieved_value.get("test") == "data":
+                logger.info(
+                    f"Cache set time: {set_time:.3f}s, get time: {get_time:.3f}s"
+                )
                 return True
             else:
                 logger.error("Cache validation failed - data mismatch")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error activating cache optimization: {e}")
             return False
@@ -266,17 +279,19 @@ class SophiaAIPerformanceActivator:
         """Activate performance monitoring"""
         try:
             # Initialize performance monitoring
-            from backend.core.integrated_performance_monitoring import initialize_performance_monitoring
-            
+            from backend.core.integrated_performance_monitoring import (
+                initialize_performance_monitoring,
+            )
+
             monitoring_success = await initialize_performance_monitoring()
-            
+
             if monitoring_success:
                 logger.info("Performance monitoring system is active")
                 return True
             else:
                 logger.error("Performance monitoring initialization failed")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error activating performance monitoring: {e}")
             return False
@@ -286,33 +301,37 @@ class SophiaAIPerformanceActivator:
         try:
             # Check if key services have optimized imports
             key_services = [
-                'backend/utils/snowflake_cortex_service.py',
-                'backend/services/enhanced_chat_context_service.py',
-                'backend/agents/specialized/snowflake_admin_agent.py'
+                "backend/utils/snowflake_cortex_service.py",
+                "backend/services/enhanced_chat_context_service.py",
+                "backend/agents/specialized/snowflake_admin_agent.py",
             ]
-            
+
             updated_count = 0
-            
+
             for service_path in key_services:
                 full_path = self.base_path / service_path
                 if full_path.exists():
-                    with open(full_path, 'r') as f:
+                    with open(full_path, "r") as f:
                         content = f.read()
-                    
+
                     # Check for optimized imports
-                    has_connection_manager = 'optimized_connection_manager' in content
-                    has_optimized_cache = 'optimized_cache' in content
-                    has_performance_monitor = 'performance_monitor' in content
-                    
-                    if has_connection_manager or has_optimized_cache or has_performance_monitor:
+                    has_connection_manager = "optimized_connection_manager" in content
+                    has_optimized_cache = "optimized_cache" in content
+                    has_performance_monitor = "performance_monitor" in content
+
+                    if (
+                        has_connection_manager
+                        or has_optimized_cache
+                        or has_performance_monitor
+                    ):
                         updated_count += 1
                         logger.info(f"✅ {service_path} has optimized imports")
                     else:
                         logger.warning(f"⚠️  {service_path} missing optimized imports")
-            
+
             success_rate = (updated_count / len(key_services)) * 100
             return success_rate >= 50  # At least 50% of services updated
-            
+
         except Exception as e:
             logger.error(f"Error updating service integrations: {e}")
             return False
@@ -321,96 +340,111 @@ class SophiaAIPerformanceActivator:
         """Run comprehensive system validation"""
         try:
             validation_results = {
-                'system_health': False,
-                'performance_metrics': False,
-                'cache_performance': False,
-                'connection_performance': False,
-                'monitoring_active': False
+                "system_health": False,
+                "performance_metrics": False,
+                "cache_performance": False,
+                "connection_performance": False,
+                "monitoring_active": False,
             }
-            
+
             # Test 1: System Health
             import psutil
+
             cpu_percent = psutil.cpu_percent(interval=0.1)
             memory = psutil.virtual_memory()
-            
+
             system_health_score = 100 - cpu_percent - (memory.percent / 2)
-            validation_results['system_health'] = system_health_score >= self.performance_targets['system_health_score']
-            
+            validation_results["system_health"] = (
+                system_health_score >= self.performance_targets["system_health_score"]
+            )
+
             logger.info(f"System Health Score: {system_health_score:.1f}/100")
-            
+
             # Test 2: Performance Metrics Collection
             try:
                 from backend.core.integrated_performance_monitoring import track_metric
-                await track_metric('validation_test', 'test_metric', 1.0)
-                validation_results['performance_metrics'] = True
+
+                await track_metric("validation_test", "test_metric", 1.0)
+                validation_results["performance_metrics"] = True
                 logger.info("✅ Performance metrics collection working")
             except Exception as e:
                 logger.warning(f"Performance metrics test failed: {e}")
-            
+
             # Test 3: Cache Performance
             try:
                 from backend.core.optimized_cache import optimized_cache
-                
+
                 # Test batch operations
                 test_data = {f"test_key_{i}": f"test_value_{i}" for i in range(10)}
-                
+
                 start_time = time.time()
                 await optimized_cache.set_many(test_data, ttl=60)
-                batch_set_time = time.time() - start_time
-                
+                time.time() - start_time
+
                 start_time = time.time()
                 retrieved_data = await optimized_cache.get_many(list(test_data.keys()))
-                batch_get_time = time.time() - start_time
-                
+                time.time() - start_time
+
                 # Calculate cache hit ratio
                 hits = sum(1 for v in retrieved_data.values() if v is not None)
                 hit_ratio = hits / len(test_data)
-                
-                validation_results['cache_performance'] = hit_ratio >= self.performance_targets['cache_hit_ratio']
-                logger.info(f"Cache Hit Ratio: {hit_ratio:.2f} (Target: {self.performance_targets['cache_hit_ratio']:.2f})")
-                
+
+                validation_results["cache_performance"] = (
+                    hit_ratio >= self.performance_targets["cache_hit_ratio"]
+                )
+                logger.info(
+                    f"Cache Hit Ratio: {hit_ratio:.2f} (Target: {self.performance_targets['cache_hit_ratio']:.2f})"
+                )
+
             except Exception as e:
                 logger.warning(f"Cache performance test failed: {e}")
-            
+
             # Test 4: Connection Performance
             try:
-                from backend.core.optimized_connection_manager import connection_manager
-                
                 # Test multiple concurrent connections
                 start_time = time.time()
                 tasks = []
                 for _ in range(5):
                     tasks.append(self._test_connection())
-                
+
                 await asyncio.gather(*tasks)
                 concurrent_connection_time = time.time() - start_time
-                
+
                 avg_connection_time = concurrent_connection_time / 5
-                validation_results['connection_performance'] = avg_connection_time <= self.performance_targets['connection_time']
-                
-                logger.info(f"Average Connection Time: {avg_connection_time:.3f}s (Target: {self.performance_targets['connection_time']:.3f}s)")
-                
+                validation_results["connection_performance"] = (
+                    avg_connection_time <= self.performance_targets["connection_time"]
+                )
+
+                logger.info(
+                    f"Average Connection Time: {avg_connection_time:.3f}s (Target: {self.performance_targets['connection_time']:.3f}s)"
+                )
+
             except Exception as e:
                 logger.warning(f"Connection performance test failed: {e}")
-            
+
             # Test 5: Monitoring System Active
             try:
-                from backend.core.integrated_performance_monitoring import get_performance_dashboard
+                from backend.core.integrated_performance_monitoring import (
+                    get_performance_dashboard,
+                )
+
                 dashboard_data = await get_performance_dashboard()
-                validation_results['monitoring_active'] = 'timestamp' in dashboard_data
+                validation_results["monitoring_active"] = "timestamp" in dashboard_data
                 logger.info("✅ Performance monitoring dashboard active")
             except Exception as e:
                 logger.warning(f"Monitoring system test failed: {e}")
-            
+
             # Calculate overall validation success
             passed_tests = sum(1 for result in validation_results.values() if result)
             total_tests = len(validation_results)
             validation_success_rate = (passed_tests / total_tests) * 100
-            
-            logger.info(f"Validation Results: {passed_tests}/{total_tests} tests passed ({validation_success_rate:.1f}%)")
-            
+
+            logger.info(
+                f"Validation Results: {passed_tests}/{total_tests} tests passed ({validation_success_rate:.1f}%)"
+            )
+
             return validation_success_rate >= 70  # 70% pass rate required
-            
+
         except Exception as e:
             logger.error(f"Error in comprehensive validation: {e}")
             return False
@@ -419,7 +453,8 @@ class SophiaAIPerformanceActivator:
         """Test individual connection performance"""
         try:
             from backend.core.optimized_connection_manager import connection_manager
-            async with connection_manager.get_connection() as conn:
+
+            async with connection_manager.get_connection():
                 # Simulate connection usage
                 await asyncio.sleep(0.001)
         except Exception as e:
@@ -429,27 +464,32 @@ class SophiaAIPerformanceActivator:
         """Calculate actual performance improvements achieved"""
         try:
             improvements = {
-                'connection_overhead_reduction': '95%',
-                'cache_performance_improvement': '5x',
-                'agent_processing_improvement': '3x',
-                'overall_system_improvement': '3-5x',
-                'response_time_target': '<200ms',
-                'monitoring_coverage': '100%'
+                "connection_overhead_reduction": "95%",
+                "cache_performance_improvement": "5x",
+                "agent_processing_improvement": "3x",
+                "overall_system_improvement": "3-5x",
+                "response_time_target": "<200ms",
+                "monitoring_coverage": "100%",
             }
-            
+
             # Add actual measured improvements if available
             try:
-                from backend.core.integrated_performance_monitoring import get_performance_dashboard
+                from backend.core.integrated_performance_monitoring import (
+                    get_performance_dashboard,
+                )
+
                 dashboard_data = await get_performance_dashboard()
-                
-                if 'system_health' in dashboard_data:
-                    improvements['current_system_health'] = dashboard_data['system_health']
-                
+
+                if "system_health" in dashboard_data:
+                    improvements["current_system_health"] = dashboard_data[
+                        "system_health"
+                    ]
+
             except Exception as e:
                 logger.warning(f"Could not get real-time performance data: {e}")
-            
+
             return improvements
-            
+
         except Exception as e:
             logger.error(f"Error calculating performance improvements: {e}")
             return {}
@@ -457,55 +497,67 @@ class SophiaAIPerformanceActivator:
     def _generate_recommendations(self) -> List[str]:
         """Generate recommendations based on activation results"""
         recommendations = []
-        
-        if not self.activation_results['redis_deployment']:
-            recommendations.append("Consider manual Redis setup if automatic deployment failed")
-        
-        if not self.activation_results['connection_optimization']:
-            recommendations.append("Review connection manager configuration and credentials")
-        
-        if not self.activation_results['cache_optimization']:
+
+        if not self.activation_results["redis_deployment"]:
+            recommendations.append(
+                "Consider manual Redis setup if automatic deployment failed"
+            )
+
+        if not self.activation_results["connection_optimization"]:
+            recommendations.append(
+                "Review connection manager configuration and credentials"
+            )
+
+        if not self.activation_results["cache_optimization"]:
             recommendations.append("Verify Redis connectivity and cache configuration")
-        
-        if not self.activation_results['monitoring_integration']:
-            recommendations.append("Check monitoring system dependencies and Redis connection")
-        
-        if not self.activation_results['service_updates']:
-            recommendations.append("Manually update service imports to use optimized components")
-        
-        if not self.activation_results['validation_passed']:
+
+        if not self.activation_results["monitoring_integration"]:
+            recommendations.append(
+                "Check monitoring system dependencies and Redis connection"
+            )
+
+        if not self.activation_results["service_updates"]:
+            recommendations.append(
+                "Manually update service imports to use optimized components"
+            )
+
+        if not self.activation_results["validation_passed"]:
             recommendations.append("Review system resources and performance thresholds")
-        
-        if self.activation_results['overall_success']:
-            recommendations.extend([
-                "Monitor performance metrics regularly using the dashboard",
-                "Set up alerts for performance degradation",
-                "Consider scaling infrastructure based on performance insights",
-                "Regularly review and optimize based on monitoring data"
-            ])
-        
+
+        if self.activation_results["overall_success"]:
+            recommendations.extend(
+                [
+                    "Monitor performance metrics regularly using the dashboard",
+                    "Set up alerts for performance degradation",
+                    "Consider scaling infrastructure based on performance insights",
+                    "Regularly review and optimize based on monitoring data",
+                ]
+            )
+
         return recommendations
 
     def get_activation_summary(self) -> str:
         """Get activation summary report"""
-        success_count = sum(1 for success in self.activation_results.values() if success)
+        success_count = sum(
+            1 for success in self.activation_results.values() if success
+        )
         total_phases = len(self.activation_results) - 1
         success_rate = (success_count / total_phases) * 100
-        
+
         return f"""
 🚀 SOPHIA AI PERFORMANCE OPTIMIZATION ACTIVATION SUMMARY
 
-Overall Status: {'SUCCESS' if self.activation_results['overall_success'] else 'PARTIAL'}
+Overall Status: {"SUCCESS" if self.activation_results["overall_success"] else "PARTIAL"}
 Success Rate: {success_rate:.1f}%
 Phases Completed: {success_count}/{total_phases}
 
 ACTIVATION RESULTS:
-✅ Redis L2 Cache: {'ACTIVE' if self.activation_results['redis_deployment'] else 'FAILED'}
-✅ Connection Optimization: {'ACTIVE' if self.activation_results['connection_optimization'] else 'FAILED'}
-✅ Cache Optimization: {'ACTIVE' if self.activation_results['cache_optimization'] else 'FAILED'}
-✅ Performance Monitoring: {'ACTIVE' if self.activation_results['monitoring_integration'] else 'FAILED'}
-✅ Service Updates: {'COMPLETE' if self.activation_results['service_updates'] else 'PARTIAL'}
-✅ System Validation: {'PASSED' if self.activation_results['validation_passed'] else 'FAILED'}
+✅ Redis L2 Cache: {"ACTIVE" if self.activation_results["redis_deployment"] else "FAILED"}
+✅ Connection Optimization: {"ACTIVE" if self.activation_results["connection_optimization"] else "FAILED"}
+✅ Cache Optimization: {"ACTIVE" if self.activation_results["cache_optimization"] else "FAILED"}
+✅ Performance Monitoring: {"ACTIVE" if self.activation_results["monitoring_integration"] else "FAILED"}
+✅ Service Updates: {"COMPLETE" if self.activation_results["service_updates"] else "PARTIAL"}
+✅ System Validation: {"PASSED" if self.activation_results["validation_passed"] else "FAILED"}
 
 EXPECTED PERFORMANCE IMPROVEMENTS:
 • 95% reduction in connection overhead
@@ -515,7 +567,7 @@ EXPECTED PERFORMANCE IMPROVEMENTS:
 • Sub-200ms response times maintained at scale
 • Comprehensive monitoring and alerting
 
-STATUS: {'🎉 Performance optimizations are ACTIVE and delivering improvements!' if self.activation_results['overall_success'] else '⚠️  Some optimizations need attention - check logs for details'}
+STATUS: {"🎉 Performance optimizations are ACTIVE and delivering improvements!" if self.activation_results["overall_success"] else "⚠️  Some optimizations need attention - check logs for details"}
 """
 
 
@@ -529,6 +581,7 @@ async def activate_sophia_ai_performance() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
+
     async def main():
         print("🚀 SOPHIA AI PERFORMANCE OPTIMIZATION ACTIVATION")
         print("=" * 70)
@@ -541,30 +594,35 @@ if __name__ == "__main__":
         print("• Circuit Breaker Patterns (Reliability improvement)")
         print("=" * 70)
         print()
-        
+
         # Run activation
         results = await activate_sophia_ai_performance()
-        
+
         # Print summary
         print(performance_activator.get_activation_summary())
-        
+
         # Save results to file
-        results_file = Path("/home/ubuntu/sophia-main/performance_activation_results.json")
-        with open(results_file, 'w') as f:
+        results_file = Path(
+            "/home/ubuntu/sophia-main/performance_activation_results.json"
+        )
+        with open(results_file, "w") as f:
             json.dump(results, f, indent=2, default=str)
-        
+
         print(f"📄 Detailed results saved to: {results_file}")
-        
-        if results.get('activation_status') == 'completed':
-            if performance_activator.activation_results['overall_success']:
-                print("\n🎉 SUCCESS: Sophia AI performance optimizations are now ACTIVE!")
+
+        if results.get("activation_status") == "completed":
+            if performance_activator.activation_results["overall_success"]:
+                print(
+                    "\n🎉 SUCCESS: Sophia AI performance optimizations are now ACTIVE!"
+                )
                 print("🚀 You should see 3-5x performance improvements immediately!")
             else:
-                print("\n⚠️  PARTIAL SUCCESS: Some optimizations are active, others may need attention")
+                print(
+                    "\n⚠️  PARTIAL SUCCESS: Some optimizations are active, others may need attention"
+                )
                 print("📋 Check the recommendations above for next steps")
         else:
             print(f"\n❌ ACTIVATION FAILED: {results.get('error')}")
             print("📋 Check the logs above for troubleshooting information")
-    
-    asyncio.run(main())
 
+    asyncio.run(main())

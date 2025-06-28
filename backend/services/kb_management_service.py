@@ -234,9 +234,11 @@ class KBManagementService:
 
         try:
             # Parse command
-            operation, entity_type, attributes = (
-                await self.nl_processor.parse_natural_language_command(command)
-            )
+            (
+                operation,
+                entity_type,
+                attributes,
+            ) = await self.nl_processor.parse_natural_language_command(command)
 
             # Execute operation
             if operation == KBOperation.ADD:

@@ -25,13 +25,14 @@ from typing import Any, Dict, List, Optional
 # Configure logging
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
 class Environment(str, Enum):
     """Deployment environment enumeration with production-first design."""
+
     PRODUCTION = "prod"
     STAGING = "staging"
     DEVELOPMENT = "dev"
@@ -39,13 +40,14 @@ class Environment(str, Enum):
 
 class EnvironmentError(Exception):
     """Environment configuration error."""
+
     pass
 
 
 class SophiaEnvironmentConfig:
     """
     Bulletproof environment configuration manager.
-    
+
     DESIGN PRINCIPLES:
     1. Production-first: Always default to production
     2. Fail-safe: Never fail completely, always provide fallback
@@ -53,27 +55,27 @@ class SophiaEnvironmentConfig:
     4. Transparent: Log all decisions and actions
     5. Persistent: Remember and maintain state
     """
-    
+
     # PRODUCTION-FIRST CONFIGURATION
     DEFAULT_ENVIRONMENT = Environment.PRODUCTION
     DEFAULT_PULUMI_ORG = "scoobyjava-org"
-    
+
     # Stack mapping with production-first priority
     STACK_MAPPING = {
         Environment.PRODUCTION: "sophia-ai-production",
-        Environment.STAGING: "sophia-ai-platform-staging", 
-        Environment.DEVELOPMENT: "sophia-ai-platform-dev"
+        Environment.STAGING: "sophia-ai-platform-staging",
+        Environment.DEVELOPMENT: "sophia-ai-platform-dev",
     }
-    
+
     # Environment detection priority order
     DETECTION_PRIORITY = [
         "explicit_environment_variable",
-        "git_branch_detection", 
+        "git_branch_detection",
         "pulumi_stack_context",
         "project_context",
-        "production_fallback"  # Always fallback to production
+        "production_fallback",  # Always fallback to production
     ]
-    
+
     def __init__(self):
         """Initialize environment configuration with health validation."""
         self._environment: Optional[Environment] = None
@@ -81,66 +83,74 @@ class SophiaEnvironmentConfig:
         self._stack_name: Optional[str] = None
         self._health_status: Dict[str, Any] = {}
         self._last_validated: Optional[datetime] = None
-        
+
         # Initialize and validate environment
         self._detect_and_set_environment()
         self._validate_environment_health()
         self._ensure_persistent_setup()
-    
+
     def _detect_and_set_environment(self) -> None:
         """
         Intelligent environment detection with production-first fallback.
         """
         logger.info("🔍 Starting intelligent environment detection...")
-        
+
         # Try each detection method in priority order
         for method in self.DETECTION_PRIORITY:
             try:
                 if env := getattr(self, f"_detect_from_{method}")():
                     self._environment = Environment(env)
-                    logger.info(f"✅ Environment detected via {method}: {self._environment}")
+                    logger.info(
+                        f"✅ Environment detected via {method}: {self._environment}"
+                    )
                     break
             except Exception as e:
                 logger.warning(f"⚠️ Detection method {method} failed: {e}")
                 continue
-        
+
         # Ensure we always have an environment (production fallback)
         if not self._environment:
             self._environment = self.DEFAULT_ENVIRONMENT
             logger.warning(f"🔄 Using production fallback: {self._environment}")
-        
+
         # Set associated configuration
         self._pulumi_org = os.getenv("PULUMI_ORG", self.DEFAULT_PULUMI_ORG)
         self._stack_name = self.STACK_MAPPING[self._environment]
-        
-        logger.info(f"🎯 Final configuration: env={self._environment}, org={self._pulumi_org}, stack={self._stack_name}")
-    
+
+        logger.info(
+            f"🎯 Final configuration: env={self._environment}, org={self._pulumi_org}, stack={self._stack_name}"
+        )
+
     def _detect_from_explicit_environment_variable(self) -> Optional[str]:
         """Detect from explicit ENVIRONMENT variable."""
         if env := os.getenv("ENVIRONMENT"):
             logger.info(f"📍 Found explicit ENVIRONMENT={env}")
             if env in ["prod", "production"]:
                 return Environment.PRODUCTION
-            elif env in ["staging", "stg"]: 
+            elif env in ["staging", "stg"]:
                 return Environment.STAGING
             elif env in ["dev", "development"]:
                 return Environment.DEVELOPMENT
             else:
-                logger.warning(f"⚠️ Unknown environment '{env}', defaulting to production")
+                logger.warning(
+                    f"⚠️ Unknown environment '{env}', defaulting to production"
+                )
                 return Environment.PRODUCTION
         return None
-    
+
     def _detect_from_git_branch_detection(self) -> Optional[str]:
         """Detect from Git branch with intelligent mapping."""
         try:
             result = subprocess.run(
                 ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
             if result.returncode == 0:
                 branch = result.stdout.strip()
                 logger.info(f"📍 Git branch detected: {branch}")
-                
+
                 # Intelligent branch mapping
                 if branch in ["main", "master"]:
                     return Environment.PRODUCTION
@@ -150,23 +160,27 @@ class SophiaEnvironmentConfig:
                     return Environment.DEVELOPMENT
                 else:
                     # Unknown branch -> production for safety
-                    logger.info(f"🔄 Unknown branch '{branch}', defaulting to production")
+                    logger.info(
+                        f"🔄 Unknown branch '{branch}', defaulting to production"
+                    )
                     return Environment.PRODUCTION
         except Exception as e:
             logger.debug(f"Git branch detection failed: {e}")
         return None
-    
+
     def _detect_from_pulumi_stack_context(self) -> Optional[str]:
         """Detect from current Pulumi stack context."""
         try:
             result = subprocess.run(
                 ["pulumi", "stack", "--show-name"],
-                capture_output=True, text=True, timeout=10
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
             if result.returncode == 0:
                 stack = result.stdout.strip()
                 logger.info(f"📍 Pulumi stack detected: {stack}")
-                
+
                 if "production" in stack.lower():
                     return Environment.PRODUCTION
                 elif "staging" in stack.lower():
@@ -176,13 +190,13 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.debug(f"Pulumi stack detection failed: {e}")
         return None
-    
+
     def _detect_from_project_context(self) -> Optional[str]:
         """Detect from project context and files."""
         try:
             # Check for environment indicator files
             project_root = Path.cwd()
-            
+
             # Check for .env files with environment hints
             env_files = [".env", ".env.local", ".env.production", ".env.staging"]
             for env_file in env_files:
@@ -192,10 +206,12 @@ class SophiaEnvironmentConfig:
                     if "ENVIRONMENT=" in content:
                         for line in content.split("\n"):
                             if line.startswith("ENVIRONMENT="):
-                                env_value = line.split("=", 1)[1].strip().strip('"\'')
-                                logger.info(f"📍 Environment found in {env_file}: {env_value}")
+                                env_value = line.split("=", 1)[1].strip().strip("\"'")
+                                logger.info(
+                                    f"📍 Environment found in {env_file}: {env_value}"
+                                )
                                 return env_value
-            
+
             # Check package.json for environment hints
             package_json = project_root / "package.json"
             if package_json.exists():
@@ -211,16 +227,16 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.debug(f"Project context detection failed: {e}")
         return None
-    
+
     def _detect_from_production_fallback(self) -> str:
         """Always fallback to production - never fail."""
         logger.info("🔄 Using production fallback (never fail)")
         return Environment.PRODUCTION
-    
+
     def _validate_environment_health(self) -> None:
         """Comprehensive environment health validation."""
         logger.info("🏥 Validating environment health...")
-        
+
         self._health_status = {
             "environment_set": bool(self._environment),
             "pulumi_org_set": bool(self._pulumi_org),
@@ -228,27 +244,28 @@ class SophiaEnvironmentConfig:
             "pulumi_auth": self._check_pulumi_auth(),
             "stack_accessible": self._check_stack_access(),
             "secrets_loadable": self._check_secrets_loadable(),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
+
         self._last_validated = datetime.now(timezone.utc)
-        
+
         # Log health status
         healthy_checks = sum(1 for v in self._health_status.values() if v is True)
-        total_checks = len([v for v in self._health_status.values() if isinstance(v, bool)])
-        
+        total_checks = len(
+            [v for v in self._health_status.values() if isinstance(v, bool)]
+        )
+
         logger.info(f"🏥 Health check: {healthy_checks}/{total_checks} checks passed")
-        
+
         if healthy_checks < total_checks:
             logger.warning("⚠️ Some health checks failed - attempting auto-repair...")
             self._attempt_auto_repair()
-    
+
     def _check_pulumi_auth(self) -> bool:
         """Check if Pulumi authentication is working."""
         try:
             result = subprocess.run(
-                ["pulumi", "whoami"],
-                capture_output=True, text=True, timeout=10
+                ["pulumi", "whoami"], capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
                 logger.debug("✅ Pulumi authentication successful")
@@ -259,13 +276,22 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.warning(f"⚠️ Pulumi auth check failed: {e}")
             return False
-    
+
     def _check_stack_access(self) -> bool:
         """Check if we can access the target stack."""
         try:
             result = subprocess.run(
-                ["pulumi", "env", "open", f"{self._pulumi_org}/default/{self._stack_name}", "--format", "json"],
-                capture_output=True, text=True, timeout=30
+                [
+                    "pulumi",
+                    "env",
+                    "open",
+                    f"{self._pulumi_org}/default/{self._stack_name}",
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
             if result.returncode == 0:
                 logger.debug(f"✅ Stack access successful: {self._stack_name}")
@@ -276,13 +302,22 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.warning(f"⚠️ Stack access check failed: {e}")
             return False
-    
+
     def _check_secrets_loadable(self) -> bool:
         """Check if secrets can be loaded from the stack."""
         try:
             result = subprocess.run(
-                ["pulumi", "env", "open", f"{self._pulumi_org}/default/{self._stack_name}", "--format", "json"],
-                capture_output=True, text=True, timeout=30
+                [
+                    "pulumi",
+                    "env",
+                    "open",
+                    f"{self._pulumi_org}/default/{self._stack_name}",
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
             if result.returncode == 0:
                 config = json.loads(result.stdout)
@@ -294,111 +329,114 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.warning(f"⚠️ Secrets check failed: {e}")
             return False
-    
+
     def _attempt_auto_repair(self) -> None:
         """Attempt to automatically repair common environment issues."""
         logger.info("🔧 Attempting automatic environment repair...")
-        
+
         # Repair 1: Set environment variables if missing
         if not os.getenv("ENVIRONMENT"):
             os.environ["ENVIRONMENT"] = self._environment.value
             logger.info(f"🔧 Set ENVIRONMENT={self._environment.value}")
-        
+
         if not os.getenv("PULUMI_ORG"):
             os.environ["PULUMI_ORG"] = self._pulumi_org
             logger.info(f"🔧 Set PULUMI_ORG={self._pulumi_org}")
-        
+
         # Repair 2: Try to login to Pulumi if auth fails
         if not self._health_status.get("pulumi_auth"):
             try:
                 if pulumi_token := os.getenv("PULUMI_ACCESS_TOKEN"):
                     subprocess.run(
-                        ["pulumi", "login"],
-                        input=pulumi_token,
-                        text=True,
-                        timeout=30
+                        ["pulumi", "login"], input=pulumi_token, text=True, timeout=30
                     )
                     logger.info("🔧 Attempted Pulumi login")
             except Exception as e:
                 logger.warning(f"⚠️ Auto-repair Pulumi login failed: {e}")
-        
+
         # Repair 3: Create missing stack if needed
         if not self._health_status.get("stack_accessible"):
             try:
                 subprocess.run(
                     ["pulumi", "stack", "init", self._stack_name, "--yes"],
-                    capture_output=True, text=True, timeout=30
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
                 )
                 logger.info(f"🔧 Attempted to create missing stack: {self._stack_name}")
             except Exception as e:
                 logger.warning(f"⚠️ Auto-repair stack creation failed: {e}")
-    
+
     def _ensure_persistent_setup(self) -> None:
         """Ensure environment variables are set persistently."""
         logger.info("💾 Ensuring persistent environment setup...")
-        
+
         # Environment variables to set persistently
         env_vars = {
             "ENVIRONMENT": self._environment.value,
             "PULUMI_ORG": self._pulumi_org,
         }
-        
+
         # Update shell profiles
         shell_profiles = [
             Path.home() / ".bashrc",
-            Path.home() / ".zshrc", 
-            Path.home() / ".profile"
+            Path.home() / ".zshrc",
+            Path.home() / ".profile",
         ]
-        
+
         for profile in shell_profiles:
             if profile.exists():
                 try:
                     content = profile.read_text()
                     updated = False
-                    
+
                     for var_name, var_value in env_vars.items():
                         export_line = f'export {var_name}="{var_value}"'
                         if export_line not in content:
-                            profile.write_text(content + f"\n# Sophia AI Environment\n{export_line}\n")
+                            profile.write_text(
+                                content + f"\n# Sophia AI Environment\n{export_line}\n"
+                            )
                             updated = True
-                    
+
                     if updated:
-                        logger.info(f"💾 Updated {profile.name} with persistent environment variables")
+                        logger.info(
+                            f"💾 Updated {profile.name} with persistent environment variables"
+                        )
                 except Exception as e:
                     logger.debug(f"Could not update {profile}: {e}")
-    
+
     # PUBLIC API
-    
+
     @property
     def environment(self) -> Environment:
         """Get the current environment."""
         return self._environment
-    
+
     @property
     def stack_name(self) -> str:
         """Get the Pulumi stack name."""
         return self._stack_name
-    
+
     @property
     def pulumi_org(self) -> str:
         """Get the Pulumi organization."""
         return self._pulumi_org
-    
+
     @property
     def is_production(self) -> bool:
         """Check if current environment is production."""
         return self._environment == Environment.PRODUCTION
-    
+
     @property
     def is_staging(self) -> bool:
         """Check if current environment is staging."""
         return self._environment == Environment.STAGING
-    
+
     @property
     def is_development(self) -> bool:
         """Check if current environment is development."""
         return self._environment == Environment.DEVELOPMENT
-    
+
     def get_health_status(self) -> Dict[str, Any]:
         """Get comprehensive health status."""
         return {
@@ -406,13 +444,14 @@ class SophiaEnvironmentConfig:
             "stack_name": self._stack_name,
             "pulumi_org": self._pulumi_org,
             "health_checks": self._health_status,
-            "last_validated": self._last_validated.isoformat() if self._last_validated else None,
+            "last_validated": self._last_validated.isoformat()
+            if self._last_validated
+            else None,
             "overall_health": all(
-                v for v in self._health_status.values() 
-                if isinstance(v, bool)
-            )
+                v for v in self._health_status.values() if isinstance(v, bool)
+            ),
         }
-    
+
     def force_environment(self, environment: Environment) -> None:
         """Force a specific environment (for testing/debugging)."""
         logger.warning(f"🔧 Forcing environment to: {environment}")
@@ -420,28 +459,33 @@ class SophiaEnvironmentConfig:
         self._stack_name = self.STACK_MAPPING[environment]
         os.environ["ENVIRONMENT"] = environment.value
         self._validate_environment_health()
-    
+
     def refresh_health(self) -> Dict[str, Any]:
         """Refresh and return health status."""
         self._validate_environment_health()
         return self.get_health_status()
-    
+
     def get_pulumi_env_command(self) -> List[str]:
         """Get the Pulumi ESC command for current environment."""
         return [
-            "pulumi", "env", "open",
+            "pulumi",
+            "env",
+            "open",
             f"{self._pulumi_org}/default/{self._stack_name}",
-            "--format", "json"
+            "--format",
+            "json",
         ]
-    
+
     def load_secrets(self) -> Dict[str, Any]:
         """Load secrets from Pulumi ESC with error handling."""
         try:
             result = subprocess.run(
                 self.get_pulumi_env_command(),
-                capture_output=True, text=True, timeout=30
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
-            
+
             if result.returncode == 0:
                 secrets = json.loads(result.stdout)
                 logger.info(f"✅ Loaded {len(secrets)} secrets from {self._stack_name}")
@@ -452,11 +496,11 @@ class SophiaEnvironmentConfig:
         except Exception as e:
             logger.error(f"❌ Secret loading error: {e}")
             return {}
-    
+
     def __str__(self) -> str:
         """String representation."""
         return f"SophiaEnvironment(env={self._environment}, stack={self._stack_name})"
-    
+
     def __repr__(self) -> str:
         """Developer representation."""
         return (
@@ -472,6 +516,7 @@ class SophiaEnvironmentConfig:
 # GLOBAL SINGLETON INSTANCE
 _sophia_env_config: Optional[SophiaEnvironmentConfig] = None
 
+
 def get_sophia_environment() -> SophiaEnvironmentConfig:
     """Get the global Sophia environment configuration singleton."""
     global _sophia_env_config
@@ -479,38 +524,45 @@ def get_sophia_environment() -> SophiaEnvironmentConfig:
         _sophia_env_config = SophiaEnvironmentConfig()
     return _sophia_env_config
 
+
 def get_environment() -> Environment:
     """Get current environment (convenience function)."""
     return get_sophia_environment().environment
+
 
 def get_stack_name() -> str:
     """Get current stack name (convenience function)."""
     return get_sophia_environment().stack_name
 
+
 def get_pulumi_org() -> str:
     """Get Pulumi organization (convenience function)."""
     return get_sophia_environment().pulumi_org
+
 
 def is_production() -> bool:
     """Check if in production environment (convenience function)."""
     return get_sophia_environment().is_production
 
+
 def load_secrets() -> Dict[str, Any]:
     """Load secrets from current environment (convenience function)."""
     return get_sophia_environment().load_secrets()
+
 
 def validate_environment() -> bool:
     """Validate environment health (convenience function)."""
     health = get_sophia_environment().get_health_status()
     return health["overall_health"]
 
+
 # CLI INTERFACE
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         command = sys.argv[1]
-        
+
         env_config = get_sophia_environment()
-        
+
         if command == "status":
             print("🔍 Sophia AI Environment Status")
             print("=" * 40)
@@ -518,22 +570,24 @@ if __name__ == "__main__":
             print(f"Environment: {status['environment']}")
             print(f"Stack: {status['stack_name']}")
             print(f"Organization: {status['pulumi_org']}")
-            print(f"Overall Health: {'✅ Healthy' if status['overall_health'] else '❌ Issues'}")
+            print(
+                f"Overall Health: {'✅ Healthy' if status['overall_health'] else '❌ Issues'}"
+            )
             print("\nHealth Checks:")
-            for check, result in status['health_checks'].items():
+            for check, result in status["health_checks"].items():
                 if isinstance(result, bool):
                     print(f"  {check}: {'✅' if result else '❌'}")
-        
+
         elif command == "repair":
             print("🔧 Attempting environment repair...")
             env_config.refresh_health()
             print("✅ Repair completed")
-        
+
         elif command == "secrets":
             print("🔑 Loading secrets...")
             secrets = env_config.load_secrets()
             print(f"✅ Loaded {len(secrets)} secrets")
-        
+
         else:
             print(f"Unknown command: {command}")
             print("Available commands: status, repair, secrets")
@@ -541,4 +595,4 @@ if __name__ == "__main__":
         # Default: show status
         env_config = get_sophia_environment()
         print(f"🎯 {env_config}")
-        print(f"📊 Health: {'✅' if validate_environment() else '❌'}") 
+        print(f"📊 Health: {'✅' if validate_environment() else '❌'}")

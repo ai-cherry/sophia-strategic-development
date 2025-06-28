@@ -1,11 +1,11 @@
 from backend.services.knowledge_service import KnowledgeService
+
 """
 Foundational Knowledge Service
 Manages Pay Ready's foundational business information and integrates it with the existing knowledge base
 """
 
 import json
-import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
@@ -475,7 +475,7 @@ class FoundationalKnowledgeService:
 
             update_query = f"""
             UPDATE FOUNDATIONAL_KNOWLEDGE.{table_name}
-            SET {', '.join(set_clauses)}, UPDATED_AT = CURRENT_TIMESTAMP()
+            SET {", ".join(set_clauses)}, UPDATED_AT = CURRENT_TIMESTAMP()
             WHERE {self._get_primary_key_field(data_type)} = '{record_id}'
             """
 

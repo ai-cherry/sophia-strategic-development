@@ -1117,7 +1117,9 @@ class GongDataQualityMonitor:
             "reason": (
                 "Missing required fields"
                 if missing_fields
-                else "Low data quality" if not success else "OK"
+                else "Low data quality"
+                if not success
+                else "OK"
             ),
             "missing_fields": missing_fields,
         }

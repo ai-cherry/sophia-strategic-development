@@ -797,11 +797,11 @@ class LangGraphAgentWorkflowOrchestrator:
     Replaces AgnoMCPBridge with pure Python LangGraph-compatible implementation.
     """
 
-    def __init__(self, agent_pool: Optional['LangGraphAgentPool'] = None):
+    def __init__(self, agent_pool: Optional["LangGraphAgentPool"] = None):
         self.agent_pool = agent_pool or LangGraphAgentPool(pool_size=3)
         self.logger = logger.bind(component="langgraph_agent_workflow_orchestrator")
         self.active_workflows: Dict[str, Dict[str, Any]] = {}
-        
+
         # Import agent classes for dynamic instantiation
         self._agent_classes = {}
         self._initialize_agent_classes()
@@ -810,10 +810,14 @@ class LangGraphAgentWorkflowOrchestrator:
         """Initialize agent class registry for dynamic instantiation"""
         try:
             from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
-            from backend.agents.specialized.sales_intelligence_agent import SalesIntelligenceAgent
-            from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
+            from backend.agents.specialized.sales_intelligence_agent import (
+                SalesIntelligenceAgent,
+            )
+            from backend.agents.specialized.marketing_analysis_agent import (
+                MarketingAnalysisAgent,
+            )
             from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
-            
+
             self._agent_classes = {
                 "call_analysis": CallAnalysisAgent,
                 "sales_intelligence": SalesIntelligenceAgent,
@@ -876,7 +880,9 @@ class LangGraphAgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "LangGraph workflow orchestration failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph workflow orchestration failed",
+                workflow_id=workflow_id,
+                error=str(e),
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             self.active_workflows[workflow_id]["error"] = str(e)
@@ -907,7 +913,11 @@ class LangGraphAgentWorkflowOrchestrator:
 
         try:
             # Route to appropriate specialist agents based on insight type
-            if insight_type in ["competitor_mention", "churn_risk", "upsell_opportunity"]:
+            if insight_type in [
+                "competitor_mention",
+                "churn_risk",
+                "upsell_opportunity",
+            ]:
                 # Use sales intelligence agent for strategic insights
                 sales_result = await self._route_to_langgraph_agent(
                     "sales_intelligence",
@@ -926,7 +936,9 @@ class LangGraphAgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "LangGraph insight workflow failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph insight workflow failed",
+                workflow_id=workflow_id,
+                error=str(e),
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             results["error"] = str(e)
@@ -957,7 +969,7 @@ class LangGraphAgentWorkflowOrchestrator:
         try:
             # Route to most appropriate agent based on action type
             agent_type = self._determine_best_agent_for_action(action_type)
-            
+
             action_result = await self._route_to_langgraph_agent(
                 agent_type,
                 transformed_data.get(agent_type, {}),
@@ -983,7 +995,9 @@ class LangGraphAgentWorkflowOrchestrator:
 
         except Exception as e:
             self.logger.error(
-                "LangGraph action workflow failed", workflow_id=workflow_id, error=str(e)
+                "LangGraph action workflow failed",
+                workflow_id=workflow_id,
+                error=str(e),
             )
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.FAILED
             results["error"] = str(e)
@@ -1005,7 +1019,7 @@ class LangGraphAgentWorkflowOrchestrator:
             request_id=context.get("workflow_id", str(uuid4())),
             workflow_id=context.get("workflow_id"),
             priority=context.get("priority", "normal"),
-            metadata=context
+            metadata=context,
         )
 
         # Prepare request for LangGraph agent
@@ -1025,7 +1039,7 @@ class LangGraphAgentWorkflowOrchestrator:
         if agent_type in self._agent_classes:
             agent_class = self._agent_classes[agent_type]
             agent = await self.agent_pool.get_agent(agent_class)
-            
+
             try:
                 response = await agent.process_request(request, agent_context)
                 return response
@@ -1035,7 +1049,7 @@ class LangGraphAgentWorkflowOrchestrator:
                     "success": False,
                     "error": str(e),
                     "agent_type": agent_type,
-                    "metadata": {"processing_failed": True}
+                    "metadata": {"processing_failed": True},
                 }
         else:
             # Fallback for unknown agent types
@@ -1044,7 +1058,7 @@ class LangGraphAgentWorkflowOrchestrator:
                 "error": f"Unknown agent type: {agent_type}",
                 "agent_type": agent_type,
                 "content": f"Agent type {agent_type} not available",
-                "metadata": {"fallback_response": True}
+                "metadata": {"fallback_response": True},
             }
 
     def _determine_best_agent_for_action(self, action_type: str) -> str:
@@ -1057,7 +1071,7 @@ class LangGraphAgentWorkflowOrchestrator:
             "performance_review": "call_analysis",
             "coaching_session": "call_analysis",
         }
-        
+
         return action_agent_mapping.get(action_type, "sales_intelligence")
 
     def _generate_agent_query(self, agent_type: str, data: Dict[str, Any]) -> str:
@@ -1080,11 +1094,15 @@ class LangGraphAgentWorkflowOrchestrator:
                 # Extract insights from agent response
                 consolidated.append(
                     {
-                        "agent": result.get("metadata", {}).get("agent_type", "unknown"),
+                        "agent": result.get("metadata", {}).get(
+                            "agent_type", "unknown"
+                        ),
                         "insight": result.get("content"),
                         "confidence": result.get("metadata", {}).get("confidence", 0.5),
                         "timestamp": datetime.utcnow().isoformat(),
-                        "processing_time_ms": result.get("metadata", {}).get("processing_time_ms", 0),
+                        "processing_time_ms": result.get("metadata", {}).get(
+                            "processing_time_ms", 0
+                        ),
                     }
                 )
 
@@ -1097,7 +1115,9 @@ class LangGraphAgentWorkflowOrchestrator:
 
         for result in agent_results:
             if result and result.get("success", True) and "metadata" in result:
-                agent_actions = result.get("metadata", {}).get("recommended_actions", [])
+                agent_actions = result.get("metadata", {}).get(
+                    "recommended_actions", []
+                )
                 for action in agent_actions:
                     action_key = f"{action.get('type')}:{action.get('description')}"
                     if action_key not in action_set:
@@ -1105,8 +1125,12 @@ class LangGraphAgentWorkflowOrchestrator:
                         actions.append(
                             {
                                 **action,
-                                "source_agent": result.get("metadata", {}).get("agent_type", "unknown"),
-                                "confidence": result.get("metadata", {}).get("confidence", 0.5),
+                                "source_agent": result.get("metadata", {}).get(
+                                    "agent_type", "unknown"
+                                ),
+                                "confidence": result.get("metadata", {}).get(
+                                    "confidence", 0.5
+                                ),
                                 "workflow_generated": True,
                             }
                         )
@@ -1273,7 +1297,7 @@ class GongAgentIntegrationManager:
 
     def __init__(
         self,
-        agent_pool: Optional['LangGraphAgentPool'],
+        agent_pool: Optional["LangGraphAgentPool"],
         redis_client: RedisNotificationClient,
         config: Optional[GongAgentIntegrationConfig] = None,
     ):

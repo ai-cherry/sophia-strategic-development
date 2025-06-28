@@ -21,23 +21,26 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class DeploymentResult:
     """Result of a deployment operation"""
+
     component: str
     status: str
     message: str
     execution_time: float
     details: Optional[Dict[str, Any]] = None
 
+
 class AsanaSnowflakeDeployer:
     """Deploys comprehensive Asana Snowflake infrastructure"""
-    
+
     def __init__(self, environment: str = "dev"):
         self.environment = environment
         self.cortex_service = None
         self.deployment_results: List[DeploymentResult] = []
-        
+
     async def initialize(self) -> None:
         """Initialize the deployer"""
         try:
@@ -48,44 +51,46 @@ class AsanaSnowflakeDeployer:
             logger.error(f"❌ Failed to initialize deployer: {e}")
             raise
 
-    async def execute_sql_with_result_tracking(self, sql: str, component: str) -> DeploymentResult:
+    async def execute_sql_with_result_tracking(
+        self, sql: str, component: str
+    ) -> DeploymentResult:
         """Execute SQL and track deployment result"""
         start_time = datetime.now()
-        
+
         try:
             await self.cortex_service.execute_query(sql)
             execution_time = (datetime.now() - start_time).total_seconds()
-            
+
             result = DeploymentResult(
                 component=component,
                 status="SUCCESS",
                 message=f"{component} deployed successfully",
-                execution_time=execution_time
+                execution_time=execution_time,
             )
-            
+
             logger.info(f"✅ {component} deployed in {execution_time:.2f}s")
-            
+
         except Exception as e:
             execution_time = (datetime.now() - start_time).total_seconds()
-            
+
             result = DeploymentResult(
                 component=component,
                 status="FAILED",
                 message=f"{component} deployment failed: {str(e)}",
-                execution_time=execution_time
+                execution_time=execution_time,
             )
-            
+
             logger.error(f"❌ {component} deployment failed: {e}")
-        
+
         self.deployment_results.append(result)
         return result
 
     async def deploy_asana_transformation_procedures(self) -> List[DeploymentResult]:
         """Deploy Asana data transformation stored procedures"""
         logger.info("🚀 Deploying Asana transformation procedures")
-        
+
         procedures = []
-        
+
         # 1. Transform Asana Projects
         transform_projects_sql = """
         CREATE OR REPLACE PROCEDURE TRANSFORM_ASANA_PROJECTS()
@@ -215,11 +220,13 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        procedures.append(await self.execute_sql_with_result_tracking(
-            transform_projects_sql, "TRANSFORM_ASANA_PROJECTS"
-        ))
-        
+
+        procedures.append(
+            await self.execute_sql_with_result_tracking(
+                transform_projects_sql, "TRANSFORM_ASANA_PROJECTS"
+            )
+        )
+
         # 2. Transform Asana Tasks
         transform_tasks_sql = """
         CREATE OR REPLACE PROCEDURE TRANSFORM_ASANA_TASKS()
@@ -367,11 +374,13 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        procedures.append(await self.execute_sql_with_result_tracking(
-            transform_tasks_sql, "TRANSFORM_ASANA_TASKS"
-        ))
-        
+
+        procedures.append(
+            await self.execute_sql_with_result_tracking(
+                transform_tasks_sql, "TRANSFORM_ASANA_TASKS"
+            )
+        )
+
         # 3. Transform Asana Users
         transform_users_sql = """
         CREATE OR REPLACE PROCEDURE TRANSFORM_ASANA_USERS()
@@ -458,19 +467,21 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        procedures.append(await self.execute_sql_with_result_tracking(
-            transform_users_sql, "TRANSFORM_ASANA_USERS"
-        ))
-        
+
+        procedures.append(
+            await self.execute_sql_with_result_tracking(
+                transform_users_sql, "TRANSFORM_ASANA_USERS"
+            )
+        )
+
         return procedures
 
     async def deploy_asana_ai_enrichment_procedures(self) -> List[DeploymentResult]:
         """Deploy AI enrichment procedures for Asana data"""
         logger.info("🤖 Deploying Asana AI enrichment procedures")
-        
+
         procedures = []
-        
+
         # AI Enrichment for Projects
         ai_enrichment_projects_sql = """
         CREATE OR REPLACE PROCEDURE GENERATE_ASANA_PROJECT_AI_EMBEDDINGS()
@@ -554,11 +565,13 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        procedures.append(await self.execute_sql_with_result_tracking(
-            ai_enrichment_projects_sql, "GENERATE_ASANA_PROJECT_AI_EMBEDDINGS"
-        ))
-        
+
+        procedures.append(
+            await self.execute_sql_with_result_tracking(
+                ai_enrichment_projects_sql, "GENERATE_ASANA_PROJECT_AI_EMBEDDINGS"
+            )
+        )
+
         # AI Enrichment for Tasks
         ai_enrichment_tasks_sql = """
         CREATE OR REPLACE PROCEDURE GENERATE_ASANA_TASK_AI_EMBEDDINGS()
@@ -651,19 +664,21 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        procedures.append(await self.execute_sql_with_result_tracking(
-            ai_enrichment_tasks_sql, "GENERATE_ASANA_TASK_AI_EMBEDDINGS"
-        ))
-        
+
+        procedures.append(
+            await self.execute_sql_with_result_tracking(
+                ai_enrichment_tasks_sql, "GENERATE_ASANA_TASK_AI_EMBEDDINGS"
+            )
+        )
+
         return procedures
 
     async def deploy_asana_scheduled_tasks(self) -> List[DeploymentResult]:
         """Deploy scheduled tasks for automated Asana data processing"""
         logger.info("⏰ Deploying Asana scheduled tasks")
-        
+
         tasks = []
-        
+
         # Main Asana transformation task
         main_transform_task_sql = """
         CREATE OR REPLACE TASK TASK_TRANSFORM_ASANA_DATA
@@ -677,11 +692,13 @@ class AsanaSnowflakeDeployer:
             CALL TRANSFORM_ASANA_USERS();
         END;
         """
-        
-        tasks.append(await self.execute_sql_with_result_tracking(
-            main_transform_task_sql, "TASK_TRANSFORM_ASANA_DATA"
-        ))
-        
+
+        tasks.append(
+            await self.execute_sql_with_result_tracking(
+                main_transform_task_sql, "TASK_TRANSFORM_ASANA_DATA"
+            )
+        )
+
         # AI enrichment task
         ai_enrichment_task_sql = """
         CREATE OR REPLACE TASK TASK_ASANA_AI_ENRICHMENT
@@ -695,29 +712,33 @@ class AsanaSnowflakeDeployer:
             CALL GENERATE_ASANA_TASK_AI_EMBEDDINGS();
         END;
         """
-        
-        tasks.append(await self.execute_sql_with_result_tracking(
-            ai_enrichment_task_sql, "TASK_ASANA_AI_ENRICHMENT"
-        ))
-        
+
+        tasks.append(
+            await self.execute_sql_with_result_tracking(
+                ai_enrichment_task_sql, "TASK_ASANA_AI_ENRICHMENT"
+            )
+        )
+
         # Resume tasks
         resume_tasks_sql = """
         ALTER TASK TASK_TRANSFORM_ASANA_DATA RESUME;
         ALTER TASK TASK_ASANA_AI_ENRICHMENT RESUME;
         """
-        
-        tasks.append(await self.execute_sql_with_result_tracking(
-            resume_tasks_sql, "RESUME_ASANA_TASKS"
-        ))
-        
+
+        tasks.append(
+            await self.execute_sql_with_result_tracking(
+                resume_tasks_sql, "RESUME_ASANA_TASKS"
+            )
+        )
+
         return tasks
 
     async def deploy_asana_data_quality_monitoring(self) -> List[DeploymentResult]:
         """Deploy data quality monitoring for Asana data"""
         logger.info("📊 Deploying Asana data quality monitoring")
-        
+
         monitoring = []
-        
+
         # Data quality monitoring procedure
         quality_monitoring_sql = """
         CREATE OR REPLACE PROCEDURE MONITOR_ASANA_DATA_QUALITY()
@@ -763,11 +784,13 @@ class AsanaSnowflakeDeployer:
         END;
         $$;
         """
-        
-        monitoring.append(await self.execute_sql_with_result_tracking(
-            quality_monitoring_sql, "MONITOR_ASANA_DATA_QUALITY"
-        ))
-        
+
+        monitoring.append(
+            await self.execute_sql_with_result_tracking(
+                quality_monitoring_sql, "MONITOR_ASANA_DATA_QUALITY"
+            )
+        )
+
         # Quality monitoring task
         quality_task_sql = """
         CREATE OR REPLACE TASK TASK_MONITOR_ASANA_QUALITY
@@ -779,40 +802,48 @@ class AsanaSnowflakeDeployer:
             CALL MONITOR_ASANA_DATA_QUALITY();
         END;
         """
-        
-        monitoring.append(await self.execute_sql_with_result_tracking(
-            quality_task_sql, "TASK_MONITOR_ASANA_QUALITY"
-        ))
-        
+
+        monitoring.append(
+            await self.execute_sql_with_result_tracking(
+                quality_task_sql, "TASK_MONITOR_ASANA_QUALITY"
+            )
+        )
+
         # Resume quality monitoring task
         resume_quality_task_sql = "ALTER TASK TASK_MONITOR_ASANA_QUALITY RESUME;"
-        
-        monitoring.append(await self.execute_sql_with_result_tracking(
-            resume_quality_task_sql, "RESUME_QUALITY_MONITORING"
-        ))
-        
+
+        monitoring.append(
+            await self.execute_sql_with_result_tracking(
+                resume_quality_task_sql, "RESUME_QUALITY_MONITORING"
+            )
+        )
+
         return monitoring
 
-    async def deploy_all_asana_infrastructure(self) -> Dict[str, List[DeploymentResult]]:
+    async def deploy_all_asana_infrastructure(
+        self,
+    ) -> Dict[str, List[DeploymentResult]]:
         """Deploy complete Asana Snowflake infrastructure"""
         logger.info("🚀 Deploying complete Asana Snowflake infrastructure")
-        
+
         all_results = {
             "transformation_procedures": await self.deploy_asana_transformation_procedures(),
             "ai_enrichment_procedures": await self.deploy_asana_ai_enrichment_procedures(),
             "scheduled_tasks": await self.deploy_asana_scheduled_tasks(),
-            "quality_monitoring": await self.deploy_asana_data_quality_monitoring()
+            "quality_monitoring": await self.deploy_asana_data_quality_monitoring(),
         }
-        
+
         # Generate deployment summary
         total_deployments = sum(len(results) for results in all_results.values())
         successful_deployments = sum(
-            len([r for r in results if r.status == "SUCCESS"]) 
+            len([r for r in results if r.status == "SUCCESS"])
             for results in all_results.values()
         )
-        
-        logger.info(f"✅ Asana infrastructure deployment completed: {successful_deployments}/{total_deployments} successful")
-        
+
+        logger.info(
+            f"✅ Asana infrastructure deployment completed: {successful_deployments}/{total_deployments} successful"
+        )
+
         return all_results
 
     async def close(self) -> None:
@@ -820,31 +851,40 @@ class AsanaSnowflakeDeployer:
         if self.cortex_service:
             await self.cortex_service.close()
 
+
 async def main():
     """Main deployment function"""
-    parser = argparse.ArgumentParser(description="Deploy Asana Snowflake Infrastructure")
+    parser = argparse.ArgumentParser(
+        description="Deploy Asana Snowflake Infrastructure"
+    )
     parser.add_argument("--env", default="dev", choices=["dev", "staging", "prod"])
-    parser.add_argument("--execute-all", action="store_true", help="Execute all deployment steps")
-    parser.add_argument("--component", choices=["transform", "ai", "tasks", "monitoring"], help="Deploy specific component")
-    
+    parser.add_argument(
+        "--execute-all", action="store_true", help="Execute all deployment steps"
+    )
+    parser.add_argument(
+        "--component",
+        choices=["transform", "ai", "tasks", "monitoring"],
+        help="Deploy specific component",
+    )
+
     args = parser.parse_args()
-    
+
     deployer = AsanaSnowflakeDeployer(args.env)
-    
+
     try:
         await deployer.initialize()
-        
+
         if args.execute_all:
             results = await deployer.deploy_all_asana_infrastructure()
             print("✅ Complete Asana infrastructure deployment completed")
-            
+
             # Print summary
             for category, category_results in results.items():
                 print(f"\n{category.replace('_', ' ').title()}:")
                 for result in category_results:
                     status_icon = "✅" if result.status == "SUCCESS" else "❌"
                     print(f"  {status_icon} {result.component}: {result.message}")
-        
+
         elif args.component:
             if args.component == "transform":
                 results = await deployer.deploy_asana_transformation_procedures()
@@ -854,22 +894,23 @@ async def main():
                 results = await deployer.deploy_asana_scheduled_tasks()
             elif args.component == "monitoring":
                 results = await deployer.deploy_asana_data_quality_monitoring()
-            
+
             print(f"✅ {args.component.title()} deployment completed")
             for result in results:
                 status_icon = "✅" if result.status == "SUCCESS" else "❌"
                 print(f"  {status_icon} {result.component}: {result.message}")
-        
+
         else:
             print("❌ Please specify --execute-all or --component")
-            
+
     except Exception as e:
         print(f"❌ Deployment failed: {e}")
         return 1
     finally:
         await deployer.close()
-    
+
     return 0
 
+
 if __name__ == "__main__":
-    exit(asyncio.run(main())) 
+    exit(asyncio.run(main()))

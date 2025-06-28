@@ -107,7 +107,9 @@ class IntelligentCache:
         """Initialize Redis connection"""
         try:
             self.redis_client = await redis_client.from_url(
-                get_config_value("redis_url", "redis://localhost:6379"), encoding="utf-8", decode_responses=True
+                get_config_value("redis_url", "redis://localhost:6379"),
+                encoding="utf-8",
+                decode_responses=True,
             )
             logger.info("Cache initialized successfully")
         except Exception as e:
@@ -223,19 +225,41 @@ class DataFlowManager:
     async def _register_data_sources(self):
         """Register all data sources with their reliability patterns"""
         sources = [
-            DataSource("gong", "estuary", get_config_value("gong_api_base_url", "https://api.gong.io"), "circuit_breaker"),
             DataSource(
-                "hubspot", "estuary", get_config_value("hubspot_api_base_url", "https://api.hubapi.com"), "circuit_breaker"
+                "gong",
+                "estuary",
+                get_config_value("gong_api_base_url", "https://api.gong.io"),
+                "circuit_breaker",
+            ),
+            DataSource(
+                "hubspot",
+                "estuary",
+                get_config_value("hubspot_api_base_url", "https://api.hubapi.com"),
+                "circuit_breaker",
             ),
             # TODO: HYBRID APPROACH - Maintain existing HubSpot ingestion for training/interaction
             # PLUS add Snowflake Secure Data Sharing for enterprise analytics
             # See backend/utils/snowflake_hubspot_connector.py for blended access patterns
-            DataSource("slack", "webhook", get_config_value("slack_webhook_url", ""), "queue"),
-            DataSource("linear", "estuary", get_config_value("linear_api_base_url", "https://api.linear.app"), "retry"),
-            DataSource("github", "webhook", get_config_value("github_webhook_url", ""), "queue"),
-            DataSource("costar", "batch", get_config_value("costar_api_base_url", ""), "retry"),
             DataSource(
-                "apollo", "api_poll", get_config_value("apollo_api_base_url", "https://api.apollo.io"), "circuit_breaker"
+                "slack", "webhook", get_config_value("slack_webhook_url", ""), "queue"
+            ),
+            DataSource(
+                "linear",
+                "estuary",
+                get_config_value("linear_api_base_url", "https://api.linear.app"),
+                "retry",
+            ),
+            DataSource(
+                "github", "webhook", get_config_value("github_webhook_url", ""), "queue"
+            ),
+            DataSource(
+                "costar", "batch", get_config_value("costar_api_base_url", ""), "retry"
+            ),
+            DataSource(
+                "apollo",
+                "api_poll",
+                get_config_value("apollo_api_base_url", "https://api.apollo.io"),
+                "circuit_breaker",
             ),
         ]
 

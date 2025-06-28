@@ -10,8 +10,13 @@ from .contact import Contact, ContactType, EngagementLevel
 from .user import User, UserRole, PermissionLevel
 
 __all__ = [
-    'Call',
-    'Deal', 'DealStage',
-    'Contact', 'ContactType', 'EngagementLevel',
-    'User', 'UserRole', 'PermissionLevel'
+    "Call",
+    "Deal",
+    "DealStage",
+    "Contact",
+    "ContactType",
+    "EngagementLevel",
+    "User",
+    "UserRole",
+    "PermissionLevel",
 ]

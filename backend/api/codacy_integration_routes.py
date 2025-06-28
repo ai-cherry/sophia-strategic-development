@@ -283,7 +283,7 @@ async def fix_issues(
 
 @router.get("/project-status")
 async def get_project_status(
-    project_id: Optional[str] = Query(None, description="Codacy project ID")
+    project_id: Optional[str] = Query(None, description="Codacy project ID"),
 ):
     """Get overall project health and quality status."""
     try:

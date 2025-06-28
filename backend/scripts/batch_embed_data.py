@@ -523,7 +523,7 @@ class BatchEmbeddingProcessor:
                     MAX({config.updated_column}) as last_embedding_update,
                     MAX(UPDATED_AT) as last_record_update
                 FROM {config.table_name}
-                WHERE {config.where_condition if config.where_condition else '1=1'}
+                WHERE {config.where_condition if config.where_condition else "1=1"}
                 """
 
                 cursor = self.cortex_service.connection.cursor()

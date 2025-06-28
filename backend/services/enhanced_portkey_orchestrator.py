@@ -2,23 +2,21 @@
 Enhanced Portkey Orchestrator for Sophia AI
 Leverages 11 LLM providers through Portkey virtual keys with intelligent routing
 
-Providers: DeepSeek, OpenAI, Anthropic, Qwen, Grok (XAI), Perplexity, 
+Providers: DeepSeek, OpenAI, Anthropic, Qwen, Grok (XAI), Perplexity,
           Together AI, Groq, Mistral, Cohere + fallbacks
 
 Features:
 - Intelligent model selection based on task complexity
-- Cost optimization through provider tier routing  
+- Cost optimization through provider tier routing
 - Real-time fallback management
 - Cursor IDE integration with MCP support
 - Natural language chat interface optimization
 """
 
 import asyncio
-import logging
 import json
 import time
-from datetime import datetime
-from typing import Dict, List, Any, Optional, AsyncGenerator, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import aiohttp
@@ -31,26 +29,29 @@ logger = structlog.get_logger()
 
 class ProviderTier(str, Enum):
     """Provider tiers based on cost and capability"""
-    ULTRA_FAST = "ultra_fast"      # Groq, Together AI - Speed optimized
-    COST_EFFICIENT = "cost_efficient"  # DeepSeek, Qwen - Cost optimized  
-    PREMIUM = "premium"            # OpenAI GPT-4, Anthropic Claude - Quality
-    RESEARCH = "research"          # Perplexity, Grok - Research/reasoning
-    SPECIALIZED = "specialized"    # Mistral, Cohere - Domain-specific
+
+    ULTRA_FAST = "ultra_fast"  # Groq, Together AI - Speed optimized
+    COST_EFFICIENT = "cost_efficient"  # DeepSeek, Qwen - Cost optimized
+    PREMIUM = "premium"  # OpenAI GPT-4, Anthropic Claude - Quality
+    RESEARCH = "research"  # Perplexity, Grok - Research/reasoning
+    SPECIALIZED = "specialized"  # Mistral, Cohere - Domain-specific
 
 
 class TaskComplexity(str, Enum):
     """Task complexity levels for intelligent routing"""
-    SIMPLE = "simple"          # Basic chat, simple questions
-    MODERATE = "moderate"      # Code generation, analysis
-    COMPLEX = "complex"        # Business analysis, research
-    EXPERT = "expert"          # CEO insights, critical decisions
-    CREATIVE = "creative"      # Design, content creation
-    RESEARCH = "research"      # Deep analysis, fact-checking
+
+    SIMPLE = "simple"  # Basic chat, simple questions
+    MODERATE = "moderate"  # Code generation, analysis
+    COMPLEX = "complex"  # Business analysis, research
+    EXPERT = "expert"  # CEO insights, critical decisions
+    CREATIVE = "creative"  # Design, content creation
+    RESEARCH = "research"  # Deep analysis, fact-checking
 
 
 @dataclass
 class ProviderConfig:
     """Configuration for each provider virtual key"""
+
     name: str
     virtual_key: str
     tier: ProviderTier
@@ -66,6 +67,7 @@ class ProviderConfig:
 @dataclass
 class EnhancedLLMRequest:
     """Enhanced request with intelligent routing metadata"""
+
     messages: List[Dict[str, str]]
     task_complexity: TaskComplexity = TaskComplexity.MODERATE
     preferred_providers: Optional[List[str]] = None
@@ -82,6 +84,7 @@ class EnhancedLLMRequest:
 @dataclass
 class EnhancedLLMResponse:
     """Enhanced response with provider intelligence"""
+
     content: str
     provider_used: str
     model_used: str
@@ -100,7 +103,7 @@ class EnhancedLLMResponse:
 class EnhancedPortkeyOrchestrator:
     """
     Enhanced Portkey Orchestrator with 11-Provider Intelligence
-    
+
     Capabilities:
     - Intelligent provider selection based on task complexity
     - Real-time cost optimization across providers
@@ -108,27 +111,27 @@ class EnhancedPortkeyOrchestrator:
     - Performance monitoring and learning
     - Cursor IDE integration with MCP support
     """
-    
+
     def __init__(self):
         self.base_url = "https://api.portkey.ai/v1"
         self.session: Optional[aiohttp.ClientSession] = None
-        
+
         # Load virtual keys from config
         self.virtual_keys = self._load_virtual_keys()
-        
+
         # Provider configurations based on your setup
         self.providers = self._initialize_providers()
-        
+
         # Intelligence systems
         self.provider_performance = {}  # Track performance metrics
-        self.cost_tracker = {}         # Track cost across providers
-        self.fallback_history = {}     # Learn from fallback patterns
-        
+        self.cost_tracker = {}  # Track cost across providers
+        self.fallback_history = {}  # Learn from fallback patterns
+
     def _load_virtual_keys(self) -> Dict[str, str]:
         """Load all virtual keys from configuration"""
         return {
             "deepseek": get_config_value("portkey_virtual_key_deepseek"),
-            "openai": get_config_value("portkey_virtual_key_openai"), 
+            "openai": get_config_value("portkey_virtual_key_openai"),
             "anthropic": get_config_value("portkey_virtual_key_anthropic"),
             "qwen": get_config_value("portkey_virtual_key_qwen"),
             "grok": get_config_value("portkey_virtual_key_grok"),
@@ -137,9 +140,9 @@ class EnhancedPortkeyOrchestrator:
             "groq": get_config_value("portkey_virtual_key_groq"),
             "mistral": get_config_value("portkey_virtual_key_mistral"),
             "cohere": get_config_value("portkey_virtual_key_cohere"),
-            "default": get_config_value("portkey_virtual_key_prod")
+            "default": get_config_value("portkey_virtual_key_prod"),
         }
-    
+
     def _initialize_providers(self) -> Dict[str, ProviderConfig]:
         """Initialize provider configurations"""
         return {
@@ -151,7 +154,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.0002,
                 max_tokens=32768,
                 strengths=["Ultra-fast inference", "Real-time responses"],
-                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE]
+                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE],
             ),
             "deepseek": ProviderConfig(
                 name="DeepSeek",
@@ -161,7 +164,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.00014,
                 max_tokens=8192,
                 strengths=["Extremely cost-effective", "Strong coding"],
-                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE]
+                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE],
             ),
             "qwen": ProviderConfig(
                 name="Qwen",
@@ -171,7 +174,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.0005,
                 max_tokens=32768,
                 strengths=["Excellent multilingual", "Strong reasoning"],
-                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX]
+                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX],
             ),
             "together": ProviderConfig(
                 name="Together AI",
@@ -181,7 +184,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.0009,
                 max_tokens=8192,
                 strengths=["Fast inference", "Open source models"],
-                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE]
+                best_for=[TaskComplexity.SIMPLE, TaskComplexity.MODERATE],
             ),
             "anthropic": ProviderConfig(
                 name="Anthropic",
@@ -191,7 +194,11 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.015,
                 max_tokens=200000,
                 strengths=["Superior reasoning", "Long context", "Safety"],
-                best_for=[TaskComplexity.COMPLEX, TaskComplexity.EXPERT, TaskComplexity.CREATIVE]
+                best_for=[
+                    TaskComplexity.COMPLEX,
+                    TaskComplexity.EXPERT,
+                    TaskComplexity.CREATIVE,
+                ],
             ),
             "openai": ProviderConfig(
                 name="OpenAI",
@@ -201,7 +208,11 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.025,
                 max_tokens=128000,
                 strengths=["Versatile", "Reliable", "Function calling"],
-                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX, TaskComplexity.EXPERT]
+                best_for=[
+                    TaskComplexity.MODERATE,
+                    TaskComplexity.COMPLEX,
+                    TaskComplexity.EXPERT,
+                ],
             ),
             "grok": ProviderConfig(
                 name="Grok (XAI)",
@@ -211,7 +222,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.005,
                 max_tokens=131072,
                 strengths=["Real-time information", "Reasoning", "Humor"],
-                best_for=[TaskComplexity.RESEARCH, TaskComplexity.COMPLEX]
+                best_for=[TaskComplexity.RESEARCH, TaskComplexity.COMPLEX],
             ),
             "perplexity": ProviderConfig(
                 name="Perplexity",
@@ -221,7 +232,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.002,
                 max_tokens=127072,
                 strengths=["Web search", "Real-time data", "Research"],
-                best_for=[TaskComplexity.RESEARCH, TaskComplexity.COMPLEX]
+                best_for=[TaskComplexity.RESEARCH, TaskComplexity.COMPLEX],
             ),
             "mistral": ProviderConfig(
                 name="Mistral",
@@ -231,7 +242,7 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.008,
                 max_tokens=32768,
                 strengths=["European model", "Coding", "Efficiency"],
-                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX]
+                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX],
             ),
             "cohere": ProviderConfig(
                 name="Cohere",
@@ -241,157 +252,172 @@ class EnhancedPortkeyOrchestrator:
                 cost_per_1k_tokens=0.003,
                 max_tokens=128000,
                 strengths=["RAG", "Embeddings", "Enterprise"],
-                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX]
-            )
+                best_for=[TaskComplexity.MODERATE, TaskComplexity.COMPLEX],
+            ),
         }
-    
+
     async def initialize(self) -> bool:
         """Initialize the enhanced orchestrator"""
         try:
             self.session = aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=60),
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
             )
-            
+
             # Test connectivity to top providers
             connectivity_results = await self._test_provider_connectivity()
-            active_providers = sum(1 for result in connectivity_results.values() if result)
-            
+            active_providers = sum(
+                1 for result in connectivity_results.values() if result
+            )
+
             logger.info(
                 "Enhanced Portkey Orchestrator initialized",
                 active_providers=active_providers,
                 total_providers=len(self.providers),
-                connectivity=connectivity_results
+                connectivity=connectivity_results,
             )
-            
+
             return active_providers > 0
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize orchestrator: {e}")
             return False
-    
+
     async def _test_provider_connectivity(self) -> Dict[str, bool]:
         """Test connectivity to all providers"""
         results = {}
-        
+
         if not self.session:
             return {name: False for name in self.providers.keys()}
-        
+
         for provider_name, config in self.providers.items():
             if not config.virtual_key:
                 results[provider_name] = False
                 continue
-                
+
             try:
                 async with self.session.get(
                     f"{self.base_url}/models",
                     headers={"x-portkey-virtual-key": config.virtual_key},
-                    timeout=aiohttp.ClientTimeout(total=5)
+                    timeout=aiohttp.ClientTimeout(total=5),
                 ) as response:
                     results[provider_name] = response.status == 200
             except Exception:
                 results[provider_name] = False
-        
+
         return results
-    
+
     def _select_optimal_provider(self, request: EnhancedLLMRequest) -> str:
         """Intelligent provider selection based on request characteristics"""
         # Filter providers based on task complexity
         suitable_providers = [
-            name for name, config in self.providers.items()
+            name
+            for name, config in self.providers.items()
             if request.task_complexity in config.best_for and config.virtual_key
         ]
-        
+
         if not suitable_providers:
             # Fallback to any available provider
             suitable_providers = [
-                name for name, config in self.providers.items() 
-                if config.virtual_key
+                name for name, config in self.providers.items() if config.virtual_key
             ]
-        
+
         # Apply cost preference
         if request.cost_preference == "cost_optimized":
             # Prefer cost-efficient providers
-            cost_efficient = [p for p in suitable_providers 
-                            if self.providers[p].tier == ProviderTier.COST_EFFICIENT]
+            cost_efficient = [
+                p
+                for p in suitable_providers
+                if self.providers[p].tier == ProviderTier.COST_EFFICIENT
+            ]
             if cost_efficient:
                 suitable_providers = cost_efficient
         elif request.cost_preference == "quality_first":
             # Prefer premium providers
-            premium = [p for p in suitable_providers 
-                      if self.providers[p].tier == ProviderTier.PREMIUM]
+            premium = [
+                p
+                for p in suitable_providers
+                if self.providers[p].tier == ProviderTier.PREMIUM
+            ]
             if premium:
                 suitable_providers = premium
-        
+
         # Select based on performance history and current load
         return self._select_best_performing_provider(suitable_providers, request)
-    
-    def _select_best_performing_provider(self, candidates: List[str], request: EnhancedLLMRequest) -> str:
+
+    def _select_best_performing_provider(
+        self, candidates: List[str], request: EnhancedLLMRequest
+    ) -> str:
         """Select provider based on performance metrics"""
         if not candidates:
             return "openai"  # Fallback
-        
+
         # For urgency, prefer ultra-fast providers
         if request.urgency in ["high", "critical"]:
-            ultra_fast = [p for p in candidates 
-                         if self.providers[p].tier == ProviderTier.ULTRA_FAST]
+            ultra_fast = [
+                p
+                for p in candidates
+                if self.providers[p].tier == ProviderTier.ULTRA_FAST
+            ]
             if ultra_fast:
                 return ultra_fast[0]
-        
+
         # For research tasks, prefer research providers
         if request.task_complexity == TaskComplexity.RESEARCH:
-            research = [p for p in candidates 
-                       if self.providers[p].tier == ProviderTier.RESEARCH]
+            research = [
+                p for p in candidates if self.providers[p].tier == ProviderTier.RESEARCH
+            ]
             if research:
                 return research[0]
-        
+
         # Default to first suitable provider (can be enhanced with ML in future)
         return candidates[0]
-    
+
     async def complete(self, request: EnhancedLLMRequest) -> EnhancedLLMResponse:
         """Enhanced completion with intelligent routing and fallbacks"""
         start_time = time.time()
         fallbacks_attempted = []
-        
+
         # Select optimal provider
         selected_provider = self._select_optimal_provider(request)
         provider_config = self.providers[selected_provider]
-        
+
         # Attempt completion with selected provider
         for attempt in range(3):  # Try up to 3 providers
             try:
                 response = await self._attempt_completion(
                     request, selected_provider, provider_config
                 )
-                
+
                 if response.success:
                     # Update performance metrics
                     self._update_performance_metrics(
-                        selected_provider, 
+                        selected_provider,
                         time.time() - start_time,
                         response.tokens_used,
-                        True
+                        True,
                     )
-                    
+
                     response.fallbacks_attempted = fallbacks_attempted
                     return response
-                    
+
             except Exception as e:
                 logger.warning(f"Provider {selected_provider} failed: {e}")
                 fallbacks_attempted.append(f"{selected_provider}: {str(e)}")
-                
+
                 # Select next best provider
                 remaining_providers = [
-                    name for name in self.providers.keys() 
+                    name
+                    for name in self.providers.keys()
                     if name != selected_provider and name not in fallbacks_attempted
                 ]
-                
+
                 if remaining_providers:
                     selected_provider = remaining_providers[0]
                     provider_config = self.providers[selected_provider]
                 else:
                     break
-        
+
         # All providers failed
         return EnhancedLLMResponse(
             content="",
@@ -403,65 +429,67 @@ class EnhancedPortkeyOrchestrator:
             task_complexity=request.task_complexity,
             success=False,
             error="All providers failed",
-            fallbacks_attempted=fallbacks_attempted
+            fallbacks_attempted=fallbacks_attempted,
         )
-    
+
     async def _attempt_completion(
-        self, 
-        request: EnhancedLLMRequest, 
-        provider_name: str, 
-        provider_config: ProviderConfig
+        self,
+        request: EnhancedLLMRequest,
+        provider_name: str,
+        provider_config: ProviderConfig,
     ) -> EnhancedLLMResponse:
         """Attempt completion with specific provider"""
         start_time = time.time()
-        
+
         # Build request
         portkey_request = {
             "messages": request.messages,
             "max_tokens": min(request.max_tokens, provider_config.max_tokens),
             "temperature": request.temperature,
-            "stream": request.stream
+            "stream": request.stream,
         }
-        
+
         # Add provider-specific model selection
         if provider_config.models:
             portkey_request["model"] = provider_config.models[0]
-        
+
         headers = {
             "x-portkey-virtual-key": provider_config.virtual_key,
             "x-portkey-cache": "semantic",
             "x-portkey-retry-count": "2",
-            "x-portkey-trace-id": f"sophia-{provider_name}-{int(time.time())}"
+            "x-portkey-trace-id": f"sophia-{provider_name}-{int(time.time())}",
         }
-        
+
         if not self.session:
             raise Exception("Session not initialized")
-            
+
         async with self.session.post(
-            f"{self.base_url}/chat/completions",
-            json=portkey_request,
-            headers=headers
+            f"{self.base_url}/chat/completions", json=portkey_request, headers=headers
         ) as response:
-            
             if response.status != 200:
                 error_text = await response.text()
                 raise Exception(f"HTTP {response.status}: {error_text}")
-            
+
             result = await response.json()
-            
+
             # Extract response data
             content = result["choices"][0]["message"]["content"]
-            model_used = result.get("model", provider_config.models[0] if provider_config.models else "unknown")
+            model_used = result.get(
+                "model",
+                provider_config.models[0] if provider_config.models else "unknown",
+            )
             usage = result.get("usage", {})
             tokens_used = usage.get("total_tokens", 0)
-            
+
             # Calculate cost
             cost_estimate = (tokens_used / 1000) * provider_config.cost_per_1k_tokens
             processing_time = int((time.time() - start_time) * 1000)
-            
+
             # Calculate quality score (simplified - can be enhanced)
-            quality_score = self._calculate_quality_score(content, request.task_complexity)
-            
+            quality_score = self._calculate_quality_score(
+                content, request.task_complexity
+            )
+
             return EnhancedLLMResponse(
                 content=content,
                 provider_used=provider_name,
@@ -474,34 +502,32 @@ class EnhancedPortkeyOrchestrator:
                 success=True,
                 metadata={
                     "provider_tier": provider_config.tier.value,
-                    "provider_strengths": provider_config.strengths
-                }
+                    "provider_strengths": provider_config.strengths,
+                },
             )
-    
-    def _calculate_quality_score(self, content: str, complexity: TaskComplexity) -> float:
+
+    def _calculate_quality_score(
+        self, content: str, complexity: TaskComplexity
+    ) -> float:
         """Calculate quality score based on content and task complexity"""
         # Simplified quality scoring - can be enhanced with ML models
         base_score = 0.8
-        
+
         # Length appropriateness
         if len(content) > 100:
             base_score += 0.1
         if len(content) > 500:
             base_score += 0.1
-            
-        # Complexity appropriateness  
+
+        # Complexity appropriateness
         if complexity in [TaskComplexity.COMPLEX, TaskComplexity.EXPERT]:
             if len(content) > 300:
                 base_score += 0.1
-        
+
         return min(1.0, base_score)
-    
+
     def _update_performance_metrics(
-        self, 
-        provider: str, 
-        response_time: float, 
-        tokens: int, 
-        success: bool
+        self, provider: str, response_time: float, tokens: int, success: bool
     ):
         """Update performance metrics for provider"""
         if provider not in self.provider_performance:
@@ -511,32 +537,36 @@ class EnhancedPortkeyOrchestrator:
                 "total_response_time": 0.0,
                 "total_tokens": 0,
                 "avg_response_time": 0.0,
-                "success_rate": 0.0
+                "success_rate": 0.0,
             }
-        
+
         metrics = self.provider_performance[provider]
         metrics["total_requests"] += 1
-        
+
         if success:
             metrics["successful_requests"] += 1
             metrics["total_response_time"] += response_time
             metrics["total_tokens"] += tokens
-        
+
         # Update averages
         if metrics["successful_requests"] > 0:
-            metrics["avg_response_time"] = metrics["total_response_time"] / metrics["successful_requests"]
-        metrics["success_rate"] = metrics["successful_requests"] / metrics["total_requests"]
-    
+            metrics["avg_response_time"] = (
+                metrics["total_response_time"] / metrics["successful_requests"]
+            )
+        metrics["success_rate"] = (
+            metrics["successful_requests"] / metrics["total_requests"]
+        )
+
     async def get_provider_status(self) -> Dict[str, Any]:
         """Get comprehensive provider status"""
         connectivity = await self._test_provider_connectivity()
-        
+
         status = {
             "total_providers": len(self.providers),
             "active_providers": sum(1 for active in connectivity.values() if active),
-            "provider_details": {}
+            "provider_details": {},
         }
-        
+
         for name, config in self.providers.items():
             status["provider_details"][name] = {
                 "tier": config.tier.value,
@@ -544,11 +574,11 @@ class EnhancedPortkeyOrchestrator:
                 "models": config.models,
                 "cost_per_1k": config.cost_per_1k_tokens,
                 "strengths": config.strengths,
-                "performance": self.provider_performance.get(name, {})
+                "performance": self.provider_performance.get(name, {}),
             }
-        
+
         return status
-    
+
     async def close(self):
         """Clean up resources"""
         if self.session:
@@ -558,16 +588,16 @@ class EnhancedPortkeyOrchestrator:
 # Convenience classes for easy usage
 class SophiaAI:
     """Enhanced Sophia AI interface with 11-provider intelligence"""
-    
+
     _orchestrator: Optional[EnhancedPortkeyOrchestrator] = None
-    
+
     @classmethod
     async def _get_orchestrator(cls) -> EnhancedPortkeyOrchestrator:
         if cls._orchestrator is None:
             cls._orchestrator = EnhancedPortkeyOrchestrator()
             await cls._orchestrator.initialize()
         return cls._orchestrator
-    
+
     @classmethod
     async def chat(
         cls,
@@ -575,23 +605,25 @@ class SophiaAI:
         complexity: TaskComplexity = TaskComplexity.MODERATE,
         cost_preference: str = "balanced",
         context_type: str = "general",
-        urgency: str = "normal"
+        urgency: str = "normal",
     ) -> EnhancedLLMResponse:
         """Enhanced chat with intelligent provider routing"""
         orchestrator = await cls._get_orchestrator()
-        
+
         request = EnhancedLLMRequest(
             messages=[{"role": "user", "content": message}],
             task_complexity=complexity,
             cost_preference=cost_preference,
             context_type=context_type,
-            urgency=urgency
+            urgency=urgency,
         )
-        
+
         return await orchestrator.complete(request)
-    
-    @classmethod 
-    async def code_expert(cls, requirements: str, language: str = "python") -> EnhancedLLMResponse:
+
+    @classmethod
+    async def code_expert(
+        cls, requirements: str, language: str = "python"
+    ) -> EnhancedLLMResponse:
         """Code generation optimized for best coding models"""
         enhanced_prompt = f"""
 Generate high-quality {language} code for the following requirements:
@@ -605,24 +637,26 @@ Provide:
 4. Unit tests
 5. Performance considerations
 """
-        
+
         return await cls.chat(
             enhanced_prompt,
             complexity=TaskComplexity.COMPLEX,
             cost_preference="quality_first",
             context_type="code",
-            urgency="normal"
+            urgency="normal",
         )
-    
+
     @classmethod
-    async def business_analyst(cls, query: str, context: Optional[Dict] = None) -> EnhancedLLMResponse:
+    async def business_analyst(
+        cls, query: str, context: Optional[Dict] = None
+    ) -> EnhancedLLMResponse:
         """Business analysis with premium model routing"""
         enhanced_prompt = f"""
 As a senior business analyst, provide comprehensive analysis:
 
 Query: {query}
 
-Context: {json.dumps(context, indent=2) if context else 'None provided'}
+Context: {json.dumps(context, indent=2) if context else "None provided"}
 
 Provide strategic insights including:
 1. Executive summary
@@ -632,17 +666,19 @@ Provide strategic insights including:
 5. Strategic recommendations
 6. Implementation roadmap
 """
-        
+
         return await cls.chat(
             enhanced_prompt,
             complexity=TaskComplexity.EXPERT,
-            cost_preference="quality_first", 
+            cost_preference="quality_first",
             context_type="business",
-            urgency="normal"
+            urgency="normal",
         )
-    
+
     @classmethod
-    async def research_assistant(cls, topic: str, depth: str = "comprehensive") -> EnhancedLLMResponse:
+    async def research_assistant(
+        cls, topic: str, depth: str = "comprehensive"
+    ) -> EnhancedLLMResponse:
         """Research with real-time data providers"""
         research_prompt = f"""
 Conduct {depth} research on: {topic}
@@ -655,15 +691,15 @@ Provide:
 5. Future outlook
 6. Data sources and citations
 """
-        
+
         return await cls.chat(
             research_prompt,
             complexity=TaskComplexity.RESEARCH,
             cost_preference="balanced",
-            context_type="research", 
-            urgency="normal"
+            context_type="research",
+            urgency="normal",
         )
-    
+
     @classmethod
     async def get_status(cls) -> Dict[str, Any]:
         """Get comprehensive system status"""
@@ -673,6 +709,7 @@ Provide:
 
 # Global instance for backward compatibility
 enhanced_orchestrator = EnhancedPortkeyOrchestrator()
+
 
 # Quick access functions
 async def sophia_chat(message: str, complexity: str = "moderate") -> str:
@@ -687,23 +724,32 @@ async def sophia_chat(message: str, complexity: str = "moderate") -> str:
 
 
 if __name__ == "__main__":
+
     async def test_enhanced_orchestrator():
         """Test the enhanced orchestrator"""
         print("🧪 Testing Enhanced Portkey Orchestrator with 11 Providers")
         print("=" * 60)
-        
+
         # Test different complexity levels
         tests = [
             ("Simple chat test", TaskComplexity.SIMPLE, "cost_optimized"),
-            ("Generate Python code for file processing", TaskComplexity.MODERATE, "balanced"),
-            ("Analyze Q4 business performance trends", TaskComplexity.EXPERT, "quality_first"),
-            ("Research latest AI developments", TaskComplexity.RESEARCH, "balanced")
+            (
+                "Generate Python code for file processing",
+                TaskComplexity.MODERATE,
+                "balanced",
+            ),
+            (
+                "Analyze Q4 business performance trends",
+                TaskComplexity.EXPERT,
+                "quality_first",
+            ),
+            ("Research latest AI developments", TaskComplexity.RESEARCH, "balanced"),
         ]
-        
+
         for message, complexity, cost_pref in tests:
             print(f"\n🧪 Testing: {complexity.value} - {cost_pref}")
             response = await SophiaAI.chat(message, complexity, cost_pref)
-            
+
             if response.success:
                 print(f"✅ Provider: {response.provider_used}")
                 print(f"   Model: {response.model_used}")
@@ -712,14 +758,18 @@ if __name__ == "__main__":
                 print(f"   Quality: {response.quality_score:.2f}")
             else:
                 print(f"❌ Failed: {response.error}")
-        
+
         # Test system status
-        print(f"\n📊 System Status:")
+        print("\n📊 System Status:")
         status = await SophiaAI.get_status()
-        print(f"   Active Providers: {status['active_providers']}/{status['total_providers']}")
-        
-        for name, details in status['provider_details'].items():
-            active_status = "🟢" if details['active'] else "🔴"
-            print(f"   {active_status} {name}: {details['tier']} - ${details['cost_per_1k']:.4f}/1k")
-    
-    asyncio.run(test_enhanced_orchestrator()) 
+        print(
+            f"   Active Providers: {status['active_providers']}/{status['total_providers']}"
+        )
+
+        for name, details in status["provider_details"].items():
+            active_status = "🟢" if details["active"] else "🔴"
+            print(
+                f"   {active_status} {name}: {details['tier']} - ${details['cost_per_1k']:.4f}/1k"
+            )
+
+    asyncio.run(test_enhanced_orchestrator())

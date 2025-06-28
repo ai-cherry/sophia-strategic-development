@@ -91,7 +91,7 @@ class MCPIntegrationDemo:
                         print(f"✅ Retrieved {len(memories)} relevant memories")
 
                         for i, memory in enumerate(memories[:2]):  # Show first 2
-                            print(f"   Memory {i+1}:")
+                            print(f"   Memory {i + 1}:")
                             print(
                                 f"     - Category: {memory.get('category', 'unknown')}"
                             )
@@ -167,7 +167,7 @@ def authenticate_user(password, username):
                         print("\n   Top Issues Found:")
                         for i, issue in enumerate(issues[:3]):
                             print(
-                                f"     {i+1}. Line {issue.get('line', '?')}: {issue.get('message', 'Unknown')}"
+                                f"     {i + 1}. Line {issue.get('line', '?')}: {issue.get('message', 'Unknown')}"
                             )
                             print(
                                 f"        Type: {issue.get('type', 'unknown')} | Severity: {issue.get('severity', 'unknown')}"

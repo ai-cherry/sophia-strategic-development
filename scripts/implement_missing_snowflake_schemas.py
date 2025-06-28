@@ -13,41 +13,41 @@ from typing import Dict
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class SnowflakeSchemaImplementor:
     """Implements missing Snowflake schemas for Sophia AI"""
-    
+
     def __init__(self):
         self.root_path = Path(".")
         self.backend_path = self.root_path / "backend"
         self.snowflake_setup_path = self.backend_path / "snowflake_setup"
-        
+
         # Ensure directory exists
         self.snowflake_setup_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Missing schemas to implement
         self.missing_schemas = {
             "payready_core_sql_schema.sql": self._create_payready_core_schema,
             "netsuite_data_schema.sql": self._create_netsuite_schema,
             "property_assets_schema.sql": self._create_property_assets_schema,
             "ai_web_research_schema.sql": self._create_ai_web_research_schema,
-            "ceo_intelligence_schema.sql": self._create_ceo_intelligence_schema
+            "ceo_intelligence_schema.sql": self._create_ceo_intelligence_schema,
         }
-        
+
         # Enhanced security implementation
         self.security_scripts = {
             "enhanced_security_roles.sql": self._create_security_roles,
             "row_level_security.sql": self._create_row_level_security,
-            "audit_framework.sql": self._create_audit_framework
+            "audit_framework.sql": self._create_audit_framework,
         }
-        
+
     def _create_payready_core_schema(self) -> str:
         """Create PAYREADY_CORE_SQL schema content"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- PAYREADY_CORE_SQL Schema - Proprietary Business Logic
 -- =====================================================================
 
@@ -152,11 +152,11 @@ CREATE INDEX IF NOT EXISTS IX_PAYMENT_TRANSACTIONS_CUSTOMER_DATE ON PAYMENT_TRAN
 CREATE INDEX IF NOT EXISTS IX_PAYMENT_TRANSACTIONS_STATUS ON PAYMENT_TRANSACTIONS(STATUS);
 CREATE INDEX IF NOT EXISTS IX_CUSTOMER_FEATURES_CUSTOMER ON CUSTOMER_FEATURES(CUSTOMER_ID);
 CREATE INDEX IF NOT EXISTS IX_CUSTOMER_FEATURES_NAME ON CUSTOMER_FEATURES(FEATURE_NAME);
-'''
+"""
 
     def _create_netsuite_schema(self) -> str:
         """Create NETSUITE_DATA schema content"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- NETSUITE_DATA Schema - Financial and ERP Information
 -- =====================================================================
 
@@ -299,11 +299,11 @@ CREATE TABLE IF NOT EXISTS EXPENSE_REPORTS (
 CREATE INDEX IF NOT EXISTS IX_GENERAL_LEDGER_ACCOUNT_DATE ON GENERAL_LEDGER(ACCOUNT_ID, TRANSACTION_DATE);
 CREATE INDEX IF NOT EXISTS IX_PURCHASE_ORDERS_VENDOR_DATE ON PURCHASE_ORDERS(VENDOR_ID, ORDER_DATE);
 CREATE INDEX IF NOT EXISTS IX_EXPENSE_REPORTS_EMPLOYEE_DATE ON EXPENSE_REPORTS(EMPLOYEE_ID, EXPENSE_DATE);
-'''
+"""
 
     def _create_property_assets_schema(self) -> str:
         """Create PROPERTY_ASSETS schema content"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- PROPERTY_ASSETS Schema - Property Portfolio Management
 -- =====================================================================
 
@@ -441,11 +441,11 @@ CREATE INDEX IF NOT EXISTS IX_PROPERTIES_LOCATION ON PROPERTIES(CITY, STATE);
 CREATE INDEX IF NOT EXISTS IX_PROPERTIES_TYPE ON PROPERTIES(PROPERTY_TYPE);
 CREATE INDEX IF NOT EXISTS IX_PROPERTY_UNITS_PROPERTY ON PROPERTY_UNITS(PROPERTY_ID);
 CREATE INDEX IF NOT EXISTS IX_PROPERTY_UNITS_STATUS ON PROPERTY_UNITS(OCCUPANCY_STATUS);
-'''
+"""
 
     def _create_ai_web_research_schema(self) -> str:
         """Create AI_WEB_RESEARCH schema content"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- AI_WEB_RESEARCH Schema - Third-Party Intelligence
 -- =====================================================================
 
@@ -573,18 +573,18 @@ CREATE INDEX IF NOT EXISTS IX_INDUSTRY_TRENDS_SECTOR ON INDUSTRY_TRENDS(INDUSTRY
 CREATE INDEX IF NOT EXISTS IX_INDUSTRY_TRENDS_RELEVANCE ON INDUSTRY_TRENDS(RELEVANCE_SCORE);
 CREATE INDEX IF NOT EXISTS IX_COMPETITOR_INTELLIGENCE_COMPETITOR ON COMPETITOR_INTELLIGENCE(COMPETITOR_NAME);
 CREATE INDEX IF NOT EXISTS IX_PARTNERSHIP_OPPORTUNITIES_TYPE ON PARTNERSHIP_OPPORTUNITIES(OPPORTUNITY_TYPE);
-'''
+"""
 
     def _create_ceo_intelligence_schema(self) -> str:
         """Create CEO_INTELLIGENCE schema content (already implemented above)"""
-        return '''-- CEO_INTELLIGENCE schema content would be loaded from the existing file
+        return """-- CEO_INTELLIGENCE schema content would be loaded from the existing file
 -- This is a placeholder for the comprehensive CEO intelligence schema
 -- that was created in the separate file above.
-'''
+"""
 
     def _create_security_roles(self) -> str:
         """Create enhanced security roles"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- Enhanced Security Roles and Access Control
 -- =====================================================================
 
@@ -623,11 +623,11 @@ GRANT SELECT ON ALL TABLES IN SCHEMA HUBSPOT_DATA TO ROLE EXECUTIVE_ROLE;
 GRANT SELECT ON ALL TABLES IN SCHEMA GONG_DATA TO ROLE EXECUTIVE_ROLE;
 GRANT SELECT ON ALL TABLES IN SCHEMA SLACK_DATA TO ROLE EXECUTIVE_ROLE;
 GRANT SELECT ON ALL TABLES IN SCHEMA PAYREADY_CORE_SQL TO ROLE EXECUTIVE_ROLE;
-'''
+"""
 
     def _create_row_level_security(self) -> str:
         """Create row-level security policies"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- Row-Level Security Policies
 -- =====================================================================
 
@@ -665,11 +665,11 @@ CREATE OR REPLACE ROW ACCESS POLICY FINANCIAL_DATA_POLICY
 AS (
     CURRENT_ROLE() IN ('CEO_ROLE', 'EXECUTIVE_ROLE', 'FINANCE_ROLE')
 );
-'''
+"""
 
     def _create_audit_framework(self) -> str:
         """Create comprehensive audit framework"""
-        return '''-- =====================================================================
+        return """-- =====================================================================
 -- Comprehensive Audit Framework
 -- =====================================================================
 
@@ -728,24 +728,24 @@ $$
     
     RETURN 'Audit logged';
 $$;
-'''
+"""
 
     async def implement_schema(self, filename: str, content_generator) -> bool:
         """Implement a single schema"""
         try:
             logger.info(f"Implementing schema: {filename}")
-            
+
             # Generate content
             content = content_generator()
-            
+
             # Write to file
             file_path = self.snowflake_setup_path / filename
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 f.write(content)
-            
+
             logger.info(f"✅ Successfully created {filename}")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create {filename}: {e}")
             return False
@@ -753,40 +753,40 @@ $$;
     async def implement_all_schemas(self) -> Dict[str, bool]:
         """Implement all missing schemas"""
         results = {}
-        
+
         logger.info("🚀 Starting implementation of missing Snowflake schemas")
-        
+
         # Implement missing schemas
         for filename, generator in self.missing_schemas.items():
             results[filename] = await self.implement_schema(filename, generator)
-        
+
         # Implement security enhancements
         for filename, generator in self.security_scripts.items():
             results[filename] = await self.implement_schema(filename, generator)
-        
+
         return results
 
     def create_implementation_summary(self, results: Dict[str, bool]) -> str:
         """Create implementation summary"""
         total_schemas = len(results)
         successful = sum(1 for success in results.values() if success)
-        
+
         summary = f"""
 # Snowflake Schema Implementation Summary
 
-**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 **Total Schemas:** {total_schemas}
 **Successfully Implemented:** {successful}
-**Success Rate:** {(successful/total_schemas)*100:.1f}%
+**Success Rate:** {(successful / total_schemas) * 100:.1f}%
 
 ## Implementation Results
 
 """
-        
+
         for filename, success in results.items():
             status = "✅ SUCCESS" if success else "❌ FAILED"
             summary += f"- {filename}: {status}\n"
-        
+
         summary += """
 
 ## Schemas Implemented
@@ -861,12 +861,12 @@ $$;
 
 The Sophia AI Snowflake architecture is now complete and ready for production deployment.
 """
-        
+
         return summary
 
     async def create_deployment_script(self) -> str:
         """Create deployment script for all schemas"""
-        script_content = '''#!/bin/bash
+        script_content = """#!/bin/bash
 # Snowflake Schema Deployment Script
 # Deploy all schemas to Snowflake in correct order
 
@@ -914,41 +914,42 @@ done
 
 echo "🎉 All schemas deployed successfully!"
 echo "📈 Database architecture is now 100% complete"
-'''
-        
+"""
+
         # Write deployment script
         script_path = self.root_path / "scripts" / "deploy_snowflake_schemas.sh"
-        with open(script_path, 'w') as f:
+        with open(script_path, "w") as f:
             f.write(script_content)
-        
+
         # Make executable
         os.chmod(script_path, 0o755)
-        
+
         return str(script_path)
+
 
 async def main():
     """Main implementation function"""
     implementor = SnowflakeSchemaImplementor()
-    
+
     # Implement all schemas
     results = await implementor.implement_all_schemas()
-    
+
     # Create summary
     summary = implementor.create_implementation_summary(results)
-    
+
     # Write summary to file
     summary_path = implementor.root_path / "SNOWFLAKE_SCHEMA_IMPLEMENTATION_SUMMARY.md"
-    with open(summary_path, 'w') as f:
+    with open(summary_path, "w") as f:
         f.write(summary)
-    
+
     # Create deployment script
     deployment_script = await implementor.create_deployment_script()
-    
+
     # Print results
     print(summary)
     print(f"\n📄 Summary written to: {summary_path}")
     print(f"🚀 Deployment script created: {deployment_script}")
-    
+
     # Check overall success
     total_success = all(results.values())
     if total_success:
@@ -961,6 +962,7 @@ async def main():
         print("\n⚠️  Some schemas failed to implement")
         return 1
 
+
 if __name__ == "__main__":
     exit_code = asyncio.run(main())
-    exit(exit_code) 
+    exit(exit_code)

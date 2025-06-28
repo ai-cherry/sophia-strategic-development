@@ -182,11 +182,11 @@ class CallAnalysisAgent:
                         prompt=f"""
                         Analyze this sales call and provide structured insights:
                         
-                        Call: {call.get('CALL_TITLE', 'Unknown')}
-                        Duration: {call.get('CALL_DURATION_SECONDS', 0)} seconds
-                        Participants: {call.get('PARTICIPANT_LIST', 'Unknown')}
-                        Sentiment: {call.get('SENTIMENT_SCORE', 0):.2f}
-                        Talk Ratio: {call.get('TALK_RATIO', 0):.2f}
+                        Call: {call.get("CALL_TITLE", "Unknown")}
+                        Duration: {call.get("CALL_DURATION_SECONDS", 0)} seconds
+                        Participants: {call.get("PARTICIPANT_LIST", "Unknown")}
+                        Sentiment: {call.get("SENTIMENT_SCORE", 0):.2f}
+                        Talk Ratio: {call.get("TALK_RATIO", 0):.2f}
                         
                         Provide insights on:
                         1. Call objective and outcome
@@ -264,7 +264,7 @@ class CallAnalysisAgent:
                     - Total calls analyzed: {len(call_insights)}
                     - Average sentiment: {avg_sentiment:.2f}
                     - Average talk ratio: {avg_talk_ratio:.2f}
-                    - Top topics: {', '.join([topic for topic, _ in top_topics[:3]])}
+                    - Top topics: {", ".join([topic for topic, _ in top_topics[:3]])}
                     
                     Assessment areas:
                     1. Overall engagement quality
@@ -297,7 +297,9 @@ class CallAnalysisAgent:
                     "sentiment_trend": (
                         "positive"
                         if avg_sentiment > 0.3
-                        else "negative" if avg_sentiment < -0.3 else "neutral"
+                        else "negative"
+                        if avg_sentiment < -0.3
+                        else "neutral"
                     ),
                     "talk_ratio_assessment": (
                         "optimal"
@@ -482,16 +484,16 @@ class SupervisorAgent:
                 Consolidate the following analysis results into executive insights and recommendations:
                 
                 Deal Information:
-                - Deal: {state['hubspot_deal_data']['deal_name'] if state['hubspot_deal_data'] else 'Unknown'}
-                - Company: {state['hubspot_deal_data']['company_name'] if state['hubspot_deal_data'] else 'Unknown'}
-                - Stage: {state['hubspot_deal_data']['deal_stage'] if state['hubspot_deal_data'] else 'Unknown'}
-                - Value: ${state['hubspot_deal_data']['amount']:,.0f if state['hubspot_deal_data'] and state['hubspot_deal_data']['amount'] else 0}
+                - Deal: {state["hubspot_deal_data"]["deal_name"] if state["hubspot_deal_data"] else "Unknown"}
+                - Company: {state["hubspot_deal_data"]["company_name"] if state["hubspot_deal_data"] else "Unknown"}
+                - Stage: {state["hubspot_deal_data"]["deal_stage"] if state["hubspot_deal_data"] else "Unknown"}
+                - Value: ${state["hubspot_deal_data"]["amount"]:,.0f if state['hubspot_deal_data'] and state['hubspot_deal_data']['amount'] else 0}
                 
                 Sales Coach Analysis:
-                {state.get('sales_coach_insights', {}).get('summary', 'No sales coach analysis available')}
+                {state.get("sales_coach_insights", {}).get("summary", "No sales coach analysis available")}
                 
                 Call Analysis Results:
-                {state.get('call_analysis_insights', {}).get('overall_assessment', 'No call analysis available')}
+                {state.get("call_analysis_insights", {}).get("overall_assessment", "No call analysis available")}
                 
                 Provide:
                 1. Executive summary of deal health

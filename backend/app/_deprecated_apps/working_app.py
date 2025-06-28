@@ -57,7 +57,7 @@ async def read_root():
         "service": "Sophia AI Platform",
         "version": "1.0.0",
         "message": "Enterprise AI orchestrator ready",
-        "environment": ENVIRONMENT
+        "environment": ENVIRONMENT,
     }
 
 
@@ -67,14 +67,14 @@ async def api_health_check():
     try:
         # Check if we can load basic configuration
         from backend.core.auto_esc_config import get_config_value
-        
+
         # Test basic config loading
         try:
             openai_key = get_config_value("openai_api_key")
             has_openai = bool(openai_key and len(openai_key) > 10)
         except:
             has_openai = False
-            
+
         try:
             gong_key = get_config_value("gong_access_key")
             has_gong = bool(gong_key and len(gong_key) > 10)
@@ -83,7 +83,7 @@ async def api_health_check():
 
         # Determine overall status
         config_health = "healthy" if (has_openai or has_gong) else "degraded"
-        
+
         return {
             "status": config_health,
             "api_version": "1.0.0",
@@ -91,22 +91,22 @@ async def api_health_check():
             "deployment_status": "OPERATIONAL",
             "services": {
                 "llm_strategy": "available",
-                "data_flow": "available", 
+                "data_flow": "available",
                 "asana_integration": "available",
                 "notion_integration": "available",
                 "codacy_integration": "available",
                 "core_systems": config_health,
-                "configuration": "loaded"
+                "configuration": "loaded",
             },
             "configuration_summary": {
                 "openai_configured": has_openai,
                 "gong_configured": has_gong,
                 "environment": ENVIRONMENT,
-                "pulumi_esc": "connected"
+                "pulumi_esc": "connected",
             },
-            "message": f"Sophia AI Platform operational in {ENVIRONMENT} environment"
+            "message": f"Sophia AI Platform operational in {ENVIRONMENT} environment",
         }
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {
@@ -117,7 +117,7 @@ async def api_health_check():
             "api_version": "1.0.0",
             "deployment_status": "ERROR",
             "services": "error",
-            "configuration_summary": "error"
+            "configuration_summary": "error",
         }
 
 
@@ -129,16 +129,18 @@ async def startup_event():
     try:
         # Basic configuration check
         from backend.core.auto_esc_config import get_config_value
-        
+
         # Test basic config loading
         try:
             openai_key = get_config_value("openai_api_key")
-            logger.info(f"✅ OpenAI configuration loaded: {'Yes' if openai_key else 'No'}")
+            logger.info(
+                f"✅ OpenAI configuration loaded: {'Yes' if openai_key else 'No'}"
+            )
         except Exception as e:
             logger.warning(f"⚠️ OpenAI configuration issue: {e}")
-            
+
         try:
-            gong_key = get_config_value("gong_access_key")  
+            gong_key = get_config_value("gong_access_key")
             logger.info(f"✅ Gong configuration loaded: {'Yes' if gong_key else 'No'}")
         except Exception as e:
             logger.warning(f"⚠️ Gong configuration issue: {e}")
@@ -149,12 +151,16 @@ async def startup_event():
             logger.error("🚨 PRODUCTION STARTUP FAILED")
             raise RuntimeError(f"Production startup failed: {str(e)}")
         else:
-            logger.warning("🔄 Continuing startup in development mode despite errors...")
+            logger.warning(
+                "🔄 Continuing startup in development mode despite errors..."
+            )
 
     logger.info("✅ FastAPI app initialized")
-    logger.info("✅ CORS middleware configured")  
+    logger.info("✅ CORS middleware configured")
     logger.info("✅ API routes registered")
-    logger.info(f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment")
+    logger.info(
+        f"🚀 Sophia AI Platform ready for requests in {ENVIRONMENT} environment"
+    )
 
 
 @app.on_event("shutdown")

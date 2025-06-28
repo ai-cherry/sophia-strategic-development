@@ -19,6 +19,7 @@ from snowflake.connector import DictCursor
 
 logger = logging.getLogger(__name__)
 
+
 class StreamType(str, Enum):
     KNOWLEDGE_UPDATE = "knowledge_update"
     USER_ACTIVITY = "user_activity"
@@ -27,14 +28,17 @@ class StreamType(str, Enum):
     ANALYTICS = "analytics"
     SEARCH = "search"
 
+
 class EventType(str, Enum):
     INSERT = "INSERT"
     UPDATE = "UPDATE"
     DELETE = "DELETE"
 
+
 @dataclass
 class StreamEvent:
     """Real-time stream event structure"""
+
     stream_id: str
     event_type: EventType
     table_name: str
@@ -44,9 +48,11 @@ class StreamEvent:
     timestamp: datetime
     metadata: Dict[str, Any] = None
 
+
 @dataclass
 class WebSocketClient:
     """WebSocket client tracking"""
+
     client_id: str
     websocket: WebSocketServerProtocol
     user_id: str
@@ -54,38 +60,39 @@ class WebSocketClient:
     connected_at: datetime
     last_activity: datetime
 
+
 class RealTimeStreamingService:
     """
     Real-Time Streaming Service with Snowflake Streams and WebSocket updates
     Addresses high priority requirement for real-time processing
     """
-    
+
     def __init__(self, snowflake_config: Dict[str, str], websocket_port: int = 8765):
         self.snowflake_config = snowflake_config
         self.websocket_port = websocket_port
         self.connection = None
-        
+
         # WebSocket management
         self.websocket_clients: Dict[str, WebSocketClient] = {}
         self.websocket_server = None
-        
+
         # Stream management
         self.active_streams: Dict[str, Dict[str, Any]] = {}
         self.stream_processors: Dict[StreamType, List] = {}
-        
+
         # Event queues for processing
         self.event_queue = asyncio.Queue()
         self.notification_queue = asyncio.Queue()
-        
+
         # Performance monitoring
         self.performance_metrics = {
             "events_processed": 0,
             "websocket_messages_sent": 0,
             "stream_lag_seconds": {},
             "error_count": 0,
-            "average_processing_time_ms": 0.0
+            "average_processing_time_ms": 0.0,
         }
-        
+
         logger.info("✅ Real-Time Streaming Service initialized")
 
     async def initialize(self):
@@ -93,21 +100,21 @@ class RealTimeStreamingService:
         try:
             # Connect to Snowflake
             await self._connect_snowflake()
-            
+
             # Create or verify streams
             await self._setup_snowflake_streams()
-            
+
             # Start WebSocket server
             await self._start_websocket_server()
-            
+
             # Start background processors
             asyncio.create_task(self._stream_processor())
             asyncio.create_task(self._event_processor())
             asyncio.create_task(self._notification_processor())
             asyncio.create_task(self._health_monitor())
-            
+
             logger.info("✅ Real-Time Streaming Service fully initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize streaming service: {e}")
             raise
@@ -124,7 +131,7 @@ class RealTimeStreamingService:
     async def _setup_snowflake_streams(self):
         """Create and manage Snowflake streams for real-time processing"""
         cursor = self.connection.cursor()
-        
+
         try:
             # Knowledge Base Updates Stream
             cursor.execute("""
@@ -132,44 +139,44 @@ class RealTimeStreamingService:
             ON TABLE UNIVERSAL_CHAT.KNOWLEDGE_BASE_ENTRIES
             COMMENT = 'Real-time stream for knowledge base changes'
             """)
-            
+
             # Conversation Updates Stream
             cursor.execute("""
             CREATE STREAM IF NOT EXISTS CONVERSATION_UPDATES_STREAM
             ON TABLE UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             COMMENT = 'Real-time stream for conversation changes'
             """)
-            
+
             # System Analytics Stream
             cursor.execute("""
             CREATE STREAM IF NOT EXISTS SYSTEM_ANALYTICS_STREAM
             ON TABLE UNIVERSAL_CHAT.SYSTEM_ANALYTICS
             COMMENT = 'Real-time stream for system metrics'
             """)
-            
+
             # User Activity Stream
             cursor.execute("""
             CREATE STREAM IF NOT EXISTS USER_ACTIVITY_STREAM
             ON TABLE UNIVERSAL_CHAT.KNOWLEDGE_USAGE_ANALYTICS
             COMMENT = 'Real-time stream for user activity'
             """)
-            
+
             # Ingestion Jobs Stream (for our new table)
             cursor.execute("""
             CREATE STREAM IF NOT EXISTS INGESTION_JOBS_STREAM
             ON TABLE UNIVERSAL_CHAT.INGESTION_JOBS
             COMMENT = 'Real-time stream for ingestion job status'
             """)
-            
+
             # Search Analytics Stream
             cursor.execute("""
             CREATE STREAM IF NOT EXISTS SEARCH_ANALYTICS_STREAM
             ON TABLE UNIVERSAL_CHAT.SEARCH_ANALYTICS
             COMMENT = 'Real-time stream for search analytics'
             """)
-            
+
             cursor.close()
-            
+
             # Register active streams
             self.active_streams = {
                 "knowledge_updates": {
@@ -177,47 +184,47 @@ class RealTimeStreamingService:
                     "table_name": "KNOWLEDGE_BASE_ENTRIES",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.KNOWLEDGE_UPDATE,
-                    "last_processed": datetime.now()
+                    "last_processed": datetime.now(),
                 },
                 "conversation_updates": {
                     "stream_name": "CONVERSATION_UPDATES_STREAM",
                     "table_name": "CONVERSATION_MESSAGES",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.CONVERSATION,
-                    "last_processed": datetime.now()
+                    "last_processed": datetime.now(),
                 },
                 "system_analytics": {
                     "stream_name": "SYSTEM_ANALYTICS_STREAM",
                     "table_name": "SYSTEM_ANALYTICS",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.SYSTEM_METRIC,
-                    "last_processed": datetime.now()
+                    "last_processed": datetime.now(),
                 },
                 "user_activity": {
                     "stream_name": "USER_ACTIVITY_STREAM",
                     "table_name": "KNOWLEDGE_USAGE_ANALYTICS",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.USER_ACTIVITY,
-                    "last_processed": datetime.now()
+                    "last_processed": datetime.now(),
                 },
                 "ingestion_jobs": {
                     "stream_name": "INGESTION_JOBS_STREAM",
                     "table_name": "INGESTION_JOBS",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.ANALYTICS,
-                    "last_processed": datetime.now()
+                    "last_processed": datetime.now(),
                 },
                 "search_analytics": {
                     "stream_name": "SEARCH_ANALYTICS_STREAM",
                     "table_name": "SEARCH_ANALYTICS",
                     "schema_name": "UNIVERSAL_CHAT",
                     "type": StreamType.SEARCH,
-                    "last_processed": datetime.now()
-                }
+                    "last_processed": datetime.now(),
+                },
             }
-            
+
             logger.info(f"✅ Created {len(self.active_streams)} Snowflake streams")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to setup Snowflake streams: {e}")
             raise
@@ -226,34 +233,38 @@ class RealTimeStreamingService:
         """Start WebSocket server for real-time client connections"""
         try:
             self.websocket_server = await websockets.serve(
-                self._handle_websocket_connection,
-                "localhost",
-                self.websocket_port
+                self._handle_websocket_connection, "localhost", self.websocket_port
             )
             logger.info(f"✅ WebSocket server started on port {self.websocket_port}")
         except Exception as e:
             logger.error(f"❌ Failed to start WebSocket server: {e}")
             raise
 
-    async def _handle_websocket_connection(self, websocket: WebSocketServerProtocol, path: str):
+    async def _handle_websocket_connection(
+        self, websocket: WebSocketServerProtocol, path: str
+    ):
         """Handle new WebSocket client connections"""
         client_id = None
         try:
             # Wait for client authentication message
             auth_message = await asyncio.wait_for(websocket.recv(), timeout=30.0)
             auth_data = json.loads(auth_message)
-            
+
             client_id = auth_data.get("client_id")
             user_id = auth_data.get("user_id")
             subscriptions = set(auth_data.get("subscriptions", []))
-            
+
             if not client_id or not user_id:
-                await websocket.send(json.dumps({
-                    "type": "error",
-                    "message": "Authentication required: client_id and user_id"
-                }))
+                await websocket.send(
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "message": "Authentication required: client_id and user_id",
+                        }
+                    )
+                )
                 return
-            
+
             # Register client
             client = WebSocketClient(
                 client_id=client_id,
@@ -261,25 +272,29 @@ class RealTimeStreamingService:
                 user_id=user_id,
                 subscriptions=subscriptions,
                 connected_at=datetime.now(),
-                last_activity=datetime.now()
+                last_activity=datetime.now(),
             )
-            
+
             self.websocket_clients[client_id] = client
-            
+
             # Send confirmation
-            await websocket.send(json.dumps({
-                "type": "connection_established",
-                "client_id": client_id,
-                "subscriptions": list(subscriptions),
-                "server_time": datetime.now().isoformat()
-            }))
-            
+            await websocket.send(
+                json.dumps(
+                    {
+                        "type": "connection_established",
+                        "client_id": client_id,
+                        "subscriptions": list(subscriptions),
+                        "server_time": datetime.now().isoformat(),
+                    }
+                )
+            )
+
             logger.info(f"✅ WebSocket client connected: {client_id} (user: {user_id})")
-            
+
             # Handle ongoing messages
             async for message in websocket:
                 await self._handle_websocket_message(client, message)
-                
+
         except websockets.exceptions.ConnectionClosed:
             logger.info(f"🔌 WebSocket client disconnected: {client_id}")
         except Exception as e:
@@ -294,36 +309,45 @@ class RealTimeStreamingService:
         try:
             data = json.loads(message)
             message_type = data.get("type")
-            
+
             client.last_activity = datetime.now()
-            
+
             if message_type == "subscribe":
                 # Add new subscriptions
                 new_subscriptions = set(data.get("subscriptions", []))
                 client.subscriptions.update(new_subscriptions)
-                
-                await client.websocket.send(json.dumps({
-                    "type": "subscription_updated",
-                    "subscriptions": list(client.subscriptions)
-                }))
-                
+
+                await client.websocket.send(
+                    json.dumps(
+                        {
+                            "type": "subscription_updated",
+                            "subscriptions": list(client.subscriptions),
+                        }
+                    )
+                )
+
             elif message_type == "unsubscribe":
                 # Remove subscriptions
                 remove_subscriptions = set(data.get("subscriptions", []))
                 client.subscriptions -= remove_subscriptions
-                
-                await client.websocket.send(json.dumps({
-                    "type": "subscription_updated",
-                    "subscriptions": list(client.subscriptions)
-                }))
-                
+
+                await client.websocket.send(
+                    json.dumps(
+                        {
+                            "type": "subscription_updated",
+                            "subscriptions": list(client.subscriptions),
+                        }
+                    )
+                )
+
             elif message_type == "ping":
                 # Health check
-                await client.websocket.send(json.dumps({
-                    "type": "pong",
-                    "timestamp": datetime.now().isoformat()
-                }))
-                
+                await client.websocket.send(
+                    json.dumps(
+                        {"type": "pong", "timestamp": datetime.now().isoformat()}
+                    )
+                )
+
         except Exception as e:
             logger.error(f"Error handling WebSocket message: {e}")
 
@@ -333,10 +357,10 @@ class RealTimeStreamingService:
             try:
                 for stream_id, stream_config in self.active_streams.items():
                     await self._process_stream(stream_id, stream_config)
-                
+
                 # Process every 5 seconds
                 await asyncio.sleep(5)
-                
+
             except Exception as e:
                 logger.error(f"Error in stream processor: {e}")
                 await asyncio.sleep(10)
@@ -345,7 +369,7 @@ class RealTimeStreamingService:
         """Process individual Snowflake stream for changes"""
         try:
             cursor = self.connection.cursor(DictCursor)
-            
+
             # Query stream for changes
             stream_query = f"""
             SELECT 
@@ -353,16 +377,16 @@ class RealTimeStreamingService:
                 METADATA$ISUPDATE as IS_UPDATE,
                 METADATA$ROW_ID as ROW_ID,
                 *
-            FROM {stream_config['schema_name']}.{stream_config['stream_name']}
+            FROM {stream_config["schema_name"]}.{stream_config["stream_name"]}
             LIMIT 100
             """
-            
+
             cursor.execute(stream_query)
             changes = cursor.fetchall()
-            
+
             if changes:
                 logger.info(f"📊 Processing {len(changes)} changes from {stream_id}")
-                
+
                 for change in changes:
                     # Create stream event
                     event = StreamEvent(
@@ -375,23 +399,23 @@ class RealTimeStreamingService:
                         timestamp=datetime.now(),
                         metadata={
                             "is_update": change.get("IS_UPDATE", False),
-                            "stream_type": stream_config["type"].value
-                        }
+                            "stream_type": stream_config["type"].value,
+                        },
                     )
-                    
+
                     # Add to event queue
                     await self.event_queue.put(event)
-                
+
                 # Update last processed time
                 stream_config["last_processed"] = datetime.now()
-                
+
                 # Calculate stream lag
                 self.performance_metrics["stream_lag_seconds"][stream_id] = (
                     datetime.now() - stream_config["last_processed"]
                 ).total_seconds()
-            
+
             cursor.close()
-            
+
         except Exception as e:
             logger.error(f"Error processing stream {stream_id}: {e}")
             self.performance_metrics["error_count"] += 1
@@ -402,42 +426,46 @@ class RealTimeStreamingService:
             try:
                 # Get event from queue
                 event = await self.event_queue.get()
-                
+
                 start_time = datetime.now()
-                
+
                 # Process event based on type
                 notifications = await self._create_notifications_for_event(event)
-                
+
                 # Add notifications to notification queue
                 for notification in notifications:
                     await self.notification_queue.put(notification)
-                
+
                 # Update performance metrics
                 processing_time = (datetime.now() - start_time).total_seconds() * 1000
                 self.performance_metrics["events_processed"] += 1
-                
+
                 # Update average processing time
                 current_avg = self.performance_metrics["average_processing_time_ms"]
                 events_count = self.performance_metrics["events_processed"]
                 self.performance_metrics["average_processing_time_ms"] = (
-                    (current_avg * (events_count - 1) + processing_time) / events_count
-                )
-                
+                    current_avg * (events_count - 1) + processing_time
+                ) / events_count
+
                 self.event_queue.task_done()
-                
+
             except Exception as e:
                 logger.error(f"Error in event processor: {e}")
                 await asyncio.sleep(1)
 
-    async def _create_notifications_for_event(self, event: StreamEvent) -> List[Dict[str, Any]]:
+    async def _create_notifications_for_event(
+        self, event: StreamEvent
+    ) -> List[Dict[str, Any]]:
         """Create notifications based on stream event"""
         notifications = []
-        
+
         try:
             if event.stream_id == "knowledge_updates":
                 notifications.extend(await self._create_knowledge_notifications(event))
             elif event.stream_id == "conversation_updates":
-                notifications.extend(await self._create_conversation_notifications(event))
+                notifications.extend(
+                    await self._create_conversation_notifications(event)
+                )
             elif event.stream_id == "system_analytics":
                 notifications.extend(await self._create_analytics_notifications(event))
             elif event.stream_id == "user_activity":
@@ -446,93 +474,109 @@ class RealTimeStreamingService:
                 notifications.extend(await self._create_ingestion_notifications(event))
             elif event.stream_id == "search_analytics":
                 notifications.extend(await self._create_search_notifications(event))
-                
+
         except Exception as e:
             logger.error(f"Error creating notifications for event: {e}")
-        
+
         return notifications
 
-    async def _create_knowledge_notifications(self, event: StreamEvent) -> List[Dict[str, Any]]:
+    async def _create_knowledge_notifications(
+        self, event: StreamEvent
+    ) -> List[Dict[str, Any]]:
         """Create notifications for knowledge base updates"""
         notifications = []
-        
+
         if event.event_type == EventType.INSERT:
-            notifications.append({
-                "type": "knowledge_added",
-                "subscription": "knowledge_updates",
-                "data": {
-                    "entry_id": event.data.get("ENTRY_ID"),
-                    "title": event.data.get("TITLE"),
-                    "category": event.data.get("CATEGORY_ID"),
-                    "is_foundational": event.data.get("IS_FOUNDATIONAL", False),
-                    "chunk_info": {
-                        "chunk_index": event.data.get("CHUNK_INDEX", 0),
-                        "total_chunks": event.data.get("TOTAL_CHUNKS", 1)
-                    }
-                },
-                "timestamp": event.timestamp.isoformat()
-            })
-        
+            notifications.append(
+                {
+                    "type": "knowledge_added",
+                    "subscription": "knowledge_updates",
+                    "data": {
+                        "entry_id": event.data.get("ENTRY_ID"),
+                        "title": event.data.get("TITLE"),
+                        "category": event.data.get("CATEGORY_ID"),
+                        "is_foundational": event.data.get("IS_FOUNDATIONAL", False),
+                        "chunk_info": {
+                            "chunk_index": event.data.get("CHUNK_INDEX", 0),
+                            "total_chunks": event.data.get("TOTAL_CHUNKS", 1),
+                        },
+                    },
+                    "timestamp": event.timestamp.isoformat(),
+                }
+            )
+
         elif event.event_type == EventType.UPDATE:
-            notifications.append({
-                "type": "knowledge_updated",
-                "subscription": "knowledge_updates",
-                "data": {
-                    "entry_id": event.data.get("ENTRY_ID"),
-                    "title": event.data.get("TITLE"),
-                    "changes": "Content or metadata updated"
-                },
-                "timestamp": event.timestamp.isoformat()
-            })
-        
+            notifications.append(
+                {
+                    "type": "knowledge_updated",
+                    "subscription": "knowledge_updates",
+                    "data": {
+                        "entry_id": event.data.get("ENTRY_ID"),
+                        "title": event.data.get("TITLE"),
+                        "changes": "Content or metadata updated",
+                    },
+                    "timestamp": event.timestamp.isoformat(),
+                }
+            )
+
         return notifications
 
-    async def _create_conversation_notifications(self, event: StreamEvent) -> List[Dict[str, Any]]:
+    async def _create_conversation_notifications(
+        self, event: StreamEvent
+    ) -> List[Dict[str, Any]]:
         """Create notifications for conversation updates"""
         notifications = []
-        
+
         if event.event_type == EventType.INSERT:
-            notifications.append({
-                "type": "new_message",
-                "subscription": "conversations",
-                "data": {
-                    "message_id": event.data.get("MESSAGE_ID"),
-                    "session_id": event.data.get("SESSION_ID"),
-                    "user_id": event.data.get("USER_ID"),
-                    "message_type": event.data.get("MESSAGE_TYPE"),
-                    "knowledge_entries_used": event.data.get("KNOWLEDGE_ENTRIES_USED"),
-                    "processing_time_ms": event.data.get("PROCESSING_TIME_MS")
-                },
-                "timestamp": event.timestamp.isoformat()
-            })
-        
+            notifications.append(
+                {
+                    "type": "new_message",
+                    "subscription": "conversations",
+                    "data": {
+                        "message_id": event.data.get("MESSAGE_ID"),
+                        "session_id": event.data.get("SESSION_ID"),
+                        "user_id": event.data.get("USER_ID"),
+                        "message_type": event.data.get("MESSAGE_TYPE"),
+                        "knowledge_entries_used": event.data.get(
+                            "KNOWLEDGE_ENTRIES_USED"
+                        ),
+                        "processing_time_ms": event.data.get("PROCESSING_TIME_MS"),
+                    },
+                    "timestamp": event.timestamp.isoformat(),
+                }
+            )
+
         return notifications
 
-    async def _create_ingestion_notifications(self, event: StreamEvent) -> List[Dict[str, Any]]:
+    async def _create_ingestion_notifications(
+        self, event: StreamEvent
+    ) -> List[Dict[str, Any]]:
         """Create notifications for ingestion job updates"""
         notifications = []
-        
+
         if event.event_type == EventType.UPDATE:
             job_data = event.data
             status = job_data.get("STATUS")
-            
+
             if status in ["completed", "failed", "processing"]:
-                notifications.append({
-                    "type": "ingestion_status_update",
-                    "subscription": "ingestion_jobs",
-                    "data": {
-                        "job_id": job_data.get("JOB_ID"),
-                        "user_id": job_data.get("USER_ID"),
-                        "filename": job_data.get("FILENAME"),
-                        "status": status,
-                        "progress": job_data.get("PROGRESS_PERCENTAGE", 0),
-                        "chunks_processed": job_data.get("CHUNKS_PROCESSED", 0),
-                        "total_chunks": job_data.get("TOTAL_CHUNKS", 0),
-                        "error_message": job_data.get("ERROR_MESSAGE")
-                    },
-                    "timestamp": event.timestamp.isoformat()
-                })
-        
+                notifications.append(
+                    {
+                        "type": "ingestion_status_update",
+                        "subscription": "ingestion_jobs",
+                        "data": {
+                            "job_id": job_data.get("JOB_ID"),
+                            "user_id": job_data.get("USER_ID"),
+                            "filename": job_data.get("FILENAME"),
+                            "status": status,
+                            "progress": job_data.get("PROGRESS_PERCENTAGE", 0),
+                            "chunks_processed": job_data.get("CHUNKS_PROCESSED", 0),
+                            "total_chunks": job_data.get("TOTAL_CHUNKS", 0),
+                            "error_message": job_data.get("ERROR_MESSAGE"),
+                        },
+                        "timestamp": event.timestamp.isoformat(),
+                    }
+                )
+
         return notifications
 
     async def _notification_processor(self):
@@ -541,31 +585,36 @@ class RealTimeStreamingService:
             try:
                 # Get notification from queue
                 notification = await self.notification_queue.get()
-                
+
                 # Find subscribed clients
                 subscription_type = notification.get("subscription")
                 clients_to_notify = []
-                
+
                 for client in self.websocket_clients.values():
-                    if subscription_type in client.subscriptions or "all" in client.subscriptions:
+                    if (
+                        subscription_type in client.subscriptions
+                        or "all" in client.subscriptions
+                    ):
                         clients_to_notify.append(client)
-                
+
                 # Send to subscribed clients
                 if clients_to_notify:
                     message = json.dumps(notification)
-                    
+
                     for client in clients_to_notify:
                         try:
                             await client.websocket.send(message)
                             self.performance_metrics["websocket_messages_sent"] += 1
                         except Exception as e:
-                            logger.warning(f"Failed to send to client {client.client_id}: {e}")
+                            logger.warning(
+                                f"Failed to send to client {client.client_id}: {e}"
+                            )
                             # Remove failed client
                             if client.client_id in self.websocket_clients:
                                 del self.websocket_clients[client.client_id]
-                
+
                 self.notification_queue.task_done()
-                
+
             except Exception as e:
                 logger.error(f"Error in notification processor: {e}")
                 await asyncio.sleep(1)
@@ -583,26 +632,26 @@ class RealTimeStreamingService:
                     except Exception as e:
                         logger.warning(f"Snowflake connection issue: {e}")
                         await self._reconnect_snowflake()
-                
+
                 # Check WebSocket server
                 if not self.websocket_server:
                     logger.warning("WebSocket server not running")
-                
+
                 # Log performance metrics
                 logger.info(f"📊 Streaming metrics: {self.performance_metrics}")
-                
+
                 # Clean up inactive clients
                 inactive_clients = []
                 for client_id, client in self.websocket_clients.items():
                     if (datetime.now() - client.last_activity) > timedelta(minutes=30):
                         inactive_clients.append(client_id)
-                
+
                 for client_id in inactive_clients:
                     logger.info(f"🧹 Cleaning up inactive client: {client_id}")
                     del self.websocket_clients[client_id]
-                
+
                 await asyncio.sleep(60)  # Health check every minute
-                
+
             except Exception as e:
                 logger.error(f"Error in health monitor: {e}")
                 await asyncio.sleep(60)
@@ -612,7 +661,7 @@ class RealTimeStreamingService:
         try:
             if self.connection:
                 self.connection.close()
-            
+
             self.connection = snowflake.connector.connect(**self.snowflake_config)
             logger.info("✅ Reconnected to Snowflake")
         except Exception as e:
@@ -627,12 +676,14 @@ class RealTimeStreamingService:
             "stream_health": {
                 stream_id: {
                     "last_processed": config["last_processed"].isoformat(),
-                    "lag_seconds": self.performance_metrics["stream_lag_seconds"].get(stream_id, 0)
+                    "lag_seconds": self.performance_metrics["stream_lag_seconds"].get(
+                        stream_id, 0
+                    ),
                 }
                 for stream_id, config in self.active_streams.items()
             },
             "websocket_server_running": self.websocket_server is not None,
-            "snowflake_connected": self.connection is not None
+            "snowflake_connected": self.connection is not None,
         }
 
     async def stop(self):
@@ -642,22 +693,22 @@ class RealTimeStreamingService:
             if self.websocket_server:
                 self.websocket_server.close()
                 await self.websocket_server.wait_closed()
-            
+
             # Close Snowflake connection
             if self.connection:
                 self.connection.close()
-            
+
             logger.info("✅ Real-Time Streaming Service stopped")
-            
+
         except Exception as e:
             logger.error(f"Error stopping streaming service: {e}")
 
+
 # Factory function
 async def create_streaming_service(
-    snowflake_config: Dict[str, str], 
-    websocket_port: int = 8765
+    snowflake_config: Dict[str, str], websocket_port: int = 8765
 ) -> RealTimeStreamingService:
     """Create and initialize streaming service"""
     service = RealTimeStreamingService(snowflake_config, websocket_port)
     await service.initialize()
-    return service 
+    return service

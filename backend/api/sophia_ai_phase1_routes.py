@@ -454,7 +454,9 @@ async def unified_intelligence_query(request: UnifiedIntelligenceRequest):
                 "confidence_level": (
                     "high"
                     if response.confidence_score > 0.8
-                    else "medium" if response.confidence_score > 0.6 else "low"
+                    else "medium"
+                    if response.confidence_score > 0.6
+                    else "low"
                 ),
                 "data_sources": len(response.supporting_responses),
             },

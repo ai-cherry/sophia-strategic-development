@@ -7,6 +7,4 @@ defined in the application layer.
 
 from .snowflake_call_repository import SnowflakeCallRepository
 
-__all__ = [
-    'SnowflakeCallRepository'
-] 
+__all__ = ["SnowflakeCallRepository"]

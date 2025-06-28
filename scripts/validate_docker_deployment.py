@@ -237,9 +237,9 @@ class DockerDeploymentValidator:
 
         for endpoint in self.health_endpoints:
             logger.info(f"  Checking {endpoint['name']}...")
-            endpoint_results[endpoint["name"]] = (
-                await self.health_validator.check_endpoint(endpoint["url"])
-            )
+            endpoint_results[
+                endpoint["name"]
+            ] = await self.health_validator.check_endpoint(endpoint["url"])
 
         # Count healthy endpoints
         healthy_endpoints = sum(

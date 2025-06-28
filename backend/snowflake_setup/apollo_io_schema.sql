@@ -417,7 +417,6 @@ COMMENT = 'Data quality metrics and monitoring for Apollo.io data';
 
 -- Contact enrichment procedure
 CREATE OR REPLACE PROCEDURE SOPHIA_AI_PROD.APOLLO_IO.SP_ENRICH_CONTACTS()
-RETURNS STRING
 LANGUAGE SQL
 EXECUTE AS CALLER
 AS
@@ -425,22 +424,63 @@ $$
 DECLARE
     processed_count INTEGER DEFAULT 0;
     error_count INTEGER DEFAULT 0;
-    result_message STRING;
+    result_message VARCHAR(1000);
 BEGIN
-    -- Enrich contacts from raw data
-    MERGE INTO SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED AS target
-    USING (
+    -- First insert new records that don't exist
+    INSERT INTO SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED (
+        contact_key, apollo_contact_id, apollo_person_id, first_name, last_name,
+        full_name, email_primary, current_title, seniority_level, company_key,
+        company_name, email_verified, lead_score, ai_memory_embedding,
+        ai_memory_metadata, ai_memory_last_updated
+    )
+    SELECT 
+        CONCAT('APOLLO_', apollo_contact_id) AS contact_key,
+        apollo_contact_id,
+        apollo_person_id,
+        first_name,
+        last_name,
+        CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS full_name,
+        email AS email_primary,
+        title AS current_title,
+        seniority AS seniority_level,
+        CONCAT('APOLLO_ORG_', organization_id) AS company_key,
+        organization_name AS company_name,
+        CASE 
+            WHEN email_status = 'verified' THEN TRUE 
+            ELSE FALSE 
+        END AS email_verified,
+        COALESCE(email_confidence_score * 100, 0)::INTEGER AS lead_score,
+        ai_memory_embedding,
+        ai_memory_metadata,
+        ai_memory_last_updated
+    FROM SOPHIA_AI_PROD.APOLLO_IO.RAW_CONTACTS src
+    WHERE apollo_updated_at > CURRENT_TIMESTAMP - INTERVAL '24 HOURS'
+    AND NOT EXISTS (
+        SELECT 1 FROM SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED tgt
+        WHERE tgt.apollo_contact_id = src.apollo_contact_id
+    );
+    
+    -- Then update existing records
+    UPDATE SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED tgt
+    SET 
+        full_name = src.full_name,
+        email_primary = src.email_primary,
+        current_title = src.current_title,
+        seniority_level = src.seniority_level,
+        company_name = src.company_name,
+        email_verified = src.email_verified,
+        lead_score = src.lead_score,
+        ai_memory_embedding = src.ai_memory_embedding,
+        ai_memory_metadata = src.ai_memory_metadata,
+        ai_memory_last_updated = src.ai_memory_last_updated,
+        updated_at = CURRENT_TIMESTAMP
+    FROM (
         SELECT 
-            CONCAT('APOLLO_', apollo_contact_id) AS contact_key,
             apollo_contact_id,
-            apollo_person_id,
-            first_name,
-            last_name,
             CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) AS full_name,
             email AS email_primary,
             title AS current_title,
             seniority AS seniority_level,
-            CONCAT('APOLLO_ORG_', organization_id) AS company_key,
             organization_name AS company_name,
             CASE 
                 WHEN email_status = 'verified' THEN TRUE 
@@ -449,65 +489,95 @@ BEGIN
             COALESCE(email_confidence_score * 100, 0)::INTEGER AS lead_score,
             ai_memory_embedding,
             ai_memory_metadata,
-            ai_memory_last_updated,
-            apollo_updated_at
+            ai_memory_last_updated
         FROM SOPHIA_AI_PROD.APOLLO_IO.RAW_CONTACTS
-        WHERE apollo_updated_at > CURRENT_TIMESTAMP() - INTERVAL '24 HOURS'
-    ) AS source
-    ON target.apollo_contact_id = source.apollo_contact_id
-    WHEN MATCHED THEN UPDATE SET
-        full_name = source.full_name,
-        email_primary = source.email_primary,
-        current_title = source.current_title,
-        seniority_level = source.seniority_level,
-        company_name = source.company_name,
-        email_verified = source.email_verified,
-        lead_score = source.lead_score,
-        ai_memory_embedding = source.ai_memory_embedding,
-        ai_memory_metadata = source.ai_memory_metadata,
-        ai_memory_last_updated = source.ai_memory_last_updated,
-        updated_at = CURRENT_TIMESTAMP()
-    WHEN NOT MATCHED THEN INSERT (
-        contact_key, apollo_contact_id, apollo_person_id, first_name, last_name,
-        full_name, email_primary, current_title, seniority_level, company_key,
-        company_name, email_verified, lead_score, ai_memory_embedding,
-        ai_memory_metadata, ai_memory_last_updated
-    ) VALUES (
-        source.contact_key, source.apollo_contact_id, source.apollo_person_id,
-        source.first_name, source.last_name, source.full_name, source.email_primary,
-        source.current_title, source.seniority_level, source.company_key,
-        source.company_name, source.email_verified, source.lead_score,
-        source.ai_memory_embedding, source.ai_memory_metadata, source.ai_memory_last_updated
-    );
+        WHERE apollo_updated_at > CURRENT_TIMESTAMP - INTERVAL '24 HOURS'
+    ) src
+    WHERE tgt.apollo_contact_id = src.apollo_contact_id;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED;
     
-    result_message := 'Contact enrichment completed. Processed: ' || processed_count || ' records.';
-    RETURN result_message;
+    -- Generate result message for output
+    SET result_message = 'Contact enrichment completed. Processed: ' || processed_count || ' records.';
     
-EXCEPTION
-    WHEN OTHER THEN
-        error_count := error_count + 1;
-        RETURN 'Contact enrichment failed: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- Company enrichment procedure
 CREATE OR REPLACE PROCEDURE SOPHIA_AI_PROD.APOLLO_IO.SP_ENRICH_COMPANIES()
-RETURNS STRING
 LANGUAGE SQL
 EXECUTE AS CALLER
 AS
 $$
 DECLARE
     processed_count INTEGER DEFAULT 0;
-    result_message STRING;
+    result_message VARCHAR(1000);
 BEGIN
-    -- Enrich companies from raw data
-    MERGE INTO SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED AS target
-    USING (
+    -- First insert new companies that don't exist
+    INSERT INTO SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED (
+        company_key, apollo_organization_id, company_name, company_domain,
+        website_url, industry_primary, industry_secondary, employee_count,
+        employee_range, annual_revenue, revenue_range, headquarters_city,
+        headquarters_state, headquarters_country, technology_stack,
+        funding_stage, total_funding, ai_memory_embedding, ai_memory_metadata,
+        ai_memory_last_updated
+    )
+    SELECT 
+        CONCAT('APOLLO_ORG_', apollo_organization_id) AS company_key,
+        apollo_organization_id,
+        name AS company_name,
+        domain AS company_domain,
+        website_url,
+        industry AS industry_primary,
+        sub_industry AS industry_secondary,
+        estimated_num_employees AS employee_count,
+        company_size_range AS employee_range,
+        estimated_annual_revenue AS annual_revenue,
+        annual_revenue_range AS revenue_range,
+        headquarters_city,
+        headquarters_state,
+        headquarters_country,
+        technologies AS technology_stack,
+        funding_stage,
+        total_funding,
+        ai_memory_embedding,
+        ai_memory_metadata,
+        ai_memory_last_updated
+    FROM SOPHIA_AI_PROD.APOLLO_IO.RAW_ORGANIZATIONS src
+    WHERE apollo_updated_at > CURRENT_TIMESTAMP - INTERVAL '24 HOURS'
+    AND NOT EXISTS (
+        SELECT 1 FROM SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED tgt
+        WHERE tgt.apollo_organization_id = src.apollo_organization_id
+    );
+    
+    -- Then update existing records
+    UPDATE SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED tgt
+    SET 
+        company_name = src.company_name,
+        company_domain = src.company_domain,
+        website_url = src.website_url,
+        industry_primary = src.industry_primary,
+        industry_secondary = src.industry_secondary,
+        employee_count = src.employee_count,
+        employee_range = src.employee_range,
+        annual_revenue = src.annual_revenue,
+        revenue_range = src.revenue_range,
+        headquarters_city = src.headquarters_city,
+        headquarters_state = src.headquarters_state,
+        headquarters_country = src.headquarters_country,
+        technology_stack = src.technology_stack,
+        funding_stage = src.funding_stage,
+        total_funding = src.total_funding,
+        ai_memory_embedding = src.ai_memory_embedding,
+        ai_memory_metadata = src.ai_memory_metadata,
+        ai_memory_last_updated = src.ai_memory_last_updated,
+        updated_at = CURRENT_TIMESTAMP
+    FROM (
         SELECT 
-            CONCAT('APOLLO_ORG_', apollo_organization_id) AS company_key,
             apollo_organization_id,
             name AS company_name,
             domain AS company_domain,
@@ -526,63 +596,26 @@ BEGIN
             total_funding,
             ai_memory_embedding,
             ai_memory_metadata,
-            ai_memory_last_updated,
-            apollo_updated_at
+            ai_memory_last_updated
         FROM SOPHIA_AI_PROD.APOLLO_IO.RAW_ORGANIZATIONS
-        WHERE apollo_updated_at > CURRENT_TIMESTAMP() - INTERVAL '24 HOURS'
-    ) AS source
-    ON target.apollo_organization_id = source.apollo_organization_id
-    WHEN MATCHED THEN UPDATE SET
-        company_name = source.company_name,
-        company_domain = source.company_domain,
-        website_url = source.website_url,
-        industry_primary = source.industry_primary,
-        industry_secondary = source.industry_secondary,
-        employee_count = source.employee_count,
-        employee_range = source.employee_range,
-        annual_revenue = source.annual_revenue,
-        revenue_range = source.revenue_range,
-        headquarters_city = source.headquarters_city,
-        headquarters_state = source.headquarters_state,
-        headquarters_country = source.headquarters_country,
-        technology_stack = source.technology_stack,
-        funding_stage = source.funding_stage,
-        total_funding = source.total_funding,
-        ai_memory_embedding = source.ai_memory_embedding,
-        ai_memory_metadata = source.ai_memory_metadata,
-        ai_memory_last_updated = source.ai_memory_last_updated,
-        updated_at = CURRENT_TIMESTAMP()
-    WHEN NOT MATCHED THEN INSERT (
-        company_key, apollo_organization_id, company_name, company_domain,
-        website_url, industry_primary, industry_secondary, employee_count,
-        employee_range, annual_revenue, revenue_range, headquarters_city,
-        headquarters_state, headquarters_country, technology_stack,
-        funding_stage, total_funding, ai_memory_embedding, ai_memory_metadata,
-        ai_memory_last_updated
-    ) VALUES (
-        source.company_key, source.apollo_organization_id, source.company_name,
-        source.company_domain, source.website_url, source.industry_primary,
-        source.industry_secondary, source.employee_count, source.employee_range,
-        source.annual_revenue, source.revenue_range, source.headquarters_city,
-        source.headquarters_state, source.headquarters_country, source.technology_stack,
-        source.funding_stage, source.total_funding, source.ai_memory_embedding,
-        source.ai_memory_metadata, source.ai_memory_last_updated
-    );
+        WHERE apollo_updated_at > CURRENT_TIMESTAMP - INTERVAL '24 HOURS'
+    ) src
+    WHERE tgt.apollo_organization_id = src.apollo_organization_id;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED;
     
-    result_message := 'Company enrichment completed. Processed: ' || processed_count || ' records.';
-    RETURN result_message;
+    -- Generate result message for output
+    SET result_message = 'Company enrichment completed. Processed: ' || processed_count || ' records.';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Company enrichment failed: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- AI embedding generation procedure using Snowflake Cortex
 CREATE OR REPLACE PROCEDURE SOPHIA_AI_PROD.APOLLO_IO.SP_GENERATE_EMBEDDINGS()
-RETURNS STRING
 LANGUAGE SQL
 EXECUTE AS CALLER
 AS
@@ -590,7 +623,7 @@ $$
 DECLARE
     contact_count INTEGER DEFAULT 0;
     company_count INTEGER DEFAULT 0;
-    result_message STRING;
+    result_message VARCHAR(1000);
 BEGIN
     -- Generate embeddings for contacts
     UPDATE SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED
@@ -605,11 +638,14 @@ BEGIN
                 COALESCE(department_primary, '')
             )
         ),
-        ai_memory_last_updated = CURRENT_TIMESTAMP()
+        ai_memory_last_updated = CURRENT_TIMESTAMP
     WHERE ai_memory_embedding IS NULL 
         OR ai_memory_last_updated < updated_at;
     
-    GET DIAGNOSTICS contact_count = ROW_COUNT;
+    -- Count updated contacts
+    SELECT COUNT(*) INTO contact_count 
+    FROM SOPHIA_AI_PROD.APOLLO_IO.CONTACTS_ENRICHED
+    WHERE ai_memory_embedding IS NOT NULL;
     
     -- Generate embeddings for companies
     UPDATE SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED
@@ -625,18 +661,20 @@ BEGIN
                 ARRAY_TO_STRING(technology_stack, ' ')
             )
         ),
-        ai_memory_last_updated = CURRENT_TIMESTAMP()
+        ai_memory_last_updated = CURRENT_TIMESTAMP
     WHERE ai_memory_embedding IS NULL 
         OR ai_memory_last_updated < updated_at;
     
-    GET DIAGNOSTICS company_count = ROW_COUNT;
+    -- Count updated companies
+    SELECT COUNT(*) INTO company_count 
+    FROM SOPHIA_AI_PROD.APOLLO_IO.COMPANIES_ENRICHED
+    WHERE ai_memory_embedding IS NOT NULL;
     
-    result_message := 'Embedding generation completed. Contacts: ' || contact_count || ', Companies: ' || company_count;
-    RETURN result_message;
+    -- Generate result message for output
+    SET result_message = 'Embedding generation completed. Contacts: ' || contact_count || ', Companies: ' || company_count;
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Embedding generation failed: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 

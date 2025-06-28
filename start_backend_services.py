@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Sophia AI Platform",
     description="Production-ready AI platform with knowledge management and chat",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -45,6 +45,7 @@ app.include_router(knowledge_router)
 # Mount chat service
 app.mount("/chat", chat_app)
 
+
 @app.get("/")
 async def root():
     """Root endpoint"""
@@ -55,10 +56,11 @@ async def root():
             "chat": "/chat",
             "knowledge": "/api/v1/knowledge",
             "websocket": "/ws/chat/{user_id}",
-            "health": "/api/v1/health"
+            "health": "/api/v1/health",
         },
-        "documentation": "/docs"
+        "documentation": "/docs",
     }
+
 
 @app.get("/health")
 async def platform_health():
@@ -69,26 +71,21 @@ async def platform_health():
         "services": {
             "chat_service": "operational",
             "knowledge_service": "operational",
-            "websocket": "operational"
+            "websocket": "operational",
         },
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
+
 
 if __name__ == "__main__":
     # Set environment variables for production
     os.environ.setdefault("CEO_ACCESS_TOKEN", "sophia_ceo_access_2024")
-    
+
     logger.info("🚀 Starting Sophia AI Platform...")
     logger.info("📍 Chat Service: http://localhost:8000/chat")
     logger.info("📍 Knowledge API: http://localhost:8000/api/v1/knowledge")
     logger.info("📍 WebSocket: ws://localhost:8000/ws/chat/{user_id}")
     logger.info("📍 Documentation: http://localhost:8000/docs")
     logger.info("🔑 CEO Access Token: sophia_ceo_access_2024")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-        reload=False
-    ) 
+
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)

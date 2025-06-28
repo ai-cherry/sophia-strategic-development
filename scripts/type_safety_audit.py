@@ -74,12 +74,15 @@ def analyze_file(file_path: Path) -> Dict[str, Any]:
         analyzer.visit(tree)
 
         return _calculate_file_stats(file_path, analyzer)
-        
+
     except Exception as e:
         logger.error(f"Error analyzing {file_path}: {e}")
         return {"file": str(file_path), "error": str(e)}
 
-def _calculate_file_stats(file_path: Path, analyzer: TypeAnnotationAnalyzer) -> Dict[str, Any]:
+
+def _calculate_file_stats(
+    file_path: Path, analyzer: TypeAnnotationAnalyzer
+) -> Dict[str, Any]:
     """Calculates type coverage statistics for a file."""
     total_functions = len(analyzer.functions)
     functions_with_complete_types = sum(
@@ -220,9 +223,9 @@ def main():
         json.dump(analysis, f, indent=2)
 
     # Print summary
-    logger.info(f"\n{'='*60}")
+    logger.info(f"\n{'=' * 60}")
     logger.info("Type Safety Audit Summary")
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
     logger.info(f"Total files analyzed: {analysis['total_files']}")
     logger.info(f"Total functions: {analysis['total_functions']}")
     logger.info(
@@ -244,9 +247,9 @@ def main():
             )
 
     if priority_files:
-        logger.info(f"\n{'='*60}")
+        logger.info(f"\n{'=' * 60}")
         logger.info("Priority Files for Type Annotation (< 50% coverage):")
-        logger.info(f"{'='*60}")
+        logger.info(f"{'=' * 60}")
         for pf in sorted(priority_files, key=lambda x: x["coverage"]):
             logger.info(
                 f"{pf['file']}: {pf['coverage']:.1f}% coverage, "

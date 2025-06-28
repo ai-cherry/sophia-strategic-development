@@ -633,7 +633,7 @@ class MemoryPreservationService:
             batch_memories = sorted_memories[i : i + batch_size]
 
             batch = MigrationBatch(
-                batch_id=f"batch_{source_system.value}_{i//batch_size}_{int(datetime.now().timestamp())}",
+                batch_id=f"batch_{source_system.value}_{i // batch_size}_{int(datetime.now().timestamp())}",
                 records=batch_memories,
                 source_system=source_system,
                 migration_type=migration_type,

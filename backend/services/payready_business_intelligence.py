@@ -219,9 +219,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         roi_data["buzz_performance"] = buzz_metrics
 
         # Add competitive comparison
-        roi_data["competitive_advantage"] = (
-            await self._calculate_competitive_roi_advantage(roi_data)
-        )
+        roi_data[
+            "competitive_advantage"
+        ] = await self._calculate_competitive_roi_advantage(roi_data)
 
         return roi_data
 
@@ -345,7 +345,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             "recommendation": (
                 "High priority"
                 if potential_score > 0.7
-                else "Medium priority" if potential_score > 0.4 else "Low priority"
+                else "Medium priority"
+                if potential_score > 0.4
+                else "Low priority"
             ),
         }
 
@@ -706,7 +708,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             priority_text = (
                 "high priority"
                 if priority > 0.7
-                else "medium priority" if priority > 0.4 else "lower priority"
+                else "medium priority"
+                if priority > 0.4
+                else "lower priority"
             )
 
             return f"""
@@ -717,7 +721,7 @@ I've enriched the prospect data for {company}. Here are the key insights:
 🤖 **Buzz AI Fit**: {response.data["buzz_integration_potential"]["recommendation"]}
 
 **Key Recommendations:**
-{chr(10).join(['• ' + rec for rec in response.recommendations[:3]])}
+{chr(10).join(["• " + rec for rec in response.recommendations[:3]])}
 
 Would you like me to generate a detailed sales brief or analyze their competitive landscape?
             """
@@ -731,13 +735,13 @@ Would you like me to generate a detailed sales brief or analyze their competitiv
 
 I've identified {threat_count} competitive threats that need attention:
 
-{chr(10).join([f'⚠️ {threat["competitor"]}: {threat["description"]}' for threat in threats[:3]])}
+{chr(10).join([f"⚠️ {threat['competitor']}: {threat['description']}" for threat in threats[:3]])}
 
 **Market Trends:**
-{chr(10).join([f'• {trend["trend"]}: {trend["frequency"]} occurrences' for trend in response.data.get("market_trends", [])[:3]])}
+{chr(10).join([f"• {trend['trend']}: {trend['frequency']} occurrences" for trend in response.data.get("market_trends", [])[:3]])}
 
 **Immediate Actions Required:**
-{chr(10).join(['• ' + rec for rec in response.recommendations[:3]])}
+{chr(10).join(["• " + rec for rec in response.recommendations[:3]])}
 
 Would you like me to generate a detailed competitive report or analyze a specific competitor?
             """
@@ -753,7 +757,7 @@ Would you like me to generate a detailed competitive report or analyze a specifi
 • Client Satisfaction: {response.data.get("client_satisfaction_score", 4.7)}/5.0
 
 **Competitive Advantage:**
-{chr(10).join(['• ' + adv for adv in response.data.get("competitive_advantage", {}).get("unique_advantages", [])])}
+{chr(10).join(["• " + adv for adv in response.data.get("competitive_advantage", {}).get("unique_advantages", [])])}
 
 These metrics demonstrate strong ROI for Buzz AI implementations. Would you like me to generate client-specific ROI analysis?
             """

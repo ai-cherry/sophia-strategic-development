@@ -89,7 +89,9 @@ async def get_foundational_stats(
             return await foundational_service.get_foundational_stats()
 
         stats = await cache_manager.get_or_set(
-            cache_key, fetch_stats, ttl=300  # 5 minutes cache
+            cache_key,
+            fetch_stats,
+            ttl=300,  # 5 minutes cache
         )
 
         return stats
@@ -175,7 +177,9 @@ async def get_foundational_insights(
             return await foundational_service.generate_foundational_insights()
 
         insights = await cache_manager.get_or_set(
-            cache_key, fetch_insights, ttl=3600  # 1 hour cache
+            cache_key,
+            fetch_insights,
+            ttl=3600,  # 1 hour cache
         )
 
         return {"generated_at": datetime.now().isoformat(), "insights": insights}

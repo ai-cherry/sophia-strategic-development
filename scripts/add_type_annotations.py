@@ -271,7 +271,7 @@ def main() -> None:
         if process_file(file_info["path"]):
             updated_count += 1
 
-    logger.info(f"\n{'='*60}")
+    logger.info(f"\n{'=' * 60}")
     logger.info("Type annotation addition complete!")
     logger.info(f"Files updated: {updated_count}")
     logger.info(f"Files unchanged: {len(files_to_process) - updated_count}")

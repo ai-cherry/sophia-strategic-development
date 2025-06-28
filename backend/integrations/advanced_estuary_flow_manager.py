@@ -3,57 +3,48 @@ Advanced Estuary Flow Manager for Sophia AI
 Enhanced real-time data processing with multimodal support and AI-powered analytics
 """
 
-import os
-import json
-import asyncio
 import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
-import httpx
-import yaml
-from pathlib import Path
-import subprocess
+from typing import Dict, Any
 
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
+
 # Base EstuaryFlowManager for compatibility
 class EstuaryFlowManager:
     """Base Estuary Flow Manager for compatibility"""
+
     def __init__(self):
         self.estuary_token = get_config_value("estuary_access_token")
         self.tenant = get_config_value("estuary_tenant", "Pay_Ready")
-        
+
     async def get_flow_statistics(self):
         """Get basic flow statistics"""
-        return {
-            "avg_latency": 1500,
-            "throughput": 1000,
-            "error_rate": 0.01
-        }
+        return {"avg_latency": 1500, "throughput": 1000, "error_rate": 0.01}
+
 
 class AdvancedEstuaryFlowManager(EstuaryFlowManager):
     """Advanced Estuary Flow Manager with multimodal and AI-powered capabilities"""
-    
+
     def __init__(self):
         super().__init__()
         self.advanced_database = "SOPHIA_AI_ADVANCED"
         self.multimodal_schema = "RAW_MULTIMODAL"
         self.processed_schema = "PROCESSED_AI"
         self.ai_processing_enabled = True
-        
+
     async def setup_multimodal_captures(self) -> Dict[str, Any]:
         """Configure captures for multimodal data sources with AI processing"""
         logger.info("🎯 Setting up advanced multimodal captures...")
-        
+
         captures_config = {
             "gong_multimodal_capture": await self._create_gong_multimodal_capture(),
             "slack_multimodal_capture": await self._create_slack_multimodal_capture(),
             "hubspot_multimodal_capture": await self._create_hubspot_multimodal_capture(),
-            "intercom_capture": await self._create_intercom_capture()
+            "intercom_capture": await self._create_intercom_capture(),
         }
-        
+
         # Deploy all captures
         deployment_results = {}
         for capture_name, config in captures_config.items():
@@ -64,9 +55,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             except Exception as e:
                 logger.error(f"❌ Failed to deploy {capture_name}: {e}")
                 deployment_results[capture_name] = {"error": str(e)}
-        
+
         return deployment_results
-    
+
     async def _create_gong_multimodal_capture(self) -> Dict[str, Any]:
         """Create Gong capture with multimodal support for audio and transcripts"""
         return {
@@ -81,34 +72,27 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "start_date": "2025-01-01T00:00:00Z",
                         "include_audio": True,
                         "include_transcripts": True,
-                        "include_metadata": True
-                    }
+                        "include_metadata": True,
+                    },
                 }
             },
             "bindings": [
                 {
-                    "resource": {
-                        "stream": "calls",
-                        "syncMode": "incremental"
-                    },
+                    "resource": {"stream": "calls", "syncMode": "incremental"},
                     "target": "Pay_Ready/gong-calls-multimodal",
-                    "transform": {
-                        "lambda": "gong_multimodal_transform.py"
-                    }
+                    "transform": {"lambda": "gong_multimodal_transform.py"},
                 },
                 {
                     "resource": {
                         "stream": "call_transcripts",
-                        "syncMode": "incremental"
+                        "syncMode": "incremental",
                     },
                     "target": "Pay_Ready/gong-transcripts",
-                    "transform": {
-                        "lambda": "gong_transcript_transform.py"
-                    }
-                }
-            ]
+                    "transform": {"lambda": "gong_transcript_transform.py"},
+                },
+            ],
         }
-    
+
     async def _create_slack_multimodal_capture(self) -> Dict[str, Any]:
         """Create Slack capture with attachment and media processing"""
         return {
@@ -119,39 +103,34 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "image": "ghcr.io/estuary/source-slack:dev",
                     "config": {
                         "bot_token": get_config_value("slack_bot_token"),
-                        "channels": ["general", "sales", "customer-success", "collections"],
+                        "channels": [
+                            "general",
+                            "sales",
+                            "customer-success",
+                            "collections",
+                        ],
                         "include_private_channels": True,
                         "include_attachments": True,
                         "include_files": True,
                         "lookback_window": "P7D",
-                        "start_date": "2025-01-01T00:00:00Z"
-                    }
+                        "start_date": "2025-01-01T00:00:00Z",
+                    },
                 }
             },
             "bindings": [
                 {
-                    "resource": {
-                        "stream": "messages",
-                        "syncMode": "incremental"
-                    },
+                    "resource": {"stream": "messages", "syncMode": "incremental"},
                     "target": "Pay_Ready/slack-messages-multimodal",
-                    "transform": {
-                        "lambda": "slack_multimodal_transform.py"
-                    }
+                    "transform": {"lambda": "slack_multimodal_transform.py"},
                 },
                 {
-                    "resource": {
-                        "stream": "files",
-                        "syncMode": "incremental"
-                    },
+                    "resource": {"stream": "files", "syncMode": "incremental"},
                     "target": "Pay_Ready/slack-files",
-                    "transform": {
-                        "lambda": "slack_files_transform.py"
-                    }
-                }
-            ]
+                    "transform": {"lambda": "slack_files_transform.py"},
+                },
+            ],
         }
-    
+
     async def _create_hubspot_multimodal_capture(self) -> Dict[str, Any]:
         """Create HubSpot capture with document and attachment processing"""
         return {
@@ -167,39 +146,30 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "include_documents": True,
                         "objects": [
                             "contacts",
-                            "deals", 
+                            "deals",
                             "companies",
                             "tickets",
-                            "engagements"
-                        ]
-                    }
+                            "engagements",
+                        ],
+                    },
                 }
             },
             "bindings": [
                 {
-                    "resource": {
-                        "stream": "contacts",
-                        "syncMode": "incremental"
-                    },
-                    "target": "Pay_Ready/hubspot-contacts-multimodal"
+                    "resource": {"stream": "contacts", "syncMode": "incremental"},
+                    "target": "Pay_Ready/hubspot-contacts-multimodal",
                 },
                 {
-                    "resource": {
-                        "stream": "deals",
-                        "syncMode": "incremental"
-                    },
-                    "target": "Pay_Ready/hubspot-deals-multimodal"
+                    "resource": {"stream": "deals", "syncMode": "incremental"},
+                    "target": "Pay_Ready/hubspot-deals-multimodal",
                 },
                 {
-                    "resource": {
-                        "stream": "companies",
-                        "syncMode": "incremental"
-                    },
-                    "target": "Pay_Ready/hubspot-companies-multimodal"
-                }
-            ]
+                    "resource": {"stream": "companies", "syncMode": "incremental"},
+                    "target": "Pay_Ready/hubspot-companies-multimodal",
+                },
+            ],
         }
-    
+
     async def _create_intercom_capture(self) -> Dict[str, Any]:
         """Create Intercom capture for customer service data"""
         return {
@@ -213,38 +183,32 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "start_date": "2025-01-01T00:00:00Z",
                         "include_conversations": True,
                         "include_contacts": True,
-                        "include_attachments": True
-                    }
+                        "include_attachments": True,
+                    },
                 }
             },
             "bindings": [
                 {
-                    "resource": {
-                        "stream": "conversations",
-                        "syncMode": "incremental"
-                    },
-                    "target": "Pay_Ready/intercom-conversations"
+                    "resource": {"stream": "conversations", "syncMode": "incremental"},
+                    "target": "Pay_Ready/intercom-conversations",
                 },
                 {
-                    "resource": {
-                        "stream": "contacts",
-                        "syncMode": "incremental"
-                    },
-                    "target": "Pay_Ready/intercom-contacts"
-                }
-            ]
+                    "resource": {"stream": "contacts", "syncMode": "incremental"},
+                    "target": "Pay_Ready/intercom-contacts",
+                },
+            ],
         }
-    
+
     async def deploy_ai_powered_materializations(self) -> Dict[str, Any]:
         """Deploy materializations with real-time AI processing"""
         logger.info("🧠 Deploying AI-powered materializations...")
-        
+
         materializations_config = {
             "snowflake_multimodal_materialization": await self._create_snowflake_multimodal_materialization(),
             "real_time_analytics_materialization": await self._create_realtime_analytics_materialization(),
-            "compliance_monitoring_materialization": await self._create_compliance_monitoring_materialization()
+            "compliance_monitoring_materialization": await self._create_compliance_monitoring_materialization(),
         }
-        
+
         # Deploy all materializations
         deployment_results = {}
         for mat_name, config in materializations_config.items():
@@ -255,9 +219,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             except Exception as e:
                 logger.error(f"❌ Failed to deploy {mat_name}: {e}")
                 deployment_results[mat_name] = {"error": str(e)}
-        
+
         return deployment_results
-    
+
     async def _create_snowflake_multimodal_materialization(self) -> Dict[str, Any]:
         """Create Snowflake materialization with multimodal support"""
         return {
@@ -268,9 +232,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "image": "ghcr.io/estuary/materialize-snowflake:dev",
                     "config": {
                         "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value('snowflake_account'),
-                        "user": get_config_value('snowflake_user'),
-                        "password": get_config_value('snowflake_password'),
+                        "account": get_config_value("snowflake_account"),
+                        "user": get_config_value("snowflake_user"),
+                        "password": get_config_value("snowflake_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_COMPUTE_WH",
                         "database": self.advanced_database,
@@ -279,9 +243,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                             "updateDelay": "0s",
                             "deltaUpdates": True,
                             "hardDelete": True,
-                            "aiProcessing": True
-                        }
-                    }
+                            "aiProcessing": True,
+                        },
+                    },
                 }
             },
             "bindings": [
@@ -289,37 +253,29 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "resource": {"table": "GONG_CALLS_MULTIMODAL"},
                     "source": "Pay_Ready/gong-calls-multimodal",
                     "fields": {"recommended": True},
-                    "transform": {
-                        "lambda": "ai_sentiment_analysis.py"
-                    }
+                    "transform": {"lambda": "ai_sentiment_analysis.py"},
                 },
                 {
                     "resource": {"table": "SLACK_MESSAGES_MULTIMODAL"},
                     "source": "Pay_Ready/slack-messages-multimodal",
                     "fields": {"recommended": True},
-                    "transform": {
-                        "lambda": "ai_message_classification.py"
-                    }
+                    "transform": {"lambda": "ai_message_classification.py"},
                 },
                 {
                     "resource": {"table": "HUBSPOT_UNIFIED_MULTIMODAL"},
                     "source": "Pay_Ready/hubspot-contacts-multimodal",
                     "fields": {"recommended": True},
-                    "transform": {
-                        "lambda": "ai_customer_intelligence.py"
-                    }
+                    "transform": {"lambda": "ai_customer_intelligence.py"},
                 },
                 {
                     "resource": {"table": "INTERCOM_CONVERSATIONS"},
                     "source": "Pay_Ready/intercom-conversations",
                     "fields": {"recommended": True},
-                    "transform": {
-                        "lambda": "ai_support_analysis.py"
-                    }
-                }
-            ]
+                    "transform": {"lambda": "ai_support_analysis.py"},
+                },
+            ],
         }
-    
+
     async def _create_realtime_analytics_materialization(self) -> Dict[str, Any]:
         """Create real-time analytics materialization"""
         return {
@@ -330,9 +286,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "image": "ghcr.io/estuary/materialize-snowflake:dev",
                     "config": {
                         "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value('snowflake_account'),
-                        "user": get_config_value('snowflake_user'),
-                        "password": get_config_value('snowflake_password'),
+                        "account": get_config_value("snowflake_account"),
+                        "user": get_config_value("snowflake_user"),
+                        "password": get_config_value("snowflake_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "REALTIME_ANALYTICS_WH",
                         "database": self.advanced_database,
@@ -340,30 +296,30 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "advanced": {
                             "updateDelay": "0s",
                             "deltaUpdates": True,
-                            "realTimeProcessing": True
-                        }
-                    }
+                            "realTimeProcessing": True,
+                        },
+                    },
                 }
             },
             "bindings": [
                 {
                     "resource": {"table": "CUSTOMER_HEALTH_REALTIME"},
                     "source": "Pay_Ready/customer-health-stream",
-                    "fields": {"recommended": True}
+                    "fields": {"recommended": True},
                 },
                 {
                     "resource": {"table": "SALES_PIPELINE_REALTIME"},
                     "source": "Pay_Ready/sales-pipeline-stream",
-                    "fields": {"recommended": True}
+                    "fields": {"recommended": True},
                 },
                 {
                     "resource": {"table": "COMPLIANCE_ALERTS_REALTIME"},
                     "source": "Pay_Ready/compliance-alerts-stream",
-                    "fields": {"recommended": True}
-                }
-            ]
+                    "fields": {"recommended": True},
+                },
+            ],
         }
-    
+
     async def _create_compliance_monitoring_materialization(self) -> Dict[str, Any]:
         """Create compliance monitoring materialization"""
         return {
@@ -374,9 +330,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     "image": "ghcr.io/estuary/materialize-snowflake:dev",
                     "config": {
                         "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value('snowflake_account'),
-                        "user": get_config_value('snowflake_user'),
-                        "password": get_config_value('snowflake_password'),
+                        "account": get_config_value("snowflake_account"),
+                        "user": get_config_value("snowflake_user"),
+                        "password": get_config_value("snowflake_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_COMPUTE_WH",
                         "database": self.advanced_database,
@@ -384,47 +340,47 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "advanced": {
                             "updateDelay": "0s",
                             "deltaUpdates": True,
-                            "complianceChecking": True
-                        }
-                    }
+                            "complianceChecking": True,
+                        },
+                    },
                 }
             },
             "bindings": [
                 {
                     "resource": {"table": "FDCPA_COMPLIANCE_LOG"},
                     "source": "Pay_Ready/fdcpa-compliance-stream",
-                    "fields": {"recommended": True}
+                    "fields": {"recommended": True},
                 },
                 {
                     "resource": {"table": "PRIVACY_COMPLIANCE_LOG"},
                     "source": "Pay_Ready/privacy-compliance-stream",
-                    "fields": {"recommended": True}
+                    "fields": {"recommended": True},
                 },
                 {
                     "resource": {"table": "DATA_GOVERNANCE_LOG"},
                     "source": "Pay_Ready/data-governance-stream",
-                    "fields": {"recommended": True}
-                }
-            ]
+                    "fields": {"recommended": True},
+                },
+            ],
         }
-    
+
     async def setup_ai_processing_transforms(self) -> Dict[str, Any]:
         """Set up AI processing transforms for real-time data enhancement"""
         logger.info("🤖 Setting up AI processing transforms...")
-        
+
         transforms = {
             "ai_sentiment_analysis": await self._create_sentiment_analysis_transform(),
             "ai_message_classification": await self._create_message_classification_transform(),
             "ai_customer_intelligence": await self._create_customer_intelligence_transform(),
-            "ai_compliance_monitoring": await self._create_compliance_monitoring_transform()
+            "ai_compliance_monitoring": await self._create_compliance_monitoring_transform(),
         }
-        
+
         # Deploy transforms
         for transform_name, config in transforms.items():
             await self._deploy_transform(transform_name, config)
-        
+
         return transforms
-    
+
     async def _create_sentiment_analysis_transform(self) -> Dict[str, Any]:
         """Create sentiment analysis transform for real-time processing"""
         return {
@@ -480,14 +436,14 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 const keywords = ['lawsuit', 'attorney', 'legal action', 'harassment', 'dispute'];
                 return keywords.some(keyword => text.toLowerCase().includes(keyword));
             }
-            """
+            """,
         }
-    
+
     async def _create_message_classification_transform(self) -> Dict[str, Any]:
         """Create message classification transform"""
         return {
             "name": "ai_message_classification",
-            "type": "typescript", 
+            "type": "typescript",
             "code": """
             import { Document } from 'flow/document';
             
@@ -546,9 +502,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 
                 return channelMap[channelId] || { department: 'unknown', priority: 'normal' };
             }
-            """
+            """,
         }
-    
+
     async def _create_customer_intelligence_transform(self) -> Dict[str, Any]:
         """Create customer intelligence transform"""
         return {
@@ -654,9 +610,9 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 
                 return Math.min(0.95, score);
             }
-            """
+            """,
         }
-    
+
     async def _create_compliance_monitoring_transform(self) -> Dict[str, Any]:
         """Create compliance monitoring transform"""
         return {
@@ -817,17 +773,17 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 
                 return Math.max(0, score);
             }
-            """
+            """,
         }
-    
+
     async def monitor_flow_performance(self) -> Dict[str, Any]:
         """Monitor Estuary Flow performance with AI-powered insights"""
         logger.info("📊 Monitoring Estuary Flow performance...")
-        
+
         try:
             # Get flow statistics
             stats = await self.get_flow_statistics()
-            
+
             # Analyze performance (simplified without circular import)
             performance_analysis = {
                 "overall_health": "healthy",
@@ -835,67 +791,77 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 "throughput_metrics": stats.get("throughput", {}),
                 "error_rates": stats.get("errors", {}),
                 "recommendations": [],
-                "alerts": []
+                "alerts": [],
             }
-            
+
             # Check for performance issues
             if stats.get("avg_latency", 0) > 5000:  # 5 seconds
-                performance_analysis["alerts"].append({
-                    "severity": "high",
-                    "message": "High latency detected",
-                    "recommendation": "Consider scaling warehouse or optimizing queries"
-                })
-            
+                performance_analysis["alerts"].append(
+                    {
+                        "severity": "high",
+                        "message": "High latency detected",
+                        "recommendation": "Consider scaling warehouse or optimizing queries",
+                    }
+                )
+
             if stats.get("error_rate", 0) > 0.05:  # 5% error rate
-                performance_analysis["alerts"].append({
-                    "severity": "critical",
-                    "message": "High error rate detected",
-                    "recommendation": "Investigate connector configurations and data quality"
-                })
-            
+                performance_analysis["alerts"].append(
+                    {
+                        "severity": "critical",
+                        "message": "High error rate detected",
+                        "recommendation": "Investigate connector configurations and data quality",
+                    }
+                )
+
             return performance_analysis
-            
+
         except Exception as e:
             logger.error(f"Error monitoring flow performance: {e}")
             return {"error": str(e)}
-    
+
     async def optimize_flow_configuration(self) -> Dict[str, Any]:
         """AI-powered flow configuration optimization"""
         logger.info("🎯 Optimizing flow configuration with AI...")
-        
+
         try:
             # Analyze current performance
             performance = await self.monitor_flow_performance()
-            
+
             optimizations = {
                 "warehouse_scaling": [],
                 "connector_tuning": [],
                 "schema_optimizations": [],
-                "cost_optimizations": []
+                "cost_optimizations": [],
             }
-            
+
             # Generate optimization recommendations
             if performance.get("avg_latency", 0) > 2000:
-                optimizations["warehouse_scaling"].append({
-                    "action": "scale_up_warehouse",
-                    "target": "AI_COMPUTE_WH",
-                    "recommendation": "Increase to LARGE for better performance"
-                })
-            
+                optimizations["warehouse_scaling"].append(
+                    {
+                        "action": "scale_up_warehouse",
+                        "target": "AI_COMPUTE_WH",
+                        "recommendation": "Increase to LARGE for better performance",
+                    }
+                )
+
             if performance.get("throughput", 0) < 1000:
-                optimizations["connector_tuning"].append({
-                    "action": "increase_batch_size",
-                    "recommendation": "Increase batch size for better throughput"
-                })
-            
+                optimizations["connector_tuning"].append(
+                    {
+                        "action": "increase_batch_size",
+                        "recommendation": "Increase batch size for better throughput",
+                    }
+                )
+
             return optimizations
-            
+
         except Exception as e:
             logger.error(f"Error optimizing flow configuration: {e}")
             return {"error": str(e)}
 
+
 # Service instance
 advanced_estuary_manager = None
+
 
 async def get_advanced_estuary_flow_manager() -> AdvancedEstuaryFlowManager:
     """Get advanced Estuary Flow manager instance"""
@@ -903,4 +869,3 @@ async def get_advanced_estuary_flow_manager() -> AdvancedEstuaryFlowManager:
     if advanced_estuary_manager is None:
         advanced_estuary_manager = AdvancedEstuaryFlowManager()
     return advanced_estuary_manager
-

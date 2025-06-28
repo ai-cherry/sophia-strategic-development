@@ -6,8 +6,9 @@ from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
     # This is a mock function. It does not perform real authentication.
     # In a production environment, you would validate the token and
     # fetch the user from your database.
-    return {"id": "user123", "role": "admin"} 
+    return {"id": "user123", "role": "admin"}

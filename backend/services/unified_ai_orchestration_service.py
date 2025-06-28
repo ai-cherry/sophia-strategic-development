@@ -1,14 +1,14 @@
 from backend.core.auto_esc_config import get_config_value
+
 """
 Unified AI Orchestration Service
 Integrates Snowflake Cortex Agents, Estuary Flow, and multi-source data processing
 """
 
-import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from datetime import datetime
+from typing import Dict, List, Any
 import snowflake.connector
 from snowflake.connector import DictCursor
 import httpx
@@ -18,24 +18,25 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class UnifiedAIOrchestrationService:
     """
     Unified service that orchestrates AI capabilities across Snowflake Cortex Agents,
     Estuary Flow data pipelines, and multi-source business intelligence
     """
-    
+
     def __init__(self):
         self.snowflake_conn = None
         self.estuary_client = None
         self.cortex_agents = {}
         self.data_sources = {
-            'gong': {'status': 'configured', 'last_sync': None},
-            'slack': {'status': 'configured', 'last_sync': None},
-            'hubspot': {'status': 'configured', 'last_sync': None},
-            'intercom': {'status': 'configured', 'last_sync': None},
-            'proprietary_sql': {'status': 'configured', 'last_sync': None}
+            "gong": {"status": "configured", "last_sync": None},
+            "slack": {"status": "configured", "last_sync": None},
+            "hubspot": {"status": "configured", "last_sync": None},
+            "intercom": {"status": "configured", "last_sync": None},
+            "proprietary_sql": {"status": "configured", "last_sync": None},
         }
-    
+
     async def initialize(self):
         """Initialize all connections and services"""
         try:
@@ -48,24 +49,24 @@ class UnifiedAIOrchestrationService:
         except Exception as e:
             logger.error(f"❌ Failed to initialize service: {e}")
             return False
-    
+
     async def _initialize_snowflake_connection(self):
         """Initialize Snowflake connection with advanced configuration"""
         try:
             self.snowflake_conn = snowflake.connector.connect(
-                account='UHDECNO-CVB64222',
-                user='SCOOBYJAVA15',
+                account="UHDECNO-CVB64222",
+                user="SCOOBYJAVA15",
                 password=get_config_value("snowflake_password"),
-                role='ACCOUNTADMIN',
-                warehouse='AI_COMPUTE_WH',
-                database='SOPHIA_AI_ADVANCED',
-                schema='PROCESSED_AI'
+                role="ACCOUNTADMIN",
+                warehouse="AI_COMPUTE_WH",
+                database="SOPHIA_AI_ADVANCED",
+                schema="PROCESSED_AI",
             )
             logger.info("✅ Snowflake connection established")
         except Exception as e:
             logger.error(f"❌ Snowflake connection failed: {e}")
             raise
-    
+
     async def _initialize_estuary_client(self):
         """Initialize Estuary Flow client"""
         try:
@@ -73,20 +74,20 @@ class UnifiedAIOrchestrationService:
                 base_url="https://api.estuary.dev",
                 headers={
                     "Authorization": f"Bearer {os.getenv('ESTUARY_ACCESS_TOKEN', '')}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
-                timeout=30.0
+                timeout=30.0,
             )
             logger.info("✅ Estuary Flow client initialized")
         except Exception as e:
             logger.error(f"❌ Estuary client initialization failed: {e}")
             raise
-    
+
     async def _initialize_cortex_agents(self):
         """Initialize Cortex Agents configurations"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Load agent configurations
             cursor.execute("""
                 SELECT agent_id, agent_name, system_prompt, response_instructions, 
@@ -94,24 +95,26 @@ class UnifiedAIOrchestrationService:
                 FROM CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS
                 WHERE is_active = TRUE
             """)
-            
+
             agents = cursor.fetchall()
             for agent in agents:
-                self.cortex_agents[agent['AGENT_ID']] = {
-                    'name': agent['AGENT_NAME'],
-                    'system_prompt': agent['SYSTEM_PROMPT'],
-                    'response_instructions': agent['RESPONSE_INSTRUCTIONS'],
-                    'tools': json.loads(agent['TOOL_CONFIGURATIONS']) if agent['TOOL_CONFIGURATIONS'] else {},
-                    'semantic_models': agent['SEMANTIC_MODEL_REFS'],
-                    'search_services': agent['SEARCH_SERVICE_REFS']
+                self.cortex_agents[agent["AGENT_ID"]] = {
+                    "name": agent["AGENT_NAME"],
+                    "system_prompt": agent["SYSTEM_PROMPT"],
+                    "response_instructions": agent["RESPONSE_INSTRUCTIONS"],
+                    "tools": json.loads(agent["TOOL_CONFIGURATIONS"])
+                    if agent["TOOL_CONFIGURATIONS"]
+                    else {},
+                    "semantic_models": agent["SEMANTIC_MODEL_REFS"],
+                    "search_services": agent["SEARCH_SERVICE_REFS"],
                 }
-            
+
             logger.info(f"✅ Loaded {len(self.cortex_agents)} Cortex Agents")
             cursor.close()
         except Exception as e:
             logger.error(f"❌ Cortex Agents initialization failed: {e}")
             # Continue without agents if they're not configured yet
-    
+
     async def _verify_data_pipelines(self):
         """Verify Estuary Flow data pipelines status"""
         try:
@@ -124,134 +127,128 @@ class UnifiedAIOrchestrationService:
                     logger.warning("⚠️ Could not verify Estuary pipelines")
         except Exception as e:
             logger.warning(f"⚠️ Estuary pipeline verification failed: {e}")
-    
-    async def process_customer_intelligence_query(self, customer_id: str, query: str) -> Dict[str, Any]:
+
+    async def process_customer_intelligence_query(
+        self, customer_id: str, query: str
+    ) -> Dict[str, Any]:
         """
         Process customer intelligence query using Cortex Agents and unified data
         """
         try:
             # Get customer context from unified data
             customer_context = await self._get_customer_context(customer_id)
-            
+
             # Use Customer Intelligence Agent
             agent_response = await self._invoke_cortex_agent(
-                'customer_intelligence_agent',
-                query,
-                customer_context
+                "customer_intelligence_agent", query, customer_context
             )
-            
+
             # Enhance with real-time data
-            real_time_insights = await self._get_real_time_customer_insights(customer_id)
-            
+            real_time_insights = await self._get_real_time_customer_insights(
+                customer_id
+            )
+
             # Log interaction
             await self._log_agent_interaction(
-                'customer_intelligence_agent',
-                customer_id,
-                query,
-                agent_response
+                "customer_intelligence_agent", customer_id, query, agent_response
             )
-            
+
             return {
-                'customer_id': customer_id,
-                'query': query,
-                'agent_response': agent_response,
-                'customer_context': customer_context,
-                'real_time_insights': real_time_insights,
-                'timestamp': datetime.utcnow().isoformat(),
-                'confidence_score': 0.95
+                "customer_id": customer_id,
+                "query": query,
+                "agent_response": agent_response,
+                "customer_context": customer_context,
+                "real_time_insights": real_time_insights,
+                "timestamp": datetime.utcnow().isoformat(),
+                "confidence_score": 0.95,
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Customer intelligence query failed: {e}")
-            return {'error': str(e), 'timestamp': datetime.utcnow().isoformat()}
-    
-    async def process_sales_optimization_query(self, deal_id: str, query: str) -> Dict[str, Any]:
+            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
+    async def process_sales_optimization_query(
+        self, deal_id: str, query: str
+    ) -> Dict[str, Any]:
         """
         Process sales optimization query using Cortex Agents and deal intelligence
         """
         try:
             # Get deal context from unified data
             deal_context = await self._get_deal_context(deal_id)
-            
+
             # Use Sales Optimization Agent
             agent_response = await self._invoke_cortex_agent(
-                'sales_optimization_agent',
-                query,
-                deal_context
+                "sales_optimization_agent", query, deal_context
             )
-            
+
             # Enhance with competitive intelligence
             competitive_insights = await self._get_competitive_intelligence(deal_id)
-            
+
             # Log interaction
             await self._log_agent_interaction(
-                'sales_optimization_agent',
-                deal_id,
-                query,
-                agent_response
+                "sales_optimization_agent", deal_id, query, agent_response
             )
-            
+
             return {
-                'deal_id': deal_id,
-                'query': query,
-                'agent_response': agent_response,
-                'deal_context': deal_context,
-                'competitive_insights': competitive_insights,
-                'timestamp': datetime.utcnow().isoformat(),
-                'confidence_score': 0.92
+                "deal_id": deal_id,
+                "query": query,
+                "agent_response": agent_response,
+                "deal_context": deal_context,
+                "competitive_insights": competitive_insights,
+                "timestamp": datetime.utcnow().isoformat(),
+                "confidence_score": 0.92,
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Sales optimization query failed: {e}")
-            return {'error': str(e), 'timestamp': datetime.utcnow().isoformat()}
-    
-    async def process_compliance_monitoring_query(self, query: str, time_range: str = '30d') -> Dict[str, Any]:
+            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
+    async def process_compliance_monitoring_query(
+        self, query: str, time_range: str = "30d"
+    ) -> Dict[str, Any]:
         """
         Process compliance monitoring query using Cortex Agents
         """
         try:
             # Get compliance context
             compliance_context = await self._get_compliance_context(time_range)
-            
+
             # Use Compliance Monitoring Agent
             agent_response = await self._invoke_cortex_agent(
-                'compliance_monitoring_agent',
-                query,
-                compliance_context
+                "compliance_monitoring_agent", query, compliance_context
             )
-            
+
             # Get violation alerts
             violation_alerts = await self._get_compliance_violations(time_range)
-            
+
             # Log interaction
             await self._log_agent_interaction(
-                'compliance_monitoring_agent',
-                'system',
-                query,
-                agent_response
+                "compliance_monitoring_agent", "system", query, agent_response
             )
-            
+
             return {
-                'query': query,
-                'time_range': time_range,
-                'agent_response': agent_response,
-                'compliance_context': compliance_context,
-                'violation_alerts': violation_alerts,
-                'timestamp': datetime.utcnow().isoformat(),
-                'confidence_score': 0.98
+                "query": query,
+                "time_range": time_range,
+                "agent_response": agent_response,
+                "compliance_context": compliance_context,
+                "violation_alerts": violation_alerts,
+                "timestamp": datetime.utcnow().isoformat(),
+                "confidence_score": 0.98,
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Compliance monitoring query failed: {e}")
-            return {'error': str(e), 'timestamp': datetime.utcnow().isoformat()}
-    
+            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
     async def _get_customer_context(self, customer_id: str) -> Dict[str, Any]:
         """Get comprehensive customer context from unified data"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get customer context from live data
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     customer_id,
                     recent_interaction_summary,
@@ -263,27 +260,30 @@ class UnifiedAIOrchestrationService:
                     last_interaction_source
                 FROM REAL_TIME_ANALYTICS.LIVE_CUSTOMER_CONTEXT
                 WHERE customer_id = %s
-            """, (customer_id,))
-            
+            """,
+                (customer_id,),
+            )
+
             context = cursor.fetchone()
             cursor.close()
-            
+
             if context:
                 return dict(context)
             else:
-                return {'customer_id': customer_id, 'status': 'no_data_found'}
-                
+                return {"customer_id": customer_id, "status": "no_data_found"}
+
         except Exception as e:
             logger.error(f"❌ Failed to get customer context: {e}")
-            return {'customer_id': customer_id, 'error': str(e)}
-    
+            return {"customer_id": customer_id, "error": str(e)}
+
     async def _get_deal_context(self, deal_id: str) -> Dict[str, Any]:
         """Get comprehensive deal context from unified data"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get deal context from sales pipeline
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     deal_id,
                     deal_name,
@@ -296,25 +296,27 @@ class UnifiedAIOrchestrationService:
                     last_updated
                 FROM REAL_TIME_ANALYTICS.SALES_PIPELINE_LIVE
                 WHERE deal_id = %s
-            """, (deal_id,))
-            
+            """,
+                (deal_id,),
+            )
+
             context = cursor.fetchone()
             cursor.close()
-            
+
             if context:
                 return dict(context)
             else:
-                return {'deal_id': deal_id, 'status': 'no_data_found'}
-                
+                return {"deal_id": deal_id, "status": "no_data_found"}
+
         except Exception as e:
             logger.error(f"❌ Failed to get deal context: {e}")
-            return {'deal_id': deal_id, 'error': str(e)}
-    
+            return {"deal_id": deal_id, "error": str(e)}
+
     async def _get_compliance_context(self, time_range: str) -> Dict[str, Any]:
         """Get compliance monitoring context"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get compliance metrics
             cursor.execute("""
                 SELECT 
@@ -325,20 +327,22 @@ class UnifiedAIOrchestrationService:
                 FROM ESTUARY_MATERIALIZED.collection_activities_enhanced
                 WHERE activity_date >= DATEADD(day, -30, CURRENT_TIMESTAMP())
             """)
-            
+
             context = cursor.fetchone()
             cursor.close()
-            
+
             if context:
                 return dict(context)
             else:
-                return {'status': 'no_compliance_data'}
-                
+                return {"status": "no_compliance_data"}
+
         except Exception as e:
             logger.error(f"❌ Failed to get compliance context: {e}")
-            return {'error': str(e)}
-    
-    async def _invoke_cortex_agent(self, agent_id: str, query: str, context: Dict[str, Any]) -> str:
+            return {"error": str(e)}
+
+    async def _invoke_cortex_agent(
+        self, agent_id: str, query: str, context: Dict[str, Any]
+    ) -> str:
         """
         Invoke a Cortex Agent with query and context
         Note: This is a placeholder for actual Cortex Agent REST API calls
@@ -346,13 +350,13 @@ class UnifiedAIOrchestrationService:
         try:
             if agent_id not in self.cortex_agents:
                 return f"Agent {agent_id} not found or not configured"
-            
+
             agent = self.cortex_agents[agent_id]
-            
+
             # Simulate Cortex Agent processing
             # In production, this would make REST API calls to Snowflake Cortex Agents
             response = f"""
-            Based on the provided context and using {agent['name']}, here's my analysis:
+            Based on the provided context and using {agent["name"]}, here's my analysis:
             
             Query: {query}
             
@@ -368,22 +372,25 @@ class UnifiedAIOrchestrationService:
             - Risk assessment and mitigation strategies
             - Next best actions with confidence scores
             
-            This response was generated using Snowflake Cortex Agent: {agent['name']}
+            This response was generated using Snowflake Cortex Agent: {agent["name"]}
             """
-            
+
             return response
-            
+
         except Exception as e:
             logger.error(f"❌ Cortex Agent invocation failed: {e}")
             return f"Error invoking agent: {str(e)}"
-    
-    async def _get_real_time_customer_insights(self, customer_id: str) -> Dict[str, Any]:
+
+    async def _get_real_time_customer_insights(
+        self, customer_id: str
+    ) -> Dict[str, Any]:
         """Get real-time customer insights"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get real-time insights
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     customer_id,
                     next_best_actions,
@@ -391,27 +398,30 @@ class UnifiedAIOrchestrationService:
                     context_updated_at
                 FROM PROCESSED_AI.CONTEXTUAL_RECOMMENDATIONS
                 WHERE customer_id = %s
-            """, (customer_id,))
-            
+            """,
+                (customer_id,),
+            )
+
             insights = cursor.fetchone()
             cursor.close()
-            
+
             if insights:
                 return dict(insights)
             else:
-                return {'customer_id': customer_id, 'status': 'no_insights_available'}
-                
+                return {"customer_id": customer_id, "status": "no_insights_available"}
+
         except Exception as e:
             logger.error(f"❌ Failed to get real-time insights: {e}")
-            return {'customer_id': customer_id, 'error': str(e)}
-    
+            return {"customer_id": customer_id, "error": str(e)}
+
     async def _get_competitive_intelligence(self, deal_id: str) -> Dict[str, Any]:
         """Get competitive intelligence for deal"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get competitive insights from Gong data
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     deal_id,
                     competitor_mentions,
@@ -422,25 +432,27 @@ class UnifiedAIOrchestrationService:
                 WHERE deal_id = %s
                 ORDER BY created_timestamp DESC
                 LIMIT 1
-            """, (deal_id,))
-            
+            """,
+                (deal_id,),
+            )
+
             intelligence = cursor.fetchone()
             cursor.close()
-            
+
             if intelligence:
                 return dict(intelligence)
             else:
-                return {'deal_id': deal_id, 'status': 'no_competitive_data'}
-                
+                return {"deal_id": deal_id, "status": "no_competitive_data"}
+
         except Exception as e:
             logger.error(f"❌ Failed to get competitive intelligence: {e}")
-            return {'deal_id': deal_id, 'error': str(e)}
-    
+            return {"deal_id": deal_id, "error": str(e)}
+
     async def _get_compliance_violations(self, time_range: str) -> List[Dict[str, Any]]:
         """Get compliance violations"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get recent violations
             cursor.execute("""
                 SELECT 
@@ -457,47 +469,52 @@ class UnifiedAIOrchestrationService:
                 ORDER BY activity_date DESC
                 LIMIT 10
             """)
-            
+
             violations = cursor.fetchall()
             cursor.close()
-            
+
             return [dict(violation) for violation in violations]
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to get compliance violations: {e}")
             return []
-    
-    async def _log_agent_interaction(self, agent_id: str, user_id: str, query: str, response: str):
+
+    async def _log_agent_interaction(
+        self, agent_id: str, user_id: str, query: str, response: str
+    ):
         """Log agent interaction for monitoring and improvement"""
         try:
             cursor = self.snowflake_conn.cursor()
-            
-            cursor.execute("""
+
+            cursor.execute(
+                """
                 INSERT INTO CORTEX_AGENTS_WORKSPACE.AGENT_INTERACTION_LOGS
                 (interaction_id, agent_id, user_id, user_query, agent_response, 
                  execution_time_ms, success_flag, interaction_timestamp)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                f"{agent_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
-                agent_id,
-                user_id,
-                query,
-                response,
-                100,  # Placeholder execution time
-                True,
-                datetime.utcnow()
-            ))
-            
+            """,
+                (
+                    f"{agent_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+                    agent_id,
+                    user_id,
+                    query,
+                    response,
+                    100,  # Placeholder execution time
+                    True,
+                    datetime.utcnow(),
+                ),
+            )
+
             cursor.close()
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to log interaction: {e}")
-    
+
     async def get_system_health_status(self) -> Dict[str, Any]:
         """Get comprehensive system health status"""
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             # Get system health metrics
             cursor.execute("""
                 SELECT 
@@ -510,25 +527,25 @@ class UnifiedAIOrchestrationService:
                 FROM SYSTEM_MONITORING.SYSTEM_HEALTH_DASHBOARD
                 WHERE last_updated >= DATEADD(hour, -1, CURRENT_TIMESTAMP())
             """)
-            
+
             health_metrics = cursor.fetchall()
             cursor.close()
-            
+
             # Get data pipeline status
             pipeline_status = await self._get_pipeline_health()
-            
+
             return {
-                'snowflake_health': [dict(metric) for metric in health_metrics],
-                'pipeline_health': pipeline_status,
-                'cortex_agents_status': len(self.cortex_agents),
-                'data_sources_status': self.data_sources,
-                'timestamp': datetime.utcnow().isoformat()
+                "snowflake_health": [dict(metric) for metric in health_metrics],
+                "pipeline_health": pipeline_status,
+                "cortex_agents_status": len(self.cortex_agents),
+                "data_sources_status": self.data_sources,
+                "timestamp": datetime.utcnow().isoformat(),
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get system health: {e}")
-            return {'error': str(e), 'timestamp': datetime.utcnow().isoformat()}
-    
+            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
     async def _get_pipeline_health(self) -> Dict[str, Any]:
         """Get Estuary Flow pipeline health status"""
         try:
@@ -537,16 +554,18 @@ class UnifiedAIOrchestrationService:
                 if response.status_code == 200:
                     captures = response.json()
                     return {
-                        'total_captures': len(captures),
-                        'active_captures': len([c for c in captures if c.get('status') == 'active']),
-                        'status': 'healthy'
+                        "total_captures": len(captures),
+                        "active_captures": len(
+                            [c for c in captures if c.get("status") == "active"]
+                        ),
+                        "status": "healthy",
                     }
-            
-            return {'status': 'unknown', 'message': 'Unable to connect to Estuary'}
-            
+
+            return {"status": "unknown", "message": "Unable to connect to Estuary"}
+
         except Exception as e:
-            return {'status': 'error', 'message': str(e)}
-    
+            return {"status": "error", "message": str(e)}
+
     async def close(self):
         """Close all connections"""
         try:
@@ -558,12 +577,13 @@ class UnifiedAIOrchestrationService:
         except Exception as e:
             logger.error(f"❌ Error closing connections: {e}")
 
+
 # Global service instance
 unified_ai_service = UnifiedAIOrchestrationService()
+
 
 async def get_unified_ai_service() -> UnifiedAIOrchestrationService:
     """Get the global unified AI service instance"""
     if not unified_ai_service.snowflake_conn:
         await unified_ai_service.initialize()
     return unified_ai_service
-

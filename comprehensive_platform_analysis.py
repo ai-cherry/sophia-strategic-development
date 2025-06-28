@@ -4,62 +4,60 @@ Comprehensive Sophia AI Platform Analysis & Completion Script
 
 This script performs the complete analysis requested in the Cursor AI prompt:
 - Code Quality & Structure Check
-- Strategic Alignment Verification  
+- Strategic Alignment Verification
 - AI Agent and Connection Completion
 - Infrastructure Assessment
 - Deployment Readiness Validation
 """
 
-import os
 import json
 import asyncio
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List
 from pathlib import Path
-import subprocess
-import ast
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class SophiaAIPlatformAnalyzer:
     """Comprehensive platform analyzer for Sophia AI"""
-    
+
     def __init__(self, repository_path: str = "."):
         self.repo_path = Path(repository_path)
         self.analysis_results = {}
         self.recommendations = []
         self.deployment_status = {}
-        
+
     async def run_comprehensive_analysis(self):
         """Execute complete platform analysis"""
         print("🚀 Starting Comprehensive Sophia AI Platform Analysis")
         print("=" * 80)
-        
+
         # Phase 1: Infrastructure & Quality Assessment
         await self._phase1_quality_and_structure_review()
-        
-        # Phase 2: Strategic Alignment Check  
+
+        # Phase 2: Strategic Alignment Check
         await self._phase2_strategic_alignment_check()
-        
+
         # Phase 3: AI Agent Completion & Connections
         await self._phase3_ai_agent_completion()
-        
+
         # Phase 4: Infrastructure as Code Assessment
         await self._phase4_iac_deployment_assessment()
-        
+
         # Phase 5: Final Report Generation
         await self._phase5_generate_final_report()
-        
+
         return self.analysis_results
-    
+
     async def _phase1_quality_and_structure_review(self):
         """Phase 1: Code Quality & Structure Check"""
         print("\n📊 PHASE 1: Code Quality & Structure Review")
         print("-" * 50)
-        
+
         # Code quality metrics
         quality_results = {
             "total_files": 0,
@@ -70,118 +68,137 @@ class SophiaAIPlatformAnalyzer:
             "linting_issues": [],
             "security_issues": [],
             "performance_issues": [],
-            "maintainability_score": 0
+            "maintainability_score": 0,
         }
-        
+
         # Analyze Python files for quality
         python_files = list(self.repo_path.rglob("*.py"))
         quality_results["python_files"] = len(python_files)
-        
+
         # Analyze TypeScript files
-        ts_files = list(self.repo_path.rglob("*.ts")) + list(self.repo_path.rglob("*.tsx"))
+        ts_files = list(self.repo_path.rglob("*.ts")) + list(
+            self.repo_path.rglob("*.tsx")
+        )
         quality_results["typescript_files"] = len(ts_files)
-        
-        quality_results["total_files"] = quality_results["python_files"] + quality_results["typescript_files"]
-        
+
+        quality_results["total_files"] = (
+            quality_results["python_files"] + quality_results["typescript_files"]
+        )
+
         # Calculate lines of code
         total_lines = 0
         for file in python_files + ts_files:
             try:
-                with open(file, 'r', encoding='utf-8') as f:
+                with open(file, "r", encoding="utf-8") as f:
                     total_lines += len(f.readlines())
             except:
                 continue
         quality_results["lines_of_code"] = total_lines
-        
+
         # Check for critical code patterns
         await self._analyze_code_patterns(python_files, quality_results)
-        
+
         # Architecture compliance check
         await self._check_architecture_compliance(quality_results)
-        
+
         self.analysis_results["phase1_quality"] = quality_results
-        
-        print(f"✅ Analyzed {quality_results['total_files']} files ({quality_results['lines_of_code']} LOC)")
+
+        print(
+            f"✅ Analyzed {quality_results['total_files']} files ({quality_results['lines_of_code']} LOC)"
+        )
         print(f"✅ Python files: {quality_results['python_files']}")
         print(f"✅ TypeScript files: {quality_results['typescript_files']}")
-    
+
     async def _analyze_code_patterns(self, python_files: List[Path], results: Dict):
         """Analyze code patterns for best practices"""
         issues = []
         security_patterns = []
         performance_patterns = []
-        
+
         for file in python_files:
             try:
-                with open(file, 'r', encoding='utf-8') as f:
+                with open(file, "r", encoding="utf-8") as f:
                     content = f.read()
-                    
+
                 # Check for security patterns
                 if "sql" in content.lower() and ("format" in content or "%" in content):
                     security_patterns.append(f"Potential SQL injection risk in {file}")
-                
+
                 if "os.system" in content or "subprocess.call" in content:
                     security_patterns.append(f"Command injection risk in {file}")
-                
+
                 # Check for performance patterns
                 if "time.sleep" in content and "async" in content:
-                    performance_patterns.append(f"Blocking sleep in async function in {file}")
-                
+                    performance_patterns.append(
+                        f"Blocking sleep in async function in {file}"
+                    )
+
                 # Check for maintainability
-                if len(content.split('\n')) > 1000:
+                if len(content.split("\n")) > 1000:
                     issues.append(f"Large file (>1000 lines): {file}")
-                    
-            except Exception as e:
+
+            except Exception:
                 continue
-        
+
         results["linting_issues"] = issues[:10]  # Limit to top 10
         results["security_issues"] = security_patterns[:10]
         results["performance_issues"] = performance_patterns[:10]
-        
+
         # Calculate maintainability score
-        maintainability = 100 - min(len(issues) * 5, 50) - min(len(security_patterns) * 10, 30) - min(len(performance_patterns) * 5, 20)
+        maintainability = (
+            100
+            - min(len(issues) * 5, 50)
+            - min(len(security_patterns) * 10, 30)
+            - min(len(performance_patterns) * 5, 20)
+        )
         results["maintainability_score"] = max(maintainability, 0)
-    
+
     async def _check_architecture_compliance(self, results: Dict):
         """Check compliance with Sophia AI architecture standards"""
         compliance_score = 100
-        
+
         # Check for required directories
         required_dirs = [
-            "backend/agents", "backend/api", "backend/core", "backend/services",
-            "backend/integrations", "frontend/src", "infrastructure", "mcp-servers"
+            "backend/agents",
+            "backend/api",
+            "backend/core",
+            "backend/services",
+            "backend/integrations",
+            "frontend/src",
+            "infrastructure",
+            "mcp-servers",
         ]
-        
+
         missing_dirs = []
         for dir_path in required_dirs:
             if not (self.repo_path / dir_path).exists():
                 missing_dirs.append(dir_path)
                 compliance_score -= 10
-        
+
         # Check for configuration management
         config_files = [
             "backend/core/auto_esc_config.py",
-            "config/mcp_ports.json", 
-            "infrastructure/esc"
+            "config/mcp_ports.json",
+            "infrastructure/esc",
         ]
-        
+
         missing_configs = []
         for config_file in config_files:
             if not (self.repo_path / config_file).exists():
                 missing_configs.append(config_file)
                 compliance_score -= 5
-        
+
         results["architecture_compliance"] = {
             "score": max(compliance_score, 0),
             "missing_directories": missing_dirs,
-            "missing_configurations": missing_configs
+            "missing_configurations": missing_configs,
         }
-    
+
     async def _phase2_strategic_alignment_check(self):
         """Phase 2: Strategic Alignment Verification"""
         print("\n🎯 PHASE 2: Strategic Alignment Check")
         print("-" * 50)
-        
+
         strategic_alignment = {
             "sophia_ai_vision_compliance": 0,
             "snowflake_cortex_integration": 0,
@@ -190,89 +207,103 @@ class SophiaAIPlatformAnalyzer:
             "multimodal_processing": 0,
             "real_time_contextualization": 0,
             "automated_compliance": 0,
-            "overall_alignment_score": 0
+            "overall_alignment_score": 0,
         }
-        
+
         # Check Snowflake Cortex integration
         cortex_files = [
             "backend/utils/snowflake_cortex_service.py",
             "backend/services/enhanced_cortex_agent_service.py",
-            "backend/api/enhanced_cortex_routes.py"
+            "backend/api/enhanced_cortex_routes.py",
         ]
-        
+
         cortex_score = 0
         for file in cortex_files:
             if (self.repo_path / file).exists():
                 cortex_score += 33.3
         strategic_alignment["snowflake_cortex_integration"] = min(cortex_score, 100)
-        
+
         # Check enterprise agent architecture
         agent_dirs = [
             "backend/agents/core",
-            "backend/agents/specialized", 
-            "backend/workflows"
+            "backend/agents/specialized",
+            "backend/workflows",
         ]
-        
+
         agent_score = 0
         for dir_path in agent_dirs:
             if (self.repo_path / dir_path).exists():
                 agent_score += 33.3
         strategic_alignment["enterprise_grade_agents"] = min(agent_score, 100)
-        
+
         # Check multimodal capabilities
         multimodal_indicators = [
             "backend/integrations/enhanced_gong_integration.py",
             "backend/api/universal_chat_routes.py",
-            "frontend/src/components/UniversalChatInterface.tsx"
+            "frontend/src/components/UniversalChatInterface.tsx",
         ]
-        
+
         multimodal_score = 0
         for file in multimodal_indicators:
             if (self.repo_path / file).exists():
                 multimodal_score += 33.3
         strategic_alignment["multimodal_processing"] = min(multimodal_score, 100)
-        
+
         # Check real-time capabilities
         realtime_indicators = [
             "backend/services/unified_ai_orchestration_service.py",
-            "backend/integrations/advanced_estuary_flow_manager.py"
+            "backend/integrations/advanced_estuary_flow_manager.py",
         ]
-        
+
         realtime_score = 0
         for file in realtime_indicators:
             if (self.repo_path / file).exists():
                 realtime_score += 50
         strategic_alignment["real_time_contextualization"] = min(realtime_score, 100)
-        
+
         # Calculate overall alignment
-        scores = [v for k, v in strategic_alignment.items() if k != "overall_alignment_score"]
+        scores = [
+            v for k, v in strategic_alignment.items() if k != "overall_alignment_score"
+        ]
         strategic_alignment["overall_alignment_score"] = sum(scores) / len(scores)
-        
+
         self.analysis_results["phase2_strategic"] = strategic_alignment
-        
-        print(f"✅ Snowflake Cortex Integration: {strategic_alignment['snowflake_cortex_integration']:.1f}%")
-        print(f"✅ Enterprise Agent Architecture: {strategic_alignment['enterprise_grade_agents']:.1f}%")
-        print(f"✅ Multimodal Processing: {strategic_alignment['multimodal_processing']:.1f}%")
-        print(f"✅ Real-time Capabilities: {strategic_alignment['real_time_contextualization']:.1f}%")
-        print(f"🎯 Overall Strategic Alignment: {strategic_alignment['overall_alignment_score']:.1f}%")
-    
+
+        print(
+            f"✅ Snowflake Cortex Integration: {strategic_alignment['snowflake_cortex_integration']:.1f}%"
+        )
+        print(
+            f"✅ Enterprise Agent Architecture: {strategic_alignment['enterprise_grade_agents']:.1f}%"
+        )
+        print(
+            f"✅ Multimodal Processing: {strategic_alignment['multimodal_processing']:.1f}%"
+        )
+        print(
+            f"✅ Real-time Capabilities: {strategic_alignment['real_time_contextualization']:.1f}%"
+        )
+        print(
+            f"🎯 Overall Strategic Alignment: {strategic_alignment['overall_alignment_score']:.1f}%"
+        )
+
     async def _phase3_ai_agent_completion(self):
         """Phase 3: AI Agent Build-Out & API Connections"""
         print("\n🤖 PHASE 3: AI Agent Completion & Connections")
         print("-" * 50)
-        
+
         agent_status = {
             "total_agents": 0,
             "operational_agents": 0,
             "api_connections": {},
             "agent_details": {},
-            "completion_score": 0
+            "completion_score": 0,
         }
-        
+
         # Analyze existing agents
         agent_files = list((self.repo_path / "backend/agents/specialized").glob("*.py"))
-        agent_status["total_agents"] = len([f for f in agent_files if not f.name.startswith("__")])
-        
+        agent_status["total_agents"] = len(
+            [f for f in agent_files if not f.name.startswith("__")]
+        )
+
         # Check API connections
         api_integrations = {
             "gong": self._check_gong_integration(),
@@ -280,228 +311,272 @@ class SophiaAIPlatformAnalyzer:
             "slack": self._check_slack_integration(),
             "asana": self._check_asana_integration(),
             "linear": self._check_linear_integration(),
-            "snowflake": self._check_snowflake_integration()
+            "snowflake": self._check_snowflake_integration(),
         }
-        
+
         agent_status["api_connections"] = api_integrations
-        
+
         # Calculate operational agents
-        operational_count = sum(1 for status in api_integrations.values() if status["operational"])
+        operational_count = sum(
+            1 for status in api_integrations.values() if status["operational"]
+        )
         agent_status["operational_agents"] = operational_count
-        
+
         # Calculate completion score
         total_possible = len(api_integrations)
-        completion_percentage = (operational_count / total_possible) * 100 if total_possible > 0 else 0
+        completion_percentage = (
+            (operational_count / total_possible) * 100 if total_possible > 0 else 0
+        )
         agent_status["completion_score"] = completion_percentage
-        
+
         self.analysis_results["phase3_agents"] = agent_status
-        
+
         print(f"✅ Total AI Agents: {agent_status['total_agents']}")
         print(f"✅ Operational Agents: {agent_status['operational_agents']}")
-        print(f"🔗 API Connections Status:")
+        print("🔗 API Connections Status:")
         for api, status in api_integrations.items():
             status_icon = "✅" if status["operational"] else "❌"
             print(f"   {status_icon} {api.title()}: {status['status']}")
         print(f"🎯 Agent Completion Score: {completion_percentage:.1f}%")
-    
+
     def _check_gong_integration(self) -> Dict:
         """Check Gong API integration status"""
         files_to_check = [
             "backend/integrations/enhanced_gong_integration.py",
-            "backend/integrations/gong_api_client_enhanced.py"
+            "backend/integrations/gong_api_client_enhanced.py",
         ]
-        
+
         operational = all((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Fully integrated" if operational else "Partially implemented",
             "files": files_to_check,
-            "capabilities": ["call_analysis", "email_tracking", "calendar_integration"] if operational else []
+            "capabilities": ["call_analysis", "email_tracking", "calendar_integration"]
+            if operational
+            else [],
         }
-    
+
     def _check_hubspot_integration(self) -> Dict:
         """Check HubSpot API integration status"""
         files_to_check = [
             "backend/utils/snowflake_hubspot_connector.py",
-            "backend/api/hubspot_integration_routes.py"
+            "backend/api/hubspot_integration_routes.py",
         ]
-        
+
         operational = all((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Fully integrated" if operational else "Basic implementation",
             "files": files_to_check,
-            "capabilities": ["crm_sync", "deal_analysis", "contact_management"] if operational else []
+            "capabilities": ["crm_sync", "deal_analysis", "contact_management"]
+            if operational
+            else [],
         }
-    
+
     def _check_slack_integration(self) -> Dict:
         """Check Slack API integration status"""
         files_to_check = [
             "backend/agents/specialized/slack_analysis_agent.py",
-            "mcp-servers/slack"
+            "mcp-servers/slack",
         ]
-        
+
         operational = any((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Integrated" if operational else "Not implemented",
             "files": files_to_check,
-            "capabilities": ["message_analysis", "sentiment_tracking"] if operational else []
+            "capabilities": ["message_analysis", "sentiment_tracking"]
+            if operational
+            else [],
         }
-    
+
     def _check_asana_integration(self) -> Dict:
         """Check Asana API integration status"""
         files_to_check = [
             "backend/agents/specialized/asana_project_intelligence_agent.py",
-            "backend/api/asana_integration_routes.py"
+            "backend/api/asana_integration_routes.py",
         ]
-        
+
         operational = all((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Fully integrated" if operational else "Partial implementation",
             "files": files_to_check,
-            "capabilities": ["project_tracking", "health_monitoring"] if operational else []
+            "capabilities": ["project_tracking", "health_monitoring"]
+            if operational
+            else [],
         }
-    
+
     def _check_linear_integration(self) -> Dict:
         """Check Linear API integration status"""
         files_to_check = [
             "backend/agents/specialized/linear_project_health_agent.py",
-            "mcp-servers/linear/linear_mcp_server.py"
+            "mcp-servers/linear/linear_mcp_server.py",
         ]
-        
+
         operational = any((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Integrated" if operational else "MCP only",
             "files": files_to_check,
-            "capabilities": ["issue_tracking", "project_health"] if operational else []
+            "capabilities": ["issue_tracking", "project_health"] if operational else [],
         }
-    
+
     def _check_snowflake_integration(self) -> Dict:
         """Check Snowflake Cortex integration status"""
         files_to_check = [
             "backend/utils/snowflake_cortex_service.py",
-            "backend/services/enhanced_cortex_agent_service.py"
+            "backend/services/enhanced_cortex_agent_service.py",
         ]
-        
+
         operational = all((self.repo_path / f).exists() for f in files_to_check)
-        
+
         return {
             "operational": operational,
             "status": "Fully integrated" if operational else "Basic implementation",
             "files": files_to_check,
-            "capabilities": ["cortex_ai", "vector_search", "embeddings"] if operational else []
+            "capabilities": ["cortex_ai", "vector_search", "embeddings"]
+            if operational
+            else [],
         }
-    
+
     async def _phase4_iac_deployment_assessment(self):
         """Phase 4: Infrastructure as Code Assessment"""
         print("\n🏗️ PHASE 4: Infrastructure Deployment Assessment")
         print("-" * 50)
-        
+
         iac_status = {
             "pulumi_infrastructure": 0,
             "github_actions": 0,
             "docker_containers": 0,
             "mcp_servers": 0,
             "environment_management": 0,
-            "deployment_readiness": 0
+            "deployment_readiness": 0,
         }
-        
+
         # Check Pulumi infrastructure
         pulumi_files = [
             "infrastructure/index.ts",
             "infrastructure/esc",
-            "infrastructure/vercel"
+            "infrastructure/vercel",
         ]
-        
+
         pulumi_score = 0
         for item in pulumi_files:
             if (self.repo_path / item).exists():
                 pulumi_score += 33.3
         iac_status["pulumi_infrastructure"] = min(pulumi_score, 100)
-        
+
         # Check GitHub Actions
         gh_actions = list((self.repo_path / ".github/workflows").glob("*.yml"))
         iac_status["github_actions"] = min(len(gh_actions) * 25, 100)
-        
+
         # Check Docker containers
         docker_files = list(self.repo_path.rglob("Dockerfile"))
         iac_status["docker_containers"] = min(len(docker_files) * 10, 100)
-        
+
         # Check MCP servers
-        mcp_dirs = [d for d in (self.repo_path / "mcp-servers").iterdir() if d.is_dir() and not d.name.startswith(".")]
+        mcp_dirs = [
+            d
+            for d in (self.repo_path / "mcp-servers").iterdir()
+            if d.is_dir() and not d.name.startswith(".")
+        ]
         iac_status["mcp_servers"] = min(len(mcp_dirs) * 12.5, 100)
-        
+
         # Check environment management
         env_indicators = [
             "backend/core/auto_esc_config.py",
             "config/mcp_ports.json",
-            "infrastructure/esc/consolidated.yaml"
+            "infrastructure/esc/consolidated.yaml",
         ]
-        
+
         env_score = 0
         for file in env_indicators:
             if (self.repo_path / file).exists():
                 env_score += 33.3
         iac_status["environment_management"] = min(env_score, 100)
-        
+
         # Calculate overall deployment readiness
         scores = [v for v in iac_status.values() if v != 0]
         iac_status["deployment_readiness"] = sum(scores) / len(scores) if scores else 0
-        
+
         self.analysis_results["phase4_iac"] = iac_status
-        
+
         print(f"✅ Pulumi Infrastructure: {iac_status['pulumi_infrastructure']:.1f}%")
-        print(f"✅ GitHub Actions: {iac_status['github_actions']:.1f}% ({len(gh_actions)} workflows)")
-        print(f"✅ Docker Containers: {iac_status['docker_containers']:.1f}% ({len(docker_files)} Dockerfiles)")
-        print(f"✅ MCP Servers: {iac_status['mcp_servers']:.1f}% ({len(mcp_dirs)} servers)")
+        print(
+            f"✅ GitHub Actions: {iac_status['github_actions']:.1f}% ({len(gh_actions)} workflows)"
+        )
+        print(
+            f"✅ Docker Containers: {iac_status['docker_containers']:.1f}% ({len(docker_files)} Dockerfiles)"
+        )
+        print(
+            f"✅ MCP Servers: {iac_status['mcp_servers']:.1f}% ({len(mcp_dirs)} servers)"
+        )
         print(f"✅ Environment Management: {iac_status['environment_management']:.1f}%")
         print(f"🚀 Deployment Readiness: {iac_status['deployment_readiness']:.1f}%")
-    
+
     async def _phase5_generate_final_report(self):
         """Phase 5: Generate Final Report & Recommendations"""
         print("\n📋 PHASE 5: Final Report Generation")
         print("-" * 50)
-        
+
         # Calculate overall platform score
         phase_scores = {
-            "Code Quality": self.analysis_results["phase1_quality"]["maintainability_score"],
-            "Strategic Alignment": self.analysis_results["phase2_strategic"]["overall_alignment_score"],
-            "Agent Completion": self.analysis_results["phase3_agents"]["completion_score"],
-            "Infrastructure": self.analysis_results["phase4_iac"]["deployment_readiness"]
+            "Code Quality": self.analysis_results["phase1_quality"][
+                "maintainability_score"
+            ],
+            "Strategic Alignment": self.analysis_results["phase2_strategic"][
+                "overall_alignment_score"
+            ],
+            "Agent Completion": self.analysis_results["phase3_agents"][
+                "completion_score"
+            ],
+            "Infrastructure": self.analysis_results["phase4_iac"][
+                "deployment_readiness"
+            ],
         }
-        
+
         overall_score = sum(phase_scores.values()) / len(phase_scores)
-        
+
         # Generate recommendations based on scores
         recommendations = []
-        
+
         if phase_scores["Code Quality"] < 85:
-            recommendations.append("🔧 PRIORITY: Address code quality issues and security vulnerabilities")
-        
+            recommendations.append(
+                "🔧 PRIORITY: Address code quality issues and security vulnerabilities"
+            )
+
         if phase_scores["Strategic Alignment"] < 90:
-            recommendations.append("🎯 FOCUS: Enhance Snowflake Cortex integration and zero data movement")
-        
+            recommendations.append(
+                "🎯 FOCUS: Enhance Snowflake Cortex integration and zero data movement"
+            )
+
         if phase_scores["Agent Completion"] < 100:
-            recommendations.append("🤖 ACTION: Complete remaining AI agent implementations and API connections")
-        
+            recommendations.append(
+                "🤖 ACTION: Complete remaining AI agent implementations and API connections"
+            )
+
         if phase_scores["Infrastructure"] < 95:
-            recommendations.append("🏗️ DEPLOY: Finalize Infrastructure as Code and deployment automation")
-        
+            recommendations.append(
+                "🏗️ DEPLOY: Finalize Infrastructure as Code and deployment automation"
+            )
+
         # Specific technical recommendations
         if self.analysis_results["phase1_quality"]["security_issues"]:
-            recommendations.append("🔐 SECURITY: Fix identified security vulnerabilities immediately")
-        
+            recommendations.append(
+                "🔐 SECURITY: Fix identified security vulnerabilities immediately"
+            )
+
         if self.analysis_results["phase3_agents"]["operational_agents"] < 6:
-            recommendations.append("🔗 INTEGRATION: Complete missing API integrations for full platform capability")
-        
+            recommendations.append(
+                "🔗 INTEGRATION: Complete missing API integrations for full platform capability"
+            )
+
         final_report = {
             "analysis_date": datetime.now().isoformat(),
             "overall_platform_score": overall_score,
@@ -509,97 +584,119 @@ class SophiaAIPlatformAnalyzer:
             "recommendations": recommendations,
             "deployment_readiness": "READY" if overall_score >= 90 else "NEEDS_WORK",
             "next_steps": self._generate_next_steps(phase_scores),
-            "technical_debt": self._assess_technical_debt()
+            "technical_debt": self._assess_technical_debt(),
         }
-        
+
         self.analysis_results["final_report"] = final_report
-        
+
         # Print summary
-        print(f"\n🎯 SOPHIA AI PLATFORM ANALYSIS SUMMARY")
+        print("\n🎯 SOPHIA AI PLATFORM ANALYSIS SUMMARY")
         print("=" * 80)
         print(f"Overall Platform Score: {overall_score:.1f}/100")
         print(f"Deployment Status: {final_report['deployment_readiness']}")
         print()
-        
+
         for phase, score in phase_scores.items():
             status_icon = "✅" if score >= 85 else "⚠️" if score >= 70 else "❌"
             print(f"{status_icon} {phase}: {score:.1f}%")
-        
-        print(f"\n📋 KEY RECOMMENDATIONS:")
+
+        print("\n📋 KEY RECOMMENDATIONS:")
         for i, rec in enumerate(recommendations[:5], 1):
             print(f"{i}. {rec}")
-        
+
         return final_report
-    
+
     def _generate_next_steps(self, phase_scores: Dict) -> List[str]:
         """Generate specific next steps based on analysis"""
         next_steps = []
-        
+
         # Prioritize based on lowest scores
         sorted_phases = sorted(phase_scores.items(), key=lambda x: x[1])
-        
+
         for phase, score in sorted_phases:
             if score < 90:
                 if phase == "Code Quality":
-                    next_steps.append("Run comprehensive code review and fix security issues")
+                    next_steps.append(
+                        "Run comprehensive code review and fix security issues"
+                    )
                 elif phase == "Strategic Alignment":
-                    next_steps.append("Complete Snowflake Cortex integration and enhance real-time capabilities")
+                    next_steps.append(
+                        "Complete Snowflake Cortex integration and enhance real-time capabilities"
+                    )
                 elif phase == "Agent Completion":
-                    next_steps.append("Finish AI agent implementation and establish all API connections")
+                    next_steps.append(
+                        "Finish AI agent implementation and establish all API connections"
+                    )
                 elif phase == "Infrastructure":
-                    next_steps.append("Deploy Infrastructure as Code and automate deployment pipelines")
-        
+                    next_steps.append(
+                        "Deploy Infrastructure as Code and automate deployment pipelines"
+                    )
+
         # Add platform-specific steps
-        next_steps.extend([
-            "Verify all MCP servers are operational with health monitoring",
-            "Test end-to-end conversational AI workflows",
-            "Validate Pulumi ESC secret management integration",
-            "Execute production deployment with monitoring"
-        ])
-        
+        next_steps.extend(
+            [
+                "Verify all MCP servers are operational with health monitoring",
+                "Test end-to-end conversational AI workflows",
+                "Validate Pulumi ESC secret management integration",
+                "Execute production deployment with monitoring",
+            ]
+        )
+
         return next_steps[:8]  # Limit to top 8 steps
-    
+
     def _assess_technical_debt(self) -> Dict:
         """Assess technical debt across the platform"""
         debt_assessment = {
             "high_priority": [],
             "medium_priority": [],
             "low_priority": [],
-            "debt_score": 0
+            "debt_score": 0,
         }
-        
+
         # High priority debt
         if self.analysis_results["phase1_quality"]["security_issues"]:
-            debt_assessment["high_priority"].append("Security vulnerabilities need immediate attention")
-        
+            debt_assessment["high_priority"].append(
+                "Security vulnerabilities need immediate attention"
+            )
+
         if self.analysis_results["phase3_agents"]["operational_agents"] < 4:
             debt_assessment["high_priority"].append("Critical API integrations missing")
-        
+
         # Medium priority debt
         if self.analysis_results["phase1_quality"]["maintainability_score"] < 80:
-            debt_assessment["medium_priority"].append("Code maintainability below standards")
-        
+            debt_assessment["medium_priority"].append(
+                "Code maintainability below standards"
+            )
+
         if self.analysis_results["phase4_iac"]["deployment_readiness"] < 85:
-            debt_assessment["medium_priority"].append("Infrastructure deployment needs completion")
-        
+            debt_assessment["medium_priority"].append(
+                "Infrastructure deployment needs completion"
+            )
+
         # Low priority debt
-        performance_issues = self.analysis_results["phase1_quality"]["performance_issues"]
+        performance_issues = self.analysis_results["phase1_quality"][
+            "performance_issues"
+        ]
         if performance_issues:
-            debt_assessment["low_priority"].append("Performance optimizations available")
-        
+            debt_assessment["low_priority"].append(
+                "Performance optimizations available"
+            )
+
         # Calculate debt score (0-100, lower is better)
         total_issues = (
-            len(debt_assessment["high_priority"]) * 30 +
-            len(debt_assessment["medium_priority"]) * 15 +
-            len(debt_assessment["low_priority"]) * 5
+            len(debt_assessment["high_priority"]) * 30
+            + len(debt_assessment["medium_priority"]) * 15
+            + len(debt_assessment["low_priority"]) * 5
         )
         debt_assessment["debt_score"] = min(total_issues, 100)
-        
+
         return debt_assessment
-    
-    def save_analysis_report(self, filename: str = "sophia_ai_comprehensive_analysis.json"):
+
+    def save_analysis_report(
+        self, filename: str = "sophia_ai_comprehensive_analysis.json"
+    ):
         """Save analysis results to file"""
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(self.analysis_results, f, indent=2, default=str)
         print(f"📄 Analysis report saved to: {filename}")
 
@@ -607,25 +704,26 @@ class SophiaAIPlatformAnalyzer:
 async def main():
     """Main execution function"""
     analyzer = SophiaAIPlatformAnalyzer()
-    
+
     try:
         results = await analyzer.run_comprehensive_analysis()
         analyzer.save_analysis_report()
-        
+
         # Generate summary for user
         final_report = results["final_report"]
-        print(f"\n🎉 ANALYSIS COMPLETE!")
+        print("\n🎉 ANALYSIS COMPLETE!")
         print(f"Platform Readiness: {final_report['overall_platform_score']:.1f}%")
         print(f"Deployment Status: {final_report['deployment_readiness']}")
-        
+
         return results
-        
+
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
         import traceback
+
         traceback.print_exc()
         return None
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

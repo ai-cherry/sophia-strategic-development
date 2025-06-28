@@ -54,14 +54,14 @@ def fix_syntax_patterns(file_path: Path) -> Tuple[bool, List[str]]:
                 # Check if it's not inside a string
                 if not ('"' in line or "'" in line):
                     line = line.rstrip().rstrip(".")
-                    fixes.append(f"Line {i+1}: Removed trailing period")
+                    fixes.append(f"Line {i + 1}: Removed trailing period")
                 # Handle specific cases
                 elif re.match(r".*\)\.\s*$", line):
                     line = re.sub(r"\)\.\s*$", ")", line)
-                    fixes.append(f"Line {i+1}: Fixed method call period")
+                    fixes.append(f"Line {i + 1}: Fixed method call period")
                 elif re.match(r".*\]\.\s*$", line):
                     line = re.sub(r"\]\.\s*$", "]", line)
-                    fixes.append(f"Line {i+1}: Fixed list/array period")
+                    fixes.append(f"Line {i + 1}: Fixed list/array period")
 
             # Fix specific patterns with periods
             # if condition:.
@@ -94,7 +94,7 @@ def fix_syntax_patterns(file_path: Path) -> Tuple[bool, List[str]]:
                         continue
 
             if line != original_line:
-                fixes.append(f"Line {i+1}: Fixed syntax")
+                fixes.append(f"Line {i + 1}: Fixed syntax")
 
             fixed_lines.append(line)
 

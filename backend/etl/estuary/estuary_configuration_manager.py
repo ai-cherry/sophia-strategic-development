@@ -25,6 +25,7 @@ logger = structlog.get_logger(__name__)
 
 class ErrorType(Enum):
     """Categorized error types for enhanced error handling"""
+
     NETWORK_ERROR = "network_error"
     AUTHENTICATION_ERROR = "authentication_error"
     CONFIGURATION_ERROR = "configuration_error"
@@ -39,6 +40,7 @@ class ErrorType(Enum):
 
 class EstuaryOperationStatus(Enum):
     """Status indicators for Estuary operations"""
+
     SUCCESS = "success"
     FAILED = "failed"
     RETRY = "retry"
@@ -49,6 +51,7 @@ class EstuaryOperationStatus(Enum):
 
 class SourceType(Enum):
     """Supported source types for Estuary integration"""
+
     GONG = "gong"
     ASANA = "asana"
     NETSUITE = "netsuite"
@@ -59,6 +62,7 @@ class SourceType(Enum):
 @dataclass
 class RetryConfig:
     """Configuration for retry mechanisms"""
+
     max_attempts: int = 3
     base_delay: float = 1.0
     max_delay: float = 60.0
@@ -69,6 +73,7 @@ class RetryConfig:
 @dataclass
 class DataQualityMetrics:
     """Data quality metrics for ingested data"""
+
     total_records: int = 0
     valid_records: int = 0
     invalid_records: int = 0
@@ -83,6 +88,7 @@ class DataQualityMetrics:
 @dataclass
 class EstuaryOperationResult:
     """Result of an Estuary operation with comprehensive metadata"""
+
     status: EstuaryOperationStatus
     operation_type: str
     resource_id: Optional[str] = None
@@ -102,16 +108,16 @@ class EnhancedEstuaryManager:
         self.environment = environment
         self.session: Optional[aiohttp.ClientSession] = None
         self.cortex_service: Optional[SnowflakeCortexService] = None
-        
+
         # Configuration
         self.estuary_config = self._load_estuary_config()
         self.gong_config = self._load_gong_config()
         self.asana_config = self._load_asana_config()
         self.snowflake_config = self._load_snowflake_config()
-        
+
         # Retry configuration
         self.retry_config = RetryConfig()
-        
+
         # Operation tracking
         self.operation_history: List[EstuaryOperationResult] = []
         self.health_status = {"last_check": None, "status": "unknown"}
@@ -121,13 +127,13 @@ class EnhancedEstuaryManager:
             SourceType.GONG: {
                 "source_definition_id": "2f2d9b3e-4e3b-4f8a-9b3e-4e3b4f8a9b3e",
                 "name": "Gong",
-                "documentation_url": "https://docs.estuary.dev/integrations/sources/gong"
+                "documentation_url": "https://docs.estuary.dev/integrations/sources/gong",
             },
             SourceType.ASANA: {
                 "source_definition_id": "f1e4c7f0-3b2a-4c5d-8e9f-1a2b3c4d5e6f",
                 "name": "Asana",
-                "documentation_url": "https://docs.estuary.dev/integrations/sources/asana"
-            }
+                "documentation_url": "https://docs.estuary.dev/integrations/sources/asana",
+            },
         }
 
     def _load_estuary_config(self) -> Dict[str, Any]:
@@ -136,7 +142,7 @@ class EnhancedEstuaryManager:
             "base_url": get_config_value("estuary_server_url", "http://localhost:8000"),
             "username": get_config_value("estuary_username", "estuary"),
             "password": get_config_value("estuary_password", "password"),
-            "workspace_id": get_config_value("estuary_workspace_id", "default")
+            "workspace_id": get_config_value("estuary_workspace_id", "default"),
         }
 
     def _load_gong_config(self) -> Dict[str, Any]:
@@ -144,20 +150,24 @@ class EnhancedEstuaryManager:
         return {
             "access_key": get_config_value("gong_access_key"),
             "access_key_secret": get_config_value("gong_client_secret"),
-            "start_date": get_config_value("gong_sync_start_date", "2024-01-01T00:00:00Z"),
+            "start_date": get_config_value(
+                "gong_sync_start_date", "2024-01-01T00:00:00Z"
+            ),
             "include_transcripts": get_config_value("gong_include_transcripts", True),
-            "call_types": get_config_value("gong_call_types", ["inbound", "outbound"])
+            "call_types": get_config_value("gong_call_types", ["inbound", "outbound"]),
         }
 
     def _load_asana_config(self) -> Dict[str, Any]:
         """Load Asana configuration from Pulumi ESC"""
         return {
             "personal_access_token": get_config_value("asana_api_token"),
-            "start_date": get_config_value("asana_sync_start_date", "2024-01-01T00:00:00Z"),
+            "start_date": get_config_value(
+                "asana_sync_start_date", "2024-01-01T00:00:00Z"
+            ),
             "include_archived": get_config_value("asana_include_archived", False),
             "workspace_gids": get_config_value("asana_workspace_gids", []),
             "project_gids": get_config_value("asana_project_gids", []),
-            "team_gids": get_config_value("asana_team_gids", [])
+            "team_gids": get_config_value("asana_team_gids", []),
         }
 
     def _load_snowflake_config(self) -> Dict[str, Any]:
@@ -166,10 +176,14 @@ class EnhancedEstuaryManager:
             "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
             "username": get_config_value("snowflake_user", "SCOOBYJAVA15"),
             "password": get_config_value("snowflake_password"),
-            "warehouse": get_config_value("snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"),
-            "database": get_config_value("snowflake_database", f"SOPHIA_AI_{self.environment.upper()}"),
+            "warehouse": get_config_value(
+                "snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"
+            ),
+            "database": get_config_value(
+                "snowflake_database", f"SOPHIA_AI_{self.environment.upper()}"
+            ),
             "role": get_config_value("snowflake_role", "ROLE_SOPHIA_ESTUARY_INGEST"),
-            "raw_schema": "RAW_ESTUARY"
+            "raw_schema": "RAW_ESTUARY",
         }
 
     async def initialize(self) -> EstuaryOperationResult:
@@ -179,63 +193,62 @@ class EnhancedEstuaryManager:
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "User-Agent": "Sophia-AI-Estuary-Manager/1.0"
+                "User-Agent": "Sophia-AI-Estuary-Manager/1.0",
             }
-            
+
             auth = aiohttp.BasicAuth(
-                self.estuary_config["username"],
-                self.estuary_config["password"]
+                self.estuary_config["username"], self.estuary_config["password"]
             )
-            
+
             self.session = aiohttp.ClientSession(
-                timeout=timeout,
-                headers=headers,
-                auth=auth
+                timeout=timeout, headers=headers, auth=auth
             )
-            
+
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()
-            
+
             logger.info("✅ Enhanced Estuary Manager initialized successfully")
-            
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="initialization",
                 execution_time=0.0,
-                metadata={"environment": self.environment}
+                metadata={"environment": self.environment},
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Estuary manager: {e}")
-            
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="initialization",
-                error_message=str(e)
+                error_message=str(e),
             )
 
-    async def execute_with_retry(self, operation_func, operation_name: str, *args, **kwargs) -> EstuaryOperationResult:
+    async def execute_with_retry(
+        self, operation_func, operation_name: str, *args, **kwargs
+    ) -> EstuaryOperationResult:
         """Execute operation with comprehensive retry logic and error handling"""
         start_time = time.time()
         last_exception = None
-        
+
         for attempt in range(self.retry_config.max_attempts):
             try:
                 result = await operation_func(*args, **kwargs)
                 execution_time = time.time() - start_time
-                
+
                 return EstuaryOperationResult(
                     status=EstuaryOperationStatus.SUCCESS,
                     operation_type=operation_name,
                     execution_time=execution_time,
                     retry_count=attempt,
-                    metadata={"result": result}
+                    metadata={"result": result},
                 )
-                
+
             except aiohttp.ClientTimeout as e:
                 last_exception = e
                 error_type = ErrorType.TIMEOUT_ERROR
-                
+
             except aiohttp.ClientResponseError as e:
                 last_exception = e
                 if e.status == 429:
@@ -244,38 +257,43 @@ class EnhancedEstuaryManager:
                     error_type = ErrorType.AUTHENTICATION_ERROR
                 else:
                     error_type = ErrorType.NETWORK_ERROR
-                    
+
             except Exception as e:
                 last_exception = e
                 error_type = ErrorType.UNKNOWN_ERROR
-            
+
             if attempt < self.retry_config.max_attempts - 1:
                 delay = min(
-                    self.retry_config.base_delay * (self.retry_config.exponential_base ** attempt),
-                    self.retry_config.max_delay
+                    self.retry_config.base_delay
+                    * (self.retry_config.exponential_base**attempt),
+                    self.retry_config.max_delay,
                 )
-                
+
                 if self.retry_config.jitter:
-                    delay *= (0.5 + random.random() * 0.5)
-                
-                logger.warning(f"Attempt {attempt + 1} failed for {operation_name}, retrying in {delay:.2f}s: {last_exception}")
+                    delay *= 0.5 + random.random() * 0.5
+
+                logger.warning(
+                    f"Attempt {attempt + 1} failed for {operation_name}, retrying in {delay:.2f}s: {last_exception}"
+                )
                 await asyncio.sleep(delay)
-        
+
         execution_time = time.time() - start_time
-        
+
         return EstuaryOperationResult(
             status=EstuaryOperationStatus.FAILED,
             operation_type=operation_name,
             execution_time=execution_time,
             error_type=error_type,
             error_message=str(last_exception),
-            retry_count=self.retry_config.max_attempts
+            retry_count=self.retry_config.max_attempts,
         )
 
-    async def _make_estuary_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
+    async def _make_estuary_request(
+        self, method: str, endpoint: str, data: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """Make authenticated request to Estuary Flow API"""
         url = f"{self.estuary_config['base_url']}/api/v1/{endpoint}"
-        
+
         async with self.session.request(method, url, json=data) as response:
             response.raise_for_status()
             return await response.json()
@@ -286,46 +304,50 @@ class EnhancedEstuaryManager:
         """Configure Asana source connector in Estuary"""
         try:
             logger.info("🔄 Configuring Asana source connector")
-            
+
             source_config = {
-                "sourceDefinitionId": self.connector_definitions[SourceType.ASANA]["source_definition_id"],
+                "sourceDefinitionId": self.connector_definitions[SourceType.ASANA][
+                    "source_definition_id"
+                ],
                 "connectionConfiguration": {
                     "personal_access_token": self.asana_config["personal_access_token"],
                     "start_date": self.asana_config["start_date"],
                     "include_archived_projects": self.asana_config["include_archived"],
                     "workspace_gids": self.asana_config["workspace_gids"],
                     "project_gids": self.asana_config["project_gids"],
-                    "team_gids": self.asana_config["team_gids"]
+                    "team_gids": self.asana_config["team_gids"],
                 },
                 "name": "Asana-PayReady-Source",
-                "workspaceId": self.estuary_config["workspace_id"]
+                "workspaceId": self.estuary_config["workspace_id"],
             }
-            
-            response = await self._make_estuary_request("POST", "sources", source_config)
+
+            response = await self._make_estuary_request(
+                "POST", "sources", source_config
+            )
             source_id = response["sourceId"]
-            
+
             logger.info(f"✅ Asana source configured successfully: {source_id}")
-            
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="configure_asana_source",
                 resource_id=source_id,
-                metadata={"source_config": source_config}
+                metadata={"source_config": source_config},
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to configure Asana source: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="configure_asana_source",
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def configure_asana_snowflake_destination(self) -> EstuaryOperationResult:
         """Configure Snowflake destination for Asana data"""
         try:
             logger.info("🔄 Configuring Snowflake destination for Asana")
-            
+
             destination_config = {
                 "destinationDefinitionId": "424892c4-daac-4491-b35d-c6688ba547ba",  # Snowflake destination ID
                 "connectionConfiguration": {
@@ -338,143 +360,147 @@ class EnhancedEstuaryManager:
                     "password": self.snowflake_config["password"],
                     "jdbc_url_params": "",
                     "raw_data_schema": self.snowflake_config["raw_schema"],
-                    "loading_method": {
-                        "method": "Standard"
-                    },
+                    "loading_method": {"method": "Standard"},
                     "purge_staging_data": True,
                     "upload_threads_count": 6,
-                    "batch_size": 50000
+                    "batch_size": 50000,
                 },
                 "name": "Snowflake-Asana-Destination",
-                "workspaceId": self.estuary_config["workspace_id"]
+                "workspaceId": self.estuary_config["workspace_id"],
             }
-            
-            response = await self._make_estuary_request("POST", "destinations", destination_config)
+
+            response = await self._make_estuary_request(
+                "POST", "destinations", destination_config
+            )
             destination_id = response["destinationId"]
-            
-            logger.info(f"✅ Snowflake destination configured for Asana: {destination_id}")
-            
+
+            logger.info(
+                f"✅ Snowflake destination configured for Asana: {destination_id}"
+            )
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="configure_asana_snowflake_destination",
                 resource_id=destination_id,
-                metadata={"destination_config": destination_config}
+                metadata={"destination_config": destination_config},
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to configure Snowflake destination for Asana: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="configure_asana_snowflake_destination",
-                error_message=str(e)
+                error_message=str(e),
             )
 
-    async def create_asana_connection(self, source_id: str, destination_id: str) -> EstuaryOperationResult:
+    async def create_asana_connection(
+        self, source_id: str, destination_id: str
+    ) -> EstuaryOperationResult:
         """Create connection between Asana source and Snowflake destination"""
         try:
             logger.info("🔄 Creating Asana to Snowflake connection")
-            
+
             # Define Asana streams to sync
             streams_config = [
                 {
                     "stream": {
                         "name": "projects",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["modified_at"],
-                        "primary_key": [["gid"]]
-                    }
+                        "primary_key": [["gid"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "tasks",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh", "incremental"]
+                        "supported_sync_modes": ["full_refresh", "incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["modified_at"],
-                        "primary_key": [["gid"]]
-                    }
+                        "primary_key": [["gid"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "users",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh"]
+                        "supported_sync_modes": ["full_refresh"],
                     },
                     "config": {
                         "sync_mode": "full_refresh",
                         "destination_sync_mode": "overwrite",
-                        "primary_key": [["gid"]]
-                    }
+                        "primary_key": [["gid"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "teams",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh"]
+                        "supported_sync_modes": ["full_refresh"],
                     },
                     "config": {
                         "sync_mode": "full_refresh",
                         "destination_sync_mode": "overwrite",
-                        "primary_key": [["gid"]]
-                    }
+                        "primary_key": [["gid"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "stories",
                         "json_schema": {},
-                        "supported_sync_modes": ["incremental"]
+                        "supported_sync_modes": ["incremental"],
                     },
                     "config": {
                         "sync_mode": "incremental",
                         "destination_sync_mode": "append_dedup",
                         "cursor_field": ["created_at"],
-                        "primary_key": [["gid"]]
-                    }
+                        "primary_key": [["gid"]],
+                    },
                 },
                 {
                     "stream": {
                         "name": "workspaces",
                         "json_schema": {},
-                        "supported_sync_modes": ["full_refresh"]
+                        "supported_sync_modes": ["full_refresh"],
                     },
                     "config": {
                         "sync_mode": "full_refresh",
                         "destination_sync_mode": "overwrite",
-                        "primary_key": [["gid"]]
-                    }
-                }
+                        "primary_key": [["gid"]],
+                    },
+                },
             ]
-            
+
             connection_config = {
                 "sourceId": source_id,
                 "destinationId": destination_id,
-                "syncCatalog": {
-                    "streams": streams_config
-                },
+                "syncCatalog": {"streams": streams_config},
                 "schedule": {
                     "scheduleType": "cron",
-                    "cronExpression": "0 */1 * * *"  # Every hour
+                    "cronExpression": "0 */1 * * *",  # Every hour
                 },
                 "name": "Asana-to-Snowflake-Connection",
                 "namespaceDefinition": "source",
                 "namespaceFormat": "${SOURCE_NAMESPACE}",
                 "prefix": "asana_",
-                "workspaceId": self.estuary_config["workspace_id"]
+                "workspaceId": self.estuary_config["workspace_id"],
             }
-            
-            response = await self._make_estuary_request("POST", "connections", connection_config)
+
+            response = await self._make_estuary_request(
+                "POST", "connections", connection_config
+            )
             connection_id = response["connectionId"]
-            
+
             logger.info(f"✅ Asana connection created successfully: {connection_id}")
-            
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="create_asana_connection",
@@ -482,65 +508,70 @@ class EnhancedEstuaryManager:
                 metadata={
                     "connection_config": connection_config,
                     "source_id": source_id,
-                    "destination_id": destination_id
-                }
+                    "destination_id": destination_id,
+                },
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create Asana connection: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="create_asana_connection",
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def setup_complete_asana_pipeline(self) -> Dict[str, EstuaryOperationResult]:
         """Set up complete Asana data pipeline end-to-end"""
         try:
             logger.info("🚀 Setting up complete Asana data pipeline")
-            
+
             results = {}
-            
+
             # Step 1: Configure Asana source
             source_result = await self.execute_with_retry(
-                self.configure_asana_source,
-                "configure_asana_source"
+                self.configure_asana_source, "configure_asana_source"
             )
             results["source"] = source_result
-            
+
             if source_result.status != EstuaryOperationStatus.SUCCESS:
-                raise Exception(f"Asana source configuration failed: {source_result.error_message}")
-            
+                raise Exception(
+                    f"Asana source configuration failed: {source_result.error_message}"
+                )
+
             # Step 2: Configure Snowflake destination
             destination_result = await self.execute_with_retry(
                 self.configure_asana_snowflake_destination,
-                "configure_asana_snowflake_destination"
+                "configure_asana_snowflake_destination",
             )
             results["destination"] = destination_result
-            
+
             if destination_result.status != EstuaryOperationStatus.SUCCESS:
-                raise Exception(f"Snowflake destination configuration failed: {destination_result.error_message}")
-            
+                raise Exception(
+                    f"Snowflake destination configuration failed: {destination_result.error_message}"
+                )
+
             # Step 3: Create connection
             connection_result = await self.execute_with_retry(
                 self.create_asana_connection,
                 "create_asana_connection",
                 source_result.resource_id,
-                destination_result.resource_id
+                destination_result.resource_id,
             )
             results["connection"] = connection_result
-            
+
             if connection_result.status != EstuaryOperationStatus.SUCCESS:
-                raise Exception(f"Asana connection creation failed: {connection_result.error_message}")
-            
+                raise Exception(
+                    f"Asana connection creation failed: {connection_result.error_message}"
+                )
+
             # Step 4: Trigger initial sync
             sync_result = await self.trigger_asana_sync(connection_result.resource_id)
             results["initial_sync"] = sync_result
-            
+
             logger.info("✅ Complete Asana pipeline setup completed successfully")
-            
+
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Complete Asana pipeline setup failed: {e}")
             raise
@@ -549,55 +580,57 @@ class EnhancedEstuaryManager:
         """Trigger manual sync for Asana connection"""
         try:
             logger.info(f"🔄 Triggering Asana sync for connection: {connection_id}")
-            
-            sync_config = {
-                "connectionId": connection_id
-            }
-            
-            response = await self._make_estuary_request("POST", "connections/sync", sync_config)
+
+            sync_config = {"connectionId": connection_id}
+
+            response = await self._make_estuary_request(
+                "POST", "connections/sync", sync_config
+            )
             job_id = response.get("job", {}).get("id")
-            
+
             logger.info(f"✅ Asana sync triggered successfully: {job_id}")
-            
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="trigger_asana_sync",
                 resource_id=job_id,
-                metadata={"connection_id": connection_id}
+                metadata={"connection_id": connection_id},
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to trigger Asana sync: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="trigger_asana_sync",
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def get_asana_sync_status(self, connection_id: str) -> EstuaryOperationResult:
         """Get sync status for Asana connection"""
         try:
-            response = await self._make_estuary_request("GET", f"connections/{connection_id}/status")
-            
+            response = await self._make_estuary_request(
+                "GET", f"connections/{connection_id}/status"
+            )
+
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.SUCCESS,
                 operation_type="get_asana_sync_status",
-                metadata={"sync_status": response}
+                metadata={"sync_status": response},
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get Asana sync status: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="get_asana_sync_status",
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def validate_asana_data_quality(self) -> DataQualityMetrics:
         """Validate quality of ingested Asana data"""
         try:
             logger.info("🔍 Validating Asana data quality")
-            
+
             # Query raw Asana data from Snowflake
             quality_queries = {
                 "projects": """
@@ -615,63 +648,73 @@ class EnhancedEstuaryManager:
                         COUNT(CASE WHEN _estuary_data:name IS NOT NULL THEN 1 END) as valid_names,
                         COUNT(CASE WHEN _estuary_data:completed IS NOT NULL THEN 1 END) as valid_status
                     FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_TASKS
-                """
+                """,
             }
-            
+
             total_records = 0
             valid_records = 0
             issues = []
-            
+
             for table, query in quality_queries.items():
                 try:
                     result = await self.cortex_service.execute_query(query)
                     if not result.empty:
                         row = result.iloc[0]
-                        table_total = row.get('TOTAL_RECORDS', 0)
-                        table_valid = min([row.get(col, 0) for col in row.index if col != 'TOTAL_RECORDS'])
-                        
+                        table_total = row.get("TOTAL_RECORDS", 0)
+                        table_valid = min(
+                            [
+                                row.get(col, 0)
+                                for col in row.index
+                                if col != "TOTAL_RECORDS"
+                            ]
+                        )
+
                         total_records += table_total
                         valid_records += table_valid
-                        
+
                         if table_total > 0:
                             table_quality = (table_valid / table_total) * 100
                             if table_quality < 95:
-                                issues.append(f"{table} data quality below 95%: {table_quality:.1f}%")
-                        
+                                issues.append(
+                                    f"{table} data quality below 95%: {table_quality:.1f}%"
+                                )
+
                 except Exception as e:
                     issues.append(f"Failed to validate {table}: {str(e)}")
-            
-            quality_score = (valid_records / total_records * 100) if total_records > 0 else 0
-            
+
+            quality_score = (
+                (valid_records / total_records * 100) if total_records > 0 else 0
+            )
+
             return DataQualityMetrics(
                 total_records=total_records,
                 valid_records=valid_records,
                 invalid_records=total_records - valid_records,
                 quality_score=quality_score,
                 validation_timestamp=datetime.utcnow(),
-                issues=issues
+                issues=issues,
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to validate Asana data quality: {e}")
             return DataQualityMetrics(
                 quality_score=0.0,
                 validation_timestamp=datetime.utcnow(),
-                issues=[f"Validation failed: {str(e)}"]
+                issues=[f"Validation failed: {str(e)}"],
             )
 
     async def perform_health_check(self) -> Dict[str, Any]:
         """Perform comprehensive health check of Estuary pipelines"""
         try:
             logger.info("🏥 Performing Estuary health check")
-            
+
             health_status = {
                 "timestamp": datetime.utcnow().isoformat(),
                 "overall_status": "healthy",
                 "components": {},
-                "metrics": {}
+                "metrics": {},
             }
-            
+
             # Check Estuary server connectivity
             try:
                 await self._make_estuary_request("GET", "health")
@@ -679,7 +722,7 @@ class EnhancedEstuaryManager:
             except Exception as e:
                 health_status["components"]["estuary_server"] = f"unhealthy: {str(e)}"
                 health_status["overall_status"] = "degraded"
-            
+
             # Check Snowflake connectivity
             try:
                 await self.cortex_service.execute_query("SELECT 1 as health_check")
@@ -687,27 +730,27 @@ class EnhancedEstuaryManager:
             except Exception as e:
                 health_status["components"]["snowflake"] = f"unhealthy: {str(e)}"
                 health_status["overall_status"] = "degraded"
-            
+
             # Validate Asana data quality
             asana_quality = await self.validate_asana_data_quality()
             health_status["metrics"]["asana_data_quality"] = {
                 "quality_score": asana_quality.quality_score,
                 "total_records": asana_quality.total_records,
-                "issues": asana_quality.issues
+                "issues": asana_quality.issues,
             }
-            
+
             if asana_quality.quality_score < 90:
                 health_status["overall_status"] = "degraded"
-            
+
             self.health_status = health_status
             return health_status
-            
+
         except Exception as e:
             logger.error(f"❌ Health check failed: {e}")
             return {
                 "timestamp": datetime.utcnow().isoformat(),
                 "overall_status": "unhealthy",
-                "error": str(e)
+                "error": str(e),
             }
 
     async def cleanup(self) -> None:
@@ -723,10 +766,12 @@ class EnhancedEstuaryManager:
         """Get list of supported source types"""
         return [source.value for source in SourceType]
 
-    async def setup_source_pipeline(self, source_type: str) -> Dict[str, EstuaryOperationResult]:
+    async def setup_source_pipeline(
+        self, source_type: str
+    ) -> Dict[str, EstuaryOperationResult]:
         """Generic method to setup pipeline for any supported source"""
         source_enum = SourceType(source_type.lower())
-        
+
         if source_enum == SourceType.ASANA:
             return await self.setup_complete_asana_pipeline()
         elif source_enum == SourceType.GONG:
@@ -738,30 +783,35 @@ class EnhancedEstuaryManager:
     async def test_source_connection(self, source_type: str) -> EstuaryOperationResult:
         """Test connection for specified source type"""
         source_enum = SourceType(source_type.lower())
-        
+
         if source_enum == SourceType.ASANA:
             # Test Asana API connectivity
             try:
                 import aiohttp
+
                 async with aiohttp.ClientSession() as session:
-                    headers = {"Authorization": f"Bearer {self.asana_config['personal_access_token']}"}
-                    async with session.get("https://app.asana.com/api/1.0/users/me", headers=headers) as response:
+                    headers = {
+                        "Authorization": f"Bearer {self.asana_config['personal_access_token']}"
+                    }
+                    async with session.get(
+                        "https://app.asana.com/api/1.0/users/me", headers=headers
+                    ) as response:
                         if response.status == 200:
                             return EstuaryOperationResult(
                                 status=EstuaryOperationStatus.SUCCESS,
-                                operation_type="test_asana_connection"
+                                operation_type="test_asana_connection",
                             )
                         else:
                             return EstuaryOperationResult(
                                 status=EstuaryOperationStatus.FAILED,
                                 operation_type="test_asana_connection",
-                                error_message=f"Asana API returned status {response.status}"
+                                error_message=f"Asana API returned status {response.status}",
                             )
             except Exception as e:
                 return EstuaryOperationResult(
                     status=EstuaryOperationStatus.FAILED,
                     operation_type="test_asana_connection",
-                    error_message=str(e)
+                    error_message=str(e),
                 )
         else:
             raise ValueError(f"Unsupported source type: {source_type}")
@@ -771,34 +821,42 @@ class EnhancedEstuaryManager:
 async def main():
     """CLI interface for Estuary configuration management"""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Enhanced Estuary Configuration Manager")
-    parser.add_argument("--environment", default="dev", choices=["dev", "staging", "prod"])
-    parser.add_argument("--source", choices=["gong", "asana"], help="Source to configure")
-    parser.add_argument("--action", choices=["setup", "test", "sync", "status", "health"], required=True)
-    
+
+    parser = argparse.ArgumentParser(
+        description="Enhanced Estuary Configuration Manager"
+    )
+    parser.add_argument(
+        "--environment", default="dev", choices=["dev", "staging", "prod"]
+    )
+    parser.add_argument(
+        "--source", choices=["gong", "asana"], help="Source to configure"
+    )
+    parser.add_argument(
+        "--action", choices=["setup", "test", "sync", "status", "health"], required=True
+    )
+
     args = parser.parse_args()
-    
+
     manager = EnhancedEstuaryManager(args.environment)
-    
+
     try:
         await manager.initialize()
-        
+
         if args.action == "setup" and args.source:
             results = await manager.setup_source_pipeline(args.source)
             print(f"✅ {args.source.title()} pipeline setup completed: {results}")
-            
+
         elif args.action == "test" and args.source:
             result = await manager.test_source_connection(args.source)
             print(f"🔍 {args.source.title()} connection test: {result.status.value}")
-            
+
         elif args.action == "health":
             health = await manager.perform_health_check()
             print(f"🏥 Health check: {health['overall_status']}")
-            
+
         else:
             print("❌ Invalid action or missing source parameter")
-            
+
     except Exception as e:
         print(f"❌ Operation failed: {e}")
     finally:

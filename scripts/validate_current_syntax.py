@@ -85,9 +85,9 @@ def main():
         json.dump(report, f, indent=2)
 
     # Print summary
-    logger.info(f"\n{'='*50}")
+    logger.info(f"\n{'=' * 50}")
     logger.info("Syntax Validation Summary")
-    logger.info(f"{'='*50}")
+    logger.info(f"{'=' * 50}")
     logger.info(f"Total Python files: {total_files}")
     logger.info(f"Valid files: {len(valid_files)}")
     logger.info(f"Files with errors: {len(error_files)}")
@@ -96,9 +96,9 @@ def main():
 
     # Print files with errors
     if error_files:
-        logger.info(f"\n{'='*50}")
+        logger.info(f"\n{'=' * 50}")
         logger.info("Files with syntax errors:")
-        logger.info(f"{'='*50}")
+        logger.info(f"{'=' * 50}")
         for file_path, error_msg in sorted(error_files.items()):
             logger.error(f"\n{file_path}:")
             logger.error(f"  {error_msg}")

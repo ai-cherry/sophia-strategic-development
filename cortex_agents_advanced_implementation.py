@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from backend.core.auto_esc_config import get_config_value
+
 """
 Advanced Cortex Agents and AISQL Implementation
 Based on latest 2025 capabilities for enterprise AI assistant ecosystem
@@ -7,28 +8,29 @@ Based on latest 2025 capabilities for enterprise AI assistant ecosystem
 
 import snowflake.connector
 import logging
-import json
-from datetime import datetime
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class CortexAgentsAdvancedImplementation:
     def __init__(self):
         self.conn = None
         self.cursor = None
-        
+
     def connect(self):
         """Connect to Snowflake with PAT authentication"""
         try:
             self.conn = snowflake.connector.connect(
-                account='UHDECNO-CVB64222',
-                user='SCOOBYJAVA15',
+                account="UHDECNO-CVB64222",
+                user="SCOOBYJAVA15",
                 password=get_config_value("snowflake_password"),
-                role='ACCOUNTADMIN',
-                warehouse='AI_COMPUTE_WH',
-                database='SOPHIA_AI_ADVANCED'
+                role="ACCOUNTADMIN",
+                warehouse="AI_COMPUTE_WH",
+                database="SOPHIA_AI_ADVANCED",
             )
             self.cursor = self.conn.cursor()
             logger.info("✅ Connected to Snowflake successfully")
@@ -36,7 +38,7 @@ class CortexAgentsAdvancedImplementation:
         except Exception as e:
             logger.error(f"❌ Failed to connect to Snowflake: {e}")
             return False
-    
+
     def execute_query(self, query, description=""):
         """Execute a query with error handling"""
         try:
@@ -48,18 +50,18 @@ class CortexAgentsAdvancedImplementation:
             logger.error(f"❌ Query failed: {e}")
             logger.error(f"   Query: {query[:100]}...")
             return False
-    
+
     def implement_advanced_vectorization_infrastructure(self):
         """Implement advanced vectorization and embedding infrastructure"""
         logger.info("🧠 Implementing Advanced Vectorization Infrastructure...")
-        
+
         # Create vector storage schema
         vector_schema_query = """
         CREATE SCHEMA IF NOT EXISTS VECTOR_INTELLIGENCE
         COMMENT = 'Advanced vector storage and embedding infrastructure for AI contextualization'
         """
         self.execute_query(vector_schema_query, "Creating vector intelligence schema")
-        
+
         # Create embeddings table with metadata
         embeddings_table_query = """
         CREATE OR REPLACE TABLE VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS (
@@ -86,7 +88,7 @@ class CortexAgentsAdvancedImplementation:
         COMMENT = 'Unified embeddings table for multi-source contextual AI interactions'
         """
         self.execute_query(embeddings_table_query, "Creating unified embeddings table")
-        
+
         # Create vector search optimization indexes
         vector_indexes_query = """
         -- Create search optimization for vector similarity
@@ -98,18 +100,18 @@ class CortexAgentsAdvancedImplementation:
         CLUSTER BY (source_system, created_timestamp);
         """
         self.execute_query(vector_indexes_query, "Creating vector search optimization")
-    
+
     def implement_cortex_agents_infrastructure(self):
         """Implement Cortex Agents infrastructure for enterprise AI assistant"""
         logger.info("🤖 Implementing Cortex Agents Infrastructure...")
-        
+
         # Create agent workspace schema
         agent_workspace_query = """
         CREATE SCHEMA IF NOT EXISTS CORTEX_AGENTS_WORKSPACE
         COMMENT = 'Workspace for Cortex Agents orchestration and management'
         """
         self.execute_query(agent_workspace_query, "Creating Cortex Agents workspace")
-        
+
         # Create semantic models for structured data access
         semantic_models_query = """
         CREATE OR REPLACE TABLE CORTEX_AGENTS_WORKSPACE.SEMANTIC_MODELS (
@@ -125,7 +127,7 @@ class CortexAgentsAdvancedImplementation:
         COMMENT = 'Semantic models for Cortex Agents structured data access'
         """
         self.execute_query(semantic_models_query, "Creating semantic models table")
-        
+
         # Create agent configurations table
         agent_configs_query = """
         CREATE OR REPLACE TABLE CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
@@ -146,7 +148,7 @@ class CortexAgentsAdvancedImplementation:
         COMMENT = 'Configuration management for Cortex Agents'
         """
         self.execute_query(agent_configs_query, "Creating agent configurations table")
-        
+
         # Create agent interaction logs
         agent_logs_query = """
         CREATE OR REPLACE TABLE CORTEX_AGENTS_WORKSPACE.AGENT_INTERACTION_LOGS (
@@ -167,11 +169,11 @@ class CortexAgentsAdvancedImplementation:
         COMMENT = 'Comprehensive logging for Cortex Agents interactions'
         """
         self.execute_query(agent_logs_query, "Creating agent interaction logs")
-    
+
     def implement_advanced_aisql_functions(self):
         """Implement advanced AISQL functions for data processing"""
         logger.info("🔍 Implementing Advanced AISQL Functions...")
-        
+
         # Create intelligent data classification views
         data_classification_view = """
         CREATE OR REPLACE VIEW PROCESSED_AI.INTELLIGENT_DATA_CLASSIFICATION AS
@@ -211,8 +213,10 @@ class CortexAgentsAdvancedImplementation:
         FROM VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS
         WHERE chunk_text IS NOT NULL
         """
-        self.execute_query(data_classification_view, "Creating intelligent data classification view")
-        
+        self.execute_query(
+            data_classification_view, "Creating intelligent data classification view"
+        )
+
         # Create contextual aggregation views
         contextual_aggregation_view = """
         CREATE OR REPLACE VIEW PROCESSED_AI.CONTEXTUAL_CUSTOMER_INTELLIGENCE AS
@@ -249,52 +253,55 @@ class CortexAgentsAdvancedImplementation:
         WHERE customer_id IS NOT NULL
         GROUP BY customer_id
         """
-        self.execute_query(contextual_aggregation_view, "Creating contextual customer intelligence view")
-    
+        self.execute_query(
+            contextual_aggregation_view,
+            "Creating contextual customer intelligence view",
+        )
+
     def implement_hybrid_search_infrastructure(self):
         """Implement hybrid search combining SQL and vector search"""
         logger.info("🔍 Implementing Hybrid Search Infrastructure...")
-        
+
         # Create advanced Cortex Search services
         cortex_search_services = [
             {
-                'name': 'UNIFIED_BUSINESS_INTELLIGENCE_SEARCH',
-                'description': 'Unified search across all business data sources',
-                'query': """
+                "name": "UNIFIED_BUSINESS_INTELLIGENCE_SEARCH",
+                "description": "Unified search across all business data sources",
+                "query": """
                 CREATE OR REPLACE CORTEX SEARCH SERVICE UNIFIED_BUSINESS_INTELLIGENCE_SEARCH
                 ON unified_embeddings
                 ATTRIBUTES chunk_text, chunk_metadata, source_system, content_type
                 WAREHOUSE = AI_COMPUTE_WH
                 TARGET_LAG = '1 minute'
-                """
+                """,
             },
             {
-                'name': 'CUSTOMER_CONTEXT_SEARCH',
-                'description': 'Customer-specific contextual search',
-                'query': """
+                "name": "CUSTOMER_CONTEXT_SEARCH",
+                "description": "Customer-specific contextual search",
+                "query": """
                 CREATE OR REPLACE CORTEX SEARCH SERVICE CUSTOMER_CONTEXT_SEARCH
                 ON unified_embeddings
                 ATTRIBUTES chunk_text, customer_id, source_system
                 WAREHOUSE = AI_COMPUTE_WH
                 TARGET_LAG = '30 seconds'
-                """
+                """,
             },
             {
-                'name': 'SALES_INTELLIGENCE_SEARCH',
-                'description': 'Sales-focused intelligent search',
-                'query': """
+                "name": "SALES_INTELLIGENCE_SEARCH",
+                "description": "Sales-focused intelligent search",
+                "query": """
                 CREATE OR REPLACE CORTEX SEARCH SERVICE SALES_INTELLIGENCE_SEARCH
                 ON unified_embeddings
                 ATTRIBUTES chunk_text, deal_id, source_system
                 WAREHOUSE = AI_COMPUTE_WH
                 TARGET_LAG = '1 minute'
-                """
-            }
+                """,
+            },
         ]
-        
+
         for service in cortex_search_services:
-            self.execute_query(service['query'], f"Creating {service['name']}")
-        
+            self.execute_query(service["query"], f"Creating {service['name']}")
+
         # Create hybrid search function
         hybrid_search_function = """
         CREATE OR REPLACE FUNCTION PROCESSED_AI.HYBRID_CONTEXTUAL_SEARCH(
@@ -355,12 +362,14 @@ class CortexAgentsAdvancedImplementation:
         LIMIT limit_results
         $$
         """
-        self.execute_query(hybrid_search_function, "Creating hybrid contextual search function")
-    
+        self.execute_query(
+            hybrid_search_function, "Creating hybrid contextual search function"
+        )
+
     def implement_enterprise_ai_assistant_agents(self):
         """Implement enterprise-grade Cortex Agents for AI assistant ecosystem"""
         logger.info("🎯 Implementing Enterprise AI Assistant Agents...")
-        
+
         # Create customer intelligence agent configuration
         customer_agent_config = """
         INSERT INTO CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
@@ -388,8 +397,10 @@ class CortexAgentsAdvancedImplementation:
             ['CUSTOMER_CONTEXT_SEARCH', 'UNIFIED_BUSINESS_INTELLIGENCE_SEARCH']
         )
         """
-        self.execute_query(customer_agent_config, "Creating customer intelligence agent configuration")
-        
+        self.execute_query(
+            customer_agent_config, "Creating customer intelligence agent configuration"
+        )
+
         # Create sales optimization agent configuration
         sales_agent_config = """
         INSERT INTO CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
@@ -417,8 +428,10 @@ class CortexAgentsAdvancedImplementation:
             ['SALES_INTELLIGENCE_SEARCH', 'UNIFIED_BUSINESS_INTELLIGENCE_SEARCH']
         )
         """
-        self.execute_query(sales_agent_config, "Creating sales optimization agent configuration")
-        
+        self.execute_query(
+            sales_agent_config, "Creating sales optimization agent configuration"
+        )
+
         # Create compliance monitoring agent configuration
         compliance_agent_config = """
         INSERT INTO CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
@@ -446,12 +459,15 @@ class CortexAgentsAdvancedImplementation:
             ['UNIFIED_BUSINESS_INTELLIGENCE_SEARCH']
         )
         """
-        self.execute_query(compliance_agent_config, "Creating compliance monitoring agent configuration")
-    
+        self.execute_query(
+            compliance_agent_config,
+            "Creating compliance monitoring agent configuration",
+        )
+
     def implement_real_time_contextualization(self):
         """Implement real-time contextualization for dynamic interactions"""
         logger.info("⚡ Implementing Real-time Contextualization...")
-        
+
         # Create real-time context aggregation
         context_aggregation_query = """
         CREATE OR REPLACE DYNAMIC TABLE REAL_TIME_ANALYTICS.LIVE_CUSTOMER_CONTEXT
@@ -492,8 +508,10 @@ class CortexAgentsAdvancedImplementation:
         AND customer_id IS NOT NULL
         GROUP BY customer_id
         """
-        self.execute_query(context_aggregation_query, "Creating live customer context dynamic table")
-        
+        self.execute_query(
+            context_aggregation_query, "Creating live customer context dynamic table"
+        )
+
         # Create contextual recommendation engine
         recommendation_engine_query = """
         CREATE OR REPLACE VIEW PROCESSED_AI.CONTEXTUAL_RECOMMENDATIONS AS
@@ -528,24 +546,38 @@ class CortexAgentsAdvancedImplementation:
             
         FROM REAL_TIME_ANALYTICS.LIVE_CUSTOMER_CONTEXT
         """
-        self.execute_query(recommendation_engine_query, "Creating contextual recommendations view")
-    
+        self.execute_query(
+            recommendation_engine_query, "Creating contextual recommendations view"
+        )
+
     def run_comprehensive_cortex_agents_implementation(self):
         """Run all Cortex Agents implementations"""
         logger.info("🚀 Starting Comprehensive Cortex Agents Implementation...")
-        
+
         if not self.connect():
             return False
-        
+
         implementations = [
-            ("Advanced Vectorization Infrastructure", self.implement_advanced_vectorization_infrastructure),
-            ("Cortex Agents Infrastructure", self.implement_cortex_agents_infrastructure),
+            (
+                "Advanced Vectorization Infrastructure",
+                self.implement_advanced_vectorization_infrastructure,
+            ),
+            (
+                "Cortex Agents Infrastructure",
+                self.implement_cortex_agents_infrastructure,
+            ),
             ("Advanced AISQL Functions", self.implement_advanced_aisql_functions),
-            ("Hybrid Search Infrastructure", self.implement_hybrid_search_infrastructure),
-            ("Enterprise AI Assistant Agents", self.implement_enterprise_ai_assistant_agents),
-            ("Real-time Contextualization", self.implement_real_time_contextualization)
+            (
+                "Hybrid Search Infrastructure",
+                self.implement_hybrid_search_infrastructure,
+            ),
+            (
+                "Enterprise AI Assistant Agents",
+                self.implement_enterprise_ai_assistant_agents,
+            ),
+            ("Real-time Contextualization", self.implement_real_time_contextualization),
         ]
-        
+
         success_count = 0
         for name, implementation_func in implementations:
             try:
@@ -555,31 +587,34 @@ class CortexAgentsAdvancedImplementation:
                 logger.info(f"✅ {name} implementation completed")
             except Exception as e:
                 logger.error(f"❌ {name} implementation failed: {e}")
-        
-        logger.info(f"🎉 Cortex Agents implementation completed: {success_count}/{len(implementations)} successful")
-        
+
+        logger.info(
+            f"🎉 Cortex Agents implementation completed: {success_count}/{len(implementations)} successful"
+        )
+
         # Close connection
         if self.cursor:
             self.cursor.close()
         if self.conn:
             self.conn.close()
-        
+
         return success_count == len(implementations)
+
 
 def main():
     """Main execution function"""
     logger.info("🚀 Starting Advanced Cortex Agents Implementation")
-    
+
     implementation = CortexAgentsAdvancedImplementation()
     success = implementation.run_comprehensive_cortex_agents_implementation()
-    
+
     if success:
         logger.info("🎉 All Cortex Agents features implemented successfully!")
     else:
         logger.warning("⚠️ Some implementations failed - check logs for details")
-    
+
     return success
+
 
 if __name__ == "__main__":
     main()
-

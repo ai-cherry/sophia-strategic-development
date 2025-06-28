@@ -379,12 +379,12 @@ CREATE TABLE IF NOT EXISTS SLACK_KNOWLEDGE_INSIGHTS (
 
 -- Transform raw Slack messages to structured format
 CREATE OR REPLACE PROCEDURE TRANSFORM_RAW_SLACK_MESSAGES()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
     
     -- Transform raw messages to structured format
@@ -436,29 +436,32 @@ BEGIN
     AND MESSAGE_TEXT IS NOT NULL
     AND MESSAGE_TEXT != '';
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM STG_SLACK_MESSAGES
+    WHERE CREATED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
     
     -- Mark raw messages as processed
     UPDATE SLACK_MESSAGES_RAW 
-    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
+    SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE;
     
-    RETURN 'Processed ' || processed_count || ' Slack messages';
+    -- Generate result message
+    SET result_message = 'Processed ' || processed_count || ' Slack messages';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error processing Slack messages: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- Create conversations from threaded messages
 CREATE OR REPLACE PROCEDURE CREATE_SLACK_CONVERSATIONS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
     
     -- Create conversation records from thread starters
@@ -499,7 +502,10 @@ BEGIN
     GROUP BY CHANNEL_ID, THREAD_TS, CLEANED_TEXT
     HAVING COUNT(*) >= 2; -- Only create conversations with multiple messages
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM STG_SLACK_CONVERSATIONS
+    WHERE CREATED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
     
     -- Update messages with conversation IDs
     UPDATE STG_SLACK_MESSAGES m
@@ -511,22 +517,22 @@ BEGIN
     )
     WHERE CONVERSATION_ID IS NULL;
     
-    RETURN 'Created ' || processed_count || ' Slack conversations';
+    -- Generate result message
+    SET result_message = 'Created ' || processed_count || ' Slack conversations';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error creating Slack conversations: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
 -- Extract knowledge insights from conversations using Cortex AI
 CREATE OR REPLACE PROCEDURE EXTRACT_SLACK_KNOWLEDGE_INSIGHTS()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
     conversation_cursor CURSOR FOR 
         SELECT CONVERSATION_ID, CONVERSATION_SUMMARY, KEY_TOPICS, CHANNEL_ID
         FROM STG_SLACK_CONVERSATIONS 
@@ -583,11 +589,11 @@ BEGIN
     WHERE KNOWLEDGE_EXTRACTED = FALSE 
     AND BUSINESS_VALUE_SCORE > 0.6;
     
-    RETURN 'Extracted insights from ' || processed_count || ' conversations';
+    -- Generate result message
+    SET result_message = 'Extracted insights from ' || processed_count || ' conversations';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error extracting knowledge insights: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 
@@ -597,12 +603,12 @@ $$;
 
 -- Process conversations with Snowflake Cortex AI
 CREATE OR REPLACE PROCEDURE PROCESS_SLACK_CONVERSATIONS_WITH_CORTEX()
-RETURNS STRING
 LANGUAGE SQL
 AS
 $$
 DECLARE
     processed_count NUMBER DEFAULT 0;
+    result_message VARCHAR(1000);
 BEGIN
     
     -- Update conversations with Cortex AI analysis
@@ -631,17 +637,21 @@ BEGIN
             ELSE 0.4
         END,
         PROCESSED_BY_CORTEX = TRUE,
-        CORTEX_PROCESSED_AT = CURRENT_TIMESTAMP(),
-        AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
+        CORTEX_PROCESSED_AT = CURRENT_TIMESTAMP,
+        AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED_BY_CORTEX = FALSE;
     
-    GET DIAGNOSTICS processed_count = ROW_COUNT;
+    -- Count processed records
+    SELECT COUNT(*) INTO processed_count 
+    FROM STG_SLACK_CONVERSATIONS
+    WHERE PROCESSED_BY_CORTEX = TRUE
+    AND CORTEX_PROCESSED_AT >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR';
     
-    RETURN 'Processed ' || processed_count || ' conversations with Cortex AI';
+    -- Generate result message
+    SET result_message = 'Processed ' || processed_count || ' conversations with Cortex AI';
     
-EXCEPTION
-    WHEN OTHER THEN
-        RETURN 'Error processing conversations with Cortex: ' || SQLERRM;
+    -- Output the result
+    SELECT result_message;
 END;
 $$;
 

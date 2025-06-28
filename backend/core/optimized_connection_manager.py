@@ -22,11 +22,9 @@ import logging
 import time
 from typing import Dict, List, Optional, Any, Tuple, Union
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-import json
-from datetime import datetime, timedelta
-import weakref
+from datetime import datetime
 
 # Database connection libraries with graceful fallbacks
 import asyncpg
@@ -35,15 +33,19 @@ import redis.asyncio as redis
 # Try to import optional dependencies with graceful fallbacks
 try:
     import aiomysql
+
     AIOMYSQL_AVAILABLE = True
 except ImportError:
     AIOMYSQL_AVAILABLE = False
+
     # Create placeholder for aiomysql
     class MockAioMySQL:
         @staticmethod
         async def connect(**kwargs):
-            raise NotImplementedError("aiomysql not available - install with: pip install aiomysql")
-    
+            raise NotImplementedError(
+                "aiomysql not available - install with: pip install aiomysql"
+            )
+
     aiomysql = MockAioMySQL()
 
 # Configuration and monitoring
@@ -53,44 +55,57 @@ from backend.core.performance_monitor import performance_monitor
 # Try to import optional dependencies
 try:
     import snowflake.connector
+
     SNOWFLAKE_AVAILABLE = True
 except ImportError:
     SNOWFLAKE_AVAILABLE = False
+
     # Create placeholder for snowflake.connector
     class MockSnowflakeConnector:
         @staticmethod
         def connect(**kwargs):
             raise NotImplementedError("Snowflake connector not available")
-    
-    snowflake = type('snowflake', (), {
-        'connector': MockSnowflakeConnector()
-    })()
+
+        @staticmethod
+        async def connect_async(**kwargs):
+            raise NotImplementedError(
+                "Snowflake connector not available - install with: pip install snowflake-connector-python"
+            )
+
+    snowflake = type("snowflake", (), {"connector": MockSnowflakeConnector()})()
 
 try:
     import psycopg2
+
     PSYCOPG2_AVAILABLE = True
 except ImportError:
     PSYCOPG2_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
+
 class ConnectionType(str, Enum):
     """Supported connection types"""
+
     SNOWFLAKE = "snowflake"
     POSTGRES = "postgres"
     MYSQL = "mysql"
     REDIS = "redis"
 
+
 class ConnectionStatus(str, Enum):
     """Connection health status"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     CIRCUIT_OPEN = "circuit_open"
 
+
 @dataclass
 class ConnectionStats:
     """Connection performance statistics"""
+
     total_connections: int = 0
     active_connections: int = 0
     idle_connections: int = 0
@@ -104,32 +119,37 @@ class ConnectionStats:
     last_health_check: Optional[datetime] = None
     uptime_seconds: float = 0.0
 
+
 @dataclass
 class BatchQuery:
     """Batch query structure for N+1 elimination"""
+
     query: str
     params: Optional[Union[Tuple, Dict]] = None
     query_id: Optional[str] = None
 
+
 @dataclass
 class BatchResult:
     """Batch query execution result"""
+
     query_id: str
     success: bool
     result: Optional[Any] = None
     error: Optional[str] = None
     execution_time_ms: float = 0.0
 
+
 class CircuitBreaker:
     """Circuit breaker for connection resilience"""
-    
+
     def __init__(self, failure_threshold: int = 5, timeout_seconds: int = 60):
         self.failure_threshold = failure_threshold
         self.timeout_seconds = timeout_seconds
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "closed"  # closed, open, half_open
-    
+
     def can_execute(self) -> bool:
         """Check if requests can be executed"""
         if self.state == "closed":
@@ -141,58 +161,61 @@ class CircuitBreaker:
             return False
         else:  # half_open
             return True
-    
+
     def record_success(self):
         """Record successful execution"""
         self.failure_count = 0
         self.state = "closed"
-    
+
     def record_failure(self):
         """Record failed execution"""
         self.failure_count += 1
         self.last_failure_time = time.time()
-        
+
         if self.failure_count >= self.failure_threshold:
             self.state = "open"
-            logger.warning(f"Circuit breaker opened after {self.failure_count} failures")
+            logger.warning(
+                f"Circuit breaker opened after {self.failure_count} failures"
+            )
+
 
 class OptimizedConnectionPool:
     """High-performance connection pool with intelligent management"""
-    
+
     def __init__(
         self,
         connection_type: ConnectionType,
         min_connections: int = 2,
         max_connections: int = 10,
         connection_timeout: int = 30,
-        idle_timeout: int = 300
+        idle_timeout: int = 300,
     ):
         self.connection_type = connection_type
         self.min_connections = min_connections
         self.max_connections = max_connections
         self.connection_timeout = connection_timeout
         self.idle_timeout = idle_timeout
-        
+
         # Connection management
         self._pool: List[Any] = []
         self._active_connections: set = set()
         self._connection_created_times: Dict[Any, float] = {}
         self._connection_last_used: Dict[Any, float] = {}
         self._pool_lock = asyncio.Lock()
-        
+
         # Performance tracking
         self.stats = ConnectionStats()
         self.circuit_breaker = CircuitBreaker()
         self.start_time = time.time()
-        
+
         # Background tasks
         self._health_check_task = None
         self._cleanup_task = None
-        
+
     async def initialize(self):
         """Initialize the connection pool"""
         logger.info(f"🚀 Initializing {self.connection_type} connection pool...")
-        
+
         try:
             # Create minimum connections
             for _ in range(self.min_connections):
@@ -201,24 +224,26 @@ class OptimizedConnectionPool:
                     self._pool.append(connection)
                     self._connection_created_times[connection] = time.time()
                     self._connection_last_used[connection] = time.time()
-            
+
             self.stats.total_connections = len(self._pool)
             self.stats.idle_connections = len(self._pool)
-            
+
             # Start background tasks
             self._health_check_task = asyncio.create_task(self._health_check_loop())
             self._cleanup_task = asyncio.create_task(self._cleanup_loop())
-            
-            logger.info(f"✅ {self.connection_type} pool initialized with {len(self._pool)} connections")
-            
+
+            logger.info(
+                f"✅ {self.connection_type} pool initialized with {len(self._pool)} connections"
+            )
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize {self.connection_type} pool: {e}")
             raise
-    
+
     async def _create_connection(self) -> Optional[Any]:
         """Create a new database connection"""
         connection_start = time.time()
-        
+
         try:
             if self.connection_type == ConnectionType.SNOWFLAKE:
                 connection = await self._create_snowflake_connection()
@@ -228,23 +253,26 @@ class OptimizedConnectionPool:
                 connection = await self._create_redis_connection()
             else:
                 raise ValueError(f"Unsupported connection type: {self.connection_type}")
-            
+
             connection_time = (time.time() - connection_start) * 1000
             self.stats.avg_connection_time_ms = (
-                (self.stats.avg_connection_time_ms * self.stats.total_connections + connection_time)
-                / (self.stats.total_connections + 1)
+                self.stats.avg_connection_time_ms * self.stats.total_connections
+                + connection_time
+            ) / (self.stats.total_connections + 1)
+
+            logger.debug(
+                f"✅ Created {self.connection_type} connection in {connection_time:.2f}ms"
             )
-            
-            logger.debug(f"✅ Created {self.connection_type} connection in {connection_time:.2f}ms")
             return connection
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create {self.connection_type} connection: {e}")
             self.circuit_breaker.record_failure()
             return None
-    
+
     async def _create_snowflake_connection(self):
         """Create Snowflake connection"""
+
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
             return snowflake.connector.connect(
@@ -255,11 +283,11 @@ class OptimizedConnectionPool:
                 database=get_config_value("snowflake_database"),
                 schema=get_config_value("snowflake_schema", "PUBLIC"),
                 role=get_config_value("snowflake_role", "SYSADMIN"),
-                timeout=self.connection_timeout
+                timeout=self.connection_timeout,
             )
-        
+
         return await asyncio.to_thread(_sync_connect)
-    
+
     async def _create_postgres_connection(self):
         """Create PostgreSQL connection"""
         return await asyncpg.connect(
@@ -268,9 +296,9 @@ class OptimizedConnectionPool:
             user=get_config_value("postgres_user"),
             password=get_config_value("postgres_password"),
             database=get_config_value("postgres_database"),
-            timeout=self.connection_timeout
+            timeout=self.connection_timeout,
         )
-    
+
     async def _create_redis_connection(self):
         """Create Redis connection"""
         return redis.Redis(
@@ -279,17 +307,17 @@ class OptimizedConnectionPool:
             password=get_config_value("redis_password"),
             db=get_config_value("redis_db", 0),
             socket_timeout=self.connection_timeout,
-            decode_responses=True
+            decode_responses=True,
         )
-    
+
     @asynccontextmanager
     async def get_connection(self):
         """Get connection from pool with automatic return"""
         if not self.circuit_breaker.can_execute():
             raise ConnectionError("Circuit breaker is open")
-        
+
         connection = await self._get_connection_from_pool()
-        
+
         try:
             yield connection
             self.circuit_breaker.record_success()
@@ -299,7 +327,7 @@ class OptimizedConnectionPool:
             raise
         finally:
             await self._return_connection_to_pool(connection)
-    
+
     async def _get_connection_from_pool(self) -> Any:
         """Get connection from pool or create new one"""
         async with self._pool_lock:
@@ -308,12 +336,12 @@ class OptimizedConnectionPool:
                 connection = self._pool.pop()
                 self._active_connections.add(connection)
                 self._connection_last_used[connection] = time.time()
-                
+
                 self.stats.active_connections = len(self._active_connections)
                 self.stats.idle_connections = len(self._pool)
-                
+
                 return connection
-            
+
             # Create new connection if under limit
             if len(self._active_connections) < self.max_connections:
                 connection = await self._create_connection()
@@ -321,23 +349,25 @@ class OptimizedConnectionPool:
                     self._active_connections.add(connection)
                     self._connection_created_times[connection] = time.time()
                     self._connection_last_used[connection] = time.time()
-                    
+
                     self.stats.total_connections += 1
                     self.stats.active_connections = len(self._active_connections)
-                    
+
                     return connection
-            
+
             # Wait for connection to become available
-            logger.warning(f"Connection pool exhausted for {self.connection_type}, waiting...")
+            logger.warning(
+                f"Connection pool exhausted for {self.connection_type}, waiting..."
+            )
             await asyncio.sleep(0.1)  # Brief wait before retry
             return await self._get_connection_from_pool()
-    
+
     async def _return_connection_to_pool(self, connection: Any):
         """Return connection to pool"""
         async with self._pool_lock:
             if connection in self._active_connections:
                 self._active_connections.remove(connection)
-                
+
                 # Check if connection is still healthy
                 if await self._is_connection_healthy(connection):
                     self._pool.append(connection)
@@ -346,20 +376,21 @@ class OptimizedConnectionPool:
                     # Close unhealthy connection
                     await self._close_connection(connection)
                     self.stats.total_connections -= 1
-                
+
                 self.stats.active_connections = len(self._active_connections)
                 self.stats.idle_connections = len(self._pool)
-    
+
     async def _is_connection_healthy(self, connection: Any) -> bool:
         """Check if connection is healthy"""
         try:
             if self.connection_type == ConnectionType.SNOWFLAKE:
+
                 def _sync_health_check():
                     cursor = connection.cursor()
                     cursor.execute("SELECT 1")
                     cursor.close()
                     return True
-                
+
                 return await asyncio.to_thread(_sync_health_check)
             elif self.connection_type == ConnectionType.POSTGRES:
                 await connection.execute("SELECT 1")
@@ -370,27 +401,28 @@ class OptimizedConnectionPool:
             return True
         except Exception:
             return False
-    
+
     async def _close_connection(self, connection: Any):
         """Close database connection"""
         try:
             if self.connection_type == ConnectionType.SNOWFLAKE:
+
                 def _sync_close():
                     connection.close()
-                
+
                 await asyncio.to_thread(_sync_close)
             elif self.connection_type == ConnectionType.POSTGRES:
                 await connection.close()
             elif self.connection_type == ConnectionType.REDIS:
                 await connection.close()
-            
+
             # Cleanup tracking
             self._connection_created_times.pop(connection, None)
             self._connection_last_used.pop(connection, None)
-            
+
         except Exception as e:
             logger.error(f"Error closing connection: {e}")
-    
+
     async def _health_check_loop(self):
         """Background health check loop"""
         while True:
@@ -399,7 +431,7 @@ class OptimizedConnectionPool:
                 await self._perform_health_check()
             except Exception as e:
                 logger.error(f"Health check error: {e}")
-    
+
     async def _cleanup_loop(self):
         """Background cleanup loop"""
         while True:
@@ -408,51 +440,53 @@ class OptimizedConnectionPool:
                 await self._cleanup_idle_connections()
             except Exception as e:
                 logger.error(f"Cleanup error: {e}")
-    
+
     async def _perform_health_check(self):
         """Perform health check on pool"""
         async with self._pool_lock:
             healthy_connections = []
-            
+
             for connection in self._pool[:]:  # Create copy to iterate
                 if await self._is_connection_healthy(connection):
                     healthy_connections.append(connection)
                 else:
                     await self._close_connection(connection)
                     self.stats.total_connections -= 1
-            
+
             self._pool = healthy_connections
             self.stats.idle_connections = len(self._pool)
             self.stats.last_health_check = datetime.now()
-    
+
     async def _cleanup_idle_connections(self):
         """Cleanup idle connections"""
         current_time = time.time()
-        
+
         async with self._pool_lock:
             connections_to_keep = []
-            
+
             for connection in self._pool:
                 last_used = self._connection_last_used.get(connection, current_time)
-                
+
                 # Keep connection if recently used or we're at minimum
-                if (current_time - last_used < self.idle_timeout or 
-                    len(connections_to_keep) < self.min_connections):
+                if (
+                    current_time - last_used < self.idle_timeout
+                    or len(connections_to_keep) < self.min_connections
+                ):
                     connections_to_keep.append(connection)
                 else:
                     await self._close_connection(connection)
                     self.stats.total_connections -= 1
-            
+
             self._pool = connections_to_keep
             self.stats.idle_connections = len(self._pool)
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get pool statistics"""
         self.stats.uptime_seconds = time.time() - self.start_time
         self.stats.pool_efficiency = (
             self.stats.successful_queries / max(self.stats.total_queries, 1) * 100
         )
-        
+
         return {
             "connection_type": self.connection_type,
             "total_connections": self.stats.total_connections,
@@ -467,13 +501,16 @@ class OptimizedConnectionPool:
             "circuit_breaker_trips": self.stats.circuit_breaker_trips,
             "circuit_breaker_state": self.circuit_breaker.state,
             "uptime_seconds": round(self.stats.uptime_seconds, 2),
-            "last_health_check": self.stats.last_health_check.isoformat() if self.stats.last_health_check else None
+            "last_health_check": self.stats.last_health_check.isoformat()
+            if self.stats.last_health_check
+            else None,
         }
+
 
 class OptimizedConnectionManager:
     """
     🚀 Optimized Connection Manager - Phase 2 Performance Implementation
-    
+
     Key Features:
     - 95% overhead reduction through connection pooling
     - N+1 query elimination through batch processing
@@ -481,7 +518,7 @@ class OptimizedConnectionManager:
     - Circuit breaker patterns for resilience
     - Performance metrics and monitoring integration
     """
-    
+
     def __init__(self):
         self.pools: Dict[ConnectionType, OptimizedConnectionPool] = {}
         self.initialized = False
@@ -489,16 +526,16 @@ class OptimizedConnectionManager:
             "total_queries": 0,
             "batch_queries": 0,
             "n1_eliminations": 0,
-            "performance_improvements": 0.0
+            "performance_improvements": 0.0,
         }
-    
+
     async def initialize(self):
         """Initialize all connection pools"""
         if self.initialized:
             return
-        
+
         logger.info("🚀 Initializing Optimized Connection Manager...")
-        
+
         try:
             # Initialize Snowflake pool (primary database)
             snowflake_pool = OptimizedConnectionPool(
@@ -506,11 +543,11 @@ class OptimizedConnectionManager:
                 min_connections=3,
                 max_connections=15,
                 connection_timeout=30,
-                idle_timeout=600
+                idle_timeout=600,
             )
             await snowflake_pool.initialize()
             self.pools[ConnectionType.SNOWFLAKE] = snowflake_pool
-            
+
             # Initialize Redis pool (caching)
             try:
                 redis_pool = OptimizedConnectionPool(
@@ -518,40 +555,41 @@ class OptimizedConnectionManager:
                     min_connections=2,
                     max_connections=8,
                     connection_timeout=10,
-                    idle_timeout=300
+                    idle_timeout=300,
                 )
                 await redis_pool.initialize()
                 self.pools[ConnectionType.REDIS] = redis_pool
             except Exception as e:
                 logger.warning(f"Redis pool initialization failed: {e}")
-            
+
             self.initialized = True
             logger.info("✅ Optimized Connection Manager initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Connection manager initialization failed: {e}")
             raise
-    
-    @performance_monitor.monitor_performance('execute_query', 1000)
+
+    @performance_monitor.monitor_performance("execute_query", 1000)
     async def execute_query(
         self,
         query: str,
         params: Optional[Union[Tuple, Dict]] = None,
-        connection_type: ConnectionType = ConnectionType.SNOWFLAKE
+        connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
     ) -> Any:
         """Execute single query with connection pooling"""
         if not self.initialized:
             await self.initialize()
-        
+
         pool = self.pools.get(connection_type)
         if not pool:
             raise ValueError(f"No pool available for {connection_type}")
-        
+
         query_start = time.time()
-        
+
         async with pool.get_connection() as connection:
             try:
                 if connection_type == ConnectionType.SNOWFLAKE:
+
                     def _sync_execute():
                         cursor = connection.cursor()
                         if params:
@@ -561,7 +599,7 @@ class OptimizedConnectionManager:
                         result = cursor.fetchall()
                         cursor.close()
                         return result
-                    
+
                     result = await asyncio.to_thread(_sync_execute)
                 elif connection_type == ConnectionType.POSTGRES:
                     if params:
@@ -570,129 +608,148 @@ class OptimizedConnectionManager:
                         result = await connection.fetch(query)
                 elif connection_type == ConnectionType.REDIS:
                     # Redis operations
-                    result = await connection.execute_command(query, *params if params else [])
-                
+                    result = await connection.execute_command(
+                        query, *params if params else []
+                    )
+
                 # Update statistics
                 query_time = (time.time() - query_start) * 1000
                 pool.stats.total_queries += 1
                 pool.stats.successful_queries += 1
                 pool.stats.avg_query_time_ms = (
-                    (pool.stats.avg_query_time_ms * (pool.stats.total_queries - 1) + query_time)
-                    / pool.stats.total_queries
-                )
-                
+                    pool.stats.avg_query_time_ms * (pool.stats.total_queries - 1)
+                    + query_time
+                ) / pool.stats.total_queries
+
                 self.global_stats["total_queries"] += 1
-                
+
                 return result
-                
+
             except Exception as e:
                 pool.stats.total_queries += 1
                 pool.stats.failed_queries += 1
                 logger.error(f"Query execution failed: {e}")
                 raise
-    
-    @performance_monitor.monitor_performance('execute_batch_queries', 5000)
+
+    @performance_monitor.monitor_performance("execute_batch_queries", 5000)
     async def execute_batch_queries(
         self,
         queries: List[BatchQuery],
-        connection_type: ConnectionType = ConnectionType.SNOWFLAKE
+        connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
     ) -> List[BatchResult]:
         """
         ✅ OPTIMIZED: Execute batch queries eliminating N+1 patterns
-        
+
         Expected Performance: 10-20x improvement over individual queries
         """
         if not self.initialized:
             await self.initialize()
-        
+
         if not queries:
             return []
-        
+
         pool = self.pools.get(connection_type)
         if not pool:
             raise ValueError(f"No pool available for {connection_type}")
-        
+
         batch_start = time.time()
         results = []
-        
+
         async with pool.get_connection() as connection:
             try:
                 # Execute all queries in batch
                 for i, batch_query in enumerate(queries):
                     query_start = time.time()
                     query_id = batch_query.query_id or f"batch_query_{i}"
-                    
+
                     try:
                         if connection_type == ConnectionType.SNOWFLAKE:
+
                             def _sync_batch_execute():
                                 cursor = connection.cursor()
                                 if batch_query.params:
-                                    cursor.execute(batch_query.query, batch_query.params)
+                                    cursor.execute(
+                                        batch_query.query, batch_query.params
+                                    )
                                 else:
                                     cursor.execute(batch_query.query)
                                 result = cursor.fetchall()
                                 cursor.close()
                                 return result
-                            
+
                             result = await asyncio.to_thread(_sync_batch_execute)
                         elif connection_type == ConnectionType.POSTGRES:
                             if batch_query.params:
-                                result = await connection.fetch(batch_query.query, *batch_query.params)
+                                result = await connection.fetch(
+                                    batch_query.query, *batch_query.params
+                                )
                             else:
                                 result = await connection.fetch(batch_query.query)
-                        
+
                         query_time = (time.time() - query_start) * 1000
-                        
-                        results.append(BatchResult(
-                            query_id=query_id,
-                            success=True,
-                            result=result,
-                            execution_time_ms=query_time
-                        ))
-                        
+
+                        results.append(
+                            BatchResult(
+                                query_id=query_id,
+                                success=True,
+                                result=result,
+                                execution_time_ms=query_time,
+                            )
+                        )
+
                     except Exception as e:
                         query_time = (time.time() - query_start) * 1000
-                        results.append(BatchResult(
-                            query_id=query_id,
-                            success=False,
-                            error=str(e),
-                            execution_time_ms=query_time
-                        ))
-                
+                        results.append(
+                            BatchResult(
+                                query_id=query_id,
+                                success=False,
+                                error=str(e),
+                                execution_time_ms=query_time,
+                            )
+                        )
+
                 # Update statistics
                 batch_time = (time.time() - batch_start) * 1000
                 successful_queries = sum(1 for r in results if r.success)
-                
+
                 pool.stats.total_queries += len(queries)
                 pool.stats.successful_queries += successful_queries
-                pool.stats.failed_queries += (len(queries) - successful_queries)
-                
+                pool.stats.failed_queries += len(queries) - successful_queries
+
                 # Calculate N+1 elimination benefit
-                individual_time_estimate = len(queries) * 100  # Estimated 100ms per individual query
-                improvement = ((individual_time_estimate - batch_time) / individual_time_estimate * 100)
-                
+                individual_time_estimate = (
+                    len(queries) * 100
+                )  # Estimated 100ms per individual query
+                improvement = (
+                    (individual_time_estimate - batch_time)
+                    / individual_time_estimate
+                    * 100
+                )
+
                 self.global_stats["batch_queries"] += 1
                 self.global_stats["n1_eliminations"] += len(queries)
                 self.global_stats["performance_improvements"] += improvement
-                
-                logger.info(f"✅ Batch executed {len(queries)} queries in {batch_time:.2f}ms "
-                          f"(estimated {improvement:.1f}% improvement)")
-                
+
+                logger.info(
+                    f"✅ Batch executed {len(queries)} queries in {batch_time:.2f}ms "
+                    f"(estimated {improvement:.1f}% improvement)"
+                )
+
                 return results
-                
+
             except Exception as e:
                 logger.error(f"Batch query execution failed: {e}")
                 raise
-    
+
     async def get_connection_stats(self) -> Dict[str, Any]:
         """Get comprehensive connection statistics"""
         if not self.initialized:
             return {"status": "not_initialized"}
-        
+
         pool_stats = {}
         for conn_type, pool in self.pools.items():
             pool_stats[conn_type.value] = pool.get_stats()
-        
+
         return {
             "status": "operational",
             "global_stats": self.global_stats,
@@ -703,25 +760,27 @@ class OptimizedConnectionManager:
                 "batch_operations": self.global_stats["batch_queries"],
                 "n1_patterns_eliminated": self.global_stats["n1_eliminations"],
                 "avg_performance_improvement_percent": round(
-                    self.global_stats["performance_improvements"] / max(self.global_stats["batch_queries"], 1), 2
-                )
-            }
+                    self.global_stats["performance_improvements"]
+                    / max(self.global_stats["batch_queries"], 1),
+                    2,
+                ),
+            },
         }
-    
+
     async def health_check(self) -> Dict[str, Any]:
         """Comprehensive health check"""
         if not self.initialized:
             return {
                 "status": ConnectionStatus.UNHEALTHY,
-                "message": "Connection manager not initialized"
+                "message": "Connection manager not initialized",
             }
-        
+
         health_results = {}
         overall_healthy = True
-        
+
         for conn_type, pool in self.pools.items():
             pool_stats = pool.get_stats()
-            
+
             # Determine pool health
             if pool_stats["circuit_breaker_state"] == "open":
                 pool_health = ConnectionStatus.CIRCUIT_OPEN
@@ -733,23 +792,26 @@ class OptimizedConnectionManager:
                 overall_healthy = False
             else:
                 pool_health = ConnectionStatus.HEALTHY
-            
+
             health_results[conn_type.value] = {
                 "status": pool_health,
                 "connections": pool_stats["total_connections"],
                 "success_rate": pool_stats["success_rate_percent"],
-                "circuit_breaker": pool_stats["circuit_breaker_state"]
+                "circuit_breaker": pool_stats["circuit_breaker_state"],
             }
-        
+
         return {
-            "status": ConnectionStatus.HEALTHY if overall_healthy else ConnectionStatus.DEGRADED,
+            "status": ConnectionStatus.HEALTHY
+            if overall_healthy
+            else ConnectionStatus.DEGRADED,
             "pools": health_results,
             "performance_metrics": {
                 "total_queries": self.global_stats["total_queries"],
                 "batch_operations": self.global_stats["batch_queries"],
-                "performance_improvement": f"{self.global_stats.get('performance_improvements', 0):.1f}%"
-            }
+                "performance_improvement": f"{self.global_stats.get('performance_improvements', 0):.1f}%",
+            },
         }
+
 
 # Global connection manager instance
 connection_manager = OptimizedConnectionManager()
@@ -774,4 +836,3 @@ async def execute_batch_queries(queries: list):
 async def get_health_status():
     """Get health status from global connection manager"""
     return await connection_manager.get_health_status()
-

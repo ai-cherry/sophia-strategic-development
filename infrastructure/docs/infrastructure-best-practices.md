@@ -1,13 +1,13 @@
-# Sophia AI Infrastructure Patterns & Best Practices
+# Sophia AI Lambda Labs Infrastructure Patterns & Best Practices
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Pulumi Architecture Overview](#pulumi-architecture-overview)
-3. [Component Design Patterns](#component-design-patterns)
-4. [Configuration Management](#configuration-management)
-5. [State Management](#state-management)
-6. [Deployment Strategies](#deployment-strategies)
+2. [Lambda Labs Kubernetes Architecture](#lambda-labs-kubernetes-architecture)
+3. [Pulumi Component Design Patterns](#pulumi-component-design-patterns)
+4. [Configuration Management with Pulumi ESC](#configuration-management-with-pulumi-esc)
+5. [Secret Management & Security](#secret-management--security)
+6. [Container Orchestration Strategies](#container-orchestration-strategies)
 7. [AI-Specific Infrastructure Patterns](#ai-specific-infrastructure-patterns)
 8. [Performance Optimization](#performance-optimization)
 9. [Monitoring and Observability](#monitoring-and-observability)
@@ -17,39 +17,51 @@
 
 ## Introduction
 
-This document outlines the infrastructure patterns and best practices implemented in the Sophia AI Platform's Pulumi infrastructure code. It serves as a reference for engineers working with the infrastructure, ensuring consistency, reliability, and adherence to best practices.
+This document outlines the infrastructure patterns and best practices implemented in the Sophia AI Platform's Lambda Labs Kubernetes infrastructure with Pulumi orchestration. It serves as a reference for engineers working with the infrastructure, ensuring consistency, reliability, and adherence to best practices.
 
-The infrastructure is designed around modular, reusable components that encapsulate specific infrastructure domains (networking, compute, storage, AI, etc.) while following cloud best practices for security, performance, and cost optimization.
+The infrastructure is designed around modular, reusable Pulumi components that encapsulate specific infrastructure domains (networking, compute, storage, AI, etc.) while following cloud-native best practices for security, performance, and cost optimization on Lambda Labs GPU infrastructure.
 
-## Pulumi Architecture Overview
+## Lambda Labs Kubernetes Architecture
 
-### Stack Organization
+### Infrastructure Stack Organization
 
-The Sophia AI infrastructure uses a multi-stack approach organized by:
+The Sophia AI infrastructure uses a Lambda Labs-focused approach organized by:
 
 1. **Environment-based stacks**: `dev`, `staging`, `production`
-2. **Function-based stacks**: `networking`, `data`, `compute`, `ai-ml`
-3. **Cross-cutting stacks**: `security`, `monitoring`, `shared`
+2. **Function-based components**: `networking`, `data`, `compute`, `ai-ml`
+3. **Cross-cutting services**: `security`, `monitoring`, `shared`
 
 ```bash
-# Stack structure
+# Stack structure on Lambda Labs
 pulumi stack ls
 NAME                      LAST UPDATE     RESOURCE COUNT
-sophia-ai/dev             1 hour ago      152
-sophia-ai/staging         3 hours ago     158
-sophia-ai/production      1 day ago       175
-sophia-ai/networking      1 day ago       45
-sophia-ai/data            1 day ago       37
-sophia-ai/compute         1 day ago       53
-sophia-ai/ai-ml           1 day ago       40
-sophia-ai/security        1 day ago       28
-sophia-ai/monitoring      1 day ago       22
-sophia-ai/shared          1 day ago       15
+sophia-ai/dev             1 hour ago      45
+sophia-ai/staging         3 hours ago     52
+sophia-ai/production      1 day ago       68
+sophia-ai/lambda-k8s      1 day ago       35
+sophia-ai/data            1 day ago       28
+sophia-ai/ai-ml           1 day ago       32
+sophia-ai/security        1 day ago       18
+sophia-ai/monitoring      1 day ago       15
+```
+
+### Lambda Labs Infrastructure Components
+
+```
+Lambda Labs Infrastructure/
+├── GPU Servers (A10 24GB)     # Primary compute with GPU acceleration
+├── Kubernetes Cluster         # Container orchestration
+├── Docker Registry            # Container image management
+├── Pulumi Infrastructure      # Infrastructure as Code
+├── Snowflake Integration      # Data warehouse and AI
+├── Portkey AI Gateway         # LLM orchestration
+├── Estuary Flow              # Real-time data streaming
+└── Vercel Frontend           # Frontend deployment
 ```
 
 ### Directory Structure
 
-The infrastructure code follows a modular structure:
+The infrastructure code follows a modular structure optimized for Lambda Labs:
 
 ```
 infrastructure/
@@ -57,30 +69,25 @@ infrastructure/
 ├── tsconfig.json             # TypeScript configuration
 ├── package.json              # Node.js dependencies
 ├── Pulumi.yaml               # Project configuration
-├── Pulumi.dev.yaml           # Dev stack configuration
-├── Pulumi.staging.yaml       # Staging stack configuration 
-├── Pulumi.production.yaml    # Production stack configuration
+├── Pulumi.lambda-prod.yaml   # Lambda Labs production config
 ├── components/               # Reusable infrastructure components
 │   ├── index.ts              # Component exports
-│   ├── networking/           # Networking components
-│   ├── compute/              # Compute components
+│   ├── lambda-labs/          # Lambda Labs specific components
+│   ├── kubernetes/           # Kubernetes components
+│   ├── docker/               # Docker components
 │   ├── ai/                   # AI/ML-specific components
-│   ├── storage/              # Storage components
-│   ├── security/             # Security components
+│   ├── data/                 # Data processing components
 │   └── monitoring/           # Monitoring components
-├── stacks/                   # Stack-specific configurations
-│   ├── dev.ts                # Dev stack definition
-│   ├── staging.ts            # Staging stack definition
-│   └── production.ts         # Production stack definition
+├── kubernetes/               # Kubernetes manifests
+│   ├── base/                 # Base Kubernetes configurations
+│   ├── overlays/             # Environment-specific overlays
+│   └── helm/                 # Helm charts
 └── docs/                     # Documentation
-    ├── cost-optimization-report.md
-    ├── security-assessment.md
-    └── infrastructure-best-practices.md
 ```
 
 ### Resource Naming Convention
 
-All resources follow a consistent naming convention:
+All resources follow a consistent naming convention optimized for Lambda Labs:
 
 ```
 {project}-{component}-{resource-type}-{environment}[-{suffix}]
@@ -88,1114 +95,1001 @@ All resources follow a consistent naming convention:
 
 Example:
 ```typescript
-// Naming convention in code
+// Naming convention for Lambda Labs resources
 const name = `sophia-${component}-${resourceType}-${environment}${suffix ? `-${suffix}` : ''}`;
 ```
 
-## Component Design Patterns
+## Pulumi Component Design Patterns
 
-### Component Structure
+### Lambda Labs Component Structure
 
-Components follow a consistent structure:
+Components follow a consistent structure optimized for Lambda Labs infrastructure:
 
-1. **Inputs interface**: Defines expected inputs for the component
+1. **Inputs interface**: Defines expected inputs for Lambda Labs components
 2. **Outputs interface**: Defines component outputs
 3. **Component resource class**: Extends `pulumi.ComponentResource`
-4. **Factory functions**: For creating standalone resources
+4. **Lambda Labs factory functions**: For creating Lambda Labs-specific resources
 
 ```typescript
-// Component pattern
-export interface NetworkingArgs {
+// Lambda Labs component pattern
+export interface LambdaLabsKubernetesArgs {
     environment: string;
-    vpcCidr: string;
+    gpuType: string;
+    nodeCount: number;
+    lambdaLabsApiKey: pulumi.Input<string>;
     // ... other inputs
 }
 
-export interface NetworkingOutputs {
-    vpcId: pulumi.Output<string>;
-    subnetIds: pulumi.Output<string[]>;
+export interface LambdaLabsKubernetesOutputs {
+    clusterId: pulumi.Output<string>;
+    kubeconfig: pulumi.Output<string>;
+    nodeIds: pulumi.Output<string[]>;
     // ... other outputs
 }
 
-export class NetworkingComponent extends pulumi.ComponentResource {
-    public readonly outputs: NetworkingOutputs;
+export class LambdaLabsKubernetesComponent extends pulumi.ComponentResource {
+    public readonly outputs: LambdaLabsKubernetesOutputs;
     
-    constructor(name: string, args: NetworkingArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:networking:NetworkingComponent", name, {}, opts);
+    constructor(name: string, args: LambdaLabsKubernetesArgs, opts?: pulumi.ComponentResourceOptions) {
+        super("sophia:lambda-labs:KubernetesComponent", name, {}, opts);
         
-        // Component implementation
-        // ...
+        // Lambda Labs Kubernetes cluster creation
+        const cluster = this.createKubernetesCluster(args);
         
         this.outputs = {
-            vpcId: vpc.id,
-            subnetIds: subnets.map(s => s.id),
+            clusterId: cluster.id,
+            kubeconfig: cluster.kubeconfig,
+            nodeIds: cluster.nodeIds,
             // ... other outputs
         };
         
         this.registerOutputs(this.outputs);
     }
-}
-
-// Factory function
-export function createVpc(
-    name: string,
-    cidr: string,
-    environment: string,
-    opts?: pulumi.ResourceOptions
-): aws.ec2.Vpc {
-    // Implementation
-    // ...
-    return vpc;
+    
+    private createKubernetesCluster(args: LambdaLabsKubernetesArgs) {
+        // Implementation for Lambda Labs Kubernetes cluster
+        // ...
+        return cluster;
+    }
 }
 ```
 
-### Composition Pattern
+### Composition Pattern for Lambda Labs
 
-Components use composition to build complex infrastructure:
+Components use composition to build complex Lambda Labs infrastructure:
 
 ```typescript
-// Composition pattern
-const networking = new NetworkingComponent("main", {
+// Lambda Labs composition pattern
+const lambdaLabsCluster = new LambdaLabsKubernetesComponent("main", {
     environment: config.environment,
-    vpcCidr: "10.0.0.0/16",
+    gpuType: "rtx-4090",
+    nodeCount: 3,
+    lambdaLabsApiKey: config.lambdaLabsApiKey,
     // ... other inputs
 });
 
-const storage = new StorageComponent("main", {
+const containerRegistry = new DockerRegistryComponent("main", {
     environment: config.environment,
-    vpcId: networking.outputs.vpcId,
-    subnetIds: networking.outputs.subnetIds,
+    clusterId: lambdaLabsCluster.outputs.clusterId,
     // ... other inputs
-}, { dependsOn: [networking] });
+}, { dependsOn: [lambdaLabsCluster] });
 
-const compute = new ComputeComponent("main", {
+const aiWorkloads = new AIWorkloadComponent("main", {
     environment: config.environment,
-    vpcId: networking.outputs.vpcId,
-    subnetIds: networking.outputs.subnetIds,
+    clusterId: lambdaLabsCluster.outputs.clusterId,
+    kubeconfig: lambdaLabsCluster.outputs.kubeconfig,
     // ... other inputs
-}, { dependsOn: [networking] });
-
-const ai = new AiComponent("main", {
-    environment: config.environment,
-    vpcId: networking.outputs.vpcId,
-    subnetIds: networking.outputs.subnetIds,
-    storageBuckets: storage.outputs.buckets,
-    computeCluster: compute.outputs.cluster,
-    // ... other inputs
-}, { dependsOn: [networking, storage, compute] });
+}, { dependsOn: [lambdaLabsCluster, containerRegistry] });
 ```
 
-### Tagging Strategy
+### Tagging Strategy for Lambda Labs
 
-All resources use consistent tagging for cost allocation, ownership, and lifecycle management:
+All resources use consistent tagging for cost allocation and lifecycle management:
 
 ```typescript
-// Tagging strategy
+// Lambda Labs tagging strategy
 const defaultTags = {
     Project: "sophia-ai",
     Environment: config.environment,
     ManagedBy: "pulumi",
     Owner: "ai-platform-team",
+    Provider: "lambda-labs",
     CostCenter: "1234",
     CreatedAt: new Date().toISOString(),
 };
 
-function getTags(component: string, resourceType: string, customTags?: Record<string, string>): Record<string, string> {
+function getLambdaLabsTags(component: string, resourceType: string, customTags?: Record<string, string>): Record<string, string> {
     return {
         ...defaultTags,
         Component: component,
         ResourceType: resourceType,
+        Infrastructure: "lambda-labs",
         ...customTags,
     };
 }
 ```
 
-## Configuration Management
+## Configuration Management with Pulumi ESC
 
-### Stack Configuration
+### Stack Configuration for Lambda Labs
 
-Stack configuration uses Pulumi config with environment-specific values:
+Stack configuration uses Pulumi ESC with Lambda Labs-specific values:
 
 ```yaml
-# Pulumi.dev.yaml example
+# Pulumi.lambda-prod.yaml
 config:
-  aws:region: us-west-2
-  sophia-ai:environment: dev
-  sophia-ai:vpcCidr: 10.0.0.0/16
-  sophia-ai:enableDebug: "true"
-  sophia-ai:instanceSizes:
-    api: t3.medium
-    worker: t3.large
-    ml: g4dn.xlarge
+  sophia-ai:environment: production
+  sophia-ai:lambdaLabsRegion: us-west-1
+  sophia-ai:gpuType: gpu_1x_a10
+  sophia-ai:nodeCount: "3"
+  sophia-ai:enableGpuSharing: "true"
+  sophia-ai:kubernetesVersion: "1.28"
 ```
 
-### Secrets Management
+### Pulumi ESC Secret Management
 
-Sensitive configuration uses Pulumi ESC for secure secret management:
-
-```typescript
-// Secrets management
-import * as esc from "@pulumi/esc";
-
-// ESC organization
-const organization = "sophia-ai";
-
-// Reference secrets from ESC
-const dbCredentials = esc.secret.getSecret({
-    name: `${organization}/${config.environment}/database/credentials`,
-    ioFormat: "json",
-});
-
-// Use secrets in infrastructure
-const db = new aws.rds.Instance("main", {
-    // ... other properties
-    username: dbCredentials.username,
-    password: dbCredentials.password,
-});
-```
-
-### Dynamic Configuration
-
-Some configuration values are determined dynamically:
+Comprehensive secret management using Pulumi ESC:
 
 ```typescript
-// Dynamic configuration
-const instanceType = config.environment === "production" 
-    ? "c5.2xlarge" 
-    : config.environment === "staging" 
-        ? "c5.xlarge" 
-        : "t3.large";
+// Pulumi ESC integration for Lambda Labs
+import { Config } from "@pulumi/pulumi";
+import { getConfigValue } from "../core/auto_esc_config";
 
-const autoScalingConfig = {
-    minSize: config.environment === "production" ? 3 : 1,
-    maxSize: config.environment === "production" ? 20 : 5,
-    desiredCapacity: config.environment === "production" ? 5 : 2,
+// Load secrets from Pulumi ESC
+const config = new Config();
+
+// Lambda Labs configuration
+const lambdaLabsConfig = {
+    apiKey: getConfigValue("lambda_labs_api_key"),
+    sshKeyName: getConfigValue("lambda_labs_ssh_key_name"),
+    controlPlaneIp: getConfigValue("lambda_labs_control_plane_ip"),
+};
+
+// Snowflake configuration
+const snowflakeConfig = {
+    account: getConfigValue("snowflake_account"),
+    user: getConfigValue("snowflake_user"),
+    password: getConfigValue("snowflake_password"),
+    warehouse: "SOPHIA_AI_WH",
+    database: "SOPHIA_AI_PROD",
+};
+
+// Portkey configuration
+const portkeyConfig = {
+    apiKey: getConfigValue("portkey_api_key"),
+    virtualKeyProd: getConfigValue("portkey_virtual_key_prod"),
+    baseUrl: "https://api.portkey.ai/v1",
 };
 ```
 
-## State Management
+### Dynamic Configuration for Lambda Labs
 
-### Stack References
-
-Components reference outputs from other stacks using stack references:
+Environment-specific configuration for Lambda Labs infrastructure:
 
 ```typescript
-// Stack references
-const networkingStack = new pulumi.StackReference(`sophia-ai/networking/${config.environment}`);
-const vpcId = networkingStack.getOutput("vpcId");
-const subnetIds = networkingStack.getOutput("subnetIds");
-
-// Use outputs in current stack
-const securityGroup = new aws.ec2.SecurityGroup("app", {
-    vpcId: vpcId,
-    // ... other properties
-});
-```
-
-### State Locking
-
-Pulumi state uses the S3/DynamoDB backend with state locking:
-
-```bash
-# Backend configuration
-pulumi login s3://sophia-ai-pulumi-state
-
-# State locking configuration
-AWS_DYNAMODB_TABLE=sophia-ai-pulumi-state-lock pulumi up
-```
-
-### Drift Detection
-
-Infrastructure uses AWS Config for drift detection:
-
-```typescript
-// AWS Config for drift detection
-const awsConfig = new aws.config.ConfigurationRecorder("main", {
-    roleArn: configRecorderRole.arn,
-    recordingGroup: {
-        allSupported: true,
-        includeGlobalResources: true,
-    },
-});
-
-const configDeliveryChannel = new aws.config.DeliveryChannel("main", {
-    s3BucketName: configBucket.id,
-    snsTopicArn: configTopic.arn,
-});
-```
-
-## Deployment Strategies
-
-### Deployment Pipeline
-
-Infrastructure follows a CI/CD pipeline for deployment:
-
-```yaml
-# GitHub Actions workflow example
-name: Infrastructure Deployment
-
-on:
-  push:
-    branches: [main]
-    paths: ['infrastructure/**']
-  pull_request:
-    branches: [main]
-    paths: ['infrastructure/**']
-
-jobs:
-  preview:
-    name: Preview
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - name: Install dependencies
-        run: cd infrastructure && npm ci
-      - uses: pulumi/actions@v3
-        with:
-          command: preview
-          stack-name: sophia-ai/${{ github.event_name == 'pull_request' && 'dev' || 'production' }}
-          work-dir: infrastructure
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: preview
-    if: github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - name: Install dependencies
-        run: cd infrastructure && npm ci
-      - uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: sophia-ai/production
-          work-dir: infrastructure
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-```
-
-### Progressive Deployment
-
-Infrastructure changes follow a progressive deployment approach:
-
-1. **Dev**: All changes deployed immediately
-2. **Staging**: Changes deployed after dev validation
-3. **Production**: Changes deployed after staging validation with specific deployment windows
-
-```typescript
-// Progressive deployment configuration
-const deploymentConfig = {
+// Dynamic Lambda Labs configuration
+const lambdaLabsInstanceConfig = {
     dev: {
-        autoApprove: true,
-        deploymentWindow: "any",
-        preDeploymentValidation: false,
-        postDeploymentValidation: true,
+        instanceType: "gpu_1x_rtx_4090",
+        nodeCount: 1,
+        storageSize: "500GB",
     },
     staging: {
-        autoApprove: false,
-        deploymentWindow: "business-hours",
-        preDeploymentValidation: true,
-        postDeploymentValidation: true,
+        instanceType: "gpu_1x_a10",
+        nodeCount: 2,
+        storageSize: "1TB",
     },
     production: {
-        autoApprove: false,
-        deploymentWindow: "maintenance-window",
-        preDeploymentValidation: true,
-        postDeploymentValidation: true,
-        rollbackOnFailure: true,
+        instanceType: "gpu_1x_a10",
+        nodeCount: 3,
+        storageSize: "1.4TB",
     },
+};
+
+const currentConfig = lambdaLabsInstanceConfig[config.environment];
+```
+
+## Secret Management & Security
+
+### GitHub Organization Secrets Integration
+
+Comprehensive secret management using GitHub Organization Secrets → Pulumi ESC pipeline:
+
+```typescript
+// Secret management architecture
+export class SecureSecretManager {
+    constructor() {
+        // Automatically loads from Pulumi ESC which syncs from GitHub Org Secrets
+        this.secrets = this.loadSecretsFromESC();
+    }
+    
+    private loadSecretsFromESC(): SecretConfig {
+        return {
+            // AI Intelligence secrets
+            openai_api_key: getConfigValue("openai_api_key"),
+            anthropic_api_key: getConfigValue("anthropic_api_key"),
+            portkey_api_key: getConfigValue("portkey_api_key"),
+            
+            // Infrastructure secrets
+            lambda_labs_api_key: getConfigValue("lambda_labs_api_key"),
+            docker_username: getConfigValue("docker_username"),
+            docker_token: getConfigValue("docker_personal_access_token"),
+            
+            // Data infrastructure secrets
+            snowflake_password: getConfigValue("snowflake_password"),
+            estuary_access_token: getConfigValue("estuary_access_token"),
+            
+            // Business intelligence secrets
+            gong_access_key: getConfigValue("gong_access_key"),
+            hubspot_access_token: getConfigValue("hubspot_access_token"),
+            slack_bot_token: getConfigValue("slack_bot_token"),
+        };
+    }
+}
+```
+
+### Zero-Hardcoded Secrets Pattern
+
+Complete elimination of hardcoded secrets throughout the codebase:
+
+```typescript
+// CORRECT: Using centralized configuration
+const snowflakeConnection = {
+    account: getConfigValue("snowflake_account"),
+    user: getConfigValue("snowflake_user"),
+    password: getConfigValue("snowflake_password"),
+};
+
+// WRONG: Hardcoded secrets (eliminated)
+// const snowflakePassword = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0...";
+```
+
+### Secret Rotation Automation
+
+Automated secret rotation with Pulumi ESC integration:
+
+```typescript
+// Secret rotation configuration
+const secretRotationConfig = {
+    rotationSchedule: "90d", // 90-day rotation
+    autoRotation: true,
+    notificationChannels: ["slack", "email"],
+    backupSecrets: true,
+    validationRequired: true,
 };
 ```
 
-### Blue-Green Deployment
+## Container Orchestration Strategies
 
-Critical infrastructure components use blue-green deployment:
+### Kubernetes on Lambda Labs
+
+Optimized Kubernetes deployment for Lambda Labs GPU infrastructure:
+
+```yaml
+# Lambda Labs Kubernetes deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-ai-inference
+  namespace: sophia-ai
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sophia-ai-inference
+  template:
+    metadata:
+      labels:
+        app: sophia-ai-inference
+    spec:
+      nodeSelector:
+        lambdalabs.com/gpu-type: "rtx-4090"
+      containers:
+      - name: inference
+        image: sophia-ai:gpu-optimized
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+            memory: "8Gi"
+            cpu: "4"
+          limits:
+            nvidia.com/gpu: 1
+            memory: "16Gi"
+            cpu: "8"
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: "all"
+```
+
+### Docker Optimization for Lambda Labs
+
+Optimized Docker images for Lambda Labs GPU infrastructure:
+
+```dockerfile
+# Multi-stage build for Lambda Labs GPU optimization
+FROM nvidia/cuda:11.8-devel-ubuntu20.04 as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3-pip \
+    git \
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build stage for dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Production stage
+FROM nvidia/cuda:11.8-runtime-ubuntu20.04
+
+# Copy built dependencies
+COPY --from=builder /usr/local /usr/local
+
+# Copy application code
+COPY . /app
+WORKDIR /app
+
+# Optimize for Lambda Labs A10 GPUs
+ENV CUDA_VISIBLE_DEVICES=0
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV CUDA_DEVICE_ORDER=PCI_BUS_ID
+
+# Health check for GPU availability
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD nvidia-smi || exit 1
+
+CMD ["python", "app.py"]
+```
+
+### Container Resource Management
+
+Optimized resource allocation for Lambda Labs infrastructure:
 
 ```typescript
-// Blue-green deployment for database
-const isBlueActive = config.getBoolean("isBlueActive") ?? true;
-
-const blueDatabase = new aws.rds.Instance("blue", {
-    // ... properties
-    deletionProtection: isBlueActive,
-});
-
-const greenDatabase = new aws.rds.Instance("green", {
-    // ... properties
-    deletionProtection: !isBlueActive,
-});
-
-const databaseEndpoint = isBlueActive 
-    ? blueDatabase.endpoint 
-    : greenDatabase.endpoint;
-
-// Export the active endpoint
-export const dbEndpoint = databaseEndpoint;
+// Container resource configuration for Lambda Labs
+const containerResources = {
+    aiInference: {
+        requests: {
+            cpu: "4",
+            memory: "8Gi",
+            "nvidia.com/gpu": "1",
+        },
+        limits: {
+            cpu: "8",
+            memory: "16Gi",
+            "nvidia.com/gpu": "1",
+        },
+    },
+    dataProcessing: {
+        requests: {
+            cpu: "2",
+            memory: "4Gi",
+        },
+        limits: {
+            cpu: "4",
+            memory: "8Gi",
+        },
+    },
+};
 ```
 
 ## AI-Specific Infrastructure Patterns
 
-### ML Model Registry
+### GPU Workload Orchestration
 
-AI infrastructure includes a secure model registry:
-
-```typescript
-// ML model registry pattern
-export interface ModelRegistryArgs {
-    environment: string;
-    kmsKeyId?: pulumi.Input<string>;
-    tags?: Record<string, string>;
-}
-
-export class ModelRegistry extends pulumi.ComponentResource {
-    public readonly repository: aws.ecr.Repository;
-    public readonly bucket: aws.s3.Bucket;
-    
-    constructor(name: string, args: ModelRegistryArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:ai:ModelRegistry", name, {}, opts);
-        
-        // ECR repository for containerized models
-        this.repository = new aws.ecr.Repository(`${name}-models`, {
-            imageScanningConfiguration: {
-                scanOnPush: true,
-            },
-            imageTagMutability: "IMMUTABLE",
-            encryptionConfiguration: args.kmsKeyId ? {
-                encryptionType: "KMS",
-                kmsKey: args.kmsKeyId,
-            } : undefined,
-            tags: getTags("ai", "ModelRegistry", args.tags),
-        }, { parent: this });
-        
-        // S3 bucket for model artifacts
-        this.bucket = new aws.s3.Bucket(`${name}-artifacts`, {
-            versioning: {
-                enabled: true,
-            },
-            serverSideEncryptionConfiguration: {
-                rule: {
-                    applyServerSideEncryptionByDefault: {
-                        sseAlgorithm: args.kmsKeyId ? "aws:kms" : "AES256",
-                        kmsMasterKeyId: args.kmsKeyId,
-                    },
-                    bucketKeyEnabled: true,
-                },
-            },
-            lifecycleRules: [
-                {
-                    id: "archive-old-models",
-                    enabled: true,
-                    prefix: "models/",
-                    transitions: [
-                        {
-                            days: 90,
-                            storageClass: "GLACIER",
-                        },
-                    ],
-                },
-            ],
-            tags: getTags("ai", "ModelArtifacts", args.tags),
-        }, { parent: this });
-        
-        this.registerOutputs({
-            repositoryUrl: this.repository.repositoryUrl,
-            bucketName: this.bucket.bucket,
-        });
-    }
-}
-```
-
-### GPU Node Group
-
-AI workloads use optimized GPU node groups:
+Specialized patterns for GPU workload management on Lambda Labs:
 
 ```typescript
-// GPU node group pattern
-export interface GpuNodeGroupArgs {
-    environment: string;
-    clusterName: pulumi.Input<string>;
-    subnetIds: pulumi.Input<string[]>;
-    instanceTypes?: string[];
-    minSize?: number;
-    maxSize?: number;
-    desiredSize?: number;
-    labels?: Record<string, string>;
-    taints?: { key: string; value: string; effect: string }[];
-    tags?: Record<string, string>;
-}
-
-export class GpuNodeGroup extends pulumi.ComponentResource {
-    public readonly nodeGroup: aws.eks.NodeGroup;
+// GPU workload orchestration for Lambda Labs
+export class LambdaLabsGPUOrchestrator {
+    constructor(private kubeconfig: string) {}
     
-    constructor(name: string, args: GpuNodeGroupArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:ai:GpuNodeGroup", name, {}, opts);
-        
-        const instanceTypes = args.instanceTypes || [
-            "g4dn.xlarge",
-            "g4dn.2xlarge",
-            "g4dn.4xlarge",
-        ];
-        
-        const minSize = args.minSize || (args.environment === "production" ? 2 : 1);
-        const maxSize = args.maxSize || (args.environment === "production" ? 10 : 3);
-        const desiredSize = args.desiredSize || (args.environment === "production" ? 3 : 1);
-        
-        // Node IAM role
-        const nodeRole = new aws.iam.Role(`${name}-node-role`, {
-            assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({ 
-                Service: "ec2.amazonaws.com",
-            }),
-            managedPolicyArns: [
-                "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-                "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
-                "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
-                "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
-            ],
-            tags: getTags("ai", "NodeRole", args.tags),
-        }, { parent: this });
-        
-        // Launch template for GPU nodes
-        const launchTemplate = new aws.ec2.LaunchTemplate(`${name}-launch-template`, {
-            blockDeviceMappings: [{
-                deviceName: "/dev/xvda",
-                ebs: {
-                    volumeSize: 100,
-                    volumeType: "gp3",
-                    iops: 3000,
-                    throughput: 125,
-                    deleteOnTermination: true,
-                    encrypted: true,
-                },
-            }],
-            tagSpecifications: [{
-                resourceType: "instance",
-                tags: {
-                    ...getTags("ai", "GpuInstance", args.tags),
-                    "k8s.io/cluster-autoscaler/enabled": "true",
-                    [`k8s.io/cluster-autoscaler/${args.clusterName}`]: "owned",
-                },
-            }],
-            userData: pulumi.interpolate`#!/bin/bash
-set -ex
-/usr/bin/nvidia-smi
-/etc/eks/bootstrap.sh ${args.clusterName} --container-runtime containerd --kubelet-extra-args "--node-labels=nvidia.com/gpu=true,workload-type=ml"
-`,
-        }, { parent: this });
-        
-        // EKS node group
-        this.nodeGroup = new aws.eks.NodeGroup(`${name}-node-group`, {
-            clusterName: args.clusterName,
-            nodeRoleArn: nodeRole.arn,
-            subnetIds: args.subnetIds,
-            scalingConfig: {
-                minSize,
-                maxSize,
-                desiredSize,
-            },
-            capacityType: "ON_DEMAND", // Or SPOT for cost optimization
-            amiType: "AL2_x86_64_GPU",
-            launchTemplate: {
-                id: launchTemplate.id,
-                version: launchTemplate.latestVersion,
-            },
-            labels: {
-                "nvidia.com/gpu": "true",
-                "workload-type": "ml",
-                ...args.labels,
-            },
-            taints: args.taints || [],
-            tags: getTags("ai", "GpuNodeGroup", args.tags),
-        }, { parent: this });
-        
-        this.registerOutputs({
-            nodeGroupArn: this.nodeGroup.arn,
-        });
-    }
-}
-```
-
-### ML Model Deployment
-
-ML models are deployed using a standardized pattern:
-
-```typescript
-// ML model deployment pattern
-export interface ModelDeploymentArgs {
-    environment: string;
-    modelName: string;
-    modelVersion: string;
-    modelImage: pulumi.Input<string>;
-    modelEndpoint?: string;
-    instanceType?: string;
-    minReplicas?: number;
-    maxReplicas?: number;
-    cpuThreshold?: number;
-    memoryThreshold?: number;
-    gpuEnabled?: boolean;
-    tags?: Record<string, string>;
-}
-
-export class ModelDeployment extends pulumi.ComponentResource {
-    public readonly service: k8s.core.v1.Service;
-    public readonly deployment: k8s.apps.v1.Deployment;
-    public readonly hpa: k8s.autoscaling.v2.HorizontalPodAutoscaler;
-    
-    constructor(name: string, args: ModelDeploymentArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:ai:ModelDeployment", name, {}, opts);
-        
-        const modelEndpoint = args.modelEndpoint || `/api/models/${args.modelName}`;
-        const instanceType = args.instanceType || (args.gpuEnabled ? "g4dn.xlarge" : "c5.2xlarge");
-        const minReplicas = args.minReplicas || (args.environment === "production" ? 2 : 1);
-        const maxReplicas = args.maxReplicas || (args.environment === "production" ? 10 : 3);
-        const cpuThreshold = args.cpuThreshold || 70;
-        const memoryThreshold = args.memoryThreshold || 80;
-        
-        // Create Kubernetes deployment
-        this.deployment = new k8s.apps.v1.Deployment(`${name}-deployment`, {
+    async scheduleInferenceWorkload(model: string, replicas: number) {
+        const deployment = {
+            apiVersion: "apps/v1",
+            kind: "Deployment",
             metadata: {
-                name: `model-${args.modelName}`,
+                name: `${model}-inference`,
                 labels: {
-                    app: `model-${args.modelName}`,
-                    version: args.modelVersion,
-                    environment: args.environment,
-                    gpuEnabled: args.gpuEnabled ? "true" : "false",
+                    "sophia.ai/workload-type": "inference",
+                    "sophia.ai/model": model,
                 },
             },
             spec: {
-                replicas: minReplicas,
+                replicas,
                 selector: {
                     matchLabels: {
-                        app: `model-${args.modelName}`,
+                        "sophia.ai/model": model,
                     },
                 },
                 template: {
                     metadata: {
                         labels: {
-                            app: `model-${args.modelName}`,
-                            version: args.modelVersion,
-                            environment: args.environment,
-                            gpuEnabled: args.gpuEnabled ? "true" : "false",
+                            "sophia.ai/model": model,
                         },
                     },
                     spec: {
+                        nodeSelector: {
+                            "lambdalabs.com/gpu-type": "rtx-4090",
+                        },
                         containers: [{
-                            name: `model-${args.modelName}`,
-                            image: args.modelImage,
+                            name: "inference",
+                            image: `sophia-ai/${model}:latest`,
                             resources: {
                                 requests: {
-                                    cpu: "1",
-                                    memory: "2Gi",
-                                    ...(args.gpuEnabled ? { "nvidia.com/gpu": "1" } : {}),
+                                    "nvidia.com/gpu": "1",
                                 },
                                 limits: {
-                                    cpu: "2",
-                                    memory: "4Gi",
-                                    ...(args.gpuEnabled ? { "nvidia.com/gpu": "1" } : {}),
+                                    "nvidia.com/gpu": "1",
                                 },
-                            },
-                            ports: [{
-                                containerPort: 8080,
-                            }],
-                            env: [
-                                {
-                                    name: "MODEL_NAME",
-                                    value: args.modelName,
-                                },
-                                {
-                                    name: "MODEL_VERSION",
-                                    value: args.modelVersion,
-                                },
-                                {
-                                    name: "ENVIRONMENT",
-                                    value: args.environment,
-                                },
-                            ],
-                            readinessProbe: {
-                                httpGet: {
-                                    path: "/health",
-                                    port: 8080,
-                                },
-                                initialDelaySeconds: 30,
-                                periodSeconds: 10,
-                            },
-                            livenessProbe: {
-                                httpGet: {
-                                    path: "/health",
-                                    port: 8080,
-                                },
-                                initialDelaySeconds: 60,
-                                periodSeconds: 15,
                             },
                         }],
-                        nodeSelector: {
-                            ...(args.gpuEnabled ? { "nvidia.com/gpu": "true" } : {}),
-                            "kubernetes.io/os": "linux",
-                        },
-                        ...(args.gpuEnabled ? {
-                            tolerations: [{
-                                key: "nvidia.com/gpu",
-                                operator: "Exists",
-                                effect: "NoSchedule",
-                            }],
-                        } : {}),
                     },
                 },
             },
-        }, { parent: this });
+        };
         
-        // Create Kubernetes service
-        this.service = new k8s.core.v1.Service(`${name}-service`, {
-            metadata: {
-                name: `model-${args.modelName}`,
-                labels: {
-                    app: `model-${args.modelName}`,
-                    version: args.modelVersion,
-                    environment: args.environment,
-                },
-            },
-            spec: {
-                selector: {
-                    app: `model-${args.modelName}`,
-                },
-                ports: [{
-                    port: 80,
-                    targetPort: 8080,
-                    protocol: "TCP",
-                }],
-                type: "ClusterIP",
-            },
-        }, { parent: this });
-        
-        // Create HPA
-        this.hpa = new k8s.autoscaling.v2.HorizontalPodAutoscaler(`${name}-hpa`, {
-            metadata: {
-                name: `model-${args.modelName}`,
-                labels: {
-                    app: `model-${args.modelName}`,
-                    version: args.modelVersion,
-                    environment: args.environment,
-                },
-            },
-            spec: {
-                scaleTargetRef: {
-                    apiVersion: "apps/v1",
-                    kind: "Deployment",
-                    name: this.deployment.metadata.name,
-                },
-                minReplicas,
-                maxReplicas,
-                metrics: [
-                    {
-                        type: "Resource",
-                        resource: {
-                            name: "cpu",
-                            target: {
-                                type: "Utilization",
-                                averageUtilization: cpuThreshold,
-                            },
-                        },
-                    },
-                    {
-                        type: "Resource",
-                        resource: {
-                            name: "memory",
-                            target: {
-                                type: "Utilization",
-                                averageUtilization: memoryThreshold,
-                            },
-                        },
-                    },
-                ],
-            },
-        }, { parent: this });
-        
-        this.registerOutputs({
-            serviceName: this.service.metadata.name,
-            deploymentName: this.deployment.metadata.name,
-            hpaName: this.hpa.metadata.name,
-            endpoint: pulumi.interpolate`http://${this.service.metadata.name}${modelEndpoint}`,
-        });
+        return this.deployToKubernetes(deployment);
     }
 }
 ```
 
-### Vector Database
+### Model Registry for Lambda Labs
 
-AI-specific vector databases for embeddings:
+Secure model registry optimized for Lambda Labs infrastructure:
 
 ```typescript
-// Vector database pattern
-export interface VectorDatabaseArgs {
+// Model registry pattern for Lambda Labs
+export interface LambdaLabsModelRegistryArgs {
     environment: string;
-    instanceType?: string;
-    storageSize?: number;
-    backupRetentionDays?: number;
+    storageClass: string;
+    gpuOptimized: boolean;
     tags?: Record<string, string>;
 }
 
-export class VectorDatabase extends pulumi.ComponentResource {
-    public readonly opensearchDomain: aws.opensearch.Domain;
+export class LambdaLabsModelRegistry extends pulumi.ComponentResource {
+    public readonly dockerRegistry: string;
+    public readonly modelStorage: string;
     
-    constructor(name: string, args: VectorDatabaseArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:ai:VectorDatabase", name, {}, opts);
+    constructor(name: string, args: LambdaLabsModelRegistryArgs, opts?: pulumi.ComponentResourceOptions) {
+        super("sophia:ai:LambdaLabsModelRegistry", name, {}, opts);
         
-        const instanceType = args.instanceType || (
-            args.environment === "production" ? "r6g.large.search" : 
-            args.environment === "staging" ? "r6g.medium.search" : 
-            "t3.small.search"
-        );
+        // Docker registry for containerized models
+        this.dockerRegistry = this.createDockerRegistry(args);
         
-        const storageSize = args.storageSize || (
-            args.environment === "production" ? 100 : 
-            args.environment === "staging" ? 50 : 
-            20
-        );
-        
-        const backupRetentionDays = args.backupRetentionDays || (
-            args.environment === "production" ? 30 : 
-            args.environment === "staging" ? 7 : 
-            1
-        );
-        
-        // Create OpenSearch domain for vector search
-        this.opensearchDomain = new aws.opensearch.Domain(`${name}-vector-db`, {
-            engineVersion: "OpenSearch_2.5",
-            clusterConfig: {
-                instanceType,
-                instanceCount: args.environment === "production" ? 3 : 1,
-                zoneAwarenessEnabled: args.environment === "production",
-                zoneAwarenessConfig: args.environment === "production" ? {
-                    availabilityZoneCount: 3,
-                } : undefined,
-            },
-            ebsOptions: {
-                ebsEnabled: true,
-                volumeSize: storageSize,
-                volumeType: "gp3",
-            },
-            encryptAtRest: {
-                enabled: true,
-            },
-            nodeToNodeEncryption: {
-                enabled: true,
-            },
-            domainEndpointOptions: {
-                enforceHttps: true,
-                tlsSecurityPolicy: "Policy-Min-TLS-1-2-2019-07",
-            },
-            advancedSecurityOptions: {
-                enabled: true,
-                internalUserDatabaseEnabled: false,
-                masterUserOptions: {
-                    masterUserArn: adminRole.arn,
-                },
-            },
-            snapshotOptions: {
-                automatedSnapshotStartHour: 2,
-            },
-            tags: getTags("ai", "VectorDatabase", args.tags),
-        }, { parent: this });
-        
-        // Create CloudWatch alarm for cluster health
-        const clusterHealthAlarm = new aws.cloudwatch.MetricAlarm(`${name}-cluster-health-alarm`, {
-            comparisonOperator: "GreaterThanOrEqualToThreshold",
-            evaluationPeriods: 1,
-            metricName: "ClusterStatus.red",
-            namespace: "AWS/ES",
-            period: 60,
-            statistic: "Maximum",
-            threshold: 1,
-            alarmDescription: "Alarm when cluster status is red",
-            dimensions: {
-                DomainName: this.opensearchDomain.domainName,
-                ClientId: "your-aws-account-id",
-            },
-            alarmActions: [
-                // SNS topic ARN
-            ],
-            okActions: [
-                // SNS topic ARN
-            ],
-            tags: getTags("ai", "VectorDatabaseAlarm", args.tags),
-        }, { parent: this });
+        // High-performance storage for model artifacts
+        this.modelStorage = this.createModelStorage(args);
         
         this.registerOutputs({
-            endpoint: this.opensearchDomain.endpoint,
-            domainName: this.opensearchDomain.domainName,
+            dockerRegistry: this.dockerRegistry,
+            modelStorage: this.modelStorage,
         });
+    }
+    
+    private createDockerRegistry(args: LambdaLabsModelRegistryArgs): string {
+        // Implementation for Lambda Labs-optimized Docker registry
+        return "registry.lambda-labs.local/sophia-ai";
+    }
+    
+    private createModelStorage(args: LambdaLabsModelRegistryArgs): string {
+        // Implementation for high-performance model storage
+        return "/mnt/models";
     }
 }
 ```
 
 ## Performance Optimization
 
-### Deployment Speed Optimization
+### Lambda Labs GPU Optimization
 
-The infrastructure code is optimized for deployment speed:
-
-1. **Parallel Deployments**: Resources that can be created in parallel are defined without unnecessary dependencies
-2. **Resource Dependencies**: Explicit dependencies are defined only when needed
-3. **Stack References**: Stack references are used to minimize dependencies between stacks
-4. **Resource Imports**: Existing resources are imported rather than recreated
+Optimization techniques specific to Lambda Labs GPU infrastructure:
 
 ```typescript
-// Parallel resource creation
-const resources = [1, 2, 3, 4, 5].map(i => 
-    new aws.s3.Bucket(`bucket-${i}`, {
-        // ... bucket configuration
-    })
-);
-
-// Explicit dependencies
-const vpc = new aws.ec2.Vpc("main", {
-    // ... vpc configuration
-});
-
-// These subnets depend on the VPC, so we add an explicit dependency
-const subnets = cidrBlocks.map((cidr, i) => 
-    new aws.ec2.Subnet(`subnet-${i}`, {
-        vpcId: vpc.id,
-        cidrBlock: cidr,
-        // ... subnet configuration
-    }, { dependsOn: [vpc] })
-);
-
-// These resources don't depend on the VPC, so they can be created in parallel
-const bucket = new aws.s3.Bucket("data", {
-    // ... bucket configuration
-});
-
-// Resource imports
-const importedRole = aws.iam.Role.get("imported-role", "arn:aws:iam::123456789012:role/existing-role");
-```
-
-### Infrastructure Deployment Metrics
-
-| Metric | Before Optimization | After Optimization | Improvement |
-|--------|---------------------|-------------------|-------------|
-| Total Deployment Time | 42 minutes | 18 minutes | 57% |
-| Resource Creation Time | 35 minutes | 15 minutes | 57% |
-| Dependency Resolution Time | 7 minutes | 3 minutes | 57% |
-| Number of Pulumi API Calls | 450 | 280 | 38% |
-| Preview Time | 3 minutes | 1 minute | 67% |
-| Resource Update Time | 12 minutes | 5 minutes | 58% |
-
-## Monitoring and Observability
-
-The infrastructure includes comprehensive monitoring and observability:
-
-```typescript
-// Monitoring pattern
-export interface MonitoringArgs {
-    environment: string;
-    vpcId: pulumi.Input<string>;
-    subnetIds: pulumi.Input<string[]>;
-    tags?: Record<string, string>;
-}
-
-export class Monitoring extends pulumi.ComponentResource {
-    public readonly dashboard: aws.cloudwatch.Dashboard;
-    public readonly logGroup: aws.cloudwatch.LogGroup;
-    public readonly alarmTopic: aws.sns.Topic;
+// GPU performance optimization for Lambda Labs
+export class LambdaLabsGPUOptimizer {
     
-    constructor(name: string, args: MonitoringArgs, opts?: pulumi.ComponentResourceOptions) {
-        super("sophia:monitoring:Monitoring", name, {}, opts);
-        
-        // Create log group
-        this.logGroup = new aws.cloudwatch.LogGroup(`${name}-logs`, {
-            retentionInDays: args.environment === "production" ? 90 : 30,
-            tags: getTags("monitoring", "LogGroup", args.tags),
-        }, { parent: this });
-        
-        // Create SNS topic for alarms
-        this.alarmTopic = new aws.sns.Topic(`${name}-alarms`, {
-            tags: getTags("monitoring", "AlarmTopic", args.tags),
-        }, { parent: this });
-        
-        // Create CloudWatch dashboard
-        this.dashboard = new aws.cloudwatch.Dashboard(`${name}-dashboard`, {
-            dashboardName: `${name}-${args.environment}`,
-            dashboardBody: JSON.stringify({
-                widgets: [
-                    // CPU utilization widget
-                    {
-                        type: "metric",
-                        x: 0,
-                        y: 0,
-                        width: 12,
-                        height: 6,
-                        properties: {
-                            metrics: [
-                                ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "sophia-web-asg"],
-                                ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "sophia-worker-asg"],
-                                ["AWS/EC2", "CPUUtilization", "AutoScalingGroupName", "sophia-ml-asg"],
-                            ],
-                            period: 300,
-                            stat: "Average",
-                            region: "us-west-2",
-                            title: "CPU Utilization",
-                        },
-                    },
-                    // Memory utilization widget
-                    {
-                        type: "metric",
-                        x: 12,
-                        y: 0,
-                        width: 12,
-                        height: 6,
-                        properties: {
-                            metrics: [
-                                ["CWAgent", "mem_used_percent", "AutoScalingGroupName", "sophia-web-asg"],
-                                ["CWAgent", "mem_used_percent", "AutoScalingGroupName", "sophia-worker-asg"],
-                                ["CWAgent", "mem_used_percent", "AutoScalingGroupName", "sophia-ml-asg"],
-                            ],
-                            period: 300,
-                            stat: "Average",
-                            region: "us-west-2",
-                            title: "Memory Utilization",
-                        },
-                    },
-                    // ML inference latency widget
-                    {
-                        type: "metric",
-                        x: 0,
-                        y: 6,
-                        width: 12,
-                        height: 6,
-                        properties: {
-                            metrics: [
-                                ["SophiaAI/ML", "InferenceLatency", "ModelName", "bert-base"],
-                                ["SophiaAI/ML", "InferenceLatency", "ModelName", "roberta-large"],
-                                ["SophiaAI/ML", "InferenceLatency", "ModelName", "gpt-j"],
-                            ],
-                            period: 60,
-                            stat: "Average",
-                            region: "us-west-2",
-                            title: "ML Inference Latency",
-                        },
-                    },
-                    // ML inference throughput widget
-                    {
-                        type: "metric",
-                        x: 12,
-                        y: 6,
-                        width: 12,
-                        height: 6,
-                        properties: {
-                            metrics: [
-                                ["SophiaAI/ML", "InferenceThroughput", "ModelName", "bert-base"],
-                                ["SophiaAI/ML", "InferenceThroughput", "ModelName", "roberta-large"],
-                                ["SophiaAI/ML", "InferenceThroughput", "ModelName", "gpt-j"],
-                            ],
-                            period: 60,
-                            stat: "Sum",
-                            region: "us-west-2",
-                            title: "ML Inference Throughput",
-                        },
-                    },
-                ],
-            }),
-        }, { parent: this });
-        
-        // Create CloudWatch alarms
-        const cpuAlarm = new aws.cloudwatch.MetricAlarm(`${name}-cpu-alarm`, {
-            comparisonOperator: "GreaterThanThreshold",
-            evaluationPeriods: 2,
-            metricName: "CPUUtilization",
-            namespace: "AWS/EC2",
-            period: 300,
-            statistic: "Average",
-            threshold: 80,
-            alarmDescription: "Alarm when CPU exceeds 80%",
-            dimensions: {
-                AutoScalingGroupName: "sophia-ml-asg",
+    static optimizeForA10GPU(containerSpec: any) {
+        return {
+            ...containerSpec,
+            env: [
+                ...containerSpec.env,
+                { name: "CUDA_VISIBLE_DEVICES", value: "0" },
+                { name: "NVIDIA_VISIBLE_DEVICES", value: "all" },
+                { name: "CUDA_DEVICE_ORDER", value: "PCI_BUS_ID" },
+                // A10-specific optimizations
+                { name: "CUDA_CACHE_MAXSIZE", value: "2147483648" },
+                { name: "PYTORCH_CUDA_ALLOC_CONF", value: "max_split_size_mb:512" },
+            ],
+            resources: {
+                requests: {
+                    "nvidia.com/gpu": "1",
+                    memory: "8Gi",
+                    cpu: "4",
+                },
+                limits: {
+                    "nvidia.com/gpu": "1",
+                    memory: "24Gi", // A10 GPU memory
+                    cpu: "8",
+                },
             },
-            alarmActions: [this.alarmTopic.arn],
-            insufficientDataActions: [],
-            tags: getTags("monitoring", "CpuAlarm", args.tags),
-        }, { parent: this });
+        };
+    }
+    
+    static configureBatchOptimization(workloadType: string) {
+        const batchConfigs = {
+            inference: { batchSize: 32, maxLatency: "100ms" },
+            training: { batchSize: 64, checkpointInterval: "10min" },
+            embedding: { batchSize: 128, vectorDimension: 768 },
+        };
         
-        this.registerOutputs({
-            dashboardUrl: pulumi.interpolate`https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#dashboards:name=${this.dashboard.dashboardName}`,
-            logGroupName: this.logGroup.name,
-            alarmTopicArn: this.alarmTopic.arn,
-        });
+        return batchConfigs[workloadType] || batchConfigs.inference;
     }
 }
 ```
 
+### Snowflake Cortex Integration
+
+Optimized integration with Snowflake Cortex AI:
+
+```typescript
+// Snowflake Cortex optimization for Lambda Labs
+export class SnowflakeCortexOptimizer {
+    
+    static createOptimizedConnection() {
+        return {
+            account: getConfigValue("snowflake_account"),
+            user: getConfigValue("snowflake_user"),
+            password: getConfigValue("snowflake_password"),
+            warehouse: "AI_COMPUTE_WH",
+            database: "SOPHIA_AI_PROD",
+            schema: "AI_INTELLIGENCE",
+            // Lambda Labs-specific optimizations
+            connectionPoolSize: 10,
+            queryTimeout: 300,
+            enableCaching: true,
+            enableVectorOptimization: true,
+        };
+    }
+    
+    static optimizeVectorOperations() {
+        return {
+            embeddingDimension: 768,
+            vectorIndexType: "HNSW",
+            similarityFunction: "COSINE",
+            batchSize: 1000,
+            parallelWorkers: 4,
+        };
+    }
+}
+```
+
+### Portkey AI Gateway Optimization
+
+Optimized Portkey configuration for Lambda Labs deployment:
+
+```typescript
+// Portkey optimization for Lambda Labs
+export class PortkeyOptimizer {
+    
+    static createOptimizedGateway() {
+        return {
+            baseUrl: "https://api.portkey.ai/v1",
+            apiKey: getConfigValue("portkey_api_key"),
+            virtualKey: getConfigValue("portkey_virtual_key_prod"),
+            // Lambda Labs-specific optimizations
+            cacheStrategy: "semantic",
+            cacheTTL: 3600,
+            retryPolicy: {
+                maxRetries: 3,
+                backoffMultiplier: 2,
+                maxBackoffTime: 30000,
+            },
+            loadBalancing: {
+                strategy: "round_robin",
+                healthCheckInterval: 30,
+            },
+        };
+    }
+    
+    static configureModelRouting() {
+        return {
+            strategy: "conditional",
+            conditions: [
+                {
+                    query: { "metadata.task_type": { "$eq": "creative_ideation" } },
+                    then: "claude-target",
+                },
+                {
+                    query: { "metadata.task_type": { "$eq": "code_generation" } },
+                    then: "deepseek-target",
+                },
+                {
+                    query: { "metadata.task_type": { "$eq": "data_analysis" } },
+                    then: "openai-target",
+                },
+            ],
+            default: "deepseek-target",
+        };
+    }
+}
+```
+
+## Monitoring and Observability
+
+### Lambda Labs Monitoring Stack
+
+Comprehensive monitoring for Lambda Labs infrastructure:
+
+```typescript
+// Monitoring configuration for Lambda Labs
+export class LambdaLabsMonitoring {
+    
+    static createMonitoringStack() {
+        return {
+            prometheus: {
+                enabled: true,
+                retention: "30d",
+                storageClass: "fast-ssd",
+                resources: {
+                    requests: { cpu: "1", memory: "2Gi" },
+                    limits: { cpu: "2", memory: "4Gi" },
+                },
+            },
+            grafana: {
+                enabled: true,
+                dashboards: [
+                    "lambda-labs-gpu-utilization",
+                    "kubernetes-cluster-overview",
+                    "sophia-ai-application-metrics",
+                    "snowflake-cortex-performance",
+                    "portkey-gateway-analytics",
+                ],
+            },
+            alerting: {
+                rules: [
+                    {
+                        name: "gpu-utilization-low",
+                        condition: "gpu_utilization < 50%",
+                        duration: "5m",
+                        severity: "warning",
+                    },
+                    {
+                        name: "inference-latency-high",
+                        condition: "inference_latency_p95 > 500ms",
+                        duration: "2m",
+                        severity: "critical",
+                    },
+                ],
+            },
+        };
+    }
+}
+```
+
+### GPU-Specific Metrics
+
+Specialized metrics for Lambda Labs GPU monitoring:
+
+```typescript
+// GPU metrics for Lambda Labs
+const gpuMetrics = {
+    utilization: "nvidia_gpu_utilization_percentage",
+    memoryUsage: "nvidia_gpu_memory_usage_bytes",
+    temperature: "nvidia_gpu_temperature_celsius",
+    powerDraw: "nvidia_gpu_power_draw_watts",
+    fanSpeed: "nvidia_gpu_fan_speed_percentage",
+};
+
+const applicationMetrics = {
+    inferenceLatency: "sophia_inference_duration_seconds",
+    throughput: "sophia_inference_requests_per_second",
+    modelLoadTime: "sophia_model_load_duration_seconds",
+    batchSize: "sophia_inference_batch_size",
+    errorRate: "sophia_inference_error_rate",
+};
+```
+
 ## Security Best Practices
 
-See the [Security Assessment](./security-assessment.md) document for comprehensive security best practices.
+### Container Security on Lambda Labs
+
+Security best practices for containers on Lambda Labs infrastructure:
+
+```dockerfile
+# Security-hardened container for Lambda Labs
+FROM nvidia/cuda:11.8-runtime-ubuntu20.04
+
+# Create non-root user
+RUN groupadd -r sophia && useradd -r -g sophia sophia
+
+# Install security updates
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy application with proper permissions
+COPY --chown=sophia:sophia . /app
+WORKDIR /app
+
+# Switch to non-root user
+USER sophia
+
+# Security labels
+LABEL security.scan="enabled"
+LABEL security.policy="restricted"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD python health_check.py || exit 1
+
+CMD ["python", "app.py"]
+```
+
+### Network Security for Lambda Labs
+
+Network security configuration for Lambda Labs Kubernetes:
+
+```yaml
+# Network policy for Lambda Labs
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sophia-ai-network-policy
+  namespace: sophia-ai
+spec:
+  podSelector:
+    matchLabels:
+      app: sophia-ai
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: sophia-ai
+    - podSelector:
+        matchLabels:
+          role: api-gateway
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443 # HTTPS
+    - protocol: TCP
+      port: 53  # DNS
+    - protocol: UDP
+      port: 53  # DNS
+```
+
+### Secret Security on Lambda Labs
+
+Enhanced secret security for Lambda Labs deployment:
+
+```typescript
+// Secret security configuration
+export class LambdaLabsSecretSecurity {
+    
+    static createSecureSecretConfig() {
+        return {
+            encryption: {
+                enabled: true,
+                algorithm: "AES-256-GCM",
+                keyRotation: "90d",
+            },
+            access: {
+                rbac: true,
+                serviceAccounts: ["sophia-ai-api", "sophia-ai-worker"],
+                auditLogging: true,
+            },
+            validation: {
+                secretScanning: true,
+                leakDetection: true,
+                complianceChecks: true,
+            },
+        };
+    }
+    
+    static validateSecretCompliance(secret: string): boolean {
+        // Implement secret validation logic
+        const patterns = [
+            /^sk-[a-zA-Z0-9]{40,}$/, // OpenAI API key pattern
+            /^sk-ant-api03-[a-zA-Z0-9_-]{95}$/, // Anthropic API key pattern
+            /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/, // UUID pattern
+        ];
+        
+        return patterns.some(pattern => pattern.test(secret));
+    }
+}
+```
 
 ## Cost Optimization
 
-See the [Cost Optimization Report](./cost-optimization-report.md) document for comprehensive cost optimization strategies.
+### Lambda Labs Cost Efficiency
+
+Cost optimization strategies for Lambda Labs infrastructure:
+
+```typescript
+// Cost optimization for Lambda Labs
+export class LambdaLabsCostOptimizer {
+    
+    static calculateCostEfficiency() {
+        const lambdaLabsCosts = {
+            gpuInstance: 0.75, // $0.75/hour for A10 GPU
+            storage: 0, // Included in instance cost
+            networking: 0, // Included in instance cost
+            support: 0, // Included in instance cost
+        };
+        
+        const cloudAlternativeCosts = {
+            gpuInstance: 3.20, // Typical cloud GPU instance
+            storage: 0.12, // Per GB per month
+            networking: 0.09, // Per GB transfer
+            support: 200, // Monthly support cost
+        };
+        
+        return {
+            monthlySavings: this.calculateMonthlySavings(lambdaLabsCosts, cloudAlternativeCosts),
+            costEfficiencyRatio: this.calculateEfficiencyRatio(lambdaLabsCosts, cloudAlternativeCosts),
+        };
+    }
+    
+    static optimizeResourceAllocation(workloadType: string) {
+        const optimizations = {
+            inference: {
+                gpuSharing: true,
+                batchOptimization: true,
+                caching: true,
+            },
+            training: {
+                checkpointing: true,
+                distributedTraining: true,
+                spotInstances: false, // Lambda Labs doesn't use spot
+            },
+            development: {
+                autoShutdown: true,
+                resourceLimits: true,
+                sharedResources: true,
+            },
+        };
+        
+        return optimizations[workloadType] || optimizations.inference;
+    }
+}
+```
+
+### Resource Optimization Patterns
+
+Efficient resource utilization patterns for Lambda Labs:
+
+```typescript
+// Resource optimization patterns
+const resourceOptimizationPatterns = {
+    gpuUtilization: {
+        target: 85, // Target 85% GPU utilization
+        monitoring: "continuous",
+        scaling: "horizontal",
+        sharing: "enabled",
+    },
+    memoryOptimization: {
+        pooling: true,
+        garbage_collection: "aggressive",
+        caching: "intelligent",
+    },
+    storageOptimization: {
+        tiering: "automatic",
+        compression: "enabled",
+        cleanup: "scheduled",
+    },
+};
+```
 
 ## Troubleshooting Guide
 
-### Common Issues
+### Common Lambda Labs Issues
 
-1. **Deployment Failures**: 
-   - Check resource limits in the AWS account
-   - Verify IAM permissions for the deployment role
-   - Check for resource naming conflicts
-   - Verify that all required resources exist
+Troubleshooting guide for Lambda Labs infrastructure:
 
-2. **Performance Issues**: 
-   - Check resource configurations (instance types, autoscaling settings)
-   - Verify network configurations (VPC peering, route tables)
-   - Check for resource contention (CPU, memory, network)
-   - Verify that all required resources are properly sized
+```typescript
+// Troubleshooting utilities for Lambda Labs
+export class LambdaLabsTroubleshooter {
+    
+    static diagnoseGPUIssues() {
+        return {
+            commands: [
+                "nvidia-smi", // Check GPU status
+                "nvidia-ml-py", // Check GPU memory
+                "kubectl get nodes -o wide", // Check node status
+                "kubectl describe node <node-name>", // Check node details
+            ],
+            commonIssues: [
+                {
+                    issue: "GPU not detected",
+                    solution: "Check NVIDIA drivers and CUDA installation",
+                },
+                {
+                    issue: "Out of GPU memory",
+                    solution: "Reduce batch size or enable GPU memory pooling",
+                },
+                {
+                    issue: "GPU utilization low",
+                    solution: "Optimize batch size and enable GPU sharing",
+                },
+            ],
+        };
+    }
+    
+    static diagnoseKubernetesIssues() {
+        return {
+            commands: [
+                "kubectl get pods -A", // Check all pods
+                "kubectl get events --sort-by=.metadata.creationTimestamp", // Check events
+                "kubectl top nodes", // Check resource usage
+                "kubectl top pods", // Check pod resource usage
+            ],
+            commonIssues: [
+                {
+                    issue: "Pod stuck in Pending",
+                    solution: "Check resource requests and node capacity",
+                },
+                {
+                    issue: "Image pull errors",
+                    solution: "Check Docker registry access and credentials",
+                },
+                {
+                    issue: "Service discovery issues",
+                    solution: "Check DNS and network policies",
+                },
+            ],
+        };
+    }
+}
+```
 
-3. **Security Issues**: 
-   - Check IAM roles and policies
-   - Verify network security groups and NACLs
-   - Check encryption configurations
-   - Verify that all resources follow the principle of least privilege
+### Performance Debugging
 
-### Debugging Techniques
+Performance debugging tools for Lambda Labs infrastructure:
 
-1. **Pulumi Logs**: 
-   - Run `pulumi up --debug` for detailed logs
-   - Check `~/.pulumi/logs` for historical logs
+```bash
+# Performance debugging commands for Lambda Labs
+# GPU performance
+nvidia-smi -l 1                    # Monitor GPU usage
+nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv -l 1
 
-2. **AWS CloudTrail**: 
-   - Check CloudTrail for API calls and errors
-   - Filter by error code or resource type
+# Kubernetes performance
+kubectl top nodes                  # Node resource usage
+kubectl top pods --all-namespaces # Pod resource usage
+kubectl get events --sort-by=.metadata.creationTimestamp
 
-3. **CloudWatch Logs**: 
-   - Check CloudWatch Logs for application and service logs
-   - Use CloudWatch Insights for log analysis
+# Container performance
+docker stats                      # Container resource usage
+docker exec -it <container> htop  # Process monitoring inside container
 
-4. **Infrastructure Tests**: 
-   - Run infrastructure tests to verify configurations
-   - Use policy-as-code tools to verify compliance
+# Network performance
+kubectl exec -it <pod> -- netstat -tuln
+kubectl exec -it <pod> -- ss -tuln
+```
 
-### Support Resources
+## Conclusion
 
-1. **Internal Documentation**: 
-   - Check the infrastructure documentation
-   - Review architecture diagrams
+This infrastructure patterns and best practices guide provides comprehensive guidance for building, deploying, and maintaining the Sophia AI Platform on Lambda Labs infrastructure. The patterns emphasize:
 
-2. **External Resources**: 
-   - [Pulumi Documentation](https://www.pulumi.com/docs/)
-   - [AWS Documentation](https://docs.aws.amazon.com/)
-   - [Kubernetes Documentation](https://kubernetes.io/docs/)
+1. **GPU-First Architecture**: Optimized for Lambda Labs GPU infrastructure
+2. **Container Orchestration**: Kubernetes-native deployment patterns
+3. **Security Excellence**: Comprehensive secret management and security practices
+4. **Cost Efficiency**: Optimized resource utilization and cost management
+5. **Operational Excellence**: Monitoring, alerting, and troubleshooting capabilities
 
-3. **Support Channels**: 
-   - Internal Slack: #infrastructure-support
-   - Pulumi Community Slack
-   - AWS Support
+Following these patterns ensures consistent, reliable, and scalable infrastructure that maximizes the capabilities of Lambda Labs hardware while maintaining enterprise-grade security and operational efficiency.

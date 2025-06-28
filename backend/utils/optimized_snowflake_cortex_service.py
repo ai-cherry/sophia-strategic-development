@@ -26,27 +26,23 @@ Performance Targets:
 import asyncio
 import logging
 import time
-import json
-from typing import Dict, List, Optional, Any, Union, Tuple
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
 from enum import Enum
 import hashlib
-import uuid
 
 # Database and AI libraries
-import snowflake.connector.aio
-import numpy as np
 
 # Internal imports
-from backend.core.auto_esc_config import get_config_value
-from backend.core.optimized_connection_manager import connection_manager, ConnectionType, BatchQuery, BatchResult
+from backend.core.optimized_connection_manager import connection_manager, ConnectionType
 from backend.core.performance_monitor import performance_monitor
 
 logger = logging.getLogger(__name__)
 
+
 class CortexOperation(str, Enum):
     """Snowflake Cortex operation types"""
+
     SENTIMENT_ANALYSIS = "sentiment_analysis"
     TEXT_SUMMARIZATION = "text_summarization"
     EMBEDDING_GENERATION = "embedding_generation"
@@ -54,16 +50,20 @@ class CortexOperation(str, Enum):
     TRANSLATE = "translate"
     COMPLETE = "complete"
 
+
 class ProcessingMode(str, Enum):
     """Processing mode for batch operations"""
+
     SEQUENTIAL = "sequential"
     BATCH = "batch"
     CONCURRENT = "concurrent"
     ADAPTIVE = "adaptive"
 
+
 @dataclass
 class CortexResult:
     """Cortex operation result"""
+
     operation: CortexOperation
     success: bool
     result: Optional[Any] = None
@@ -72,18 +72,22 @@ class CortexResult:
     tokens_processed: int = 0
     cost_estimate: float = 0.0
 
+
 @dataclass
 class BatchCortexRequest:
     """Batch Cortex operation request"""
+
     operation: CortexOperation
     texts: List[str]
     model: Optional[str] = None
     parameters: Optional[Dict[str, Any]] = None
     request_id: Optional[str] = None
 
+
 @dataclass
 class CortexPerformanceMetrics:
     """Performance metrics for Cortex operations"""
+
     total_operations: int = 0
     batch_operations: int = 0
     avg_batch_size: float = 0.0
@@ -95,51 +99,52 @@ class CortexPerformanceMetrics:
     cache_misses: int = 0
     error_count: int = 0
 
+
 class OptimizedSnowflakeCortexService:
     """
     🚀 Optimized Snowflake Cortex Service - Phase 2 Implementation
-    
+
     Major Performance Improvements:
     - Batch processing: 10-20x faster than individual operations
     - Connection pooling: 95% overhead reduction
     - Intelligent caching: 85% cache hit ratio target
     - Concurrent processing: 3x faster workflows
     - Performance monitoring: Real-time optimization tracking
-    
+
     Addresses Technical Debt:
     - Reduces complexity from 686.3 to manageable levels
     - Eliminates N+1 query patterns
     - Implements proper error handling and recovery
     - Adds comprehensive performance monitoring
     """
-    
+
     def __init__(self):
         self.initialized = False
         self.embedding_model = None
-        
+
         # Performance tracking
         self.metrics = CortexPerformanceMetrics()
         self.start_time = time.time()
-        
+
         # Caching configuration
         self.cache_enabled = True
         self.cache_ttl_seconds = 3600  # 1 hour
         self.cache_stats = {"hits": 0, "misses": 0}
-        
+
         # Batch processing configuration
         self.max_batch_size = 50
         self.optimal_batch_size = 10
         self.batch_timeout_ms = 5000
-        
+
         # Model configuration
         self.default_models = {
             CortexOperation.SENTIMENT_ANALYSIS: "snowflake-arctic-sentiment",
             CortexOperation.TEXT_SUMMARIZATION: "snowflake-arctic-summarize",
             CortexOperation.EMBEDDING_GENERATION: "e5-base-v2",
             CortexOperation.TRANSLATE: "snowflake-arctic-translate",
-            CortexOperation.COMPLETE: "snowflake-arctic"
+            CortexOperation.COMPLETE: "snowflake-arctic",
         }
-        
+
         # Cost tracking (estimated costs per operation)
         self.operation_costs = {
             CortexOperation.SENTIMENT_ANALYSIS: 0.001,
@@ -147,20 +152,20 @@ class OptimizedSnowflakeCortexService:
             CortexOperation.EMBEDDING_GENERATION: 0.002,
             CortexOperation.VECTOR_SEARCH: 0.001,
             CortexOperation.TRANSLATE: 0.003,
-            CortexOperation.COMPLETE: 0.010
+            CortexOperation.COMPLETE: 0.010,
         }
-    
+
     async def initialize(self):
         """Initialize the optimized Cortex service"""
         if self.initialized:
             return
-        
+
         logger.info("🚀 Initializing Optimized Snowflake Cortex Service...")
-        
+
         try:
             # Initialize connection manager
             await connection_manager.initialize()
-            
+
             # Initialize embedding model for local fallback
             try:
                 # Placeholder for local embedding model
@@ -169,94 +174,112 @@ class OptimizedSnowflakeCortexService:
                 logger.info("✅ Local embedding model placeholder initialized")
             except Exception as e:
                 logger.warning(f"Local embedding model initialization failed: {e}")
-            
+
             # Test Snowflake Cortex connectivity
             await self._test_cortex_connectivity()
-            
+
             self.initialized = True
             logger.info("✅ Optimized Snowflake Cortex Service initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Cortex service initialization failed: {e}")
             raise
-    
+
     async def _test_cortex_connectivity(self):
         """Test Snowflake Cortex connectivity"""
         try:
-            test_query = "SELECT SNOWFLAKE.CORTEX.SENTIMENT('This is a test') as test_result"
-            result = await connection_manager.execute_query(
-                test_query,
-                connection_type=ConnectionType.SNOWFLAKE
+            test_query = (
+                "SELECT SNOWFLAKE.CORTEX.SENTIMENT('This is a test') as test_result"
+            )
+            await connection_manager.execute_query(
+                test_query, connection_type=ConnectionType.SNOWFLAKE
             )
             logger.info("✅ Snowflake Cortex connectivity verified")
         except Exception as e:
             logger.warning(f"Cortex connectivity test failed: {e}")
-    
-    @performance_monitor.monitor_performance('cortex_sentiment_batch', 1000)
+
+    @performance_monitor.monitor_performance("cortex_sentiment_batch", 1000)
     async def analyze_sentiment_batch(
         self,
         texts: List[str],
         model: Optional[str] = None,
-        processing_mode: ProcessingMode = ProcessingMode.BATCH
+        processing_mode: ProcessingMode = ProcessingMode.BATCH,
     ) -> List[CortexResult]:
         """
         ✅ OPTIMIZED: Batch sentiment analysis with 10-20x performance improvement
-        
+
         Args:
             texts: List of texts to analyze
             model: Optional model override
             processing_mode: Processing mode (batch/concurrent/adaptive)
-            
+
         Returns:
             List of sentiment analysis results
         """
         if not self.initialized:
             await self.initialize()
-        
+
         if not texts:
             return []
-        
+
         operation_start = time.time()
-        effective_model = model or self.default_models[CortexOperation.SENTIMENT_ANALYSIS]
-        
+        effective_model = (
+            model or self.default_models[CortexOperation.SENTIMENT_ANALYSIS]
+        )
+
         # Determine optimal processing strategy
         if processing_mode == ProcessingMode.ADAPTIVE:
-            processing_mode = self._determine_optimal_processing_mode(texts, CortexOperation.SENTIMENT_ANALYSIS)
-        
+            processing_mode = self._determine_optimal_processing_mode(
+                texts, CortexOperation.SENTIMENT_ANALYSIS
+            )
+
         try:
-            if processing_mode == ProcessingMode.BATCH and len(texts) <= self.max_batch_size:
+            if (
+                processing_mode == ProcessingMode.BATCH
+                and len(texts) <= self.max_batch_size
+            ):
                 results = await self._execute_sentiment_batch(texts, effective_model)
             elif processing_mode == ProcessingMode.CONCURRENT:
-                results = await self._execute_sentiment_concurrent(texts, effective_model)
+                results = await self._execute_sentiment_concurrent(
+                    texts, effective_model
+                )
             else:
                 results = await self._execute_sentiment_chunked(texts, effective_model)
-            
+
             # Update metrics
             execution_time = (time.time() - operation_start) * 1000
-            self._update_metrics(CortexOperation.SENTIMENT_ANALYSIS, len(texts), execution_time, results)
-            
-            logger.info(f"✅ Batch sentiment analysis completed: {len(texts)} texts in {execution_time:.2f}ms")
+            self._update_metrics(
+                CortexOperation.SENTIMENT_ANALYSIS, len(texts), execution_time, results
+            )
+
+            logger.info(
+                f"✅ Batch sentiment analysis completed: {len(texts)} texts in {execution_time:.2f}ms"
+            )
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Batch sentiment analysis failed: {e}")
             self.metrics.error_count += 1
             raise
-    
-    async def _execute_sentiment_batch(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_sentiment_batch(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute sentiment analysis in a single batch"""
         # Create batch query for all texts
         case_statements = []
         for i, text in enumerate(texts):
             # Escape single quotes in text
             escaped_text = text.replace("'", "''")
-            case_statements.append(f"WHEN {i} THEN SNOWFLAKE.CORTEX.SENTIMENT('{escaped_text}')")
-        
+            case_statements.append(
+                f"WHEN {i} THEN SNOWFLAKE.CORTEX.SENTIMENT('{escaped_text}')"
+            )
+
         batch_query = f"""
         SELECT 
             idx,
             CASE idx
-                {' '.join(case_statements)}
+                {" ".join(case_statements)}
             END as sentiment_score
         FROM (
             SELECT ROW_NUMBER() OVER (ORDER BY 1) - 1 as idx
@@ -264,40 +287,45 @@ class OptimizedSnowflakeCortexService:
         )
         ORDER BY idx
         """
-        
+
         start_time = time.time()
         results = []
-        
+
         try:
             query_results = await connection_manager.execute_query(
-                batch_query,
-                connection_type=ConnectionType.SNOWFLAKE
+                batch_query, connection_type=ConnectionType.SNOWFLAKE
             )
-            
+
             execution_time = (time.time() - start_time) * 1000
-            
+
             # Process results
             for i, text in enumerate(texts):
                 if i < len(query_results):
                     sentiment_score = query_results[i][1]  # Second column
-                    results.append(CortexResult(
-                        operation=CortexOperation.SENTIMENT_ANALYSIS,
-                        success=True,
-                        result={"sentiment_score": sentiment_score, "text": text},
-                        execution_time_ms=execution_time / len(texts),
-                        tokens_processed=len(text.split()),
-                        cost_estimate=self.operation_costs[CortexOperation.SENTIMENT_ANALYSIS]
-                    ))
+                    results.append(
+                        CortexResult(
+                            operation=CortexOperation.SENTIMENT_ANALYSIS,
+                            success=True,
+                            result={"sentiment_score": sentiment_score, "text": text},
+                            execution_time_ms=execution_time / len(texts),
+                            tokens_processed=len(text.split()),
+                            cost_estimate=self.operation_costs[
+                                CortexOperation.SENTIMENT_ANALYSIS
+                            ],
+                        )
+                    )
                 else:
-                    results.append(CortexResult(
-                        operation=CortexOperation.SENTIMENT_ANALYSIS,
-                        success=False,
-                        error="Missing result",
-                        execution_time_ms=execution_time / len(texts)
-                    ))
-            
+                    results.append(
+                        CortexResult(
+                            operation=CortexOperation.SENTIMENT_ANALYSIS,
+                            success=False,
+                            error="Missing result",
+                            execution_time_ms=execution_time / len(texts),
+                        )
+                    )
+
             return results
-            
+
         except Exception as e:
             # Return error results for all texts
             execution_time = (time.time() - start_time) * 1000
@@ -306,25 +334,26 @@ class OptimizedSnowflakeCortexService:
                     operation=CortexOperation.SENTIMENT_ANALYSIS,
                     success=False,
                     error=str(e),
-                    execution_time_ms=execution_time / len(texts)
+                    execution_time_ms=execution_time / len(texts),
                 )
                 for _ in texts
             ]
-    
-    async def _execute_sentiment_concurrent(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_sentiment_concurrent(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute sentiment analysis with concurrent processing"""
         # Split into optimal batch sizes for concurrent processing
-        batches = [texts[i:i + self.optimal_batch_size] 
-                  for i in range(0, len(texts), self.optimal_batch_size)]
-        
-        # Execute batches concurrently
-        batch_tasks = [
-            self._execute_sentiment_batch(batch, model)
-            for batch in batches
+        batches = [
+            texts[i : i + self.optimal_batch_size]
+            for i in range(0, len(texts), self.optimal_batch_size)
         ]
-        
+
+        # Execute batches concurrently
+        batch_tasks = [self._execute_sentiment_batch(batch, model) for batch in batches]
+
         batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
-        
+
         # Flatten results
         results = []
         for batch_result in batch_results:
@@ -333,66 +362,81 @@ class OptimizedSnowflakeCortexService:
                 logger.error(f"Batch processing failed: {batch_result}")
                 continue
             results.extend(batch_result)
-        
+
         return results
-    
-    async def _execute_sentiment_chunked(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_sentiment_chunked(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute sentiment analysis in chunks for large datasets"""
         results = []
-        
+
         for i in range(0, len(texts), self.max_batch_size):
-            chunk = texts[i:i + self.max_batch_size]
+            chunk = texts[i : i + self.max_batch_size]
             chunk_results = await self._execute_sentiment_batch(chunk, model)
             results.extend(chunk_results)
-            
+
             # Brief pause between chunks to prevent overwhelming the system
             if i + self.max_batch_size < len(texts):
                 await asyncio.sleep(0.1)
-        
+
         return results
-    
-    @performance_monitor.monitor_performance('cortex_embedding_batch', 2000)
+
+    @performance_monitor.monitor_performance("cortex_embedding_batch", 2000)
     async def generate_embeddings_batch(
         self,
         texts: List[str],
         model: Optional[str] = None,
-        processing_mode: ProcessingMode = ProcessingMode.BATCH
+        processing_mode: ProcessingMode = ProcessingMode.BATCH,
     ) -> List[CortexResult]:
         """
         ✅ OPTIMIZED: Batch embedding generation with performance optimization
-        
+
         Args:
             texts: List of texts to generate embeddings for
             model: Optional model override
             processing_mode: Processing mode
-            
+
         Returns:
             List of embedding generation results
         """
         if not self.initialized:
             await self.initialize()
-        
+
         if not texts:
             return []
-        
+
         operation_start = time.time()
-        effective_model = model or self.default_models[CortexOperation.EMBEDDING_GENERATION]
-        
+        effective_model = (
+            model or self.default_models[CortexOperation.EMBEDDING_GENERATION]
+        )
+
         try:
             # Check cache first
             cached_results = await self._check_embedding_cache(texts, effective_model)
-            uncached_texts = [text for i, text in enumerate(texts) if cached_results[i] is None]
-            
+            uncached_texts = [
+                text for i, text in enumerate(texts) if cached_results[i] is None
+            ]
+
             if uncached_texts:
                 # Generate embeddings for uncached texts
-                if processing_mode == ProcessingMode.BATCH and len(uncached_texts) <= self.max_batch_size:
-                    new_results = await self._execute_embedding_batch(uncached_texts, effective_model)
+                if (
+                    processing_mode == ProcessingMode.BATCH
+                    and len(uncached_texts) <= self.max_batch_size
+                ):
+                    new_results = await self._execute_embedding_batch(
+                        uncached_texts, effective_model
+                    )
                 else:
-                    new_results = await self._execute_embedding_chunked(uncached_texts, effective_model)
-                
+                    new_results = await self._execute_embedding_chunked(
+                        uncached_texts, effective_model
+                    )
+
                 # Cache new results
-                await self._cache_embedding_results(uncached_texts, new_results, effective_model)
-                
+                await self._cache_embedding_results(
+                    uncached_texts, new_results, effective_model
+                )
+
                 # Merge cached and new results
                 new_result_iter = iter(new_results)
                 final_results = []
@@ -403,43 +447,56 @@ class OptimizedSnowflakeCortexService:
                         final_results.append(next(new_result_iter))
             else:
                 final_results = [r for r in cached_results if r is not None]
-            
+
             # Update metrics
             execution_time = (time.time() - operation_start) * 1000
-            self._update_metrics(CortexOperation.EMBEDDING_GENERATION, len(texts), execution_time, final_results)
-            
-            logger.info(f"✅ Batch embedding generation completed: {len(texts)} texts in {execution_time:.2f}ms")
+            self._update_metrics(
+                CortexOperation.EMBEDDING_GENERATION,
+                len(texts),
+                execution_time,
+                final_results,
+            )
+
+            logger.info(
+                f"✅ Batch embedding generation completed: {len(texts)} texts in {execution_time:.2f}ms"
+            )
             return final_results
-            
+
         except Exception as e:
             logger.error(f"❌ Batch embedding generation failed: {e}")
             self.metrics.error_count += 1
             raise
-    
-    async def _execute_embedding_batch(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_embedding_batch(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute embedding generation in batch"""
-        start_time = time.time()
-        
+        time.time()
+
         try:
             # Try Snowflake Cortex first
             return await self._execute_embedding_snowflake(texts, model)
         except Exception as e:
             logger.warning(f"Snowflake embedding failed, using fallback: {e}")
             return await self._execute_embedding_fallback(texts)
-    
-    async def _execute_embedding_snowflake(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_embedding_snowflake(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute embedding generation using Snowflake Cortex"""
         # Create batch query for embeddings
         case_statements = []
         for i, text in enumerate(texts):
             escaped_text = text.replace("'", "''")
-            case_statements.append(f"WHEN {i} THEN SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', '{escaped_text}')")
-        
+            case_statements.append(
+                f"WHEN {i} THEN SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', '{escaped_text}')"
+            )
+
         batch_query = f"""
         SELECT 
             idx,
             CASE idx
-                {' '.join(case_statements)}
+                {" ".join(case_statements)}
             END as embedding_vector
         FROM (
             SELECT ROW_NUMBER() OVER (ORDER BY 1) - 1 as idx
@@ -447,39 +504,48 @@ class OptimizedSnowflakeCortexService:
         )
         ORDER BY idx
         """
-        
+
         start_time = time.time()
-        
+
         try:
             query_results = await connection_manager.execute_query(
-                batch_query,
-                connection_type=ConnectionType.SNOWFLAKE
+                batch_query, connection_type=ConnectionType.SNOWFLAKE
             )
-            
+
             execution_time = (time.time() - start_time) * 1000
-            
+
             results = []
             for i, text in enumerate(texts):
                 if i < len(query_results):
                     embedding_vector = query_results[i][1]
-                    results.append(CortexResult(
-                        operation=CortexOperation.EMBEDDING_GENERATION,
-                        success=True,
-                        result={"embedding": embedding_vector, "text": text, "model": model},
-                        execution_time_ms=execution_time / len(texts),
-                        tokens_processed=len(text.split()),
-                        cost_estimate=self.operation_costs[CortexOperation.EMBEDDING_GENERATION]
-                    ))
+                    results.append(
+                        CortexResult(
+                            operation=CortexOperation.EMBEDDING_GENERATION,
+                            success=True,
+                            result={
+                                "embedding": embedding_vector,
+                                "text": text,
+                                "model": model,
+                            },
+                            execution_time_ms=execution_time / len(texts),
+                            tokens_processed=len(text.split()),
+                            cost_estimate=self.operation_costs[
+                                CortexOperation.EMBEDDING_GENERATION
+                            ],
+                        )
+                    )
                 else:
-                    results.append(CortexResult(
-                        operation=CortexOperation.EMBEDDING_GENERATION,
-                        success=False,
-                        error="Missing result",
-                        execution_time_ms=execution_time / len(texts)
-                    ))
-            
+                    results.append(
+                        CortexResult(
+                            operation=CortexOperation.EMBEDDING_GENERATION,
+                            success=False,
+                            error="Missing result",
+                            execution_time_ms=execution_time / len(texts),
+                        )
+                    )
+
             return results
-            
+
         except Exception as e:
             execution_time = (time.time() - start_time) * 1000
             return [
@@ -487,37 +553,46 @@ class OptimizedSnowflakeCortexService:
                     operation=CortexOperation.EMBEDDING_GENERATION,
                     success=False,
                     error=str(e),
-                    execution_time_ms=execution_time / len(texts)
+                    execution_time_ms=execution_time / len(texts),
                 )
                 for _ in texts
             ]
-    
+
     async def _execute_embedding_fallback(self, texts: List[str]) -> List[CortexResult]:
         """Execute embedding generation using fallback method"""
         start_time = time.time()
-        
+
         try:
             # Generate simple hash-based embeddings as fallback
             results = []
             execution_time = (time.time() - start_time) * 1000
-            
+
             for text in texts:
                 # Simple fallback: create embedding from text hash
                 text_hash = hashlib.md5(text.encode()).hexdigest()
                 # Convert hash to simple embedding vector
-                embedding = [float(int(text_hash[i:i+2], 16)) / 255.0 for i in range(0, min(len(text_hash), 64), 2)]
-                
-                results.append(CortexResult(
-                    operation=CortexOperation.EMBEDDING_GENERATION,
-                    success=True,
-                    result={"embedding": embedding, "text": text, "model": "fallback"},
-                    execution_time_ms=execution_time / len(texts),
-                    tokens_processed=len(text.split()),
-                    cost_estimate=0.0  # No cost for fallback
-                ))
-            
+                embedding = [
+                    float(int(text_hash[i : i + 2], 16)) / 255.0
+                    for i in range(0, min(len(text_hash), 64), 2)
+                ]
+
+                results.append(
+                    CortexResult(
+                        operation=CortexOperation.EMBEDDING_GENERATION,
+                        success=True,
+                        result={
+                            "embedding": embedding,
+                            "text": text,
+                            "model": "fallback",
+                        },
+                        execution_time_ms=execution_time / len(texts),
+                        tokens_processed=len(text.split()),
+                        cost_estimate=0.0,  # No cost for fallback
+                    )
+                )
+
             return results
-            
+
         except Exception as e:
             execution_time = (time.time() - start_time) * 1000
             return [
@@ -525,26 +600,28 @@ class OptimizedSnowflakeCortexService:
                     operation=CortexOperation.EMBEDDING_GENERATION,
                     success=False,
                     error=str(e),
-                    execution_time_ms=execution_time / len(texts)
+                    execution_time_ms=execution_time / len(texts),
                 )
                 for _ in texts
             ]
-    
-    async def _execute_embedding_chunked(self, texts: List[str], model: str) -> List[CortexResult]:
+
+    async def _execute_embedding_chunked(
+        self, texts: List[str], model: str
+    ) -> List[CortexResult]:
         """Execute embedding generation in chunks"""
         results = []
-        
+
         for i in range(0, len(texts), self.max_batch_size):
-            chunk = texts[i:i + self.max_batch_size]
+            chunk = texts[i : i + self.max_batch_size]
             chunk_results = await self._execute_embedding_batch(chunk, model)
             results.extend(chunk_results)
-            
+
             if i + self.max_batch_size < len(texts):
                 await asyncio.sleep(0.1)
-        
+
         return results
-    
-    @performance_monitor.monitor_performance('cortex_vector_search', 500)
+
+    @performance_monitor.monitor_performance("cortex_vector_search", 500)
     async def vector_search_optimized(
         self,
         query_embedding: List[float],
@@ -552,11 +629,11 @@ class OptimizedSnowflakeCortexService:
         embedding_column: str,
         limit: int = 10,
         similarity_threshold: float = 0.7,
-        additional_filters: Optional[Dict[str, Any]] = None
+        additional_filters: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """
         ✅ OPTIMIZED: Vector search with connection pooling and performance optimization
-        
+
         Args:
             query_embedding: Query vector
             table_name: Target table name
@@ -564,15 +641,15 @@ class OptimizedSnowflakeCortexService:
             limit: Maximum results to return
             similarity_threshold: Minimum similarity threshold
             additional_filters: Additional WHERE clause filters
-            
+
         Returns:
             List of search results with similarity scores
         """
         if not self.initialized:
             await self.initialize()
-        
+
         start_time = time.time()
-        
+
         try:
             # Build optimized vector search query
             filter_clause = ""
@@ -586,10 +663,10 @@ class OptimizedSnowflakeCortexService:
                 filter_clause = f"WHERE {' AND '.join(filter_conditions)} AND"
             else:
                 filter_clause = "WHERE"
-            
+
             # Convert embedding to string format
-            embedding_str = '[' + ','.join(map(str, query_embedding)) + ']'
-            
+            embedding_str = "[" + ",".join(map(str, query_embedding)) + "]"
+
             search_query = f"""
             SELECT 
                 *,
@@ -599,14 +676,13 @@ class OptimizedSnowflakeCortexService:
             ORDER BY similarity_score DESC
             LIMIT {limit}
             """
-            
+
             results = await connection_manager.execute_query(
-                search_query,
-                connection_type=ConnectionType.SNOWFLAKE
+                search_query, connection_type=ConnectionType.SNOWFLAKE
             )
-            
+
             execution_time = (time.time() - start_time) * 1000
-            
+
             # Process results
             search_results = []
             if results:
@@ -614,53 +690,63 @@ class OptimizedSnowflakeCortexService:
                     result_dict = {}
                     if isinstance(row, (list, tuple)) and len(row) > 0:
                         result_dict = {
-                            'similarity_score': row[-1],  # Last column is similarity
-                            'data': row[:-1]  # All other columns
+                            "similarity_score": row[-1],  # Last column is similarity
+                            "data": row[:-1],  # All other columns
                         }
                     search_results.append(result_dict)
-            
-            logger.info(f"✅ Vector search completed: {len(search_results)} results in {execution_time:.2f}ms")
-            
+
+            logger.info(
+                f"✅ Vector search completed: {len(search_results)} results in {execution_time:.2f}ms"
+            )
+
             # Update metrics
             self._update_search_metrics(execution_time, len(search_results))
-            
+
             return search_results
-            
+
         except Exception as e:
             logger.error(f"❌ Vector search failed: {e}")
             self.metrics.error_count += 1
             raise
-    
-    async def _check_embedding_cache(self, texts: List[str], model: str) -> List[Optional[CortexResult]]:
+
+    async def _check_embedding_cache(
+        self, texts: List[str], model: str
+    ) -> List[Optional[CortexResult]]:
         """Check cache for existing embeddings"""
         if not self.cache_enabled:
             return [None] * len(texts)
-        
+
         cached_results = []
         for text in texts:
-            cache_key = self._generate_cache_key(text, model, CortexOperation.EMBEDDING_GENERATION)
+            self._generate_cache_key(text, model, CortexOperation.EMBEDDING_GENERATION)
             # Placeholder for cache implementation
             cached_results.append(None)
-        
+
         return cached_results
-    
-    async def _cache_embedding_results(self, texts: List[str], results: List[CortexResult], model: str):
+
+    async def _cache_embedding_results(
+        self, texts: List[str], results: List[CortexResult], model: str
+    ):
         """Cache embedding results"""
         if not self.cache_enabled:
             return
         # Placeholder for cache implementation
         pass
-    
-    def _generate_cache_key(self, text: str, model: str, operation: CortexOperation) -> str:
+
+    def _generate_cache_key(
+        self, text: str, model: str, operation: CortexOperation
+    ) -> str:
         """Generate cache key for operation"""
         content = f"{operation.value}:{model}:{text}"
         return hashlib.md5(content.encode()).hexdigest()
-    
-    def _determine_optimal_processing_mode(self, texts: List[str], operation: CortexOperation) -> ProcessingMode:
+
+    def _determine_optimal_processing_mode(
+        self, texts: List[str], operation: CortexOperation
+    ) -> ProcessingMode:
         """Determine optimal processing mode based on input characteristics"""
         total_texts = len(texts)
         avg_text_length = sum(len(text) for text in texts) / total_texts if texts else 0
-        
+
         # Simple heuristics for processing mode selection
         if total_texts <= self.optimal_batch_size:
             return ProcessingMode.BATCH
@@ -670,36 +756,46 @@ class OptimizedSnowflakeCortexService:
             return ProcessingMode.CONCURRENT
         else:
             return ProcessingMode.BATCH
-    
-    def _update_metrics(self, operation: CortexOperation, text_count: int, execution_time: float, results: List[CortexResult]):
+
+    def _update_metrics(
+        self,
+        operation: CortexOperation,
+        text_count: int,
+        execution_time: float,
+        results: List[CortexResult],
+    ):
         """Update performance metrics"""
         self.metrics.total_operations += 1
         self.metrics.batch_operations += 1
         self.metrics.total_execution_time_ms += execution_time
-        self.metrics.avg_execution_time_ms = self.metrics.total_execution_time_ms / self.metrics.total_operations
-        
+        self.metrics.avg_execution_time_ms = (
+            self.metrics.total_execution_time_ms / self.metrics.total_operations
+        )
+
         # Update batch size tracking
         self.metrics.avg_batch_size = (
-            (self.metrics.avg_batch_size * (self.metrics.batch_operations - 1) + text_count)
-            / self.metrics.batch_operations
-        )
-        
+            self.metrics.avg_batch_size * (self.metrics.batch_operations - 1)
+            + text_count
+        ) / self.metrics.batch_operations
+
         # Update token and cost tracking
         for result in results:
             if result.success:
                 self.metrics.total_tokens_processed += result.tokens_processed
                 self.metrics.total_cost_estimate += result.cost_estimate
-    
+
     def _update_search_metrics(self, execution_time: float, result_count: int):
         """Update search-specific metrics"""
         self.metrics.total_operations += 1
         self.metrics.total_execution_time_ms += execution_time
-        self.metrics.avg_execution_time_ms = self.metrics.total_execution_time_ms / self.metrics.total_operations
-    
+        self.metrics.avg_execution_time_ms = (
+            self.metrics.total_execution_time_ms / self.metrics.total_operations
+        )
+
     def get_performance_stats(self) -> Dict[str, Any]:
         """Get comprehensive performance statistics"""
         uptime_seconds = time.time() - self.start_time
-        
+
         return {
             "service_status": "operational" if self.initialized else "not_initialized",
             "uptime_seconds": round(uptime_seconds, 2),
@@ -711,31 +807,40 @@ class OptimizedSnowflakeCortexService:
                 "total_tokens_processed": self.metrics.total_tokens_processed,
                 "total_cost_estimate": round(self.metrics.total_cost_estimate, 4),
                 "error_count": self.metrics.error_count,
-                "error_rate_percent": round((self.metrics.error_count / max(self.metrics.total_operations, 1)) * 100, 2)
+                "error_rate_percent": round(
+                    (self.metrics.error_count / max(self.metrics.total_operations, 1))
+                    * 100,
+                    2,
+                ),
             },
             "cache_metrics": {
                 "cache_enabled": self.cache_enabled,
                 "cache_hits": self.cache_stats["hits"],
                 "cache_misses": self.cache_stats["misses"],
                 "cache_hit_ratio_percent": round(
-                    (self.cache_stats["hits"] / max(self.cache_stats["hits"] + self.cache_stats["misses"], 1)) * 100, 2
-                )
+                    (
+                        self.cache_stats["hits"]
+                        / max(self.cache_stats["hits"] + self.cache_stats["misses"], 1)
+                    )
+                    * 100,
+                    2,
+                ),
             },
             "configuration": {
                 "max_batch_size": self.max_batch_size,
                 "optimal_batch_size": self.optimal_batch_size,
                 "batch_timeout_ms": self.batch_timeout_ms,
-                "cache_ttl_seconds": self.cache_ttl_seconds
+                "cache_ttl_seconds": self.cache_ttl_seconds,
             },
             "optimization_status": {
                 "connection_pooling": "enabled",
                 "batch_processing": "enabled",
                 "performance_monitoring": "enabled",
                 "intelligent_caching": "enabled" if self.cache_enabled else "disabled",
-                "local_embedding_fallback": "available"
-            }
+                "local_embedding_fallback": "available",
+            },
         }
-    
+
     async def health_check(self) -> Dict[str, Any]:
         """Comprehensive health check"""
         health_status = {
@@ -744,18 +849,22 @@ class OptimizedSnowflakeCortexService:
             "connection_manager": "unknown",
             "snowflake_cortex": "unknown",
             "local_embedding_model": "available",
-            "performance_level": "excellent"
+            "performance_level": "excellent",
         }
-        
+
         try:
             # Check connection manager
             conn_stats = await connection_manager.get_connection_stats()
-            health_status["connection_manager"] = "healthy" if conn_stats.get("status") == "operational" else "degraded"
-            
+            health_status["connection_manager"] = (
+                "healthy" if conn_stats.get("status") == "operational" else "degraded"
+            )
+
             # Test Snowflake Cortex
             test_result = await self.analyze_sentiment_batch(["Health check test"])
-            health_status["snowflake_cortex"] = "healthy" if test_result and test_result[0].success else "degraded"
-            
+            health_status["snowflake_cortex"] = (
+                "healthy" if test_result and test_result[0].success else "degraded"
+            )
+
             # Determine overall performance level
             if self.metrics.avg_execution_time_ms < 100:
                 health_status["performance_level"] = "excellent"
@@ -765,17 +874,20 @@ class OptimizedSnowflakeCortexService:
                 health_status["performance_level"] = "acceptable"
             else:
                 health_status["performance_level"] = "poor"
-            
+
             # Overall status
-            if health_status["snowflake_cortex"] == "degraded" or health_status["connection_manager"] == "degraded":
+            if (
+                health_status["snowflake_cortex"] == "degraded"
+                or health_status["connection_manager"] == "degraded"
+            ):
                 health_status["status"] = "degraded"
-            
+
         except Exception as e:
             health_status["status"] = "unhealthy"
             health_status["error"] = str(e)
-        
+
         return health_status
+
 
 # Global optimized cortex service instance
 optimized_cortex_service = OptimizedSnowflakeCortexService()
-

@@ -75,11 +75,11 @@ def fix_syntax_in_file(file_path):
                 fixed_lines.append(f"{indent}{docstring}")
                 fixed_lines.append(f"{indent}{code}")
                 if line != original_line:
-                    logger.info(f"  Line {i+1}: Split docstring and code")
+                    logger.info(f"  Line {i + 1}: Split docstring and code")
                 continue
 
             if line != original_line:
-                logger.info(f"  Line {i+1}: Fixed syntax error")
+                logger.info(f"  Line {i + 1}: Fixed syntax error")
 
             fixed_lines.append(line)
 

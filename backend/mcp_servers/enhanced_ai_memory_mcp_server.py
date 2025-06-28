@@ -112,11 +112,11 @@ class EnhancedAiMemoryMCPServer:
 
     def __init__(self):
         self.server_name = "enhanced-ai-memory"
-        
+
         # Initialize basic attributes
         self.initialized = False
         self.cortex_service = None
-        
+
         # Enhanced category exclusions
         self.category_exclusions = {
             # Exclude test and temporary categories
@@ -148,17 +148,17 @@ class EnhancedAiMemoryMCPServer:
         content = f"""
         Slack Conversation: {conversation_title}
         Channel: #{channel_name}
-        Participants: {', '.join(participants)}
+        Participants: {", ".join(participants)}
         
         Summary: {conversation_summary}
         
-        Key Topics: {', '.join(key_topics)}
+        Key Topics: {", ".join(key_topics)}
         
         Decisions Made:
-        {chr(10).join(f'- {decision}' for decision in decisions_made)}
+        {chr(10).join(f"- {decision}" for decision in decisions_made)}
         
         Action Items:
-        {chr(10).join(f'- {item}' for item in action_items)}
+        {chr(10).join(f"- {item}" for item in action_items)}
         """
 
         # Enhanced metadata
@@ -209,7 +209,7 @@ class EnhancedAiMemoryMCPServer:
         
         Description: {issue_description}
         
-        Labels: {', '.join(labels)}
+        Labels: {", ".join(labels)}
         """
 
         # Enhanced metadata
@@ -264,9 +264,9 @@ class EnhancedAiMemoryMCPServer:
         # Create content
         content = f"""
         Foundational Knowledge: {title}
-        Type: {record_type.replace('_', ' ').title()}
+        Type: {record_type.replace("_", " ").title()}
         Category: {category}
-        {f'Department: {department}' if department else ''}
+        {f"Department: {department}" if department else ""}
         
         Description: {description}
         """
@@ -313,9 +313,9 @@ class EnhancedAiMemoryMCPServer:
         Author: {author}
         Visibility: {visibility}
         
-        Content: {content[:2000]}{'...' if len(content) > 2000 else ''}
+        Content: {content[:2000]}{"..." if len(content) > 2000 else ""}
         
-        Keywords: {', '.join(keywords)}
+        Keywords: {", ".join(keywords)}
         """
 
         # Enhanced metadata
@@ -568,25 +568,25 @@ class EnhancedAiMemoryMCPServer:
         try:
             # Generate comprehensive content for embedding
             content_parts = [insight_content]
-            
+
             if call_summary:
                 content_parts.append(f"Summary: {call_summary}")
-            
+
             if key_topics:
                 content_parts.append(f"Topics: {', '.join(key_topics)}")
-            
+
             if risk_indicators:
                 content_parts.append(f"Risks: {', '.join(risk_indicators)}")
-            
+
             if next_steps:
                 content_parts.append(f"Next Steps: {', '.join(next_steps)}")
-            
+
             full_content = " | ".join(content_parts)
-            
+
             # Generate embedding using Snowflake Cortex or OpenAI
             embedding = None
             embedding_source = "none"
-            
+
             if use_cortex_embedding and self.cortex_service:
                 try:
                     async with self.cortex_service as cortex:
@@ -594,11 +594,13 @@ class EnhancedAiMemoryMCPServer:
                             f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{full_content}') as embedding"
                         )
                         if not embedding_result.empty:
-                            embedding = embedding_result.iloc[0]['embedding']
+                            embedding = embedding_result.iloc[0]["embedding"]
                             embedding_source = "snowflake_cortex"
                 except Exception as e:
-                    logger.warning(f"Cortex embedding failed, falling back to OpenAI: {e}")
-            
+                    logger.warning(
+                        f"Cortex embedding failed, falling back to OpenAI: {e}"
+                    )
+
             # Fallback to OpenAI if Cortex unavailable
             if embedding is None:
                 embedding = await self.get_embedding(full_content)
@@ -621,19 +623,25 @@ class EnhancedAiMemoryMCPServer:
 
             # Store in Pinecone for cross-platform access
             memory_id = f"gong_call_{call_id}_{int(datetime.now().timestamp())}"
-            
+
             if self.pinecone_index and embedding:
                 try:
-                    self.pinecone_index.upsert([{
-                        "id": memory_id,
-                        "values": embedding,
-                        "metadata": {
-                            **metadata,
-                            "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT.value,
-                            "content": full_content[:1000],  # Truncate for Pinecone metadata
-                        }
-                    }])
-                    
+                    self.pinecone_index.upsert(
+                        [
+                            {
+                                "id": memory_id,
+                                "values": embedding,
+                                "metadata": {
+                                    **metadata,
+                                    "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT.value,
+                                    "content": full_content[
+                                        :1000
+                                    ],  # Truncate for Pinecone metadata
+                                },
+                            }
+                        ]
+                    )
+
                     logger.info(f"Stored Gong call insight in Pinecone: {memory_id}")
                 except Exception as e:
                     logger.error(f"Failed to store in Pinecone: {e}")
@@ -649,16 +657,18 @@ class EnhancedAiMemoryMCPServer:
                             AI_MEMORY_METADATA = PARSE_JSON('{json.dumps(metadata)}'),
                             AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP(),
                             CALL_SUMMARY = COALESCE(CALL_SUMMARY, '{call_summary}'),
-                            SENTIMENT_SCORE = COALESCE(SENTIMENT_SCORE, {sentiment_score or 'NULL'}),
+                            SENTIMENT_SCORE = COALESCE(SENTIMENT_SCORE, {sentiment_score or "NULL"}),
                             KEY_TOPICS = COALESCE(KEY_TOPICS, PARSE_JSON('{json.dumps(key_topics or [])}')),
                             RISK_INDICATORS = COALESCE(RISK_INDICATORS, PARSE_JSON('{json.dumps(risk_indicators or [])}')),
                             NEXT_STEPS = COALESCE(NEXT_STEPS, PARSE_JSON('{json.dumps(next_steps or [])}'))
                         WHERE CALL_ID = '{call_id}'
                         """
-                        
+
                         await cortex.execute_query(update_sql)
-                        logger.info(f"Updated STG_GONG_CALLS with AI Memory data for call: {call_id}")
-                        
+                        logger.info(
+                            f"Updated STG_GONG_CALLS with AI Memory data for call: {call_id}"
+                        )
+
                 except Exception as e:
                     logger.warning(f"Failed to update STG_GONG_CALLS: {e}")
 
@@ -694,10 +704,10 @@ class EnhancedAiMemoryMCPServer:
                             METADATA = EXCLUDED.METADATA,
                             UPDATED_AT = CURRENT_TIMESTAMP()
                         """
-                        
+
                         await cortex.execute_query(memory_insert_sql)
                         logger.info(f"Stored in AI_MEMORY.MEMORY_RECORDS: {memory_id}")
-                        
+
                 except Exception as e:
                     logger.warning(f"Failed to store in AI_MEMORY.MEMORY_RECORDS: {e}")
 
@@ -708,7 +718,11 @@ class EnhancedAiMemoryMCPServer:
                 "embedding_dimensions": len(embedding) if embedding else 0,
                 "embedding_source": embedding_source,
                 "metadata": metadata,
-                "storage_locations": ["pinecone", "stg_gong_calls", "ai_memory_records"],
+                "storage_locations": [
+                    "pinecone",
+                    "stg_gong_calls",
+                    "ai_memory_records",
+                ],
                 "content_length": len(full_content),
             }
 
@@ -749,12 +763,14 @@ class EnhancedAiMemoryMCPServer:
         try:
             # Use Snowflake Cortex vector search for enhanced results
             if use_cortex_search and self.cortex_service:
-                cortex_results = await self.cortex_service.search_gong_calls_with_ai_memory(
-                    query_text=query,
-                    top_k=limit,
-                    similarity_threshold=0.7,
-                    sentiment_filter=sentiment_filter,
-                    date_range_days=date_range_days
+                cortex_results = (
+                    await self.cortex_service.search_gong_calls_with_ai_memory(
+                        query_text=query,
+                        top_k=limit,
+                        similarity_threshold=0.7,
+                        sentiment_filter=sentiment_filter,
+                        date_range_days=date_range_days,
+                    )
                 )
 
                 if cortex_results:
@@ -763,9 +779,12 @@ class EnhancedAiMemoryMCPServer:
                     for result in cortex_results:
                         enhanced_result = {
                             "id": result["call_id"],
-                            "content": result["ai_insights"]["call_summary"] or result["call_title"],
+                            "content": result["ai_insights"]["call_summary"]
+                            or result["call_title"],
                             "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT,
-                            "relevance_score": result["search_metadata"]["similarity_score"],
+                            "relevance_score": result["search_metadata"][
+                                "similarity_score"
+                            ],
                             "call_id": result["call_id"],
                             "call_title": result["call_title"],
                             "call_datetime": result["call_datetime"],
@@ -780,14 +799,18 @@ class EnhancedAiMemoryMCPServer:
                             "call_direction": result["call_direction"],
                             "call_duration_seconds": result["call_duration_seconds"],
                             "talk_ratio": result["ai_insights"]["talk_ratio"],
-                            "created_at": result["search_metadata"]["ai_memory_updated_at"],
+                            "created_at": result["search_metadata"][
+                                "ai_memory_updated_at"
+                            ],
                             "embedding_source": "snowflake_cortex",
                             "storage_location": "STG_GONG_CALLS",
                             "tags": [],
                         }
                         enhanced_results.append(enhanced_result)
 
-                    logger.info(f"Found {len(enhanced_results)} Gong call insights via Snowflake Cortex search")
+                    logger.info(
+                        f"Found {len(enhanced_results)} Gong call insights via Snowflake Cortex search"
+                    )
                     return enhanced_results
 
             # Fallback to Pinecone search for non-Cortex categories or if Cortex unavailable
@@ -823,15 +846,23 @@ class EnhancedAiMemoryMCPServer:
                     for match in query_response.matches:
                         if match.score >= 0.7:  # Similarity threshold
                             metadata = match.metadata
-                            
+
                             # Apply sentiment filter if specified
                             if sentiment_filter:
                                 sentiment_score = metadata.get("sentiment_score", 0)
-                                if sentiment_filter.lower() == "positive" and sentiment_score <= 0.3:
+                                if (
+                                    sentiment_filter.lower() == "positive"
+                                    and sentiment_score <= 0.3
+                                ):
                                     continue
-                                elif sentiment_filter.lower() == "negative" and sentiment_score >= -0.3:
+                                elif (
+                                    sentiment_filter.lower() == "negative"
+                                    and sentiment_score >= -0.3
+                                ):
                                     continue
-                                elif sentiment_filter.lower() == "neutral" and not (-0.3 <= sentiment_score <= 0.3):
+                                elif sentiment_filter.lower() == "neutral" and not (
+                                    -0.3 <= sentiment_score <= 0.3
+                                ):
                                     continue
 
                             result = {
@@ -845,8 +876,12 @@ class EnhancedAiMemoryMCPServer:
                                 "risk_indicators": metadata.get("risk_indicators", []),
                                 "next_steps": metadata.get("next_steps", []),
                                 "call_summary": metadata.get("call_summary", ""),
-                                "embedding_source": metadata.get("embedding_source", "pinecone"),
-                                "storage_location": metadata.get("storage_location", "pinecone"),
+                                "embedding_source": metadata.get(
+                                    "embedding_source", "pinecone"
+                                ),
+                                "storage_location": metadata.get(
+                                    "storage_location", "pinecone"
+                                ),
                                 "created_at": metadata.get("created_at", ""),
                                 "tags": metadata.get("tags", []),
                             }
@@ -856,7 +891,9 @@ class EnhancedAiMemoryMCPServer:
                     results.sort(key=lambda x: x["relevance_score"], reverse=True)
                     results = results[:limit]
 
-                    logger.info(f"Found {len(results)} Gong call insights via Pinecone search")
+                    logger.info(
+                        f"Found {len(results)} Gong call insights via Pinecone search"
+                    )
 
                 except Exception as e:
                     logger.error(f"Error querying Pinecone for Gong insights: {e}")
@@ -902,16 +939,16 @@ class EnhancedAiMemoryMCPServer:
         try:
             # Generate content for embedding
             content_parts = [insight_content]
-            
+
             if transcript_text:
                 content_parts.append(f"Transcript: {transcript_text}")
-            
+
             if extracted_entities:
                 content_parts.append(f"Entities: {', '.join(extracted_entities)}")
-            
+
             if key_phrases:
                 content_parts.append(f"Key Phrases: {', '.join(key_phrases)}")
-            
+
             full_content = " | ".join(content_parts)
 
             # Generate embedding
@@ -934,21 +971,29 @@ class EnhancedAiMemoryMCPServer:
             }
 
             # Store in Pinecone
-            memory_id = f"gong_transcript_{transcript_id}_{int(datetime.now().timestamp())}"
-            
+            memory_id = (
+                f"gong_transcript_{transcript_id}_{int(datetime.now().timestamp())}"
+            )
+
             if self.pinecone_index and embedding:
                 try:
-                    self.pinecone_index.upsert([{
-                        "id": memory_id,
-                        "values": embedding,
-                        "metadata": {
-                            **metadata,
-                            "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT.value,
-                            "content": full_content[:1000],
-                        }
-                    }])
-                    
-                    logger.info(f"Stored Gong transcript insight in Pinecone: {memory_id}")
+                    self.pinecone_index.upsert(
+                        [
+                            {
+                                "id": memory_id,
+                                "values": embedding,
+                                "metadata": {
+                                    **metadata,
+                                    "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT.value,
+                                    "content": full_content[:1000],
+                                },
+                            }
+                        ]
+                    )
+
+                    logger.info(
+                        f"Stored Gong transcript insight in Pinecone: {memory_id}"
+                    )
                 except Exception as e:
                     logger.error(f"Failed to store transcript insight in Pinecone: {e}")
 
@@ -962,15 +1007,17 @@ class EnhancedAiMemoryMCPServer:
                             AI_MEMORY_EMBEDDING = PARSE_JSON('{json.dumps(embedding)}'),
                             AI_MEMORY_METADATA = PARSE_JSON('{json.dumps(metadata)}'),
                             AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP(),
-                            SEGMENT_SENTIMENT = COALESCE(SEGMENT_SENTIMENT, {segment_sentiment or 'NULL'}),
+                            SEGMENT_SENTIMENT = COALESCE(SEGMENT_SENTIMENT, {segment_sentiment or "NULL"}),
                             EXTRACTED_ENTITIES = COALESCE(EXTRACTED_ENTITIES, PARSE_JSON('{json.dumps(extracted_entities or [])}')),
                             KEY_PHRASES = COALESCE(KEY_PHRASES, PARSE_JSON('{json.dumps(key_phrases or [])}'))
                         WHERE TRANSCRIPT_ID = '{transcript_id}'
                         """
-                        
+
                         await cortex.execute_query(update_sql)
-                        logger.info(f"Updated STG_GONG_CALL_TRANSCRIPTS with AI Memory data: {transcript_id}")
-                        
+                        logger.info(
+                            f"Updated STG_GONG_CALL_TRANSCRIPTS with AI Memory data: {transcript_id}"
+                        )
+
                 except Exception as e:
                     logger.warning(f"Failed to update STG_GONG_CALL_TRANSCRIPTS: {e}")
 
@@ -1017,11 +1064,9 @@ class EnhancedAiMemoryMCPServer:
 
             # Search call-level insights
             call_insights = await self.recall_gong_call_insights(
-                query=f"account {account_name}",
-                limit=limit,
-                use_cortex_search=True
+                query=f"account {account_name}", limit=limit, use_cortex_search=True
             )
-            
+
             # Filter by exact account name match
             for insight in call_insights:
                 if insight.get("account_name", "").lower() == account_name.lower():
@@ -1032,30 +1077,42 @@ class EnhancedAiMemoryMCPServer:
             if include_transcripts and self.cortex_service:
                 try:
                     transcript_results = await self.cortex_service.search_gong_transcripts_with_ai_memory(
-                        query_text=account_name,
-                        top_k=limit,
-                        similarity_threshold=0.7
+                        query_text=account_name, top_k=limit, similarity_threshold=0.7
                     )
-                    
+
                     for transcript in transcript_results:
-                        if transcript.get("call_context", {}).get("account_name", "").lower() == account_name.lower():
+                        if (
+                            transcript.get("call_context", {})
+                            .get("account_name", "")
+                            .lower()
+                            == account_name.lower()
+                        ):
                             # Convert transcript format to standard insight format
                             insight = {
                                 "id": transcript["transcript_id"],
-                                "content": transcript["content"]["segment_summary"] or transcript["content"]["transcript_text"],
+                                "content": transcript["content"]["segment_summary"]
+                                or transcript["content"]["transcript_text"],
                                 "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT,
-                                "relevance_score": transcript["ai_insights"]["similarity_score"],
+                                "relevance_score": transcript["ai_insights"][
+                                    "similarity_score"
+                                ],
                                 "call_id": transcript["call_id"],
-                                "account_name": transcript["call_context"]["account_name"],
+                                "account_name": transcript["call_context"][
+                                    "account_name"
+                                ],
                                 "speaker": transcript["speaker"],
                                 "timing": transcript["timing"],
-                                "segment_sentiment": transcript["ai_insights"]["segment_sentiment"],
+                                "segment_sentiment": transcript["ai_insights"][
+                                    "segment_sentiment"
+                                ],
                                 "insight_level": "transcript",
-                                "extracted_entities": transcript["content"]["extracted_entities"],
+                                "extracted_entities": transcript["content"][
+                                    "extracted_entities"
+                                ],
                                 "key_phrases": transcript["content"]["key_phrases"],
                             }
                             results.append(insight)
-                            
+
                 except Exception as e:
                     logger.warning(f"Failed to search transcript insights: {e}")
 
@@ -1063,7 +1120,9 @@ class EnhancedAiMemoryMCPServer:
             results.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
             results = results[:limit]
 
-            logger.info(f"Found {len(results)} Gong insights for account: {account_name}")
+            logger.info(
+                f"Found {len(results)} Gong insights for account: {account_name}"
+            )
             return results
 
         except Exception as e:
@@ -1085,7 +1144,7 @@ class EnhancedAiMemoryMCPServer:
                 "pinecone_stats": {},
                 "snowflake_stats": {},
                 "ai_memory_stats": {},
-                "generated_at": datetime.now().isoformat()
+                "generated_at": datetime.now().isoformat(),
             }
 
             # Get Pinecone statistics
@@ -1099,13 +1158,13 @@ class EnhancedAiMemoryMCPServer:
                         EnhancedMemoryCategory.GONG_SENTIMENT_ANALYSIS.value,
                         EnhancedMemoryCategory.GONG_TOPIC_ANALYSIS.value,
                     ]
-                    
+
                     # Note: Pinecone doesn't have a direct count API, so we estimate
                     stats["pinecone_stats"] = {
                         "gong_categories_tracked": len(gong_categories),
-                        "status": "connected"
+                        "status": "connected",
                     }
-                    
+
                 except Exception as e:
                     stats["pinecone_stats"] = {"error": str(e)}
 
@@ -1124,21 +1183,38 @@ class EnhancedAiMemoryMCPServer:
                             MAX(AI_MEMORY_UPDATED_AT) as latest_ai_memory_update
                         FROM STG_TRANSFORMED.STG_GONG_CALLS
                         """
-                        
+
                         calls_result = await cortex.execute_query(calls_stats_sql)
-                        
+
                         if not calls_result.empty:
                             row = calls_result.iloc[0]
                             stats["snowflake_stats"]["stg_gong_calls"] = {
                                 "total_calls": int(row["TOTAL_CALLS"]),
-                                "calls_with_embeddings": int(row["CALLS_WITH_EMBEDDINGS"]),
-                                "calls_with_summaries": int(row["CALLS_WITH_SUMMARIES"]),
+                                "calls_with_embeddings": int(
+                                    row["CALLS_WITH_EMBEDDINGS"]
+                                ),
+                                "calls_with_summaries": int(
+                                    row["CALLS_WITH_SUMMARIES"]
+                                ),
                                 "calls_with_topics": int(row["CALLS_WITH_TOPICS"]),
-                                "avg_sentiment_score": float(row["AVG_SENTIMENT_SCORE"]) if pd.notna(row["AVG_SENTIMENT_SCORE"]) else None,
-                                "latest_ai_memory_update": row["LATEST_AI_MEMORY_UPDATE"].isoformat() if pd.notna(row["LATEST_AI_MEMORY_UPDATE"]) else None,
+                                "avg_sentiment_score": float(row["AVG_SENTIMENT_SCORE"])
+                                if pd.notna(row["AVG_SENTIMENT_SCORE"])
+                                else None,
+                                "latest_ai_memory_update": row[
+                                    "LATEST_AI_MEMORY_UPDATE"
+                                ].isoformat()
+                                if pd.notna(row["LATEST_AI_MEMORY_UPDATE"])
+                                else None,
                                 "embedding_coverage_percent": round(
-                                    (row["CALLS_WITH_EMBEDDINGS"] / row["TOTAL_CALLS"] * 100) if row["TOTAL_CALLS"] > 0 else 0, 1
-                                )
+                                    (
+                                        row["CALLS_WITH_EMBEDDINGS"]
+                                        / row["TOTAL_CALLS"]
+                                        * 100
+                                    )
+                                    if row["TOTAL_CALLS"] > 0
+                                    else 0,
+                                    1,
+                                ),
                             }
 
                         # STG_GONG_CALL_TRANSCRIPTS statistics
@@ -1150,19 +1226,34 @@ class EnhancedAiMemoryMCPServer:
                             COUNT(DISTINCT CALL_ID) as unique_calls_with_transcripts
                         FROM STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS
                         """
-                        
-                        transcripts_result = await cortex.execute_query(transcripts_stats_sql)
-                        
+
+                        transcripts_result = await cortex.execute_query(
+                            transcripts_stats_sql
+                        )
+
                         if not transcripts_result.empty:
                             row = transcripts_result.iloc[0]
                             stats["snowflake_stats"]["stg_gong_call_transcripts"] = {
                                 "total_transcripts": int(row["TOTAL_TRANSCRIPTS"]),
-                                "transcripts_with_embeddings": int(row["TRANSCRIPTS_WITH_EMBEDDINGS"]),
-                                "transcripts_with_sentiment": int(row["TRANSCRIPTS_WITH_SENTIMENT"]),
-                                "unique_calls_with_transcripts": int(row["UNIQUE_CALLS_WITH_TRANSCRIPTS"]),
+                                "transcripts_with_embeddings": int(
+                                    row["TRANSCRIPTS_WITH_EMBEDDINGS"]
+                                ),
+                                "transcripts_with_sentiment": int(
+                                    row["TRANSCRIPTS_WITH_SENTIMENT"]
+                                ),
+                                "unique_calls_with_transcripts": int(
+                                    row["UNIQUE_CALLS_WITH_TRANSCRIPTS"]
+                                ),
                                 "embedding_coverage_percent": round(
-                                    (row["TRANSCRIPTS_WITH_EMBEDDINGS"] / row["TOTAL_TRANSCRIPTS"] * 100) if row["TOTAL_TRANSCRIPTS"] > 0 else 0, 1
-                                )
+                                    (
+                                        row["TRANSCRIPTS_WITH_EMBEDDINGS"]
+                                        / row["TOTAL_TRANSCRIPTS"]
+                                        * 100
+                                    )
+                                    if row["TOTAL_TRANSCRIPTS"] > 0
+                                    else 0,
+                                    1,
+                                ),
                             }
 
                         # AI_MEMORY.MEMORY_RECORDS statistics
@@ -1176,17 +1267,27 @@ class EnhancedAiMemoryMCPServer:
                         FROM AI_MEMORY.MEMORY_RECORDS
                         WHERE SOURCE_TYPE = 'gong'
                         """
-                        
+
                         memory_result = await cortex.execute_query(memory_stats_sql)
-                        
+
                         if not memory_result.empty:
                             row = memory_result.iloc[0]
                             stats["ai_memory_stats"] = {
                                 "total_gong_memories": int(row["TOTAL_GONG_MEMORIES"]),
-                                "memories_with_embeddings": int(row["MEMORIES_WITH_EMBEDDINGS"]),
+                                "memories_with_embeddings": int(
+                                    row["MEMORIES_WITH_EMBEDDINGS"]
+                                ),
                                 "unique_categories": int(row["UNIQUE_CATEGORIES"]),
-                                "latest_memory_created": row["LATEST_MEMORY_CREATED"].isoformat() if pd.notna(row["LATEST_MEMORY_CREATED"]) else None,
-                                "latest_memory_updated": row["LATEST_MEMORY_UPDATED"].isoformat() if pd.notna(row["LATEST_MEMORY_UPDATED"]) else None
+                                "latest_memory_created": row[
+                                    "LATEST_MEMORY_CREATED"
+                                ].isoformat()
+                                if pd.notna(row["LATEST_MEMORY_CREATED"])
+                                else None,
+                                "latest_memory_updated": row[
+                                    "LATEST_MEMORY_UPDATED"
+                                ].isoformat()
+                                if pd.notna(row["LATEST_MEMORY_UPDATED"])
+                                else None,
                             }
 
                 except Exception as e:
@@ -1197,10 +1298,7 @@ class EnhancedAiMemoryMCPServer:
 
         except Exception as e:
             logger.error(f"Error generating Gong memory statistics: {e}")
-            return {
-                "error": str(e),
-                "generated_at": datetime.now().isoformat()
-            }
+            return {"error": str(e), "generated_at": datetime.now().isoformat()}
 
 
 # MCP Server setup

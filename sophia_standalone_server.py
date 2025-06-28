@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from backend.core.auto_esc_config import get_config_value
+
 """
 Sophia AI Standalone Server for Live Testing
 Bypasses existing backend import conflicts by running as standalone service
@@ -12,7 +13,16 @@ from typing import Dict, List, Optional, Any
 from uuid import uuid4
 import snowflake.connector
 from snowflake.connector import DictCursor
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends, UploadFile, File, Form
+from fastapi import (
+    FastAPI,
+    WebSocket,
+    WebSocketDisconnect,
+    HTTPException,
+    Depends,
+    UploadFile,
+    File,
+    Form,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -23,7 +33,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-CEO_ACCESS_TOKEN = os.getenv("CEO_ACCESS_TOKEN", get_config_value("ceo_access_token", get_config_value("ceo_access_token", "sophia_ceo_access_2024")))
+CEO_ACCESS_TOKEN = os.getenv(
+    "CEO_ACCESS_TOKEN",
+    get_config_value(
+        "ceo_access_token",
+        get_config_value("ceo_access_token", "sophia_ceo_access_2024"),
+    ),
+)
 ADMIN_USER_ID = "ceo_user"
 
 # Snowflake Configuration
@@ -34,8 +50,9 @@ SNOWFLAKE_CONFIG = {
     "role": "ACCOUNTADMIN",
     "database": "SOPHIA_AI_PROD",
     "schema": "UNIVERSAL_CHAT",
-    "warehouse": "SOPHIA_AI_WH"
+    "warehouse": "SOPHIA_AI_WH",
 }
+
 
 # Models
 class UploadResponse(BaseModel):
@@ -45,23 +62,30 @@ class UploadResponse(BaseModel):
     message: str
     processing_time: float
 
+
 class SearchRequest(BaseModel):
     query: str
     limit: int = 10
     category_filter: Optional[str] = None
+
 
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     use_knowledge: bool = True
 
+
 # Authentication
 security = HTTPBearer()
 
-async def authenticate_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+
+async def authenticate_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> str:
     if credentials.credentials == CEO_ACCESS_TOKEN:
         return ADMIN_USER_ID
     raise HTTPException(status_code=401, detail="Invalid authentication token")
+
 
 # Database Service
 class SnowflakeService:
@@ -80,7 +104,9 @@ class SnowflakeService:
         if self.connection:
             self.connection.close()
 
-    async def execute_query(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
+    async def execute_query(
+        self, query: str, params: Optional[tuple] = None
+    ) -> List[Dict[str, Any]]:
         try:
             cursor = self.connection.cursor(DictCursor)
             cursor.execute(query, params or ())
@@ -91,40 +117,61 @@ class SnowflakeService:
             logger.error(f"Query execution failed: {e}")
             raise
 
-    async def upload_knowledge_entry(self, title: str, content: str, category_id: str = "general") -> str:
+    async def upload_knowledge_entry(
+        self, title: str, content: str, category_id: str = "general"
+    ) -> str:
         entry_id = str(uuid4())
-        
+
         # Ensure category exists
-        check_query = "SELECT CATEGORY_ID FROM KNOWLEDGE_CATEGORIES WHERE CATEGORY_ID = %s"
+        check_query = (
+            "SELECT CATEGORY_ID FROM KNOWLEDGE_CATEGORIES WHERE CATEGORY_ID = %s"
+        )
         existing = await self.execute_query(check_query, (category_id,))
-        
+
         if not existing:
             create_cat_query = """
             INSERT INTO KNOWLEDGE_CATEGORIES (CATEGORY_ID, CATEGORY_NAME, DESCRIPTION, CREATED_AT)
             VALUES (%s, %s, %s, %s)
             """
-            await self.execute_query(create_cat_query, (
-                category_id, category_id.title(), "Auto-created category", datetime.now()
-            ))
-        
+            await self.execute_query(
+                create_cat_query,
+                (
+                    category_id,
+                    category_id.title(),
+                    "Auto-created category",
+                    datetime.now(),
+                ),
+            )
+
         # Insert knowledge entry
         insert_query = """
         INSERT INTO KNOWLEDGE_BASE_ENTRIES 
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, STATUS, METADATA, CREATED_AT, UPDATED_AT)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
+
         metadata = {"auto_created": True, "source": "standalone_server"}
         now = datetime.now()
-        
-        await self.execute_query(insert_query, (
-            entry_id, title, content, category_id, "published",
-            json.dumps(metadata), now, now
-        ))
-        
+
+        await self.execute_query(
+            insert_query,
+            (
+                entry_id,
+                title,
+                content,
+                category_id,
+                "published",
+                json.dumps(metadata),
+                now,
+                now,
+            ),
+        )
+
         return entry_id
 
-    async def search_knowledge(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def search_knowledge(
+        self, query: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         search_query = """
         SELECT 
             k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, c.CATEGORY_NAME,
@@ -137,7 +184,7 @@ class SnowflakeService:
         ORDER BY k.UPDATED_AT DESC
         LIMIT %s
         """
-        
+
         results = await self.execute_query(search_query, (query, query, limit))
         return results
 
@@ -151,18 +198,30 @@ class SnowflakeService:
         await self.execute_query(query, (session_id, user_id, title, now, now))
         return session_id
 
-    async def save_message(self, session_id: str, user_id: str, content: str, message_type: str) -> str:
+    async def save_message(
+        self, session_id: str, user_id: str, content: str, message_type: str
+    ) -> str:
         message_id = str(uuid4())
         query = """
         INSERT INTO CONVERSATION_MESSAGES (MESSAGE_ID, SESSION_ID, USER_ID, CONTENT, MESSAGE_TYPE, CREATED_AT)
         VALUES (%s, %s, %s, %s, %s, %s)
         """
-        await self.execute_query(query, (message_id, session_id, user_id, content, message_type, datetime.now()))
+        await self.execute_query(
+            query,
+            (message_id, session_id, user_id, content, message_type, datetime.now()),
+        )
         return message_id
 
-    async def generate_ai_response(self, query: str, context: List[Dict[str, Any]]) -> str:
+    async def generate_ai_response(
+        self, query: str, context: List[Dict[str, Any]]
+    ) -> str:
         if context:
-            context_text = "\n".join([f"• {item['TITLE']}: {item['CONTENT'][:200]}..." for item in context[:3]])
+            context_text = "\n".join(
+                [
+                    f"• {item['TITLE']}: {item['CONTENT'][:200]}..."
+                    for item in context[:3]
+                ]
+            )
             response = f"""Based on our knowledge base, here's what I found relevant to your query "{query}":
 
 {context_text}
@@ -174,6 +233,7 @@ I'm here to help you with any questions about Pay Ready's business information. 
 You can upload customer lists, product descriptions, employee information, or any other business documents through the API endpoints. This will help me provide more accurate and relevant responses to your questions."""
 
         return response
+
 
 # WebSocket Connection Manager
 class ConnectionManager:
@@ -194,9 +254,11 @@ class ConnectionManager:
         if user_id in self.active_connections:
             await self.active_connections[user_id].send_text(message)
 
+
 # Initialize services
 snowflake_service = SnowflakeService()
 manager = ConnectionManager()
+
 
 # Lifespan manager for FastAPI
 @asynccontextmanager
@@ -209,12 +271,13 @@ async def lifespan(app: FastAPI):
     await snowflake_service.disconnect()
     logger.info("Sophia AI Standalone Server shut down")
 
+
 # Create FastAPI app
 app = FastAPI(
     title="Sophia AI Standalone Server",
     description="Live testing server for Sophia AI knowledge management",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -225,6 +288,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Routes
 @app.get("/")
 async def root():
@@ -233,13 +297,14 @@ async def root():
         "version": "1.0.0",
         "services": {
             "knowledge_upload": "/upload",
-            "knowledge_search": "/search", 
+            "knowledge_search": "/search",
             "chat": "/chat",
             "websocket": "/ws/chat/{user_id}",
-            "health": "/health"
+            "health": "/health",
         },
-        "documentation": "/docs"
+        "documentation": "/docs",
     }
+
 
 @app.get("/health")
 async def health_check():
@@ -248,48 +313,48 @@ async def health_check():
         return {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
-            "services": {
-                "snowflake": "connected",
-                "websocket": "operational"
-            }
+            "services": {"snowflake": "connected", "websocket": "operational"},
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
+
 
 @app.post("/upload", response_model=UploadResponse)
 async def upload_file(
     file: UploadFile = File(...),
     title: str = Form(...),
     category_id: str = Form("general"),
-    user_id: str = Depends(authenticate_user)
+    user_id: str = Depends(authenticate_user),
 ):
     start_time = datetime.now()
-    
+
     try:
         # Read file content
         file_content = await file.read()
-        content = file_content.decode('utf-8', errors='ignore')
-        
+        content = file_content.decode("utf-8", errors="ignore")
+
         # Add file info to content
         full_content = f"File: {file.filename}\nType: {file.content_type}\nSize: {len(file_content)} bytes\n\nContent:\n{content}"
-        
+
         # Upload to knowledge base
-        entry_id = await snowflake_service.upload_knowledge_entry(title, full_content, category_id)
-        
+        entry_id = await snowflake_service.upload_knowledge_entry(
+            title, full_content, category_id
+        )
+
         processing_time = (datetime.now() - start_time).total_seconds()
-        
+
         return UploadResponse(
             entry_id=entry_id,
             title=title,
             status="success",
             message=f"File '{file.filename}' uploaded successfully",
-            processing_time=processing_time
+            processing_time=processing_time,
         )
-        
+
     except Exception as e:
         processing_time = (datetime.now() - start_time).total_seconds()
         logger.error(f"Upload failed: {e}")
@@ -298,89 +363,95 @@ async def upload_file(
             title=title,
             status="error",
             message=f"Upload failed: {str(e)}",
-            processing_time=processing_time
+            processing_time=processing_time,
         )
+
 
 @app.post("/search")
 async def search_knowledge(
-    request: SearchRequest,
-    user_id: str = Depends(authenticate_user)
+    request: SearchRequest, user_id: str = Depends(authenticate_user)
 ):
     try:
         results = await snowflake_service.search_knowledge(request.query, request.limit)
-        
+
         return {
             "query": request.query,
             "results": [
                 {
                     "entry_id": row["ENTRY_ID"],
                     "title": row["TITLE"],
-                    "content": row["CONTENT"][:500] + "..." if len(row["CONTENT"]) > 500 else row["CONTENT"],
+                    "content": row["CONTENT"][:500] + "..."
+                    if len(row["CONTENT"]) > 500
+                    else row["CONTENT"],
                     "category_id": row["CATEGORY_ID"],
                     "category_name": row["CATEGORY_NAME"],
-                    "created_at": row["CREATED_AT"].isoformat() if row["CREATED_AT"] else None
+                    "created_at": row["CREATED_AT"].isoformat()
+                    if row["CREATED_AT"]
+                    else None,
                 }
                 for row in results
             ],
             "total_results": len(results),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Search failed: {e}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
+
 @app.post("/chat")
 async def chat_with_knowledge(
-    request: ChatRequest,
-    user_id: str = Depends(authenticate_user)
+    request: ChatRequest, user_id: str = Depends(authenticate_user)
 ):
     try:
         session_id = request.session_id
-        
+
         # Create session if not provided
         if not session_id:
             session_id = await snowflake_service.create_session(
                 user_id=user_id,
-                title=f"Chat Session {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                title=f"Chat Session {datetime.now().strftime('%Y-%m-%d %H:%M')}",
             )
-        
+
         # Save user message
         user_message_id = await snowflake_service.save_message(
             session_id, user_id, request.message, "user"
         )
-        
+
         # Search knowledge if requested
         knowledge_results = []
         if request.use_knowledge:
-            knowledge_results = await snowflake_service.search_knowledge(request.message, 5)
-        
+            knowledge_results = await snowflake_service.search_knowledge(
+                request.message, 5
+            )
+
         # Generate AI response
-        ai_response = await snowflake_service.generate_ai_response(request.message, knowledge_results)
-        
+        ai_response = await snowflake_service.generate_ai_response(
+            request.message, knowledge_results
+        )
+
         # Save AI response
         ai_message_id = await snowflake_service.save_message(
             session_id, "system", ai_response, "assistant"
         )
-        
+
         return {
             "session_id": session_id,
             "user_message_id": user_message_id,
             "ai_message_id": ai_message_id,
             "response": ai_response,
             "knowledge_sources": [
-                {
-                    "title": row["TITLE"],
-                    "category": row["CATEGORY_NAME"]
-                }
+                {"title": row["TITLE"], "category": row["CATEGORY_NAME"]}
                 for row in knowledge_results[:3]
             ],
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Chat failed: {e}")
         raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
 
 @app.websocket("/ws/chat/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
@@ -389,28 +460,32 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         while True:
             data = await websocket.receive_text()
             message_data = json.loads(data)
-            
+
             query = message_data.get("content", "")
             session_id = message_data.get("session_id")
-            
+
             if not session_id:
                 session_id = await snowflake_service.create_session(
                     user_id=user_id,
-                    title=f"WebSocket Chat {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+                    title=f"WebSocket Chat {datetime.now().strftime('%Y-%m-%d %H:%M')}",
                 )
-            
+
             # Save user message
             await snowflake_service.save_message(session_id, user_id, query, "user")
-            
+
             # Search knowledge
             search_results = await snowflake_service.search_knowledge(query, 3)
-            
+
             # Generate response
-            ai_response = await snowflake_service.generate_ai_response(query, search_results)
-            
+            ai_response = await snowflake_service.generate_ai_response(
+                query, search_results
+            )
+
             # Save AI response
-            await snowflake_service.save_message(session_id, "system", ai_response, "assistant")
-            
+            await snowflake_service.save_message(
+                session_id, "system", ai_response, "assistant"
+            )
+
             # Send response
             response_data = {
                 "message_id": str(uuid4()),
@@ -418,24 +493,22 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 "content": ai_response,
                 "message_type": "assistant",
                 "timestamp": datetime.now().isoformat(),
-                "sources": [{"title": r["TITLE"], "category": r["CATEGORY_NAME"]} for r in search_results]
+                "sources": [
+                    {"title": r["TITLE"], "category": r["CATEGORY_NAME"]}
+                    for r in search_results
+                ],
             }
-            
+
             await manager.send_personal_message(json.dumps(response_data), user_id)
-            
+
     except WebSocketDisconnect:
         manager.disconnect(user_id)
+
 
 if __name__ == "__main__":
     logger.info("🚀 Starting Sophia AI Standalone Server...")
     logger.info("📍 Main API: http://localhost:8000")
     logger.info("📍 Documentation: http://localhost:8000/docs")
     logger.info("🔑 CEO Access Token: sophia_ceo_access_2024")
-    
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info",
-        reload=False
-    ) 
+
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)

@@ -41,9 +41,7 @@ class LinearMCPServer:
             sys.exit(1)
 
         if not self.team_id:
-            logger.warning(
-                "LINEAR_TEAM_ID not set, will use first available team"
-            )
+            logger.warning("LINEAR_TEAM_ID not set, will use first available team")
 
         # Setup MCP server handlers
         self.setup_handlers()
@@ -295,20 +293,21 @@ class LinearMCPServer:
                     content=[TextContent(type="text", text=f"Error: {str(e)}")]
                 )
 
-    async def make_request(self, query: str, variables: Optional[Dict] = None) -> Dict[str, Any]:
+    async def make_request(
+        self, query: str, variables: Optional[Dict] = None
+    ) -> Dict[str, Any]:
         """Make authenticated GraphQL request to Linear API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
             "Content-Type": "application/json",
         }
 
-        payload = {
-            "query": query,
-            "variables": variables or {}
-        }
+        payload = {"query": query, "variables": variables or {}}
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(self.base_url, headers=headers, json=payload) as response:
+            async with session.post(
+                self.base_url, headers=headers, json=payload
+            ) as response:
                 if response.status == 200:
                     data = await response.json()
                     if "errors" in data:
@@ -333,10 +332,10 @@ class LinearMCPServer:
             }
         }
         """
-        
+
         result = await self.make_request(query)
         teams = result.get("teams", {}).get("nodes", [])
-        
+
         if not teams:
             raise Exception("No teams found")
 
@@ -423,21 +422,27 @@ class LinearMCPServer:
         for project in projects:
             issues = project.get("issues", {}).get("nodes", [])
             total_issues = len(issues)
-            completed_issues = len([i for i in issues if i.get("state", {}).get("type") == "completed"])
-            
+            completed_issues = len(
+                [i for i in issues if i.get("state", {}).get("type") == "completed"]
+            )
+
             project["metrics"] = {
                 "total_issues": total_issues,
                 "completed_issues": completed_issues,
-                "completion_rate": (completed_issues / total_issues * 100) if total_issues > 0 else 0,
-                "progress_percentage": project.get("progress", 0) * 100
+                "completion_rate": (completed_issues / total_issues * 100)
+                if total_issues > 0
+                else 0,
+                "progress_percentage": project.get("progress", 0) * 100,
             }
-            
+
             enhanced_projects.append(project)
 
         return {
             "projects": enhanced_projects,
             "total_count": len(enhanced_projects),
-            "has_next_page": projects_data.get("pageInfo", {}).get("hasNextPage", False)
+            "has_next_page": projects_data.get("pageInfo", {}).get(
+                "hasNextPage", False
+            ),
         }
 
     async def get_project_details(self, project_id: str) -> Dict[str, Any]:
@@ -526,7 +531,7 @@ class LinearMCPServer:
         if state:
             filter_conditions.append(f'state: {{ name: {{ eq: "{state}" }} }}')
         if priority is not None:
-            filter_conditions.append(f'priority: {{ eq: {priority} }}')
+            filter_conditions.append(f"priority: {{ eq: {priority} }}")
 
         filter_clause = ""
         if filter_conditions:
@@ -588,7 +593,7 @@ class LinearMCPServer:
         return {
             "issues": issues_data.get("nodes", []),
             "total_count": len(issues_data.get("nodes", [])),
-            "has_next_page": issues_data.get("pageInfo", {}).get("hasNextPage", False)
+            "has_next_page": issues_data.get("pageInfo", {}).get("hasNextPage", False),
         }
 
     async def get_issue_details(self, issue_id: str) -> Dict[str, Any]:
@@ -661,7 +666,7 @@ class LinearMCPServer:
         """Get teams in the workspace."""
         filter_clause = ""
         if not include_archived:
-            filter_clause = 'filter: { isArchived: { eq: false } }'
+            filter_clause = "filter: { isArchived: { eq: false } }"
 
         query = f"""
         query {{
@@ -712,20 +717,24 @@ class LinearMCPServer:
         for team in teams:
             issues = team.get("issues", {}).get("nodes", [])
             projects = team.get("projects", {}).get("nodes", [])
-            
+
             team["metrics"] = {
                 "member_count": len(team.get("members", {}).get("nodes", [])),
                 "project_count": len(projects),
                 "total_issues": len(issues),
-                "active_projects": len([p for p in projects if p.get("state", {}).get("name") not in ["completed", "canceled"]])
+                "active_projects": len(
+                    [
+                        p
+                        for p in projects
+                        if p.get("state", {}).get("name")
+                        not in ["completed", "canceled"]
+                    ]
+                ),
             }
-            
+
             enhanced_teams.append(team)
 
-        return {
-            "teams": enhanced_teams,
-            "total_count": len(enhanced_teams)
-        }
+        return {"teams": enhanced_teams, "total_count": len(enhanced_teams)}
 
     async def get_team_members(self, team_id: str) -> Dict[str, Any]:
         """Get members of a specific team."""
@@ -763,19 +772,25 @@ class LinearMCPServer:
         enhanced_members = []
         for member in members:
             assigned_issues = member.get("assignedIssues", {}).get("nodes", [])
-            active_issues = len([i for i in assigned_issues if i.get("state", {}).get("type") != "completed"])
-            
+            active_issues = len(
+                [
+                    i
+                    for i in assigned_issues
+                    if i.get("state", {}).get("type") != "completed"
+                ]
+            )
+
             member["metrics"] = {
                 "total_assigned_issues": len(assigned_issues),
-                "active_issues": active_issues
+                "active_issues": active_issues,
             }
-            
+
             enhanced_members.append(member)
 
         return {
             "team": team_data,
             "members": enhanced_members,
-            "member_count": len(enhanced_members)
+            "member_count": len(enhanced_members),
         }
 
     async def get_milestones(
@@ -819,7 +834,7 @@ class LinearMCPServer:
 
         return {
             "milestones": milestones_data.get("nodes", []),
-            "total_count": len(milestones_data.get("nodes", []))
+            "total_count": len(milestones_data.get("nodes", [])),
         }
 
     async def search_issues(
@@ -908,7 +923,7 @@ class LinearMCPServer:
             """
 
         result = await self.make_request(search_query)
-        
+
         if query:
             issues_data = result.get("issueSearch", {})
         else:
@@ -917,7 +932,7 @@ class LinearMCPServer:
         return {
             "issues": issues_data.get("nodes", []),
             "total_count": len(issues_data.get("nodes", [])),
-            "search_query": query
+            "search_query": query,
         }
 
     async def get_user_issues(
@@ -928,7 +943,7 @@ class LinearMCPServer:
     ) -> Dict[str, Any]:
         """Get issues assigned to a specific user."""
         filter_conditions = [f'assignee: {{ id: {{ eq: "{user_id}" }} }}']
-        
+
         if state:
             filter_conditions.append(f'state: {{ name: {{ eq: "{state}" }} }}')
         if team_id:
@@ -969,14 +984,14 @@ class LinearMCPServer:
         return {
             "user_id": user_id,
             "issues": issues_data.get("nodes", []),
-            "total_count": len(issues_data.get("nodes", []))
+            "total_count": len(issues_data.get("nodes", [])),
         }
 
     async def get_workspace_users(self, include_guests: bool = False) -> Dict[str, Any]:
         """Get users in the workspace."""
         filter_clause = ""
         if not include_guests:
-            filter_clause = 'filter: { isGuest: { eq: false } }'
+            filter_clause = "filter: { isGuest: { eq: false } }"
 
         query = f"""
         query {{
@@ -1017,27 +1032,30 @@ class LinearMCPServer:
         enhanced_users = []
         for user in users:
             assigned_issues = user.get("assignedIssues", {}).get("nodes", [])
-            active_issues = len([i for i in assigned_issues if i.get("state", {}).get("type") != "completed"])
+            active_issues = len(
+                [
+                    i
+                    for i in assigned_issues
+                    if i.get("state", {}).get("type") != "completed"
+                ]
+            )
             teams = user.get("teamMemberships", {}).get("nodes", [])
-            
+
             user["metrics"] = {
                 "total_assigned_issues": len(assigned_issues),
                 "active_issues": active_issues,
-                "team_count": len(teams)
+                "team_count": len(teams),
             }
-            
+
             enhanced_users.append(user)
 
-        return {
-            "users": enhanced_users,
-            "total_count": len(enhanced_users)
-        }
+        return {"users": enhanced_users, "total_count": len(enhanced_users)}
 
 
 async def main():
     """Main entry point for the Linear MCP server."""
     server = LinearMCPServer()
-    
+
     async with stdio_server() as (read_stream, write_stream):
         await server.server.run(
             read_stream,
@@ -1055,4 +1073,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

@@ -5,12 +5,11 @@ Enhanced with Cline v3.18 features: Claude 4 optimization, WebFetch tool, self-k
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Callable, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 import logging
 import aiohttp
 import time
-import traceback
 from dataclasses import dataclass
 from enum import Enum
 import json
@@ -25,7 +24,11 @@ import uvicorn
 
 # Import Gemini CLI provider
 try:
-    from gemini_cli_integration.gemini_cli_provider import GeminiCLIProvider, GeminiCLIModelRouter
+    from gemini_cli_integration.gemini_cli_provider import (
+        GeminiCLIProvider,
+        GeminiCLIModelRouter,
+    )
+
     GEMINI_CLI_AVAILABLE = True
 except ImportError:
     GEMINI_CLI_AVAILABLE = False
@@ -34,30 +37,38 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class SyncPriority(Enum):
     """Data synchronization priority levels."""
-    REAL_TIME = "real_time"    # <1 minute
-    HIGH = "high"              # <5 minutes  
-    MEDIUM = "medium"          # <30 minutes
-    LOW = "low"                # <24 hours
+
+    REAL_TIME = "real_time"  # <1 minute
+    HIGH = "high"  # <5 minutes
+    MEDIUM = "medium"  # <30 minutes
+    LOW = "low"  # <24 hours
+
 
 class HealthStatus(Enum):
     """Health status enumeration."""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     CRITICAL = "critical"
 
+
 class ModelProvider(Enum):
     """AI model providers for intelligent routing."""
+
     CLAUDE_4 = "claude_4"
     GEMINI_25_PRO = "gemini_2.5_pro"
     OPENAI_GPT4 = "openai_gpt4"
     SNOWFLAKE_CORTEX = "snowflake_cortex"
 
+
 @dataclass
 class MCPServerConfig:
     """Configuration for MCP servers."""
+
     server_name: str
     port: int
     sync_priority: SyncPriority = SyncPriority.MEDIUM
@@ -74,9 +85,11 @@ class MCPServerConfig:
     enable_improved_diff: bool = True
     preferred_model: ModelProvider = ModelProvider.CLAUDE_4
 
+
 @dataclass
 class HealthCheckResult:
     """Health check result data structure."""
+
     component: str
     status: HealthStatus
     response_time_ms: float
@@ -84,9 +97,11 @@ class HealthCheckResult:
     last_success: Optional[datetime] = None
     metadata: Optional[Dict[str, Any]] = None
 
+
 @dataclass
 class WebFetchResult:
     """Result from WebFetch operation."""
+
     url: str
     content: str
     markdown_content: str
@@ -94,9 +109,11 @@ class WebFetchResult:
     cached: bool = False
     error: Optional[str] = None
 
+
 @dataclass
 class ServerCapability:
     """Server capability definition for self-knowledge."""
+
     name: str
     description: str
     category: str
@@ -104,10 +121,11 @@ class ServerCapability:
     version: str = "1.0.0"
     metadata: Optional[Dict[str, Any]] = None
 
+
 class StandardizedMCPServer(ABC):
     """
     Base class for all Sophia AI MCP servers with enterprise-grade capabilities.
-    
+
     Provides:
     - Snowflake Cortex AI integration
     - Prometheus metrics collection
@@ -117,61 +135,71 @@ class StandardizedMCPServer(ABC):
     - AI-powered data processing
     - Cline v3.18 features: WebFetch, self-knowledge, improved diff handling
     """
-    
+
     def __init__(self, config: MCPServerConfig):
         self.config = config
-        
+
         # Load port from centralized config
         self._load_port_from_config()
 
         self.server_name = config.server_name
         self.cortex_service: Optional[SnowflakeCortexService] = None
         self.session: Optional[aiohttp.ClientSession] = None
-        
+
         # Health tracking
         self.last_health_check = datetime.utcnow()
         self.health_results: Dict[str, HealthCheckResult] = {}
         self.is_healthy = False
-        
+
         # Performance tracking
         self.last_sync_time: Optional[datetime] = None
         self.sync_success_count = 0
         self.sync_error_count = 0
-        
+
         # Cline v3.18 features
         self.webfetch_cache: Dict[str, WebFetchResult] = {}
         self.server_capabilities: List[ServerCapability] = []
         self.diff_success_rate = 1.0
-        
+
         # Initialize metrics if enabled
         if config.enable_metrics:
             self._initialize_metrics()
-        
+
         self.app = FastAPI(
             title=f"{self.server_name.replace('_', ' ').title()} MCP Server",
             version="3.18.0",  # Updated for Cline v3.18
-            description=f"Enhanced with Cline v3.18 features"
+            description="Enhanced with Cline v3.18 features",
         )
         self._setup_routes()
-    
+
     def _setup_routes(self):
         """Sets up the default API routes for the server."""
         router = APIRouter()
-        router.add_api_route("/health", self.get_health_endpoint, methods=["GET"], summary="Health Check")
-        
+        router.add_api_route(
+            "/health", self.get_health_endpoint, methods=["GET"], summary="Health Check"
+        )
+
         # Cline v3.18 self-knowledge endpoints
         if self.config.enable_self_knowledge:
-            router.add_api_route("/capabilities", self.get_capabilities_endpoint, methods=["GET"], 
-                               summary="Get Server Capabilities")
-            router.add_api_route("/features", self.get_features_endpoint, methods=["GET"], 
-                               summary="Get Available Features")
-        
+            router.add_api_route(
+                "/capabilities",
+                self.get_capabilities_endpoint,
+                methods=["GET"],
+                summary="Get Server Capabilities",
+            )
+            router.add_api_route(
+                "/features",
+                self.get_features_endpoint,
+                methods=["GET"],
+                summary="Get Available Features",
+            )
+
         self.app.include_router(router)
-    
+
     async def get_health_endpoint(self) -> Dict[str, Any]:
         """The FastAPI endpoint for health checks."""
         return await self.comprehensive_health_check()
-    
+
     async def get_capabilities_endpoint(self) -> Dict[str, Any]:
         """Get server capabilities for self-knowledge."""
         return {
@@ -183,42 +211,41 @@ class StandardizedMCPServer(ABC):
                 "self_knowledge": self.config.enable_self_knowledge,
                 "improved_diff": self.config.enable_improved_diff,
                 "ai_processing": self.config.enable_ai_processing,
-                "preferred_model": self.config.preferred_model.value
-            }
+                "preferred_model": self.config.preferred_model.value,
+            },
         }
-    
+
     async def get_features_endpoint(self) -> Dict[str, Any]:
         """Get detailed feature information."""
         return {
             "webfetch": {
                 "enabled": self.config.enable_webfetch,
                 "cache_size": len(self.webfetch_cache),
-                "supported_formats": ["html", "markdown", "text"]
+                "supported_formats": ["html", "markdown", "text"],
             },
             "models": {
                 "preferred": self.config.preferred_model.value,
                 "available": [m.value for m in ModelProvider],
-                "routing_enabled": True
+                "routing_enabled": True,
             },
             "diff_editing": {
                 "enabled": self.config.enable_improved_diff,
                 "success_rate": self.diff_success_rate,
-                "strategies": ["exact_match", "fuzzy_match", "context_aware"]
-            }
+                "strategies": ["exact_match", "fuzzy_match", "context_aware"],
+            },
         }
-    
+
     async def start(self):
         """Starts the MCP server using uvicorn."""
-        logger.info(f"Starting {self.server_name} server (v3.18) on port {self.config.port}...")
-        
+        logger.info(
+            f"Starting {self.server_name} server (v3.18) on port {self.config.port}..."
+        )
+
         # Ensure server is initialized before starting
         await self.initialize()
 
         uvicorn_config = uvicorn.Config(
-            self.app, 
-            host="0.0.0.0", 
-            port=self.config.port, 
-            log_level="info"
+            self.app, host="0.0.0.0", port=self.config.port, log_level="info"
         )
         server = uvicorn.Server(uvicorn_config)
         await server.serve()
@@ -228,88 +255,89 @@ class StandardizedMCPServer(ABC):
         try:
             # Request metrics
             self.request_counter = Counter(
-                f'mcp_{self.server_name}_requests_total',
-                'Total requests to MCP server',
-                ['method', 'status', 'endpoint']
+                f"mcp_{self.server_name}_requests_total",
+                "Total requests to MCP server",
+                ["method", "status", "endpoint"],
             )
-            
+
             self.request_duration = Histogram(
-                f'mcp_{self.server_name}_request_duration_seconds',
-                'Request duration in seconds',
-                ['method', 'endpoint']
+                f"mcp_{self.server_name}_request_duration_seconds",
+                "Request duration in seconds",
+                ["method", "endpoint"],
             )
-            
+
             # Health metrics
             self.health_gauge = Gauge(
-                f'mcp_{self.server_name}_health_status',
-                'Health status of MCP server (1=healthy, 0=unhealthy)'
+                f"mcp_{self.server_name}_health_status",
+                "Health status of MCP server (1=healthy, 0=unhealthy)",
             )
-            
+
             # Sync metrics
             self.sync_success_rate = Gauge(
-                f'mcp_{self.server_name}_sync_success_rate',
-                'Success rate of data synchronization'
+                f"mcp_{self.server_name}_sync_success_rate",
+                "Success rate of data synchronization",
             )
-            
+
             self.data_freshness = Gauge(
-                f'mcp_{self.server_name}_data_freshness_seconds',
-                'Age of the most recent data in seconds'
+                f"mcp_{self.server_name}_data_freshness_seconds",
+                "Age of the most recent data in seconds",
             )
-            
+
             self.records_processed = Counter(
-                f'mcp_{self.server_name}_records_processed_total',
-                'Total records processed',
-                ['operation', 'status']
+                f"mcp_{self.server_name}_records_processed_total",
+                "Total records processed",
+                ["operation", "status"],
             )
-            
+
             # AI processing metrics
             self.ai_processing_duration = Histogram(
-                f'mcp_{self.server_name}_ai_processing_duration_seconds',
-                'Duration of AI processing operations',
-                ['operation', 'model']
+                f"mcp_{self.server_name}_ai_processing_duration_seconds",
+                "Duration of AI processing operations",
+                ["operation", "model"],
             )
-            
+
             self.ai_accuracy_score = Gauge(
-                f'mcp_{self.server_name}_ai_accuracy_score',
-                'AI processing accuracy score'
+                f"mcp_{self.server_name}_ai_accuracy_score",
+                "AI processing accuracy score",
             )
-            
+
             # Cline v3.18 specific metrics
             self.webfetch_counter = Counter(
-                f'mcp_{self.server_name}_webfetch_total',
-                'Total WebFetch operations',
-                ['status', 'cached']
+                f"mcp_{self.server_name}_webfetch_total",
+                "Total WebFetch operations",
+                ["status", "cached"],
             )
-            
+
             self.webfetch_duration = Histogram(
-                f'mcp_{self.server_name}_webfetch_duration_seconds',
-                'WebFetch operation duration'
+                f"mcp_{self.server_name}_webfetch_duration_seconds",
+                "WebFetch operation duration",
             )
-            
+
             self.diff_success_gauge = Gauge(
-                f'mcp_{self.server_name}_diff_success_rate',
-                'Success rate of diff operations'
+                f"mcp_{self.server_name}_diff_success_rate",
+                "Success rate of diff operations",
             )
-            
+
             # Server info
             self.server_info = Info(
-                f'mcp_{self.server_name}_info',
-                'MCP server information'
+                f"mcp_{self.server_name}_info", "MCP server information"
             )
-            
+
             # Set server info
-            self.server_info.info({
-                'version': '3.18.0',
-                'server_name': self.server_name,
-                'sync_priority': self.config.sync_priority.value,
-                'ai_enabled': str(self.config.enable_ai_processing),
-                'cline_v3_18': 'true',
-                'webfetch_enabled': str(self.config.enable_webfetch),
-                'self_knowledge_enabled': str(self.config.enable_self_knowledge)
-            })
-            
+            self.server_info.info(
+                {
+                    "version": "3.18.0",
+                    "server_name": self.server_name,
+                    "sync_priority": self.config.sync_priority.value,
+                    "ai_enabled": str(self.config.enable_ai_processing),
+                    "cline_v3_18": "true",
+                    "webfetch_enabled": str(self.config.enable_webfetch),
+                    "self_knowledge_enabled": str(self.config.enable_self_knowledge),
+                }
+            )
+
             logger.info(f"✅ Metrics initialized for {self.server_name} (v3.18)")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize metrics for {self.server_name}: {e}")
 
@@ -317,35 +345,37 @@ class StandardizedMCPServer(ABC):
         """Initialize MCP server with all dependencies."""
         try:
             logger.info(f"🚀 Initializing {self.server_name} MCP server (v3.18)...")
-            
+
             # Initialize HTTP session
             self.session = aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=self.config.timeout_seconds),
-                headers={"User-Agent": f"Sophia-AI-MCP/{self.server_name}/3.18.0"}
+                headers={"User-Agent": f"Sophia-AI-MCP/{self.server_name}/3.18.0"},
             )
-            
+
             # Initialize Snowflake Cortex service
             if self.config.enable_ai_processing:
                 self.cortex_service = SnowflakeCortexService()
                 await self.cortex_service.initialize()
                 logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
-            
+
             # Initialize server capabilities for self-knowledge
             if self.config.enable_self_knowledge:
                 await self._initialize_capabilities()
-            
+
             # Server-specific initialization
             await self.server_specific_init()
-            
+
             # Perform initial health check
             await self.comprehensive_health_check()
-            
+
             # Update health status
             if self.config.enable_metrics:
                 self.health_gauge.set(1 if self.is_healthy else 0)
-            
-            logger.info(f"✅ {self.server_name} MCP server (v3.18) initialized successfully")
-            
+
+            logger.info(
+                f"✅ {self.server_name} MCP server (v3.18) initialized successfully"
+            )
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize {self.server_name}: {e}")
             if self.config.enable_metrics:
@@ -361,14 +391,14 @@ class StandardizedMCPServer(ABC):
                 description="Monitor server health and component status",
                 category="monitoring",
                 available=True,
-                version="3.18.0"
+                version="3.18.0",
             ),
             ServerCapability(
                 name="sync_data",
                 description="Synchronize data with external platforms",
                 category="data_sync",
                 available=True,
-                version="3.18.0"
+                version="3.18.0",
             ),
             ServerCapability(
                 name="ai_processing",
@@ -376,34 +406,38 @@ class StandardizedMCPServer(ABC):
                 category="ai",
                 available=self.config.enable_ai_processing,
                 version="3.18.0",
-                metadata={"preferred_model": self.config.preferred_model.value}
-            )
+                metadata={"preferred_model": self.config.preferred_model.value},
+            ),
         ]
-        
+
         # Add WebFetch capability if enabled
         if self.config.enable_webfetch:
-            base_capabilities.append(ServerCapability(
-                name="webfetch",
-                description="Fetch and process web content",
-                category="data_acquisition",
-                available=True,
-                version="3.18.0",
-                metadata={"cache_enabled": True, "formats": ["html", "markdown"]}
-            ))
-        
+            base_capabilities.append(
+                ServerCapability(
+                    name="webfetch",
+                    description="Fetch and process web content",
+                    category="data_acquisition",
+                    available=True,
+                    version="3.18.0",
+                    metadata={"cache_enabled": True, "formats": ["html", "markdown"]},
+                )
+            )
+
         # Add improved diff capability
         if self.config.enable_improved_diff:
-            base_capabilities.append(ServerCapability(
-                name="improved_diff",
-                description="Enhanced diff editing with multiple strategies",
-                category="file_operations",
-                available=True,
-                version="3.18.0",
-                metadata={"strategies": ["exact", "fuzzy", "context_aware"]}
-            ))
-        
+            base_capabilities.append(
+                ServerCapability(
+                    name="improved_diff",
+                    description="Enhanced diff editing with multiple strategies",
+                    category="file_operations",
+                    available=True,
+                    version="3.18.0",
+                    metadata={"strategies": ["exact", "fuzzy", "context_aware"]},
+                )
+            )
+
         self.server_capabilities = base_capabilities
-        
+
         # Add server-specific capabilities
         server_specific = await self.get_server_capabilities()
         self.server_capabilities.extend(server_specific)
@@ -411,11 +445,11 @@ class StandardizedMCPServer(ABC):
     async def webfetch(self, url: str, use_cache: bool = True) -> WebFetchResult:
         """
         Fetch and process web content (Cline v3.18 feature).
-        
+
         Args:
             url: URL to fetch
             use_cache: Whether to use cached results if available
-            
+
         Returns:
             WebFetchResult with content and metadata
         """
@@ -425,9 +459,9 @@ class StandardizedMCPServer(ABC):
                 content="",
                 markdown_content="",
                 fetch_time_ms=0,
-                error="WebFetch is not enabled for this server"
+                error="WebFetch is not enabled for this server",
             )
-        
+
         # Check cache
         cache_key = hashlib.md5(url.encode()).hexdigest()
         if use_cache and cache_key in self.webfetch_cache:
@@ -436,60 +470,62 @@ class StandardizedMCPServer(ABC):
             if self.config.enable_metrics:
                 self.webfetch_counter.labels(status="success", cached="true").inc()
             return cached_result
-        
+
         start_time = time.time()
-        
+
         try:
             # Validate URL
             parsed = urlparse(url)
             if not parsed.scheme or not parsed.netloc:
                 raise ValueError(f"Invalid URL: {url}")
-            
+
             # Fetch content
             async with self.session.get(url, ssl=True) as response:
                 response.raise_for_status()
                 content = await response.text()
-                
+
                 # Convert to markdown
-                markdown_content = await self._convert_to_markdown(content, response.content_type)
-                
+                markdown_content = await self._convert_to_markdown(
+                    content, response.content_type
+                )
+
                 fetch_time_ms = (time.time() - start_time) * 1000
-                
+
                 result = WebFetchResult(
                     url=url,
                     content=content,
                     markdown_content=markdown_content,
                     fetch_time_ms=fetch_time_ms,
-                    cached=False
+                    cached=False,
                 )
-                
+
                 # Cache the result
                 self.webfetch_cache[cache_key] = result
-                
+
                 # Update metrics
                 if self.config.enable_metrics:
                     self.webfetch_counter.labels(status="success", cached="false").inc()
                     self.webfetch_duration.observe(fetch_time_ms / 1000)
-                
+
                 logger.info(f"✅ WebFetch successful for {url} ({fetch_time_ms:.2f}ms)")
                 return result
-                
+
         except Exception as e:
             fetch_time_ms = (time.time() - start_time) * 1000
             error_msg = str(e)
             logger.error(f"❌ WebFetch failed for {url}: {error_msg}")
-            
+
             if self.config.enable_metrics:
                 self.webfetch_counter.labels(status="error", cached="false").inc()
                 self.webfetch_duration.observe(fetch_time_ms / 1000)
-            
+
             return WebFetchResult(
                 url=url,
                 content="",
                 markdown_content="",
                 fetch_time_ms=fetch_time_ms,
                 cached=False,
-                error=error_msg
+                error=error_msg,
             )
 
     async def _convert_to_markdown(self, content: str, content_type: str) -> str:
@@ -498,77 +534,98 @@ class StandardizedMCPServer(ABC):
         if "html" in content_type.lower():
             # Remove common HTML tags (simplified)
             import re
+
             markdown = content
             # Remove scripts and styles
-            markdown = re.sub(r'<script[^>]*>.*?</script>', '', markdown, flags=re.DOTALL)
-            markdown = re.sub(r'<style[^>]*>.*?</style>', '', markdown, flags=re.DOTALL)
+            markdown = re.sub(
+                r"<script[^>]*>.*?</script>", "", markdown, flags=re.DOTALL
+            )
+            markdown = re.sub(r"<style[^>]*>.*?</style>", "", markdown, flags=re.DOTALL)
             # Convert headers
             for i in range(1, 7):
-                markdown = re.sub(f'<h{i}[^>]*>(.*?)</h{i}>', r'#' * i + r' \1\n', markdown)
+                markdown = re.sub(
+                    f"<h{i}[^>]*>(.*?)</h{i}>", r"#" * i + r" \1\n", markdown
+                )
             # Convert links
-            markdown = re.sub(r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>', r'[\2](\1)', markdown)
+            markdown = re.sub(
+                r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>', r"[\2](\1)", markdown
+            )
             # Remove remaining tags
-            markdown = re.sub(r'<[^>]+>', '', markdown)
+            markdown = re.sub(r"<[^>]+>", "", markdown)
             # Clean up whitespace
-            markdown = re.sub(r'\n\s*\n', '\n\n', markdown)
+            markdown = re.sub(r"\n\s*\n", "\n\n", markdown)
             return markdown.strip()
         else:
             # Return as-is for non-HTML content
             return content
 
-    async def route_to_model(self, task: str, context_size: int = 0) -> Tuple[ModelProvider, Dict[str, Any]]:
+    async def route_to_model(
+        self, task: str, context_size: int = 0
+    ) -> Tuple[ModelProvider, Dict[str, Any]]:
         """
         Intelligently route requests to appropriate AI models based on task and context.
-        
+
         Args:
             task: Description of the task
             context_size: Size of the context in tokens
-            
+
         Returns:
             Tuple of (selected_model, routing_metadata)
         """
         routing_metadata = {
             "task": task,
             "context_size": context_size,
-            "routing_time": datetime.utcnow().isoformat()
+            "routing_time": datetime.utcnow().isoformat(),
         }
-        
+
         # Large context window tasks go to Gemini
         if context_size > 100000:  # 100k tokens
             selected_model = ModelProvider.GEMINI_25_PRO
             routing_metadata["reason"] = "Large context window required"
-        
+
         # Complex reasoning tasks go to Claude 4
-        elif any(keyword in task.lower() for keyword in ["analyze", "reason", "complex", "architect"]):
+        elif any(
+            keyword in task.lower()
+            for keyword in ["analyze", "reason", "complex", "architect"]
+        ):
             selected_model = ModelProvider.CLAUDE_4
             routing_metadata["reason"] = "Complex reasoning task"
-        
+
         # Data processing tasks go to Snowflake Cortex
-        elif any(keyword in task.lower() for keyword in ["sql", "data", "snowflake", "query"]):
+        elif any(
+            keyword in task.lower() for keyword in ["sql", "data", "snowflake", "query"]
+        ):
             selected_model = ModelProvider.SNOWFLAKE_CORTEX
             routing_metadata["reason"] = "Data processing task"
-        
+
         # Default to preferred model
         else:
             selected_model = self.config.preferred_model
             routing_metadata["reason"] = "Default preference"
-        
+
         routing_metadata["selected_model"] = selected_model.value
-        logger.info(f"Routed task to {selected_model.value}: {routing_metadata['reason']}")
-        
+        logger.info(
+            f"Routed task to {selected_model.value}: {routing_metadata['reason']}"
+        )
+
         return selected_model, routing_metadata
 
-    async def improved_diff_edit(self, file_path: str, search_content: str, 
-                                replace_content: str, strategy: str = "exact") -> Dict[str, Any]:
+    async def improved_diff_edit(
+        self,
+        file_path: str,
+        search_content: str,
+        replace_content: str,
+        strategy: str = "exact",
+    ) -> Dict[str, Any]:
         """
         Improved diff editing with multiple strategies (Cline v3.18 feature).
-        
+
         Args:
             file_path: Path to the file to edit
             search_content: Content to search for
             replace_content: Content to replace with
             strategy: Diff strategy to use ("exact", "fuzzy", "context_aware")
-            
+
         Returns:
             Dict with success status and details
         """
@@ -577,58 +634,72 @@ class StandardizedMCPServer(ABC):
             "strategy_used": strategy,
             "file_path": file_path,
             "attempts": 0,
-            "error": None
+            "error": None,
         }
-        
-        strategies = ["exact", "fuzzy", "context_aware"] if strategy == "auto" else [strategy]
-        
+
+        strategies = (
+            ["exact", "fuzzy", "context_aware"] if strategy == "auto" else [strategy]
+        )
+
         for strat in strategies:
             result["attempts"] += 1
             try:
                 if strat == "exact":
-                    success = await self._exact_match_diff(file_path, search_content, replace_content)
+                    success = await self._exact_match_diff(
+                        file_path, search_content, replace_content
+                    )
                 elif strat == "fuzzy":
-                    success = await self._fuzzy_match_diff(file_path, search_content, replace_content)
+                    success = await self._fuzzy_match_diff(
+                        file_path, search_content, replace_content
+                    )
                 elif strat == "context_aware":
-                    success = await self._context_aware_diff(file_path, search_content, replace_content)
+                    success = await self._context_aware_diff(
+                        file_path, search_content, replace_content
+                    )
                 else:
                     raise ValueError(f"Unknown diff strategy: {strat}")
-                
+
                 if success:
                     result["success"] = True
                     result["strategy_used"] = strat
-                    
+
                     # Update success rate
-                    self.diff_success_rate = (self.diff_success_rate * 0.95 + 1.0 * 0.05)
+                    self.diff_success_rate = self.diff_success_rate * 0.95 + 1.0 * 0.05
                     if self.config.enable_metrics:
                         self.diff_success_gauge.set(self.diff_success_rate)
-                    
+
                     logger.info(f"✅ Diff edit successful using {strat} strategy")
                     return result
-                    
+
             except Exception as e:
                 result["error"] = str(e)
                 logger.warning(f"Diff strategy {strat} failed: {e}")
-        
+
         # All strategies failed
-        self.diff_success_rate = (self.diff_success_rate * 0.95 + 0.0 * 0.05)
+        self.diff_success_rate = self.diff_success_rate * 0.95 + 0.0 * 0.05
         if self.config.enable_metrics:
             self.diff_success_gauge.set(self.diff_success_rate)
-        
+
         logger.error(f"❌ All diff strategies failed for {file_path}")
         return result
 
-    async def _exact_match_diff(self, file_path: str, search: str, replace: str) -> bool:
+    async def _exact_match_diff(
+        self, file_path: str, search: str, replace: str
+    ) -> bool:
         """Exact string matching diff strategy."""
         # Implementation would go here
         return True
 
-    async def _fuzzy_match_diff(self, file_path: str, search: str, replace: str) -> bool:
+    async def _fuzzy_match_diff(
+        self, file_path: str, search: str, replace: str
+    ) -> bool:
         """Fuzzy string matching diff strategy."""
         # Implementation would go here
         return True
 
-    async def _context_aware_diff(self, file_path: str, search: str, replace: str) -> bool:
+    async def _context_aware_diff(
+        self, file_path: str, search: str, replace: str
+    ) -> bool:
         """Context-aware diff strategy using AI."""
         # Implementation would go here
         return True
@@ -637,20 +708,20 @@ class StandardizedMCPServer(ABC):
         """Clean shutdown of MCP server."""
         try:
             logger.info(f"🔄 Shutting down {self.server_name} MCP server (v3.18)...")
-            
+
             # Server-specific cleanup
             await self.server_specific_cleanup()
-            
+
             # Close HTTP session
             if self.session:
                 await self.session.close()
-            
+
             # Close Cortex service
             if self.cortex_service:
                 await self.cortex_service.close()
-            
+
             logger.info(f"✅ {self.server_name} MCP server (v3.18) shutdown complete")
-            
+
         except Exception as e:
             logger.error(f"❌ Error during {self.server_name} shutdown: {e}")
 
@@ -659,79 +730,82 @@ class StandardizedMCPServer(ABC):
         try:
             health_results = {}
             overall_healthy = True
-            
+
             # Check external API connectivity
             api_result = await self._check_external_api_health()
-            health_results['external_api'] = api_result
+            health_results["external_api"] = api_result
             if api_result.status != HealthStatus.HEALTHY:
                 overall_healthy = False
-            
+
             # Check Snowflake Cortex connectivity
             if self.cortex_service:
                 cortex_result = await self._check_cortex_health()
-                health_results['snowflake_cortex'] = cortex_result
+                health_results["snowflake_cortex"] = cortex_result
                 if cortex_result.status != HealthStatus.HEALTHY:
                     overall_healthy = False
-            
+
             # Check data freshness
             freshness_result = await self._check_data_freshness()
-            health_results['data_freshness'] = freshness_result
+            health_results["data_freshness"] = freshness_result
             if freshness_result.status != HealthStatus.HEALTHY:
                 overall_healthy = False
-            
+
             # Check WebFetch service (Cline v3.18)
             if self.config.enable_webfetch:
                 webfetch_result = await self._check_webfetch_health()
-                health_results['webfetch'] = webfetch_result
+                health_results["webfetch"] = webfetch_result
                 if webfetch_result.status != HealthStatus.HEALTHY:
                     overall_healthy = False
-            
+
             # Server-specific health checks
             server_result = await self.server_specific_health_check()
-            health_results['server_specific'] = server_result
+            health_results["server_specific"] = server_result
             if server_result.status != HealthStatus.HEALTHY:
                 overall_healthy = False
-            
+
             # Update health status
             self.is_healthy = overall_healthy
             self.last_health_check = datetime.utcnow()
             self.health_results = health_results
-            
+
             # Update metrics
             if self.config.enable_metrics:
                 self.health_gauge.set(1 if overall_healthy else 0)
-            
+
             return {
                 "server": self.server_name,
                 "version": "3.18.0",
                 "status": "healthy" if overall_healthy else "unhealthy",
                 "timestamp": self.last_health_check.isoformat(),
-                "components": {k: {
-                    'status': v.status.value,
-                    'response_time_ms': v.response_time_ms,
-                    'error_message': v.error_message,
-                    'metadata': v.metadata
-                } for k, v in health_results.items()},
+                "components": {
+                    k: {
+                        "status": v.status.value,
+                        "response_time_ms": v.response_time_ms,
+                        "error_message": v.error_message,
+                        "metadata": v.metadata,
+                    }
+                    for k, v in health_results.items()
+                },
                 "features": {
                     "webfetch": self.config.enable_webfetch,
                     "self_knowledge": self.config.enable_self_knowledge,
                     "improved_diff": self.config.enable_improved_diff,
-                    "diff_success_rate": self.diff_success_rate
-                }
+                    "diff_success_rate": self.diff_success_rate,
+                },
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Health check failed for {self.server_name}: {e}")
             self.is_healthy = False
             if self.config.enable_metrics:
                 self.health_gauge.set(0)
-            
+
             return {
                 "server": self.server_name,
                 "version": "3.18.0",
                 "status": "critical",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
     async def _check_webfetch_health(self) -> HealthCheckResult:
@@ -741,29 +815,29 @@ class StandardizedMCPServer(ABC):
             # Test WebFetch with a simple URL
             test_url = "https://httpbin.org/status/200"
             result = await self.webfetch(test_url, use_cache=False)
-            
+
             if result.error:
                 return HealthCheckResult(
                     component="webfetch",
                     status=HealthStatus.UNHEALTHY,
                     response_time_ms=(time.time() - start_time) * 1000,
-                    error_message=result.error
+                    error_message=result.error,
                 )
-            
+
             return HealthCheckResult(
                 component="webfetch",
                 status=HealthStatus.HEALTHY,
                 response_time_ms=result.fetch_time_ms,
                 last_success=datetime.utcnow(),
-                metadata={"cache_size": len(self.webfetch_cache)}
+                metadata={"cache_size": len(self.webfetch_cache)},
             )
-            
+
         except Exception as e:
             return HealthCheckResult(
                 component="webfetch",
                 status=HealthStatus.CRITICAL,
                 response_time_ms=(time.time() - start_time) * 1000,
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def _check_external_api_health(self) -> HealthCheckResult:
@@ -772,12 +846,12 @@ class StandardizedMCPServer(ABC):
         try:
             is_healthy = await self.check_external_api()
             response_time = (time.time() - start_time) * 1000
-            
+
             return HealthCheckResult(
                 component="external_api",
                 status=HealthStatus.HEALTHY if is_healthy else HealthStatus.UNHEALTHY,
                 response_time_ms=response_time,
-                last_success=datetime.utcnow() if is_healthy else None
+                last_success=datetime.utcnow() if is_healthy else None,
             )
         except Exception as e:
             response_time = (time.time() - start_time) * 1000
@@ -785,7 +859,7 @@ class StandardizedMCPServer(ABC):
                 component="external_api",
                 status=HealthStatus.CRITICAL,
                 response_time_ms=response_time,
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def _check_cortex_health(self) -> HealthCheckResult:
@@ -796,13 +870,13 @@ class StandardizedMCPServer(ABC):
             test_query = "SELECT CURRENT_TIMESTAMP() as health_check"
             result = await self.cortex_service.execute_query(test_query)
             response_time = (time.time() - start_time) * 1000
-            
+
             return HealthCheckResult(
                 component="snowflake_cortex",
                 status=HealthStatus.HEALTHY,
                 response_time_ms=response_time,
                 last_success=datetime.utcnow(),
-                metadata={"test_query_result": str(result)}
+                metadata={"test_query_result": str(result)},
             )
         except Exception as e:
             response_time = (time.time() - start_time) * 1000
@@ -810,33 +884,33 @@ class StandardizedMCPServer(ABC):
                 component="snowflake_cortex",
                 status=HealthStatus.CRITICAL,
                 response_time_ms=response_time,
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def _check_data_freshness(self) -> HealthCheckResult:
         """Check data freshness."""
         if self.last_sync_time:
             age_seconds = (datetime.utcnow() - self.last_sync_time).total_seconds()
-            
+
             # Update metrics
             if self.config.enable_metrics:
                 self.data_freshness.set(age_seconds)
-            
+
             # Determine health based on sync priority
             max_age_seconds = {
-                SyncPriority.REAL_TIME: 60,      # 1 minute
-                SyncPriority.HIGH: 300,           # 5 minutes
-                SyncPriority.MEDIUM: 1800,        # 30 minutes
-                SyncPriority.LOW: 86400           # 24 hours
+                SyncPriority.REAL_TIME: 60,  # 1 minute
+                SyncPriority.HIGH: 300,  # 5 minutes
+                SyncPriority.MEDIUM: 1800,  # 30 minutes
+                SyncPriority.LOW: 86400,  # 24 hours
             }.get(self.config.sync_priority, 1800)
-            
+
             if age_seconds <= max_age_seconds:
                 status = HealthStatus.HEALTHY
             elif age_seconds <= max_age_seconds * 2:
                 status = HealthStatus.DEGRADED
             else:
                 status = HealthStatus.UNHEALTHY
-            
+
             return HealthCheckResult(
                 component="data_freshness",
                 status=status,
@@ -845,27 +919,31 @@ class StandardizedMCPServer(ABC):
                 metadata={
                     "age_seconds": age_seconds,
                     "max_age_seconds": max_age_seconds,
-                    "sync_priority": self.config.sync_priority.value
-                }
+                    "sync_priority": self.config.sync_priority.value,
+                },
             )
         else:
             return HealthCheckResult(
                 component="data_freshness",
                 status=HealthStatus.UNHEALTHY,
                 response_time_ms=0,
-                error_message="No sync has been performed yet"
+                error_message="No sync has been performed yet",
             )
 
     def _load_port_from_config(self) -> None:
         """Load port from centralized configuration."""
         try:
-            config_path = Path(__file__).parent.parent.parent / "config" / "mcp_ports.json"
+            config_path = (
+                Path(__file__).parent.parent.parent / "config" / "mcp_ports.json"
+            )
             if config_path.exists():
-                with open(config_path, 'r') as f:
+                with open(config_path, "r") as f:
                     ports_config = json.load(f)
                     if self.server_name in ports_config:
                         self.config.port = ports_config[self.server_name]
-                        logger.info(f"Loaded port {self.config.port} for {self.server_name}")
+                        logger.info(
+                            f"Loaded port {self.config.port} for {self.server_name}"
+                        )
         except Exception as e:
             logger.warning(f"Could not load port from config: {e}")
 
@@ -901,6 +979,8 @@ class StandardizedMCPServer(ABC):
         pass
 
     @abstractmethod
-    async def process_with_ai(self, data: Any, model: Optional[ModelProvider] = None) -> Any:
+    async def process_with_ai(
+        self, data: Any, model: Optional[ModelProvider] = None
+    ) -> Any:
         """Process data using AI capabilities."""
         pass

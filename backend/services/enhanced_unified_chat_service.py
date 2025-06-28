@@ -9,6 +9,7 @@ from .sophia_universal_chat_service import SophiaUniversalChatService
 # Create compatibility aliases
 EnhancedUnifiedChatService = SophiaUniversalChatService
 
+
 # For compatibility with existing imports
 class QueryContext:
     def __init__(self, query: str, context: dict = None):
