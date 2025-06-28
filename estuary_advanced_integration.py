@@ -20,7 +20,8 @@ class EstuaryAdvancedIntegration:
     """Advanced Estuary Flow integration with enhanced Snowflake Cortex AI"""
     
     def __init__(self):
-        self.estuary_token = "eyJhbGciOiJIUzI1NiIsImtpZCI6IlhaYXZsWHkrajczYUxwYlEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2V5cmNubXV6enlyaXlwZGFqd2RrLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJkNDRmMDBhNC05NmE1LTQyMWItYTkxZS02ODVmN2I3NDg5ZTMiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzUxMDYxMTk4LCJpYXQiOjE3NTEwNTc1OTgsImVtYWlsIjoibXVzaWxseW5uQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZ2l0aHViIiwicHJvdmlkZXJzIjpbImdpdGh1YiJdfSwidXNlcl9tZXRhZGF0YSI6eyJhdmF0YXJfdXJsIjoiaHR0cHM6Ly9hdmF0YXJzLmdpdGh1YnVzZXJjb250ZW50LmNvbS91LzEyNDQxODk1Mz92PTQiLCJlbWFpbCI6Im11c2lsbHlubkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiTHlubiBNdXNpbCIsImlzcyI6Imh0dHBzOi8vYXBpLmdpdGh1Yi5jb20iLCJuYW1lIjoiTHlubiBNdXNpbCIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoic2Nvb2J5amF2YSIsInByb3ZpZGVyX2lkIjoiMTI0NDE4OTUzIiwic3ViIjoiMTI0NDE4OTUzIiwidXNlcl9uYW1lIjoic2Nvb2J5amF2YSJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6Im9hdXRoIiwidGltZXN0YW1wIjoxNzUxMDU3NTk4fV0sInNlc3Npb25faWQiOiIwNWZkMTY4OC0xNWJlLTRjYWUtYjYyNS1lYWViODRlZWI2MGUiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.CW9TX5chVAepKLVvAh7tiom8MCMRz9wmq0rtfYO0Z-Y"
+        from backend.core.auto_esc_config import get_config_value
+        self.estuary_token = get_config_value('estuary_access_token')
         self.snowflake_config = {
             'account': 'UHDECNO-CVB64222',
             'user': 'SCOOBYJAVA15',

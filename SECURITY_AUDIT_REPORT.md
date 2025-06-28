@@ -3,19 +3,14 @@
 ============================================================
 
 📊 SUMMARY:
-   🔴 Critical Issues: 136
-   🟠 High Issues: 62
+   🔴 Critical Issues: 134
+   🟠 High Issues: 53
    🟡 Medium Issues: 13
-   📋 Total Issues: 211
+   📋 Total Issues: 200
 
 
 🔴 CRITICAL ISSUES (IMMEDIATE ACTION REQUIRED):
 ==================================================
-File: flow-advanced-ai.yaml:122
-Issue: Potential snowflake_password found
-Content: password: eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaX...
-Fix: Replace with get_config_value('snowflake_password')
-----------------------------------------
 File: comprehensive_alignment_analysis_and_fix.py:38
 Issue: Potential snowflake_password found
 Content: 'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF...
@@ -49,11 +44,6 @@ Fix: Replace with get_config_value('generic_secret')
 File: fix_alignment_issues.py:34
 Issue: Potential snowflake_password found
 Content: 'access_token': 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF...
-Fix: Replace with get_config_value('snowflake_password')
-----------------------------------------
-File: estuary_comprehensive_flow_config.yaml:321
-Issue: Potential snowflake_password found
-Content: password: eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaX...
 Fix: Replace with get_config_value('snowflake_password')
 ----------------------------------------
 File: deploy_estuary_foundation_corrected.py:25
@@ -702,42 +692,6 @@ File: docker-compose.enhanced.yml:226
 Issue: Hardcoded password in connection string
 Content: - POSTGRES_PASSWORD=sophia2025...
 ----------------------------------------
-File: secret_analysis_report.json:13450
-Issue: Hardcoded password in connection string
-Content: "context": "- SNOWFLAKE_DEV_PASSWORD=${SNOWFLAKE_DEV_PASSWORD}",...
-----------------------------------------
-File: secret_analysis_report.json:13666
-Issue: Hardcoded password in connection string
-Content: "context": "echo \"SNOWFLAKE_PASSWORD=${{ secrets.SNOWFLAKE_PASSWORD }}\" >> .env",...
-----------------------------------------
-File: secret_analysis_report.json:13680
-Issue: Hardcoded password in connection string
-Content: "context": "echo \"SNOWFLAKE_PASSWORD=${{ secrets.SNOWFLAKE_PASSWORD }}\" >> $GITHUB_ENV",...
-----------------------------------------
-File: secret_analysis_report.json:13722
-Issue: Hardcoded password in connection string
-Content: "context": "SNOWFLAKE_PASSWORD=${{ secrets.SNOWFLAKE_PASSWORD }}",...
-----------------------------------------
-File: secret_analysis_report.json:13736
-Issue: Hardcoded password in connection string
-Content: "context": "export SNOWFLAKE_PASSWORD=\"${SNOWFLAKE_PASSWORD}\"",...
-----------------------------------------
-File: secret_analysis_report.json:13757
-Issue: Hardcoded password in connection string
-Content: "context": "export SNOWFLAKE_PASSWORD=\"${SNOWFLAKE_PASSWORD}\"",...
-----------------------------------------
-File: secret_analysis_report.json:13764
-Issue: Hardcoded password in connection string
-Content: "context": "--from-literal=SNOWFLAKE_PASSWORD=\"${SNOWFLAKE_PASSWORD}\" \\",...
-----------------------------------------
-File: secret_analysis_report.json:13874
-Issue: Hardcoded password in connection string
-Content: "context": "- SNOWFLAKE_PROD_PASSWORD=${SNOWFLAKE_PROD_PASSWORD}",...
-----------------------------------------
-File: secret_analysis_report.json:14121
-Issue: Hardcoded password in connection string
-Content: "context": "- SNOWFLAKE_STG_PASSWORD=${SNOWFLAKE_STG_PASSWORD}",...
-----------------------------------------
 File: docker-compose.snowflake-admin.yml:15
 Issue: Hardcoded password in connection string
 Content: - SNOWFLAKE_DEV_PASSWORD=${SNOWFLAKE_DEV_PASSWORD}...
@@ -949,6 +903,9 @@ File: scripts/security/security_audit_and_cleanup.py:207
 Issue: SSL verification disabled
 ----------------------------------------
 File: git_history:0
+Issue: Commit message contains sensitive keywords: 4859ad1a 🔐 CRITICAL SECURITY FIX: Remove all exposed secrets and implement secure configuration
+----------------------------------------
+File: git_history:0
 Issue: Commit message contains sensitive keywords: 73aec6a2 SECURITY: Pre-cleanup commit - fixing Pulumi ESC secrets management
 ----------------------------------------
 File: git_history:0
@@ -971,8 +928,5 @@ Issue: Commit message contains sensitive keywords: 17b6fb97 feat: 11-Provider Po
 ----------------------------------------
 File: git_history:0
 Issue: Commit message contains sensitive keywords: 369e9a15 feat: Complete Portkey-first LLM simplification
-----------------------------------------
-File: git_history:0
-Issue: Commit message contains sensitive keywords: 0bf86d73 🚀 ENHANCED CEO UNIVERSAL CHAT SYSTEM - COMPLETE IMPLEMENTATION
 ----------------------------------------
 ... and 3 more medium issues
