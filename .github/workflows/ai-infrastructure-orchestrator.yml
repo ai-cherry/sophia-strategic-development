@@ -163,10 +163,12 @@ jobs:
 
       - name: Run Cost Optimization Analysis
         if: needs.analyze-context.outputs.optimization_needed == 'true'
+        env:
+          IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
         run: |
           python infrastructure/monitoring/cost_optimizer.py analyze \
             --threshold 20 \
-            --auto-apply ${{ github.event_name == 'schedule' }}
+            --auto-apply $IS_SCHEDULE
 
       - name: Run Performance Monitoring
         if: needs.analyze-context.outputs.monitoring_needed == 'true'

@@ -23,14 +23,18 @@ jobs:
     steps:
       - name: Detect Environment
         id: env-detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENV: ${{ github.event.inputs.environment }}
+          REF: ${{ github.ref }}
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            ENVIRONMENT="${{ github.event.inputs.environment }}"
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            ENVIRONMENT="$INPUT_ENV"
+          elif [[ "$REF" == "refs/heads/main" ]]; then
             ENVIRONMENT="production"
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          elif [[ "$REF" == "refs/heads/develop" ]]; then
             ENVIRONMENT="staging"
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          elif [[ "$EVENT_NAME" == "pull_request" ]]; then
             ENVIRONMENT="preview"
           fi
           

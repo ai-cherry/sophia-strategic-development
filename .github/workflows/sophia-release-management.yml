@@ -32,28 +32,30 @@ jobs:
       
       - name: 🏷️ Determine Release Type
         id: determine-type
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          echo "Analyzing release tag: ${{ github.ref_name }}"
+          echo "Analyzing release tag: $REF_NAME"
           
-          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "type=production" >> $GITHUB_OUTPUT
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "is_production=true" >> $GITHUB_OUTPUT
             echo "is_valid=true" >> $GITHUB_OUTPUT
             echo "✅ Production release detected"
-          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
+          elif [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$ ]]; then
             echo "type=release-candidate" >> $GITHUB_OUTPUT
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "is_production=false" >> $GITHUB_OUTPUT
             echo "is_valid=true" >> $GITHUB_OUTPUT
             echo "✅ Release candidate detected"
-          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta[0-9]+$ ]]; then
+          elif [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta[0-9]+$ ]]; then
             echo "type=beta" >> $GITHUB_OUTPUT
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "is_production=false" >> $GITHUB_OUTPUT
             echo "is_valid=true" >> $GITHUB_OUTPUT
             echo "✅ Beta release detected"
-          elif [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha[0-9]+$ ]]; then
+          elif [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-alpha[0-9]+$ ]]; then
             echo "type=alpha" >> $GITHUB_OUTPUT
             echo "environment=development" >> $GITHUB_OUTPUT
             echo "is_production=false" >> $GITHUB_OUTPUT

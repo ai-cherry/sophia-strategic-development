@@ -57,13 +57,19 @@ jobs:
     steps:
       - name: Detect Environment Context
         id: detect
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENV: ${{ github.event.inputs.environment }}
+          INPUT_DOMAIN: ${{ github.event.inputs.domain }}
+          INPUT_VALIDATE: ${{ github.event.inputs.validate_only }}
+          REF: ${{ github.ref }}
         run: |
           # Determine environment
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-            echo "domain=${{ github.event.inputs.domain }}" >> $GITHUB_OUTPUT
-            echo "validate_only=${{ github.event.inputs.validate_only }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo "environment=$INPUT_ENV" >> $GITHUB_OUTPUT
+            echo "domain=$INPUT_DOMAIN" >> $GITHUB_OUTPUT
+            echo "validate_only=$INPUT_VALIDATE" >> $GITHUB_OUTPUT
+          elif [[ "$REF" == "refs/heads/main" ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "domain=sophia-intel.ai" >> $GITHUB_OUTPUT
             echo "validate_only=false" >> $GITHUB_OUTPUT

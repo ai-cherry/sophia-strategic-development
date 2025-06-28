@@ -31,9 +31,11 @@ jobs:
         uses: imranismail/setup-kustomize@v1
       - name: Build and Deploy ${{ matrix.server }}
         working-directory: ./mcp-servers/${{ matrix.server }}
+        env:
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           # Build Docker image
-          docker build -t mcp-${{ matrix.server }}:${{ github.sha }} .
+          docker build -t mcp-${{ matrix.server }}:${COMMIT_SHA} .
           # Push to registry would go here
           
           # Use Kustomize to apply environment-specific overlay

@@ -207,13 +207,15 @@ jobs:
         python-version: '3.11'
 
     - name: Build and deploy backend
+      env:
+        COMMIT_SHA: ${{ github.sha }}
       run: |
         echo "🚀 Building backend..."
-        docker build -t sophia-backend:${{ github.sha }} .
+        docker build -t sophia-backend:${COMMIT_SHA} .
 
         echo "📦 Deploying backend..."
         # Deploy to Lambda Labs or your preferred platform
-        python scripts/deploy_backend.py --image sophia-backend:${{ github.sha }}
+        python scripts/deploy_backend.py --image sophia-backend:${COMMIT_SHA}
 
     - name: Run health checks
       run: |
