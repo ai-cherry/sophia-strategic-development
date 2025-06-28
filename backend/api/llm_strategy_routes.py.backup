@@ -473,97 +473,83 @@ async def update_cost_control(request: Request):
 
 
 @router.post("/api/v1/chat/unified")
-
-async def _validate_chat_request(request: Request) -> Dict[str, Any]:
-    """Validate and parse incoming chat request"""
-    try:
-        request_data = await request.json()
-        
-        if not request_data.get("message"):
-            raise ValueError("Message is required")
-        
-        return {
-            "message": request_data["message"],
-            "context": request_data.get("context", {}),
-            "session_id": request_data.get("session_id"),
-            "user_id": request_data.get("user_id"),
-            "stream": request_data.get("stream", False)
-        }
-    except Exception as e:
-        logger.error(f"Request validation error: {e}")
-        raise HTTPException(status_code=400, detail=f"Invalid request: {e}")
-
-async def _process_chat_message(validated_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Process chat message through AI pipeline"""
-    try:
-        session_id = validated_data.get("session_id") or str(uuid.uuid4())
-        
-        # Create LLM request
-        llm_request = LLMRequest(
-            message=validated_data["message"],
-            context=validated_data.get("context", {}),
-            session_id=session_id,
-            user_id=validated_data.get("user_id")
-        )
-        
-        # Process through intelligence service
-        response = await unified_intelligence_service.process_request(llm_request)
-        
-        return {
-            "response": response.content,
-            "session_id": session_id,
-            "metadata": response.metadata,
-            "processing_time": response.processing_time
-        }
-        
-    except Exception as e:
-        logger.error(f"Chat processing error: {e}")
-        raise HTTPException(status_code=500, detail=f"Processing error: {e}")
-
-async def _handle_streaming_response(validated_data: Dict[str, Any]) -> StreamingResponse:
-    """Handle streaming chat response"""
-    async def generate_stream():
-        try:
-            async for chunk in unified_intelligence_service.stream_response(validated_data):
-                yield f"data: {json.dumps(chunk)}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-    
-    return StreamingResponse(
-        generate_stream(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
-    )
-
-@router.post("/unified-chat", response_model=ChatResponse)
 async def unified_chat_endpoint(request: Request):
-    """
-    Unified chat endpoint for AI interactions
-    Handles both streaming and non-streaming requests
-    """
+    """Enhanced unified chat endpoint with Portkey integration"""
     try:
-        # Validate request
-        validated_data = await _validate_chat_request(request)
-        
-        # Handle streaming requests
-        if validated_data.get("stream"):
-            return await _handle_streaming_response(validated_data)
-        
-        # Process regular chat message
-        result = await _process_chat_message(validated_data)
-        
-        return ChatResponse(
-            content=result["response"],
-            session_id=result["session_id"],
-            metadata=result.get("metadata", {}),
-            processing_time=result.get("processing_time", 0)
-        )
-        
-    except HTTPException:
-        raise
+        data = await request.json()
+        message = data.get("message", "")
+        context = data.get("context", {})
+        routing = data.get("routing", {})
+
+        if not message:
+            raise HTTPException(status_code=400, detail="Message required")
+
+        # Build context-aware system prompt
+        dashboard_type = context.get("dashboardType", "general")
+        system_prompts = {
+            "ceo": "You are Sophia, an AI assistant specialized in executive intelligence for Pay Ready's CEO. Focus on strategic insights, competitive analysis, and high-level business intelligence.",
+            "knowledge": "You are Sophia, an AI assistant for knowledge management. Help with document organization, search, and content optimization.",
+            "project": "You are Sophia, an AI assistant for project management. Focus on team coordination, progress tracking, and delivery optimization.",
+            "general": "You are Sophia, an AI assistant for Pay Ready's business intelligence platform.",
+        }
+
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompts.get(
+                    dashboard_type, system_prompts["general"]
+                ),
+            },
+            {"role": "user", "content": message},
+        ]
+
+        # Determine task type from routing or infer from message
+        task_type = routing.get("taskType", "general")
+        if not task_type or task_type == "general":
+            # Infer task type from message content
+            if any(
+                word in message.lower() for word in ["summarize", "summary", "overview"]
+            ):
+                task_type = (
+                    "executive_summary" if dashboard_type == "ceo" else "summarization"
+                )
+            elif any(
+                word in message.lower()
+                for word in ["competitor", "competition", "market"]
+            ):
+                task_type = "competitive_analysis"
+            elif any(
+                word in message.lower()
+                for word in ["revenue", "financial", "cost", "profit"]
+            ):
+                task_type = "financial_analysis"
+            elif any(
+                word in message.lower() for word in ["code", "script", "function"]
+            ):
+                task_type = "code_generation"
+
+        # Call Portkey gateway with enhanced context
+        response = await llm_manager.call_portkey_gateway(messages, context, task_type)
+
+        # Add suggested actions based on context and response
+        suggested_actions = []
+        if dashboard_type == "ceo" and "summary" in message.lower():
+            suggested_actions.append(
+                {
+                    "id": "generate_executive_report",
+                    "description": "Generate Detailed Executive Report",
+                }
+            )
+
+        response["suggested_actions"] = suggested_actions
+
+        return JSONResponse(content=response)
+
     except Exception as e:
-        logger.error(f"Unexpected error in unified chat: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.error(f"Chat endpoint failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/api/v1/actions/execute")
 async def execute_action(request: Request):
     """Execute suggested actions with enhanced functionality"""

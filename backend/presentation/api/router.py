@@ -34,135 +34,93 @@ from backend.api import (
 )
 
 
-def create_application_router() -> APIRouter:
-    """
-    Create and configure all application routes.
 
-    Returns:
-        APIRouter: The master router with all endpoints configured
-    """
-    router = APIRouter()
-
-    # CEO Dashboard Routes
+def _setup_core_routes(router: APIRouter) -> None:
+    """Setup core AI and chat routes"""
     router.include_router(
-        enhanced_ceo_chat_routes.router, prefix="/api/v1/ceo", tags=["CEO Dashboard"]
-    )
-
-    # LLM and AI Routes
-    router.include_router(
-        simplified_llm_routes.router, prefix="/api/v1/llm", tags=["LLM Strategy"]
+        enhanced_cortex_routes.router,
+        prefix="/api/v1/cortex",
+        tags=["cortex", "ai"]
     )
     router.include_router(
-        llm_strategy_routes.router, prefix="/api/v1/llm-strategy", tags=["LLM Strategy"]
+        sophia_universal_chat_routes.router,
+        prefix="/api/v1/chat", 
+        tags=["chat", "ai"]
     )
     router.include_router(
-        smart_ai_routes.router, prefix="/api/v1/smart-ai", tags=["Smart AI"]
+        llm_strategy_routes.router,
+        prefix="/api/v1/llm",
+        tags=["llm", "ai"]
     )
 
-    # Unified Intelligence Routes
-    router.include_router(
-        unified_intelligence_routes.router,
-        prefix="/api/unified-intelligence",
-        tags=["Unified Intelligence"],
-    )
-    router.include_router(
-        unified_ai_routes.router, prefix="/api/v1/unified-ai", tags=["Unified AI"]
-    )
-
-    # Integration Routes
+def _setup_integration_routes(router: APIRouter) -> None:
+    """Setup third-party integration routes"""
     router.include_router(
         asana_integration_routes.router,
-        prefix="/api/v1/asana",
-        tags=["Asana Integration"],
-    )
-    router.include_router(
-        codacy_integration_routes.router,
-        prefix="/api/v1/codacy",
-        tags=["Codacy Integration"],
+        prefix="/api/v1/integrations/asana",
+        tags=["integrations", "asana"]
     )
     router.include_router(
         linear_integration_routes.router,
-        prefix="/api/v1/linear",
-        tags=["Linear Integration"],
+        prefix="/api/v1/integrations/linear",
+        tags=["integrations", "linear"]
     )
     router.include_router(
         notion_integration_routes.router,
-        prefix="/api/v1/notion",
-        tags=["Notion Integration"],
+        prefix="/api/v1/integrations/notion",
+        tags=["integrations", "notion"]
     )
 
-    # Cortex and AI Processing Routes
+def _setup_data_routes(router: APIRouter) -> None:
+    """Setup data and analytics routes"""
     router.include_router(
-        cortex_routes.router, prefix="/api/v1/cortex", tags=["Cortex AI"]
-    )
-    router.include_router(
-        enhanced_cortex_routes.router,
-        prefix="/api/v1/enhanced-cortex",
-        tags=["Enhanced Cortex"],
-    )
-    router.include_router(
-        costar_routes.router, prefix="/api/v1/costar", tags=["COSTAR"]
-    )
-
-    # Data and Knowledge Management Routes
-    router.include_router(
-        data_flow_routes.router, prefix="/api/v1/data-flow", tags=["Data Flow"]
-    )
-    router.include_router(
-        foundational_knowledge_routes.router,
-        prefix="/api/v1/knowledge",
-        tags=["Foundational Knowledge"],
-    )
-    router.include_router(
-        kb_management_routes.router,
-        prefix="/api/v1/kb",
-        tags=["Knowledge Base Management"],
+        snowflake_intelligence_routes.router,
+        prefix="/api/v1/intelligence",
+        tags=["intelligence", "analytics"]
     )
     router.include_router(
         knowledge_dashboard_routes.router,
-        prefix="/api/v1/knowledge-dashboard",
-        tags=["Knowledge Dashboard"],
+        prefix="/api/v1/knowledge",
+        tags=["knowledge", "dashboard"]
     )
     router.include_router(
         large_data_import_routes.router,
-        prefix="/api/v1/data-import",
-        tags=["Data Import"],
+        prefix="/api/v1/data",
+        tags=["data", "import"]
     )
 
-    # Project and Dashboard Routes
+def _setup_admin_routes(router: APIRouter) -> None:
+    """Setup administrative and management routes"""
     router.include_router(
-        project_dashboard_routes.router,
-        prefix="/api/v1/projects",
-        tags=["Project Dashboard"],
+        kb_management_routes.router,
+        prefix="/api/v1/kb",
+        tags=["knowledge-base", "admin"]
     )
     router.include_router(
         slack_linear_knowledge_routes.router,
         prefix="/api/v1/slack-linear",
-        tags=["Slack Linear Knowledge"],
+        tags=["slack", "linear", "knowledge"]
+    )
+    router.include_router(
+        codacy_integration_routes.router,
+        prefix="/api/v1/integrations/codacy",
+        tags=["integrations", "codacy"]
     )
 
-    # Snowflake Intelligence Routes
-    router.include_router(
-        snowflake_intelligence_routes.router,
-        prefix="/api/v1/snowflake",
-        tags=["Snowflake Intelligence"],
-    )
-
-    # Sophia AI Core Routes
-    router.include_router(
-        sophia_ai_phase1_routes.router,
-        prefix="/api/v1/sophia",
-        tags=["Sophia AI Phase 1"],
-    )
-    router.include_router(
-        sophia_universal_chat_routes.router,
-        prefix="/api/v1/chat",
-        tags=["Sophia Universal Chat"],
-    )
-    router.include_router(
-        universal_chat_routes.router,
-        prefix="/api/v1/universal-chat",
-        tags=["Universal Chat"],
-    )
-
+def create_application_router() -> APIRouter:
+    """
+    Create and configure the main application router with all endpoints
+    
+    Returns:
+        APIRouter: Configured router with all application routes
+    """
+    router = APIRouter()
+    
+    # Setup route groups in logical order
+    _setup_core_routes(router)
+    _setup_integration_routes(router)
+    _setup_data_routes(router)
+    _setup_admin_routes(router)
+    
+    logger.info("✅ Application router created with all endpoints")
     return router
