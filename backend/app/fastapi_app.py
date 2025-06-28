@@ -20,9 +20,9 @@ from backend.core.simple_config import get_config_value
 from backend.core.dependencies import get_chat_service
 
 # Route imports - no circular dependencies
-from backend.api.universal_chat_routes import router as chat_router
-from backend.api.enhanced_ceo_chat_routes import router as ceo_chat_router
-from backend.api.simplified_llm_routes import router as llm_router
+from backend.api import enhanced_ceo_chat_routes
+from backend.api import simplified_llm_routes
+from backend.api import unified_intelligence_routes
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -35,12 +35,19 @@ async def lifespan(app: FastAPI):
     Replaces deprecated @app.on_event handlers.
     """
     # Startup
-    logger.info("🚀 Starting Sophia AI Platform...")
+    logger.info("🚀 Starting Sophia AI Unified Ecosystem...")
     
     try:
+        # Initialize the simplified unified intelligence service
+        from backend.services.simplified_unified_intelligence_service import get_simplified_unified_intelligence_service
+        unified_service = await get_simplified_unified_intelligence_service()
+        app.state.unified_intelligence = unified_service
+        logger.info("✅ Simplified Unified Intelligence Service initialized")
+        
         # Initialize the chat service and store in app state
         chat_service = await get_chat_service()
         app.state.chat_service_instance = chat_service
+        logger.info("✅ Chat Service initialized")
         
         # Test configuration loading
         config_test = get_config_value("values_sophia_ai_openai_api_key", "")
@@ -49,7 +56,7 @@ async def lifespan(app: FastAPI):
         else:
             logger.warning("⚠️ No OpenAI API key found - running in limited mode")
         
-        logger.info("✅ Sophia AI Platform startup complete")
+        logger.info("✅ Sophia AI Unified Ecosystem startup complete")
         
         # Yield control to the application
         yield
@@ -61,18 +68,18 @@ async def lifespan(app: FastAPI):
     
     finally:
         # Shutdown
-        logger.info("🛑 Shutting down Sophia AI Platform...")
+        logger.info("🛑 Shutting down Sophia AI Unified Ecosystem...")
         
-        # Cleanup chat service if it exists
-        if hasattr(app.state, 'chat_service_instance'):
-            try:
-                # Add any cleanup logic here if needed
-                delattr(app.state, 'chat_service_instance')
-                logger.info("✅ Chat service cleaned up")
-            except Exception as e:
-                logger.error(f"⚠️ Error during chat service cleanup: {e}")
+        # Cleanup services if they exist
+        for service_name in ['unified_intelligence', 'chat_service_instance']:
+            if hasattr(app.state, service_name):
+                try:
+                    delattr(app.state, service_name)
+                    logger.info(f"✅ {service_name} cleaned up")
+                except Exception as e:
+                    logger.error(f"⚠️ Error during {service_name} cleanup: {e}")
         
-        logger.info("✅ Sophia AI Platform shutdown complete")
+        logger.info("✅ Sophia AI Unified Ecosystem shutdown complete")
 
 # Create FastAPI app with lifespan
 app = FastAPI(
@@ -124,9 +131,9 @@ async def root():
     }
 
 # Include routers
-app.include_router(chat_router, prefix="/api/v1/chat", tags=["Chat"])
-app.include_router(ceo_chat_router, prefix="/api/v1/ceo", tags=["CEO Dashboard"])
-app.include_router(llm_router, prefix="/api/v1/llm", tags=["LLM Strategy"])
+app.include_router(enhanced_ceo_chat_routes.router, prefix="/api/v1/ceo", tags=["CEO Dashboard"])
+app.include_router(simplified_llm_routes.router, prefix="/api/v1/llm", tags=["LLM Strategy"])
+app.include_router(unified_intelligence_routes.router, tags=["Unified Intelligence"])
 
 def run_server():
     """Run the server with proper configuration"""
