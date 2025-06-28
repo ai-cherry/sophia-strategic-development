@@ -30,7 +30,7 @@ def _load_esc_environment() -> Dict[str, Any]:
     try:
         # Get the ESC environment using pulumi env get
         result = subprocess.run(
-            ['pulumi', 'env', 'get', 'default/sophia-ai-production'],
+            ['pulumi', 'env', 'get', 'scoobyjava-org/default/sophia-ai-production'],
             capture_output=True,
             text=True,
             timeout=30
@@ -121,26 +121,50 @@ def get_config_value(key: str, default: Any = None) -> Any:
         'pinecone_api_key': 'pinecone_api_key',
     }
     
-    # Try to get from ESC using mapped key
+    # Try to get from ESC using mapped key (handle quoted keys)
     esc_key = esc_key_mappings.get(key, key)
-    if esc_key in esc_data and esc_data[esc_key] != '[secret]':
-        _config_cache[key] = esc_data[esc_key]
-        return esc_data[esc_key]
+    quoted_esc_key = f'"{esc_key}"'
     
-    # For secrets, try to get them via pulumi env run
-    if esc_key in esc_data and esc_data[esc_key] == '[secret]':
+    # Check both quoted and unquoted versions
+    esc_value = esc_data.get(esc_key) or esc_data.get(quoted_esc_key)
+    
+    if esc_value and esc_value != '[secret]':
+        _config_cache[key] = esc_value
+        return esc_value
+    
+    # For secrets, try to get them directly from ESC with --show-secrets
+    if esc_value == '[secret]':
         try:
-            # Try to get secret value via environment variable in ESC context
+            # Get secret value directly using --show-secrets
             result = subprocess.run(
-                ['pulumi', 'env', 'run', 'default/sophia-ai-production', '--', 'bash', '-c', f'echo ${esc_key.upper()}'],
+                ['pulumi', 'env', 'get', 'scoobyjava-org/default/sophia-ai-production', '--show-secrets'],
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=30
             )
-            if result.returncode == 0 and result.stdout.strip():
-                secret_value = result.stdout.strip()
-                _config_cache[key] = secret_value
-                return secret_value
+            if result.returncode == 0:
+                # Parse the JSON output to get the secret value
+                import json
+                try:
+                    esc_secrets = json.loads(result.stdout)
+                    if esc_key in esc_secrets:
+                        secret_value = esc_secrets[esc_key]
+                        _config_cache[key] = secret_value
+                        return secret_value
+                except json.JSONDecodeError:
+                    # Fallback to line-by-line parsing
+                    for line in result.stdout.split('\n'):
+                        if f'"{esc_key}":' in line and 'PLACEHOLDER' not in line:
+                            try:
+                                # Extract the value from the JSON line
+                                value_part = line.split(':', 1)[1].strip()
+                                if value_part.endswith(','):
+                                    value_part = value_part[:-1]
+                                secret_value = value_part.strip('"')
+                                _config_cache[key] = secret_value
+                                return secret_value
+                            except:
+                                continue
         except Exception as e:
             logger.debug(f"Failed to get secret {esc_key}: {e}")
     
