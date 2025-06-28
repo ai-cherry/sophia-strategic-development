@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Snowflake Cortex AI Service
 
@@ -25,8 +27,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional

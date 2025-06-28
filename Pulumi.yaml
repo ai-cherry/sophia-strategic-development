@@ -1,9 +1,20 @@
-name: sophia-main
-runtime: python
-description: A sophisticated AI orchestration platform.
+name: sophia-ai
+runtime:
+  name: python
+  options:
+    toolchain: uv
+    virtualenv: .venv
+description: Sophia AI - Enterprise AI Orchestrator Infrastructure
 
-# Associate this Pulumi project with our central ESC environment.
-# This ensures that all secrets and configurations are automatically
-# available to our Pulumi programs without needing to specify them manually.
-environment:
-  - scoobyjava-org/default/sophia-ai-production
+config:
+  aws:region: us-west-2
+  kubernetes:enableServerSideApply: true
+  
+template:
+  config:
+    aws:region:
+      description: The AWS region to deploy to
+      default: us-west-2
+    environment:
+      description: The deployment environment (dev, staging, prod)
+      default: prod
