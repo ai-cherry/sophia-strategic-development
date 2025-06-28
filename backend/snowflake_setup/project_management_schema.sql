@@ -361,29 +361,45 @@ CREATE TABLE IF NOT EXISTS TEAM_PERFORMANCE_METRICS (
 -- =====================================================================
 
 -- Linear indexes
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_TEAM ON LINEAR_PROJECTS (TEAM_ID);
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_STATE ON LINEAR_PROJECTS (STATE_TYPE);
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_HEALTH ON LINEAR_PROJECTS (HEALTH_SCORE);
-
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_PROJECT ON LINEAR_ISSUES (PROJECT_ID);
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_ASSIGNEE ON LINEAR_ISSUES (ASSIGNEE_ID);
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_STATE ON LINEAR_ISSUES (STATE_TYPE);
-CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_PRIORITY ON LINEAR_ISSUES (PRIORITY);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_TEAM ON LINEAR_PROJECTS (TEAM_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_STATE ON LINEAR_PROJECTS (STATE_TYPE);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_PROJECTS_HEALTH ON LINEAR_PROJECTS (HEALTH_SCORE);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_PROJECT ON LINEAR_ISSUES (PROJECT_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_ASSIGNEE ON LINEAR_ISSUES (ASSIGNEE_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_STATE ON LINEAR_ISSUES (STATE_TYPE);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_LINEAR_ISSUES_PRIORITY ON LINEAR_ISSUES (PRIORITY);
+-- 
 -- Asana indexes
-CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_TEAM ON ASANA_PROJECTS (TEAM_GID);
-CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_OWNER ON ASANA_PROJECTS (OWNER_GID);
-CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_STATUS ON ASANA_PROJECTS (CURRENT_STATUS);
-
-CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_PROJECT ON ASANA_TASKS (PROJECT_GID);
-CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_ASSIGNEE ON ASANA_TASKS (ASSIGNEE_GID);
-CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_COMPLETED ON ASANA_TASKS (COMPLETED);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_TEAM ON ASANA_PROJECTS (TEAM_GID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_OWNER ON ASANA_PROJECTS (OWNER_GID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_PROJECTS_STATUS ON ASANA_PROJECTS (CURRENT_STATUS);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_PROJECT ON ASANA_TASKS (PROJECT_GID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_ASSIGNEE ON ASANA_TASKS (ASSIGNEE_GID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ASANA_TASKS_COMPLETED ON ASANA_TASKS (COMPLETED);
+-- 
 -- Analytics indexes
-CREATE INDEX IF NOT EXISTS IDX_PROJECT_HEALTH_PLATFORM ON PROJECT_HEALTH_METRICS (PLATFORM, PROJECT_ID);
-CREATE INDEX IF NOT EXISTS IDX_PROJECT_HEALTH_OVERALL ON PROJECT_HEALTH_METRICS (OVERALL_HEALTH);
-CREATE INDEX IF NOT EXISTS IDX_TEAM_PERFORMANCE_PLATFORM ON TEAM_PERFORMANCE_METRICS (PLATFORM, TEAM_ID);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_PROJECT_HEALTH_PLATFORM ON PROJECT_HEALTH_METRICS (PLATFORM, PROJECT_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_PROJECT_HEALTH_OVERALL ON PROJECT_HEALTH_METRICS (OVERALL_HEALTH);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_TEAM_PERFORMANCE_PLATFORM ON TEAM_PERFORMANCE_METRICS (PLATFORM, TEAM_ID);
+-- 
 -- =====================================================================
 -- 5. VIEWS FOR UNIFIED ANALYTICS
 -- =====================================================================

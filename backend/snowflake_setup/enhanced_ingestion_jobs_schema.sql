@@ -164,11 +164,15 @@ CREATE TABLE IF NOT EXISTS CEO_INTELLIGENCE_ACCESS_LOG (
 );
 
 -- Performance Indexes
-CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_status ON INGESTION_JOBS(STATUS);
-CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_user ON INGESTION_JOBS(USER_ID);
-CREATE INDEX IF NOT EXISTS idx_search_analytics_user ON SEARCH_ANALYTICS(USER_ID);
-CREATE INDEX IF NOT EXISTS idx_search_analytics_created ON SEARCH_ANALYTICS(CREATED_AT);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_status ON INGESTION_JOBS(STATUS);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_user ON INGESTION_JOBS(USER_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_search_analytics_user ON SEARCH_ANALYTICS(USER_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_search_analytics_created ON SEARCH_ANALYTICS(CREATED_AT);
+-- 
 -- Performance Views
 CREATE OR REPLACE VIEW INGESTION_PERFORMANCE_SUMMARY AS
 SELECT 

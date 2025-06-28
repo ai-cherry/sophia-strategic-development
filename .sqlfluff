@@ -1,0 +1,4 @@
+[sqlfluff]
+dialect = snowflake
+large_file_skip_byte_limit = 30000
+

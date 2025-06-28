@@ -631,19 +631,29 @@ AS
 -- =====================================================================
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_DATETIME ON STG_GONG_CALLS(CALL_DATETIME_UTC);
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_HUBSPOT_DEAL ON STG_GONG_CALLS(HUBSPOT_DEAL_ID);
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_PRIMARY_USER ON STG_GONG_CALLS(PRIMARY_USER_ID);
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_SENTIMENT ON STG_GONG_CALLS(SENTIMENT_SCORE);
-
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_TRANSCRIPTS_CALL_ID ON STG_GONG_CALL_TRANSCRIPTS(CALL_ID);
-CREATE INDEX IF NOT EXISTS IX_STG_GONG_TRANSCRIPTS_SPEAKER ON STG_GONG_CALL_TRANSCRIPTS(SPEAKER_EMAIL);
-
-CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_STAGE ON STG_HUBSPOT_DEALS(DEAL_STAGE);
-CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_OWNER ON STG_HUBSPOT_DEALS(DEAL_OWNER_EMAIL);
-CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_AMOUNT ON STG_HUBSPOT_DEALS(DEAL_AMOUNT);
-CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_CLOSE_DATE ON STG_HUBSPOT_DEALS(CLOSE_DATE);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_DATETIME ON STG_GONG_CALLS(CALL_DATETIME_UTC);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_HUBSPOT_DEAL ON STG_GONG_CALLS(HUBSPOT_DEAL_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_PRIMARY_USER ON STG_GONG_CALLS(PRIMARY_USER_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_CALLS_SENTIMENT ON STG_GONG_CALLS(SENTIMENT_SCORE);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_TRANSCRIPTS_CALL_ID ON STG_GONG_CALL_TRANSCRIPTS(CALL_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_GONG_TRANSCRIPTS_SPEAKER ON STG_GONG_CALL_TRANSCRIPTS(SPEAKER_EMAIL);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_STAGE ON STG_HUBSPOT_DEALS(DEAL_STAGE);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_OWNER ON STG_HUBSPOT_DEALS(DEAL_OWNER_EMAIL);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_AMOUNT ON STG_HUBSPOT_DEALS(DEAL_AMOUNT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_STG_HUBSPOT_DEALS_CLOSE_DATE ON STG_HUBSPOT_DEALS(CLOSE_DATE);
+-- 
 -- =====================================================================
 -- 8. GRANTS AND PERMISSIONS
 -- =====================================================================
