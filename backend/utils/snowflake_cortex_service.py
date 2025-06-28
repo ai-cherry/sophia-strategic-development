@@ -915,18 +915,20 @@ class SnowflakeCortexService:
                 else:
                     raise CortexEmbeddingError(f"Query embedding error: {cortex_error}")
 
-            # Step 3: Build WHERE clause with parameterized queries
+            # Step 3: Build WHERE clause with parameterized queries - SECURE VERSION
             where_conditions = [f"{embedding_column} IS NOT NULL"]
-            query_params = [query_embedding, similarity_threshold, top_k]
+            query_params = []
 
             if metadata_filters:
                 for key, value in metadata_filters.items():
+                    # Key is already validated against whitelist above
                     where_conditions.append(f"{key} = %s")
-                    query_params.insert(-2, value)  # Insert before threshold and limit
+                    query_params.append(value)
 
             where_clause = " AND ".join(where_conditions)
 
-            # Step 4: Build the vector search query with proper parameterization
+            # Step 4: Build the vector search query with proper parameterization - SECURE VERSION
+            # Using validated table_name and embedding_column directly since they're whitelisted
             search_query = f"""
             SELECT 
                 *,
@@ -939,11 +941,7 @@ class SnowflakeCortexService:
             """
 
             # Parameters: [query_embedding, query_embedding, ...metadata_values..., similarity_threshold, top_k]
-            final_params = (
-                [query_embedding, query_embedding]
-                + query_params[:-2]
-                + query_params[-2:]
-            )
+            final_params = [query_embedding, query_embedding] + query_params + [similarity_threshold, top_k]
 
             cursor.execute(search_query, final_params)
 

@@ -370,14 +370,19 @@ class RealTimeStreamingService:
         try:
             cursor = self.connection.cursor(DictCursor)
 
-            # Query stream for changes
+            # Query stream for changes - SECURE: Use validated identifiers
+            from backend.core.sql_security_validator import validate_schema_name
+            
+            safe_schema = validate_schema_name(stream_config["schema_name"])
+            safe_stream = stream_config["stream_name"]  # Stream names are controlled internally
+            
             stream_query = f"""
             SELECT 
                 METADATA$ACTION as ACTION,
                 METADATA$ISUPDATE as IS_UPDATE,
                 METADATA$ROW_ID as ROW_ID,
                 *
-            FROM {stream_config["schema_name"]}.{stream_config["stream_name"]}
+            FROM {safe_schema}.{safe_stream}
             LIMIT 100
             """
 

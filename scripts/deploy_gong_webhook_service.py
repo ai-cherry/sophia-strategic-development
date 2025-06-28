@@ -14,14 +14,29 @@ def print_header(message):
     print("=" * 80)
 
 
-def run_command(command, capture_output=False):
-    """Run shell command"""
-    print(f"  ⚡ Running: {command}")
+def run_command(command, capture_output=False, shell=False):
+    """
+    Run command securely.
+    
+    Args:
+        command: Command to run (string or list of arguments)
+        capture_output: Whether to capture and return stdout
+        shell: Whether to run command through shell (SECURITY RISK - use only when necessary)
+              If shell=False (safer), command must be a list of arguments
+    """
+    if isinstance(command, str) and not shell:
+        # Split string into args for safer execution
+        import shlex
+        command = shlex.split(command)
+    
+    cmd_display = command if isinstance(command, str) else " ".join(command)
+    print(f"  ⚡ Running: {cmd_display}")
+    
     if capture_output:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        result = subprocess.run(command, shell=shell, capture_output=True, text=True)
         return result.stdout.strip()
     else:
-        return subprocess.run(command, shell=True).returncode == 0
+        return subprocess.run(command, shell=shell).returncode == 0
 
 
 def check_dns():
@@ -29,13 +44,13 @@ def check_dns():
     print_header("Checking DNS Resolution")
     domain = "webhooks.sophia-intel.ai"
 
-    # Check DNS
-    result = run_command(f"nslookup {domain}", capture_output=True)
+    # Check DNS - requires shell for output parsing
+    result = run_command(["nslookup", domain], capture_output=True)
     print(f"  DNS Result:\n{result}")
 
-    # Check if it resolves to expected IP
+    # Check if it resolves to expected IP - ensure result is a string
     expected_ip = "34.74.88.2"
-    if expected_ip in result:
+    if isinstance(result, str) and expected_ip in result:
         print(f"  ✅ DNS correctly points to {expected_ip}")
         return True
     else:
@@ -47,22 +62,22 @@ def deploy_locally():
     """Deploy webhook service locally for testing"""
     print_header("Deploying Webhook Service Locally")
 
-    # Build Docker image
+    # Build Docker image - requires shell due to cd command
     print("\n  📦 Building Docker image...")
-    if run_command("cd gong-webhook-service && docker build -t gong-webhook:latest ."):
+    if run_command("cd gong-webhook-service && docker build -t gong-webhook:latest .", shell=True):
         print("  ✅ Docker image built successfully")
     else:
         print("  ❌ Failed to build Docker image")
         return False
 
-    # Stop any existing container
-    run_command("docker stop gong-webhook 2>/dev/null")
-    run_command("docker rm gong-webhook 2>/dev/null")
+    # Stop any existing container - shell needed for redirection
+    run_command("docker stop gong-webhook 2>/dev/null", shell=True)
+    run_command("docker rm gong-webhook 2>/dev/null", shell=True)
 
     # Run container
     print("\n  🏃 Starting webhook service...")
     if run_command(
-        "docker run -d --name gong-webhook -p 8080:8080 gong-webhook:latest"
+        ["docker", "run", "-d", "--name", "gong-webhook", "-p", "8080:8080", "gong-webhook:latest"]
     ):
         print("  ✅ Webhook service started on port 8080")
 
@@ -73,13 +88,18 @@ def deploy_locally():
 
         # Test health endpoint
         health_result = run_command(
-            "curl -s http://localhost:8080/health", capture_output=True
+            ["curl", "-s", "http://localhost:8080/health"], capture_output=True
         )
         print(f"\n  Health Check Result: {health_result}")
 
         # Test webhook endpoint
         webhook_test = run_command(
-            'curl -s -X POST http://localhost:8080/webhook/gong/calls -H "Content-Type: application/json" -d "{}"',
+            [
+                "curl", "-s", "-X", "POST", 
+                "http://localhost:8080/webhook/gong/calls", 
+                "-H", "Content-Type: application/json", 
+                "-d", "{}"
+            ],
             capture_output=True,
         )
         print(f"\n  Webhook Test Result: {webhook_test}")

@@ -463,7 +463,7 @@ class StandardizedMCPServer(ABC):
             )
 
         # Check cache
-        cache_key = hashlib.md5(url.encode()).hexdigest()
+        cache_key = hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()
         if use_cache and cache_key in self.webfetch_cache:
             cached_result = self.webfetch_cache[cache_key]
             cached_result.cached = True

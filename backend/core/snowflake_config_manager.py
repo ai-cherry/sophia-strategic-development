@@ -150,7 +150,7 @@ class FeatureFlag:
                 return False
 
             # Use hash of user_id for consistent percentage-based rollout
-            user_hash = int(hashlib.md5(user_id.encode()).hexdigest(), 16)
+            user_hash = int(hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16)
             user_percentage = (user_hash % 100) + 1
             return user_percentage <= self.rollout_percentage
 
@@ -178,7 +178,7 @@ class FeatureFlag:
             if not variant_names:
                 return False
 
-            user_hash = int(hashlib.md5(user_id.encode()).hexdigest(), 16)
+            user_hash = int(hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16)
             variant_index = user_hash % len(variant_names)
             selected_variant = variant_names[variant_index]
 

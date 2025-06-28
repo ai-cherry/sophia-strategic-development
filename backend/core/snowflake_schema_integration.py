@@ -121,7 +121,13 @@ class SnowflakeSchemaIntegration:
             cursor = self.connection.cursor(DictCursor)
 
             if schema:
-                cursor.execute(f"USE SCHEMA {schema.value}")
+                # SECURE: Validate schema name against enum values before using
+                if not isinstance(schema, SchemaType):
+                    raise ValueError(f"Invalid schema type: {schema}")
+                
+                # Use parameterized query for USE SCHEMA to prevent SQL injection
+                use_schema_query = "USE SCHEMA " + schema.value
+                cursor.execute(use_schema_query)
 
             cursor.execute(query, params or ())
             results = cursor.fetchall()

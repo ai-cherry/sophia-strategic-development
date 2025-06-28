@@ -503,7 +503,7 @@ class CoStarMCPServer:
 
     async def _calculate_file_checksum(self, file_path: Path) -> str:
         """Calculate MD5 checksum of file."""
-        hash_md5 = hashlib.md5()
+        hash_md5 = hashlib.md5(usedforsecurity=False)
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)

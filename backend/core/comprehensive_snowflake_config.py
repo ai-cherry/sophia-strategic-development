@@ -219,7 +219,7 @@ class ComprehensiveSnowflakeManager:
 
             # Switch schema if specified
             if schema:
-                cursor.execute(f"USE SCHEMA {schema.value}")
+                cursor.execute("USE SCHEMA " + self._validate_schema(schema.value))
 
             cursor.execute(query, params or ())
             results = cursor.fetchall()

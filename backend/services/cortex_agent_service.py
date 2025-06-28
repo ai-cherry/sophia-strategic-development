@@ -29,6 +29,13 @@ JWT_EXPIRATION_HOURS = 24
 
 # Agent Request/Response Models
 class AgentRequest(BaseModel):
+
+    def _validate_warehouse(self, warehouse_name: str) -> str:
+        """Validate warehouse name against whitelist"""
+        safe_warehouses = {'AI_COMPUTE_WH', 'COMPUTE_WH', 'ANALYTICS_WH'}
+        if warehouse_name not in safe_warehouses:
+            raise ValueError(f"Invalid warehouse name: {warehouse_name}")
+        return warehouse_name
     """Request model for agent invocation"""
 
     prompt: str
@@ -379,7 +386,7 @@ class CortexAgentService:
 
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            cursor.execute(f"USE WAREHOUSE {warehouse}")
+            cursor.execute("USE WAREHOUSE " + self._validate_warehouse(warehouse))
             cursor.execute(query)
 
             results = cursor.fetchall()
@@ -406,7 +413,7 @@ class CortexAgentService:
             """
 
             cursor = self.snowflake_conn.cursor(DictCursor)
-            cursor.execute(embedding_query)
+            cursor.execute(embedding_query, (model, text_content))
             result = cursor.fetchone()
 
             # Store in vector table
@@ -451,7 +458,7 @@ class CortexAgentService:
             """
 
             cursor = self.snowflake_conn.cursor(DictCursor)
-            cursor.execute(search_query)
+            cursor.execute(search_query, (query_embedding, similarity_threshold, top_k))
             results = cursor.fetchall()
 
             return {"success": True, "memories": results}

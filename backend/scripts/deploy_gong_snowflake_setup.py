@@ -245,7 +245,7 @@ class GongSnowflakeDeployer:
             ]
 
             for table in tables_to_check:
-                cursor.execute(f"SELECT COUNT(*) FROM {table} LIMIT 1")
+                cursor.execute("SELECT COUNT(*) FROM " + self._validate_table_name(table))
                 # If this doesn't throw an error, table exists
                 logger.info(f"✅ Verified table exists: {table}")
 

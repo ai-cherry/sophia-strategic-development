@@ -57,7 +57,7 @@ class WebFetchMixin:
 
     def _get_cache_key(self, url: str) -> str:
         """Generate cache key for URL."""
-        return hashlib.md5(url.encode()).hexdigest()
+        return hashlib.md5(url.encode(), usedforsecurity=False).hexdigest()
 
     def _get_cache_path(self, url: str) -> str:
         """Get cache file path for URL."""

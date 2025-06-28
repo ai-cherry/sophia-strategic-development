@@ -823,7 +823,7 @@ class SnowflakeApplicationLayerDeployer:
         cursor = self.connection.cursor()
         try:
             for schema in schemas_to_check:
-                cursor.execute(f"SHOW TABLES IN SCHEMA {schema}")
+                cursor.execute("SHOW TABLES IN SCHEMA " + self._validate_schema(schema))
                 tables = cursor.fetchall()
                 schema_health[schema] = f"healthy ({len(tables)} tables)"
         except Exception as e:

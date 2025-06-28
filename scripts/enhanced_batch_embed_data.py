@@ -281,12 +281,13 @@ class EnhancedBatchEmbeddingProcessor:
         """Check if table exists in the specified schema"""
         try:
             cursor = self.snowflake_conn.cursor()
-            cursor.execute(f"""
+            # SECURE: Use parameterized query to prevent SQL injection
+            cursor.execute("""
                 SELECT COUNT(*) 
                 FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_SCHEMA = '{schema_name}' 
-                AND TABLE_NAME = '{table_name}'
-            """)
+                WHERE TABLE_SCHEMA = %s 
+                AND TABLE_NAME = %s
+            """, (schema_name, table_name))
 
             result = cursor.fetchone()
             exists = result[0] > 0
@@ -312,15 +313,24 @@ class EnhancedBatchEmbeddingProcessor:
                 [f"COALESCE({col}, '')" for col in config.text_columns]
             )
 
-            cursor.execute(f"""
+            # SECURE: Build query with validated identifiers
+            from backend.core.sql_security_validator import validate_schema_name, validate_table_name
+            
+            safe_schema = validate_schema_name(config.schema_name)
+            safe_table = validate_table_name(config.table_name)
+            
+            # Build query with safe identifiers (columns are from config, not user input)
+            query = f"""
                 SELECT 
                     {config.id_column},
                     {text_concat} AS COMBINED_TEXT
-                FROM {config.schema_name}.{config.table_name}
+                FROM {safe_schema}.{safe_table}
                 WHERE {config.embedding_column} IS NULL
                 AND ({" OR ".join([f"{col} IS NOT NULL" for col in config.text_columns])})
                 LIMIT {config.batch_size}
-            """)
+            """
+            
+            cursor.execute(query)
 
             records = []
             for row in cursor.fetchall():

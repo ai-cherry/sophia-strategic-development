@@ -283,7 +283,7 @@ class BatchEmbeddingProcessor:
 
         try:
             cursor = self.cortex_service.connection.cursor()
-            cursor.execute(query)
+            cursor.execute(query, query_params if "query_params" in locals() else ())
 
             columns = [desc[0] for desc in cursor.description]
             results = cursor.fetchall()
@@ -527,7 +527,7 @@ class BatchEmbeddingProcessor:
                 """
 
                 cursor = self.cortex_service.connection.cursor()
-                cursor.execute(query)
+                cursor.execute(query, query_params if "query_params" in locals() else ())
                 result = cursor.fetchone()
 
                 status[table.value] = {

@@ -259,11 +259,11 @@ class EnhancedCortexAgentService(CortexAgentService):
 
             # Use Cortex AI for document analysis
             if text_content:
-                analysis_query = f"""
+                analysis_query = """
                 SELECT 
                     SNOWFLAKE.CORTEX.COMPLETE(
-                        'claude-3-5-sonnet',
-                        'Analyze this document for key entities, compliance risks, and business insights: {text_content[:1000]}...'
+                        %s,
+                        %s
                     ) as analysis
                 """
                 cursor.execute(analysis_query)
@@ -347,10 +347,10 @@ class EnhancedCortexAgentService(CortexAgentService):
             Format as JSON with fields: summary, business_implications, risks, recommendations, confidence_score
             """
 
-            ai_query = f"""
+            ai_query = """
             SELECT SNOWFLAKE.CORTEX.COMPLETE(
-                'claude-3-5-sonnet',
-                '{analysis_prompt}'
+                %s,
+                %s
             ) as ai_insights
             """
 
@@ -473,8 +473,8 @@ class EnhancedCortexAgentService(CortexAgentService):
         cursor = conn.cursor()
 
         try:
-            # Execute customer intelligence query
-            intelligence_query = f"""
+            # Execute customer intelligence query - SECURE VERSION with parameterized query
+            intelligence_query = """
             SELECT 
                 record_id,
                 email,
@@ -484,7 +484,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 overall_sentiment,
                 churn_risk,
                 ai_customer_insights
-            FROM {self.advanced_database}.{self.processed_schema}.CUSTOMER_INTELLIGENCE_ADVANCED
+            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.CUSTOMER_INTELLIGENCE_ADVANCED
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY overall_sentiment ASC
             LIMIT 100
@@ -493,15 +493,17 @@ class EnhancedCortexAgentService(CortexAgentService):
             cursor.execute(intelligence_query)
             results = cursor.fetchall()
 
-            # Generate AI insights
-            insights_query = f"""
+            # Generate AI insights - SECURE VERSION with parameterized query
+            insights_query = """
             SELECT SNOWFLAKE.CORTEX.COMPLETE(
-                'claude-3-5-sonnet',
-                'Analyze customer intelligence data and provide key insights about customer health, churn risks, and retention opportunities. Data shows {len(results)} customers with varying sentiment scores.'
+                %s,
+                %s
             ) as insights
             """
-
-            cursor.execute(insights_query)
+            
+            insights_prompt = f'Analyze customer intelligence data and provide key insights about customer health, churn risks, and retention opportunities. Data shows {len(results)} customers with varying sentiment scores.'
+            
+            cursor.execute(insights_query, ('claude-3-5-sonnet', insights_prompt))
             insights_result = cursor.fetchone()
 
             return {
@@ -541,8 +543,8 @@ class EnhancedCortexAgentService(CortexAgentService):
         cursor = conn.cursor()
 
         try:
-            # Execute sales optimization query
-            sales_query = f"""
+            # Execute sales optimization query - SECURE VERSION with parameterized query
+            sales_query = """
             SELECT 
                 record_id,
                 deal_name,
@@ -551,7 +553,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 deal_sentiment,
                 ai_priority_score,
                 ai_deal_analysis
-            FROM {self.advanced_database}.{self.processed_schema}.SALES_OPPORTUNITY_INTELLIGENCE
+            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.SALES_OPPORTUNITY_INTELLIGENCE
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY deal_amount DESC
             LIMIT 50
@@ -598,8 +600,8 @@ class EnhancedCortexAgentService(CortexAgentService):
         cursor = conn.cursor()
 
         try:
-            # Execute compliance monitoring query
-            compliance_query = f"""
+            # Execute compliance monitoring query - SECURE VERSION with parameterized query
+            compliance_query = """
             SELECT 
                 compliance_area,
                 total_communications,
@@ -607,7 +609,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 potential_violations,
                 avg_sentiment,
                 last_updated
-            FROM {self.advanced_database}.{self.analytics_schema}.COMPLIANCE_MONITORING_DASHBOARD
+            FROM SOPHIA_AI_ADVANCED.AI_ANALYTICS.COMPLIANCE_MONITORING_DASHBOARD
             """
 
             cursor.execute(compliance_query)
@@ -655,8 +657,8 @@ class EnhancedCortexAgentService(CortexAgentService):
         cursor = conn.cursor()
 
         try:
-            # Check for compliance violations in recent communications
-            violation_query = f"""
+            # Check for compliance violations in recent communications - SECURE VERSION
+            violation_query = """
             SELECT 
                 message_id,
                 user_id,
@@ -664,18 +666,18 @@ class EnhancedCortexAgentService(CortexAgentService):
                 ai_message_classification,
                 message_sentiment,
                 message_timestamp
-            FROM {self.advanced_database}.{self.processed_schema}.COMMUNICATION_INTELLIGENCE_REALTIME
+            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.COMMUNICATION_INTELLIGENCE_REALTIME
             WHERE message_timestamp >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
             AND (
-                message_sentiment < -0.5 
-                OR ai_message_classification:urgency::STRING = 'high'
-                OR LOWER(message_text) LIKE '%lawsuit%'
-                OR LOWER(message_text) LIKE '%attorney%'
-                OR LOWER(message_text) LIKE '%legal action%'
+                message_sentiment < %s 
+                OR ai_message_classification:urgency::STRING = %s
+                OR LOWER(message_text) LIKE %s
+                OR LOWER(message_text) LIKE %s
+                OR LOWER(message_text) LIKE %s
             )
             """
 
-            cursor.execute(violation_query)
+            cursor.execute(violation_query, (-0.5, 'high', '%lawsuit%', '%attorney%', '%legal action%'))
             violations = cursor.fetchall()
 
             alerts = []

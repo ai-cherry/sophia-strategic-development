@@ -14,6 +14,8 @@ Features:
 
 from __future__ import annotations
 
+import re
+
 import asyncio
 import json
 import logging
@@ -34,6 +36,13 @@ logger = structlog.get_logger()
 
 
 class SyncMode(Enum):
+
+    def _validate_schema_name(self, schema_name: str) -> str:
+        """Validate schema name for security"""
+        # Allow only alphanumeric, dots, and underscores
+        if not re.match(r'^[a-zA-Z0-9_.]+$', schema_name):
+            raise ValueError(f"Invalid schema name: {schema_name}")
+        return schema_name
     """Sync modes for Gong data ingestion"""
 
     FULL = "full"
@@ -230,8 +239,8 @@ class SnowflakeGongLoader:
         """Ensure the Gong data schema exists"""
         cursor = self.connection.cursor()
         try:
-            cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {self.database}.{self.schema}")
-            cursor.execute(f"USE SCHEMA {self.database}.{self.schema}")
+            cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{self.schema}"))
+            cursor.execute("USE SCHEMA " + self._validate_schema_name(f"{self.database}.{self.schema}"))
             logger.debug(f"Ensured schema {self.database}.{self.schema} exists")
         except Exception as e:
             logger.error(f"Failed to ensure schema exists: {e}")

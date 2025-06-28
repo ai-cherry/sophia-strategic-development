@@ -325,7 +325,7 @@ class LangGraphAgentBase(ABC):
 
         try:
             request_str = json.dumps(request, sort_keys=True)
-            return hashlib.md5(request_str.encode()).hexdigest()
+            return hashlib.md5(request_str.encode(), usedforsecurity=False).hexdigest()
         except (TypeError, ValueError):
             return None
 
