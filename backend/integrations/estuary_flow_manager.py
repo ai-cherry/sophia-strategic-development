@@ -94,7 +94,15 @@ class EstuaryCredentials:
                 else os.getenv("ESTUARY_REFRESH_TOKEN")
             )
 
-            return cls(access_token=access_token, refresh_token=refresh_token)
+            # Ensure refresh_token is not None
+            if not refresh_token:
+                raise ValueError("Refresh token is required but not found")
+                
+            # Ensure refresh_token is str (not None) to satisfy type checker
+            assert refresh_token is not None, "Refresh token must not be None"
+            refresh_token_str: str = refresh_token
+
+            return cls(access_token=access_token, refresh_token=refresh_token_str)
 
         except Exception as e:
             logger.error(f"Failed to load Estuary credentials: {e}")
@@ -181,13 +189,25 @@ class EstuaryFlowManager:
 
             # Install flowctl if not found
             logger.info("📦 Installing flowctl CLI...")
-            install_script = """
-            curl -L https://github.com/estuary/flow/releases/download/v0.5.15/flowctl-x86_64-linux -o /tmp/flowctl
-            chmod +x /tmp/flowctl
-            sudo mv /tmp/flowctl /usr/local/bin/flowctl
-            """
-
-            subprocess.run(install_script, shell=True, check=True)
+            
+            # Download flowctl binary securely (without shell=True)
+            download_cmd = [
+                "curl", 
+                "-L", 
+                "https://github.com/estuary/flow/releases/download/v0.5.15/flowctl-x86_64-linux", 
+                "-o", 
+                "/tmp/flowctl"
+            ]
+            subprocess.run(download_cmd, check=True)
+            
+            # Make the binary executable
+            chmod_cmd = ["chmod", "+x", "/tmp/flowctl"]
+            subprocess.run(chmod_cmd, check=True)
+            
+            # Move the binary to /usr/local/bin (requires sudo)
+            move_cmd = ["sudo", "mv", "/tmp/flowctl", "/usr/local/bin/flowctl"]
+            subprocess.run(move_cmd, check=True)
+            
             logger.info("✅ flowctl CLI installed successfully")
             return "/usr/local/bin/flowctl"
 
@@ -643,6 +663,8 @@ class EstuaryFlowManager:
 
             # Save capture configurations
             for name, config in capture_configs.items():
+                capture = None  # Initialize capture to avoid unbound variable error
+                
                 if name == "github":
                     capture = self.create_github_capture(
                         config["repository"], config["access_token"]
@@ -657,12 +679,13 @@ class EstuaryFlowManager:
                     capture = self.create_slack_capture(
                         config["api_token"], config["channels"]
                     )
-
-                config_file = self.config_dir / f"{capture.name}.flow.yaml"
-                with open(config_file, "w") as f:
-                    yaml.dump(capture.to_flow_yaml(), f, default_flow_style=False)
-
-                deployment_results["captures_deployed"].append(capture.name)
+                
+                if capture:  # Only proceed if we have a valid capture
+                    config_file = self.config_dir / f"{capture.name}.flow.yaml"
+                    with open(config_file, "w") as f:
+                        yaml.dump(capture.to_flow_yaml(), f, default_flow_style=False)
+                    
+                    deployment_results["captures_deployed"].append(capture.name)
 
             # Create custom connectors for missing tools
             custom_connectors = {

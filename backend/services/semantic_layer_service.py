@@ -26,39 +26,32 @@ class SemanticLayerService:
     @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):
         """Gets a snowflake connection."""
-        return await self.snowflake_service.get_connection()
+        # Initialize the service if not already done
+        if not hasattr(self.snowflake_service, 'initialized') or not self.snowflake_service.initialized:
+            await self.snowflake_service.initialize()
+        return None  # We'll use the service methods directly
 
     async def _execute_sql_file(self, file_path: str) -> None:
         """Executes a SQL script file."""
-        sql_script = Path(file_path).read_text()
-        conn = await self._get_connection()
         try:
-            with conn.cursor() as cursor:
-                for statement in sql_script.split(";"):
-                    if statement.strip():
-                        await cursor.execute(statement)
+            sql_script = Path(file_path).read_text()
+            # Split and execute statements
+            for statement in sql_script.split(";"):
+                if statement.strip():
+                    await self.snowflake_service.execute_query(statement.strip())
             logger.info(f"Successfully executed SQL script: {file_path}")
         except Exception as e:
             logger.error(f"Error executing SQL file {file_path}: {e}")
             raise
-        finally:
-            conn.close()
 
     @performance_monitor.monitor_performance("semantic_execute_query")
     async def _execute_query(
         self, query: str, params: Optional[List[Any]] = None
     ) -> List[Dict[str, Any]]:
         """Executes a SQL query and returns the results as a list of dicts."""
-        conn = await self._get_connection()
-        try:
-            with conn.cursor(snowflake.connector.DictCursor) as cursor:
-                await cursor.execute(query, params)
-                return await cursor.fetchall()
-        except Exception as e:
-            logger.error(f"Error executing query: {query} with params {params}: {e}")
-            raise
-        finally:
-            conn.close()
+        # Convert params to tuple if provided
+        query_params = tuple(params) if params else None
+        return await self.snowflake_service.execute_query(query, query_params)
 
     async def initialize_semantic_layer(self) -> bool:
         """Initialize semantic layer with business vocabulary"""

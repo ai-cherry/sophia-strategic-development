@@ -383,8 +383,8 @@ class ComprehensiveCodebaseCleanup:
         try:
             with open(file1, "rb") as f1, open(file2, "rb") as f2:
                 return (
-                    hashlib.md5(f1.read()).hexdigest()
-                    == hashlib.md5(f2.read()).hexdigest()
+                    hashlib.md5(f1.read(), usedforsecurity=False).hexdigest()
+                    == hashlib.md5(f2.read(), usedforsecurity=False).hexdigest()
                 )
         except Exception:
             return False

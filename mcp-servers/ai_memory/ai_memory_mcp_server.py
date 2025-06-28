@@ -229,7 +229,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 sync_priority=SyncPriority.HIGH,
                 sync_interval_minutes=5,
                 enable_metrics=True,
-                health_check_interval_seconds=30,
+                health_check_interval=30,
                 max_concurrent_requests=50,
                 request_timeout_seconds=30,
             )
@@ -367,7 +367,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 embedding_model=CortexModel.E5_BASE_V2,
                 llm_model=CortexModel.LLAMA3_70B,
                 enable_caching=True,
-                cache_ttl_minutes=60,
+                cache_ttl_hours=1,
             )
 
             self.cortex_service = EnhancedSnowflakeCortexService(config)
@@ -414,7 +414,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 for memory in recent_memories:
                     try:
                         await self.cortex_service.generate_ai_insights(
-                            content=memory.get("content", ""), context="memory_analysis"
+                            data={"content": memory.get("content", "")},
+                            insight_type="memory_analysis"
                         )
                         sync_results["cortex_insights_generated"] += 1
                     except Exception as e:

@@ -50,14 +50,14 @@ def check_dns():
 
     # Check if it resolves to expected IP - ensure result is a string
     expected_ip = "34.74.88.2"
+    # Check if it resolves to expected IP
+    expected_ip = "34.74.88.2"
     if isinstance(result, str) and expected_ip in result:
         print(f"  ✅ DNS correctly points to {expected_ip}")
         return True
     else:
         print(f"  ❌ DNS does not point to expected IP {expected_ip}")
         return False
-
-
 def deploy_locally():
     """Deploy webhook service locally for testing"""
     print_header("Deploying Webhook Service Locally")

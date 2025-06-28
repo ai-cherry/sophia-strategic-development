@@ -569,7 +569,7 @@ class OptimizedSnowflakeCortexService:
 
             for text in texts:
                 # Simple fallback: create embedding from text hash
-                text_hash = hashlib.md5(text.encode()).hexdigest()
+                text_hash = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
                 # Convert hash to simple embedding vector
                 embedding = [
                     float(int(text_hash[i : i + 2], 16)) / 255.0
@@ -738,7 +738,7 @@ class OptimizedSnowflakeCortexService:
     ) -> str:
         """Generate cache key for operation"""
         content = f"{operation.value}:{model}:{text}"
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
     def _determine_optimal_processing_mode(
         self, texts: List[str], operation: CortexOperation

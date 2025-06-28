@@ -52,51 +52,46 @@ class PredictiveAnalyticsService:
                 {
                     "model_id": "customer_churn_prediction",
                     "model_type": "classification",
-                    "target": "churn_risk",
+                    "target_variable": "churn_risk",
                     "features": [
                         "last_activity_days",
                         "support_tickets",
                         "sentiment_score",
                         "contract_value",
                     ],
-                    "horizon": "30_days",
+                    "prediction_horizon": "30_days",
                 },
                 {
                     "model_id": "revenue_forecasting",
                     "model_type": "regression",
-                    "target": "monthly_revenue",
+                    "target_variable": "monthly_revenue",
                     "features": [
                         "pipeline_value",
                         "closed_deals",
                         "market_indicators",
                         "seasonality",
                     ],
-                    "horizon": "90_days",
+                    "prediction_horizon": "90_days",
                 },
                 {
                     "model_id": "sales_conversion_prediction",
                     "model_type": "classification",
-                    "target": "deal_outcome",
+                    "target_variable": "deal_outcome",
                     "features": [
                         "deal_size",
                         "sales_stage",
                         "customer_engagement",
                         "competitor_presence",
                     ],
-                    "horizon": "60_days",
+                    "prediction_horizon": "60_days",
                 },
             ]
 
             for model_config in models_to_create:
                 await self._create_ml_model(model_config)
-                # Map 'target' to 'target_variable' for PredictionModel initialization
-                model_params = model_config.copy()
-                if "target" in model_params:
-                    model_params["target_variable"] = model_params.pop("target")
-                if "horizon" in model_params:
-                    model_params["prediction_horizon"] = model_params.pop("horizon")
+                # Create PredictionModel instance with correct parameters
                 self.active_models[model_config["model_id"]] = PredictionModel(
-                    **model_params
+                    **model_config
                 )
 
             logger.info(f"Initialized {len(self.active_models)} predictive models")
