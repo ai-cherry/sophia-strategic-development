@@ -1,0 +1,321 @@
+{
+  "version": "2.0",
+  "name": "Sophia AI Enhanced CEO Chat",
+  "description": "Enterprise AI orchestrator with 11-provider intelligent routing via Portkey",
+  
+  "api_configuration": {
+    "base_url": "http://localhost:8000/api/v1/enhanced-ceo-chat",
+    "endpoints": {
+      "chat": "/chat",
+      "code_expert": "/code-expert", 
+      "business_analyst": "/business-analyst",
+      "research_assistant": "/research-assistant",
+      "provider_status": "/provider-status",
+      "websocket": "/ws/{client_id}",
+      "health": "/health"
+    },
+    "authentication": {
+      "type": "none",
+      "headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "Sophia-AI-Lobe-Chat/2.0"
+      }
+    }
+  },
+  
+  "ui_configuration": {
+    "theme": {
+      "primary_color": "#8B5CF6",
+      "secondary_color": "#06B6D4", 
+      "background": "rgba(15, 23, 42, 0.95)",
+      "glassmorphism": {
+        "enabled": true,
+        "backdrop_blur": "20px",
+        "border_radius": "16px",
+        "border": "1px solid rgba(255, 255, 255, 0.1)"
+      }
+    },
+    "chat_interface": {
+      "show_provider_info": true,
+      "show_cost_estimates": true,
+      "show_processing_time": true,
+      "show_quality_scores": true,
+      "enable_suggestions": true,
+      "typing_indicators": true,
+      "message_streaming": true
+    },
+    "sidebar": {
+      "show_complexity_selector": true,
+      "show_cost_preference": true,
+      "show_urgency_level": true,
+      "show_provider_status": true,
+      "show_system_health": true
+    }
+  },
+  
+  "agent_personas": {
+    "ceo_assistant": {
+      "name": "Sophia - CEO AI Assistant",
+      "avatar": "/assets/sophia-ceo.png",
+      "description": "Enterprise AI orchestrator with access to 11 LLM providers",
+      "capabilities": [
+        "Strategic business analysis",
+        "Real-time research with web access",
+        "Code generation and review",
+        "Natural language interface",
+        "Intelligent provider routing",
+        "Cost optimization"
+      ],
+      "default_config": {
+        "complexity": "expert",
+        "cost_preference": "quality_first",
+        "context_type": "business",
+        "urgency": "normal"
+      }
+    },
+    "code_expert": {
+      "name": "Sophia Code Expert", 
+      "avatar": "/assets/sophia-code.png",
+      "description": "AI coding specialist optimized for development workflows",
+      "capabilities": [
+        "Production-ready code generation",
+        "Code review and optimization",
+        "Multi-language support",
+        "Architecture recommendations",
+        "Security analysis",
+        "Performance optimization"
+      ],
+      "default_config": {
+        "complexity": "complex",
+        "cost_preference": "balanced",
+        "context_type": "code",
+        "urgency": "normal"
+      }
+    },
+    "research_assistant": {
+      "name": "Sophia Research AI",
+      "avatar": "/assets/sophia-research.png", 
+      "description": "AI research specialist with real-time data access",
+      "capabilities": [
+        "Real-time web research",
+        "Comprehensive market analysis",
+        "Competitive intelligence",
+        "Trend identification",
+        "Data synthesis",
+        "Report generation"
+      ],
+      "default_config": {
+        "complexity": "research",
+        "cost_preference": "balanced", 
+        "context_type": "research",
+        "urgency": "normal"
+      }
+    }
+  },
+  
+  "provider_intelligence": {
+    "display_provider_selection": true,
+    "show_cost_breakdown": true,
+    "show_performance_metrics": true,
+    "enable_provider_comparison": true,
+    "provider_tiers": {
+      "ultra_fast": {
+        "name": "Ultra Fast",
+        "color": "#10B981",
+        "providers": ["groq", "together"],
+        "description": "Optimized for speed and real-time responses"
+      },
+      "cost_efficient": {
+        "name": "Cost Efficient", 
+        "color": "#3B82F6",
+        "providers": ["deepseek", "qwen"],
+        "description": "Best value for routine tasks"
+      },
+      "premium": {
+        "name": "Premium",
+        "color": "#8B5CF6", 
+        "providers": ["openai", "anthropic"],
+        "description": "Highest quality for critical decisions"
+      },
+      "research": {
+        "name": "Research",
+        "color": "#F59E0B",
+        "providers": ["perplexity", "grok"],
+        "description": "Real-time data and research capabilities"
+      },
+      "specialized": {
+        "name": "Specialized",
+        "color": "#EF4444",
+        "providers": ["mistral", "cohere"],
+        "description": "Domain-specific optimization"
+      }
+    }
+  },
+  
+  "workflow_templates": {
+    "business_analysis": {
+      "name": "Strategic Business Analysis",
+      "steps": [
+        {
+          "type": "chat",
+          "complexity": "expert",
+          "prompt_template": "Analyze the following business scenario: {user_input}"
+        },
+        {
+          "type": "research",
+          "complexity": "research", 
+          "prompt_template": "Research market trends related to: {analysis_topic}"
+        },
+        {
+          "type": "chat",
+          "complexity": "expert",
+          "prompt_template": "Synthesize analysis and research into strategic recommendations"
+        }
+      ]
+    },
+    "code_development": {
+      "name": "Full Stack Development",
+      "steps": [
+        {
+          "type": "code_expert",
+          "complexity": "complex",
+          "prompt_template": "Generate {language} code for: {requirements}"
+        },
+        {
+          "type": "code_expert", 
+          "complexity": "moderate",
+          "prompt_template": "Review and test the generated code"
+        },
+        {
+          "type": "chat",
+          "complexity": "moderate",
+          "prompt_template": "Document the implementation and next steps"
+        }
+      ]
+    },
+    "market_research": {
+      "name": "Comprehensive Market Research",
+      "steps": [
+        {
+          "type": "research",
+          "complexity": "research",
+          "prompt_template": "Research current market conditions for: {topic}"
+        },
+        {
+          "type": "research", 
+          "complexity": "research",
+          "prompt_template": "Analyze competitive landscape"
+        },
+        {
+          "type": "chat",
+          "complexity": "expert",
+          "prompt_template": "Provide strategic recommendations based on research"
+        }
+      ]
+    }
+  },
+  
+  "integration_settings": {
+    "cursor_ide": {
+      "enabled": true,
+      "mcp_server_port": 9000,
+      "auto_code_review": true,
+      "real_time_suggestions": true,
+      "context_sharing": true
+    },
+    "portkey_gateway": {
+      "enabled": true,
+      "show_routing_decisions": true,
+      "cost_tracking": true,
+      "performance_monitoring": true,
+      "semantic_caching": true
+    },
+    "real_time_features": {
+      "websocket_enabled": true,
+      "typing_indicators": true,
+      "live_provider_switching": true,
+      "real_time_cost_tracking": true,
+      "live_performance_metrics": true
+    }
+  },
+  
+  "advanced_features": {
+    "ai_artifacts": {
+      "enabled": true,
+      "types": ["code", "charts", "documents", "ui_mockups"],
+      "interactive_editing": true,
+      "version_control": true
+    },
+    "chain_of_thought": {
+      "enabled": true,
+      "visualization": true,
+      "step_by_step_reasoning": true
+    },
+    "multimodal_support": {
+      "enabled": true,
+      "voice_input": true,
+      "voice_output": true,
+      "image_analysis": false
+    },
+    "collaboration": {
+      "enabled": true,
+      "shared_sessions": true,
+      "team_workspaces": true,
+      "real_time_collaboration": true
+    }
+  },
+  
+  "performance_optimization": {
+    "caching": {
+      "enabled": true,
+      "semantic_cache": true,
+      "response_cache_ttl": 3600,
+      "provider_cache_ttl": 300
+    },
+    "streaming": {
+      "enabled": true,
+      "chunk_size": 50,
+      "real_time_tokens": true
+    },
+    "fallback_strategy": {
+      "enabled": true,
+      "max_retries": 3,
+      "provider_rotation": true
+    }
+  },
+  
+  "security_settings": {
+    "content_filtering": {
+      "enabled": true,
+      "pii_detection": true,
+      "sensitive_data_masking": true
+    },
+    "access_control": {
+      "role_based": true,
+      "ceo_only_features": ["deep_research", "strategic_analysis"],
+      "audit_logging": true
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "cost_per_hour_limit": 10.0
+    }
+  },
+  
+  "monitoring_dashboard": {
+    "enabled": true,
+    "metrics": [
+      "provider_performance",
+      "cost_tracking", 
+      "response_times",
+      "quality_scores",
+      "usage_patterns",
+      "system_health"
+    ],
+    "alerts": {
+      "high_cost_threshold": 5.0,
+      "slow_response_threshold": 10000,
+      "provider_failure_threshold": 3
+    }
+  }
+} 

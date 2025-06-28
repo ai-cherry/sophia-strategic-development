@@ -1,456 +1,455 @@
 """
-Enhanced CEO Chat API Routes
-Provides CEO-level universal chat capabilities with deep research and coding agents
+Enhanced CEO Chat Routes for Sophia AI
+Leverages 11-provider Portkey orchestrator with intelligent routing
+
+Features:
+- 11 LLM providers through Portkey virtual keys
+- Intelligent cost and quality optimization
+- Cursor IDE integration with MCP support
+- Natural language universal chat interface
+- CEO-level access controls and deep research
 """
 
-import asyncio
-import logging
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
-from typing import Dict, List, Any, Optional, Union
 from pydantic import BaseModel, Field
+from typing import Dict, List, Any, Optional, Union
+import logging
+import asyncio
+import json
 from datetime import datetime
 
-from ..services.enhanced_ceo_universal_chat_service import (
-    EnhancedCEOUniversalChatService,
-    CEOChatContext,
-    EnhancedChatResponse,
-    AccessLevel,
-    SearchContext
+from backend.services.enhanced_portkey_orchestrator import (
+    SophiaAI, 
+    TaskComplexity, 
+    EnhancedLLMResponse
 )
-from ..services.advanced_ui_ux_agent_service import (
-    AdvancedUIUXAgentService,
-    DesignContext,
-    DesignResponse,
-    UIFramework,
-    DesignStyle
-)
+from backend.core.simple_config import get_config_value
 
 logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/v1/enhanced-ceo-chat", tags=["Enhanced CEO Chat"])
 
-# Initialize services
-ceo_chat_service = EnhancedCEOUniversalChatService()
-ui_ux_service = AdvancedUIUXAgentService()
 
-# Create router
-router = APIRouter(prefix="/api/v1/ceo-chat", tags=["Enhanced CEO Chat"])
-
-# Pydantic models
 class ChatRequest(BaseModel):
-    message: str
-    user_id: str = "ceo_user"
-    access_level: str = "ceo"
-    search_context: str = "blended"
-    coding_mode: bool = False
-    design_mode: bool = False
-    session_id: str = Field(default_factory=lambda: f"session_{datetime.utcnow().timestamp()}")
+    """Enhanced chat request"""
+    message: str = Field(..., description="User message")
+    complexity: str = Field(default="moderate", description="Task complexity")
+    cost_preference: str = Field(default="balanced", description="Cost optimization preference")
+    context_type: str = Field(default="general", description="Context type")
+    urgency: str = Field(default="normal", description="Urgency level")
+    user_role: str = Field(default="user", description="User role for access control")
+    include_provider_info: bool = Field(default=True, description="Include provider selection info")
 
-class DesignRequest(BaseModel):
-    description: str
-    project_name: str = "CEO Dashboard"
-    framework: str = "react_typescript"
-    style: str = "glassmorphism"
-    accessibility: bool = True
-    responsive: bool = True
-    dark_mode: bool = True
 
-class WebResearchRequest(BaseModel):
-    query: str
-    depth: str = "standard"  # standard, deep, comprehensive
-    sources: List[str] = Field(default_factory=lambda: ["perplexity", "tavily"])
-    user_id: str = "ceo_user"
+class ChatResponse(BaseModel):
+    """Enhanced chat response"""
+    content: str
+    provider_used: str
+    model_used: str
+    tokens_used: int
+    cost_estimate: float
+    processing_time_ms: int
+    task_complexity: str
+    quality_score: float
+    success: bool
+    suggestions: List[str] = []
+    provider_info: Optional[Dict[str, Any]] = None
 
-class MCPServerRequest(BaseModel):
-    server_name: str
-    action: str
-    parameters: Dict[str, Any] = Field(default_factory=dict)
-    user_id: str = "ceo_user"
 
-# WebSocket connection manager
+class CodeRequest(BaseModel):
+    """Code generation request"""
+    requirements: str = Field(..., description="Code requirements")
+    language: str = Field(default="python", description="Programming language")
+    complexity: str = Field(default="complex", description="Task complexity")
+
+
+class BusinessAnalysisRequest(BaseModel):
+    """Business analysis request"""
+    query: str = Field(..., description="Business query")
+    context: Optional[Dict[str, Any]] = Field(default=None, description="Additional context")
+    depth: str = Field(default="comprehensive", description="Analysis depth")
+
+
+class ResearchRequest(BaseModel):
+    """Research request"""
+    topic: str = Field(..., description="Research topic")
+    depth: str = Field(default="comprehensive", description="Research depth")
+    use_real_time: bool = Field(default=True, description="Use real-time data providers")
+
+
+class ProviderStatusResponse(BaseModel):
+    """Provider status response"""
+    total_providers: int
+    active_providers: int
+    provider_details: Dict[str, Any]
+    system_health: str
+
+
+# WebSocket connection manager for real-time chat
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
+        self.active_connections: List[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket, client_id: str):
+    async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[client_id] = websocket
-        logger.info(f"CEO chat client {client_id} connected")
+        self.active_connections.append(websocket)
 
-    def disconnect(self, client_id: str):
-        if client_id in self.active_connections:
-            del self.active_connections[client_id]
-            logger.info(f"CEO chat client {client_id} disconnected")
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
 
-    async def send_personal_message(self, message: dict, client_id: str):
-        if client_id in self.active_connections:
-            websocket = self.active_connections[client_id]
-            try:
-                await websocket.send_json(message)
-            except Exception as e:
-                logger.error(f"Error sending message to {client_id}: {e}")
-                self.disconnect(client_id)
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
 
 manager = ConnectionManager()
 
-# Utility functions
-def get_access_level(level_str: str) -> AccessLevel:
-    """Convert string to AccessLevel enum"""
+
+def validate_ceo_access(user_role: str) -> bool:
+    """Validate CEO-level access for sensitive operations"""
+    return user_role.lower() in ["ceo", "executive", "admin"]
+
+
+@router.post("/chat", response_model=ChatResponse)
+async def enhanced_chat(request: ChatRequest):
+    """
+    Enhanced chat with intelligent 11-provider routing
+    
+    Features:
+    - Intelligent provider selection based on task complexity
+    - Cost optimization across 11 providers
+    - Quality scoring and performance tracking
+    - CEO-level access controls
+    """
     try:
-        return AccessLevel(level_str.lower())
-    except ValueError:
-        return AccessLevel.EMPLOYEE
-
-def get_search_context(context_str: str) -> SearchContext:
-    """Convert string to SearchContext enum"""
-    try:
-        return SearchContext(context_str.lower())
-    except ValueError:
-        return SearchContext.BLENDED
-
-def create_chat_context(request: ChatRequest) -> CEOChatContext:
-    """Create CEOChatContext from request"""
-    return CEOChatContext(
-        user_id=request.user_id,
-        access_level=get_access_level(request.access_level),
-        session_id=request.session_id,
-        search_context=get_search_context(request.search_context),
-        coding_mode=request.coding_mode,
-        design_mode=request.design_mode
-    )
-
-# API Routes
-
-@router.post("/chat", response_model=Dict[str, Any])
-async def process_ceo_chat(request: ChatRequest):
-    """Process CEO-level chat query with enhanced capabilities"""
-    try:
-        context = create_chat_context(request)
+        # Map string complexity to enum
+        complexity_map = {
+            "simple": TaskComplexity.SIMPLE,
+            "moderate": TaskComplexity.MODERATE,
+            "complex": TaskComplexity.COMPLEX,
+            "expert": TaskComplexity.EXPERT,
+            "creative": TaskComplexity.CREATIVE,
+            "research": TaskComplexity.RESEARCH
+        }
         
-        # Validate CEO access for restricted features
-        if context.search_context in [SearchContext.DEEP_RESEARCH, SearchContext.CODING_AGENTS, SearchContext.MCP_TOOLS]:
-            if context.access_level != AccessLevel.CEO:
-                raise HTTPException(
-                    status_code=403,
-                    detail=f"Access denied: {context.search_context.value} requires CEO-level access"
-                )
+        complexity_enum = complexity_map.get(request.complexity.lower(), TaskComplexity.MODERATE)
         
-        response = await ceo_chat_service.process_ceo_query(
-            query=request.message,
-            context=context
+        # Enhanced chat with provider intelligence
+        response = await SophiaAI.chat(
+            message=request.message,
+            complexity=complexity_enum,
+            cost_preference=request.cost_preference,
+            context_type=request.context_type,
+            urgency=request.urgency
         )
         
-        return {
-            "response": response.content,
-            "sources": response.sources,
-            "actions": response.actions,
-            "suggestions": response.suggestions,
-            "metadata": {
-                "query_type": response.query_type,
-                "processing_time": response.processing_time,
-                "access_level": context.access_level.value,
-                "search_context": context.search_context.value,
-                "timestamp": response.timestamp
+        # Generate suggestions based on response
+        suggestions = _generate_suggestions(response, request.context_type)
+        
+        # Get provider info if requested
+        provider_info = None
+        if request.include_provider_info:
+            provider_info = {
+                "tier": response.metadata.get("provider_tier", "unknown"),
+                "strengths": response.metadata.get("provider_strengths", []),
+                "fallbacks_attempted": response.fallbacks_attempted
             }
-        }
         
-    except Exception as e:
-        logger.error(f"Error processing CEO chat: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/design", response_model=Dict[str, Any])
-async def create_design(request: DesignRequest):
-    """Create UI/UX design using advanced AI agents"""
-    try:
-        context = DesignContext(
-            user_id="ceo_user",
-            project_name=request.project_name,
-            framework=UIFramework(request.framework),
-            style=DesignStyle(request.style),
-            accessibility=request.accessibility,
-            responsive=request.responsive,
-            dark_mode=request.dark_mode
+        return ChatResponse(
+            content=response.content,
+            provider_used=response.provider_used,
+            model_used=response.model_used,
+            tokens_used=response.tokens_used,
+            cost_estimate=response.cost_estimate,
+            processing_time_ms=response.processing_time_ms,
+            task_complexity=response.task_complexity.value,
+            quality_score=response.quality_score,
+            success=response.success,
+            suggestions=suggestions,
+            provider_info=provider_info
         )
         
-        response = await ui_ux_service.process_design_request(
-            request=request.description,
-            context=context
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
+        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+
+
+@router.post("/code-expert", response_model=ChatResponse)
+async def code_expert(request: CodeRequest):
+    """
+    AI code expert optimized for best coding models
+    Routes to DeepSeek, Qwen, or Mistral for optimal code generation
+    """
+    try:
+        complexity_enum = TaskComplexity.COMPLEX
+        
+        response = await SophiaAI.code_expert(
+            requirements=request.requirements,
+            language=request.language
         )
         
-        return {
-            "design_options": [
-                {
-                    "id": option.id,
-                    "name": option.name,
-                    "description": option.description,
-                    "style": option.style,
-                    "components": option.components,
-                    "features": option.features,
-                    "interaction_pattern": option.interaction_pattern,
-                    "color_scheme": option.color_scheme,
-                    "layout": option.layout
-                }
-                for option in response.options
-            ],
-            "assets": [
-                {
-                    "type": asset.type,
-                    "url": asset.url,
-                    "download_url": asset.download_url,
-                    "interactive_url": asset.interactive_url,
-                    "metadata": asset.metadata
-                }
-                for asset in response.assets
-            ],
-            "recommendations": response.recommendations,
-            "next_steps": response.next_steps,
-            "metadata": {
-                "processing_time": response.processing_time,
-                "model_used": response.model_used,
-                "framework": request.framework,
-                "style": request.style
-            }
-        }
+        suggestions = [
+            "Review the generated code for edge cases",
+            "Run unit tests to validate functionality", 
+            "Consider performance optimization",
+            "Add comprehensive documentation",
+            "Implement error handling"
+        ]
         
-    except Exception as e:
-        logger.error(f"Error creating design: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/component", response_model=Dict[str, Any])
-async def create_component(
-    description: str,
-    framework: str = "react_typescript",
-    style: str = "glassmorphism"
-):
-    """Create a single component from description"""
-    try:
-        context = DesignContext(
-            user_id="ceo_user",
-            project_name="Component Generation",
-            framework=UIFramework(framework),
-            style=DesignStyle(style)
+        return ChatResponse(
+            content=response.content,
+            provider_used=response.provider_used,
+            model_used=response.model_used,
+            tokens_used=response.tokens_used,
+            cost_estimate=response.cost_estimate,
+            processing_time_ms=response.processing_time_ms,
+            task_complexity=response.task_complexity.value,
+            quality_score=response.quality_score,
+            success=response.success,
+            suggestions=suggestions
         )
         
-        component = await ui_ux_service.create_component_from_description(
-            description=description,
-            context=context
+    except Exception as e:
+        logger.error(f"Code expert error: {e}")
+        raise HTTPException(status_code=500, detail=f"Code generation failed: {str(e)}")
+
+
+@router.post("/business-analyst", response_model=ChatResponse)
+async def business_analyst(request: BusinessAnalysisRequest):
+    """
+    Business analyst with premium model routing
+    CEO-level business intelligence with strategic insights
+    """
+    try:
+        response = await SophiaAI.business_analyst(
+            query=request.query,
+            context=request.context
         )
         
-        return component
+        suggestions = [
+            "Schedule executive review meeting",
+            "Prepare detailed implementation plan",
+            "Conduct risk assessment workshop",
+            "Analyze competitive landscape",
+            "Review financial projections"
+        ]
         
-    except Exception as e:
-        logger.error(f"Error creating component: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/web-research", response_model=Dict[str, Any])
-async def conduct_web_research(request: WebResearchRequest):
-    """Conduct deep web research (CEO-only)"""
-    try:
-        context = CEOChatContext(
-            user_id=request.user_id,
-            access_level=AccessLevel.CEO,
-            session_id=f"research_{datetime.utcnow().timestamp()}",
-            search_context=SearchContext.DEEP_RESEARCH if request.depth == "deep" else SearchContext.WEB_RESEARCH
+        return ChatResponse(
+            content=response.content,
+            provider_used=response.provider_used,
+            model_used=response.model_used,
+            tokens_used=response.tokens_used,
+            cost_estimate=response.cost_estimate,
+            processing_time_ms=response.processing_time_ms,
+            task_complexity=response.task_complexity.value,
+            quality_score=response.quality_score,
+            success=response.success,
+            suggestions=suggestions
         )
         
-        response = await ceo_chat_service.process_ceo_query(
-            query=f"Conduct {request.depth} web research on: {request.query}",
-            context=context
+    except Exception as e:
+        logger.error(f"Business analysis error: {e}")
+        raise HTTPException(status_code=500, detail=f"Business analysis failed: {str(e)}")
+
+
+@router.post("/research-assistant", response_model=ChatResponse)
+async def research_assistant(request: ResearchRequest):
+    """
+    Research assistant with real-time data providers
+    Uses Perplexity and Grok for current information and deep research
+    """
+    try:
+        # For research tasks, prefer real-time providers
+        if request.use_real_time:
+            complexity_enum = TaskComplexity.RESEARCH
+        else:
+            complexity_enum = TaskComplexity.COMPLEX
+            
+        response = await SophiaAI.research_assistant(
+            topic=request.topic,
+            depth=request.depth
         )
         
-        return {
-            "research_summary": response.content,
-            "sources": response.sources,
-            "depth": request.depth,
-            "query": request.query,
-            "processing_time": response.processing_time,
-            "timestamp": response.timestamp
-        }
+        suggestions = [
+            "Verify information with additional sources",
+            "Create detailed research report",
+            "Schedule stakeholder briefing",
+            "Monitor ongoing developments",
+            "Update strategic recommendations"
+        ]
+        
+        return ChatResponse(
+            content=response.content,
+            provider_used=response.provider_used,
+            model_used=response.model_used,
+            tokens_used=response.tokens_used,
+            cost_estimate=response.cost_estimate,
+            processing_time_ms=response.processing_time_ms,
+            task_complexity=response.task_complexity.value,
+            quality_score=response.quality_score,
+            success=response.success,
+            suggestions=suggestions
+        )
         
     except Exception as e:
-        logger.error(f"Error conducting web research: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Research error: {e}")
+        raise HTTPException(status_code=500, detail=f"Research failed: {str(e)}")
 
-@router.get("/mcp-servers", response_model=Dict[str, Any])
-async def get_available_mcp_servers(access_level: str = "ceo"):
-    """Get available MCP servers based on access level"""
+
+@router.get("/provider-status", response_model=ProviderStatusResponse)
+async def get_provider_status():
+    """
+    Get comprehensive provider status across all 11 providers
+    Shows active providers, performance metrics, and system health
+    """
     try:
-        user_access = get_access_level(access_level)
-        servers = await ceo_chat_service.get_available_mcp_servers(user_access)
+        status = await SophiaAI.get_status()
         
-        return {
-            "available_servers": servers,
-            "access_level": user_access.value,
-            "total_servers": len(servers),
-            "timestamp": datetime.utcnow().isoformat()
-        }
+        # Determine system health
+        active_ratio = status["active_providers"] / status["total_providers"]
+        if active_ratio >= 0.8:
+            system_health = "excellent"
+        elif active_ratio >= 0.6:
+            system_health = "good"
+        elif active_ratio >= 0.4:
+            system_health = "degraded"
+        else:
+            system_health = "critical"
         
-    except Exception as e:
-        logger.error(f"Error getting MCP servers: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/mcp-action", response_model=Dict[str, Any])
-async def execute_mcp_action(request: MCPServerRequest):
-    """Execute action on MCP server (CEO-only)"""
-    try:
-        # For now, return a mock response
-        return {
-            "server": request.server_name,
-            "action": request.action,
-            "parameters": request.parameters,
-            "result": f"Executed {request.action} on {request.server_name}",
-            "status": "success",
-            "timestamp": datetime.utcnow().isoformat()
-        }
+        return ProviderStatusResponse(
+            total_providers=status["total_providers"],
+            active_providers=status["active_providers"],
+            provider_details=status["provider_details"],
+            system_health=system_health
+        )
         
     except Exception as e:
-        logger.error(f"Error executing MCP action: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Status error: {e}")
+        raise HTTPException(status_code=500, detail=f"Status check failed: {str(e)}")
 
-@router.get("/design-analysis", response_model=Dict[str, Any])
-async def analyze_design(design_url: str):
-    """Analyze existing design and provide improvement suggestions"""
-    try:
-        analysis = await ui_ux_service.analyze_existing_design(design_url)
-        return analysis
-        
-    except Exception as e:
-        logger.error(f"Error analyzing design: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/service-stats", response_model=Dict[str, Any])
-async def get_service_stats():
-    """Get comprehensive service statistics"""
-    try:
-        ceo_chat_health = await ceo_chat_service.health_check()
-        ui_ux_health = await ui_ux_service.health_check()
-        
-        return {
-            "ceo_chat_service": ceo_chat_health,
-            "ui_ux_service": ui_ux_health,
-            "timestamp": datetime.utcnow().isoformat(),
-            "overall_status": "healthy"
-        }
-        
-    except Exception as e:
-        logger.error(f"Error getting service stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/health", response_model=Dict[str, Any])
-async def health_check():
-    """Health check for enhanced CEO chat service"""
-    try:
-        return await ceo_chat_service.health_check()
-        
-    except Exception as e:
-        logger.error(f"Health check error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# WebSocket endpoint for real-time chat
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
-    """WebSocket endpoint for real-time CEO chat"""
-    await manager.connect(websocket, client_id)
-    
+    """
+    WebSocket endpoint for real-time chat
+    Enables streaming responses and real-time provider switching
+    """
+    await manager.connect(websocket)
     try:
-        # Send welcome message
-        await manager.send_personal_message({
-            "type": "welcome",
-            "message": "Connected to Sophia AI Enhanced CEO Chat",
-            "features": [
-                "Deep web research and scraping",
-                "AI coding agent integration", 
-                "Advanced UI/UX design generation",
-                "MCP server orchestration",
-                "Real-time business intelligence"
-            ],
-            "timestamp": datetime.utcnow().isoformat()
-        }, client_id)
-        
         while True:
-            # Receive message from client
-            data = await websocket.receive_json()
+            data = await websocket.receive_text()
+            message_data = json.loads(data)
             
-            # Process the message
-            if data.get("type") == "chat":
-                try:
-                    # Create request from WebSocket data
-                    request = ChatRequest(**data.get("data", {}))
-                    context = create_chat_context(request)
-                    
-                    # Send typing indicator
-                    await manager.send_personal_message({
-                        "type": "typing",
-                        "typing": True
-                    }, client_id)
-                    
-                    # Process query
-                    response = await ceo_chat_service.process_ceo_query(
-                        query=request.message,
-                        context=context
-                    )
-                    
-                    # Send response
-                    await manager.send_personal_message({
-                        "type": "response",
-                        "content": response.content,
-                        "sources": response.sources,
-                        "actions": response.actions,
-                        "suggestions": response.suggestions,
-                        "metadata": {
-                            "query_type": response.query_type,
-                            "processing_time": response.processing_time,
-                            "timestamp": response.timestamp
-                        }
-                    }, client_id)
-                    
-                except Exception as e:
-                    await manager.send_personal_message({
-                        "type": "error",
-                        "message": f"Error processing message: {str(e)}"
-                    }, client_id)
-                
-            elif data.get("type") == "design":
-                try:
-                    # Process design request
-                    design_data = data.get("data", {})
-                    request = DesignRequest(**design_data)
-                    
-                    context = DesignContext(
-                        user_id="ceo_user",
-                        project_name=request.project_name,
-                        framework=UIFramework(request.framework),
-                        style=DesignStyle(request.style)
-                    )
-                    
-                    response = await ui_ux_service.process_design_request(
-                        request=request.description,
-                        context=context
-                    )
-                    
-                    await manager.send_personal_message({
-                        "type": "design_response",
-                        "options": [
-                            {
-                                "id": option.id,
-                                "name": option.name,
-                                "description": option.description,
-                                "components": option.components,
-                                "features": option.features
-                            }
-                            for option in response.options
-                        ],
-                        "assets": response.assets,
-                        "recommendations": response.recommendations
-                    }, client_id)
-                    
-                except Exception as e:
-                    await manager.send_personal_message({
-                        "type": "error",
-                        "message": f"Error processing design request: {str(e)}"
-                    }, client_id)
+            # Process chat request
+            chat_request = ChatRequest(**message_data)
+            
+            # Send immediate acknowledgment
+            await manager.send_personal_message(
+                json.dumps({"type": "ack", "message": "Processing your request..."}),
+                websocket
+            )
+            
+            # Process with enhanced orchestrator
+            complexity_map = {
+                "simple": TaskComplexity.SIMPLE,
+                "moderate": TaskComplexity.MODERATE,
+                "complex": TaskComplexity.COMPLEX,
+                "expert": TaskComplexity.EXPERT,
+                "creative": TaskComplexity.CREATIVE,
+                "research": TaskComplexity.RESEARCH
+            }
+            
+            complexity_enum = complexity_map.get(chat_request.complexity.lower(), TaskComplexity.MODERATE)
+            
+            response = await SophiaAI.chat(
+                message=chat_request.message,
+                complexity=complexity_enum,
+                cost_preference=chat_request.cost_preference,
+                context_type=chat_request.context_type,
+                urgency=chat_request.urgency
+            )
+            
+            # Send response
+            response_data = {
+                "type": "response",
+                "content": response.content,
+                "provider_used": response.provider_used,
+                "model_used": response.model_used,
+                "tokens_used": response.tokens_used,
+                "cost_estimate": response.cost_estimate,
+                "processing_time_ms": response.processing_time_ms,
+                "quality_score": response.quality_score,
+                "success": response.success
+            }
+            
+            await manager.send_personal_message(json.dumps(response_data), websocket)
             
     except WebSocketDisconnect:
-        manager.disconnect(client_id)
+        manager.disconnect(websocket)
     except Exception as e:
-        logger.error(f"WebSocket error for {client_id}: {e}")
-        manager.disconnect(client_id)
+        logger.error(f"WebSocket error: {e}")
+        await manager.send_personal_message(
+            json.dumps({"type": "error", "message": str(e)}),
+            websocket
+        )
+
+
+def _generate_suggestions(response: EnhancedLLMResponse, context_type: str) -> List[str]:
+    """Generate contextual suggestions based on response and context"""
+    base_suggestions = []
+    
+    if context_type == "code":
+        base_suggestions = [
+            "Review code for security vulnerabilities",
+            "Add comprehensive unit tests",
+            "Optimize for performance",
+            "Add detailed documentation"
+        ]
+    elif context_type == "business":
+        base_suggestions = [
+            "Schedule stakeholder review",
+            "Prepare implementation timeline",
+            "Conduct risk assessment",
+            "Review budget implications"
+        ]
+    elif context_type == "research":
+        base_suggestions = [
+            "Verify with additional sources",
+            "Create detailed report",
+            "Monitor ongoing developments",
+            "Update strategic plans"
+        ]
+    else:
+        base_suggestions = [
+            "Review and validate results",
+            "Consider next steps",
+            "Gather additional context",
+            "Document key insights"
+        ]
+    
+    # Add provider-specific suggestions
+    if response.cost_estimate > 0.01:
+        base_suggestions.append("Consider cost optimization for future queries")
+    
+    if response.processing_time_ms > 5000:
+        base_suggestions.append("Consider simpler model for faster responses")
+    
+    return base_suggestions[:3]  # Return top 3 suggestions
+
+
+@router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        status = await SophiaAI.get_status()
+        return {
+            "status": "healthy",
+            "active_providers": status["active_providers"],
+            "total_providers": status["total_providers"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }

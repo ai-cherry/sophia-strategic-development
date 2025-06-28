@@ -1,0 +1,351 @@
+{
+  "version": "3.0",
+  "name": "Sophia AI Enhanced Cursor IDE Integration",
+  "description": "Advanced MCP configuration with 11-provider Portkey orchestration for Cursor IDE",
+  
+  "mcpServers": {
+    "sophia_ai_orchestrator": {
+      "command": "python",
+      "args": [
+        "-m", 
+        "backend.mcp_servers.sophia_ai_orchestrator_mcp"
+      ],
+      "env": {
+        "PORTKEY_API_KEY": "${PORTKEY_API_KEY}",
+        "PORTKEY_VIRTUAL_KEY_PROD": "${PORTKEY_VIRTUAL_KEY_PROD}",
+        "ENVIRONMENT": "prod",
+        "MCP_SERVER_PORT": "9000",
+        "CURSOR_IDE_INTEGRATION": "true"
+      },
+      "capabilities": [
+        "intelligent_provider_routing",
+        "real_time_cost_optimization", 
+        "code_generation_optimization",
+        "context_aware_completions",
+        "performance_monitoring"
+      ],
+      "auto_triggers": {
+        "on_file_save": ["analyze_code", "suggest_optimizations"],
+        "on_selection": ["provide_context_completion"],
+        "on_error": ["suggest_fixes", "route_to_best_model"]
+      }
+    },
+    
+    "enhanced_ai_memory": {
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp_servers.ai_memory.enhanced_ai_memory_mcp_server"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "PINECONE_API_KEY": "${PINECONE_API_KEY}",
+        "ENVIRONMENT": "prod",
+        "MCP_SERVER_PORT": "9001",
+        "MEMORY_PERSISTENCE": "true"
+      },
+      "capabilities": [
+        "code_pattern_learning",
+        "architecture_decision_storage",
+        "bug_solution_recall", 
+        "context_aware_suggestions",
+        "development_workflow_optimization"
+      ],
+      "auto_triggers": {
+        "on_code_completion": ["recall_similar_patterns"],
+        "on_error_fix": ["store_solution_pattern"],
+        "on_architecture_discussion": ["store_decision_context"]
+      }
+    },
+    
+    "portkey_gateway": {
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp_servers.portkey_gateway_mcp"
+      ],
+      "env": {
+        "PORTKEY_API_KEY": "${PORTKEY_API_KEY}",
+        "PORTKEY_VIRTUAL_KEYS": "${PORTKEY_VIRTUAL_KEYS_JSON}",
+        "ENVIRONMENT": "prod",
+        "MCP_SERVER_PORT": "9002",
+        "REAL_TIME_MONITORING": "true"
+      },
+      "capabilities": [
+        "provider_status_monitoring",
+        "cost_tracking_dashboard",
+        "performance_analytics",
+        "intelligent_routing_decisions",
+        "fallback_management"
+      ],
+      "auto_triggers": {
+        "on_provider_failure": ["switch_provider", "log_failure"],
+        "on_cost_threshold": ["optimize_routing", "alert_user"],
+        "on_performance_degradation": ["auto_scale", "route_to_faster_provider"]
+      }
+    },
+    
+    "code_intelligence": {
+      "command": "python", 
+      "args": [
+        "-m",
+        "backend.mcp_servers.code_intelligence_mcp"
+      ],
+      "env": {
+        "PORTKEY_VIRTUAL_KEY_DEEPSEEK": "${PORTKEY_VIRTUAL_KEY_DEEPSEEK}",
+        "PORTKEY_VIRTUAL_KEY_QWEN": "${PORTKEY_VIRTUAL_KEY_QWEN}",
+        "ENVIRONMENT": "prod",
+        "MCP_SERVER_PORT": "9003",
+        "CODE_ANALYSIS_MODE": "advanced"
+      },
+      "capabilities": [
+        "optimized_code_generation",
+        "architecture_recommendations",
+        "performance_optimization",
+        "security_analysis",
+        "test_generation",
+        "documentation_automation"
+      ],
+      "auto_triggers": {
+        "on_code_change": ["analyze_complexity", "suggest_improvements"],
+        "on_function_creation": ["generate_tests", "add_documentation"],
+        "on_security_pattern": ["scan_vulnerabilities", "suggest_fixes"]
+      }
+    },
+    
+    "business_intelligence": {
+      "command": "python",
+      "args": [
+        "-m", 
+        "backend.mcp_servers.business_intelligence_mcp"
+      ],
+      "env": {
+        "PORTKEY_VIRTUAL_KEY_ANTHROPIC": "${PORTKEY_VIRTUAL_KEY_ANTHROPIC}",
+        "PORTKEY_VIRTUAL_KEY_OPENAI": "${PORTKEY_VIRTUAL_KEY_OPENAI}",
+        "SNOWFLAKE_ACCOUNT": "${SNOWFLAKE_ACCOUNT}",
+        "ENVIRONMENT": "prod",
+        "MCP_SERVER_PORT": "9004",
+        "EXECUTIVE_MODE": "true"
+      },
+      "capabilities": [
+        "strategic_analysis",
+        "market_research",
+        "competitive_intelligence", 
+        "financial_modeling",
+        "executive_reporting",
+        "decision_support"
+      ],
+      "auto_triggers": {
+        "on_business_query": ["route_to_premium_model", "provide_strategic_context"],
+        "on_data_analysis": ["integrate_business_context", "generate_insights"]
+      }
+    }
+  },
+  
+  "cursor_ide_integration": {
+    "enhanced_completions": {
+      "enabled": true,
+      "provider_intelligence": true,
+      "context_aware_routing": true,
+      "cost_optimization": true,
+      "performance_monitoring": true
+    },
+    
+    "natural_language_commands": {
+      "enabled": true,
+      "commands": {
+        "generate_code": {
+          "trigger": "@generate",
+          "route_to": "code_intelligence",
+          "default_complexity": "complex",
+          "cost_preference": "balanced"
+        },
+        "analyze_performance": {
+          "trigger": "@analyze",
+          "route_to": "code_intelligence", 
+          "default_complexity": "moderate",
+          "cost_preference": "cost_optimized"
+        },
+        "business_context": {
+          "trigger": "@business",
+          "route_to": "business_intelligence",
+          "default_complexity": "expert",
+          "cost_preference": "quality_first"
+        },
+        "research_topic": {
+          "trigger": "@research",
+          "route_to": "sophia_ai_orchestrator",
+          "default_complexity": "research",
+          "cost_preference": "balanced"
+        },
+        "optimize_cost": {
+          "trigger": "@optimize",
+          "route_to": "portkey_gateway",
+          "action": "analyze_cost_optimization"
+        }
+      }
+    },
+    
+    "intelligent_routing": {
+      "enabled": true,
+      "routing_strategy": "task_complexity_based",
+      "cost_awareness": true,
+      "performance_priority": "balanced",
+      "fallback_enabled": true,
+      "provider_selection_criteria": {
+        "code_tasks": ["deepseek", "qwen", "mistral"],
+        "business_tasks": ["anthropic", "openai"],
+        "research_tasks": ["perplexity", "grok"],
+        "fast_tasks": ["groq", "together"],
+        "creative_tasks": ["anthropic", "openai"]
+      }
+    },
+    
+    "real_time_features": {
+      "live_cost_tracking": true,
+      "provider_health_monitoring": true,
+      "performance_metrics": true,
+      "quality_scoring": true,
+      "usage_analytics": true
+    }
+  },
+  
+  "workflow_automation": {
+    "development_workflows": {
+      "code_review": {
+        "triggers": ["file_save", "git_commit"],
+        "actions": [
+          {
+            "server": "code_intelligence",
+            "action": "analyze_code_quality"
+          },
+          {
+            "server": "enhanced_ai_memory", 
+            "action": "store_review_context"
+          }
+        ]
+      },
+      
+      "bug_fixing": {
+        "triggers": ["error_detection", "test_failure"],
+        "actions": [
+          {
+            "server": "enhanced_ai_memory",
+            "action": "recall_similar_bugs"
+          },
+          {
+            "server": "code_intelligence",
+            "action": "suggest_fixes"
+          },
+          {
+            "server": "sophia_ai_orchestrator",
+            "action": "route_to_best_debugging_model"
+          }
+        ]
+      },
+      
+      "architecture_decisions": {
+        "triggers": ["architecture_discussion", "design_pattern_usage"],
+        "actions": [
+          {
+            "server": "enhanced_ai_memory",
+            "action": "store_architecture_decision"
+          },
+          {
+            "server": "business_intelligence",
+            "action": "analyze_business_impact"
+          }
+        ]
+      }
+    }
+  },
+  
+  "cost_management": {
+    "budget_controls": {
+      "daily_limit": 25.0,
+      "hourly_limit": 5.0,
+      "per_request_limit": 0.50
+    },
+    "optimization_strategies": {
+      "cache_responses": true,
+      "prefer_cost_efficient_providers": true,
+      "batch_similar_requests": true,
+      "smart_context_compression": true
+    },
+    "alerting": {
+      "cost_threshold_alerts": true,
+      "usage_pattern_analysis": true,
+      "provider_cost_comparison": true
+    }
+  },
+  
+  "performance_monitoring": {
+    "metrics": {
+      "response_time": true,
+      "token_usage": true,
+      "cost_per_request": true,
+      "provider_success_rate": true,
+      "quality_scores": true
+    },
+    "dashboards": {
+      "real_time_status": true,
+      "cost_analytics": true,
+      "performance_trends": true,
+      "provider_comparison": true
+    },
+    "optimization": {
+      "auto_provider_selection": true,
+      "performance_based_routing": true,
+      "predictive_scaling": true
+    }
+  },
+  
+  "advanced_capabilities": {
+    "context_sharing": {
+      "cross_server_context": true,
+      "persistent_memory": true,
+      "session_continuity": true
+    },
+    
+    "collaborative_features": {
+      "team_memory_sharing": true,
+      "shared_cost_tracking": true,
+      "collaborative_optimization": true
+    },
+    
+    "ai_artifacts_integration": {
+      "code_generation": true,
+      "documentation_creation": true,
+      "test_generation": true,
+      "ui_mockups": false
+    }
+  },
+  
+  "security_configuration": {
+    "credential_management": {
+      "use_environment_variables": true,
+      "secure_credential_storage": true,
+      "automatic_rotation_support": true
+    },
+    
+    "data_protection": {
+      "pii_detection": true,
+      "sensitive_data_masking": true,
+      "audit_logging": true
+    },
+    
+    "access_control": {
+      "role_based_access": true,
+      "feature_gating": true,
+      "usage_monitoring": true
+    }
+  },
+  
+  "deployment_configuration": {
+    "environment": "prod",
+    "health_check_interval": 60,
+    "auto_restart_on_failure": true,
+    "log_level": "INFO",
+    "metrics_collection": true
+  }
+} 
