@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from backend.core.auto_esc_config import get_config_value
 """
 Sophia AI Standalone Server for Live Testing
 Bypasses existing backend import conflicts by running as standalone service
@@ -22,14 +23,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-CEO_ACCESS_TOKEN = "sophia_ceo_access_2024"
+CEO_ACCESS_TOKEN = os.getenv("CEO_ACCESS_TOKEN", get_config_value("ceo_access_token", get_config_value("ceo_access_token", "sophia_ceo_access_2024")))
 ADMIN_USER_ID = "ceo_user"
 
 # Snowflake Configuration
 SNOWFLAKE_CONFIG = {
     "account": "ZNB04675",
     "user": "SCOOBYJAVA15",
-    "password": "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
+    "password": os.getenv("SNOWFLAKE_PASSWORD", ""),
     "role": "ACCOUNTADMIN",
     "database": "SOPHIA_AI_PROD",
     "schema": "UNIVERSAL_CHAT",

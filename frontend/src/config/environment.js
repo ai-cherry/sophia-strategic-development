@@ -29,7 +29,7 @@ const defaultConfig = {
   debugMode: false,
   
   // Security Configuration
-  ceoAccessToken: 'sophia_ceo_access_2024',
+  ceoAccessToken: process.env.REACT_APP_CEO_ACCESS_TOKEN || 'sophia_ceo_access_2024',
   adminMode: false,
   
   // Deployment Configuration

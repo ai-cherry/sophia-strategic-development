@@ -1,6 +1,7 @@
 """
 Auto ESC Configuration Module for Sophia AI
 Handles environment variable and configuration management with Pulumi ESC integration
+Integrated with SecurityConfig for centralized secret management
 """
 
 import os
@@ -14,6 +15,15 @@ logger = logging.getLogger(__name__)
 # Configuration cache
 _config_cache: Dict[str, Any] = {}
 _esc_cache: Optional[Dict[str, Any]] = None
+
+def _get_security_config():
+    """Get SecurityConfig class (imported lazily to avoid circular imports)"""
+    try:
+        from backend.core.security_config import SecurityConfig
+        return SecurityConfig
+    except ImportError:
+        logger.warning("SecurityConfig not available, using fallback mappings")
+        return None
 
 def _load_esc_environment() -> Dict[str, Any]:
     """
@@ -106,23 +116,34 @@ def get_config_value(key: str, default: Any = None) -> Any:
     # Try to load from Pulumi ESC
     esc_data = _load_esc_environment()
     
-    # Map common key variations for Pulumi ESC
-    esc_key_mappings = {
-        'snowflake_account': 'snowflake_account',
-        'snowflake_user': 'snowflake_user', 
-        'snowflake_password': 'snowflake_password',  # Use the new SNOWFLAKE_PASSWORD secret
-        'snowflake_role': 'snowflake_role',
-        'snowflake_warehouse': 'snowflake_warehouse_dev',
-        'snowflake_database': 'snowflake_database',
-        'snowflake_schema': 'snowflake_schema',
-        'gong_access_key': 'gong_access_key',
-        'openai_api_key': 'openai_api_key',
-        'anthropic_api_key': 'anthropic_api_key',
-        'pinecone_api_key': 'pinecone_api_key',
-    }
+    # Get key mappings from SecurityConfig or use fallback
+    security_config = _get_security_config()
+    if security_config:
+        # Use SecurityConfig for key validation and mapping
+        if not security_config.validate_secret_key(key) and key not in security_config.NON_SECRET_CONFIG:
+            # Check if this is a known non-secret config key
+            pass
+        
+        # Use direct key mapping for SecurityConfig registered keys
+        esc_key = key
+    else:
+        # Fallback key mappings for backward compatibility
+        esc_key_mappings = {
+            'snowflake_account': 'snowflake_account',
+            'snowflake_user': 'snowflake_user', 
+            'snowflake_password': 'snowflake_password',
+            'snowflake_role': 'snowflake_role',
+            'snowflake_warehouse': 'snowflake_warehouse',
+            'snowflake_database': 'snowflake_database',
+            'snowflake_schema': 'snowflake_schema',
+            'gong_access_key': 'gong_access_key',
+            'openai_api_key': 'openai_api_key',
+            'anthropic_api_key': 'anthropic_api_key',
+            'pinecone_api_key': 'pinecone_api_key',
+        }
+        esc_key = esc_key_mappings.get(key, key)
     
     # Try to get from ESC using mapped key (handle quoted keys)
-    esc_key = esc_key_mappings.get(key, key)
     quoted_esc_key = f'"{esc_key}"'
     
     # Check both quoted and unquoted versions

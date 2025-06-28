@@ -21,11 +21,12 @@ class AdvancedSnowflakeImplementation:
     def connect(self):
         """Connect to Snowflake with PAT authentication"""
         try:
+            from backend.core.auto_esc_config import get_config_value
             self.conn = snowflake.connector.connect(
-                account='UHDECNO-CVB64222',
-                user='SCOOBYJAVA15',
-                password='eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A',
-                role='ACCOUNTADMIN',
+                account=get_config_value('snowflake_account', 'scoobyjava-vw02766'),
+                user=get_config_value('snowflake_user', 'PAYREADY'),
+                password=get_config_value('snowflake_password'),
+                role=get_config_value('snowflake_role', 'SYSADMIN'),
                 warehouse='AI_COMPUTE_WH',
                 database='SOPHIA_AI_ADVANCED'
             )

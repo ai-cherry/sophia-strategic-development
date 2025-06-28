@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from backend.core.auto_esc_config import get_config_value
 """
 Complete Sophia AI Platform Deployment Script
 Orchestrates deployment across Snowflake, Estuary Flow, and application services
@@ -182,7 +183,7 @@ class CompletePlatformDeployment:
                 conn = snowflake.connector.connect(
                     account='UHDECNO-CVB64222',
                     user='SCOOBYJAVA15',
-                    password='eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A',
+                    password=get_config_value("snowflake_password"),
                     role='ACCOUNTADMIN'
                 )
                 
@@ -202,7 +203,7 @@ class CompletePlatformDeployment:
                 conn = snowflake.connector.connect(
                     account='UHDECNO-CVB64222',
                     user='SCOOBYJAVA15',
-                    password='eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A',
+                    password=get_config_value("snowflake_password"),
                     role='ACCOUNTADMIN'
                 )
                 
@@ -234,7 +235,7 @@ class CompletePlatformDeployment:
                 conn = snowflake.connector.connect(
                     account='UHDECNO-CVB64222',
                     user='SCOOBYJAVA15',
-                    password='eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A',
+                    password=get_config_value("snowflake_password"),
                     role='ACCOUNTADMIN'
                 )
                 
