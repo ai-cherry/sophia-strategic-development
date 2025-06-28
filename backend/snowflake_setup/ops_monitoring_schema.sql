@@ -649,21 +649,32 @@ $$;
 -- =====================================================================
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_NAME_TIME ON ETL_JOB_LOGS(JOB_NAME, START_TIME);
-CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_STATUS ON ETL_JOB_LOGS(STATUS);
-CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_CORRELATION ON ETL_JOB_LOGS(CORRELATION_ID);
-
-CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_APP_TIME ON APP_ERROR_LOGS(APPLICATION_NAME, OCCURRED_AT);
-CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_LEVEL ON APP_ERROR_LOGS(ERROR_LEVEL);
-CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_CORRELATION ON APP_ERROR_LOGS(CORRELATION_ID);
-
-CREATE INDEX IF NOT EXISTS IX_SYSTEM_PERFORMANCE_APP_TIME ON SYSTEM_PERFORMANCE_METRICS(APPLICATION_NAME, METRIC_TIMESTAMP);
-CREATE INDEX IF NOT EXISTS IX_SYSTEM_HEALTH_CHECKS_APP ON SYSTEM_HEALTH_CHECKS(APPLICATION_NAME, STATUS);
-
-CREATE INDEX IF NOT EXISTS IX_DATA_QUALITY_RESULTS_CHECK_TIME ON DATA_QUALITY_RESULTS(CHECK_ID, EXECUTED_AT);
-CREATE INDEX IF NOT EXISTS IX_ALERT_INSTANCES_TRIGGERED_AT ON ALERT_INSTANCES(TRIGGERED_AT);
-CREATE INDEX IF NOT EXISTS IX_ALERT_INSTANCES_STATUS ON ALERT_INSTANCES(STATUS);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_NAME_TIME ON ETL_JOB_LOGS(JOB_NAME, START_TIME);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_STATUS ON ETL_JOB_LOGS(STATUS);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_ETL_JOB_LOGS_CORRELATION ON ETL_JOB_LOGS(CORRELATION_ID);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_APP_TIME ON APP_ERROR_LOGS(APPLICATION_NAME, OCCURRED_AT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_LEVEL ON APP_ERROR_LOGS(ERROR_LEVEL);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_APP_ERROR_LOGS_CORRELATION ON APP_ERROR_LOGS(CORRELATION_ID);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_SYSTEM_PERFORMANCE_APP_TIME ON SYSTEM_PERFORMANCE_METRICS(APPLICATION_NAME, METRIC_TIMESTAMP);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_SYSTEM_HEALTH_CHECKS_APP ON SYSTEM_HEALTH_CHECKS(APPLICATION_NAME, STATUS);
+-- 
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_DATA_QUALITY_RESULTS_CHECK_TIME ON DATA_QUALITY_RESULTS(CHECK_ID, EXECUTED_AT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_ALERT_INSTANCES_TRIGGERED_AT ON ALERT_INSTANCES(TRIGGERED_AT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IX_ALERT_INSTANCES_STATUS ON ALERT_INSTANCES(STATUS);
+-- 
 -- =====================================================================
 -- 8. GRANTS AND PERMISSIONS
 -- =====================================================================

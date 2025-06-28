@@ -867,15 +867,23 @@ $$;
 -- =====================================================================
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS IDX_EMPLOYEES_DEPARTMENT ON EMPLOYEES(DEPARTMENT);
-CREATE INDEX IF NOT EXISTS IDX_EMPLOYEES_EMAIL ON EMPLOYEES(EMAIL_ADDRESS);
-CREATE INDEX IF NOT EXISTS IDX_CUSTOMERS_SEGMENT ON CUSTOMERS(CUSTOMER_SEGMENT);
-CREATE INDEX IF NOT EXISTS IDX_CUSTOMERS_STATUS ON CUSTOMERS(CUSTOMER_STATUS);
-CREATE INDEX IF NOT EXISTS IDX_PRODUCTS_CATEGORY ON PRODUCTS_SERVICES(PRODUCT_CATEGORY);
-CREATE INDEX IF NOT EXISTS IDX_COMPETITORS_TIER ON COMPETITORS(COMPETITIVE_TIER);
-CREATE INDEX IF NOT EXISTS IDX_ARTICLES_CATEGORY ON KNOWLEDGE_ARTICLES(ARTICLE_CATEGORY);
-CREATE INDEX IF NOT EXISTS IDX_PROCESSES_CATEGORY ON BUSINESS_PROCESSES(PROCESS_CATEGORY);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_EMPLOYEES_DEPARTMENT ON EMPLOYEES(DEPARTMENT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_EMPLOYEES_EMAIL ON EMPLOYEES(EMAIL_ADDRESS);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_CUSTOMERS_SEGMENT ON CUSTOMERS(CUSTOMER_SEGMENT);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_CUSTOMERS_STATUS ON CUSTOMERS(CUSTOMER_STATUS);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_PRODUCTS_CATEGORY ON PRODUCTS_SERVICES(PRODUCT_CATEGORY);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_COMPETITORS_TIER ON COMPETITORS(COMPETITIVE_TIER);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_ARTICLES_CATEGORY ON KNOWLEDGE_ARTICLES(ARTICLE_CATEGORY);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_PROCESSES_CATEGORY ON BUSINESS_PROCESSES(PROCESS_CATEGORY);
+-- 
 -- =====================================================================
 -- END OF FOUNDATIONAL KNOWLEDGE SCHEMA
 -- ===================================================================== 

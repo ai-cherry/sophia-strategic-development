@@ -165,20 +165,25 @@ $$;
 -- =====================================================
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_memory_records_conversation_id 
-ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(conversation_id);
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_conversation_id 
+-- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(conversation_id);
+-- 
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_user_id 
+-- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(user_id);
+-- 
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_created_at 
+-- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(created_at);
 
-CREATE INDEX IF NOT EXISTS idx_memory_records_user_id 
-ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(user_id);
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_memory_records_importance 
+-- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(importance_score);
 
-CREATE INDEX IF NOT EXISTS idx_memory_records_created_at 
-ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(created_at);
-
-CREATE INDEX IF NOT EXISTS idx_memory_records_importance 
-ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(importance_score);
-
-CREATE INDEX IF NOT EXISTS idx_memory_embeddings_memory_id 
-ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_EMBEDDINGS(memory_id);
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS idx_memory_embeddings_memory_id 
+-- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_EMBEDDINGS(memory_id);
 
 -- =====================================================
 -- SAMPLE DATA FOR TESTING

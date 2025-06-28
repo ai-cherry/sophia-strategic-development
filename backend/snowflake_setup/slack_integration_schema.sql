@@ -741,13 +741,19 @@ AS
 -- =====================================================================
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS IDX_SLACK_MESSAGES_CHANNEL_TIME ON STG_SLACK_MESSAGES(CHANNEL_ID, MESSAGE_DATETIME);
-CREATE INDEX IF NOT EXISTS IDX_SLACK_MESSAGES_USER ON STG_SLACK_MESSAGES(USER_ID);
-CREATE INDEX IF NOT EXISTS IDX_SLACK_CONVERSATIONS_CHANNEL ON STG_SLACK_CONVERSATIONS(CHANNEL_ID);
-CREATE INDEX IF NOT EXISTS IDX_SLACK_CONVERSATIONS_VALUE ON STG_SLACK_CONVERSATIONS(BUSINESS_VALUE_SCORE);
-CREATE INDEX IF NOT EXISTS IDX_SLACK_INSIGHTS_TYPE ON SLACK_KNOWLEDGE_INSIGHTS(INSIGHT_TYPE);
-CREATE INDEX IF NOT EXISTS IDX_SLACK_INSIGHTS_CONFIDENCE ON SLACK_KNOWLEDGE_INSIGHTS(CONFIDENCE_SCORE);
-
+-- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_MESSAGES_CHANNEL_TIME ON STG_SLACK_MESSAGES(CHANNEL_ID, MESSAGE_DATETIME);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_MESSAGES_USER ON STG_SLACK_MESSAGES(USER_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_CONVERSATIONS_CHANNEL ON STG_SLACK_CONVERSATIONS(CHANNEL_ID);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_CONVERSATIONS_VALUE ON STG_SLACK_CONVERSATIONS(BUSINESS_VALUE_SCORE);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_INSIGHTS_TYPE ON SLACK_KNOWLEDGE_INSIGHTS(INSIGHT_TYPE);
+-- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
+-- CREATE INDEX IF NOT EXISTS IDX_SLACK_INSIGHTS_CONFIDENCE ON SLACK_KNOWLEDGE_INSIGHTS(CONFIDENCE_SCORE);
+-- 
 -- =====================================================================
 -- END OF SLACK INTEGRATION SCHEMA
 -- ===================================================================== 
