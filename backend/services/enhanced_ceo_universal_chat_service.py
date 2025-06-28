@@ -41,10 +41,12 @@ class CEOChatContext:
 @dataclass 
 class EnhancedChatResponse:
     content: str
-    sources: List[Dict[str, Any]] = None
-    actions: List[Dict[str, Any]] = None
-    suggestions: List[str] = None
-    timestamp: str = None
+    sources: Optional[List[Dict[str, Any]]] = None
+    actions: Optional[List[Dict[str, Any]]] = None
+    suggestions: Optional[List[str]] = None
+    timestamp: Optional[str] = None
+    query_type: Optional[str] = None
+    processing_time: float = 0.0
     
     def __post_init__(self):
         if self.sources is None:
@@ -96,7 +98,8 @@ class EnhancedCEOUniversalChatService:
         """Process coding-related queries"""
         if context.access_level != AccessLevel.CEO:
             return EnhancedChatResponse(
-                content="AI coding agent access is only available to CEO-level users."
+                content="AI coding agent access is only available to CEO-level users.",
+                query_type="code_analysis"
             )
             
         return EnhancedChatResponse(
@@ -112,7 +115,8 @@ class EnhancedCEOUniversalChatService:
                 "Review deployment pipeline", 
                 "Check code coverage",
                 "Audit dependencies"
-            ]
+            ],
+            query_type="code_analysis"
         )
 
     async def _process_web_research(self, query: str, context: CEOChatContext) -> EnhancedChatResponse:
@@ -129,14 +133,16 @@ class EnhancedCEOUniversalChatService:
                 "Get real-time market updates",
                 "Analyze industry sentiment",
                 "Compare with internal metrics"
-            ]
+            ],
+            query_type="web_research"
         )
 
     async def _process_deep_research(self, query: str, context: CEOChatContext) -> EnhancedChatResponse:
         """Process deep research queries (CEO-only)"""
         if context.access_level != AccessLevel.CEO:
             return EnhancedChatResponse(
-                content="🔒 Deep research capabilities are only available to CEO-level users."
+                content="🔒 Deep research capabilities are only available to CEO-level users.",
+                query_type="deep_research"
             )
             
         return EnhancedChatResponse(
@@ -150,7 +156,8 @@ class EnhancedCEOUniversalChatService:
                 {"type": "competitor_deep_dive", "description": "Comprehensive competitor analysis"},
                 {"type": "market_opportunity", "description": "Identify market opportunities"},
                 {"type": "partnership_intel", "description": "Strategic partnership intelligence"}
-            ]
+            ],
+            query_type="deep_research"
         )
 
     async def _process_business_query(self, query: str, context: CEOChatContext) -> EnhancedChatResponse:
@@ -167,8 +174,32 @@ class EnhancedCEOUniversalChatService:
                 "Generate executive summary report", 
                 "Compare with industry benchmarks",
                 "Analyze growth opportunities"
-            ]
+            ],
+            query_type="business_intelligence"
         )
+
+    async def get_available_mcp_servers(self, access_level: AccessLevel) -> List[Dict[str, Any]]:
+        """Get list of MCP servers available to user based on access level"""
+        base_servers = [
+            {"name": "ai_memory", "description": "AI Memory and Context Management", "port": 9000},
+            {"name": "asana", "description": "Asana Project Management", "port": 3006},
+            {"name": "linear", "description": "Linear Issue Tracking", "port": 3005}
+        ]
+        
+        if access_level in [AccessLevel.CEO, AccessLevel.EXECUTIVE]:
+            base_servers.extend([
+                {"name": "snowflake_admin", "description": "Snowflake Administration", "port": 8080},
+                {"name": "codacy", "description": "Code Quality Analysis", "port": 3008}
+            ])
+        
+        if access_level == AccessLevel.CEO:
+            base_servers.extend([
+                {"name": "github", "description": "GitHub Repository Management", "port": 3010},
+                {"name": "infrastructure", "description": "Infrastructure Management", "port": 3011},
+                {"name": "ui_ux_agent", "description": "Advanced UI/UX Design Agent", "port": 9002}
+            ])
+        
+        return base_servers
 
     async def health_check(self) -> Dict[str, Any]:
         """Health check for CEO chat service"""

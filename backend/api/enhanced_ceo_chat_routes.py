@@ -145,7 +145,7 @@ async def process_ceo_chat(request: ChatRequest):
             "actions": response.actions,
             "suggestions": response.suggestions,
             "metadata": {
-                "query_type": response.query_type.value if response.query_type else None,
+                "query_type": response.query_type,
                 "processing_time": response.processing_time,
                 "access_level": context.access_level.value,
                 "search_context": context.search_context.value,
@@ -397,7 +397,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         "actions": response.actions,
                         "suggestions": response.suggestions,
                         "metadata": {
-                            "query_type": response.query_type.value if response.query_type else None,
+                            "query_type": response.query_type,
                             "processing_time": response.processing_time,
                             "timestamp": response.timestamp
                         }

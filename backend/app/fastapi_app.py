@@ -17,6 +17,7 @@ from backend.api.asana_integration_routes import router as asana_router
 from backend.api.notion_integration_routes import router as notion_router
 from backend.api.codacy_integration_routes import router as codacy_router
 from backend.api.universal_chat_routes import router as chat_router
+from backend.api.enhanced_ceo_chat_routes import router as ceo_chat_router
 
 # Import enhanced configuration validation
 from backend.core.config_validator import validate_deployment_readiness
@@ -53,6 +54,7 @@ app.include_router(asana_router)
 app.include_router(notion_router)
 app.include_router(codacy_router)
 app.include_router(chat_router)
+app.include_router(ceo_chat_router)
 
 
 @app.get("/", tags=["health"])
@@ -102,6 +104,7 @@ async def api_health_check() -> dict:
                 "notion_integration": "available",
                 "codacy_integration": "available",
                 "universal_chat": "available",
+                "enhanced_ceo_chat": "available",
                 "core_systems": config_health,
                 "configuration": "loaded"
             },
