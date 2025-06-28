@@ -3,19 +3,20 @@ Foundational Knowledge API Routes
 Extends the existing knowledge base system with Pay Ready's foundational business information
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_session
 from backend.core.auth import get_current_user
-from backend.services.foundational_knowledge_service import (
-    FoundationalKnowledgeService,
-    FoundationalDataType,
-)
 from backend.core.cache_manager import DashboardCacheManager
+from backend.core.database import get_session
 from backend.core.logger import logger
+from backend.services.foundational_knowledge_service import (
+    FoundationalDataType,
+    FoundationalKnowledgeService,
+)
 
 router = APIRouter(
     prefix="/api/v1/knowledge/foundational", tags=["foundational-knowledge"]
@@ -30,7 +31,7 @@ cache_manager = DashboardCacheManager()
 async def sync_foundational_data(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Sync foundational Pay Ready data from Snowflake to knowledge base
 
@@ -75,7 +76,7 @@ async def sync_foundational_data(
 async def get_foundational_stats(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get statistics about foundational knowledge in the knowledge base
 
@@ -106,11 +107,11 @@ async def get_foundational_stats(
 @router.get("/search")
 async def search_foundational_knowledge(
     query: str = Query(..., description="Search query"),
-    data_types: Optional[List[str]] = Query(None, description="Filter by data types"),
+    data_types: list[str] | None = Query(None, description="Filter by data types"),
     limit: int = Query(10, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search foundational knowledge using semantic search
 
@@ -159,7 +160,7 @@ async def search_foundational_knowledge(
 async def get_foundational_insights(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get AI-generated insights about foundational knowledge
 
@@ -194,7 +195,7 @@ async def get_foundational_insights(
 @router.get("/data-types")
 async def get_available_data_types(
     user_id: str = Depends(get_current_user),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get available foundational data types and their descriptions
     """
@@ -283,10 +284,10 @@ async def get_available_data_types(
 async def update_foundational_record(
     data_type: str,
     record_id: str,
-    updates: Dict[str, Any],
+    updates: dict[str, Any],
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Update a foundational knowledge record
 
@@ -335,11 +336,11 @@ async def update_foundational_record(
 @router.get("/context/{context_type}")
 async def get_contextual_knowledge(
     context_type: str,
-    context_id: Optional[str] = Query(None, description="Specific ID for context"),
+    context_id: str | None = Query(None, description="Specific ID for context"),
     limit: int = Query(20, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get foundational knowledge relevant to a specific context
 
@@ -391,8 +392,8 @@ async def _check_admin_permissions(user_id: str) -> bool:
 
 
 async def _get_gong_call_context(
-    call_id: Optional[str], limit: int
-) -> List[Dict[str, Any]]:
+    call_id: str | None, limit: int
+) -> list[dict[str, Any]]:
     """Get foundational context relevant to a Gong call"""
     if not call_id:
         return []
@@ -405,8 +406,8 @@ async def _get_gong_call_context(
 
 
 async def _get_hubspot_deal_context(
-    deal_id: Optional[str], limit: int
-) -> List[Dict[str, Any]]:
+    deal_id: str | None, limit: int
+) -> list[dict[str, Any]]:
     """Get foundational context relevant to a HubSpot deal"""
     if not deal_id:
         return []
@@ -416,8 +417,8 @@ async def _get_hubspot_deal_context(
 
 
 async def _get_slack_context(
-    conversation_id: Optional[str], limit: int
-) -> List[Dict[str, Any]]:
+    conversation_id: str | None, limit: int
+) -> list[dict[str, Any]]:
     """Get foundational context relevant to a Slack conversation"""
     if not conversation_id:
         return []
@@ -427,8 +428,8 @@ async def _get_slack_context(
 
 
 async def _get_employee_context(
-    employee_id: Optional[str], limit: int
-) -> List[Dict[str, Any]]:
+    employee_id: str | None, limit: int
+) -> list[dict[str, Any]]:
     """Get comprehensive employee and team context"""
     if not employee_id:
         return []

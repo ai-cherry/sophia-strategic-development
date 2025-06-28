@@ -6,10 +6,9 @@ Phase 1A: Comprehensive audit of all modules, services, agents, and documentatio
 
 import json
 import re
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List
 from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
 
 
 class CodebaseAuditor:
@@ -32,7 +31,7 @@ class CodebaseAuditor:
             "recommendations": [],
         }
 
-    def audit_modules(self) -> Dict[str, List[str]]:
+    def audit_modules(self) -> dict[str, list[str]]:
         """Inventory all Python modules and their dependencies"""
         modules = defaultdict(list)
 
@@ -47,7 +46,7 @@ class CodebaseAuditor:
 
             # Analyze imports
             try:
-                with open(py_file, "r") as f:
+                with open(py_file) as f:
                     content = f.read()
                     imports = re.findall(r"(?:from|import)\s+([^\s]+)", content)
                     modules[module_name] = list(set(imports))
@@ -62,7 +61,7 @@ class CodebaseAuditor:
         self.audit_results["modules"] = dict(modules)
         return dict(modules)
 
-    def audit_agents(self) -> Dict[str, Dict]:
+    def audit_agents(self) -> dict[str, dict]:
         """Inventory all agents and MCP servers"""
         agents = {}
 
@@ -83,7 +82,7 @@ class CodebaseAuditor:
         self.audit_results["agents"] = agents
         return agents
 
-    def audit_integrations(self) -> Dict[str, Dict]:
+    def audit_integrations(self) -> dict[str, dict]:
         """Inventory all external integrations"""
         integrations = {}
 
@@ -105,7 +104,7 @@ class CodebaseAuditor:
                 continue
 
             try:
-                with open(py_file, "r") as f:
+                with open(py_file) as f:
                     content = f.read()
 
                 for integration, pattern in integration_patterns.items():
@@ -125,7 +124,7 @@ class CodebaseAuditor:
         self.audit_results["integrations"] = integrations
         return integrations
 
-    def audit_compliance(self) -> List[Dict]:
+    def audit_compliance(self) -> list[dict]:
         """Identify compliance-sensitive code flows"""
         compliance_patterns = {
             "pci_dss": [r"payment", r"card", r"credit", r"billing"],
@@ -141,7 +140,7 @@ class CodebaseAuditor:
                 continue
 
             try:
-                with open(py_file, "r") as f:
+                with open(py_file) as f:
                     content = f.read()
 
                 for compliance_type, patterns in compliance_patterns.items():
@@ -162,7 +161,7 @@ class CodebaseAuditor:
         self.audit_results["compliance_sensitive"] = sensitive_flows
         return sensitive_flows
 
-    def audit_documentation(self) -> Dict[str, Dict]:
+    def audit_documentation(self) -> dict[str, dict]:
         """Assess documentation coverage and quality"""
         doc_status = {
             "total_modules": 0,
@@ -181,7 +180,7 @@ class CodebaseAuditor:
             doc_status["total_modules"] += 1
 
             try:
-                with open(py_file, "r") as f:
+                with open(py_file) as f:
                     content = f.read()
                     if '"""' in content or "'''" in content:
                         doc_status["documented_modules"] += 1
@@ -238,7 +237,7 @@ class CodebaseAuditor:
             if py_file == file_path:
                 continue
             try:
-                with open(py_file, "r") as f:
+                with open(py_file) as f:
                     if file_name in f.read():
                         is_imported = True
                         break
@@ -247,7 +246,7 @@ class CodebaseAuditor:
 
         return not is_imported and file_name != "__init__"
 
-    def _analyze_agent(self, agent_file: Path) -> Dict:
+    def _analyze_agent(self, agent_file: Path) -> dict:
         """Analyze an agent file"""
         agent_info = {
             "type": "unknown",
@@ -258,7 +257,7 @@ class CodebaseAuditor:
         }
 
         try:
-            with open(agent_file, "r") as f:
+            with open(agent_file) as f:
                 content = f.read()
 
             # Detect agent type
@@ -296,7 +295,7 @@ class CodebaseAuditor:
 
         return agent_info
 
-    def _extract_endpoints(self, content: str) -> List[str]:
+    def _extract_endpoints(self, content: str) -> list[str]:
         """Extract API endpoints from code"""
         endpoints = []
 
@@ -370,7 +369,7 @@ class CodebaseAuditor:
 
         self.audit_results["recommendations"] = recommendations
 
-    def run_full_audit(self) -> Dict:
+    def run_full_audit(self) -> dict:
         """Run complete codebase audit"""
         print("=== Sophia AI Codebase Audit ===\n")
 

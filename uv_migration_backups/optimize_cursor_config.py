@@ -4,12 +4,12 @@ Cursor Configuration Optimizer
 Optimizes Cursor MCP configuration for enhanced GitHub integration
 """
 
+import argparse
 import json
 import logging
-import argparse
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class CursorConfigOptimizer:
         self.config_path = Path(config_path)
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load existing Cursor MCP configuration"""
         if not self.config_path.exists():
             logger.warning(
@@ -31,13 +31,13 @@ class CursorConfigOptimizer:
             return self._create_default_config()
 
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"Failed to load config: {e}")
             return self._create_default_config()
 
-    def _create_default_config(self) -> Dict[str, Any]:
+    def _create_default_config(self) -> dict[str, Any]:
         """Create default configuration"""
         return {"mcpServers": {}, "settings": {}, "development": {}, "workflows": {}}
 
@@ -301,7 +301,7 @@ class CursorConfigOptimizer:
         logger.info("✅ Configuration validation complete")
         return True
 
-    def generate_optimization_report(self) -> Dict[str, Any]:
+    def generate_optimization_report(self) -> dict[str, Any]:
         """Generate optimization report"""
         report = {
             "optimization_timestamp": "2024-01-01T00:00:00Z",

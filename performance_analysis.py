@@ -5,9 +5,9 @@ Analyzes resource utilization, bottlenecks, and optimization opportunities
 """
 
 import ast
-from pathlib import Path
-from typing import Dict, List, Any
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
 
 class PerformanceAnalyzer:
@@ -15,10 +15,10 @@ class PerformanceAnalyzer:
         self.codebase_path = Path(codebase_path)
         self.analysis_results = {}
 
-    def analyze_file_complexity(self, file_path: Path) -> Dict[str, Any]:
+    def analyze_file_complexity(self, file_path: Path) -> dict[str, Any]:
         """Analyze individual file complexity and potential bottlenecks"""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -45,7 +45,7 @@ class PerformanceAnalyzer:
                         complexity_metrics["async_functions"] += 1
                 elif isinstance(node, ast.ClassDef):
                     complexity_metrics["classes"] += 1
-                elif isinstance(node, (ast.For, ast.While)):
+                elif isinstance(node, ast.For | ast.While):
                     complexity_metrics["loops"] += 1
                 elif isinstance(node, ast.Import):
                     complexity_metrics["imports"] += len(node.names)
@@ -67,7 +67,7 @@ class PerformanceAnalyzer:
         except Exception as e:
             return {"error": str(e)}
 
-    def analyze_codebase_structure(self) -> Dict[str, Any]:
+    def analyze_codebase_structure(self) -> dict[str, Any]:
         """Analyze overall codebase structure and identify hotspots"""
         backend_path = self.codebase_path / "backend"
 
@@ -111,7 +111,7 @@ class PerformanceAnalyzer:
             "file_details": file_analysis,
         }
 
-    def analyze_resource_patterns(self) -> Dict[str, Any]:
+    def analyze_resource_patterns(self) -> dict[str, Any]:
         """Analyze resource usage patterns"""
         backend_path = self.codebase_path / "backend"
 
@@ -128,7 +128,7 @@ class PerformanceAnalyzer:
                 continue
 
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     content = f.read()
 
                 relative_path = py_file.relative_to(self.codebase_path)
@@ -196,8 +196,8 @@ class PerformanceAnalyzer:
         return patterns
 
     def generate_recommendations(
-        self, structure_analysis: Dict, pattern_analysis: Dict
-    ) -> List[str]:
+        self, structure_analysis: dict, pattern_analysis: dict
+    ) -> list[str]:
         """Generate performance optimization recommendations"""
         recommendations = []
 

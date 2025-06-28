@@ -8,16 +8,16 @@ Provides endpoints for data upload, market browsing, and analytics.
 from __future__ import annotations
 
 import logging
+import os
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status, Request
+import httpx
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import os
-import httpx
 
 from backend.mcp_servers.costar_mcp_server import costar_server
 
@@ -31,20 +31,20 @@ class CoStarUploadResponse(BaseModel):
 
     status: str
     message: str
-    import_id: Optional[int] = None
+    import_id: int | None = None
     records_processed: int = 0
     records_imported: int = 0
     records_failed: int = 0
     processing_time_seconds: float = 0.0
-    errors: List[str] = []
+    errors: list[str] = []
 
 
 class CoStarMarketResponse(BaseModel):
     """Response model for market data operations."""
 
     status: str
-    markets: List[Dict[str, Any]] = []
-    data: List[Dict[str, Any]] = []
+    markets: list[dict[str, Any]] = []
+    data: list[dict[str, Any]] = []
     total_count: int = 0
 
 
@@ -52,7 +52,7 @@ class CoStarImportHistoryResponse(BaseModel):
     """Response model for import history."""
 
     status: str
-    imports: List[Dict[str, Any]] = []
+    imports: list[dict[str, Any]] = []
     total_count: int = 0
 
 
@@ -61,7 +61,7 @@ class CoStarInitializeResponse(BaseModel):
 
     status: str
     message: str
-    tables_created: List[str] = []
+    tables_created: list[str] = []
 
 
 @router.post("/initialize", response_model=CoStarInitializeResponse)
@@ -371,11 +371,11 @@ async def get_market_analytics_summary(metro_area: str):
 
         # Calculate summary statistics
         property_types = list(
-            set(
+            {
                 record.get("property_type")
                 for record in market_data
                 if record.get("property_type")
-            )
+            }
         )
         latest_data = market_data[0] if market_data else {}
 

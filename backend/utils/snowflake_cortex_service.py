@@ -21,19 +21,19 @@ Current size: 2237 lines
 
 Recommended decomposition:
 - snowflake_cortex_service_core.py - Core functionality
-- snowflake_cortex_service_utils.py - Utility functions  
+- snowflake_cortex_service_utils.py - Utility functions
 - snowflake_cortex_service_models.py - Data models
 - snowflake_cortex_service_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import logging
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
-from enum import Enum
 import json
+import logging
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 import pandas as pd
 
@@ -91,9 +91,9 @@ class CortexQuery:
 
     model: CortexModel
     input_text: str
-    parameters: Optional[Dict[str, Any]] = None
-    context: Optional[str] = None
-    max_tokens: Optional[int] = None
+    parameters: dict[str, Any] | None = None
+    context: str | None = None
+    max_tokens: int | None = None
 
 
 @dataclass
@@ -102,7 +102,7 @@ class VectorSearchResult:
 
     content: str
     similarity_score: float
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     source_table: str
     source_id: str
 
@@ -177,9 +177,9 @@ class SnowflakeCortexService:
         self,
         text_column: str,
         table_name: str,
-        conditions: Optional[str] = None,
+        conditions: str | None = None,
         max_length: int = 200,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Summarize text data using Snowflake Cortex SUMMARIZE function
 
@@ -197,7 +197,7 @@ class SnowflakeCortexService:
 
         # Build query using Snowflake Cortex SUMMARIZE function
         query = f"""
-        SELECT 
+        SELECT
             id,
             {text_column} as original_text,
             SNOWFLAKE.CORTEX.SUMMARIZE(
@@ -236,8 +236,8 @@ class SnowflakeCortexService:
             raise
 
     async def analyze_sentiment_in_snowflake(
-        self, text_column: str, table_name: str, conditions: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        self, text_column: str, table_name: str, conditions: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Analyze sentiment using Snowflake Cortex SENTIMENT function
 
@@ -253,11 +253,11 @@ class SnowflakeCortexService:
             await self.initialize()
 
         query = f"""
-        SELECT 
+        SELECT
             id,
             {text_column} as text,
             SNOWFLAKE.CORTEX.SENTIMENT({text_column}) as sentiment_score,
-            CASE 
+            CASE
                 WHEN SNOWFLAKE.CORTEX.SENTIMENT({text_column}) > 0.1 THEN 'POSITIVE'
                 WHEN SNOWFLAKE.CORTEX.SENTIMENT({text_column}) < -0.1 THEN 'NEGATIVE'
                 ELSE 'NEUTRAL'
@@ -298,10 +298,10 @@ class SnowflakeCortexService:
         self,
         text_column: str,
         table_name: str,
-        conditions: Optional[str] = None,
+        conditions: str | None = None,
         model: str = "e5-base-v2",
         store_embeddings: bool = True,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Generate embeddings using Snowflake Cortex EMBED_TEXT function
 
@@ -319,7 +319,7 @@ class SnowflakeCortexService:
             await self.initialize()
 
         query = f"""
-        SELECT 
+        SELECT
             id,
             {text_column} as text,
             SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', {text_column}) as embedding_vector,
@@ -365,7 +365,7 @@ class SnowflakeCortexService:
         top_k: int = 10,
         similarity_threshold: float = 0.7,
         model: str = "e5-base-v2",
-    ) -> List[VectorSearchResult]:
+    ) -> list[VectorSearchResult]:
         """
         Perform vector similarity search using Snowflake native functions
 
@@ -388,7 +388,7 @@ class SnowflakeCortexService:
             SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', '{query_text}') as query_vector
         ),
         similarity_scores AS (
-            SELECT 
+            SELECT
                 v.id,
                 v.original_text,
                 v.metadata,
@@ -399,7 +399,7 @@ class SnowflakeCortexService:
             CROSS JOIN query_embedding q
             WHERE VECTOR_COSINE_SIMILARITY(q.query_vector, v.embedding_vector) >= {similarity_threshold}
         )
-        SELECT 
+        SELECT
             id,
             original_text as content,
             metadata,
@@ -444,7 +444,7 @@ class SnowflakeCortexService:
         model: CortexModel = CortexModel.MISTRAL_7B,
         max_tokens: int = 500,
         temperature: float = 0.7,
-        context: Optional[str] = None,
+        context: str | None = None,
     ) -> str:
         """
         Generate text completion using Snowflake Cortex LLM functions
@@ -497,9 +497,9 @@ class SnowflakeCortexService:
         self,
         text_column: str,
         table_name: str,
-        entity_types: List[str],
-        conditions: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        entity_types: list[str],
+        conditions: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Extract named entities from text using Cortex capabilities
 
@@ -519,7 +519,7 @@ class SnowflakeCortexService:
         entity_prompt = f"Extract the following entity types from the text: {', '.join(entity_types)}. Return as JSON."
 
         query = f"""
-        SELECT 
+        SELECT
             id,
             {text_column} as text,
             SNOWFLAKE.CORTEX.COMPLETE(
@@ -543,7 +543,7 @@ class SnowflakeCortexService:
 
             entities = []
             for row in results:
-                record = dict(zip(columns, row))
+                record = dict(zip(columns, row, strict=False))
                 entities.append(record)
 
             logger.info(f"Extracted entities from {len(entities)} records")
@@ -559,7 +559,7 @@ class SnowflakeCortexService:
     async def _create_vector_tables(self):
         """Create vector storage tables if they don't exist"""
 
-        for table_key, table_name in self.vector_tables.items():
+        for _table_key, table_name in self.vector_tables.items():
             create_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 id STRING,
@@ -585,7 +585,7 @@ class SnowflakeCortexService:
                     cursor.close()
 
     async def _store_embeddings(
-        self, embeddings: List[Dict[str, Any]], source_table: str
+        self, embeddings: list[dict[str, Any]], source_table: str
     ):
         """Store embeddings in dedicated vector table"""
 
@@ -609,7 +609,7 @@ class SnowflakeCortexService:
             )
 
         insert_query = f"""
-        INSERT INTO {vector_table} 
+        INSERT INTO {vector_table}
         (id, original_text, embedding_vector, embedding_model, metadata, source_table, source_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """
@@ -638,7 +638,7 @@ class SnowflakeCortexService:
         record_id: str,
         text_content: str,
         embedding_column: str = "ai_memory_embedding",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
         model: str = "e5-base-v2",
     ) -> bool:
         """
@@ -747,7 +747,7 @@ class SnowflakeCortexService:
             # Step 4: Update record with embedding and metadata
             update_query = f"""
             UPDATE {table_name}
-            SET 
+            SET
                 {embedding_column} = %s,
                 ai_memory_metadata = %s,
                 ai_memory_updated_at = CURRENT_TIMESTAMP()
@@ -800,9 +800,9 @@ class SnowflakeCortexService:
         embedding_column: str = "ai_memory_embedding",
         top_k: int = 10,
         similarity_threshold: float = 0.7,
-        metadata_filters: Optional[Dict[str, Any]] = None,
+        metadata_filters: dict[str, Any] | None = None,
         model: str = "e5-base-v2",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Perform vector similarity search directly on business tables with metadata filtering
 
@@ -887,10 +887,10 @@ class SnowflakeCortexService:
 
             # Step 1: Verify table exists and has required columns
             table_check_query = """
-            SELECT COUNT(*) 
-            FROM INFORMATION_SCHEMA.TABLES 
-            WHERE TABLE_NAME = %s 
-              AND TABLE_SCHEMA = %s 
+            SELECT COUNT(*)
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_NAME = %s
+              AND TABLE_SCHEMA = %s
               AND TABLE_CATALOG = %s
             """
             cursor.execute(table_check_query, (table_name, self.schema, self.database))
@@ -943,7 +943,7 @@ class SnowflakeCortexService:
             # Step 4: Build the vector search query with proper parameterization - SECURE VERSION
             # Using validated table_name and embedding_column directly since they're whitelisted
             search_query = f"""
-            SELECT 
+            SELECT
                 *,
                 VECTOR_COSINE_SIMILARITY(%s, {embedding_column}) as similarity_score
             FROM {table_name}
@@ -954,7 +954,11 @@ class SnowflakeCortexService:
             """
 
             # Parameters: [query_embedding, query_embedding, ...metadata_values..., similarity_threshold, top_k]
-            final_params = [query_embedding, query_embedding] + query_params + [similarity_threshold, top_k]
+            final_params = (
+                [query_embedding, query_embedding]
+                + query_params
+                + [similarity_threshold, top_k]
+            )
 
             cursor.execute(search_query, final_params)
 
@@ -965,7 +969,7 @@ class SnowflakeCortexService:
             # Convert to list of dictionaries
             search_results = []
             for row in results:
-                record = dict(zip(columns, row))
+                record = dict(zip(columns, row, strict=False))
                 search_results.append(record)
 
             logger.info(
@@ -1073,10 +1077,10 @@ class SnowflakeCortexService:
         query_text: str,
         top_k: int = 5,
         similarity_threshold: float = 0.7,
-        deal_stage: Optional[str] = None,
-        min_deal_value: Optional[float] = None,
-        max_deal_value: Optional[float] = None,
-    ) -> List[Dict[str, Any]]:
+        deal_stage: str | None = None,
+        min_deal_value: float | None = None,
+        max_deal_value: float | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Search HubSpot deals using AI Memory embeddings with business filters
 
@@ -1133,10 +1137,10 @@ class SnowflakeCortexService:
         query_text: str,
         top_k: int = 10,
         similarity_threshold: float = 0.7,
-        call_direction: Optional[str] = None,
-        date_range_days: Optional[int] = None,
-        sentiment_filter: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        call_direction: str | None = None,
+        date_range_days: int | None = None,
+        sentiment_filter: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Enhanced semantic search across STG_GONG_CALLS with AI Memory integration
 
@@ -1186,7 +1190,7 @@ class SnowflakeCortexService:
                 SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as embedding
             ),
             similarity_search AS (
-                SELECT 
+                SELECT
                     gc.*,
                     VECTOR_COSINE_SIMILARITY(gc.AI_MEMORY_EMBEDDING, qe.embedding) as SIMILARITY_SCORE,
                     -- Enhanced metadata extraction
@@ -1202,7 +1206,7 @@ class SnowflakeCortexService:
                 WHERE {filter_clause}
                 AND VECTOR_COSINE_SIMILARITY(gc.AI_MEMORY_EMBEDDING, qe.embedding) >= {similarity_threshold}
             )
-            SELECT 
+            SELECT
                 CALL_ID,
                 CALL_TITLE,
                 CALL_DATETIME_UTC,
@@ -1246,12 +1250,16 @@ class SnowflakeCortexService:
                 result = {
                     "call_id": row["CALL_ID"],
                     "call_title": row["CALL_TITLE"],
-                    "call_datetime": row["CALL_DATETIME_UTC"].isoformat()
-                    if pd.notna(row["CALL_DATETIME_UTC"])
-                    else None,
-                    "call_duration_seconds": int(row["CALL_DURATION_SECONDS"])
-                    if pd.notna(row["CALL_DURATION_SECONDS"])
-                    else 0,
+                    "call_datetime": (
+                        row["CALL_DATETIME_UTC"].isoformat()
+                        if pd.notna(row["CALL_DATETIME_UTC"])
+                        else None
+                    ),
+                    "call_duration_seconds": (
+                        int(row["CALL_DURATION_SECONDS"])
+                        if pd.notna(row["CALL_DURATION_SECONDS"])
+                        else 0
+                    ),
                     "call_direction": row["CALL_DIRECTION"],
                     "primary_user": {
                         "name": row["PRIMARY_USER_NAME"],
@@ -1261,32 +1269,40 @@ class SnowflakeCortexService:
                         "account_name": row["ACCOUNT_NAME"],
                         "contact_name": row["CONTACT_NAME"],
                         "deal_stage": row["DEAL_STAGE"],
-                        "deal_value": float(row["DEAL_VALUE"])
-                        if pd.notna(row["DEAL_VALUE"])
-                        else None,
+                        "deal_value": (
+                            float(row["DEAL_VALUE"])
+                            if pd.notna(row["DEAL_VALUE"])
+                            else None
+                        ),
                     },
                     "ai_insights": {
-                        "sentiment_score": float(row["SENTIMENT_SCORE"])
-                        if pd.notna(row["SENTIMENT_SCORE"])
-                        else None,
+                        "sentiment_score": (
+                            float(row["SENTIMENT_SCORE"])
+                            if pd.notna(row["SENTIMENT_SCORE"])
+                            else None
+                        ),
                         "call_summary": row["CALL_SUMMARY"],
                         "key_topics": row["KEY_TOPICS"],
                         "risk_indicators": row["RISK_INDICATORS"],
                         "next_steps": row["NEXT_STEPS"],
-                        "talk_ratio": float(row["TALK_RATIO"])
-                        if pd.notna(row["TALK_RATIO"])
-                        else None,
+                        "talk_ratio": (
+                            float(row["TALK_RATIO"])
+                            if pd.notna(row["TALK_RATIO"])
+                            else None
+                        ),
                     },
                     "search_metadata": {
                         "similarity_score": float(row["SIMILARITY_SCORE"]),
-                        "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat()
-                        if pd.notna(row["AI_MEMORY_UPDATED_AT"])
-                        else None,
-                        "embedding_timestamp": row[
-                            "MEMORY_EMBEDDING_TIMESTAMP"
-                        ].isoformat()
-                        if pd.notna(row["MEMORY_EMBEDDING_TIMESTAMP"])
-                        else None,
+                        "ai_memory_updated_at": (
+                            row["AI_MEMORY_UPDATED_AT"].isoformat()
+                            if pd.notna(row["AI_MEMORY_UPDATED_AT"])
+                            else None
+                        ),
+                        "embedding_timestamp": (
+                            row["MEMORY_EMBEDDING_TIMESTAMP"].isoformat()
+                            if pd.notna(row["MEMORY_EMBEDDING_TIMESTAMP"])
+                            else None
+                        ),
                     },
                 }
                 search_results.append(result)
@@ -1305,9 +1321,9 @@ class SnowflakeCortexService:
         query_text: str,
         top_k: int = 10,
         similarity_threshold: float = 0.7,
-        speaker_type: Optional[str] = None,
-        call_id: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        speaker_type: str | None = None,
+        call_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Enhanced semantic search across STG_GONG_CALL_TRANSCRIPTS with AI Memory integration
 
@@ -1339,7 +1355,7 @@ class SnowflakeCortexService:
                 SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as embedding
             ),
             similarity_search AS (
-                SELECT 
+                SELECT
                     gt.*,
                     VECTOR_COSINE_SIMILARITY(gt.AI_MEMORY_EMBEDDING, qe.embedding) as SIMILARITY_SCORE,
                     -- Join with call data for context
@@ -1353,7 +1369,7 @@ class SnowflakeCortexService:
                 WHERE {filter_clause}
                 AND VECTOR_COSINE_SIMILARITY(gt.AI_MEMORY_EMBEDDING, qe.embedding) >= {similarity_threshold}
             )
-            SELECT 
+            SELECT
                 TRANSCRIPT_ID,
                 CALL_ID,
                 SPEAKER_NAME,
@@ -1402,33 +1418,45 @@ class SnowflakeCortexService:
                         "key_phrases": row["KEY_PHRASES"],
                     },
                     "timing": {
-                        "start_time_seconds": int(row["START_TIME_SECONDS"])
-                        if pd.notna(row["START_TIME_SECONDS"])
-                        else 0,
-                        "end_time_seconds": int(row["END_TIME_SECONDS"])
-                        if pd.notna(row["END_TIME_SECONDS"])
-                        else 0,
-                        "segment_duration_seconds": int(row["SEGMENT_DURATION_SECONDS"])
-                        if pd.notna(row["SEGMENT_DURATION_SECONDS"])
-                        else 0,
+                        "start_time_seconds": (
+                            int(row["START_TIME_SECONDS"])
+                            if pd.notna(row["START_TIME_SECONDS"])
+                            else 0
+                        ),
+                        "end_time_seconds": (
+                            int(row["END_TIME_SECONDS"])
+                            if pd.notna(row["END_TIME_SECONDS"])
+                            else 0
+                        ),
+                        "segment_duration_seconds": (
+                            int(row["SEGMENT_DURATION_SECONDS"])
+                            if pd.notna(row["SEGMENT_DURATION_SECONDS"])
+                            else 0
+                        ),
                     },
                     "ai_insights": {
-                        "segment_sentiment": float(row["SEGMENT_SENTIMENT"])
-                        if pd.notna(row["SEGMENT_SENTIMENT"])
-                        else None,
+                        "segment_sentiment": (
+                            float(row["SEGMENT_SENTIMENT"])
+                            if pd.notna(row["SEGMENT_SENTIMENT"])
+                            else None
+                        ),
                         "similarity_score": float(row["SIMILARITY_SCORE"]),
                     },
                     "call_context": {
                         "call_title": row["CALL_TITLE"],
                         "account_name": row["ACCOUNT_NAME"],
                         "deal_stage": row["DEAL_STAGE"],
-                        "call_datetime": row["CALL_DATETIME_UTC"].isoformat()
-                        if pd.notna(row["CALL_DATETIME_UTC"])
-                        else None,
+                        "call_datetime": (
+                            row["CALL_DATETIME_UTC"].isoformat()
+                            if pd.notna(row["CALL_DATETIME_UTC"])
+                            else None
+                        ),
                     },
-                    "ai_memory_updated_at": row["AI_MEMORY_UPDATED_AT"].isoformat()
-                    if pd.notna(row["AI_MEMORY_UPDATED_AT"])
-                    else None,
+                    "ai_memory_updated_at": (
+                        row["AI_MEMORY_UPDATED_AT"].isoformat()
+                        if pd.notna(row["AI_MEMORY_UPDATED_AT"])
+                        else None
+                    ),
                 }
                 search_results.append(result)
 
@@ -1443,7 +1471,7 @@ class SnowflakeCortexService:
 
     async def get_gong_call_analytics(
         self, date_range_days: int = 30, include_ai_insights: bool = True
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get comprehensive Gong call analytics with AI insights
 
@@ -1457,32 +1485,32 @@ class SnowflakeCortexService:
         try:
             # Base analytics query
             analytics_sql = f"""
-            SELECT 
+            SELECT
                 COUNT(*) as total_calls,
                 COUNT(DISTINCT PRIMARY_USER_EMAIL) as unique_users,
                 COUNT(DISTINCT ACCOUNT_NAME) as unique_accounts,
                 AVG(CALL_DURATION_SECONDS) as avg_duration_seconds,
                 AVG(TALK_RATIO) as avg_talk_ratio,
                 AVG(SENTIMENT_SCORE) as avg_sentiment_score,
-                
+
                 -- Call direction breakdown
                 COUNT(CASE WHEN CALL_DIRECTION = 'Inbound' THEN 1 END) as inbound_calls,
                 COUNT(CASE WHEN CALL_DIRECTION = 'Outbound' THEN 1 END) as outbound_calls,
-                
+
                 -- Sentiment distribution
                 COUNT(CASE WHEN SENTIMENT_SCORE > 0.3 THEN 1 END) as positive_sentiment_calls,
                 COUNT(CASE WHEN SENTIMENT_SCORE < -0.3 THEN 1 END) as negative_sentiment_calls,
                 COUNT(CASE WHEN SENTIMENT_SCORE BETWEEN -0.3 AND 0.3 THEN 1 END) as neutral_sentiment_calls,
-                
+
                 -- Deal stage distribution
                 COUNT(CASE WHEN DEAL_STAGE IS NOT NULL THEN 1 END) as calls_with_deals,
                 SUM(CASE WHEN DEAL_VALUE IS NOT NULL THEN DEAL_VALUE ELSE 0 END) as total_deal_value,
-                
+
                 -- AI Memory integration stats
                 COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as calls_with_embeddings,
                 COUNT(CASE WHEN CALL_SUMMARY IS NOT NULL THEN 1 END) as calls_with_summaries,
                 COUNT(CASE WHEN KEY_TOPICS IS NOT NULL THEN 1 END) as calls_with_topics
-                
+
             FROM STG_TRANSFORMED.STG_GONG_CALLS
             WHERE CALL_DATETIME_UTC >= DATEADD(day, -{date_range_days}, CURRENT_TIMESTAMP())
             """
@@ -1501,19 +1529,21 @@ class SnowflakeCortexService:
                     "total_calls": int(analytics_row["TOTAL_CALLS"]),
                     "unique_users": int(analytics_row["UNIQUE_USERS"]),
                     "unique_accounts": int(analytics_row["UNIQUE_ACCOUNTS"]),
-                    "avg_duration_minutes": round(
-                        analytics_row["AVG_DURATION_SECONDS"] / 60, 1
-                    )
-                    if pd.notna(analytics_row["AVG_DURATION_SECONDS"])
-                    else 0,
-                    "avg_talk_ratio": round(analytics_row["AVG_TALK_RATIO"], 2)
-                    if pd.notna(analytics_row["AVG_TALK_RATIO"])
-                    else 0,
-                    "avg_sentiment_score": round(
-                        analytics_row["AVG_SENTIMENT_SCORE"], 2
-                    )
-                    if pd.notna(analytics_row["AVG_SENTIMENT_SCORE"])
-                    else 0,
+                    "avg_duration_minutes": (
+                        round(analytics_row["AVG_DURATION_SECONDS"] / 60, 1)
+                        if pd.notna(analytics_row["AVG_DURATION_SECONDS"])
+                        else 0
+                    ),
+                    "avg_talk_ratio": (
+                        round(analytics_row["AVG_TALK_RATIO"], 2)
+                        if pd.notna(analytics_row["AVG_TALK_RATIO"])
+                        else 0
+                    ),
+                    "avg_sentiment_score": (
+                        round(analytics_row["AVG_SENTIMENT_SCORE"], 2)
+                        if pd.notna(analytics_row["AVG_SENTIMENT_SCORE"])
+                        else 0
+                    ),
                 },
                 "call_direction": {
                     "inbound": int(analytics_row["INBOUND_CALLS"]),
@@ -1526,9 +1556,11 @@ class SnowflakeCortexService:
                 },
                 "deal_metrics": {
                     "calls_with_deals": int(analytics_row["CALLS_WITH_DEALS"]),
-                    "total_deal_value": float(analytics_row["TOTAL_DEAL_VALUE"])
-                    if pd.notna(analytics_row["TOTAL_DEAL_VALUE"])
-                    else 0,
+                    "total_deal_value": (
+                        float(analytics_row["TOTAL_DEAL_VALUE"])
+                        if pd.notna(analytics_row["TOTAL_DEAL_VALUE"])
+                        else 0
+                    ),
                 },
                 "ai_memory_coverage": {
                     "calls_with_embeddings": int(
@@ -1538,12 +1570,14 @@ class SnowflakeCortexService:
                     "calls_with_topics": int(analytics_row["CALLS_WITH_TOPICS"]),
                     "embedding_coverage_percent": round(
                         (
-                            analytics_row["CALLS_WITH_EMBEDDINGS"]
-                            / analytics_row["TOTAL_CALLS"]
-                            * 100
-                        )
-                        if analytics_row["TOTAL_CALLS"] > 0
-                        else 0,
+                            (
+                                analytics_row["CALLS_WITH_EMBEDDINGS"]
+                                / analytics_row["TOTAL_CALLS"]
+                                * 100
+                            )
+                            if analytics_row["TOTAL_CALLS"] > 0
+                            else 0
+                        ),
                         1,
                     ),
                 },
@@ -1552,7 +1586,7 @@ class SnowflakeCortexService:
             # Add AI insights if requested
             if include_ai_insights:
                 insights_sql = f"""
-                SELECT 
+                SELECT
                     -- Top topics analysis
                     FLATTEN(KEY_TOPICS) as topic_data,
                     COUNT(*) as topic_frequency
@@ -1592,7 +1626,7 @@ class SnowflakeCortexService:
             logger.error(f"Error generating Gong call analytics: {e}")
             return {"error": str(e)}
 
-    async def log_etl_job_status(self, job_log: Dict[str, Any]) -> bool:
+    async def log_etl_job_status(self, job_log: dict[str, Any]) -> bool:
         """
         Log ETL job status to OPS_MONITORING.ETL_JOB_LOGS table
 
@@ -1661,7 +1695,7 @@ class SnowflakeCortexService:
             logger.error(f"Failed to get Snowflake connection: {e}")
             raise
 
-    async def execute_query(self, query: str, params: Optional[tuple] = None):
+    async def execute_query(self, query: str, params: tuple | None = None):
         """
         Execute a query using the connection manager
 
@@ -1700,7 +1734,7 @@ async def get_cortex_service() -> SnowflakeCortexService:
 # Convenience functions for common AI operations
 async def summarize_hubspot_contact_notes(
     contact_id: str, max_length: int = 150
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Summarize all notes for a HubSpot contact using Cortex"""
     service = await get_cortex_service()
 
@@ -1720,7 +1754,7 @@ async def summarize_hubspot_contact_notes(
     }
 
 
-async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
+async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
     """
     Analyze sentiment for a specific Gong call using Snowflake Cortex
 
@@ -1733,46 +1767,46 @@ async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
     service = await get_cortex_service()
 
     query = f"""
-    SELECT 
+    SELECT
         gc.CALL_ID,
         gc.CALL_TITLE,
         gc.CALL_DATETIME_UTC,
         gc.PRIMARY_USER_NAME,
         gc.HUBSPOT_DEAL_ID,
-        
+
         -- Overall call sentiment from Cortex
         SNOWFLAKE.CORTEX.SENTIMENT(
-            COALESCE(gc.CALL_TITLE, '') || ' ' || 
+            COALESCE(gc.CALL_TITLE, '') || ' ' ||
             COALESCE(gc.CALL_SUMMARY, '') || ' ' ||
             COALESCE(gc.ACCOUNT_NAME, '')
         ) as call_sentiment_score,
-        
+
         -- Transcript sentiment analysis
         AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
         COUNT(t.TRANSCRIPT_ID) as transcript_segments,
-        
+
         -- Risk indicators from negative segments
         STRING_AGG(
-            CASE WHEN t.SEGMENT_SENTIMENT < 0.2 
-            THEN t.TRANSCRIPT_TEXT 
-            ELSE NULL END, 
+            CASE WHEN t.SEGMENT_SENTIMENT < 0.2
+            THEN t.TRANSCRIPT_TEXT
+            ELSE NULL END,
             ' | '
         ) as negative_segments,
-        
+
         -- Positive highlights
         STRING_AGG(
-            CASE WHEN t.SEGMENT_SENTIMENT > 0.7 
-            THEN t.TRANSCRIPT_TEXT 
-            ELSE NULL END, 
+            CASE WHEN t.SEGMENT_SENTIMENT > 0.7
+            THEN t.TRANSCRIPT_TEXT
+            ELSE NULL END,
             ' | '
         ) as positive_segments
-        
+
     FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
-    LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t 
+    LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t
         ON gc.CALL_ID = t.CALL_ID
     WHERE gc.CALL_ID = '{call_id}'
-    GROUP BY 
-        gc.CALL_ID, gc.CALL_TITLE, gc.CALL_DATETIME_UTC, 
+    GROUP BY
+        gc.CALL_ID, gc.CALL_TITLE, gc.CALL_DATETIME_UTC,
         gc.PRIMARY_USER_NAME, gc.HUBSPOT_DEAL_ID,
         gc.CALL_SUMMARY, gc.ACCOUNT_NAME
     """
@@ -1814,7 +1848,7 @@ async def analyze_gong_call_sentiment(call_id: str) -> Dict[str, Any]:
 
 async def summarize_gong_call_with_context(
     call_id: str, max_length: int = 300
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate comprehensive call summary using Snowflake Cortex with HubSpot context
 
@@ -1829,37 +1863,37 @@ async def summarize_gong_call_with_context(
 
     query = f"""
     WITH call_context AS (
-        SELECT 
+        SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
             gc.PRIMARY_USER_NAME,
             gc.CALL_DURATION_SECONDS,
             gc.SENTIMENT_SCORE,
             gc.TALK_RATIO,
-            
+
             -- HubSpot context (if available)
             hd.DEAL_NAME,
             hd.DEAL_STAGE,
             hd.DEAL_AMOUNT,
             hc.COMPANY_NAME,
-            
+
             -- Concatenated transcript for summarization
             STRING_AGG(t.TRANSCRIPT_TEXT, ' ') as full_transcript
-            
+
         FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
-        LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t 
+        LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t
             ON gc.CALL_ID = t.CALL_ID
-        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd 
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd
             ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc 
+        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc
             ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
         WHERE gc.CALL_ID = '{call_id}'
-        GROUP BY 
+        GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME,
             gc.CALL_DURATION_SECONDS, gc.SENTIMENT_SCORE, gc.TALK_RATIO,
             hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
     )
-    SELECT 
+    SELECT
         CALL_ID,
         CALL_TITLE,
         PRIMARY_USER_NAME,
@@ -1867,21 +1901,21 @@ async def summarize_gong_call_with_context(
         DEAL_STAGE,
         DEAL_AMOUNT,
         COMPANY_NAME,
-        
+
         -- Generate comprehensive summary with Cortex
         SNOWFLAKE.CORTEX.SUMMARIZE(
-            'Sales Call: ' || CALL_TITLE || 
+            'Sales Call: ' || CALL_TITLE ||
             CASE WHEN DEAL_NAME IS NOT NULL THEN '. Deal: ' || DEAL_NAME ELSE '' END ||
             CASE WHEN DEAL_STAGE IS NOT NULL THEN '. Stage: ' || DEAL_STAGE ELSE '' END ||
             CASE WHEN COMPANY_NAME IS NOT NULL THEN '. Company: ' || COMPANY_NAME ELSE '' END ||
             CASE WHEN full_transcript IS NOT NULL THEN '. Conversation: ' || LEFT(full_transcript, 8000) ELSE '' END,
             {max_length}
         ) as ai_summary,
-        
+
         SENTIMENT_SCORE,
         TALK_RATIO,
         CALL_DURATION_SECONDS
-        
+
     FROM call_context
     """
 
@@ -1925,7 +1959,7 @@ async def find_similar_gong_calls(
     top_k: int = 5,
     similarity_threshold: float = 0.7,
     date_range_days: int = 90,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Find similar Gong calls using vector similarity search with Snowflake Cortex
 
@@ -1945,7 +1979,7 @@ async def find_similar_gong_calls(
         SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') AS query_vector
     ),
     similar_transcripts AS (
-        SELECT 
+        SELECT
             t.CALL_ID,
             t.TRANSCRIPT_TEXT,
             t.SPEAKER_NAME,
@@ -1959,7 +1993,7 @@ async def find_similar_gong_calls(
         ORDER BY similarity_score DESC
         LIMIT {top_k * 3}  -- Get more results for better call-level aggregation
     )
-    SELECT 
+    SELECT
         gc.CALL_ID,
         gc.CALL_TITLE,
         gc.PRIMARY_USER_NAME,
@@ -1969,29 +2003,29 @@ async def find_similar_gong_calls(
         hd.DEAL_STAGE,
         hd.DEAL_AMOUNT,
         hc.COMPANY_NAME,
-        
+
         -- Aggregate similarity and context
         MAX(st.similarity_score) as max_similarity,
         AVG(st.similarity_score) as avg_similarity,
         COUNT(st.CALL_ID) as matching_segments,
-        
+
         -- Best matching transcript segments
         STRING_AGG(
             CASE WHEN st.similarity_score >= {similarity_threshold + 0.1}
-            THEN st.TRANSCRIPT_TEXT 
-            ELSE NULL END, 
+            THEN st.TRANSCRIPT_TEXT
+            ELSE NULL END,
             ' | '
         ) as relevant_segments
-        
+
     FROM similar_transcripts st
     JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc ON st.CALL_ID = gc.CALL_ID
     LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
     LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
-    
-    GROUP BY 
+
+    GROUP BY
         gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
         gc.SENTIMENT_SCORE, hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
-        
+
     ORDER BY max_similarity DESC
     LIMIT {top_k}
     """
@@ -2037,7 +2071,7 @@ async def find_similar_gong_calls(
 
 async def get_gong_coaching_insights(
     sales_rep: str, date_range_days: int = 30, min_calls: int = 3
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate coaching insights for a sales rep using Snowflake Cortex analysis
 
@@ -2053,7 +2087,7 @@ async def get_gong_coaching_insights(
 
     query = f"""
     WITH rep_calls AS (
-        SELECT 
+        SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
             gc.CALL_DATETIME_UTC,
@@ -2062,54 +2096,54 @@ async def get_gong_coaching_insights(
             gc.CALL_DURATION_SECONDS,
             hd.DEAL_STAGE,
             hd.DEAL_AMOUNT,
-            
+
             -- Aggregate transcript sentiment
             AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
-            
+
             -- Identify coaching opportunities from transcript
             STRING_AGG(
                 CASE WHEN t.SEGMENT_SENTIMENT < 0.3 AND t.SPEAKER_TYPE = 'Internal'
-                THEN t.TRANSCRIPT_TEXT 
-                ELSE NULL END, 
+                THEN t.TRANSCRIPT_TEXT
+                ELSE NULL END,
                 ' | '
             ) as improvement_areas
-            
+
         FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
         LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-        
+
         WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-        
-        GROUP BY 
+
+        GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.CALL_DATETIME_UTC,
             gc.SENTIMENT_SCORE, gc.TALK_RATIO, gc.CALL_DURATION_SECONDS,
             hd.DEAL_STAGE, hd.DEAL_AMOUNT
     ),
     coaching_analysis AS (
-        SELECT 
+        SELECT
             COUNT(*) as total_calls,
             AVG(SENTIMENT_SCORE) as avg_sentiment,
             AVG(TALK_RATIO) as avg_talk_ratio,
             AVG(CALL_DURATION_SECONDS) as avg_duration,
             AVG(avg_transcript_sentiment) as avg_transcript_sentiment,
-            
+
             -- Performance categories
             COUNT(CASE WHEN SENTIMENT_SCORE > 0.6 THEN 1 END) as positive_calls,
             COUNT(CASE WHEN SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
             COUNT(CASE WHEN TALK_RATIO > 0.7 THEN 1 END) as high_talk_ratio_calls,
             COUNT(CASE WHEN TALK_RATIO < 0.4 THEN 1 END) as low_talk_ratio_calls,
-            
+
             -- Deal outcomes
             COUNT(CASE WHEN DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won,
             SUM(CASE WHEN DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN DEAL_AMOUNT ELSE 0 END) as revenue_won,
-            
+
             -- Improvement areas
             STRING_AGG(improvement_areas, ' ### ') as all_improvement_areas
-            
+
         FROM rep_calls
     )
-    SELECT 
+    SELECT
         '{sales_rep}' as sales_rep,
         total_calls,
         avg_sentiment,
@@ -2121,21 +2155,21 @@ async def get_gong_coaching_insights(
         low_talk_ratio_calls,
         deals_won,
         revenue_won,
-        
+
         -- Generate AI coaching recommendations using Cortex
         SNOWFLAKE.CORTEX.COMPLETE(
             'mistral-7b',
             'Based on this sales performance data, provide 3 specific coaching recommendations: ' ||
-            'Average sentiment: ' || ROUND(avg_sentiment, 2) || 
+            'Average sentiment: ' || ROUND(avg_sentiment, 2) ||
             ', Talk ratio: ' || ROUND(avg_talk_ratio, 2) ||
             ', Positive calls: ' || positive_calls || '/' || total_calls ||
             ', Negative calls: ' || negative_calls || '/' || total_calls ||
-            CASE WHEN all_improvement_areas IS NOT NULL 
+            CASE WHEN all_improvement_areas IS NOT NULL
             THEN '. Common issues: ' || LEFT(all_improvement_areas, 1000)
             ELSE '' END,
             {{'max_tokens': 300}}
         ) as ai_coaching_recommendations
-        
+
     FROM coaching_analysis
     WHERE total_calls >= {min_calls}
     """

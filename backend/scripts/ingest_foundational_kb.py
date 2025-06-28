@@ -10,7 +10,7 @@ Current size: 633 lines
 
 Recommended decomposition:
 - ingest_foundational_kb_core.py - Core functionality
-- ingest_foundational_kb_utils.py - Utility functions  
+- ingest_foundational_kb_utils.py - Utility functions
 - ingest_foundational_kb_models.py - Data models
 - ingest_foundational_kb_handlers.py - Request handlers
 
@@ -18,21 +18,21 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import json
 import csv
+import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import uuid
+from typing import Any
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.foundational_knowledge_service import (
-    FoundationalKnowledgeService,
     FoundationalDataType,
+    FoundationalKnowledgeService,
 )
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class IngestionConfig:
     data_type: FoundationalDataType
     source_file: Path
     format: IngestionFormat
-    mapping: Dict[str, str]  # Maps file columns to Snowflake columns
+    mapping: dict[str, str]  # Maps file columns to Snowflake columns
     batch_size: int = 100
     skip_validation: bool = False
 
@@ -66,8 +66,8 @@ class IngestionStats:
     processed_records: int = 0
     failed_records: int = 0
     skipped_records: int = 0
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
 
     @property
     def duration_seconds(self) -> float:
@@ -390,7 +390,7 @@ class FoundationalKBIngestionService:
 
     async def _read_data_file(
         self, file_path: Path, format: IngestionFormat
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Read data from file based on format"""
         if not file_path.exists():
             raise FileNotFoundError(f"Data file not found: {file_path}")
@@ -398,7 +398,7 @@ class FoundationalKBIngestionService:
         records = []
 
         if format == IngestionFormat.JSON:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = json.load(f)
                 if isinstance(data, list):
                     records = data
@@ -406,13 +406,13 @@ class FoundationalKBIngestionService:
                     records = [data]
 
         elif format == IngestionFormat.JSONL:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 for line in f:
                     if line.strip():
                         records.append(json.loads(line))
 
         elif format == IngestionFormat.CSV:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 reader = csv.DictReader(f)
                 records = list(reader)
 
@@ -420,8 +420,8 @@ class FoundationalKBIngestionService:
         return records
 
     async def _process_batch(
-        self, batch: List[Dict[str, Any]], config: IngestionConfig
-    ) -> List[Dict[str, Any]]:
+        self, batch: list[dict[str, Any]], config: IngestionConfig
+    ) -> list[dict[str, Any]]:
         """Process a batch of records"""
         processed_records = []
 
@@ -436,8 +436,8 @@ class FoundationalKBIngestionService:
         return processed_records
 
     async def _process_record(
-        self, record: Dict[str, Any], config: IngestionConfig
-    ) -> Optional[Dict[str, Any]]:
+        self, record: dict[str, Any], config: IngestionConfig
+    ) -> dict[str, Any] | None:
         """Process a single record"""
         processed = {}
 
@@ -449,7 +449,7 @@ class FoundationalKBIngestionService:
                 value = record[source_field]
 
                 # Handle JSON fields
-                if isinstance(value, (list, dict)):
+                if isinstance(value, list | dict):
                     processed[target_field] = json.dumps(value)
                 else:
                     processed[target_field] = value
@@ -466,7 +466,7 @@ class FoundationalKBIngestionService:
         return processed
 
     async def _insert_batch(
-        self, batch: List[Dict[str, Any]], data_type: FoundationalDataType
+        self, batch: list[dict[str, Any]], data_type: FoundationalDataType
     ):
         """Insert batch of records into Snowflake"""
         if not batch:
@@ -534,7 +534,7 @@ class FoundationalKBIngestionService:
         }
         return id_map[data_type]
 
-    async def ingest_all_foundational_data(self) -> Dict[str, IngestionStats]:
+    async def ingest_all_foundational_data(self) -> dict[str, IngestionStats]:
         """Ingest all foundational data files"""
         logger.info("🚀 Starting full foundational data ingestion")
 

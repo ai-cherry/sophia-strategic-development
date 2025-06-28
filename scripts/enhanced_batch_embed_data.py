@@ -11,7 +11,7 @@ Current size: 672 lines
 
 Recommended decomposition:
 - enhanced_batch_embed_data_core.py - Core functionality
-- enhanced_batch_embed_data_utils.py - Utility functions  
+- enhanced_batch_embed_data_utils.py - Utility functions
 - enhanced_batch_embed_data_models.py - Data models
 - enhanced_batch_embed_data_handlers.py - Request handlers
 
@@ -19,10 +19,10 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import logging
 import json
-from typing import Dict, List, Any
+import logging
 from dataclasses import dataclass
+from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -37,7 +37,7 @@ class EmbeddingConfig:
 
     table_name: str
     schema_name: str
-    text_columns: List[str]
+    text_columns: list[str]
     id_column: str
     embedding_column: str = "AI_MEMORY_EMBEDDING"
     metadata_column: str = "AI_MEMORY_METADATA"
@@ -295,12 +295,15 @@ class EnhancedBatchEmbeddingProcessor:
         try:
             cursor = self.snowflake_conn.cursor()
             # SECURE: Use parameterized query to prevent SQL injection
-            cursor.execute("""
-                SELECT COUNT(*) 
-                FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_SCHEMA = %s 
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA = %s
                 AND TABLE_NAME = %s
-            """, (schema_name, table_name))
+            """,
+                (schema_name, table_name),
+            )
 
             result = cursor.fetchone()
             exists = result[0] > 0
@@ -316,7 +319,7 @@ class EnhancedBatchEmbeddingProcessor:
 
     async def _get_records_needing_embeddings(
         self, config: EmbeddingConfig
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get records that need embeddings generated"""
         try:
             cursor = self.snowflake_conn.cursor()
@@ -327,14 +330,17 @@ class EnhancedBatchEmbeddingProcessor:
             )
 
             # SECURE: Build query with validated identifiers
-            from backend.core.sql_security_validator import validate_schema_name, validate_table_name
-            
+            from backend.core.sql_security_validator import (
+                validate_schema_name,
+                validate_table_name,
+            )
+
             safe_schema = validate_schema_name(config.schema_name)
             safe_table = validate_table_name(config.table_name)
-            
+
             # Build query with safe identifiers (columns are from config, not user input)
             query = f"""
-                SELECT 
+                SELECT
                     {config.id_column},
                     {text_concat} AS COMBINED_TEXT
                 FROM {safe_schema}.{safe_table}
@@ -342,7 +348,7 @@ class EnhancedBatchEmbeddingProcessor:
                 AND ({" OR ".join([f"{col} IS NOT NULL" for col in config.text_columns])})
                 LIMIT {config.batch_size}
             """
-            
+
             cursor.execute(query)
 
             records = []
@@ -359,7 +365,7 @@ class EnhancedBatchEmbeddingProcessor:
             return []
 
     async def _generate_embeddings_batch(
-        self, config: EmbeddingConfig, records: List[Dict[str, Any]]
+        self, config: EmbeddingConfig, records: list[dict[str, Any]]
     ) -> int:
         """Generate embeddings for a batch of records"""
         try:
@@ -372,7 +378,7 @@ class EnhancedBatchEmbeddingProcessor:
                     cursor.execute(
                         f"""
                         UPDATE {config.schema_name}.{config.table_name}
-                        SET 
+                        SET
                             {config.embedding_column} = SNOWFLAKE.CORTEX.EMBED_TEXT_768('{config.model}', %s),
                             {config.metadata_column} = OBJECT_CONSTRUCT(
                                 'embedding_model', '{config.model}',
@@ -431,9 +437,10 @@ class EnhancedBatchEmbeddingProcessor:
             # Apply sentiment analysis to primary text column
             primary_text_column = config.text_columns[0]
 
-            cursor.execute(f"""
+            cursor.execute(
+                f"""
                 UPDATE {config.schema_name}.{config.table_name}
-                SET 
+                SET
                     SENTIMENT_SCORE = SNOWFLAKE.CORTEX.SENTIMENT({primary_text_column}),
                     {config.metadata_column} = OBJECT_INSERT(
                         COALESCE({config.metadata_column}, OBJECT_CONSTRUCT()),
@@ -441,7 +448,8 @@ class EnhancedBatchEmbeddingProcessor:
                     )
                 WHERE {primary_text_column} IS NOT NULL
                 AND SENTIMENT_SCORE IS NULL
-            """)
+            """
+            )
 
             updated_count = cursor.rowcount
             cursor.close()
@@ -488,9 +496,10 @@ class EnhancedBatchEmbeddingProcessor:
                         primary_text_column = col
                         break
 
-            cursor.execute(f"""
+            cursor.execute(
+                f"""
                 UPDATE {config.schema_name}.{config.table_name}
-                SET 
+                SET
                     AI_GENERATED_SUMMARY = SNOWFLAKE.CORTEX.SUMMARIZE({primary_text_column}),
                     {config.metadata_column} = OBJECT_INSERT(
                         COALESCE({config.metadata_column}, OBJECT_CONSTRUCT()),
@@ -499,7 +508,8 @@ class EnhancedBatchEmbeddingProcessor:
                 WHERE {primary_text_column} IS NOT NULL
                 AND LENGTH({primary_text_column}) > 500
                 AND AI_GENERATED_SUMMARY IS NULL
-            """)
+            """
+            )
 
             updated_count = cursor.rowcount
             cursor.close()
@@ -512,7 +522,7 @@ class EnhancedBatchEmbeddingProcessor:
             )
             return 0
 
-    async def process_schema_embeddings(self, schema_name: str) -> Dict[str, int]:
+    async def process_schema_embeddings(self, schema_name: str) -> dict[str, int]:
         """Process embeddings for all tables in a specific schema"""
         try:
             logger.info(f"🔄 Processing embeddings for schema: {schema_name}")
@@ -569,7 +579,7 @@ class EnhancedBatchEmbeddingProcessor:
             logger.error(f"❌ Failed to process schema {schema_name}: {e}")
             return {}
 
-    async def process_all_embeddings(self) -> Dict[str, Dict[str, int]]:
+    async def process_all_embeddings(self) -> dict[str, dict[str, int]]:
         """Process embeddings for all schemas"""
         try:
             logger.info(
@@ -579,7 +589,7 @@ class EnhancedBatchEmbeddingProcessor:
             all_results = {}
 
             # Process each schema
-            schemas = list(set(config.schema_name for config in self.embedding_configs))
+            schemas = list({config.schema_name for config in self.embedding_configs})
 
             for schema in schemas:
                 schema_results = await self.process_schema_embeddings(schema)
@@ -594,7 +604,7 @@ class EnhancedBatchEmbeddingProcessor:
             logger.error(f"❌ Comprehensive embedding processing failed: {e}")
             raise
 
-    async def generate_schema_statistics(self) -> Dict[str, Any]:
+    async def generate_schema_statistics(self) -> dict[str, Any]:
         """Generate statistics about embedding coverage across schemas"""
         try:
             cursor = self.snowflake_conn.cursor()
@@ -606,14 +616,16 @@ class EnhancedBatchEmbeddingProcessor:
                 ):
                     continue
 
-                cursor.execute(f"""
-                    SELECT 
+                cursor.execute(
+                    f"""
+                    SELECT
                         COUNT(*) AS total_records,
                         COUNT({config.embedding_column}) AS records_with_embeddings,
                         COUNT(CASE WHEN {config.embedding_column} IS NULL THEN 1 END) AS records_without_embeddings,
                         ROUND(COUNT({config.embedding_column}) * 100.0 / COUNT(*), 2) AS embedding_coverage_percent
                     FROM {config.schema_name}.{config.table_name}
-                """)
+                """
+                )
 
                 result = cursor.fetchone()
                 stats[f"{config.schema_name}.{config.table_name}"] = {

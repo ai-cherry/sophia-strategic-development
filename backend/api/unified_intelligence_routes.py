@@ -4,16 +4,17 @@ Sophia AI Unified Intelligence API Routes
 FastAPI routes for unified intelligence queries with constitutional AI.
 """
 
+import logging
+from datetime import datetime
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional, List
-from datetime import datetime
-import logging
 
+from backend.core.simple_auth import get_current_user
 from backend.services.simplified_unified_intelligence_service import (
     get_simplified_unified_intelligence_service,
 )
-from backend.core.simple_auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +29,13 @@ class UnifiedIntelligenceRequest(BaseModel):
     """Request model for unified intelligence queries"""
 
     query: str = Field(..., description="Natural language business query")
-    business_context: Optional[Dict[str, Any]] = Field(
+    business_context: dict[str, Any] | None = Field(
         default_factory=dict, description="Business context for the query"
     )
     optimization_mode: str = Field(
         default="balanced", description="Optimization mode: balanced, performance, cost"
     )
-    conversation_history: Optional[List[Dict[str, str]]] = Field(
+    conversation_history: list[dict[str, str]] | None = Field(
         default_factory=list, description="Previous conversation messages for context"
     )
 
@@ -45,24 +46,24 @@ class UnifiedIntelligenceResponse(BaseModel):
     unified_insights: str = Field(
         ..., description="Synthesized insights from all sources"
     )
-    memory_context: Optional[List[Dict[str, Any]]] = Field(
+    memory_context: list[dict[str, Any]] | None = Field(
         default=None, description="Relevant memories from AI Memory"
     )
-    business_data: Dict[str, Any] = Field(
+    business_data: dict[str, Any] = Field(
         default_factory=dict, description="Business data from integrations"
     )
     constitutional_compliance: float = Field(
         ..., description="Constitutional AI compliance score (0-1)"
     )
-    optimization_insights: Dict[str, Any] = Field(
+    optimization_insights: dict[str, Any] = Field(
         default_factory=dict, description="Insights for query optimization"
     )
     confidence_score: float = Field(..., description="Overall confidence score (0-1)")
     timestamp: str = Field(..., description="Response timestamp")
-    error: Optional[str] = Field(default=None, description="Error message if any")
+    error: str | None = Field(default=None, description="Error message if any")
 
 
-def get_user_context() -> Dict[str, Any]:
+def get_user_context() -> dict[str, Any]:
     """Get user context for requests (simplified for development)"""
     return get_current_user()
 
@@ -70,7 +71,7 @@ def get_user_context() -> Dict[str, Any]:
 @router.post("/query", response_model=UnifiedIntelligenceResponse)
 async def unified_business_intelligence(
     request: UnifiedIntelligenceRequest,
-    current_user: Dict[str, Any] = Depends(get_user_context),
+    current_user: dict[str, Any] = Depends(get_user_context),
 ):
     """
     Execute a unified business intelligence query
@@ -169,7 +170,7 @@ async def unified_intelligence_health():
 
 @router.post("/validate-query")
 async def validate_query(
-    query: str, current_user: Dict[str, Any] = Depends(get_user_context)
+    query: str, current_user: dict[str, Any] = Depends(get_user_context)
 ):
     """
     Validate a query against constitutional AI principles
@@ -208,7 +209,7 @@ async def validate_query(
 
 @router.get("/optimization-insights")
 async def get_optimization_insights(
-    current_user: Dict[str, Any] = Depends(get_user_context),
+    current_user: dict[str, Any] = Depends(get_user_context),
 ):
     """
     Get optimization insights for improving query performance
@@ -252,7 +253,7 @@ async def get_optimization_insights(
 
 @router.get("/performance-dashboard")
 async def get_performance_dashboard(
-    current_user: Dict[str, Any] = Depends(get_user_context),
+    current_user: dict[str, Any] = Depends(get_user_context),
 ):
     """
     Get comprehensive performance dashboard data

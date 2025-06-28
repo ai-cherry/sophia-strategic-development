@@ -20,24 +20,24 @@ Usage:
     python backend/scripts/enhanced_gong_pipeline_test_suite.py --test-suite performance --environment dev
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
-import argparse
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
 import time
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
 from backend.scripts.sophia_data_pipeline_ultimate import (
-    SophiaDataPipelineUltimate,
+    GongAPIClient,
     PipelineConfig,
     PipelineMode,
-    GongAPIClient,
     SnowflakeDataLoader,
+    SophiaDataPipelineUltimate,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -74,8 +74,8 @@ class TestResult:
     status: str  # "passed", "failed", "skipped"
     duration_seconds: float
     message: str
-    details: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    details: dict[str, Any] | None = None
+    error: str | None = None
 
 
 @dataclass
@@ -85,12 +85,12 @@ class TestSuiteResults:
     suite_name: str
     environment: str
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     total_tests: int = 0
     passed_tests: int = 0
     failed_tests: int = 0
     skipped_tests: int = 0
-    test_results: List[TestResult] = None
+    test_results: list[TestResult] = None
 
     def __post_init__(self):
         if self.test_results is None:
@@ -243,7 +243,7 @@ class EnhancedGongPipelineTestSuite:
             "test_schema_availability", "connectivity", self._test_schema_availability
         )
 
-    async def _test_gong_api_connection(self) -> Dict[str, Any]:
+    async def _test_gong_api_connection(self) -> dict[str, Any]:
         """Test Gong API connectivity and authentication"""
         async with GongAPIClient(self.test_config) as gong:
             # Test basic API call
@@ -258,7 +258,7 @@ class EnhancedGongPipelineTestSuite:
                 "records_info_present": "records" in response,
             }
 
-    async def _test_snowflake_connection(self) -> Dict[str, Any]:
+    async def _test_snowflake_connection(self) -> dict[str, Any]:
         """Test Snowflake connectivity and basic operations"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             # Test basic query
@@ -278,7 +278,7 @@ class EnhancedGongPipelineTestSuite:
             finally:
                 cursor.close()
 
-    async def _test_pulumi_esc_secrets(self) -> Dict[str, Any]:
+    async def _test_pulumi_esc_secrets(self) -> dict[str, Any]:
         """Test Pulumi ESC secret availability"""
         required_secrets = [
             "gong_access_key",
@@ -300,7 +300,7 @@ class EnhancedGongPipelineTestSuite:
 
         return {"all_secrets_available": all_available, "secret_status": secret_status}
 
-    async def _test_schema_availability(self) -> Dict[str, Any]:
+    async def _test_schema_availability(self) -> dict[str, Any]:
         """Test required schema availability"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             cursor = snowflake.connection.cursor()
@@ -341,7 +341,7 @@ class EnhancedGongPipelineTestSuite:
             "test_error_handling", "ingestion", self._test_error_handling
         )
 
-    async def _test_raw_data_landing(self) -> Dict[str, Any]:
+    async def _test_raw_data_landing(self) -> dict[str, Any]:
         """Test raw data landing in RAW_ESTUARY schema"""
         # Run a small test pipeline
         pipeline = SophiaDataPipelineUltimate(self.test_config)
@@ -359,7 +359,7 @@ class EnhancedGongPipelineTestSuite:
             "db_operations": results["metrics"]["total_db_operations"],
         }
 
-    async def _test_batch_processing(self) -> Dict[str, Any]:
+    async def _test_batch_processing(self) -> dict[str, Any]:
         """Test batch processing with different batch sizes"""
         test_results = {}
 
@@ -384,7 +384,7 @@ class EnhancedGongPipelineTestSuite:
 
         return test_results
 
-    async def _test_error_handling(self) -> Dict[str, Any]:
+    async def _test_error_handling(self) -> dict[str, Any]:
         """Test error handling and recovery mechanisms"""
         # Test with invalid date range
         config = PipelineConfig(
@@ -414,19 +414,21 @@ class EnhancedGongPipelineTestSuite:
             "test_data_quality", "transformation", self._test_data_quality
         )
 
-    async def _test_stg_table_population(self) -> Dict[str, Any]:
+    async def _test_stg_table_population(self) -> dict[str, Any]:
         """Test STG_TRANSFORMED table population"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             # Check if STG_GONG_CALLS table exists and has data
             cursor = snowflake.connection.cursor()
             try:
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     SELECT COUNT(*) as record_count,
                            COUNT(CASE WHEN CALL_ID IS NOT NULL THEN 1 END) as valid_call_ids,
                            COUNT(CASE WHEN CALL_DATETIME_UTC IS NOT NULL THEN 1 END) as valid_timestamps
                     FROM {self.database}.STG_TRANSFORMED.STG_GONG_CALLS
                     WHERE CREATED_AT >= CURRENT_DATE()
-                """)
+                """
+                )
 
                 result = cursor.fetchone()
 
@@ -435,27 +437,29 @@ class EnhancedGongPipelineTestSuite:
                     "record_count": result[0],
                     "valid_call_ids": result[1],
                     "valid_timestamps": result[2],
-                    "data_quality_score": (result[1] / result[0] * 100)
-                    if result[0] > 0
-                    else 0,
+                    "data_quality_score": (
+                        (result[1] / result[0] * 100) if result[0] > 0 else 0
+                    ),
                 }
             finally:
                 cursor.close()
 
-    async def _test_data_quality(self) -> Dict[str, Any]:
+    async def _test_data_quality(self) -> dict[str, Any]:
         """Test data quality metrics"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             cursor = snowflake.connection.cursor()
             try:
-                cursor.execute(f"""
-                    SELECT 
+                cursor.execute(
+                    f"""
+                    SELECT
                         COUNT(*) as total_records,
                         COUNT(CASE WHEN CALL_DURATION_SECONDS > 0 THEN 1 END) as valid_durations,
                         COUNT(CASE WHEN PRIMARY_USER_EMAIL IS NOT NULL THEN 1 END) as valid_emails,
                         AVG(CALL_DURATION_SECONDS) as avg_duration
                     FROM {self.database}.STG_TRANSFORMED.STG_GONG_CALLS
                     WHERE CREATED_AT >= CURRENT_DATE()
-                """)
+                """
+                )
 
                 result = cursor.fetchone()
 
@@ -467,12 +471,12 @@ class EnhancedGongPipelineTestSuite:
 
                 return {
                     "total_records": result[0],
-                    "duration_quality_pct": (result[1] / result[0] * 100)
-                    if result[0] > 0
-                    else 0,
-                    "email_quality_pct": (result[2] / result[0] * 100)
-                    if result[0] > 0
-                    else 0,
+                    "duration_quality_pct": (
+                        (result[1] / result[0] * 100) if result[0] > 0 else 0
+                    ),
+                    "email_quality_pct": (
+                        (result[2] / result[0] * 100) if result[0] > 0 else 0
+                    ),
                     "overall_quality_score": quality_score,
                     "avg_call_duration": result[3],
                 }
@@ -492,13 +496,14 @@ class EnhancedGongPipelineTestSuite:
             self._test_embedding_generation,
         )
 
-    async def _test_sentiment_analysis(self) -> Dict[str, Any]:
+    async def _test_sentiment_analysis(self) -> dict[str, Any]:
         """Test sentiment analysis using Snowflake Cortex"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             cursor = snowflake.connection.cursor()
             try:
-                cursor.execute(f"""
-                    SELECT 
+                cursor.execute(
+                    f"""
+                    SELECT
                         COUNT(*) as total_records,
                         COUNT(CASE WHEN SENTIMENT_SCORE IS NOT NULL THEN 1 END) as sentiment_populated,
                         AVG(SENTIMENT_SCORE) as avg_sentiment,
@@ -506,15 +511,16 @@ class EnhancedGongPipelineTestSuite:
                         MAX(SENTIMENT_SCORE) as max_sentiment
                     FROM {self.database}.STG_TRANSFORMED.STG_GONG_CALLS
                     WHERE CREATED_AT >= CURRENT_DATE()
-                """)
+                """
+                )
 
                 result = cursor.fetchone()
 
                 return {
                     "total_records": result[0],
-                    "sentiment_coverage_pct": (result[1] / result[0] * 100)
-                    if result[0] > 0
-                    else 0,
+                    "sentiment_coverage_pct": (
+                        (result[1] / result[0] * 100) if result[0] > 0 else 0
+                    ),
                     "avg_sentiment": result[2],
                     "sentiment_range": [result[3], result[4]],
                     "sentiment_within_bounds": -1 <= (result[2] or 0) <= 1,
@@ -522,26 +528,28 @@ class EnhancedGongPipelineTestSuite:
             finally:
                 cursor.close()
 
-    async def _test_embedding_generation(self) -> Dict[str, Any]:
+    async def _test_embedding_generation(self) -> dict[str, Any]:
         """Test embedding generation using Snowflake Cortex"""
         async with SnowflakeDataLoader(self.test_config) as snowflake:
             cursor = snowflake.connection.cursor()
             try:
-                cursor.execute(f"""
-                    SELECT 
+                cursor.execute(
+                    f"""
+                    SELECT
                         COUNT(*) as total_records,
                         COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as embeddings_populated
                     FROM {self.database}.STG_TRANSFORMED.STG_GONG_CALLS
                     WHERE CREATED_AT >= CURRENT_DATE()
-                """)
+                """
+                )
 
                 result = cursor.fetchone()
 
                 return {
                     "total_records": result[0],
-                    "embedding_coverage_pct": (result[1] / result[0] * 100)
-                    if result[0] > 0
-                    else 0,
+                    "embedding_coverage_pct": (
+                        (result[1] / result[0] * 100) if result[0] > 0 else 0
+                    ),
                     "embeddings_functional": result[1] > 0,
                 }
             finally:
@@ -555,7 +563,7 @@ class EnhancedGongPipelineTestSuite:
             "test_full_pipeline_flow", "integration", self._test_full_pipeline_flow
         )
 
-    async def _test_full_pipeline_flow(self) -> Dict[str, Any]:
+    async def _test_full_pipeline_flow(self) -> dict[str, Any]:
         """Test complete end-to-end pipeline flow"""
         config = PipelineConfig(
             mode=PipelineMode.TEST,
@@ -582,7 +590,7 @@ class EnhancedGongPipelineTestSuite:
         await self._run_test("test_throughput", "performance", self._test_throughput)
         await self._run_test("test_latency", "performance", self._test_latency)
 
-    async def _test_throughput(self) -> Dict[str, Any]:
+    async def _test_throughput(self) -> dict[str, Any]:
         """Test data processing throughput"""
         config = PipelineConfig(
             mode=PipelineMode.TEST,
@@ -608,7 +616,7 @@ class EnhancedGongPipelineTestSuite:
             >= 10,  # 10 calls/second minimum
         }
 
-    async def _test_latency(self) -> Dict[str, Any]:
+    async def _test_latency(self) -> dict[str, Any]:
         """Test API and database latency"""
 
         # Test Gong API latency
@@ -645,7 +653,7 @@ class EnhancedGongPipelineTestSuite:
             "test_credential_security", "security", self._test_credential_security
         )
 
-    async def _test_credential_security(self) -> Dict[str, Any]:
+    async def _test_credential_security(self) -> dict[str, Any]:
         """Test credential security and access control"""
         # Test that credentials are not exposed in logs or errors
         config = PipelineConfig(mode=PipelineMode.TEST, dry_run=True)
@@ -660,16 +668,18 @@ class EnhancedGongPipelineTestSuite:
             "pulumi_esc_integration": get_config_value("gong_access_key") is not None,
         }
 
-    def generate_test_report(self) -> Dict[str, Any]:
+    def generate_test_report(self) -> dict[str, Any]:
         """Generate comprehensive test report"""
         return {
             "test_suite": self.suite_results.suite_name,
             "environment": self.suite_results.environment,
             "execution_time": {
                 "start_time": self.suite_results.start_time.isoformat(),
-                "end_time": self.suite_results.end_time.isoformat()
-                if self.suite_results.end_time
-                else None,
+                "end_time": (
+                    self.suite_results.end_time.isoformat()
+                    if self.suite_results.end_time
+                    else None
+                ),
                 "duration_seconds": (
                     (
                         self.suite_results.end_time - self.suite_results.start_time

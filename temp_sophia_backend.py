@@ -1,9 +1,10 @@
 import os
 import sys
+from datetime import datetime
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from datetime import datetime
 
 # Set environment
 os.environ["PULUMI_ORG"] = "scoobyjava-org"

@@ -1,12 +1,13 @@
 # File: backend/services/snowflake_intelligence_service.py
 
-from typing import Dict, List, Any
 import json
+import logging
 from dataclasses import dataclass
+from typing import Any
+
+from backend.mcp_servers.mcp_client import MCPClient
 from backend.services.semantic_layer_service import SemanticLayerService
 from backend.services.vector_indexing_service import VectorIndexingService
-from backend.mcp_servers.mcp_client import MCPClient
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +17,8 @@ class IntelligenceQuery:
     """Structure for Snowflake Intelligence queries"""
 
     query_text: str
-    user_context: Dict[str, Any]
-    required_sources: List[str]
+    user_context: dict[str, Any]
+    required_sources: list[str]
     response_format: str = "comprehensive"
     include_visualizations: bool = True
 
@@ -27,11 +28,11 @@ class IntelligenceResponse:
     """Structure for Snowflake Intelligence responses"""
 
     answer: str
-    sources_used: List[str]
+    sources_used: list[str]
     confidence_score: float
-    sql_queries: List[str]
-    visualizations: List[Dict[str, Any]]
-    follow_up_suggestions: List[str]
+    sql_queries: list[str]
+    visualizations: list[dict[str, Any]]
+    follow_up_suggestions: list[str]
 
 
 class SnowflakeIntelligenceService:
@@ -89,7 +90,7 @@ class SnowflakeIntelligenceService:
                 follow_up_suggestions=[],
             )
 
-    async def _analyze_query_intent(self, query_text: str) -> Dict[str, Any]:
+    async def _analyze_query_intent(self, query_text: str) -> dict[str, Any]:
         """Analyze query intent using Snowflake Cortex"""
         analysis_prompt = f"""
         Analyze this business intelligence query and determine:
@@ -98,9 +99,9 @@ class SnowflakeIntelligenceService:
         3. Time periods referenced
         4. Data sources likely needed (CRM, calls, slack, projects, etc.)
         5. Analysis type (descriptive, diagnostic, predictive, prescriptive)
-        
+
         Query: {query_text}
-        
+
         Return as JSON with keys: intent, entities, time_period, sources, analysis_type
         """
 
@@ -129,8 +130,8 @@ class SnowflakeIntelligenceService:
         }
 
     async def _retrieve_structured_data(
-        self, query_analysis: Dict[str, Any], query_text: str
-    ) -> Dict[str, Any]:
+        self, query_analysis: dict[str, Any], query_text: str
+    ) -> dict[str, Any]:
         """Retrieve relevant structured data based on query analysis"""
         structured_results = {}
         sql_queries_executed = []
@@ -138,16 +139,16 @@ class SnowflakeIntelligenceService:
         # This is a simplified logic. A more advanced version would use a query builder.
         if "customer" in query_analysis.get("entities", []):
             customer_query = "SELECT * FROM SOPHIA_SEMANTIC.CUSTOMER_360 ORDER BY last_activity DESC LIMIT 20;"
-            structured_results[
-                "customers"
-            ] = await self.semantic_service._execute_query(customer_query)
+            structured_results["customers"] = (
+                await self.semantic_service._execute_query(customer_query)
+            )
             sql_queries_executed.append(customer_query)
 
         if "employee" in query_analysis.get("entities", []):
             employee_query = "SELECT * FROM SOPHIA_SEMANTIC.EMPLOYEE_360 ORDER BY calls_participated DESC LIMIT 20;"
-            structured_results[
-                "employees"
-            ] = await self.semantic_service._execute_query(employee_query)
+            structured_results["employees"] = (
+                await self.semantic_service._execute_query(employee_query)
+            )
             sql_queries_executed.append(employee_query)
 
         if query_analysis.get("intent") == "metrics":
@@ -162,8 +163,8 @@ class SnowflakeIntelligenceService:
         return structured_results
 
     async def _retrieve_unstructured_data(
-        self, query_analysis: Dict[str, Any], query_text: str
-    ) -> Dict[str, Any]:
+        self, query_analysis: dict[str, Any], query_text: str
+    ) -> dict[str, Any]:
         """Retrieve relevant unstructured data using vector search"""
         unstructured_results = {}
 
@@ -199,8 +200,8 @@ class SnowflakeIntelligenceService:
         return unstructured_results
 
     async def _synthesize_response(
-        self, query: str, structured: Dict, unstructured: Dict, context: Dict
-    ) -> Dict[str, Any]:
+        self, query: str, structured: dict, unstructured: dict, context: dict
+    ) -> dict[str, Any]:
         """Synthesize comprehensive response using Snowflake Cortex"""
 
         synthesis_context = {
@@ -212,23 +213,23 @@ class SnowflakeIntelligenceService:
 
         synthesis_prompt = f"""
         You are an expert business intelligence analyst. Based on the following data, provide a comprehensive answer to the user's query.
-        
+
         Query: {query}
         User Role: {context.get("role", "Executive")}
-        
+
         Structured Data Summary:
         {synthesis_context["structured_data_summary"]}
-        
+
         Unstructured Insights:
         {synthesis_context["unstructured_insights"]}
-        
+
         Provide a comprehensive response that:
         1. Directly answers the question
         2. Includes relevant metrics and trends
         3. Provides actionable insights
         4. Cites specific data sources
         5. Suggests next steps if appropriate
-        
+
         Format as JSON with keys: answer, sources, confidence, insights, recommendations
         """
 
@@ -257,7 +258,7 @@ class SnowflakeIntelligenceService:
             "recommendations": [],
         }
 
-    def _summarize_structured_data(self, data: Dict) -> str:
+    def _summarize_structured_data(self, data: dict) -> str:
         """Placeholder for summarizing structured data."""
         summary_parts = []
         for key, value in data.items():
@@ -267,7 +268,7 @@ class SnowflakeIntelligenceService:
                 summary_parts.append(f"- Found {len(value)} records for '{key}'.")
         return "\n".join(summary_parts) or "No structured data found."
 
-    def _summarize_unstructured_data(self, data: Dict) -> str:
+    def _summarize_unstructured_data(self, data: dict) -> str:
         """Placeholder for summarizing unstructured data."""
         summary_parts = []
         for key, value in data.items():
@@ -277,19 +278,19 @@ class SnowflakeIntelligenceService:
                 )
         return "\n".join(summary_parts) or "No unstructured data found."
 
-    async def _generate_visualizations(self, synthesis_result: Dict) -> List:
+    async def _generate_visualizations(self, synthesis_result: dict) -> list:
         """Placeholder for generating visualizations."""
         logger.info("Placeholder: Generating visualizations.")
         return []
 
     async def _generate_follow_up_suggestions(
-        self, query: str, synthesis_result: Dict
-    ) -> List:
+        self, query: str, synthesis_result: dict
+    ) -> list:
         """Placeholder for generating follow-up suggestions."""
         logger.info("Placeholder: Generating follow-up suggestions.")
         return []
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the intelligence service."""
         semantic_health = await self.semantic_service.health_check()
         vector_health = await self.vector_service.health_check()

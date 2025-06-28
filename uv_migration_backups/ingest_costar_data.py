@@ -13,12 +13,11 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
-from typing import List
 
 # Add the project root to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from backend.mcp.costar_mcp_server import CoStarMCPServer, CoStarImportResult
+from backend.mcp.costar_mcp_server import CoStarImportResult, CoStarMCPServer
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -79,7 +78,7 @@ async def process_single_file(
 
 async def process_directory(
     server: CoStarMCPServer, directory_path: Path, recursive: bool = False
-) -> List[CoStarImportResult]:
+) -> list[CoStarImportResult]:
     """Process all CoStar data files in a directory."""
     logger = logging.getLogger(__name__)
 

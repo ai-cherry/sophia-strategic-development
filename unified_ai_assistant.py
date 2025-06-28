@@ -7,6 +7,7 @@ Natural language interface to ALL AI solutions, agents, and tools
 import asyncio
 import subprocess
 import sys
+
 import requests
 
 
@@ -408,7 +409,7 @@ class UnifiedAIAssistant:
 
 🧠 **Latest AI Models:**
    Primary: claude-3-5-sonnet-20241119
-   Coding: claude-3-5-sonnet-20241119  
+   Coding: claude-3-5-sonnet-20241119
    Analysis: claude-3-5-sonnet-20241119
    Fallback: claude-3-5-sonnet-20241022
 

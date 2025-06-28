@@ -6,15 +6,14 @@ Targets the exact patterns causing syntax errors.
 
 import re
 from pathlib import Path
-from typing import List, Tuple
 
 
-def fix_syntax_patterns(file_path: Path) -> Tuple[bool, List[str]]:
+def fix_syntax_patterns(file_path: Path) -> tuple[bool, list[str]]:
     """Fix specific syntax patterns in a file."""
     fixes = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -142,7 +141,7 @@ def main():
     import json
 
     try:
-        with open("syntax_validation_report.json", "r") as f:
+        with open("syntax_validation_report.json") as f:
             report = json.load(f)
 
         errors = report.get("errors", {})

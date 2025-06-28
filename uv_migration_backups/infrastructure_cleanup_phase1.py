@@ -4,8 +4,8 @@ Sophia AI Infrastructure Cleanup - Phase 1
 Removes legacy files, consolidates infrastructure, and prepares for modernization
 """
 
-import shutil
 import json
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -273,7 +273,7 @@ dns_service = DNSManagerService()
 
         # Load existing registry or create new
         if registry_path.exists():
-            with open(registry_path, "r") as f:
+            with open(registry_path) as f:
                 registry = json.load(f)
         else:
             registry = {}

@@ -36,7 +36,7 @@ class SimpleValidationFix:
                 logger.error("Configuration file not found")
                 return False
 
-            with open(config_file, "r") as f:
+            with open(config_file) as f:
                 content = f.read()
 
             # Check for new credential fields
@@ -100,7 +100,7 @@ class SimpleValidationFix:
                 logger.error("Secret manager file not found")
                 return False
 
-            with open(secret_manager_file, "r") as f:
+            with open(secret_manager_file) as f:
                 content = f.read()
 
             # Check for new validation methods
@@ -160,7 +160,7 @@ class SimpleValidationFix:
                 logger.error("Secure credential service file not found")
                 return False
 
-            with open(service_file, "r") as f:
+            with open(service_file) as f:
                 content = f.read()
 
             # Check for key components
@@ -226,7 +226,7 @@ class SimpleValidationFix:
                 logger.error("Workflow file not found")
                 return False
 
-            with open(workflow_file, "r") as f:
+            with open(workflow_file) as f:
                 content = f.read()
 
             # Check for new secret mappings
@@ -405,13 +405,15 @@ class SimpleValidationFix:
             "passed_validations": passed_validations,
             "success_rate": f"{success_rate:.1f}%",
             "timestamp": datetime.now().isoformat(),
-            "overall_status": "PERFECT"
-            if success_rate == 100
-            else "EXCELLENT"
-            if success_rate >= 80
-            else "GOOD"
-            if success_rate >= 60
-            else "NEEDS_WORK",
+            "overall_status": (
+                "PERFECT"
+                if success_rate == 100
+                else (
+                    "EXCELLENT"
+                    if success_rate >= 80
+                    else "GOOD" if success_rate >= 60 else "NEEDS_WORK"
+                )
+            ),
         }
 
         # Save to file

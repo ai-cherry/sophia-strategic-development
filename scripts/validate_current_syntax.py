@@ -5,9 +5,9 @@ Script to validate current syntax status of Python files in the codebase.
 
 import ast
 import json
-from pathlib import Path
-from datetime import datetime
 import logging
+from datetime import datetime
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def check_python_syntax(file_path):
     """Check if a Python file has valid syntax."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
         ast.parse(content)
         return True, None

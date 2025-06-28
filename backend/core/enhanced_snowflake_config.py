@@ -7,9 +7,9 @@ Supports all 6 schemas: UNIVERSAL_CHAT, AI_MEMORY, APOLLO_IO, PROJECT_MANAGEMENT
 """
 
 import logging
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -125,8 +125,8 @@ class EnhancedSnowflakeManager:
         return f"{self.config.database}.{schema.value}.{table_name}"
 
     async def execute_query(
-        self, query: str, params: Optional[tuple] = None, schema: SchemaType = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: tuple | None = None, schema: SchemaType = None
+    ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
             import snowflake.connector
@@ -157,8 +157,8 @@ class EnhancedSnowflakeManager:
         source_id: str = "src_manual",
         importance_score: float = 1.0,
         is_foundational: bool = False,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
         file_path: str = None,
         file_size_bytes: int = None,
         chunk_index: int = 0,
@@ -169,7 +169,7 @@ class EnhancedSnowflakeManager:
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_base_entries")}
-        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE, 
+        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE,
          IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
          CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
@@ -207,9 +207,9 @@ class EnhancedSnowflakeManager:
         content: str,
         importance_score: float = 1.0,
         confidence_level: float = 1.0,
-        related_entities: List[str] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        related_entities: list[str] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
     ) -> bool:
         """Insert AI memory entry for enhanced context management"""
 
@@ -244,10 +244,10 @@ class EnhancedSnowflakeManager:
     async def hybrid_search_enhanced(
         self,
         query: str,
-        schemas: List[SchemaType] = None,
+        schemas: list[SchemaType] = None,
         limit: int = 10,
         include_embeddings: bool = True,
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    ) -> dict[str, list[dict[str, Any]]]:
         """Enhanced hybrid search across multiple schemas"""
 
         if not schemas:
@@ -259,7 +259,7 @@ class EnhancedSnowflakeManager:
             if schema == SchemaType.UNIVERSAL_CHAT:
                 # Search knowledge base
                 search_query = f"""
-                SELECT 
+                SELECT
                     k.ENTRY_ID,
                     k.TITLE,
                     k.CONTENT,
@@ -271,7 +271,7 @@ class EnhancedSnowflakeManager:
                     k.TOTAL_CHUNKS,
                     'knowledge' as SOURCE_TYPE
                 FROM {self.get_table_name(schema, "knowledge_base_entries")} k
-                JOIN {self.get_table_name(schema, "knowledge_categories")} c 
+                JOIN {self.get_table_name(schema, "knowledge_categories")} c
                   ON k.CATEGORY_ID = c.CATEGORY_ID
                 WHERE (UPPER(k.TITLE) LIKE UPPER(?) OR UPPER(k.CONTENT) LIKE UPPER(?))
                 ORDER BY k.IMPORTANCE_SCORE DESC, k.CREATED_AT DESC
@@ -288,7 +288,7 @@ class EnhancedSnowflakeManager:
             elif schema == SchemaType.AI_MEMORY:
                 # Search AI memory
                 memory_query = f"""
-                SELECT 
+                SELECT
                     m.MEMORY_ID,
                     m.TITLE,
                     m.CONTENT,
@@ -317,7 +317,7 @@ class EnhancedSnowflakeManager:
         metric_type: str,
         metric_name: str,
         metric_value: float,
-        dimensions: Dict[str, Any] = None,
+        dimensions: dict[str, Any] = None,
     ) -> bool:
         """Log system metrics for comprehensive monitoring"""
 
@@ -350,11 +350,11 @@ class EnhancedSnowflakeManager:
         user_id: str,
         message_type: str,
         message_content: str,
-        knowledge_entries_used: List[str] = None,
+        knowledge_entries_used: list[str] = None,
         processing_time_ms: int = None,
         model_used: str = None,
         confidence_score: float = None,
-        metadata: Dict[str, Any] = None,
+        metadata: dict[str, Any] = None,
     ) -> bool:
         """Save conversation message with comprehensive metadata"""
 
@@ -384,14 +384,14 @@ class EnhancedSnowflakeManager:
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
 
-    async def get_comprehensive_analytics(self, hours_back: int = 24) -> Dict[str, Any]:
+    async def get_comprehensive_analytics(self, hours_back: int = 24) -> dict[str, Any]:
         """Get comprehensive analytics across all schemas"""
 
         analytics = {}
 
         # System analytics from UNIVERSAL_CHAT
         system_query = f"""
-        SELECT 
+        SELECT
             METRIC_TYPE,
             METRIC_NAME,
             COUNT(*) as COUNT,
@@ -415,7 +415,7 @@ class EnhancedSnowflakeManager:
 
         # Knowledge usage analytics
         usage_query = f"""
-        SELECT 
+        SELECT
             COUNT(DISTINCT USER_ID) as UNIQUE_USERS,
             COUNT(DISTINCT ENTRY_ID) as ENTRIES_ACCESSED,
             COUNT(*) as TOTAL_ACCESSES,
@@ -435,7 +435,7 @@ class EnhancedSnowflakeManager:
 
         return analytics
 
-    async def get_schema_health(self) -> Dict[str, Any]:
+    async def get_schema_health(self) -> dict[str, Any]:
         """Get health status for all schemas"""
 
         health_status = {}

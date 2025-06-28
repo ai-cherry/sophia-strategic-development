@@ -10,7 +10,7 @@ from pathlib import Path
 def check_status():
     """Check current syntax status from validation report"""
     try:
-        with open("syntax_validation_report.json", "r") as f:
+        with open("syntax_validation_report.json") as f:
             report = json.load(f)
 
         print("🔍 Sophia AI Syntax Status Check")

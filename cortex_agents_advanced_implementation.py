@@ -5,7 +5,7 @@ Current size: 620 lines
 
 Recommended decomposition:
 - cortex_agents_advanced_implementation_core.py - Core functionality
-- cortex_agents_advanced_implementation_utils.py - Utility functions  
+- cortex_agents_advanced_implementation_utils.py - Utility functions
 - cortex_agents_advanced_implementation_models.py - Data models
 - cortex_agents_advanced_implementation_handlers.py - Request handlers
 
@@ -19,8 +19,9 @@ Advanced Cortex Agents and AISQL Implementation
 Based on latest 2025 capabilities for enterprise AI assistant ecosystem
 """
 
-import snowflake.connector
 import logging
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -105,11 +106,11 @@ class CortexAgentsAdvancedImplementation:
         # Create vector search optimization indexes
         vector_indexes_query = """
         -- Create search optimization for vector similarity
-        ALTER TABLE VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS 
+        ALTER TABLE VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS
         ADD SEARCH OPTIMIZATION ON (source_system, content_type, customer_id, user_id);
-        
+
         -- Create clustering key for performance
-        ALTER TABLE VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS 
+        ALTER TABLE VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS
         CLUSTER BY (source_system, created_timestamp);
         """
         self.execute_query(vector_indexes_query, "Creating vector search optimization")
@@ -190,38 +191,38 @@ class CortexAgentsAdvancedImplementation:
         # Create intelligent data classification views
         data_classification_view = """
         CREATE OR REPLACE VIEW PROCESSED_AI.INTELLIGENT_DATA_CLASSIFICATION AS
-        SELECT 
+        SELECT
             source_system,
             source_record_id,
             content_type,
             chunk_text,
             -- Advanced AISQL classification
             SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-                chunk_text, 
+                chunk_text,
                 ['urgent', 'normal', 'low_priority']
             ) as urgency_classification,
-            
+
             SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
                 chunk_text,
                 ['sales_opportunity', 'customer_support', 'product_feedback', 'general_inquiry']
             ) as interaction_type,
-            
+
             SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
                 chunk_text,
                 ['positive', 'negative', 'neutral', 'mixed']
             ) as sentiment_classification,
-            
+
             -- Extract key entities and topics
             SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                 chunk_text,
                 'What are the main topics or subjects discussed in this text?'
             ) as extracted_topics,
-            
+
             SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                 chunk_text,
                 'What are the key action items or next steps mentioned?'
             ) as action_items,
-            
+
             created_timestamp
         FROM VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS
         WHERE chunk_text IS NOT NULL
@@ -233,35 +234,35 @@ class CortexAgentsAdvancedImplementation:
         # Create contextual aggregation views
         contextual_aggregation_view = """
         CREATE OR REPLACE VIEW PROCESSED_AI.CONTEXTUAL_CUSTOMER_INTELLIGENCE AS
-        SELECT 
+        SELECT
             customer_id,
             COUNT(*) as total_interactions,
-            
+
             -- Advanced aggregation with AISQL
             SNOWFLAKE.CORTEX.SUMMARIZE(
                 LISTAGG(chunk_text, ' | ') WITHIN GROUP (ORDER BY created_timestamp)
             ) as customer_interaction_summary,
-            
+
             -- Sentiment trend analysis
-            AVG(CASE 
+            AVG(CASE
                 WHEN sentiment_classification = 'positive' THEN 1.0
                 WHEN sentiment_classification = 'negative' THEN -1.0
                 ELSE 0.0
             END) as avg_sentiment_score,
-            
+
             -- Urgency analysis
             SUM(CASE WHEN urgency_classification = 'urgent' THEN 1 ELSE 0 END) as urgent_interactions,
-            
+
             -- Topic clustering
             SNOWFLAKE.CORTEX.COMPLETE(
                 'claude-3-5-sonnet',
                 'Based on these customer interactions, identify the top 3 themes and provide actionable insights: ' ||
                 LISTAGG(extracted_topics, ' | ') WITHIN GROUP (ORDER BY created_timestamp)
             ) as customer_insights,
-            
+
             MAX(created_timestamp) as last_interaction,
             MIN(created_timestamp) as first_interaction
-            
+
         FROM PROCESSED_AI.INTELLIGENT_DATA_CLASSIFICATION
         WHERE customer_id IS NOT NULL
         GROUP BY customer_id
@@ -335,7 +336,7 @@ class CortexAgentsAdvancedImplementation:
         AS
         $$
         WITH vector_results AS (
-            SELECT 
+            SELECT
                 relevance_score,
                 source_system,
                 content_type,
@@ -355,7 +356,7 @@ class CortexAgentsAdvancedImplementation:
             AND (source_filter IS NULL OR source_system = source_filter)
         ),
         sql_results AS (
-            SELECT 
+            SELECT
                 0.8 as relevance_score,
                 source_system,
                 content_type,
@@ -487,35 +488,35 @@ class CortexAgentsAdvancedImplementation:
         TARGET_LAG = '1 minute'
         WAREHOUSE = REALTIME_ANALYTICS_WH
         AS
-        SELECT 
+        SELECT
             customer_id,
             -- Recent interaction summary (last 7 days)
             SNOWFLAKE.CORTEX.SUMMARIZE(
                 LISTAGG(chunk_text, ' | ') WITHIN GROUP (ORDER BY created_timestamp DESC)
             ) as recent_interaction_summary,
-            
+
             -- Sentiment trend
             AVG(sentiment_score) as avg_sentiment_7d,
-            
+
             -- Interaction frequency
             COUNT(*) as interactions_7d,
-            
+
             -- Urgency indicators
             SUM(CASE WHEN urgency_level = 'urgent' THEN 1 ELSE 0 END) as urgent_interactions_7d,
-            
+
             -- Topic analysis
             SNOWFLAKE.CORTEX.COMPLETE(
                 'claude-3-5-sonnet',
                 'Analyze these recent customer interactions and identify: 1) Primary concerns, 2) Satisfaction level, 3) Recommended actions: ' ||
                 SUBSTR(LISTAGG(chunk_text, ' | ') WITHIN GROUP (ORDER BY created_timestamp DESC), 1, 4000)
             ) as ai_context_analysis,
-            
+
             -- Last interaction details
             MAX(created_timestamp) as last_interaction_timestamp,
             FIRST_VALUE(source_system) OVER (PARTITION BY customer_id ORDER BY created_timestamp DESC) as last_interaction_source,
-            
+
             CURRENT_TIMESTAMP() as context_updated_at
-            
+
         FROM VECTOR_INTELLIGENCE.UNIFIED_EMBEDDINGS
         WHERE created_timestamp >= DATEADD(day, -7, CURRENT_TIMESTAMP())
         AND customer_id IS NOT NULL
@@ -528,14 +529,14 @@ class CortexAgentsAdvancedImplementation:
         # Create contextual recommendation engine
         recommendation_engine_query = """
         CREATE OR REPLACE VIEW PROCESSED_AI.CONTEXTUAL_RECOMMENDATIONS AS
-        SELECT 
+        SELECT
             customer_id,
             recent_interaction_summary,
             avg_sentiment_7d,
             interactions_7d,
             urgent_interactions_7d,
             ai_context_analysis,
-            
+
             -- Generate contextual recommendations
             SNOWFLAKE.CORTEX.COMPLETE(
                 'claude-3-5-sonnet',
@@ -546,17 +547,17 @@ class CortexAgentsAdvancedImplementation:
                 ', Urgent Items: ' || urgent_interactions_7d ||
                 ', AI Analysis: ' || ai_context_analysis
             ) as next_best_actions,
-            
+
             -- Risk assessment
-            CASE 
+            CASE
                 WHEN avg_sentiment_7d < -0.3 AND urgent_interactions_7d > 2 THEN 'HIGH_RISK'
                 WHEN avg_sentiment_7d < 0 AND urgent_interactions_7d > 0 THEN 'MEDIUM_RISK'
                 WHEN interactions_7d = 0 THEN 'ENGAGEMENT_RISK'
                 ELSE 'LOW_RISK'
             END as customer_risk_level,
-            
+
             context_updated_at
-            
+
         FROM REAL_TIME_ANALYTICS.LIVE_CUSTOMER_CONTEXT
         """
         self.execute_query(

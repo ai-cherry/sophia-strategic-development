@@ -4,7 +4,7 @@ Current size: 636 lines
 
 Recommended decomposition:
 - foundational_knowledge_service_core.py - Core functionality
-- foundational_knowledge_service_utils.py - Utility functions  
+- foundational_knowledge_service_utils.py - Utility functions
 - foundational_knowledge_service_models.py - Data models
 - foundational_knowledge_service_handlers.py - Request handlers
 
@@ -19,14 +19,13 @@ Manages Pay Ready's foundational business information and integrates it with the
 """
 
 import json
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.logger import logger
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # logger = logging.getLogger(__name__)
 
@@ -51,9 +50,9 @@ class FoundationalRecord:
     data_type: FoundationalDataType
     title: str
     description: str
-    metadata: Dict[str, Any]
-    embedding: Optional[List[float]] = None
-    last_updated: Optional[datetime] = None
+    metadata: dict[str, Any]
+    embedding: list[float] | None = None
+    last_updated: datetime | None = None
 
 
 class FoundationalKnowledgeService:
@@ -64,7 +63,7 @@ class FoundationalKnowledgeService:
         self.knowledge_service = KnowledgeService()
         self.schema = "FOUNDATIONAL_KNOWLEDGE"
 
-    async def sync_foundational_data_to_knowledge_base(self) -> Dict[str, Any]:
+    async def sync_foundational_data_to_knowledge_base(self) -> dict[str, Any]:
         """
         Sync all foundational data from Snowflake to the knowledge base system
 
@@ -104,7 +103,7 @@ class FoundationalKnowledgeService:
             logger.error(f"Foundational knowledge sync failed: {str(e)}")
             raise
 
-    async def _sync_data_type(self, data_type: FoundationalDataType) -> Dict[str, int]:
+    async def _sync_data_type(self, data_type: FoundationalDataType) -> dict[str, int]:
         """Sync a specific data type to knowledge base"""
 
         # Get records from Snowflake
@@ -130,12 +129,12 @@ class FoundationalKnowledgeService:
 
     async def _get_foundational_records(
         self, data_type: FoundationalDataType
-    ) -> List[FoundationalRecord]:
+    ) -> list[FoundationalRecord]:
         """Get foundational records from Snowflake by type"""
 
         queries = {
             FoundationalDataType.EMPLOYEE: """
-                SELECT 
+                SELECT
                     EMPLOYEE_ID as record_id,
                     FULL_NAME as title,
                     (DEPARTMENT || ' - ' || JOB_TITLE || ' - ' || COALESCE(ARRAY_TO_STRING(PRIMARY_SKILLS, ', '), '')) as description,
@@ -153,7 +152,7 @@ class FoundationalKnowledgeService:
                 WHERE EMPLOYMENT_STATUS = 'Active'
             """,
             FoundationalDataType.CUSTOMER: """
-                SELECT 
+                SELECT
                     CUSTOMER_ID as record_id,
                     COMPANY_NAME as title,
                     (INDUSTRY || ' - ' || CUSTOMER_SEGMENT || ' - ' || BUSINESS_MODEL) as description,
@@ -172,7 +171,7 @@ class FoundationalKnowledgeService:
                 WHERE CUSTOMER_STATUS = 'Active'
             """,
             FoundationalDataType.PRODUCT: """
-                SELECT 
+                SELECT
                     PRODUCT_ID as record_id,
                     PRODUCT_NAME as title,
                     (PRODUCT_DESCRIPTION || ' - ' || PRODUCT_CATEGORY || ' - ' || PRICING_MODEL) as description,
@@ -190,7 +189,7 @@ class FoundationalKnowledgeService:
                 WHERE PRODUCT_STATUS = 'Active'
             """,
             FoundationalDataType.COMPETITOR: """
-                SELECT 
+                SELECT
                     COMPETITOR_ID as record_id,
                     COMPANY_NAME as title,
                     (COMPANY_DESCRIPTION || ' - ' || MARKET_SEGMENT || ' - Threat: ' || THREAT_LEVEL) as description,
@@ -208,7 +207,7 @@ class FoundationalKnowledgeService:
                 FROM FOUNDATIONAL_KNOWLEDGE.COMPETITORS
             """,
             FoundationalDataType.PROCESS: """
-                SELECT 
+                SELECT
                     PROCESS_ID as record_id,
                     PROCESS_NAME as title,
                     (PROCESS_DESCRIPTION || ' - ' || PROCESS_CATEGORY) as description,
@@ -227,7 +226,7 @@ class FoundationalKnowledgeService:
                 WHERE PROCESS_STATUS = 'Active'
             """,
             FoundationalDataType.VALUE: """
-                SELECT 
+                SELECT
                     VALUE_ID as record_id,
                     VALUE_NAME as title,
                     (VALUE_STATEMENT || ' - ' || VALUE_TYPE) as description,
@@ -245,7 +244,7 @@ class FoundationalKnowledgeService:
                 WHERE IS_ACTIVE = TRUE
             """,
             FoundationalDataType.ARTICLE: """
-                SELECT 
+                SELECT
                     ARTICLE_ID as record_id,
                     ARTICLE_TITLE as title,
                     COALESCE(ARTICLE_SUMMARY, SUBSTR(ARTICLE_CONTENT, 1, 500)) as description,
@@ -295,7 +294,7 @@ class FoundationalKnowledgeService:
 
     async def _convert_to_knowledge_document(
         self, record: FoundationalRecord
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Convert foundational record to knowledge base document format"""
 
         return {
@@ -366,9 +365,9 @@ class FoundationalKnowledgeService:
     async def search_foundational_knowledge(
         self,
         query: str,
-        data_types: Optional[List[FoundationalDataType]] = None,
+        data_types: list[FoundationalDataType] | None = None,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search foundational knowledge using semantic search
 
@@ -397,12 +396,12 @@ class FoundationalKnowledgeService:
             logger.error(f"Foundational knowledge search failed: {str(e)}")
             return []
 
-    async def get_foundational_stats(self) -> Dict[str, Any]:
+    async def get_foundational_stats(self) -> dict[str, Any]:
         """Get statistics about foundational knowledge in the knowledge base"""
 
         try:
             stats_query = """
-            SELECT 
+            SELECT
                 metadata:foundational_type::string as data_type,
                 COUNT(*) as count,
                 AVG(importance_score) as avg_importance,
@@ -449,7 +448,7 @@ class FoundationalKnowledgeService:
             }
 
     async def update_foundational_record(
-        self, record_id: str, data_type: FoundationalDataType, updates: Dict[str, Any]
+        self, record_id: str, data_type: FoundationalDataType, updates: dict[str, Any]
     ) -> bool:
         """
         Update a foundational record in both Snowflake and knowledge base
@@ -526,7 +525,7 @@ class FoundationalKnowledgeService:
 
         return key_map.get(data_type, "ID")
 
-    async def generate_foundational_insights(self) -> Dict[str, Any]:
+    async def generate_foundational_insights(self) -> dict[str, Any]:
         """
         Generate insights about foundational knowledge using Snowflake Cortex
 
@@ -538,7 +537,7 @@ class FoundationalKnowledgeService:
 
             # Employee insights
             employee_insights_query = """
-            SELECT 
+            SELECT
                 DEPARTMENT,
                 COUNT(*) as employee_count,
                 ARRAY_AGG(DISTINCT JOB_TITLE) as job_titles,
@@ -564,7 +563,7 @@ class FoundationalKnowledgeService:
 
             # Customer insights
             customer_insights_query = """
-            SELECT 
+            SELECT
                 CUSTOMER_SEGMENT,
                 COUNT(*) as customer_count,
                 AVG(PAYMENT_PROCESSING_VOLUME_MONTHLY) as avg_monthly_volume,
@@ -590,18 +589,18 @@ class FoundationalKnowledgeService:
 
             # Competitive landscape
             competitive_query = """
-            SELECT 
+            SELECT
                 THREAT_LEVEL,
                 COUNT(*) as competitor_count,
                 AVG(WIN_RATE) as avg_win_rate_against_us,
                 ARRAY_AGG(COMPANY_NAME) as competitors
             FROM FOUNDATIONAL_KNOWLEDGE.COMPETITORS
             GROUP BY THREAT_LEVEL
-            ORDER BY 
-                CASE THREAT_LEVEL 
-                    WHEN 'High' THEN 1 
-                    WHEN 'Medium' THEN 2 
-                    WHEN 'Low' THEN 3 
+            ORDER BY
+                CASE THREAT_LEVEL
+                    WHEN 'High' THEN 1
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low' THEN 3
                 END
             """
 
@@ -620,7 +619,7 @@ class FoundationalKnowledgeService:
 
             # Product portfolio
             product_query = """
-            SELECT 
+            SELECT
                 PRODUCT_CATEGORY,
                 COUNT(*) as product_count,
                 SUM(MONTHLY_RECURRING_REVENUE) as total_mrr,

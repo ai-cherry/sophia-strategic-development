@@ -9,30 +9,30 @@ Current size: 826 lines
 
 Recommended decomposition:
 - enhanced_cortex_routes_core.py - Core functionality
-- enhanced_cortex_routes_utils.py - Utility functions  
+- enhanced_cortex_routes_utils.py - Utility functions
 - enhanced_cortex_routes_models.py - Data models
 - enhanced_cortex_routes_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Depends,
-    WebSocket,
-    WebSocketDisconnect,
-    UploadFile,
-    File,
-)
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
-from typing import Dict, List, Optional, Any
+import asyncio
 import json
 import logging
 from datetime import datetime
-import asyncio
+from typing import Any
 
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
+)
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -77,38 +77,38 @@ class MultimodalFile(BaseModel):
 
     file_id: str
     file_type: str
-    file_url: Optional[str] = None
-    file_content: Optional[bytes] = None
-    metadata: Dict[str, Any] = {}
+    file_url: str | None = None
+    file_content: bytes | None = None
+    metadata: dict[str, Any] = {}
 
 
 class MultimodalAgentRequest(BaseModel):
     """Enhanced agent request with multimodal support"""
 
     prompt: str
-    files: List[MultimodalFile] = []
-    processing_options: Dict[str, Any] = {}
-    business_context: Optional[Dict[str, Any]] = None
+    files: list[MultimodalFile] = []
+    processing_options: dict[str, Any] = {}
+    business_context: dict[str, Any] | None = None
 
 
 class AdvancedAnalyticsQuery(BaseModel):
     """Model for advanced analytics queries"""
 
     query_type: str
-    parameters: Dict[str, Any]
-    time_range: Optional[Dict[str, str]] = None
-    filters: Dict[str, Any] = {}
+    parameters: dict[str, Any]
+    time_range: dict[str, str] | None = None
+    filters: dict[str, Any] = {}
 
 
 class AnalyticsResponse(BaseModel):
     """Response model for analytics queries"""
 
     query_type: str
-    results: Dict[str, Any]
-    insights: List[str]
-    recommendations: List[str]
+    results: dict[str, Any]
+    insights: list[str]
+    recommendations: list[str]
     confidence_score: float
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class ComplianceAlert(BaseModel):
@@ -118,8 +118,8 @@ class ComplianceAlert(BaseModel):
     severity: str
     category: str
     description: str
-    affected_records: List[str]
-    recommended_actions: List[str]
+    affected_records: list[str]
+    recommended_actions: list[str]
     timestamp: datetime
 
 
@@ -140,7 +140,7 @@ async def verify_jwt_token(
 # WebSocket connection manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -173,7 +173,7 @@ async def process_multimodal_content(
     cortex_service: EnhancedCortexAgentService = Depends(
         get_enhanced_cortex_agent_service
     ),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Process multimodal content with AI analysis
 
@@ -208,14 +208,14 @@ async def process_multimodal_content(
 
 @router.post("/agents/multimodal/upload")
 async def upload_multimodal_files(
-    files: List[UploadFile] = File(...),
+    files: list[UploadFile] = File(...),
     prompt: str = "",
-    business_context: Optional[str] = None,
+    business_context: str | None = None,
     token: str = Depends(verify_jwt_token),
     cortex_service: EnhancedCortexAgentService = Depends(
         get_enhanced_cortex_agent_service
     ),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Upload and process multimodal files directly
 
@@ -438,7 +438,7 @@ async def get_compliance_alerts(
     cortex_service: EnhancedCortexAgentService = Depends(
         get_enhanced_cortex_agent_service
     ),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get real-time compliance alerts
 
@@ -475,7 +475,7 @@ async def get_compliance_alerts(
 async def get_system_health(
     token: str = Depends(verify_jwt_token),
     estuary_manager=Depends(get_advanced_estuary_flow_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get comprehensive system health status
 
@@ -494,9 +494,9 @@ async def get_system_health(
             "overall_status": "healthy",
             "components": {
                 "estuary_flows": {
-                    "status": "healthy"
-                    if not flow_performance.get("alerts")
-                    else "warning",
+                    "status": (
+                        "healthy" if not flow_performance.get("alerts") else "warning"
+                    ),
                     "performance": flow_performance,
                 },
                 "snowflake_warehouses": {
@@ -550,7 +550,7 @@ async def get_system_health(
 async def deploy_estuary_pipeline(
     token: str = Depends(verify_jwt_token),
     estuary_manager=Depends(get_advanced_estuary_flow_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Deploy advanced Estuary data pipeline
 
@@ -613,7 +613,7 @@ async def deploy_estuary_pipeline(
 async def get_pipeline_status(
     token: str = Depends(verify_jwt_token),
     estuary_manager=Depends(get_advanced_estuary_flow_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get current pipeline status and performance metrics
     """
@@ -745,7 +745,7 @@ async def websocket_system_monitoring(websocket: WebSocket):
 async def optimize_system_configuration(
     token: str = Depends(verify_jwt_token),
     estuary_manager=Depends(get_advanced_estuary_flow_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     AI-powered system configuration optimization
 
@@ -775,7 +775,7 @@ async def optimize_system_configuration(
 @router.get("/config/current")
 async def get_current_configuration(
     token: str = Depends(verify_jwt_token),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get current system configuration
     """

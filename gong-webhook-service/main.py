@@ -4,13 +4,13 @@ Simplified Gong Webhook Server for immediate deployment.
 Designed to pass Gong's webhook test and be production-ready.
 """
 
-from datetime import datetime
-import os
 import logging
+import os
+from datetime import datetime
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, PlainTextResponse
-import uvicorn
 
 # Configure logging
 logging.basicConfig(

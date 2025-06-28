@@ -2,11 +2,11 @@
 
 import asyncio
 import json
+import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
 
 import aiohttp
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -16,16 +16,16 @@ class MCPClient:
 
     def __init__(self, config_path: str = "cursor_mcp_config.json"):
         self.config = self._load_config(config_path)
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
-    def _load_config(self, config_path: str) -> Dict[str, Any]:
+    def _load_config(self, config_path: str) -> dict[str, Any]:
         """Loads the MCP configuration file."""
         config_file = Path(config_path)
         if not config_file.exists():
             logger.error(f"MCP config file not found at: {config_path}")
             raise FileNotFoundError(f"MCP config file not found at: {config_path}")
 
-        with open(config_file, "r") as f:
+        with open(config_file) as f:
             return json.load(f)
 
     async def _get_session(self) -> aiohttp.ClientSession:
@@ -37,8 +37,8 @@ class MCPClient:
         return self.session
 
     async def call_mcp_tool(
-        self, server_name: str, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, server_name: str, tool_name: str, arguments: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Calls a specific tool on a specified MCP server.
         """

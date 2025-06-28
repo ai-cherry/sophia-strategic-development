@@ -4,12 +4,12 @@ Sophia AI Live Deployment Script
 Starts both backend and frontend services for immediate testing
 """
 
-import os
-import sys
-import subprocess
-import time
-import signal
 import logging
+import os
+import signal
+import subprocess
+import sys
+import time
 from pathlib import Path
 
 # Configure logging
@@ -30,9 +30,6 @@ class SophiaLiveDeployment:
         logger.info("🔍 Checking environment...")
 
         # Check Python version
-        if sys.version_info < (3, 8):
-            logger.error("❌ Python 3.8+ required")
-            return False
 
         # Check if we're in the right directory
         if not Path("backend").exists() or not Path("frontend").exists():

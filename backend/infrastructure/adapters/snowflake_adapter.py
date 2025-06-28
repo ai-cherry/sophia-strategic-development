@@ -4,13 +4,13 @@ Sophia AI - Snowflake Platform Adapter
 Enhanced adapter that integrates with the central orchestrator
 """
 
+import asyncio
+import json
 import os
 import sys
-import json
-import asyncio
 from datetime import datetime
-from typing import Dict, Any
 from pathlib import Path
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -18,8 +18,8 @@ sys.path.insert(0, str(project_root))
 
 from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformAdapter,
-    PlatformType,
     PlatformStatus,
+    PlatformType,
 )
 from scripts.snowflake_config_manager import SnowflakeConfigManager
 
@@ -35,7 +35,7 @@ class SnowflakeAdapter(PlatformAdapter):
         self.config_manager = SnowflakeConfigManager()
         self.last_health_check = None
 
-    async def configure(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def configure(self, config: dict[str, Any]) -> dict[str, Any]:
         """Configure Snowflake with given settings."""
         try:
             self.logger.info(
@@ -163,13 +163,13 @@ class SnowflakeAdapter(PlatformAdapter):
                 metrics={"error": str(e)},
             )
 
-    async def handle_webhook(self, payload: Dict[str, Any]) -> None:
+    async def handle_webhook(self, payload: dict[str, Any]) -> None:
         """Handle incoming webhooks (Snowflake doesn't typically send webhooks)."""
         self.logger.info(f"Received webhook payload: {payload}")
         # Snowflake doesn't typically send webhooks, but we could handle
         # notifications from other systems about Snowflake operations
 
-    async def validate_configuration(self, config: Dict[str, Any]) -> bool:
+    async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
         try:
             # Check required fields for different operations
@@ -197,7 +197,7 @@ class SnowflakeAdapter(PlatformAdapter):
             self.logger.error(f"Configuration validation failed: {e}")
             return False
 
-    async def rollback(self, checkpoint: Dict[str, Any]) -> Dict[str, Any]:
+    async def rollback(self, checkpoint: dict[str, Any]) -> dict[str, Any]:
         """Rollback to a previous configuration state."""
         try:
             self.logger.info(
@@ -225,7 +225,7 @@ class SnowflakeAdapter(PlatformAdapter):
 
     # Additional Snowflake-specific methods
 
-    async def _create_database(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_database(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new database."""
         try:
             database_name = config["name"]
@@ -249,7 +249,7 @@ class SnowflakeAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _create_schema(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_schema(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new schema."""
         try:
             schema_name = config["name"]
@@ -274,7 +274,7 @@ class SnowflakeAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _execute_sql(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_sql(self, config: dict[str, Any]) -> dict[str, Any]:
         """Execute arbitrary SQL."""
         try:
             query = config["query"]
@@ -296,29 +296,29 @@ class SnowflakeAdapter(PlatformAdapter):
 
     # Orchestrator integration methods
 
-    async def execute_sync_schemas(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_sync_schemas(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Execute schema synchronization command."""
         return await self.configure({"sync_schemas": True})
 
-    async def execute_optimize(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_optimize(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Execute performance optimization command."""
         return await self.configure({"optimize_performance": True})
 
-    async def execute_query(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_query(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Execute a query command."""
         return await self.configure({"execute_sql": parameters})
 
     async def execute_create_database(
-        self, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute database creation command."""
         return await self.configure({"create_database": parameters})
 
-    async def execute_create_schema(self, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_create_schema(self, parameters: dict[str, Any]) -> dict[str, Any]:
         """Execute schema creation command."""
         return await self.configure({"create_schema": parameters})
 
-    async def get_data_statistics(self) -> Dict[str, Any]:
+    async def get_data_statistics(self) -> dict[str, Any]:
         """Get detailed data statistics from Snowflake."""
         try:
             if not await self.config_manager.connect():
@@ -338,8 +338,8 @@ class SnowflakeAdapter(PlatformAdapter):
                 try:
                     # Get tables in schema
                     tables_query = f"""
-                    SELECT table_name 
-                    FROM information_schema.tables 
+                    SELECT table_name
+                    FROM information_schema.tables
                     WHERE table_schema = '{schema.split(".")[-1]}'
                     AND table_catalog = '{schema.split(".")[0] if "." in schema else "SOPHIA_AI_CORE"}'
                     """

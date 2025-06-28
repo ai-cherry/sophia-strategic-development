@@ -11,7 +11,7 @@ Current size: 791 lines
 
 Recommended decomposition:
 - alert_manager_core.py - Core functionality
-- alert_manager_utils.py - Utility functions  
+- alert_manager_utils.py - Utility functions
 - alert_manager_models.py - Data models
 - alert_manager_handlers.py - Request handlers
 
@@ -21,16 +21,16 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, List, Optional
 from collections import defaultdict, deque
+from datetime import UTC, datetime, timedelta
 from enum import Enum
+from typing import Any
 
 import httpx
 import structlog
 from pydantic import BaseModel, Field
 
-from .gong_data_quality import AlertSeverity, AlertType, QualityReport, QualityDimension
+from .gong_data_quality import AlertSeverity, AlertType, QualityDimension, QualityReport
 
 logger = structlog.get_logger()
 
@@ -60,9 +60,9 @@ class AlertPolicy(BaseModel):
 
     name: str
     description: str
-    conditions: Dict[str, Any]
+    conditions: dict[str, Any]
     severity_threshold: AlertSeverity
-    channels: List[NotificationChannel]
+    channels: list[NotificationChannel]
     cooldown_minutes: int = 15
     escalation_after_minutes: int = 30
     max_alerts_per_hour: int = 10
@@ -77,19 +77,19 @@ class Alert(BaseModel):
     severity: AlertSeverity
     status: AlertStatus = AlertStatus.ACTIVE
     call_id: str
-    webhook_id: Optional[str] = None
+    webhook_id: str | None = None
     quality_score: float
-    dimensions: Dict[QualityDimension, float]
+    dimensions: dict[QualityDimension, float]
     title: str
     description: str
-    details: Dict[str, Any]
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: Optional[datetime] = None
-    acknowledged_at: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
-    acknowledged_by: Optional[str] = None
-    resolution_notes: Optional[str] = None
-    notification_history: List[Dict[str, Any]] = Field(default_factory=list)
+    details: dict[str, Any]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime | None = None
+    acknowledged_at: datetime | None = None
+    resolved_at: datetime | None = None
+    acknowledged_by: str | None = None
+    resolution_notes: str | None = None
+    notification_history: list[dict[str, Any]] = Field(default_factory=list)
     escalation_level: int = 0
 
 
@@ -98,7 +98,7 @@ class AlertGroup(BaseModel):
 
     group_id: str
     group_type: str  # e.g., "quality_degradation", "api_failures"
-    alerts: List[Alert]
+    alerts: list[Alert]
     first_seen: datetime
     last_seen: datetime
     total_count: int
@@ -110,18 +110,18 @@ class QualityAlertManager:
     Intelligent alert routing and escalation for data quality issues.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
         self.logger = logger.bind(component="quality_alert_manager")
 
         # Alert tracking
-        self.active_alerts: Dict[str, Alert] = {}
+        self.active_alerts: dict[str, Alert] = {}
         self.alert_history = deque(maxlen=10000)
-        self.alert_groups: Dict[str, AlertGroup] = {}
+        self.alert_groups: dict[str, AlertGroup] = {}
 
         # Rate limiting
         self.notification_history = defaultdict(lambda: deque(maxlen=100))
-        self.channel_cooldowns: Dict[str, datetime] = {}
+        self.channel_cooldowns: dict[str, datetime] = {}
 
         # Alert policies
         self.policies = self._load_default_policies()
@@ -129,7 +129,7 @@ class QualityAlertManager:
         # Notification clients
         self.notification_clients = self._initialize_notification_clients()
 
-    def _load_default_policies(self) -> List[AlertPolicy]:
+    def _load_default_policies(self) -> list[AlertPolicy]:
         """Load default alert policies."""
         return [
             AlertPolicy(
@@ -182,7 +182,7 @@ class QualityAlertManager:
             ),
         ]
 
-    def _initialize_notification_clients(self) -> Dict[NotificationChannel, Any]:
+    def _initialize_notification_clients(self) -> dict[NotificationChannel, Any]:
         """Initialize notification channel clients."""
         clients = {}
 
@@ -219,8 +219,8 @@ class QualityAlertManager:
         title: str,
         description: str,
         quality_report: QualityReport,
-        details: Optional[Dict[str, Any]] = None,
-    ) -> Optional[Alert]:
+        details: dict[str, Any] | None = None,
+    ) -> Alert | None:
         """
         Trigger a quality alert with intelligent routing.
 
@@ -301,7 +301,7 @@ class QualityAlertManager:
         # Record notification history
         alert.notification_history.append(
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "channels": list(channels_notified),
                 "policies": [p.name for p in applicable_policies],
             }
@@ -309,7 +309,7 @@ class QualityAlertManager:
 
     def _get_applicable_policies(
         self, alert: Alert, quality_report: QualityReport
-    ) -> List[AlertPolicy]:
+    ) -> list[AlertPolicy]:
         """Get policies that apply to this alert."""
         applicable = []
 
@@ -374,7 +374,7 @@ class QualityAlertManager:
             # Record notification
             self.notification_history[channel].append(
                 {
-                    "timestamp": datetime.now(timezone.utc),
+                    "timestamp": datetime.now(UTC),
                     "alert_id": alert.alert_id,
                     "call_id": alert.call_id,
                 }
@@ -394,7 +394,7 @@ class QualityAlertManager:
             for a in self.alert_history
             if a.call_id == call_id
             and a.alert_type == alert_type
-            and (datetime.now(timezone.utc) - a.created_at).total_seconds() < 3600
+            and (datetime.now(UTC) - a.created_at).total_seconds() < 3600
         ]
 
         # Suppress if too many recent alerts
@@ -402,7 +402,7 @@ class QualityAlertManager:
             return True
 
         # Check global rate limits
-        hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
+        hour_ago = datetime.now(UTC) - timedelta(hours=1)
         recent_global_alerts = [
             a for a in self.alert_history if a.created_at > hour_ago
         ]
@@ -420,12 +420,12 @@ class QualityAlertManager:
 
         if cooldown_key in self.channel_cooldowns:
             cooldown_until = self.channel_cooldowns[cooldown_key]
-            if datetime.now(timezone.utc) < cooldown_until:
+            if datetime.now(UTC) < cooldown_until:
                 return True
 
         return False
 
-    def _find_or_create_alert_group(self, alert: Alert) -> Optional[AlertGroup]:
+    def _find_or_create_alert_group(self, alert: Alert) -> AlertGroup | None:
         """Find existing alert group or create new one."""
         # Group by alert type and severity
         group_key = f"{alert.alert_type}:{alert.severity}"
@@ -434,7 +434,7 @@ class QualityAlertManager:
             group = self.alert_groups[group_key]
 
             # Check if group is still active (within last hour)
-            if (datetime.now(timezone.utc) - group.last_seen).total_seconds() < 3600:
+            if (datetime.now(UTC) - group.last_seen).total_seconds() < 3600:
                 return group
 
         # Create new group
@@ -473,7 +473,7 @@ class QualityAlertManager:
         """Escalate an unresolved alert."""
         alert.escalation_level += 1
         alert.status = AlertStatus.ESCALATED
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.updated_at = datetime.now(UTC)
 
         self.logger.warning(
             "Alert escalated",
@@ -489,7 +489,7 @@ class QualityAlertManager:
             ].escalate_incident(alert)
 
     async def acknowledge_alert(
-        self, alert_id: str, acknowledged_by: str, notes: Optional[str] = None
+        self, alert_id: str, acknowledged_by: str, notes: str | None = None
     ):
         """Acknowledge an alert."""
         if alert_id not in self.active_alerts:
@@ -497,9 +497,9 @@ class QualityAlertManager:
 
         alert = self.active_alerts[alert_id]
         alert.status = AlertStatus.ACKNOWLEDGED
-        alert.acknowledged_at = datetime.now(timezone.utc)
+        alert.acknowledged_at = datetime.now(UTC)
         alert.acknowledged_by = acknowledged_by
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.updated_at = datetime.now(UTC)
 
         if notes:
             alert.resolution_notes = notes
@@ -515,9 +515,9 @@ class QualityAlertManager:
 
         alert = self.active_alerts[alert_id]
         alert.status = AlertStatus.RESOLVED
-        alert.resolved_at = datetime.now(timezone.utc)
+        alert.resolved_at = datetime.now(UTC)
         alert.resolution_notes = resolution_notes
-        alert.updated_at = datetime.now(timezone.utc)
+        alert.updated_at = datetime.now(UTC)
 
         # Update group
         for group in self.alert_groups.values():
@@ -543,8 +543,8 @@ class QualityAlertManager:
         return severity_order[sev1] - severity_order[sev2]
 
     def get_active_alerts(
-        self, call_id: Optional[str] = None, severity: Optional[AlertSeverity] = None
-    ) -> List[Alert]:
+        self, call_id: str | None = None, severity: AlertSeverity | None = None
+    ) -> list[Alert]:
         """Get active alerts with optional filtering."""
         alerts = list(self.active_alerts.values())
 
@@ -556,9 +556,9 @@ class QualityAlertManager:
 
         return sorted(alerts, key=lambda a: a.created_at, reverse=True)
 
-    def get_alert_statistics(self) -> Dict[str, Any]:
+    def get_alert_statistics(self) -> dict[str, Any]:
         """Get alert statistics."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         hour_ago = now - timedelta(hours=1)
         day_ago = now - timedelta(days=1)
 
@@ -626,7 +626,7 @@ class SlackNotificationClient:
 
     def _format_slack_message(
         self, alert: Alert, quality_report: QualityReport
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format alert as Slack message."""
         color = {
             AlertSeverity.CRITICAL: "#FF0000",
@@ -687,7 +687,7 @@ class SlackNotificationClient:
 class EmailNotificationClient:
     """Email notification client (placeholder)."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.logger = logger.bind(component="email_notification")
 
@@ -714,7 +714,7 @@ class WebhookNotificationClient:
                 "dimensions": quality_report.dimensions,
                 "issues": [issue.dict() for issue in quality_report.issues],
             },
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         async with httpx.AsyncClient() as client:

@@ -5,21 +5,23 @@ Comprehensive API endpoints for knowledge management and chat integration
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
 import os
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
+
+from backend.services.enhanced_unified_chat_service import snowflake_service
 
 # Import our services
 from backend.services.knowledge_service import (
-    knowledge_service,
     KnowledgeStats,
-    UploadResponse,
     SearchFilters,
+    UploadResponse,
+    knowledge_service,
 )
-from backend.services.enhanced_unified_chat_service import snowflake_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,26 +45,26 @@ async def authenticate_user(
 class CreateCategoryRequest(BaseModel):
     category_id: str
     category_name: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class SearchRequest(BaseModel):
     query: str
     limit: int = 10
-    category_filter: Optional[str] = None
+    category_filter: str | None = None
 
 
 class ChatWithKnowledgeRequest(BaseModel):
     message: str
-    session_id: Optional[str] = None
+    session_id: str | None = None
     use_knowledge: bool = True
-    category_filter: Optional[str] = None
+    category_filter: str | None = None
 
 
 class UpdateEntryRequest(BaseModel):
-    title: Optional[str] = None
-    content: Optional[str] = None
-    category_id: Optional[str] = None
+    title: str | None = None
+    content: str | None = None
+    category_id: str | None = None
 
 
 # Initialize router
@@ -90,8 +92,8 @@ async def shutdown_knowledge_service():
 async def upload_file(
     file: UploadFile = File(...),
     title: str = Form(...),
-    category_id: Optional[str] = Form(None),
-    description: Optional[str] = Form(""),
+    category_id: str | None = Form(None),
+    description: str | None = Form(""),
     user_id: str = Depends(authenticate_user),
 ):
     """Upload and process a file for the knowledge base"""
@@ -124,7 +126,7 @@ async def upload_file(
 async def create_knowledge_entry(
     title: str,
     content: str,
-    category_id: Optional[str] = None,
+    category_id: str | None = None,
     user_id: str = Depends(authenticate_user),
 ):
     """Create a knowledge entry from text"""
@@ -147,7 +149,7 @@ async def create_knowledge_entry(
 @router.post("/search")
 async def search_knowledge(
     request: SearchRequest, user_id: str = Depends(authenticate_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Search knowledge base"""
     try:
         filters = (
@@ -166,9 +168,11 @@ async def search_knowledge(
                 {
                     "entry_id": entry.entry_id,
                     "title": entry.title,
-                    "content": entry.content[:500] + "..."
-                    if len(entry.content) > 500
-                    else entry.content,
+                    "content": (
+                        entry.content[:500] + "..."
+                        if len(entry.content) > 500
+                        else entry.content
+                    ),
                     "category_id": entry.category_id,
                     "category_name": entry.category_name,
                     "file_type": entry.file_type,
@@ -189,7 +193,7 @@ async def search_knowledge(
 @router.get("/entries/{entry_id}")
 async def get_knowledge_entry(
     entry_id: str, user_id: str = Depends(authenticate_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get specific knowledge entry"""
     try:
         # Search for the specific entry
@@ -222,10 +226,10 @@ async def get_knowledge_entry(
 
 @router.get("/entries")
 async def list_knowledge_entries(
-    category_id: Optional[str] = None,
+    category_id: str | None = None,
     limit: int = 50,
     user_id: str = Depends(authenticate_user),
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """List knowledge entries with optional filtering"""
     try:
         filters = SearchFilters(category_id=category_id) if category_id else None
@@ -240,9 +244,11 @@ async def list_knowledge_entries(
             {
                 "entry_id": entry.entry_id,
                 "title": entry.title,
-                "content": entry.content[:200] + "..."
-                if len(entry.content) > 200
-                else entry.content,
+                "content": (
+                    entry.content[:200] + "..."
+                    if len(entry.content) > 200
+                    else entry.content
+                ),
                 "category_id": entry.category_id,
                 "category_name": entry.category_name,
                 "file_type": entry.file_type,
@@ -264,7 +270,7 @@ async def list_knowledge_entries(
 @router.post("/chat")
 async def chat_with_knowledge(
     request: ChatWithKnowledgeRequest, user_id: str = Depends(authenticate_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Chat with AI using knowledge base context"""
     try:
         session_id = request.session_id
@@ -350,7 +356,7 @@ async def get_knowledge_stats(user_id: str = Depends(authenticate_user)):
 @router.get("/categories")
 async def get_categories(
     user_id: str = Depends(authenticate_user),
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Get all knowledge categories"""
     try:
         query = "SELECT CATEGORY_ID, CATEGORY_NAME, DESCRIPTION, CREATED_AT FROM KNOWLEDGE_CATEGORIES ORDER BY CATEGORY_NAME"
@@ -361,9 +367,9 @@ async def get_categories(
                 "category_id": row["CATEGORY_ID"],
                 "category_name": row["CATEGORY_NAME"],
                 "description": row["DESCRIPTION"],
-                "created_at": row["CREATED_AT"].isoformat()
-                if row["CREATED_AT"]
-                else None,
+                "created_at": (
+                    row["CREATED_AT"].isoformat() if row["CREATED_AT"] else None
+                ),
             }
             for row in results
         ]
@@ -378,7 +384,7 @@ async def get_categories(
 @router.post("/categories")
 async def create_category(
     request: CreateCategoryRequest, user_id: str = Depends(authenticate_user)
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Create a new knowledge category"""
     try:
         await knowledge_service.ensure_category_exists(request.category_id)
@@ -386,8 +392,8 @@ async def create_category(
         # Update category details if different from auto-created
         if request.category_name:
             update_query = """
-            UPDATE KNOWLEDGE_CATEGORIES 
-            SET CATEGORY_NAME = %s, DESCRIPTION = %s 
+            UPDATE KNOWLEDGE_CATEGORIES
+            SET CATEGORY_NAME = %s, DESCRIPTION = %s
             WHERE CATEGORY_ID = %s
             """
             await knowledge_service.execute_query(
@@ -413,7 +419,7 @@ async def update_knowledge_entry(
     entry_id: str,
     request: UpdateEntryRequest,
     user_id: str = Depends(authenticate_user),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Update knowledge entry"""
     try:
         updates = []
@@ -438,7 +444,7 @@ async def update_knowledge_entry(
             params.append(entry_id)
 
             update_query = f"""
-            UPDATE KNOWLEDGE_BASE_ENTRIES 
+            UPDATE KNOWLEDGE_BASE_ENTRIES
             SET {", ".join(updates)}
             WHERE ENTRY_ID = %s
             """
@@ -459,7 +465,7 @@ async def update_knowledge_entry(
 @router.delete("/entries/{entry_id}")
 async def delete_knowledge_entry(
     entry_id: str, user_id: str = Depends(authenticate_user)
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Delete knowledge entry"""
     try:
         await knowledge_service.delete_knowledge_entry(entry_id)

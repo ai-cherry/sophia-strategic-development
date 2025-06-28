@@ -15,19 +15,19 @@ Current size: 916 lines
 
 Recommended decomposition:
 - deploy_asana_snowflake_setup_core.py - Core functionality
-- deploy_asana_snowflake_setup_utils.py - Utility functions  
+- deploy_asana_snowflake_setup_utils.py - Utility functions
 - deploy_asana_snowflake_setup_models.py - Data models
 - deploy_asana_snowflake_setup_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import argparse
 import asyncio
 import logging
-import argparse
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -43,7 +43,7 @@ class DeploymentResult:
     status: str
     message: str
     execution_time: float
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 class AsanaSnowflakeDeployer:
@@ -52,7 +52,7 @@ class AsanaSnowflakeDeployer:
     def __init__(self, environment: str = "dev"):
         self.environment = environment
         self.cortex_service = None
-        self.deployment_results: List[DeploymentResult] = []
+        self.deployment_results: list[DeploymentResult] = []
 
     async def initialize(self) -> None:
         """Initialize the deployer"""
@@ -98,7 +98,7 @@ class AsanaSnowflakeDeployer:
         self.deployment_results.append(result)
         return result
 
-    async def deploy_asana_transformation_procedures(self) -> List[DeploymentResult]:
+    async def deploy_asana_transformation_procedures(self) -> list[DeploymentResult]:
         """Deploy Asana data transformation stored procedures"""
         logger.info("🚀 Deploying Asana transformation procedures")
 
@@ -115,7 +115,7 @@ class AsanaSnowflakeDeployer:
             processed_count NUMBER DEFAULT 0;
             error_count NUMBER DEFAULT 0;
         BEGIN
-            
+
             -- Transform raw Asana projects to STG_ASANA_PROJECTS
             INSERT INTO STG_TRANSFORMED.STG_ASANA_PROJECTS (
                 PROJECT_GID,
@@ -150,7 +150,7 @@ class AsanaSnowflakeDeployer:
                 CONFIDENCE_SCORE,
                 AI_MEMORY_METADATA
             )
-            SELECT 
+            SELECT
                 _ESTUARY_DATA:gid::VARCHAR AS PROJECT_GID,
                 _ESTUARY_DATA:name::VARCHAR AS PROJECT_NAME,
                 _ESTUARY_DATA:notes::VARCHAR AS PROJECT_DESCRIPTION,
@@ -174,7 +174,7 @@ class AsanaSnowflakeDeployer:
                 COALESCE(_ESTUARY_DATA:task_count::NUMBER, 0) AS TASK_COUNT,
                 COALESCE(_ESTUARY_DATA:completed_task_count::NUMBER, 0) AS COMPLETED_TASK_COUNT,
                 COALESCE(_ESTUARY_DATA:incomplete_task_count::NUMBER, 0) AS INCOMPLETE_TASK_COUNT,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
                     WHEN _ESTUARY_DATA:completion_percentage::FLOAT > 80 THEN 'MEDIUM'
                     ELSE 'LOW'
@@ -184,7 +184,7 @@ class AsanaSnowflakeDeployer:
                 _ESTUARY_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:name IS NOT NULL THEN 0.95
                     WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
@@ -201,12 +201,12 @@ class AsanaSnowflakeDeployer:
             FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS
             WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
-                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_PROJECTS 
+                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_PROJECTS
                 WHERE PROJECT_GID = _ESTUARY_DATA:gid::VARCHAR
             );
-            
+
             GET DIAGNOSTICS processed_count = ROW_COUNT;
-            
+
             -- Log successful transformation
             INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
                 JOB_NAME, SCHEMA_NAME, TABLE_NAME, OPERATION_TYPE, STATUS,
@@ -215,9 +215,9 @@ class AsanaSnowflakeDeployer:
                 'TRANSFORM_ASANA_PROJECTS', 'STG_TRANSFORMED', 'STG_ASANA_PROJECTS', 'TRANSFORM', 'SUCCESS',
                 processed_count, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 0
             );
-            
+
             RETURN 'Successfully processed ' || processed_count || ' Asana projects';
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 -- Log error
@@ -228,7 +228,7 @@ class AsanaSnowflakeDeployer:
                     'TRANSFORM_ASANA_PROJECTS', 'STG_TRANSFORMED', 'STG_ASANA_PROJECTS', 'TRANSFORM', 'FAILED',
                     SQLERRM, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
                 );
-                
+
                 RETURN 'Error transforming Asana projects: ' || SQLERRM;
         END;
         $$;
@@ -250,7 +250,7 @@ class AsanaSnowflakeDeployer:
         DECLARE
             processed_count NUMBER DEFAULT 0;
         BEGIN
-            
+
             -- Transform raw Asana tasks to STG_ASANA_TASKS
             INSERT INTO STG_TRANSFORMED.STG_ASANA_TASKS (
                 TASK_GID,
@@ -288,11 +288,11 @@ class AsanaSnowflakeDeployer:
                 CONFIDENCE_SCORE,
                 AI_MEMORY_METADATA
             )
-            SELECT 
+            SELECT
                 _ESTUARY_DATA:gid::VARCHAR AS TASK_GID,
                 _ESTUARY_DATA:name::VARCHAR AS TASK_NAME,
                 _ESTUARY_DATA:notes::VARCHAR AS TASK_DESCRIPTION,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:completed::BOOLEAN = TRUE THEN 'COMPLETED'
                     WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'OVERDUE'
                     WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE <= CURRENT_DATE + 7 THEN 'DUE_SOON'
@@ -303,13 +303,13 @@ class AsanaSnowflakeDeployer:
                 _ESTUARY_DATA:assignee:gid::VARCHAR AS ASSIGNEE_GID,
                 _ESTUARY_DATA:assignee:name::VARCHAR AS ASSIGNEE_NAME,
                 _ESTUARY_DATA:assignee:email::VARCHAR AS ASSIGNEE_EMAIL,
-                CASE 
-                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0 
+                CASE
+                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0
                     THEN _ESTUARY_DATA:projects[0]:gid::VARCHAR
                     ELSE NULL
                 END AS PROJECT_GID,
-                CASE 
-                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0 
+                CASE
+                    WHEN ARRAY_SIZE(_ESTUARY_DATA:projects) > 0
                     THEN _ESTUARY_DATA:projects[0]:name::VARCHAR
                     ELSE NULL
                 END AS PROJECT_NAME,
@@ -320,7 +320,7 @@ class AsanaSnowflakeDeployer:
                 _ESTUARY_DATA:due_on::DATE AS DUE_DATE,
                 _ESTUARY_DATA:due_at::TIMESTAMP_LTZ AS DUE_TIME,
                 _ESTUARY_DATA:start_on::DATE AS START_DATE,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE < CURRENT_DATE THEN 'HIGH'
                     WHEN _ESTUARY_DATA:due_date IS NOT NULL AND _ESTUARY_DATA:due_date::DATE <= CURRENT_DATE + 3 THEN 'MEDIUM'
                     ELSE 'LOW'
@@ -338,7 +338,7 @@ class AsanaSnowflakeDeployer:
                 _ESTUARY_DATA:permalink_url::VARCHAR AS ASANA_PERMALINK_URL,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:name IS NOT NULL THEN 0.95
                     WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
@@ -356,12 +356,12 @@ class AsanaSnowflakeDeployer:
             FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_TASKS
             WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
-                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_TASKS 
+                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_TASKS
                 WHERE TASK_GID = _ESTUARY_DATA:gid::VARCHAR
             );
-            
+
             GET DIAGNOSTICS processed_count = ROW_COUNT;
-            
+
             -- Log successful transformation
             INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
                 JOB_NAME, SCHEMA_NAME, TABLE_NAME, OPERATION_TYPE, STATUS,
@@ -370,9 +370,9 @@ class AsanaSnowflakeDeployer:
                 'TRANSFORM_ASANA_TASKS', 'STG_TRANSFORMED', 'STG_ASANA_TASKS', 'TRANSFORM', 'SUCCESS',
                 processed_count, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 0
             );
-            
+
             RETURN 'Successfully processed ' || processed_count || ' Asana tasks';
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
@@ -382,7 +382,7 @@ class AsanaSnowflakeDeployer:
                     'TRANSFORM_ASANA_TASKS', 'STG_TRANSFORMED', 'STG_ASANA_TASKS', 'TRANSFORM', 'FAILED',
                     SQLERRM, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
                 );
-                
+
                 RETURN 'Error transforming Asana tasks: ' || SQLERRM;
         END;
         $$;
@@ -404,7 +404,7 @@ class AsanaSnowflakeDeployer:
         DECLARE
             processed_count NUMBER DEFAULT 0;
         BEGIN
-            
+
             -- Transform raw Asana users to STG_ASANA_USERS
             INSERT INTO STG_TRANSFORMED.STG_ASANA_USERS (
                 USER_GID,
@@ -422,7 +422,7 @@ class AsanaSnowflakeDeployer:
                 CONFIDENCE_SCORE,
                 AI_MEMORY_METADATA
             )
-            SELECT 
+            SELECT
                 _ESTUARY_DATA:gid::VARCHAR AS USER_GID,
                 _ESTUARY_DATA:name::VARCHAR AS USER_NAME,
                 _ESTUARY_DATA:email::VARCHAR AS USER_EMAIL,
@@ -435,7 +435,7 @@ class AsanaSnowflakeDeployer:
                 CURRENT_TIMESTAMP() AS CREATED_AT,
                 CURRENT_TIMESTAMP() AS LAST_UPDATED,
                 'ASANA_API' AS DATA_SOURCE,
-                CASE 
+                CASE
                     WHEN _ESTUARY_DATA:gid IS NOT NULL AND _ESTUARY_DATA:email IS NOT NULL THEN 0.95
                     WHEN _ESTUARY_DATA:gid IS NOT NULL THEN 0.75
                     ELSE 0.5
@@ -450,12 +450,12 @@ class AsanaSnowflakeDeployer:
             FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_USERS
             WHERE _ESTUARY_DATA:gid IS NOT NULL
             AND NOT EXISTS (
-                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_USERS 
+                SELECT 1 FROM STG_TRANSFORMED.STG_ASANA_USERS
                 WHERE USER_GID = _ESTUARY_DATA:gid::VARCHAR
             );
-            
+
             GET DIAGNOSTICS processed_count = ROW_COUNT;
-            
+
             INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
                 JOB_NAME, SCHEMA_NAME, TABLE_NAME, OPERATION_TYPE, STATUS,
                 RECORDS_PROCESSED, START_TIME, END_TIME, DURATION_SECONDS
@@ -463,9 +463,9 @@ class AsanaSnowflakeDeployer:
                 'TRANSFORM_ASANA_USERS', 'STG_TRANSFORMED', 'STG_ASANA_USERS', 'TRANSFORM', 'SUCCESS',
                 processed_count, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 0
             );
-            
+
             RETURN 'Successfully processed ' || processed_count || ' Asana users';
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
@@ -475,7 +475,7 @@ class AsanaSnowflakeDeployer:
                     'TRANSFORM_ASANA_USERS', 'STG_TRANSFORMED', 'STG_ASANA_USERS', 'TRANSFORM', 'FAILED',
                     SQLERRM, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
                 );
-                
+
                 RETURN 'Error transforming Asana users: ' || SQLERRM;
         END;
         $$;
@@ -489,7 +489,7 @@ class AsanaSnowflakeDeployer:
 
         return procedures
 
-    async def deploy_asana_ai_enrichment_procedures(self) -> List[DeploymentResult]:
+    async def deploy_asana_ai_enrichment_procedures(self) -> list[DeploymentResult]:
         """Deploy AI enrichment procedures for Asana data"""
         logger.info("🤖 Deploying Asana AI enrichment procedures")
 
@@ -505,29 +505,29 @@ class AsanaSnowflakeDeployer:
         DECLARE
             processed_count NUMBER DEFAULT 0;
         BEGIN
-            
+
             -- Generate embeddings for Asana projects
             UPDATE STG_TRANSFORMED.STG_ASANA_PROJECTS
-            SET 
+            SET
                 AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
-                    COALESCE(PROJECT_NAME, '') || ' ' || 
+                    COALESCE(PROJECT_NAME, '') || ' ' ||
                     COALESCE(PROJECT_DESCRIPTION, '') || ' ' ||
                     COALESCE(PROJECT_NOTES, '') || ' ' ||
                     COALESCE(TEAM_NAME, '') || ' ' ||
                     COALESCE(OWNER_NAME, '')
                 ),
-                AI_PROJECT_SUMMARY = CASE 
+                AI_PROJECT_SUMMARY = CASE
                     WHEN LENGTH(COALESCE(PROJECT_DESCRIPTION, '') || COALESCE(PROJECT_NOTES, '')) > 500
                     THEN SNOWFLAKE.CORTEX.SUMMARIZE(PROJECT_DESCRIPTION || ' ' || PROJECT_NOTES)
                     ELSE NULL
                 END,
-                AI_RISK_ASSESSMENT = CASE 
+                AI_RISK_ASSESSMENT = CASE
                     WHEN PROJECT_STATUS = 'OVERDUE' OR (DUE_DATE IS NOT NULL AND DUE_DATE < CURRENT_DATE) THEN 'HIGH'
                     WHEN COMPLETION_PERCENTAGE < 50 AND DUE_DATE IS NOT NULL AND DUE_DATE <= CURRENT_DATE + 30 THEN 'MEDIUM'
                     ELSE 'LOW'
                 END,
-                AI_HEALTH_SCORE = CASE 
+                AI_HEALTH_SCORE = CASE
                     WHEN IS_ARCHIVED = TRUE THEN 0.1
                     WHEN PROJECT_STATUS = 'COMPLETED' THEN 1.0
                     WHEN COMPLETION_PERCENTAGE >= 80 THEN 0.9
@@ -551,9 +551,9 @@ class AsanaSnowflakeDeployer:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
             WHERE AI_MEMORY_EMBEDDING IS NULL
             AND (PROJECT_NAME IS NOT NULL OR PROJECT_DESCRIPTION IS NOT NULL);
-            
+
             GET DIAGNOSTICS processed_count = ROW_COUNT;
-            
+
             INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
                 JOB_NAME, SCHEMA_NAME, TABLE_NAME, OPERATION_TYPE, STATUS,
                 RECORDS_PROCESSED, START_TIME, END_TIME, DURATION_SECONDS
@@ -561,9 +561,9 @@ class AsanaSnowflakeDeployer:
                 'GENERATE_ASANA_PROJECT_AI_EMBEDDINGS', 'STG_TRANSFORMED', 'STG_ASANA_PROJECTS', 'AI_ENRICHMENT', 'SUCCESS',
                 processed_count, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 0
             );
-            
+
             RETURN 'Successfully generated AI embeddings for ' || processed_count || ' Asana projects';
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
@@ -573,7 +573,7 @@ class AsanaSnowflakeDeployer:
                     'GENERATE_ASANA_PROJECT_AI_EMBEDDINGS', 'STG_TRANSFORMED', 'STG_ASANA_PROJECTS', 'AI_ENRICHMENT', 'FAILED',
                     SQLERRM, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
                 );
-                
+
                 RETURN 'Error generating AI embeddings for Asana projects: ' || SQLERRM;
         END;
         $$;
@@ -595,36 +595,36 @@ class AsanaSnowflakeDeployer:
         DECLARE
             processed_count NUMBER DEFAULT 0;
         BEGIN
-            
+
             -- Generate embeddings for Asana tasks
             UPDATE STG_TRANSFORMED.STG_ASANA_TASKS
-            SET 
+            SET
                 AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
-                    COALESCE(TASK_NAME, '') || ' ' || 
+                    COALESCE(TASK_NAME, '') || ' ' ||
                     COALESCE(TASK_DESCRIPTION, '') || ' ' ||
                     COALESCE(TASK_NOTES, '') || ' ' ||
                     COALESCE(PROJECT_NAME, '') || ' ' ||
                     COALESCE(ASSIGNEE_NAME, '')
                 ),
-                AI_TASK_SENTIMENT = CASE 
+                AI_TASK_SENTIMENT = CASE
                     WHEN TASK_DESCRIPTION IS NOT NULL AND LENGTH(TASK_DESCRIPTION) > 50
                     THEN SNOWFLAKE.CORTEX.SENTIMENT(TASK_DESCRIPTION)
                     ELSE NULL
                 END,
-                AI_TASK_SUMMARY = CASE 
+                AI_TASK_SUMMARY = CASE
                     WHEN LENGTH(COALESCE(TASK_DESCRIPTION, '') || COALESCE(TASK_NOTES, '')) > 500
                     THEN SNOWFLAKE.CORTEX.SUMMARIZE(TASK_DESCRIPTION || ' ' || TASK_NOTES)
                     ELSE NULL
                 END,
-                AI_URGENCY_SCORE = CASE 
+                AI_URGENCY_SCORE = CASE
                     WHEN TASK_STATUS = 'OVERDUE' THEN 1.0
                     WHEN TASK_STATUS = 'DUE_SOON' THEN 0.8
                     WHEN PRIORITY_LEVEL = 'HIGH' THEN 0.7
                     WHEN PRIORITY_LEVEL = 'MEDIUM' THEN 0.5
                     ELSE 0.3
                 END,
-                AI_COMPLETION_PREDICTION = CASE 
+                AI_COMPLETION_PREDICTION = CASE
                     WHEN IS_COMPLETED = TRUE THEN 'COMPLETED'
                     WHEN DUE_DATE IS NOT NULL AND DUE_DATE < CURRENT_DATE THEN 'OVERDUE'
                     WHEN DUE_DATE IS NOT NULL AND DUE_DATE <= CURRENT_DATE + 7 THEN 'AT_RISK'
@@ -650,9 +650,9 @@ class AsanaSnowflakeDeployer:
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
             WHERE AI_MEMORY_EMBEDDING IS NULL
             AND (TASK_NAME IS NOT NULL OR TASK_DESCRIPTION IS NOT NULL);
-            
+
             GET DIAGNOSTICS processed_count = ROW_COUNT;
-            
+
             INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
                 JOB_NAME, SCHEMA_NAME, TABLE_NAME, OPERATION_TYPE, STATUS,
                 RECORDS_PROCESSED, START_TIME, END_TIME, DURATION_SECONDS
@@ -660,9 +660,9 @@ class AsanaSnowflakeDeployer:
                 'GENERATE_ASANA_TASK_AI_EMBEDDINGS', 'STG_TRANSFORMED', 'STG_ASANA_TASKS', 'AI_ENRICHMENT', 'SUCCESS',
                 processed_count, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 0
             );
-            
+
             RETURN 'Successfully generated AI embeddings for ' || processed_count || ' Asana tasks';
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
@@ -672,7 +672,7 @@ class AsanaSnowflakeDeployer:
                     'GENERATE_ASANA_TASK_AI_EMBEDDINGS', 'STG_TRANSFORMED', 'STG_ASANA_TASKS', 'AI_ENRICHMENT', 'FAILED',
                     SQLERRM, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()
                 );
-                
+
                 RETURN 'Error generating AI embeddings for Asana tasks: ' || SQLERRM;
         END;
         $$;
@@ -686,7 +686,7 @@ class AsanaSnowflakeDeployer:
 
         return procedures
 
-    async def deploy_asana_scheduled_tasks(self) -> List[DeploymentResult]:
+    async def deploy_asana_scheduled_tasks(self) -> list[DeploymentResult]:
         """Deploy scheduled tasks for automated Asana data processing"""
         logger.info("⏰ Deploying Asana scheduled tasks")
 
@@ -746,7 +746,7 @@ class AsanaSnowflakeDeployer:
 
         return tasks
 
-    async def deploy_asana_data_quality_monitoring(self) -> List[DeploymentResult]:
+    async def deploy_asana_data_quality_monitoring(self) -> list[DeploymentResult]:
         """Deploy data quality monitoring for Asana data"""
         logger.info("📊 Deploying Asana data quality monitoring")
 
@@ -765,32 +765,32 @@ class AsanaSnowflakeDeployer:
             user_count NUMBER;
             quality_score FLOAT;
         BEGIN
-            
+
             -- Count records in each table
             SELECT COUNT(*) INTO project_count FROM STG_TRANSFORMED.STG_ASANA_PROJECTS;
             SELECT COUNT(*) INTO task_count FROM STG_TRANSFORMED.STG_ASANA_TASKS;
             SELECT COUNT(*) INTO user_count FROM STG_TRANSFORMED.STG_ASANA_USERS;
-            
+
             -- Calculate overall quality score
-            quality_score := CASE 
+            quality_score := CASE
                 WHEN project_count > 0 AND task_count > 0 AND user_count > 0 THEN 1.0
                 WHEN project_count > 0 AND task_count > 0 THEN 0.8
                 WHEN project_count > 0 OR task_count > 0 THEN 0.6
                 ELSE 0.0
             END;
-            
+
             -- Insert monitoring record
             INSERT INTO OPS_MONITORING.DATA_QUALITY_METRICS (
-                SCHEMA_NAME, TABLE_NAME, METRIC_NAME, METRIC_VALUE, 
+                SCHEMA_NAME, TABLE_NAME, METRIC_NAME, METRIC_VALUE,
                 MEASUREMENT_DATE, QUALITY_THRESHOLD, IS_PASSING
-            ) VALUES 
+            ) VALUES
             ('STG_TRANSFORMED', 'STG_ASANA_PROJECTS', 'RECORD_COUNT', project_count, CURRENT_TIMESTAMP(), 1, project_count >= 1),
             ('STG_TRANSFORMED', 'STG_ASANA_TASKS', 'RECORD_COUNT', task_count, CURRENT_TIMESTAMP(), 1, task_count >= 1),
             ('STG_TRANSFORMED', 'STG_ASANA_USERS', 'RECORD_COUNT', user_count, CURRENT_TIMESTAMP(), 1, user_count >= 1),
             ('STG_TRANSFORMED', 'ASANA_OVERALL', 'QUALITY_SCORE', quality_score, CURRENT_TIMESTAMP(), 0.8, quality_score >= 0.8);
-            
+
             RETURN 'Quality monitoring completed. Projects: ' || project_count || ', Tasks: ' || task_count || ', Users: ' || user_count || ', Quality Score: ' || quality_score;
-            
+
         EXCEPTION
             WHEN OTHER THEN
                 RETURN 'Error in quality monitoring: ' || SQLERRM;
@@ -835,7 +835,7 @@ class AsanaSnowflakeDeployer:
 
     async def deploy_all_asana_infrastructure(
         self,
-    ) -> Dict[str, List[DeploymentResult]]:
+    ) -> dict[str, list[DeploymentResult]]:
         """Deploy complete Asana Snowflake infrastructure"""
         logger.info("🚀 Deploying complete Asana Snowflake infrastructure")
 

@@ -5,13 +5,13 @@ This script synchronizes secrets from GitHub organization to Pulumi ESC
 for the Sophia AI platform.
 """
 
-import os
-import sys
 import json
-import subprocess
 import logging
-from typing import Dict, Optional, Any
+import os
+import subprocess
+import sys
 from dataclasses import dataclass
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -26,7 +26,7 @@ class SyncResult:
 
     secret_name: str
     success: bool
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class PulumiESCSync:
@@ -183,7 +183,7 @@ class PulumiESCSync:
                 secret_name=github_secret, success=False, error_message=error_msg
             )
 
-    def sync_all_secrets(self) -> Dict[str, SyncResult]:
+    def sync_all_secrets(self) -> dict[str, SyncResult]:
         """Sync all configured secrets."""
         logger.info(f"🔄 Starting sync to Pulumi ESC environment: {self.env_path}")
 
@@ -209,7 +209,7 @@ class PulumiESCSync:
 
         return results
 
-    def generate_summary_report(self, results: Dict[str, SyncResult]) -> Dict[str, Any]:
+    def generate_summary_report(self, results: dict[str, SyncResult]) -> dict[str, Any]:
         """Generate a summary report of the sync operation."""
         successful = [name for name, result in results.items() if result.success]
         failed = [name for name, result in results.items() if not result.success]

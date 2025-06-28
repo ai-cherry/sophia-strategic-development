@@ -1,11 +1,12 @@
 """Cline v3.18 Feature Mixins for MCP Servers."""
 
-import os
-from typing import Dict, List, Any
-import aiohttp
-from datetime import datetime, timedelta
 import hashlib
 import json
+import os
+from datetime import datetime, timedelta
+from typing import Any
+
+import aiohttp
 
 
 class GeminiCLIMixin:
@@ -65,13 +66,13 @@ class WebFetchMixin:
 
     async def fetch_web_content(
         self, url: str, force_refresh: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch and cache web content."""
         cache_path = self._get_cache_path(url)
 
         # Check cache first
         if not force_refresh and os.path.exists(cache_path):
-            with open(cache_path, "r") as f:
+            with open(cache_path) as f:
                 cached = json.load(f)
                 cached_time = datetime.fromisoformat(cached["timestamp"])
                 if datetime.now() - cached_time < self.cache_ttl:
@@ -105,7 +106,7 @@ class WebFetchMixin:
 class SelfKnowledgeMixin:
     """Adds self-knowledge capabilities to MCP servers."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Return server capabilities."""
         return {
             "name": self.__class__.__name__,
@@ -116,7 +117,7 @@ class SelfKnowledgeMixin:
             "natural_language_commands": self._get_nl_commands(),
         }
 
-    def _get_features(self) -> List[str]:
+    def _get_features(self) -> list[str]:
         """Get list of features."""
         features = []
         for base in self.__class__.__mro__:
@@ -124,7 +125,7 @@ class SelfKnowledgeMixin:
                 features.append(base.__name__.replace("Mixin", ""))
         return features
 
-    def _get_performance_metrics(self) -> Dict[str, Any]:
+    def _get_performance_metrics(self) -> dict[str, Any]:
         """Get performance metrics."""
         return {
             "uptime": getattr(self, "uptime", 0),
@@ -133,12 +134,12 @@ class SelfKnowledgeMixin:
             "error_rate": getattr(self, "error_rate", 0),
         }
 
-    def _get_api_endpoints(self) -> List[str]:
+    def _get_api_endpoints(self) -> list[str]:
         """Get available API endpoints."""
         # Override in specific implementations
         return []
 
-    def _get_nl_commands(self) -> List[str]:
+    def _get_nl_commands(self) -> list[str]:
         """Get natural language command examples."""
         # Override in specific implementations
         return []
@@ -148,7 +149,7 @@ class ImprovedDiffMixin:
     """Adds improved diff editing with multiple fallback strategies."""
 
     async def apply_diff_with_fallback(
-        self, file_path: str, changes: List[Dict]
+        self, file_path: str, changes: list[dict]
     ) -> bool:
         """Apply diff with multiple fallback strategies."""
         strategies = [
@@ -167,24 +168,24 @@ class ImprovedDiffMixin:
 
         return False
 
-    async def _apply_exact_diff(self, file_path: str, changes: List[Dict]) -> bool:
+    async def _apply_exact_diff(self, file_path: str, changes: list[dict]) -> bool:
         """Apply exact diff matching."""
         # Implementation for exact matching
         return True
 
-    async def _apply_fuzzy_diff(self, file_path: str, changes: List[Dict]) -> bool:
+    async def _apply_fuzzy_diff(self, file_path: str, changes: list[dict]) -> bool:
         """Apply fuzzy diff matching."""
         # Implementation for fuzzy matching
         return True
 
     async def _apply_context_aware_diff(
-        self, file_path: str, changes: List[Dict]
+        self, file_path: str, changes: list[dict]
     ) -> bool:
         """Apply context-aware diff matching."""
         # Implementation using surrounding context
         return True
 
-    async def _apply_ai_powered_diff(self, file_path: str, changes: List[Dict]) -> bool:
+    async def _apply_ai_powered_diff(self, file_path: str, changes: list[dict]) -> bool:
         """Apply AI-powered diff matching."""
         # Implementation using AI to understand intent
         return True
@@ -217,7 +218,7 @@ class IntelligentModelRouter:
             },
         }
 
-    async def route_request(self, request: Dict[str, Any]) -> str:
+    async def route_request(self, request: dict[str, Any]) -> str:
         """Route request to optimal model."""
         context_size = request.get("context_size", 0)
         requirements = request.get("requirements", [])
@@ -247,7 +248,7 @@ class ClineV318FeaturesMixin(
         self.model_router = IntelligentModelRouter()
         self.v318_enabled = True
 
-    async def process_with_v318(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_with_v318(self, request: dict[str, Any]) -> dict[str, Any]:
         """Process request using v3.18 features."""
         # Route to optimal model
         model = await self.model_router.route_request(request)

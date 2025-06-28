@@ -4,8 +4,8 @@ Domain Value Objects
 This module contains immutable value objects used in the domain layer.
 """
 
-from .sentiment import Sentiment
 from .call_participant import CallParticipant, ParticipantRole
-from .money import Money, Currency
+from .money import Currency, Money
+from .sentiment import Sentiment
 
 __all__ = ["Sentiment", "CallParticipant", "ParticipantRole", "Money", "Currency"]

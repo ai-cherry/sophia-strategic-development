@@ -4,16 +4,16 @@ Handles environment variable and configuration management with Pulumi ESC integr
 Integrated with SecurityConfig for centralized secret management
 """
 
-import os
 import logging
+import os
 import subprocess
-from typing import Any, Optional, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Configuration cache
-_config_cache: Dict[str, Any] = {}
-_esc_cache: Optional[Dict[str, Any]] = None
+_config_cache: dict[str, Any] = {}
+_esc_cache: dict[str, Any] | None = None
 
 
 def _get_security_config():
@@ -27,7 +27,7 @@ def _get_security_config():
         return None
 
 
-def _load_esc_environment() -> Dict[str, Any]:
+def _load_esc_environment() -> dict[str, Any]:
     """
     Load configuration from Pulumi ESC environment
 
@@ -218,7 +218,7 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_snowflake_config() -> Dict[str, Any]:
+def get_snowflake_config() -> dict[str, Any]:
     """
     Get Snowflake configuration from Pulumi ESC
 
@@ -236,7 +236,7 @@ def get_snowflake_config() -> Dict[str, Any]:
     }
 
 
-def get_estuary_config() -> Dict[str, Any]:
+def get_estuary_config() -> dict[str, Any]:
     """
     Get Estuary configuration
 
@@ -250,7 +250,7 @@ def get_estuary_config() -> Dict[str, Any]:
     }
 
 
-def get_integration_config() -> Dict[str, Any]:
+def get_integration_config() -> dict[str, Any]:
     """
     Get integration configuration for external services
 

@@ -5,7 +5,7 @@ Current size: 639 lines
 
 Recommended decomposition:
 - snowflake_config_manager_core.py - Core functionality
-- snowflake_config_manager_utils.py - Utility functions  
+- snowflake_config_manager_utils.py - Utility functions
 - snowflake_config_manager_models.py - Data models
 - snowflake_config_manager_handlers.py - Request handlers
 
@@ -20,14 +20,14 @@ Provides comprehensive Snowflake administration and configuration management
 Designed for integration with LangChain agents and MCP architecture
 """
 
-import os
-import sys
-import json
 import argparse
 import asyncio
+import json
+import os
+import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Any
 from pathlib import Path
+from typing import Any
 
 # Add the project root to Python path for imports
 project_root = Path(__file__).parent.parent
@@ -43,14 +43,14 @@ class SnowflakeConfigManager:
     Integrates with Sophia AI's secure credential management via Pulumi ESC.
     """
 
-    def __init__(self, config_file: Optional[str] = None):
+    def __init__(self, config_file: str | None = None):
         self.config_file = config_file or os.path.join(
             project_root, "config", "snowflake_config.json"
         )
         self.connection = None
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load Snowflake configuration from secure sources."""
         # Primary: Environment variables (populated by Pulumi ESC)
         config = {
@@ -67,7 +67,7 @@ class SnowflakeConfigManager:
         # Fallback: Configuration file if exists
         if os.path.exists(self.config_file):
             try:
-                with open(self.config_file, "r") as f:
+                with open(self.config_file) as f:
                     file_config = json.load(f)
                     # Environment variables take precedence
                     for key, value in file_config.items():
@@ -98,7 +98,7 @@ class SnowflakeConfigManager:
 
     def execute_query(
         self, query: str, fetch_results: bool = True
-    ) -> Optional[List[Dict]]:
+    ) -> list[dict] | None:
         """Execute a query and return results as dictionaries."""
         if not self.connection:
             raise ConnectionError("No active Snowflake connection")
@@ -132,7 +132,7 @@ class SnowflakeConfigManager:
             print(f"Query: {query}")
             raise
 
-    async def sync_github_schemas(self) -> Dict[str, Any]:
+    async def sync_github_schemas(self) -> dict[str, Any]:
         """Synchronize Snowflake schemas with GitHub codebase definitions."""
         print("🔄 Synchronizing Snowflake schemas with GitHub codebase...")
 
@@ -152,7 +152,7 @@ class SnowflakeConfigManager:
             )
 
             if os.path.exists(schema_file):
-                with open(schema_file, "r") as f:
+                with open(schema_file) as f:
                     schema_sql = f.read()
 
                 # Execute schema creation/updates - split by semicolon and execute separately
@@ -192,14 +192,14 @@ class SnowflakeConfigManager:
 
         return results
 
-    async def _create_estuary_schemas(self, results: Dict[str, Any]):
+    async def _create_estuary_schemas(self, results: dict[str, Any]):
         """Create schemas and tables for Estuary data integration."""
         print("🔗 Creating Estuary integration schemas...")
 
         # Gong schema and tables
         gong_schema_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_GONG_RAW;
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_GONG_RAW.gong_calls (
             call_id VARCHAR(255) PRIMARY KEY,
             title VARCHAR(500),
@@ -217,7 +217,7 @@ class SnowflakeConfigManager:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_GONG_RAW.gong_transcripts (
             transcript_id VARCHAR(255) PRIMARY KEY,
             call_id VARCHAR(255),
@@ -238,7 +238,7 @@ class SnowflakeConfigManager:
         # Slack schema and tables
         slack_schema_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_SLACK_RAW;
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_SLACK_RAW.slack_messages (
             message_id VARCHAR(255) PRIMARY KEY,
             channel_id VARCHAR(255),
@@ -257,7 +257,7 @@ class SnowflakeConfigManager:
             _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_SLACK_RAW.slack_channels (
             channel_id VARCHAR(255) PRIMARY KEY,
             channel_name VARCHAR(255),
@@ -290,15 +290,15 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def _create_memory_integration(self, results: Dict[str, Any]):
+    async def _create_memory_integration(self, results: dict[str, Any]):
         """Create memory system integration views and functions."""
         print("🧠 Creating memory system integration...")
 
         memory_integration_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_MEMORY;
-        
+
         CREATE OR REPLACE VIEW SOPHIA_AI_MEMORY.unified_conversations AS
-        SELECT 
+        SELECT
             'gong' as source_type,
             call_id as conversation_id,
             title as conversation_title,
@@ -310,10 +310,10 @@ class SnowflakeConfigManager:
             created_at
         FROM SOPHIA_GONG_RAW.gong_calls c
         LEFT JOIN SOPHIA_GONG_RAW.gong_transcripts t ON c.call_id = t.call_id
-        
+
         UNION ALL
-        
-        SELECT 
+
+        SELECT
             'slack' as source_type,
             message_id as conversation_id,
             CONCAT('Slack: ', channel_name) as conversation_title,
@@ -324,7 +324,7 @@ class SnowflakeConfigManager:
             metadata,
             created_at
         FROM SOPHIA_SLACK_RAW.slack_messages;
-        
+
         CREATE OR REPLACE FUNCTION SOPHIA_AI_MEMORY.extract_conversation_insights(content TEXT)
         RETURNS VARIANT
         LANGUAGE JAVASCRIPT
@@ -355,15 +355,15 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def _create_semantic_layer(self, results: Dict[str, Any]):
+    async def _create_semantic_layer(self, results: dict[str, Any]):
         """Create semantic layer for business intelligence."""
         print("📊 Creating semantic layer...")
 
         semantic_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_SEMANTIC;
-        
+
         CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.conversation_analytics AS
-        SELECT 
+        SELECT
             source_type,
             DATE_TRUNC('day', conversation_time) as conversation_date,
             COUNT(*) as conversation_count,
@@ -372,9 +372,9 @@ class SnowflakeConfigManager:
             AVG(LENGTH(content)) as avg_content_length
         FROM SOPHIA_AI_MEMORY.unified_conversations
         GROUP BY source_type, DATE_TRUNC('day', conversation_time);
-        
+
         CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.cross_platform_insights AS
-        SELECT 
+        SELECT
             DATE_TRUNC('week', conversation_time) as week,
             COUNT(DISTINCT CASE WHEN source_type = 'gong' THEN participants END) as unique_gong_participants,
             COUNT(DISTINCT CASE WHEN source_type = 'slack' THEN participants:user END) as unique_slack_users,
@@ -397,7 +397,7 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive Snowflake system status."""
         print("📊 Gathering system status...")
 
@@ -477,7 +477,7 @@ class SnowflakeConfigManager:
 
         return status
 
-    async def _gather_data_stats(self, status: Dict[str, Any]):
+    async def _gather_data_stats(self, status: dict[str, Any]):
         """Gather data statistics for monitoring."""
         try:
             # Count records in key tables
@@ -501,7 +501,7 @@ class SnowflakeConfigManager:
         except Exception as e:
             print(f"⚠️ Error gathering data stats: {e}")
 
-    async def optimize_performance(self) -> Dict[str, Any]:
+    async def optimize_performance(self) -> dict[str, Any]:
         """Optimize Snowflake performance settings."""
         print("⚡ Optimizing Snowflake performance...")
 
@@ -515,10 +515,10 @@ class SnowflakeConfigManager:
         try:
             # Create clustering keys for large tables
             clustering_sql = """
-            ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_calls 
+            ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_calls
             CLUSTER BY (actual_start_time, call_id);
-            
-            ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages 
+
+            ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages
             CLUSTER BY (timestamp, channel_id);
             """
 
@@ -531,7 +531,7 @@ class SnowflakeConfigManager:
             search_opt_sql = """
             ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_transcripts
             ADD SEARCH OPTIMIZATION ON EQUALITY(speaker_name), SUBSTRING(text_content);
-            
+
             ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages
             ADD SEARCH OPTIMIZATION ON EQUALITY(username), SUBSTRING(text_content);
             """
@@ -574,7 +574,7 @@ class SnowflakeCLI:
     def __init__(self):
         self.manager = SnowflakeConfigManager()
 
-    async def run_command(self, command: str, **kwargs) -> Dict[str, Any]:
+    async def run_command(self, command: str, **kwargs) -> dict[str, Any]:
         """Execute a management command."""
         if not await self.manager.connect():
             return {"error": "Failed to connect to Snowflake"}

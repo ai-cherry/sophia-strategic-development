@@ -6,9 +6,9 @@ Implements comprehensive health monitoring, performance analytics, and alerting
 
 import asyncio
 import logging
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,61 +16,63 @@ logger = logging.getLogger(__name__)
 
 class DeploymentRefactoringPhase4:
     """Phase 4: Monitoring and observability implementation"""
-    
+
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
         self.files_created = []
         self.errors = []
-    
-    async def execute_phase4(self) -> Dict[str, Any]:
+
+    async def execute_phase4(self) -> dict[str, Any]:
         """Execute Phase 4 refactoring"""
         logger.info("🚀 Starting Phase 4: Monitoring & Observability")
-        
+
         results = {
             "phase": "Phase 4 - Monitoring & Observability",
             "start_time": datetime.now().isoformat(),
             "tasks_completed": [],
             "files_created": [],
             "errors": [],
-            "success": False
+            "success": False,
         }
-        
+
         try:
             # Task 1: Create comprehensive health monitoring
             await self._create_comprehensive_health_monitoring()
             results["tasks_completed"].append("comprehensive_health_monitoring")
-            
+
             # Task 2: Create performance analytics
             await self._create_performance_analytics()
             results["tasks_completed"].append("performance_analytics")
-            
+
             # Task 3: Create alerting system
             await self._create_alerting_system()
             results["tasks_completed"].append("alerting_system")
-            
+
             # Task 4: Create deployment status monitoring
             await self._create_deployment_status_monitoring()
             results["tasks_completed"].append("deployment_status_monitoring")
-            
+
             results["files_created"] = self.files_created
             results["errors"] = self.errors
             results["success"] = len(self.errors) == 0
             results["end_time"] = datetime.now().isoformat()
-            
-            logger.info(f"✅ Phase 4 completed! Created {len(self.files_created)} files")
-            
+
+            logger.info(
+                f"✅ Phase 4 completed! Created {len(self.files_created)} files"
+            )
+
         except Exception as e:
             error_msg = f"Phase 4 execution failed: {e}"
             logger.error(error_msg)
             results["errors"].append(error_msg)
             results["success"] = False
-        
+
         return results
-    
+
     async def _create_comprehensive_health_monitoring(self):
         """Create comprehensive health monitoring system"""
         logger.info("🏥 Creating comprehensive health monitoring...")
-        
+
         monitoring_code = '''#!/usr/bin/env python3
 """
 Comprehensive Health Monitoring System for Sophia AI
@@ -347,19 +349,24 @@ class ComprehensiveHealthMonitor:
 # Global instance
 comprehensive_health_monitor = ComprehensiveHealthMonitor()
 '''
-        
+
         # Write comprehensive health monitoring
-        health_file = self.project_root / "backend" / "monitoring" / "comprehensive_health_monitor.py"
+        health_file = (
+            self.project_root
+            / "backend"
+            / "monitoring"
+            / "comprehensive_health_monitor.py"
+        )
         health_file.parent.mkdir(exist_ok=True)
         health_file.write_text(monitoring_code)
         self.files_created.append(str(health_file))
-        
+
         logger.info("✅ Comprehensive health monitoring created")
-    
+
     async def _create_performance_analytics(self):
         """Create performance analytics system"""
         logger.info("📈 Creating performance analytics...")
-        
+
         analytics_code = '''#!/usr/bin/env python3
 """
 Performance Analytics System for Sophia AI
@@ -593,18 +600,20 @@ class PerformanceAnalytics:
 # Global instance
 performance_analytics = PerformanceAnalytics()
 '''
-        
+
         # Write performance analytics
-        analytics_file = self.project_root / "backend" / "monitoring" / "performance_analytics.py"
+        analytics_file = (
+            self.project_root / "backend" / "monitoring" / "performance_analytics.py"
+        )
         analytics_file.write_text(analytics_code)
         self.files_created.append(str(analytics_file))
-        
+
         logger.info("✅ Performance analytics created")
-    
+
     async def _create_alerting_system(self):
         """Create intelligent alerting system"""
         logger.info("🚨 Creating alerting system...")
-        
+
         alerting_code = '''#!/usr/bin/env python3
 """
 Intelligent Alerting System for Sophia AI
@@ -897,18 +906,23 @@ async def escalation_check_task():
 # Start escalation check task
 asyncio.create_task(escalation_check_task())
 '''
-        
+
         # Write alerting system
-        alerting_file = self.project_root / "backend" / "monitoring" / "intelligent_alerting_system.py"
+        alerting_file = (
+            self.project_root
+            / "backend"
+            / "monitoring"
+            / "intelligent_alerting_system.py"
+        )
         alerting_file.write_text(alerting_code)
         self.files_created.append(str(alerting_file))
-        
+
         logger.info("✅ Intelligent alerting system created")
-    
+
     async def _create_deployment_status_monitoring(self):
         """Create deployment status monitoring"""
         logger.info("🚀 Creating deployment status monitoring...")
-        
+
         status_code = '''#!/usr/bin/env python3
 """
 Deployment Status Monitoring for Sophia AI
@@ -1196,12 +1210,17 @@ class DeploymentStatusMonitor:
 # Global instance
 deployment_status_monitor = DeploymentStatusMonitor()
 '''
-        
+
         # Write deployment status monitoring
-        status_file = self.project_root / "backend" / "monitoring" / "deployment_status_monitor.py"
+        status_file = (
+            self.project_root
+            / "backend"
+            / "monitoring"
+            / "deployment_status_monitor.py"
+        )
         status_file.write_text(status_code)
         self.files_created.append(str(status_file))
-        
+
         logger.info("✅ Deployment status monitoring created")
 
 
@@ -1209,37 +1228,37 @@ async def main():
     """Main execution function"""
     refactoring = DeploymentRefactoringPhase4()
     results = await refactoring.execute_phase4()
-    
-    print("\n" + "="*80)
+
+    print("\n" + "=" * 80)
     print("📊 DEPLOYMENT REFACTORING PHASE 4 RESULTS")
-    print("="*80)
+    print("=" * 80)
     print(f"Phase: {results['phase']}")
     print(f"Success: {'✅ YES' if results['success'] else '❌ NO'}")
     print(f"Tasks Completed: {len(results['tasks_completed'])}")
     print(f"Files Created: {len(results['files_created'])}")
     print(f"Errors: {len(results['errors'])}")
-    
-    if results['tasks_completed']:
-        print(f"\n✅ Completed Tasks:")
-        for task in results['tasks_completed']:
+
+    if results["tasks_completed"]:
+        print("\n✅ Completed Tasks:")
+        for task in results["tasks_completed"]:
             print(f"   • {task}")
-    
-    if results['files_created']:
-        print(f"\n📁 Files Created:")
-        for file_path in results['files_created']:
+
+    if results["files_created"]:
+        print("\n📁 Files Created:")
+        for file_path in results["files_created"]:
             print(f"   • {file_path}")
-    
-    if results['errors']:
-        print(f"\n❌ Errors:")
-        for error in results['errors']:
+
+    if results["errors"]:
+        print("\n❌ Errors:")
+        for error in results["errors"]:
             print(f"   • {error}")
-    
+
     print(f"\nStart Time: {results['start_time']}")
     print(f"End Time: {results.get('end_time', 'N/A')}")
-    print("="*80)
-    
+    print("=" * 80)
+
     return results
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

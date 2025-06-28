@@ -17,7 +17,7 @@ Current size: 626 lines
 
 Recommended decomposition:
 - snowflake_gong_connector_core.py - Core functionality
-- snowflake_gong_connector_utils.py - Utility functions  
+- snowflake_gong_connector_utils.py - Utility functions
 - snowflake_gong_connector_models.py - Data models
 - snowflake_gong_connector_handlers.py - Request handlers
 
@@ -27,9 +27,9 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
 import snowflake.connector
 
@@ -42,11 +42,11 @@ logger = logging.getLogger(__name__)
 class GongCallQuery:
     """Configuration for Gong call data queries"""
 
-    date_range: Optional[Dict[str, datetime]] = None
-    sales_rep: Optional[str] = None
-    deal_stage: Optional[str] = None
-    sentiment_threshold: Optional[float] = None
-    limit: Optional[int] = None
+    date_range: dict[str, datetime] | None = None
+    sales_rep: str | None = None
+    deal_stage: str | None = None
+    sentiment_threshold: float | None = None
+    limit: int | None = None
     include_transcripts: bool = False
 
 
@@ -62,8 +62,8 @@ class CallAnalysisResult:
     sentiment_category: str
     talk_ratio: float
     coaching_priority: str
-    hubspot_context: Dict[str, Any]
-    ai_insights: Dict[str, Any]
+    hubspot_context: dict[str, Any]
+    ai_insights: dict[str, Any]
 
 
 class SnowflakeGongConnector:
@@ -123,11 +123,11 @@ class SnowflakeGongConnector:
 
     async def get_calls_for_coaching(
         self,
-        sales_rep: Optional[str] = None,
+        sales_rep: str | None = None,
         date_range_days: int = 7,
         sentiment_threshold: float = 0.4,
         limit: int = 20,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get calls that need coaching attention
 
@@ -146,7 +146,7 @@ class SnowflakeGongConnector:
         rep_filter = f"AND gc.PRIMARY_USER_NAME = '{sales_rep}'" if sales_rep else ""
 
         query = f"""
-        SELECT 
+        SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
             gc.PRIMARY_USER_NAME,
@@ -155,63 +155,63 @@ class SnowflakeGongConnector:
             gc.TALK_RATIO,
             gc.CALL_DURATION_SECONDS,
             gc.CALL_SUMMARY,
-            
+
             -- HubSpot context
             hd.DEAL_NAME,
             hd.DEAL_STAGE,
             hd.DEAL_AMOUNT,
             hc.COMPANY_NAME,
-            
+
             -- Coaching indicators
-            CASE 
+            CASE
                 WHEN gc.SENTIMENT_SCORE < 0.2 THEN 'High Priority'
                 WHEN gc.SENTIMENT_SCORE < {sentiment_threshold} THEN 'Medium Priority'
                 WHEN gc.TALK_RATIO > 0.8 THEN 'Talk Ratio Issue'
                 ELSE 'Low Priority'
             END as coaching_priority,
-            
-            CASE 
+
+            CASE
                 WHEN gc.SENTIMENT_SCORE > 0.7 THEN 'Very Positive'
                 WHEN gc.SENTIMENT_SCORE > 0.3 THEN 'Positive'
                 WHEN gc.SENTIMENT_SCORE > -0.3 THEN 'Neutral'
                 WHEN gc.SENTIMENT_SCORE > -0.7 THEN 'Negative'
                 ELSE 'Very Negative'
             END as sentiment_category,
-            
+
             -- Transcript insights
             COUNT(t.TRANSCRIPT_ID) as transcript_segments,
             AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
-            
+
             -- Risk indicators
             STRING_AGG(
-                CASE WHEN t.SEGMENT_SENTIMENT < 0.2 
+                CASE WHEN t.SEGMENT_SENTIMENT < 0.2
                 THEN LEFT(t.TRANSCRIPT_TEXT, 200)
-                ELSE NULL END, 
+                ELSE NULL END,
                 ' | '
             ) as risk_indicators
-            
+
         FROM {self.tables["calls"]} gc
         LEFT JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
-        
+
         WHERE gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
         AND (gc.SENTIMENT_SCORE < {sentiment_threshold} OR gc.TALK_RATIO > 0.7)
         {rep_filter}
-        
-        GROUP BY 
+
+        GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
             gc.SENTIMENT_SCORE, gc.TALK_RATIO, gc.CALL_DURATION_SECONDS, gc.CALL_SUMMARY,
             hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
-            
-        ORDER BY 
-            CASE 
+
+        ORDER BY
+            CASE
                 WHEN gc.SENTIMENT_SCORE < 0.2 THEN 1
                 WHEN gc.TALK_RATIO > 0.8 THEN 2
                 ELSE 3
             END,
             gc.CALL_DATETIME_UTC DESC
-            
+
         LIMIT {limit}
         """
 
@@ -224,7 +224,7 @@ class SnowflakeGongConnector:
 
             calls = []
             for row in results:
-                call_data = dict(zip(columns, row))
+                call_data = dict(zip(columns, row, strict=False))
                 calls.append(call_data)
 
             logger.info(f"Retrieved {len(calls)} calls needing coaching attention")
@@ -239,7 +239,7 @@ class SnowflakeGongConnector:
 
     async def get_call_analysis_data(
         self, call_id: str, include_full_transcript: bool = True
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get comprehensive call analysis data for a specific call
 
@@ -255,7 +255,7 @@ class SnowflakeGongConnector:
 
         query = f"""
         WITH call_base AS (
-            SELECT 
+            SELECT
                 gc.CALL_ID,
                 gc.CALL_TITLE,
                 gc.PRIMARY_USER_NAME,
@@ -268,7 +268,7 @@ class SnowflakeGongConnector:
                 gc.LONGEST_MONOLOGUE_SECONDS,
                 gc.INTERACTIVITY_SCORE,
                 gc.QUESTIONS_ASKED_COUNT,
-                
+
                 -- HubSpot enrichment
                 hd.DEAL_NAME,
                 hd.DEAL_STAGE,
@@ -277,63 +277,63 @@ class SnowflakeGongConnector:
                 hc.COMPANY_NAME,
                 hc.FIRST_NAME || ' ' || hc.LAST_NAME as contact_name,
                 hc.JOB_TITLE,
-                
+
                 -- Calculated insights
-                CASE 
+                CASE
                     WHEN gc.SENTIMENT_SCORE > 0.7 THEN 'Very Positive'
                     WHEN gc.SENTIMENT_SCORE > 0.3 THEN 'Positive'
                     WHEN gc.SENTIMENT_SCORE > -0.3 THEN 'Neutral'
                     WHEN gc.SENTIMENT_SCORE > -0.7 THEN 'Negative'
                     ELSE 'Very Negative'
                 END as sentiment_category,
-                
-                CASE 
+
+                CASE
                     WHEN gc.TALK_RATIO > 0.8 THEN 'Too High'
                     WHEN gc.TALK_RATIO < 0.3 THEN 'Too Low'
                     ELSE 'Good'
                 END as talk_ratio_assessment,
-                
+
                 DATEDIFF('day', gc.CALL_DATETIME_UTC, hd.CLOSE_DATE) as days_to_close
-                
+
             FROM {self.tables["calls"]} gc
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
             WHERE gc.CALL_ID = '{call_id}'
         ),
         transcript_analysis AS (
-            SELECT 
+            SELECT
                 COUNT(*) as total_segments,
                 AVG(SEGMENT_SENTIMENT) as avg_transcript_sentiment,
                 SUM(SEGMENT_DURATION_SECONDS) as total_transcript_duration,
-                
+
                 -- Speaker analysis
                 COUNT(DISTINCT SPEAKER_NAME) as unique_speakers,
                 STRING_AGG(DISTINCT SPEAKER_NAME, ', ') as all_speakers,
-                
+
                 -- Sentiment breakdown
                 COUNT(CASE WHEN SEGMENT_SENTIMENT > 0.5 THEN 1 END) as positive_segments,
                 COUNT(CASE WHEN SEGMENT_SENTIMENT < -0.5 THEN 1 END) as negative_segments,
-                
+
                 -- Key insights
                 STRING_AGG(
-                    CASE WHEN SEGMENT_SENTIMENT < 0.2 
-                    THEN LEFT(TRANSCRIPT_TEXT, 200) 
-                    ELSE NULL END, 
+                    CASE WHEN SEGMENT_SENTIMENT < 0.2
+                    THEN LEFT(TRANSCRIPT_TEXT, 200)
+                    ELSE NULL END,
                     ' | '
                 ) as negative_moments,
-                
+
                 STRING_AGG(
-                    CASE WHEN SEGMENT_SENTIMENT > 0.8 
-                    THEN LEFT(TRANSCRIPT_TEXT, 200) 
-                    ELSE NULL END, 
+                    CASE WHEN SEGMENT_SENTIMENT > 0.8
+                    THEN LEFT(TRANSCRIPT_TEXT, 200)
+                    ELSE NULL END,
                     ' | '
                 ) as positive_moments
-                
+
             FROM {self.tables["transcripts"]}
             WHERE CALL_ID = '{call_id}'
         ),
         participants_info AS (
-            SELECT 
+            SELECT
                 COUNT(*) as total_participants,
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'External' THEN 1 END) as external_participants,
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'Internal' THEN 1 END) as internal_participants,
@@ -341,7 +341,7 @@ class SnowflakeGongConnector:
             FROM {self.tables["participants"]}
             WHERE CALL_ID = '{call_id}'
         )
-        SELECT 
+        SELECT
             cb.*,
             ta.total_segments,
             ta.avg_transcript_sentiment,
@@ -369,7 +369,7 @@ class SnowflakeGongConnector:
                 return None
 
             columns = [desc[0] for desc in cursor.description]
-            call_data = dict(zip(columns, result))
+            call_data = dict(zip(columns, result, strict=False))
 
             # Add full transcript if requested
             if include_full_transcript:
@@ -389,7 +389,7 @@ class SnowflakeGongConnector:
     def _get_rep_performance_query(self, sales_rep: str, date_range_days: int) -> str:
         """Builds the SQL query for sales rep performance metrics."""
         return f"""
-        SELECT 
+        SELECT
             gc.PRIMARY_USER_NAME,
             COUNT(*) as total_calls,
             AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
@@ -412,7 +412,7 @@ class SnowflakeGongConnector:
     ) -> str:
         """Builds the SQL query for identifying coaching opportunities."""
         return f"""
-        SELECT 
+        SELECT
             COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as needs_sentiment_coaching,
             COUNT(CASE WHEN gc.TALK_RATIO > 0.8 THEN 1 END) as needs_talk_ratio_coaching,
             COUNT(CASE WHEN gc.QUESTIONS_ASKED_COUNT < 3 THEN 1 END) as needs_discovery_coaching,
@@ -426,7 +426,7 @@ class SnowflakeGongConnector:
 
     async def get_sales_rep_performance(
         self, sales_rep: str, date_range_days: int = 30
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get performance analysis for a specific sales rep"""
         if not self.initialized:
             await self.initialize()
@@ -439,10 +439,10 @@ class SnowflakeGongConnector:
         full_query = f"""
         WITH rep_performance AS ({performance_query}),
              coaching_opportunities AS ({coaching_query})
-        SELECT 
+        SELECT
             rp.*,
             co.*,
-            CASE 
+            CASE
                 WHEN rp.avg_sentiment > 0.6 AND rp.avg_talk_ratio BETWEEN 0.4 AND 0.7 THEN 'Excellent'
                 WHEN rp.avg_sentiment > 0.4 THEN 'Good'
                 ELSE 'Requires Coaching'
@@ -461,7 +461,7 @@ class SnowflakeGongConnector:
                 return {"error": f"No data found for sales rep: {sales_rep}"}
 
             columns = [desc[0] for desc in cursor.description]
-            performance_data = dict(zip(columns, result))
+            performance_data = dict(zip(columns, result, strict=False))
 
             logger.info(f"Retrieved performance analysis for {sales_rep}")
             return performance_data
@@ -473,8 +473,8 @@ class SnowflakeGongConnector:
                 cursor.close()
 
     async def search_calls_by_content(
-        self, search_terms: List[str], date_range_days: int = 90, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+        self, search_terms: list[str], date_range_days: int = 90, limit: int = 10
+    ) -> list[dict[str, Any]]:
         """
         Search calls by transcript content using text search
 
@@ -498,7 +498,7 @@ class SnowflakeGongConnector:
         )
 
         query = f"""
-        SELECT 
+        SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
             gc.PRIMARY_USER_NAME,
@@ -507,28 +507,28 @@ class SnowflakeGongConnector:
             hd.DEAL_NAME,
             hd.DEAL_STAGE,
             hc.COMPANY_NAME,
-            
+
             -- Matching transcript segments
             COUNT(DISTINCT t.TRANSCRIPT_ID) as matching_segments,
             STRING_AGG(
-                LEFT(t.TRANSCRIPT_TEXT, 300), 
+                LEFT(t.TRANSCRIPT_TEXT, 300),
                 ' | '
             ) as matching_content,
-            
+
             AVG(t.SEGMENT_SENTIMENT) as avg_matching_sentiment
-            
+
         FROM {self.tables["calls"]} gc
         JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
-        
+
         WHERE ({search_conditions})
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-        
-        GROUP BY 
+
+        GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
             gc.SENTIMENT_SCORE, hd.DEAL_NAME, hd.DEAL_STAGE, hc.COMPANY_NAME
-            
+
         ORDER BY gc.CALL_DATETIME_UTC DESC
         LIMIT {limit}
         """
@@ -542,7 +542,7 @@ class SnowflakeGongConnector:
 
             calls = []
             for row in results:
-                call_data = dict(zip(columns, row))
+                call_data = dict(zip(columns, row, strict=False))
                 call_data["search_terms"] = search_terms
                 calls.append(call_data)
 
@@ -558,10 +558,10 @@ class SnowflakeGongConnector:
             if cursor:
                 cursor.close()
 
-    async def _get_call_transcript(self, call_id: str) -> List[Dict[str, Any]]:
+    async def _get_call_transcript(self, call_id: str) -> list[dict[str, Any]]:
         """Get full transcript segments for a call"""
         query = f"""
-        SELECT 
+        SELECT
             TRANSCRIPT_ID,
             SPEAKER_NAME,
             SPEAKER_TYPE,
@@ -583,7 +583,7 @@ class SnowflakeGongConnector:
 
             transcript = []
             for row in results:
-                segment = dict(zip(columns, row))
+                segment = dict(zip(columns, row, strict=False))
                 transcript.append(segment)
 
             return transcript
@@ -613,7 +613,7 @@ async def get_gong_connector() -> SnowflakeGongConnector:
 # Convenience functions for agents
 async def get_coaching_opportunities(
     sales_rep: str = None, days: int = 7
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Get calls needing coaching attention"""
     connector = await get_gong_connector()
     return await connector.get_calls_for_coaching(
@@ -621,19 +621,19 @@ async def get_coaching_opportunities(
     )
 
 
-async def analyze_call(call_id: str) -> Optional[Dict[str, Any]]:
+async def analyze_call(call_id: str) -> dict[str, Any] | None:
     """Get comprehensive call analysis"""
     connector = await get_gong_connector()
     return await connector.get_call_analysis_data(call_id, include_full_transcript=True)
 
 
-async def get_rep_performance(sales_rep: str, days: int = 30) -> Dict[str, Any]:
+async def get_rep_performance(sales_rep: str, days: int = 30) -> dict[str, Any]:
     """Get sales rep performance analysis"""
     connector = await get_gong_connector()
     return await connector.get_sales_rep_performance(sales_rep, days)
 
 
-async def search_call_content(terms: List[str], days: int = 90) -> List[Dict[str, Any]]:
+async def search_call_content(terms: list[str], days: int = 90) -> list[dict[str, Any]]:
     """Search calls by transcript content"""
     connector = await get_gong_connector()
     return await connector.search_calls_by_content(terms, days)

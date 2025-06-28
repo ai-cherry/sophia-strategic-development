@@ -10,7 +10,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -23,15 +23,15 @@ class DevelopmentInsightsGenerator:
         self.analysis_file = Path(analysis_file)
         self.analysis_data = self._load_analysis_data()
 
-    def _load_analysis_data(self) -> Dict[str, Any]:
+    def _load_analysis_data(self) -> dict[str, Any]:
         """Load analysis data from file"""
         if not self.analysis_file.exists():
             raise FileNotFoundError(f"Analysis file not found: {self.analysis_file}")
 
-        with open(self.analysis_file, "r") as f:
+        with open(self.analysis_file) as f:
             return json.load(f)
 
-    def generate_insights(self) -> Dict[str, Any]:
+    def generate_insights(self) -> dict[str, Any]:
         """Generate comprehensive development insights"""
         insights = {
             "timestamp": datetime.now().isoformat(),
@@ -48,7 +48,7 @@ class DevelopmentInsightsGenerator:
 
         return insights
 
-    def _generate_analysis_summary(self) -> Dict[str, Any]:
+    def _generate_analysis_summary(self) -> dict[str, Any]:
         """Generate high-level analysis summary"""
         return {
             "overall_quality_score": self.analysis_data.get("quality_score", 0),
@@ -61,7 +61,7 @@ class DevelopmentInsightsGenerator:
             "analysis_timestamp": self.analysis_data.get("analysis_timestamp"),
         }
 
-    def _generate_quality_insights(self) -> Dict[str, Any]:
+    def _generate_quality_insights(self) -> dict[str, Any]:
         """Generate code quality insights"""
         quality_score = self.analysis_data.get("quality_score", 0)
 
@@ -88,7 +88,7 @@ class DevelopmentInsightsGenerator:
             "improvement_areas": self._identify_quality_improvement_areas(),
         }
 
-    def _generate_security_insights(self) -> Dict[str, Any]:
+    def _generate_security_insights(self) -> dict[str, Any]:
         """Generate security insights"""
         security_issues = self.analysis_data.get("security_issues", 0)
 
@@ -114,7 +114,7 @@ class DevelopmentInsightsGenerator:
             "recommendations": self._generate_security_recommendations(),
         }
 
-    def _generate_performance_insights(self) -> Dict[str, Any]:
+    def _generate_performance_insights(self) -> dict[str, Any]:
         """Generate performance insights"""
         perf_opportunities = self.analysis_data.get("performance_opportunities", 0)
 
@@ -123,14 +123,12 @@ class DevelopmentInsightsGenerator:
             "optimization_potential": (
                 "high"
                 if perf_opportunities > 10
-                else "medium"
-                if perf_opportunities > 5
-                else "low"
+                else "medium" if perf_opportunities > 5 else "low"
             ),
             "recommendations": self._generate_performance_recommendations(),
         }
 
-    def _generate_cursor_insights(self) -> Dict[str, Any]:
+    def _generate_cursor_insights(self) -> dict[str, Any]:
         """Generate Cursor optimization insights"""
         optimizations = self.analysis_data.get("cursor_optimizations", [])
 
@@ -142,7 +140,7 @@ class DevelopmentInsightsGenerator:
             ),
         }
 
-    def _generate_mcp_insights(self) -> Dict[str, Any]:
+    def _generate_mcp_insights(self) -> dict[str, Any]:
         """Generate MCP integration insights"""
         mcp_health = self.analysis_data.get("mcp_integration_health", {})
 
@@ -167,7 +165,7 @@ class DevelopmentInsightsGenerator:
             "issues": mcp_health.get("issues", []),
         }
 
-    def _generate_github_insights(self) -> Dict[str, Any]:
+    def _generate_github_insights(self) -> dict[str, Any]:
         """Generate GitHub integration insights"""
         github_status = self.analysis_data.get("github_integration_status", {})
 
@@ -194,7 +192,7 @@ class DevelopmentInsightsGenerator:
             "issues": github_status.get("issues", []),
         }
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate actionable recommendations"""
         recommendations = []
 
@@ -236,7 +234,7 @@ class DevelopmentInsightsGenerator:
 
         return recommendations
 
-    def _generate_action_items(self) -> List[Dict[str, Any]]:
+    def _generate_action_items(self) -> list[dict[str, Any]]:
         """Generate specific action items with priorities"""
         action_items = []
 
@@ -286,7 +284,7 @@ class DevelopmentInsightsGenerator:
         # In real implementation, compare with historical data
         return "stable"
 
-    def _identify_quality_improvement_areas(self) -> List[str]:
+    def _identify_quality_improvement_areas(self) -> list[str]:
         """Identify specific areas for quality improvement"""
         areas = []
 
@@ -296,7 +294,7 @@ class DevelopmentInsightsGenerator:
 
         return areas
 
-    def _generate_security_recommendations(self) -> List[str]:
+    def _generate_security_recommendations(self) -> list[str]:
         """Generate security-specific recommendations"""
         recommendations = []
 
@@ -313,7 +311,7 @@ class DevelopmentInsightsGenerator:
 
         return recommendations
 
-    def _generate_performance_recommendations(self) -> List[str]:
+    def _generate_performance_recommendations(self) -> list[str]:
         """Generate performance-specific recommendations"""
         recommendations = []
 

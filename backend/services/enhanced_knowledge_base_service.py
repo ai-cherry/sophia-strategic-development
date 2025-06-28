@@ -5,10 +5,10 @@ Priority #1: Critical NOW implementation for Sophia AI
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class KnowledgeItem:
     title: str
     content: str
     knowledge_type: KnowledgeType
-    tags: List[str]
+    tags: list[str]
     confidence_score: float
     created_at: datetime
 
@@ -49,8 +49,8 @@ class EnhancedKnowledgeBaseService:
     """
 
     def __init__(self):
-        self.knowledge_cache: Dict[str, KnowledgeItem] = {}
-        self.usage_analytics: Dict[str, Any] = {
+        self.knowledge_cache: dict[str, KnowledgeItem] = {}
+        self.usage_analytics: dict[str, Any] = {
             "total_queries": 0,
             "successful_retrievals": 0,
             "teaching_sessions": 0,
@@ -73,8 +73,8 @@ class EnhancedKnowledgeBaseService:
             raise
 
     async def interactive_knowledge_ingestion(
-        self, content: str, source: str, metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, content: str, source: str, metadata: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Interactive knowledge ingestion with contextual tagging"""
         if not self.initialized:
             await self.initialize()
@@ -114,8 +114,8 @@ class EnhancedKnowledgeBaseService:
             return {"success": False, "error": str(e)}
 
     async def contextual_knowledge_retrieval(
-        self, query: str, context: Dict[str, Any] = None, limit: int = 5
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any] = None, limit: int = 5
+    ) -> dict[str, Any]:
         """Context-aware knowledge retrieval for universal chat"""
         if not self.initialized:
             await self.initialize()
@@ -156,8 +156,8 @@ class EnhancedKnowledgeBaseService:
             return {"success": False, "error": str(e)}
 
     async def knowledge_teaching_interface(
-        self, teaching_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, teaching_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Interactive teaching interface for knowledge refinement"""
         if not self.initialized:
             await self.initialize()
@@ -216,7 +216,7 @@ class EnhancedKnowledgeBaseService:
         else:
             return KnowledgeType.COMPANY_INFO
 
-    def _extract_tags(self, content: str) -> List[str]:
+    def _extract_tags(self, content: str) -> list[str]:
         """Extract tags from content"""
         content_lower = content.lower()
         tags = []
@@ -228,7 +228,7 @@ class EnhancedKnowledgeBaseService:
 
         return tags or ["general"]
 
-    async def get_knowledge_analytics(self) -> Dict[str, Any]:
+    async def get_knowledge_analytics(self) -> dict[str, Any]:
         """Get comprehensive knowledge base analytics"""
         try:
             # Service analytics

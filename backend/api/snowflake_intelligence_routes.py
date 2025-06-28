@@ -1,19 +1,20 @@
 # File: backend/api/snowflake_intelligence_routes.py
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from typing import Dict, List, Any, Optional
-from pydantic import BaseModel
+import logging
 from datetime import datetime
-from backend.services.snowflake_intelligence_service import (
-    SnowflakeIntelligenceService,
-    IntelligenceQuery,
-)
-from backend.services.automated_insights_service import AutomatedInsightsService
-from backend.services.predictive_analytics_service import PredictiveAnalyticsService
+from typing import Any
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
 
 # A mock for auth dependency, in a real app this would be more robust
 from backend.core.auth import get_current_user
-import logging
+from backend.services.automated_insights_service import AutomatedInsightsService
+from backend.services.predictive_analytics_service import PredictiveAnalyticsService
+from backend.services.snowflake_intelligence_service import (
+    IntelligenceQuery,
+    SnowflakeIntelligenceService,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/intelligence", tags=["snowflake-intelligence"])
@@ -22,20 +23,20 @@ router = APIRouter(prefix="/api/intelligence", tags=["snowflake-intelligence"])
 # Pydantic models for request/response
 class NaturalLanguageQueryRequest(BaseModel):
     query: str
-    context: Dict[str, Any] = {}
+    context: dict[str, Any] = {}
     include_visualizations: bool = True
     response_format: str = "comprehensive"
 
 
 class DashboardMetricsRequest(BaseModel):
     timeRange: str = "30d"
-    metrics: List[str] = []
+    metrics: list[str] = []
     include_predictions: bool = True
 
 
 class InsightGenerationRequest(BaseModel):
     force_refresh: bool = False
-    priority_filter: Optional[str] = None
+    priority_filter: str | None = None
 
 
 # Initialize services
@@ -118,7 +119,7 @@ async def get_enhanced_dashboard_metrics(
 
 @router.get("/insights/automated")
 async def get_automated_insights(
-    priority_filter: Optional[str] = None,
+    priority_filter: str | None = None,
     limit: int = 20,
     current_user: dict = Depends(get_current_user),
 ):

@@ -5,9 +5,8 @@ Script to automatically add type annotations to Python files.
 
 import ast
 import json
-from pathlib import Path
-from typing import Optional
 import logging
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ class TypeAnnotationAdder(ast.NodeTransformer):
         # Treat async functions the same as regular functions
         return self.visit_FunctionDef(node)
 
-    def _infer_return_type(self, node: ast.FunctionDef) -> Optional[str]:
+    def _infer_return_type(self, node: ast.FunctionDef) -> str | None:
         """Infer return type based on function name and body."""
         # Test functions typically return None
         if node.name.startswith("test_"):
@@ -84,9 +83,7 @@ class TypeAnnotationAdder(ast.NodeTransformer):
         # Default to Any for complex functions
         return "Any"
 
-    def _infer_param_type(
-        self, param_name: str, node: ast.FunctionDef
-    ) -> Optional[str]:
+    def _infer_param_type(self, param_name: str, node: ast.FunctionDef) -> str | None:
         """Infer parameter type based on name and usage."""
         # Common parameter patterns
         if param_name in ["file_path", "path", "directory", "folder"]:
@@ -186,7 +183,7 @@ def add_imports_if_needed(content: str) -> str:
 def process_file(file_path: Path) -> bool:
     """Process a single file to add type annotations."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Parse the AST
@@ -237,7 +234,7 @@ def main() -> None:
         )
         return
 
-    with open(report_path, "r") as f:
+    with open(report_path) as f:
         audit_data = json.load(f)
 
     # Process files with low type coverage

@@ -1,14 +1,13 @@
 # File: backend/services/semantic_layer_service.py
 
-from typing import Dict, List, Any, Optional
+import logging
 from pathlib import Path
-import snowflake.connector
+from typing import Any
+
+from backend.core.performance_monitor import performance_monitor
 from backend.utils.enhanced_snowflake_cortex_service import (
     EnhancedSnowflakeCortexService,
 )
-import logging
-
-from backend.core.performance_monitor import performance_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,10 @@ class SemanticLayerService:
     async def _get_connection(self):
         """Gets a snowflake connection."""
         # Initialize the service if not already done
-        if not hasattr(self.snowflake_service, 'initialized') or not self.snowflake_service.initialized:
+        if (
+            not hasattr(self.snowflake_service, "initialized")
+            or not self.snowflake_service.initialized
+        ):
             await self.snowflake_service.initialize()
         return None  # We'll use the service methods directly
 
@@ -46,8 +48,8 @@ class SemanticLayerService:
 
     @performance_monitor.monitor_performance("semantic_execute_query")
     async def _execute_query(
-        self, query: str, params: Optional[List[Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: list[Any] | None = None
+    ) -> list[dict[str, Any]]:
         """Executes a SQL query and returns the results as a list of dicts."""
         # Convert params to tuple if provided
         query_params = tuple(params) if params else None
@@ -79,7 +81,7 @@ class SemanticLayerService:
 
     async def get_business_entity(
         self, entity_type: str, entity_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Retrieve comprehensive business entity data"""
         entity_queries = {
             "customer": "SELECT * FROM SOPHIA_SEMANTIC.CUSTOMER_360 WHERE customer_id = %s",
@@ -102,14 +104,14 @@ class SemanticLayerService:
             return None
 
     async def search_entities_semantic(
-        self, search_term: str, entity_types: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
+        self, search_term: str, entity_types: list[str] | None = None
+    ) -> list[dict[str, Any]]:
         """Semantic search across business entities"""
         # This will be enhanced with Cortex Search in Phase 2
         base_query = """
-        SELECT 'customer' as entity_type, customer_id as id, company_name as name, 
+        SELECT 'customer' as entity_type, customer_id as id, company_name as name,
                industry as category, 'Customer entity' as description
-        FROM SOPHIA_SEMANTIC.CUSTOMER_360 
+        FROM SOPHIA_SEMANTIC.CUSTOMER_360
         WHERE company_name ILIKE %s OR industry ILIKE %s
         UNION ALL
         SELECT 'employee' as entity_type, employee_id as id, full_name as name,
@@ -126,7 +128,7 @@ class SemanticLayerService:
         logger.info(f"Found {len(results)} entities matching '{search_term}'")
         return results
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the semantic layer service."""
         try:
             conn = await self._get_connection()
@@ -136,8 +138,8 @@ class SemanticLayerService:
             return {"status": "unhealthy", "message": str(e)}
 
     async def get_dashboard_metrics(
-        self, time_range: str, metrics: List[str]
-    ) -> Dict[str, Any]:
+        self, time_range: str, metrics: list[str]
+    ) -> dict[str, Any]:
         """A placeholder method to get dashboard metrics."""
         # This is a placeholder. A full implementation would query BUSINESS_METRICS view
         # based on time_range and requested metrics.

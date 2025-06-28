@@ -35,7 +35,7 @@ def fix_file_secrets(file_path: Path) -> bool:
         return False
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -175,7 +175,7 @@ def main():
             continue  # Skip our own scripts
 
         try:
-            with open(py_file, "r", encoding="utf-8") as f:
+            with open(py_file, encoding="utf-8") as f:
                 content = f.read()
 
             if EXPOSED_SNOWFLAKE_PASSWORD in content or EXPOSED_GONG_KEY in content:

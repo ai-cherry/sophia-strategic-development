@@ -16,18 +16,18 @@ Current size: 925 lines
 
 Recommended decomposition:
 - mcp_orchestration_optimizer_core.py - Core functionality
-- mcp_orchestration_optimizer_utils.py - Utility functions  
+- mcp_orchestration_optimizer_utils.py - Utility functions
 - mcp_orchestration_optimizer_models.py - Data models
 - mcp_orchestration_optimizer_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import os
 import json
+import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 class MCPOrchestrationOptimizer:
@@ -66,7 +66,7 @@ class MCPOrchestrationOptimizer:
                 docker_compose_path, self.backup_dir / "docker-compose.yml.backup"
             )
 
-            with open(docker_compose_path, "r") as f:
+            with open(docker_compose_path) as f:
                 content = f.read()
 
             # Remove claude-mcp service block (lines 200-207 approximately)
@@ -74,7 +74,7 @@ class MCPOrchestrationOptimizer:
             filtered_lines = []
             skip_mode = False
 
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if "claude-mcp:" in line:
                     skip_mode = True
                     self.log_action("Found claude-mcp service in docker-compose.yml")
@@ -105,7 +105,7 @@ class MCPOrchestrationOptimizer:
                 backup_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(config_path, backup_path)
 
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     config = json.load(f)
 
                 # Remove claude server references
@@ -139,7 +139,7 @@ class MCPOrchestrationOptimizer:
         if cursorrules_path.exists():
             shutil.copy(cursorrules_path, self.backup_dir / ".cursorrules.backup")
 
-            with open(cursorrules_path, "r") as f:
+            with open(cursorrules_path) as f:
                 content = f.read()
 
             # Update Claude references to point to Sophia Intelligence
@@ -198,14 +198,14 @@ class EnhancedSophiaAIIntelligenceMCP:
     Enhanced Sophia AI Intelligence MCP with integrated Claude routing,
     intelligent model selection, and development-focused capabilities.
     """
-    
+
     def __init__(self):
         self.llm_router = IntelligentLLMRouter()
         self.claude_service = ClaudeService()
         self.context_manager = DevelopmentContextManager()
         self.app = FastAPI(title="Sophia AI Intelligence MCP")
         self._setup_routes()
-        
+
         # Tool registry
         self.tools = {
             "generate_code_with_context": self.generate_code_with_context,
@@ -219,16 +219,16 @@ class EnhancedSophiaAIIntelligenceMCP:
             "optimize_performance": self.optimize_performance,
             "security_analysis": self.security_analysis
         }
-    
+
     def _setup_routes(self):
         """Setup FastAPI routes"""
-        
+
         @self.app.post("/tools/{tool_name}")
         async def execute_tool(tool_name: str, request: MCPRequest) -> MCPResponse:
             """Execute MCP tool"""
             if tool_name not in self.tools:
                 raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
-            
+
             try:
                 result = await self.tools[tool_name](**request.parameters, context=request.context)
                 return MCPResponse(
@@ -238,12 +238,12 @@ class EnhancedSophiaAIIntelligenceMCP:
                 )
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
-        
+
         @self.app.get("/health")
         async def health_check():
             """Health check endpoint"""
             return {"status": "healthy", "service": "sophia_ai_intelligence", "enhanced": True}
-        
+
         @self.app.get("/tools")
         async def list_tools():
             """List available tools"""
@@ -256,9 +256,9 @@ class EnhancedSophiaAIIntelligenceMCP:
                     "security_analysis"
                 ]
             }
-    
-    async def generate_code_with_context(self, prompt: str, language: str, 
-                                       complexity: str = "standard", 
+
+    async def generate_code_with_context(self, prompt: str, language: str,
+                                       complexity: str = "standard",
                                        style: str = "sophia_standards",
                                        context: Dict = None) -> Dict:
         """Generate code with Sophia AI context and patterns"""
@@ -270,51 +270,51 @@ class EnhancedSophiaAIIntelligenceMCP:
             "style": style,
             "additional_context": context
         })
-        
+
         # Route to optimal model
         model = self.llm_router.select_model("code_generation", complexity)
-        
+
         # Generate code using Claude integration
         result = await self.claude_service.generate_code(prompt, dev_context)
-        
+
         return {
             "code": result.code,
             "explanation": result.explanation,
             "model_used": model,
             "context_used": dev_context.summary()
         }
-    
+
     async def analyze_code_architecture(self, code: str, analysis_depth: str = "deep",
                                       focus: str = "all", context: Dict = None) -> Dict:
         """Analyze code architecture with Sophia AI patterns"""
         # Select appropriate model based on complexity
         model = self.llm_router.select_model("complex_reasoning", "premium")
-        
+
         # Perform analysis
         result = await self.claude_service.analyze_code(code, analysis_depth)
-        
+
         return {
             "analysis": result.analysis,
             "recommendations": result.recommendations,
             "sophia_pattern_compliance": result.pattern_compliance,
             "model_used": model
         }
-    
+
     async def debug_with_context(self, error_message: str, code_snippet: str,
                                search_memory: bool = True, context: Dict = None) -> Dict:
         """Debug issues with historical context and patterns"""
         debug_context = {}
-        
+
         if search_memory:
             # Integration point for AI Memory MCP
             debug_context["similar_issues"] = "AI Memory integration placeholder"
-        
+
         # Route to debugging-optimized model
         model = self.llm_router.select_model("debugging", "standard")
-        
+
         # Get debugging assistance
         result = await self.claude_service.debug_assistance(error_message, code_snippet)
-        
+
         return {
             "solution": result.solution,
             "explanation": result.explanation,
@@ -322,7 +322,7 @@ class EnhancedSophiaAIIntelligenceMCP:
             "model_used": model,
             "memory_context": debug_context
         }
-    
+
     # Additional tool implementations...
 
 
@@ -365,7 +365,7 @@ class IntelligentLLMRouter:
     Routes requests to optimal LLM based on task complexity,
     cost considerations, and performance requirements.
     """
-    
+
     def __init__(self):
         self.routing_rules = {
             "complex_reasoning": {
@@ -380,7 +380,7 @@ class IntelligentLLMRouter:
             },
             "simple_analysis": {
                 "primary": "gpt-3.5-turbo",
-                "fallback": "claude-3-haiku", 
+                "fallback": "claude-3-haiku",
                 "cost_tier": "economy"
             },
             "documentation": {
@@ -394,25 +394,25 @@ class IntelligentLLMRouter:
                 "cost_tier": "standard"
             }
         }
-        
+
         self.cost_optimization_enabled = True
         self.performance_tracking = {}
-    
+
     def select_model(self, task_type: str, complexity: str = "standard") -> str:
         """Select optimal model based on task and complexity"""
         if task_type not in self.routing_rules:
             task_type = "simple_analysis"
-        
+
         rule = self.routing_rules[task_type]
-        
+
         # Apply cost optimization if enabled
         if self.cost_optimization_enabled and complexity in ["simple", "standard"]:
             # Prefer cheaper models for simpler tasks
             if rule.get("fallback"):
                 return rule["fallback"]
-        
+
         return rule["primary"]
-    
+
     def get_model_config(self, model: str) -> Dict:
         """Get configuration for specific model"""
         configs = {
@@ -438,8 +438,8 @@ class IntelligentLLMRouter:
             }
         }
         return configs.get(model, configs["gpt-3.5-turbo"])
-    
-    def track_performance(self, model: str, task_type: str, 
+
+    def track_performance(self, model: str, task_type: str,
                          response_time: float, success: bool):
         """Track model performance for optimization"""
         if model not in self.performance_tracking:
@@ -448,19 +448,19 @@ class IntelligentLLMRouter:
                 "successful_requests": 0,
                 "average_response_time": 0
             }
-        
+
         stats = self.performance_tracking[model]
         stats["total_requests"] += 1
         if success:
             stats["successful_requests"] += 1
-        
+
         # Update average response time
         current_avg = stats["average_response_time"]
         stats["average_response_time"] = (
-            (current_avg * (stats["total_requests"] - 1) + response_time) 
+            (current_avg * (stats["total_requests"] - 1) + response_time)
             / stats["total_requests"]
         )
-    
+
     def get_cost_estimate(self, model: str, tokens: int) -> float:
         """Estimate cost for model usage"""
         # Cost per 1K tokens (approximate)
@@ -470,7 +470,7 @@ class IntelligentLLMRouter:
             "gpt-4-turbo": 0.01,
             "gpt-3.5-turbo": 0.0015
         }
-        
+
         return (tokens / 1000) * cost_per_1k.get(model, 0.002)
 '''
 
@@ -659,7 +659,7 @@ class MCPCoordinator:
     Intelligent coordination between MCP servers for
     optimal development workflow orchestration.
     """
-    
+
     def __init__(self):
         self.servers = {
             "sophia_intelligence": "http://localhost:8092",
@@ -670,7 +670,7 @@ class MCPCoordinator:
             "pulumi": "http://localhost:8002",
             "snowflake": "http://localhost:8003"
         }
-        
+
         self.workflow_patterns = {
             "code_generation": [
                 ("sophia_intelligence", "generate_code_with_context"),
@@ -702,38 +702,38 @@ class MCPCoordinator:
                 ("github", "tag_release")
             ]
         }
-    
+
     async def orchestrate_development_workflow(self, task: DevelopmentTask) -> WorkflowResult:
         """
         Orchestrate multi-server workflow for development tasks.
         """
         result = WorkflowResult()
         workflow = self.workflow_patterns.get(task.task_type, [])
-        
+
         if not workflow:
             result.success = False
             result.final_result = f"Unknown task type: {task.task_type}"
             return result
-        
+
         # Execute workflow steps
         for server, tool in workflow:
             start_time = datetime.now()
-            
+
             try:
                 step_result = await self._execute_mcp_tool(
                     server, tool, task.parameters, task.context
                 )
-                
+
                 # Update context for next step
                 task.context.update(step_result.get("context_update", {}))
-                
+
                 result.steps.append({
                     "server": server,
                     "tool": tool,
                     "result": step_result,
                     "duration": (datetime.now() - start_time).total_seconds()
                 })
-                
+
             except Exception as e:
                 result.success = False
                 result.steps.append({
@@ -743,14 +743,14 @@ class MCPCoordinator:
                     "duration": (datetime.now() - start_time).total_seconds()
                 })
                 break
-        
+
         # Compile final result
         if result.success:
             result.final_result = self._compile_workflow_results(result.steps)
-        
+
         return result
-    
-    async def _execute_mcp_tool(self, server: str, tool: str, 
+
+    async def _execute_mcp_tool(self, server: str, tool: str,
                                parameters: Dict, context: Dict) -> Dict:
         """Execute a tool on an MCP server"""
         # This would make actual HTTP request to MCP server
@@ -760,7 +760,7 @@ class MCPCoordinator:
             "result": f"Executed {tool} on {server}",
             "context_update": {"last_tool": tool}
         }
-    
+
     def _compile_workflow_results(self, steps: List[Dict]) -> Dict:
         """Compile results from all workflow steps"""
         return {
@@ -769,7 +769,7 @@ class MCPCoordinator:
             "total_duration": sum(s.get("duration", 0) for s in steps),
             "step_results": [s.get("result") for s in steps]
         }
-    
+
     async def execute_auto_workflow(self, trigger: str, context: Dict) -> WorkflowResult:
         """Execute automatic workflow based on trigger"""
         auto_workflows = {
@@ -777,7 +777,7 @@ class MCPCoordinator:
             "on_error_detected": ["memory_recall", "sophia_debug"],
             "on_git_commit": ["codacy_full_scan", "memory_store"]
         }
-        
+
         # Map trigger to task type
         task_mapping = {
             "codacy_quick_scan": DevelopmentTask("code_analysis", {"quick": True}),
@@ -787,15 +787,15 @@ class MCPCoordinator:
             "codacy_full_scan": DevelopmentTask("full_analysis", {}),
             "memory_store": DevelopmentTask("store_context", context)
         }
-        
+
         result = WorkflowResult()
-        
+
         for workflow_step in auto_workflows.get(trigger, []):
             if workflow_step in task_mapping:
                 task = task_mapping[workflow_step]
                 step_result = await self.orchestrate_development_workflow(task)
                 result.steps.extend(step_result.steps)
-        
+
         return result
 '''
 

@@ -4,12 +4,11 @@ Documentation Enhancer Script
 Enhances remaining documentation for AI coders and maintainers
 """
 
+import json
+import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
-import json
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +52,7 @@ class DocumentationEnhancer:
 
         return " ".join(description_lines[:2])
 
-    def extract_tags(self, content: str, filepath: Path) -> List[str]:
+    def extract_tags(self, content: str, filepath: Path) -> list[str]:
         """Extract relevant tags from content and filepath"""
         tags = []
 
@@ -89,7 +88,7 @@ class DocumentationEnhancer:
 
         return list(set(tags))
 
-    def add_metadata_header(self, content: str, metadata: Dict) -> str:
+    def add_metadata_header(self, content: str, metadata: dict) -> str:
         """Add metadata header to markdown file"""
         metadata_yaml = f"""---
 title: {metadata["title"]}

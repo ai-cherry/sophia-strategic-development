@@ -3,17 +3,18 @@ Unified AI API Routes
 Comprehensive API endpoints for Sophia AI Platform with advanced Cortex Agents integration
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, Field
-from typing import Dict, List, Optional, Any
-import json
 import asyncio
-from datetime import datetime
+import json
 import logging
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 
 from backend.services.unified_ai_orchestration_service import (
-    get_unified_ai_service,
     UnifiedAIOrchestrationService,
+    get_unified_ai_service,
 )
 
 # Configure logging
@@ -34,8 +35,8 @@ class CustomerIntelligenceResponse(BaseModel):
     customer_id: str
     query: str
     agent_response: str
-    customer_context: Dict[str, Any]
-    real_time_insights: Dict[str, Any]
+    customer_context: dict[str, Any]
+    real_time_insights: dict[str, Any]
     confidence_score: float
     timestamp: str
 
@@ -52,8 +53,8 @@ class SalesOptimizationResponse(BaseModel):
     deal_id: str
     query: str
     agent_response: str
-    deal_context: Dict[str, Any]
-    competitive_insights: Dict[str, Any]
+    deal_context: dict[str, Any]
+    competitive_insights: dict[str, Any]
     confidence_score: float
     timestamp: str
 
@@ -70,33 +71,33 @@ class ComplianceMonitoringResponse(BaseModel):
     query: str
     time_range: str
     agent_response: str
-    compliance_context: Dict[str, Any]
-    violation_alerts: List[Dict[str, Any]]
+    compliance_context: dict[str, Any]
+    violation_alerts: list[dict[str, Any]]
     confidence_score: float
     timestamp: str
 
 
 class SystemHealthResponse(BaseModel):
-    snowflake_health: List[Dict[str, Any]]
-    pipeline_health: Dict[str, Any]
+    snowflake_health: list[dict[str, Any]]
+    pipeline_health: dict[str, Any]
     cortex_agents_status: int
-    data_sources_status: Dict[str, Any]
+    data_sources_status: dict[str, Any]
     timestamp: str
 
 
 class MultiSourceSearchRequest(BaseModel):
     query: str = Field(..., description="Natural language search query")
-    sources: List[str] = Field(
+    sources: list[str] = Field(
         ["gong", "slack", "hubspot", "intercom"], description="Data sources to search"
     )
-    customer_id: Optional[str] = Field(None, description="Filter by customer ID")
+    customer_id: str | None = Field(None, description="Filter by customer ID")
     limit: int = Field(10, description="Maximum number of results")
 
 
 class MultiSourceSearchResponse(BaseModel):
     query: str
-    sources: List[str]
-    results: List[Dict[str, Any]]
+    sources: list[str]
+    results: list[dict[str, Any]]
     total_results: int
     search_time_ms: int
     timestamp: str
@@ -422,10 +423,10 @@ async def get_recent_compliance_violations(
 async def _perform_multi_source_search(
     ai_service: UnifiedAIOrchestrationService,
     query: str,
-    sources: List[str],
-    customer_id: Optional[str],
+    sources: list[str],
+    customer_id: str | None,
     limit: int,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Perform multi-source search across specified data sources
     """
@@ -436,37 +437,45 @@ async def _perform_multi_source_search(
         search_queries = []
 
         if "gong" in sources:
-            search_queries.append("""
+            search_queries.append(
+                """
                 SELECT 'gong' as source, call_id as id, customer_id, call_transcript as content,
                        call_timestamp as timestamp, 'call_transcript' as content_type
                 FROM ESTUARY_MATERIALIZED.gong_calls_multimodal
                 WHERE call_transcript ILIKE %s
-            """)
+            """
+            )
 
         if "slack" in sources:
-            search_queries.append("""
+            search_queries.append(
+                """
                 SELECT 'slack' as source, message_id as id, customer_id, message_text as content,
                        message_timestamp as timestamp, 'message' as content_type
                 FROM ESTUARY_MATERIALIZED.slack_messages_multimodal
                 WHERE message_text ILIKE %s
-            """)
+            """
+            )
 
         if "hubspot" in sources:
-            search_queries.append("""
-                SELECT 'hubspot' as source, contact_id as id, customer_id, 
+            search_queries.append(
+                """
+                SELECT 'hubspot' as source, contact_id as id, customer_id,
                        CONCAT(first_name, ' ', last_name, ' - ', company) as content,
                        last_modified_date as timestamp, 'contact' as content_type
                 FROM ESTUARY_MATERIALIZED.hubspot_contacts_enhanced
                 WHERE CONCAT(first_name, ' ', last_name, ' ', company) ILIKE %s
-            """)
+            """
+            )
 
         if "intercom" in sources:
-            search_queries.append("""
+            search_queries.append(
+                """
                 SELECT 'intercom' as source, message_id as id, customer_id, message_body as content,
                        created_at as timestamp, 'support_message' as content_type
                 FROM ESTUARY_MATERIALIZED.intercom_messages_enhanced
                 WHERE message_body ILIKE %s
-            """)
+            """
+            )
 
         # Combine queries with UNION
         if search_queries:
@@ -488,7 +497,7 @@ async def _perform_multi_source_search(
 
             # Convert to list of dictionaries
             columns = [desc[0] for desc in cursor.description]
-            search_results = [dict(zip(columns, row)) for row in results]
+            search_results = [dict(zip(columns, row, strict=False)) for row in results]
 
             cursor.close()
             return search_results

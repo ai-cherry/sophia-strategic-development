@@ -6,6 +6,7 @@ Shows how the agent enhances the existing CEO dashboard
 
 import asyncio
 import logging
+
 import requests
 
 # Configure logging
@@ -179,7 +180,7 @@ class DashboardIntegrationDemo:
         # Sample component code for validation
         sample_component = """
         import React from 'react';
-        
+
         export const KPICard = ({ title, value, trend }) => {
           return (
             <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-6 rounded-lg">

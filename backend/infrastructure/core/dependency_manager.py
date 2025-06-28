@@ -5,7 +5,6 @@ Manages dependencies and execution order between infrastructure platforms
 """
 
 import asyncio
-from typing import Dict, List, Set
 from dataclasses import dataclass
 from enum import Enum
 
@@ -40,7 +39,7 @@ class DependencyManager:
     """
 
     def __init__(self):
-        self.dependencies: List[Dependency] = []
+        self.dependencies: list[Dependency] = []
         self._initialize_default_dependencies()
 
     def _initialize_default_dependencies(self):
@@ -173,22 +172,22 @@ class DependencyManager:
             if not (d.source == source and d.target == target and d.type == dep_type)
         ]
 
-    def get_dependencies_for_platform(self, platform: str) -> List[Dependency]:
+    def get_dependencies_for_platform(self, platform: str) -> list[Dependency]:
         """Get all dependencies where the platform is the target (depends on others)."""
         return [d for d in self.dependencies if d.target == platform]
 
-    def get_dependents_of_platform(self, platform: str) -> List[Dependency]:
+    def get_dependents_of_platform(self, platform: str) -> list[Dependency]:
         """Get all dependencies where the platform is the source (others depend on it)."""
         return [d for d in self.dependencies if d.source == platform]
 
-    async def get_execution_order(self, platforms: List[str]) -> List[str]:
+    async def get_execution_order(self, platforms: list[str]) -> list[str]:
         """
         Get the optimal execution order for a list of platforms based on dependencies.
         Uses topological sorting to ensure dependencies are satisfied.
         """
         # Build adjacency list for the subgraph of requested platforms
-        graph: Dict[str, Set[str]] = {platform: set() for platform in platforms}
-        in_degree: Dict[str, int] = {platform: 0 for platform in platforms}
+        graph: dict[str, set[str]] = {platform: set() for platform in platforms}
+        in_degree: dict[str, int] = dict.fromkeys(platforms, 0)
 
         # Add edges based on dependencies
         for dep in self.dependencies:
@@ -216,7 +215,7 @@ class DependencyManager:
 
         return result
 
-    async def validate_dependencies(self) -> Dict[str, Any]:
+    async def validate_dependencies(self) -> dict[str, Any]:
         """Validate all dependencies for consistency and detect issues."""
         validation_result = {
             "valid": True,
@@ -254,10 +253,10 @@ class DependencyManager:
 
         return validation_result
 
-    def _detect_circular_dependencies(self) -> List[List[str]]:
+    def _detect_circular_dependencies(self) -> list[list[str]]:
         """Detect circular dependencies in the dependency graph."""
         # Build adjacency list
-        graph: Dict[str, List[str]] = {}
+        graph: dict[str, list[str]] = {}
         for dep in self.dependencies:
             if dep.source not in graph:
                 graph[dep.source] = []
@@ -267,7 +266,7 @@ class DependencyManager:
         rec_stack = set()
         cycles = []
 
-        def dfs(node: str, path: List[str]) -> bool:
+        def dfs(node: str, path: list[str]) -> bool:
             if node in rec_stack:
                 # Found a cycle
                 cycle_start = path.index(node)
@@ -296,8 +295,8 @@ class DependencyManager:
         return cycles
 
     def _analyze_critical_paths(
-        self, critical_deps: List[Dependency]
-    ) -> List[Dict[str, Any]]:
+        self, critical_deps: list[Dependency]
+    ) -> list[dict[str, Any]]:
         """Analyze critical dependency paths."""
         critical_paths = []
 
@@ -324,7 +323,7 @@ class DependencyManager:
         else:
             return "low"
 
-    async def analyze_dependencies(self) -> Dict[str, Any]:
+    async def analyze_dependencies(self) -> dict[str, Any]:
         """Provide comprehensive dependency analysis."""
         analysis = {
             "total_dependencies": len(self.dependencies),
@@ -353,7 +352,7 @@ class DependencyManager:
                 "depends_on_count": len(dependencies),
                 "depended_by_count": len(dependents),
                 "critical_dependencies": len([d for d in dependencies if d.critical]),
-                "dependency_types": list(set(d.type.value for d in dependencies)),
+                "dependency_types": list({d.type.value for d in dependencies}),
                 "risk_level": self._assess_platform_risk(
                     platform, dependencies, dependents
                 ),
@@ -376,8 +375,8 @@ class DependencyManager:
     def _assess_platform_risk(
         self,
         platform: str,
-        dependencies: List[Dependency],
-        dependents: List[Dependency],
+        dependencies: list[Dependency],
+        dependents: list[Dependency],
     ) -> str:
         """Assess the risk level of a platform based on its dependencies."""
         critical_deps = len([d for d in dependencies if d.critical])
@@ -390,7 +389,7 @@ class DependencyManager:
         else:
             return "low"
 
-    def _create_execution_groups(self, execution_order: List[str]) -> List[List[str]]:
+    def _create_execution_groups(self, execution_order: list[str]) -> list[list[str]]:
         """Create groups of platforms that can be executed in parallel."""
         groups = []
         remaining = set(execution_order)
@@ -415,7 +414,7 @@ class DependencyManager:
 
         return groups
 
-    async def _assess_overall_risk(self) -> Dict[str, Any]:
+    async def _assess_overall_risk(self) -> dict[str, Any]:
         """Assess overall system risk based on dependency structure."""
         critical_deps = [d for d in self.dependencies if d.critical]
 
@@ -452,7 +451,7 @@ class DependencyManager:
 
         return risk_assessment
 
-    async def suggest_optimizations(self) -> List[Dict[str, Any]]:
+    async def suggest_optimizations(self) -> list[dict[str, Any]]:
         """Suggest optimizations for the dependency structure."""
         suggestions = []
 

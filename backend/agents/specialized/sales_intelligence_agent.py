@@ -15,7 +15,7 @@ Current size: 1301 lines
 
 Recommended decomposition:
 - sales_intelligence_agent_core.py - Core functionality
-- sales_intelligence_agent_utils.py - Utility functions  
+- sales_intelligence_agent_utils.py - Utility functions
 - sales_intelligence_agent_models.py - Data models
 - sales_intelligence_agent_handlers.py - Request handlers
 
@@ -25,35 +25,35 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
-from backend.services.smart_ai_service import (
-    smart_ai_service,
-    LLMRequest,
-    TaskType,
-    generate_executive_insight,
-)
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
     MemoryCategory,
 )
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.smart_ai_service import (
+    LLMRequest,
+    TaskType,
+    generate_executive_insight,
+    smart_ai_service,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 # Import workflow interface
 from backend.workflows.multi_agent_workflow import (
+    AgentRole,
     AgentWorkflowInterface,
-    WorkflowTask,
     TaskStatus,
     WorkflowResult,
-    AgentRole,
+    WorkflowTask,
 )
 
 logger = logging.getLogger(__name__)
@@ -107,17 +107,17 @@ class DealRiskAssessment:
     # Risk factors
     risk_level: DealRiskLevel
     risk_score: float  # 0-100
-    risk_factors: List[str]
+    risk_factors: list[str]
 
     # AI insights
     ai_analysis: str
-    recommendations: List[str]
-    next_actions: List[str]
+    recommendations: list[str]
+    next_actions: list[str]
 
     # Supporting data
-    recent_activities: List[Dict[str, Any]]
-    gong_insights: List[Dict[str, Any]]
-    stakeholder_sentiment: Dict[str, float]
+    recent_activities: list[dict[str, Any]]
+    gong_insights: list[dict[str, Any]]
+    stakeholder_sentiment: dict[str, float]
 
     # Metadata
     confidence_score: float
@@ -133,7 +133,7 @@ class SalesEmailRequest:
     recipient_name: str
     recipient_role: str
     context: str
-    key_points: List[str]
+    key_points: list[str]
     call_to_action: str
     tone: str = "professional"
     include_attachments: bool = False
@@ -148,10 +148,10 @@ class CompetitorTalkingPoints:
     deal_context: str
 
     # Talking points
-    key_differentiators: List[str]
-    competitive_advantages: List[str]
-    objection_responses: List[str]
-    proof_points: List[str]
+    key_differentiators: list[str]
+    competitive_advantages: list[str]
+    objection_responses: list[str]
+    proof_points: list[str]
 
     # AI insights
     positioning_strategy: str
@@ -169,9 +169,9 @@ class PipelineAnalysis:
     weighted_pipeline_value: float
 
     # Stage analysis
-    deals_by_stage: Dict[str, int]
-    value_by_stage: Dict[str, float]
-    conversion_rates: Dict[str, float]
+    deals_by_stage: dict[str, int]
+    value_by_stage: dict[str, float]
+    conversion_rates: dict[str, float]
 
     # Forecasting
     forecast_confidence: float
@@ -181,8 +181,8 @@ class PipelineAnalysis:
 
     # AI insights
     pipeline_health_score: float
-    key_insights: List[str]
-    recommendations: List[str]
+    key_insights: list[str]
+    recommendations: list[str]
 
     analysis_timestamp: datetime = datetime.now()
 
@@ -207,12 +207,12 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
         self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.gong_connector: Optional[SnowflakeGongConnector] = None
-        self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-        self.knowledge_service: Optional[FoundationalKnowledgeService] = None
-        self.sales_coach: Optional[SalesCoachAgent] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.gong_connector: SnowflakeGongConnector | None = None
+        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
+        self.knowledge_service: FoundationalKnowledgeService | None = None
+        self.sales_coach: SalesCoachAgent | None = None
 
         self.initialized = False
 
@@ -244,7 +244,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
 
     async def assess_deal_risk(
         self, deal_id: str, include_gong_analysis: bool = True
-    ) -> Optional[DealRiskAssessment]:
+    ) -> DealRiskAssessment | None:
         """
         Comprehensive deal risk assessment using hybrid AI approach
 
@@ -350,7 +350,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             logger.error(f"Error assessing deal risk for {deal_id}: {e}")
             return None
 
-    async def generate_sales_email(self, request: SalesEmailRequest) -> Dict[str, Any]:
+    async def generate_sales_email(self, request: SalesEmailRequest) -> dict[str, Any]:
         """
         Generate personalized sales email using SmartAIService
 
@@ -391,24 +391,24 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             # Build comprehensive email prompt
             email_prompt = f"""
             Generate a {request.email_type.value} sales email:
-            
+
             Recipient: {request.recipient_name} ({request.recipient_role})
             Tone: {request.tone}
             Urgency: {request.urgency_level}
-            
+
             Deal Context:
             {deal_context}
-            
+
             Situation Context:
             {request.context}
-            
+
             {gong_context}
-            
+
             Key Points to Address:
             {chr(10).join([f"- {point}" for point in request.key_points])}
-            
+
             Call to Action: {request.call_to_action}
-            
+
             Requirements:
             - Personalized and relevant to {request.recipient_role}
             - Professional yet engaging tone
@@ -416,7 +416,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             - Specific next steps
             - Appropriate urgency level
             - Include relevant context from recent interactions
-            
+
             Generate a compelling email that drives action.
             """
 
@@ -442,11 +442,11 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             async with self.cortex_service as cortex:
                 subject_prompt = f"""
                 Generate 3 compelling email subject lines for this {request.email_type.value} email:
-                
+
                 Email content: {generated_email[:500]}...
                 Recipient role: {request.recipient_role}
                 Urgency: {request.urgency_level}
-                
+
                 Subject lines should be:
                 - Specific and relevant
                 - Action-oriented
@@ -515,7 +515,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
 
     async def get_competitor_talking_points(
         self, competitor_name: str, deal_id: str
-    ) -> Optional[CompetitorTalkingPoints]:
+    ) -> CompetitorTalkingPoints | None:
         """
         Generate competitor talking points using Cortex Search and knowledge base
 
@@ -549,12 +549,12 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             # Generate comprehensive competitive analysis
             competitive_prompt = f"""
             Generate competitive talking points for sales conversation against {competitor_name}:
-            
+
             Deal Context: {deal_context}
-            
+
             Competitor Information:
             {competitor_info}
-            
+
             Provide:
             1. Key differentiators (5 specific points)
             2. Competitive advantages (3-5 points)
@@ -562,7 +562,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             4. Proof points (case studies, metrics, testimonials)
             5. Positioning strategy
             6. Recommended approach for this specific deal
-            
+
             Focus on factual, defensible points that highlight our strengths.
             """
 
@@ -583,9 +583,9 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             async with self.cortex_service as cortex:
                 extraction_prompt = f"""
                 From this competitive analysis, extract structured talking points:
-                
+
                 {analysis_content}
-                
+
                 Extract and format as:
                 DIFFERENTIATORS: (list 5 key points)
                 ADVANTAGES: (list 3-5 competitive advantages)
@@ -642,9 +642,9 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
                 objection_responses=objection_responses[:5],
                 proof_points=proof_points[:5],
                 positioning_strategy=positioning_strategy,
-                recommended_approach=analysis_content.split("\n")[-1]
-                if analysis_content
-                else "",
+                recommended_approach=(
+                    analysis_content.split("\n")[-1] if analysis_content else ""
+                ),
                 confidence_score=0.85,
             )
 
@@ -672,8 +672,8 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             return None
 
     async def analyze_pipeline_health(
-        self, sales_rep: Optional[str] = None, time_period_days: int = 90
-    ) -> Optional[PipelineAnalysis]:
+        self, sales_rep: str | None = None, time_period_days: int = 90
+    ) -> PipelineAnalysis | None:
         """
         Analyze sales pipeline health and forecasting
 
@@ -730,16 +730,16 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             # Generate AI insights using SmartAIService
             pipeline_prompt = f"""
             Analyze this sales pipeline and provide insights:
-            
+
             Pipeline Overview:
             - Total pipeline value: ${total_pipeline_value:,.2f}
             - Weighted pipeline value: ${weighted_pipeline_value:,.2f}
             - Total deals: {len(pipeline_data)}
             - Analysis period: {time_period_days} days
-            
+
             Deals by stage: {deals_by_stage}
             Value by stage: {value_by_stage}
-            
+
             Provide:
             1. Pipeline health assessment (score 0-100)
             2. Key insights about pipeline composition
@@ -838,7 +838,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             return None
 
     # Helper methods
-    async def _get_recent_deal_activities(self, deal_id: str) -> List[Dict[str, Any]]:
+    async def _get_recent_deal_activities(self, deal_id: str) -> list[dict[str, Any]]:
         """Get recent activities for a deal"""
         try:
             # Mock implementation - in production would query actual activity data
@@ -858,7 +858,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             logger.error(f"Error getting deal activities: {e}")
             return []
 
-    async def _get_gong_insights_for_deal(self, deal_id: str) -> List[Dict[str, Any]]:
+    async def _get_gong_insights_for_deal(self, deal_id: str) -> list[dict[str, Any]]:
         """Get Gong call insights related to a deal"""
         try:
             async with self.gong_connector as connector:
@@ -868,7 +868,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             logger.error(f"Error getting Gong insights: {e}")
             return []
 
-    async def _analyze_stakeholder_sentiment(self, deal_id: str) -> Dict[str, float]:
+    async def _analyze_stakeholder_sentiment(self, deal_id: str) -> dict[str, float]:
         """Analyze sentiment of stakeholders in deal"""
         try:
             # Mock implementation - in production would analyze actual call data
@@ -883,8 +883,8 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             return {}
 
     async def _calculate_risk_factors(
-        self, deal_data: Dict, activities: List, gong_insights: List
-    ) -> List[str]:
+        self, deal_data: dict, activities: list, gong_insights: list
+    ) -> list[str]:
         """Calculate risk factors for a deal"""
         risk_factors = []
 
@@ -913,25 +913,25 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
         return risk_factors
 
     async def _generate_deal_analysis(
-        self, deal_data: Dict, risk_factors: List, gong_insights: List, sentiment: Dict
+        self, deal_data: dict, risk_factors: list, gong_insights: list, sentiment: dict
     ) -> str:
         """Generate comprehensive deal analysis using AI"""
         try:
             analysis_prompt = f"""
             Analyze this sales deal and provide insights:
-            
+
             Deal: {deal_data.get("DEAL_NAME", "Unknown")}
             Company: {deal_data.get("COMPANY_NAME", "Unknown")}
             Value: ${deal_data.get("AMOUNT", 0):,.2f}
             Stage: {deal_data.get("DEAL_STAGE", "Unknown")}
             Close Date: {deal_data.get("CLOSE_DATE", "TBD")}
-            
+
             Risk Factors:
             {chr(10).join([f"- {factor}" for factor in risk_factors])}
-            
+
             Stakeholder Sentiment: {sentiment}
             Recent Call Insights: {len(gong_insights)} calls analyzed
-            
+
             Provide a comprehensive analysis of deal health, likelihood to close, and strategic recommendations.
             """
 
@@ -944,7 +944,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             return "Analysis unavailable due to technical issues."
 
     def _calculate_risk_score(
-        self, risk_factors: List[str], sentiment: Dict[str, float]
+        self, risk_factors: list[str], sentiment: dict[str, float]
     ) -> float:
         """Calculate numerical risk score (0-100)"""
         base_score = 50.0  # Neutral starting point
@@ -972,18 +972,18 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             return DealRiskLevel.LOW
 
     async def _generate_deal_recommendations(
-        self, deal_data: Dict, risk_factors: List, analysis: str
-    ) -> List[str]:
+        self, deal_data: dict, risk_factors: list, analysis: str
+    ) -> list[str]:
         """Generate specific recommendations for deal"""
         try:
             async with self.cortex_service as cortex:
                 rec_prompt = f"""
                 Based on this deal analysis, provide 5 specific actionable recommendations:
-                
+
                 {analysis}
-                
+
                 Risk factors: {risk_factors}
-                
+
                 Format as numbered list of concrete actions.
                 """
 
@@ -1008,8 +1008,8 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
         ]
 
     async def _generate_next_actions(
-        self, deal_data: Dict, risk_factors: List
-    ) -> List[str]:
+        self, deal_data: dict, risk_factors: list
+    ) -> list[str]:
         """Generate immediate next actions"""
         actions = []
 
@@ -1027,7 +1027,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
 
         return actions[:5]
 
-    async def _get_recent_gong_calls(self, deal_id: str, limit: int = 5) -> List[Dict]:
+    async def _get_recent_gong_calls(self, deal_id: str, limit: int = 5) -> list[dict]:
         """Get recent Gong calls for context"""
         try:
             async with self.gong_connector as connector:
@@ -1044,13 +1044,13 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             async with self.cortex_service as cortex:
                 quality_prompt = f"""
                 Rate this sales email quality (0-100):
-                
+
                 Email: {email_content}
                 Type: {request.email_type.value}
                 Recipient: {request.recipient_role}
-                
+
                 Evaluate: personalization, clarity, value proposition, call-to-action, professionalism.
-                
+
                 Provide only numeric score.
                 """
 
@@ -1074,10 +1074,10 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             async with self.cortex_service as cortex:
                 strategy_prompt = f"""
                 Create a positioning strategy against {competitor}:
-                
+
                 Deal context: {deal_context}
                 Analysis: {analysis[:500]}...
-                
+
                 Provide concise positioning strategy (2-3 sentences).
                 """
 
@@ -1217,7 +1217,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
                 end_time=end_time,
             )
 
-    def get_agent_capabilities(self) -> Dict[str, Any]:
+    def get_agent_capabilities(self) -> dict[str, Any]:
         """Get agent capabilities for workflow planning"""
         return {
             "agent_type": "sales_intelligence",
@@ -1273,7 +1273,7 @@ class SalesIntelligenceAgent(BaseAgent, AgentWorkflowInterface):
             or task.agent_role == AgentRole.ANALYZER
         )
 
-    async def validate_task_input(self, task: WorkflowTask) -> Dict[str, Any]:
+    async def validate_task_input(self, task: WorkflowTask) -> dict[str, Any]:
         """Validate task input requirements"""
         validation_result = {"valid": True, "errors": [], "warnings": []}
 

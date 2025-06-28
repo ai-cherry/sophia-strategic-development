@@ -4,13 +4,14 @@ Simple MCP Server Deployment Script
 Starts essential MCP servers for Sophia AI
 """
 
-import subprocess
-import time
-import sys
-import os
-from pathlib import Path
-import requests
 import logging
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import requests
 
 logger = logging.getLogger(__name__)
 

@@ -72,7 +72,7 @@ def start_ai_memory_server():
     except Exception as e:
         logger.error(f"AI Memory server error: {e}")
         # Create basic HTTP server
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import BaseHTTPRequestHandler, HTTPServer
 
         class HealthHandler(BaseHTTPRequestHandler):
             def do_GET(self):
@@ -102,7 +102,7 @@ def start_codacy_server():
     """Start Codacy MCP Server"""
     try:
         # Create basic HTTP server for Codacy
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import BaseHTTPRequestHandler, HTTPServer
 
         class CodeAnalysisHandler(BaseHTTPRequestHandler):
             def do_GET(self):
@@ -153,7 +153,7 @@ def start_asana_server():
     """Start Asana MCP Server"""
     try:
         # Create basic HTTP server for Asana
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import BaseHTTPRequestHandler, HTTPServer
 
         class AsanaHandler(BaseHTTPRequestHandler):
             def do_GET(self):
@@ -213,7 +213,7 @@ def start_notion_server():
     """Start Notion MCP Server"""
     try:
         # Create basic HTTP server for Notion
-        from http.server import HTTPServer, BaseHTTPRequestHandler
+        from http.server import BaseHTTPRequestHandler, HTTPServer
 
         class NotionHandler(BaseHTTPRequestHandler):
             def do_GET(self):

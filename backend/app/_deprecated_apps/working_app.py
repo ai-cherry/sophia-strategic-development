@@ -4,17 +4,19 @@ Working Sophia AI FastAPI App
 FastAPI application with data flow management and LLM strategy.
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
 
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from backend.api.asana_integration_routes import router as asana_router
+from backend.api.codacy_integration_routes import router as codacy_router
+from backend.api.data_flow_routes import router as data_flow_router
+
 # Import route modules
 from backend.api.llm_strategy_routes import router as llm_router
-from backend.api.data_flow_routes import router as data_flow_router
-from backend.api.asana_integration_routes import router as asana_router
 from backend.api.notion_integration_routes import router as notion_router
-from backend.api.codacy_integration_routes import router as codacy_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

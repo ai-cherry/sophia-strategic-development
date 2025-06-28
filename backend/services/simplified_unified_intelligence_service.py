@@ -7,8 +7,7 @@ services without relying on methods that don't exist yet.
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-
+from typing import Any
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -39,8 +38,8 @@ class SimplifiedUnifiedIntelligenceService:
         logger.info("✅ Simplified Unified Intelligence Service initialized")
 
     async def unified_business_query(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Process a unified business intelligence query
 
@@ -109,8 +108,8 @@ class SimplifiedUnifiedIntelligenceService:
             }
 
     async def _validate_query_safety(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Simple query safety validation"""
 
         # Basic safety checks
@@ -142,8 +141,8 @@ class SimplifiedUnifiedIntelligenceService:
         }
 
     async def _process_with_available_services(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process query with currently available services"""
 
         response_data = {
@@ -198,7 +197,7 @@ class SimplifiedUnifiedIntelligenceService:
         return response_data
 
     def _generate_insights(
-        self, query: str, response_data: Dict[str, Any], context: Dict[str, Any]
+        self, query: str, response_data: dict[str, Any], context: dict[str, Any]
     ) -> str:
         """Generate unified insights from response data"""
 
@@ -246,7 +245,7 @@ class SimplifiedUnifiedIntelligenceService:
 
         return base_response
 
-    def _calculate_confidence_score(self, response_data: Dict[str, Any]) -> float:
+    def _calculate_confidence_score(self, response_data: dict[str, Any]) -> float:
         """Calculate confidence score based on available data"""
 
         confidence_factors = []
@@ -254,7 +253,7 @@ class SimplifiedUnifiedIntelligenceService:
         # Business data confidence
         if response_data.get("business_data"):
             business_data = response_data["business_data"]
-            for data_type, data in business_data.items():
+            for _data_type, data in business_data.items():
                 if isinstance(data, dict) and "confidence" in data:
                     confidence_factors.append(data["confidence"])
                 else:
@@ -280,7 +279,7 @@ class SimplifiedUnifiedIntelligenceService:
             else 0.5
         )
 
-    def _identify_data_sources(self, response_data: Dict[str, Any]) -> List[str]:
+    def _identify_data_sources(self, response_data: dict[str, Any]) -> list[str]:
         """Identify data sources used in the response"""
         sources = response_data.get("sources", [])
 
@@ -299,8 +298,8 @@ class SimplifiedUnifiedIntelligenceService:
         return display_sources
 
     def _generate_optimization_insights(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate optimization insights for continuous improvement"""
 
         return {
@@ -338,7 +337,7 @@ class SimplifiedUnifiedIntelligenceService:
         else:
             self.performance_metrics["average_response_time"] = processing_time
 
-    async def get_performance_dashboard(self) -> Dict[str, Any]:
+    async def get_performance_dashboard(self) -> dict[str, Any]:
         """Get comprehensive performance dashboard data"""
 
         success_rate = 0.0
@@ -396,9 +395,9 @@ class SimplifiedUnifiedIntelligenceService:
 
 
 # Singleton pattern for the service
-_simplified_unified_intelligence_service: Optional[
-    SimplifiedUnifiedIntelligenceService
-] = None
+_simplified_unified_intelligence_service: (
+    SimplifiedUnifiedIntelligenceService | None
+) = None
 
 
 async def get_simplified_unified_intelligence_service() -> (

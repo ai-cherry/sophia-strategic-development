@@ -7,14 +7,14 @@ import asyncio
 import json
 import logging
 import re
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 from backend.agents.specialized.snowflake_admin_agent import (
-    SnowflakeAdminAgent,
     AdminTaskRequest,
     AdminTaskResponse,
+    SnowflakeAdminAgent,
     SnowflakeEnvironment,
     confirm_snowflake_admin_task,
 )
@@ -42,10 +42,10 @@ class SnowflakeAdminQuery:
     original_query: str
     intent: SnowflakeAdminIntent
     environment: SnowflakeEnvironment
-    entities: Dict[str, Any]
+    entities: dict[str, Any]
     confidence: float
     requires_confirmation: bool = False
-    confirmation_id: Optional[str] = None
+    confirmation_id: str | None = None
 
 
 class SnowflakeAdminIntentClassifier:
@@ -175,7 +175,7 @@ class SnowflakeAdminIntentClassifier:
             keyword in query_lower for keyword in admin_keywords
         )
 
-    def classify_admin_intent(self, query: str) -> Tuple[SnowflakeAdminIntent, float]:
+    def classify_admin_intent(self, query: str) -> tuple[SnowflakeAdminIntent, float]:
         """Classify Snowflake admin intent"""
         query_lower = query.lower()
         intent_scores = {}
@@ -220,7 +220,7 @@ class SnowflakeAdminIntentClassifier:
 
     def extract_entities(
         self, query: str, intent: SnowflakeAdminIntent
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Extract entities based on intent"""
         entities = {}
         query.lower()
@@ -307,8 +307,8 @@ class SnowflakeAdminChatIntegration:
         self,
         query: str,
         user_id: str = "system",
-        user_context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        user_context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Process a Snowflake admin query
 
@@ -353,7 +353,7 @@ class SnowflakeAdminChatIntegration:
 
     async def _handle_confirmation(
         self, parsed_query: SnowflakeAdminQuery, user_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle confirmation queries"""
         confirmation_id = parsed_query.entities.get("confirmation_id")
 
@@ -397,7 +397,7 @@ class SnowflakeAdminChatIntegration:
 
     def _format_admin_response(
         self, response: AdminTaskResponse, parsed_query: SnowflakeAdminQuery
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format admin response for chat interface"""
 
         if response.requires_confirmation:
@@ -446,7 +446,7 @@ class SnowflakeAdminChatIntegration:
 
         return result
 
-    async def get_admin_suggestions(self, partial_query: str) -> List[str]:
+    async def get_admin_suggestions(self, partial_query: str) -> list[str]:
         """Get suggestions for admin queries"""
         suggestions = []
 
@@ -470,7 +470,7 @@ class SnowflakeAdminChatIntegration:
 
         return suggestions[:5]  # Return top 5 suggestions
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Health check for admin integration"""
         health = await self.admin_agent.health_check()
 
@@ -487,8 +487,8 @@ snowflake_admin_integration = SnowflakeAdminChatIntegration()
 
 # Convenience functions
 async def process_snowflake_admin_query(
-    query: str, user_id: str = "system", user_context: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    query: str, user_id: str = "system", user_context: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Convenience function for processing Snowflake admin queries
 

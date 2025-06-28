@@ -10,7 +10,7 @@ Current size: 1005 lines
 
 Recommended decomposition:
 - memory_preservation_service_core.py - Core functionality
-- memory_preservation_service_utils.py - Utility functions  
+- memory_preservation_service_utils.py - Utility functions
 - memory_preservation_service_models.py - Data models
 - memory_preservation_service_handlers.py - Request handlers
 
@@ -18,12 +18,12 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-from enum import Enum
 import hashlib
+import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -69,33 +69,33 @@ class MemoryRecord:
     source_system: MemorySourceSystem
 
     # Original embeddings and metadata
-    original_embedding: List[float]
-    original_metadata: Dict[str, Any]
+    original_embedding: list[float]
+    original_metadata: dict[str, Any]
 
     # Cortex migration data
-    cortex_embedding: Optional[List[float]] = None
-    cortex_metadata: Optional[Dict[str, Any]] = None
+    cortex_embedding: list[float] | None = None
+    cortex_metadata: dict[str, Any] | None = None
 
     # Preservation metadata
     content_hash: str = ""
     semantic_signature: str = ""
     importance_score: float = 0.0
     access_frequency: int = 0
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
 
     # Migration tracking
     migration_status: MigrationStatus = MigrationStatus.PENDING
     migration_attempts: int = 0
-    migration_errors: List[str] = None
+    migration_errors: list[str] = None
 
     # Quality assurance
-    similarity_score: Optional[float] = (
+    similarity_score: float | None = (
         None  # Similarity between original and cortex embeddings
     )
-    validation_passed: Optional[bool] = None
+    validation_passed: bool | None = None
 
     created_at: datetime = None
-    migrated_at: Optional[datetime] = None
+    migrated_at: datetime | None = None
 
     def __post_init__(self):
         if self.created_at is None:
@@ -111,7 +111,7 @@ class MigrationBatch:
     """Batch of memories for migration"""
 
     batch_id: str
-    records: List[MemoryRecord]
+    records: list[MemoryRecord]
     source_system: MemorySourceSystem
     migration_type: MemoryMigrationType
 
@@ -127,12 +127,12 @@ class MigrationBatch:
     error_count: int = 0
 
     # Timing
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     # Quality metrics
-    average_similarity: Optional[float] = None
-    validation_rate: Optional[float] = None
+    average_similarity: float | None = None
+    validation_rate: float | None = None
 
 
 class MemoryPreservationService:
@@ -159,8 +159,8 @@ class MemoryPreservationService:
         self.pinecone_service = None
 
         # Migration state
-        self.migration_batches: Dict[str, MigrationBatch] = {}
-        self.preserved_memories: Dict[str, MemoryRecord] = {}
+        self.migration_batches: dict[str, MigrationBatch] = {}
+        self.preserved_memories: dict[str, MemoryRecord] = {}
 
         # Migration analytics
         self.migration_analytics = {
@@ -205,9 +205,9 @@ class MemoryPreservationService:
 
     async def preserve_all_memories(
         self,
-        source_systems: List[MemorySourceSystem] = None,
+        source_systems: list[MemorySourceSystem] = None,
         migration_type: MemoryMigrationType = MemoryMigrationType.FULL_MIGRATION,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Preserve all memories from specified source systems
 
@@ -331,7 +331,7 @@ class MemoryPreservationService:
 
     async def validate_memory_integrity(
         self, source_system: MemorySourceSystem = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate integrity of preserved memories
 
@@ -438,7 +438,7 @@ class MemoryPreservationService:
 
     async def incremental_memory_sync(
         self, source_system: MemorySourceSystem, since_timestamp: datetime = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform incremental sync of memories since last migration
 
@@ -515,7 +515,7 @@ class MemoryPreservationService:
                 "source_system": source_system.value,
             }
 
-    async def get_migration_analytics(self) -> Dict[str, Any]:
+    async def get_migration_analytics(self) -> dict[str, Any]:
         """Get comprehensive migration analytics"""
         try:
             # Real-time analytics calculation
@@ -571,7 +571,7 @@ class MemoryPreservationService:
     # Private helper methods
     async def _extract_memories_from_source(
         self, source_system: MemorySourceSystem
-    ) -> List[MemoryRecord]:
+    ) -> list[MemoryRecord]:
         """Extract memories from specified source system"""
         memories = []
 
@@ -626,11 +626,11 @@ class MemoryPreservationService:
 
     async def _create_migration_batches(
         self,
-        memories: List[MemoryRecord],
+        memories: list[MemoryRecord],
         source_system: MemorySourceSystem,
         migration_type: MemoryMigrationType,
         batch_size: int = 50,
-    ) -> List[MigrationBatch]:
+    ) -> list[MigrationBatch]:
         """Create migration batches from memories"""
         batches = []
 
@@ -663,7 +663,7 @@ class MemoryPreservationService:
         )
         return batches
 
-    async def _process_migration_batch(self, batch: MigrationBatch) -> Dict[str, Any]:
+    async def _process_migration_batch(self, batch: MigrationBatch) -> dict[str, Any]:
         """Process a single migration batch"""
         batch.status = MigrationStatus.IN_PROGRESS
         batch.started_at = datetime.now()
@@ -744,7 +744,7 @@ class MemoryPreservationService:
 
             return {"batch_id": batch.batch_id, "success": False, "error": str(e)}
 
-    async def _migrate_to_cortex(self, memory: MemoryRecord) -> Dict[str, Any]:
+    async def _migrate_to_cortex(self, memory: MemoryRecord) -> dict[str, Any]:
         """Migrate single memory to Cortex embedding"""
         try:
             # Simulate Cortex embedding generation
@@ -778,7 +778,7 @@ class MemoryPreservationService:
             return {"success": False, "error": str(e)}
 
     def _calculate_embedding_similarity(
-        self, embedding1: List[float], embedding2: List[float]
+        self, embedding1: list[float], embedding2: list[float]
     ) -> float:
         """Calculate cosine similarity between embeddings"""
         try:
@@ -789,7 +789,9 @@ class MemoryPreservationService:
                 embedding1 = embedding1[:min_len]
                 embedding2 = embedding2[:min_len]
 
-            dot_product = sum(a * b for a, b in zip(embedding1, embedding2))
+            dot_product = sum(
+                a * b for a, b in zip(embedding1, embedding2, strict=False)
+            )
             magnitude1 = sum(a * a for a in embedding1) ** 0.5
             magnitude2 = sum(b * b for b in embedding2) ** 0.5
 
@@ -804,7 +806,7 @@ class MemoryPreservationService:
             return 0.0
 
     # Additional helper methods (simplified implementations)
-    def _calculate_batch_priority(self, memories: List[MemoryRecord]) -> int:
+    def _calculate_batch_priority(self, memories: list[MemoryRecord]) -> int:
         """Calculate priority for migration batch"""
         avg_importance = sum(m.importance_score for m in memories) / len(memories)
         avg_frequency = sum(m.access_frequency for m in memories) / len(memories)
@@ -818,7 +820,7 @@ class MemoryPreservationService:
 
     async def _extract_memories_since(
         self, source_system: MemorySourceSystem, since_timestamp: datetime
-    ) -> List[MemoryRecord]:
+    ) -> list[MemoryRecord]:
         """Extract memories created/modified since timestamp"""
         # Simulate incremental extraction
         memories = []
@@ -836,8 +838,8 @@ class MemoryPreservationService:
         return memories
 
     async def _validate_migration(
-        self, source_system: MemorySourceSystem, batch_results: List[Dict]
-    ) -> Dict[str, Any]:
+        self, source_system: MemorySourceSystem, batch_results: list[dict]
+    ) -> dict[str, Any]:
         """Validate migration results for source system"""
         total_processed = sum(br.get("processed_count", 0) for br in batch_results)
         total_successful = sum(br.get("success_count", 0) for br in batch_results)
@@ -862,8 +864,8 @@ class MemoryPreservationService:
         }
 
     async def _generate_preservation_report(
-        self, preservation_results: Dict
-    ) -> Dict[str, Any]:
+        self, preservation_results: dict
+    ) -> dict[str, Any]:
         """Generate comprehensive preservation report"""
         total_extracted = sum(
             r.get("extracted_count", 0) for r in preservation_results.values()
@@ -895,8 +897,8 @@ class MemoryPreservationService:
 
     # Validation helper methods
     async def _validate_content_integrity(
-        self, memories: List[MemoryRecord]
-    ) -> Dict[str, Any]:
+        self, memories: list[MemoryRecord]
+    ) -> dict[str, Any]:
         """Validate content integrity"""
         intact_count = sum(1 for m in memories if m.content_hash)
         return {
@@ -906,8 +908,8 @@ class MemoryPreservationService:
         }
 
     async def _validate_semantic_similarity(
-        self, memories: List[MemoryRecord]
-    ) -> Dict[str, Any]:
+        self, memories: list[MemoryRecord]
+    ) -> dict[str, Any]:
         """Validate semantic similarity"""
         similarities = [
             m.similarity_score for m in memories if m.similarity_score is not None
@@ -926,8 +928,8 @@ class MemoryPreservationService:
         }
 
     async def _validate_metadata_consistency(
-        self, memories: List[MemoryRecord]
-    ) -> Dict[str, Any]:
+        self, memories: list[MemoryRecord]
+    ) -> dict[str, Any]:
         """Validate metadata consistency"""
         consistent_count = sum(
             1 for m in memories if m.cortex_metadata and m.original_metadata
@@ -939,8 +941,8 @@ class MemoryPreservationService:
         }
 
     async def _validate_search_functionality(
-        self, memories: List[MemoryRecord]
-    ) -> Dict[str, Any]:
+        self, memories: list[MemoryRecord]
+    ) -> dict[str, Any]:
         """Validate search functionality"""
         # Simulate search validation
         searchable_count = sum(1 for m in memories if m.cortex_embedding)
@@ -951,8 +953,8 @@ class MemoryPreservationService:
         }
 
     async def _generate_validation_recommendations(
-        self, validation_results: Dict
-    ) -> List[str]:
+        self, validation_results: dict
+    ) -> list[str]:
         """Generate recommendations based on validation results"""
         recommendations = []
 
@@ -974,7 +976,7 @@ class MemoryPreservationService:
 
         return recommendations
 
-    def _get_batch_analytics(self) -> Dict[str, Any]:
+    def _get_batch_analytics(self) -> dict[str, Any]:
         """Get analytics for migration batches"""
         batches = list(self.migration_batches.values())
 
@@ -991,7 +993,7 @@ class MemoryPreservationService:
             ),
         }
 
-    def _get_system_analytics(self) -> Dict[str, Any]:
+    def _get_system_analytics(self) -> dict[str, Any]:
         """Get analytics by source system"""
         system_stats = {}
 

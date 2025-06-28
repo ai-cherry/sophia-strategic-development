@@ -7,14 +7,15 @@ Configures Estuary connections for Gong and Slack data sources
 Integrates with Snowflake and secret management system
 """
 
+import asyncio
+import json
 import os
 import sys
-import json
-import asyncio
-import requests
 from datetime import datetime
-from typing import Dict, Any
 from pathlib import Path
+from typing import Any
+
+import requests
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -35,7 +36,7 @@ class EstuaryIntegrationManager:
             "Content-Type": "application/json",
         }
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load Estuary configuration from secure sources."""
         return {
             "client_id": os.getenv(
@@ -73,7 +74,7 @@ class EstuaryIntegrationManager:
             },
         }
 
-    async def create_snowflake_destination(self) -> Dict[str, Any]:
+    async def create_snowflake_destination(self) -> dict[str, Any]:
         """Create Snowflake destination in Estuary."""
         print("🏔️ Creating Snowflake destination...")
 
@@ -119,7 +120,7 @@ class EstuaryIntegrationManager:
             print(f"❌ Error creating Snowflake destination: {e}")
             return {"success": False, "error": str(e)}
 
-    async def create_gong_source(self) -> Dict[str, Any]:
+    async def create_gong_source(self) -> dict[str, Any]:
         """Create Gong source in Estuary."""
         print("📞 Creating Gong source...")
 
@@ -155,7 +156,7 @@ class EstuaryIntegrationManager:
             print(f"❌ Error creating Gong source: {e}")
             return {"success": False, "error": str(e)}
 
-    async def create_slack_source(self) -> Dict[str, Any]:
+    async def create_slack_source(self) -> dict[str, Any]:
         """Create Slack source in Estuary."""
         print("💬 Creating Slack source...")
 
@@ -167,9 +168,11 @@ class EstuaryIntegrationManager:
                 "start_date": "2024-01-01T00:00:00Z",
                 "lookback_window": 1,
                 "join_channels": True,
-                "channel_filter": self.config["slack"]["channel_filter"].split(",")
-                if self.config["slack"]["channel_filter"]
-                else [],
+                "channel_filter": (
+                    self.config["slack"]["channel_filter"].split(",")
+                    if self.config["slack"]["channel_filter"]
+                    else []
+                ),
             },
         }
 
@@ -197,7 +200,7 @@ class EstuaryIntegrationManager:
 
     async def create_connection(
         self, source_id: str, destination_id: str, connection_name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create connection between source and destination."""
         print(f"🔗 Creating connection: {connection_name}")
 
@@ -210,9 +213,7 @@ class EstuaryIntegrationManager:
                 "cronExpression": "0 */6 * * *",  # Every 6 hours
             },
             "status": "active",
-            "configurations": {
-                "streams": []  # Will be auto-discovered
-            },
+            "configurations": {"streams": []},  # Will be auto-discovered
         }
 
         try:
@@ -241,7 +242,7 @@ class EstuaryIntegrationManager:
             print(f"❌ Error creating connection '{connection_name}': {e}")
             return {"success": False, "error": str(e)}
 
-    async def setup_complete_integration(self) -> Dict[str, Any]:
+    async def setup_complete_integration(self) -> dict[str, Any]:
         """Set up complete Estuary integration for Sophia AI."""
         print("🚀 Setting up complete Estuary integration for Sophia AI...")
 
@@ -308,7 +309,7 @@ class EstuaryIntegrationManager:
 
         return results
 
-    async def get_integration_status(self) -> Dict[str, Any]:
+    async def get_integration_status(self) -> dict[str, Any]:
         """Get status of all Estuary integrations."""
         print("📊 Getting Estuary integration status...")
 

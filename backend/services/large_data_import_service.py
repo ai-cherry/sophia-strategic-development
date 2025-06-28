@@ -10,7 +10,7 @@ Current size: 747 lines
 
 Recommended decomposition:
 - large_data_import_service_core.py - Core functionality
-- large_data_import_service_utils.py - Utility functions  
+- large_data_import_service_utils.py - Utility functions
 - large_data_import_service_models.py - Data models
 - large_data_import_service_handlers.py - Request handlers
 
@@ -21,19 +21,19 @@ import asyncio
 import json
 import os
 import tempfile
-import zipfile
-from datetime import datetime
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
-from enum import Enum
 import uuid
-import pandas as pd
+import zipfile
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 import aiofiles
+import pandas as pd
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.knowledge_service import KnowledgeService
 from backend.core.logger import logger
+from backend.services.knowledge_service import KnowledgeService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # logger = logging.getLogger(__name__)
 
@@ -75,9 +75,9 @@ class ImportJob:
     processed_records: int
     status: ImportStatus
     started_at: datetime
-    completed_at: Optional[datetime] = None
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    completed_at: datetime | None = None
+    error_message: str | None = None
+    metadata: dict[str, Any] = None
 
 
 class LargeDataImportService:
@@ -94,7 +94,7 @@ class LargeDataImportService:
         self,
         file_path: str,
         data_type: ImportDataType,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> ImportJob:
         """
         Create a new import job for large data processing
@@ -265,7 +265,7 @@ class LargeDataImportService:
         # Read CSV in chunks
         chunk_size = self.batch_size
 
-        async with aiofiles.open(job.source_file, "r", encoding="utf-8") as file:
+        async with aiofiles.open(job.source_file, encoding="utf-8") as file:
             await file.read()
 
         # Use pandas to process CSV efficiently
@@ -286,7 +286,7 @@ class LargeDataImportService:
         """Process bulk JSON import"""
         logger.info(f"Processing JSON bulk import for job {job.job_id}")
 
-        async with aiofiles.open(job.source_file, "r", encoding="utf-8") as file:
+        async with aiofiles.open(job.source_file, encoding="utf-8") as file:
             content = await file.read()
 
         # Parse JSON
@@ -341,7 +341,7 @@ class LargeDataImportService:
             job.processed_records += len(batch)
             await self._update_import_job(job)
 
-    async def _extract_gong_email_data(self, file_path: str) -> List[Dict[str, Any]]:
+    async def _extract_gong_email_data(self, file_path: str) -> list[dict[str, Any]]:
         """Extract email data from Gong export file"""
         # This would parse Gong's email export format
         # For now, return mock data structure
@@ -371,7 +371,7 @@ class LargeDataImportService:
 
         return emails
 
-    async def _extract_gong_calendar_data(self, file_path: str) -> List[Dict[str, Any]]:
+    async def _extract_gong_calendar_data(self, file_path: str) -> list[dict[str, Any]]:
         """Extract calendar data from Gong export file"""
         events = []
 
@@ -397,7 +397,7 @@ class LargeDataImportService:
 
         return events
 
-    async def _extract_slack_export_data(self, file_path: str) -> Dict[str, Any]:
+    async def _extract_slack_export_data(self, file_path: str) -> dict[str, Any]:
         """Extract data from Slack workspace export (ZIP file)"""
         slack_data = {"channels": [], "users": [], "metadata": {}}
 
@@ -434,7 +434,7 @@ class LargeDataImportService:
 
         return slack_data
 
-    async def _extract_email_archive_data(self, file_path: str) -> List[Dict[str, Any]]:
+    async def _extract_email_archive_data(self, file_path: str) -> list[dict[str, Any]]:
         """Extract emails from email archive file"""
         # This would use libraries like mailbox for MBOX files
         # For now, return empty list
@@ -442,7 +442,7 @@ class LargeDataImportService:
 
     async def _extract_document_archive_data(
         self, file_path: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract documents from archive file"""
         documents = []
 
@@ -464,7 +464,7 @@ class LargeDataImportService:
         return documents
 
     async def _process_email_batch(
-        self, emails: List[Dict[str, Any]], job: ImportJob
+        self, emails: list[dict[str, Any]], job: ImportJob
     ) -> None:
         """Process a batch of emails"""
         for email in emails:
@@ -498,7 +498,7 @@ class LargeDataImportService:
                 )
 
     async def _process_calendar_batch(
-        self, events: List[Dict[str, Any]], job: ImportJob
+        self, events: list[dict[str, Any]], job: ImportJob
     ) -> None:
         """Process a batch of calendar events"""
         for event in events:
@@ -533,7 +533,7 @@ class LargeDataImportService:
                 )
 
     async def _process_slack_channel_batch(
-        self, channel_data: Dict[str, Any], job: ImportJob
+        self, channel_data: dict[str, Any], job: ImportJob
     ) -> None:
         """Process a batch of Slack channel data"""
         channel_info = channel_data["channel_info"]
@@ -568,8 +568,8 @@ class LargeDataImportService:
 
     async def _process_slack_message_batch(
         self,
-        messages: List[Dict[str, Any]],
-        channel_info: Dict[str, Any],
+        messages: list[dict[str, Any]],
+        channel_info: dict[str, Any],
         job: ImportJob,
     ) -> None:
         """Process a batch of Slack messages"""
@@ -611,7 +611,7 @@ class LargeDataImportService:
                 logger.error(f"Failed to process Slack message: {str(e)}")
 
     async def _process_generic_batch(
-        self, records: List[Dict[str, Any]], job: ImportJob
+        self, records: list[dict[str, Any]], job: ImportJob
     ) -> None:
         """Process a generic batch of records"""
         for record in records:
@@ -639,7 +639,7 @@ class LargeDataImportService:
                 logger.error(f"Failed to process generic record: {str(e)}")
 
     async def _process_document_batch(
-        self, documents: List[Dict[str, Any]], job: ImportJob
+        self, documents: list[dict[str, Any]], job: ImportJob
     ) -> None:
         """Process a batch of documents"""
         for doc in documents:
@@ -707,7 +707,7 @@ class LargeDataImportService:
         # This would store the job in Snowflake or another database
         pass
 
-    async def _get_import_job(self, job_id: str) -> Optional[ImportJob]:
+    async def _get_import_job(self, job_id: str) -> ImportJob | None:
         """Get import job from database"""
         # This would retrieve the job from database
         # For now, return a mock job
@@ -726,7 +726,7 @@ class LargeDataImportService:
         # This would update the job in database
         pass
 
-    async def get_import_job_status(self, job_id: str) -> Optional[ImportJob]:
+    async def get_import_job_status(self, job_id: str) -> ImportJob | None:
         """Get the current status of an import job"""
         return await self._get_import_job(job_id)
 
@@ -744,7 +744,7 @@ class LargeDataImportService:
             logger.error(f"Failed to cancel import job {job_id}: {str(e)}")
             return False
 
-    async def list_import_jobs(self, limit: int = 50) -> List[ImportJob]:
+    async def list_import_jobs(self, limit: int = 50) -> list[ImportJob]:
         """List recent import jobs"""
         # This would query the database for recent jobs
         # For now, return empty list

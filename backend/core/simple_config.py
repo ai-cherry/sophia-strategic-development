@@ -3,12 +3,12 @@ Simple, Working Configuration System for Sophia AI
 Replaces the broken enhanced_config.py with a bulletproof system.
 """
 
-import os
 import json
 import logging
+import os
 import subprocess
-from typing import Any, Dict, Optional
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +17,8 @@ class SophiaConfig:
     """Simple, bulletproof configuration loader."""
 
     _instance: Optional["SophiaConfig"] = None
-    _config: Optional[Dict[str, Any]] = None
-    _last_loaded: Optional[datetime] = None
+    _config: dict[str, Any] | None = None
+    _last_loaded: datetime | None = None
     _cache_ttl: int = 300  # 5 minutes
 
     def __new__(cls) -> "SophiaConfig":
@@ -35,7 +35,7 @@ class SophiaConfig:
         if self._last_loaded is None:
             return True
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         elapsed = (now - self._last_loaded).total_seconds()
         return elapsed > self._cache_ttl
 
@@ -47,7 +47,7 @@ class SophiaConfig:
         pulumi_config = self._load_from_pulumi_esc()
         if pulumi_config:
             self._config = self._flatten_config(pulumi_config)
-            self._last_loaded = datetime.now(timezone.utc)
+            self._last_loaded = datetime.now(UTC)
             logger.info(
                 f"✅ Loaded {len(self._config)} configuration values from Pulumi ESC"
             )
@@ -60,7 +60,7 @@ class SophiaConfig:
             f"✅ Loaded {len(self._config)} configuration values from environment"
         )
 
-    def _load_from_pulumi_esc(self) -> Optional[Dict[str, Any]]:
+    def _load_from_pulumi_esc(self) -> dict[str, Any] | None:
         """Load from Pulumi ESC."""
         token = os.getenv("PULUMI_ACCESS_TOKEN")
         if not token or not token.startswith("pul-"):
@@ -120,8 +120,8 @@ class SophiaConfig:
             return None
 
     def _flatten_config(
-        self, config: Dict[str, Any], prefix: str = ""
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], prefix: str = ""
+    ) -> dict[str, Any]:
         """Flatten nested config for easy access."""
         flattened = {}
 
@@ -136,7 +136,7 @@ class SophiaConfig:
 
         return flattened
 
-    def _load_from_environment(self) -> Dict[str, Any]:
+    def _load_from_environment(self) -> dict[str, Any]:
         """Load from environment variables as fallback."""
         env_mappings = {
             # AI Services
@@ -176,27 +176,27 @@ class SophiaConfig:
 
         return self._config.get(key, default)
 
-    def get_openai_api_key(self) -> Optional[str]:
+    def get_openai_api_key(self) -> str | None:
         """Get OpenAI API key."""
         return self.get("values_sophia_ai_openai_api_key")
 
-    def get_anthropic_api_key(self) -> Optional[str]:
+    def get_anthropic_api_key(self) -> str | None:
         """Get Anthropic API key."""
         return self.get("values_sophia_ai_anthropic_api_key")
 
-    def get_gong_access_key(self) -> Optional[str]:
+    def get_gong_access_key(self) -> str | None:
         """Get Gong access key."""
         return self.get("values_sophia_business_gong_access_key")
 
-    def get_gong_client_secret(self) -> Optional[str]:
+    def get_gong_client_secret(self) -> str | None:
         """Get Gong client secret."""
         return self.get("values_sophia_business_gong_client_secret")
 
-    def get_pinecone_api_key(self) -> Optional[str]:
+    def get_pinecone_api_key(self) -> str | None:
         """Get Pinecone API key."""
         return self.get("values_sophia_data_pinecone_api_key")
 
-    def get_snowflake_config(self) -> Dict[str, Any]:
+    def get_snowflake_config(self) -> dict[str, Any]:
         """Get Snowflake configuration."""
         return {
             "account": self.get(
@@ -212,13 +212,13 @@ class SophiaConfig:
             "schema": "PROCESSED_AI",
         }
 
-    def get_all_config(self) -> Dict[str, Any]:
+    def get_all_config(self) -> dict[str, Any]:
         """Get all configuration for debugging."""
         if self._should_refresh_cache():
             self._load_config()
         return self._config or {}
 
-    def validate_critical_secrets(self) -> Dict[str, bool]:
+    def validate_critical_secrets(self) -> dict[str, bool]:
         """Validate that critical secrets are available."""
         critical_keys = [
             "values_sophia_ai_openai_api_key",
@@ -245,17 +245,17 @@ def get_config_value(key: str, default: Any = None) -> Any:
     return config.get(key, default)
 
 
-def get_openai_api_key() -> Optional[str]:
+def get_openai_api_key() -> str | None:
     """Get OpenAI API key."""
     return config.get_openai_api_key()
 
 
-def get_gong_access_key() -> Optional[str]:
+def get_gong_access_key() -> str | None:
     """Get Gong access key."""
     return config.get_gong_access_key()
 
 
-def get_snowflake_config() -> Dict[str, Any]:
+def get_snowflake_config() -> dict[str, Any]:
     """Get Snowflake configuration."""
     return config.get_snowflake_config()
 

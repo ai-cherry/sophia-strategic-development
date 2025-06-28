@@ -7,11 +7,12 @@ Leverages LangChain Agents v0.3 (June 2025) for design automation workflows
 import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Any
+
 import requests
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import uvicorn
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +43,7 @@ class GeneratedComponent(BaseModel):
     css_styles: str
     test_code: str
     documentation: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class UIUXAgent:
@@ -159,7 +160,7 @@ class UIUXAgent:
         except Exception:
             return "disconnected"
 
-    async def _get_design_context(self, file_id: str, node_id: str) -> Dict[str, Any]:
+    async def _get_design_context(self, file_id: str, node_id: str) -> dict[str, Any]:
         """Get design context from Figma MCP server"""
         try:
             response = requests.post(
@@ -174,7 +175,7 @@ class UIUXAgent:
             raise
 
     async def _generate_component_code(
-        self, design_context: Dict[str, Any], request: CodeGenerationRequest
+        self, design_context: dict[str, Any], request: CodeGenerationRequest
     ) -> GeneratedComponent:
         """Generate component code using LangChain agent"""
         # For demonstration, generate a mock component based on design context
@@ -217,7 +218,7 @@ class UIUXAgent:
         )
 
     async def _generate_react_component(
-        self, metadata: Dict, tokens: List, hints: Dict
+        self, metadata: dict, tokens: list, hints: dict
     ) -> str:
         """Generate React component code"""
         component_name = hints.get("suggested_component_name", "GeneratedComponent")
@@ -239,7 +240,7 @@ export const {component_name}: React.FC<{component_name}Props> = ({{
   ...props
 }}) => {{
   return (
-    <div 
+    <div
       className={{`
         backdrop-blur-xl bg-white/10 border border-white/20 shadow-xl
         rounded-lg p-6 transition-all duration-300 hover:scale-105
@@ -275,7 +276,7 @@ export default {component_name};"""
             ),
         )
 
-    async def _generate_typescript_types(self, metadata: Dict, hints: Dict) -> str:
+    async def _generate_typescript_types(self, metadata: dict, hints: dict) -> str:
         """Generate TypeScript type definitions"""
         component_name = hints.get("suggested_component_name", "GeneratedComponent")
 
@@ -296,7 +297,7 @@ export interface {component_name}Metadata {{
   lastUpdated: string;
 }}"""
 
-    async def _generate_css_styles(self, tokens: List) -> str:
+    async def _generate_css_styles(self, tokens: list) -> str:
         """Generate CSS styles from design tokens"""
         return """/* Auto-generated styles from Figma design tokens */
 .component-glassmorphism {
@@ -315,7 +316,7 @@ export interface {component_name}Metadata {{
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }"""
 
-    async def _generate_test_code(self, component_name: str, metadata: Dict) -> str:
+    async def _generate_test_code(self, component_name: str, metadata: dict) -> str:
         """Generate test code for component"""
         return f"""import {{ render, screen, fireEvent }} from '@testing-library/react';
 import {{ {component_name} }} from './{component_name}';
@@ -336,7 +337,7 @@ describe('{component_name}', () => {{
   it('handles click events', () => {{
     const onClickMock = jest.fn();
     render(<{component_name} {{...defaultProps}} onClick={{onClickMock}} />);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(onClickMock).toHaveBeenCalledTimes(1);
   }});
@@ -348,7 +349,7 @@ describe('{component_name}', () => {{
 }});"""
 
     async def _generate_documentation(
-        self, component_name: str, metadata: Dict, hints: Dict
+        self, component_name: str, metadata: dict, hints: dict
     ) -> str:
         """Generate component documentation"""
         return f"""# {component_name}
@@ -397,7 +398,7 @@ function Dashboard() {{
 - ✅ Minimal bundle impact
 - ✅ Efficient re-renders"""
 
-    async def _analyze_design(self, file_id: str, node_id: str) -> Dict[str, Any]:
+    async def _analyze_design(self, file_id: str, node_id: str) -> dict[str, Any]:
         """Analyze design for implementation insights"""
         # Get design context but we don't use it in this mock implementation
         await self._get_design_context(file_id, node_id)
@@ -424,7 +425,7 @@ function Dashboard() {{
             },
         }
 
-    async def _validate_design_system(self, component_code: str) -> Dict[str, Any]:
+    async def _validate_design_system(self, component_code: str) -> dict[str, Any]:
         """Validate component against design system"""
         return {
             "validation_timestamp": datetime.utcnow().isoformat(),
@@ -451,6 +452,6 @@ if __name__ == "__main__":
     logger.info("🚀 Starting Sophia AI UI/UX LangChain Agent...")
     logger.info("📍 Agent Server: http://localhost:9002")
     logger.info("📍 Health: http://localhost:9002/health")
-    logger.info("🔗 Figma MCP Server: {}".format(FIGMA_MCP_SERVER))
+    logger.info(f"🔗 Figma MCP Server: {FIGMA_MCP_SERVER}")
 
     uvicorn.run(app, host="0.0.0.0", port=9002, log_level="info", reload=False)

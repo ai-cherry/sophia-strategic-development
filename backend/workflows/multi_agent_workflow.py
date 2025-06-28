@@ -9,7 +9,7 @@ Current size: 758 lines
 
 Recommended decomposition:
 - multi_agent_workflow_core.py - Core functionality
-- multi_agent_workflow_utils.py - Utility functions  
+- multi_agent_workflow_utils.py - Utility functions
 - multi_agent_workflow_models.py - Data models
 - multi_agent_workflow_handlers.py - Request handlers
 
@@ -19,11 +19,11 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 import time
-from datetime import datetime
-from typing import Dict, Any, List, Optional, Set
-from dataclasses import dataclass, field
-from enum import Enum
 from collections import defaultdict, deque
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -79,14 +79,14 @@ class WorkflowTask:
     task_id: str
     agent_type: str
     agent_role: AgentRole
-    input_data: Dict[str, Any]
-    dependencies: List[str] = field(default_factory=list)
+    input_data: dict[str, Any]
+    dependencies: list[str] = field(default_factory=list)
     timeout_seconds: int = 300
     retry_attempts: int = 3
     priority: WorkflowPriority = WorkflowPriority.MEDIUM
-    expected_output_schema: Optional[Dict[str, Any]] = None
-    validation_rules: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    expected_output_schema: dict[str, Any] | None = None
+    validation_rules: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -96,14 +96,14 @@ class WorkflowResult:
     task_id: str
     agent_type: str
     status: TaskStatus
-    output_data: Dict[str, Any]
+    output_data: dict[str, Any]
     execution_time_seconds: float
     start_time: datetime
     end_time: datetime
-    error_message: Optional[str] = None
+    error_message: str | None = None
     retry_count: int = 0
     validation_passed: bool = True
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -113,14 +113,14 @@ class WorkflowDefinition:
     workflow_id: str
     name: str
     description: str
-    tasks: List[WorkflowTask]
+    tasks: list[WorkflowTask]
     priority: WorkflowPriority = WorkflowPriority.MEDIUM
     timeout_seconds: int = 1800  # 30 minutes
     enable_parallel_execution: bool = True
     enable_auto_retry: bool = True
-    success_criteria: List[str] = field(default_factory=list)
-    failure_conditions: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    success_criteria: list[str] = field(default_factory=list)
+    failure_conditions: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -131,37 +131,37 @@ class WorkflowExecution:
     execution_id: str
     status: WorkflowStatus
     start_time: datetime
-    end_time: Optional[datetime] = None
-    task_results: Dict[str, WorkflowResult] = field(default_factory=dict)
-    execution_metrics: Dict[str, Any] = field(default_factory=dict)
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    end_time: datetime | None = None
+    task_results: dict[str, WorkflowResult] = field(default_factory=dict)
+    execution_metrics: dict[str, Any] = field(default_factory=dict)
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class AgentWorkflowInterface:
     """Interface that agents must implement to participate in workflows."""
 
-    async def analyze(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Analyze data and return insights."""
         raise NotImplementedError("Agents must implement analyze method")
 
-    async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Execute an action based on input data."""
         raise NotImplementedError("Agents must implement execute method")
 
-    async def validate(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def validate(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Validate data or results."""
         raise NotImplementedError("Agents must implement validate method")
 
-    async def report(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def report(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Generate reports from data."""
         raise NotImplementedError("Agents must implement report method")
 
-    async def synthesize(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def synthesize(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Synthesize information from multiple sources."""
         raise NotImplementedError("Agents must implement synthesize method")
 
-    async def monitor(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def monitor(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Monitor systems or processes."""
         raise NotImplementedError("Agents must implement monitor method")
 
@@ -181,12 +181,12 @@ class MultiAgentWorkflow:
 
     def __init__(self, workflow_definition: WorkflowDefinition):
         self.workflow_def = workflow_definition
-        self.agents: Dict[str, AgentWorkflowInterface] = {}
-        self.task_results: Dict[str, WorkflowResult] = {}
-        self.dependency_graph: Dict[str, Set[str]] = {}
-        self.reverse_dependencies: Dict[str, Set[str]] = {}
+        self.agents: dict[str, AgentWorkflowInterface] = {}
+        self.task_results: dict[str, WorkflowResult] = {}
+        self.dependency_graph: dict[str, set[str]] = {}
+        self.reverse_dependencies: dict[str, set[str]] = {}
         self.execution_queue: deque = deque()
-        self.running_tasks: Dict[str, asyncio.Task] = {}
+        self.running_tasks: dict[str, asyncio.Task] = {}
 
         # Build dependency graph
         self._build_dependency_graph()
@@ -277,7 +277,7 @@ class MultiAgentWorkflow:
                 else:
                     execution.status = WorkflowStatus.FAILED
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 execution.status = WorkflowStatus.FAILED
                 execution.error_message = f"Workflow timeout after {self.workflow_def.timeout_seconds} seconds"
                 logger.error(f"❌ Workflow {execution_id} timed out")
@@ -482,7 +482,7 @@ class MultiAgentWorkflow:
                     )
                     await asyncio.sleep(backoff_time)
 
-    async def _prepare_task_input(self, task: WorkflowTask) -> Dict[str, Any]:
+    async def _prepare_task_input(self, task: WorkflowTask) -> dict[str, Any]:
         """Prepare input data for task execution including dependency results."""
         input_data = task.input_data.copy()
 
@@ -500,7 +500,7 @@ class MultiAgentWorkflow:
         return input_data
 
     async def _validate_task_output(
-        self, task: WorkflowTask, output: Dict[str, Any]
+        self, task: WorkflowTask, output: dict[str, Any]
     ) -> bool:
         """Validate task output against expected schema and rules."""
         try:
@@ -532,7 +532,7 @@ class MultiAgentWorkflow:
 
     def _calculate_execution_metrics(
         self, execution: WorkflowExecution
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate comprehensive execution metrics."""
         total_duration = 0
         if execution.end_time:
@@ -569,15 +569,17 @@ class MultiAgentWorkflow:
             "total_tasks": len(execution.task_results),
             "completed_tasks": completed_tasks,
             "failed_tasks": failed_tasks,
-            "success_rate": completed_tasks / len(execution.task_results)
-            if execution.task_results
-            else 0,
+            "success_rate": (
+                completed_tasks / len(execution.task_results)
+                if execution.task_results
+                else 0
+            ),
             "total_retries": total_retries,
             "average_task_execution_time": avg_execution_time,
             "task_metrics": task_metrics,
-            "workflow_efficiency": completed_tasks / (total_duration / 60)
-            if total_duration > 0
-            else 0,  # tasks per minute
+            "workflow_efficiency": (
+                completed_tasks / (total_duration / 60) if total_duration > 0 else 0
+            ),  # tasks per minute
         }
 
 
@@ -588,7 +590,7 @@ class ProjectIntelligenceWorkflow(MultiAgentWorkflow):
     Coordinates multiple agents to analyze project ecosystem across platforms.
     """
 
-    def __init__(self, project_context: Dict[str, Any]):
+    def __init__(self, project_context: dict[str, Any]):
         # Define project intelligence workflow
         workflow_def = WorkflowDefinition(
             workflow_id="project_intelligence",

@@ -9,7 +9,7 @@ Current size: 871 lines
 
 Recommended decomposition:
 - advanced_estuary_flow_manager_core.py - Core functionality
-- advanced_estuary_flow_manager_utils.py - Utility functions  
+- advanced_estuary_flow_manager_utils.py - Utility functions
 - advanced_estuary_flow_manager_models.py - Data models
 - advanced_estuary_flow_manager_handlers.py - Request handlers
 
@@ -17,7 +17,7 @@ TODO: Implement file decomposition
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -47,7 +47,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
         self.processed_schema = "PROCESSED_AI"
         self.ai_processing_enabled = True
 
-    async def setup_multimodal_captures(self) -> Dict[str, Any]:
+    async def setup_multimodal_captures(self) -> dict[str, Any]:
         """Configure captures for multimodal data sources with AI processing"""
         logger.info("🎯 Setting up advanced multimodal captures...")
 
@@ -71,7 +71,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return deployment_results
 
-    async def _create_gong_multimodal_capture(self) -> Dict[str, Any]:
+    async def _create_gong_multimodal_capture(self) -> dict[str, Any]:
         """Create Gong capture with multimodal support for audio and transcripts"""
         return {
             "type": "capture",
@@ -106,7 +106,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def _create_slack_multimodal_capture(self) -> Dict[str, Any]:
+    async def _create_slack_multimodal_capture(self) -> dict[str, Any]:
         """Create Slack capture with attachment and media processing"""
         return {
             "type": "capture",
@@ -144,7 +144,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def _create_hubspot_multimodal_capture(self) -> Dict[str, Any]:
+    async def _create_hubspot_multimodal_capture(self) -> dict[str, Any]:
         """Create HubSpot capture with document and attachment processing"""
         return {
             "type": "capture",
@@ -183,7 +183,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def _create_intercom_capture(self) -> Dict[str, Any]:
+    async def _create_intercom_capture(self) -> dict[str, Any]:
         """Create Intercom capture for customer service data"""
         return {
             "type": "capture",
@@ -212,7 +212,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def deploy_ai_powered_materializations(self) -> Dict[str, Any]:
+    async def deploy_ai_powered_materializations(self) -> dict[str, Any]:
         """Deploy materializations with real-time AI processing"""
         logger.info("🧠 Deploying AI-powered materializations...")
 
@@ -235,7 +235,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return deployment_results
 
-    async def _create_snowflake_multimodal_materialization(self) -> Dict[str, Any]:
+    async def _create_snowflake_multimodal_materialization(self) -> dict[str, Any]:
         """Create Snowflake materialization with multimodal support"""
         return {
             "type": "materialization",
@@ -289,7 +289,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def _create_realtime_analytics_materialization(self) -> Dict[str, Any]:
+    async def _create_realtime_analytics_materialization(self) -> dict[str, Any]:
         """Create real-time analytics materialization"""
         return {
             "type": "materialization",
@@ -333,7 +333,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def _create_compliance_monitoring_materialization(self) -> Dict[str, Any]:
+    async def _create_compliance_monitoring_materialization(self) -> dict[str, Any]:
         """Create compliance monitoring materialization"""
         return {
             "type": "materialization",
@@ -377,7 +377,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             ],
         }
 
-    async def setup_ai_processing_transforms(self) -> Dict[str, Any]:
+    async def setup_ai_processing_transforms(self) -> dict[str, Any]:
         """Set up AI processing transforms for real-time data enhancement"""
         logger.info("🤖 Setting up AI processing transforms...")
 
@@ -394,38 +394,38 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return transforms
 
-    async def _create_sentiment_analysis_transform(self) -> Dict[str, Any]:
+    async def _create_sentiment_analysis_transform(self) -> dict[str, Any]:
         """Create sentiment analysis transform for real-time processing"""
         return {
             "name": "ai_sentiment_analysis",
             "type": "typescript",
             "code": """
             import { Document } from 'flow/document';
-            
+
             export function transform(doc: Document): Document[] {
                 // Real-time sentiment analysis using Snowflake Cortex
                 if (doc.transcript_text || doc.message_text) {
                     const text = doc.transcript_text || doc.message_text;
-                    
+
                     // Add AI processing metadata
                     doc.ai_processing = {
                         sentiment_analysis_required: true,
                         processing_timestamp: new Date().toISOString(),
                         text_length: text.length
                     };
-                    
+
                     // Extract key entities for further processing
                     doc.extracted_entities = extractEntities(text);
-                    
+
                     // Flag for compliance review if needed
                     if (containsComplianceKeywords(text)) {
                         doc.compliance_review_required = true;
                     }
                 }
-                
+
                 return [doc];
             }
-            
+
             function extractEntities(text: string): string[] {
                 // Simple entity extraction (in production, use advanced NLP)
                 const entities = [];
@@ -434,17 +434,17 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     email: /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b/g,
                     amount: /\\$[\\d,]+\\.?\\d*/g
                 };
-                
+
                 for (const [type, pattern] of Object.entries(patterns)) {
                     const matches = text.match(pattern);
                     if (matches) {
                         entities.push(...matches.map(match => `${type}:${match}`));
                     }
                 }
-                
+
                 return entities;
             }
-            
+
             function containsComplianceKeywords(text: string): boolean {
                 const keywords = ['lawsuit', 'attorney', 'legal action', 'harassment', 'dispute'];
                 return keywords.some(keyword => text.toLowerCase().includes(keyword));
@@ -452,14 +452,14 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             """,
         }
 
-    async def _create_message_classification_transform(self) -> Dict[str, Any]:
+    async def _create_message_classification_transform(self) -> dict[str, Any]:
         """Create message classification transform"""
         return {
             "name": "ai_message_classification",
             "type": "typescript",
             "code": """
             import { Document } from 'flow/document';
-            
+
             export function transform(doc: Document): Document[] {
                 if (doc.message_text) {
                     // Classify message type and urgency
@@ -469,16 +469,16 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         requires_response: requiresResponse(doc.message_text),
                         processing_timestamp: new Date().toISOString()
                     };
-                    
+
                     // Add channel context
                     if (doc.channel_id) {
                         doc.channel_context = getChannelContext(doc.channel_id);
                     }
                 }
-                
+
                 return [doc];
             }
-            
+
             function classifyMessageType(text: string): string {
                 if (text.includes('?')) return 'question';
                 if (text.includes('update') || text.includes('status')) return 'update';
@@ -486,11 +486,11 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 if (text.includes('great') || text.includes('excellent')) return 'celebration';
                 return 'general';
             }
-            
+
             function determineUrgency(text: string): string {
                 const urgentKeywords = ['urgent', 'asap', 'emergency', 'critical'];
                 const highKeywords = ['important', 'priority', 'deadline'];
-                
+
                 if (urgentKeywords.some(keyword => text.toLowerCase().includes(keyword))) {
                     return 'urgent';
                 }
@@ -499,11 +499,11 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 }
                 return 'normal';
             }
-            
+
             function requiresResponse(text: string): boolean {
                 return text.includes('?') || text.includes('please') || text.includes('need');
             }
-            
+
             function getChannelContext(channelId: string): object {
                 // Map channel IDs to business context
                 const channelMap = {
@@ -512,20 +512,20 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     'collections': { department: 'collections', priority: 'critical' },
                     'general': { department: 'general', priority: 'normal' }
                 };
-                
+
                 return channelMap[channelId] || { department: 'unknown', priority: 'normal' };
             }
             """,
         }
 
-    async def _create_customer_intelligence_transform(self) -> Dict[str, Any]:
+    async def _create_customer_intelligence_transform(self) -> dict[str, Any]:
         """Create customer intelligence transform"""
         return {
             "name": "ai_customer_intelligence",
             "type": "typescript",
             "code": """
             import { Document } from 'flow/document';
-            
+
             export function transform(doc: Document): Document[] {
                 if (doc.properties) {
                     // Enhance customer data with AI insights
@@ -536,7 +536,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         next_best_actions: suggestNextActions(doc.properties),
                         processing_timestamp: new Date().toISOString()
                     };
-                    
+
                     // Add predictive scores
                     doc.predictive_scores = {
                         churn_probability: calculateChurnProbability(doc.properties),
@@ -544,10 +544,10 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         conversion_likelihood: assessConversionLikelihood(doc.properties)
                     };
                 }
-                
+
                 return [doc];
             }
-            
+
             function determineCustomerTier(properties: any): string {
                 const dealValue = parseFloat(properties.deal_value || '0');
                 if (dealValue > 100000) return 'enterprise';
@@ -555,7 +555,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 if (dealValue > 10000) return 'standard';
                 return 'basic';
             }
-            
+
             function calculateEngagementScore(properties: any): number {
                 let score = 0;
                 if (properties.last_activity_date) {
@@ -566,7 +566,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 if (properties.website_visits) score += Math.min(30, properties.website_visits * 3);
                 return Math.min(100, score);
             }
-            
+
             function identifyChurnRiskFactors(properties: any): string[] {
                 const riskFactors = [];
                 if (properties.last_activity_date) {
@@ -577,11 +577,11 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 if (properties.payment_delays > 2) riskFactors.push('payment_issues');
                 return riskFactors;
             }
-            
+
             function suggestNextActions(properties: any): string[] {
                 const actions = [];
                 const engagementScore = calculateEngagementScore(properties);
-                
+
                 if (engagementScore < 30) {
                     actions.push('schedule_check_in_call');
                     actions.push('send_value_proposition_email');
@@ -595,49 +595,49 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         actions.push('initiate_renewal_discussion');
                     }
                 }
-                
+
                 return actions;
             }
-            
+
             function calculateChurnProbability(properties: any): number {
                 const riskFactors = identifyChurnRiskFactors(properties);
                 const baseRisk = 0.1; // 10% base churn rate
                 const riskMultiplier = 1 + (riskFactors.length * 0.3);
                 return Math.min(0.9, baseRisk * riskMultiplier);
             }
-            
+
             function estimateLifetimeValue(properties: any): number {
                 const monthlyValue = parseFloat(properties.monthly_recurring_revenue || '0');
                 const churnProb = calculateChurnProbability(properties);
                 const expectedLifetime = 1 / (churnProb / 12); // months
                 return monthlyValue * expectedLifetime;
             }
-            
+
             function assessConversionLikelihood(properties: any): number {
                 let score = 0.5; // Base 50%
-                
+
                 if (properties.demo_completed) score += 0.2;
                 if (properties.proposal_sent) score += 0.15;
                 if (properties.decision_maker_engaged) score += 0.1;
                 if (properties.budget_confirmed) score += 0.1;
-                
+
                 return Math.min(0.95, score);
             }
             """,
         }
 
-    async def _create_compliance_monitoring_transform(self) -> Dict[str, Any]:
+    async def _create_compliance_monitoring_transform(self) -> dict[str, Any]:
         """Create compliance monitoring transform"""
         return {
             "name": "ai_compliance_monitoring",
             "type": "typescript",
             "code": """
             import { Document } from 'flow/document';
-            
+
             export function transform(doc: Document): Document[] {
                 if (doc.message_text || doc.transcript_text) {
                     const text = doc.message_text || doc.transcript_text;
-                    
+
                     // Perform compliance analysis
                     doc.compliance_analysis = {
                         fdcpa_compliance: checkFDCPACompliance(text),
@@ -647,24 +647,24 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         flagged_phrases: identifyFlaggedPhrases(text),
                         processing_timestamp: new Date().toISOString()
                     };
-                    
+
                     // Generate compliance score
                     doc.compliance_score = calculateComplianceScore(doc.compliance_analysis);
-                    
+
                     // Flag for review if needed
                     if (doc.compliance_score < 0.7) {
                         doc.requires_compliance_review = true;
                         doc.review_priority = doc.compliance_score < 0.5 ? 'high' : 'medium';
                     }
                 }
-                
+
                 return [doc];
             }
-            
+
             function checkFDCPACompliance(text: string): object {
                 const violations = [];
                 const warnings = [];
-                
+
                 // Check for prohibited language
                 const prohibitedPhrases = [
                     'pay or else',
@@ -672,67 +672,67 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     'arrest warrant',
                     'garnish wages immediately'
                 ];
-                
+
                 prohibitedPhrases.forEach(phrase => {
                     if (text.toLowerCase().includes(phrase)) {
                         violations.push(`Prohibited phrase: "${phrase}"`);
                     }
                 });
-                
+
                 // Check for required disclosures
                 if (text.includes('debt') && !text.includes('validation')) {
                     warnings.push('Missing debt validation notice');
                 }
-                
+
                 return {
                     violations,
                     warnings,
                     compliant: violations.length === 0
                 };
             }
-            
+
             function checkPrivacyCompliance(text: string): object {
                 const issues = [];
-                
+
                 // Check for PII exposure
                 const piiPatterns = {
                     ssn: /\\b\\d{3}-\\d{2}-\\d{4}\\b/g,
                     creditCard: /\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b/g,
                     bankAccount: /\\b\\d{8,17}\\b/g
                 };
-                
+
                 for (const [type, pattern] of Object.entries(piiPatterns)) {
                     if (pattern.test(text)) {
                         issues.push(`Potential ${type} exposure`);
                     }
                 }
-                
+
                 return {
                     issues,
                     compliant: issues.length === 0
                 };
             }
-            
+
             function assessProfessionalTone(text: string): object {
                 const unprofessionalIndicators = [
                     'stupid', 'idiot', 'ridiculous', 'pathetic',
                     'URGENT!!!', 'PAY NOW!!!', 'FINAL NOTICE!!!'
                 ];
-                
-                const issues = unprofessionalIndicators.filter(indicator => 
+
+                const issues = unprofessionalIndicators.filter(indicator =>
                     text.toLowerCase().includes(indicator.toLowerCase())
                 );
-                
+
                 return {
                     professional: issues.length === 0,
                     issues: issues.map(issue => `Unprofessional language: "${issue}"`)
                 };
             }
-            
+
             function determineRiskLevel(text: string): string {
                 const highRiskKeywords = ['lawsuit', 'court', 'attorney', 'legal action'];
                 const mediumRiskKeywords = ['final notice', 'immediate action', 'consequences'];
-                
+
                 if (highRiskKeywords.some(keyword => text.toLowerCase().includes(keyword))) {
                     return 'high';
                 }
@@ -741,7 +741,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 }
                 return 'low';
             }
-            
+
             function identifyFlaggedPhrases(text: string): string[] {
                 const flaggedPhrases = [
                     'pay immediately or face consequences',
@@ -750,15 +750,15 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                     'we know where you work',
                     'we will contact your employer'
                 ];
-                
-                return flaggedPhrases.filter(phrase => 
+
+                return flaggedPhrases.filter(phrase =>
                     text.toLowerCase().includes(phrase.toLowerCase())
                 );
             }
-            
+
             function calculateComplianceScore(analysis: any): number {
                 let score = 1.0;
-                
+
                 // Deduct for FDCPA violations
                 if (analysis.fdcpa_compliance.violations.length > 0) {
                     score -= 0.4;
@@ -766,30 +766,30 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 if (analysis.fdcpa_compliance.warnings.length > 0) {
                     score -= 0.1 * analysis.fdcpa_compliance.warnings.length;
                 }
-                
+
                 // Deduct for privacy issues
                 if (analysis.privacy_compliance.issues.length > 0) {
                     score -= 0.2 * analysis.privacy_compliance.issues.length;
                 }
-                
+
                 // Deduct for unprofessional tone
                 if (!analysis.professional_tone.professional) {
                     score -= 0.15;
                 }
-                
+
                 // Deduct for high risk content
                 if (analysis.risk_level === 'high') {
                     score -= 0.2;
                 } else if (analysis.risk_level === 'medium') {
                     score -= 0.1;
                 }
-                
+
                 return Math.max(0, score);
             }
             """,
         }
 
-    async def monitor_flow_performance(self) -> Dict[str, Any]:
+    async def monitor_flow_performance(self) -> dict[str, Any]:
         """Monitor Estuary Flow performance with AI-powered insights"""
         logger.info("📊 Monitoring Estuary Flow performance...")
 
@@ -832,7 +832,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             logger.error(f"Error monitoring flow performance: {e}")
             return {"error": str(e)}
 
-    async def optimize_flow_configuration(self) -> Dict[str, Any]:
+    async def optimize_flow_configuration(self) -> dict[str, Any]:
         """AI-powered flow configuration optimization"""
         logger.info("🎯 Optimizing flow configuration with AI...")
 

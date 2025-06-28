@@ -8,9 +8,10 @@ Ensures seamless dashboard updates and production deployment
 import asyncio
 import logging
 import subprocess
-import requests
 from datetime import datetime
 from pathlib import Path
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -239,7 +240,7 @@ export const Enhanced{target["component"]}: React.FC<Enhanced{target["component"
   ...props
 }}) => {{
   return (
-    <div 
+    <div
       className={{cn(
         "enhanced-{target["component"].lower()}",
         // Glassmorphism styling
@@ -316,7 +317,7 @@ export default Enhanced{target["component"]};
 
         if app_file.exists():
             # Read current App.jsx
-            with open(app_file, "r") as f:
+            with open(app_file) as f:
                 app_content = f.read()
 
             # Add enhanced dashboard route if not already present

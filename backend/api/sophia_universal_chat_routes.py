@@ -4,18 +4,19 @@ Sophia Universal Chat API Routes
 RESTful and WebSocket endpoints for the ultimate conversational AI experience
 """
 
-import logging
 import json
+import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Depends
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
 from backend.services.sophia_universal_chat_service import (
-    SophiaUniversalChatService,
-    SophiaPersonality,
-    UserAccessLevel,
     SearchContext,
+    SophiaPersonality,
+    SophiaUniversalChatService,
+    UserAccessLevel,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,20 +25,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/sophia", tags=["sophia-universal-chat"])
 
 # Global service instance
-sophia_service: Optional[SophiaUniversalChatService] = None
+sophia_service: SophiaUniversalChatService | None = None
 
 
 # Pydantic models for API
 class ChatMessageRequest(BaseModel):
     message: str
     user_id: str = "ceo"
-    context: Optional[Dict[str, Any]] = None
-    personality_override: Optional[str] = None
+    context: dict[str, Any] | None = None
+    personality_override: str | None = None
 
 
 class ChatMessageResponse(BaseModel):
     content: str
-    sources: List[Dict[str, Any]]
+    sources: list[dict[str, Any]]
     confidence_score: float
     search_time_ms: int
     personality_applied: str
@@ -52,30 +53,30 @@ class UserProfileRequest(BaseModel):
     email: str
     access_level: str
     department: str
-    search_permissions: Optional[List[str]] = ["internal_only"]
-    preferred_personality: Optional[str] = "friendly_assistant"
-    api_quota_daily: Optional[int] = 1000
+    search_permissions: list[str] | None = ["internal_only"]
+    preferred_personality: str | None = "friendly_assistant"
+    api_quota_daily: int | None = 1000
 
 
 class UserPermissionUpdate(BaseModel):
-    access_level: Optional[str] = None
-    search_permissions: Optional[List[str]] = None
-    api_quota_daily: Optional[int] = None
-    preferred_personality: Optional[str] = None
+    access_level: str | None = None
+    search_permissions: list[str] | None = None
+    api_quota_daily: int | None = None
+    preferred_personality: str | None = None
 
 
 class WebSocketMessage(BaseModel):
     type: str
-    message: Optional[str] = None
-    user_id: Optional[str] = "ceo"
-    context: Optional[Dict[str, Any]] = None
+    message: str | None = None
+    user_id: str | None = "ceo"
+    context: dict[str, Any] | None = None
 
 
 # WebSocket connection manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-        self.user_sessions: Dict[str, str] = {}  # user_id -> connection_id
+        self.active_connections: dict[str, WebSocket] = {}
+        self.user_sessions: dict[str, str] = {}  # user_id -> connection_id
 
     async def connect(
         self, websocket: WebSocket, connection_id: str, user_id: str = "ceo"
@@ -179,7 +180,7 @@ async def send_chat_message(
 
 
 @router.get("/chat/personalities")
-async def get_available_personalities() -> Dict[str, Any]:
+async def get_available_personalities() -> dict[str, Any]:
     """Get all available Sophia personalities with descriptions"""
     service = await get_sophia_service()
 
@@ -198,7 +199,7 @@ async def get_available_personalities() -> Dict[str, Any]:
 
 
 @router.get("/search/contexts")
-async def get_search_contexts() -> Dict[str, Any]:
+async def get_search_contexts() -> dict[str, Any]:
     """Get all available search contexts with descriptions"""
     contexts = {}
     for context in SearchContext:
@@ -221,12 +222,12 @@ async def get_search_contexts() -> Dict[str, Any]:
 # User Management Endpoints (CEO Dashboard Integration)
 
 
-@router.post("/users", response_model=Dict[str, Any])
+@router.post("/users", response_model=dict[str, Any])
 async def create_user_profile(
     request: UserProfileRequest,
     creator_id: str = "ceo",
     service: SophiaUniversalChatService = Depends(get_sophia_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create new user profile (CEO dashboard functionality)"""
     try:
         user_data = request.dict()
@@ -259,7 +260,7 @@ async def create_user_profile(
 @router.get("/users")
 async def list_users(
     service: SophiaUniversalChatService = Depends(get_sophia_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get all user profiles"""
     try:
         users = []
@@ -288,7 +289,7 @@ async def list_users(
 @router.get("/users/{user_id}")
 async def get_user_profile(
     user_id: str, service: SophiaUniversalChatService = Depends(get_sophia_service)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get specific user profile"""
     try:
         user_profile = service.user_profiles.get(user_id)
@@ -330,7 +331,7 @@ async def update_user_permissions(
     request: UserPermissionUpdate,
     updater_id: str = "ceo",
     service: SophiaUniversalChatService = Depends(get_sophia_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Update user permissions (CEO only)"""
     try:
         # Verify updater has CEO access
@@ -383,9 +384,9 @@ async def update_user_permissions(
 
 @router.get("/analytics/users")
 async def get_user_analytics(
-    user_id: Optional[str] = None,
+    user_id: str | None = None,
     service: SophiaUniversalChatService = Depends(get_sophia_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get user analytics for CEO dashboard"""
     try:
         analytics = await service.get_user_analytics(user_id)
@@ -403,7 +404,7 @@ async def get_user_analytics(
 @router.get("/health")
 async def health_check(
     service: SophiaUniversalChatService = Depends(get_sophia_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Health check for Sophia Universal Chat Service"""
     try:
         health_status = {

@@ -10,7 +10,7 @@ Current size: 673 lines
 
 Recommended decomposition:
 - estuary_netsuite_setup_core.py - Core functionality
-- estuary_netsuite_setup_utils.py - Utility functions  
+- estuary_netsuite_setup_utils.py - Utility functions
 - estuary_netsuite_setup_models.py - Data models
 - estuary_netsuite_setup_handlers.py - Request handlers
 
@@ -19,8 +19,8 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from typing import Dict, Any
 from dataclasses import dataclass
+from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
 from backend.etl.estuary.estuary_configuration_manager import (
@@ -70,7 +70,7 @@ class EstuaryNetSuiteOrchestrator:
             logger.error(f"❌ Failed to initialize NetSuite orchestrator: {e}")
             raise
 
-    async def _create_netsuite_source(self) -> Dict[str, Any]:
+    async def _create_netsuite_source(self) -> dict[str, Any]:
         """Create NetSuite source configuration"""
         try:
             source_config = {
@@ -95,7 +95,7 @@ class EstuaryNetSuiteOrchestrator:
             logger.error(f"❌ Failed to create NetSuite source: {e}")
             raise
 
-    async def _create_snowflake_destination(self) -> Dict[str, Any]:
+    async def _create_snowflake_destination(self) -> dict[str, Any]:
         """Create or get Snowflake destination for NetSuite data"""
         try:
             # Use existing Snowflake destination or create new one
@@ -131,7 +131,7 @@ class EstuaryNetSuiteOrchestrator:
 
     async def _create_netsuite_connection(
         self, source_id: str, destination_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create connection between NetSuite source and Snowflake destination"""
         try:
             # Define NetSuite streams to sync
@@ -235,16 +235,16 @@ class EstuaryNetSuiteOrchestrator:
         """
         try:
             logger.info("Creating NetSuite transformation procedures...")
-            
+
             # Execute transformation procedure creation in logical order
             await self._create_data_validation_procedures()
             await self._create_enrichment_procedures()
             await self._create_aggregation_procedures()
             await self._create_quality_check_procedures()
             await self._create_monitoring_procedures()
-            
+
             logger.info("✅ All transformation procedures created successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Error creating transformation procedures: {e}")
             raise
@@ -252,70 +252,70 @@ class EstuaryNetSuiteOrchestrator:
     async def _create_data_validation_procedures(self) -> None:
         """Create data validation and cleansing procedures"""
         logger.info("Creating data validation procedures...")
-        
+
         validation_procedures = [
             self._create_customer_validation_procedure(),
             self._create_transaction_validation_procedure(),
             self._create_product_validation_procedure(),
-            self._create_financial_validation_procedure()
+            self._create_financial_validation_procedure(),
         ]
-        
+
         for procedure_sql in validation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_enrichment_procedures(self) -> None:
         """Create data enrichment and transformation procedures"""
         logger.info("Creating data enrichment procedures...")
-        
+
         enrichment_procedures = [
             self._create_customer_enrichment_procedure(),
             self._create_sales_enrichment_procedure(),
             self._create_financial_enrichment_procedure(),
-            self._create_inventory_enrichment_procedure()
+            self._create_inventory_enrichment_procedure(),
         ]
-        
+
         for procedure_sql in enrichment_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_aggregation_procedures(self) -> None:
         """Create data aggregation and summary procedures"""
         logger.info("Creating data aggregation procedures...")
-        
+
         aggregation_procedures = [
             self._create_daily_sales_aggregation(),
             self._create_monthly_financial_aggregation(),
             self._create_customer_lifetime_value_aggregation(),
-            self._create_product_performance_aggregation()
+            self._create_product_performance_aggregation(),
         ]
-        
+
         for procedure_sql in aggregation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_quality_check_procedures(self) -> None:
         """Create data quality monitoring procedures"""
         logger.info("Creating data quality check procedures...")
-        
+
         quality_procedures = [
             self._create_data_completeness_check(),
             self._create_data_consistency_check(),
             self._create_data_accuracy_check(),
-            self._create_data_timeliness_check()
+            self._create_data_timeliness_check(),
         ]
-        
+
         for procedure_sql in quality_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_monitoring_procedures(self) -> None:
         """Create monitoring and alerting procedures"""
         logger.info("Creating monitoring procedures...")
-        
+
         monitoring_procedures = [
             self._create_pipeline_health_monitor(),
             self._create_performance_monitor(),
             self._create_error_tracking_procedure(),
-            self._create_usage_analytics_procedure()
+            self._create_usage_analytics_procedure(),
         ]
-        
+
         for procedure_sql in monitoring_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
@@ -624,7 +624,8 @@ class EstuaryNetSuiteOrchestrator:
         # In a real implementation, this would execute the SQL
         # For now, we'll just log the procedure creation
         logger.info(f"Creating procedure: {procedure_sql[:50]}...")
-    async def setup_complete_netsuite_pipeline(self) -> Dict[str, str]:
+
+    async def setup_complete_netsuite_pipeline(self) -> dict[str, str]:
         """Set up complete NetSuite data pipeline"""
         try:
             logger.info("🚀 Setting up complete NetSuite data pipeline")

@@ -4,15 +4,16 @@ Enhanced Sales Coaching API Routes
 Microsoft email intelligence via Gong.io with advanced coaching capabilities
 """
 
-import asyncio
 import logging
-from typing import Dict, Any, Optional
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from backend.agents.specialized.enhanced_sales_coach_agent import enhanced_sales_coach_agent
-from backend.core.auto_esc_config import get_config_value
+from backend.agents.specialized.enhanced_sales_coach_agent import (
+    enhanced_sales_coach_agent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ router = APIRouter(prefix="/api/sales-coaching", tags=["Enhanced Sales Coaching"
 
 class PerformanceAnalysisRequest(BaseModel):
     """Request model for performance analysis"""
+
     sales_rep: str
     days: int = 7
     include_coaching_message: bool = True
@@ -28,13 +30,15 @@ class PerformanceAnalysisRequest(BaseModel):
 
 class RealTimeCoachingRequest(BaseModel):
     """Request model for real-time coaching"""
+
     call_id: str
     sales_rep: str
-    current_metrics: Dict[str, Any]
+    current_metrics: dict[str, Any]
 
 
 class ImprovementTrackingRequest(BaseModel):
     """Request model for improvement tracking"""
+
     sales_rep: str
     days_back: int = 30
 
@@ -46,7 +50,7 @@ async def health_check():
         "status": "healthy",
         "service": "Enhanced Sales Coaching",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
 
 
@@ -54,7 +58,7 @@ async def health_check():
 async def analyze_sales_rep_performance(request: PerformanceAnalysisRequest):
     """
     Analyze sales rep performance with Microsoft email intelligence via Gong
-    
+
     **Example Usage:**
     ```json
     {
@@ -63,7 +67,7 @@ async def analyze_sales_rep_performance(request: PerformanceAnalysisRequest):
         "include_coaching_message": true
     }
     ```
-    
+
     **Returns comprehensive analysis including:**
     - Email intelligence (response rates, personalization scores)
     - Call performance (sentiment, talk ratios)
@@ -73,21 +77,23 @@ async def analyze_sales_rep_performance(request: PerformanceAnalysisRequest):
     - Friendly but stern coaching message
     """
     try:
-        result = await enhanced_sales_coach_agent.execute_task({
-            "type": "analyze_performance",
-            "sales_rep": request.sales_rep,
-            "days": request.days
-        })
-        
+        result = await enhanced_sales_coach_agent.execute_task(
+            {
+                "type": "analyze_performance",
+                "sales_rep": request.sales_rep,
+                "days": request.days,
+            }
+        )
+
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
-        
+
         return {
             "success": True,
             "data": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error analyzing sales rep performance: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -97,7 +103,7 @@ async def analyze_sales_rep_performance(request: PerformanceAnalysisRequest):
 async def provide_real_time_coaching(request: RealTimeCoachingRequest):
     """
     Provide real-time coaching during calls
-    
+
     **Example Usage:**
     ```json
     {
@@ -110,7 +116,7 @@ async def provide_real_time_coaching(request: RealTimeCoachingRequest):
         }
     }
     ```
-    
+
     **Returns real-time coaching insights:**
     - Talk ratio alerts
     - Sentiment monitoring
@@ -118,22 +124,24 @@ async def provide_real_time_coaching(request: RealTimeCoachingRequest):
     - Immediate action recommendations
     """
     try:
-        result = await enhanced_sales_coach_agent.execute_task({
-            "type": "real_time_coaching",
-            "call_id": request.call_id,
-            "sales_rep": request.sales_rep,
-            "current_metrics": request.current_metrics
-        })
-        
+        result = await enhanced_sales_coach_agent.execute_task(
+            {
+                "type": "real_time_coaching",
+                "call_id": request.call_id,
+                "sales_rep": request.sales_rep,
+                "current_metrics": request.current_metrics,
+            }
+        )
+
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
-        
+
         return {
             "success": True,
             "data": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error providing real-time coaching: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -143,7 +151,7 @@ async def provide_real_time_coaching(request: RealTimeCoachingRequest):
 async def track_improvement_progress(request: ImprovementTrackingRequest):
     """
     Track sales rep improvement progress over time
-    
+
     **Example Usage:**
     ```json
     {
@@ -151,7 +159,7 @@ async def track_improvement_progress(request: ImprovementTrackingRequest):
         "days_back": 30
     }
     ```
-    
+
     **Returns improvement tracking:**
     - Performance trends over time
     - Coaching effectiveness metrics
@@ -159,21 +167,23 @@ async def track_improvement_progress(request: ImprovementTrackingRequest):
     - Progress visualization data
     """
     try:
-        result = await enhanced_sales_coach_agent.execute_task({
-            "type": "track_improvement",
-            "sales_rep": request.sales_rep,
-            "days_back": request.days_back
-        })
-        
+        result = await enhanced_sales_coach_agent.execute_task(
+            {
+                "type": "track_improvement",
+                "sales_rep": request.sales_rep,
+                "days_back": request.days_back,
+            }
+        )
+
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])
-        
+
         return {
             "success": True,
             "data": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error tracking improvement progress: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -187,12 +197,10 @@ async def riley_coaching_demo():
     """
     try:
         # Simulate Riley's performance analysis
-        demo_result = await enhanced_sales_coach_agent.execute_task({
-            "type": "analyze_performance",
-            "sales_rep": "Riley Martinez",
-            "days": 7
-        })
-        
+        demo_result = await enhanced_sales_coach_agent.execute_task(
+            {"type": "analyze_performance", "sales_rep": "Riley Martinez", "days": 7}
+        )
+
         # If no real data, return demo data
         if "error" in demo_result:
             demo_result = {
@@ -249,40 +257,40 @@ You've got this, Riley, but only if you're willing to change. Are you in?""",
                         "type": "call_sentiment",
                         "priority": "critical",
                         "message": "Call sentiment at 0.45 - focus on rapport building",
-                        "action_required": True
+                        "action_required": True,
                     },
                     {
                         "type": "email_response_rate",
                         "priority": "high",
                         "message": "Email response rate at 28.3% - below 35% threshold",
-                        "action_required": True
+                        "action_required": True,
                     },
                     {
                         "type": "talk_ratio",
                         "priority": "high",
                         "message": "Talk ratio at 78% - ask more discovery questions",
-                        "action_required": True
-                    }
+                        "action_required": True,
+                    },
                 ],
                 "action_items": [
                     {
                         "priority": "immediate",
                         "action": "Rewrite email templates with company-specific insights",
                         "timeline": "This week",
-                        "success_metric": "40% response rate"
+                        "success_metric": "40% response rate",
                     },
                     {
                         "priority": "immediate",
                         "action": "Practice active listening and rapport building techniques",
                         "timeline": "Next 3 calls",
-                        "success_metric": "0.6+ sentiment score"
+                        "success_metric": "0.6+ sentiment score",
                     },
                     {
                         "priority": "high",
                         "action": "Prepare 8+ discovery questions for each call",
                         "timeline": "Starting tomorrow",
-                        "success_metric": "60% talk ratio or less"
-                    }
+                        "success_metric": "60% talk ratio or less",
+                    },
                 ],
                 "email_intelligence": {
                     "thread_count": 12,
@@ -290,16 +298,16 @@ You've got this, Riley, but only if you're willing to change. Are you in?""",
                         "response_rate": 28.3,
                         "avg_personalization_score": 0.35,
                         "total_emails_sent": 24,
-                        "threads_with_responses": 3
-                    }
+                        "threads_with_responses": 3,
+                    },
                 },
                 "call_performance": {
                     "call_count": 8,
                     "summary": {
                         "avg_sentiment": 0.45,
                         "avg_talk_ratio": 0.78,
-                        "calls_needing_coaching": 6
-                    }
+                        "calls_needing_coaching": 6,
+                    },
                 },
                 "competitive_intelligence": {
                     "total_competitive_calls": 3,
@@ -307,22 +315,22 @@ You've got this, Riley, but only if you're willing to change. Are you in?""",
                         {
                             "competitor": "stripe",
                             "mentions": 2,
-                            "recommended_response": "Emphasize our superior customer service, faster onboarding, and enterprise-grade compliance"
+                            "recommended_response": "Emphasize our superior customer service, faster onboarding, and enterprise-grade compliance",
                         }
-                    ]
+                    ],
                 },
                 "next_review": (datetime.now()).isoformat(),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
-        
+
         return {
             "success": True,
             "message": "This is a demo of Riley Martinez coaching analysis",
             "demo_data": demo_result,
             "note": "This demonstrates the friendly but stern coaching approach with Microsoft email intelligence via Gong",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error in Riley demo: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -334,39 +342,45 @@ async def get_coaching_insights(sales_rep: str, days: int = 7):
     Get coaching insights for a specific sales rep
     """
     try:
-        result = await enhanced_sales_coach_agent.execute_task({
-            "type": "analyze_performance",
-            "sales_rep": sales_rep,
-            "days": days
-        })
-        
+        result = await enhanced_sales_coach_agent.execute_task(
+            {"type": "analyze_performance", "sales_rep": sales_rep, "days": days}
+        )
+
         if "error" in result:
-            raise HTTPException(status_code=404, detail=f"No data found for {sales_rep}")
-        
+            raise HTTPException(
+                status_code=404, detail=f"No data found for {sales_rep}"
+            )
+
         # Extract key insights
         insights_summary = {
             "sales_rep": sales_rep,
             "performance_score": result.get("performance_score", 0),
-            "critical_issues": len([
-                i for i in result.get("insights", []) 
-                if i.get("priority") == "critical"
-            ]),
-            "high_priority_issues": len([
-                i for i in result.get("insights", []) 
-                if i.get("priority") == "high"
-            ]),
-            "email_response_rate": result.get("email_intelligence", {}).get("summary", {}).get("response_rate", 0),
-            "call_sentiment": result.get("call_performance", {}).get("summary", {}).get("avg_sentiment", 0),
-            "coaching_needed": len(result.get("action_items", [])) > 0
+            "critical_issues": len(
+                [
+                    i
+                    for i in result.get("insights", [])
+                    if i.get("priority") == "critical"
+                ]
+            ),
+            "high_priority_issues": len(
+                [i for i in result.get("insights", []) if i.get("priority") == "high"]
+            ),
+            "email_response_rate": result.get("email_intelligence", {})
+            .get("summary", {})
+            .get("response_rate", 0),
+            "call_sentiment": result.get("call_performance", {})
+            .get("summary", {})
+            .get("avg_sentiment", 0),
+            "coaching_needed": len(result.get("action_items", [])) > 0,
         }
-        
+
         return {
             "success": True,
             "insights_summary": insights_summary,
             "full_analysis": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting coaching insights: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -379,48 +393,65 @@ async def get_team_performance():
     """
     try:
         # Sample team members (in production, this would come from a database)
-        team_members = ["Riley Martinez", "Sarah Johnson", "Mike Chen", "Emily Rodriguez"]
-        
+        team_members = [
+            "Riley Martinez",
+            "Sarah Johnson",
+            "Mike Chen",
+            "Emily Rodriguez",
+        ]
+
         team_results = []
-        
+
         for member in team_members:
             try:
-                result = await enhanced_sales_coach_agent.execute_task({
-                    "type": "analyze_performance",
-                    "sales_rep": member,
-                    "days": 7
-                })
-                
+                result = await enhanced_sales_coach_agent.execute_task(
+                    {"type": "analyze_performance", "sales_rep": member, "days": 7}
+                )
+
                 if "error" not in result:
-                    team_results.append({
-                        "sales_rep": member,
-                        "performance_score": result.get("performance_score", 0),
-                        "email_response_rate": result.get("email_intelligence", {}).get("summary", {}).get("response_rate", 0),
-                        "call_sentiment": result.get("call_performance", {}).get("summary", {}).get("avg_sentiment", 0),
-                        "action_items_count": len(result.get("action_items", [])),
-                        "needs_coaching": len(result.get("action_items", [])) > 2
-                    })
+                    team_results.append(
+                        {
+                            "sales_rep": member,
+                            "performance_score": result.get("performance_score", 0),
+                            "email_response_rate": result.get("email_intelligence", {})
+                            .get("summary", {})
+                            .get("response_rate", 0),
+                            "call_sentiment": result.get("call_performance", {})
+                            .get("summary", {})
+                            .get("avg_sentiment", 0),
+                            "action_items_count": len(result.get("action_items", [])),
+                            "needs_coaching": len(result.get("action_items", [])) > 2,
+                        }
+                    )
             except:
                 # If individual analysis fails, add placeholder
-                team_results.append({
-                    "sales_rep": member,
-                    "performance_score": 0.5,
-                    "email_response_rate": 30.0,
-                    "call_sentiment": 0.6,
-                    "action_items_count": 1,
-                    "needs_coaching": False
-                })
-        
+                team_results.append(
+                    {
+                        "sales_rep": member,
+                        "performance_score": 0.5,
+                        "email_response_rate": 30.0,
+                        "call_sentiment": 0.6,
+                        "action_items_count": 1,
+                        "needs_coaching": False,
+                    }
+                )
+
         # Calculate team averages
         if team_results:
-            team_avg_score = sum(r["performance_score"] for r in team_results) / len(team_results)
-            team_avg_email_rate = sum(r["email_response_rate"] for r in team_results) / len(team_results)
-            team_avg_sentiment = sum(r["call_sentiment"] for r in team_results) / len(team_results)
+            team_avg_score = sum(r["performance_score"] for r in team_results) / len(
+                team_results
+            )
+            team_avg_email_rate = sum(
+                r["email_response_rate"] for r in team_results
+            ) / len(team_results)
+            team_avg_sentiment = sum(r["call_sentiment"] for r in team_results) / len(
+                team_results
+            )
             coaching_needed_count = sum(1 for r in team_results if r["needs_coaching"])
         else:
             team_avg_score = team_avg_email_rate = team_avg_sentiment = 0
             coaching_needed_count = 0
-        
+
         return {
             "success": True,
             "team_overview": {
@@ -428,12 +459,12 @@ async def get_team_performance():
                 "avg_performance_score": team_avg_score,
                 "avg_email_response_rate": team_avg_email_rate,
                 "avg_call_sentiment": team_avg_sentiment,
-                "members_needing_coaching": coaching_needed_count
+                "members_needing_coaching": coaching_needed_count,
             },
             "individual_results": team_results,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting team performance: {e}")
         raise HTTPException(status_code=500, detail=str(e))

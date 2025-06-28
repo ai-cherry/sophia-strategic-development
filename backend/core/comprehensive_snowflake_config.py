@@ -8,9 +8,9 @@ Maps to the complete schema breakdown with enhanced support for all features
 
 import json
 import logging
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 from uuid import uuid4
 
 # Import snowflake connector to fix undefined name error
@@ -203,16 +203,16 @@ class ComprehensiveSnowflakeManager:
 
         return f"{self.config.database}.{schema.value}.{table_name}"
 
-    def get_table_config(self, table: TableType) -> Dict[str, Any]:
+    def get_table_config(self, table: TableType) -> dict[str, Any]:
         """Get configuration for specific table"""
         return self.table_configs.get(table, {})
 
     async def execute_query(
         self,
         query: str,
-        params: Optional[tuple] = None,
-        schema: Optional[SchemaType] = None,
-    ) -> List[Dict[str, Any]]:
+        params: tuple | None = None,
+        schema: SchemaType | None = None,
+    ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
             cursor = self.connection.cursor(snowflake.connector.DictCursor)
@@ -241,8 +241,8 @@ class ComprehensiveSnowflakeManager:
         source_id: str = "src_manual",
         importance_score: float = 1.0,
         is_foundational: bool = False,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
         file_path: str = None,
         file_size_bytes: int = None,
         chunk_index: int = 0,
@@ -253,8 +253,8 @@ class ComprehensiveSnowflakeManager:
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, TableType.KNOWLEDGE_BASE_ENTRIES)}
-        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE, 
-         IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES, 
+        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE,
+         IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
          CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
@@ -283,7 +283,7 @@ class ComprehensiveSnowflakeManager:
         self,
         embedding_id: str,
         entry_id: str,
-        embedding_vector: List[float],
+        embedding_vector: list[float],
         chunk_text: str,
         chunk_index: int = 0,
         embedding_model: str = "snowflake-arctic-embed-m",
@@ -320,9 +320,9 @@ class ComprehensiveSnowflakeManager:
         confidence_level: float = 1.0,
         source_system: str = "sophia_ai",
         source_id: str = None,
-        related_entities: List[str] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        related_entities: list[str] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
         expires_at: str = None,
     ) -> bool:
         """Insert memory entry for enhanced context management"""
@@ -362,11 +362,11 @@ class ComprehensiveSnowflakeManager:
         category_filter: str = None,
         importance_threshold: float = 0.5,
         include_embeddings: bool = True,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Perform hybrid search across knowledge base"""
 
         base_query = f"""
-        SELECT 
+        SELECT
             k.ENTRY_ID,
             k.TITLE,
             k.CONTENT,
@@ -378,7 +378,7 @@ class ComprehensiveSnowflakeManager:
             k.TOTAL_CHUNKS,
             k.CREATED_AT
         FROM {self.get_table_name(SchemaType.UNIVERSAL_CHAT, TableType.KNOWLEDGE_BASE_ENTRIES)} k
-        JOIN {self.get_table_name(SchemaType.UNIVERSAL_CHAT, TableType.KNOWLEDGE_CATEGORIES)} c 
+        JOIN {self.get_table_name(SchemaType.UNIVERSAL_CHAT, TableType.KNOWLEDGE_CATEGORIES)} c
           ON k.CATEGORY_ID = c.CATEGORY_ID
         WHERE k.IMPORTANCE_SCORE >= ?
         """
@@ -420,7 +420,7 @@ class ComprehensiveSnowflakeManager:
         metric_name: str,
         metric_value: float,
         metric_unit: str = None,
-        dimensions: Dict[str, Any] = None,
+        dimensions: dict[str, Any] = None,
         aggregation_period: str = "real_time",
     ) -> bool:
         """Log system metrics for monitoring"""
@@ -475,11 +475,11 @@ class ComprehensiveSnowflakeManager:
         user_id: str,
         message_type: str,
         message_content: str,
-        knowledge_entries_used: List[str] = None,
+        knowledge_entries_used: list[str] = None,
         processing_time_ms: int = None,
         model_used: str = None,
         confidence_score: float = None,
-        metadata: Dict[str, Any] = None,
+        metadata: dict[str, Any] = None,
     ) -> bool:
         """Save conversation message with enhanced metadata"""
 
@@ -518,7 +518,7 @@ class ComprehensiveSnowflakeManager:
         return True
 
     # Utility Methods
-    async def get_schema_health(self) -> Dict[str, Any]:
+    async def get_schema_health(self) -> dict[str, Any]:
         """Get comprehensive schema health information"""
 
         health_info = {}
@@ -544,7 +544,7 @@ class ComprehensiveSnowflakeManager:
 
         return health_info
 
-    async def optimize_performance(self) -> Dict[str, Any]:
+    async def optimize_performance(self) -> dict[str, Any]:
         """Run performance optimization queries"""
 
         optimizations = []

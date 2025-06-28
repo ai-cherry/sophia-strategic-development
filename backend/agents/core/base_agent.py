@@ -6,10 +6,10 @@ Provides foundational capabilities for all agents
 import asyncio
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.core.auto_esc_config import config
 
@@ -34,8 +34,8 @@ class AgentConfig:
     retry_attempts: int = 3
     timeout_seconds: int = 30
     log_level: str = "INFO"
-    capabilities: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    capabilities: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -44,11 +44,11 @@ class Task:
 
     id: str
     type: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     priority: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
-    timeout: Optional[int] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    timeout: int | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -58,9 +58,9 @@ class TaskResult:
     task_id: str
     status: str  # success, error, timeout
     result: Any
-    error: Optional[str] = None
-    execution_time: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    execution_time: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class BaseAgent(ABC):
@@ -69,14 +69,14 @@ class BaseAgent(ABC):
     Provides common functionality and interface
     """
 
-    def __init__(self, config_dict: Optional[Dict] = None):
+    def __init__(self, config_dict: dict | None = None):
         self.config_dict = config_dict or {}
         self.agent_config = self._create_agent_config()
         self.status = AgentStatus.INITIALIZING
         self.logger = self._setup_logger()
         self.tasks_queue = asyncio.Queue()
-        self.active_tasks: Dict[str, asyncio.Task] = {}
-        self.task_history: List[TaskResult] = []
+        self.active_tasks: dict[str, asyncio.Task] = {}
+        self.task_history: list[TaskResult] = []
         self.initialized = False
         self.metrics = {
             "tasks_completed": 0,
@@ -180,8 +180,8 @@ class BaseAgent(ABC):
         return task.id
 
     async def get_task_result(
-        self, task_id: str, timeout: Optional[int] = None
-    ) -> Optional[TaskResult]:
+        self, task_id: str, timeout: int | None = None
+    ) -> TaskResult | None:
         """Get result of a specific task"""
         # Check task history first
         for result in self.task_history:
@@ -196,7 +196,7 @@ class BaseAgent(ABC):
                 for result in self.task_history:
                     if result.task_id == task_id:
                         return result
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 return None
 
         return None
@@ -217,7 +217,7 @@ class BaseAgent(ABC):
                 # Process task
                 asyncio.create_task(self._process_task(task))
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # No tasks available, continue
                 continue
             except Exception as e:
@@ -258,7 +258,7 @@ class BaseAgent(ABC):
                 f"Task {task.id} completed successfully in {execution_time:.2f}s"
             )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             task_result = TaskResult(
                 task_id=task.id,
                 status="timeout",
@@ -334,7 +334,7 @@ class BaseAgent(ABC):
                 (current_avg * (completed - 1)) + execution_time
             ) / completed
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get agent status and metrics"""
         return {
             "name": self.agent_config.name,
@@ -351,11 +351,11 @@ class BaseAgent(ABC):
             },
         }
 
-    def get_capabilities(self) -> List[str]:
+    def get_capabilities(self) -> list[str]:
         """Get agent capabilities"""
         return self.agent_config.capabilities.copy()
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform health check"""
         try:
             health_status = {
@@ -381,7 +381,7 @@ class BaseAgent(ABC):
         except Exception as e:
             return {"healthy": False, "status": "error", "error": str(e)}
 
-    async def _agent_health_check(self) -> Dict[str, Any]:
+    async def _agent_health_check(self) -> dict[str, Any]:
         """Agent-specific health check - can be overridden by subclasses"""
         return {}
 
@@ -398,7 +398,7 @@ class BaseAgent(ABC):
             self.metrics["tasks_failed"] + self.metrics["tasks_timeout"]
         ) / total_tasks
 
-    def _calculate_uptime(self) -> Optional[str]:
+    def _calculate_uptime(self) -> str | None:
         """Calculate uptime since initialization"""
         if self.metrics["last_activity"]:
             # This is a simple approximation - in production you'd track initialization time

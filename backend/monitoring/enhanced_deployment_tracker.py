@@ -3,12 +3,12 @@ Sophia AI - Enhanced Deployment Tracking & Monitoring System
 Provides real-time deployment monitoring, tracking, and automated rollback capabilities
 """
 
-import os
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-from enum import Enum
 import logging
+import os
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +53,13 @@ class DeploymentEvent:
     version: str
     status: DeploymentStatus
     timestamp: datetime
-    duration_seconds: Optional[int] = None
-    github_sha: Optional[str] = None
-    github_ref: Optional[str] = None
-    github_actor: Optional[str] = None
-    error_message: Optional[str] = None
-    rollback_target: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    duration_seconds: int | None = None
+    github_sha: str | None = None
+    github_ref: str | None = None
+    github_actor: str | None = None
+    error_message: str | None = None
+    rollback_target: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -69,10 +69,10 @@ class DeploymentHealth:
     component: ComponentType
     environment: Environment
     status: str
-    last_deployment: Optional[datetime]
+    last_deployment: datetime | None
     success_rate: float
     average_duration: float
-    issues: List[str]
+    issues: list[str]
 
 
 @dataclass
@@ -84,7 +84,7 @@ class RollbackPlan:
     environment: Environment
     current_version: str
     target_version: str
-    rollback_steps: List[str]
+    rollback_steps: list[str]
     estimated_duration: int
     risk_level: str
 
@@ -93,8 +93,8 @@ class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
 
     def __init__(self):
-        self.deployment_history: List[DeploymentEvent] = []
-        self.active_deployments: Dict[str, DeploymentEvent] = {}
+        self.deployment_history: list[DeploymentEvent] = []
+        self.active_deployments: dict[str, DeploymentEvent] = {}
 
     def generate_deployment_id(
         self, component: ComponentType, environment: Environment
@@ -108,7 +108,7 @@ class EnhancedDeploymentTracker:
         component: ComponentType,
         environment: Environment,
         version: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Start tracking a new deployment."""
 
@@ -140,7 +140,7 @@ class EnhancedDeploymentTracker:
         return deployment_id
 
     async def complete_deployment(
-        self, deployment_id: str, success: bool, error_message: Optional[str] = None
+        self, deployment_id: str, success: bool, error_message: str | None = None
     ) -> bool:
         """Complete deployment tracking."""
 
@@ -172,7 +172,7 @@ class EnhancedDeploymentTracker:
         )
         return True
 
-    def _get_github_context(self) -> Dict[str, str]:
+    def _get_github_context(self) -> dict[str, str]:
         """Get GitHub context from environment variables."""
         return {
             "sha": os.getenv("GITHUB_SHA", ""),

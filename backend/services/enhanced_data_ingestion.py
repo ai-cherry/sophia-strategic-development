@@ -4,13 +4,13 @@ Implements near-real-time data ingestion with Snowpipe as recommended in archite
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 from ..core.simple_config import config
+from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +47,9 @@ class IngestionConfig:
     stage_name: str
     table_name: str
     file_format: str
-    transformation_sql: Optional[str] = None
+    transformation_sql: str | None = None
     auto_ingest: bool = True
-    error_integration: Optional[str] = None
+    error_integration: str | None = None
 
 
 class EnhancedDataIngestionService:
@@ -119,7 +119,7 @@ class EnhancedDataIngestionService:
             ),
         }
 
-    async def setup_snowpipe_infrastructure(self) -> Dict[str, Any]:
+    async def setup_snowpipe_infrastructure(self) -> dict[str, Any]:
         """
         Setup Snowpipe infrastructure for near-real-time ingestion
         Following research blueprint: "Snowpipe for near-real-time ingestion"
@@ -182,8 +182,8 @@ class EnhancedDataIngestionService:
             }
 
     async def ingest_real_time_data(
-        self, source: DataSource, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, source: DataSource, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Ingest real-time data through appropriate pipeline
         Routes to MCP for operational data, Snowpipe for analytical storage
@@ -223,8 +223,8 @@ class EnhancedDataIngestionService:
             }
 
     async def _ingest_via_snowpipe(
-        self, config: IngestionConfig, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, config: IngestionConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Ingest data via Snowpipe for near-real-time processing"""
         start_time = datetime.now()
 
@@ -236,7 +236,7 @@ class EnhancedDataIngestionService:
             # For now, we'll simulate direct insertion
             insert_sql = f"""
             INSERT INTO {config.table_name} (raw_data, source, ingested_at)
-            SELECT 
+            SELECT
                 PARSE_JSON(%s) as raw_data,
                 %s as source,
                 CURRENT_TIMESTAMP() as ingested_at
@@ -260,8 +260,8 @@ class EnhancedDataIngestionService:
             raise
 
     async def _queue_for_batch_processing(
-        self, config: IngestionConfig, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, config: IngestionConfig, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Queue data for batch processing"""
         try:
             # In a real implementation, this would queue to a message system
@@ -282,18 +282,18 @@ class EnhancedDataIngestionService:
             logger.error(f"Batch queueing failed: {e}")
             raise
 
-    async def get_ingestion_metrics(self, time_range_hours: int = 24) -> Dict[str, Any]:
+    async def get_ingestion_metrics(self, time_range_hours: int = 24) -> dict[str, Any]:
         """Get ingestion performance metrics"""
         try:
             metrics_sql = f"""
-            SELECT 
+            SELECT
                 source,
                 COUNT(*) as total_records,
                 AVG(DATEDIFF('second', ingested_at, CURRENT_TIMESTAMP())) as avg_latency_seconds,
                 MIN(ingested_at) as earliest_record,
                 MAX(ingested_at) as latest_record
             FROM (
-                SELECT 'GITHUB' as source, ingested_at FROM RAW_GITHUB_EVENTS 
+                SELECT 'GITHUB' as source, ingested_at FROM RAW_GITHUB_EVENTS
                 WHERE ingested_at >= DATEADD('hour', -{time_range_hours}, CURRENT_TIMESTAMP())
                 UNION ALL
                 SELECT 'GONG' as source, ingested_at FROM RAW_GONG_CALLS
@@ -324,7 +324,7 @@ class EnhancedDataIngestionService:
             logger.error(f"Error getting ingestion metrics: {e}")
             return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
-    def _calculate_ingestion_health(self, metrics_data: List[Dict]) -> str:
+    def _calculate_ingestion_health(self, metrics_data: list[dict]) -> str:
         """Calculate overall ingestion health score"""
         if not metrics_data:
             return "unknown"

@@ -6,15 +6,14 @@ Focuses on the most common issues found in the syntax validation report.
 
 import re
 from pathlib import Path
-from typing import List, Tuple
 
 
-def fix_file_syntax(file_path: Path) -> Tuple[bool, List[str]]:
+def fix_file_syntax(file_path: Path) -> tuple[bool, list[str]]:
     """Fix syntax errors in a single file."""
     fixes = []
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content

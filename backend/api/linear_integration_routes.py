@@ -9,7 +9,7 @@ Current size: 613 lines
 
 Recommended decomposition:
 - linear_integration_routes_core.py - Core functionality
-- linear_integration_routes_utils.py - Utility functions  
+- linear_integration_routes_utils.py - Utility functions
 - linear_integration_routes_models.py - Data models
 - linear_integration_routes_handlers.py - Request handlers
 
@@ -19,12 +19,11 @@ TODO: Implement file decomposition
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +36,11 @@ class LinearProjectSummary(BaseModel):
     name: str
     state: str
     progress: float
-    lead: Optional[str] = None
-    team: Optional[str] = None
-    start_date: Optional[str] = None
-    target_date: Optional[str] = None
-    completed_at: Optional[str] = None
+    lead: str | None = None
+    team: str | None = None
+    start_date: str | None = None
+    target_date: str | None = None
+    completed_at: str | None = None
     total_issues: int = 0
     completed_issues: int = 0
     completion_rate: float = 0.0
@@ -52,12 +51,12 @@ class LinearIssueSummary(BaseModel):
     title: str
     state: str
     priority: int
-    assignee: Optional[str] = None
-    team: Optional[str] = None
-    project: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-    due_date: Optional[str] = None
+    assignee: str | None = None
+    team: str | None = None
+    project: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+    due_date: str | None = None
 
 
 class LinearTeamSummary(BaseModel):
@@ -77,7 +76,7 @@ class LinearIntegrationHealth(BaseModel):
     total_projects: int
     total_issues: int
     total_teams: int
-    sync_errors: List[str] = []
+    sync_errors: list[str] = []
 
 
 class LinearMCPClient:
@@ -88,8 +87,8 @@ class LinearMCPClient:
         self.timeout = 30
 
     async def call_tool(
-        self, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, arguments: dict[str, Any]
+    ) -> dict[str, Any]:
         """Call a tool on the Linear MCP server."""
         try:
             async with aiohttp.ClientSession(
@@ -164,10 +163,10 @@ async def get_linear_health():
         )
 
 
-@router.get("/projects", response_model=List[LinearProjectSummary])
+@router.get("/projects", response_model=list[LinearProjectSummary])
 async def get_projects(
-    team_id: Optional[str] = Query(None, description="Filter by team ID"),
-    state: Optional[str] = Query(None, description="Filter by project state"),
+    team_id: str | None = Query(None, description="Filter by team ID"),
+    state: str | None = Query(None, description="Filter by project state"),
     limit: int = Query(50, description="Maximum number of projects to return"),
 ):
     """Get projects from Linear."""
@@ -231,13 +230,13 @@ async def get_project_details(project_id: str):
         )
 
 
-@router.get("/issues", response_model=List[LinearIssueSummary])
+@router.get("/issues", response_model=list[LinearIssueSummary])
 async def get_issues(
-    team_id: Optional[str] = Query(None, description="Filter by team ID"),
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    assignee_id: Optional[str] = Query(None, description="Filter by assignee ID"),
-    state: Optional[str] = Query(None, description="Filter by issue state"),
-    priority: Optional[int] = Query(None, description="Filter by priority level"),
+    team_id: str | None = Query(None, description="Filter by team ID"),
+    project_id: str | None = Query(None, description="Filter by project ID"),
+    assignee_id: str | None = Query(None, description="Filter by assignee ID"),
+    state: str | None = Query(None, description="Filter by issue state"),
+    priority: int | None = Query(None, description="Filter by priority level"),
     limit: int = Query(100, description="Maximum number of issues to return"),
 ):
     """Get issues from Linear."""
@@ -305,7 +304,7 @@ async def get_issue_details(issue_id: str):
         )
 
 
-@router.get("/teams", response_model=List[LinearTeamSummary])
+@router.get("/teams", response_model=list[LinearTeamSummary])
 async def get_teams(
     include_archived: bool = Query(False, description="Include archived teams"),
 ):
@@ -350,14 +349,14 @@ async def get_team_members(team_id: str):
         )
 
 
-@router.get("/search/issues", response_model=List[LinearIssueSummary])
+@router.get("/search/issues", response_model=list[LinearIssueSummary])
 async def search_issues(
-    query: Optional[str] = Query(
+    query: str | None = Query(
         None, description="Search query for issue titles and descriptions"
     ),
-    team_id: Optional[str] = Query(None, description="Limit search to specific team"),
-    assignee_id: Optional[str] = Query(None, description="Filter by assignee ID"),
-    state: Optional[str] = Query(None, description="Filter by issue state"),
+    team_id: str | None = Query(None, description="Limit search to specific team"),
+    assignee_id: str | None = Query(None, description="Filter by assignee ID"),
+    state: str | None = Query(None, description="Filter by issue state"),
     limit: int = Query(50, description="Maximum number of issues to return"),
 ):
     """Search for issues with various filters."""
@@ -410,11 +409,11 @@ async def search_issues(
         )
 
 
-@router.get("/users/{user_id}/issues", response_model=List[LinearIssueSummary])
+@router.get("/users/{user_id}/issues", response_model=list[LinearIssueSummary])
 async def get_user_issues(
     user_id: str,
-    state: Optional[str] = Query(None, description="Filter by issue state"),
-    team_id: Optional[str] = Query(None, description="Filter by team ID"),
+    state: str | None = Query(None, description="Filter by issue state"),
+    team_id: str | None = Query(None, description="Filter by team ID"),
 ):
     """Get issues assigned to a specific user."""
     try:
@@ -475,8 +474,8 @@ async def get_workspace_users(
 
 @router.get("/milestones")
 async def get_milestones(
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    team_id: Optional[str] = Query(None, description="Filter by team ID"),
+    project_id: str | None = Query(None, description="Filter by project ID"),
+    team_id: str | None = Query(None, description="Filter by team ID"),
     limit: int = Query(20, description="Maximum number of milestones to return"),
 ):
     """Get milestones for projects or teams."""
@@ -561,15 +560,15 @@ async def get_dashboard_summary():
             "total_projects": total_projects,
             "active_projects": active_projects,
             "completed_projects": completed_projects,
-            "project_completion_rate": (completed_projects / total_projects * 100)
-            if total_projects > 0
-            else 0,
+            "project_completion_rate": (
+                (completed_projects / total_projects * 100) if total_projects > 0 else 0
+            ),
             "total_issues": total_issues,
             "active_issues": active_issues,
             "completed_issues": completed_issues,
-            "issue_completion_rate": (completed_issues / total_issues * 100)
-            if total_issues > 0
-            else 0,
+            "issue_completion_rate": (
+                (completed_issues / total_issues * 100) if total_issues > 0 else 0
+            ),
             "priority_distribution": priority_distribution,
             "total_teams": total_teams,
             "active_teams": active_teams,
@@ -590,7 +589,7 @@ def _map_linear_priority(priority: int) -> str:
     return priority_map.get(priority, "Unknown")
 
 
-def _calculate_project_health(project: Dict[str, Any]) -> str:
+def _calculate_project_health(project: dict[str, Any]) -> str:
     """Calculate project health based on various metrics."""
     # This is a simplified health calculation
     # In practice, you'd want more sophisticated logic
@@ -610,7 +609,7 @@ def _calculate_project_health(project: Dict[str, Any]) -> str:
         return "behind"
 
 
-def _calculate_team_velocity(team_data: Dict[str, Any]) -> float:
+def _calculate_team_velocity(team_data: dict[str, Any]) -> float:
     """Calculate team velocity based on issue completion."""
     # This would typically look at historical data
     # For now, return a placeholder calculation

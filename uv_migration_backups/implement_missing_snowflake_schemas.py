@@ -22,7 +22,6 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 
 # Configure logging
 logging.basicConfig(
@@ -763,7 +762,7 @@ $$;
             logger.error(f"❌ Failed to create {filename}: {e}")
             return False
 
-    async def implement_all_schemas(self) -> Dict[str, bool]:
+    async def implement_all_schemas(self) -> dict[str, bool]:
         """Implement all missing schemas"""
         results = {}
 
@@ -779,7 +778,7 @@ $$;
 
         return results
 
-    def create_implementation_summary(self, results: Dict[str, bool]) -> str:
+    def create_implementation_summary(self, results: dict[str, bool]) -> str:
         """Create implementation summary"""
         total_schemas = len(results)
         successful = sum(1 for success in results.values() if success)

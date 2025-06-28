@@ -31,33 +31,32 @@ Current size: 990 lines
 
 Recommended decomposition:
 - deploy_snowflake_application_layer_core.py - Core functionality
-- deploy_snowflake_application_layer_utils.py - Utility functions  
+- deploy_snowflake_application_layer_utils.py - Utility functions
 - deploy_snowflake_application_layer_models.py - Data models
 - deploy_snowflake_application_layer_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import asyncio
 import argparse
-import logging
-import sys
-import os
-from datetime import datetime
-from typing import List, Optional
-from dataclasses import dataclass, field
-from enum import Enum
+import asyncio
 import json
+import logging
+import os
+import sys
 import time
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
 
 import snowflake.connector
 import structlog
 
 # Import Sophia AI components
 from backend.core.auto_esc_config import config
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.snowflake_config_manager import SnowflakeConfigManager
 from backend.scripts.batch_embed_data import BatchEmbeddingProcessor
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.workflows.langgraph_agent_orchestration import (
     LangGraphWorkflowOrchestrator,
 )
@@ -96,13 +95,13 @@ class DeploymentStep:
     name: str
     description: str
     phase: DeploymentPhase
-    sql_file: Optional[str] = None
-    python_function: Optional[callable] = None
-    dependencies: List[str] = field(default_factory=list)
+    sql_file: str | None = None
+    python_function: callable | None = None
+    dependencies: list[str] = field(default_factory=list)
     status: DeploymentStatus = DeploymentStatus.PENDING
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    error_message: Optional[str] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    error_message: str | None = None
 
     @property
     def duration_seconds(self) -> float:
@@ -118,12 +117,12 @@ class DeploymentReport:
     deployment_id: str
     environment: str
     started_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     total_steps: int = 0
     completed_steps: int = 0
     failed_steps: int = 0
     skipped_steps: int = 0
-    steps: List[DeploymentStep] = field(default_factory=list)
+    steps: list[DeploymentStep] = field(default_factory=list)
 
     @property
     def duration_seconds(self) -> float:
@@ -169,7 +168,7 @@ class SnowflakeApplicationLayerDeployer:
         # Define deployment steps
         self.deployment_steps = self._define_deployment_steps()
 
-    def _define_deployment_steps(self) -> List[DeploymentStep]:
+    def _define_deployment_steps(self) -> list[DeploymentStep]:
         """Define all deployment steps"""
         return [
             # Schema Creation Phase
@@ -440,7 +439,7 @@ class SnowflakeApplicationLayerDeployer:
         if not os.path.exists(step.sql_file):
             raise FileNotFoundError(f"SQL file not found: {step.sql_file}")
 
-        with open(step.sql_file, "r") as f:
+        with open(step.sql_file) as f:
             sql_content = f.read()
 
         # Split into individual statements (simple approach)

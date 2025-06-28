@@ -9,24 +9,25 @@ Current size: 684 lines
 
 Recommended decomposition:
 - slack_linear_knowledge_routes_core.py - Core functionality
-- slack_linear_knowledge_routes_utils.py - Utility functions  
+- slack_linear_knowledge_routes_utils.py - Utility functions
 - slack_linear_knowledge_routes_models.py - Data models
 - slack_linear_knowledge_routes_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_session
 from backend.core.auth import get_current_user
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.core.cache_manager import DashboardCacheManager
+from backend.core.database import get_session
 from backend.core.logger import logger
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 router = APIRouter(prefix="/api/v1/knowledge", tags=["slack-linear-knowledge"])
 
@@ -45,14 +46,14 @@ cache_manager = DashboardCacheManager()
 async def get_slack_stats(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Slack knowledge statistics"""
     try:
         cache_key = f"slack_stats:{user_id}"
 
         async def fetch_stats():
             query = """
-            SELECT 
+            SELECT
                 COUNT(DISTINCT CONVERSATION_ID) as total_conversations,
                 COUNT(DISTINCT MESSAGE_ID) as total_messages,
                 COUNT(DISTINCT CHANNEL_ID) as active_channels,
@@ -88,13 +89,13 @@ async def get_slack_stats(
 
 @router.get("/slack/conversations")
 async def get_slack_conversations(
-    channel_name: Optional[str] = Query(None, description="Filter by channel"),
+    channel_name: str | None = Query(None, description="Filter by channel"),
     date_range_days: int = Query(30, description="Date range in days"),
     min_business_value: float = Query(0.5, description="Minimum business value score"),
     limit: int = Query(50, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Slack conversations with filtering"""
     try:
         # Build WHERE conditions
@@ -109,7 +110,7 @@ async def get_slack_conversations(
         where_clause = " AND ".join(conditions)
 
         query = f"""
-        SELECT 
+        SELECT
             conv.CONVERSATION_ID,
             conv.CONVERSATION_TITLE,
             conv.CONVERSATION_SUMMARY,
@@ -174,12 +175,12 @@ async def get_slack_conversations(
 
 @router.get("/slack/insights")
 async def get_slack_insights(
-    insight_type: Optional[str] = Query(None, description="Filter by insight type"),
+    insight_type: str | None = Query(None, description="Filter by insight type"),
     confidence_threshold: float = Query(0.7, description="Minimum confidence score"),
     limit: int = Query(20, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Slack knowledge insights"""
     try:
         conditions = [f"CONFIDENCE_SCORE >= {confidence_threshold}"]
@@ -190,7 +191,7 @@ async def get_slack_insights(
         where_clause = " AND ".join(conditions)
 
         query = f"""
-        SELECT 
+        SELECT
             INSIGHT_ID,
             INSIGHT_TYPE,
             INSIGHT_TITLE,
@@ -244,12 +245,12 @@ async def get_slack_insights(
 @router.get("/slack/search")
 async def search_slack_knowledge(
     query: str = Query(..., description="Search query"),
-    channel_name: Optional[str] = Query(None, description="Filter by channel"),
+    channel_name: str | None = Query(None, description="Filter by channel"),
     date_range_days: int = Query(30, description="Date range in days"),
     limit: int = Query(10, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Search Slack knowledge using AI Memory"""
     try:
         # Use AI Memory for semantic search
@@ -276,7 +277,7 @@ async def search_slack_knowledge(
 async def sync_slack_data(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Trigger Slack data synchronization"""
     try:
         # Check admin permissions
@@ -325,7 +326,7 @@ async def sync_slack_data(
 async def get_linear_stats(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Linear knowledge statistics"""
     try:
         cache_key = f"linear_stats:{user_id}"
@@ -333,7 +334,7 @@ async def get_linear_stats(
         async def fetch_stats():
             # Main stats query
             stats_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_issues,
                 COUNT(CASE WHEN STATUS NOT IN ('Done', 'Canceled') THEN 1 END) as active_issues,
                 COUNT(CASE WHEN STATUS = 'Done' THEN 1 END) as completed_issues,
@@ -345,7 +346,7 @@ async def get_linear_stats(
 
             # Project stats query
             project_query = """
-            SELECT 
+            SELECT
                 PROJECT_NAME,
                 COUNT(*) as issue_count,
                 COUNT(CASE WHEN STATUS = 'Done' THEN 1 END)::FLOAT / COUNT(*) as completion_rate,
@@ -357,7 +358,7 @@ async def get_linear_stats(
 
             # Priority distribution query
             priority_query = """
-            SELECT 
+            SELECT
                 PRIORITY,
                 COUNT(*) as count
             FROM LINEAR_DATA.STG_LINEAR_ISSUES
@@ -431,14 +432,14 @@ async def get_linear_stats(
 
 @router.get("/linear/issues")
 async def get_linear_issues(
-    project_name: Optional[str] = Query(None, description="Filter by project"),
-    priority: Optional[str] = Query(None, description="Filter by priority"),
-    status: Optional[str] = Query(None, description="Filter by status"),
-    assignee: Optional[str] = Query(None, description="Filter by assignee"),
+    project_name: str | None = Query(None, description="Filter by project"),
+    priority: str | None = Query(None, description="Filter by priority"),
+    status: str | None = Query(None, description="Filter by status"),
+    assignee: str | None = Query(None, description="Filter by assignee"),
     limit: int = Query(50, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Linear issues with filtering"""
     try:
         # Build WHERE conditions
@@ -456,7 +457,7 @@ async def get_linear_issues(
         where_clause = " AND ".join(conditions)
 
         query = f"""
-        SELECT 
+        SELECT
             ISSUE_ID,
             ISSUE_TITLE,
             ISSUE_DESCRIPTION,
@@ -470,13 +471,13 @@ async def get_linear_issues(
             UPDATED_AT
         FROM LINEAR_DATA.STG_LINEAR_ISSUES
         WHERE {where_clause}
-        ORDER BY 
-            CASE PRIORITY 
-                WHEN 'Urgent' THEN 1 
-                WHEN 'High' THEN 2 
-                WHEN 'Medium' THEN 3 
-                WHEN 'Low' THEN 4 
-                ELSE 5 
+        ORDER BY
+            CASE PRIORITY
+                WHEN 'Urgent' THEN 1
+                WHEN 'High' THEN 2
+                WHEN 'Medium' THEN 3
+                WHEN 'Low' THEN 4
+                ELSE 5
             END,
             UPDATED_AT DESC
         LIMIT {limit}
@@ -521,12 +522,12 @@ async def get_linear_issues(
 
 @router.get("/linear/insights")
 async def get_linear_insights(
-    project_name: Optional[str] = Query(None, description="Filter by project"),
-    insight_type: Optional[str] = Query(None, description="Filter by insight type"),
+    project_name: str | None = Query(None, description="Filter by project"),
+    insight_type: str | None = Query(None, description="Filter by insight type"),
     limit: int = Query(20, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get Linear development insights"""
     try:
         # Generate insights from Linear data
@@ -534,7 +535,7 @@ async def get_linear_insights(
 
         # Velocity insights
         velocity_query = """
-        SELECT 
+        SELECT
             PROJECT_NAME,
             COUNT(*) as issues_completed,
             AVG(CYCLE_TIME_DAYS) as avg_cycle_time
@@ -565,7 +566,7 @@ async def get_linear_insights(
 
         # Bottleneck insights
         bottleneck_query = """
-        SELECT 
+        SELECT
             STATUS,
             COUNT(*) as issue_count,
             AVG(DATEDIFF('day', CREATED_AT, CURRENT_DATE())) as avg_age_days
@@ -613,13 +614,13 @@ async def get_linear_insights(
 @router.get("/linear/search")
 async def search_linear_knowledge(
     query: str = Query(..., description="Search query"),
-    project_name: Optional[str] = Query(None, description="Filter by project"),
-    priority: Optional[str] = Query(None, description="Filter by priority"),
-    status: Optional[str] = Query(None, description="Filter by status"),
+    project_name: str | None = Query(None, description="Filter by project"),
+    priority: str | None = Query(None, description="Filter by priority"),
+    status: str | None = Query(None, description="Filter by status"),
     limit: int = Query(10, description="Maximum results to return"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Search Linear knowledge using AI Memory"""
     try:
         # Use AI Memory for semantic search
@@ -647,7 +648,7 @@ async def search_linear_knowledge(
 async def sync_linear_data(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Trigger Linear data synchronization"""
     try:
         # Check admin permissions

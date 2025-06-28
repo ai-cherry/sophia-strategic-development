@@ -1,13 +1,14 @@
 # File: scripts/run_all_mcp_servers.py
 
 import json
-import subprocess
-import time
-import psutil
-from pathlib import Path
 import logging
-import sys
 import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+import psutil
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -49,7 +50,7 @@ def main():
         logger.error("Port configuration file not found at config/mcp_ports.json")
         return
 
-    with open(ports_config_path, "r") as f:
+    with open(ports_config_path) as f:
         ports_config = json.load(f)
 
     servers_to_run = ports_config.get("servers", {})

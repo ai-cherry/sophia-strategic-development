@@ -4,12 +4,12 @@ Sophia AI - Ecosystem Diagnostic & Fix Tool
 Addresses the PULUMI_ACCESS_TOKEN issue and tests complete ecosystem including Codacy MCP
 """
 
-import os
-import subprocess
 import json
 import logging
+import os
+import subprocess
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def check_pulumi_auth() -> Dict[str, Any]:
+def check_pulumi_auth() -> dict[str, Any]:
     """Check Pulumi authentication status"""
     logger.info("🔐 Checking Pulumi authentication...")
 
@@ -44,7 +44,7 @@ def check_pulumi_auth() -> Dict[str, Any]:
         return {"status": "error", "message": str(e)}
 
 
-def check_github_secrets() -> Dict[str, Any]:
+def check_github_secrets() -> dict[str, Any]:
     """Check GitHub organization secrets availability"""
     logger.info("🔗 Checking GitHub organization secrets...")
 
@@ -75,7 +75,7 @@ def check_github_secrets() -> Dict[str, Any]:
     }
 
 
-def check_mcp_servers() -> Dict[str, Any]:
+def check_mcp_servers() -> dict[str, Any]:
     """Check MCP server health"""
     logger.info("🤖 Checking MCP server health...")
 
@@ -105,7 +105,7 @@ def check_mcp_servers() -> Dict[str, Any]:
     }
 
 
-def test_codacy_mcp() -> Dict[str, Any]:
+def test_codacy_mcp() -> dict[str, Any]:
     """Test Codacy MCP server specifically"""
     logger.info("🧪 Testing Codacy MCP Server...")
 

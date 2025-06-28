@@ -5,10 +5,10 @@ Continuously learns and optimizes performance within constitutional constraints.
 """
 
 import asyncio
-from typing import Dict, List, Any
 import logging
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
+from typing import Any
 
 from backend.core.constitutional_ai import SophiaConstitutionalFramework
 
@@ -22,7 +22,7 @@ class PerformanceTracker:
         self.metrics = defaultdict(list)
         self.start_time = datetime.utcnow()
 
-    async def collect_metrics(self) -> Dict[str, Any]:
+    async def collect_metrics(self) -> dict[str, Any]:
         """Collect current performance metrics"""
         current_time = datetime.utcnow()
         uptime = (current_time - self.start_time).total_seconds()
@@ -119,8 +119,8 @@ class SophiaSelfOptimizer:
                 await asyncio.sleep(300)  # 5 minutes on error
 
     async def identify_optimization_opportunities(
-        self, performance_data: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, performance_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Identify areas for improvement"""
         opportunities = []
 
@@ -199,8 +199,8 @@ class SophiaSelfOptimizer:
         return opportunities
 
     async def execute_optimization(
-        self, optimization: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, optimization: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute a specific optimization"""
         logger.info(f"🔧 Executing optimization: {optimization['type']}")
 
@@ -235,8 +235,8 @@ class SophiaSelfOptimizer:
         return result
 
     async def _optimize_response_time(
-        self, optimization: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, optimization: dict[str, Any]
+    ) -> dict[str, Any]:
         """Optimize response times"""
         improvements = {}
 
@@ -260,7 +260,7 @@ class SophiaSelfOptimizer:
 
         return improvements
 
-    async def _optimize_costs(self, optimization: Dict[str, Any]) -> Dict[str, Any]:
+    async def _optimize_costs(self, optimization: dict[str, Any]) -> dict[str, Any]:
         """Optimize costs"""
         improvements = {}
 
@@ -283,7 +283,7 @@ class SophiaSelfOptimizer:
 
         return improvements
 
-    async def _optimize_cache(self, optimization: Dict[str, Any]) -> Dict[str, Any]:
+    async def _optimize_cache(self, optimization: dict[str, Any]) -> dict[str, Any]:
         """Optimize caching"""
         improvements = {}
 
@@ -307,8 +307,8 @@ class SophiaSelfOptimizer:
         return improvements
 
     async def _optimize_reliability(
-        self, optimization: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, optimization: dict[str, Any]
+    ) -> dict[str, Any]:
         """Optimize reliability"""
         improvements = {}
 
@@ -370,7 +370,7 @@ class SophiaSelfOptimizer:
             logger.info(f"  {opt_type}: {rate:.1%} success ({success}/{total})")
 
     def calculate_optimization_interval(
-        self, performance_data: Dict[str, Any]
+        self, performance_data: dict[str, Any]
     ) -> float:
         """Calculate adaptive sleep duration between optimization cycles"""
         base_interval = 300  # 5 minutes
@@ -390,7 +390,7 @@ class SophiaSelfOptimizer:
         """Record a performance metric for tracking"""
         self.performance_tracker.record_metric(metric_name, value)
 
-    async def get_optimization_status(self) -> Dict[str, Any]:
+    async def get_optimization_status(self) -> dict[str, Any]:
         """Get current optimization status and insights"""
         metrics = await self.performance_tracker.collect_metrics()
 

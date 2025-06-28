@@ -7,11 +7,9 @@ This script addresses the 35+ SQL injection vulnerabilities found in the codebas
 by applying targeted fixes to each vulnerable file.
 """
 
-import os
-import re
 import logging
+import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -19,67 +17,70 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 class SQLSecurityFixer:
     """Apply comprehensive SQL security fixes"""
-    
+
     def __init__(self, root_dir: str = "."):
         self.root_dir = Path(root_dir)
         self.fixes_applied = 0
-        
-    def apply_all_fixes(self) -> Dict[str, int]:
+
+    def apply_all_fixes(self) -> dict[str, int]:
         """Apply all SQL security fixes"""
-        
+
         logger.info("🔒 Starting comprehensive SQL security fixes...")
-        
+
         # Apply fixes to specific files
         fixes = {
-            'cortex_agent_service': self.fix_cortex_agent_service(),
-            'enhanced_cortex_agent_service': self.fix_enhanced_cortex_agent_service(),
-            'snowflake_cortex_service': self.fix_snowflake_cortex_service(),
-            'gong_ingest': self.fix_gong_ingest(),
-            'batch_embed_data': self.fix_batch_embed_data(),
-            'deploy_scripts': self.fix_deploy_scripts(),
-            'test_suites': self.fix_test_suites(),
-            'comprehensive_config': self.fix_comprehensive_config(),
+            "cortex_agent_service": self.fix_cortex_agent_service(),
+            "enhanced_cortex_agent_service": self.fix_enhanced_cortex_agent_service(),
+            "snowflake_cortex_service": self.fix_snowflake_cortex_service(),
+            "gong_ingest": self.fix_gong_ingest(),
+            "batch_embed_data": self.fix_batch_embed_data(),
+            "deploy_scripts": self.fix_deploy_scripts(),
+            "test_suites": self.fix_test_suites(),
+            "comprehensive_config": self.fix_comprehensive_config(),
         }
-        
+
         total_fixes = sum(fixes.values())
-        logger.info(f"✅ Applied {total_fixes} SQL security fixes across {len(fixes)} categories")
-        
+        logger.info(
+            f"✅ Applied {total_fixes} SQL security fixes across {len(fixes)} categories"
+        )
+
         return fixes
 
     def fix_cortex_agent_service(self) -> int:
         """Fix SQL injection vulnerabilities in cortex_agent_service.py"""
         file_path = self.root_dir / "backend/services/cortex_agent_service.py"
-        
+
         if not file_path.exists():
             return 0
-            
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Fix USE WAREHOUSE vulnerability
             content = re.sub(
                 r'cursor\.execute\(f"USE WAREHOUSE \{([^}]+)\}"\)',
                 r'cursor.execute("USE WAREHOUSE " + self._validate_warehouse(\1))',
-                content
+                content,
             )
-            
+
             # Fix embedding query vulnerability
             content = re.sub(
-                r'cursor\.execute\(embedding_query\)',
-                r'cursor.execute(embedding_query, (model, text_content))',
-                content
+                r"cursor\.execute\(embedding_query\)",
+                r"cursor.execute(embedding_query, (model, text_content))",
+                content,
             )
-            
+
             # Fix search query vulnerability
             content = re.sub(
-                r'cursor\.execute\(search_query\)',
-                r'cursor.execute(search_query, (query_embedding, similarity_threshold, top_k))',
-                content
+                r"cursor\.execute\(search_query\)",
+                r"cursor.execute(search_query, (query_embedding, similarity_threshold, top_k))",
+                content,
             )
-            
+
             # Add validation helper method
             validation_method = '''
     def _validate_warehouse(self, warehouse_name: str) -> str:
@@ -89,21 +90,18 @@ class SQLSecurityFixer:
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return warehouse_name
 '''
-            
+
             # Insert validation method after class definition
             content = re.sub(
-                r'(class \w+.*?:\s*\n)',
-                r'\1' + validation_method,
-                content,
-                count=1
+                r"(class \w+.*?:\s*\n)", r"\1" + validation_method, content, count=1
             )
-            
-            with open(file_path, 'w', encoding='utf-8') as f:
+
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
-                
-            logger.info(f"✅ Fixed cortex_agent_service.py")
+
+            logger.info("✅ Fixed cortex_agent_service.py")
             return 3
-            
+
         except Exception as e:
             logger.error(f"Error fixing cortex_agent_service.py: {e}")
             return 0
@@ -111,17 +109,17 @@ class SQLSecurityFixer:
     def fix_enhanced_cortex_agent_service(self) -> int:
         """Fix SQL injection vulnerabilities in enhanced_cortex_agent_service.py"""
         file_path = self.root_dir / "backend/services/enhanced_cortex_agent_service.py"
-        
+
         if not file_path.exists():
             return 0
-            
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Fix analysis query vulnerabilities (already partially fixed)
             # These were already addressed in the previous edit
-            
+
             # Fix document analysis query
             content = re.sub(
                 r'analysis_query = f""".*?SELECT.*?SNOWFLAKE\.CORTEX\.COMPLETE\(.*?\{text_content.*?\}.*?\).*?"""',
@@ -133,9 +131,9 @@ class SQLSecurityFixer:
                     ) as analysis
                 """''',
                 content,
-                flags=re.DOTALL
+                flags=re.DOTALL,
             )
-            
+
             # Fix AI query
             content = re.sub(
                 r'ai_query = f""".*?SELECT SNOWFLAKE\.CORTEX\.COMPLETE\(.*?\{analysis_prompt.*?\}.*?\).*?"""',
@@ -146,15 +144,15 @@ class SQLSecurityFixer:
             ) as ai_insights
             """''',
                 content,
-                flags=re.DOTALL
+                flags=re.DOTALL,
             )
-            
-            with open(file_path, 'w', encoding='utf-8') as f:
+
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
-                
-            logger.info(f"✅ Fixed enhanced_cortex_agent_service.py")
+
+            logger.info("✅ Fixed enhanced_cortex_agent_service.py")
             return 2
-            
+
         except Exception as e:
             logger.error(f"Error fixing enhanced_cortex_agent_service.py: {e}")
             return 0
@@ -162,36 +160,36 @@ class SQLSecurityFixer:
     def fix_snowflake_cortex_service(self) -> int:
         """Fix SQL injection vulnerabilities in snowflake_cortex_service.py"""
         file_path = self.root_dir / "backend/utils/snowflake_cortex_service.py"
-        
+
         if not file_path.exists():
             return 0
-            
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Fix check query parameterization
             content = re.sub(
-                r'cursor\.execute\(check_query, \(record_id,\)\)',
-                r'cursor.execute(check_query, (record_id,))',
-                content
+                r"cursor\.execute\(check_query, \(record_id,\)\)",
+                r"cursor.execute(check_query, (record_id,))",
+                content,
             )
-            
+
             # Fix create query execution
             content = re.sub(
-                r'cursor\.execute\(create_query\)',
-                r'cursor.execute(create_query)',
-                content
+                r"cursor\.execute\(create_query\)",
+                r"cursor.execute(create_query)",
+                content,
             )
-            
+
             # The vector search method was already fixed in previous edit
-            
-            with open(file_path, 'w', encoding='utf-8') as f:
+
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
-                
-            logger.info(f"✅ Fixed snowflake_cortex_service.py")
+
+            logger.info("✅ Fixed snowflake_cortex_service.py")
             return 1
-            
+
         except Exception as e:
             logger.error(f"Error fixing snowflake_cortex_service.py: {e}")
             return 0
@@ -199,28 +197,28 @@ class SQLSecurityFixer:
     def fix_gong_ingest(self) -> int:
         """Fix SQL injection vulnerabilities in Gong ingestion files"""
         fixes_applied = 0
-        
+
         # Fix ingest_gong_data.py
         file_path = self.root_dir / "backend/etl/gong/ingest_gong_data.py"
         if file_path.exists():
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
-                
+
                 # Fix CREATE SCHEMA vulnerability
                 content = re.sub(
                     r'cursor\.execute\(f"CREATE SCHEMA IF NOT EXISTS \{self\.database\}\.\{self\.schema\}"\)',
                     r'cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{self.schema}"))',
-                    content
+                    content,
                 )
-                
+
                 # Fix USE SCHEMA vulnerability
                 content = re.sub(
                     r'cursor\.execute\(f"USE SCHEMA \{self\.database\}\.\{self\.schema\}"\)',
                     r'cursor.execute("USE SCHEMA " + self._validate_schema_name(f"{self.database}.{self.schema}"))',
-                    content
+                    content,
                 )
-                
+
                 # Add validation method
                 validation_method = '''
     def _validate_schema_name(self, schema_name: str) -> str:
@@ -230,185 +228,180 @@ class SQLSecurityFixer:
             raise ValueError(f"Invalid schema name: {schema_name}")
         return schema_name
 '''
-                
+
                 # Insert validation method
                 content = re.sub(
-                    r'(import.*?\n\n)',
-                    r'\1import re\n\n',
-                    content,
-                    count=1
+                    r"(import.*?\n\n)", r"\1import re\n\n", content, count=1
                 )
-                
+
                 content = re.sub(
-                    r'(class \w+.*?:\s*\n)',
-                    r'\1' + validation_method,
-                    content,
-                    count=1
+                    r"(class \w+.*?:\s*\n)", r"\1" + validation_method, content, count=1
                 )
-                
-                with open(file_path, 'w', encoding='utf-8') as f:
+
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-                    
+
                 fixes_applied += 2
-                logger.info(f"✅ Fixed ingest_gong_data.py")
-                
+                logger.info("✅ Fixed ingest_gong_data.py")
+
             except Exception as e:
                 logger.error(f"Error fixing ingest_gong_data.py: {e}")
-        
+
         return fixes_applied
 
     def fix_batch_embed_data(self) -> int:
         """Fix SQL injection vulnerabilities in batch embed data scripts"""
         fixes_applied = 0
-        
+
         files_to_fix = [
             "backend/scripts/batch_embed_data.py",
-            "scripts/enhanced_batch_embed_data.py"
+            "scripts/enhanced_batch_embed_data.py",
         ]
-        
+
         for file_path_str in files_to_fix:
             file_path = self.root_dir / file_path_str
             if file_path.exists():
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Fix query execution vulnerabilities
                     content = re.sub(
-                        r'cursor\.execute\(query\)',
+                        r"cursor\.execute\(query\)",
                         r'cursor.execute(query, query_params if "query_params" in locals() else ())',
-                        content
+                        content,
                     )
-                    
+
                     # Fix f-string vulnerabilities in CREATE SCHEMA
                     content = re.sub(
                         r'cursor\.execute\(f"""CREATE SCHEMA IF NOT EXISTS \{([^}]+)\}"""\)',
                         r'cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema(\1))',
-                        content
+                        content,
                     )
-                    
-                    with open(file_path, 'w', encoding='utf-8') as f:
+
+                    with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                        
+
                     fixes_applied += 1
                     logger.info(f"✅ Fixed {file_path_str}")
-                    
+
                 except Exception as e:
                     logger.error(f"Error fixing {file_path_str}: {e}")
-        
+
         return fixes_applied
 
     def fix_deploy_scripts(self) -> int:
         """Fix SQL injection vulnerabilities in deployment scripts"""
         fixes_applied = 0
-        
+
         files_to_fix = [
             "backend/scripts/deploy_gong_snowflake_setup.py",
-            "backend/scripts/deploy_snowflake_application_layer.py"
+            "backend/scripts/deploy_snowflake_application_layer.py",
         ]
-        
+
         for file_path_str in files_to_fix:
             file_path = self.root_dir / file_path_str
             if file_path.exists():
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Fix table count queries
                     content = re.sub(
                         r'cursor\.execute\(f"SELECT COUNT\(\*\) FROM \{([^}]+)\}.*?"\)',
                         r'cursor.execute("SELECT COUNT(*) FROM " + self._validate_table_name(\1))',
-                        content
+                        content,
                     )
-                    
+
                     # Fix SHOW TABLES queries
                     content = re.sub(
                         r'cursor\.execute\(f"SHOW TABLES IN SCHEMA \{([^}]+)\}"\)',
                         r'cursor.execute("SHOW TABLES IN SCHEMA " + self._validate_schema(\1))',
-                        content
+                        content,
                     )
-                    
-                    with open(file_path, 'w', encoding='utf-8') as f:
+
+                    with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                        
+
                     fixes_applied += 1
                     logger.info(f"✅ Fixed {file_path_str}")
-                    
+
                 except Exception as e:
                     logger.error(f"Error fixing {file_path_str}: {e}")
-        
+
         return fixes_applied
 
     def fix_test_suites(self) -> int:
         """Fix SQL injection vulnerabilities in test suites"""
         fixes_applied = 0
-        
-        files_to_fix = [
-            "backend/scripts/enhanced_gong_pipeline_test_suite.py"
-        ]
-        
+
+        files_to_fix = ["backend/scripts/enhanced_gong_pipeline_test_suite.py"]
+
         for file_path_str in files_to_fix:
             file_path = self.root_dir / file_path_str
             if file_path.exists():
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Fix test query vulnerabilities
                     content = re.sub(
                         r'cursor\.execute\(f""".*?\{.*?\}.*?"""\)',
-                        lambda m: m.group(0).replace('f"""', '"""').replace('{', '%s').replace('}', ''),
-                        content
+                        lambda m: m.group(0)
+                        .replace('f"""', '"""')
+                        .replace("{", "%s")
+                        .replace("}", ""),
+                        content,
                     )
-                    
-                    with open(file_path, 'w', encoding='utf-8') as f:
+
+                    with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                        
+
                     fixes_applied += 1
                     logger.info(f"✅ Fixed {file_path_str}")
-                    
+
                 except Exception as e:
                     logger.error(f"Error fixing {file_path_str}: {e}")
-        
+
         return fixes_applied
 
     def fix_comprehensive_config(self) -> int:
         """Fix SQL injection vulnerabilities in configuration files"""
         fixes_applied = 0
-        
+
         files_to_fix = [
             "backend/core/comprehensive_snowflake_config.py",
-            "backend/core/enhanced_snowflake_config.py"
+            "backend/core/enhanced_snowflake_config.py",
         ]
-        
+
         for file_path_str in files_to_fix:
             file_path = self.root_dir / file_path_str
             if file_path.exists():
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Fix USE SCHEMA vulnerabilities
                     content = re.sub(
                         r'cursor\.execute\(f"USE SCHEMA \{([^}]+)\}"\)',
                         r'cursor.execute("USE SCHEMA " + self._validate_schema(\1))',
-                        content
+                        content,
                     )
-                    
-                    with open(file_path, 'w', encoding='utf-8') as f:
+
+                    with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                        
+
                     fixes_applied += 1
                     logger.info(f"✅ Fixed {file_path_str}")
-                    
+
                 except Exception as e:
                     logger.error(f"Error fixing {file_path_str}: {e}")
-        
+
         return fixes_applied
 
-    def create_security_report(self, fixes: Dict[str, int]) -> str:
+    def create_security_report(self, fixes: dict[str, int]) -> str:
         """Create comprehensive security report"""
-        
+
         report_content = f"""
 # SQL Injection Security Remediation Report
 
@@ -418,11 +411,11 @@ Successfully applied **{sum(fixes.values())} security fixes** across **{len(fixe
 ## Fixes Applied by Category
 
 """
-        
+
         for category, count in fixes.items():
             report_content += f"- **{category}**: {count} fixes\n"
-        
-        report_content += f"""
+
+        report_content += """
 
 ## Security Improvements Implemented
 
@@ -503,39 +496,41 @@ Successfully applied **{sum(fixes.values())} security fixes** across **{len(fixe
 
 All critical SQL injection vulnerabilities have been remediated using industry best practices.
 """
-        
+
         # Save report
         report_path = self.root_dir / "SQL_INJECTION_SECURITY_REPORT.md"
-        with open(report_path, 'w', encoding='utf-8') as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_content)
-        
+
         logger.info(f"📋 Security report saved to: {report_path}")
         return str(report_path)
 
+
 def main():
     """Main execution function"""
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("🔒 SOPHIA AI SQL INJECTION SECURITY REMEDIATION")
-    print("="*60)
-    
+    print("=" * 60)
+
     # Initialize fixer
     fixer = SQLSecurityFixer()
-    
+
     # Apply all fixes
     fixes = fixer.apply_all_fixes()
-    
+
     # Create comprehensive report
     report_path = fixer.create_security_report(fixes)
-    
+
     # Print summary
     total_fixes = sum(fixes.values())
-    print(f"\n✅ SECURITY REMEDIATION COMPLETE")
+    print("\n✅ SECURITY REMEDIATION COMPLETE")
     print(f"   • {total_fixes} vulnerabilities fixed")
     print(f"   • {len(fixes)} file categories updated")
-    print(f"   • Comprehensive report generated")
+    print("   • Comprehensive report generated")
     print(f"\n📋 Report: {report_path}")
     print("\n🛡️  Your Sophia AI codebase is now secure against SQL injection attacks!")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

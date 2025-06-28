@@ -10,7 +10,7 @@ Current size: 936 lines
 
 Recommended decomposition:
 - mcp_monitoring_config_core.py - Core functionality
-- mcp_monitoring_config_utils.py - Utility functions  
+- mcp_monitoring_config_utils.py - Utility functions
 - mcp_monitoring_config_models.py - Data models
 - mcp_monitoring_config_handlers.py - Request handlers
 
@@ -19,15 +19,16 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from backend.monitoring.mcp_metrics_collector import (
-    MCPMetricsCollector,
     Alert,
     AlertSeverity,
+    MCPMetricsCollector,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,15 +64,15 @@ class AlertRule:
     threshold: float
     severity: AlertSeverity
     evaluation_interval_seconds: int = 60
-    alert_channels: List[AlertChannel] = None
+    alert_channels: list[AlertChannel] = None
     enabled: bool = True
 
     # Advanced configuration
     consecutive_failures_required: int = 1
     cooldown_minutes: int = 15
     auto_resolve: bool = True
-    custom_message: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    custom_message: str | None = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.alert_channels is None:
@@ -87,11 +88,11 @@ class MonitoringTarget:
     target_id: str
     name: str
     target_type: str  # "mcp_server", "database", "api", "workflow"
-    endpoint: Optional[str] = None
+    endpoint: str | None = None
     health_check_interval_seconds: int = 30
     timeout_seconds: int = 10
     enabled: bool = True
-    custom_checks: List[str] = None
+    custom_checks: list[str] = None
 
     def __post_init__(self):
         if self.custom_checks is None:
@@ -105,9 +106,9 @@ class DashboardConfig:
     dashboard_id: str
     title: str
     description: str
-    panels: List[Dict[str, Any]]
+    panels: list[dict[str, Any]]
     refresh_interval: str = "30s"
-    tags: List[str] = None
+    tags: list[str] = None
 
     def __post_init__(self):
         if self.tags is None:
@@ -121,15 +122,15 @@ class MCPMonitoringConfig:
 
     def __init__(self, monitoring_level: MonitoringLevel = MonitoringLevel.PRODUCTION):
         self.monitoring_level = monitoring_level
-        self.metrics_collectors: Dict[str, MCPMetricsCollector] = {}
-        self.alert_rules: Dict[str, AlertRule] = {}
-        self.monitoring_targets: Dict[str, MonitoringTarget] = {}
-        self.dashboard_configs: Dict[str, DashboardConfig] = {}
-        self.alert_handlers: Dict[AlertChannel, Callable] = {}
+        self.metrics_collectors: dict[str, MCPMetricsCollector] = {}
+        self.alert_rules: dict[str, AlertRule] = {}
+        self.monitoring_targets: dict[str, MonitoringTarget] = {}
+        self.dashboard_configs: dict[str, DashboardConfig] = {}
+        self.alert_handlers: dict[AlertChannel, Callable] = {}
 
         # Monitoring state
         self.monitoring_active = False
-        self.alert_states: Dict[str, Dict] = {}
+        self.alert_states: dict[str, dict] = {}
         self.health_checks_running = False
 
         # Initialize default configurations
@@ -560,7 +561,7 @@ class MCPMonitoringConfig:
             AlertChannel.GITHUB_ISSUE: github_issue_handler,
         }
 
-    async def start_monitoring(self) -> Dict[str, Any]:
+    async def start_monitoring(self) -> dict[str, Any]:
         """Start the monitoring system"""
         if self.monitoring_active:
             return {
@@ -692,7 +693,7 @@ class MCPMonitoringConfig:
         while self.monitoring_active:
             try:
                 # Evaluate all alert rules
-                for rule_id, rule in self.alert_rules.items():
+                for _rule_id, rule in self.alert_rules.items():
                     if rule.enabled:
                         await self._evaluate_alert_rule(rule)
 
@@ -755,7 +756,7 @@ class MCPMonitoringConfig:
         except Exception as e:
             logger.error(f"Error evaluating alert rule {rule.rule_id}: {e}")
 
-    async def _get_metric_value(self, metric_name: str) -> Optional[float]:
+    async def _get_metric_value(self, metric_name: str) -> float | None:
         """Get current value for a metric across all collectors"""
         try:
             # Aggregate metric value from all collectors
@@ -794,7 +795,7 @@ class MCPMonitoringConfig:
             return False
 
     def _check_cooldown(
-        self, last_alert_time: Optional[datetime], cooldown_minutes: int
+        self, last_alert_time: datetime | None, cooldown_minutes: int
     ) -> bool:
         """Check if cooldown period has passed"""
         if last_alert_time is None:
@@ -845,13 +846,13 @@ class MCPMonitoringConfig:
         self.health_checks_running = False
 
         # Clean up collectors
-        for collector in self.metrics_collectors.values():
+        for _collector in self.metrics_collectors.values():
             # Perform any cleanup if needed
             pass
 
         logger.info("MCP monitoring system stopped")
 
-    def get_monitoring_status(self) -> Dict[str, Any]:
+    def get_monitoring_status(self) -> dict[str, Any]:
         """Get current monitoring status"""
         return {
             "monitoring_active": self.monitoring_active,
@@ -868,9 +869,11 @@ class MCPMonitoringConfig:
                 rule_id: {
                     "consecutive_failures": state["consecutive_failures"],
                     "currently_alerting": state["currently_alerting"],
-                    "last_alert_time": state["last_alert_time"].isoformat()
-                    if state["last_alert_time"]
-                    else None,
+                    "last_alert_time": (
+                        state["last_alert_time"].isoformat()
+                        if state["last_alert_time"]
+                        else None
+                    ),
                 }
                 for rule_id, state in self.alert_states.items()
             },
@@ -881,7 +884,7 @@ class MCPMonitoringConfig:
         self.alert_rules[rule.rule_id] = rule
         logger.info(f"Added custom alert rule: {rule.name}")
 
-    def get_grafana_dashboard_json(self, dashboard_id: str) -> Optional[Dict[str, Any]]:
+    def get_grafana_dashboard_json(self, dashboard_id: str) -> dict[str, Any] | None:
         """Get Grafana dashboard JSON configuration"""
         if dashboard_id not in self.dashboard_configs:
             return None
@@ -912,7 +915,7 @@ mcp_monitoring_config = MCPMonitoringConfig()
 
 async def initialize_mcp_monitoring(
     monitoring_level: MonitoringLevel = MonitoringLevel.PRODUCTION,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Initialize the global MCP monitoring system"""
     global mcp_monitoring_config
     mcp_monitoring_config = MCPMonitoringConfig(monitoring_level)
@@ -924,7 +927,7 @@ async def stop_mcp_monitoring():
     await mcp_monitoring_config.stop_monitoring()
 
 
-def get_mcp_monitoring_status() -> Dict[str, Any]:
+def get_mcp_monitoring_status() -> dict[str, Any]:
     """Get the status of the MCP monitoring system"""
     return mcp_monitoring_config.get_monitoring_status()
 

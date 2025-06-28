@@ -4,7 +4,9 @@ Handles database connections and configuration management
 """
 
 import logging
+
 import snowflake.connector
+
 from backend.core.auto_esc_config import get_snowflake_config
 
 logger = logging.getLogger(__name__)

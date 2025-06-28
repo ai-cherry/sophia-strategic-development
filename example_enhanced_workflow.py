@@ -44,7 +44,7 @@ async def demo_enhanced_workflow():
         ),
     ]
 
-    for task_type, query, model in queries:
+    for task_type, _query, model in queries:
         print(f"   🎯 {task_type}: Using {model}")
 
     # 3. Generate enhanced React component

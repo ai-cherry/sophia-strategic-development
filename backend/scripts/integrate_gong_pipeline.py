@@ -10,15 +10,15 @@ Usage:
     python backend/scripts/integrate_gong_pipeline.py --test-integration
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import os
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -42,15 +42,15 @@ class IntegrationResult:
     component: IntegrationComponent
     success: bool
     message: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 class GongPipelineIntegrator:
     """Integrates existing Sophia AI services with new Gong data pipeline"""
 
     def __init__(self):
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.integration_results: List[IntegrationResult] = []
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.integration_results: list[IntegrationResult] = []
 
     async def initialize(self):
         """Initialize services for integration"""
@@ -62,7 +62,7 @@ class GongPipelineIntegrator:
             logger.error(f"Failed to initialize integration services: {e}")
             raise
 
-    async def integrate_all_components(self) -> List[IntegrationResult]:
+    async def integrate_all_components(self) -> list[IntegrationResult]:
         """Integrate all components with Gong pipeline"""
         components = [
             IntegrationComponent.SAMPLE_QUERIES,
@@ -213,7 +213,7 @@ ORDER BY CALL_DATETIME_UTC DESC;
                 message=f"Documentation update failed: {str(e)}",
             )
 
-    async def test_integration(self) -> Dict[str, Any]:
+    async def test_integration(self) -> dict[str, Any]:
         """Test the complete Gong integration"""
         try:
             test_results = {"timestamp": datetime.utcnow().isoformat(), "tests": []}

@@ -5,18 +5,18 @@ Secure ingestion of strategic intelligence into CEO_INTELLIGENCE schema
 """
 
 import asyncio
-import logging
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List
-from dataclasses import dataclass
-import pandas as pd
 import hashlib
+import json
+import logging
 import uuid
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.kb_management_service import KBManagementService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class CEOIntelligenceConfig:
 
     secure_upload_path: str
     encryption_key: str
-    authorized_users: List[str]
+    authorized_users: list[str]
     retention_policy_days: int = 2555  # 7 years
     audit_level: str = "MAXIMUM"
 
@@ -278,9 +278,11 @@ class CEOIntelligenceIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_STRATEGIC_PLANS LIKE STRATEGIC_PLANS
-            """)
+            """
+            )
 
             # Insert data into temporary table with encryption
             for _, row in df.iterrows():
@@ -322,7 +324,8 @@ class CEOIntelligenceIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO STRATEGIC_PLANS AS target
                 USING TEMP_STRATEGIC_PLANS AS source
                 ON target.PLAN_ID = source.PLAN_ID
@@ -354,7 +357,8 @@ class CEOIntelligenceIngestor:
                     source.RESPONSIBLE_EXECUTIVE, source.LAST_REVIEW_DATE,
                     source.NEXT_REVIEW_DATE, source.CREATED_BY, source.CONTENT_HASH
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -382,7 +386,8 @@ class CEOIntelligenceIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Generate embeddings for strategic plans
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE STRATEGIC_PLANS
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -400,12 +405,14 @@ class CEOIntelligenceIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             strategic_plans_updated = cursor.rowcount
 
             # Generate embeddings for board materials
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE BOARD_MATERIALS
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -422,12 +429,14 @@ class CEOIntelligenceIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             board_materials_updated = cursor.rowcount
 
             # Generate embeddings for competitive intelligence
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE COMPETITIVE_INTELLIGENCE
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -444,7 +453,8 @@ class CEOIntelligenceIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             competitive_intel_updated = cursor.rowcount
             cursor.close()
@@ -472,7 +482,7 @@ class CEOIntelligenceIngestor:
             )
             return 0
 
-    async def run_secure_ceo_intelligence_sync(self, user_id: str) -> Dict[str, int]:
+    async def run_secure_ceo_intelligence_sync(self, user_id: str) -> dict[str, int]:
         """Run secure synchronization of CEO intelligence data"""
         try:
             # Validate authorization
@@ -498,9 +508,9 @@ class CEOIntelligenceIngestor:
             # results['competitive_intelligence'] = await self.load_competitive_intelligence(competitive_intel_df, user_id)
 
             # Generate AI embeddings
-            results[
-                "ai_embeddings"
-            ] = await self.generate_ceo_intelligence_ai_embeddings(user_id)
+            results["ai_embeddings"] = (
+                await self.generate_ceo_intelligence_ai_embeddings(user_id)
+            )
 
             # Log successful operation
             await self._log_access_attempt(

@@ -12,8 +12,8 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any
 
 from backend.core.integration_registry import IntegrationRegistry
 
@@ -57,7 +57,7 @@ class AgentMetrics:
     total_response_time_ms: float = 0.0
     instantiation_time_ms: float = 0.0
     memory_usage_mb: float = 0.0
-    last_activity: Optional[datetime] = None
+    last_activity: datetime | None = None
 
     @property
     def success_rate(self) -> float:
@@ -90,12 +90,12 @@ class AgentContext:
     """Context information for agent execution"""
 
     request_id: str
-    user_id: Optional[str] = None
-    session_id: Optional[str] = None
-    workflow_id: Optional[str] = None
+    user_id: str | None = None
+    session_id: str | None = None
+    workflow_id: str | None = None
     priority: str = "normal"  # low, normal, high, critical
     timeout_ms: int = 30000
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class LangGraphAgentBase(ABC):
@@ -118,8 +118,8 @@ class LangGraphAgentBase(ABC):
         self,
         agent_type: AgentCapability,
         name: str,
-        capabilities: List[str],
-        mcp_integrations: List[str],
+        capabilities: list[str],
+        mcp_integrations: list[str],
         performance_target_ms: int = 200,
     ):
         self.agent_type = agent_type
@@ -138,8 +138,8 @@ class LangGraphAgentBase(ABC):
         self.metrics = AgentMetrics()
         self.status = AgentStatus.PENDING
         self.initialized = False
-        self.cache: Dict[str, Any] = {}
-        self.cache_ttl: Dict[str, datetime] = {}
+        self.cache: dict[str, Any] = {}
+        self.cache_ttl: dict[str, datetime] = {}
 
         # Configuration
         self.config = {
@@ -188,11 +188,11 @@ class LangGraphAgentBase(ABC):
         """Initialize core services used by all agents"""
         try:
             # Initialize services with lazy loading to avoid circular imports
-            from backend.services.smart_ai_service import SmartAIService
-            from backend.utils.snowflake_cortex_service import SnowflakeCortexService
             from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
                 EnhancedAiMemoryMCPServer,
             )
+            from backend.services.smart_ai_service import SmartAIService
+            from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
             self.smart_ai_service = SmartAIService()
             await self.smart_ai_service.initialize()
@@ -215,8 +215,8 @@ class LangGraphAgentBase(ABC):
         pass
 
     async def process_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext] = None
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None = None
+    ) -> dict[str, Any]:
         """
         Process a request through the agent with performance monitoring
 
@@ -309,12 +309,12 @@ class LangGraphAgentBase(ABC):
 
     @abstractmethod
     async def _process_request_internal(
-        self, request: Dict[str, Any], context: Optional[AgentContext] = None
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None = None
+    ) -> dict[str, Any]:
         """Internal request processing logic to be implemented by subclasses"""
         pass
 
-    def _generate_cache_key(self, request: Dict[str, Any]) -> Optional[str]:
+    def _generate_cache_key(self, request: dict[str, Any]) -> str | None:
         """Generate cache key for request (can be overridden by subclasses)"""
         if not self.config["enable_caching"]:
             return None
@@ -337,7 +337,7 @@ class LangGraphAgentBase(ABC):
         expiry_time = self.cache_ttl[cache_key]
         return datetime.now() < expiry_time
 
-    def _cache_response(self, cache_key: str, response: Dict[str, Any]) -> None:
+    def _cache_response(self, cache_key: str, response: dict[str, Any]) -> None:
         """Cache response with TTL"""
         if len(self.cache) >= self.config["max_cache_size"]:
             # Simple LRU eviction - remove oldest entry
@@ -350,7 +350,7 @@ class LangGraphAgentBase(ABC):
             datetime.now().timestamp() + self.config["cache_ttl_seconds"]
         )
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform comprehensive health check"""
         health_status = {
             "agent_name": self.name,
@@ -364,9 +364,11 @@ class LangGraphAgentBase(ABC):
                 "success_rate": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat()
-                if self.metrics.last_activity
-                else None,
+                "last_activity": (
+                    self.metrics.last_activity.isoformat()
+                    if self.metrics.last_activity
+                    else None
+                ),
             },
             "cache_stats": {
                 "cache_size": len(self.cache),
@@ -385,7 +387,7 @@ class LangGraphAgentBase(ABC):
 
         return health_status
 
-    async def get_performance_metrics(self) -> Dict[str, Any]:
+    async def get_performance_metrics(self) -> dict[str, Any]:
         """Get detailed performance metrics"""
         return {
             "agent_name": self.name,
@@ -397,9 +399,11 @@ class LangGraphAgentBase(ABC):
                 "success_rate_percent": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat()
-                if self.metrics.last_activity
-                else None,
+                "last_activity": (
+                    self.metrics.last_activity.isoformat()
+                    if self.metrics.last_activity
+                    else None
+                ),
             },
             "performance": {
                 "target_response_time_ms": self.performance_target_ms,

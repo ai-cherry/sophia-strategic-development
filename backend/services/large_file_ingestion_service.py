@@ -10,7 +10,7 @@ Current size: 724 lines
 
 Recommended decomposition:
 - large_file_ingestion_service_core.py - Core functionality
-- large_file_ingestion_service_utils.py - Utility functions  
+- large_file_ingestion_service_utils.py - Utility functions
 - large_file_ingestion_service_models.py - Data models
 - large_file_ingestion_service_handlers.py - Request handlers
 
@@ -18,13 +18,14 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import logging
-import json
 import io
+import json
+import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-from uuid import uuid4
 from enum import Enum
+from typing import Any
+from uuid import uuid4
+
 import snowflake.connector
 from snowflake.connector import DictCursor
 
@@ -243,7 +244,7 @@ class FileProcessor:
             text += f"**Paragraphs:** {len(doc.paragraphs)}\n\n"
 
             # Extract all paragraphs
-            for i, paragraph in enumerate(doc.paragraphs):
+            for _i, paragraph in enumerate(doc.paragraphs):
                 if paragraph.text.strip():
                     text += f"{paragraph.text.strip()}\n\n"
 
@@ -312,7 +313,7 @@ class FileProcessor:
 
     async def create_intelligent_chunks(
         self, text_content: str, filename: str, job_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create intelligent chunks with context preservation"""
 
         # Split into sentences for better chunking
@@ -369,7 +370,7 @@ class FileProcessor:
         logger.info(f"Created {len(chunks)} intelligent chunks from {filename}")
         return chunks
 
-    def _split_sentences(self, text: str) -> List[str]:
+    def _split_sentences(self, text: str) -> list[str]:
         """Split text into sentences"""
         import re
 
@@ -401,11 +402,11 @@ class FileProcessor:
 class LargeFileIngestionService:
     """Service for processing large files with async job management"""
 
-    def __init__(self, snowflake_config: Dict[str, str]):
+    def __init__(self, snowflake_config: dict[str, str]):
         self.snowflake_config = snowflake_config
         self.connection = None
         self.processor = FileProcessor()
-        self.active_jobs: Dict[str, Dict] = {}
+        self.active_jobs: dict[str, dict] = {}
 
     async def connect(self):
         """Connect to Snowflake"""
@@ -422,7 +423,8 @@ class LargeFileIngestionService:
         cursor = self.connection.cursor()
 
         # Ingestion jobs table
-        cursor.execute("""
+        cursor.execute(
+            """
         CREATE TABLE IF NOT EXISTS INGESTION_JOBS (
             JOB_ID VARCHAR(255) PRIMARY KEY,
             FILENAME VARCHAR(500) NOT NULL,
@@ -438,7 +440,8 @@ class LargeFileIngestionService:
             UPDATED_AT TIMESTAMP_NTZ NOT NULL,
             ESTIMATED_COMPLETION TIMESTAMP_NTZ
         )
-        """)
+        """
+        )
 
         cursor.close()
 
@@ -553,7 +556,7 @@ class LargeFileIngestionService:
                 del self.active_jobs[job_id]
 
     async def _create_knowledge_entry(
-        self, chunk: Dict[str, Any], filename: str
+        self, chunk: dict[str, Any], filename: str
     ) -> str:
         """Create knowledge entry from chunk"""
         entry_id = str(uuid4())
@@ -579,7 +582,7 @@ class LargeFileIngestionService:
         cursor = self.connection.cursor()
         cursor.execute(
             """
-        INSERT INTO KNOWLEDGE_BASE_ENTRIES 
+        INSERT INTO KNOWLEDGE_BASE_ENTRIES
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, STATUS, METADATA, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
@@ -696,9 +699,9 @@ class LargeFileIngestionService:
         cursor = self.connection.cursor()
         cursor.execute(
             """
-        INSERT OR REPLACE INTO INGESTION_JOBS 
-        (JOB_ID, FILENAME, FILE_TYPE, FILE_SIZE, STATUS, PROGRESS, 
-         CHUNKS_TOTAL, CHUNKS_PROCESSED, ENTRIES_CREATED, ERROR_MESSAGE, 
+        INSERT OR REPLACE INTO INGESTION_JOBS
+        (JOB_ID, FILENAME, FILE_TYPE, FILE_SIZE, STATUS, PROGRESS,
+         CHUNKS_TOTAL, CHUNKS_PROCESSED, ENTRIES_CREATED, ERROR_MESSAGE,
          CREATED_AT, UPDATED_AT, ESTIMATED_COMPLETION)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
@@ -720,7 +723,7 @@ class LargeFileIngestionService:
         )
         cursor.close()
 
-    async def get_job_status(self, job_id: str) -> Optional[Dict[str, Any]]:
+    async def get_job_status(self, job_id: str) -> dict[str, Any] | None:
         """Get job status"""
         cursor = self.connection.cursor(DictCursor)
         cursor.execute("SELECT * FROM INGESTION_JOBS WHERE JOB_ID = ?", (job_id,))

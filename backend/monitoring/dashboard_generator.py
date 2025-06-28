@@ -11,7 +11,7 @@ Current size: 1392 lines
 
 Recommended decomposition:
 - dashboard_generator_core.py - Core functionality
-- dashboard_generator_utils.py - Utility functions  
+- dashboard_generator_utils.py - Utility functions
 - dashboard_generator_models.py - Data models
 - dashboard_generator_handlers.py - Request handlers
 
@@ -21,8 +21,8 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List
 from enum import Enum
+from typing import Any
 
 import structlog
 from pydantic import BaseModel
@@ -60,9 +60,9 @@ class DashboardConfig(BaseModel):
     title: str
     uid: str
     description: str
-    tags: List[str]
+    tags: list[str]
     refresh_interval: str = "10s"
-    time_range: Dict[str, str] = {"from": "now-1h", "to": "now"}
+    time_range: dict[str, str] = {"from": "now-1h", "to": "now"}
     editable: bool = True
     version: int = 1
 
@@ -75,7 +75,7 @@ class GrafanaDashboardGenerator:
     def __init__(self):
         self.logger = logger.bind(component="dashboard_generator")
 
-    def generate_all_dashboards(self) -> Dict[str, Dict[str, Any]]:
+    def generate_all_dashboards(self) -> dict[str, dict[str, Any]]:
         """Generate all dashboard configurations."""
         dashboards = {}
 
@@ -87,7 +87,7 @@ class GrafanaDashboardGenerator:
 
         return dashboards
 
-    def generate_overview_dashboard(self) -> Dict[str, Any]:
+    def generate_overview_dashboard(self) -> dict[str, Any]:
         """Generate real-time quality overview dashboard."""
         config = DashboardConfig(
             title="Gong Data Quality Overview",
@@ -129,7 +129,7 @@ class GrafanaDashboardGenerator:
 
         return self._build_dashboard(config, panels)
 
-    def generate_quality_details_dashboard(self) -> Dict[str, Any]:
+    def generate_quality_details_dashboard(self) -> dict[str, Any]:
         """Generate detailed quality analysis dashboard."""
         config = DashboardConfig(
             title="Gong Data Quality Details",
@@ -170,7 +170,7 @@ class GrafanaDashboardGenerator:
 
         return self._build_dashboard(config, panels)
 
-    def generate_performance_dashboard(self) -> Dict[str, Any]:
+    def generate_performance_dashboard(self) -> dict[str, Any]:
         """Generate performance monitoring dashboard."""
         config = DashboardConfig(
             title="Gong Integration Performance",
@@ -211,7 +211,7 @@ class GrafanaDashboardGenerator:
 
         return self._build_dashboard(config, panels)
 
-    def generate_alerts_dashboard(self) -> Dict[str, Any]:
+    def generate_alerts_dashboard(self) -> dict[str, Any]:
         """Generate alert management dashboard."""
         config = DashboardConfig(
             title="Gong Quality Alerts",
@@ -249,7 +249,7 @@ class GrafanaDashboardGenerator:
 
         return self._build_dashboard(config, panels)
 
-    def generate_trends_dashboard(self) -> Dict[str, Any]:
+    def generate_trends_dashboard(self) -> dict[str, Any]:
         """Generate quality trends dashboard."""
         config = DashboardConfig(
             title="Gong Quality Trends",
@@ -294,7 +294,7 @@ class GrafanaDashboardGenerator:
 
     def _create_quality_score_gauge(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create overall quality score gauge."""
         return {
             "id": 1,
@@ -335,7 +335,7 @@ class GrafanaDashboardGenerator:
 
     def _create_api_success_gauge(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create API enhancement success rate gauge."""
         return {
             "id": 2,
@@ -368,7 +368,7 @@ class GrafanaDashboardGenerator:
 
     def _create_transcript_completeness_gauge(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create transcript completeness gauge."""
         return {
             "id": 3,
@@ -400,7 +400,7 @@ class GrafanaDashboardGenerator:
 
     def _create_participant_accuracy_gauge(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create participant mapping accuracy gauge."""
         return {
             "id": 4,
@@ -432,7 +432,7 @@ class GrafanaDashboardGenerator:
 
     def _create_webhook_reception_graph(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create webhook reception rate graph."""
         return {
             "id": 5,
@@ -464,7 +464,7 @@ class GrafanaDashboardGenerator:
 
     def _create_processing_latency_graph(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create processing latency graph."""
         return {
             "id": 6,
@@ -500,7 +500,7 @@ class GrafanaDashboardGenerator:
 
     def _create_quality_dimensions_heatmap(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create quality dimensions heatmap."""
         return {
             "id": 7,
@@ -532,7 +532,7 @@ class GrafanaDashboardGenerator:
 
     def _create_error_rate_graph(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create error rate by type graph."""
         return {
             "id": 8,
@@ -560,7 +560,7 @@ class GrafanaDashboardGenerator:
 
     def _create_validation_violations_table(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create validation violations table."""
         return {
             "id": 9,
@@ -570,7 +570,7 @@ class GrafanaDashboardGenerator:
             "targets": [
                 {
                     "expr": """
-                    topk(10, 
+                    topk(10,
                         increase(gong_validation_rule_violations_total[1h])
                     ) by (rule_name, severity)
                 """,
@@ -602,7 +602,7 @@ class GrafanaDashboardGenerator:
 
     def _create_field_coverage_pie_chart(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create field coverage pie chart."""
         return {
             "id": 10,
@@ -626,7 +626,7 @@ class GrafanaDashboardGenerator:
 
     def _create_active_alerts_count(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create active alerts count stat."""
         return {
             "id": 20,
@@ -657,7 +657,7 @@ class GrafanaDashboardGenerator:
 
     def _create_quality_score_trend(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create quality score trend graph."""
         return {
             "id": 30,
@@ -705,8 +705,8 @@ class GrafanaDashboardGenerator:
     # Helper methods
 
     def _build_dashboard(
-        self, config: DashboardConfig, panels: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, config: DashboardConfig, panels: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Build complete dashboard JSON."""
         return {
             "uid": config.uid,
@@ -746,7 +746,7 @@ class GrafanaDashboardGenerator:
 
     def _create_required_fields_status(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create required fields status panel."""
         return {
             "id": 11,
@@ -781,7 +781,7 @@ class GrafanaDashboardGenerator:
 
     def _create_optional_fields_status(
         self, x: int, y: int, w: int, h: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create optional fields status panel."""
         return {
             "id": 12,
@@ -828,7 +828,7 @@ class GrafanaDashboardGenerator:
 
 def _create_transcript_quality_distribution(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create transcript quality distribution histogram."""
     return {
         "id": 13,
@@ -846,7 +846,7 @@ def _create_transcript_quality_distribution(
     }
 
 
-def _create_latency_histogram(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_latency_histogram(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create processing latency histogram."""
     return {
         "id": 14,
@@ -863,7 +863,7 @@ def _create_latency_histogram(self, x: int, y: int, w: int, h: int) -> Dict[str,
     }
 
 
-def _create_alert_timeline(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_alert_timeline(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create alert timeline visualization."""
     return {
         "id": 21,
@@ -873,7 +873,7 @@ def _create_alert_timeline(self, x: int, y: int, w: int, h: int) -> Dict[str, An
         "targets": [
             {
                 "expr": """
-                gong_alert_status{} * 
+                gong_alert_status{} *
                 (label_replace(vector(1), "status", "active", "", "") +
                  label_replace(vector(2), "status", "acknowledged", "", "") +
                  label_replace(vector(3), "status", "resolved", "", ""))
@@ -895,7 +895,7 @@ def _create_alert_timeline(self, x: int, y: int, w: int, h: int) -> Dict[str, An
 # Additional placeholder methods that were missing
 def _create_speaker_attribution_stats(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create speaker attribution statistics panel."""
     return {
         "id": 15,
@@ -921,7 +921,7 @@ def _create_speaker_attribution_stats(
 
 def _create_participant_enrichment_table(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create participant enrichment table."""
     return {
         "id": 16,
@@ -940,7 +940,7 @@ def _create_participant_enrichment_table(
 
 def _create_company_domain_mapping_stats(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create company domain mapping statistics."""
     return {
         "id": 17,
@@ -954,7 +954,7 @@ def _create_company_domain_mapping_stats(
 
 def _create_metadata_completeness_matrix(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create metadata completeness matrix."""
     return {
         "id": 18,
@@ -971,7 +971,7 @@ def _create_metadata_completeness_matrix(
     }
 
 
-def _create_latency_percentiles(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_latency_percentiles(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create latency percentiles panel."""
     return {
         "id": 19,
@@ -1012,7 +1012,7 @@ def _create_latency_percentiles(self, x: int, y: int, w: int, h: int) -> Dict[st
 
 def _create_webhook_throughput_graph(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create webhook throughput graph."""
     return {
         "id": 22,
@@ -1030,7 +1030,7 @@ def _create_webhook_throughput_graph(
     }
 
 
-def _create_api_call_rate_graph(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_api_call_rate_graph(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create API call rate graph."""
     return {
         "id": 23,
@@ -1048,7 +1048,7 @@ def _create_api_call_rate_graph(self, x: int, y: int, w: int, h: int) -> Dict[st
     }
 
 
-def _create_memory_usage_graph(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_memory_usage_graph(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create memory usage graph."""
     return {
         "id": 24,
@@ -1068,7 +1068,7 @@ def _create_memory_usage_graph(self, x: int, y: int, w: int, h: int) -> Dict[str
 
 def _create_cache_hit_ratio_gauge(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create cache hit ratio gauge."""
     return {
         "id": 25,
@@ -1094,7 +1094,7 @@ def _create_cache_hit_ratio_gauge(
     }
 
 
-def _create_queue_depth_graph(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_queue_depth_graph(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create queue depth graph."""
     return {
         "id": 26,
@@ -1114,7 +1114,7 @@ def _create_queue_depth_graph(self, x: int, y: int, w: int, h: int) -> Dict[str,
 
 def _create_sla_compliance_table(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create SLA compliance table."""
     return {
         "id": 27,
@@ -1135,7 +1135,7 @@ def _create_sla_compliance_table(
     }
 
 
-def _create_alerts_by_severity(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_alerts_by_severity(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create alerts by severity panel."""
     return {
         "id": 28,
@@ -1153,7 +1153,7 @@ def _create_alerts_by_severity(self, x: int, y: int, w: int, h: int) -> Dict[str
     }
 
 
-def _create_alerts_by_type(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_alerts_by_type(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create alerts by type panel."""
     return {
         "id": 29,
@@ -1171,7 +1171,7 @@ def _create_alerts_by_type(self, x: int, y: int, w: int, h: int) -> Dict[str, An
     }
 
 
-def _create_escalation_rate(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_escalation_rate(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create escalation rate panel."""
     return {
         "id": 31,
@@ -1195,7 +1195,7 @@ def _create_escalation_rate(self, x: int, y: int, w: int, h: int) -> Dict[str, A
     }
 
 
-def _create_active_alerts_table(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_active_alerts_table(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create active alerts table."""
     return {
         "id": 32,
@@ -1210,7 +1210,7 @@ def _create_active_alerts_table(self, x: int, y: int, w: int, h: int) -> Dict[st
     }
 
 
-def _create_alert_response_time(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_alert_response_time(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create alert response time panel."""
     return {
         "id": 33,
@@ -1230,7 +1230,7 @@ def _create_alert_response_time(self, x: int, y: int, w: int, h: int) -> Dict[st
 
 def _create_alert_resolution_stats(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create alert resolution statistics."""
     return {
         "id": 34,
@@ -1255,7 +1255,7 @@ def _create_alert_resolution_stats(
 
 def _create_dimension_trends_graph(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create quality dimension trends graph."""
     return {
         "id": 35,
@@ -1275,7 +1275,7 @@ def _create_dimension_trends_graph(
 
 def _create_dimension_comparison_radar(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create dimension comparison radar chart (placeholder)."""
     # Note: Grafana doesn't have native radar charts, using table as placeholder
     return {
@@ -1295,7 +1295,7 @@ def _create_dimension_comparison_radar(
 
 def _create_weekly_quality_heatmap(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create weekly quality heatmap."""
     return {
         "id": 37,
@@ -1321,7 +1321,7 @@ def _create_weekly_quality_heatmap(
 
 def _create_hourly_pattern_graph(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create hourly pattern graph."""
     return {
         "id": 38,
@@ -1339,7 +1339,7 @@ def _create_hourly_pattern_graph(
     }
 
 
-def _create_quality_forecast(self, x: int, y: int, w: int, h: int) -> Dict[str, Any]:
+def _create_quality_forecast(self, x: int, y: int, w: int, h: int) -> dict[str, Any]:
     """Create quality forecast panel."""
     return {
         "id": 39,
@@ -1377,7 +1377,7 @@ def _create_quality_forecast(self, x: int, y: int, w: int, h: int) -> Dict[str, 
 
 def _create_anomaly_detection_graph(
     self, x: int, y: int, w: int, h: int
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create anomaly detection graph."""
     return {
         "id": 40,

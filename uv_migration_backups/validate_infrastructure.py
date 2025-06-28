@@ -6,17 +6,16 @@ Validates that all infrastructure components are properly configured
 
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
-def check_file_exists(filepath: str) -> Tuple[bool, str]:
+def check_file_exists(filepath: str) -> tuple[bool, str]:
     """Check if a required file exists"""
     if Path(filepath).exists():
         return True, f"✓ {filepath}"
     return False, f"✗ {filepath} - Missing"
 
 
-def validate_pulumi_config() -> List[Tuple[bool, str]]:
+def validate_pulumi_config() -> list[tuple[bool, str]]:
     """Validate Pulumi configuration"""
     results = []
 
@@ -37,7 +36,7 @@ def validate_pulumi_config() -> List[Tuple[bool, str]]:
     return results
 
 
-def validate_esc_config() -> List[Tuple[bool, str]]:
+def validate_esc_config() -> list[tuple[bool, str]]:
     """Validate ESC configuration"""
     results = []
     esc_dir = Path("infrastructure/esc")
@@ -62,7 +61,7 @@ def validate_esc_config() -> List[Tuple[bool, str]]:
     return results
 
 
-def validate_github_actions() -> List[Tuple[bool, str]]:
+def validate_github_actions() -> list[tuple[bool, str]]:
     """Validate GitHub Actions workflows"""
     results = []
     workflows_dir = Path(".github/workflows")
@@ -80,7 +79,7 @@ def validate_github_actions() -> List[Tuple[bool, str]]:
     return results
 
 
-def validate_docker_config() -> List[Tuple[bool, str]]:
+def validate_docker_config() -> list[tuple[bool, str]]:
     """Validate Docker configuration"""
     results = []
 
@@ -96,7 +95,7 @@ def validate_docker_config() -> List[Tuple[bool, str]]:
     return results
 
 
-def validate_backend_config() -> List[Tuple[bool, str]]:
+def validate_backend_config() -> list[tuple[bool, str]]:
     """Validate backend configuration"""
     results = []
 

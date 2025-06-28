@@ -3,12 +3,12 @@ Advanced UI/UX Agent Service with Portkey Gateway Integration
 Provides CEO-level AI-powered design capabilities using multi-model routing
 """
 
-import logging
 import json
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from ..core.simple_config import SophiaConfig
 
@@ -69,10 +69,10 @@ class DesignOption:
     name: str
     description: str
     style: str
-    components: List[str]
-    features: List[str]
+    components: list[str]
+    features: list[str]
     interaction_pattern: str
-    color_scheme: Dict[str, str]
+    color_scheme: dict[str, str]
     layout: str
 
 
@@ -82,19 +82,19 @@ class DesignAsset:
 
     type: str  # mockup, code, preview, documentation
     url: str
-    download_url: Optional[str] = None
-    interactive_url: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    download_url: str | None = None
+    interactive_url: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class DesignResponse:
     """Response from design generation"""
 
-    options: List[DesignOption]
-    assets: List[DesignAsset]
-    recommendations: List[str]
-    next_steps: List[str]
+    options: list[DesignOption]
+    assets: list[DesignAsset]
+    recommendations: list[str]
+    next_steps: list[str]
     processing_time: float = 0.0
     model_used: str = ""
 
@@ -152,7 +152,7 @@ class PortkeyGatewayService:
             ],
         }
 
-    async def completion(self, messages: List[Dict], task_type: str, **kwargs) -> str:
+    async def completion(self, messages: list[dict], task_type: str, **kwargs) -> str:
         """Get completion with intelligent model routing"""
         try:
             # For now, return a mock response
@@ -248,26 +248,26 @@ class AdvancedUIUXAgentService:
 
     async def _analyze_design_intent(
         self, request: str, context: DesignContext
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze design intent using AI"""
         analysis_prompt = f"""
         Analyze this design request and extract key requirements:
-        
+
         Request: "{request}"
-        
+
         Project Context:
         - Framework: {context.framework.value}
         - Style: {context.style.value}
         - Accessibility: {context.accessibility}
         - Responsive: {context.responsive}
-        
+
         Extract:
         1. Design type (component, page, dashboard, etc.)
         2. Functional requirements
         3. Visual style preferences
         4. Technical constraints
         5. User experience goals
-        
+
         Return structured JSON analysis.
         """
 
@@ -287,20 +287,20 @@ class AdvancedUIUXAgentService:
             }
 
     async def _generate_design_options(
-        self, intent: Dict[str, Any], context: DesignContext
-    ) -> List[DesignOption]:
+        self, intent: dict[str, Any], context: DesignContext
+    ) -> list[DesignOption]:
         """Generate multiple design options using AI"""
         options_prompt = f"""
         Generate 3 distinct design approaches for:
         {json.dumps(intent, indent=2)}
-        
+
         For each option, provide:
         - Unique visual approach
         - Component breakdown
         - Interaction patterns
         - Color scheme
         - Layout strategy
-        
+
         Framework: {context.framework.value}
         Style: {context.style.value}
         """
@@ -334,8 +334,8 @@ class AdvancedUIUXAgentService:
         return options
 
     async def _create_mockups(
-        self, options: List[DesignOption], context: DesignContext
-    ) -> List[DesignAsset]:
+        self, options: list[DesignOption], context: DesignContext
+    ) -> list[DesignAsset]:
         """Create visual mockups for design options"""
         mockups = []
 
@@ -358,8 +358,8 @@ class AdvancedUIUXAgentService:
         return mockups
 
     async def _generate_implementations(
-        self, options: List[DesignOption], context: DesignContext
-    ) -> List[DesignAsset]:
+        self, options: list[DesignOption], context: DesignContext
+    ) -> list[DesignAsset]:
         """Generate code implementations for design options"""
         implementations = []
 
@@ -367,7 +367,7 @@ class AdvancedUIUXAgentService:
             code_prompt = f"""
             Generate production-ready {context.framework.value} code for:
             {option.description}
-            
+
             Requirements:
             - Style: {option.style}
             - Components: {", ".join(option.components)}
@@ -399,8 +399,8 @@ class AdvancedUIUXAgentService:
         return implementations
 
     async def _generate_recommendations(
-        self, options: List[DesignOption], context: DesignContext
-    ) -> List[str]:
+        self, options: list[DesignOption], context: DesignContext
+    ) -> list[str]:
         """Generate design recommendations"""
         return [
             f"Option 1 excels in {context.style.value} aesthetic with strong visual hierarchy",
@@ -412,12 +412,12 @@ class AdvancedUIUXAgentService:
 
     async def create_component_from_description(
         self, description: str, context: DesignContext
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a single component from natural language description"""
         component_prompt = f"""
         Create a {context.framework.value} component based on this description:
         "{description}"
-        
+
         Requirements:
         - {context.style.value} design style
         - TypeScript
@@ -425,7 +425,7 @@ class AdvancedUIUXAgentService:
         - Accessibility compliant (WCAG 2.1 AA)
         - Dark mode support: {context.dark_mode}
         - Performance optimized
-        
+
         Provide:
         1. Component code
         2. Usage example
@@ -452,11 +452,11 @@ class AdvancedUIUXAgentService:
             ],
         }
 
-    async def analyze_existing_design(self, design_url: str) -> Dict[str, Any]:
+    async def analyze_existing_design(self, design_url: str) -> dict[str, Any]:
         """Analyze existing design and provide improvement suggestions"""
         analysis_prompt = f"""
         Analyze the design at: {design_url}
-        
+
         Provide analysis on:
         1. Visual hierarchy and layout
         2. Color scheme and accessibility
@@ -464,7 +464,7 @@ class AdvancedUIUXAgentService:
         4. User experience and interaction patterns
         5. Performance optimization opportunities
         6. Accessibility compliance
-        
+
         Return specific improvement recommendations.
         """
 
@@ -486,7 +486,7 @@ class AdvancedUIUXAgentService:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def get_mcp_server_status(self) -> Dict[str, Any]:
+    def get_mcp_server_status(self) -> dict[str, Any]:
         """Get status of connected MCP servers"""
         return {
             "servers": self.mcp_servers,
@@ -496,7 +496,7 @@ class AdvancedUIUXAgentService:
             ),
         }
 
-    def get_service_stats(self) -> Dict[str, Any]:
+    def get_service_stats(self) -> dict[str, Any]:
         """Get service usage statistics"""
         return {
             **self.stats,
@@ -507,7 +507,7 @@ class AdvancedUIUXAgentService:
             "supported_styles": [s.value for s in DesignStyle],
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Health check for UI/UX agent service"""
         return {
             "service": "advanced_ui_ux_agent",

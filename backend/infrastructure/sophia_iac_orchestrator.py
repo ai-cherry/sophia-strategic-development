@@ -4,17 +4,17 @@ Sophia AI - Infrastructure as Code Orchestrator
 Central AI agent for managing all platform configurations and integrations
 """
 
+import asyncio
+import json
+import logging
 import os
 import sys
-import json
-import asyncio
-import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from pathlib import Path
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -22,31 +22,32 @@ sys.path.insert(0, str(project_root))
 
 # LangChain imports
 from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.prompts import ChatPromptTemplate
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+
+from backend.infrastructure.adapters.apollo_adapter import ApolloAdapter
+from backend.infrastructure.adapters.asana_adapter import AsanaAdapter
+from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
+from backend.infrastructure.adapters.figma_adapter import FigmaAdapter
+from backend.infrastructure.adapters.gong_adapter import GongAdapter
+from backend.infrastructure.adapters.hubspot_adapter import HubSpotAdapter
+from backend.infrastructure.adapters.lambda_labs_adapter import LambdaLabsAdapter
+from backend.infrastructure.adapters.linear_adapter import LinearAdapter
+from backend.infrastructure.adapters.openrouter_adapter import OpenRouterAdapter
+from backend.infrastructure.adapters.portkey_adapter import PortkeyAdapter
+from backend.infrastructure.adapters.slack_adapter import SlackAdapter
 
 # Platform adapters
 from backend.infrastructure.adapters.snowflake_adapter import SnowflakeAdapter
-from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
-from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
-from backend.infrastructure.adapters.lambda_labs_adapter import LambdaLabsAdapter
-from backend.infrastructure.adapters.slack_adapter import SlackAdapter
-from backend.infrastructure.adapters.gong_adapter import GongAdapter
-from backend.infrastructure.adapters.hubspot_adapter import HubSpotAdapter
-from backend.infrastructure.adapters.linear_adapter import LinearAdapter
-from backend.infrastructure.adapters.asana_adapter import AsanaAdapter
-from backend.infrastructure.adapters.figma_adapter import FigmaAdapter
-from backend.infrastructure.adapters.portkey_adapter import PortkeyAdapter
-from backend.infrastructure.adapters.openrouter_adapter import OpenRouterAdapter
 from backend.infrastructure.adapters.usergems_adapter import UserGemsAdapter
-from backend.infrastructure.adapters.apollo_adapter import ApolloAdapter
+from backend.infrastructure.adapters.vercel_adapter import VercelAdapter
+from backend.infrastructure.core.dependency_manager import DependencyManager
+from backend.infrastructure.core.policy_engine import PolicyEngine
 
 # Core infrastructure components
 from backend.infrastructure.core.state_manager import InfrastructureStateManager
-from backend.infrastructure.core.policy_engine import PolicyEngine
 from backend.infrastructure.core.webhook_router import WebhookRouter
-from backend.infrastructure.core.dependency_manager import DependencyManager
 
 
 class PlatformType(Enum):
@@ -66,9 +67,9 @@ class PlatformStatus:
     type: PlatformType
     status: str  # "healthy", "degraded", "down", "unknown"
     last_check: datetime
-    configuration: Dict[str, Any] = field(default_factory=dict)
-    metrics: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    configuration: dict[str, Any] = field(default_factory=dict)
+    metrics: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
     webhooks_active: bool = False
 
 
@@ -77,9 +78,9 @@ class InfrastructureCommand:
     """Command structure for infrastructure operations."""
 
     command: str
-    platforms: List[str]
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    rollback_plan: Optional[Dict[str, Any]] = None
+    platforms: list[str]
+    parameters: dict[str, Any] = field(default_factory=dict)
+    rollback_plan: dict[str, Any] | None = None
     dry_run: bool = False
 
 
@@ -92,7 +93,7 @@ class PlatformAdapter(ABC):
         self.logger = logging.getLogger(f"adapter.{name}")
 
     @abstractmethod
-    async def configure(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def configure(self, config: dict[str, Any]) -> dict[str, Any]:
         """Configure the platform with given settings."""
         pass
 
@@ -102,16 +103,16 @@ class PlatformAdapter(ABC):
         pass
 
     @abstractmethod
-    async def handle_webhook(self, payload: Dict[str, Any]) -> None:
+    async def handle_webhook(self, payload: dict[str, Any]) -> None:
         """Handle incoming webhooks from the platform."""
         pass
 
     @abstractmethod
-    async def validate_configuration(self, config: Dict[str, Any]) -> bool:
+    async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
         pass
 
-    async def rollback(self, checkpoint: Dict[str, Any]) -> Dict[str, Any]:
+    async def rollback(self, checkpoint: dict[str, Any]) -> dict[str, Any]:
         """Rollback to a previous configuration state."""
         return {"success": False, "error": "Rollback not implemented"}
 
@@ -124,7 +125,7 @@ class SophiaIaCOrchestrator:
 
     def __init__(self):
         self.setup_logging()
-        self.platform_adapters: Dict[str, PlatformAdapter] = {}
+        self.platform_adapters: dict[str, PlatformAdapter] = {}
         self.state_manager = InfrastructureStateManager()
         self.policy_engine = PolicyEngine()
         self.webhook_router = WebhookRouter()
@@ -263,7 +264,7 @@ Respond with specific, actionable steps and use the available tools to execute o
             description = "Configure a specific platform with given settings"
             orchestrator = self
 
-            def _run(self, platform: str, config: Dict[str, Any]) -> str:
+            def _run(self, platform: str, config: dict[str, Any]) -> str:
                 return asyncio.run(
                     self.orchestrator._configure_platform(platform, config)
                 )
@@ -278,7 +279,7 @@ Respond with specific, actionable steps and use the available tools to execute o
             description = "Get current status and health of platforms"
             orchestrator = self
 
-            def _run(self, platforms: Optional[List[str]] = None) -> str:
+            def _run(self, platforms: list[str] | None = None) -> str:
                 return asyncio.run(self.orchestrator._get_platform_status(platforms))
 
         return GetStatusTool()
@@ -296,8 +297,8 @@ Respond with specific, actionable steps and use the available tools to execute o
             def _run(
                 self,
                 command: str,
-                platforms: List[str],
-                parameters: Dict[str, Any] = None,
+                platforms: list[str],
+                parameters: dict[str, Any] = None,
             ) -> str:
                 return asyncio.run(
                     self.orchestrator._execute_infrastructure_command(
@@ -328,14 +329,14 @@ Respond with specific, actionable steps and use the available tools to execute o
             description = "Rollback recent changes to platforms"
             orchestrator = self
 
-            def _run(self, platforms: List[str], checkpoint_id: str) -> str:
+            def _run(self, platforms: list[str], checkpoint_id: str) -> str:
                 return asyncio.run(
                     self.orchestrator._rollback_changes(platforms, checkpoint_id)
                 )
 
         return RollbackTool()
 
-    async def _configure_platform(self, platform: str, config: Dict[str, Any]) -> str:
+    async def _configure_platform(self, platform: str, config: dict[str, Any]) -> str:
         """Configure a specific platform."""
         if platform not in self.platform_adapters:
             return f"Platform '{platform}' not found"
@@ -366,7 +367,7 @@ Respond with specific, actionable steps and use the available tools to execute o
             self.logger.error(f"Failed to configure {platform}: {e}")
             return f"Failed to configure {platform}: {str(e)}"
 
-    async def _get_platform_status(self, platforms: Optional[List[str]] = None) -> str:
+    async def _get_platform_status(self, platforms: list[str] | None = None) -> str:
         """Get status of specified platforms or all platforms."""
         target_platforms = platforms or list(self.platform_adapters.keys())
         status_report = {"timestamp": datetime.now().isoformat(), "platforms": {}}
@@ -392,7 +393,7 @@ Respond with specific, actionable steps and use the available tools to execute o
         return json.dumps(status_report, indent=2)
 
     async def _execute_infrastructure_command(
-        self, command: str, platforms: List[str], parameters: Dict[str, Any]
+        self, command: str, platforms: list[str], parameters: dict[str, Any]
     ) -> str:
         """Execute a complex infrastructure command across multiple platforms."""
         try:
@@ -438,7 +439,7 @@ Respond with specific, actionable steps and use the available tools to execute o
         except Exception as e:
             return f"Dependency management failed: {str(e)}"
 
-    async def _rollback_changes(self, platforms: List[str], checkpoint_id: str) -> str:
+    async def _rollback_changes(self, platforms: list[str], checkpoint_id: str) -> str:
         """Rollback changes to specified platforms."""
         try:
             results = {}
@@ -477,7 +478,7 @@ Respond with specific, actionable steps and use the available tools to execute o
         """Start the webhook server for receiving platform events."""
         await self.webhook_router.start_server(port, self.platform_adapters)
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform comprehensive health check of all platforms."""
         health_report = {
             "timestamp": datetime.now().isoformat(),
@@ -500,9 +501,9 @@ Respond with specific, actionable steps and use the available tools to execute o
                 health_report["platforms"][name] = {"status": "error", "error": str(e)}
 
         # Analyze dependencies
-        health_report[
-            "dependencies"
-        ] = await self.dependency_manager.analyze_dependencies()
+        health_report["dependencies"] = (
+            await self.dependency_manager.analyze_dependencies()
+        )
 
         # Generate recommendations
         health_report["recommendations"] = await self._generate_recommendations(
@@ -512,8 +513,8 @@ Respond with specific, actionable steps and use the available tools to execute o
         return health_report
 
     async def _generate_recommendations(
-        self, health_report: Dict[str, Any]
-    ) -> List[str]:
+        self, health_report: dict[str, Any]
+    ) -> list[str]:
         """Generate intelligent recommendations based on system health."""
         recommendations = []
 
@@ -560,7 +561,7 @@ async def main():
         print(json.dumps(result, indent=2))
     elif args.command.startswith("configure"):
         if args.config and args.platforms:
-            with open(args.config, "r") as f:
+            with open(args.config) as f:
                 config = json.load(f)
             for platform in args.platforms:
                 result = await orchestrator._configure_platform(platform, config)

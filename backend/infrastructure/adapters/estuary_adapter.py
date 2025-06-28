@@ -4,14 +4,15 @@ Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
 """
 
+import asyncio
+import json
 import os
 import sys
-import json
-import asyncio
-import requests
 from datetime import datetime
-from typing import Dict, Any, Optional
 from pathlib import Path
+from typing import Any
+
+import requests
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -19,8 +20,8 @@ sys.path.insert(0, str(project_root))
 
 from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformAdapter,
-    PlatformType,
     PlatformStatus,
+    PlatformType,
 )
 
 
@@ -42,7 +43,7 @@ class EstuaryAdapter(PlatformAdapter):
             "Content-Type": "application/json",
         }
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load Estuary configuration from secure sources."""
         return {
             "client_id": os.getenv(
@@ -57,7 +58,7 @@ class EstuaryAdapter(PlatformAdapter):
             ),
         }
 
-    async def configure(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def configure(self, config: dict[str, Any]) -> dict[str, Any]:
         """Configure Estuary with given settings."""
         try:
             self.logger.info(
@@ -137,15 +138,19 @@ class EstuaryAdapter(PlatformAdapter):
 
             # Calculate metrics
             metrics = {
-                "sources": len(sources.get("data", []))
-                if sources.get("success")
-                else 0,
-                "destinations": len(destinations.get("data", []))
-                if destinations.get("success")
-                else 0,
-                "connections": len(connections.get("data", []))
-                if connections.get("success")
-                else 0,
+                "sources": (
+                    len(sources.get("data", [])) if sources.get("success") else 0
+                ),
+                "destinations": (
+                    len(destinations.get("data", []))
+                    if destinations.get("success")
+                    else 0
+                ),
+                "connections": (
+                    len(connections.get("data", []))
+                    if connections.get("success")
+                    else 0
+                ),
                 "active_syncs": 0,
                 "failed_syncs": 0,
             }
@@ -202,7 +207,7 @@ class EstuaryAdapter(PlatformAdapter):
                 metrics={"error": str(e)},
             )
 
-    async def handle_webhook(self, payload: Dict[str, Any]) -> None:
+    async def handle_webhook(self, payload: dict[str, Any]) -> None:
         """Handle incoming webhooks from Estuary."""
         try:
             self.logger.info(
@@ -223,7 +228,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             self.logger.error(f"Webhook handling failed: {e}")
 
-    async def validate_configuration(self, config: Dict[str, Any]) -> bool:
+    async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
         try:
             # Validate source creation config
@@ -259,8 +264,8 @@ class EstuaryAdapter(PlatformAdapter):
     # API Helper Methods
 
     async def _api_request(
-        self, method: str, endpoint: str, data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, method: str, endpoint: str, data: dict | None = None
+    ) -> dict[str, Any]:
         """Make API request to Estuary."""
         try:
             url = f"{self.base_url}{endpoint}"
@@ -289,7 +294,7 @@ class EstuaryAdapter(PlatformAdapter):
 
     # Configuration Methods
 
-    async def _create_source(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_source(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new data source."""
         try:
             source_data = {
@@ -313,7 +318,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _create_destination(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_destination(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new destination."""
         try:
             dest_data = {
@@ -337,7 +342,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _create_connection(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_connection(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new connection between source and destination."""
         try:
             conn_data = {
@@ -371,7 +376,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _setup_webhooks(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _setup_webhooks(self, config: dict[str, Any]) -> dict[str, Any]:
         """Setup webhooks for Estuary notifications."""
         try:
             # Estuary webhook configuration
@@ -395,7 +400,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _optimize_connections(self) -> Dict[str, Any]:
+    async def _optimize_connections(self) -> dict[str, Any]:
         """Optimize existing connections for performance."""
         try:
             # Get all connections
@@ -431,7 +436,7 @@ class EstuaryAdapter(PlatformAdapter):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _get_connection_sync_status(self, connection_id: str) -> Dict[str, Any]:
+    async def _get_connection_sync_status(self, connection_id: str) -> dict[str, Any]:
         """Get sync status for a specific connection."""
         try:
             response = await self._api_request(
@@ -455,7 +460,7 @@ class EstuaryAdapter(PlatformAdapter):
 
     # Webhook Handlers
 
-    async def _handle_sync_completed(self, payload: Dict[str, Any]) -> None:
+    async def _handle_sync_completed(self, payload: dict[str, Any]) -> None:
         """Handle sync completion webhook."""
         connection_id = payload.get("connection_id")
         records_processed = payload.get("records_processed", 0)
@@ -466,7 +471,7 @@ class EstuaryAdapter(PlatformAdapter):
 
         # Could trigger downstream processing or notifications
 
-    async def _handle_sync_failed(self, payload: Dict[str, Any]) -> None:
+    async def _handle_sync_failed(self, payload: dict[str, Any]) -> None:
         """Handle sync failure webhook."""
         connection_id = payload.get("connection_id")
         error_message = payload.get("error_message", "Unknown error")
@@ -477,7 +482,7 @@ class EstuaryAdapter(PlatformAdapter):
 
         # Could trigger alerts or automatic retry logic
 
-    async def _handle_connection_status_changed(self, payload: Dict[str, Any]) -> None:
+    async def _handle_connection_status_changed(self, payload: dict[str, Any]) -> None:
         """Handle connection status change webhook."""
         connection_id = payload.get("connection_id")
         new_status = payload.get("new_status")
@@ -487,8 +492,8 @@ class EstuaryAdapter(PlatformAdapter):
     # Orchestrator Integration Methods
 
     async def execute_create_gong_source(
-        self, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create Gong source with intelligent configuration."""
         gong_config = {
             "name": "Sophia AI Gong",
@@ -503,8 +508,8 @@ class EstuaryAdapter(PlatformAdapter):
         return await self.configure({"create_source": gong_config})
 
     async def execute_create_slack_source(
-        self, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create Slack source with intelligent configuration."""
         slack_config = {
             "name": "Sophia AI Slack",
@@ -520,8 +525,8 @@ class EstuaryAdapter(PlatformAdapter):
         return await self.configure({"create_source": slack_config})
 
     async def execute_create_snowflake_destination(
-        self, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create Snowflake destination with intelligent configuration."""
         snowflake_config = {
             "name": "Sophia AI Snowflake",

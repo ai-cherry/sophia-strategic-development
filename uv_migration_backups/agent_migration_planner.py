@@ -6,7 +6,6 @@ Implements the phased migration strategy from expert recommendations
 
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
 from enum import Enum
 
 
@@ -100,7 +99,7 @@ class MigrationPlanner:
         self.start_date = datetime.now()
         self.services = SERVICE_CATALOG
 
-    def get_phase_timeline(self) -> Dict[MigrationPhase, Tuple[datetime, datetime]]:
+    def get_phase_timeline(self) -> dict[MigrationPhase, tuple[datetime, datetime]]:
         """Get timeline for each migration phase"""
         return {
             MigrationPhase.FOUNDATION: (
@@ -117,7 +116,7 @@ class MigrationPlanner:
             ),
         }
 
-    def get_phase_services(self, phase: MigrationPhase) -> List[Dict]:
+    def get_phase_services(self, phase: MigrationPhase) -> list[dict]:
         """Get services for a specific phase"""
         services = []
         for name, config in self.services.items():
@@ -125,7 +124,7 @@ class MigrationPlanner:
                 services.append({"name": name, **config})
         return sorted(services, key=lambda x: x["priority"])
 
-    def generate_migration_plan(self) -> Dict:
+    def generate_migration_plan(self) -> dict:
         """Generate complete migration plan"""
         timeline = self.get_phase_timeline()
         plan = {
@@ -149,7 +148,7 @@ class MigrationPlanner:
 
         return plan
 
-    def _get_phase_requirements(self, phase: MigrationPhase) -> Dict:
+    def _get_phase_requirements(self, phase: MigrationPhase) -> dict:
         """Get infrastructure requirements for each phase"""
         requirements = {
             MigrationPhase.FOUNDATION: {
@@ -176,7 +175,7 @@ class MigrationPlanner:
         }
         return requirements.get(phase, {})
 
-    def validate_dependencies(self) -> List[str]:
+    def validate_dependencies(self) -> list[str]:
         """Validate service dependencies are met"""
         issues = []
         deployed = set()
@@ -199,7 +198,7 @@ class MigrationPlanner:
 
         return issues
 
-    def generate_deployment_manifest(self, service_name: str) -> Dict:
+    def generate_deployment_manifest(self, service_name: str) -> dict:
         """Generate deployment manifest for a service"""
         if service_name not in self.services:
             raise ValueError(f"Service {service_name} not found")
@@ -215,7 +214,7 @@ class MigrationPlanner:
         elif service["type"] == ServiceType.PLUGIN:
             return self._generate_plugin_config(service_name, service)
 
-    def _generate_k8s_deployment(self, name: str, config: Dict) -> Dict:
+    def _generate_k8s_deployment(self, name: str, config: dict) -> dict:
         """Generate Kubernetes deployment manifest"""
         return {
             "apiVersion": "apps/v1",
@@ -247,7 +246,7 @@ class MigrationPlanner:
             },
         }
 
-    def _generate_lambda_config(self, name: str, config: Dict) -> Dict:
+    def _generate_lambda_config(self, name: str, config: dict) -> dict:
         """Generate Lambda function configuration"""
         return {
             "FunctionName": name,
@@ -258,7 +257,7 @@ class MigrationPlanner:
             "Environment": {"Variables": {"SERVICE_NAME": name}},
         }
 
-    def _generate_cronjob_config(self, name: str, config: Dict) -> Dict:
+    def _generate_cronjob_config(self, name: str, config: dict) -> dict:
         """Generate Kubernetes CronJob configuration"""
         return {
             "apiVersion": "batch/v1",
@@ -285,7 +284,7 @@ class MigrationPlanner:
             },
         }
 
-    def _generate_plugin_config(self, name: str, config: Dict) -> Dict:
+    def _generate_plugin_config(self, name: str, config: dict) -> dict:
         """Generate plugin configuration"""
         return {
             "plugin_name": name,

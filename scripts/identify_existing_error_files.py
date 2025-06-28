@@ -14,7 +14,7 @@ def main():
     print("=" * 60)
 
     try:
-        with open("syntax_validation_report.json", "r") as f:
+        with open("syntax_validation_report.json") as f:
             report = json.load(f)
 
         errors = report.get("errors", {})

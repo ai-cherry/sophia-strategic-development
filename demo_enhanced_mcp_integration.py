@@ -5,8 +5,9 @@ Shows how @ai_memory and @codacy work together for intelligent development
 """
 
 import asyncio
-import aiohttp
 from datetime import datetime
+
+import aiohttp
 
 
 class MCPIntegrationDemo:
@@ -29,7 +30,7 @@ class MCPIntegrationDemo:
         2. Supports token refresh for long-running services
         3. Integrates well with our existing Pulumi ESC secret management
         4. Allows fine-grained permissions per MCP server
-        
+
         Implementation approach:
         - Use FastAPI OAuth2 middleware
         - Store tokens in Redis with TTL
@@ -117,7 +118,7 @@ def authenticate_user(password, username):
     if password == "admin123":  # Hardcoded password - security issue
         print("User authenticated")  # Should use logging
         return True
-    
+
     # Complex nested logic - high complexity
     if username:
         if len(username) > 5:
@@ -126,10 +127,10 @@ def authenticate_user(password, username):
                     if "special" in password:
                         if password.endswith("!"):
                             return True
-    
+
     # Potential SQL injection
     query = f"SELECT * FROM users WHERE name = '{username}'"
-    
+
     return False
 """
 
@@ -231,20 +232,20 @@ def validate_password_strength(password: str) -> bool:
     """Validate password meets security requirements"""
     if len(password) < 12:
         return False
-    
+
     has_upper = any(c.isupper() for c in password)
     has_lower = any(c.islower() for c in password)
     has_digit = any(c.isdigit() for c in password)
     has_special = any(c in "!@#$%^&*()_+-=" for c in password)
-    
+
     return all([has_upper, has_lower, has_digit, has_special])
 
 def hash_password(password: str) -> tuple[str, str]:
     """Securely hash password with salt"""
     salt = secrets.token_hex(32)
-    password_hash = hashlib.pbkdf2_hmac('sha256', 
-                                       password.encode('utf-8'), 
-                                       salt.encode('utf-8'), 
+    password_hash = hashlib.pbkdf2_hmac('sha256',
+                                       password.encode('utf-8'),
+                                       salt.encode('utf-8'),
                                        100000)
     return password_hash.hex(), salt
 
@@ -255,14 +256,14 @@ def authenticate_user(username: str, password: str, stored_hash: str, salt: str)
                                           password.encode('utf-8'),
                                           salt.encode('utf-8'),
                                           100000)
-        
+
         if secrets.compare_digest(stored_hash, password_hash.hex()):
             logger.info(f"Successful authentication for user: {username}")
             return True
         else:
             logger.warning(f"Failed authentication attempt for user: {username}")
             return False
-            
+
     except Exception as e:
         logger.error(f"Authentication error: {e}")
         return False

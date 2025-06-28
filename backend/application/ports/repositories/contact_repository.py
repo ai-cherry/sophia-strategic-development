@@ -6,7 +6,6 @@ This is a port in the hexagonal architecture.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
 
 from backend.domain.entities.contact import Contact, ContactType, EngagementLevel
 
@@ -21,7 +20,7 @@ class ContactRepository(ABC):
     """
 
     @abstractmethod
-    async def get_by_id(self, contact_id: str) -> Optional[Contact]:
+    async def get_by_id(self, contact_id: str) -> Contact | None:
         """
         Retrieve a contact by its ID.
 
@@ -34,7 +33,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_email(self, email: str) -> Optional[Contact]:
+    async def get_by_email(self, email: str) -> Contact | None:
         """
         Retrieve a contact by email address.
 
@@ -47,7 +46,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_external_id(self, external_id: str) -> Optional[Contact]:
+    async def get_by_external_id(self, external_id: str) -> Contact | None:
         """
         Retrieve a contact by its external ID (e.g., HubSpot ID).
 
@@ -60,7 +59,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_company(self, company: str) -> List[Contact]:
+    async def get_by_company(self, company: str) -> list[Contact]:
         """
         Retrieve all contacts from a specific company.
 
@@ -73,7 +72,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_type(self, contact_type: ContactType) -> List[Contact]:
+    async def get_by_type(self, contact_type: ContactType) -> list[Contact]:
         """
         Retrieve all contacts of a specific type.
 
@@ -86,7 +85,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_engagement_level(self, level: EngagementLevel) -> List[Contact]:
+    async def get_by_engagement_level(self, level: EngagementLevel) -> list[Contact]:
         """
         Retrieve all contacts with a specific engagement level.
 
@@ -99,7 +98,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_decision_makers(self, company: Optional[str] = None) -> List[Contact]:
+    async def get_decision_makers(self, company: str | None = None) -> list[Contact]:
         """
         Retrieve all contacts marked as decision makers.
 
@@ -112,7 +111,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_needing_nurture(self, days: int = 30) -> List[Contact]:
+    async def get_needing_nurture(self, days: int = 30) -> list[Contact]:
         """
         Retrieve contacts that need nurturing based on interaction history.
 
@@ -154,13 +153,13 @@ class ContactRepository(ABC):
     async def search(
         self,
         query: str,
-        company: Optional[str] = None,
-        contact_type: Optional[ContactType] = None,
-        engagement_level: Optional[EngagementLevel] = None,
-        is_decision_maker: Optional[bool] = None,
-        tags: Optional[List[str]] = None,
+        company: str | None = None,
+        contact_type: ContactType | None = None,
+        engagement_level: EngagementLevel | None = None,
+        is_decision_maker: bool | None = None,
+        tags: list[str] | None = None,
         limit: int = 100,
-    ) -> List[Contact]:
+    ) -> list[Contact]:
         """
         Search for contacts based on various criteria.
 
@@ -180,7 +179,7 @@ class ContactRepository(ABC):
 
     @abstractmethod
     async def bulk_update_engagement(
-        self, contact_ids: List[str], new_level: EngagementLevel
+        self, contact_ids: list[str], new_level: EngagementLevel
     ) -> int:
         """
         Update the engagement level for multiple contacts.
@@ -195,7 +194,7 @@ class ContactRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_deal(self, deal_id: str) -> List[Contact]:
+    async def get_by_deal(self, deal_id: str) -> list[Contact]:
         """
         Retrieve all contacts associated with a specific deal.
 
@@ -209,7 +208,7 @@ class ContactRepository(ABC):
 
     @abstractmethod
     async def record_interaction(
-        self, contact_id: str, interaction_type: str, notes: Optional[str] = None
+        self, contact_id: str, interaction_type: str, notes: str | None = None
     ) -> bool:
         """
         Record an interaction with a contact.

@@ -8,7 +8,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,13 +21,13 @@ class CursorMCPConfigUpdater:
         self.config_file = Path(config_file)
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load existing configuration"""
         if not self.config_file.exists():
             logger.info("Creating new cursor_mcp_config.json")
             return {"mcpServers": {}}
 
-        with open(self.config_file, "r") as f:
+        with open(self.config_file) as f:
             return json.load(f)
 
     def _save_config(self):
@@ -274,7 +274,7 @@ class CursorMCPConfigUpdater:
         self.config.update(monitoring_settings)
         logger.info("✅ Added monitoring settings")
 
-    def validate_configuration(self) -> List[str]:
+    def validate_configuration(self) -> list[str]:
         """Validate configuration and return issues"""
         issues = []
 

@@ -9,7 +9,7 @@ Current size: 627 lines
 
 Recommended decomposition:
 - portkey_gateway_core.py - Core functionality
-- portkey_gateway_utils.py - Utility functions  
+- portkey_gateway_utils.py - Utility functions
 - portkey_gateway_models.py - Data models
 - portkey_gateway_handlers.py - Request handlers
 
@@ -18,12 +18,14 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-import httpx
-from typing import Dict, List, Any, Optional, AsyncGenerator
-from datetime import datetime
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
 import backoff
+import httpx
 from pydantic import BaseModel
 
 from backend.core.auto_esc_config import get_config_value
@@ -62,14 +64,14 @@ class CompletionRequest(BaseModel):
     """Unified completion request format"""
 
     prompt: str
-    max_tokens: Optional[int] = 4096
-    temperature: Optional[float] = 0.7
-    top_p: Optional[float] = 1.0
-    stream: Optional[bool] = False
-    functions: Optional[List[Dict]] = None
-    cost_limit: Optional[float] = None  # Maximum cost per request
-    latency_target: Optional[int] = None  # Target response time in ms
-    quality_preference: Optional[str] = "balanced"  # "speed", "quality", "balanced"
+    max_tokens: int | None = 4096
+    temperature: float | None = 0.7
+    top_p: float | None = 1.0
+    stream: bool | None = False
+    functions: list[dict] | None = None
+    cost_limit: float | None = None  # Maximum cost per request
+    latency_target: int | None = None  # Target response time in ms
+    quality_preference: str | None = "balanced"  # "speed", "quality", "balanced"
 
 
 class CompletionResponse(BaseModel):
@@ -78,7 +80,7 @@ class CompletionResponse(BaseModel):
     text: str
     model_used: str
     provider: str
-    tokens_used: Dict[str, int]  # {"input": X, "output": Y}
+    tokens_used: dict[str, int]  # {"input": X, "output": Y}
     cost: float
     latency_ms: int
     cached: bool = False
@@ -95,7 +97,7 @@ class PortkeyGateway:
         self.cache = {}  # Simple in-memory cache
         self.circuit_breakers = {}
 
-    def _load_api_keys(self) -> Dict[str, str]:
+    def _load_api_keys(self) -> dict[str, str]:
         """Load API keys from Pulumi ESC"""
         return {
             "openai": get_config_value("openai_api_key", ""),
@@ -107,7 +109,7 @@ class PortkeyGateway:
             "portkey": get_config_value("portkey_api_key", ""),
         }
 
-    def _initialize_models(self) -> Dict[str, ModelConfig]:
+    def _initialize_models(self) -> dict[str, ModelConfig]:
         """Initialize available models with configurations"""
         return {
             # OpenAI Models
@@ -206,9 +208,11 @@ class PortkeyGateway:
         }
 
     def _select_model(
-        self, request: CompletionRequest, exclude_models: List[str] = []
+        self, request: CompletionRequest, exclude_models: list[str] = None
     ) -> ModelConfig:
         """Select the best model based on request requirements"""
+        if exclude_models is None:
+            exclude_models = []
         available_models = [
             (name, config)
             for name, config in self.models.items()
@@ -280,7 +284,7 @@ class PortkeyGateway:
     )
     async def _call_provider(
         self, provider: ModelProvider, model_id: str, request: CompletionRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Call specific provider API with retry logic"""
         api_key = self.api_keys.get(provider.value)
         if not api_key:
@@ -304,7 +308,7 @@ class PortkeyGateway:
 
     async def _call_via_portkey(
         self, provider: ModelProvider, model_id: str, request: CompletionRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Call via Portkey unified API"""
         async with httpx.AsyncClient() as client:
             headers = {
@@ -348,7 +352,7 @@ class PortkeyGateway:
 
     async def _call_openai(
         self, model_id: str, request: CompletionRequest, api_key: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Direct OpenAI API call"""
         async with httpx.AsyncClient() as client:
             headers = {
@@ -380,7 +384,7 @@ class PortkeyGateway:
 
     async def _call_anthropic(
         self, model_id: str, request: CompletionRequest, api_key: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Direct Anthropic API call"""
         async with httpx.AsyncClient() as client:
             headers = {
@@ -427,14 +431,14 @@ class PortkeyGateway:
 
     async def _call_google(
         self, model_id: str, request: CompletionRequest, api_key: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Direct Google Gemini API call"""
         # Implementation would go here
         raise NotImplementedError("Google Gemini direct call not implemented")
 
     async def _call_mistral(
         self, model_id: str, request: CompletionRequest, api_key: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Direct Mistral API call"""
         async with httpx.AsyncClient() as client:
             headers = {
@@ -604,7 +608,7 @@ class PortkeyGateway:
                 breaker["is_open"] = True
                 logger.warning(f"Circuit breaker opened for {model_name}")
 
-    def get_usage_report(self) -> Dict[str, Any]:
+    def get_usage_report(self) -> dict[str, Any]:
         """Get usage report for all models"""
         return {
             "usage_by_model": self.usage_tracker,

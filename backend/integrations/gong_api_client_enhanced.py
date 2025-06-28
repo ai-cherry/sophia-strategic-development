@@ -12,7 +12,7 @@ Current size: 1277 lines
 
 Recommended decomposition:
 - gong_api_client_enhanced_core.py - Core functionality
-- gong_api_client_enhanced_utils.py - Utility functions  
+- gong_api_client_enhanced_utils.py - Utility functions
 - gong_api_client_enhanced_models.py - Data models
 - gong_api_client_enhanced_handlers.py - Request handlers
 
@@ -26,17 +26,17 @@ import hashlib
 import json
 import time
 from collections import deque
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 from urllib.parse import urljoin
 
 import aiohttp
 import redis.asyncio as redis
 import structlog
+from prometheus_client import Counter, Gauge, Histogram
 from pydantic import BaseModel, Field, validator
-from prometheus_client import Counter, Histogram, Gauge
-
 
 logger = structlog.get_logger()
 
@@ -92,27 +92,27 @@ class TranscriptSegment(BaseModel):
     """Individual transcript segment with speaker attribution."""
 
     speaker_id: str
-    speaker_name: Optional[str] = None
-    speaker_email: Optional[str] = None
+    speaker_name: str | None = None
+    speaker_email: str | None = None
     start_time: float
     end_time: float
     text: str
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0)
-    sentiment: Optional[str] = None
-    keywords: List[str] = Field(default_factory=list)
+    confidence: float | None = Field(None, ge=0.0, le=1.0)
+    sentiment: str | None = None
+    keywords: list[str] = Field(default_factory=list)
 
 
 class GongCallTranscript(BaseModel):
     """Enhanced call transcript data."""
 
     call_id: str
-    transcript_segments: List[TranscriptSegment] = Field(default_factory=list)
+    transcript_segments: list[TranscriptSegment] = Field(default_factory=list)
     duration_seconds: int
     language: str
     confidence_score: float = Field(ge=0.0, le=1.0)
-    transcript_url: Optional[str] = None
-    key_phrases: List[str] = Field(default_factory=list)
-    sentiment_summary: Optional[Dict[str, float]] = None
+    transcript_url: str | None = None
+    key_phrases: list[str] = Field(default_factory=list)
+    sentiment_summary: dict[str, float] | None = None
 
     @validator("transcript_segments")
     def validate_segments(cls, segments):
@@ -130,13 +130,13 @@ class GongParticipant(BaseModel):
     user_id: str
     email: str
     name: str
-    role: Optional[str] = None
-    company_domain: Optional[str] = None
-    department: Optional[str] = None
-    title: Optional[str] = None
-    engagement_score: Optional[float] = Field(None, ge=0.0, le=1.0)
-    talk_time_seconds: Optional[int] = None
-    talk_time_percentage: Optional[float] = Field(None, ge=0.0, le=100.0)
+    role: str | None = None
+    company_domain: str | None = None
+    department: str | None = None
+    title: str | None = None
+    engagement_score: float | None = Field(None, ge=0.0, le=1.0)
+    talk_time_seconds: int | None = None
+    talk_time_percentage: float | None = Field(None, ge=0.0, le=100.0)
     is_decision_maker: bool = False
     is_key_stakeholder: bool = False
 
@@ -154,25 +154,25 @@ class CallAnalytics(BaseModel):
     """Comprehensive call analytics."""
 
     call_id: str
-    talk_ratio: Optional[float] = Field(None, ge=0.0, le=1.0)
-    longest_monologue_seconds: Optional[int] = None
-    interactivity_score: Optional[float] = Field(None, ge=0.0, le=1.0)
-    patience_score: Optional[float] = Field(None, ge=0.0, le=1.0)
-    questions_asked_count: Optional[int] = None
-    sentiment_score: Optional[float] = Field(None, ge=-1.0, le=1.0)
-    engagement_score: Optional[float] = Field(None, ge=0.0, le=1.0)
-    interruption_count: Optional[int] = None
-    silence_percentage: Optional[float] = Field(None, ge=0.0, le=100.0)
-    topic_switches: Optional[int] = None
-    key_moments: List[Dict[str, Any]] = Field(default_factory=list)
-    coaching_opportunities: List[Dict[str, Any]] = Field(default_factory=list)
+    talk_ratio: float | None = Field(None, ge=0.0, le=1.0)
+    longest_monologue_seconds: int | None = None
+    interactivity_score: float | None = Field(None, ge=0.0, le=1.0)
+    patience_score: float | None = Field(None, ge=0.0, le=1.0)
+    questions_asked_count: int | None = None
+    sentiment_score: float | None = Field(None, ge=-1.0, le=1.0)
+    engagement_score: float | None = Field(None, ge=0.0, le=1.0)
+    interruption_count: int | None = None
+    silence_percentage: float | None = Field(None, ge=0.0, le=100.0)
+    topic_switches: int | None = None
+    key_moments: list[dict[str, Any]] = Field(default_factory=list)
+    coaching_opportunities: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class EnhancedCallData(BaseModel):
     """Complete enhanced call data."""
 
     call_id: str
-    webhook_id: Optional[str] = None
+    webhook_id: str | None = None
     title: str
     scheduled_start: datetime
     started: datetime
@@ -181,19 +181,17 @@ class EnhancedCallData(BaseModel):
     direction: str
     is_video: bool
     language: str
-    purpose: Optional[str] = None
-    meeting_url: Optional[str] = None
-    transcript: Optional[GongCallTranscript] = None
-    participants: List[GongParticipant] = Field(default_factory=list)
-    analytics: Optional[CallAnalytics] = None
-    topics: List[Dict[str, Any]] = Field(default_factory=list)
-    action_items: List[Dict[str, Any]] = Field(default_factory=list)
-    summary: Optional[Dict[str, Any]] = None
+    purpose: str | None = None
+    meeting_url: str | None = None
+    transcript: GongCallTranscript | None = None
+    participants: list[GongParticipant] = Field(default_factory=list)
+    analytics: CallAnalytics | None = None
+    topics: list[dict[str, Any]] = Field(default_factory=list)
+    action_items: list[dict[str, Any]] = Field(default_factory=list)
+    summary: dict[str, Any] | None = None
     quality_score: float = Field(ge=0.0, le=1.0)
-    enhancement_timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    processing_metrics: Dict[str, Any] = Field(default_factory=dict)
+    enhancement_timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    processing_metrics: dict[str, Any] = Field(default_factory=dict)
 
 
 class TeamActivityStats(BaseModel):
@@ -206,9 +204,9 @@ class TeamActivityStats(BaseModel):
     total_calls: int
     total_duration_minutes: int
     average_call_duration_minutes: float
-    conversion_metrics: Dict[str, float] = Field(default_factory=dict)
-    performance_trends: List[Dict[str, Any]] = Field(default_factory=list)
-    top_performers: List[Dict[str, Any]] = Field(default_factory=list)
+    conversion_metrics: dict[str, float] = Field(default_factory=dict)
+    performance_trends: list[dict[str, Any]] = Field(default_factory=list)
+    top_performers: list[dict[str, Any]] = Field(default_factory=list)
 
 
 # Cache Configuration
@@ -304,10 +302,10 @@ class CircuitBreaker:
 class RedisCache:
     """Redis-based caching with compression and TTL management."""
 
-    def __init__(self, redis_url: str, ttl_config: Dict[str, int]):
+    def __init__(self, redis_url: str, ttl_config: dict[str, int]):
         self.redis_url = redis_url
         self.ttl_config = ttl_config
-        self.redis: Optional[redis.Redis] = None
+        self.redis: redis.Redis | None = None
         self.hit_count = 0
         self.miss_count = 0
 
@@ -321,16 +319,14 @@ class RedisCache:
         if self.redis:
             await self.redis.close()
 
-    def _get_cache_key(self, endpoint: str, params: Dict[str, Any]) -> str:
+    def _get_cache_key(self, endpoint: str, params: dict[str, Any]) -> str:
         """Generate cache key from endpoint and parameters."""
         # Sort params for consistent hashing
         sorted_params = json.dumps(params, sort_keys=True)
         param_hash = hashlib.sha256(sorted_params.encode()).hexdigest()[:16]
         return f"gong:cache:{endpoint}:{param_hash}"
 
-    async def get(
-        self, endpoint: str, params: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    async def get(self, endpoint: str, params: dict[str, Any]) -> dict[str, Any] | None:
         """Get cached response."""
         await self.connect()
         key = self._get_cache_key(endpoint, params)
@@ -352,9 +348,9 @@ class RedisCache:
     async def set(
         self,
         endpoint: str,
-        params: Dict[str, Any],
-        data: Dict[str, Any],
-        ttl_override: Optional[int] = None,
+        params: dict[str, Any],
+        data: dict[str, Any],
+        ttl_override: int | None = None,
     ):
         """Set cached response with TTL."""
         await self.connect()
@@ -411,7 +407,7 @@ class RedisCache:
             if cursor == 0:
                 break
 
-    async def warm_cache(self, prefetch_configs: List[Dict[str, Any]]):
+    async def warm_cache(self, prefetch_configs: list[dict[str, Any]]):
         """Warm cache with frequently accessed data."""
         for config in prefetch_configs:
             endpoint = config.get("endpoint")
@@ -460,7 +456,7 @@ class RetryPolicy:
         self,
         error_category: ErrorCategory,
         attempt: int,
-        retry_after: Optional[float] = None,
+        retry_after: float | None = None,
     ) -> float:
         """Calculate retry delay based on error type and attempt."""
         policy = self.policies.get(
@@ -495,8 +491,8 @@ class GongAPIError(Exception):
         self,
         status_code: int,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
-        category: Optional[ErrorCategory] = None,
+        details: dict[str, Any] | None = None,
+        category: ErrorCategory | None = None,
     ):
         self.status_code = status_code
         self.message = message
@@ -531,7 +527,7 @@ class EnhancedGongAPIClient:
         burst_limit: int = 10,
         timeout: int = 30,
         max_concurrent_requests: int = 10,
-        cache_config: Optional[Dict[str, Any]] = None,
+        cache_config: dict[str, Any] | None = None,
     ):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
@@ -555,10 +551,10 @@ class EnhancedGongAPIClient:
         # Connection management
         self.max_concurrent_requests = max_concurrent_requests
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
-        self._session: Optional[aiohttp.ClientSession] = None
+        self._session: aiohttp.ClientSession | None = None
 
         # Request deduplication
-        self._pending_requests: Dict[str, asyncio.Future] = {}
+        self._pending_requests: dict[str, asyncio.Future] = {}
 
         # Metrics
         self.logger = logger.bind(component="enhanced_gong_api_client")
@@ -600,7 +596,7 @@ class EnhancedGongAPIClient:
         await self.cache.disconnect()
 
     def _get_request_key(
-        self, method: str, endpoint: str, params: Optional[Dict[str, Any]] = None
+        self, method: str, endpoint: str, params: dict[str, Any] | None = None
     ) -> str:
         """Generate unique key for request deduplication."""
         param_str = json.dumps(params or {}, sort_keys=True)
@@ -612,12 +608,12 @@ class EnhancedGongAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        json_data: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json_data: dict[str, Any] | None = None,
         priority: RequestPriority = RequestPriority.NORMAL,
         use_cache: bool = True,
         retry: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Make enhanced API request with all features."""
 
         # Check cache first for GET requests
@@ -662,11 +658,11 @@ class EnhancedGongAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        json_data: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json_data: dict[str, Any] | None = None,
         priority: RequestPriority = RequestPriority.NORMAL,
         retry: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute the actual HTTP request."""
 
         url = urljoin(self.base_url, endpoint)
@@ -727,7 +723,7 @@ class EnhancedGongAPIClient:
                     finally:
                         concurrent_requests.dec()
 
-            except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            except (TimeoutError, aiohttp.ClientError) as e:
                 last_error = GongAPIError(
                     0, str(e), category=ErrorCategory.NETWORK_ERROR
                 )
@@ -821,7 +817,7 @@ class EnhancedGongAPIClient:
 
     async def get_call_participants(
         self, call_id: str, priority: RequestPriority = RequestPriority.NORMAL
-    ) -> List[GongParticipant]:
+    ) -> list[GongParticipant]:
         """Get detailed participant information with engagement metrics."""
         self.logger.info("Fetching call participants", call_id=call_id)
 
@@ -851,12 +847,12 @@ class EnhancedGongAPIClient:
 
     async def list_calls(
         self,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
-        cursor: Optional[str] = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
+        cursor: str | None = None,
         limit: int = 100,
         priority: RequestPriority = RequestPriority.NORMAL,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """List calls with comprehensive filtering and pagination."""
         params = {"limit": min(limit, 100)}  # API max is 100
 
@@ -880,8 +876,8 @@ class EnhancedGongAPIClient:
         }
 
     async def get_calls_extensive(
-        self, call_ids: List[str], priority: RequestPriority = RequestPriority.NORMAL
-    ) -> List[Dict[str, Any]]:
+        self, call_ids: list[str], priority: RequestPriority = RequestPriority.NORMAL
+    ) -> list[dict[str, Any]]:
         """Get extensive call data for multiple calls."""
         self.logger.info("Fetching extensive call data", call_count=len(call_ids))
 
@@ -897,7 +893,7 @@ class EnhancedGongAPIClient:
 
     async def get_user(
         self, user_id: str, priority: RequestPriority = RequestPriority.NORMAL
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get detailed user information."""
         self.logger.info("Fetching user data", user_id=user_id)
 
@@ -912,7 +908,7 @@ class EnhancedGongAPIClient:
         from_date: datetime,
         to_date: datetime,
         group_by: str = "user",
-        metrics: Optional[List[str]] = None,
+        metrics: list[str] | None = None,
         priority: RequestPriority = RequestPriority.LOW,
     ) -> TeamActivityStats:
         """Get aggregated activity statistics."""
@@ -954,7 +950,7 @@ class EnhancedGongAPIClient:
         )
 
     async def enhance_webhook_data(
-        self, webhook_data: Dict[str, Any], webhook_id: Optional[str] = None
+        self, webhook_data: dict[str, Any], webhook_id: str | None = None
     ) -> EnhancedCallData:
         """Main enhancement orchestration method for webhook data."""
         start_time = time.time()
@@ -986,7 +982,7 @@ class EnhancedGongAPIClient:
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
         # Map results back to task names
-        task_results = dict(zip(tasks.keys(), results))
+        task_results = dict(zip(tasks.keys(), results, strict=False))
 
         # Process results and build enhanced data
         call_data = task_results.get("call", {})
@@ -1062,7 +1058,7 @@ class EnhancedGongAPIClient:
 
         return enhanced_data
 
-    async def _get_call_safe(self, call_id: str) -> Dict[str, Any]:
+    async def _get_call_safe(self, call_id: str) -> dict[str, Any]:
         """Safely get call data with error handling."""
         try:
             response = await self._make_request(
@@ -1073,7 +1069,7 @@ class EnhancedGongAPIClient:
             self.logger.error("Failed to get call data", call_id=call_id, error=str(e))
             raise
 
-    async def _get_transcript_safe(self, call_id: str) -> Optional[GongCallTranscript]:
+    async def _get_transcript_safe(self, call_id: str) -> GongCallTranscript | None:
         """Safely get transcript with error handling."""
         try:
             return await self.get_call_transcript(
@@ -1093,7 +1089,7 @@ class EnhancedGongAPIClient:
             )
             return None
 
-    async def _get_participants_safe(self, call_id: str) -> List[GongParticipant]:
+    async def _get_participants_safe(self, call_id: str) -> list[GongParticipant]:
         """Safely get participants with error handling."""
         try:
             return await self.get_call_participants(
@@ -1105,7 +1101,7 @@ class EnhancedGongAPIClient:
             )
             return []
 
-    async def _get_analytics_safe(self, call_id: str) -> Optional[CallAnalytics]:
+    async def _get_analytics_safe(self, call_id: str) -> CallAnalytics | None:
         """Safely get analytics with error handling."""
         try:
             response = await self._make_request(
@@ -1135,17 +1131,15 @@ class EnhancedGongAPIClient:
             self.logger.error("Failed to get analytics", call_id=call_id, error=str(e))
             return None
 
-    def _build_fallback_call_data(self, webhook_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_fallback_call_data(self, webhook_data: dict[str, Any]) -> dict[str, Any]:
         """Build fallback call data from webhook."""
         return {
             "id": webhook_data.get("call_id", ""),
             "title": webhook_data.get("title", "Unknown Call"),
             "scheduledStart": webhook_data.get(
-                "scheduled_start", datetime.now(timezone.utc).isoformat()
+                "scheduled_start", datetime.now(UTC).isoformat()
             ),
-            "started": webhook_data.get(
-                "started", datetime.now(timezone.utc).isoformat()
-            ),
+            "started": webhook_data.get("started", datetime.now(UTC).isoformat()),
             "duration": webhook_data.get("duration", 0),
             "primaryUserId": webhook_data.get("user_id", ""),
             "direction": webhook_data.get("direction", "unknown"),
@@ -1153,15 +1147,15 @@ class EnhancedGongAPIClient:
             "language": webhook_data.get("language", "en"),
         }
 
-    def _parse_datetime(self, datetime_str: Optional[str]) -> datetime:
+    def _parse_datetime(self, datetime_str: str | None) -> datetime:
         """Parse datetime string with fallback."""
         if not datetime_str:
-            return datetime.now(timezone.utc)
+            return datetime.now(UTC)
 
         try:
             return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
         except:
-            return datetime.now(timezone.utc)
+            return datetime.now(UTC)
 
     def _calculate_quality_score(self, enhanced_data: EnhancedCallData) -> float:
         """Calculate data quality score based on completeness."""
@@ -1259,11 +1253,11 @@ class EnhancedGongAPIClient:
         await self.cache.invalidate(f"*/calls/{call_id}/*")
         self.logger.info("Invalidated cache for call", call_id=call_id)
 
-    async def get_health_status(self) -> Dict[str, Any]:
+    async def get_health_status(self) -> dict[str, Any]:
         """Get health status of the API client."""
         health = {
             "status": "healthy",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "metrics": {
                 "cache_hit_ratio": self.cache.get_hit_ratio(),
                 "current_rate_tokens": self.rate_limiter.get_current_rate(),

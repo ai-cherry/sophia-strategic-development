@@ -4,13 +4,13 @@ Comprehensive Codebase Cleanup for Sophia AI
 Identifies and removes duplications, conflicts, and confusion throughout the codebase
 """
 
-import shutil
+import hashlib
 import json
 import logging
+import re
+import shutil
 from datetime import datetime
 from pathlib import Path
-import hashlib
-import re
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -324,7 +324,7 @@ class ComprehensiveCodebaseCleanup:
         for py_file in python_files:
             if self._should_process_file(py_file):
                 try:
-                    with open(py_file, "r", encoding="utf-8") as f:
+                    with open(py_file, encoding="utf-8") as f:
                         content = f.read()
 
                     original_content = content
@@ -392,7 +392,7 @@ class ComprehensiveCodebaseCleanup:
     def _files_are_similar(self, file1: Path, file2: Path) -> bool:
         """Check if two files are similar (ignoring minor differences)"""
         try:
-            with open(file1, "r") as f1, open(file2, "r") as f2:
+            with open(file1) as f1, open(file2) as f2:
                 content1 = f1.read().strip()
                 content2 = f2.read().strip()
                 # Simple similarity check - can be enhanced

@@ -4,11 +4,10 @@ Sophia AI Documentation Cleanup Script
 Automatically organizes, consolidates, and validates documentation
 """
 
-import shutil
-from pathlib import Path
-from typing import Dict, List
-from datetime import datetime
 import re
+import shutil
+from datetime import datetime
+from pathlib import Path
 
 
 class DocumentationCleaner:
@@ -48,7 +47,7 @@ class DocumentationCleaner:
             },
         }
 
-    def analyze_documentation(self) -> Dict:
+    def analyze_documentation(self) -> dict:
         """Analyze current documentation structure"""
         if not self.docs_dir.exists():
             return {"error": "docs directory not found"}
@@ -122,7 +121,7 @@ class DocumentationCleaner:
             print(f"❌ Failed to create backup: {e}")
             return False
 
-    def remove_deprecated_files(self, deprecated_files: List[str]) -> int:
+    def remove_deprecated_files(self, deprecated_files: list[str]) -> int:
         """Remove deprecated files"""
         removed_count = 0
 
@@ -139,7 +138,7 @@ class DocumentationCleaner:
         return removed_count
 
     def consolidate_documentation_group(
-        self, group_name: str, files: List[str]
+        self, group_name: str, files: list[str]
     ) -> bool:
         """Consolidate a group of documentation files"""
         group_config = self.consolidation_groups[group_name]
@@ -164,7 +163,7 @@ class DocumentationCleaner:
                     combined_content.append(f"\n## From: {file_path}")
                     combined_content.append("-" * 40)
 
-                    with open(full_path, "r", encoding="utf-8") as f:
+                    with open(full_path, encoding="utf-8") as f:
                         content = f.read()
                         # Remove the main title if it exists
                         lines = content.split("\n")
@@ -252,7 +251,7 @@ class DocumentationCleaner:
                         if md_file.name != "README.md":
                             # Try to extract title from file
                             try:
-                                with open(md_file, "r", encoding="utf-8") as f:
+                                with open(md_file, encoding="utf-8") as f:
                                     first_line = f.readline().strip()
                                     if first_line.startswith("#"):
                                         title = first_line.lstrip("#").strip()
@@ -276,7 +275,7 @@ class DocumentationCleaner:
             print(f"❌ Failed to generate index: {e}")
             return False
 
-    def run_cleanup(self, dry_run: bool = False) -> Dict:
+    def run_cleanup(self, dry_run: bool = False) -> dict:
         """Run complete documentation cleanup"""
         print("🧹 Starting Sophia AI Documentation Cleanup")
         print("=" * 50)

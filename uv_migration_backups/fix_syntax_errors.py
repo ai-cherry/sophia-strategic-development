@@ -4,9 +4,9 @@ Script to fix common syntax errors in Python files.
 """
 
 import json
+import logging
 import re
 from pathlib import Path
-import logging
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def load_syntax_errors():
         logger.error("syntax_validation_report.json not found")
         return {}
 
-    with open(report_path, "r") as f:
+    with open(report_path) as f:
         data = json.load(f)
         return data.get("errors", {})
 
@@ -96,7 +96,7 @@ def fix_common_syntax_patterns(content):
 def process_file(file_path):
     """Process a single file to fix syntax errors."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content

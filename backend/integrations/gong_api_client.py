@@ -7,8 +7,8 @@ data enhancement and retrieval.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from urllib.parse import urljoin
 
 import aiohttp
@@ -70,37 +70,37 @@ class GongCallData(BaseModel):
     direction: str
     is_video: bool
     language: str
-    purpose: Optional[str] = None
-    meeting_url: Optional[str] = None
-    participants: List[Dict[str, Any]] = Field(default_factory=list)
-    transcript: Optional[Dict[str, Any]] = None
-    topics: List[Dict[str, Any]] = Field(default_factory=list)
-    trackers: List[Dict[str, Any]] = Field(default_factory=list)
-    summary: Optional[Dict[str, Any]] = None
-    action_items: List[Dict[str, Any]] = Field(default_factory=list)
+    purpose: str | None = None
+    meeting_url: str | None = None
+    participants: list[dict[str, Any]] = Field(default_factory=list)
+    transcript: dict[str, Any] | None = None
+    topics: list[dict[str, Any]] = Field(default_factory=list)
+    trackers: list[dict[str, Any]] = Field(default_factory=list)
+    summary: dict[str, Any] | None = None
+    action_items: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class GongCallTranscript(BaseModel):
     """Call transcript data."""
 
     call_id: str
-    transcript_url: Optional[str] = None
-    sentences: List[Dict[str, Any]] = Field(default_factory=list)
-    topics: List[Dict[str, Any]] = Field(default_factory=list)
-    keywords: List[str] = Field(default_factory=list)
+    transcript_url: str | None = None
+    sentences: list[dict[str, Any]] = Field(default_factory=list)
+    topics: list[dict[str, Any]] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
 
 
 class GongCallAnalytics(BaseModel):
     """Call analytics data."""
 
     call_id: str
-    talk_ratio: Optional[float] = None
-    longest_monologue: Optional[int] = None
-    interactivity: Optional[float] = None
-    patience: Optional[float] = None
-    questions_asked: Optional[int] = None
-    sentiment_score: Optional[float] = None
-    engagement_score: Optional[float] = None
+    talk_ratio: float | None = None
+    longest_monologue: int | None = None
+    interactivity: float | None = None
+    patience: float | None = None
+    questions_asked: int | None = None
+    sentiment_score: float | None = None
+    engagement_score: float | None = None
 
 
 class GongAPIError(Exception):
@@ -110,7 +110,7 @@ class GongAPIError(Exception):
         self,
         status_code: int,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ):
         self.status_code = status_code
         self.message = message
@@ -135,7 +135,7 @@ class GongAPIClient:
         self.rate_limiter = AsyncRateLimiter(rate_limit, burst_limit=burst_limit)
         self.retry_manager = RetryManager()
         self.logger = logger.bind(component="gong_api_client")
-        self._session: Optional[aiohttp.ClientSession] = None
+        self._session: aiohttp.ClientSession | None = None
 
     async def __aenter__(self):
         """Async context manager entry."""
@@ -167,10 +167,10 @@ class GongAPIClient:
         self,
         method: str,
         endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        json_data: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
+        json_data: dict[str, Any] | None = None,
         retry: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Make a rate-limited API request."""
         await self._ensure_session()
 
@@ -272,7 +272,7 @@ class GongAPIClient:
             engagement_score=analytics.get("engagementScore"),
         )
 
-    async def get_call_participants(self, call_id: str) -> List[Dict[str, Any]]:
+    async def get_call_participants(self, call_id: str) -> list[dict[str, Any]]:
         """Get detailed participant information."""
         self.logger.info("Fetching call participants", call_id=call_id)
 
@@ -282,11 +282,11 @@ class GongAPIClient:
 
     async def list_calls(
         self,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
-        cursor: Optional[str] = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
+        cursor: str | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """List calls with optional filters."""
         params = {"limit": min(limit, 100)}  # API max is 100
 
@@ -307,7 +307,7 @@ class GongAPIClient:
             "has_more": response.get("hasMore", False),
         }
 
-    async def enhance_call_data(self, call_id: str) -> Dict[str, Any]:
+    async def enhance_call_data(self, call_id: str) -> dict[str, Any]:
         """Enhance call data with all available information."""
         self.logger.info("Enhancing call data", call_id=call_id)
 
@@ -341,7 +341,7 @@ class GongAPIClient:
         # Combine all data
         enhanced_data = {
             "call_id": call_id,
-            "enhanced_at": datetime.now(timezone.utc).isoformat(),
+            "enhanced_at": datetime.now(UTC).isoformat(),
             "call_data": results["call"].dict() if results["call"] else None,
             "transcript": (
                 results["transcript"].dict() if results["transcript"] else None
@@ -356,19 +356,19 @@ class GongAPIClient:
 
         return enhanced_data
 
-    async def get_user(self, user_id: str) -> Dict[str, Any]:
+    async def get_user(self, user_id: str) -> dict[str, Any]:
         """Get user information."""
         response = await self._make_request("GET", f"/v2/users/{user_id}")
 
         return response.get("user", {})
 
-    async def get_email_content(self, email_id: str) -> Dict[str, Any]:
+    async def get_email_content(self, email_id: str) -> dict[str, Any]:
         """Get email content and metadata."""
         response = await self._make_request("GET", f"/v2/emails/{email_id}")
 
         return response.get("email", {})
 
-    async def get_meeting_details(self, meeting_id: str) -> Dict[str, Any]:
+    async def get_meeting_details(self, meeting_id: str) -> dict[str, Any]:
         """Get meeting details and attendees."""
         response = await self._make_request("GET", f"/v2/meetings/{meeting_id}")
 

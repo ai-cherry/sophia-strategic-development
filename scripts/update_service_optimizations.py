@@ -15,11 +15,11 @@ PERFORMANCE IMPROVEMENTS:
 - Comprehensive monitoring integration
 """
 
-import re
-import logging
 import asyncio
-from typing import Dict, Any
+import logging
+import re
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class ServiceOptimizationUpdater:
             "errors": [],
         }
 
-    async def update_all_services(self) -> Dict[str, Any]:
+    async def update_all_services(self) -> dict[str, Any]:
         """
         Update all services to use optimized components
         """
@@ -132,7 +132,7 @@ class ServiceOptimizationUpdater:
             logger.info(f"Updating service file: {file_path.name}")
 
             # Read current file content
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -294,53 +294,53 @@ import asyncio
 
 class OptimizedServiceExample:
     """Example service using optimized components"""
-    
+
     @performance_monitor.track_performance
     async def optimized_database_operation(self):
         """Example of optimized database operation"""
-        
+
         # OLD WAY (SLOW):
         # conn = snowflake.connector.connect(...)
         # cursor = conn.cursor()
         # cursor.execute("SELECT * FROM table")
         # results = cursor.fetchall()
         # conn.close()
-        
+
         # NEW WAY (95% FASTER):
         async with connection_manager.get_connection() as conn:
             cursor = conn.cursor()
             await cursor.execute("SELECT * FROM table")
             results = await cursor.fetchall()
             return results
-    
+
     @performance_monitor.track_performance
     async def batch_database_operations(self, queries: list):
         """Example of batch operations for N+1 elimination"""
-        
+
         # OLD WAY (N+1 PROBLEM):
         # for query in queries:
         #     conn = snowflake.connector.connect(...)
         #     cursor = conn.cursor()
         #     cursor.execute(query)
         #     conn.close()
-        
+
         # NEW WAY (BATCH PROCESSING):
         async with connection_manager.get_connection() as conn:
             cursor = conn.cursor()
             for query in queries:
                 await cursor.execute(query)
             # Connection reused for all operations
-            
+
     async def example_usage(self):
         """Example usage of optimized patterns"""
-        
+
         # Single operation
         results = await self.optimized_database_operation()
-        
+
         # Batch operations
         queries = ["SELECT 1", "SELECT 2", "SELECT 3"]
         await self.batch_database_operations(queries)
-        
+
         print("✅ All operations completed with optimized performance!")
 
 
@@ -348,7 +348,7 @@ if __name__ == "__main__":
     async def main():
         service = OptimizedServiceExample()
         await service.example_usage()
-    
+
     asyncio.run(main())
 '''
 
@@ -370,55 +370,55 @@ import asyncio
 
 class OptimizedCacheExample:
     """Example service using optimized cache"""
-    
+
     @performance_monitor.track_performance
     async def cached_database_query(self, query: str):
         """Example of cached database operation"""
-        
+
         # Check cache first (L1 in-memory, L2 Redis)
         cache_key = f"query:{hash(query)}"
         cached_result = await optimized_cache.get(cache_key)
-        
+
         if cached_result:
             print("✅ Cache hit! 5x faster response")
             return cached_result
-        
+
         # If not in cache, execute query
         # ... database operation ...
         result = {"data": "query_result"}
-        
+
         # Store in cache with TTL
         await optimized_cache.set(cache_key, result, ttl=3600)
-        
+
         return result
-    
+
     @performance_monitor.track_performance
     async def batch_cache_operations(self, keys: list):
         """Example of batch cache operations"""
-        
+
         # Batch get (more efficient than individual gets)
         results = await optimized_cache.get_many(keys)
-        
+
         # Batch set
         data = {f"key_{i}": f"value_{i}" for i in range(len(keys))}
         await optimized_cache.set_many(data, ttl=1800)
-        
+
         return results
 
 
 if __name__ == "__main__":
     async def main():
         cache_service = OptimizedCacheExample()
-        
+
         # Test cached query
         result = await cache_service.cached_database_query("SELECT * FROM users")
         print(f"Query result: {result}")
-        
+
         # Test batch operations
         keys = ["key_1", "key_2", "key_3"]
         batch_results = await cache_service.batch_cache_operations(keys)
         print(f"Batch results: {batch_results}")
-    
+
     asyncio.run(main())
 '''
 
@@ -448,7 +448,7 @@ Status: {self.update_results.get("status", "unknown")}
 service_updater = ServiceOptimizationUpdater()
 
 
-async def update_all_sophia_services() -> Dict[str, Any]:
+async def update_all_sophia_services() -> dict[str, Any]:
     """Update all Sophia AI services to use optimized components"""
     return await service_updater.update_all_services()
 

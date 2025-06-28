@@ -10,30 +10,29 @@ Current size: 978 lines
 
 Recommended decomposition:
 - codacy_mcp_server_core.py - Core functionality
-- codacy_mcp_server_utils.py - Utility functions  
+- codacy_mcp_server_utils.py - Utility functions
 - codacy_mcp_server_models.py - Data models
 - codacy_mcp_server_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import ast
 import asyncio
 import os
+import re
 import tempfile
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
-import ast
-import re
+from bandit.core import config as bandit_config
 
 # MCP imports
-
 # Security analysis
 from bandit.core import manager as bandit_manager
-from bandit.core import config as bandit_config
 
 # Code complexity analysis
 try:
@@ -46,10 +45,10 @@ except ImportError:
 
 # Base class and configs
 from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
     HealthCheckResult,
     HealthStatus,
+    MCPServerConfig,
+    StandardizedMCPServer,
     SyncPriority,
 )
 from backend.utils.logging import get_logger
@@ -93,10 +92,10 @@ class CodeIssue:
     description: str
     file_path: str
     line_number: int
-    column_number: Optional[int] = None
-    code_snippet: Optional[str] = None
-    suggestion: Optional[str] = None
-    rule_id: Optional[str] = None
+    column_number: int | None = None
+    code_snippet: str | None = None
+    suggestion: str | None = None
+    rule_id: str | None = None
     confidence: float = 1.0
 
 
@@ -120,9 +119,9 @@ class AnalysisResult:
     """Complete code analysis result"""
 
     file_path: str
-    issues: List[CodeIssue]
+    issues: list[CodeIssue]
     metrics: CodeMetrics
-    suggestions: List[str]
+    suggestions: list[str]
     analysis_time: float
     timestamp: datetime
 
@@ -134,7 +133,7 @@ class SecurityAnalyzer:
         self.bandit_manager = None
         self.custom_security_patterns = self._load_custom_patterns()
 
-    def _load_custom_patterns(self) -> List[Dict[str, Any]]:
+    def _load_custom_patterns(self) -> list[dict[str, Any]]:
         """Load custom security patterns specific to Sophia AI"""
         return [
             {
@@ -181,7 +180,7 @@ class SecurityAnalyzer:
             },
         ]
 
-    async def analyze_security(self, code: str, file_path: str) -> List[CodeIssue]:
+    async def analyze_security(self, code: str, file_path: str) -> list[CodeIssue]:
         """Perform comprehensive security analysis"""
         issues = []
 
@@ -197,7 +196,7 @@ class SecurityAnalyzer:
 
         return issues
 
-    async def _analyze_with_bandit(self, code: str, file_path: str) -> List[CodeIssue]:
+    async def _analyze_with_bandit(self, code: str, file_path: str) -> list[CodeIssue]:
         """Analyze code using Bandit security scanner"""
         issues = []
 
@@ -249,7 +248,7 @@ class SecurityAnalyzer:
 
         return issues
 
-    def _analyze_custom_patterns(self, code: str, file_path: str) -> List[CodeIssue]:
+    def _analyze_custom_patterns(self, code: str, file_path: str) -> list[CodeIssue]:
         """Analyze code using custom security patterns"""
         issues = []
         lines = code.split("\n")
@@ -275,7 +274,7 @@ class SecurityAnalyzer:
 
         return issues
 
-    def _analyze_sophia_specific(self, code: str, file_path: str) -> List[CodeIssue]:
+    def _analyze_sophia_specific(self, code: str, file_path: str) -> list[CodeIssue]:
         """Analyze Sophia AI specific security patterns"""
         issues = []
         lines = code.split("\n")
@@ -331,7 +330,7 @@ class ComplexityAnalyzer:
 
     async def analyze_complexity(
         self, code: str, file_path: str
-    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+    ) -> tuple[list[CodeIssue], dict[str, float]]:
         """Analyze code complexity"""
         issues = []
         metrics = {}
@@ -368,7 +367,7 @@ class ComplexityAnalyzer:
 
     def _analyze_ast(
         self, tree: ast.AST, file_path: str
-    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+    ) -> tuple[list[CodeIssue], dict[str, float]]:
         """Analyze AST for complexity issues"""
         issues = []
         metrics = {
@@ -458,7 +457,7 @@ class ComplexityAnalyzer:
 
                 for child in ast.walk(node):
                     if isinstance(
-                        child, (ast.If, ast.While, ast.For, ast.ExceptHandler)
+                        child, ast.If | ast.While | ast.For | ast.ExceptHandler
                     ):
                         complexity += 1
                     elif isinstance(child, ast.BoolOp):
@@ -496,7 +495,7 @@ class ComplexityAnalyzer:
 
     def _analyze_with_radon(
         self, code: str, file_path: str
-    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+    ) -> tuple[list[CodeIssue], dict[str, float]]:
         """Analyze with Radon if available"""
         issues = []
         metrics = {}
@@ -570,7 +569,7 @@ class PerformanceAnalyzer:
             },
         ]
 
-    async def analyze_performance(self, code: str, file_path: str) -> List[CodeIssue]:
+    async def analyze_performance(self, code: str, file_path: str) -> list[CodeIssue]:
         """Analyze code for performance issues"""
         issues = []
 
@@ -586,7 +585,7 @@ class PerformanceAnalyzer:
 
         return issues
 
-    def _analyze_patterns(self, code: str, file_path: str) -> List[CodeIssue]:
+    def _analyze_patterns(self, code: str, file_path: str) -> list[CodeIssue]:
         """Pattern-based performance analysis"""
         issues = []
         lines = code.split("\n")
@@ -614,7 +613,7 @@ class PerformanceAnalyzer:
 
     def _analyze_ast_performance(
         self, tree: ast.AST, file_path: str
-    ) -> List[CodeIssue]:
+    ) -> list[CodeIssue]:
         """AST-based performance analysis"""
         issues = []
 
@@ -624,7 +623,7 @@ class PerformanceAnalyzer:
                 nested_loops = [
                     n
                     for n in ast.walk(node)
-                    if isinstance(n, (ast.For, ast.While)) and n != node
+                    if isinstance(n, ast.For | ast.While) and n != node
                 ]
                 if len(nested_loops) >= 2:
                     issues.append(
@@ -762,7 +761,7 @@ class EnhancedCodacyAnalyzer:
             )
 
     def _calculate_metrics(
-        self, code: str, issues: List[CodeIssue], ast_metrics: Dict[str, float]
+        self, code: str, issues: list[CodeIssue], ast_metrics: dict[str, float]
     ) -> CodeMetrics:
         """Calculate comprehensive code metrics"""
         lines = code.split("\n")
@@ -805,8 +804,8 @@ class EnhancedCodacyAnalyzer:
         )
 
     def _generate_suggestions(
-        self, issues: List[CodeIssue], metrics: CodeMetrics
-    ) -> List[str]:
+        self, issues: list[CodeIssue], metrics: CodeMetrics
+    ) -> list[str]:
         """Generate actionable suggestions based on analysis"""
         suggestions = []
 
@@ -861,7 +860,7 @@ class CodacyMCPServer(StandardizedMCPServer):
     An MCP server to act as a bridge to the Codacy API.
     """
 
-    def __init__(self, config: Optional[MCPServerConfig] = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         if config is None:
             config = MCPServerConfig(
                 server_name="codacy",
@@ -870,7 +869,7 @@ class CodacyMCPServer(StandardizedMCPServer):
                 sync_interval_minutes=120,  # Sync every 2 hours
             )
         super().__init__(config)
-        self.codacy_client: Optional[CodacyAPIClient] = None
+        self.codacy_client: CodacyAPIClient | None = None
 
     async def server_specific_init(self) -> None:
         """Initializes the Codacy API client."""
@@ -905,13 +904,13 @@ class CodacyMCPServer(StandardizedMCPServer):
 
     # The following abstract methods are not strictly necessary for this server's
     # primary function but are required by the base class.
-    async def sync_data(self) -> Dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         logger.info(
             "Codacy server does not have a primary sync data function. Returning empty."
         )
         return {}
 
-    async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_with_ai(self, data: dict[str, Any]) -> dict[str, Any]:
         logger.info(
             "AI processing is not applicable for Codacy server sync. Returning empty."
         )
@@ -929,7 +928,7 @@ class CodacyMCPServer(StandardizedMCPServer):
         # Not applicable for this server
         return 0
 
-    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+    def get_mcp_tools(self) -> list[dict[str, Any]]:
         """Defines the tools this MCP server exposes."""
         return [
             {
@@ -952,8 +951,8 @@ class CodacyMCPServer(StandardizedMCPServer):
         ]
 
     async def execute_mcp_tool(
-        self, tool_name: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Executes a tool call."""
         if not self.codacy_client:
             return {"error": "Codacy client not initialized."}

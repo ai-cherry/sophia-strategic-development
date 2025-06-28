@@ -5,12 +5,12 @@ Intelligently routes vector searches to the optimal database based on query char
 """
 
 import asyncio
-from typing import Dict, List, Any
 import logging
 from datetime import datetime
+from typing import Any
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +49,8 @@ class VectorIntelligenceRouter:
         self.pinecone_client = None  # Placeholder
 
     async def intelligent_search(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Route to optimal vector database based on query characteristics
 
@@ -94,8 +94,8 @@ class VectorIntelligenceRouter:
         return combined_results
 
     async def analyze_query_characteristics(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze query to determine optimal routing strategy"""
         analysis = {
             "requires_realtime": False,
@@ -134,8 +134,8 @@ class VectorIntelligenceRouter:
         return analysis
 
     async def search_snowflake_cortex(
-        self, query: str, context: Dict[str, Any], query_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any], query_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Search using Snowflake Cortex"""
         if not self.snowflake_cortex:
             return {
@@ -174,8 +174,8 @@ class VectorIntelligenceRouter:
             return {"source": "snowflake_cortex", "results": [], "error": str(e)}
 
     async def search_ai_memory(
-        self, query: str, context: Dict[str, Any], query_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any], query_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Search using AI Memory service (includes Pinecone)"""
         if not self.ai_memory:
             return {
@@ -214,16 +214,16 @@ class VectorIntelligenceRouter:
             return {"source": "ai_memory", "results": [], "error": str(e)}
 
     async def search_pinecone(
-        self, query: str, context: Dict[str, Any], query_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any], query_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Direct Pinecone search for real-time needs"""
         # Placeholder for direct Pinecone integration
         # Currently handled through AI Memory service
         return {"source": "pinecone", "results": [], "note": "Handled via AI Memory"}
 
     async def fuse_search_results(
-        self, results: List[Dict[str, Any]], query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, results: list[dict[str, Any]], query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Intelligently combine results from multiple sources"""
         if not results:
             return {
@@ -278,7 +278,7 @@ class VectorIntelligenceRouter:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    def _calculate_relevance(self, item: Dict[str, Any], query: str) -> float:
+    def _calculate_relevance(self, item: dict[str, Any], query: str) -> float:
         """Calculate relevance score for a result item"""
         # Simple relevance calculation
         score = 0.5  # Base score
@@ -303,7 +303,7 @@ class VectorIntelligenceRouter:
         return min(score, 1.0)
 
     def _determine_fusion_strategy(
-        self, context: Dict[str, Any], result_count: int
+        self, context: dict[str, Any], result_count: int
     ) -> str:
         """Determine the best fusion strategy"""
         if context.get("fusion_strategy"):
@@ -317,8 +317,8 @@ class VectorIntelligenceRouter:
             return "interleave"
 
     def _interleave_results(
-        self, results: List[Dict[str, Any]], sources: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, results: list[dict[str, Any]], sources: list[str]
+    ) -> list[dict[str, Any]]:
         """Interleave results from different sources"""
         # Group by source
         by_source = {}
@@ -340,8 +340,8 @@ class VectorIntelligenceRouter:
         return interleaved
 
     def _diverse_fusion(
-        self, results: List[Dict[str, Any]], sources: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, results: list[dict[str, Any]], sources: list[str]
+    ) -> list[dict[str, Any]]:
         """Fusion with source diversity"""
         # Ensure diversity by limiting consecutive results from same source
         diverse_results = []

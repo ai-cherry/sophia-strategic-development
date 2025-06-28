@@ -4,17 +4,16 @@ Snowflake Call Repository Implementation
 This module provides a Snowflake-based implementation of the CallRepository interface.
 """
 
-from datetime import datetime
-from typing import List, Optional
 import json
+from datetime import datetime
 
 from backend.application.ports.repositories.call_repository import CallRepository
 from backend.domain.entities.call import Call
-from backend.domain.value_objects.sentiment import Sentiment
 from backend.domain.value_objects.call_participant import (
     CallParticipant,
     ParticipantRole,
 )
+from backend.domain.value_objects.sentiment import Sentiment
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 
@@ -36,7 +35,7 @@ class SnowflakeCallRepository(CallRepository):
         self.snowflake = snowflake_service
         self.table_name = "ENRICHED_GONG_CALLS"
 
-    async def get_by_id(self, call_id: str) -> Optional[Call]:
+    async def get_by_id(self, call_id: str) -> Call | None:
         """
         Retrieve a call by its ID.
 
@@ -58,7 +57,7 @@ class SnowflakeCallRepository(CallRepository):
 
         return None
 
-    async def get_by_external_id(self, external_id: str) -> Optional[Call]:
+    async def get_by_external_id(self, external_id: str) -> Call | None:
         """
         Retrieve a call by its external system ID.
 
@@ -80,7 +79,7 @@ class SnowflakeCallRepository(CallRepository):
 
         return None
 
-    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> List[Call]:
+    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> list[Call]:
         """
         Get recent calls ordered by scheduled date.
 
@@ -103,7 +102,7 @@ class SnowflakeCallRepository(CallRepository):
 
     async def get_calls_by_date_range(
         self, start_date: datetime, end_date: datetime
-    ) -> List[Call]:
+    ) -> list[Call]:
         """
         Get calls within a specific date range.
 
@@ -126,7 +125,7 @@ class SnowflakeCallRepository(CallRepository):
 
         return [self._map_row_to_call(row) for row in result]
 
-    async def get_calls_requiring_followup(self) -> List[Call]:
+    async def get_calls_requiring_followup(self) -> list[Call]:
         """
         Get all calls that require followup based on business rules.
 
@@ -269,7 +268,7 @@ class SnowflakeCallRepository(CallRepository):
         # Check if any rows were affected
         return result is not None
 
-    async def search_by_participant_email(self, email: str) -> List[Call]:
+    async def search_by_participant_email(self, email: str) -> list[Call]:
         """
         Search for calls by participant email.
 
@@ -292,7 +291,7 @@ class SnowflakeCallRepository(CallRepository):
 
         return [self._map_row_to_call(row) for row in result]
 
-    async def get_high_value_calls(self) -> List[Call]:
+    async def get_high_value_calls(self) -> list[Call]:
         """
         Get all high-value calls based on business rules.
 
@@ -313,7 +312,7 @@ class SnowflakeCallRepository(CallRepository):
 
         return [self._map_row_to_call(row) for row in result]
 
-    async def get_by_deal(self, deal_id: str) -> List[Call]:
+    async def get_by_deal(self, deal_id: str) -> list[Call]:
         """
         Retrieve calls associated with a specific deal.
 

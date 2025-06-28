@@ -10,7 +10,7 @@ Current size: 907 lines
 
 Recommended decomposition:
 - linear_project_health_agent_core.py - Core functionality
-- linear_project_health_agent_utils.py - Utility functions  
+- linear_project_health_agent_utils.py - Utility functions
 - linear_project_health_agent_models.py - Data models
 - linear_project_health_agent_handlers.py - Request handlers
 
@@ -19,14 +19,14 @@ TODO: Implement file decomposition
 
 import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -60,15 +60,15 @@ class LinearIssue:
     description: str
     status: str
     priority: str
-    assignee: Optional[str]
-    project_id: Optional[str]
-    project_name: Optional[str]
+    assignee: str | None
+    project_id: str | None
+    project_name: str | None
     created_at: datetime
     updated_at: datetime
-    due_date: Optional[datetime]
-    estimate: Optional[float]
-    labels: List[str] = field(default_factory=list)
-    comments: List[Dict[str, Any]] = field(default_factory=list)
+    due_date: datetime | None
+    estimate: float | None
+    labels: list[str] = field(default_factory=list)
+    comments: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -78,9 +78,9 @@ class ProjectRisk:
     risk_type: RiskType
     severity: str  # low, medium, high, critical
     description: str
-    affected_issues: List[str]
+    affected_issues: list[str]
     impact_assessment: str
-    mitigation_strategies: List[str]
+    mitigation_strategies: list[str]
     confidence_score: float
 
 
@@ -109,10 +109,10 @@ class ProjectHealthReport:
     health_status: HealthStatus
     health_score: float
     metrics: ProjectHealthMetrics
-    risks: List[ProjectRisk]
-    recommendations: List[str]
-    key_insights: List[str]
-    team_performance: Dict[str, Any]
+    risks: list[ProjectRisk]
+    recommendations: list[str]
+    key_insights: list[str]
+    team_performance: dict[str, Any]
     generated_at: datetime = field(default_factory=datetime.now)
 
 
@@ -136,8 +136,8 @@ class LinearProjectHealthAgent(BaseAgent):
         )
 
         # Service integrations
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         # Health assessment thresholds
         self.health_thresholds = {
@@ -172,8 +172,8 @@ class LinearProjectHealthAgent(BaseAgent):
         self,
         project_id: str,
         project_name: str,
-        issues: List[LinearIssue],
-        historical_data: Optional[Dict[str, Any]] = None,
+        issues: list[LinearIssue],
+        historical_data: dict[str, Any] | None = None,
     ) -> ProjectHealthReport:
         """
         Assess comprehensive project health
@@ -231,7 +231,7 @@ class LinearProjectHealthAgent(BaseAgent):
 
     async def monitor_project_trends(
         self, project_id: str, time_period_days: int = 30
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Monitor project trends over time
 
@@ -275,9 +275,9 @@ class LinearProjectHealthAgent(BaseAgent):
 
     async def detect_project_anomalies(
         self,
-        issues: List[LinearIssue],
-        baseline_metrics: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
+        issues: list[LinearIssue],
+        baseline_metrics: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Detect anomalies in project behavior
 
@@ -342,7 +342,7 @@ class LinearProjectHealthAgent(BaseAgent):
             return []
 
     def _calculate_project_metrics(
-        self, issues: List[LinearIssue]
+        self, issues: list[LinearIssue]
     ) -> ProjectHealthMetrics:
         """Calculate basic project metrics by orchestrating helper methods."""
         total_issues = len(issues)
@@ -362,16 +362,16 @@ class LinearProjectHealthAgent(BaseAgent):
             in_progress_issues=status_counts["in_progress"],
             blocked_issues=status_counts["blocked"],
             overdue_issues=status_counts["overdue"],
-            completion_rate=status_counts["completed"] / total_issues
-            if total_issues > 0
-            else 0.0,
+            completion_rate=(
+                status_counts["completed"] / total_issues if total_issues > 0 else 0.0
+            ),
             velocity_trend="stable",  # Placeholder, requires historical data
             avg_cycle_time=avg_cycle_time,
             team_utilization=team_utilization,
             quality_score=quality_score,
         )
 
-    def _count_issues_by_status(self, issues: List[LinearIssue]) -> Dict[str, int]:
+    def _count_issues_by_status(self, issues: list[LinearIssue]) -> dict[str, int]:
         """Counts issues based on their status and labels."""
         completed = len(
             [i for i in issues if i.status.lower() in ["done", "completed", "closed"]]
@@ -406,7 +406,7 @@ class LinearProjectHealthAgent(BaseAgent):
             "overdue": overdue,
         }
 
-    def _calculate_avg_cycle_time(self, issues: List[LinearIssue]) -> float:
+    def _calculate_avg_cycle_time(self, issues: list[LinearIssue]) -> float:
         """Calculates the average cycle time for completed issues."""
         completed_with_times = [
             i
@@ -422,15 +422,15 @@ class LinearProjectHealthAgent(BaseAgent):
         return sum(cycle_times) / len(cycle_times)
 
     def _calculate_team_utilization(
-        self, issues: List[LinearIssue], in_progress_issues: int
+        self, issues: list[LinearIssue], in_progress_issues: int
     ) -> float:
         """Calculates team utilization based on assigned in-progress issues."""
-        assignees = set(i.assignee for i in issues if i.assignee)
+        assignees = {i.assignee for i in issues if i.assignee}
         if not assignees:
             return 0.0
         return min(in_progress_issues / len(assignees), 1.0)
 
-    def _calculate_quality_score(self, issues: List[LinearIssue]) -> float:
+    def _calculate_quality_score(self, issues: list[LinearIssue]) -> float:
         """Calculate quality score based on issue documentation"""
         if not issues:
             return 0.0
@@ -468,10 +468,10 @@ class LinearProjectHealthAgent(BaseAgent):
 
     async def _assess_project_risks(
         self,
-        issues: List[LinearIssue],
+        issues: list[LinearIssue],
         metrics: ProjectHealthMetrics,
-        historical_data: Optional[Dict[str, Any]],
-    ) -> List[ProjectRisk]:
+        historical_data: dict[str, Any] | None,
+    ) -> list[ProjectRisk]:
         """Assess project risks"""
         risks = []
 
@@ -550,8 +550,8 @@ class LinearProjectHealthAgent(BaseAgent):
         return risks
 
     async def _ai_enhanced_risk_assessment(
-        self, issues: List[LinearIssue], metrics: ProjectHealthMetrics
-    ) -> List[ProjectRisk]:
+        self, issues: list[LinearIssue], metrics: ProjectHealthMetrics
+    ) -> list[ProjectRisk]:
         """Use AI to assess additional project risks"""
         try:
             # Prepare issue summaries for AI analysis
@@ -565,22 +565,22 @@ class LinearProjectHealthAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 risk_prompt = f"""
                 Analyze these Linear project issues for potential risks:
-                
+
                 Project Metrics:
                 - Total Issues: {metrics.total_issues}
                 - Completion Rate: {metrics.completion_rate:.1%}
                 - Overdue Issues: {metrics.overdue_issues}
                 - Blocked Issues: {metrics.blocked_issues}
-                
+
                 Recent Issues:
                 {chr(10).join(issue_summaries)}
-                
+
                 Identify potential risks in these categories:
                 1. Technical debt accumulation
                 2. Scope creep indicators
                 3. Communication gaps
                 4. Dependency issues
-                
+
                 Return findings as JSON with risk_type, severity, and description.
                 """
 
@@ -628,8 +628,8 @@ class LinearProjectHealthAgent(BaseAgent):
             return []
 
     def _calculate_health_score(
-        self, metrics: ProjectHealthMetrics, risks: List[ProjectRisk]
-    ) -> Tuple[float, HealthStatus]:
+        self, metrics: ProjectHealthMetrics, risks: list[ProjectRisk]
+    ) -> tuple[float, HealthStatus]:
         """Calculate overall project health score and status"""
         score = 1.0
 
@@ -669,10 +669,10 @@ class LinearProjectHealthAgent(BaseAgent):
 
     async def _generate_project_insights(
         self,
-        issues: List[LinearIssue],
+        issues: list[LinearIssue],
         metrics: ProjectHealthMetrics,
-        risks: List[ProjectRisk],
-    ) -> List[str]:
+        risks: list[ProjectRisk],
+    ) -> list[str]:
         """Generate AI-powered project insights"""
         insights = []
 
@@ -703,15 +703,15 @@ class LinearProjectHealthAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 insight_prompt = f"""
                 Generate 2-3 key insights for this project:
-                
+
                 Metrics:
                 - Completion Rate: {metrics.completion_rate:.1%}
                 - Overdue Issues: {metrics.overdue_issues}
                 - Team Utilization: {metrics.team_utilization:.1%}
                 - Quality Score: {metrics.quality_score:.1f}
-                
+
                 Risks: {len(risks)} identified
-                
+
                 Provide actionable insights for project management.
                 """
 
@@ -731,8 +731,8 @@ class LinearProjectHealthAgent(BaseAgent):
         return insights[:5]  # Limit to top 5 insights
 
     async def _generate_recommendations(
-        self, metrics: ProjectHealthMetrics, risks: List[ProjectRisk]
-    ) -> List[str]:
+        self, metrics: ProjectHealthMetrics, risks: list[ProjectRisk]
+    ) -> list[str]:
         """Generate actionable recommendations"""
         recommendations = []
 
@@ -765,7 +765,7 @@ class LinearProjectHealthAgent(BaseAgent):
 
         return list(set(recommendations))[:5]  # Remove duplicates and limit
 
-    def _analyze_team_performance(self, issues: List[LinearIssue]) -> Dict[str, Any]:
+    def _analyze_team_performance(self, issues: list[LinearIssue]) -> dict[str, Any]:
         """Analyze team performance metrics"""
         assignee_stats = {}
 
@@ -797,7 +797,7 @@ class LinearProjectHealthAgent(BaseAgent):
                 stats["overdue_issues"] += 1
 
         # Calculate completion rates
-        for assignee, stats in assignee_stats.items():
+        for _assignee, stats in assignee_stats.items():
             if stats["total_issues"] > 0:
                 stats["completion_rate"] = (
                     stats["completed_issues"] / stats["total_issues"]
@@ -817,14 +817,14 @@ class LinearProjectHealthAgent(BaseAgent):
 
     async def _get_historical_health_reports(
         self, project_id: str, days: int
-    ) -> List[ProjectHealthReport]:
+    ) -> list[ProjectHealthReport]:
         """Get historical health reports (placeholder implementation)"""
         # In production, this would query stored health reports
         return []
 
     def _analyze_health_trends(
-        self, reports: List[ProjectHealthReport]
-    ) -> Dict[str, Any]:
+        self, reports: list[ProjectHealthReport]
+    ) -> dict[str, Any]:
         """Analyze health trends from historical reports"""
         if len(reports) < 2:
             return {"message": "Insufficient data for trend analysis"}
@@ -849,7 +849,7 @@ class LinearProjectHealthAgent(BaseAgent):
             "health_score_variance": max(health_scores) - min(health_scores),
         }
 
-    async def _generate_trend_insights(self, trends: Dict[str, Any]) -> List[str]:
+    async def _generate_trend_insights(self, trends: dict[str, Any]) -> list[str]:
         """Generate insights from trend analysis"""
         insights = []
 
@@ -863,7 +863,7 @@ class LinearProjectHealthAgent(BaseAgent):
 
         return insights
 
-    def _generate_trend_recommendations(self, trends: Dict[str, Any]) -> List[str]:
+    def _generate_trend_recommendations(self, trends: dict[str, Any]) -> list[str]:
         """Generate recommendations based on trends"""
         recommendations = []
 
@@ -889,13 +889,13 @@ class LinearProjectHealthAgent(BaseAgent):
             Project: {report.project_name} ({report.project_id})
             Health Status: {report.health_status.value}
             Health Score: {report.health_score:.2f}
-            
+
             Metrics:
             - Total Issues: {report.metrics.total_issues}
             - Completion Rate: {report.metrics.completion_rate:.1%}
             - Overdue Issues: {report.metrics.overdue_issues}
             - Team Utilization: {report.metrics.team_utilization:.1%}
-            
+
             Risks Identified: {len(report.risks)}
             Key Insights: {len(report.key_insights)}
             Recommendations: {len(report.recommendations)}

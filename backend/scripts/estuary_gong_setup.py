@@ -24,26 +24,27 @@ Current size: 882 lines
 
 Recommended decomposition:
 - estuary_gong_setup_core.py - Core functionality
-- estuary_gong_setup_utils.py - Utility functions  
+- estuary_gong_setup_utils.py - Utility functions
 - estuary_gong_setup_models.py - Data models
 - estuary_gong_setup_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any
 
 import aiohttp
 import structlog
+
 from backend.core.auto_esc_config import get_config_value
 
 # Configure logging
@@ -101,7 +102,7 @@ class GongSourceConfig:
     access_key: str
     access_key_secret: str
     start_date: str = "2024-01-01T00:00:00Z"
-    call_types: List[str] = None
+    call_types: list[str] = None
     include_transcripts: bool = True
     sync_mode: str = "incremental"
 
@@ -138,20 +139,20 @@ class EstuaryGongOrchestrator:
 
     def __init__(self, estuary_config: EstuaryConfig):
         self.estuary_config = estuary_config
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
 
         # Configuration from Pulumi ESC
-        self.gong_config: Optional[GongSourceConfig] = None
-        self.snowflake_config: Optional[SnowflakeDestinationConfig] = None
+        self.gong_config: GongSourceConfig | None = None
+        self.snowflake_config: SnowflakeDestinationConfig | None = None
 
         # Estuary resource IDs (will be populated during setup)
-        self.gong_source_id: Optional[str] = None
-        self.snowflake_destination_id: Optional[str] = None
-        self.connection_id: Optional[str] = None
+        self.gong_source_id: str | None = None
+        self.snowflake_destination_id: str | None = None
+        self.connection_id: str | None = None
 
         # Enhanced error handling and retry logic
         self.retry_config = RetryConfig()
@@ -298,7 +299,7 @@ class EstuaryGongOrchestrator:
 
         return delay
 
-    async def setup_complete_pipeline(self) -> Dict[str, Any]:
+    async def setup_complete_pipeline(self) -> dict[str, Any]:
         """Set up the complete Gong → Estuary → Snowflake pipeline"""
         try:
             logger.info("🚀 Setting up complete Gong data pipeline...")
@@ -371,7 +372,7 @@ class EstuaryGongOrchestrator:
                 },
             }
 
-    async def _create_gong_source(self) -> Dict[str, Any]:
+    async def _create_gong_source(self) -> dict[str, Any]:
         """Create Gong source connector with proper API scopes"""
         source_definition_id = await self._get_source_definition_id("Gong")
 
@@ -436,7 +437,7 @@ class EstuaryGongOrchestrator:
                     f"Failed to create Gong source: {response.status} - {error_text}"
                 )
 
-    async def _create_snowflake_destination(self) -> Dict[str, Any]:
+    async def _create_snowflake_destination(self) -> dict[str, Any]:
         """Create Snowflake destination connector with enhanced configuration"""
         try:
             # Get destination definition ID for Snowflake
@@ -513,7 +514,7 @@ class EstuaryGongOrchestrator:
             logger.error(f"Error creating Snowflake destination: {e}")
             raise
 
-    async def _create_connection(self) -> Dict[str, Any]:
+    async def _create_connection(self) -> dict[str, Any]:
         """Create connection between Gong source and Snowflake destination"""
         try:
             if not self.gong_source_id or not self.snowflake_destination_id:
@@ -704,7 +705,7 @@ class EstuaryGongOrchestrator:
             logger.error(f"Error testing connection: {e}")
             return False
 
-    async def _trigger_sync(self) -> Dict[str, Any]:
+    async def _trigger_sync(self) -> dict[str, Any]:
         """Trigger a manual sync job for the connection"""
         try:
             if not self.connection_id:
@@ -770,7 +771,7 @@ class EstuaryGongOrchestrator:
                     f"Failed to fetch destination definitions: {response.status}"
                 )
 
-    async def monitor_sync_jobs(self) -> Dict[str, Any]:
+    async def monitor_sync_jobs(self) -> dict[str, Any]:
         """Monitor sync job status and provide health metrics"""
         try:
             # Get recent jobs for the connection
@@ -812,18 +813,18 @@ class EstuaryGongOrchestrator:
                         "latest_job": {
                             "job_id": latest_job.get("id") if latest_job else None,
                             "status": latest_job.get("status") if latest_job else None,
-                            "started_at": latest_job.get("createdAt")
-                            if latest_job
-                            else None,
-                            "records_synced": latest_job.get("recordsSynced", 0)
-                            if latest_job
-                            else 0,
+                            "started_at": (
+                                latest_job.get("createdAt") if latest_job else None
+                            ),
+                            "records_synced": (
+                                latest_job.get("recordsSynced", 0) if latest_job else 0
+                            ),
                         },
-                        "health_status": "healthy"
-                        if success_rate > 80
-                        else "degraded"
-                        if success_rate > 50
-                        else "unhealthy",
+                        "health_status": (
+                            "healthy"
+                            if success_rate > 80
+                            else "degraded" if success_rate > 50 else "unhealthy"
+                        ),
                         "monitoring_timestamp": datetime.utcnow().isoformat(),
                     }
                 else:

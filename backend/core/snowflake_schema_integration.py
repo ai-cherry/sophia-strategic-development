@@ -5,7 +5,7 @@ Current size: 679 lines
 
 Recommended decomposition:
 - snowflake_schema_integration_core.py - Core functionality
-- snowflake_schema_integration_utils.py - Utility functions  
+- snowflake_schema_integration_utils.py - Utility functions
 - snowflake_schema_integration_models.py - Data models
 - snowflake_schema_integration_handlers.py - Request handlers
 
@@ -19,11 +19,12 @@ Snowflake Schema Integration for Sophia AI
 Comprehensive integration with all 6 schemas from the Snowflake breakdown
 """
 
-import logging
 import json
-from typing import Dict, List, Optional, Any
+import logging
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
+
 import snowflake.connector
 from snowflake.connector import DictCursor
 
@@ -127,8 +128,8 @@ class SnowflakeSchemaIntegration:
             raise
 
     async def execute_query(
-        self, query: str, params: Optional[tuple] = None, schema: SchemaType = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: tuple | None = None, schema: SchemaType = None
+    ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
             cursor = self.connection.cursor(DictCursor)
@@ -137,7 +138,7 @@ class SnowflakeSchemaIntegration:
                 # SECURE: Validate schema name against enum values before using
                 if not isinstance(schema, SchemaType):
                     raise ValueError(f"Invalid schema type: {schema}")
-                
+
                 # Use parameterized query for USE SCHEMA to prevent SQL injection
                 use_schema_query = "USE SCHEMA " + schema.value
                 cursor.execute(use_schema_query)
@@ -170,8 +171,8 @@ class SnowflakeSchemaIntegration:
         source_id: str = "src_manual",
         importance_score: float = 1.0,
         is_foundational: bool = False,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
         file_path: str = None,
         file_size_bytes: int = None,
         chunk_index: int = 0,
@@ -182,7 +183,7 @@ class SnowflakeSchemaIntegration:
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_base_entries")}
-        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE, 
+        (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE,
          IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
          CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
@@ -212,7 +213,7 @@ class SnowflakeSchemaIntegration:
         self,
         embedding_id: str,
         entry_id: str,
-        embedding_vector: List[float],
+        embedding_vector: list[float],
         chunk_text: str,
         chunk_index: int = 0,
         embedding_model: str = "snowflake-arctic-embed-m",
@@ -243,11 +244,11 @@ class SnowflakeSchemaIntegration:
         limit: int = 10,
         category_filter: str = None,
         importance_threshold: float = 0.5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Enhanced hybrid search across knowledge base"""
 
         search_query = f"""
-        SELECT 
+        SELECT
             k.ENTRY_ID,
             k.TITLE,
             k.CONTENT,
@@ -261,13 +262,13 @@ class SnowflakeSchemaIntegration:
             k.METADATA,
             k.CREATED_AT,
             -- Relevance scoring
-            CASE 
+            CASE
                 WHEN UPPER(k.TITLE) LIKE UPPER(?) THEN 2.0
                 WHEN UPPER(k.CONTENT) LIKE UPPER(?) THEN 1.5
                 ELSE 1.0
             END * k.IMPORTANCE_SCORE as RELEVANCE_SCORE
         FROM {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_base_entries")} k
-        JOIN {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_categories")} c 
+        JOIN {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_categories")} c
           ON k.CATEGORY_ID = c.CATEGORY_ID
         WHERE k.IMPORTANCE_SCORE >= ?
         AND (UPPER(k.TITLE) LIKE UPPER(?) OR UPPER(k.CONTENT) LIKE UPPER(?))
@@ -314,9 +315,9 @@ class SnowflakeSchemaIntegration:
         confidence_level: float = 1.0,
         source_system: str = "sophia_ai",
         source_id: str = None,
-        related_entities: List[str] = None,
-        tags: List[str] = None,
-        metadata: Dict[str, Any] = None,
+        related_entities: list[str] = None,
+        tags: list[str] = None,
+        metadata: dict[str, Any] = None,
         expires_at: str = None,
     ) -> bool:
         """Insert AI memory entry for enhanced context management"""
@@ -381,13 +382,13 @@ class SnowflakeSchemaIntegration:
     async def get_related_memories(
         self,
         memory_id: str,
-        relationship_types: List[str] = None,
+        relationship_types: list[str] = None,
         min_strength: float = 0.5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get related memories for context synthesis"""
 
         query = f"""
-        SELECT 
+        SELECT
             m.MEMORY_ID,
             m.TITLE,
             m.CONTENT,
@@ -447,11 +448,11 @@ class SnowflakeSchemaIntegration:
         user_id: str,
         message_type: str,
         message_content: str,
-        knowledge_entries_used: List[str] = None,
+        knowledge_entries_used: list[str] = None,
         processing_time_ms: int = None,
         model_used: str = None,
         confidence_score: float = None,
-        metadata: Dict[str, Any] = None,
+        metadata: dict[str, Any] = None,
     ) -> bool:
         """Save conversation message with enhanced metadata tracking"""
 
@@ -500,7 +501,7 @@ class SnowflakeSchemaIntegration:
         metric_name: str,
         metric_value: float,
         metric_unit: str = None,
-        dimensions: Dict[str, Any] = None,
+        dimensions: dict[str, Any] = None,
         aggregation_period: str = "real_time",
     ) -> bool:
         """Log comprehensive system analytics"""
@@ -526,12 +527,12 @@ class SnowflakeSchemaIntegration:
         return True
 
     async def get_analytics_summary(
-        self, metric_types: List[str] = None, hours_back: int = 24
-    ) -> Dict[str, Any]:
+        self, metric_types: list[str] = None, hours_back: int = 24
+    ) -> dict[str, Any]:
         """Get comprehensive analytics summary"""
 
         query = f"""
-        SELECT 
+        SELECT
             METRIC_TYPE,
             METRIC_NAME,
             COUNT(*) as METRIC_COUNT,
@@ -577,7 +578,7 @@ class SnowflakeSchemaIntegration:
     # UTILITY OPERATIONS
     # ===============================================================================
 
-    async def get_comprehensive_health_check(self) -> Dict[str, Any]:
+    async def get_comprehensive_health_check(self) -> dict[str, Any]:
         """Get health status for all schemas"""
 
         health_status = {}

@@ -17,10 +17,10 @@ import logging
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -78,11 +78,11 @@ class SophiaEnvironmentConfig:
 
     def __init__(self):
         """Initialize environment configuration with health validation."""
-        self._environment: Optional[Environment] = None
-        self._pulumi_org: Optional[str] = None
-        self._stack_name: Optional[str] = None
-        self._health_status: Dict[str, Any] = {}
-        self._last_validated: Optional[datetime] = None
+        self._environment: Environment | None = None
+        self._pulumi_org: str | None = None
+        self._stack_name: str | None = None
+        self._health_status: dict[str, Any] = {}
+        self._last_validated: datetime | None = None
 
         # Initialize and validate environment
         self._detect_and_set_environment()
@@ -121,7 +121,7 @@ class SophiaEnvironmentConfig:
             f"🎯 Final configuration: env={self._environment}, org={self._pulumi_org}, stack={self._stack_name}"
         )
 
-    def _detect_from_explicit_environment_variable(self) -> Optional[str]:
+    def _detect_from_explicit_environment_variable(self) -> str | None:
         """Detect from explicit ENVIRONMENT variable."""
         if env := os.getenv("ENVIRONMENT"):
             logger.info(f"📍 Found explicit ENVIRONMENT={env}")
@@ -138,7 +138,7 @@ class SophiaEnvironmentConfig:
                 return Environment.PRODUCTION
         return None
 
-    def _detect_from_git_branch_detection(self) -> Optional[str]:
+    def _detect_from_git_branch_detection(self) -> str | None:
         """Detect from Git branch with intelligent mapping."""
         try:
             result = subprocess.run(
@@ -168,7 +168,7 @@ class SophiaEnvironmentConfig:
             logger.debug(f"Git branch detection failed: {e}")
         return None
 
-    def _detect_from_pulumi_stack_context(self) -> Optional[str]:
+    def _detect_from_pulumi_stack_context(self) -> str | None:
         """Detect from current Pulumi stack context."""
         try:
             result = subprocess.run(
@@ -191,7 +191,7 @@ class SophiaEnvironmentConfig:
             logger.debug(f"Pulumi stack detection failed: {e}")
         return None
 
-    def _detect_from_project_context(self) -> Optional[str]:
+    def _detect_from_project_context(self) -> str | None:
         """Detect from project context and files."""
         try:
             # Check for environment indicator files
@@ -244,10 +244,10 @@ class SophiaEnvironmentConfig:
             "pulumi_auth": self._check_pulumi_auth(),
             "stack_accessible": self._check_stack_access(),
             "secrets_loadable": self._check_secrets_loadable(),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
-        self._last_validated = datetime.now(timezone.utc)
+        self._last_validated = datetime.now(UTC)
 
         # Log health status
         healthy_checks = sum(1 for v in self._health_status.values() if v is True)
@@ -437,16 +437,16 @@ class SophiaEnvironmentConfig:
         """Check if current environment is development."""
         return self._environment == Environment.DEVELOPMENT
 
-    def get_health_status(self) -> Dict[str, Any]:
+    def get_health_status(self) -> dict[str, Any]:
         """Get comprehensive health status."""
         return {
             "environment": self._environment.value,
             "stack_name": self._stack_name,
             "pulumi_org": self._pulumi_org,
             "health_checks": self._health_status,
-            "last_validated": self._last_validated.isoformat()
-            if self._last_validated
-            else None,
+            "last_validated": (
+                self._last_validated.isoformat() if self._last_validated else None
+            ),
             "overall_health": all(
                 v for v in self._health_status.values() if isinstance(v, bool)
             ),
@@ -460,12 +460,12 @@ class SophiaEnvironmentConfig:
         os.environ["ENVIRONMENT"] = environment.value
         self._validate_environment_health()
 
-    def refresh_health(self) -> Dict[str, Any]:
+    def refresh_health(self) -> dict[str, Any]:
         """Refresh and return health status."""
         self._validate_environment_health()
         return self.get_health_status()
 
-    def get_pulumi_env_command(self) -> List[str]:
+    def get_pulumi_env_command(self) -> list[str]:
         """Get the Pulumi ESC command for current environment."""
         return [
             "pulumi",
@@ -476,7 +476,7 @@ class SophiaEnvironmentConfig:
             "json",
         ]
 
-    def load_secrets(self) -> Dict[str, Any]:
+    def load_secrets(self) -> dict[str, Any]:
         """Load secrets from Pulumi ESC with error handling."""
         try:
             result = subprocess.run(
@@ -514,7 +514,7 @@ class SophiaEnvironmentConfig:
 
 
 # GLOBAL SINGLETON INSTANCE
-_sophia_env_config: Optional[SophiaEnvironmentConfig] = None
+_sophia_env_config: SophiaEnvironmentConfig | None = None
 
 
 def get_sophia_environment() -> SophiaEnvironmentConfig:
@@ -545,7 +545,7 @@ def is_production() -> bool:
     return get_sophia_environment().is_production
 
 
-def load_secrets() -> Dict[str, Any]:
+def load_secrets() -> dict[str, Any]:
     """Load secrets from current environment (convenience function)."""
     return get_sophia_environment().load_secrets()
 

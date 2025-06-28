@@ -20,23 +20,24 @@ Current size: 776 lines
 
 Recommended decomposition:
 - enhanced_deploy_gong_snowflake_setup_core.py - Core functionality
-- enhanced_deploy_gong_snowflake_setup_utils.py - Utility functions  
+- enhanced_deploy_gong_snowflake_setup_utils.py - Utility functions
 - enhanced_deploy_gong_snowflake_setup_models.py - Data models
 - enhanced_deploy_gong_snowflake_setup_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import argparse
 import asyncio
 import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any
 
 import snowflake.connector
+
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -98,17 +99,17 @@ class EnhancedGongSnowflakeDeployer:
 
     def __init__(self, config: DeploymentConfig):
         self.config = config
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
-        self.cortex_service: Optional[SnowflakeCortexService] = None
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
+        self.cortex_service: SnowflakeCortexService | None = None
 
         # Deployment tracking
-        self.deployment_log: List[Dict[str, Any]] = []
+        self.deployment_log: list[dict[str, Any]] = []
         self.deployment_id = (
             f"GONG_DEPLOY_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
         )
-        self.completed_phases: List[DeploymentPhase] = []
+        self.completed_phases: list[DeploymentPhase] = []
 
-    async def deploy_complete_infrastructure(self) -> Dict[str, Any]:
+    async def deploy_complete_infrastructure(self) -> dict[str, Any]:
         """Deploy complete Gong infrastructure with enhanced error handling"""
         start_time = datetime.utcnow()
 
@@ -237,24 +238,24 @@ class EnhancedGongSnowflakeDeployer:
             _ESTUARY_NORMALIZED_AT TIMESTAMP_LTZ,
             _ESTUARY_RAW_GONG_CALLS_HASHID VARCHAR(64),
             _ESTUARY_DATA VARIANT NOT NULL,
-            
+
             -- Enhanced extraction helper columns
             CALL_ID VARCHAR(255) AS (_ESTUARY_DATA:id::VARCHAR),
             CALL_STARTED_AT TIMESTAMP_LTZ AS (TRY_TO_TIMESTAMP(_ESTUARY_DATA:started::STRING)),
             CALL_DIRECTION VARCHAR(50) AS (_ESTUARY_DATA:direction::VARCHAR),
             CALL_DURATION_SECONDS NUMBER AS (_ESTUARY_DATA:duration::NUMBER),
-            
+
             -- Enhanced processing tracking
             PROCESSED BOOLEAN DEFAULT FALSE,
             PROCESSED_AT TIMESTAMP_LTZ,
             PROCESSING_ERROR VARCHAR(16777216),
             PROCESSING_EXECUTION_ID VARCHAR(255),
-            
+
             -- Data quality tracking
             DATA_QUALITY_SCORE FLOAT,
             DATA_QUALITY_ISSUES VARIANT,
             QUALITY_VALIDATED_AT TIMESTAMP_LTZ,
-            
+
             -- Enhanced metadata
             INGESTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
             CORRELATION_ID VARCHAR(255),
@@ -273,23 +274,23 @@ class EnhancedGongSnowflakeDeployer:
             _ESTUARY_NORMALIZED_AT TIMESTAMP_LTZ,
             _ESTUARY_RAW_GONG_TRANSCRIPTS_HASHID VARCHAR(64),
             _ESTUARY_DATA VARIANT NOT NULL,
-            
+
             -- Enhanced extraction helper columns
             CALL_ID VARCHAR(255) AS (_ESTUARY_DATA:callId::VARCHAR),
             TRANSCRIPT_LENGTH NUMBER AS (LENGTH(_ESTUARY_DATA:transcript::STRING)),
             SPEAKER_COUNT NUMBER AS (ARRAY_SIZE(_ESTUARY_DATA:speakers)),
-            
+
             -- Enhanced processing tracking
             PROCESSED BOOLEAN DEFAULT FALSE,
             PROCESSED_AT TIMESTAMP_LTZ,
             PROCESSING_ERROR VARCHAR(16777216),
             PROCESSING_EXECUTION_ID VARCHAR(255),
-            
+
             -- Data quality tracking
             DATA_QUALITY_SCORE FLOAT,
             DATA_QUALITY_ISSUES VARIANT,
             QUALITY_VALIDATED_AT TIMESTAMP_LTZ,
-            
+
             -- Enhanced metadata
             INGESTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
             CORRELATION_ID VARCHAR(255),
@@ -316,14 +317,14 @@ class EnhancedGongSnowflakeDeployer:
             CALL_MEDIA VARCHAR(50),
             CALL_LANGUAGE VARCHAR(10),
             CALL_URL VARCHAR(1000),
-            
+
             -- Enhanced primary user/owner information
             PRIMARY_USER_ID VARCHAR(255),
             PRIMARY_USER_EMAIL VARCHAR(255),
             PRIMARY_USER_NAME VARCHAR(255),
             PRIMARY_USER_DEPARTMENT VARCHAR(255),
             PRIMARY_USER_ROLE VARCHAR(255),
-            
+
             -- Enhanced CRM Integration fields
             HUBSPOT_DEAL_ID VARCHAR(255),
             HUBSPOT_CONTACT_ID VARCHAR(255),
@@ -331,7 +332,7 @@ class EnhancedGongSnowflakeDeployer:
             CRM_OPPORTUNITY_ID VARCHAR(255),
             CRM_ACCOUNT_ID VARCHAR(255),
             SALESFORCE_OPPORTUNITY_ID VARCHAR(255),
-            
+
             -- Enhanced business context
             DEAL_STAGE VARCHAR(100),
             DEAL_VALUE NUMBER(15,2),
@@ -340,7 +341,7 @@ class EnhancedGongSnowflakeDeployer:
             ACCOUNT_TIER VARCHAR(50),
             CONTACT_NAME VARCHAR(500),
             CONTACT_ROLE VARCHAR(255),
-            
+
             -- Enhanced call quality metrics
             TALK_RATIO FLOAT,
             LONGEST_MONOLOGUE_SECONDS NUMBER,
@@ -348,7 +349,7 @@ class EnhancedGongSnowflakeDeployer:
             QUESTIONS_ASKED_COUNT NUMBER,
             INTERRUPTIONS_COUNT NUMBER,
             SPEAKING_PACE_WPM NUMBER,
-            
+
             -- Enhanced AI-generated insights (Cortex)
             SENTIMENT_SCORE FLOAT,
             SENTIMENT_LABEL VARCHAR(20),
@@ -358,19 +359,19 @@ class EnhancedGongSnowflakeDeployer:
             NEXT_STEPS VARIANT,
             COACHING_INSIGHTS VARIANT,
             COMPETITIVE_MENTIONS VARIANT,
-            
+
             -- Enhanced AI Memory columns for semantic search
             AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768),
             AI_MEMORY_METADATA VARCHAR(16777216),
             AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
             AI_MEMORY_MODEL_VERSION VARCHAR(50),
-            
+
             -- Enhanced data quality and processing metadata
             DATA_QUALITY_SCORE FLOAT,
             DATA_QUALITY_ISSUES VARIANT,
             PROCESSING_EXECUTION_ID VARCHAR(255),
             TRANSFORMATION_VERSION VARCHAR(50),
-            
+
             -- Enhanced lifecycle metadata
             CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
             UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
@@ -389,7 +390,7 @@ class EnhancedGongSnowflakeDeployer:
             TRANSCRIPT_ID VARCHAR(255) PRIMARY KEY,
             CALL_ID VARCHAR(255) NOT NULL,
             SEGMENT_INDEX NUMBER,
-            
+
             -- Enhanced speaker information
             SPEAKER_ID VARCHAR(255),
             SPEAKER_NAME VARCHAR(255),
@@ -397,7 +398,7 @@ class EnhancedGongSnowflakeDeployer:
             SPEAKER_TYPE VARCHAR(50), -- internal, external, customer, prospect
             SPEAKER_ROLE VARCHAR(255),
             SPEAKER_COMPANY VARCHAR(255),
-            
+
             -- Enhanced transcript content
             TRANSCRIPT_TEXT VARCHAR(16777216),
             START_TIME_SECONDS NUMBER,
@@ -405,14 +406,14 @@ class EnhancedGongSnowflakeDeployer:
             SEGMENT_DURATION_SECONDS NUMBER,
             WORD_COUNT NUMBER,
             CHARACTER_COUNT NUMBER,
-            
+
             -- Enhanced linguistic analysis
             LANGUAGE_DETECTED VARCHAR(10),
             CONFIDENCE_SCORE FLOAT,
             SPEAKING_RATE_WPM NUMBER,
             PAUSE_COUNT NUMBER,
             FILLER_WORDS_COUNT NUMBER,
-            
+
             -- Enhanced AI processing results (Cortex)
             SEGMENT_SENTIMENT FLOAT,
             SEGMENT_SENTIMENT_LABEL VARCHAR(20),
@@ -421,23 +422,23 @@ class EnhancedGongSnowflakeDeployer:
             KEY_PHRASES VARIANT,
             INTENT_CLASSIFICATION VARCHAR(100),
             EMOTION_ANALYSIS VARIANT,
-            
+
             -- Enhanced AI Memory columns for semantic search
             AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768),
             AI_MEMORY_METADATA VARCHAR(16777216),
             AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
             AI_MEMORY_MODEL_VERSION VARCHAR(50),
-            
+
             -- Enhanced data quality and processing metadata
             DATA_QUALITY_SCORE FLOAT,
             DATA_QUALITY_ISSUES VARIANT,
             PROCESSING_EXECUTION_ID VARCHAR(255),
-            
+
             -- Enhanced lifecycle metadata
             CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
             PROCESSED_BY_CORTEX BOOLEAN DEFAULT FALSE,
             CORTEX_PROCESSED_AT TIMESTAMP_LTZ,
-            
+
             -- Enhanced foreign key constraint
             FOREIGN KEY (CALL_ID) REFERENCES {self.config.database}.{self.config.stg_schema}.STG_GONG_CALLS(CALL_ID)
         )
@@ -452,7 +453,7 @@ class EnhancedGongSnowflakeDeployer:
         procedures_file = "backend/etl/snowflake/gong_transformation_procedures.sql"
 
         try:
-            with open(procedures_file, "r") as f:
+            with open(procedures_file) as f:
                 procedures_sql = f.read()
 
             # Replace database placeholder if needed
@@ -480,14 +481,14 @@ class EnhancedGongSnowflakeDeployer:
         BEGIN
             MERGE INTO {self.config.database}.{self.config.stg_schema}.STG_GONG_CALLS AS target
             USING (
-                SELECT 
+                SELECT
                     _ESTUARY_DATA:id::VARCHAR AS CALL_ID,
                     _ESTUARY_DATA:title::VARCHAR AS CALL_TITLE,
                     _ESTUARY_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
                     _ESTUARY_DATA:duration::NUMBER AS CALL_DURATION_SECONDS,
                     _ESTUARY_DATA:direction::VARCHAR AS CALL_DIRECTION,
                     CURRENT_TIMESTAMP() AS UPDATED_AT
-                FROM {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW 
+                FROM {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW
                 WHERE PROCESSED = FALSE
             ) AS source
             ON target.CALL_ID = source.CALL_ID
@@ -498,14 +499,14 @@ class EnhancedGongSnowflakeDeployer:
                 CALL_ID, CALL_TITLE, CALL_DATETIME_UTC, CALL_DURATION_SECONDS,
                 CALL_DIRECTION, UPDATED_AT
             ) VALUES (
-                source.CALL_ID, source.CALL_TITLE, source.CALL_DATETIME_UTC, 
+                source.CALL_ID, source.CALL_TITLE, source.CALL_DATETIME_UTC,
                 source.CALL_DURATION_SECONDS, source.CALL_DIRECTION, source.UPDATED_AT
             );
-            
-            UPDATE {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW 
+
+            UPDATE {self.config.database}.{self.config.raw_schema}.RAW_GONG_CALLS_RAW
             SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
             WHERE PROCESSED = FALSE;
-            
+
             RETURN 'Basic Gong calls transformation completed';
         END;
         $$;
@@ -552,8 +553,8 @@ class EnhancedGongSnowflakeDeployer:
 
         # Validate schemas exist
         schema_validation = f"""
-        SELECT schema_name 
-        FROM {self.config.database}.INFORMATION_SCHEMA.SCHEMATA 
+        SELECT schema_name
+        FROM {self.config.database}.INFORMATION_SCHEMA.SCHEMATA
         WHERE schema_name IN ('{self.config.raw_schema}', '{self.config.stg_schema}', '{self.config.ops_schema}', '{self.config.ai_memory_schema}')
         """
 
@@ -574,9 +575,9 @@ class EnhancedGongSnowflakeDeployer:
 
         # Validate key tables exist
         table_validation = f"""
-        SELECT table_name 
-        FROM {self.config.database}.INFORMATION_SCHEMA.TABLES 
-        WHERE table_schema = '{self.config.stg_schema}' 
+        SELECT table_name
+        FROM {self.config.database}.INFORMATION_SCHEMA.TABLES
+        WHERE table_schema = '{self.config.stg_schema}'
         AND table_name IN ('STG_GONG_CALLS', 'STG_GONG_CALL_TRANSCRIPTS')
         """
 
@@ -658,7 +659,7 @@ class EnhancedGongSnowflakeDeployer:
             if cursor:
                 cursor.close()
 
-    async def _execute_query(self, sql: str) -> List[tuple]:
+    async def _execute_query(self, sql: str) -> list[tuple]:
         """Execute query and return results"""
         cursor = self.connection.cursor()
         try:
@@ -738,12 +739,16 @@ async def main():
     config = DeploymentConfig(
         environment=DeploymentEnvironment(args.env),
         database=f"SOPHIA_AI_{args.env.upper()}",
-        warehouse="WH_SOPHIA_ETL_TRANSFORM"
-        if args.env == "dev"
-        else f"WH_SOPHIA_{args.env.upper()}",
-        role="ROLE_SOPHIA_ESTUARY_INGEST"
-        if args.env == "dev"
-        else f"ROLE_SOPHIA_{args.env.upper()}",
+        warehouse=(
+            "WH_SOPHIA_ETL_TRANSFORM"
+            if args.env == "dev"
+            else f"WH_SOPHIA_{args.env.upper()}"
+        ),
+        role=(
+            "ROLE_SOPHIA_ESTUARY_INGEST"
+            if args.env == "dev"
+            else f"ROLE_SOPHIA_{args.env.upper()}"
+        ),
         dry_run=args.dry_run,
         force_deploy=args.force_deploy,
         rollback_enabled=not args.disable_rollback,

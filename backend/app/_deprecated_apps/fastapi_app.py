@@ -14,14 +14,16 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Core imports
-from backend.core.simple_config import get_config_value
+# Route imports - no circular dependencies
+from backend.api import (
+    enhanced_ceo_chat_routes,
+    simplified_llm_routes,
+    unified_intelligence_routes,
+)
 from backend.core.dependencies import get_chat_service
 
-# Route imports - no circular dependencies
-from backend.api import enhanced_ceo_chat_routes
-from backend.api import simplified_llm_routes
-from backend.api import unified_intelligence_routes
+# Core imports
+from backend.core.simple_config import get_config_value
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

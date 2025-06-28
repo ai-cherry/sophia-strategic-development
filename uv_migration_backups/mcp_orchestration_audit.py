@@ -7,14 +7,15 @@ This script performs a comprehensive audit of all MCP servers and AI agents
 to support the modernization effort.
 """
 
-import json
+import argparse
 import glob
-import yaml
+import json
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
-import argparse
-import logging
+from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class MCPOrchestrationAuditor:
             "executive_intelligence_readiness": {},
         }
 
-    def audit_mcp_servers(self) -> Dict[str, Any]:
+    def audit_mcp_servers(self) -> dict[str, Any]:
         """Audit all MCP servers and their capabilities"""
         print("🔍 Auditing MCP servers...")
 
@@ -89,7 +90,7 @@ class MCPOrchestrationAuditor:
 
         for config_path in mcp_config_paths:
             if (self.project_root / config_path).exists():
-                with open(self.project_root / config_path, "r") as f:
+                with open(self.project_root / config_path) as f:
                     try:
                         config = json.load(f)
                         self._analyze_mcp_config(config, config_path)
@@ -104,7 +105,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["mcp_servers"] = mcp_servers
         return mcp_servers
 
-    def audit_ai_agents(self) -> Dict[str, Any]:
+    def audit_ai_agents(self) -> dict[str, Any]:
         """Audit all AI agents and their orchestration patterns"""
         print("🤖 Auditing AI agents...")
 
@@ -123,7 +124,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["ai_agents"] = agents
         return agents
 
-    def audit_llm_usage(self) -> Dict[str, Any]:
+    def audit_llm_usage(self) -> dict[str, Any]:
         """Audit LLM usage patterns across the codebase"""
         print("🧠 Auditing LLM usage patterns...")
 
@@ -152,7 +153,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["llm_usage"] = llm_patterns
         return llm_patterns
 
-    def identify_orchestration_gaps(self) -> List[Dict[str, Any]]:
+    def identify_orchestration_gaps(self) -> list[dict[str, Any]]:
         """Identify gaps in current orchestration"""
         print("🔍 Identifying orchestration gaps...")
 
@@ -205,7 +206,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["orchestration_gaps"] = gaps
         return gaps
 
-    def analyze_agno_readiness(self) -> Dict[str, Any]:
+    def analyze_agno_readiness(self) -> dict[str, Any]:
         """Analyze readiness for Agno framework integration"""
         print("⚡ Analyzing Agno framework readiness...")
 
@@ -244,7 +245,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["agno_readiness"] = agno_readiness
         return agno_readiness
 
-    def generate_executive_summary(self) -> Dict[str, Any]:
+    def generate_executive_summary(self) -> dict[str, Any]:
         """Generate executive-level summary of findings"""
         print("📊 Generating executive summary...")
 
@@ -269,7 +270,7 @@ class MCPOrchestrationAuditor:
         self.audit_results["executive_summary"] = summary
         return summary
 
-    def _analyze_mcp_config(self, config: Dict, config_path: str):
+    def _analyze_mcp_config(self, config: dict, config_path: str):
         """Analyze MCP configuration file"""
         if "mcpServers" in config:
             for server_name, server_config in config["mcpServers"].items():
@@ -283,7 +284,7 @@ class MCPOrchestrationAuditor:
 
     def _analyze_docker_compose(self, docker_file: str):
         """Analyze Docker compose file for MCP services"""
-        with open(docker_file, "r") as f:
+        with open(docker_file) as f:
             try:
                 compose = yaml.safe_load(f)
                 if compose and "services" in compose:
@@ -297,9 +298,9 @@ class MCPOrchestrationAuditor:
             except yaml.YAMLError:
                 print(f"  ⚠️  Invalid YAML in {docker_file}")
 
-    def _analyze_agent_file(self, agent_file: Path) -> Dict[str, Any]:
+    def _analyze_agent_file(self, agent_file: Path) -> dict[str, Any]:
         """Analyze an agent Python file"""
-        with open(agent_file, "r") as f:
+        with open(agent_file) as f:
             content = f.read()
 
         # Basic agent analysis
@@ -330,13 +331,13 @@ class MCPOrchestrationAuditor:
 
         return agent_info if agent_info["capabilities"] else None
 
-    def _search_pattern(self, pattern: str) -> List[str]:
+    def _search_pattern(self, pattern: str) -> list[str]:
         """Search for pattern in Python files"""
         matches = []
         for py_file in self.project_root.rglob("*.py"):
             if "__pycache__" not in str(py_file):
                 try:
-                    with open(py_file, "r", encoding="utf-8") as f:
+                    with open(py_file, encoding="utf-8") as f:
                         content = f.read()
                         if pattern in content:
                             matches.append(str(py_file))
@@ -345,7 +346,7 @@ class MCPOrchestrationAuditor:
                     pass
         return matches
 
-    def _analyze_model_usage(self, llm_patterns: Dict):
+    def _analyze_model_usage(self, llm_patterns: dict):
         """Analyze LLM model usage distribution"""
         # This would analyze actual usage patterns
         # For now, providing expected distribution

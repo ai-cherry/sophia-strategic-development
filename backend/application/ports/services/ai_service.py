@@ -6,7 +6,7 @@ This is a "port" in the hexagonal architecture.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict
+
 from backend.domain.value_objects.sentiment import Sentiment
 
 
@@ -48,7 +48,7 @@ class AIService(ABC):
     @abstractmethod
     async def generate_embedding(
         self, text: str, model: str = "default"
-    ) -> List[float]:
+    ) -> list[float]:
         """
         Generate vector embedding for the text.
 
@@ -63,8 +63,8 @@ class AIService(ABC):
 
     @abstractmethod
     async def extract_entities(
-        self, text: str, entity_types: List[str]
-    ) -> Dict[str, List[str]]:
+        self, text: str, entity_types: list[str]
+    ) -> dict[str, list[str]]:
         """
         Extract named entities from text.
 
@@ -78,7 +78,7 @@ class AIService(ABC):
         pass
 
     @abstractmethod
-    async def classify_text(self, text: str, categories: List[str]) -> Dict[str, float]:
+    async def classify_text(self, text: str, categories: list[str]) -> dict[str, float]:
         """
         Classify text into predefined categories.
 

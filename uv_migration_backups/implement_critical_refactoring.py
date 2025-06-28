@@ -19,13 +19,11 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
+import logging
 import os
-import ast
 import re
 import shutil
-import logging
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,37 +32,37 @@ logger = logging.getLogger(__name__)
 
 class CriticalRefactorer:
     """Implements refactoring for critical complexity issues"""
-    
+
     def __init__(self):
         self.refactored_files = []
         self.backup_files = []
         self.errors = []
-    
+
     def refactor_smart_recall_enhanced(self) -> bool:
         """Refactor the 65-line smart_recall_enhanced method"""
         file_path = "mcp-servers/ai_memory/enhanced_ai_memory_server.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_prepare_query_context" in content:
                 logger.info("smart_recall_enhanced already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find the function and replace it
-            pattern = r'async def smart_recall_enhanced\(self, request: Dict\[str, Any\]\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def smart_recall_enhanced\(self, request: Dict\[str, Any\]\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def smart_recall_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Enhanced memory recall with AI ranking and context awareness"""
         try:
@@ -179,51 +177,53 @@ class CriticalRefactorer:
         """Handle recall errors consistently"""
         logger.error(f"Error in smart recall: {error}")
         return {"success": False, "error": str(error)}'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
+
                 logger.info(f"✅ Refactored smart_recall_enhanced in {file_path}")
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find smart_recall_enhanced function to refactor")
+                logger.warning(
+                    "Could not find smart_recall_enhanced function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring smart_recall_enhanced: {e}")
             self.errors.append(f"smart_recall_enhanced: {e}")
             return False
-    
+
     def refactor_generate_marketing_content(self) -> bool:
         """Refactor the 109-line generate_marketing_content method"""
         file_path = "backend/agents/specialized/marketing_analysis_agent.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_prepare_content_context" in content:
                 logger.info("generate_marketing_content already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find the function and replace it
-            pattern = r'async def generate_marketing_content\(\s*self, request: ContentGenerationRequest\s*\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def generate_marketing_content\(\s*self, request: ContentGenerationRequest\s*\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def generate_marketing_content(
         self, request: ContentGenerationRequest
     ) -> Dict[str, Any]:
@@ -367,55 +367,59 @@ class CriticalRefactorer:
             "word_count": len(content.split()),
             "generated_at": datetime.now().isoformat(),
         }'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
+
                 logger.info(f"✅ Refactored generate_marketing_content in {file_path}")
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find generate_marketing_content function to refactor")
+                logger.warning(
+                    "Could not find generate_marketing_content function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring generate_marketing_content: {e}")
             self.errors.append(f"generate_marketing_content: {e}")
             return False
-    
+
     def refactor_handle_list_tools_mcp(self) -> bool:
         """Refactor the large handle_list_tools methods in MCP servers"""
         mcp_files = [
             "mcp-servers/linear/linear_mcp_server.py",
-            "mcp-servers/asana/asana_mcp_server.py", 
-            "mcp-servers/notion/notion_mcp_server.py"
+            "mcp-servers/asana/asana_mcp_server.py",
+            "mcp-servers/notion/notion_mcp_server.py",
         ]
-        
+
         refactored_count = 0
-        
+
         for file_path in mcp_files:
             if os.path.exists(file_path):
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Check if already refactored
                     if "_get_core_tools" in content:
-                        logger.info(f"handle_list_tools already refactored in {file_path}")
+                        logger.info(
+                            f"handle_list_tools already refactored in {file_path}"
+                        )
                         continue
-                    
+
                     # Create backup
                     backup_path = f"{file_path}.backup"
                     shutil.copy2(file_path, backup_path)
                     self.backup_files.append(backup_path)
-                    
+
                     # Replace large handle_list_tools with refactored version
-                    pattern = r'async def handle_list_tools\(\) -> ListToolsResult:(.*?)return ListToolsResult\(tools=tools\)'
-                    
+                    pattern = r"async def handle_list_tools\(\) -> ListToolsResult:(.*?)return ListToolsResult\(tools=tools\)"
+
                     replacement = '''async def handle_list_tools() -> ListToolsResult:
             """List all available tools with organized categories"""
             try:
@@ -518,26 +522,28 @@ class CriticalRefactorer:
                     }
                 )
             ]'''
-                    
+
                     # Replace the function
                     new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-                    
+
                     if new_content != content:
-                        with open(file_path, 'w', encoding='utf-8') as f:
+                        with open(file_path, "w", encoding="utf-8") as f:
                             f.write(new_content)
-                        
+
                         logger.info(f"✅ Refactored handle_list_tools in {file_path}")
                         self.refactored_files.append(file_path)
                         refactored_count += 1
                     else:
-                        logger.warning(f"Could not find handle_list_tools function in {file_path}")
-                        
+                        logger.warning(
+                            f"Could not find handle_list_tools function in {file_path}"
+                        )
+
                 except Exception as e:
                     logger.error(f"❌ Error refactoring {file_path}: {e}")
                     self.errors.append(f"handle_list_tools in {file_path}: {e}")
-        
+
         return refactored_count > 0
-    
+
     def generate_refactoring_report(self) -> str:
         """Generate comprehensive refactoring report"""
         report = f"""# Critical Complexity Refactoring Report
@@ -632,24 +638,20 @@ The critical complexity refactoring has successfully addressed the most problema
 The refactored code is now more maintainable, testable, and easier to understand, providing a solid foundation for continued development and scaling of the Sophia AI platform.
 """
         return report
-    
-    def run_critical_refactoring(self) -> Dict[str, Any]:
+
+    def run_critical_refactoring(self) -> dict[str, Any]:
         """Run refactoring for critical complexity issues"""
         logger.info("🚀 Starting critical complexity refactoring...")
-        
-        results = {
-            "functions_refactored": 0,
-            "files_modified": 0,
-            "errors": 0
-        }
-        
+
+        results = {"functions_refactored": 0, "files_modified": 0, "errors": 0}
+
         # Refactor critical functions
         refactoring_functions = [
             ("smart_recall_enhanced", self.refactor_smart_recall_enhanced),
             ("generate_marketing_content", self.refactor_generate_marketing_content),
-            ("handle_list_tools_mcp", self.refactor_handle_list_tools_mcp)
+            ("handle_list_tools_mcp", self.refactor_handle_list_tools_mcp),
         ]
-        
+
         for func_name, refactor_func in refactoring_functions:
             logger.info(f"🔧 Refactoring {func_name}...")
             try:
@@ -663,17 +665,17 @@ The refactored code is now more maintainable, testable, and easier to understand
                 logger.error(f"❌ Error refactoring {func_name}: {e}")
                 self.errors.append(f"{func_name}: {e}")
                 results["errors"] += 1
-        
+
         results["files_modified"] = len(set(self.refactored_files))
         results["errors"] = len(self.errors)
-        
+
         # Generate report
         report = self.generate_refactoring_report()
         report_path = "CRITICAL_COMPLEXITY_REFACTORING_REPORT.md"
-        
-        with open(report_path, 'w', encoding='utf-8') as f:
+
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
-        
+
         logger.info(f"📊 Refactoring complete! Report saved to {report_path}")
         return results
 
@@ -681,37 +683,41 @@ The refactored code is now more maintainable, testable, and easier to understand
 def main():
     """Main entry point for critical refactoring"""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Critical Complexity Refactoring for Sophia AI")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be refactored")
-    
+
+    parser = argparse.ArgumentParser(
+        description="Critical Complexity Refactoring for Sophia AI"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be refactored"
+    )
+
     args = parser.parse_args()
-    
+
     refactorer = CriticalRefactorer()
-    
+
     if args.dry_run:
         print("DRY RUN - Would refactor:")
         print("1. smart_recall_enhanced (AI Memory MCP)")
         print("2. generate_marketing_content (Marketing Agent)")
         print("3. handle_list_tools (MCP Servers)")
         return
-    
+
     results = refactorer.run_critical_refactoring()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("CRITICAL COMPLEXITY REFACTORING COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print(f"Functions Refactored: {results['functions_refactored']}")
     print(f"Files Modified: {results['files_modified']}")
     print(f"Errors: {results['errors']}")
-    
-    if results['errors'] > 0:
+
+    if results["errors"] > 0:
         print("\nErrors encountered:")
         for error in refactorer.errors:
             print(f"  - {error}")
-    
+
     print("\nSee CRITICAL_COMPLEXITY_REFACTORING_REPORT.md for detailed results")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

@@ -3,27 +3,28 @@ Large Data Import API Routes
 Provides endpoints for uploading and processing large datasets from various sources
 """
 
+import os
+import tempfile
+from datetime import datetime
+from typing import Any
+
 from fastapi import (
     APIRouter,
-    Depends,
-    HTTPException,
-    File,
-    UploadFile,
-    Form,
     BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
 )
-from typing import Optional, Dict, Any
-import tempfile
-import os
-from datetime import datetime
 
 from backend.core.auth import get_current_user
+from backend.core.logger import logger
 from backend.services.large_data_import_service import (
-    LargeDataImportService,
     ImportDataType,
     ImportJob,
+    LargeDataImportService,
 )
-from backend.core.logger import logger
 
 router = APIRouter(prefix="/api/v1/knowledge/import", tags=["large-data-import"])
 
@@ -36,9 +37,9 @@ async def upload_large_dataset(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     data_type: str = Form(...),
-    description: Optional[str] = Form(None),
+    description: str | None = Form(None),
     user_id: str = Depends(get_current_user),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Upload and process a large dataset
 
@@ -121,7 +122,7 @@ async def process_import_job_background(job_id: str):
 @router.get("/jobs")
 async def list_import_jobs(
     limit: int = 50, user_id: str = Depends(get_current_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     List recent import jobs
     """
@@ -161,7 +162,7 @@ async def list_import_jobs(
 @router.get("/jobs/{job_id}")
 async def get_import_job_status(
     job_id: str, user_id: str = Depends(get_current_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get the status of a specific import job
     """
@@ -203,7 +204,7 @@ async def get_import_job_status(
 @router.post("/jobs/{job_id}/cancel")
 async def cancel_import_job(
     job_id: str, user_id: str = Depends(get_current_user)
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Cancel a running import job
     """
@@ -231,7 +232,7 @@ async def cancel_import_job(
 @router.get("/data-types")
 async def get_supported_data_types(
     user_id: str = Depends(get_current_user),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get supported data types for import
     """
@@ -315,7 +316,7 @@ async def get_supported_data_types(
 
 
 @router.get("/stats")
-async def get_import_stats(user_id: str = Depends(get_current_user)) -> Dict[str, Any]:
+async def get_import_stats(user_id: str = Depends(get_current_user)) -> dict[str, Any]:
     """
     Get import statistics and metrics
     """
@@ -355,7 +356,7 @@ async def validate_import_file(
     file: UploadFile = File(...),
     data_type: str = Form(...),
     user_id: str = Depends(get_current_user),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Validate an import file without processing it
     """
@@ -388,10 +389,10 @@ async def validate_import_file(
             try:
                 temp_file.write(content)
                 temp_file.flush()
-                validations[
-                    "estimated_records"
-                ] = await import_service._estimate_record_count(
-                    temp_file.name, import_data_type
+                validations["estimated_records"] = (
+                    await import_service._estimate_record_count(
+                        temp_file.name, import_data_type
+                    )
                 )
             finally:
                 temp_file.close()

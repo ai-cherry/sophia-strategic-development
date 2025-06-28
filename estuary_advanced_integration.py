@@ -8,8 +8,8 @@ Connecting real-time data pipelines to advanced AI infrastructure
 
 import json
 import logging
-import subprocess
 import os
+import subprocess
 from datetime import datetime
 
 # Configure logging

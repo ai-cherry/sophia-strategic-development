@@ -19,7 +19,7 @@ Current size: 849 lines
 
 Recommended decomposition:
 - config_validator_core.py - Core functionality
-- config_validator_utils.py - Utility functions  
+- config_validator_utils.py - Utility functions
 - config_validator_models.py - Data models
 - config_validator_handlers.py - Request handlers
 
@@ -28,10 +28,11 @@ TODO: Implement file decomposition
 
 import asyncio
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
 import aiohttp
 import structlog
 
@@ -72,7 +73,7 @@ class ValidationResult:
     severity: ValidationSeverity
     status: str  # PASS, FAIL, SKIP
     message: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
     execution_time: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
@@ -86,9 +87,9 @@ class DeploymentValidationReport:
     passed_checks: int
     failed_checks: int
     warning_checks: int
-    critical_failures: List[ValidationResult]
-    warnings: List[ValidationResult]
-    recommendations: List[str]
+    critical_failures: list[ValidationResult]
+    warnings: list[ValidationResult]
+    recommendations: list[str]
     validation_timestamp: datetime
     execution_time: float
     environment: str
@@ -104,8 +105,8 @@ class DeploymentValidator:
 
     def __init__(self, environment: str = "dev"):
         self.environment = environment
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.validation_results: List[ValidationResult] = []
+        self.session: aiohttp.ClientSession | None = None
+        self.validation_results: list[ValidationResult] = []
 
         # Service validation configurations
         self.service_configs = {
@@ -258,7 +259,7 @@ class DeploymentValidator:
                 )
 
     async def _validate_service_configs(
-        self, service: ServiceType, config: Dict[str, Any]
+        self, service: ServiceType, config: dict[str, Any]
     ) -> None:
         """Validate configuration completeness for a service"""
 
@@ -317,7 +318,7 @@ class DeploymentValidator:
             )
 
     async def _has_valid_config(
-        self, service: ServiceType, config: Dict[str, Any]
+        self, service: ServiceType, config: dict[str, Any]
     ) -> bool:
         """Check if service has valid configuration for connectivity testing"""
         for req_config in config["required_configs"]:
@@ -330,7 +331,7 @@ class DeploymentValidator:
         return True
 
     async def _test_service_connectivity(
-        self, service: ServiceType, config: Dict[str, Any]
+        self, service: ServiceType, config: dict[str, Any]
     ) -> None:
         """Test connectivity for a service"""
         connectivity_test = config.get("connectivity_test")
@@ -707,9 +708,9 @@ class DeploymentValidator:
 
     def _generate_recommendations(
         self,
-        critical_failures: List[ValidationResult],
-        warnings: List[ValidationResult],
-    ) -> List[str]:
+        critical_failures: list[ValidationResult],
+        warnings: list[ValidationResult],
+    ) -> list[str]:
         """Generate actionable recommendations based on validation results"""
         recommendations = []
 

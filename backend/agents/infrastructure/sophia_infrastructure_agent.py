@@ -9,7 +9,7 @@ Current size: 879 lines
 
 Recommended decomposition:
 - sophia_infrastructure_agent_core.py - Core functionality
-- sophia_infrastructure_agent_utils.py - Utility functions  
+- sophia_infrastructure_agent_utils.py - Utility functions
 - sophia_infrastructure_agent_models.py - Data models
 - sophia_infrastructure_agent_handlers.py - Request handlers
 
@@ -18,14 +18,14 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 from backend.agents.core.langgraph_agent_base import (
-    LangGraphAgentBase,
     AgentCapability,
     AgentContext,
+    LangGraphAgentBase,
 )
 
 logger = logging.getLogger(__name__)
@@ -49,9 +49,9 @@ class InfrastructureContext:
     environment: str  # production, staging, development
     current_load: float  # 0.0 to 1.0
     error_rate: float  # 0.0 to 1.0
-    deployment_history: List[Dict[str, Any]]
-    cost_metrics: Dict[str, float]
-    performance_metrics: Dict[str, float]
+    deployment_history: list[dict[str, Any]]
+    cost_metrics: dict[str, float]
+    performance_metrics: dict[str, float]
 
 
 @dataclass
@@ -62,8 +62,8 @@ class InfrastructureDecision:
     reasoning: str
     confidence: float  # 0.0 to 1.0
     risk_level: str  # low, medium, high
-    recommendations: List[str]
-    execution_plan: Dict[str, Any]
+    recommendations: list[str]
+    execution_plan: dict[str, Any]
 
 
 class SophiaInfrastructureAgent(LangGraphAgentBase):
@@ -144,8 +144,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         logger.info("Resource tracking initialized")
 
     async def _process_request_internal(
-        self, request: Dict[str, Any], context: Optional[AgentContext] = None
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None = None
+    ) -> dict[str, Any]:
         """Process infrastructure-related requests"""
         query = request.get("query", "")
         query_lower = query.lower()
@@ -180,8 +180,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             }
 
     async def _handle_health_check_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle infrastructure health check requests"""
 
         # Perform comprehensive health check
@@ -226,8 +226,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     async def _handle_deployment_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle deployment-related requests"""
 
         deployment_info = await self._get_deployment_status()
@@ -260,8 +260,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     async def _handle_monitoring_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle infrastructure monitoring requests"""
 
         metrics = await self._collect_infrastructure_metrics()
@@ -294,8 +294,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     async def _handle_optimization_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle infrastructure optimization requests"""
 
         optimization_analysis = await self._analyze_optimization_opportunities()
@@ -330,8 +330,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     async def _handle_cost_analysis_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle cost analysis requests"""
 
         cost_analysis = await self._analyze_infrastructure_costs()
@@ -372,8 +372,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     async def _handle_general_infrastructure_request(
-        self, request: Dict[str, Any], context: Optional[AgentContext]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any], context: AgentContext | None
+    ) -> dict[str, Any]:
         """Handle general infrastructure requests"""
 
         query = request.get("query", "")
@@ -432,7 +432,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 
     # Helper methods for infrastructure operations
 
-    async def _perform_infrastructure_health_check(self) -> Dict[str, Any]:
+    async def _perform_infrastructure_health_check(self) -> dict[str, Any]:
         """Perform comprehensive infrastructure health check"""
         return {
             "lambda_labs": {"healthy": True, "status": "All instances running"},
@@ -442,7 +442,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "mcp_servers": {"healthy": True, "status": "All servers responding"},
         }
 
-    async def _get_deployment_status(self) -> Dict[str, Any]:
+    async def _get_deployment_status(self) -> dict[str, Any]:
         """Get current deployment status"""
         return {
             "frontend": {
@@ -461,7 +461,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             ],
         }
 
-    async def _collect_infrastructure_metrics(self) -> Dict[str, Any]:
+    async def _collect_infrastructure_metrics(self) -> dict[str, Any]:
         """Collect current infrastructure metrics"""
         return {
             "cpu_usage": 45.2,
@@ -473,7 +473,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "error_rate": 0.12,
         }
 
-    async def _analyze_optimization_opportunities(self) -> Dict[str, Any]:
+    async def _analyze_optimization_opportunities(self) -> dict[str, Any]:
         """Analyze infrastructure optimization opportunities"""
         return {
             "performance_score": 85,
@@ -499,7 +499,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
             "estimated_savings": {"cost": 150, "performance": "15%"},
         }
 
-    async def _analyze_infrastructure_costs(self) -> Dict[str, Any]:
+    async def _analyze_infrastructure_costs(self) -> dict[str, Any]:
         """Analyze infrastructure costs"""
         return {
             "compute_cost": 245.67,
@@ -517,8 +517,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         }
 
     def _generate_health_recommendations(
-        self, health_status: Dict[str, Any]
-    ) -> List[str]:
+        self, health_status: dict[str, Any]
+    ) -> list[str]:
         """Generate health-based recommendations"""
         recommendations = []
 
@@ -532,8 +532,8 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         return recommendations
 
     def _generate_monitoring_recommendations(
-        self, metrics: Dict[str, Any]
-    ) -> List[str]:
+        self, metrics: dict[str, Any]
+    ) -> list[str]:
         """Generate monitoring-based recommendations"""
         recommendations = []
 
@@ -551,7 +551,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 
         return recommendations
 
-    def _calculate_performance_score(self, metrics: Dict[str, Any]) -> int:
+    def _calculate_performance_score(self, metrics: dict[str, Any]) -> int:
         """Calculate overall performance score"""
         cpu_score = max(0, 100 - metrics.get("cpu_usage", 0))
         memory_score = max(0, 100 - metrics.get("memory_usage", 0))
@@ -566,7 +566,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
 class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
     """Specialized agent for intelligent DNS management"""
 
-    async def optimize_dns_configuration(self, traffic_analysis: Dict[str, Any]):
+    async def optimize_dns_configuration(self, traffic_analysis: dict[str, Any]):
         """AI-driven DNS optimization"""
 
         # Analyze traffic patterns
@@ -586,8 +586,8 @@ class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
         return implementation
 
     async def _analyze_geo_distribution(
-        self, traffic_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, traffic_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze geographic distribution of traffic"""
         return {
             "primary_regions": ["us-east", "us-west"],
@@ -595,8 +595,8 @@ class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
         }
 
     async def _generate_optimal_dns_config(
-        self, geo_distribution: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, geo_distribution: dict[str, Any]
+    ) -> dict[str, Any]:
         """Generate optimal DNS configuration"""
         return {
             "geo_routing": {
@@ -615,7 +615,7 @@ class SophiaDNSIntelligenceAgent(SophiaInfrastructureAgent):
 class SophiaPerformanceAgent(SophiaInfrastructureAgent):
     """Specialized agent for performance optimization"""
 
-    async def auto_tune_performance(self, metrics: Dict[str, Any]):
+    async def auto_tune_performance(self, metrics: dict[str, Any]):
         """Automatically tune infrastructure for optimal performance"""
 
         # Analyze current performance
@@ -630,20 +630,20 @@ class SophiaPerformanceAgent(SophiaInfrastructureAgent):
         return implementation
 
     async def _identify_bottlenecks(
-        self, metrics: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, metrics: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Identify performance bottlenecks"""
         return [{"type": "cpu", "severity": "medium", "location": "web_server"}]
 
     async def _generate_performance_optimizations(
-        self, bottlenecks: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, bottlenecks: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Generate performance optimizations"""
         return [{"optimization": "increase_cpu", "impact": "high", "risk": "low"}]
 
     async def _create_safe_performance_plan(
-        self, optimizations: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, optimizations: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Create safe implementation plan"""
         return {
             "plan": "gradual_optimization",
@@ -674,7 +674,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
 
             await asyncio.sleep(300)  # Check every 5 minutes
 
-    async def _comprehensive_security_scan(self) -> Dict[str, Any]:
+    async def _comprehensive_security_scan(self) -> dict[str, Any]:
         """Comprehensive security scan"""
         return {
             "status": "secure",
@@ -684,81 +684,81 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         }
 
     async def _identify_vulnerabilities(
-        self, security_status: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, security_status: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Identify security vulnerabilities"""
         return []  # No vulnerabilities found
 
     async def _auto_remediate_vulnerabilities(
-        self, vulnerabilities: List[Dict[str, Any]]
+        self, vulnerabilities: list[dict[str, Any]]
     ) -> None:
         """Auto-remediate security vulnerabilities"""
         for vuln in vulnerabilities:
             self.logger.info(f"Remediating vulnerability: {vuln}")
 
-    async def _update_compliance_status(self, security_status: Dict[str, Any]) -> None:
+    async def _update_compliance_status(self, security_status: dict[str, Any]) -> None:
         """Update compliance status"""
         self.logger.info(
             f"Compliance status updated: {security_status.get('security_score', 0)}/100"
         )
 
     # Placeholder implementations for missing methods
-    async def _check_dns_health(self) -> Dict[str, Any]:
+    async def _check_dns_health(self) -> dict[str, Any]:
         """Check DNS health status"""
         return {"status": "healthy", "response_time": 0.05}
 
-    async def _check_ssl_status(self) -> Dict[str, Any]:
+    async def _check_ssl_status(self) -> dict[str, Any]:
         """Check SSL certificate status"""
         return {"status": "valid", "expires_in_days": 90}
 
-    async def _gather_server_metrics(self) -> Dict[str, Any]:
+    async def _gather_server_metrics(self) -> dict[str, Any]:
         """Gather server performance metrics"""
         return {"cpu_usage": 0.3, "memory_usage": 0.5, "disk_usage": 0.2}
 
-    async def _check_application_health(self) -> Dict[str, Any]:
+    async def _check_application_health(self) -> dict[str, Any]:
         """Check application health"""
         return {"status": "healthy", "response_time": 0.1}
 
-    async def _analyze_costs(self) -> Dict[str, Any]:
+    async def _analyze_costs(self) -> dict[str, Any]:
         """Analyze infrastructure costs"""
         return {"monthly_cost": 1000, "optimization_potential": 200}
 
-    async def _check_security_status(self) -> Dict[str, Any]:
+    async def _check_security_status(self) -> dict[str, Any]:
         """Check security status"""
         return {"vulnerabilities": 0, "last_scan": datetime.utcnow().isoformat()}
 
     async def _analyze_patterns(
-        self, deployment_history: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, deployment_history: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Analyze historical patterns"""
         return {"trend": "stable", "peak_hours": [14, 15, 16]}
 
     async def _predict_load_changes(
-        self, current_load: float, historical_patterns: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, current_load: float, historical_patterns: dict[str, Any]
+    ) -> dict[str, Any]:
         """Predict load changes"""
         return {"predicted_load": current_load * 1.1, "confidence": 0.8}
 
     async def _predict_issues(
-        self, state: Dict[str, Any], patterns: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, state: dict[str, Any], patterns: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Predict potential issues"""
         return [{"issue": "none", "probability": 0.1}]
 
     async def _identify_cost_savings(
-        self, cost_analysis: Dict[str, Any], load_prediction: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, cost_analysis: dict[str, Any], load_prediction: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Identify cost saving opportunities"""
         return [{"opportunity": "optimize_instances", "savings": 100}]
 
-    async def _generate_optimizations(self, state: Dict[str, Any]) -> List[str]:
+    async def _generate_optimizations(self, state: dict[str, Any]) -> list[str]:
         """Generate optimization suggestions"""
         return ["Enable caching", "Optimize database queries"]
 
     async def _determine_critical_action(
         self,
-        state: Dict[str, Any],
-        predictions: Dict[str, Any],
+        state: dict[str, Any],
+        predictions: dict[str, Any],
         context: InfrastructureContext,
     ) -> tuple[str, str]:
         """Determine the most critical action needed"""
@@ -770,7 +770,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             return "optimize", "Normal operation, optimization opportunities available"
 
     async def _calculate_confidence(
-        self, state: Dict[str, Any], predictions: Dict[str, Any]
+        self, state: dict[str, Any], predictions: dict[str, Any]
     ) -> float:
         """Calculate confidence in the decision"""
         return 0.85  # Default confidence
@@ -789,8 +789,8 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
             return "low"
 
     async def _generate_recommendations(
-        self, action: str, state: Dict[str, Any], predictions: Dict[str, Any]
-    ) -> List[str]:
+        self, action: str, state: dict[str, Any], predictions: dict[str, Any]
+    ) -> list[str]:
         """Generate specific recommendations"""
         recommendations = {
             "scale_up": ["Add 2 more instances", "Enable auto-scaling"],
@@ -802,8 +802,8 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         return recommendations.get(action, ["Monitor system"])
 
     async def _create_execution_plan(
-        self, action: str, recommendations: List[str], context: InfrastructureContext
-    ) -> Dict[str, Any]:
+        self, action: str, recommendations: list[str], context: InfrastructureContext
+    ) -> dict[str, Any]:
         """Create detailed execution plan"""
         return {
             "action": action,
@@ -821,7 +821,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
 
     async def _execute_infrastructure_action(
         self, decision: InfrastructureDecision
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute the infrastructure action"""
         # Placeholder implementation
         return {
@@ -831,13 +831,13 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         }
 
     async def _monitor_execution(
-        self, result: Dict[str, Any], decision: InfrastructureDecision
+        self, result: dict[str, Any], decision: InfrastructureDecision
     ) -> None:
         """Monitor execution results"""
         self.logger.info(f"Monitoring execution of {decision.action}")
 
     async def _learn_from_execution(
-        self, result: Dict[str, Any], decision: InfrastructureDecision
+        self, result: dict[str, Any], decision: InfrastructureDecision
     ) -> None:
         """Learn from execution results"""
         self.logger.info(f"Learning from execution of {decision.action}")
@@ -846,7 +846,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         """Rollback changes if execution fails"""
         self.logger.info(f"Rolling back changes for {decision.action}")
 
-    async def _parse_infrastructure_intent(self, command: str) -> Dict[str, Any]:
+    async def _parse_infrastructure_intent(self, command: str) -> dict[str, Any]:
         """Parse natural language command intent"""
         return {
             "action": "analyze" if "analyze" in command.lower() else "optimize",
@@ -854,7 +854,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         }
 
     async def _generate_context_from_command(
-        self, command: str, intent: Dict[str, Any]
+        self, command: str, intent: dict[str, Any]
     ) -> InfrastructureContext:
         """Generate context from command"""
         return InfrastructureContext(

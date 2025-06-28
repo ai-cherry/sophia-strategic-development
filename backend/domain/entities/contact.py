@@ -8,7 +8,6 @@ in the Sophia AI system.
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
 
 
 class ContactType(Enum):
@@ -45,17 +44,17 @@ class Contact:
     first_name: str
     last_name: str
     company: str
-    title: Optional[str] = None
-    phone: Optional[str] = None
+    title: str | None = None
+    phone: str | None = None
     contact_type: ContactType = ContactType.PROSPECT
     engagement_level: EngagementLevel = EngagementLevel.COLD
     is_decision_maker: bool = False
-    last_interaction_date: Optional[datetime] = None
+    last_interaction_date: datetime | None = None
     interaction_count: int = 0
-    deal_ids: Optional[List[str]] = None
-    tags: Optional[List[str]] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    deal_ids: list[str] | None = None
+    tags: list[str] | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     def __post_init__(self):
         """Initialize default values."""

@@ -4,26 +4,27 @@ Performance Baseline Measurement for Sophia AI Platform
 Benchmarks all components and establishes performance baselines
 """
 
-import asyncio
 import argparse
+import asyncio
 import json
 import logging
-import psutil
+import statistics
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Dict, Any
-import statistics
+from typing import Any
+
+import psutil
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from backend.core.auto_esc_config import config
-from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
     SophiaInfrastructureAgent,
 )
+from backend.core.auto_esc_config import config
+from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
 
 # Setup logging
 logging.basicConfig(
@@ -41,11 +42,11 @@ class PerformanceBenchmark:
         self.unit = unit
         self.measurements = []
 
-    async def measure(self, iterations: int = 10) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 10) -> dict[str, Any]:
         """Perform benchmark measurements"""
         raise NotImplementedError
 
-    def analyze_results(self) -> Dict[str, Any]:
+    def analyze_results(self) -> dict[str, Any]:
         """Analyze benchmark results"""
         if not self.measurements:
             return {"error": "No measurements available"}
@@ -92,7 +93,7 @@ class ConfigurationLoadBenchmark(PerformanceBenchmark):
     def __init__(self):
         super().__init__("Configuration Loading", target_metric=5000, unit="ms")
 
-    async def measure(self, iterations: int = 10) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 10) -> dict[str, Any]:
         """Measure configuration loading time"""
         logger.info(f"Benchmarking {self.name} ({iterations} iterations)...")
 
@@ -120,7 +121,7 @@ class MCPResponseBenchmark(PerformanceBenchmark):
     def __init__(self):
         super().__init__("MCP Response Time", target_metric=200, unit="ms")
 
-    async def measure(self, iterations: int = 10) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 10) -> dict[str, Any]:
         """Measure MCP server response time"""
         logger.info(f"Benchmarking {self.name} ({iterations} iterations)...")
 
@@ -156,7 +157,7 @@ class AgentInstantiationBenchmark(PerformanceBenchmark):
     def __init__(self):
         super().__init__("Agent Instantiation", target_metric=0.003, unit="ms")
 
-    async def measure(self, iterations: int = 50) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 50) -> dict[str, Any]:
         """Measure agent instantiation time"""
         logger.info(f"Benchmarking {self.name} ({iterations} iterations)...")
 
@@ -183,7 +184,7 @@ class MemoryUsageBenchmark(PerformanceBenchmark):
     def __init__(self):
         super().__init__("Memory Usage", target_metric=2048, unit="MB")
 
-    async def measure(self, iterations: int = 5) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 5) -> dict[str, Any]:
         """Measure memory usage"""
         logger.info(f"Benchmarking {self.name} ({iterations} iterations)...")
 
@@ -211,7 +212,7 @@ class CPUUsageBenchmark(PerformanceBenchmark):
     def __init__(self):
         super().__init__("CPU Usage", target_metric=50, unit="%")
 
-    async def measure(self, iterations: int = 10) -> Dict[str, Any]:
+    async def measure(self, iterations: int = 10) -> dict[str, Any]:
         """Measure CPU usage"""
         logger.info(f"Benchmarking {self.name} ({iterations} iterations)...")
 
@@ -244,11 +245,11 @@ class SophiaPerformanceBenchmarker:
             "cpu_usage": CPUUsageBenchmark(),
         }
 
-    async def run_benchmarks(self) -> Dict[str, Any]:
+    async def run_benchmarks(self) -> dict[str, Any]:
         """Run performance benchmarks"""
         logger.info("🚀 Starting Sophia AI Performance Benchmarking...")
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         results = {}
 
         # Select benchmarks to run
@@ -287,13 +288,13 @@ class SophiaPerformanceBenchmarker:
                 logger.error(f"Benchmark {name} failed: {e}")
                 results[name] = {"error": str(e)}
 
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
 
         # Generate summary
         summary = self._generate_summary(results)
 
         benchmark_report = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "total_execution_time": (end_time - start_time).total_seconds(),
             "sophia_ai_version": "v2.0.0",
             "environment": "staging",
@@ -306,7 +307,7 @@ class SophiaPerformanceBenchmarker:
 
         return benchmark_report
 
-    def _generate_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_summary(self, results: dict[str, Any]) -> dict[str, Any]:
         """Generate benchmark summary"""
         total_benchmarks = len(results)
         status_counts = {}
@@ -353,7 +354,7 @@ class SophiaPerformanceBenchmarker:
             "status_distribution": status_counts,
         }
 
-    def _get_system_info(self) -> Dict[str, Any]:
+    def _get_system_info(self) -> dict[str, Any]:
         """Get system information"""
         try:
             return {
@@ -372,7 +373,7 @@ class SophiaPerformanceBenchmarker:
         except Exception as e:
             return {"error": str(e)}
 
-    def save_report(self, report: Dict[str, Any], output_file: str = None) -> str:
+    def save_report(self, report: dict[str, Any], output_file: str = None) -> str:
         """Save benchmark report to file"""
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -383,7 +384,7 @@ class SophiaPerformanceBenchmarker:
 
         return output_file
 
-    def print_summary(self, report: Dict[str, Any]) -> None:
+    def print_summary(self, report: dict[str, Any]) -> None:
         """Print formatted benchmark summary"""
         summary = report["summary"]
 

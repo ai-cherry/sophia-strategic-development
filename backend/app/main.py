@@ -1,9 +1,9 @@
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "patches"))
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "patches"))
 """
@@ -22,9 +22,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.core.dependencies import get_chat_service
+
 # Core imports
 from backend.core.simple_config import get_config_value
-from backend.core.dependencies import get_chat_service
 
 # Route imports - no circular dependencies
 from backend.presentation.api.router import create_application_router

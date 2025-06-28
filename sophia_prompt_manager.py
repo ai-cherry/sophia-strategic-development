@@ -4,8 +4,8 @@ Sophia AI Prompt and Rule Management CLI
 Similar to cursor-companion but integrated with Sophia AI
 """
 
-import json
 import argparse
+import json
 from pathlib import Path
 
 
@@ -29,7 +29,7 @@ class SophiaPromptManager:
 
         print("📝 Installed Prompts:")
         for prompt_file in prompts:
-            with open(prompt_file, "r") as f:
+            with open(prompt_file) as f:
                 data = json.load(f)
             print(
                 f"  • {prompt_file.stem}: {data.get('description', 'No description')}"
@@ -48,7 +48,7 @@ class SophiaPromptManager:
 
         print("📋 Installed Rules:")
         for rule_file in rules:
-            with open(rule_file, "r") as f:
+            with open(rule_file) as f:
                 data = json.load(f)
             print(f"  • {rule_file.stem}: {data.get('description', 'No description')}")
 
@@ -59,7 +59,7 @@ class SophiaPromptManager:
             print(f"Prompt '{name}' not found.")
             return
 
-        with open(prompt_file, "r") as f:
+        with open(prompt_file) as f:
             data = json.load(f)
 
         print(f"📝 Prompt: {name}")

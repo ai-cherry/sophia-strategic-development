@@ -4,10 +4,10 @@ Critical Startup Issues Fix Script for Sophia AI
 Addresses all major issues preventing successful application startup
 """
 
-import logging
-import sys
-import os
 import asyncio
+import logging
+import os
+import sys
 from pathlib import Path
 
 # Add project root to path
@@ -70,13 +70,13 @@ ENABLE_TELEMETRY_LOG = False
 class MockLogger:
     def debug(self, *args, **kwargs):
         pass
-    
+
     def info(self, *args, **kwargs):
         pass
-    
+
     def warning(self, *args, **kwargs):
         pass
-    
+
     def error(self, *args, **kwargs):
         pass
 
@@ -87,9 +87,10 @@ rt_plain_logger = MockLogger()
 
             # Apply the fix by monkey patching
             try:
-                import snowflake.connector
                 import sys
                 from types import ModuleType
+
+                import snowflake.connector
 
                 # Create mock test_util module
                 test_util_module = ModuleType("test_util")
@@ -144,7 +145,7 @@ rt_plain_logger = MockLogger()
         @staticmethod
         def connect(**kwargs):
             raise NotImplementedError("Snowflake connector not available")
-        
+
         @staticmethod
         async def connect_async(**kwargs):
             raise NotImplementedError("Snowflake connector not available - install with: pip install snowflake-connector-python")

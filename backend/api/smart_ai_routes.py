@@ -9,21 +9,22 @@ Provides comprehensive API endpoints for:
 - Performance optimization
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-from pydantic import BaseModel, Field
 import logging
+from datetime import datetime, timedelta
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 from backend.services.smart_ai_service import (
-    smart_ai_service,
     LLMRequest,
-    TaskType,
     PerformanceTier,
-    generate_executive_insight,
-    generate_competitive_analysis,
-    generate_code,
+    TaskType,
     experimental_query,
+    generate_code,
+    generate_competitive_analysis,
+    generate_executive_insight,
+    smart_ai_service,
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -35,17 +36,17 @@ router = APIRouter(prefix="/api/v1/smart-ai", tags=["Smart AI Service"])
 class LLMRequestModel(BaseModel):
     """API model for LLM requests"""
 
-    messages: List[Dict[str, str]]
+    messages: list[dict[str, str]]
     task_type: TaskType
-    model_preference: Optional[str] = None
+    model_preference: str | None = None
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int = Field(default=2000, ge=1, le=8000)
     cost_sensitivity: float = Field(default=0.5, ge=0.0, le=1.0)
     performance_priority: bool = True
     is_experimental: bool = False
     user_id: str = "api_user"
-    session_id: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    session_id: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class StrategicAssignmentModel(BaseModel):
@@ -59,7 +60,7 @@ class ExecutiveInsightRequest(BaseModel):
     """API model for executive insight requests"""
 
     query: str
-    context: Optional[str] = None
+    context: str | None = None
     user_id: str = "executive"
 
 
@@ -87,7 +88,7 @@ class ExperimentalQueryRequest(BaseModel):
 
 
 # Core LLM endpoints
-@router.post("/generate", response_model=Dict[str, Any])
+@router.post("/generate", response_model=dict[str, Any])
 async def generate_llm_response(request: LLMRequestModel):
     """
     Generate LLM response using intelligent routing

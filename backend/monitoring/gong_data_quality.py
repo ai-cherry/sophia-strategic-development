@@ -12,7 +12,7 @@ Current size: 1485 lines
 
 Recommended decomposition:
 - gong_data_quality_core.py - Core functionality
-- gong_data_quality_utils.py - Utility functions  
+- gong_data_quality_utils.py - Utility functions
 - gong_data_quality_models.py - Data models
 - gong_data_quality_handlers.py - Request handlers
 
@@ -22,15 +22,14 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
-from enum import Enum
-from typing import Any, Dict, List, Optional, Set
 from collections import defaultdict, deque
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 import structlog
-from pydantic import BaseModel, BaseSettings, Field
 from prometheus_client import Counter, Gauge, Histogram
-
+from pydantic import BaseModel, BaseSettings, Field
 
 logger = structlog.get_logger()
 
@@ -130,7 +129,7 @@ class DataQualityConfig(BaseSettings):
     ALERT_WEBHOOK_URL: str = Field(..., env="ALERT_WEBHOOK_URL")
 
     # Data validation rules
-    REQUIRED_FIELDS: List[str] = [
+    REQUIRED_FIELDS: list[str] = [
         "call_id",
         "title",
         "started",
@@ -160,10 +159,10 @@ class QualityReport(BaseModel):
     call_id: str
     timestamp: datetime
     overall_score: float = Field(ge=0.0, le=1.0)
-    dimensions: Dict[QualityDimension, float]
-    validation_results: List[ValidationResult]
+    dimensions: dict[QualityDimension, float]
+    validation_results: list[ValidationResult]
     processing_metrics: ProcessingMetrics
-    issues: List[QualityIssue] = Field(default_factory=list)
+    issues: list[QualityIssue] = Field(default_factory=list)
 
 
 class ValidationResult(BaseModel):
@@ -172,19 +171,19 @@ class ValidationResult(BaseModel):
     rule_name: str
     passed: bool
     severity: AlertSeverity
-    message: Optional[str] = None
-    field_name: Optional[str] = None
-    expected_value: Optional[Any] = None
-    actual_value: Optional[Any] = None
+    message: str | None = None
+    field_name: str | None = None
+    expected_value: Any | None = None
+    actual_value: Any | None = None
 
 
 class ProcessingMetrics(BaseModel):
     """Processing performance metrics."""
 
     total_duration_ms: float
-    api_call_duration_ms: Optional[float] = None
+    api_call_duration_ms: float | None = None
     validation_duration_ms: float
-    storage_duration_ms: Optional[float] = None
+    storage_duration_ms: float | None = None
     api_calls_made: int = 0
     api_calls_failed: int = 0
 
@@ -196,7 +195,7 @@ class QualityIssue(BaseModel):
     severity: AlertSeverity
     description: str
     impact: str
-    recommendation: Optional[str] = None
+    recommendation: str | None = None
 
 
 class EnhancementReport(BaseModel):
@@ -208,7 +207,7 @@ class EnhancementReport(BaseModel):
     api_calls_successful: int
     data_points_enriched: int
     enhancement_duration_ms: float
-    failures: List[Dict[str, Any]] = Field(default_factory=list)
+    failures: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class CompletenessReport(BaseModel):
@@ -217,10 +216,10 @@ class CompletenessReport(BaseModel):
     call_id: str
     total_fields: int
     populated_fields: int
-    required_fields_missing: List[str] = Field(default_factory=list)
-    optional_fields_missing: List[str] = Field(default_factory=list)
+    required_fields_missing: list[str] = Field(default_factory=list)
+    optional_fields_missing: list[str] = Field(default_factory=list)
     completeness_percentage: float = Field(ge=0.0, le=100.0)
-    field_quality_scores: Dict[str, float] = Field(default_factory=dict)
+    field_quality_scores: dict[str, float] = Field(default_factory=dict)
 
 
 class MappingReport(BaseModel):
@@ -229,9 +228,9 @@ class MappingReport(BaseModel):
     call_id: str
     total_participants: int
     successfully_mapped: int
-    mapping_failures: List[Dict[str, Any]] = Field(default_factory=list)
+    mapping_failures: list[dict[str, Any]] = Field(default_factory=list)
     accuracy_percentage: float = Field(ge=0.0, le=100.0)
-    confidence_scores: Dict[str, float] = Field(default_factory=dict)
+    confidence_scores: dict[str, float] = Field(default_factory=dict)
 
 
 class GongDataQualityMonitor:
@@ -240,7 +239,7 @@ class GongDataQualityMonitor:
     Integrates with existing webhook processing pipeline.
     """
 
-    def __init__(self, config: Optional[DataQualityConfig] = None):
+    def __init__(self, config: DataQualityConfig | None = None):
         self.config = config or DataQualityConfig()
         self.logger = logger.bind(component="gong_data_quality_monitor")
 
@@ -262,7 +261,7 @@ class GongDataQualityMonitor:
         self.enrichment_success_window = deque(maxlen=100)
 
     async def monitor_webhook_quality(
-        self, webhook_data: Dict[str, Any]
+        self, webhook_data: dict[str, Any]
     ) -> QualityReport:
         """
         Real-time quality assessment of webhook data.
@@ -290,7 +289,7 @@ class GongDataQualityMonitor:
         report = QualityReport(
             webhook_id=webhook_id,
             call_id=call_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             overall_score=0.0,
             dimensions={},
             validation_results=[],
@@ -349,10 +348,10 @@ class GongDataQualityMonitor:
     async def track_api_enhancement(
         self,
         call_id: str,
-        api_response: Optional[Dict[str, Any]],
+        api_response: dict[str, Any] | None,
         api_calls_made: int,
         duration_ms: float,
-        errors: List[Dict[str, Any]] = None,
+        errors: list[dict[str, Any]] = None,
     ) -> EnhancementReport:
         """
         Monitor API call success and data enrichment.
@@ -383,7 +382,7 @@ class GongDataQualityMonitor:
 
         report = EnhancementReport(
             call_id=call_id,
-            enhancement_timestamp=datetime.now(timezone.utc),
+            enhancement_timestamp=datetime.now(UTC),
             api_calls_attempted=api_calls_made,
             api_calls_successful=api_calls_successful,
             data_points_enriched=data_points_enriched,
@@ -414,7 +413,7 @@ class GongDataQualityMonitor:
         return report
 
     async def validate_data_completeness(
-        self, processed_data: Dict[str, Any]
+        self, processed_data: dict[str, Any]
     ) -> CompletenessReport:
         """
         Comprehensive field validation and completeness assessment.
@@ -487,7 +486,7 @@ class GongDataQualityMonitor:
         return report
 
     async def assess_participant_mapping(
-        self, participants: List[Dict[str, Any]], call_id: str
+        self, participants: list[dict[str, Any]], call_id: str
     ) -> MappingReport:
         """
         Participant identification accuracy assessment.
@@ -559,8 +558,8 @@ class GongDataQualityMonitor:
         return report
 
     async def _assess_quality_dimensions(
-        self, webhook_data: Dict[str, Any], validation_results: List[ValidationResult]
-    ) -> Dict[QualityDimension, float]:
+        self, webhook_data: dict[str, Any], validation_results: list[ValidationResult]
+    ) -> dict[QualityDimension, float]:
         """Assess all quality dimensions."""
         dimensions = {}
 
@@ -587,7 +586,7 @@ class GongDataQualityMonitor:
         return dimensions
 
     def _calculate_overall_score(
-        self, dimensions: Dict[QualityDimension, float]
+        self, dimensions: dict[QualityDimension, float]
     ) -> float:
         """Calculate weighted overall quality score."""
         weights = {
@@ -604,7 +603,7 @@ class GongDataQualityMonitor:
 
         return min(max(score, 0.0), 1.0)
 
-    def _calculate_completeness_score(self, data: Dict[str, Any]) -> float:
+    def _calculate_completeness_score(self, data: dict[str, Any]) -> float:
         """Calculate data completeness score."""
         required_present = sum(
             1
@@ -614,7 +613,7 @@ class GongDataQualityMonitor:
         return required_present / len(self.config.REQUIRED_FIELDS)
 
     def _calculate_accuracy_score(
-        self, validation_results: List[ValidationResult]
+        self, validation_results: list[ValidationResult]
     ) -> float:
         """Calculate accuracy score from validation results."""
         if not validation_results:
@@ -623,7 +622,7 @@ class GongDataQualityMonitor:
         passed = sum(1 for result in validation_results if result.passed)
         return passed / len(validation_results)
 
-    def _calculate_timeliness_score(self, data: Dict[str, Any]) -> float:
+    def _calculate_timeliness_score(self, data: dict[str, Any]) -> float:
         """Calculate timeliness score based on data freshness."""
         # Check webhook received time vs event time
         event_time = data.get("started", data.get("timestamp"))
@@ -636,7 +635,7 @@ class GongDataQualityMonitor:
             else:
                 event_dt = event_time
 
-            delay = (datetime.now(timezone.utc) - event_dt).total_seconds()
+            delay = (datetime.now(UTC) - event_dt).total_seconds()
 
             # Score based on delay (1.0 for <5min, 0.0 for >1hour)
             if delay < 300:  # 5 minutes
@@ -648,7 +647,7 @@ class GongDataQualityMonitor:
         except:
             return 0.5
 
-    def _calculate_consistency_score(self, data: Dict[str, Any]) -> float:
+    def _calculate_consistency_score(self, data: dict[str, Any]) -> float:
         """Calculate data consistency score."""
         inconsistencies = 0
         checks = 0
@@ -677,7 +676,7 @@ class GongDataQualityMonitor:
         return 1.0 - (inconsistencies / checks)
 
     def _calculate_validity_score(
-        self, validation_results: List[ValidationResult]
+        self, validation_results: list[ValidationResult]
     ) -> float:
         """Calculate validity score from validation results."""
         if not validation_results:
@@ -705,10 +704,10 @@ class GongDataQualityMonitor:
 
     def _identify_quality_issues(
         self,
-        data: Dict[str, Any],
-        dimensions: Dict[QualityDimension, float],
-        validation_results: List[ValidationResult],
-    ) -> List[QualityIssue]:
+        data: dict[str, Any],
+        dimensions: dict[QualityDimension, float],
+        validation_results: list[ValidationResult],
+    ) -> list[QualityIssue]:
         """Identify specific quality issues."""
         issues = []
 
@@ -727,9 +726,9 @@ class GongDataQualityMonitor:
         self,
         dimension: QualityDimension,
         score: float,
-        data: Dict[str, Any],
-        validation_results: List[ValidationResult],
-    ) -> Optional[QualityIssue]:
+        data: dict[str, Any],
+        validation_results: list[ValidationResult],
+    ) -> QualityIssue | None:
         """Create quality issue for a dimension."""
         if dimension == QualityDimension.COMPLETENESS:
             missing_fields = [
@@ -821,13 +820,13 @@ class GongDataQualityMonitor:
         if alert_key in self.alert_history:
             last_alert = self.alert_history[alert_key][-1]
             if (
-                datetime.now(timezone.utc) - last_alert["timestamp"]
+                datetime.now(UTC) - last_alert["timestamp"]
             ).total_seconds() < self.config.ALERT_COOLDOWN_MINUTES * 60:
                 return
 
         # Record alert
         alert_data = {
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
             "type": alert_type,
             "severity": severity,
             "message": message,
@@ -848,7 +847,7 @@ class GongDataQualityMonitor:
 
         # TODO: Send to alert manager for routing
 
-    def _update_data_freshness(self, webhook_data: Dict[str, Any]):
+    def _update_data_freshness(self, webhook_data: dict[str, Any]):
         """Update data freshness metric."""
         event_time = webhook_data.get("started", webhook_data.get("timestamp"))
         if not event_time:
@@ -861,7 +860,7 @@ class GongDataQualityMonitor:
             else:
                 event_dt = event_time
 
-            delay_seconds = (datetime.now(timezone.utc) - event_dt).total_seconds()
+            delay_seconds = (datetime.now(UTC) - event_dt).total_seconds()
 
             # Calculate freshness score (1.0 for immediate, 0.0 for >1 hour old)
             if delay_seconds < 60:  # Less than 1 minute
@@ -876,7 +875,7 @@ class GongDataQualityMonitor:
             self.logger.error("Error calculating data freshness", error=str(e))
             data_freshness_score.set(0.5)
 
-    def _is_field_populated(self, data: Dict[str, Any], field_path: str) -> bool:
+    def _is_field_populated(self, data: dict[str, Any], field_path: str) -> bool:
         """Check if a field is populated (handles nested fields)."""
         parts = field_path.split(".")
         current = data
@@ -892,12 +891,12 @@ class GongDataQualityMonitor:
             return False
         if isinstance(current, str) and not current.strip():
             return False
-        if isinstance(current, (list, dict)) and not current:
+        if isinstance(current, list | dict) and not current:
             return False
 
         return True
 
-    def _extract_all_fields(self, data: Dict[str, Any], prefix: str = "") -> Set[str]:
+    def _extract_all_fields(self, data: dict[str, Any], prefix: str = "") -> set[str]:
         """Extract all field paths from nested data structure."""
         fields = set()
 
@@ -914,14 +913,14 @@ class GongDataQualityMonitor:
         return fields
 
     def _count_populated_fields(
-        self, data: Dict[str, Any], all_fields: Set[str]
+        self, data: dict[str, Any], all_fields: set[str]
     ) -> int:
         """Count populated fields."""
         return sum(1 for field in all_fields if self._is_field_populated(data, field))
 
     def _find_optional_missing(
-        self, data: Dict[str, Any], all_fields: Set[str]
-    ) -> List[str]:
+        self, data: dict[str, Any], all_fields: set[str]
+    ) -> list[str]:
         """Find optional fields that are missing."""
         optional_missing = []
 
@@ -934,7 +933,7 @@ class GongDataQualityMonitor:
 
         return optional_missing
 
-    def _has_complete_transcript(self, data: Dict[str, Any]) -> bool:
+    def _has_complete_transcript(self, data: dict[str, Any]) -> bool:
         """Check if transcript data is complete."""
         transcript = data.get("transcript")
         if not transcript:
@@ -958,7 +957,7 @@ class GongDataQualityMonitor:
 
         return False
 
-    async def _assess_field_quality(self, data: Dict[str, Any]) -> Dict[str, float]:
+    async def _assess_field_quality(self, data: dict[str, Any]) -> dict[str, float]:
         """Assess quality scores for individual fields."""
         field_quality = {}
 
@@ -982,7 +981,7 @@ class GongDataQualityMonitor:
 
         return field_quality
 
-    def _calculate_transcript_quality(self, transcript: Dict[str, Any]) -> float:
+    def _calculate_transcript_quality(self, transcript: dict[str, Any]) -> float:
         """Calculate transcript quality score."""
         if not transcript:
             return 0.0
@@ -1011,7 +1010,7 @@ class GongDataQualityMonitor:
         return score / factors if factors > 0 else 0.0
 
     def _calculate_participant_quality(
-        self, participants: List[Dict[str, Any]]
+        self, participants: list[dict[str, Any]]
     ) -> float:
         """Calculate participant data quality score."""
         if not participants:
@@ -1075,7 +1074,7 @@ class GongDataQualityMonitor:
 
         return 0.5
 
-    def _count_enriched_fields(self, api_response: Dict[str, Any]) -> int:
+    def _count_enriched_fields(self, api_response: dict[str, Any]) -> int:
         """Count number of fields enriched by API."""
         enriched_count = 0
 
@@ -1101,8 +1100,8 @@ class GongDataQualityMonitor:
         return enriched_count
 
     def _assess_participant_mapping_quality(
-        self, participant: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, participant: dict[str, Any]
+    ) -> dict[str, Any]:
         """Assess quality of participant mapping."""
         required_fields = ["user_id", "email", "name"]
         missing_fields = [f for f in required_fields if not participant.get(f)]
@@ -1130,9 +1129,7 @@ class GongDataQualityMonitor:
             "reason": (
                 "Missing required fields"
                 if missing_fields
-                else "Low data quality"
-                if not success
-                else "OK"
+                else "Low data quality" if not success else "OK"
             ),
             "missing_fields": missing_fields,
         }
@@ -1148,8 +1145,8 @@ class QualityRuleEngine:
         self.logger = logger.bind(component="quality_rule_engine")
 
     async def validate_webhook_data(
-        self, webhook_data: Dict[str, Any]
-    ) -> List[ValidationResult]:
+        self, webhook_data: dict[str, Any]
+    ) -> list[ValidationResult]:
         """Validate webhook data against all rules."""
         results = []
 
@@ -1174,7 +1171,7 @@ class QualityRuleEngine:
 
         return results
 
-    def _validate_required_fields(self, data: Dict[str, Any]) -> List[ValidationResult]:
+    def _validate_required_fields(self, data: dict[str, Any]) -> list[ValidationResult]:
         """Validate presence of required fields."""
         results = []
 
@@ -1201,7 +1198,7 @@ class QualityRuleEngine:
 
         return results
 
-    def _validate_data_types(self, data: Dict[str, Any]) -> List[ValidationResult]:
+    def _validate_data_types(self, data: dict[str, Any]) -> list[ValidationResult]:
         """Validate data types of fields."""
         results = []
 
@@ -1241,7 +1238,7 @@ class QualityRuleEngine:
 
         return results
 
-    def _validate_business_rules(self, data: Dict[str, Any]) -> List[ValidationResult]:
+    def _validate_business_rules(self, data: dict[str, Any]) -> list[ValidationResult]:
         """Validate business logic rules."""
         results = []
 
@@ -1277,7 +1274,7 @@ class QualityRuleEngine:
         if started:
             try:
                 start_dt = datetime.fromisoformat(started.replace("Z", "+00:00"))
-                if start_dt > datetime.now(timezone.utc):
+                if start_dt > datetime.now(UTC):
                     results.append(
                         ValidationResult(
                             rule_name="valid_start_time",
@@ -1293,7 +1290,7 @@ class QualityRuleEngine:
 
         return results
 
-    def _validate_formats(self, data: Dict[str, Any]) -> List[ValidationResult]:
+    def _validate_formats(self, data: dict[str, Any]) -> list[ValidationResult]:
         """Validate field formats."""
         results = []
 
@@ -1342,7 +1339,7 @@ class QualityRuleEngine:
 
         return results
 
-    def _get_field_value(self, data: Dict[str, Any], field_path: str) -> Any:
+    def _get_field_value(self, data: dict[str, Any], field_path: str) -> Any:
         """Get field value from nested path."""
         parts = field_path.split(".")
         current = data
@@ -1380,7 +1377,7 @@ class QualityRuleEngine:
         )
 
     async def check_participant_data(
-        self, participants: List[Dict[str, Any]]
+        self, participants: list[dict[str, Any]]
     ) -> ValidationResult:
         """Participant information validation."""
         if not participants:
@@ -1411,7 +1408,7 @@ class QualityRuleEngine:
         )
 
     async def assess_metadata_completeness(
-        self, metadata: Dict[str, Any]
+        self, metadata: dict[str, Any]
     ) -> ValidationResult:
         """Required metadata field validation."""
         required_metadata = ["title", "purpose", "topics"]
@@ -1482,12 +1479,12 @@ class QualityMetricsCollector:
                 webhook_type="call", status="failed"
             ).inc()
 
-    def export_dashboard_data(self) -> Dict[str, Any]:
+    def export_dashboard_data(self) -> dict[str, Any]:
         """Generate data for Grafana dashboards."""
         # This would typically integrate with Prometheus
         # For now, return structured data
         return {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "metrics": {
                 "api_enhancement_success_rate": api_enhancement_success_rate._value.get(),
                 "transcript_completeness_rate": transcript_completeness_rate._value.get(),

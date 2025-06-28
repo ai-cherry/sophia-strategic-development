@@ -10,7 +10,7 @@ Current size: 786 lines
 
 Recommended decomposition:
 - secret_management_core.py - Core functionality
-- secret_management_utils.py - Utility functions  
+- secret_management_utils.py - Utility functions
 - secret_management_models.py - Data models
 - secret_management_handlers.py - Request handlers
 
@@ -21,16 +21,16 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 from cryptography.fernet import Fernet
 from jose import jwt
 from pydantic import BaseModel, Field
 
-from backend.core.auto_esc_config import config, EnhancedSettings
+from backend.core.auto_esc_config import EnhancedSettings, config
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +73,13 @@ class SecretMetadata(BaseModel):
     secret_type: SecretType
     security_level: SecurityLevel
     created_at: datetime
-    last_rotated: Optional[datetime] = None
-    expires_at: Optional[datetime] = None
+    last_rotated: datetime | None = None
+    expires_at: datetime | None = None
     rotation_interval_days: int = 90
     status: SecretStatus = SecretStatus.ACTIVE
-    tags: List[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
     owner: str = "sophia-platform"
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class SecretRotationResult(BaseModel):
@@ -87,11 +87,11 @@ class SecretRotationResult(BaseModel):
 
     secret_name: str
     success: bool
-    old_secret_hash: Optional[str] = None
-    new_secret_hash: Optional[str] = None
+    old_secret_hash: str | None = None
+    new_secret_hash: str | None = None
     rotated_at: datetime
-    error_message: Optional[str] = None
-    next_rotation: Optional[datetime] = None
+    error_message: str | None = None
+    next_rotation: datetime | None = None
 
 
 class SecurityAuditEvent(BaseModel):
@@ -100,19 +100,19 @@ class SecurityAuditEvent(BaseModel):
     event_id: str
     event_type: str
     timestamp: datetime
-    user_id: Optional[str] = None
+    user_id: str | None = None
     resource: str
     action: str
     status: str
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
-    additional_data: Dict[str, Any] = Field(default_factory=dict)
+    ip_address: str | None = None
+    user_agent: str | None = None
+    additional_data: dict[str, Any] = Field(default_factory=dict)
 
 
 class SecretManager:
     """Enhanced secret management with Pulumi ESC integration."""
 
-    def __init__(self, enhanced_config: Optional[EnhancedSettings] = None):
+    def __init__(self, enhanced_config: EnhancedSettings | None = None):
         self.config = enhanced_config or config.as_enhanced_settings()
         self.logger = logger.bind(component="secret_manager")
 
@@ -121,10 +121,10 @@ class SecretManager:
         self._fernet = Fernet(self._encryption_key)
 
         # Secret metadata storage (in production, this would be a database)
-        self._secret_metadata: Dict[str, SecretMetadata] = {}
+        self._secret_metadata: dict[str, SecretMetadata] = {}
 
         # Audit log storage (in production, this would be a database)
-        self._audit_log: List[SecurityAuditEvent] = []
+        self._audit_log: list[SecurityAuditEvent] = []
 
         # Monitoring clients
         self._monitoring_client = None
@@ -157,7 +157,7 @@ class SecretManager:
             # Fallback to new key
             return Fernet.generate_key()
 
-    async def validate_secrets(self) -> Dict[str, bool]:
+    async def validate_secrets(self) -> dict[str, bool]:
         """Validate all required secrets are accessible and functional."""
         validation_results = {}
 
@@ -177,9 +177,9 @@ class SecretManager:
                 "Secret validation completed",
                 successful=successful,
                 total=total,
-                success_rate=f"{(successful / total * 100):.1f}%"
-                if total > 0
-                else "0%",
+                success_rate=(
+                    f"{(successful / total * 100):.1f}%" if total > 0 else "0%"
+                ),
             )
 
             # Store audit event
@@ -204,7 +204,7 @@ class SecretManager:
             )
             return validation_results
 
-    async def _validate_core_secrets(self) -> Dict[str, bool]:
+    async def _validate_core_secrets(self) -> dict[str, bool]:
         """Validate core platform secrets."""
         results = {}
 
@@ -226,7 +226,7 @@ class SecretManager:
 
         return results
 
-    async def _validate_ai_services(self) -> Dict[str, bool]:
+    async def _validate_ai_services(self) -> dict[str, bool]:
         """Validate AI service API keys."""
         results = {}
 
@@ -244,7 +244,7 @@ class SecretManager:
 
         return results
 
-    async def _validate_infrastructure_secrets(self) -> Dict[str, bool]:
+    async def _validate_infrastructure_secrets(self) -> dict[str, bool]:
         """Validate infrastructure secrets."""
         results = {}
 
@@ -262,7 +262,7 @@ class SecretManager:
 
         return results
 
-    async def _validate_monitoring_secrets(self) -> Dict[str, bool]:
+    async def _validate_monitoring_secrets(self) -> dict[str, bool]:
         """Validate monitoring service secrets."""
         results = {}
 
@@ -282,7 +282,7 @@ class SecretManager:
 
         return results
 
-    async def _validate_extended_api_services(self) -> Dict[str, bool]:
+    async def _validate_extended_api_services(self) -> dict[str, bool]:
         """Validate extended API service secrets."""
         results = {}
 
@@ -300,9 +300,9 @@ class SecretManager:
             and self.config.slack_signing_secret
             and self.config.slack_app_token
         ):
-            results[
-                "slack_enhanced"
-            ] = await self._validate_slack_enhanced_credentials()
+            results["slack_enhanced"] = (
+                await self._validate_slack_enhanced_credentials()
+            )
 
         return results
 
@@ -596,7 +596,7 @@ class SecretManager:
 
     async def _initialize_secret_metadata(self) -> None:
         """Initialize metadata for all managed secrets."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Define secret configurations
         secret_configs = [
@@ -642,9 +642,9 @@ class SecretManager:
                     expires_at=now + timedelta(days=rotation_days),
                 )
 
-    async def _check_expiring_secrets(self) -> List[SecretMetadata]:
+    async def _check_expiring_secrets(self) -> list[SecretMetadata]:
         """Check for secrets that are expiring soon."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         warning_threshold = timedelta(days=7)  # Warn 7 days before expiration
 
         expiring_secrets = []
@@ -658,7 +658,7 @@ class SecretManager:
         return expiring_secrets
 
     async def _notify_expiring_secrets(
-        self, expiring_secrets: List[SecretMetadata]
+        self, expiring_secrets: list[SecretMetadata]
     ) -> None:
         """Notify about expiring secrets."""
         for secret in expiring_secrets:
@@ -684,7 +684,7 @@ class SecretManager:
             )
 
     async def audit_secret_access(
-        self, secret_name: str, access_context: Dict[str, Any]
+        self, secret_name: str, access_context: dict[str, Any]
     ) -> None:
         """Audit secret access for compliance."""
         await self._audit_log_event(
@@ -704,16 +704,16 @@ class SecretManager:
         resource: str,
         action: str,
         status: str,
-        user_id: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        additional_data: Optional[Dict[str, Any]] = None,
+        user_id: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        additional_data: dict[str, Any] | None = None,
     ) -> None:
         """Log a security audit event."""
         event = SecurityAuditEvent(
             event_id=self._generate_event_id(),
             event_type=event_type,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             user_id=user_id,
             resource=resource,
             action=action,
@@ -753,9 +753,9 @@ class SecretManager:
         """Decrypt a secret value from local storage."""
         return self._fernet.decrypt(encrypted_value.encode()).decode()
 
-    async def get_security_status(self) -> Dict[str, Any]:
+    async def get_security_status(self) -> dict[str, Any]:
         """Get overall security status."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Count secrets by status
         status_counts = {}

@@ -1,13 +1,14 @@
 # File: backend/services/schema_discovery_service.py
 
 import asyncio
-import yaml
+import logging
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from backend.services.semantic_layer_service import SemanticLayerService
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -25,16 +26,16 @@ class SchemaDiscoveryService:
             loader=FileSystemLoader("backend/snowflake_setup/templates/")
         )
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Loads the semantic layer configuration from the YAML file."""
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 return yaml.safe_load(f)
         except Exception as e:
             logger.error(f"Failed to load semantic layer config: {e}", exc_info=True)
             raise
 
-    async def generate_semantic_views(self) -> List[str]:
+    async def generate_semantic_views(self) -> list[str]:
         """
         Generates the SQL for all semantic views based on the configuration.
         """

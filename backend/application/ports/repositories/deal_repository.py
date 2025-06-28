@@ -7,7 +7,6 @@ This is a port in the hexagonal architecture.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Optional
 
 from backend.domain.entities.deal import Deal, DealStage
 
@@ -22,7 +21,7 @@ class DealRepository(ABC):
     """
 
     @abstractmethod
-    async def get_by_id(self, deal_id: str) -> Optional[Deal]:
+    async def get_by_id(self, deal_id: str) -> Deal | None:
         """
         Retrieve a deal by its ID.
 
@@ -35,7 +34,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_external_id(self, external_id: str) -> Optional[Deal]:
+    async def get_by_external_id(self, external_id: str) -> Deal | None:
         """
         Retrieve a deal by its external ID (e.g., HubSpot ID).
 
@@ -48,7 +47,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_owner(self, owner_id: str) -> List[Deal]:
+    async def get_by_owner(self, owner_id: str) -> list[Deal]:
         """
         Retrieve all deals owned by a specific user.
 
@@ -61,7 +60,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_stage(self, stage: DealStage) -> List[Deal]:
+    async def get_by_stage(self, stage: DealStage) -> list[Deal]:
         """
         Retrieve all deals in a specific stage.
 
@@ -74,7 +73,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_contact(self, contact_id: str) -> List[Deal]:
+    async def get_by_contact(self, contact_id: str) -> list[Deal]:
         """
         Retrieve all deals associated with a specific contact.
 
@@ -87,7 +86,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_closing_soon(self, days: int = 30) -> List[Deal]:
+    async def get_closing_soon(self, days: int = 30) -> list[Deal]:
         """
         Retrieve deals expected to close within the specified number of days.
 
@@ -100,7 +99,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_at_risk(self) -> List[Deal]:
+    async def get_at_risk(self) -> list[Deal]:
         """
         Retrieve deals that are at risk based on business rules.
 
@@ -139,14 +138,14 @@ class DealRepository(ABC):
     async def search(
         self,
         query: str,
-        owner_id: Optional[str] = None,
-        stage: Optional[DealStage] = None,
-        min_amount: Optional[float] = None,
-        max_amount: Optional[float] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        owner_id: str | None = None,
+        stage: DealStage | None = None,
+        min_amount: float | None = None,
+        max_amount: float | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         limit: int = 100,
-    ) -> List[Deal]:
+    ) -> list[Deal]:
         """
         Search for deals based on various criteria.
 
@@ -166,7 +165,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_pipeline_summary(self, owner_id: Optional[str] = None) -> dict:
+    async def get_pipeline_summary(self, owner_id: str | None = None) -> dict:
         """
         Get a summary of the deal pipeline.
 
@@ -179,7 +178,7 @@ class DealRepository(ABC):
         pass
 
     @abstractmethod
-    async def bulk_update_stage(self, deal_ids: List[str], new_stage: DealStage) -> int:
+    async def bulk_update_stage(self, deal_ids: list[str], new_stage: DealStage) -> int:
         """
         Update the stage for multiple deals.
 

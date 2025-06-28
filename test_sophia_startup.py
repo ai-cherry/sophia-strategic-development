@@ -3,9 +3,9 @@
 Test script to verify Sophia AI startup with fixed virtual environment
 """
 
-import sys
-import os
 import asyncio
+import os
+import sys
 from pathlib import Path
 
 

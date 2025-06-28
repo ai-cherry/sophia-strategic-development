@@ -7,7 +7,7 @@ This is a "port" in the hexagonal architecture.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Optional
+
 from backend.domain.entities.call import Call
 
 
@@ -20,7 +20,7 @@ class CallRepository(ABC):
     """
 
     @abstractmethod
-    async def get_by_id(self, call_id: str) -> Optional[Call]:
+    async def get_by_id(self, call_id: str) -> Call | None:
         """
         Retrieve a call by its ID.
 
@@ -33,7 +33,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_external_id(self, external_id: str) -> Optional[Call]:
+    async def get_by_external_id(self, external_id: str) -> Call | None:
         """
         Retrieve a call by its external system ID (e.g., Gong ID).
 
@@ -46,7 +46,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> List[Call]:
+    async def get_recent_calls(self, limit: int = 10, offset: int = 0) -> list[Call]:
         """
         Get recent calls ordered by scheduled date.
 
@@ -62,7 +62,7 @@ class CallRepository(ABC):
     @abstractmethod
     async def get_calls_by_date_range(
         self, start_date: datetime, end_date: datetime
-    ) -> List[Call]:
+    ) -> list[Call]:
         """
         Get calls within a specific date range.
 
@@ -76,7 +76,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_calls_requiring_followup(self) -> List[Call]:
+    async def get_calls_requiring_followup(self) -> list[Call]:
         """
         Get all calls that require followup based on business rules.
 
@@ -125,7 +125,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def search_by_participant_email(self, email: str) -> List[Call]:
+    async def search_by_participant_email(self, email: str) -> list[Call]:
         """
         Search for calls by participant email.
 
@@ -138,7 +138,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_high_value_calls(self) -> List[Call]:
+    async def get_high_value_calls(self) -> list[Call]:
         """
         Get all high-value calls based on business rules.
 
@@ -148,7 +148,7 @@ class CallRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_deal(self, deal_id: str) -> List[Call]:
+    async def get_by_deal(self, deal_id: str) -> list[Call]:
         """
         Retrieve calls associated with a specific deal.
 

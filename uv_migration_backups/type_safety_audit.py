@@ -8,10 +8,10 @@ on type coverage and missing annotations.
 
 import ast
 import json
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 import logging
+from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -21,9 +21,9 @@ class TypeAnnotationAnalyzer(ast.NodeVisitor):
     """AST visitor to analyze type annotations in Python code."""
 
     def __init__(self):
-        self.functions: List[Dict[str, Any]] = []
-        self.classes: List[Dict[str, Any]] = []
-        self.current_class: Optional[str] = None
+        self.functions: list[dict[str, Any]] = []
+        self.classes: list[dict[str, Any]] = []
+        self.current_class: str | None = None
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Analyze function definitions for type annotations."""
@@ -63,10 +63,10 @@ class TypeAnnotationAnalyzer(ast.NodeVisitor):
         self.current_class = None
 
 
-def analyze_file(file_path: Path) -> Dict[str, Any]:
+def analyze_file(file_path: Path) -> dict[str, Any]:
     """Analyze a single Python file for type annotations."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -82,7 +82,7 @@ def analyze_file(file_path: Path) -> Dict[str, Any]:
 
 def _calculate_file_stats(
     file_path: Path, analyzer: TypeAnnotationAnalyzer
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculates type coverage statistics for a file."""
     total_functions = len(analyzer.functions)
     functions_with_complete_types = sum(
@@ -146,8 +146,8 @@ ignore_missing_imports = True
 
 
 def scan_codebase(
-    root_dir: Path, exclude_dirs: Optional[List[str]] = None
-) -> Dict[str, Any]:
+    root_dir: Path, exclude_dirs: list[str] | None = None
+) -> dict[str, Any]:
     """Scan the entire codebase for type annotation coverage."""
     if exclude_dirs is None:
         exclude_dirs = [".venv", "venv", "__pycache__", ".git", "node_modules"]
@@ -179,7 +179,7 @@ def scan_codebase(
     }
 
 
-def generate_type_stub_template(file_analysis: Dict[str, Any]) -> str:
+def generate_type_stub_template(file_analysis: dict[str, Any]) -> str:
     """Generate type stub template for functions missing annotations."""
     stub_content = f'"""Type stubs for {file_analysis["file"]}"""\n\n'
     stub_content += "from typing import Any, Dict, List, Optional, Union\n\n"

@@ -5,12 +5,11 @@ Implements comprehensive database-level stability features for Sophia AI product
 """
 
 import asyncio
+import json
 import logging
 import os
 import sys
-from typing import Dict
 from datetime import datetime
-import json
 
 # Add backend to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "backend"))
@@ -446,16 +445,18 @@ class SnowflakeStabilityDeployer:
             self.deployment_status["monitoring_schemas"]["details"] = [str(e)]
             return False
 
-    async def generate_deployment_report(self) -> Dict:
+    async def generate_deployment_report(self) -> dict:
         """Generate comprehensive deployment report."""
         report = {
             "deployment_timestamp": datetime.now().isoformat(),
-            "overall_status": "success"
-            if all(
-                component["status"] == "completed"
-                for component in self.deployment_status.values()
-            )
-            else "partial_failure",
+            "overall_status": (
+                "success"
+                if all(
+                    component["status"] == "completed"
+                    for component in self.deployment_status.values()
+                )
+                else "partial_failure"
+            ),
             "components": self.deployment_status,
             "summary": {
                 "total_components": len(self.deployment_status),
@@ -511,7 +512,8 @@ class SnowflakeStabilityDeployer:
         report = await self.generate_deployment_report()
 
         # Log summary
-        logger.info(f"""
+        logger.info(
+            f"""
         ============================================================
         🎉 SNOWFLAKE STABILITY DEPLOYMENT COMPLETED
         ============================================================
@@ -523,7 +525,8 @@ class SnowflakeStabilityDeployer:
         
         📋 Deployment Report: {report}
         ============================================================
-        """)
+        """
+        )
 
         return success_count == len(components)
 

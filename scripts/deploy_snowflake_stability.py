@@ -5,12 +5,11 @@ Implements comprehensive database-level stability features for Sophia AI product
 """
 
 import asyncio
+import json
 import logging
 import os
 import sys
-from typing import Dict
 from datetime import datetime
-import json
 
 # Add backend to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "backend"))
@@ -76,9 +75,9 @@ class SnowflakeStabilityDeployer:
             # Main production resource monitor
             """
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_PROD_MONITOR
-            WITH CREDIT_QUOTA = 1000 
+            WITH CREDIT_QUOTA = 1000
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 75 PERCENT DO NOTIFY
                 ON 90 PERCENT DO SUSPEND_IMMEDIATE
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE;
@@ -88,7 +87,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_DEV_MONITOR
             WITH CREDIT_QUOTA = 200
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 80 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE;
             """,
@@ -97,7 +96,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_ANALYTICS_MONITOR
             WITH CREDIT_QUOTA = 500
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 85 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE;
             """,
@@ -129,7 +128,7 @@ class SnowflakeStabilityDeployer:
         warehouse_queries = [
             # Chat warehouse - fast, small, high concurrency
             """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH
             WITH WAREHOUSE_SIZE = 'SMALL'
                 AUTO_SUSPEND = 30
                 AUTO_RESUME = TRUE
@@ -141,7 +140,7 @@ class SnowflakeStabilityDeployer:
             """,
             # Analytics warehouse - medium, scalable
             """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH
             WITH WAREHOUSE_SIZE = 'MEDIUM'
                 AUTO_SUSPEND = 300
                 AUTO_RESUME = TRUE
@@ -153,7 +152,7 @@ class SnowflakeStabilityDeployer:
             """,
             # ETL warehouse - large, efficient
             """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH
             WITH WAREHOUSE_SIZE = 'LARGE'
                 AUTO_SUSPEND = 60
                 AUTO_RESUME = TRUE
@@ -165,7 +164,7 @@ class SnowflakeStabilityDeployer:
             """,
             # AI processing warehouse - x-large for heavy AI workloads
             """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH
             WITH WAREHOUSE_SIZE = 'X-LARGE'
                 AUTO_SUSPEND = 180
                 AUTO_RESUME = TRUE
@@ -271,35 +270,35 @@ class SnowflakeStabilityDeployer:
         optimization_queries = [
             # Clustering for chat tables
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES
             CLUSTER BY (CREATED_AT, CATEGORY_ID);
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             CLUSTER BY (SESSION_ID, CREATED_AT);
             """,
             # Clustering for AI Memory
             """
-            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES 
+            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES
             CLUSTER BY (CREATED_AT, IMPORTANCE_SCORE);
             """,
             # Search optimization
             """
             CREATE OR REPLACE SEARCH OPTIMIZATION ON SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES
-            ON EQUALITY(TITLE, CATEGORY_ID) 
+            ON EQUALITY(TITLE, CATEGORY_ID)
             ON SUBSTRING(CONTENT);
             """,
             # Automatic clustering
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES
             SET ENABLE_AUTOMATIC_CLUSTERING = TRUE;
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             SET ENABLE_AUTOMATIC_CLUSTERING = TRUE;
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES 
+            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES
             SET ENABLE_AUTOMATIC_CLUSTERING = TRUE;
             """,
         ]
@@ -332,24 +331,24 @@ class SnowflakeStabilityDeployer:
         backup_queries = [
             # Extended time travel for critical tables
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES
             SET DATA_RETENTION_TIME_IN_DAYS = 7;
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             SET DATA_RETENTION_TIME_IN_DAYS = 7;
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES 
+            ALTER TABLE SOPHIA_AI_PROD.AI_MEMORY.BUSINESS_MEMORIES
             SET DATA_RETENTION_TIME_IN_DAYS = 7;
             """,
             # Fail-safe for critical data
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.KNOWLEDGE_ENTRIES
             SET ENABLE_SCHEMA_EVOLUTION = TRUE;
             """,
             """
-            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES 
+            ALTER TABLE SOPHIA_AI_PROD.UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             SET ENABLE_SCHEMA_EVOLUTION = TRUE;
             """,
         ]
@@ -446,16 +445,18 @@ class SnowflakeStabilityDeployer:
             self.deployment_status["monitoring_schemas"]["details"] = [str(e)]
             return False
 
-    async def generate_deployment_report(self) -> Dict:
+    async def generate_deployment_report(self) -> dict:
         """Generate comprehensive deployment report."""
         report = {
             "deployment_timestamp": datetime.now().isoformat(),
-            "overall_status": "success"
-            if all(
-                component["status"] == "completed"
-                for component in self.deployment_status.values()
-            )
-            else "partial_failure",
+            "overall_status": (
+                "success"
+                if all(
+                    component["status"] == "completed"
+                    for component in self.deployment_status.values()
+                )
+                else "partial_failure"
+            ),
             "components": self.deployment_status,
             "summary": {
                 "total_components": len(self.deployment_status),
@@ -511,7 +512,8 @@ class SnowflakeStabilityDeployer:
         report = await self.generate_deployment_report()
 
         # Log summary
-        logger.info(f"""
+        logger.info(
+            f"""
         ============================================================
         🎉 SNOWFLAKE STABILITY DEPLOYMENT COMPLETED
         ============================================================
@@ -520,10 +522,11 @@ class SnowflakeStabilityDeployer:
            Successful: {success_count}
            Failed: {len(components) - success_count}
            Overall Status: {report["overall_status"]}
-        
+
         📋 Deployment Report: {report}
         ============================================================
-        """)
+        """
+        )
 
         return success_count == len(components)
 

@@ -4,8 +4,8 @@ Sophia AI Infrastructure Modernization - Immediate Execution
 Simplified version for immediate cleanup and modernization
 """
 
-import shutil
 import json
+import shutil
 from datetime import datetime
 from pathlib import Path
 

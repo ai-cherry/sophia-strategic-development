@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import DefaultDict, List
 
 
 class ComprehensiveMemoryManager:
@@ -11,7 +10,7 @@ class ComprehensiveMemoryManager:
     Manage conversation history per user."""
 
     def __init__(self) -> None:
-        self._memory: DefaultDict[str, List[str]] = defaultdict(list)
+        self._memory: defaultdict[str, list[str]] = defaultdict(list)
 
     async def append(self, user: str, message: str) -> None:
         """

@@ -10,7 +10,7 @@ Current size: 678 lines
 
 Recommended decomposition:
 - interactive_sales_coach_agent_core.py - Core functionality
-- interactive_sales_coach_agent_utils.py - Utility functions  
+- interactive_sales_coach_agent_utils.py - Utility functions
 - interactive_sales_coach_agent_models.py - Data models
 - interactive_sales_coach_agent_handlers.py - Request handlers
 
@@ -18,10 +18,10 @@ TODO: Implement file decomposition
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.services.enhanced_knowledge_base_service import (
@@ -68,21 +68,21 @@ class CoachingInsight:
     situation: str
     insight: str
     recommendation: str
-    action_steps: List[str]
+    action_steps: list[str]
 
     # Supporting data
-    context_data: Dict[str, Any]
+    context_data: dict[str, Any]
     confidence_score: float
     urgency_score: float
 
     # Slack integration
     slack_message: str
-    slack_thread_id: Optional[str] = None
+    slack_thread_id: str | None = None
 
     # Tracking
     delivered_at: datetime = field(default_factory=datetime.now)
-    rep_response: Optional[str] = None
-    effectiveness_score: Optional[float] = None
+    rep_response: str | None = None
+    effectiveness_score: float | None = None
 
 
 class InteractiveSalesCoachAgent(BaseAgent):
@@ -102,8 +102,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
         self.description = "AI sales coach providing real-time coaching via Slack"
 
         # Service integrations
-        self.knowledge_base: Optional[EnhancedKnowledgeBaseService] = None
-        self.cortex_service: Optional[EnhancedSnowflakeCortexService] = None
+        self.knowledge_base: EnhancedKnowledgeBaseService | None = None
+        self.cortex_service: EnhancedSnowflakeCortexService | None = None
 
         # Coaching analytics
         self.coaching_analytics = {
@@ -114,7 +114,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
         }
 
         # Active coaching sessions
-        self.active_sessions: Dict[str, Dict] = {}
+        self.active_sessions: dict[str, dict] = {}
 
         self.initialized = False
 
@@ -141,7 +141,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
         """Required by BaseAgent - Initialize agent-specific components"""
         await self.initialize()
 
-    async def _execute_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_task(self, task: dict[str, Any]) -> dict[str, Any]:
         """Required by BaseAgent - Execute agent-specific tasks"""
         task_type = task.get("type", "coaching")
 
@@ -164,8 +164,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
             }
 
     async def provide_real_time_coaching(
-        self, sales_rep_id: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, sales_rep_id: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Provide real-time coaching based on current context
 
@@ -237,8 +237,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
             return {"success": False, "error": str(e), "sales_rep_id": sales_rep_id}
 
     async def slack_coaching_interface(
-        self, slack_event: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, slack_event: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Interactive Slack coaching interface for sales reps
 
@@ -287,7 +287,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             logger.error(f"Error in Slack coaching interface: {e}")
             return {"success": False, "error": str(e), "slack_event": slack_event}
 
-    async def deliver_slack_coaching(self, insight: CoachingInsight) -> Dict[str, Any]:
+    async def deliver_slack_coaching(self, insight: CoachingInsight) -> dict[str, Any]:
         """
         Deliver coaching insight via Slack
 
@@ -333,8 +333,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
             return {"success": False, "error": str(e), "insight_id": insight.insight_id}
 
     async def generate_coaching_insights(
-        self, performance_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, performance_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Generate coaching insights from performance data
 
@@ -420,8 +420,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
     # Private helper methods
     async def _analyze_current_situation(
-        self, sales_rep_id: str, context: Dict
-    ) -> Dict[str, Any]:
+        self, sales_rep_id: str, context: dict
+    ) -> dict[str, Any]:
         """Analyze current situation for real-time coaching"""
         situation = {
             "rep_id": sales_rep_id,
@@ -445,8 +445,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
         return situation
 
     async def _generate_coaching_insights(
-        self, sales_rep_id: str, situation: Dict
-    ) -> List[CoachingInsight]:
+        self, sales_rep_id: str, situation: dict
+    ) -> list[CoachingInsight]:
         """Generate specific coaching insights based on situation"""
         insights = []
 
@@ -476,8 +476,8 @@ class InteractiveSalesCoachAgent(BaseAgent):
         return insights
 
     async def _prioritize_insights(
-        self, insights: List[CoachingInsight], context: Dict
-    ) -> List[CoachingInsight]:
+        self, insights: list[CoachingInsight], context: dict
+    ) -> list[CoachingInsight]:
         """Prioritize insights based on urgency and effectiveness"""
         # Sort by urgency score and priority
         prioritized = sorted(
@@ -517,7 +517,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
     async def _handle_direct_coaching_request(
         self, user_id: str, text: str, channel: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle direct coaching request from Slack"""
         # Extract coaching topic from message
         topic = text.replace("@coach", "").strip()
@@ -555,7 +555,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
     async def _provide_coaching_help(
         self, user_id: str, channel: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Provide coaching help information"""
         help_message = """
 🎯 **Sales Coach Help**
@@ -586,7 +586,7 @@ I can help you with:
             "source": "help_system",
         }
 
-    async def _handle_coaching_feedback(self, slack_event: Dict) -> Dict[str, Any]:
+    async def _handle_coaching_feedback(self, slack_event: dict) -> dict[str, Any]:
         """Handle feedback on coaching messages"""
         reaction = slack_event.get("reaction", "")
 
@@ -608,8 +608,8 @@ I can help you with:
         }
 
     async def _analyze_passive_slack_activity(
-        self, slack_event: Dict
-    ) -> Dict[str, Any]:
+        self, slack_event: dict
+    ) -> dict[str, Any]:
         """Analyze passive Slack activity for coaching opportunities"""
         # Basic analysis of conversation patterns
         text = slack_event.get("text", "").lower()
@@ -638,8 +638,8 @@ I can help you with:
         }
 
     async def _analyze_performance_patterns(
-        self, performance_data: Dict
-    ) -> Dict[str, Any]:
+        self, performance_data: dict
+    ) -> dict[str, Any]:
         """Analyze performance patterns for coaching insights"""
         return {
             "overall_performance": "good",
@@ -649,8 +649,8 @@ I can help you with:
         }
 
     async def _get_relevant_knowledge_insights(
-        self, performance_analysis: Dict
-    ) -> List[Dict]:
+        self, performance_analysis: dict
+    ) -> list[dict]:
         """Get relevant knowledge base insights for coaching"""
         insights = []
 
@@ -666,8 +666,8 @@ I can help you with:
         return insights
 
     async def _generate_personalized_coaching(
-        self, sales_rep_id: str, analysis: Dict, kb_insights: List
-    ) -> List[Dict]:
+        self, sales_rep_id: str, analysis: dict, kb_insights: list
+    ) -> list[dict]:
         """Generate personalized coaching recommendations"""
         coaching_items = []
 

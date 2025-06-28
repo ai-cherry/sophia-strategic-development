@@ -9,7 +9,7 @@ Current size: 810 lines
 
 Recommended decomposition:
 - cross_platform_sync_orchestrator_core.py - Core functionality
-- cross_platform_sync_orchestrator_utils.py - Utility functions  
+- cross_platform_sync_orchestrator_utils.py - Utility functions
 - cross_platform_sync_orchestrator_models.py - Data models
 - cross_platform_sync_orchestrator_handlers.py - Request handlers
 
@@ -19,11 +19,11 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 import time
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, field
-from enum import Enum
 from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 from backend.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
@@ -69,7 +69,7 @@ class SyncConfiguration:
     timeout_seconds: int = 300
     enable_ai_processing: bool = True
     enable_conflict_detection: bool = True
-    sync_dependencies: List[str] = field(default_factory=list)
+    sync_dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -86,8 +86,8 @@ class SyncResult:
     sync_duration_ms: float = 0
     ai_processing_duration_ms: float = 0
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -96,12 +96,12 @@ class DataConflict:
 
     conflict_id: str
     conflict_type: ConflictType
-    platforms: List[str]
+    platforms: list[str]
     identifier: str
-    conflicting_data: Dict[str, Any]
+    conflicting_data: dict[str, Any]
     detected_at: datetime = field(default_factory=datetime.utcnow)
     severity: str = "medium"  # low, medium, high, critical
-    resolution_strategy: Optional[str] = None
+    resolution_strategy: str | None = None
     resolved: bool = False
 
 
@@ -115,7 +115,7 @@ class SyncMetrics:
     total_records: int = 0
     total_conflicts: int = 0
     average_sync_time_ms: float = 0
-    last_sync_time: Optional[datetime] = None
+    last_sync_time: datetime | None = None
     sync_success_rate: float = 0.0
 
 
@@ -125,7 +125,7 @@ class DataConflictResolver:
     def __init__(self, cortex_service: EnhancedSnowflakeCortexService):
         self.cortex_service = cortex_service
 
-    async def resolve_conflict(self, conflict: DataConflict) -> Dict[str, Any]:
+    async def resolve_conflict(self, conflict: DataConflict) -> dict[str, Any]:
         """Resolve a data conflict using business rules and AI assistance."""
         try:
             logger.info(
@@ -152,7 +152,7 @@ class DataConflictResolver:
                 "resolution": "manual_review_required",
             }
 
-    async def _resolve_duplicate_record(self, conflict: DataConflict) -> Dict[str, Any]:
+    async def _resolve_duplicate_record(self, conflict: DataConflict) -> dict[str, Any]:
         """Resolve duplicate record conflicts."""
         # Strategy: Use most recent record, merge complementary data
         platforms_data = conflict.conflicting_data
@@ -188,7 +188,7 @@ class DataConflictResolver:
                 "reason": "no_timestamp_available",
             }
 
-    async def _resolve_data_mismatch(self, conflict: DataConflict) -> Dict[str, Any]:
+    async def _resolve_data_mismatch(self, conflict: DataConflict) -> dict[str, Any]:
         """Resolve data mismatch conflicts using AI analysis."""
         try:
             # Use AI to analyze data quality and suggest resolution
@@ -221,14 +221,14 @@ class DataConflictResolver:
 
     async def _resolve_timestamp_conflict(
         self, conflict: DataConflict
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Resolve timestamp-based conflicts."""
         # Strategy: Always use the most recent timestamp
         return await self._resolve_duplicate_record(conflict)
 
     async def _resolve_reference_conflict(
         self, conflict: DataConflict
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Resolve reference conflicts (e.g., broken foreign keys)."""
         # Strategy: Validate references and update broken ones
         return {
@@ -237,7 +237,7 @@ class DataConflictResolver:
             "action": "validate_and_update_references",
         }
 
-    async def _resolve_with_ai(self, conflict: DataConflict) -> Dict[str, Any]:
+    async def _resolve_with_ai(self, conflict: DataConflict) -> dict[str, Any]:
         """Use AI to resolve complex conflicts."""
         try:
             prompt_data = {
@@ -269,7 +269,7 @@ class DataConflictResolver:
             logger.error(f"AI conflict resolution failed: {e}")
             return {"status": "failed", "error": str(e)}
 
-    def _calculate_data_quality_score(self, data: Dict[str, Any]) -> float:
+    def _calculate_data_quality_score(self, data: dict[str, Any]) -> float:
         """Calculate data quality score based on completeness and consistency."""
         if not data:
             return 0.0
@@ -320,22 +320,22 @@ class CrossPlatformSyncOrchestrator:
     - AI-enhanced data processing
     """
 
-    def __init__(self, cortex_service: Optional[EnhancedSnowflakeCortexService] = None):
+    def __init__(self, cortex_service: EnhancedSnowflakeCortexService | None = None):
         self.cortex_service = cortex_service or EnhancedSnowflakeCortexService()
         self.sync_configs = self._load_sync_configurations()
         self.conflict_resolver = DataConflictResolver(self.cortex_service)
 
         # Tracking and metrics
-        self.sync_status_tracker: Dict[str, SyncResult] = {}
-        self.sync_metrics: Dict[str, SyncMetrics] = defaultdict(SyncMetrics)
-        self.active_conflicts: Dict[str, DataConflict] = {}
-        self.mcp_servers: Dict[str, Any] = {}
+        self.sync_status_tracker: dict[str, SyncResult] = {}
+        self.sync_metrics: dict[str, SyncMetrics] = defaultdict(SyncMetrics)
+        self.active_conflicts: dict[str, DataConflict] = {}
+        self.mcp_servers: dict[str, Any] = {}
 
         # Sync coordination
-        self.sync_locks: Dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
-        self.dependency_graph: Dict[str, List[str]] = {}
+        self.sync_locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
+        self.dependency_graph: dict[str, list[str]] = {}
 
-    def _load_sync_configurations(self) -> List[SyncConfiguration]:
+    def _load_sync_configurations(self) -> list[SyncConfiguration]:
         """Load synchronization configurations for all platforms."""
         return [
             # Real-time sync for critical business data
@@ -449,7 +449,7 @@ class CrossPlatformSyncOrchestrator:
         self.mcp_servers[platform] = server_instance
         logger.info(f"✅ Registered MCP server: {platform}")
 
-    async def orchestrate_sync(self, force_sync: bool = False) -> Dict[str, Any]:
+    async def orchestrate_sync(self, force_sync: bool = False) -> dict[str, Any]:
         """
         Orchestrate synchronization across all platforms with priority-based scheduling.
 
@@ -492,9 +492,9 @@ class CrossPlatformSyncOrchestrator:
                     priority_results = await self._execute_priority_group(
                         priority_groups[priority], force_sync
                     )
-                    orchestration_result["sync_results"][priority.value] = (
-                        priority_results
-                    )
+                    orchestration_result["sync_results"][
+                        priority.value
+                    ] = priority_results
 
             # Detect and resolve conflicts
             conflicts = await self._detect_cross_platform_conflicts()
@@ -537,7 +537,7 @@ class CrossPlatformSyncOrchestrator:
 
     def _group_configs_by_priority(
         self,
-    ) -> Dict[ServerSyncPriority, List[SyncConfiguration]]:
+    ) -> dict[ServerSyncPriority, list[SyncConfiguration]]:
         """Group sync configurations by priority."""
         priority_groups = defaultdict(list)
         for config in self.sync_configs:
@@ -545,8 +545,8 @@ class CrossPlatformSyncOrchestrator:
         return priority_groups
 
     async def _execute_priority_group(
-        self, configs: List[SyncConfiguration], force_sync: bool
-    ) -> List[SyncResult]:
+        self, configs: list[SyncConfiguration], force_sync: bool
+    ) -> list[SyncResult]:
         """Execute sync for a priority group."""
         # Filter configs that need syncing
         configs_to_sync = []
@@ -653,9 +653,11 @@ class CrossPlatformSyncOrchestrator:
                 sync_result = SyncResult(
                     platform=config.platform,
                     data_type=config.data_type,
-                    status=SyncStatus.SUCCESS
-                    if sync_result_data.get("status") == "completed"
-                    else SyncStatus.FAILED,
+                    status=(
+                        SyncStatus.SUCCESS
+                        if sync_result_data.get("status") == "completed"
+                        else SyncStatus.FAILED
+                    ),
                     records_synced=sync_result_data.get("records_synced", 0),
                     sync_duration_ms=(time.time() - start_time) * 1000,
                     ai_processing_duration_ms=sync_result_data.get("ai_duration", 0)
@@ -709,7 +711,7 @@ class CrossPlatformSyncOrchestrator:
 
                 return sync_result
 
-    async def _detect_cross_platform_conflicts(self) -> List[DataConflict]:
+    async def _detect_cross_platform_conflicts(self) -> list[DataConflict]:
         """Detect data conflicts across platforms."""
         conflicts = []
 
@@ -727,7 +729,7 @@ class CrossPlatformSyncOrchestrator:
             logger.error(f"❌ Conflict detection failed: {e}")
             return []
 
-    async def _resolve_conflicts(self, conflicts: List[DataConflict]) -> Dict[str, Any]:
+    async def _resolve_conflicts(self, conflicts: list[DataConflict]) -> dict[str, Any]:
         """Resolve detected conflicts."""
         resolution_results = {
             "total_conflicts": len(conflicts),
@@ -774,9 +776,9 @@ class CrossPlatformSyncOrchestrator:
                 "total_syncs": total_syncs,
                 "successful_syncs": successful_syncs,
                 "total_records": total_records,
-                "overall_success_rate": successful_syncs / total_syncs
-                if total_syncs > 0
-                else 0,
+                "overall_success_rate": (
+                    successful_syncs / total_syncs if total_syncs > 0 else 0
+                ),
                 "platforms_active": len(self.mcp_servers),
             }
 
@@ -785,7 +787,7 @@ class CrossPlatformSyncOrchestrator:
         except Exception as e:
             logger.error(f"Failed to update orchestration metrics: {e}")
 
-    async def _get_sync_metrics_summary(self) -> Dict[str, Any]:
+    async def _get_sync_metrics_summary(self) -> dict[str, Any]:
         """Get summary of sync metrics."""
         return {
             "total_platforms": len(self.mcp_servers),
@@ -796,15 +798,17 @@ class CrossPlatformSyncOrchestrator:
                     "total_syncs": metrics.total_syncs,
                     "success_rate": metrics.sync_success_rate,
                     "total_records": metrics.total_records,
-                    "last_sync": metrics.last_sync_time.isoformat()
-                    if metrics.last_sync_time
-                    else None,
+                    "last_sync": (
+                        metrics.last_sync_time.isoformat()
+                        if metrics.last_sync_time
+                        else None
+                    ),
                 }
                 for key, metrics in self.sync_metrics.items()
             },
         }
 
-    async def get_sync_status(self) -> Dict[str, Any]:
+    async def get_sync_status(self) -> dict[str, Any]:
         """Get current sync status across all platforms."""
         return {
             "timestamp": datetime.utcnow().isoformat(),

@@ -29,7 +29,7 @@ Current size: 911 lines
 
 Recommended decomposition:
 - optimized_gong_data_integration_core.py - Core functionality
-- optimized_gong_data_integration_utils.py - Utility functions  
+- optimized_gong_data_integration_utils.py - Utility functions
 - optimized_gong_data_integration_models.py - Data models
 - optimized_gong_data_integration_handlers.py - Request handlers
 
@@ -39,14 +39,13 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Any
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import Enum
-import uuid
-from concurrent.futures import ThreadPoolExecutor
+from typing import Any
 
 # Internal imports
-from backend.core.optimized_connection_manager import connection_manager, ConnectionType
+from backend.core.optimized_connection_manager import ConnectionType, connection_manager
 from backend.core.performance_monitor import performance_monitor
 from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 
@@ -79,8 +78,8 @@ class OptimizedAgentResult:
 
     agent_type: str
     success: bool
-    result: Optional[Dict[str, Any]] = None
-    error_message: Optional[str] = None
+    result: dict[str, Any] | None = None
+    error_message: str | None = None
     execution_time_ms: float = 0.0
     memory_usage_mb: float = 0.0
     tokens_processed: int = 0
@@ -93,12 +92,12 @@ class OptimizedWorkflowResult:
     workflow_id: str
     workflow_type: OptimizedWorkflowType
     success: bool
-    agent_results: List[OptimizedAgentResult] = field(default_factory=list)
-    consolidated_insights: List[Dict[str, Any]] = field(default_factory=list)
-    performance_metrics: Dict[str, Any] = field(default_factory=dict)
+    agent_results: list[OptimizedAgentResult] = field(default_factory=list)
+    consolidated_insights: list[dict[str, Any]] = field(default_factory=list)
+    performance_metrics: dict[str, Any] = field(default_factory=dict)
     execution_time_ms: float = 0.0
     total_tokens_processed: int = 0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 @dataclass
@@ -109,8 +108,8 @@ class GongPerformanceMetrics:
     concurrent_workflows: int = 0
     avg_workflow_time_ms: float = 0.0
     total_execution_time_ms: float = 0.0
-    agent_performance: Dict[str, Dict[str, float]] = field(default_factory=dict)
-    transformation_performance: Dict[str, float] = field(default_factory=dict)
+    agent_performance: dict[str, dict[str, float]] = field(default_factory=dict)
+    transformation_performance: dict[str, float] = field(default_factory=dict)
     error_count: int = 0
     cache_hits: int = 0
     cache_misses: int = 0
@@ -166,142 +165,156 @@ class OptimizedGongDataIntegration:
 
     @performance_monitor.monitor_performance("concurrent_workflow_orchestration", 10000)
     async def orchestrate_concurrent_workflow(
-        self,
-        workflow_config: Dict[str, Any],
-        execution_context: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, workflow_config: dict[str, Any], execution_context: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         Orchestrate concurrent workflow execution with optimized performance
         """
         try:
             # Prepare workflow execution context
-            context = await self._prepare_workflow_context(workflow_config, execution_context)
-            
+            context = await self._prepare_workflow_context(
+                workflow_config, execution_context
+            )
+
             # Initialize concurrent execution pools
             execution_pools = await self._initialize_execution_pools(context)
-            
+
             # Execute workflow stages concurrently
-            stage_results = await self._execute_concurrent_stages(execution_pools, context)
-            
+            stage_results = await self._execute_concurrent_stages(
+                execution_pools, context
+            )
+
             # Aggregate and validate results
-            final_results = await self._aggregate_workflow_results(stage_results, context)
-            
+            final_results = await self._aggregate_workflow_results(
+                stage_results, context
+            )
+
             # Cleanup and finalize
             await self._cleanup_workflow_resources(execution_pools)
-            
+
             return final_results
-            
+
         except Exception as e:
             logger.error(f"Error orchestrating concurrent workflow: {e}")
             return {"success": False, "error": str(e)}
 
     async def _prepare_workflow_context(
-        self, workflow_config: Dict[str, Any], execution_context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, workflow_config: dict[str, Any], execution_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Prepare comprehensive workflow execution context"""
         return {
-            "workflow_id": workflow_config.get("workflow_id", f"workflow_{datetime.now().timestamp()}"),
+            "workflow_id": workflow_config.get(
+                "workflow_id", f"workflow_{datetime.now().timestamp()}"
+            ),
             "config": workflow_config,
             "execution_context": execution_context or {},
             "start_time": datetime.utcnow(),
             "max_concurrency": workflow_config.get("max_concurrency", 10),
             "timeout_seconds": workflow_config.get("timeout_seconds", 300),
-            "retry_attempts": workflow_config.get("retry_attempts", 3)
+            "retry_attempts": workflow_config.get("retry_attempts", 3),
         }
 
-    async def _initialize_execution_pools(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _initialize_execution_pools(
+        self, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Initialize concurrent execution pools for different workflow stages"""
         import asyncio
-        
+
         pools = {
             "data_extraction": asyncio.Semaphore(context["max_concurrency"]),
             "data_processing": asyncio.Semaphore(context["max_concurrency"] // 2),
             "data_validation": asyncio.Semaphore(context["max_concurrency"]),
-            "data_storage": asyncio.Semaphore(context["max_concurrency"] // 4)
+            "data_storage": asyncio.Semaphore(context["max_concurrency"] // 4),
         }
-        
+
         return {
             "semaphores": pools,
             "task_queues": {stage: [] for stage in pools.keys()},
-            "active_tasks": {stage: [] for stage in pools.keys()}
+            "active_tasks": {stage: [] for stage in pools.keys()},
         }
 
     async def _execute_concurrent_stages(
-        self, execution_pools: Dict[str, Any], context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, execution_pools: dict[str, Any], context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute workflow stages concurrently with proper resource management"""
-        import asyncio
-        
+
         stage_results = {}
-        
+
         # Execute stages in dependency order with concurrency
-        stage_order = ["data_extraction", "data_processing", "data_validation", "data_storage"]
-        
+        stage_order = [
+            "data_extraction",
+            "data_processing",
+            "data_validation",
+            "data_storage",
+        ]
+
         for stage in stage_order:
             logger.info(f"Executing stage: {stage}")
             stage_results[stage] = await self._execute_stage_tasks(
                 stage, execution_pools, context
             )
-        
+
         return stage_results
 
     async def _execute_stage_tasks(
-        self, stage: str, execution_pools: Dict[str, Any], context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, stage: str, execution_pools: dict[str, Any], context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute tasks for a specific workflow stage"""
         import asyncio
-        
+
         semaphore = execution_pools["semaphores"][stage]
-        
+
         # Create tasks for the stage
         tasks = []
         for i in range(5):  # Example: 5 tasks per stage
             task = self._create_stage_task(stage, i, semaphore, context)
             tasks.append(task)
-        
+
         # Execute tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process results
         successful_results = [r for r in results if not isinstance(r, Exception)]
         errors = [r for r in results if isinstance(r, Exception)]
-        
+
         return {
             "stage": stage,
             "successful_tasks": len(successful_results),
             "failed_tasks": len(errors),
             "results": successful_results,
-            "errors": [str(e) for e in errors]
+            "errors": [str(e) for e in errors],
         }
 
     async def _create_stage_task(
-        self, stage: str, task_id: int, semaphore: Any, context: Dict[str, Any]
+        self, stage: str, task_id: int, semaphore: Any, context: dict[str, Any]
     ):
         """Create and execute a single stage task"""
         import asyncio
-        
+
         async with semaphore:
             # Simulate task execution
             await asyncio.sleep(0.1)  # Simulate work
-            
+
             return {
                 "stage": stage,
                 "task_id": task_id,
                 "status": "completed",
                 "execution_time": 0.1,
-                "result_data": f"Task {task_id} result for {stage}"
+                "result_data": f"Task {task_id} result for {stage}",
             }
 
     async def _aggregate_workflow_results(
-        self, stage_results: Dict[str, Any], context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, stage_results: dict[str, Any], context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Aggregate and validate workflow execution results"""
-        total_tasks = sum(r["successful_tasks"] + r["failed_tasks"] for r in stage_results.values())
+        total_tasks = sum(
+            r["successful_tasks"] + r["failed_tasks"] for r in stage_results.values()
+        )
         successful_tasks = sum(r["successful_tasks"] for r in stage_results.values())
         failed_tasks = sum(r["failed_tasks"] for r in stage_results.values())
-        
+
         execution_time = (datetime.utcnow() - context["start_time"]).total_seconds()
-        
+
         return {
             "success": failed_tasks == 0,
             "workflow_id": context["workflow_id"],
@@ -310,19 +323,22 @@ class OptimizedGongDataIntegration:
                 "successful_tasks": successful_tasks,
                 "failed_tasks": failed_tasks,
                 "execution_time_seconds": execution_time,
-                "success_rate": successful_tasks / total_tasks if total_tasks > 0 else 0
+                "success_rate": (
+                    successful_tasks / total_tasks if total_tasks > 0 else 0
+                ),
             },
             "stage_results": stage_results,
-            "completed_at": datetime.utcnow().isoformat()
+            "completed_at": datetime.utcnow().isoformat(),
         }
 
-    async def _cleanup_workflow_resources(self, execution_pools: Dict[str, Any]):
+    async def _cleanup_workflow_resources(self, execution_pools: dict[str, Any]):
         """Cleanup workflow execution resources"""
         # Cleanup logic here
         logger.info("Cleaning up workflow execution resources")
+
     async def _process_sales_intelligence_agent(
-        self, agent_data: Dict[str, Any], call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agent_data: dict[str, Any], call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process sales intelligence agent"""
 
         # Sales-specific analysis
@@ -345,8 +361,8 @@ class OptimizedGongDataIntegration:
         return insights
 
     async def _process_business_intelligence_agent(
-        self, agent_data: Dict[str, Any], call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agent_data: dict[str, Any], call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process business intelligence agent"""
 
         # Business-level analysis
@@ -365,8 +381,8 @@ class OptimizedGongDataIntegration:
         return insights
 
     async def _process_executive_intelligence_agent(
-        self, agent_data: Dict[str, Any], call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agent_data: dict[str, Any], call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process executive intelligence agent"""
 
         # Executive-level analysis
@@ -383,8 +399,8 @@ class OptimizedGongDataIntegration:
         return insights
 
     async def _process_general_agent(
-        self, transformed_data: Dict[str, Any], call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, transformed_data: dict[str, Any], call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process general agent tasks"""
 
         return {
@@ -396,8 +412,8 @@ class OptimizedGongDataIntegration:
 
     @performance_monitor.monitor_performance("insight_consolidation", 1000)
     async def _consolidate_insights_concurrent(
-        self, agent_results: List[OptimizedAgentResult]
-    ) -> List[Dict[str, Any]]:
+        self, agent_results: list[OptimizedAgentResult]
+    ) -> list[dict[str, Any]]:
         """
         ✅ OPTIMIZED: Consolidate insights from concurrent agent processing
 
@@ -462,8 +478,8 @@ class OptimizedGongDataIntegration:
         return consolidated
 
     def _calculate_performance_metrics(
-        self, agent_results: List[OptimizedAgentResult], total_time: float
-    ) -> Dict[str, Any]:
+        self, agent_results: list[OptimizedAgentResult], total_time: float
+    ) -> dict[str, Any]:
         """Calculate comprehensive performance metrics"""
 
         successful_agents = [r for r in agent_results if r.success]
@@ -490,9 +506,9 @@ class OptimizedGongDataIntegration:
             "failed_agents": len(failed_agents),
             "avg_agent_time_ms": round(avg_agent_time, 2),
             "max_agent_time_ms": round(max_agent_time, 2),
-            "concurrency_factor": round(sequential_time / total_time, 2)
-            if total_time > 0
-            else 1,
+            "concurrency_factor": (
+                round(sequential_time / total_time, 2) if total_time > 0 else 1
+            ),
             "agent_performance": {
                 r.agent_type: {
                     "execution_time_ms": r.execution_time_ms,
@@ -505,8 +521,8 @@ class OptimizedGongDataIntegration:
 
     @performance_monitor.monitor_performance("batch_data_transformation", 2000)
     async def _batch_transform_data(
-        self, call_data: Dict[str, Any], agent_types: List[str]
-    ) -> Dict[str, Dict[str, Any]]:
+        self, call_data: dict[str, Any], agent_types: list[str]
+    ) -> dict[str, dict[str, Any]]:
         """
         ✅ OPTIMIZED: Transform data for all agents in batch
 
@@ -538,11 +554,11 @@ class OptimizedGongDataIntegration:
         transformed_results = await asyncio.gather(*transform_tasks)
 
         # Map results to agent types
-        return dict(zip(agent_types, transformed_results))
+        return dict(zip(agent_types, transformed_results, strict=False))
 
     async def _transform_for_call_analysis(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform data for call analysis agent"""
         return {
             "call_transcript": call_data.get("transcript", ""),
@@ -554,8 +570,8 @@ class OptimizedGongDataIntegration:
         }
 
     async def _transform_for_sales_intelligence(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform data for sales intelligence agent"""
         return {
             "deal_value": call_data.get("deal_value", 0),
@@ -567,8 +583,8 @@ class OptimizedGongDataIntegration:
         }
 
     async def _transform_for_business_intelligence(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform data for business intelligence agent"""
         return {
             "customer_segment": call_data.get("customer_segment", ""),
@@ -580,8 +596,8 @@ class OptimizedGongDataIntegration:
         }
 
     async def _transform_for_executive_intelligence(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform data for executive intelligence agent"""
         return {
             "strategic_importance": call_data.get("strategic_importance", "medium"),
@@ -593,8 +609,8 @@ class OptimizedGongDataIntegration:
         }
 
     async def _transform_for_general_agent(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Transform data for general agent"""
         return {
             "call_id": call_data.get("call_id", ""),
@@ -605,8 +621,8 @@ class OptimizedGongDataIntegration:
 
     # Helper methods for insight extraction
     def _identify_coaching_opportunities(
-        self, call_data: Dict[str, Any], sentiment_score: float
-    ) -> List[str]:
+        self, call_data: dict[str, Any], sentiment_score: float
+    ) -> list[str]:
         """Identify coaching opportunities from call data"""
         opportunities = []
 
@@ -627,8 +643,8 @@ class OptimizedGongDataIntegration:
         return opportunities
 
     def _identify_risk_indicators(
-        self, call_data: Dict[str, Any], sentiment_score: float
-    ) -> List[str]:
+        self, call_data: dict[str, Any], sentiment_score: float
+    ) -> list[str]:
         """Identify risk indicators from call data"""
         risks = []
 
@@ -643,7 +659,7 @@ class OptimizedGongDataIntegration:
 
         return risks
 
-    def _extract_next_steps(self, call_content: str) -> List[str]:
+    def _extract_next_steps(self, call_content: str) -> list[str]:
         """Extract next steps from call content"""
         next_steps = []
 
@@ -659,7 +675,7 @@ class OptimizedGongDataIntegration:
 
         return next_steps
 
-    def _identify_revenue_signals(self, call_data: Dict[str, Any]) -> List[str]:
+    def _identify_revenue_signals(self, call_data: dict[str, Any]) -> list[str]:
         """Identify revenue signals from call data"""
         signals = []
 
@@ -674,12 +690,12 @@ class OptimizedGongDataIntegration:
 
         return signals
 
-    def _extract_competitive_mentions(self, call_data: Dict[str, Any]) -> List[str]:
+    def _extract_competitive_mentions(self, call_data: dict[str, Any]) -> list[str]:
         """Extract competitive mentions from call data"""
         # Placeholder implementation
         return call_data.get("competitors_mentioned", [])
 
-    def _identify_buying_signals(self, call_data: Dict[str, Any]) -> List[str]:
+    def _identify_buying_signals(self, call_data: dict[str, Any]) -> list[str]:
         """Identify buying signals from call data"""
         signals = []
 
@@ -691,14 +707,14 @@ class OptimizedGongDataIntegration:
 
         return signals
 
-    def _extract_objections(self, call_data: Dict[str, Any]) -> List[str]:
+    def _extract_objections(self, call_data: dict[str, Any]) -> list[str]:
         """Extract objections from call data"""
         # Placeholder implementation
         return call_data.get("objections", [])
 
     def _recommend_next_actions(
-        self, call_data: Dict[str, Any], close_probability: float
-    ) -> List[str]:
+        self, call_data: dict[str, Any], close_probability: float
+    ) -> list[str]:
         """Recommend next actions based on call data"""
         actions = []
 
@@ -711,77 +727,77 @@ class OptimizedGongDataIntegration:
 
         return actions
 
-    def _analyze_market_trends(self, call_data: Dict[str, Any]) -> List[str]:
+    def _analyze_market_trends(self, call_data: dict[str, Any]) -> list[str]:
         """Analyze market trends from call data"""
         # Placeholder implementation
         return call_data.get("market_trends", [])
 
-    def _assess_customer_health(self, call_data: Dict[str, Any]) -> str:
+    def _assess_customer_health(self, call_data: dict[str, Any]) -> str:
         """Assess customer health from call data"""
         # Placeholder implementation
         return call_data.get("customer_health", "healthy")
 
-    def _extract_product_feedback(self, call_data: Dict[str, Any]) -> List[str]:
+    def _extract_product_feedback(self, call_data: dict[str, Any]) -> list[str]:
         """Extract product feedback from call data"""
         # Placeholder implementation
         return call_data.get("product_feedback", [])
 
-    def _identify_expansion_opportunities(self, call_data: Dict[str, Any]) -> List[str]:
+    def _identify_expansion_opportunities(self, call_data: dict[str, Any]) -> list[str]:
         """Identify expansion opportunities from call data"""
         # Placeholder implementation
         return call_data.get("expansion_opportunities", [])
 
-    def _assess_churn_risk(self, call_data: Dict[str, Any]) -> str:
+    def _assess_churn_risk(self, call_data: dict[str, Any]) -> str:
         """Assess churn risk from call data"""
         # Placeholder implementation
         return call_data.get("churn_risk", "low")
 
     def _generate_business_recommendations(
-        self, call_data: Dict[str, Any]
-    ) -> List[str]:
+        self, call_data: dict[str, Any]
+    ) -> list[str]:
         """Generate business recommendations from call data"""
         # Placeholder implementation
         return call_data.get("recommendations", [])
 
-    def _extract_strategic_insights(self, call_data: Dict[str, Any]) -> List[str]:
+    def _extract_strategic_insights(self, call_data: dict[str, Any]) -> list[str]:
         """Extract strategic insights from call data"""
         # Placeholder implementation
         return call_data.get("strategic_insights", [])
 
     def _analyze_competitive_landscape(
-        self, call_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze competitive landscape from call data"""
         # Placeholder implementation
         return call_data.get("competitive_landscape", {})
 
-    def _assess_market_positioning(self, call_data: Dict[str, Any]) -> str:
+    def _assess_market_positioning(self, call_data: dict[str, Any]) -> str:
         """Assess market positioning from call data"""
         # Placeholder implementation
         return call_data.get("market_positioning", "competitive")
 
-    def _evaluate_relationship_health(self, call_data: Dict[str, Any]) -> str:
+    def _evaluate_relationship_health(self, call_data: dict[str, Any]) -> str:
         """Evaluate relationship health from call data"""
         # Placeholder implementation
         return call_data.get("relationship_health", "good")
 
-    def _identify_escalation_flags(self, call_data: Dict[str, Any]) -> List[str]:
+    def _identify_escalation_flags(self, call_data: dict[str, Any]) -> list[str]:
         """Identify escalation flags from call data"""
         # Placeholder implementation
         return call_data.get("escalation_flags", [])
 
-    def _generate_executive_summary(self, call_data: Dict[str, Any]) -> str:
+    def _generate_executive_summary(self, call_data: dict[str, Any]) -> str:
         """Generate executive summary from call data"""
         # Placeholder implementation
         return call_data.get("executive_summary", "Call completed successfully")
 
-    def _calculate_talk_ratio(self, call_data: Dict[str, Any]) -> float:
+    def _calculate_talk_ratio(self, call_data: dict[str, Any]) -> float:
         """Calculate talk ratio for the call"""
         # Placeholder implementation
         return call_data.get("talk_ratio", 0.5)
 
     def _calculate_insight_priority(
-        self, insight_type: str, insights: List[Any]
+        self, insight_type: str, insights: list[Any]
     ) -> str:
         """Calculate priority for insight type"""
         if insight_type == "risk" and len(insights) > 2:
@@ -797,7 +813,7 @@ class OptimizedGongDataIntegration:
         self,
         workflow_type: OptimizedWorkflowType,
         execution_time: float,
-        agent_results: List[OptimizedAgentResult],
+        agent_results: list[OptimizedAgentResult],
     ):
         """Update workflow statistics"""
         self.workflow_stats["total_workflows"] += 1
@@ -853,7 +869,7 @@ class OptimizedGongDataIntegration:
         except Exception as e:
             logger.warning(f"Failed to create workflow tracking tables: {e}")
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    def get_performance_stats(self) -> dict[str, Any]:
         """Get comprehensive performance statistics"""
         return {
             "service_status": "operational" if self.initialized else "not_initialized",
@@ -874,7 +890,7 @@ class OptimizedGongDataIntegration:
             ],
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Comprehensive health check"""
         health_status = {
             "status": "healthy",

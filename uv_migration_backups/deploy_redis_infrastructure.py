@@ -17,7 +17,8 @@ import asyncio
 import logging
 import subprocess
 import time
-from typing import Dict, Any, Optional
+from typing import Any
+
 import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ class RedisDeploymentManager:
             "max_connections": 50,
         }
 
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
 
         # Performance configuration
         self.performance_config = {
@@ -57,7 +58,7 @@ class RedisDeploymentManager:
             "databases": "16",
         }
 
-    async def deploy_redis_infrastructure(self) -> Dict[str, Any]:
+    async def deploy_redis_infrastructure(self) -> dict[str, Any]:
         """
         Deploy and configure Redis infrastructure for production
         """
@@ -220,7 +221,7 @@ class RedisDeploymentManager:
             logger.error(f"Error optimizing Redis performance: {e}")
             return False
 
-    async def _validate_redis_deployment(self) -> Dict[str, Any]:
+    async def _validate_redis_deployment(self) -> dict[str, Any]:
         """Validate Redis deployment and performance"""
         validation_results = {
             "connection_test": False,
@@ -293,7 +294,7 @@ class RedisDeploymentManager:
         except:
             return "unknown"
 
-    async def _get_memory_usage(self) -> Dict[str, Any]:
+    async def _get_memory_usage(self) -> dict[str, Any]:
         """Get Redis memory usage information"""
         try:
             if self.redis_client:
@@ -318,7 +319,7 @@ class RedisDeploymentManager:
         except:
             return 0
 
-    async def get_redis_health_status(self) -> Dict[str, Any]:
+    async def get_redis_health_status(self) -> dict[str, Any]:
         """Get comprehensive Redis health status"""
         try:
             if not self.redis_client:
@@ -364,17 +365,17 @@ redis_deployment_manager = RedisDeploymentManager()
 
 
 # Convenience functions
-async def deploy_redis_for_sophia_ai() -> Dict[str, Any]:
+async def deploy_redis_for_sophia_ai() -> dict[str, Any]:
     """Deploy Redis infrastructure for Sophia AI"""
     return await redis_deployment_manager.deploy_redis_infrastructure()
 
 
-async def get_redis_health() -> Dict[str, Any]:
+async def get_redis_health() -> dict[str, Any]:
     """Get Redis health status"""
     return await redis_deployment_manager.get_redis_health_status()
 
 
-async def test_redis_performance() -> Dict[str, Any]:
+async def test_redis_performance() -> dict[str, Any]:
     """Test Redis performance for cache operations"""
     try:
         # Initialize if not already done
@@ -410,11 +411,11 @@ async def test_redis_performance() -> Dict[str, Any]:
             "batch_write_time": batch_time,
             "batch_read_time": batch_read_time,
             "operations_per_second": 100 / batch_time if batch_time > 0 else 0,
-            "performance_rating": "excellent"
-            if batch_time < 0.01
-            else "good"
-            if batch_time < 0.05
-            else "needs_optimization",
+            "performance_rating": (
+                "excellent"
+                if batch_time < 0.01
+                else "good" if batch_time < 0.05 else "needs_optimization"
+            ),
         }
 
     except Exception as e:

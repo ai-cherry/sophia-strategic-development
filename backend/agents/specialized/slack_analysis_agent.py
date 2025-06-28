@@ -6,14 +6,14 @@ Advanced AI-driven analysis of Slack conversations for business insights
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +35,11 @@ class SlackConversation:
     conversation_id: str
     channel_name: str
     title: str
-    participants: List[str]
+    participants: list[str]
     message_count: int
     start_time: datetime
     end_time: datetime
-    messages: List[Dict[str, Any]] = field(default_factory=list)
+    messages: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -50,10 +50,10 @@ class SlackInsight:
     conversation_id: str
     channel_name: str
     summary: str
-    details: Dict[str, Any]
+    details: dict[str, Any]
     confidence_score: float
     business_impact: str
-    recommended_actions: List[str]
+    recommended_actions: list[str]
 
 
 @dataclass
@@ -61,11 +61,11 @@ class SlackAnalysisResult:
     """Result of Slack analysis"""
 
     conversation: SlackConversation
-    insights: List[SlackInsight]
+    insights: list[SlackInsight]
     overall_sentiment: float
-    key_topics: List[str]
-    action_items: List[str]
-    decisions_made: List[str]
+    key_topics: list[str]
+    action_items: list[str]
+    decisions_made: list[str]
     business_value_score: float
     processing_time: float
 
@@ -78,8 +78,8 @@ class SlackAnalysisAgent(BaseAgent):
         self.name = "slack_analysis"
         self.description = "AI-driven Slack conversation analysis and insights"
 
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.initialized = False
 
     async def initialize(self) -> None:
@@ -103,7 +103,7 @@ class SlackAnalysisAgent(BaseAgent):
     async def analyze_conversation(
         self,
         conversation: SlackConversation,
-        analysis_types: Optional[List[SlackInsightType]] = None,
+        analysis_types: list[SlackInsightType] | None = None,
     ) -> SlackAnalysisResult:
         """Analyze a Slack conversation for insights"""
         if not self.initialized:
@@ -174,10 +174,10 @@ class SlackAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 sentiment_prompt = f"""
                 Analyze the sentiment of this Slack conversation:
-                
+
                 Conversation from #{conversation.channel_name}:
                 {text[:1000]}
-                
+
                 Provide overall sentiment score (-1 to 1) and tone analysis.
                 """
 
@@ -208,9 +208,9 @@ class SlackAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 topic_prompt = f"""
                 Extract key topics from this Slack conversation:
-                
+
                 {text[:1000]}
-                
+
                 List the main topics discussed.
                 """
 
@@ -256,7 +256,7 @@ class SlackAnalysisAgent(BaseAgent):
             logger.warning(f"Failed to calculate sentiment: {e}")
             return 0.0
 
-    async def _extract_key_topics(self, text: str) -> List[str]:
+    async def _extract_key_topics(self, text: str) -> list[str]:
         """Extract key topics from text"""
         try:
             async with self.cortex_service as cortex:
@@ -269,7 +269,7 @@ class SlackAnalysisAgent(BaseAgent):
             logger.warning(f"Failed to extract topics: {e}")
             return ["General discussion"]
 
-    async def _extract_action_items(self, text: str) -> List[str]:
+    async def _extract_action_items(self, text: str) -> list[str]:
         """Extract action items from text"""
         try:
             async with self.cortex_service as cortex:
@@ -286,7 +286,7 @@ class SlackAnalysisAgent(BaseAgent):
             logger.warning(f"Failed to extract action items: {e}")
             return []
 
-    async def _extract_decisions(self, text: str) -> List[str]:
+    async def _extract_decisions(self, text: str) -> list[str]:
         """Extract decisions from text"""
         try:
             async with self.cortex_service as cortex:
@@ -304,7 +304,7 @@ class SlackAnalysisAgent(BaseAgent):
             return []
 
     def _calculate_business_value_score(
-        self, text: str, insights: List[SlackInsight]
+        self, text: str, insights: list[SlackInsight]
     ) -> float:
         """Calculate business value score for conversation"""
         score = 0.0
@@ -333,7 +333,7 @@ class SlackAnalysisAgent(BaseAgent):
             Slack Conversation Analysis
             Channel: #{result.conversation.channel_name}
             Participants: {", ".join(result.conversation.participants)}
-            
+
             Overall Sentiment: {result.overall_sentiment:.2f}
             Business Value: {result.business_value_score:.2f}
             Topics: {", ".join(result.key_topics)}

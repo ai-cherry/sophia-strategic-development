@@ -4,13 +4,12 @@ Replace Airbyte with Estuary Flow throughout Sophia AI codebase
 Comprehensive migration script for complete Airbyte -> Estuary transition
 """
 
-import os
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Tuple
+import os
 import shutil
 from datetime import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -167,7 +166,7 @@ class AirbyteToEstuaryMigrator:
         # Only process files with relevant extensions
         return file_path.suffix in self.file_extensions
 
-    def replace_in_text(self, text: str, file_path: str) -> Tuple[str, List[Dict]]:
+    def replace_in_text(self, text: str, file_path: str) -> tuple[str, list[dict]]:
         """Replace Airbyte references in text content"""
         modified_text = text
         changes = []
@@ -194,7 +193,7 @@ class AirbyteToEstuaryMigrator:
         """Process a single file for Airbyte -> Estuary migration"""
         try:
             # Read file content
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 original_content = f.read()
 
             # Skip if no Airbyte references
@@ -309,7 +308,7 @@ class AirbyteToEstuaryMigrator:
                 continue
 
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
 
                 modified = False
@@ -423,7 +422,7 @@ SNOWFLAKE_SCHEMA=ESTUARY_STAGING
 
         for config_file in pulumi_config_files:
             try:
-                with open(config_file, "r") as f:
+                with open(config_file) as f:
                     content = f.read()
 
                 # Replace Airbyte references in Pulumi config

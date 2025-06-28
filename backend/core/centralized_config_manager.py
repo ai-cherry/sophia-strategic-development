@@ -9,13 +9,13 @@ Phase 1 Critical Stability Implementation:
 - Eliminates the 5 different configuration patterns identified in technical debt analysis
 """
 
-import os
+import json
 import logging
-from typing import Dict, Any, Optional, List
+import os
 from dataclasses import dataclass
 from enum import Enum
-import json
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +47,11 @@ class ConfigurationReport:
 
     total_configs: int
     loaded_configs: int
-    missing_required: List[str]
+    missing_required: list[str]
     configuration_health: str
-    sources_used: List[str]
-    warnings: List[str]
-    errors: List[str]
+    sources_used: list[str]
+    warnings: list[str]
+    errors: list[str]
 
 
 class CentralizedConfigManager:
@@ -66,9 +66,9 @@ class CentralizedConfigManager:
     - Centralizing environment-specific logic
     """
 
-    def __init__(self, environment: Optional[str] = None):
+    def __init__(self, environment: str | None = None):
         self.environment = environment or os.getenv("ENVIRONMENT", "dev")
-        self.config_cache: Dict[str, ConfigurationEntry] = {}
+        self.config_cache: dict[str, ConfigurationEntry] = {}
         self.config_sources = [
             ConfigurationSource.PULUMI_ESC,
             ConfigurationSource.ENVIRONMENT_VARS,
@@ -82,7 +82,7 @@ class CentralizedConfigManager:
         # Load configurations
         self._load_all_configurations()
 
-    def _initialize_config_schema(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_config_schema(self) -> dict[str, dict[str, Any]]:
         """Initialize the configuration schema with all known config keys"""
         return {
             # AI Services
@@ -245,7 +245,7 @@ class CentralizedConfigManager:
 
         logger.info(f"✅ Loaded {len(self.config_cache)} configurations")
 
-    def _load_config_value(self, config_key: str, schema: Dict[str, Any]) -> Any:
+    def _load_config_value(self, config_key: str, schema: dict[str, Any]) -> Any:
         """Load configuration value from available sources"""
         # Try Pulumi ESC first (if available)
         try:
@@ -272,7 +272,7 @@ class CentralizedConfigManager:
         return schema.get("default")
 
     def _determine_source(
-        self, config_key: str, schema: Dict[str, Any]
+        self, config_key: str, schema: dict[str, Any]
     ) -> ConfigurationSource:
         """Determine which source provided the configuration"""
         # Check Pulumi ESC
@@ -296,13 +296,13 @@ class CentralizedConfigManager:
 
         return ConfigurationSource.DEFAULTS
 
-    def _load_from_config_file(self, config_key: str) -> Optional[str]:
+    def _load_from_config_file(self, config_key: str) -> str | None:
         """Load configuration from config file"""
         config_file = Path(f"config/environments/{self.environment}.json")
 
         if config_file.exists():
             try:
-                with open(config_file, "r") as f:
+                with open(config_file) as f:
                     config_data = json.load(f)
                     return config_data.get(config_key)
             except Exception as e:
@@ -317,7 +317,7 @@ class CentralizedConfigManager:
             return entry.value
         return default
 
-    def get_config_entry(self, key: str) -> Optional[ConfigurationEntry]:
+    def get_config_entry(self, key: str) -> ConfigurationEntry | None:
         """Get full configuration entry with metadata"""
         return self.config_cache.get(key)
 
@@ -326,7 +326,7 @@ class CentralizedConfigManager:
         entry = self.config_cache.get(key)
         return entry is not None and entry.value is not None
 
-    def get_configured_services(self) -> List[str]:
+    def get_configured_services(self) -> list[str]:
         """Get list of services that are properly configured"""
         services = []
 
@@ -392,7 +392,7 @@ class CentralizedConfigManager:
             errors=errors,
         )
 
-    def get_configuration_summary(self) -> Dict[str, Any]:
+    def get_configuration_summary(self) -> dict[str, Any]:
         """Get configuration summary for health checks"""
         configured_services = self.get_configured_services()
         validation_report = self.validate_configuration()
@@ -410,7 +410,7 @@ class CentralizedConfigManager:
 
 
 # Global configuration manager instance
-_config_manager: Optional[CentralizedConfigManager] = None
+_config_manager: CentralizedConfigManager | None = None
 
 
 def get_config_manager() -> CentralizedConfigManager:
@@ -431,7 +431,7 @@ def is_configured(key: str) -> bool:
     return get_config_manager().is_configured(key)
 
 
-def get_configured_services() -> List[str]:
+def get_configured_services() -> list[str]:
     """Convenience function to get list of configured services"""
     return get_config_manager().get_configured_services()
 
@@ -441,6 +441,6 @@ def validate_configuration() -> ConfigurationReport:
     return get_config_manager().validate_configuration()
 
 
-def get_configuration_summary() -> Dict[str, Any]:
+def get_configuration_summary() -> dict[str, Any]:
     """Convenience function to get configuration summary"""
     return get_config_manager().get_configuration_summary()

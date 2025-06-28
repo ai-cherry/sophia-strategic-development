@@ -1,14 +1,14 @@
 # File: backend/services/vector_indexing_service.py
 
 import asyncio
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass
 import json
-
-from backend.services.semantic_layer_service import SemanticLayerService
-from backend.integrations.gong_api_client import GongAPIClient
-from backend.core.auto_esc_config import get_config_value
 import logging
+from dataclasses import dataclass
+from typing import Any
+
+from backend.core.auto_esc_config import get_config_value
+from backend.integrations.gong_api_client import GongAPIClient
+from backend.services.semantic_layer_service import SemanticLayerService
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +19,9 @@ class VectorDocument:
 
     id: str
     content: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     source_type: str
-    embedding: Optional[List[float]] = None
+    embedding: list[float] | None = None
 
 
 class VectorIndexingService:
@@ -41,7 +41,7 @@ class VectorIndexingService:
         else:
             self.gong_client = GongAPIClient(api_key=gong_api_key)
 
-    async def _create_cortex_search_index(self, config: Dict[str, Any]) -> None:
+    async def _create_cortex_search_index(self, config: dict[str, Any]) -> None:
         """Creates a Snowflake Cortex Search index."""
         # This is a placeholder for the actual index creation logic.
         # The exact DDL will depend on the final table structures and Cortex Search features.
@@ -115,7 +115,7 @@ class VectorIndexingService:
         logger.info("Starting Slack content indexing.")
         query = """
         SELECT message_id, message_text, channel_name, user_id, timestamp, thread_ts
-        FROM SLACK_DATA.MESSAGES 
+        FROM SLACK_DATA.MESSAGES
         WHERE message_text IS NOT NULL AND LENGTH(message_text) > 10
         ORDER BY timestamp DESC
         LIMIT 10000;
@@ -137,7 +137,7 @@ class VectorIndexingService:
                     embedding_vector = embedding_result[0]["embedding"]
                     # Store vectorized content
                     insert_query = """
-                    INSERT INTO SLACK_DATA.MESSAGES_VECTORIZED 
+                    INSERT INTO SLACK_DATA.MESSAGES_VECTORIZED
                     (message_id, message_text, embedding, channel_name, user_id, timestamp, thread_ts)
                     VALUES (%s, %s, %s, %s, %s, %s, %s);
                     """
@@ -173,7 +173,7 @@ class VectorIndexingService:
         logger.info("Starting Gong transcript indexing.")
         query = """
         SELECT call_id, transcript, call_date, participants, sentiment_score
-        FROM GONG_DATA.CALLS 
+        FROM GONG_DATA.CALLS
         WHERE transcript IS NOT NULL
         ORDER BY call_date DESC
         LIMIT 1000;
@@ -200,7 +200,7 @@ class VectorIndexingService:
                         # Store vectorized segment
                         insert_query = """
                         INSERT INTO GONG_DATA.CALL_TRANSCRIPTS_VECTORIZED
-                        (call_id, segment_id, transcript_segment, embedding, call_date, 
+                        (call_id, segment_id, transcript_segment, embedding, call_date,
                          participants, sentiment_score, segment_order)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
                         """
@@ -233,7 +233,7 @@ class VectorIndexingService:
         logger.info(f"Indexed {indexed_count} Gong transcript segments")
         return indexed_count
 
-    def _segment_transcript(self, transcript: str, max_length: int = 500) -> List[str]:
+    def _segment_transcript(self, transcript: str, max_length: int = 500) -> list[str]:
         """Segment long transcripts into searchable chunks"""
         if not transcript:
             return []
@@ -257,7 +257,7 @@ class VectorIndexingService:
 
         return segments
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the vector indexing service."""
         # For now, this just checks the semantic service health.
         # A more complete implementation would check for index existence, etc.

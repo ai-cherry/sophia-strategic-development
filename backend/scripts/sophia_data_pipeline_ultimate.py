@@ -41,28 +41,29 @@ Current size: 882 lines
 
 Recommended decomposition:
 - sophia_data_pipeline_ultimate_core.py - Core functionality
-- sophia_data_pipeline_ultimate_utils.py - Utility functions  
+- sophia_data_pipeline_ultimate_utils.py - Utility functions
 - sophia_data_pipeline_ultimate_models.py - Data models
 - sophia_data_pipeline_ultimate_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
-import argparse
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-import uuid
 import time
 import traceback
+import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 import aiohttp
 import snowflake.connector
+
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -102,8 +103,8 @@ class PipelineConfig:
     """Pipeline configuration"""
 
     mode: PipelineMode
-    from_date: Optional[datetime] = None
-    to_date: Optional[datetime] = None
+    from_date: datetime | None = None
+    to_date: datetime | None = None
     batch_size: int = 100
     max_retries: int = 3
     retry_delay: float = 2.0
@@ -118,7 +119,7 @@ class PipelineMetrics:
     """Pipeline execution metrics"""
 
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     calls_processed: int = 0
     transcripts_processed: int = 0
     ai_enrichments: int = 0
@@ -134,7 +135,7 @@ class GongAPIClient:
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.base_url = "https://api.gong.io/v2"
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
         # Load credentials from Pulumi ESC
         self.access_key = get_config_value("gong_access_key")
@@ -183,7 +184,7 @@ class GongAPIClient:
 
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Make rate-limited API request with error handling"""
         await self._rate_limit()
 
@@ -222,9 +223,9 @@ class GongAPIClient:
         self,
         from_date: datetime,
         to_date: datetime,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch calls from Gong API"""
         params = {
             "fromDateTime": from_date.isoformat(),
@@ -237,15 +238,15 @@ class GongAPIClient:
 
         return await self._make_request("GET", "/calls", params=params)
 
-    async def get_call_transcript(self, call_id: str) -> Dict[str, Any]:
+    async def get_call_transcript(self, call_id: str) -> dict[str, Any]:
         """Fetch call transcript from Gong API"""
         return await self._make_request("GET", f"/calls/{call_id}/transcript")
 
-    async def get_users(self) -> Dict[str, Any]:
+    async def get_users(self) -> dict[str, Any]:
         """Fetch users from Gong API"""
         return await self._make_request("GET", "/users")
 
-    async def get_workspaces(self) -> Dict[str, Any]:
+    async def get_workspaces(self) -> dict[str, Any]:
         """Fetch workspaces from Gong API"""
         return await self._make_request("GET", "/workspaces")
 
@@ -255,7 +256,7 @@ class SnowflakeDataLoader:
 
     def __init__(self, config: PipelineConfig):
         self.config = config
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
 
         # Load Snowflake credentials from Pulumi ESC
         self.account = get_config_value("snowflake_account")
@@ -323,7 +324,7 @@ class SnowflakeDataLoader:
         finally:
             cursor.close()
 
-    async def load_raw_calls(self, calls_data: List[Dict[str, Any]]) -> int:
+    async def load_raw_calls(self, calls_data: list[dict[str, Any]]) -> int:
         """Load raw calls data with transaction management"""
         if self.config.dry_run:
             logger.info(
@@ -340,7 +341,7 @@ class SnowflakeDataLoader:
 
             # Updated to match Manus AI DDL structure
             insert_sql = """
-            INSERT INTO RAW_ESTUARY.RAW_GONG_CALLS_RAW 
+            INSERT INTO RAW_ESTUARY.RAW_GONG_CALLS_RAW
             (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
@@ -386,7 +387,7 @@ class SnowflakeDataLoader:
 
         return loaded_count
 
-    async def load_raw_transcripts(self, transcripts_data: List[Dict[str, Any]]) -> int:
+    async def load_raw_transcripts(self, transcripts_data: list[dict[str, Any]]) -> int:
         """Load raw transcripts data with transaction management"""
         if self.config.dry_run:
             logger.info(
@@ -403,7 +404,7 @@ class SnowflakeDataLoader:
 
             # Updated to match Manus AI DDL structure
             insert_sql = """
-            INSERT INTO RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW 
+            INSERT INTO RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW
             (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
@@ -451,7 +452,7 @@ class SnowflakeDataLoader:
 
         return loaded_count
 
-    async def execute_transformation_procedures(self) -> Dict[str, Any]:
+    async def execute_transformation_procedures(self) -> dict[str, Any]:
         """Execute transformation procedures to populate STG_TRANSFORMED tables"""
         if self.config.dry_run:
             logger.info("[DRY RUN] Would execute transformation procedures")
@@ -485,7 +486,7 @@ class SnowflakeDataLoader:
 
         return results
 
-    async def execute_ai_enrichment(self) -> Dict[str, Any]:
+    async def execute_ai_enrichment(self) -> dict[str, Any]:
         """Execute AI enrichment using Snowflake Cortex"""
         if self.config.dry_run:
             logger.info("[DRY RUN] Would execute AI enrichment procedures")
@@ -530,9 +531,9 @@ class SnowflakeDataLoader:
 
         try:
             insert_sql = """
-            INSERT INTO OPS_MONITORING.PYTHON_PIPELINE_JOB_LOGS 
-            (PIPELINE_ID, PIPELINE_NAME, STATUS, START_TIME, END_TIME, 
-             CALLS_PROCESSED, TRANSCRIPTS_PROCESSED, AI_ENRICHMENTS, 
+            INSERT INTO OPS_MONITORING.PYTHON_PIPELINE_JOB_LOGS
+            (PIPELINE_ID, PIPELINE_NAME, STATUS, START_TIME, END_TIME,
+             CALLS_PROCESSED, TRANSCRIPTS_PROCESSED, AI_ENRICHMENTS,
              ERRORS, WARNINGS, TOTAL_API_CALLS, TOTAL_DB_OPERATIONS, METRICS_JSON)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
@@ -580,15 +581,15 @@ class SophiaDataPipelineUltimate:
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.metrics = PipelineMetrics(start_time=datetime.now())
-        self.gong_client: Optional[GongAPIClient] = None
-        self.snowflake_loader: Optional[SnowflakeDataLoader] = None
-        self.cortex_service: Optional[SnowflakeCortexService] = None
+        self.gong_client: GongAPIClient | None = None
+        self.snowflake_loader: SnowflakeDataLoader | None = None
+        self.cortex_service: SnowflakeCortexService | None = None
 
         logger.info(
             f"🚀 Sophia Data Pipeline Ultimate initialized - Mode: {config.mode.value}"
         )
 
-    async def run_pipeline(self) -> Dict[str, Any]:
+    async def run_pipeline(self) -> dict[str, Any]:
         """Execute the complete data pipeline"""
         try:
             logger.info("=" * 80)

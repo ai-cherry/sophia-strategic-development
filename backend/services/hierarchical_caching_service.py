@@ -11,24 +11,25 @@ Current size: 880 lines
 
 Recommended decomposition:
 - hierarchical_caching_service_core.py - Core functionality
-- hierarchical_caching_service_utils.py - Utility functions  
+- hierarchical_caching_service_utils.py - Utility functions
 - hierarchical_caching_service_models.py - Data models
 - hierarchical_caching_service_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import logging
-import json
 import asyncio
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
-from enum import Enum
-import redis.asyncio as redis
-import pickle
 import gzip
+import json
+import logging
+import pickle
 from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
+
+import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ class CacheStats:
     hit_rate: float
     miss_rate: float
     average_response_time_ms: float
-    tier_distribution: Dict[str, int]
+    tier_distribution: dict[str, int]
     eviction_count: int
     memory_usage_mb: float
 
@@ -85,7 +86,7 @@ class CacheTierInterface(ABC):
     """Abstract interface for cache tiers"""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         pass
 
     @abstractmethod
@@ -101,7 +102,7 @@ class CacheTierInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         pass
 
 
@@ -109,14 +110,14 @@ class HotCache(CacheTierInterface):
     """Hot tier - In-memory cache for ultra-fast access"""
 
     def __init__(self, max_size_mb: int = 100):
-        self.cache: Dict[str, CacheEntry] = {}
+        self.cache: dict[str, CacheEntry] = {}
         self.max_size_bytes = max_size_mb * 1024 * 1024
         self.current_size_bytes = 0
-        self.access_order: List[str] = []  # For LRU eviction
+        self.access_order: list[str] = []  # For LRU eviction
 
         self.stats = {"hits": 0, "misses": 0, "evictions": 0, "total_requests": 0}
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get entry from hot cache"""
         start_time = datetime.now()
 
@@ -207,7 +208,7 @@ class HotCache(CacheTierInterface):
         """Check if key exists in hot cache"""
         return key in self.cache and self.cache[key].expires_at > datetime.now()
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get hot cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
 
@@ -250,7 +251,7 @@ class WarmCache(CacheTierInterface):
             logger.error(f"❌ Failed to connect to Redis: {e}")
             raise
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get entry from warm cache"""
         if not self.redis_client:
             return None
@@ -368,7 +369,7 @@ class WarmCache(CacheTierInterface):
             logger.error(f"Error checking warm cache existence: {e}")
             return False
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get warm cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
 
@@ -398,7 +399,7 @@ class ColdCache(CacheTierInterface):
 
     def __init__(self, storage_path: str = "/tmp/sophia_cold_cache"):
         self.storage_path = storage_path
-        self.index: Dict[str, Dict[str, Any]] = {}  # In-memory index
+        self.index: dict[str, dict[str, Any]] = {}  # In-memory index
 
         self.stats = {
             "hits": 0,
@@ -415,7 +416,7 @@ class ColdCache(CacheTierInterface):
 
         os.makedirs(storage_path, exist_ok=True)
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get entry from cold cache"""
         start_time = datetime.now()
 
@@ -553,7 +554,7 @@ class ColdCache(CacheTierInterface):
         expires_at = datetime.fromisoformat(self.index[key]["expires_at"])
         return expires_at > datetime.now()
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get cold cache statistics"""
         hit_rate = (self.stats["hits"] / max(self.stats["total_requests"], 1)) * 100
 
@@ -624,7 +625,7 @@ class HierarchicalCachingService:
             logger.error(f"❌ Failed to initialize caching service: {e}")
             raise
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get data from hierarchical cache with intelligent promotion"""
         start_time = datetime.now()
         self.global_stats["total_requests"] += 1
@@ -802,7 +803,7 @@ class HierarchicalCachingService:
         # For now, this is a placeholder
         pass
 
-    async def get_comprehensive_stats(self) -> Dict[str, Any]:
+    async def get_comprehensive_stats(self) -> dict[str, Any]:
         """Get comprehensive caching statistics"""
         hot_stats = await self.hot_cache.get_stats()
         warm_stats = await self.warm_cache.get_stats()

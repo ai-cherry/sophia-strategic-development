@@ -11,7 +11,7 @@ Current size: 623 lines
 
 Recommended decomposition:
 - costar_mcp_server_core.py - Core functionality
-- costar_mcp_server_utils.py - Utility functions  
+- costar_mcp_server_utils.py - Utility functions
 - costar_mcp_server_models.py - Data models
 - costar_mcp_server_handlers.py - Request handlers
 
@@ -23,12 +23,12 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import logging
-from datetime import datetime, date
+from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-import pandas as pd
 import asyncpg
+import pandas as pd
 from pydantic import BaseModel
 
 from backend.core.auto_esc_config import config
@@ -41,20 +41,20 @@ class CoStarDataRecord(BaseModel):
     """Represents a single CoStar market data record."""
 
     metro_area: str
-    property_type: Optional[str] = None
-    submarket: Optional[str] = None
-    total_inventory: Optional[int] = None
-    vacancy_rate: Optional[float] = None
-    asking_rent_psf: Optional[float] = None
-    effective_rent_psf: Optional[float] = None
-    net_absorption: Optional[int] = None
-    construction_deliveries: Optional[int] = None
-    under_construction: Optional[int] = None
-    construction_starts: Optional[int] = None
-    cap_rate: Optional[float] = None
-    price_per_sf: Optional[float] = None
+    property_type: str | None = None
+    submarket: str | None = None
+    total_inventory: int | None = None
+    vacancy_rate: float | None = None
+    asking_rent_psf: float | None = None
+    effective_rent_psf: float | None = None
+    net_absorption: int | None = None
+    construction_deliveries: int | None = None
+    under_construction: int | None = None
+    construction_starts: int | None = None
+    cap_rate: float | None = None
+    price_per_sf: float | None = None
     market_date: date
-    quarter: Optional[str] = None
+    quarter: str | None = None
     data_source: str = "CoStar"
 
 
@@ -67,7 +67,7 @@ class CoStarImportResult(BaseModel):
     records_imported: int = 0
     records_failed: int = 0
     import_status: str = "pending"
-    error_message: Optional[str] = None
+    error_message: str | None = None
     processing_time_seconds: float = 0.0
 
 
@@ -88,7 +88,7 @@ class CoStarMCPServer:
         self.watched_folder = Path(watched_folder)
         self.watched_folder.mkdir(exist_ok=True)
         self.integration_registry = IntegrationRegistry()
-        self.db_pool: Optional[asyncpg.Pool] = None
+        self.db_pool: asyncpg.Pool | None = None
         self._initialized = False
 
         # Column mapping for different CoStar data formats
@@ -170,7 +170,7 @@ class CoStarMCPServer:
                 logger.error(f"Error in file watching loop: {e}")
                 await asyncio.sleep(60)  # Wait longer on error
 
-    async def watch_files(self) -> List[str]:
+    async def watch_files(self) -> list[str]:
         """Watch for new CoStar files and process them."""
         processed_files = []
 
@@ -271,7 +271,7 @@ class CoStarMCPServer:
 
         return result
 
-    async def _read_and_validate_file(self, file_path: Path) -> List[CoStarDataRecord]:
+    async def _read_and_validate_file(self, file_path: Path) -> list[CoStarDataRecord]:
         """Read and validate CoStar data file."""
         try:
             # Read file based on extension
@@ -349,13 +349,13 @@ class CoStarMCPServer:
 
         return df.rename(columns=column_mapping)
 
-    def _clean_string(self, value: Any) -> Optional[str]:
+    def _clean_string(self, value: Any) -> str | None:
         """Clean and validate string values."""
         if pd.isna(value) or value == "":
             return None
         return str(value).strip()
 
-    def _parse_int(self, value: Any) -> Optional[int]:
+    def _parse_int(self, value: Any) -> int | None:
         """Parse integer values safely."""
         if pd.isna(value):
             return None
@@ -364,7 +364,7 @@ class CoStarMCPServer:
         except (ValueError, TypeError):
             return None
 
-    def _parse_float(self, value: Any) -> Optional[float]:
+    def _parse_float(self, value: Any) -> float | None:
         """Parse float values safely."""
         if pd.isna(value):
             return None
@@ -375,7 +375,7 @@ class CoStarMCPServer:
         except (ValueError, TypeError):
             return None
 
-    def _parse_date(self, value: Any) -> Optional[date]:
+    def _parse_date(self, value: Any) -> date | None:
         """Parse date values safely."""
         if pd.isna(value):
             return None
@@ -387,7 +387,7 @@ class CoStarMCPServer:
             return None
 
     async def _import_data_to_database(
-        self, records: List[CoStarDataRecord]
+        self, records: list[CoStarDataRecord]
     ) -> tuple[int, int]:
         """Import CoStar data records to database."""
         imported_count = 0
@@ -412,7 +412,7 @@ class CoStarMCPServer:
                                 construction_starts, cap_rate, price_per_sf,
                                 market_date, quarter, data_source
                             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-                            ON CONFLICT (market_id, property_type, market_date, submarket) 
+                            ON CONFLICT (market_id, property_type, market_date, submarket)
                             DO UPDATE SET
                                 total_inventory = EXCLUDED.total_inventory,
                                 vacancy_rate = EXCLUDED.vacancy_rate,
@@ -470,8 +470,8 @@ class CoStarMCPServer:
         # Create new market
         market_id = await conn.fetchval(
             """
-            INSERT INTO costar_markets (metro_area) 
-            VALUES ($1) 
+            INSERT INTO costar_markets (metro_area)
+            VALUES ($1)
             RETURNING id
         """,
             metro_area,
@@ -547,12 +547,12 @@ class CoStarMCPServer:
 
         logger.info(f"Archived processed file to: {archive_path}")
 
-    async def get_markets(self) -> List[Dict[str, Any]]:
+    async def get_markets(self) -> list[dict[str, Any]]:
         """Get all available markets with record counts."""
         async with self.db_pool.acquire() as conn:
             results = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     m.id,
                     m.metro_area,
                     m.state,
@@ -570,12 +570,12 @@ class CoStarMCPServer:
 
     async def get_market_data(
         self, metro_area: str, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get market data for specific metro area."""
         async with self.db_pool.acquire() as conn:
             results = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     md.*,
                     m.metro_area,
                     m.state,
@@ -592,7 +592,7 @@ class CoStarMCPServer:
 
             return [dict(row) for row in results]
 
-    async def get_import_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+    async def get_import_history(self, limit: int = 50) -> list[dict[str, Any]]:
         """Get import history."""
         async with self.db_pool.acquire() as conn:
             results = await conn.fetch(

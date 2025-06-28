@@ -20,7 +20,7 @@ Current size: 912 lines
 
 Recommended decomposition:
 - snowflake_config_manager_core.py - Core functionality
-- snowflake_config_manager_utils.py - Utility functions  
+- snowflake_config_manager_utils.py - Utility functions
 - snowflake_config_manager_models.py - Data models
 - snowflake_config_manager_handlers.py - Request handlers
 
@@ -30,16 +30,17 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Type, TypeVar
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from enum import Enum
-import hashlib
 from functools import wraps
+from typing import Any, TypeVar
 
 import snowflake.connector
+
 from backend.core.auto_esc_config import config as esc_config
 
 logger = logging.getLogger(__name__)
@@ -75,14 +76,14 @@ class ConfigValue:
     data_type: ConfigDataType
     environment: str
     application_name: str
-    service_name: Optional[str] = None
-    component_name: Optional[str] = None
-    description: Optional[str] = None
+    service_name: str | None = None
+    component_name: str | None = None
+    description: str | None = None
     is_sensitive: bool = False
     version: int = 1
-    updated_at: Optional[datetime] = None
+    updated_at: datetime | None = None
 
-    def get_typed_value(self, target_type: Type[T] = None) -> T:
+    def get_typed_value(self, target_type: type[T] = None) -> T:
         """Get the value converted to the specified type"""
         if target_type is None:
             return self.value
@@ -128,19 +129,19 @@ class FeatureFlag:
     flag_type: FeatureFlagType
     environment: str
     application_name: str
-    service_name: Optional[str] = None
+    service_name: str | None = None
     rollout_percentage: float = 0.0
-    target_users: List[str] = field(default_factory=list)
-    target_groups: List[str] = field(default_factory=list)
-    target_conditions: Dict[str, Any] = field(default_factory=dict)
-    experiment_variants: Dict[str, Any] = field(default_factory=dict)
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    target_users: list[str] = field(default_factory=list)
+    target_groups: list[str] = field(default_factory=list)
+    target_conditions: dict[str, Any] = field(default_factory=dict)
+    experiment_variants: dict[str, Any] = field(default_factory=dict)
+    start_date: datetime | None = None
+    end_date: datetime | None = None
 
     def evaluate(
         self,
-        user_id: Optional[str] = None,
-        user_properties: Optional[Dict[str, Any]] = None,
+        user_id: str | None = None,
+        user_properties: dict[str, Any] | None = None,
     ) -> Any:
         """Evaluate the feature flag for a given user"""
 
@@ -163,7 +164,9 @@ class FeatureFlag:
                 return False
 
             # Use hash of user_id for consistent percentage-based rollout
-            user_hash = int(hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16)
+            user_hash = int(
+                hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
+            )
             user_percentage = (user_hash % 100) + 1
             return user_percentage <= self.rollout_percentage
 
@@ -191,7 +194,9 @@ class FeatureFlag:
             if not variant_names:
                 return False
 
-            user_hash = int(hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16)
+            user_hash = int(
+                hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
+            )
             variant_index = user_hash % len(variant_names)
             selected_variant = variant_names[variant_index]
 
@@ -204,7 +209,7 @@ class FeatureFlag:
 class ConfigCache:
     """Configuration cache with TTL"""
 
-    data: Dict[str, Any]
+    data: dict[str, Any]
     cached_at: datetime
     ttl_seconds: int = 300  # 5 minutes default
 
@@ -241,8 +246,8 @@ class SnowflakeConfigManager:
         self.warehouse = esc_config.get("snowflake_warehouse", "WH_SOPHIA_AGENT_QUERY")
 
         # Caches
-        self._config_cache: Optional[ConfigCache] = None
-        self._feature_flag_cache: Optional[ConfigCache] = None
+        self._config_cache: ConfigCache | None = None
+        self._feature_flag_cache: ConfigCache | None = None
 
         self.initialized = False
 
@@ -279,10 +284,10 @@ class SnowflakeConfigManager:
     async def get_config_value(
         self,
         setting_name: str,
-        service_name: Optional[str] = None,
-        component_name: Optional[str] = None,
+        service_name: str | None = None,
+        component_name: str | None = None,
         default_value: Any = None,
-        target_type: Type[T] = None,
+        target_type: type[T] = None,
     ) -> T:
         """
         Get a configuration value with type conversion and fallback
@@ -310,7 +315,7 @@ class SnowflakeConfigManager:
 
             # Query from database
             query = """
-            SELECT 
+            SELECT
                 SETTING_NAME,
                 SETTING_VALUE,
                 DATA_TYPE,
@@ -327,7 +332,7 @@ class SnowflakeConfigManager:
             AND (SERVICE_NAME = %s OR (SERVICE_NAME IS NULL AND %s IS NULL))
             AND (COMPONENT_NAME = %s OR (COMPONENT_NAME IS NULL AND %s IS NULL))
             AND IS_ACTIVE = TRUE
-            ORDER BY 
+            ORDER BY
                 CASE WHEN SERVICE_NAME IS NOT NULL THEN 1 ELSE 2 END,
                 CASE WHEN COMPONENT_NAME IS NOT NULL THEN 1 ELSE 2 END,
                 VERSION DESC
@@ -390,17 +395,15 @@ class SnowflakeConfigManager:
             return (
                 default_value
                 if target_type is None
-                else target_type(default_value)
-                if default_value is not None
-                else None
+                else target_type(default_value) if default_value is not None else None
             )
 
     async def evaluate_feature_flag(
         self,
         flag_name: str,
-        user_id: Optional[str] = None,
-        service_name: Optional[str] = None,
-        user_properties: Optional[Dict[str, Any]] = None,
+        user_id: str | None = None,
+        service_name: str | None = None,
+        user_properties: dict[str, Any] | None = None,
     ) -> Any:
         """
         Evaluate a feature flag for the given user and context
@@ -434,7 +437,7 @@ class SnowflakeConfigManager:
 
             # Query from database
             query = """
-            SELECT 
+            SELECT
                 FLAG_NAME,
                 IS_ENABLED,
                 FLAG_TYPE,
@@ -450,7 +453,7 @@ class SnowflakeConfigManager:
             AND ENVIRONMENT = %s
             AND APPLICATION_NAME = %s
             AND (SERVICE_NAME = %s OR (SERVICE_NAME IS NULL AND %s IS NULL))
-            ORDER BY 
+            ORDER BY
                 CASE WHEN SERVICE_NAME IS NOT NULL THEN 1 ELSE 2 END
             LIMIT 1
             """
@@ -513,10 +516,10 @@ class SnowflakeConfigManager:
         self,
         setting_name: str,
         new_value: Any,
-        service_name: Optional[str] = None,
-        component_name: Optional[str] = None,
+        service_name: str | None = None,
+        component_name: str | None = None,
         changed_by: str = "SYSTEM",
-        change_reason: Optional[str] = None,
+        change_reason: str | None = None,
     ) -> bool:
         """
         Update a configuration setting
@@ -574,8 +577,8 @@ class SnowflakeConfigManager:
             return False
 
     async def get_all_config_values(
-        self, category: Optional[str] = None, service_name: Optional[str] = None
-    ) -> Dict[str, ConfigValue]:
+        self, category: str | None = None, service_name: str | None = None
+    ) -> dict[str, ConfigValue]:
         """
         Get all configuration values for the application
 
@@ -591,7 +594,7 @@ class SnowflakeConfigManager:
 
         try:
             query = """
-            SELECT 
+            SELECT
                 SETTING_NAME,
                 SETTING_VALUE,
                 DATA_TYPE,
@@ -649,7 +652,7 @@ class SnowflakeConfigManager:
             logger.error(f"Error getting all configuration values: {e}")
             return {}
 
-    async def get_system_health(self) -> Dict[str, Any]:
+    async def get_system_health(self) -> dict[str, Any]:
         """Get system health information including configuration status"""
         if not self.initialized:
             await self.initialize()
@@ -657,7 +660,7 @@ class SnowflakeConfigManager:
         try:
             # Check configuration health
             config_health_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_settings,
                 COUNT(CASE WHEN SETTING_VALUE IS NOT NULL THEN 1 END) as valid_settings,
                 COUNT(CASE WHEN IS_SENSITIVE = TRUE THEN 1 END) as sensitive_settings,
@@ -670,10 +673,10 @@ class SnowflakeConfigManager:
 
             # Check feature flag health
             flag_health_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_flags,
                 COUNT(CASE WHEN IS_ENABLED = TRUE THEN 1 END) as enabled_flags,
-                COUNT(CASE WHEN START_DATE <= CURRENT_TIMESTAMP() AND 
+                COUNT(CASE WHEN START_DATE <= CURRENT_TIMESTAMP() AND
                               (END_DATE IS NULL OR END_DATE > CURRENT_TIMESTAMP()) THEN 1 END) as active_flags
             FROM FEATURE_FLAGS
             WHERE ENVIRONMENT = %s
@@ -769,8 +772,8 @@ class SnowflakeConfigManager:
     async def _log_feature_flag_evaluation(
         self,
         feature_flag: FeatureFlag,
-        user_id: Optional[str],
-        user_properties: Optional[Dict[str, Any]],
+        user_id: str | None,
+        user_properties: dict[str, Any] | None,
         result: Any,
     ) -> None:
         """Log feature flag evaluation for analytics"""
@@ -786,7 +789,7 @@ class SnowflakeConfigManager:
 
 
 # Convenience functions for common use cases
-_config_manager: Optional[SnowflakeConfigManager] = None
+_config_manager: SnowflakeConfigManager | None = None
 
 
 async def get_config_manager() -> SnowflakeConfigManager:
@@ -801,8 +804,8 @@ async def get_config_manager() -> SnowflakeConfigManager:
 async def get_config(
     setting_name: str,
     default_value: Any = None,
-    target_type: Type[T] = None,
-    service_name: Optional[str] = None,
+    target_type: type[T] = None,
+    service_name: str | None = None,
 ) -> T:
     """Get a configuration value (convenience function)"""
     manager = await get_config_manager()
@@ -816,9 +819,9 @@ async def get_config(
 
 async def is_feature_enabled(
     flag_name: str,
-    user_id: Optional[str] = None,
-    service_name: Optional[str] = None,
-    user_properties: Optional[Dict[str, Any]] = None,
+    user_id: str | None = None,
+    service_name: str | None = None,
+    user_properties: dict[str, Any] | None = None,
 ) -> bool:
     """Check if a feature flag is enabled (convenience function)"""
     manager = await get_config_manager()

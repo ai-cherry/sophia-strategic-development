@@ -15,15 +15,15 @@ import asyncio
 import logging
 import time
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 # Import our new optimization components
 from backend.mcp.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
-    SyncPriority,
-    HealthStatus,
     HealthCheckResult,
+    HealthStatus,
+    MCPServerConfig,
+    StandardizedMCPServer,
+    SyncPriority,
 )
 from backend.workflows.multi_agent_workflow import AgentWorkflowInterface
 
@@ -65,7 +65,7 @@ class ExampleLinearMCPServer(StandardizedMCPServer):
         logger.info("🧹 Cleaning up Linear MCP server...")
         self.project_cache.clear()
 
-    async def sync_data(self) -> Dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         """Sync data from Linear platform."""
         # Simulate data sync
         await asyncio.sleep(0.1)  # Simulate API call
@@ -86,7 +86,7 @@ class ExampleLinearMCPServer(StandardizedMCPServer):
         self.last_data_update = datetime.utcnow()
         return sync_data
 
-    async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_with_ai(self, data: dict[str, Any]) -> dict[str, Any]:
         """Process Linear data with Snowflake Cortex AI."""
         if not self.cortex_service:
             return {"insights": [], "metadata": {}}
@@ -154,7 +154,7 @@ class ExampleSalesIntelligenceAgent(AgentWorkflowInterface):
     def __init__(self):
         self.cortex_service = None
 
-    async def analyze(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Analyze sales and business data."""
         logger.info("🔍 Sales Intelligence Agent: Analyzing data...")
 
@@ -187,7 +187,7 @@ class ExampleSalesIntelligenceAgent(AgentWorkflowInterface):
 
         return analysis_result
 
-    async def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Execute sales optimization actions."""
         logger.info("⚡ Sales Intelligence Agent: Executing optimizations...")
         await asyncio.sleep(0.3)
@@ -202,7 +202,7 @@ class ExampleSalesIntelligenceAgent(AgentWorkflowInterface):
             "impact_estimate": "15% improvement in sales efficiency",
         }
 
-    async def synthesize(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def synthesize(self, input_data: dict[str, Any]) -> dict[str, Any]:
         """Synthesize information from multiple sources."""
         logger.info("🧠 Sales Intelligence Agent: Synthesizing cross-platform data...")
         await asyncio.sleep(0.4)

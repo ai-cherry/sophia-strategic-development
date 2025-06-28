@@ -12,22 +12,22 @@ Current size: 643 lines
 
 Recommended decomposition:
 - analyze_technical_debt_core.py - Core functionality
-- analyze_technical_debt_utils.py - Utility functions  
+- analyze_technical_debt_utils.py - Utility functions
 - analyze_technical_debt_models.py - Data models
 - analyze_technical_debt_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import json
+import logging
 import os
 import re
-import json
 import subprocess
-from pathlib import Path
-from typing import Dict, List, Any
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-import logging
+from pathlib import Path
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class FileMetrics:
     change_frequency: int
     last_modified: str
     technical_debt_score: float
-    issues: List[str]
+    issues: list[str]
     refactoring_priority: str
 
 
@@ -53,12 +53,12 @@ class TechnicalDebtReport:
 
     timestamp: str
     total_files: int
-    high_churn_files: List[FileMetrics]
-    complex_files: List[FileMetrics]
-    debt_hotspots: List[FileMetrics]
-    instability_patterns: Dict[str, Any]
-    recommendations: List[Dict[str, Any]]
-    summary_metrics: Dict[str, Any]
+    high_churn_files: list[FileMetrics]
+    complex_files: list[FileMetrics]
+    debt_hotspots: list[FileMetrics]
+    instability_patterns: dict[str, Any]
+    recommendations: list[dict[str, Any]]
+    summary_metrics: dict[str, Any]
 
 
 class TechnicalDebtAnalyzer:
@@ -154,7 +154,7 @@ class TechnicalDebtAnalyzer:
     def _analyze_file(self, file_path: Path) -> FileMetrics:
         """Analyze a single file for technical debt indicators"""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             lines = len(content.split("\n"))
@@ -228,7 +228,7 @@ class TechnicalDebtAnalyzer:
 
     def _identify_issues(
         self, content: str, lines: int, change_frequency: int
-    ) -> List[str]:
+    ) -> list[str]:
         """Identify specific technical debt issues"""
         issues = []
 
@@ -272,7 +272,7 @@ class TechnicalDebtAnalyzer:
         return issues
 
     def _calculate_debt_score(
-        self, complexity: float, churn: int, issues: List[str]
+        self, complexity: float, churn: int, issues: list[str]
     ) -> float:
         """Calculate overall technical debt score"""
         # Base score from complexity
@@ -324,7 +324,7 @@ class TechnicalDebtAnalyzer:
         except:
             return "unknown"
 
-    def _generate_report(self, file_metrics: List[FileMetrics]) -> TechnicalDebtReport:
+    def _generate_report(self, file_metrics: list[FileMetrics]) -> TechnicalDebtReport:
         """Generate comprehensive technical debt report"""
         # Sort files by different criteria
         high_churn = sorted(
@@ -384,8 +384,8 @@ class TechnicalDebtAnalyzer:
         )
 
     def _analyze_instability_patterns(
-        self, file_metrics: List[FileMetrics]
-    ) -> Dict[str, Any]:
+        self, file_metrics: list[FileMetrics]
+    ) -> dict[str, Any]:
         """Analyze patterns that indicate instability"""
         patterns = {
             "configuration_files": [],
@@ -436,10 +436,10 @@ class TechnicalDebtAnalyzer:
 
     def _generate_recommendations(
         self,
-        debt_hotspots: List[FileMetrics],
-        complex_files: List[FileMetrics],
-        high_churn: List[FileMetrics],
-    ) -> List[Dict[str, Any]]:
+        debt_hotspots: list[FileMetrics],
+        complex_files: list[FileMetrics],
+        high_churn: list[FileMetrics],
+    ) -> list[dict[str, Any]]:
         """Generate actionable recommendations"""
         recommendations = []
 
@@ -594,8 +594,8 @@ def generate_markdown_report(report: TechnicalDebtReport):
 
 ## Executive Summary
 
-This automated analysis examined **{report.summary_metrics["total_files_analyzed"]} Python files** 
-({report.summary_metrics["total_lines_of_code"]:,} lines of code) to identify technical debt patterns, 
+This automated analysis examined **{report.summary_metrics["total_files_analyzed"]} Python files**
+({report.summary_metrics["total_lines_of_code"]:,} lines of code) to identify technical debt patterns,
 code complexity issues, and refactoring priorities.
 
 ### Key Findings

@@ -12,20 +12,19 @@ Current size: 876 lines
 
 Recommended decomposition:
 - phase2_performance_refactoring_core.py - Core functionality
-- phase2_performance_refactoring_utils.py - Utility functions  
+- phase2_performance_refactoring_utils.py - Utility functions
 - phase2_performance_refactoring_models.py - Data models
 - phase2_performance_refactoring_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import logging
 import os
 import re
 import shutil
-import logging
-from pathlib import Path
-from typing import Dict, List, Any
 from datetime import datetime
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,72 +33,93 @@ logger = logging.getLogger(__name__)
 
 class Phase2PerformanceRefactorer:
     """Implements Phase 2 refactoring for performance-critical functions"""
-    
+
     def __init__(self):
         self.refactored_files = []
         self.backup_files = []
         self.errors = []
-        
+
         # Phase 2 performance-critical functions by category
         self.performance_functions = {
             "data_processing_etl": [
-                ("create_transformation_procedures", "backend/etl/netsuite/estuary_netsuite_setup.py"),
-                ("orchestrate_concurrent_workflow", "backend/agents/integrations/optimized_gong_data_integration.py"),
-                ("_process_unified_intelligence", "backend/services/sophia_ai_orchestrator.py"),
+                (
+                    "create_transformation_procedures",
+                    "backend/etl/netsuite/estuary_netsuite_setup.py",
+                ),
+                (
+                    "orchestrate_concurrent_workflow",
+                    "backend/agents/integrations/optimized_gong_data_integration.py",
+                ),
+                (
+                    "_process_unified_intelligence",
+                    "backend/services/sophia_ai_orchestrator.py",
+                ),
             ],
             "ai_ml_agents": [
-                ("generate_marketing_content", "backend/agents/specialized/marketing_analysis_agent.py"),
-                ("_generate_ai_insights", "backend/agents/specialized/call_analysis_agent.py"),
-                ("analyze_audience_segments", "backend/agents/specialized/marketing_analysis_agent.py"),
+                (
+                    "generate_marketing_content",
+                    "backend/agents/specialized/marketing_analysis_agent.py",
+                ),
+                (
+                    "_generate_ai_insights",
+                    "backend/agents/specialized/call_analysis_agent.py",
+                ),
+                (
+                    "analyze_audience_segments",
+                    "backend/agents/specialized/marketing_analysis_agent.py",
+                ),
             ],
             "configuration_systems": [
                 ("configure", "backend/infrastructure/adapters/snowflake_adapter.py"),
-                ("validate_configuration", "backend/infrastructure/adapters/estuary_adapter.py"),
+                (
+                    "validate_configuration",
+                    "backend/infrastructure/adapters/estuary_adapter.py",
+                ),
                 ("_validate_service_configs", "backend/core/config_validator.py"),
-            ]
+            ],
         }
-    
+
     def refactor_create_transformation_procedures(self) -> bool:
         """Refactor the 246-line create_transformation_procedures method"""
         file_path = "backend/etl/netsuite/estuary_netsuite_setup.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_create_data_validation_procedures" in content:
                 logger.info("create_transformation_procedures already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find and refactor the function
-            pattern = r'async def create_transformation_procedures\(self\) -> None:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def create_transformation_procedures\(self\) -> None:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def create_transformation_procedures(self) -> None:
         """
         Create all transformation procedures using Template Method pattern
         """
         try:
             logger.info("Creating NetSuite transformation procedures...")
-            
+
             # Execute transformation procedure creation in logical order
             await self._create_data_validation_procedures()
             await self._create_enrichment_procedures()
             await self._create_aggregation_procedures()
             await self._create_quality_check_procedures()
             await self._create_monitoring_procedures()
-            
+
             logger.info("✅ All transformation procedures created successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Error creating transformation procedures: {e}")
             raise
@@ -107,70 +127,70 @@ class Phase2PerformanceRefactorer:
     async def _create_data_validation_procedures(self) -> None:
         """Create data validation and cleansing procedures"""
         logger.info("Creating data validation procedures...")
-        
+
         validation_procedures = [
             self._create_customer_validation_procedure(),
             self._create_transaction_validation_procedure(),
             self._create_product_validation_procedure(),
             self._create_financial_validation_procedure()
         ]
-        
+
         for procedure_sql in validation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_enrichment_procedures(self) -> None:
         """Create data enrichment and transformation procedures"""
         logger.info("Creating data enrichment procedures...")
-        
+
         enrichment_procedures = [
             self._create_customer_enrichment_procedure(),
             self._create_sales_enrichment_procedure(),
             self._create_financial_enrichment_procedure(),
             self._create_inventory_enrichment_procedure()
         ]
-        
+
         for procedure_sql in enrichment_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_aggregation_procedures(self) -> None:
         """Create data aggregation and summary procedures"""
         logger.info("Creating data aggregation procedures...")
-        
+
         aggregation_procedures = [
             self._create_daily_sales_aggregation(),
             self._create_monthly_financial_aggregation(),
             self._create_customer_lifetime_value_aggregation(),
             self._create_product_performance_aggregation()
         ]
-        
+
         for procedure_sql in aggregation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_quality_check_procedures(self) -> None:
         """Create data quality monitoring procedures"""
         logger.info("Creating data quality check procedures...")
-        
+
         quality_procedures = [
             self._create_data_completeness_check(),
             self._create_data_consistency_check(),
             self._create_data_accuracy_check(),
             self._create_data_timeliness_check()
         ]
-        
+
         for procedure_sql in quality_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_monitoring_procedures(self) -> None:
         """Create monitoring and alerting procedures"""
         logger.info("Creating monitoring procedures...")
-        
+
         monitoring_procedures = [
             self._create_pipeline_health_monitor(),
             self._create_performance_monitor(),
             self._create_error_tracking_procedure(),
             self._create_usage_analytics_procedure()
         ]
-        
+
         for procedure_sql in monitoring_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
@@ -479,51 +499,55 @@ class Phase2PerformanceRefactorer:
         # In a real implementation, this would execute the SQL
         # For now, we'll just log the procedure creation
         logger.info(f"Creating procedure: {procedure_sql[:50]}...")'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
-                logger.info(f"✅ Refactored create_transformation_procedures in {file_path}")
+
+                logger.info(
+                    f"✅ Refactored create_transformation_procedures in {file_path}"
+                )
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find create_transformation_procedures function to refactor")
+                logger.warning(
+                    "Could not find create_transformation_procedures function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring create_transformation_procedures: {e}")
             self.errors.append(f"create_transformation_procedures: {e}")
             return False
-    
+
     def refactor_orchestrate_concurrent_workflow(self) -> bool:
         """Refactor the 88-line orchestrate_concurrent_workflow method"""
         file_path = "backend/agents/integrations/optimized_gong_data_integration.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_prepare_workflow_context" in content:
                 logger.info("orchestrate_concurrent_workflow already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find and refactor the function
-            pattern = r'async def orchestrate_concurrent_workflow\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def orchestrate_concurrent_workflow\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def orchestrate_concurrent_workflow(
         self,
         workflow_config: Dict[str, Any],
@@ -535,21 +559,21 @@ class Phase2PerformanceRefactorer:
         try:
             # Prepare workflow execution context
             context = await self._prepare_workflow_context(workflow_config, execution_context)
-            
+
             # Initialize concurrent execution pools
             execution_pools = await self._initialize_execution_pools(context)
-            
+
             # Execute workflow stages concurrently
             stage_results = await self._execute_concurrent_stages(execution_pools, context)
-            
+
             # Aggregate and validate results
             final_results = await self._aggregate_workflow_results(stage_results, context)
-            
+
             # Cleanup and finalize
             await self._cleanup_workflow_resources(execution_pools)
-            
+
             return final_results
-            
+
         except Exception as e:
             logger.error(f"Error orchestrating concurrent workflow: {e}")
             return {"success": False, "error": str(e)}
@@ -571,14 +595,14 @@ class Phase2PerformanceRefactorer:
     async def _initialize_execution_pools(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Initialize concurrent execution pools for different workflow stages"""
         import asyncio
-        
+
         pools = {
             "data_extraction": asyncio.Semaphore(context["max_concurrency"]),
             "data_processing": asyncio.Semaphore(context["max_concurrency"] // 2),
             "data_validation": asyncio.Semaphore(context["max_concurrency"]),
             "data_storage": asyncio.Semaphore(context["max_concurrency"] // 4)
         }
-        
+
         return {
             "semaphores": pools,
             "task_queues": {stage: [] for stage in pools.keys()},
@@ -590,18 +614,18 @@ class Phase2PerformanceRefactorer:
     ) -> Dict[str, Any]:
         """Execute workflow stages concurrently with proper resource management"""
         import asyncio
-        
+
         stage_results = {}
-        
+
         # Execute stages in dependency order with concurrency
         stage_order = ["data_extraction", "data_processing", "data_validation", "data_storage"]
-        
+
         for stage in stage_order:
             logger.info(f"Executing stage: {stage}")
             stage_results[stage] = await self._execute_stage_tasks(
                 stage, execution_pools, context
             )
-        
+
         return stage_results
 
     async def _execute_stage_tasks(
@@ -609,22 +633,22 @@ class Phase2PerformanceRefactorer:
     ) -> Dict[str, Any]:
         """Execute tasks for a specific workflow stage"""
         import asyncio
-        
+
         semaphore = execution_pools["semaphores"][stage]
-        
+
         # Create tasks for the stage
         tasks = []
         for i in range(5):  # Example: 5 tasks per stage
             task = self._create_stage_task(stage, i, semaphore, context)
             tasks.append(task)
-        
+
         # Execute tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process results
         successful_results = [r for r in results if not isinstance(r, Exception)]
         errors = [r for r in results if isinstance(r, Exception)]
-        
+
         return {
             "stage": stage,
             "successful_tasks": len(successful_results),
@@ -638,11 +662,11 @@ class Phase2PerformanceRefactorer:
     ):
         """Create and execute a single stage task"""
         import asyncio
-        
+
         async with semaphore:
             # Simulate task execution
             await asyncio.sleep(0.1)  # Simulate work
-            
+
             return {
                 "stage": stage,
                 "task_id": task_id,
@@ -658,9 +682,9 @@ class Phase2PerformanceRefactorer:
         total_tasks = sum(r["successful_tasks"] + r["failed_tasks"] for r in stage_results.values())
         successful_tasks = sum(r["successful_tasks"] for r in stage_results.values())
         failed_tasks = sum(r["failed_tasks"] for r in stage_results.values())
-        
+
         execution_time = (datetime.utcnow() - context["start_time"]).total_seconds()
-        
+
         return {
             "success": failed_tasks == 0,
             "workflow_id": context["workflow_id"],
@@ -679,61 +703,65 @@ class Phase2PerformanceRefactorer:
         """Cleanup workflow execution resources"""
         # Cleanup logic here
         logger.info("Cleaning up workflow execution resources")'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
-                logger.info(f"✅ Refactored orchestrate_concurrent_workflow in {file_path}")
+
+                logger.info(
+                    f"✅ Refactored orchestrate_concurrent_workflow in {file_path}"
+                )
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find orchestrate_concurrent_workflow function to refactor")
+                logger.warning(
+                    "Could not find orchestrate_concurrent_workflow function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring orchestrate_concurrent_workflow: {e}")
             self.errors.append(f"orchestrate_concurrent_workflow: {e}")
             return False
-    
-    def run_phase2_refactoring(self) -> Dict[str, Any]:
+
+    def run_phase2_refactoring(self) -> dict[str, Any]:
         """Execute Phase 2 performance-critical function refactoring"""
         logger.info("🚀 Starting Phase 2: Performance-Critical Functions Refactoring")
-        
+
         results = {
             "functions_refactored": 0,
             "files_modified": 0,
             "categories_completed": 0,
-            "errors": 0
+            "errors": 0,
         }
-        
+
         # Data Processing & ETL Category
         logger.info("🔧 Category 1: Data Processing & ETL")
         if self.refactor_create_transformation_procedures():
             results["functions_refactored"] += 1
         if self.refactor_orchestrate_concurrent_workflow():
             results["functions_refactored"] += 1
-        
+
         results["files_modified"] = len(set(self.refactored_files))
         results["errors"] = len(self.errors)
         results["categories_completed"] = 1  # Partial completion for demonstration
-        
+
         # Generate Phase 2 report
         report = self._generate_phase2_report(results)
         report_path = "PHASE2_PERFORMANCE_REFACTORING_REPORT.md"
-        
-        with open(report_path, 'w', encoding='utf-8') as f:
+
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
-        
+
         logger.info(f"📊 Phase 2 progress saved to {report_path}")
         return results
-    
-    def _generate_phase2_report(self, results: Dict[str, Any]) -> str:
+
+    def _generate_phase2_report(self, results: dict[str, Any]) -> str:
         """Generate Phase 2 refactoring progress report"""
-        
+
         report = f"""# Phase 2 Performance-Critical Functions Refactoring Report
 
 ## Executive Summary
@@ -844,45 +872,49 @@ Phase 2 is progressing successfully with significant performance improvements in
 
 **Current Status:** 📈 Phase 2 In Progress - On Track for Week 3 Completion
 """
-        
+
         return report
 
 
 def main():
     """Main entry point for Phase 2 performance refactoring"""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Phase 2 Performance-Critical Functions Refactoring")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be refactored")
-    
+
+    parser = argparse.ArgumentParser(
+        description="Phase 2 Performance-Critical Functions Refactoring"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be refactored"
+    )
+
     args = parser.parse_args()
-    
+
     refactorer = Phase2PerformanceRefactorer()
-    
+
     if args.dry_run:
         print("DRY RUN - Phase 2 would refactor:")
         print("1. create_transformation_procedures (Data Processing)")
         print("2. orchestrate_concurrent_workflow (Concurrent Execution)")
         print("3. Additional AI/ML and Configuration functions")
         return
-    
+
     results = refactorer.run_phase2_refactoring()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("PHASE 2 PERFORMANCE REFACTORING IN PROGRESS")
-    print("="*60)
+    print("=" * 60)
     print(f"Functions Refactored: {results['functions_refactored']}")
     print(f"Files Modified: {results['files_modified']}")
     print(f"Categories In Progress: {results['categories_completed']}/3")
     print(f"Errors: {results['errors']}")
-    
-    if results['errors'] > 0:
+
+    if results["errors"] > 0:
         print("\nErrors encountered:")
         for error in refactorer.errors:
             print(f"  - {error}")
-    
+
     print("\nSee PHASE2_PERFORMANCE_REFACTORING_REPORT.md for detailed results")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

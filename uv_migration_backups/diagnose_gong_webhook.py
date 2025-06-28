@@ -5,8 +5,9 @@ Comprehensive Gong Webhook Diagnosis Script
 
 import socket
 import ssl
-import requests
 from datetime import datetime
+
+import requests
 
 
 def check_dns_resolution(domain):

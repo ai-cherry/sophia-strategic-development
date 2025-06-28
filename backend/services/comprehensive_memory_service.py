@@ -1,14 +1,14 @@
 # File: backend/services/comprehensive_memory_service.py
 
-from typing import List, Any, Optional
 import json
+import logging
+from typing import Any
 
 from backend.agents.enhanced.data_models import MemoryRecord
+from backend.core.hierarchical_cache import HierarchicalCache
 from backend.utils.enhanced_snowflake_cortex_service import (
     EnhancedSnowflakeCortexService,
 )
-from backend.core.hierarchical_cache import HierarchicalCache
-import logging
 
 try:
     import pinecone
@@ -31,7 +31,7 @@ class ComprehensiveMemoryService:
         self.cache = HierarchicalCache()
         self.pinecone_index = self._initialize_pinecone()
 
-    def _initialize_pinecone(self) -> Optional[Any]:
+    def _initialize_pinecone(self) -> Any | None:
         """Initializes the Pinecone index if configured."""
         if not PINECONE_AVAILABLE:
             logger.info(
@@ -106,8 +106,8 @@ class ComprehensiveMemoryService:
         return memory_record.id
 
     async def recall_memories(
-        self, query: str, top_k: int = 5, category: Optional[str] = None
-    ) -> List[MemoryRecord]:
+        self, query: str, top_k: int = 5, category: str | None = None
+    ) -> list[MemoryRecord]:
         """
         Recalls memories using a hybrid search strategy (vector search + metadata filtering).
         """
@@ -150,7 +150,7 @@ class ComprehensiveMemoryService:
         logger.info(f"Recalled {len(recalled_memories)} memories.")
         return recalled_memories
 
-    async def get_memory_by_id(self, memory_id: str) -> Optional[MemoryRecord]:
+    async def get_memory_by_id(self, memory_id: str) -> MemoryRecord | None:
         """Retrieves a single memory by its unique ID."""
         cached_memory = await self.cache.get(f"memory:{memory_id}")
         if cached_memory:
@@ -171,15 +171,15 @@ class ComprehensiveMemoryService:
     # GONG & SLACK DATA INTEGRATION METHODS
     # =====================================================
 
-    async def get_raw_gong_data(self, limit: int = 100) -> List[dict]:
+    async def get_raw_gong_data(self, limit: int = 100) -> list[dict]:
         """Retrieve raw Gong data from Snowflake for processing."""
         try:
             query = f"""
-            SELECT call_id, title, started_at, duration, transcript, participants, 
+            SELECT call_id, title, started_at, duration, transcript, participants,
                    meeting_url, call_type
-            FROM SOPHIA_GONG_RAW.gong_calls 
+            FROM SOPHIA_GONG_RAW.gong_calls
             WHERE transcript IS NOT NULL AND transcript != ''
-            ORDER BY started_at DESC 
+            ORDER BY started_at DESC
             LIMIT {limit}
             """
             results = await self.cortex_service.execute_query(query)
@@ -189,14 +189,14 @@ class ComprehensiveMemoryService:
             logger.error(f"Failed to retrieve Gong data: {e}", exc_info=True)
             return []
 
-    async def get_raw_slack_data(self, limit: int = 100) -> List[dict]:
+    async def get_raw_slack_data(self, limit: int = 100) -> list[dict]:
         """Retrieve raw Slack data from Snowflake for processing."""
         try:
             query = f"""
             SELECT channel_id, channel_name, user_id, text, ts, thread_ts, type
-            FROM SOPHIA_SLACK_RAW.slack_messages 
+            FROM SOPHIA_SLACK_RAW.slack_messages
             WHERE text IS NOT NULL AND text != ''
-            ORDER BY ts DESC 
+            ORDER BY ts DESC
             LIMIT {limit}
             """
             results = await self.cortex_service.execute_query(query)
@@ -222,8 +222,9 @@ class ComprehensiveMemoryService:
             for call_data in raw_gong_data:
                 try:
                     # Convert to GongCallData model
-                    from backend.agents.enhanced.data_models import GongCallData
                     from datetime import datetime
+
+                    from backend.agents.enhanced.data_models import GongCallData
 
                     gong_call = GongCallData(
                         call_id=call_data.get("call_id", ""),
@@ -272,8 +273,9 @@ class ComprehensiveMemoryService:
             for message_data in raw_slack_data:
                 try:
                     # Convert to SlackMessageData model
-                    from backend.agents.enhanced.data_models import SlackMessageData
                     from datetime import datetime
+
+                    from backend.agents.enhanced.data_models import SlackMessageData
 
                     # Convert timestamp from Slack format
                     timestamp = datetime.fromtimestamp(float(message_data.get("ts", 0)))
@@ -328,8 +330,8 @@ class ComprehensiveMemoryService:
         try:
             # Query the integrated conversations view
             query = f"""
-            SELECT conversation_id, source_platform, conversation_time, 
-                   conversation_title, conversation_content, participants, 
+            SELECT conversation_id, source_platform, conversation_time,
+                   conversation_title, conversation_content, participants,
                    duration_seconds, platform_metadata
             FROM SOPHIA_AI_CORE.AI_MEMORY.INTEGRATED_CONVERSATIONS
             ORDER BY conversation_time DESC
@@ -402,7 +404,7 @@ class ComprehensiveMemoryService:
             2. Action items (max 3)
             3. Sentiment score (0-1)
             4. Brief summary (max 100 words)
-            
+
             Title: {conversation.conversation_title}
             Content: {conversation.conversation_content[:1000]}
             Participants: {", ".join(conversation.participants)}
@@ -422,9 +424,9 @@ class ComprehensiveMemoryService:
                     "Action 1"
                 ],  # Placeholder - would parse from analysis_result
                 "sentiment_score": 0.7,  # Placeholder - would extract from analysis_result
-                "summary": analysis_result[:100]
-                if analysis_result
-                else "No summary available",
+                "summary": (
+                    analysis_result[:100] if analysis_result else "No summary available"
+                ),
             }
 
         except Exception as e:
@@ -439,8 +441,8 @@ class ComprehensiveMemoryService:
             }
 
     async def search_cross_platform_memories(
-        self, query: str, platforms: List[str] = None, top_k: int = 10
-    ) -> List[MemoryRecord]:
+        self, query: str, platforms: list[str] = None, top_k: int = 10
+    ) -> list[MemoryRecord]:
         """
         Search for memories across multiple platforms (Gong, Slack, etc.).
         """
@@ -462,7 +464,7 @@ class ComprehensiveMemoryService:
             SELECT memory_id, content, category, tags, importance_score, source_system,
                    additional_metadata, created_at
             FROM SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS
-            WHERE content ILIKE '%{query}%' 
+            WHERE content ILIKE '%{query}%'
             {platform_filter}
             ORDER BY importance_score DESC, created_at DESC
             LIMIT {top_k}
@@ -497,7 +499,7 @@ class ComprehensiveMemoryService:
         """Get statistics about memories from different platforms."""
         try:
             stats_query = """
-            SELECT 
+            SELECT
                 source_system,
                 COUNT(*) as total_memories,
                 AVG(importance_score) as avg_importance,

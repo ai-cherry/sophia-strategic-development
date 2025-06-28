@@ -9,9 +9,11 @@ using virtual keys for simplified management, unified cost tracking, and enhance
 import asyncio
 import json
 import time
-from typing import Dict, List, Any, Optional, AsyncGenerator
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
+
 import aiohttp
 import structlog
 
@@ -44,13 +46,13 @@ class ModelTier(str, Enum):
 class SimplifiedLLMRequest:
     """Simplified request structure"""
 
-    messages: List[Dict[str, str]]
+    messages: list[dict[str, str]]
     task_type: TaskType = TaskType.CHAT_GENERAL
     max_tokens: int = 2000
     temperature: float = 0.7
     stream: bool = False
     user_id: str = "anonymous"
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -64,7 +66,7 @@ class SimplifiedLLMResponse:
     processing_time_ms: int
     task_type: TaskType
     success: bool = True
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class SimplifiedPortkeyService:
@@ -84,7 +86,7 @@ class SimplifiedPortkeyService:
         self.virtual_key = get_config_value(
             "portkey_virtual_key_prod"
         ) or get_config_value("values_sophia_ai_portkey_virtual_key_prod")
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
         # Simplified model routing via virtual keys
         self.task_routing = {
@@ -325,7 +327,7 @@ class SophiaLLM:
     Usage: result = await SophiaLLM.chat("Analyze our Q4 revenue trends", TaskType.BUSINESS_ANALYSIS)
     """
 
-    _service: Optional[SimplifiedPortkeyService] = None
+    _service: SimplifiedPortkeyService | None = None
 
     @classmethod
     async def _get_service(cls) -> SimplifiedPortkeyService:
@@ -356,7 +358,7 @@ class SophiaLLM:
 
     @classmethod
     async def analyze_business(
-        cls, query: str, context: Optional[Dict[str, Any]] = None
+        cls, query: str, context: dict[str, Any] | None = None
     ) -> SimplifiedLLMResponse:
         """CEO/Business analysis optimized"""
         enhanced_prompt = f"""

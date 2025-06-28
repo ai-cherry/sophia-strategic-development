@@ -16,18 +16,17 @@ Current size: 729 lines
 
 Recommended decomposition:
 - comprehensive_platform_analysis_core.py - Core functionality
-- comprehensive_platform_analysis_utils.py - Utility functions  
+- comprehensive_platform_analysis_utils.py - Utility functions
 - comprehensive_platform_analysis_models.py - Data models
 - comprehensive_platform_analysis_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import json
 import asyncio
+import json
 import logging
 from datetime import datetime
-from typing import Dict, List
 from pathlib import Path
 
 # Setup logging
@@ -102,7 +101,7 @@ class SophiaAIPlatformAnalyzer:
         total_lines = 0
         for file in python_files + ts_files:
             try:
-                with open(file, "r", encoding="utf-8") as f:
+                with open(file, encoding="utf-8") as f:
                     total_lines += len(f.readlines())
             except:
                 continue
@@ -122,7 +121,7 @@ class SophiaAIPlatformAnalyzer:
         print(f"✅ Python files: {quality_results['python_files']}")
         print(f"✅ TypeScript files: {quality_results['typescript_files']}")
 
-    async def _analyze_code_patterns(self, python_files: List[Path], results: Dict):
+    async def _analyze_code_patterns(self, python_files: list[Path], results: dict):
         """Analyze code patterns for best practices"""
         issues = []
         security_patterns = []
@@ -130,7 +129,7 @@ class SophiaAIPlatformAnalyzer:
 
         for file in python_files:
             try:
-                with open(file, "r", encoding="utf-8") as f:
+                with open(file, encoding="utf-8") as f:
                     content = f.read()
 
                 # Check for security patterns
@@ -166,7 +165,7 @@ class SophiaAIPlatformAnalyzer:
         )
         results["maintainability_score"] = max(maintainability, 0)
 
-    async def _check_architecture_compliance(self, results: Dict):
+    async def _check_architecture_compliance(self, results: dict):
         """Check compliance with Sophia AI architecture standards"""
         compliance_score = 100
 
@@ -352,7 +351,7 @@ class SophiaAIPlatformAnalyzer:
             print(f"   {status_icon} {api.title()}: {status['status']}")
         print(f"🎯 Agent Completion Score: {completion_percentage:.1f}%")
 
-    def _check_gong_integration(self) -> Dict:
+    def _check_gong_integration(self) -> dict:
         """Check Gong API integration status"""
         files_to_check = [
             "backend/integrations/enhanced_gong_integration.py",
@@ -365,12 +364,14 @@ class SophiaAIPlatformAnalyzer:
             "operational": operational,
             "status": "Fully integrated" if operational else "Partially implemented",
             "files": files_to_check,
-            "capabilities": ["call_analysis", "email_tracking", "calendar_integration"]
-            if operational
-            else [],
+            "capabilities": (
+                ["call_analysis", "email_tracking", "calendar_integration"]
+                if operational
+                else []
+            ),
         }
 
-    def _check_hubspot_integration(self) -> Dict:
+    def _check_hubspot_integration(self) -> dict:
         """Check HubSpot API integration status"""
         files_to_check = [
             "backend/utils/snowflake_hubspot_connector.py",
@@ -383,12 +384,14 @@ class SophiaAIPlatformAnalyzer:
             "operational": operational,
             "status": "Fully integrated" if operational else "Basic implementation",
             "files": files_to_check,
-            "capabilities": ["crm_sync", "deal_analysis", "contact_management"]
-            if operational
-            else [],
+            "capabilities": (
+                ["crm_sync", "deal_analysis", "contact_management"]
+                if operational
+                else []
+            ),
         }
 
-    def _check_slack_integration(self) -> Dict:
+    def _check_slack_integration(self) -> dict:
         """Check Slack API integration status"""
         files_to_check = [
             "backend/agents/specialized/slack_analysis_agent.py",
@@ -401,12 +404,12 @@ class SophiaAIPlatformAnalyzer:
             "operational": operational,
             "status": "Integrated" if operational else "Not implemented",
             "files": files_to_check,
-            "capabilities": ["message_analysis", "sentiment_tracking"]
-            if operational
-            else [],
+            "capabilities": (
+                ["message_analysis", "sentiment_tracking"] if operational else []
+            ),
         }
 
-    def _check_asana_integration(self) -> Dict:
+    def _check_asana_integration(self) -> dict:
         """Check Asana API integration status"""
         files_to_check = [
             "backend/agents/specialized/asana_project_intelligence_agent.py",
@@ -419,12 +422,12 @@ class SophiaAIPlatformAnalyzer:
             "operational": operational,
             "status": "Fully integrated" if operational else "Partial implementation",
             "files": files_to_check,
-            "capabilities": ["project_tracking", "health_monitoring"]
-            if operational
-            else [],
+            "capabilities": (
+                ["project_tracking", "health_monitoring"] if operational else []
+            ),
         }
 
-    def _check_linear_integration(self) -> Dict:
+    def _check_linear_integration(self) -> dict:
         """Check Linear API integration status"""
         files_to_check = [
             "backend/agents/specialized/linear_project_health_agent.py",
@@ -440,7 +443,7 @@ class SophiaAIPlatformAnalyzer:
             "capabilities": ["issue_tracking", "project_health"] if operational else [],
         }
 
-    def _check_snowflake_integration(self) -> Dict:
+    def _check_snowflake_integration(self) -> dict:
         """Check Snowflake Cortex integration status"""
         files_to_check = [
             "backend/utils/snowflake_cortex_service.py",
@@ -453,9 +456,9 @@ class SophiaAIPlatformAnalyzer:
             "operational": operational,
             "status": "Fully integrated" if operational else "Basic implementation",
             "files": files_to_check,
-            "capabilities": ["cortex_ai", "vector_search", "embeddings"]
-            if operational
-            else [],
+            "capabilities": (
+                ["cortex_ai", "vector_search", "embeddings"] if operational else []
+            ),
         }
 
     async def _phase4_iac_deployment_assessment(self):
@@ -619,7 +622,7 @@ class SophiaAIPlatformAnalyzer:
 
         return final_report
 
-    def _generate_next_steps(self, phase_scores: Dict) -> List[str]:
+    def _generate_next_steps(self, phase_scores: dict) -> list[str]:
         """Generate specific next steps based on analysis"""
         next_steps = []
 
@@ -657,7 +660,7 @@ class SophiaAIPlatformAnalyzer:
 
         return next_steps[:8]  # Limit to top 8 steps
 
-    def _assess_technical_debt(self) -> Dict:
+    def _assess_technical_debt(self) -> dict:
         """Assess technical debt across the platform"""
         debt_assessment = {
             "high_priority": [],

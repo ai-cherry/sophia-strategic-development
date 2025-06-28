@@ -19,7 +19,7 @@ Current size: 1090 lines
 
 Recommended decomposition:
 - sophia_universal_chat_service_core.py - Core functionality
-- sophia_universal_chat_service_utils.py - Utility functions  
+- sophia_universal_chat_service_utils.py - Utility functions
 - sophia_universal_chat_service_models.py - Data models
 - sophia_universal_chat_service_handlers.py - Request handlers
 
@@ -28,16 +28,17 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
 import httpx
 
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.enhanced_snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.smart_ai_service import SmartAIService
+from backend.utils.enhanced_snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,10 +81,10 @@ class UserProfile:
     email: str
     access_level: UserAccessLevel
     department: str
-    accessible_schemas: List[str] = field(default_factory=list)
-    search_permissions: List[SearchContext] = field(default_factory=list)
+    accessible_schemas: list[str] = field(default_factory=list)
+    search_permissions: list[SearchContext] = field(default_factory=list)
     preferred_personality: SophiaPersonality = SophiaPersonality.FRIENDLY_ASSISTANT
-    custom_context: Dict[str, Any] = field(default_factory=dict)
+    custom_context: dict[str, Any] = field(default_factory=dict)
     api_quota_daily: int = 1000
     api_usage_today: int = 0
     created_at: datetime = field(default_factory=datetime.now)
@@ -97,10 +98,10 @@ class SearchRequest:
     query: str
     user_profile: UserProfile
     search_context: SearchContext
-    internal_schemas: List[str] = field(default_factory=list)
-    internet_sources: List[str] = field(default_factory=list)
+    internal_schemas: list[str] = field(default_factory=list)
+    internet_sources: list[str] = field(default_factory=list)
     company_context: str = "Pay Ready"
-    competitor_focus: List[str] = field(default_factory=list)
+    competitor_focus: list[str] = field(default_factory=list)
     time_relevance: str = "recent"  # recent, historical, all
     depth_level: str = "standard"  # quick, standard, deep, ceo_comprehensive
 
@@ -110,11 +111,11 @@ class SearchResult:
     """Enhanced search result with source attribution"""
 
     content: str
-    sources: List[Dict[str, Any]]
+    sources: list[dict[str, Any]]
     confidence_score: float
     search_time_ms: int
-    internal_results: List[Dict[str, Any]] = field(default_factory=list)
-    internet_results: List[Dict[str, Any]] = field(default_factory=list)
+    internal_results: list[dict[str, Any]] = field(default_factory=list)
+    internet_results: list[dict[str, Any]] = field(default_factory=list)
     synthesis_quality: float = 0.0
     personality_applied: SophiaPersonality = SophiaPersonality.FRIENDLY_ASSISTANT
 
@@ -136,7 +137,7 @@ class SophiaUniversalChatService:
         self.cortex_service = None
         self.ai_memory_service = None
         self.smart_ai_service = None
-        self.user_profiles: Dict[str, UserProfile] = {}
+        self.user_profiles: dict[str, UserProfile] = {}
 
         # Internet search clients
         self.exa_client = None
@@ -355,7 +356,7 @@ class SophiaUniversalChatService:
             logger.error(f"❌ Failed to load user profiles: {e}")
 
     async def process_chat_message(
-        self, message: str, user_id: str = "ceo", context: Dict[str, Any] = None
+        self, message: str, user_id: str = "ceo", context: dict[str, Any] = None
     ) -> SearchResult:
         """
         Process chat message with Sophia's full intelligence
@@ -549,7 +550,7 @@ class SophiaUniversalChatService:
 
     async def _execute_internal_search(
         self, request: SearchRequest
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Execute search across internal Snowflake schemas"""
         try:
             results = []
@@ -586,7 +587,7 @@ class SophiaUniversalChatService:
 
     async def _execute_internet_search(
         self, request: SearchRequest
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Execute search across internet sources"""
         try:
             results = []
@@ -621,7 +622,7 @@ class SophiaUniversalChatService:
             logger.error(f"❌ Failed to execute internet search: {e}")
             return []
 
-    async def _search_with_exa(self, request: SearchRequest) -> List[Dict[str, Any]]:
+    async def _search_with_exa(self, request: SearchRequest) -> list[dict[str, Any]]:
         """Search using EXA AI-powered search"""
         try:
             # Enhanced query with company context
@@ -669,16 +670,18 @@ class SophiaUniversalChatService:
 
         return []
 
-    async def _search_with_tavily(self, request: SearchRequest) -> List[Dict[str, Any]]:
+    async def _search_with_tavily(self, request: SearchRequest) -> list[dict[str, Any]]:
         """Search using Tavily real-time search"""
         try:
             response = await self.tavily_client.post(
                 "/search",
                 json={
                     "query": request.query,
-                    "search_depth": "advanced"
-                    if request.search_context == SearchContext.CEO_DEEP_RESEARCH
-                    else "basic",
+                    "search_depth": (
+                        "advanced"
+                        if request.search_context == SearchContext.CEO_DEEP_RESEARCH
+                        else "basic"
+                    ),
                     "include_answer": True,
                     "include_raw_content": True,
                     "max_results": 5,
@@ -710,7 +713,7 @@ class SophiaUniversalChatService:
 
     async def _execute_deep_research(
         self, request: SearchRequest
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Execute CEO-level deep research with scraping"""
         try:
             results = []
@@ -739,7 +742,7 @@ class SophiaUniversalChatService:
 
     async def _scrape_competitor_websites(
         self, request: SearchRequest
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Scrape competitor websites for intelligence"""
         try:
             results = []
@@ -776,7 +779,7 @@ class SophiaUniversalChatService:
 
     async def _extract_with_zenrows(
         self, request: SearchRequest
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract specific data using ZenRows"""
         try:
             results = []
@@ -801,8 +804,8 @@ class SophiaUniversalChatService:
     async def _synthesize_search_results(
         self,
         request: SearchRequest,
-        internal_results: List[Dict[str, Any]],
-        internet_results: List[Dict[str, Any]],
+        internal_results: list[dict[str, Any]],
+        internet_results: list[dict[str, Any]],
     ) -> str:
         """Synthesize internal and internet search results into coherent response"""
         try:
@@ -846,7 +849,7 @@ Response:
             logger.error(f"❌ Failed to synthesize search results: {e}")
             return "I found relevant information but encountered an error during synthesis. Please try rephrasing your question."
 
-    def _format_results_for_synthesis(self, results: List[Dict[str, Any]]) -> str:
+    def _format_results_for_synthesis(self, results: list[dict[str, Any]]) -> str:
         """Format search results for AI synthesis"""
         formatted = []
         for i, result in enumerate(results[:5]):  # Limit to top 5 for context
@@ -937,7 +940,7 @@ Response:
 
     # CEO Dashboard User Management Methods
     async def create_user_profile(
-        self, user_data: Dict[str, Any], creator_id: str = "ceo"
+        self, user_data: dict[str, Any], creator_id: str = "ceo"
     ) -> UserProfile:
         """Create new user profile (CEO dashboard functionality)"""
         try:
@@ -977,7 +980,7 @@ Response:
             logger.error(f"❌ Failed to create user profile: {e}")
             raise
 
-    async def get_user_analytics(self, user_id: Optional[str] = None) -> Dict[str, Any]:
+    async def get_user_analytics(self, user_id: str | None = None) -> dict[str, Any]:
         """Get user analytics for CEO dashboard"""
         try:
             if user_id:

@@ -3,15 +3,16 @@ Knowledge Base Management API Routes
 Provides endpoints for natural language KB management and document upload
 """
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from typing import Any
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
-from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 
 from backend.core.auth import get_current_user
-from backend.services.kb_management_service import KBManagementService
 from backend.core.cache_manager import DashboardCacheManager
 from backend.core.logger import logger
+from backend.services.kb_management_service import KBManagementService
 
 router = APIRouter(prefix="/api/v1/kb", tags=["knowledge-base-management"])
 
@@ -24,14 +25,14 @@ class NLCommandRequest(BaseModel):
     """Request model for natural language commands"""
 
     command: str
-    user_context: Optional[Dict[str, Any]] = None
+    user_context: dict[str, Any] | None = None
 
 
 class KBSearchRequest(BaseModel):
     """Request model for KB search operations"""
 
     query: str
-    entity_types: Optional[List[str]] = None
+    entity_types: list[str] | None = None
     limit: int = 10
 
 

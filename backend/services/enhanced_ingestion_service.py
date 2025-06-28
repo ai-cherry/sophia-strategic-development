@@ -5,7 +5,7 @@ Current size: 760 lines
 
 Recommended decomposition:
 - enhanced_ingestion_service_core.py - Core functionality
-- enhanced_ingestion_service_utils.py - Utility functions  
+- enhanced_ingestion_service_utils.py - Utility functions
 - enhanced_ingestion_service_models.py - Data models
 - enhanced_ingestion_service_handlers.py - Request handlers
 
@@ -21,13 +21,14 @@ Handles large files, multiple formats, and provides job-based processing with ex
 """
 
 import asyncio
-import logging
-import json
 import io
+import json
+import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from uuid import uuid4
 from enum import Enum
+from typing import Any
+from uuid import uuid4
+
 from pydantic import BaseModel
 
 # Enhanced imports with fallbacks
@@ -106,12 +107,12 @@ class IngestionJob(BaseModel):
     progress: float = 0.0
     chunks_processed: int = 0
     total_chunks: int = 0
-    entries_created: List[str] = []
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = {}
+    entries_created: list[str] = []
+    error_message: str | None = None
+    metadata: dict[str, Any] = {}
     created_at: datetime
     updated_at: datetime
-    estimated_completion: Optional[datetime] = None
+    estimated_completion: datetime | None = None
 
 
 class DocumentChunk(BaseModel):
@@ -119,7 +120,7 @@ class DocumentChunk(BaseModel):
     job_id: str
     sequence: int
     content: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     word_count: int
     character_count: int
 
@@ -127,10 +128,10 @@ class DocumentChunk(BaseModel):
 class EnhancedIngestionService:
     """Enhanced ingestion service with large file support and contextual processing"""
 
-    def __init__(self, snowflake_config: Dict[str, str]):
+    def __init__(self, snowflake_config: dict[str, str]):
         self.snowflake_config = snowflake_config
         self.connection = None
-        self.active_jobs: Dict[str, IngestionJob] = {}
+        self.active_jobs: dict[str, IngestionJob] = {}
 
         # Configuration for large file processing
         self.chunk_size = 4000  # Characters per chunk (optimized for context windows)
@@ -170,8 +171,8 @@ class EnhancedIngestionService:
         self.connection = None
 
     async def execute_query(
-        self, query: str, params: Optional[tuple] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: tuple | None = None
+    ) -> list[dict[str, Any]]:
         """Execute Snowflake query"""
         try:
             result = await self.connection.execute_query(query, params)
@@ -186,7 +187,7 @@ class EnhancedIngestionService:
         filename: str,
         file_content: bytes,
         file_type: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> IngestionJob:
         """Create a new ingestion job for large file processing"""
 
@@ -407,7 +408,7 @@ class EnhancedIngestionService:
 
     async def _create_intelligent_chunks(
         self, text_content: str, job: IngestionJob
-    ) -> List[DocumentChunk]:
+    ) -> list[DocumentChunk]:
         """Create intelligent chunks with context preservation and large context windows"""
         chunks = []
 
@@ -462,7 +463,7 @@ class EnhancedIngestionService:
         logger.info(f"Created {len(chunks)} intelligent chunks for job {job.job_id}")
         return chunks
 
-    def _split_into_sentences(self, text: str) -> List[str]:
+    def _split_into_sentences(self, text: str) -> list[str]:
         """Split text into sentences for better chunking"""
         import re
 
@@ -507,7 +508,7 @@ class EnhancedIngestionService:
 
         # Insert knowledge entry
         insert_query = """
-        INSERT INTO KNOWLEDGE_BASE_ENTRIES 
+        INSERT INTO KNOWLEDGE_BASE_ENTRIES
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, STATUS, METADATA, CREATED_AT, UPDATED_AT)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -623,8 +624,8 @@ class EnhancedIngestionService:
     async def _save_job_to_database(self, job: IngestionJob):
         """Save ingestion job to database"""
         query = """
-        INSERT INTO INGESTION_JOBS 
-        (JOB_ID, USER_ID, FILENAME, FILE_TYPE, FILE_SIZE, STATUS, PROGRESS, 
+        INSERT INTO INGESTION_JOBS
+        (JOB_ID, USER_ID, FILENAME, FILE_TYPE, FILE_SIZE, STATUS, PROGRESS,
          CHUNKS_PROCESSED, TOTAL_CHUNKS, METADATA, CREATED_AT, UPDATED_AT, ESTIMATED_COMPLETION)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -654,7 +655,7 @@ class EnhancedIngestionService:
     async def _update_job_in_database(self, job: IngestionJob):
         """Update ingestion job in database"""
         query = """
-        UPDATE INGESTION_JOBS SET 
+        UPDATE INGESTION_JOBS SET
         STATUS = %s, PROGRESS = %s, CHUNKS_PROCESSED = %s, TOTAL_CHUNKS = %s,
         UPDATED_AT = %s, ERROR_MESSAGE = %s
         WHERE JOB_ID = %s
@@ -696,7 +697,7 @@ class EnhancedIngestionService:
 
         await self.execute_query(create_jobs_table)
 
-    async def get_job_status(self, job_id: str) -> Optional[IngestionJob]:
+    async def get_job_status(self, job_id: str) -> IngestionJob | None:
         """Get ingestion job status"""
         if job_id in self.active_jobs:
             return self.active_jobs[job_id]
@@ -728,12 +729,12 @@ class EnhancedIngestionService:
 
     async def get_recent_jobs(
         self, user_id: str, limit: int = 20
-    ) -> List[IngestionJob]:
+    ) -> list[IngestionJob]:
         """Get recent ingestion jobs for user"""
         query = """
-        SELECT * FROM INGESTION_JOBS 
-        WHERE USER_ID = %s 
-        ORDER BY CREATED_AT DESC 
+        SELECT * FROM INGESTION_JOBS
+        WHERE USER_ID = %s
+        ORDER BY CREATED_AT DESC
         LIMIT %s
         """
 

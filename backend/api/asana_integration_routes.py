@@ -16,31 +16,31 @@ Current size: 868 lines
 
 Recommended decomposition:
 - asana_integration_routes_core.py - Core functionality
-- asana_integration_routes_utils.py - Utility functions  
+- asana_integration_routes_utils.py - Utility functions
 - asana_integration_routes_models.py - Data models
 - asana_integration_routes_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
+import json
 import logging
 from datetime import datetime
-from typing import Optional, Dict, Any
-import json
+from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends, Query, Path, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from backend.agents.specialized.asana_project_intelligence_agent import (
     AsanaProjectIntelligenceAgent,
 )
-from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
+from backend.core.auth import get_current_user
 from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_chat_service import QueryContext
-from backend.core.auth import get_current_user
+from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -56,31 +56,29 @@ class AsanaQueryRequest(BaseModel):
         default="manager", description="User role for access control"
     )
     dashboard_type: str = Field(default="project", description="Dashboard context")
-    time_filter: Optional[str] = Field(
-        None, description="Time filter (e.g., '30d', '7d')"
-    )
+    time_filter: str | None = Field(None, description="Time filter (e.g., '30d', '7d')")
 
 
 class ProjectFilterRequest(BaseModel):
-    team_name: Optional[str] = None
-    risk_level: Optional[str] = None
-    status: Optional[str] = None
-    search_term: Optional[str] = None
+    team_name: str | None = None
+    risk_level: str | None = None
+    status: str | None = None
+    search_term: str | None = None
     sort_by: str = Field(default="health_score", description="Sort field")
     limit: int = Field(default=50, description="Maximum results")
 
 
 class TaskFilterRequest(BaseModel):
-    project_gid: Optional[str] = None
-    assignee_name: Optional[str] = None
-    status: Optional[str] = None
-    priority_level: Optional[str] = None
+    project_gid: str | None = None
+    assignee_name: str | None = None
+    status: str | None = None
+    priority_level: str | None = None
     overdue_only: bool = Field(default=False)
     limit: int = Field(default=100, description="Maximum results")
 
 
 class AsanaInsightRequest(BaseModel):
-    project_gid: Optional[str] = None
+    project_gid: str | None = None
     insight_type: str = Field(
         ...,
         description="Type of insight: project_health, risk_assessment, team_productivity",
@@ -96,11 +94,11 @@ class AsanaSyncRequest(BaseModel):
 
 
 # Service instances (will be initialized on startup)
-intelligence_agent: Optional[AsanaProjectIntelligenceAgent] = None
-chat_service: Optional[SophiaUniversalChatService] = None
-estuary_manager: Optional[EnhancedEstuaryManager] = None
-cortex_service: Optional[SnowflakeCortexService] = None
-ai_memory_service: Optional[EnhancedAiMemoryMCPServer] = None
+intelligence_agent: AsanaProjectIntelligenceAgent | None = None
+chat_service: SophiaUniversalChatService | None = None
+estuary_manager: EnhancedEstuaryManager | None = None
+cortex_service: SnowflakeCortexService | None = None
+ai_memory_service: EnhancedAiMemoryMCPServer | None = None
 
 
 async def get_intelligence_agent() -> AsanaProjectIntelligenceAgent:
@@ -148,7 +146,7 @@ async def get_cortex_service() -> SnowflakeCortexService:
 
 @router.get("/intelligence-report")
 async def get_project_intelligence_report(
-    project_gid: Optional[str] = Query(None, description="Specific project GID"),
+    project_gid: str | None = Query(None, description="Specific project GID"),
     agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent),
 ):
     """
@@ -179,10 +177,10 @@ async def get_project_intelligence_report(
 
 @router.get("/projects")
 async def get_projects(
-    team_name: Optional[str] = Query(None),
-    risk_level: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    search_term: Optional[str] = Query(None),
+    team_name: str | None = Query(None),
+    risk_level: str | None = Query(None),
+    status: str | None = Query(None),
+    search_term: str | None = Query(None),
     sort_by: str = Query("health_score"),
     limit: int = Query(50),
     agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent),
@@ -242,9 +240,9 @@ async def get_projects(
                     "overdue_task_count": project.overdue_task_count,
                     "team_name": project.team_name,
                     "owner_name": project.owner_name,
-                    "due_date": project.due_date.isoformat()
-                    if project.due_date
-                    else None,
+                    "due_date": (
+                        project.due_date.isoformat() if project.due_date else None
+                    ),
                     "created_at": project.created_at.isoformat(),
                     "modified_at": project.modified_at.isoformat(),
                     "ai_insights": project.ai_insights,
@@ -316,9 +314,11 @@ async def get_project_details(
                 "quality_risk": risk_assessment.quality_risk.value,
                 "risk_factors": risk_assessment.risk_factors,
                 "mitigation_suggestions": risk_assessment.mitigation_suggestions,
-                "predicted_completion_date": risk_assessment.predicted_completion_date.isoformat()
-                if risk_assessment.predicted_completion_date
-                else None,
+                "predicted_completion_date": (
+                    risk_assessment.predicted_completion_date.isoformat()
+                    if risk_assessment.predicted_completion_date
+                    else None
+                ),
             }
 
         return JSONResponse(content=project_detail)
@@ -332,7 +332,7 @@ async def get_project_details(
 
 @router.get("/teams/productivity")
 async def get_team_productivity(
-    team_name: Optional[str] = Query(None),
+    team_name: str | None = Query(None),
     agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent),
 ):
     """
@@ -366,7 +366,7 @@ async def get_team_productivity(
 
 @router.get("/risk-assessment")
 async def get_risk_assessment(
-    project_gid: Optional[str] = Query(None),
+    project_gid: str | None = Query(None),
     agent: AsanaProjectIntelligenceAgent = Depends(get_intelligence_agent),
 ):
     """
@@ -388,9 +388,11 @@ async def get_risk_assessment(
                     "quality_risk": assessment.quality_risk.value,
                     "risk_factors": assessment.risk_factors,
                     "mitigation_suggestions": assessment.mitigation_suggestions,
-                    "predicted_completion_date": assessment.predicted_completion_date.isoformat()
-                    if assessment.predicted_completion_date
-                    else None,
+                    "predicted_completion_date": (
+                        assessment.predicted_completion_date.isoformat()
+                        if assessment.predicted_completion_date
+                        else None
+                    ),
                 }
             )
 
@@ -411,10 +413,10 @@ async def get_risk_assessment(
 
 @router.get("/tasks")
 async def get_tasks(
-    project_gid: Optional[str] = Query(None),
-    assignee_name: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
-    priority_level: Optional[str] = Query(None),
+    project_gid: str | None = Query(None),
+    assignee_name: str | None = Query(None),
+    status: str | None = Query(None),
+    priority_level: str | None = Query(None),
     overdue_only: bool = Query(False),
     limit: int = Query(100),
     cortex: SnowflakeCortexService = Depends(get_cortex_service),
@@ -444,7 +446,7 @@ async def get_tasks(
         where_clause = " AND ".join(conditions)
 
         query = f"""
-        SELECT 
+        SELECT
             TASK_GID,
             TASK_NAME,
             TASK_DESCRIPTION,
@@ -479,18 +481,20 @@ async def get_tasks(
                     "assignee_name": row.get("ASSIGNEE_NAME"),
                     "project_gid": row["PROJECT_GID"],
                     "project_name": row.get("PROJECT_NAME"),
-                    "due_date": row.get("DUE_DATE").isoformat()
-                    if row.get("DUE_DATE")
-                    else None,
+                    "due_date": (
+                        row.get("DUE_DATE").isoformat() if row.get("DUE_DATE") else None
+                    ),
                     "priority_level": row.get("PRIORITY_LEVEL"),
                     "ai_urgency_score": row.get("AI_URGENCY_SCORE"),
                     "ai_task_sentiment": row.get("AI_TASK_SENTIMENT"),
-                    "created_at": row["CREATED_AT"].isoformat()
-                    if row.get("CREATED_AT")
-                    else None,
-                    "modified_at": row["MODIFIED_AT"].isoformat()
-                    if row.get("MODIFIED_AT")
-                    else None,
+                    "created_at": (
+                        row["CREATED_AT"].isoformat() if row.get("CREATED_AT") else None
+                    ),
+                    "modified_at": (
+                        row["MODIFIED_AT"].isoformat()
+                        if row.get("MODIFIED_AT")
+                        else None
+                    ),
                 }
             )
 
@@ -515,7 +519,7 @@ async def get_tasks(
 
 @router.get("/tasks/overdue")
 async def get_overdue_tasks(
-    team_name: Optional[str] = Query(None),
+    team_name: str | None = Query(None),
     limit: int = Query(50),
     cortex: SnowflakeCortexService = Depends(get_cortex_service),
 ):
@@ -526,7 +530,7 @@ async def get_overdue_tasks(
         team_filter = f"AND p.TEAM_NAME = '{team_name}'" if team_name else ""
 
         query = f"""
-        SELECT 
+        SELECT
             t.TASK_GID,
             t.TASK_NAME,
             t.ASSIGNEE_NAME,
@@ -554,9 +558,9 @@ async def get_overdue_tasks(
                     "task_name": row["TASK_NAME"],
                     "assignee_name": row.get("ASSIGNEE_NAME"),
                     "project_name": row["PROJECT_NAME"],
-                    "due_date": row["DUE_DATE"].isoformat()
-                    if row.get("DUE_DATE")
-                    else None,
+                    "due_date": (
+                        row["DUE_DATE"].isoformat() if row.get("DUE_DATE") else None
+                    ),
                     "priority_level": row.get("PRIORITY_LEVEL"),
                     "ai_urgency_score": row.get("AI_URGENCY_SCORE"),
                     "team_name": row.get("TEAM_NAME"),
@@ -619,7 +623,7 @@ async def process_asana_chat_query(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/chat_analyze", response_model=Dict[str, Any])
+@router.post("/chat_analyze", response_model=dict[str, Any])
 async def analyze_asana_chat_query(
     request: AsanaQueryRequest,
     current_user: dict = Depends(get_current_user),
@@ -712,9 +716,11 @@ async def get_sync_status(
                     "quality_score": data_quality.quality_score,
                     "total_records": data_quality.total_records,
                     "valid_records": data_quality.valid_records,
-                    "validation_timestamp": data_quality.validation_timestamp.isoformat()
-                    if data_quality.validation_timestamp
-                    else None,
+                    "validation_timestamp": (
+                        data_quality.validation_timestamp.isoformat()
+                        if data_quality.validation_timestamp
+                        else None
+                    ),
                     "issues": data_quality.issues,
                 },
                 "last_updated": datetime.now().isoformat(),
@@ -743,7 +749,7 @@ async def get_analytics_summary(
 
         query = f"""
         WITH project_summary AS (
-            SELECT 
+            SELECT
                 COUNT(*) as total_projects,
                 COUNT(CASE WHEN IS_ARCHIVED = FALSE THEN 1 END) as active_projects,
                 AVG(COMPLETION_PERCENTAGE) as avg_completion,
@@ -753,7 +759,7 @@ async def get_analytics_summary(
             WHERE MODIFIED_AT >= CURRENT_DATE - {days}
         ),
         task_summary AS (
-            SELECT 
+            SELECT
                 COUNT(*) as total_tasks,
                 COUNT(CASE WHEN IS_COMPLETED = TRUE THEN 1 END) as completed_tasks,
                 COUNT(CASE WHEN TASK_STATUS = 'OVERDUE' THEN 1 END) as overdue_tasks,
@@ -762,14 +768,14 @@ async def get_analytics_summary(
             WHERE MODIFIED_AT >= CURRENT_DATE - {days}
         ),
         team_summary AS (
-            SELECT 
+            SELECT
                 COUNT(DISTINCT TEAM_NAME) as active_teams,
                 AVG(COMPLETION_PERCENTAGE) as team_avg_completion
             FROM STG_TRANSFORMED.STG_ASANA_PROJECTS
             WHERE IS_ARCHIVED = FALSE
             AND TEAM_NAME IS NOT NULL
         )
-        SELECT 
+        SELECT
             (SELECT OBJECT_CONSTRUCT(*) FROM project_summary) as projects,
             (SELECT OBJECT_CONSTRUCT(*) FROM task_summary) as tasks,
             (SELECT OBJECT_CONSTRUCT(*) FROM team_summary) as teams
@@ -852,12 +858,7 @@ async def _run_full_sync_pipeline(estuary_manager: EnhancedEstuaryManager):
 # Cleanup function for application shutdown
 async def cleanup_asana_services():
     """Cleanup function to be called on application shutdown"""
-    global \
-        intelligence_agent, \
-        chat_service, \
-        estuary_manager, \
-        cortex_service, \
-        ai_memory_service
+    global intelligence_agent, chat_service, estuary_manager, cortex_service, ai_memory_service
 
     try:
         if intelligence_agent:

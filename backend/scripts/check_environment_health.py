@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Sophia AI Environment Health Check"""
 
+import json
 import os
 import subprocess
-import json
 from datetime import datetime
 
 

@@ -19,21 +19,20 @@ Current size: 1037 lines
 
 Recommended decomposition:
 - implement_sophia_ui_core.py - Core functionality
-- implement_sophia_ui_utils.py - Utility functions  
+- implement_sophia_ui_utils.py - Utility functions
 - implement_sophia_ui_models.py - Data models
 - implement_sophia_ui_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import sys
-import json
-import subprocess
 import argparse
+import json
 import logging
-from pathlib import Path
-from typing import List
+import subprocess
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -622,23 +621,23 @@ logger = logging.getLogger(__name__)
 
 class ChatWebSocketManager:
     """Manages WebSocket connections for chat interface."""
-    
+
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {}
         self.chat_service = EnhancedChatService()
-    
+
     async def connect(self, websocket: WebSocket, client_id: str):
         """Accept a new WebSocket connection."""
         await websocket.accept()
         self.active_connections[client_id] = websocket
         logger.info(f"Client {client_id} connected")
-    
+
     def disconnect(self, client_id: str):
         """Remove a WebSocket connection."""
         if client_id in self.active_connections:
             del self.active_connections[client_id]
             logger.info(f"Client {client_id} disconnected")
-    
+
     async def send_message(self, client_id: str, message: dict):
         """Send a message to a specific client."""
         if client_id in self.active_connections:
@@ -648,31 +647,31 @@ class ChatWebSocketManager:
             except Exception as e:
                 logger.error(f"Failed to send message to {client_id}: {e}")
                 self.disconnect(client_id)
-    
+
     async def handle_message(self, client_id: str, message: dict):
         """Handle incoming message from client."""
         try:
             message_type = message.get('type')
-            
+
             if message_type == 'init':
                 await self.handle_init(client_id, message)
             elif message_type == 'chat_message':
                 await self.handle_chat_message(client_id, message)
             else:
                 logger.warning(f"Unknown message type: {message_type}")
-                
+
         except Exception as e:
             logger.error(f"Error handling message from {client_id}: {e}")
             await self.send_message(client_id, {
                 'type': 'error',
                 'message': 'Failed to process message'
             })
-    
+
     async def handle_init(self, client_id: str, message: dict):
         """Handle client initialization."""
         context = message.get('context', {})
         logger.info(f"Client {client_id} initialized with context: {context}")
-        
+
         # Send welcome message
         await self.send_message(client_id, {
             'type': 'message',
@@ -680,19 +679,19 @@ class ChatWebSocketManager:
             'content': 'Connected successfully. How can I help you today?',
             'timestamp': message.get('timestamp')
         })
-    
+
     async def handle_chat_message(self, client_id: str, message: dict):
         """Handle chat message from client."""
         user_message = message.get('message')
         context = message.get('context', {})
         task_type = message.get('taskType', 'general')
-        
+
         # Send typing indicator
         await self.send_message(client_id, {
             'type': 'typing',
             'isTyping': True
         })
-        
+
         try:
             # Process message with chat service
             response = await self.chat_service.process_message(
@@ -700,7 +699,7 @@ class ChatWebSocketManager:
                 context=context,
                 task_type=task_type
             )
-            
+
             # Send response
             await self.send_message(client_id, {
                 'type': 'message',
@@ -710,7 +709,7 @@ class ChatWebSocketManager:
                 'actionResult': response.action_result,
                 'suggestedActions': response.suggested_actions
             })
-            
+
         except Exception as e:
             logger.error(f"Error processing chat message: {e}")
             await self.send_message(client_id, {
@@ -807,7 +806,7 @@ async def dashboard_health():
 
         # Read existing package.json or create new one
         if package_json_path.exists():
-            with open(package_json_path, "r") as f:
+            with open(package_json_path) as f:
                 package_data = json.load(f)
         else:
             package_data = {
@@ -860,7 +859,7 @@ async def dashboard_health():
         with open(package_json_path, "w") as f:
             json.dump(package_data, f, indent=2)
 
-    def _run_command(self, command: List[str], cwd: Path, description: str) -> bool:
+    def _run_command(self, command: list[str], cwd: Path, description: str) -> bool:
         """Run a shell command and return success status."""
         logger.info(f"Running: {description}")
         try:

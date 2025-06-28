@@ -5,14 +5,14 @@ Extracts data from operational Pay Ready SQL database and loads into Snowflake P
 """
 
 import asyncio
-import logging
 import json
+import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+
 import pandas as pd
 import snowflake.connector
 from sqlalchemy import create_engine, text
-from dataclasses import dataclass
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -26,7 +26,7 @@ class PayReadyDataIngestionConfig:
     """Configuration for Pay Ready data ingestion"""
 
     source_db_connection: str
-    snowflake_connection: Dict[str, str]
+    snowflake_connection: dict[str, str]
     batch_size: int = 1000
     max_retries: int = 3
     sync_window_hours: int = 24
@@ -78,7 +78,7 @@ class PayReadyCoreDataIngestor:
             raise
 
     async def extract_payment_transactions(
-        self, since_date: Optional[datetime] = None
+        self, since_date: datetime | None = None
     ) -> pd.DataFrame:
         """Extract payment transactions from operational database"""
         try:
@@ -88,7 +88,7 @@ class PayReadyCoreDataIngestor:
                 )
 
             query = """
-            SELECT 
+            SELECT
                 transaction_id,
                 customer_id,
                 amount,
@@ -114,7 +114,7 @@ class PayReadyCoreDataIngestor:
                 created_at,
                 created_by,
                 updated_by
-            FROM payment_transactions 
+            FROM payment_transactions
             WHERE processing_date >= :since_date
             OR updated_at >= :since_date
             ORDER BY processing_date DESC
@@ -134,7 +134,7 @@ class PayReadyCoreDataIngestor:
             raise
 
     async def extract_customer_features(
-        self, since_date: Optional[datetime] = None
+        self, since_date: datetime | None = None
     ) -> pd.DataFrame:
         """Extract customer features from operational database"""
         try:
@@ -144,7 +144,7 @@ class PayReadyCoreDataIngestor:
                 )
 
             query = """
-            SELECT 
+            SELECT
                 feature_id,
                 customer_id,
                 feature_name,
@@ -166,7 +166,7 @@ class PayReadyCoreDataIngestor:
                 created_at,
                 enabled_by,
                 disabled_by
-            FROM customer_features 
+            FROM customer_features
             WHERE created_at >= :since_date
             OR updated_at >= :since_date
             ORDER BY created_at DESC
@@ -184,7 +184,7 @@ class PayReadyCoreDataIngestor:
             raise
 
     async def extract_business_rules(
-        self, since_date: Optional[datetime] = None
+        self, since_date: datetime | None = None
     ) -> pd.DataFrame:
         """Extract business rules from operational database"""
         try:
@@ -194,7 +194,7 @@ class PayReadyCoreDataIngestor:
                 )
 
             query = """
-            SELECT 
+            SELECT
                 rule_id,
                 rule_name,
                 rule_description,
@@ -215,7 +215,7 @@ class PayReadyCoreDataIngestor:
                 created_at,
                 created_by,
                 last_modified_by
-            FROM business_rules 
+            FROM business_rules
             WHERE created_at >= :since_date
             OR updated_at >= :since_date
             ORDER BY execution_order
@@ -242,9 +242,11 @@ class PayReadyCoreDataIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PAYMENT_TRANSACTIONS LIKE PAYMENT_TRANSACTIONS
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -292,7 +294,8 @@ class PayReadyCoreDataIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO PAYMENT_TRANSACTIONS AS target
                 USING TEMP_PAYMENT_TRANSACTIONS AS source
                 ON target.TRANSACTION_ID = source.TRANSACTION_ID
@@ -316,7 +319,7 @@ class PayReadyCoreDataIngestor:
                     RISK_SCORE, FRAUD_FLAGS, COMPLIANCE_STATUS, AML_STATUS,
                     CREATED_BY, UPDATED_BY
                 ) VALUES (
-                    source.TRANSACTION_ID, source.CUSTOMER_ID, source.AMOUNT, 
+                    source.TRANSACTION_ID, source.CUSTOMER_ID, source.AMOUNT,
                     source.CURRENCY, source.TRANSACTION_TYPE, source.PAYMENT_METHOD,
                     source.STATUS, source.PROCESSING_DATE, source.COMPLETED_DATE,
                     source.FAILURE_REASON, source.PROPERTY_ID, source.UNIT_ID,
@@ -326,7 +329,8 @@ class PayReadyCoreDataIngestor:
                     source.COMPLIANCE_STATUS, source.AML_STATUS,
                     source.CREATED_BY, source.UPDATED_BY
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -350,9 +354,11 @@ class PayReadyCoreDataIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_CUSTOMER_FEATURES LIKE CUSTOMER_FEATURES
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -375,15 +381,21 @@ class PayReadyCoreDataIngestor:
                         row["feature_name"],
                         row["feature_category"],
                         row["is_enabled"],
-                        json.dumps(row["configuration"])
-                        if row["configuration"]
-                        else None,
-                        json.dumps(row["default_configuration"])
-                        if row["default_configuration"]
-                        else None,
-                        json.dumps(row["custom_settings"])
-                        if row["custom_settings"]
-                        else None,
+                        (
+                            json.dumps(row["configuration"])
+                            if row["configuration"]
+                            else None
+                        ),
+                        (
+                            json.dumps(row["default_configuration"])
+                            if row["default_configuration"]
+                            else None
+                        ),
+                        (
+                            json.dumps(row["custom_settings"])
+                            if row["custom_settings"]
+                            else None
+                        ),
                         row["feature_tier"],
                         row["requires_subscription"],
                         row["monthly_fee"],
@@ -400,7 +412,8 @@ class PayReadyCoreDataIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO CUSTOMER_FEATURES AS target
                 USING TEMP_CUSTOMER_FEATURES AS source
                 ON target.FEATURE_ID = source.FEATURE_ID
@@ -431,7 +444,8 @@ class PayReadyCoreDataIngestor:
                     source.CUSTOMER_SATISFACTION_IMPACT, source.RETENTION_IMPACT,
                     source.REVENUE_IMPACT, source.ENABLED_BY, source.DISABLED_BY
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -444,7 +458,7 @@ class PayReadyCoreDataIngestor:
             raise
 
     async def generate_ai_embeddings(
-        self, table_name: str, text_columns: List[str]
+        self, table_name: str, text_columns: list[str]
     ) -> int:
         """Generate AI embeddings for text columns in specified table"""
         try:
@@ -452,7 +466,8 @@ class PayReadyCoreDataIngestor:
 
             for column in text_columns:
                 # Generate embeddings for records without them
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     UPDATE {table_name}
                     SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', {column}),
                         AI_MEMORY_METADATA = OBJECT_CONSTRUCT(
@@ -462,9 +477,10 @@ class PayReadyCoreDataIngestor:
                             'embedding_confidence', 0.9
                         ),
                         AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
-                    WHERE {column} IS NOT NULL 
+                    WHERE {column} IS NOT NULL
                     AND AI_MEMORY_EMBEDDING IS NULL
-                """)
+                """
+                )
 
                 rows_updated = cursor.rowcount
                 logger.info(
@@ -478,7 +494,7 @@ class PayReadyCoreDataIngestor:
             logger.error(f"❌ Failed to generate embeddings for {table_name}: {e}")
             raise
 
-    async def run_full_sync(self) -> Dict[str, int]:
+    async def run_full_sync(self) -> dict[str, int]:
         """Run full synchronization of Pay Ready core data"""
         try:
             logger.info("🚀 Starting Pay Ready Core Data full sync")
@@ -514,7 +530,7 @@ class PayReadyCoreDataIngestor:
             logger.error(f"❌ Pay Ready Core Data sync failed: {e}")
             raise
 
-    async def run_incremental_sync(self, since_hours: int = 24) -> Dict[str, int]:
+    async def run_incremental_sync(self, since_hours: int = 24) -> dict[str, int]:
         """Run incremental synchronization for recent changes"""
         try:
             since_date = datetime.now() - timedelta(hours=since_hours)

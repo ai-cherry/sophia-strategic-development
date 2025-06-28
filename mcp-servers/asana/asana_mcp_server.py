@@ -10,7 +10,7 @@ Current size: 721 lines
 
 Recommended decomposition:
 - asana_mcp_server_core.py - Core functionality
-- asana_mcp_server_utils.py - Utility functions  
+- asana_mcp_server_utils.py - Utility functions
 - asana_mcp_server_models.py - Data models
 - asana_mcp_server_handlers.py - Request handlers
 
@@ -23,11 +23,11 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiohttp
-from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
+from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolResult,
@@ -310,8 +310,8 @@ class AsanaMCPServer:
                 )
 
     async def make_request(
-        self, endpoint: str, params: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, endpoint: str, params: dict | None = None
+    ) -> dict[str, Any]:
         """Make authenticated request to Asana API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
@@ -342,11 +342,11 @@ class AsanaMCPServer:
 
     async def get_projects(
         self,
-        workspace_gid: Optional[str] = None,
-        team_gid: Optional[str] = None,
+        workspace_gid: str | None = None,
+        team_gid: str | None = None,
         archived: bool = False,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get projects from workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
@@ -397,7 +397,7 @@ class AsanaMCPServer:
             "filters": {"team_gid": team_gid, "archived": archived, "limit": limit},
         }
 
-    async def get_project_details(self, project_gid: str) -> Dict[str, Any]:
+    async def get_project_details(self, project_gid: str) -> dict[str, Any]:
         """Get detailed project information."""
         params = {
             "opt_fields": "name,notes,color,completed,current_status,due_date,start_date,created_at,modified_at,owner,team,members,custom_fields,followers,workspace"
@@ -447,8 +447,8 @@ class AsanaMCPServer:
         }
 
     async def get_project_tasks(
-        self, project_gid: str, completed_since: Optional[str] = None, limit: int = 100
-    ) -> Dict[str, Any]:
+        self, project_gid: str, completed_since: str | None = None, limit: int = 100
+    ) -> dict[str, Any]:
         """Get tasks for a project."""
         params = {
             "project": project_gid,
@@ -499,7 +499,7 @@ class AsanaMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_task_details(self, task_gid: str) -> Dict[str, Any]:
+    async def get_task_details(self, task_gid: str) -> dict[str, Any]:
         """Get detailed task information."""
         params = {
             "opt_fields": "name,notes,completed,assignee,due_date,start_date,created_at,modified_at,tags,subtasks,dependencies,dependents,custom_fields,projects,parent,followers"
@@ -530,7 +530,7 @@ class AsanaMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_teams(self, workspace_gid: Optional[str] = None) -> Dict[str, Any]:
+    async def get_teams(self, workspace_gid: str | None = None) -> dict[str, Any]:
         """Get teams in workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
@@ -550,7 +550,7 @@ class AsanaMCPServer:
 
     async def get_team_projects(
         self, team_gid: str, archived: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get projects for a team."""
         params = {
             "team": team_gid,
@@ -570,7 +570,7 @@ class AsanaMCPServer:
 
     async def get_project_status_updates(
         self, project_gid: str, limit: int = 20
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get status updates for a project."""
         params = {
             "parent": project_gid,
@@ -593,13 +593,13 @@ class AsanaMCPServer:
 
     async def search_tasks(
         self,
-        text: Optional[str] = None,
-        assignee: Optional[str] = None,
-        project_gid: Optional[str] = None,
-        completed: Optional[bool] = None,
-        due_date_before: Optional[str] = None,
-        due_date_after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        text: str | None = None,
+        assignee: str | None = None,
+        project_gid: str | None = None,
+        completed: bool | None = None,
+        due_date_before: str | None = None,
+        due_date_after: str | None = None,
+    ) -> dict[str, Any]:
         """Search for tasks with various filters."""
         workspace_gid = await self.get_workspace_gid()
 
@@ -651,9 +651,9 @@ class AsanaMCPServer:
     async def get_user_tasks(
         self,
         user_gid: str,
-        completed_since: Optional[str] = None,
-        workspace_gid: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        completed_since: str | None = None,
+        workspace_gid: str | None = None,
+    ) -> dict[str, Any]:
         """Get tasks assigned to a user."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()
@@ -692,8 +692,8 @@ class AsanaMCPServer:
         }
 
     async def get_workspace_users(
-        self, workspace_gid: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, workspace_gid: str | None = None
+    ) -> dict[str, Any]:
         """Get users in workspace."""
         if not workspace_gid:
             workspace_gid = await self.get_workspace_gid()

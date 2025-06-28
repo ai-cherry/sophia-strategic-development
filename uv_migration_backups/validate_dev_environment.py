@@ -4,8 +4,8 @@ Development Environment Validation Script
 Ensures we're in the correct virtual environment and all dependencies are available.
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 
@@ -45,9 +45,9 @@ def validate_environment():
 
     # Check critical dependencies
     try:
+        import aiohttp
         import fastapi
         import pydantic
-        import aiohttp
 
         print("✅ Core dependencies available")
     except ImportError as e:

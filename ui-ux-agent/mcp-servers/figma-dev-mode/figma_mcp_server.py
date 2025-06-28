@@ -7,12 +7,13 @@ Uses Pulumi ESC integration for secure credential management
 
 import logging
 import os
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
+from typing import Any
+
 import requests
-from fastapi import FastAPI, HTTPException
 import uvicorn
+from fastapi import FastAPI, HTTPException
 
 # Import Pulumi ESC configuration management
 try:
@@ -69,7 +70,7 @@ class DesignToken:
     value: str
     type: str  # color, typography, spacing, etc.
     category: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 @dataclass
@@ -79,8 +80,8 @@ class ComponentMetadata:
     node_id: str
     name: str
     type: str
-    description: Optional[str] = None
-    properties: Dict[str, Any] = None
+    description: str | None = None
+    properties: dict[str, Any] = None
 
 
 @dataclass
@@ -89,9 +90,9 @@ class DesignContext:
 
     file_id: str
     node_id: str
-    design_tokens: List[DesignToken]
+    design_tokens: list[DesignToken]
     component_metadata: ComponentMetadata
-    implementation_hints: Dict[str, Any]
+    implementation_hints: dict[str, Any]
     extraction_timestamp: str
 
 
@@ -99,7 +100,7 @@ class SecureCredentialManager:
     """Secure credential management following Sophia AI patterns"""
 
     @staticmethod
-    def get_figma_token() -> Optional[str]:
+    def get_figma_token() -> str | None:
         """Retrieve Figma token from environment variables populated by Pulumi ESC"""
         return FIGMA_PAT
 
@@ -124,7 +125,7 @@ class FigmaAPIClient:
             else {}
         )
 
-    async def get_file_metadata(self, file_id: str) -> Dict[str, Any]:
+    async def get_file_metadata(self, file_id: str) -> dict[str, Any]:
         """Get Figma file metadata"""
         if not self.token:
             raise HTTPException(status_code=401, detail="Figma token not configured")
@@ -214,7 +215,7 @@ class FigmaDevModeMCPServer:
                 logger.error(f"Failed to extract design context: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
-    async def _extract_mock_tokens(self, file_id: str) -> List[DesignToken]:
+    async def _extract_mock_tokens(self, file_id: str) -> list[DesignToken]:
         """Extract mock design tokens for demonstration"""
         return [
             DesignToken(

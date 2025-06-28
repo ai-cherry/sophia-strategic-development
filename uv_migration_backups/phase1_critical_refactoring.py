@@ -19,12 +19,11 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
+import logging
 import os
 import re
 import shutil
-import logging
-from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,16 +32,19 @@ logger = logging.getLogger(__name__)
 
 class Phase1CriticalRefactorer:
     """Implements Phase 1 refactoring for critical business functions"""
-    
+
     def __init__(self):
         self.refactored_files = []
         self.backup_files = []
         self.errors = []
-        
+
         # Phase 1 critical functions by category
         self.critical_functions = {
             "mcp_operations": [
-                ("store_gong_call_insight", "backend/mcp_servers/enhanced_ai_memory_mcp_server.py"),
+                (
+                    "store_gong_call_insight",
+                    "backend/mcp_servers/enhanced_ai_memory_mcp_server.py",
+                ),
                 ("handle_list_tools", "mcp-servers/linear/linear_mcp_server.py"),
                 ("handle_list_tools", "mcp-servers/asana/asana_mcp_server.py"),
                 ("handle_list_tools", "mcp-servers/notion/notion_mcp_server.py"),
@@ -50,43 +52,58 @@ class Phase1CriticalRefactorer:
                 ("auto_fix_enhanced", "mcp-servers/codacy/enhanced_codacy_server.py"),
             ],
             "sales_intelligence": [
-                ("analyze_pipeline_health", "backend/agents/specialized/sales_intelligence_agent.py"),
-                ("get_competitor_talking_points", "backend/agents/specialized/sales_intelligence_agent.py"),
+                (
+                    "analyze_pipeline_health",
+                    "backend/agents/specialized/sales_intelligence_agent.py",
+                ),
+                (
+                    "get_competitor_talking_points",
+                    "backend/agents/specialized/sales_intelligence_agent.py",
+                ),
             ],
             "executive_dashboard": [
-                ("unified_business_query", "backend/services/unified_intelligence_service.py"),
-                ("unified_business_query", "backend/services/enhanced_unified_intelligence_service.py"),
+                (
+                    "unified_business_query",
+                    "backend/services/unified_intelligence_service.py",
+                ),
+                (
+                    "unified_business_query",
+                    "backend/services/enhanced_unified_intelligence_service.py",
+                ),
                 ("get_current_configuration", "backend/api/enhanced_cortex_routes.py"),
-                ("update_user_permissions", "backend/api/sophia_universal_chat_routes.py"),
+                (
+                    "update_user_permissions",
+                    "backend/api/sophia_universal_chat_routes.py",
+                ),
                 ("search_issues", "backend/api/linear_integration_routes.py"),
-            ]
+            ],
         }
-    
+
     def refactor_store_gong_call_insight(self) -> bool:
         """Refactor the 200-line store_gong_call_insight method"""
         file_path = "backend/mcp_servers/enhanced_ai_memory_mcp_server.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_validate_gong_insight_data" in content:
                 logger.info("store_gong_call_insight already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find and refactor the function
-            pattern = r'async def store_gong_call_insight\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def store_gong_call_insight\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def store_gong_call_insight(
         self,
         call_id: str,
@@ -237,51 +254,53 @@ class Phase1CriticalRefactorer:
     def _process_analysis(self, analysis_data: Dict) -> Dict:
         """Process analysis data"""
         return analysis_data'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
+
                 logger.info(f"✅ Refactored store_gong_call_insight in {file_path}")
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find store_gong_call_insight function to refactor")
+                logger.warning(
+                    "Could not find store_gong_call_insight function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring store_gong_call_insight: {e}")
             self.errors.append(f"store_gong_call_insight: {e}")
             return False
-    
+
     def refactor_analyze_pipeline_health(self) -> bool:
         """Refactor the 165-line analyze_pipeline_health method with high complexity"""
         file_path = "backend/agents/specialized/sales_intelligence_agent.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_analyze_deal_progression" in content:
                 logger.info("analyze_pipeline_health already refactored")
                 return True
-            
+
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
             self.backup_files.append(backup_path)
-            
+
             # Find and refactor the function
-            pattern = r'async def analyze_pipeline_health\(self, filters: Dict\[str, Any\] = None\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-            
+            pattern = r"async def analyze_pipeline_health\(self, filters: Dict\[str, Any\] = None\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
             replacement = '''async def analyze_pipeline_health(self, filters: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Analyze pipeline health using specialized analysis components
@@ -434,54 +453,58 @@ class Phase1CriticalRefactorer:
                 "analysis_type": "pipeline_health"
             }
         )'''
-            
+
             # Replace the function
             new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
+
             if new_content != content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                
+
                 logger.info(f"✅ Refactored analyze_pipeline_health in {file_path}")
                 self.refactored_files.append(file_path)
                 return True
             else:
-                logger.warning("Could not find analyze_pipeline_health function to refactor")
+                logger.warning(
+                    "Could not find analyze_pipeline_health function to refactor"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring analyze_pipeline_health: {e}")
             self.errors.append(f"analyze_pipeline_health: {e}")
             return False
-    
+
     def refactor_unified_business_query(self) -> bool:
         """Refactor the unified_business_query methods with high complexity"""
         files_to_refactor = [
             "backend/services/unified_intelligence_service.py",
-            "backend/services/enhanced_unified_intelligence_service.py"
+            "backend/services/enhanced_unified_intelligence_service.py",
         ]
-        
+
         refactored_count = 0
-        
+
         for file_path in files_to_refactor:
             if os.path.exists(file_path):
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
-                    
+
                     # Check if already refactored
                     if "_route_query_by_type" in content:
-                        logger.info(f"unified_business_query already refactored in {file_path}")
+                        logger.info(
+                            f"unified_business_query already refactored in {file_path}"
+                        )
                         continue
-                    
+
                     # Create backup
                     backup_path = f"{file_path}.backup"
                     shutil.copy2(file_path, backup_path)
                     self.backup_files.append(backup_path)
-                    
+
                     # Find and refactor the function
-                    pattern = r'async def unified_business_query\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)'
-                    
+                    pattern = r"async def unified_business_query\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+
                     replacement = '''async def unified_business_query(
         self,
         query: str,
@@ -584,69 +607,73 @@ class Phase1CriticalRefactorer:
             "analytics": query_results.get("analytics", {}),
             "timestamp": query_context["timestamp"]
         }'''
-                    
+
                     # Replace the function
                     new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-                    
+
                     if new_content != content:
-                        with open(file_path, 'w', encoding='utf-8') as f:
+                        with open(file_path, "w", encoding="utf-8") as f:
                             f.write(new_content)
-                        
-                        logger.info(f"✅ Refactored unified_business_query in {file_path}")
+
+                        logger.info(
+                            f"✅ Refactored unified_business_query in {file_path}"
+                        )
                         self.refactored_files.append(file_path)
                         refactored_count += 1
                     else:
-                        logger.warning(f"Could not find unified_business_query function in {file_path}")
-                        
+                        logger.warning(
+                            f"Could not find unified_business_query function in {file_path}"
+                        )
+
                 except Exception as e:
                     logger.error(f"❌ Error refactoring {file_path}: {e}")
                     self.errors.append(f"unified_business_query in {file_path}: {e}")
-        
+
         return refactored_count > 0
-    
-    def run_phase1_refactoring(self) -> Dict[str, Any]:
+
+    def run_phase1_refactoring(self) -> dict[str, Any]:
         """Execute Phase 1 critical business function refactoring"""
         logger.info("🚀 Starting Phase 1: Critical Business Functions Refactoring")
-        
+
         results = {
             "functions_refactored": 0,
             "files_modified": 0,
             "categories_completed": 0,
-            "errors": 0
+            "errors": 0,
         }
-        
+
         # MCP Operations Category
         logger.info("🔧 Category 1: MCP Operations")
         if self.refactor_store_gong_call_insight():
             results["functions_refactored"] += 1
-        
-        # Sales Intelligence Category  
+
+        # Sales Intelligence Category
         logger.info("🔧 Category 2: Sales Intelligence")
         if self.refactor_analyze_pipeline_health():
             results["functions_refactored"] += 1
-        
+
         # Executive Dashboard Category
         logger.info("🔧 Category 3: Executive Dashboard")
         if self.refactor_unified_business_query():
             results["functions_refactored"] += 1
-        
+
         results["files_modified"] = len(set(self.refactored_files))
         results["errors"] = len(self.errors)
         results["categories_completed"] = 3
-        
+
         # Generate Phase 1 report
         report = self._generate_phase1_report(results)
         report_path = "PHASE1_CRITICAL_REFACTORING_REPORT.md"
-        
-        with open(report_path, 'w', encoding='utf-8') as f:
+
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
-        
+
         logger.info(f"📊 Phase 1 complete! Report saved to {report_path}")
         return results
-    
-    def _generate_phase1_report(self, results: Dict[str, Any]) -> str:
+
+    def _generate_phase1_report(self, results: dict[str, Any]) -> str:
         """Generate comprehensive Phase 1 refactoring report"""
-        
+
         report = f"""# Phase 1 Critical Business Functions Refactoring Report
 
 ## Executive Summary
@@ -797,47 +824,52 @@ The refactored codebase provides a solid foundation for Phase 2 implementation a
 
 **Status:** ✅ Phase 1 Complete - Ready for Phase 2 Implementation
 """
-        
+
         return report
 
 
 def main():
     """Main entry point for Phase 1 critical refactoring"""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Phase 1 Critical Business Functions Refactoring")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be refactored")
-    
+
+    parser = argparse.ArgumentParser(
+        description="Phase 1 Critical Business Functions Refactoring"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be refactored"
+    )
+
     args = parser.parse_args()
-    
+
     refactorer = Phase1CriticalRefactorer()
-    
+
     if args.dry_run:
         print("DRY RUN - Phase 1 would refactor:")
         print("1. store_gong_call_insight (MCP Operations)")
-        print("2. analyze_pipeline_health (Sales Intelligence)")  
+        print("2. analyze_pipeline_health (Sales Intelligence)")
         print("3. unified_business_query (Executive Dashboard)")
         return
-    
+
     results = refactorer.run_phase1_refactoring()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("PHASE 1 CRITICAL REFACTORING COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print(f"Functions Refactored: {results['functions_refactored']}")
     print(f"Files Modified: {results['files_modified']}")
     print(f"Categories Completed: {results['categories_completed']}/3")
     print(f"Errors: {results['errors']}")
-    
-    if results['errors'] > 0:
+
+    if results["errors"] > 0:
         print("\nErrors encountered:")
         for error in refactorer.errors:
             print(f"  - {error}")
-    
+
     print("\nSee PHASE1_CRITICAL_REFACTORING_REPORT.md for detailed results")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":
     from datetime import datetime
+
     main()

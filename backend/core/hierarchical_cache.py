@@ -30,7 +30,7 @@ Current size: 976 lines
 
 Recommended decomposition:
 - hierarchical_cache_core.py - Core functionality
-- hierarchical_cache_utils.py - Utility functions  
+- hierarchical_cache_utils.py - Utility functions
 - hierarchical_cache_models.py - Data models
 - hierarchical_cache_handlers.py - Request handlers
 
@@ -38,17 +38,17 @@ TODO: Implement file decomposition
 """
 
 import asyncio
+import gzip
 import logging
 import pickle
+import threading
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-from typing import Any, Dict, List, Optional
 from collections import OrderedDict
-import gzip
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-import threading
+from enum import Enum
+from typing import Any
 
 # Optional Redis support
 try:
@@ -87,7 +87,7 @@ class CacheEntry:
     created_at: datetime
     last_accessed: datetime
     access_count: int = 0
-    ttl_seconds: Optional[int] = None
+    ttl_seconds: int | None = None
     compressed: bool = False
     size_bytes: int = 0
     hit_count: int = 0
@@ -111,11 +111,11 @@ class CacheBackend(ABC):
     """Abstract cache backend interface"""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         pass
 
     @abstractmethod
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         pass
 
     @abstractmethod
@@ -127,7 +127,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         pass
 
 
@@ -141,7 +141,7 @@ class LRUCache:
         self.cache = OrderedDict()
         self.lock = threading.RLock()
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get item from cache"""
         with self.lock:
             if key in self.cache:
@@ -181,7 +181,7 @@ class LRUCache:
         """Get cache size"""
         return len(self.cache)
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         """Get all cache keys"""
         with self.lock:
             return list(self.cache.keys())
@@ -193,13 +193,13 @@ class MemoryCache(CacheBackend):
     def __init__(self, max_size: int = 1000, max_memory_mb: int = 100):
         self.max_size = max_size
         self.max_memory_bytes = max_memory_mb * 1024 * 1024
-        self._cache: Dict[str, CacheEntry] = {}
-        self._access_order: List[str] = []
+        self._cache: dict[str, CacheEntry] = {}
+        self._access_order: list[str] = []
         self._current_memory = 0
         self._lock = asyncio.Lock()
         self._stats = CacheMetrics()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         async with self._lock:
             if key not in self._cache:
                 self._stats.misses += 1
@@ -228,7 +228,7 @@ class MemoryCache(CacheBackend):
             self._stats.total_requests += 1
             return entry.value
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         async with self._lock:
             # Calculate size
             try:
@@ -300,7 +300,7 @@ class MemoryCache(CacheBackend):
             self._current_memory = 0
             return True
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "type": "memory",
             "entries": len(self._cache),
@@ -310,10 +310,11 @@ class MemoryCache(CacheBackend):
             "hits": self._stats.l1_hits,
             "misses": self._stats.misses,
             "evictions": self._stats.evictions,
-            "hit_ratio": self._stats.l1_hits
-            / (self._stats.l1_hits + self._stats.misses)
-            if (self._stats.l1_hits + self._stats.misses) > 0
-            else 0,
+            "hit_ratio": (
+                self._stats.l1_hits / (self._stats.l1_hits + self._stats.misses)
+                if (self._stats.l1_hits + self._stats.misses) > 0
+                else 0
+            ),
         }
 
 
@@ -345,7 +346,7 @@ class RedisCache(CacheBackend):
                 self._connected = False
                 raise
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         try:
             await self._ensure_connected()
 
@@ -370,7 +371,7 @@ class RedisCache(CacheBackend):
             self._stats.misses += 1
             return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         try:
             await self._ensure_connected()
 
@@ -413,16 +414,17 @@ class RedisCache(CacheBackend):
             logger.warning(f"Redis clear failed: {e}")
             return False
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "type": "redis",
             "connected": self._connected,
             "hits": self._stats.l2_hits,
             "misses": self._stats.misses,
-            "hit_ratio": self._stats.l2_hits
-            / (self._stats.l2_hits + self._stats.misses)
-            if (self._stats.l2_hits + self._stats.misses) > 0
-            else 0,
+            "hit_ratio": (
+                self._stats.l2_hits / (self._stats.l2_hits + self._stats.misses)
+                if (self._stats.l2_hits + self._stats.misses) > 0
+                else 0
+            ),
         }
 
 
@@ -504,7 +506,7 @@ class HierarchicalCache:
             raise
 
     @performance_monitor.monitor_performance("cache_get", 100)
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """
         ✅ OPTIMIZED: Get value from hierarchical cache
 
@@ -575,7 +577,7 @@ class HierarchicalCache:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
         cache_level: CacheLevel = CacheLevel.L1_MEMORY,
     ) -> bool:
         """
@@ -658,7 +660,7 @@ class HierarchicalCache:
             logger.error(f"Cache delete failed for key {key}: {e}")
             return False
 
-    async def clear(self, cache_level: Optional[CacheLevel] = None):
+    async def clear(self, cache_level: CacheLevel | None = None):
         """Clear cache entries"""
         if not self.initialized:
             await self.initialize()
@@ -678,7 +680,7 @@ class HierarchicalCache:
         except Exception as e:
             logger.error(f"Cache clear failed: {e}")
 
-    async def warm_cache(self, keys: List[str], values: List[Any]):
+    async def warm_cache(self, keys: list[str], values: list[Any]):
         """Warm cache with pre-loaded data"""
         if not self.initialized:
             await self.initialize()
@@ -686,7 +688,7 @@ class HierarchicalCache:
         logger.info(f"Warming cache with {len(keys)} entries...")
 
         try:
-            for key, value in zip(keys, values):
+            for key, value in zip(keys, values, strict=False):
                 await self.put(key, value, cache_level=CacheLevel.L1_MEMORY)
 
             logger.info(f"✅ Cache warming completed: {len(keys)} entries")
@@ -724,7 +726,7 @@ class HierarchicalCache:
         # Placeholder for Redis initialization
         logger.info("L2 cache (Redis) placeholder initialized")
 
-    async def _get_from_l2(self, key: str) -> Optional[Any]:
+    async def _get_from_l2(self, key: str) -> Any | None:
         """Get value from L2 cache"""
         # Placeholder for Redis get operation
         return None
@@ -755,7 +757,7 @@ class HierarchicalCache:
         # Placeholder for database initialization
         logger.info("L3 cache (Database) placeholder initialized")
 
-    async def _get_from_l3(self, key: str) -> Optional[Any]:
+    async def _get_from_l3(self, key: str) -> Any | None:
         """Get value from L3 cache"""
         # Placeholder for database get operation
         return None
@@ -784,7 +786,7 @@ class HierarchicalCache:
 
         try:
             # Serialize value
-            if not isinstance(value, (str, int, float, bool)):
+            if not isinstance(value, str | int | float | bool):
                 serialized_value = pickle.dumps(value)
                 size_bytes = len(serialized_value)
             else:
@@ -906,7 +908,7 @@ class HierarchicalCache:
 
         return total_hits / total_requests
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    def get_performance_stats(self) -> dict[str, Any]:
         """Get comprehensive cache performance statistics"""
         uptime_seconds = time.time() - self.start_time
         hit_ratio = self.get_hit_ratio()
@@ -947,7 +949,7 @@ class HierarchicalCache:
             },
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Comprehensive health check"""
         health_status = {
             "status": "healthy",

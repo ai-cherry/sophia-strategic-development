@@ -6,13 +6,12 @@ Transforms raw Estuary data into structured format for knowledge base integratio
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, Optional
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.snowflake_config_manager import SnowflakeConfigManager
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +31,8 @@ class TransformationStats:
     total_records: int = 0
     processed_records: int = 0
     failed_records: int = 0
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
 
     @property
     def duration_seconds(self) -> float:
@@ -327,7 +326,7 @@ class SlackLinearTransformationService:
 
         return stats
 
-    async def run_full_slack_pipeline(self) -> Dict[str, TransformationStats]:
+    async def run_full_slack_pipeline(self) -> dict[str, TransformationStats]:
         """Run complete Slack data transformation pipeline"""
         logger.info("🚀 Starting full Slack data transformation pipeline")
 
@@ -354,7 +353,7 @@ class SlackLinearTransformationService:
 
         return results
 
-    async def run_full_linear_pipeline(self) -> Dict[str, TransformationStats]:
+    async def run_full_linear_pipeline(self) -> dict[str, TransformationStats]:
         """Run complete Linear data transformation pipeline"""
         logger.info("🚀 Starting full Linear data transformation pipeline")
 
@@ -381,7 +380,7 @@ class SlackLinearTransformationService:
         status: str,
         rows_processed: int = 0,
         duration_seconds: float = 0.0,
-        error_message: Optional[str] = None,
+        error_message: str | None = None,
     ):
         """Log ETL job execution to monitoring table"""
         try:

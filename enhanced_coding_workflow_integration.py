@@ -10,20 +10,21 @@ Current size: 611 lines
 
 Recommended decomposition:
 - enhanced_coding_workflow_integration_core.py - Core functionality
-- enhanced_coding_workflow_integration_utils.py - Utility functions  
+- enhanced_coding_workflow_integration_utils.py - Utility functions
 - enhanced_coding_workflow_integration_models.py - Data models
 - enhanced_coding_workflow_integration_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import json
 import asyncio
-import requests
-import subprocess
-from typing import Dict, List, Any, Optional
-from pathlib import Path
+import json
 import logging
+import subprocess
+from pathlib import Path
+from typing import Any
+
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -315,7 +316,7 @@ Include:
 
     async def gather_context_from_platform(
         self, platform: str, resource_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Gather context from external platform (Zencoder-style)"""
         try:
             if platform == "github":
@@ -332,7 +333,7 @@ Include:
         except Exception as e:
             return {"error": f"Failed to gather context from {platform}: {str(e)}"}
 
-    async def _gather_github_context(self, issue_id: str) -> Dict[str, Any]:
+    async def _gather_github_context(self, issue_id: str) -> dict[str, Any]:
         """Gather context from GitHub issue/PR"""
         # This would integrate with GitHub API
         # For now, return mock context
@@ -352,8 +353,8 @@ Include:
     async def generate_enhanced_prompt(
         self,
         prompt_name: str,
-        context: Dict[str, Any],
-        platform_context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any],
+        platform_context: dict[str, Any] | None = None,
     ) -> str:
         """Generate enhanced prompt with context (cursor-companion style + Sophia AI)"""
 
@@ -362,7 +363,7 @@ Include:
         if not prompt_file.exists():
             return f"Prompt '{prompt_name}' not found. Available prompts: {self.list_prompts()}"
 
-        with open(prompt_file, "r") as f:
+        with open(prompt_file) as f:
             prompt_data = json.load(f)
 
         template = prompt_data.get("template", "")
@@ -381,8 +382,8 @@ Include:
             return f"Missing context variable: {e}. Please provide: {list(full_context.keys())}"
 
     async def _gather_sophia_business_context(
-        self, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Gather business context from Sophia AI systems"""
         business_context = {}
 
@@ -434,14 +435,14 @@ Include:
 
         return business_context
 
-    def list_prompts(self) -> List[str]:
+    def list_prompts(self) -> list[str]:
         """List available prompts"""
         if not self.prompts_dir.exists():
             return []
 
         return [f.stem for f in self.prompts_dir.glob("*.json")]
 
-    def list_rules(self) -> List[str]:
+    def list_rules(self) -> list[str]:
         """List available rules"""
         if not self.rules_dir.exists():
             return []
@@ -451,8 +452,8 @@ Include:
     async def enhanced_code_generation(
         self,
         prompt_name: str,
-        context: Dict[str, Any],
-        platform_context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any],
+        platform_context: dict[str, Any] | None = None,
     ) -> str:
         """Generate code using enhanced prompt with full Sophia AI context"""
 
@@ -491,8 +492,8 @@ Include:
             return f"Code generation failed: {str(e)}"
 
     async def workflow_automation(
-        self, workflow_type: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, workflow_type: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Automate development workflows (Zencoder-style agents)"""
 
         workflows = {
@@ -508,7 +509,7 @@ Include:
 
         return await workflows[workflow_type](context)
 
-    async def _workflow_issue_to_code(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _workflow_issue_to_code(self, context: dict[str, Any]) -> dict[str, Any]:
         """Automated workflow: Issue to Code implementation"""
 
         steps = []

@@ -5,16 +5,16 @@ Snowflake Cortex API Routes for Sophia AI
 RESTful endpoints and WebSocket support for Cortex agents
 """
 
-from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import Dict, List, Optional
 import logging
 from datetime import datetime
 
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from backend.services.cortex_agent_service import (
-    get_cortex_agent_service,
-    CortexAgentService,
     AgentRequest,
+    CortexAgentService,
+    get_cortex_agent_service,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ async def verify_jwt_token(
 @router.get("/agents")
 async def list_agents(
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, List[Dict]]:
+) -> dict[str, list[dict]]:
     """
     List all available Cortex agents
 
@@ -63,7 +63,7 @@ async def list_agents(
 async def get_agent_details(
     agent_name: str,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get detailed information about a specific agent"""
     try:
         agents = await cortex_service.list_agents()
@@ -87,9 +87,9 @@ async def get_agent_details(
 async def invoke_agent(
     agent_name: str,
     request: AgentRequest,
-    jwt_token: Optional[str] = None,
+    jwt_token: str | None = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Invoke a Cortex agent with optional JWT authentication
 
@@ -140,10 +140,10 @@ async def invoke_agent(
 async def execute_agent_tool(
     agent_name: str,
     tool_name: str,
-    parameters: Dict[str, Any],
-    jwt_token: Optional[str] = None,
+    parameters: dict[str, Any],
+    jwt_token: str | None = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute a specific tool for an agent
 
@@ -237,7 +237,7 @@ async def generate_agent_token(
     agent_name: str,
     user_id: str,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Generate a JWT token for accessing a specific agent
 
@@ -266,7 +266,7 @@ async def generate_agent_token(
 @router.get("/health")
 async def cortex_health_check(
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Check health of Cortex agent service"""
     try:
         # Check if we can list agents
@@ -299,7 +299,7 @@ async def analyze_gong_call(
     call_id: str,
     analysis_type: str = "summary",
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Analyze a Gong call using the business intelligence agent
 
@@ -309,7 +309,7 @@ async def analyze_gong_call(
     try:
         # Prepare the analysis request
         prompt = f"""Analyze Gong call {call_id} and provide a {analysis_type}.
-        
+
         Focus on:
         - Key discussion points
         - Action items
@@ -351,9 +351,9 @@ async def analyze_gong_call(
 async def search_knowledge_base(
     query: str,
     limit: int = 10,
-    filters: Optional[Dict[str, Any]] = None,
+    filters: dict[str, Any] | None = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search the knowledge base using semantic memory agent
 
@@ -393,7 +393,7 @@ async def optimize_sql_query(
     query: str,
     warehouse: str = "COMPUTE_WH",
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Optimize a SQL query using the Snowflake operations agent
 

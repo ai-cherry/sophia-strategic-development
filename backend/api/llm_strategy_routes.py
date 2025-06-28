@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import JSONResponse
-import os
-import httpx
-import time
-from typing import Dict, List
-from datetime import datetime
 import logging
+import os
+import time
+from datetime import datetime
 
+import httpx
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -53,8 +52,8 @@ class SophiaLLMManager:
         }
 
     async def call_portkey_gateway(
-        self, messages: List[Dict], context: Dict = None, task_type: str = "general"
-    ) -> Dict:
+        self, messages: list[dict], context: dict = None, task_type: str = "general"
+    ) -> dict:
         """Call Portkey gateway with intelligent routing to OpenRouter backend"""
         start_time = time.time()
 
@@ -126,7 +125,7 @@ class SophiaLLMManager:
                 messages, selected_model, task_type
             )
 
-    async def _select_optimal_model(self, task_type: str, context: Dict = None) -> str:
+    async def _select_optimal_model(self, task_type: str, context: dict = None) -> str:
         """Select optimal model based on task type, context, and strategic assignments"""
 
         # Check for strategic assignments first (CEO dashboard context)
@@ -193,7 +192,7 @@ class SophiaLLMManager:
         }
         return token_map.get(task_type, 2000)
 
-    async def _calculate_cost(self, model: str, usage: Dict) -> float:
+    async def _calculate_cost(self, model: str, usage: dict) -> float:
         """Calculate cost with updated pricing for top-tier models"""
         cost_per_1k = {
             "gpt-4o": 0.015,
@@ -244,8 +243,8 @@ class SophiaLLMManager:
         metrics["last_used"] = timestamp
 
     async def _fallback_to_openrouter(
-        self, messages: List[Dict], model: str, task_type: str
-    ) -> Dict:
+        self, messages: list[dict], model: str, task_type: str
+    ) -> dict:
         """Fallback to direct OpenRouter if Portkey fails"""
         try:
             headers = {
@@ -473,67 +472,74 @@ async def update_cost_control(request: Request):
 
 
 @router.post("/api/v1/chat/unified")
-
-async def _validate_chat_request(request: Request) -> Dict[str, Any]:
+async def _validate_chat_request(request: Request) -> dict[str, Any]:
     """Validate and parse incoming chat request"""
     try:
         request_data = await request.json()
-        
+
         if not request_data.get("message"):
             raise ValueError("Message is required")
-        
+
         return {
             "message": request_data["message"],
             "context": request_data.get("context", {}),
             "session_id": request_data.get("session_id"),
             "user_id": request_data.get("user_id"),
-            "stream": request_data.get("stream", False)
+            "stream": request_data.get("stream", False),
         }
     except Exception as e:
         logger.error(f"Request validation error: {e}")
         raise HTTPException(status_code=400, detail=f"Invalid request: {e}")
 
-async def _process_chat_message(validated_data: Dict[str, Any]) -> Dict[str, Any]:
+
+async def _process_chat_message(validated_data: dict[str, Any]) -> dict[str, Any]:
     """Process chat message through AI pipeline"""
     try:
         session_id = validated_data.get("session_id") or str(uuid.uuid4())
-        
+
         # Create LLM request
         llm_request = LLMRequest(
             message=validated_data["message"],
             context=validated_data.get("context", {}),
             session_id=session_id,
-            user_id=validated_data.get("user_id")
+            user_id=validated_data.get("user_id"),
         )
-        
+
         # Process through intelligence service
         response = await unified_intelligence_service.process_request(llm_request)
-        
+
         return {
             "response": response.content,
             "session_id": session_id,
             "metadata": response.metadata,
-            "processing_time": response.processing_time
+            "processing_time": response.processing_time,
         }
-        
+
     except Exception as e:
         logger.error(f"Chat processing error: {e}")
         raise HTTPException(status_code=500, detail=f"Processing error: {e}")
 
-async def _handle_streaming_response(validated_data: Dict[str, Any]) -> StreamingResponse:
+
+async def _handle_streaming_response(
+    validated_data: dict[str, Any],
+) -> StreamingResponse:
     """Handle streaming chat response"""
+
     async def generate_stream():
         try:
-            async for chunk in unified_intelligence_service.stream_response(validated_data):
+            async for chunk in unified_intelligence_service.stream_response(
+                validated_data
+            ):
                 yield f"data: {json.dumps(chunk)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
     )
+
 
 @router.post("/unified-chat", response_model=ChatResponse)
 async def unified_chat_endpoint(request: Request):
@@ -544,26 +550,28 @@ async def unified_chat_endpoint(request: Request):
     try:
         # Validate request
         validated_data = await _validate_chat_request(request)
-        
+
         # Handle streaming requests
         if validated_data.get("stream"):
             return await _handle_streaming_response(validated_data)
-        
+
         # Process regular chat message
         result = await _process_chat_message(validated_data)
-        
+
         return ChatResponse(
             content=result["response"],
             session_id=result["session_id"],
             metadata=result.get("metadata", {}),
-            processing_time=result.get("processing_time", 0)
+            processing_time=result.get("processing_time", 0),
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Unexpected error in unified chat: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @router.post("/api/v1/actions/execute")
 async def execute_action(request: Request):
     """Execute suggested actions with enhanced functionality"""

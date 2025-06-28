@@ -3,18 +3,20 @@ Snowflake Cortex Agent Service for Sophia AI
 Manages AI agents with JWT authentication and tool execution
 """
 
-import json
 import asyncio
+import json
 import logging
-from typing import Dict, List, Any, Optional, AsyncGenerator
+from collections.abc import AsyncGenerator
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+
 import jwt
-from pydantic import BaseModel
-from snowflake.connector import DictCursor
 
 # from snowflake.cortex import Cortex
 import yaml
-from pathlib import Path
+from pydantic import BaseModel
+from snowflake.connector import DictCursor
 
 from backend.core.auto_esc_config import get_config_value
 from backend.core.config_manager import get_snowflake_connection
@@ -32,18 +34,19 @@ class AgentRequest(BaseModel):
 
     def _validate_warehouse(self, warehouse_name: str) -> str:
         """Validate warehouse name against whitelist"""
-        safe_warehouses = {'AI_COMPUTE_WH', 'COMPUTE_WH', 'ANALYTICS_WH'}
+        safe_warehouses = {"AI_COMPUTE_WH", "COMPUTE_WH", "ANALYTICS_WH"}
         if warehouse_name not in safe_warehouses:
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return warehouse_name
+
     """Request model for agent invocation"""
 
     prompt: str
-    context: Optional[Dict[str, Any]] = None
-    tools: Optional[List[str]] = None
-    max_tokens: Optional[int] = 4096
-    temperature: Optional[float] = 0.7
-    stream: Optional[bool] = False
+    context: dict[str, Any] | None = None
+    tools: list[str] | None = None
+    max_tokens: int | None = 4096
+    temperature: float | None = 0.7
+    stream: bool | None = False
 
 
 class AgentResponse(BaseModel):
@@ -51,10 +54,10 @@ class AgentResponse(BaseModel):
 
     agent_name: str
     response: str
-    tools_used: List[str] = []
+    tools_used: list[str] = []
     tokens_used: int
     execution_time: float
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class CortexTool(BaseModel):
@@ -62,8 +65,8 @@ class CortexTool(BaseModel):
 
     name: str
     description: str
-    parameters: Dict[str, Any]
-    handler: Optional[str] = None
+    parameters: dict[str, Any]
+    handler: str | None = None
 
 
 class CortexAgentConfig(BaseModel):
@@ -73,8 +76,8 @@ class CortexAgentConfig(BaseModel):
     model: str = "mistral-large"
     temperature: float = 0.7
     max_tokens: int = 4096
-    tools: List[CortexTool] = []
-    system_prompt: Optional[str] = None
+    tools: list[CortexTool] = []
+    system_prompt: str | None = None
     jwt_required: bool = True
 
 
@@ -82,7 +85,7 @@ class CortexAgentService:
     """Service for managing Snowflake Cortex AI agents"""
 
     def __init__(self):
-        self.agents: Dict[str, CortexAgentConfig] = {}
+        self.agents: dict[str, CortexAgentConfig] = {}
         self.cortex_client = None
         self.snowflake_conn = None
         self._load_agent_configs()
@@ -92,7 +95,7 @@ class CortexAgentService:
         config_path = Path(__file__).parent.parent / "config" / "cortex_agents.yaml"
 
         if config_path.exists():
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 configs = yaml.safe_load(f)
 
             for agent_name, config in configs.get("agents", {}).items():
@@ -217,7 +220,7 @@ class CortexAgentService:
 
         return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-    def verify_jwt(self, token: str) -> Dict[str, Any]:
+    def verify_jwt(self, token: str) -> dict[str, Any]:
         """Verify JWT token"""
         try:
             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
@@ -228,7 +231,7 @@ class CortexAgentService:
             raise ValueError("Invalid token")
 
     async def invoke_agent(
-        self, agent_name: str, request: AgentRequest, jwt_token: Optional[str] = None
+        self, agent_name: str, request: AgentRequest, jwt_token: str | None = None
     ) -> AgentResponse:
         """Invoke a Cortex agent"""
         start_time = datetime.now()
@@ -315,7 +318,7 @@ class CortexAgentService:
         temperature: float,
         max_tokens: int,
         stream: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Call Snowflake Cortex model"""
         if not self.cortex_client:
             await self.initialize()
@@ -349,7 +352,7 @@ class CortexAgentService:
             raise
 
     async def _execute_tool(
-        self, agent_name: str, tool: CortexTool, context: Optional[Dict[str, Any]]
+        self, agent_name: str, tool: CortexTool, context: dict[str, Any] | None
     ) -> Any:
         """Execute a tool for an agent"""
         # Tool handlers based on agent and tool name
@@ -379,7 +382,7 @@ class CortexAgentService:
             return f"Tool {tool.name} not implemented"
 
     # Tool implementations
-    async def _execute_query_tool(self, params: Dict, context: Dict) -> Any:
+    async def _execute_query_tool(self, params: dict, context: dict) -> Any:
         """Execute SQL query tool"""
         query = params.get("query", "")
         warehouse = params.get("warehouse", "COMPUTE_WH")
@@ -398,7 +401,7 @@ class CortexAgentService:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _store_memory_tool(self, params: Dict, context: Dict) -> Any:
+    async def _store_memory_tool(self, params: dict, context: dict) -> Any:
         """Store memory with embeddings"""
         content = params.get("content", "")
         metadata = params.get("metadata", {})
@@ -418,7 +421,7 @@ class CortexAgentService:
 
             # Store in vector table
             insert_query = """
-            INSERT INTO SOPHIA_AI.CORTEX_VECTORS.embeddings 
+            INSERT INTO SOPHIA_AI.CORTEX_VECTORS.embeddings
             (id, source_type, content, embedding, metadata)
             VALUES (?, ?, ?, ?, ?)
             """
@@ -440,7 +443,7 @@ class CortexAgentService:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _recall_memory_tool(self, params: Dict, context: Dict) -> Any:
+    async def _recall_memory_tool(self, params: dict, context: dict) -> Any:
         """Recall similar memories using Cortex Search"""
         query = params.get("query", "")
         limit = params.get("limit", 10)
@@ -448,8 +451,8 @@ class CortexAgentService:
         try:
             # Use Cortex Search service
             search_query = f"""
-            SELECT content, metadata, 
-                   VECTOR_DISTANCE(embedding, 
+            SELECT content, metadata,
+                   VECTOR_DISTANCE(embedding,
                      SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query.replace("'", "''")}')
                    ) as distance
             FROM SOPHIA_AI.CORTEX_VECTORS.embeddings
@@ -470,7 +473,7 @@ class CortexAgentService:
         websocket,
         agent_name: str,
         request: AgentRequest,
-        jwt_token: Optional[str] = None,
+        jwt_token: str | None = None,
     ) -> AsyncGenerator[str, None]:
         """Handle streaming responses for WebSocket connections"""
         # Verify agent and JWT
@@ -501,7 +504,7 @@ class CortexAgentService:
         except Exception as e:
             yield json.dumps({"error": str(e)})
 
-    async def list_agents(self) -> List[Dict[str, Any]]:
+    async def list_agents(self) -> list[dict[str, Any]]:
         """List all available agents"""
         agents_list = []
 
@@ -522,27 +525,27 @@ class CortexAgentService:
         return agents_list
 
     # Additional tool implementations would go here...
-    async def _optimize_query_tool(self, params: Dict, context: Dict) -> Any:
+    async def _optimize_query_tool(self, params: dict, context: dict) -> Any:
         """Optimize SQL query using Cortex"""
         return {"message": "Query optimization not yet implemented"}
 
-    async def _manage_schema_tool(self, params: Dict, context: Dict) -> Any:
+    async def _manage_schema_tool(self, params: dict, context: dict) -> Any:
         """Manage database schema"""
         return {"message": "Schema management not yet implemented"}
 
-    async def _search_context_tool(self, params: Dict, context: Dict) -> Any:
+    async def _search_context_tool(self, params: dict, context: dict) -> Any:
         """Search across all data sources"""
         return {"message": "Context search not yet implemented"}
 
-    async def _analyze_metrics_tool(self, params: Dict, context: Dict) -> Any:
+    async def _analyze_metrics_tool(self, params: dict, context: dict) -> Any:
         """Analyze business metrics"""
         return {"message": "Metrics analysis not yet implemented"}
 
-    async def _generate_insights_tool(self, params: Dict, context: Dict) -> Any:
+    async def _generate_insights_tool(self, params: dict, context: dict) -> Any:
         """Generate business insights"""
         return {"message": "Insights generation not yet implemented"}
 
-    async def _forecast_trends_tool(self, params: Dict, context: Dict) -> Any:
+    async def _forecast_trends_tool(self, params: dict, context: dict) -> Any:
         """Forecast business trends"""
         return {"message": "Trend forecasting not yet implemented"}
 

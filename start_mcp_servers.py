@@ -4,11 +4,11 @@ Sophia AI MCP Server Startup Script
 Starts essential MCP servers with proper error handling
 """
 
-import subprocess
-import time
-import sys
 import os
 import signal
+import subprocess
+import sys
+import time
 from pathlib import Path
 
 

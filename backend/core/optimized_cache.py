@@ -6,12 +6,12 @@ High-performance caching with TTL, LRU eviction, and Redis integration
 
 import asyncio
 import json
-import time
 import logging
-from typing import Any, Optional, Dict, List
+import time
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from enum import Enum
-from collections import OrderedDict
+from typing import Any
 
 try:
     import redis.asyncio as redis
@@ -69,7 +69,7 @@ class CacheEntry:
 
     value: Any
     created_at: float
-    ttl: Optional[int] = None
+    ttl: int | None = None
     access_count: int = 0
     last_accessed: float = field(default_factory=time.time)
     size_bytes: int = 0
@@ -95,7 +95,7 @@ class LRUCache:
         self._cache: OrderedDict[str, CacheEntry] = OrderedDict()
         self._lock = asyncio.Lock()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from LRU cache"""
         async with self._lock:
             if key not in self._cache:
@@ -114,7 +114,7 @@ class LRUCache:
 
             return entry.value
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in LRU cache"""
         async with self._lock:
             # Calculate size
@@ -168,7 +168,7 @@ class LRUCache:
 
         return len(expired_keys)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics"""
         total_size = sum(entry.size_bytes for entry in self._cache.values())
         return {
@@ -202,18 +202,18 @@ class OptimizedHierarchicalCache:
         self.l1_cache = LRUCache(max_size=l1_max_size, default_ttl=l1_default_ttl)
 
         # L2 Cache (Redis)
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
         self.enable_redis = enable_redis and REDIS_AVAILABLE
         self.l2_default_ttl = l2_default_ttl
 
         # Metrics
         self.metrics = CacheMetrics()
-        self._get_times: List[float] = []
-        self._set_times: List[float] = []
+        self._get_times: list[float] = []
+        self._set_times: list[float] = []
         self._max_metrics_history = 1000
 
         # Background tasks
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self._cleanup_task: asyncio.Task | None = None
         self._initialized = False
 
     async def initialize(self) -> None:
@@ -266,7 +266,7 @@ class OptimizedHierarchicalCache:
             self.redis_client = None
             self.enable_redis = False
 
-    async def get(self, key: str, namespace: str = "default") -> Optional[Any]:
+    async def get(self, key: str, namespace: str = "default") -> Any | None:
         """
         Get value from hierarchical cache
 
@@ -332,7 +332,7 @@ class OptimizedHierarchicalCache:
         key: str,
         value: Any,
         namespace: str = "default",
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> None:
         """
         Set value in hierarchical cache
@@ -373,8 +373,8 @@ class OptimizedHierarchicalCache:
             self._track_set_time(time.time() - start_time)
 
     async def get_many(
-        self, keys: List[str], namespace: str = "default"
-    ) -> Dict[str, Any]:
+        self, keys: list[str], namespace: str = "default"
+    ) -> dict[str, Any]:
         """
         Get multiple values efficiently
 
@@ -402,7 +402,7 @@ class OptimizedHierarchicalCache:
                 full_keys = [f"{namespace}:{key}" for key in missing_keys]
                 redis_values = await self.redis_client.mget(full_keys)
 
-                for key, redis_value in zip(missing_keys, redis_values):
+                for key, redis_value in zip(missing_keys, redis_values, strict=False):
                     if redis_value:
                         try:
                             value = json.loads(redis_value)
@@ -422,9 +422,9 @@ class OptimizedHierarchicalCache:
 
     async def set_many(
         self,
-        items: Dict[str, Any],
+        items: dict[str, Any],
         namespace: str = "default",
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> None:
         """
         Set multiple values efficiently
@@ -475,7 +475,7 @@ class OptimizedHierarchicalCache:
 
         return cleared_count
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """Get comprehensive cache statistics"""
         l1_stats = self.l1_cache.get_stats()
 
@@ -571,18 +571,18 @@ optimized_cache = OptimizedHierarchicalCache()
 
 
 # Convenience functions
-async def get_cached(key: str, namespace: str = "default") -> Optional[Any]:
+async def get_cached(key: str, namespace: str = "default") -> Any | None:
     """Get value from global cache"""
     return await optimized_cache.get(key, namespace)
 
 
 async def set_cached(
-    key: str, value: Any, namespace: str = "default", ttl: Optional[int] = None
+    key: str, value: Any, namespace: str = "default", ttl: int | None = None
 ) -> None:
     """Set value in global cache"""
     await optimized_cache.set(key, value, namespace, ttl)
 
 
-async def get_cache_stats() -> Dict[str, Any]:
+async def get_cache_stats() -> dict[str, Any]:
     """Get cache statistics"""
     return await optimized_cache.get_stats()

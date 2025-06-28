@@ -11,7 +11,7 @@ Current size: 1655 lines
 
 Recommended decomposition:
 - gong_data_integration_core.py - Core functionality
-- gong_data_integration_utils.py - Utility functions  
+- gong_data_integration_utils.py - Utility functions
 - gong_data_integration_models.py - Data models
 - gong_data_integration_handlers.py - Request handlers
 
@@ -23,21 +23,21 @@ from __future__ import annotations
 import asyncio
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any
 from uuid import uuid4
 
+import structlog
 from pydantic import BaseModel, Field
 
-import structlog
 from backend.agents.core.langgraph_agent_base import AgentContext
+from backend.core.integration_registry import IntegrationRegistry
 from backend.integrations.gong_redis_client import (
-    RedisNotificationClient,
-    ProcessedCallData,
     NotificationPriority,
     NotificationType,
+    ProcessedCallData,
+    RedisNotificationClient,
 )
-from backend.core.integration_registry import IntegrationRegistry
 
 # Try to import LangGraph agent pool - this resolves the F821 undefined name error
 try:
@@ -56,24 +56,24 @@ class CallAnalysisAgentData(BaseModel):
     """Optimized data format for call analysis agent."""
 
     call_id: str
-    conversation_flow: List[Dict[str, Any]]
-    sentiment_timeline: List[Dict[str, Any]]
-    coaching_opportunities: List[Dict[str, Any]]
-    competitive_mentions: List[str]
-    risk_indicators: List[str]
-    key_moments: List[Dict[str, Any]]
-    speaker_analytics: Dict[str, Any]
+    conversation_flow: list[dict[str, Any]]
+    sentiment_timeline: list[dict[str, Any]]
+    coaching_opportunities: list[dict[str, Any]]
+    competitive_mentions: list[str]
+    risk_indicators: list[str]
+    key_moments: list[dict[str, Any]]
+    speaker_analytics: dict[str, Any]
 
 
 class SalesIntelligenceAgentData(BaseModel):
     """Optimized data format for sales intelligence agent."""
 
     call_id: str
-    deal_progression: Dict[str, Any]
-    revenue_signals: List[Dict[str, Any]]
-    pipeline_impact: Dict[str, Any]
-    forecast_indicators: List[str]
-    next_best_actions: List[Dict[str, Any]]
+    deal_progression: dict[str, Any]
+    revenue_signals: list[dict[str, Any]]
+    pipeline_impact: dict[str, Any]
+    forecast_indicators: list[str]
+    next_best_actions: list[dict[str, Any]]
     buyer_engagement_score: float
     closing_probability: float
 
@@ -82,26 +82,26 @@ class BusinessIntelligenceAgentData(BaseModel):
     """Optimized data format for business intelligence agent."""
 
     call_id: str
-    performance_metrics: Dict[str, Any]
-    trend_data: List[Dict[str, Any]]
-    benchmark_comparisons: Dict[str, Any]
-    insight_categories: List[str]
-    actionable_recommendations: List[Dict[str, Any]]
-    team_performance_impact: Dict[str, Any]
-    market_intelligence: Dict[str, Any]
+    performance_metrics: dict[str, Any]
+    trend_data: list[dict[str, Any]]
+    benchmark_comparisons: dict[str, Any]
+    insight_categories: list[str]
+    actionable_recommendations: list[dict[str, Any]]
+    team_performance_impact: dict[str, Any]
+    market_intelligence: dict[str, Any]
 
 
 class ExecutiveIntelligenceAgentData(BaseModel):
     """Optimized data format for executive intelligence agent."""
 
     event_id: str
-    strategic_insights: List[Dict[str, Any]]
-    risk_assessment: Dict[str, Any]
-    opportunity_analysis: Dict[str, Any]
-    competitive_intelligence: Dict[str, Any]
+    strategic_insights: list[dict[str, Any]]
+    risk_assessment: dict[str, Any]
+    opportunity_analysis: dict[str, Any]
+    competitive_intelligence: dict[str, Any]
     executive_summary: str
-    recommended_actions: List[Dict[str, Any]]
-    impact_assessment: Dict[str, Any]
+    recommended_actions: list[dict[str, Any]]
+    impact_assessment: dict[str, Any]
 
 
 class GeneralIntelligenceAgentData(BaseModel):
@@ -109,11 +109,11 @@ class GeneralIntelligenceAgentData(BaseModel):
 
     event_id: str
     task_type: str
-    task_details: Dict[str, Any]
-    context: Dict[str, Any]
+    task_details: dict[str, Any]
+    context: dict[str, Any]
     priority: str
-    dependencies: List[str]
-    estimated_completion_time: Optional[int] = None
+    dependencies: list[str]
+    estimated_completion_time: int | None = None
 
 
 class StandardizedAgentEvent(BaseModel):
@@ -124,10 +124,10 @@ class StandardizedAgentEvent(BaseModel):
     source: str = "gong_webhook"
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     priority: str
-    gong_data: Dict[str, Any]
-    agent_context: Dict[str, Any]
-    workflow_id: Optional[str] = None
-    correlation_id: Optional[str] = None
+    gong_data: dict[str, Any]
+    agent_context: dict[str, Any]
+    workflow_id: str | None = None
+    correlation_id: str | None = None
 
 
 class WorkflowStatus(str, Enum):
@@ -257,7 +257,7 @@ class AgentDataTransformer:
         )
 
     async def transform_for_executive_intelligence(
-        self, event_data: Dict[str, Any]
+        self, event_data: dict[str, Any]
     ) -> ExecutiveIntelligenceAgentData:
         """Transform event data for executive intelligence agent."""
         event_id = event_data.get("event_id", str(uuid4()))
@@ -295,7 +295,7 @@ class AgentDataTransformer:
         )
 
     async def transform_for_general_intelligence(
-        self, action_data: Dict[str, Any]
+        self, action_data: dict[str, Any]
     ) -> GeneralIntelligenceAgentData:
         """Transform action data for general intelligence agent."""
         event_id = action_data.get("event_id", str(uuid4()))
@@ -314,7 +314,7 @@ class AgentDataTransformer:
 
     def _extract_conversation_flow(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract conversation flow patterns."""
         flow = []
         if call_data.summary:
@@ -332,7 +332,7 @@ class AgentDataTransformer:
 
     def _generate_sentiment_timeline(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate sentiment timeline from call data."""
         timeline = []
         if call_data.sentiment_score is not None:
@@ -348,7 +348,7 @@ class AgentDataTransformer:
 
     def _identify_coaching_opportunities(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Identify coaching opportunities from call data."""
         opportunities = []
 
@@ -377,8 +377,8 @@ class AgentDataTransformer:
         return opportunities
 
     def _extract_competitive_mentions(
-        self, insights: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, insights: list[dict[str, Any]]
+    ) -> list[str]:
         """Extract competitive mentions from insights."""
         competitors = []
         for insight in insights:
@@ -386,7 +386,7 @@ class AgentDataTransformer:
                 competitors.append(insight.get("competitor_name", "Unknown"))
         return list(set(competitors))
 
-    def _identify_risk_indicators(self, call_data: ProcessedCallData) -> List[str]:
+    def _identify_risk_indicators(self, call_data: ProcessedCallData) -> list[str]:
         """Identify risk indicators from call data."""
         risks = []
 
@@ -412,7 +412,7 @@ class AgentDataTransformer:
 
     def _extract_key_moments(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Extract key moments from call."""
         moments = []
 
@@ -430,7 +430,7 @@ class AgentDataTransformer:
 
     def _generate_speaker_analytics(
         self, call_data: ProcessedCallData
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate speaker analytics."""
         return {
             "talk_ratio": call_data.talk_ratio or 0.5,
@@ -451,7 +451,7 @@ class AgentDataTransformer:
         else:
             return "negative"
 
-    def _extract_deal_progression(self, call_data: ProcessedCallData) -> Dict[str, Any]:
+    def _extract_deal_progression(self, call_data: ProcessedCallData) -> dict[str, Any]:
         """Extract deal progression indicators."""
         return {
             "stage_advancement": any(
@@ -469,7 +469,7 @@ class AgentDataTransformer:
 
     def _identify_revenue_signals(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Identify revenue-related signals."""
         signals = []
 
@@ -489,7 +489,7 @@ class AgentDataTransformer:
 
     def _calculate_pipeline_impact(
         self, call_data: ProcessedCallData
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate impact on sales pipeline."""
         positive_signals = len(
             [i for i in call_data.insights if "positive" in str(i).lower()]
@@ -508,7 +508,7 @@ class AgentDataTransformer:
             },
         }
 
-    def _extract_forecast_indicators(self, call_data: ProcessedCallData) -> List[str]:
+    def _extract_forecast_indicators(self, call_data: ProcessedCallData) -> list[str]:
         """Extract indicators for sales forecasting."""
         indicators = []
 
@@ -525,7 +525,7 @@ class AgentDataTransformer:
 
     def _generate_next_best_actions(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate recommended next actions."""
         actions = []
 
@@ -590,7 +590,7 @@ class AgentDataTransformer:
 
     def _extract_performance_metrics(
         self, call_data: ProcessedCallData
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Extract performance metrics from call."""
         return {
             "call_duration": call_data.duration_seconds,
@@ -603,7 +603,7 @@ class AgentDataTransformer:
 
     def _generate_trend_data(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate trend analysis data."""
         return [
             {
@@ -622,7 +622,7 @@ class AgentDataTransformer:
 
     def _create_benchmark_comparisons(
         self, call_data: ProcessedCallData
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create benchmark comparisons."""
         return {
             "duration": {
@@ -643,7 +643,7 @@ class AgentDataTransformer:
             },
         }
 
-    def _categorize_insights(self, insights: List[Dict[str, Any]]) -> List[str]:
+    def _categorize_insights(self, insights: list[dict[str, Any]]) -> list[str]:
         """Categorize insights by type."""
         categories = set()
         for insight in insights:
@@ -653,7 +653,7 @@ class AgentDataTransformer:
 
     def _generate_recommendations(
         self, call_data: ProcessedCallData
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate actionable business recommendations."""
         recommendations = []
 
@@ -681,7 +681,7 @@ class AgentDataTransformer:
 
         return recommendations
 
-    def _calculate_team_impact(self, call_data: ProcessedCallData) -> Dict[str, Any]:
+    def _calculate_team_impact(self, call_data: ProcessedCallData) -> dict[str, Any]:
         """Calculate impact on team performance."""
         return {
             "performance_contribution": (
@@ -699,7 +699,7 @@ class AgentDataTransformer:
 
     def _extract_market_intelligence(
         self, call_data: ProcessedCallData
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Extract market intelligence from call."""
         return {
             "competitor_mentions": self._extract_competitive_mentions(
@@ -716,8 +716,8 @@ class AgentDataTransformer:
         }
 
     def _extract_strategic_insights(
-        self, event_data: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, event_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Extract strategic insights for executives."""
         insights = []
 
@@ -736,7 +736,7 @@ class AgentDataTransformer:
 
         return insights
 
-    def _assess_risks(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _assess_risks(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """Assess risks from event data."""
         risks = {
             "overall_risk_level": "medium",
@@ -754,7 +754,7 @@ class AgentDataTransformer:
 
         return risks
 
-    def _analyze_opportunities(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_opportunities(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """Analyze business opportunities."""
         return {
             "opportunity_score": 0.7,
@@ -763,7 +763,7 @@ class AgentDataTransformer:
             "estimated_value": "high",
         }
 
-    def _extract_competitive_intel(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_competitive_intel(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """Extract competitive intelligence."""
         return {
             "competitor_activity": event_data.get("competitor_mentions", []),
@@ -772,7 +772,7 @@ class AgentDataTransformer:
             "recommended_positioning": "Emphasize unique value proposition",
         }
 
-    def _generate_executive_summary(self, event_data: Dict[str, Any]) -> str:
+    def _generate_executive_summary(self, event_data: dict[str, Any]) -> str:
         """Generate executive summary."""
         return (
             f"Strategic opportunity identified with {event_data.get('priority', 'medium')} priority. "
@@ -781,8 +781,8 @@ class AgentDataTransformer:
         )
 
     def _generate_executive_actions(
-        self, event_data: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, event_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate executive-level actions."""
         return [
             {
@@ -794,7 +794,7 @@ class AgentDataTransformer:
             }
         ]
 
-    def _assess_impact(self, event_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _assess_impact(self, event_data: dict[str, Any]) -> dict[str, Any]:
         """Assess business impact."""
         return {
             "revenue_impact": "positive",
@@ -810,10 +810,10 @@ class LangGraphAgentWorkflowOrchestrator:
     Replaces AgnoMCPBridge with pure Python LangGraph-compatible implementation.
     """
 
-    def __init__(self, agent_pool: Optional["LangGraphAgentPool"] = None):
+    def __init__(self, agent_pool: LangGraphAgentPool | None = None):
         self.agent_pool = agent_pool or LangGraphAgentPool(pool_size=3)
         self.logger = logger.bind(component="langgraph_agent_workflow_orchestrator")
-        self.active_workflows: Dict[str, Dict[str, Any]] = {}
+        self.active_workflows: dict[str, dict[str, Any]] = {}
 
         # Import agent classes for dynamic instantiation
         self._agent_classes = {}
@@ -823,13 +823,13 @@ class LangGraphAgentWorkflowOrchestrator:
         """Initialize agent class registry for dynamic instantiation"""
         try:
             from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
-            from backend.agents.specialized.sales_intelligence_agent import (
-                SalesIntelligenceAgent,
-            )
             from backend.agents.specialized.marketing_analysis_agent import (
                 MarketingAnalysisAgent,
             )
             from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
+            from backend.agents.specialized.sales_intelligence_agent import (
+                SalesIntelligenceAgent,
+            )
 
             self._agent_classes = {
                 "call_analysis": CallAnalysisAgent,
@@ -841,8 +841,8 @@ class LangGraphAgentWorkflowOrchestrator:
             self.logger.warning(f"Some agent classes not available: {e}")
 
     async def orchestrate_call_analysis_workflow(
-        self, call_data: ProcessedCallData, transformed_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_data: ProcessedCallData, transformed_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Orchestrate multi-agent workflow for call analysis using LangGraph patterns."""
         workflow_id = str(uuid4())
         self.active_workflows[workflow_id] = {
@@ -904,8 +904,8 @@ class LangGraphAgentWorkflowOrchestrator:
         return results
 
     async def orchestrate_insight_workflow(
-        self, insight_data: Dict[str, Any], transformed_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, insight_data: dict[str, Any], transformed_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Orchestrate LangGraph workflow for detected insights."""
         workflow_id = str(uuid4())
         insight_type = insight_data.get("insight_type", "general")
@@ -959,8 +959,8 @@ class LangGraphAgentWorkflowOrchestrator:
         return results
 
     async def orchestrate_action_workflow(
-        self, action_data: Dict[str, Any], transformed_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, action_data: dict[str, Any], transformed_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Orchestrate LangGraph workflow for required actions."""
         workflow_id = str(uuid4())
         action_type = action_data.get("action_type", "general")
@@ -1018,8 +1018,8 @@ class LangGraphAgentWorkflowOrchestrator:
         return results
 
     async def _route_to_langgraph_agent(
-        self, agent_type: str, data: Any, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agent_type: str, data: Any, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Route data to LangGraph-compatible agent."""
         # Convert Pydantic model to dict if necessary
         if hasattr(data, "dict"):
@@ -1087,7 +1087,7 @@ class LangGraphAgentWorkflowOrchestrator:
 
         return action_agent_mapping.get(action_type, "sales_intelligence")
 
-    def _generate_agent_query(self, agent_type: str, data: Dict[str, Any]) -> str:
+    def _generate_agent_query(self, agent_type: str, data: dict[str, Any]) -> str:
         """Generate appropriate query for agent based on type and data."""
         queries = {
             "call_analysis": f"Analyze this Gong call with ID {data.get('call_id')} focusing on conversation flow, sentiment, and coaching opportunities.",
@@ -1098,7 +1098,7 @@ class LangGraphAgentWorkflowOrchestrator:
 
         return queries.get(agent_type, "Process this Gong data and provide insights.")
 
-    def _consolidate_insights(self, *agent_results) -> List[Dict[str, Any]]:
+    def _consolidate_insights(self, *agent_results) -> list[dict[str, Any]]:
         """Consolidate insights from multiple agent results."""
         consolidated = []
 
@@ -1121,7 +1121,7 @@ class LangGraphAgentWorkflowOrchestrator:
 
         return consolidated
 
-    def _consolidate_actions(self, *agent_results) -> List[Dict[str, Any]]:
+    def _consolidate_actions(self, *agent_results) -> list[dict[str, Any]]:
         """Consolidate recommended actions from multiple agents."""
         actions = []
         action_set = set()  # To avoid duplicates
@@ -1155,8 +1155,8 @@ class LangGraphAgentWorkflowOrchestrator:
         return actions
 
     def _generate_insight_actions(
-        self, insight_data: Dict[str, Any], results: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, insight_data: dict[str, Any], results: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate actions based on insight type and results."""
         actions = []
         insight_type = insight_data.get("insight_type")
@@ -1197,11 +1197,11 @@ class LangGraphAgentWorkflowOrchestrator:
 
         return actions
 
-    async def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+    async def get_workflow_status(self, workflow_id: str) -> dict[str, Any]:
         """Get status of a specific workflow."""
         return self.active_workflows.get(workflow_id, {"status": "not_found"})
 
-    async def get_active_workflows(self) -> Dict[str, Any]:
+    async def get_active_workflows(self) -> dict[str, Any]:
         """Get all active workflows."""
         return {
             "total_workflows": len(self.active_workflows),
@@ -1222,7 +1222,7 @@ class ConversationIntelligenceUpdater:
         self.logger = logger.bind(component="conversation_intelligence_updater")
 
     async def update_call_intelligence(
-        self, call_id: str, agent_insights: Dict[str, Any]
+        self, call_id: str, agent_insights: dict[str, Any]
     ):
         """Update call record with agent insights."""
         update_data = {
@@ -1247,7 +1247,7 @@ class ConversationIntelligenceUpdater:
             insights=update_data["insight_count"],
         )
 
-    async def update_conversation_trends(self, trend_data: Dict[str, Any]):
+    async def update_conversation_trends(self, trend_data: dict[str, Any]):
         """Update trend analysis."""
         # Publish trend update
         await self.redis_client.redis.publish(
@@ -1266,7 +1266,7 @@ class GongAgentIntegrationConfig(BaseModel):
     """Configuration for Gong-Agent integration."""
 
     # Agent assignment rules
-    agent_assignment_rules: Dict[str, List[str]] = {
+    agent_assignment_rules: dict[str, list[str]] = {
         "competitor_mention": ["call_analysis", "sales_intelligence"],
         "churn_risk": ["call_analysis", "executive_intelligence"],
         "upsell_opportunity": ["sales_intelligence", "business_intelligence"],
@@ -1282,7 +1282,7 @@ class GongAgentIntegrationConfig(BaseModel):
     max_retry_attempts: int = 3
 
     # Agent-specific channels
-    agent_channels: Dict[str, str] = {
+    agent_channels: dict[str, str] = {
         "call_analysis_agent": "sophia:agents:call_analysis:tasks",
         "sales_intelligence_agent": "sophia:agents:sales_intelligence:tasks",
         "business_intelligence_agent": "sophia:agents:business_intelligence:tasks",
@@ -1291,7 +1291,7 @@ class GongAgentIntegrationConfig(BaseModel):
     }
 
     # Agent response channels
-    agent_response_channels: Dict[str, str] = {
+    agent_response_channels: dict[str, str] = {
         "agent_responses": "sophia:agents:responses",
         "agent_actions": "sophia:agents:actions",
         "agent_coordination": "sophia:agents:coordination",
@@ -1310,9 +1310,9 @@ class GongAgentIntegrationManager:
 
     def __init__(
         self,
-        agent_pool: Optional["LangGraphAgentPool"],
+        agent_pool: LangGraphAgentPool | None,
         redis_client: RedisNotificationClient,
-        config: Optional[GongAgentIntegrationConfig] = None,
+        config: GongAgentIntegrationConfig | None = None,
     ):
         self.agent_pool = agent_pool
         self.redis_client = redis_client
@@ -1328,7 +1328,7 @@ class GongAgentIntegrationManager:
         self.integration_registry = IntegrationRegistry()
 
         # Subscription tasks
-        self._subscription_tasks: List[asyncio.Task] = []
+        self._subscription_tasks: list[asyncio.Task] = []
 
         # Metrics
         self.metrics = {
@@ -1393,7 +1393,7 @@ class GongAgentIntegrationManager:
 
         self.logger.info("Redis subscriptions established", channels=4)
 
-    async def handle_call_processed(self, notification_data: Dict[str, Any]):
+    async def handle_call_processed(self, notification_data: dict[str, Any]):
         """Handle processed call notifications from Gong webhooks."""
         try:
             self.metrics["calls_processed"] += 1
@@ -1459,7 +1459,7 @@ class GongAgentIntegrationManager:
                 error_details={"notification_data": notification_data},
             )
 
-    async def handle_insight_detected(self, notification_data: Dict[str, Any]):
+    async def handle_insight_detected(self, notification_data: dict[str, Any]):
         """Handle detected insight notifications."""
         try:
             self.metrics["insights_detected"] += 1
@@ -1508,7 +1508,7 @@ class GongAgentIntegrationManager:
                 notification_data=notification_data,
             )
 
-    async def handle_action_required(self, notification_data: Dict[str, Any]):
+    async def handle_action_required(self, notification_data: dict[str, Any]):
         """Handle action required notifications."""
         try:
             self.metrics["actions_created"] += 1
@@ -1546,7 +1546,7 @@ class GongAgentIntegrationManager:
                 notification_data=notification_data,
             )
 
-    async def handle_agent_response(self, response_data: Dict[str, Any]):
+    async def handle_agent_response(self, response_data: dict[str, Any]):
         """Handle responses from agents for bidirectional communication."""
         try:
             agent_type = response_data.get("agent_type")
@@ -1581,7 +1581,7 @@ class GongAgentIntegrationManager:
                 response_data=response_data,
             )
 
-    async def _trigger_follow_up_workflow(self, recommendation: Dict[str, Any]):
+    async def _trigger_follow_up_workflow(self, recommendation: dict[str, Any]):
         """Trigger a follow-up workflow based on agent recommendation."""
         workflow_type = recommendation.get("workflow_type")
         workflow_data = recommendation.get("workflow_data", {})
@@ -1596,7 +1596,7 @@ class GongAgentIntegrationManager:
                 }
             )
 
-    async def _update_gong_data(self, recommendation: Dict[str, Any]):
+    async def _update_gong_data(self, recommendation: dict[str, Any]):
         """Update Gong data based on agent recommendation."""
         recommendation.get("update_type")
         update_data = recommendation.get("update_data", {})
@@ -1609,7 +1609,7 @@ class GongAgentIntegrationManager:
             priority=NotificationPriority.LOW,
         )
 
-    async def _send_notification(self, recommendation: Dict[str, Any]):
+    async def _send_notification(self, recommendation: dict[str, Any]):
         """Send notification based on agent recommendation."""
         notification_type = recommendation.get("notification_type")
         recipients = recommendation.get("recipients", [])
@@ -1630,7 +1630,7 @@ class GongAgentIntegrationManager:
         )
 
     async def _update_agent_metrics(
-        self, agent_type: str, response_data: Dict[str, Any]
+        self, agent_type: str, response_data: dict[str, Any]
     ):
         """Update metrics for agent performance tracking."""
         metrics_data = {
@@ -1644,7 +1644,7 @@ class GongAgentIntegrationManager:
             "sophia:metrics:agents", json.dumps(metrics_data)
         )
 
-    async def get_integration_status(self) -> Dict[str, Any]:
+    async def get_integration_status(self) -> dict[str, Any]:
         """Get current status of the integration."""
         return {
             "status": "active",

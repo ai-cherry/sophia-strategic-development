@@ -10,8 +10,9 @@ import logging
 import os
 import subprocess
 import sys
-import requests
+
 import psutil
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -144,7 +145,7 @@ class EnhancedUIUXAgentSystemManager:
         """Wait for a server to become available"""
         logger.info(f"⏳ Waiting for {service_name} on port {port}...")
 
-        for attempt in range(30):  # Wait up to 30 seconds
+        for _attempt in range(30):  # Wait up to 30 seconds
             try:
                 response = requests.get(f"http://localhost:{port}/health", timeout=2)
                 if response.status_code == 200:

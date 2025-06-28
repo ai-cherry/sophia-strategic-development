@@ -9,7 +9,7 @@ Current size: 771 lines
 
 Recommended decomposition:
 - mcp_metrics_collector_core.py - Core functionality
-- mcp_metrics_collector_utils.py - Utility functions  
+- mcp_metrics_collector_utils.py - Utility functions
 - mcp_metrics_collector_models.py - Data models
 - mcp_metrics_collector_handlers.py - Request handlers
 
@@ -18,17 +18,18 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional, Callable
-from dataclasses import dataclass, field
-from enum import Enum
 from collections import defaultdict, deque
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 import psutil
 from prometheus_client import (
     Counter,
-    Histogram,
     Gauge,
+    Histogram,
     Info,
     Summary,
     start_http_server,
@@ -63,9 +64,9 @@ class MetricDefinition:
     name: str
     metric_type: MetricType
     description: str
-    labels: List[str] = field(default_factory=list)
-    buckets: Optional[List[float]] = None  # For histograms
-    objectives: Optional[Dict[float, float]] = None  # For summaries
+    labels: list[str] = field(default_factory=list)
+    buckets: list[float] | None = None  # For histograms
+    objectives: dict[float, float] | None = None  # For summaries
 
 
 @dataclass
@@ -93,7 +94,7 @@ class Alert:
     triggered_at: datetime
     server_name: str
     resolved: bool = False
-    resolved_at: Optional[datetime] = None
+    resolved_at: datetime | None = None
 
 
 class MCPMetricsCollector:
@@ -122,19 +123,19 @@ class MCPMetricsCollector:
         self.enable_health_monitoring = enable_health_monitoring
 
         # Metrics storage
-        self.prometheus_metrics: Dict[str, Any] = {}
-        self.custom_metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
-        self.health_checks: Dict[str, deque] = defaultdict(lambda: deque(maxlen=100))
+        self.prometheus_metrics: dict[str, Any] = {}
+        self.custom_metrics: dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
+        self.health_checks: dict[str, deque] = defaultdict(lambda: deque(maxlen=100))
 
         # Alerting
-        self.health_thresholds: List[HealthThreshold] = []
-        self.active_alerts: Dict[str, Alert] = {}
-        self.alert_callbacks: List[Callable] = []
+        self.health_thresholds: list[HealthThreshold] = []
+        self.active_alerts: dict[str, Alert] = {}
+        self.alert_callbacks: list[Callable] = []
 
         # Performance tracking
         self.request_latencies: deque = deque(maxlen=1000)
-        self.error_rates: Dict[str, int] = defaultdict(int)
-        self.success_rates: Dict[str, int] = defaultdict(int)
+        self.error_rates: dict[str, int] = defaultdict(int)
+        self.success_rates: dict[str, int] = defaultdict(int)
 
         # Initialize Prometheus metrics
         if self.enable_prometheus:
@@ -404,7 +405,7 @@ class MCPMetricsCollector:
         self,
         operation: str,
         duration_seconds: float,
-        accuracy_score: Optional[float] = None,
+        accuracy_score: float | None = None,
         insights_generated: int = 0,
         confidence_level: str = "medium",
     ) -> None:
@@ -486,9 +487,11 @@ class MCPMetricsCollector:
                     "duration": duration_seconds,
                     "tasks_completed": tasks_completed,
                     "tasks_failed": tasks_failed,
-                    "success_rate": tasks_completed / (tasks_completed + tasks_failed)
-                    if (tasks_completed + tasks_failed) > 0
-                    else 0,
+                    "success_rate": (
+                        tasks_completed / (tasks_completed + tasks_failed)
+                        if (tasks_completed + tasks_failed) > 0
+                        else 0
+                    ),
                 }
             )
 
@@ -609,7 +612,7 @@ class MCPMetricsCollector:
 
         # Could add resolution callbacks here
 
-    def get_metrics_summary(self) -> Dict[str, Any]:
+    def get_metrics_summary(self) -> dict[str, Any]:
         """Get comprehensive metrics summary."""
         try:
             summary = {
@@ -683,7 +686,7 @@ class MCPMetricsCollector:
                 "error": str(e),
             }
 
-    def get_business_intelligence_metrics(self) -> Dict[str, Any]:
+    def get_business_intelligence_metrics(self) -> dict[str, Any]:
         """Get business-focused metrics summary."""
         try:
             # Calculate business metrics from custom metrics
@@ -705,9 +708,9 @@ class MCPMetricsCollector:
                     avg_efficiency = sum(m["value"] for m in recent_syncs) / len(
                         recent_syncs
                     )
-                    bi_metrics["business_metrics"]["data_processing_efficiency"] = (
-                        avg_efficiency
-                    )
+                    bi_metrics["business_metrics"][
+                        "data_processing_efficiency"
+                    ] = avg_efficiency
 
             # AI insights generation rate
             if "ai_processing_times" in self.custom_metrics:
@@ -731,9 +734,9 @@ class MCPMetricsCollector:
                     automation_success = sum(
                         1 for w in recent_workflows if w["status"] == "completed"
                     ) / len(recent_workflows)
-                    bi_metrics["business_metrics"]["automation_success_rate"] = (
-                        automation_success
-                    )
+                    bi_metrics["business_metrics"][
+                        "automation_success_rate"
+                    ] = automation_success
 
             # System reliability
             bi_metrics["business_metrics"]["system_reliability"] = (
@@ -778,7 +781,7 @@ class MCPMetricsCollector:
         """Clean up metrics older than 24 hours."""
         cutoff_time = datetime.utcnow() - timedelta(hours=24)
 
-        for metric_name, metric_data in self.custom_metrics.items():
+        for _metric_name, metric_data in self.custom_metrics.items():
             # Remove old entries
             while metric_data and metric_data[0]["timestamp"] < cutoff_time:
                 metric_data.popleft()

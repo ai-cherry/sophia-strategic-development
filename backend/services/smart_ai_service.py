@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Smart AI Service - Parallel Portkey/OpenRouter Gateway Implementation
 
@@ -15,21 +16,20 @@ Current size: 812 lines
 
 Recommended decomposition:
 - smart_ai_service_core.py - Core functionality
-- smart_ai_service_utils.py - Utility functions  
+- smart_ai_service_utils.py - Utility functions
 - smart_ai_service_models.py - Data models
 - smart_ai_service_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from __future__ import annotations
-
 import json
 import time
-from datetime import datetime, timezone
-from enum import Enum
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
+
 import aiohttp
 import structlog
 
@@ -74,17 +74,17 @@ class PerformanceTier(str, Enum):
 class LLMRequest:
     """Standardized LLM request structure"""
 
-    messages: List[Dict[str, str]]
+    messages: list[dict[str, str]]
     task_type: TaskType
-    model_preference: Optional[str] = None
+    model_preference: str | None = None
     temperature: float = 0.7
     max_tokens: int = 2000
     cost_sensitivity: float = 0.5  # 0.0 = cost-focused, 1.0 = performance-focused
     performance_priority: bool = True
     is_experimental: bool = False
     user_id: str = "system"
-    session_id: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    session_id: str | None = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -103,13 +103,13 @@ class LLMResponse:
     tokens_used: int
     cache_hit: bool
     quality_score: float
-    error: Optional[str] = None
+    error: str | None = None
     request_id: str = ""
     timestamp: datetime = None
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
+            self.timestamp = datetime.now(UTC)
 
 
 class SmartAIService:
@@ -297,7 +297,7 @@ class SmartAIService:
                 request_id=request_id,
             )
 
-    async def select_strategy(self, request: LLMRequest) -> Dict[str, Any]:
+    async def select_strategy(self, request: LLMRequest) -> dict[str, Any]:
         """
         Intelligent strategy selection with performance priority
 
@@ -408,7 +408,7 @@ class SmartAIService:
             }
 
     async def _call_portkey(
-        self, request: LLMRequest, strategy: Dict[str, Any], request_id: str
+        self, request: LLMRequest, strategy: dict[str, Any], request_id: str
     ) -> LLMResponse:
         """Call Portkey gateway with direct provider keys"""
         try:
@@ -416,9 +416,9 @@ class SmartAIService:
                 "Authorization": f"Bearer {self.portkey_config['api_key']}",
                 "Content-Type": "application/json",
                 "x-portkey-virtual-key": self.portkey_config["virtual_key"],
-                "x-portkey-cache": "semantic"
-                if strategy.get("use_cache", True)
-                else "simple",
+                "x-portkey-cache": (
+                    "semantic" if strategy.get("use_cache", True) else "simple"
+                ),
                 "x-portkey-trace-id": request_id,
                 "x-portkey-metadata": json.dumps(
                     {
@@ -476,7 +476,7 @@ class SmartAIService:
             return await self._call_openrouter(request, strategy, request_id)
 
     async def _call_openrouter(
-        self, request: LLMRequest, strategy: Dict[str, Any], request_id: str
+        self, request: LLMRequest, strategy: dict[str, Any], request_id: str
     ) -> LLMResponse:
         """Call OpenRouter as parallel service"""
         try:
@@ -534,7 +534,7 @@ class SmartAIService:
             return await self._call_fallback(request, strategy, request_id)
 
     async def _call_fallback(
-        self, request: LLMRequest, strategy: Dict[str, Any], request_id: str
+        self, request: LLMRequest, strategy: dict[str, Any], request_id: str
     ) -> LLMResponse:
         """Fallback to basic response when both gateways fail"""
         logger.warning("Using fallback response - both gateways failed")
@@ -553,7 +553,7 @@ class SmartAIService:
         )
 
     async def _log_usage_to_snowflake(
-        self, request: LLMRequest, response: LLMResponse, strategy: Dict[str, Any]
+        self, request: LLMRequest, response: LLMResponse, strategy: dict[str, Any]
     ) -> None:
         """Log comprehensive usage analytics to Snowflake"""
         try:
@@ -587,7 +587,7 @@ class SmartAIService:
         except Exception as e:
             logger.error(f"Failed to log usage to Snowflake: {e}")
 
-    async def _calculate_cost(self, model: str, usage: Dict[str, Any]) -> float:
+    async def _calculate_cost(self, model: str, usage: dict[str, Any]) -> float:
         """Calculate estimated cost based on model and usage"""
         # Model cost per 1K tokens (input/output averaged)
         model_costs = {
@@ -664,7 +664,7 @@ class SmartAIService:
             current_avg * (total_requests - 1) + response.quality_score
         ) / total_requests
 
-    async def get_usage_analytics(self, time_period_hours: int = 24) -> Dict[str, Any]:
+    async def get_usage_analytics(self, time_period_hours: int = 24) -> dict[str, Any]:
         """Get comprehensive usage analytics"""
         try:
             # Calculate summary metrics
@@ -742,7 +742,7 @@ class SmartAIService:
             logger.error(f"Error updating strategic assignment: {e}")
             return False
 
-    def get_available_models(self) -> Dict[str, List[str]]:
+    def get_available_models(self) -> dict[str, list[str]]:
         """Get available models by tier"""
         return {
             tier.value: config["models"] for tier, config in self.model_tiers.items()
@@ -755,7 +755,7 @@ smart_ai_service = SmartAIService()
 
 # Convenience functions for common use cases
 async def generate_executive_insight(
-    query: str, context: Optional[str] = None, user_id: str = "executive"
+    query: str, context: str | None = None, user_id: str = "executive"
 ) -> str:
     """Generate executive-level insights with premium models"""
     messages = [{"role": "user", "content": query}]

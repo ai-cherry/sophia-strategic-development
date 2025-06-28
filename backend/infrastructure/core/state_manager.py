@@ -4,14 +4,14 @@ Sophia AI - Infrastructure State Manager
 Manages the state of all infrastructure platforms and configurations
 """
 
-import os
-import json
-import sqlite3
 import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+import json
+import os
+import sqlite3
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -20,7 +20,7 @@ class StateCheckpoint:
 
     id: str
     platform: str
-    configuration: Dict[str, Any]
+    configuration: dict[str, Any]
     timestamp: datetime
     description: str
 
@@ -31,7 +31,7 @@ class InfrastructureStateManager:
     Provides checkpointing, rollback, and state tracking capabilities.
     """
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: str | None = None):
         self.db_path = db_path or os.path.join(
             Path(__file__).parent.parent.parent.parent,
             "data",
@@ -50,7 +50,8 @@ class InfrastructureStateManager:
             cursor = conn.cursor()
 
             # Platform state table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS platform_state (
                     platform TEXT PRIMARY KEY,
                     configuration TEXT,
@@ -59,10 +60,12 @@ class InfrastructureStateManager:
                     metrics TEXT,
                     dependencies TEXT
                 )
-            """)
+            """
+            )
 
             # Checkpoints table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS checkpoints (
                     id TEXT PRIMARY KEY,
                     platform TEXT,
@@ -70,10 +73,12 @@ class InfrastructureStateManager:
                     timestamp TIMESTAMP,
                     description TEXT
                 )
-            """)
+            """
+            )
 
             # Change history table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS change_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     platform TEXT,
@@ -84,10 +89,12 @@ class InfrastructureStateManager:
                     user TEXT,
                     rollback_checkpoint TEXT
                 )
-            """)
+            """
+            )
 
             # Dependencies table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS platform_dependencies (
                     platform TEXT,
                     depends_on TEXT,
@@ -95,17 +102,18 @@ class InfrastructureStateManager:
                     created_at TIMESTAMP,
                     PRIMARY KEY (platform, depends_on)
                 )
-            """)
+            """
+            )
 
             conn.commit()
 
     async def update_platform_state(
         self,
         platform: str,
-        configuration: Dict[str, Any],
+        configuration: dict[str, Any],
         status: str = "configured",
-        metrics: Optional[Dict[str, Any]] = None,
-        dependencies: Optional[List[str]] = None,
+        metrics: dict[str, Any] | None = None,
+        dependencies: list[str] | None = None,
     ) -> bool:
         """Update the state of a platform."""
         try:
@@ -114,7 +122,7 @@ class InfrastructureStateManager:
 
                 cursor.execute(
                     """
-                    INSERT OR REPLACE INTO platform_state 
+                    INSERT OR REPLACE INTO platform_state
                     (platform, configuration, status, last_updated, metrics, dependencies)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """,
@@ -135,7 +143,7 @@ class InfrastructureStateManager:
             print(f"Failed to update platform state for {platform}: {e}")
             return False
 
-    async def get_platform_state(self, platform: str) -> Optional[Dict[str, Any]]:
+    async def get_platform_state(self, platform: str) -> dict[str, Any] | None:
         """Get the current state of a platform."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -169,7 +177,7 @@ class InfrastructureStateManager:
     async def create_checkpoint(
         self,
         platform: str,
-        configuration: Dict[str, Any],
+        configuration: dict[str, Any],
         description: str = "Auto-generated checkpoint",
     ) -> str:
         """Create a configuration checkpoint for rollback purposes."""
@@ -202,7 +210,7 @@ class InfrastructureStateManager:
 
     async def get_checkpoint(
         self, platform: str, checkpoint_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Get a specific checkpoint configuration."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -234,7 +242,7 @@ class InfrastructureStateManager:
 
     async def list_checkpoints(
         self, platform: str, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """List recent checkpoints for a platform."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -268,10 +276,10 @@ class InfrastructureStateManager:
         self,
         platform: str,
         change_type: str,
-        old_config: Dict[str, Any],
-        new_config: Dict[str, Any],
+        old_config: dict[str, Any],
+        new_config: dict[str, Any],
         user: str = "system",
-        rollback_checkpoint: Optional[str] = None,
+        rollback_checkpoint: str | None = None,
     ) -> bool:
         """Record a configuration change for audit purposes."""
         try:
@@ -280,7 +288,7 @@ class InfrastructureStateManager:
 
                 cursor.execute(
                     """
-                    INSERT INTO change_history 
+                    INSERT INTO change_history
                     (platform, change_type, old_config, new_config, timestamp, user, rollback_checkpoint)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -304,7 +312,7 @@ class InfrastructureStateManager:
 
     async def get_change_history(
         self, platform: str, limit: int = 50
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get change history for a platform."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -347,7 +355,7 @@ class InfrastructureStateManager:
 
                 cursor.execute(
                     """
-                    INSERT OR REPLACE INTO platform_dependencies 
+                    INSERT OR REPLACE INTO platform_dependencies
                     (platform, depends_on, dependency_type, created_at)
                     VALUES (?, ?, ?, ?)
                 """,
@@ -361,7 +369,7 @@ class InfrastructureStateManager:
             print(f"Failed to set dependency {platform} -> {depends_on}: {e}")
             return False
 
-    async def get_platform_dependencies(self, platform: str) -> List[Dict[str, Any]]:
+    async def get_platform_dependencies(self, platform: str) -> list[dict[str, Any]]:
         """Get all dependencies for a platform."""
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -390,16 +398,18 @@ class InfrastructureStateManager:
             print(f"Failed to get dependencies for {platform}: {e}")
             return []
 
-    async def get_all_platform_states(self) -> Dict[str, Dict[str, Any]]:
+    async def get_all_platform_states(self) -> dict[str, dict[str, Any]]:
         """Get the current state of all platforms."""
         try:
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT platform, configuration, status, last_updated, metrics, dependencies
                     FROM platform_state
-                """)
+                """
+                )
 
                 rows = cursor.fetchall()
                 return {
@@ -454,9 +464,9 @@ class InfrastructureStateManager:
 
             # Add dependency information
             for platform in all_states.keys():
-                export_data["dependencies"][
-                    platform
-                ] = await self.get_platform_dependencies(platform)
+                export_data["dependencies"][platform] = (
+                    await self.get_platform_dependencies(platform)
+                )
 
             with open(output_file, "w") as f:
                 json.dump(export_data, f, indent=2, default=str)
@@ -470,7 +480,7 @@ class InfrastructureStateManager:
     async def import_state(self, input_file: str) -> bool:
         """Import infrastructure state from a JSON file."""
         try:
-            with open(input_file, "r") as f:
+            with open(input_file) as f:
                 import_data = json.load(f)
 
             # Import platform states

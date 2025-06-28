@@ -17,7 +17,7 @@ def print_header(message):
 def run_command(command, capture_output=False, shell=False):
     """
     Run command securely.
-    
+
     Args:
         command: Command to run (string or list of arguments)
         capture_output: Whether to capture and return stdout
@@ -27,11 +27,12 @@ def run_command(command, capture_output=False, shell=False):
     if isinstance(command, str) and not shell:
         # Split string into args for safer execution
         import shlex
+
         command = shlex.split(command)
-    
+
     cmd_display = command if isinstance(command, str) else " ".join(command)
     print(f"  ⚡ Running: {cmd_display}")
-    
+
     if capture_output:
         result = subprocess.run(command, shell=shell, capture_output=True, text=True)
         return result.stdout.strip()
@@ -58,13 +59,17 @@ def check_dns():
     else:
         print(f"  ❌ DNS does not point to expected IP {expected_ip}")
         return False
+
+
 def deploy_locally():
     """Deploy webhook service locally for testing"""
     print_header("Deploying Webhook Service Locally")
 
     # Build Docker image - requires shell due to cd command
     print("\n  📦 Building Docker image...")
-    if run_command("cd gong-webhook-service && docker build -t gong-webhook:latest .", shell=True):
+    if run_command(
+        "cd gong-webhook-service && docker build -t gong-webhook:latest .", shell=True
+    ):
         print("  ✅ Docker image built successfully")
     else:
         print("  ❌ Failed to build Docker image")
@@ -77,7 +82,16 @@ def deploy_locally():
     # Run container
     print("\n  🏃 Starting webhook service...")
     if run_command(
-        ["docker", "run", "-d", "--name", "gong-webhook", "-p", "8080:8080", "gong-webhook:latest"]
+        [
+            "docker",
+            "run",
+            "-d",
+            "--name",
+            "gong-webhook",
+            "-p",
+            "8080:8080",
+            "gong-webhook:latest",
+        ]
     ):
         print("  ✅ Webhook service started on port 8080")
 
@@ -95,10 +109,15 @@ def deploy_locally():
         # Test webhook endpoint
         webhook_test = run_command(
             [
-                "curl", "-s", "-X", "POST", 
-                "http://localhost:8080/webhook/gong/calls", 
-                "-H", "Content-Type: application/json", 
-                "-d", "{}"
+                "curl",
+                "-s",
+                "-X",
+                "POST",
+                "http://localhost:8080/webhook/gong/calls",
+                "-H",
+                "Content-Type: application/json",
+                "-d",
+                "{}",
             ],
             capture_output=True,
         )
@@ -115,7 +134,7 @@ def generate_deployment_commands():
     print_header("Remote Deployment Instructions")
 
     print(
-        """
+        r"""
 To deploy the webhook service on the remote server (34.74.88.2), follow these steps:
 
 1. SSH into the server:

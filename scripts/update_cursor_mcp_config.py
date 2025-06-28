@@ -8,7 +8,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,13 +21,13 @@ class CursorMCPConfigUpdater:
         self.config_file = Path(config_file)
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load existing configuration"""
         if not self.config_file.exists():
             logger.info("Creating new cursor_mcp_config.json")
             return {"mcpServers": {}}
 
-        with open(self.config_file, "r") as f:
+        with open(self.config_file) as f:
             return json.load(f)
 
     def _save_config(self):
@@ -274,7 +274,7 @@ class CursorMCPConfigUpdater:
         self.config.update(monitoring_settings)
         logger.info("✅ Added monitoring settings")
 
-    def validate_configuration(self) -> List[str]:
+    def validate_configuration(self) -> list[str]:
         """Validate configuration and return issues"""
         issues = []
 
@@ -316,7 +316,7 @@ class CursorMCPConfigUpdater:
         self.config.update(dev_optimizations)
 
         # Enable more aggressive auto-triggers for development
-        for server_name, server_config in self.config.get("mcpServers", {}).items():
+        for _server_name, server_config in self.config.get("mcpServers", {}).items():
             if "auto_triggers" in server_config:
                 server_config["auto_triggers"]["on_file_change"] = True
                 server_config["auto_triggers"]["on_save"] = True
@@ -337,7 +337,7 @@ class CursorMCPConfigUpdater:
         self.config.update(prod_optimizations)
 
         # Reduce auto-triggers for production
-        for server_name, server_config in self.config.get("mcpServers", {}).items():
+        for _server_name, server_config in self.config.get("mcpServers", {}).items():
             if "auto_triggers" in server_config:
                 server_config["auto_triggers"]["on_file_change"] = False
                 server_config["auto_triggers"]["on_save"] = False

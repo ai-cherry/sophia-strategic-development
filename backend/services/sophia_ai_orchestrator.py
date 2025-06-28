@@ -10,7 +10,7 @@ Current size: 1020 lines
 
 Recommended decomposition:
 - sophia_ai_orchestrator_core.py - Core functionality
-- sophia_ai_orchestrator_utils.py - Utility functions  
+- sophia_ai_orchestrator_utils.py - Utility functions
 - sophia_ai_orchestrator_models.py - Data models
 - sophia_ai_orchestrator_handlers.py - Request handlers
 
@@ -19,16 +19,16 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-from backend.services.enhanced_knowledge_base_service import (
-    EnhancedKnowledgeBaseService,
-)
 from backend.agents.specialized.interactive_sales_coach_agent import (
     InteractiveSalesCoachAgent,
+)
+from backend.services.enhanced_knowledge_base_service import (
+    EnhancedKnowledgeBaseService,
 )
 from backend.services.memory_preservation_service import MemoryPreservationService
 
@@ -63,12 +63,12 @@ class OrchestrationRequest:
     request_id: str
     request_type: RequestType
     user_id: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
     # Request content
-    query: Optional[str] = None
-    content: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    query: str | None = None
+    content: str | None = None
+    metadata: dict[str, Any] | None = None
 
     # Orchestration preferences
     mode: OrchestrationMode = OrchestrationMode.UNIFIED_INTELLIGENCE
@@ -90,11 +90,11 @@ class OrchestrationResponse:
     success: bool
 
     # Response data
-    primary_response: Dict[str, Any]
-    supporting_responses: List[Dict[str, Any]]
+    primary_response: dict[str, Any]
+    supporting_responses: list[dict[str, Any]]
 
     # Orchestration metadata
-    services_used: List[str]
+    services_used: list[str]
     processing_time_ms: float
     confidence_score: float
 
@@ -104,10 +104,10 @@ class OrchestrationResponse:
     memories_processed: int
 
     # Follow-up suggestions
-    suggested_actions: List[str]
-    related_queries: List[str]
+    suggested_actions: list[str]
+    related_queries: list[str]
 
-    error: Optional[str] = None
+    error: str | None = None
     created_at: datetime = None
 
     def __post_init__(self):
@@ -129,9 +129,9 @@ class SophiaAIOrchestrator:
 
     def __init__(self):
         # Core services
-        self.knowledge_base: Optional[EnhancedKnowledgeBaseService] = None
-        self.sales_coach: Optional[InteractiveSalesCoachAgent] = None
-        self.memory_preservation: Optional[MemoryPreservationService] = None
+        self.knowledge_base: EnhancedKnowledgeBaseService | None = None
+        self.sales_coach: InteractiveSalesCoachAgent | None = None
+        self.memory_preservation: MemoryPreservationService | None = None
 
         # Orchestration analytics
         self.orchestration_analytics = {
@@ -147,8 +147,8 @@ class SophiaAIOrchestrator:
         }
 
         # Request history for learning
-        self.request_history: List[OrchestrationRequest] = []
-        self.response_history: List[OrchestrationResponse] = []
+        self.request_history: list[OrchestrationRequest] = []
+        self.response_history: list[OrchestrationResponse] = []
 
         self.initialized = False
 
@@ -858,7 +858,7 @@ class SophiaAIOrchestrator:
         return self._is_sales_related_query(content)
 
     def _calculate_confidence_score(
-        self, primary_result: Dict, supporting_results: List[Dict]
+        self, primary_result: dict, supporting_results: list[dict]
     ) -> float:
         """Calculate overall confidence score"""
         if not primary_result or not primary_result.get("success"):
@@ -875,8 +875,8 @@ class SophiaAIOrchestrator:
         return base_confidence
 
     async def _generate_suggestions(
-        self, query: str, result: Dict
-    ) -> Dict[str, List[str]]:
+        self, query: str, result: dict
+    ) -> dict[str, list[str]]:
         """Generate suggested actions and related queries"""
         suggestions = {"actions": [], "queries": []}
 
@@ -904,9 +904,9 @@ class SophiaAIOrchestrator:
     async def _synthesize_unified_response(
         self,
         request: OrchestrationRequest,
-        kb_result: Dict,
-        supporting_responses: List[Dict],
-    ) -> Dict[str, Any]:
+        kb_result: dict,
+        supporting_responses: list[dict],
+    ) -> dict[str, Any]:
         """Synthesize unified intelligence response"""
         unified_response = {
             "query": request.query,
@@ -962,8 +962,8 @@ class SophiaAIOrchestrator:
         return unified_response
 
     async def _generate_unified_suggestions(
-        self, request: OrchestrationRequest, supporting_responses: List[Dict]
-    ) -> List[str]:
+        self, request: OrchestrationRequest, supporting_responses: list[dict]
+    ) -> list[str]:
         """Generate unified suggestions"""
         suggestions = []
 
@@ -987,8 +987,8 @@ class SophiaAIOrchestrator:
         return suggestions[:5]  # Limit to 5 suggestions
 
     async def _generate_related_queries(
-        self, original_query: str, supporting_responses: List[Dict]
-    ) -> List[str]:
+        self, original_query: str, supporting_responses: list[dict]
+    ) -> list[str]:
         """Generate related queries"""
         related_queries = []
 
@@ -1010,7 +1010,7 @@ class SophiaAIOrchestrator:
 
         return list(set(related_queries))[:5]  # Remove duplicates and limit to 5
 
-    async def get_orchestration_analytics(self) -> Dict[str, Any]:
+    async def get_orchestration_analytics(self) -> dict[str, Any]:
         """Get comprehensive orchestration analytics"""
         return {
             **self.orchestration_analytics,

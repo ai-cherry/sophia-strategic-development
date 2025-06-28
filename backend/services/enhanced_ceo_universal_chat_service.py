@@ -4,10 +4,10 @@ CEO-level capabilities: deep web research, MCP integration, AI coding agents
 """
 
 import logging
-from typing import Dict, List, Any, Optional
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from ..core.simple_config import SophiaConfig
 
@@ -44,11 +44,11 @@ class CEOChatContext:
 @dataclass
 class EnhancedChatResponse:
     content: str
-    sources: Optional[List[Dict[str, Any]]] = None
-    actions: Optional[List[Dict[str, Any]]] = None
-    suggestions: Optional[List[str]] = None
-    timestamp: Optional[str] = None
-    query_type: Optional[str] = None
+    sources: list[dict[str, Any]] | None = None
+    actions: list[dict[str, Any]] | None = None
+    suggestions: list[str] | None = None
+    timestamp: str | None = None
+    query_type: str | None = None
     processing_time: float = 0.0
 
     def __post_init__(self):
@@ -249,7 +249,7 @@ class EnhancedCEOUniversalChatService:
 
     async def get_available_mcp_servers(
         self, access_level: AccessLevel
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get list of MCP servers available to user based on access level"""
         base_servers = [
             {
@@ -300,7 +300,7 @@ class EnhancedCEOUniversalChatService:
 
         return base_servers
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Health check for CEO chat service"""
         return {
             "service": "enhanced_ceo_universal_chat",

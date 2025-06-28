@@ -6,28 +6,29 @@ Sophia AI Standalone Server for Live Testing
 Bypasses existing backend import conflicts by running as standalone service
 """
 
-import logging
 import json
+import logging
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any
 from uuid import uuid4
+
 import snowflake.connector
-from snowflake.connector import DictCursor
+import uvicorn
 from fastapi import (
-    FastAPI,
-    WebSocket,
-    WebSocketDisconnect,
-    HTTPException,
     Depends,
-    UploadFile,
+    FastAPI,
     File,
     Form,
+    HTTPException,
+    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
-from contextlib import asynccontextmanager
-import uvicorn
+from snowflake.connector import DictCursor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -66,12 +67,12 @@ class UploadResponse(BaseModel):
 class SearchRequest(BaseModel):
     query: str
     limit: int = 10
-    category_filter: Optional[str] = None
+    category_filter: str | None = None
 
 
 class ChatRequest(BaseModel):
     message: str
-    session_id: Optional[str] = None
+    session_id: str | None = None
     use_knowledge: bool = True
 
 
@@ -105,8 +106,8 @@ class SnowflakeService:
             self.connection.close()
 
     async def execute_query(
-        self, query: str, params: Optional[tuple] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: tuple | None = None
+    ) -> list[dict[str, Any]]:
         try:
             cursor = self.connection.cursor(DictCursor)
             cursor.execute(query, params or ())
@@ -145,7 +146,7 @@ class SnowflakeService:
 
         # Insert knowledge entry
         insert_query = """
-        INSERT INTO KNOWLEDGE_BASE_ENTRIES 
+        INSERT INTO KNOWLEDGE_BASE_ENTRIES
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, STATUS, METADATA, CREATED_AT, UPDATED_AT)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -171,15 +172,15 @@ class SnowflakeService:
 
     async def search_knowledge(
         self, query: str, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         search_query = """
-        SELECT 
+        SELECT
             k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, c.CATEGORY_NAME,
             k.CREATED_AT, k.UPDATED_AT
         FROM KNOWLEDGE_BASE_ENTRIES k
         JOIN KNOWLEDGE_CATEGORIES c ON k.CATEGORY_ID = c.CATEGORY_ID
         WHERE k.STATUS = 'published'
-        AND (UPPER(k.TITLE) LIKE UPPER('%' || %s || '%') 
+        AND (UPPER(k.TITLE) LIKE UPPER('%' || %s || '%')
              OR UPPER(k.CONTENT) LIKE UPPER('%' || %s || '%'))
         ORDER BY k.UPDATED_AT DESC
         LIMIT %s
@@ -213,7 +214,7 @@ class SnowflakeService:
         return message_id
 
     async def generate_ai_response(
-        self, query: str, context: List[Dict[str, Any]]
+        self, query: str, context: list[dict[str, Any]]
     ) -> str:
         if context:
             context_text = "\n".join(
@@ -238,7 +239,7 @@ You can upload customer lists, product descriptions, employee information, or an
 # WebSocket Connection Manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
+        self.active_connections: dict[str, WebSocket] = {}
 
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
@@ -380,14 +381,16 @@ async def search_knowledge(
                 {
                     "entry_id": row["ENTRY_ID"],
                     "title": row["TITLE"],
-                    "content": row["CONTENT"][:500] + "..."
-                    if len(row["CONTENT"]) > 500
-                    else row["CONTENT"],
+                    "content": (
+                        row["CONTENT"][:500] + "..."
+                        if len(row["CONTENT"]) > 500
+                        else row["CONTENT"]
+                    ),
                     "category_id": row["CATEGORY_ID"],
                     "category_name": row["CATEGORY_NAME"],
-                    "created_at": row["CREATED_AT"].isoformat()
-                    if row["CREATED_AT"]
-                    else None,
+                    "created_at": (
+                        row["CREATED_AT"].isoformat() if row["CREATED_AT"] else None
+                    ),
                 }
                 for row in results
             ],

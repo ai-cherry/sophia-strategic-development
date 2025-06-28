@@ -6,10 +6,9 @@ Implements dashboard performance, WebSocket stability, and intelligent caching
 
 import asyncio
 import logging
-import os
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,61 +16,63 @@ logger = logging.getLogger(__name__)
 
 class DeploymentRefactoringPhase2:
     """Phase 2: Performance optimization implementation"""
-    
+
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
         self.files_created = []
         self.errors = []
-    
-    async def execute_phase2(self) -> Dict[str, Any]:
+
+    async def execute_phase2(self) -> dict[str, Any]:
         """Execute Phase 2 refactoring"""
         logger.info("🚀 Starting Phase 2: Performance Optimization")
-        
+
         results = {
             "phase": "Phase 2 - Performance Optimization",
             "start_time": datetime.now().isoformat(),
             "tasks_completed": [],
             "files_created": [],
             "errors": [],
-            "success": False
+            "success": False,
         }
-        
+
         try:
             # Task 1: Create optimized dashboard service
             await self._create_optimized_dashboard_service()
             results["tasks_completed"].append("optimized_dashboard_service")
-            
+
             # Task 2: Create resilient WebSocket manager
             await self._create_resilient_websocket_manager()
             results["tasks_completed"].append("resilient_websocket_manager")
-            
+
             # Task 3: Create intelligent caching system
             await self._create_intelligent_caching_system()
             results["tasks_completed"].append("intelligent_caching_system")
-            
+
             # Task 4: Create query optimization framework
             await self._create_query_optimization_framework()
             results["tasks_completed"].append("query_optimization_framework")
-            
+
             results["files_created"] = self.files_created
             results["errors"] = self.errors
             results["success"] = len(self.errors) == 0
             results["end_time"] = datetime.now().isoformat()
-            
-            logger.info(f"✅ Phase 2 completed! Created {len(self.files_created)} files")
-            
+
+            logger.info(
+                f"✅ Phase 2 completed! Created {len(self.files_created)} files"
+            )
+
         except Exception as e:
             error_msg = f"Phase 2 execution failed: {e}"
             logger.error(error_msg)
             results["errors"].append(error_msg)
             results["success"] = False
-        
+
         return results
-    
+
     async def _create_optimized_dashboard_service(self):
         """Create optimized dashboard service"""
         logger.info("📊 Creating optimized dashboard service...")
-        
+
         dashboard_code = '''#!/usr/bin/env python3
 """
 Optimized Dashboard Service for Sophia AI
@@ -248,19 +249,24 @@ class OptimizedDashboardService:
 # Global instance
 optimized_dashboard_service = OptimizedDashboardService()
 '''
-        
+
         # Write optimized dashboard service
-        dashboard_file = self.project_root / "backend" / "services" / "optimized_dashboard_service.py"
+        dashboard_file = (
+            self.project_root
+            / "backend"
+            / "services"
+            / "optimized_dashboard_service.py"
+        )
         dashboard_file.parent.mkdir(exist_ok=True)
         dashboard_file.write_text(dashboard_code)
         self.files_created.append(str(dashboard_file))
-        
+
         logger.info("✅ Optimized dashboard service created")
-    
+
     async def _create_resilient_websocket_manager(self):
         """Create resilient WebSocket manager"""
         logger.info("🔌 Creating resilient WebSocket manager...")
-        
+
         websocket_code = '''#!/usr/bin/env python3
 """
 Resilient WebSocket Manager for Sophia AI
@@ -522,19 +528,24 @@ class ResilientWebSocketManager:
 # Global instance
 resilient_websocket_manager = ResilientWebSocketManager()
 '''
-        
+
         # Write resilient WebSocket manager
-        websocket_file = self.project_root / "backend" / "websocket" / "resilient_websocket_manager.py"
+        websocket_file = (
+            self.project_root
+            / "backend"
+            / "websocket"
+            / "resilient_websocket_manager.py"
+        )
         websocket_file.parent.mkdir(exist_ok=True)
         websocket_file.write_text(websocket_code)
         self.files_created.append(str(websocket_file))
-        
+
         logger.info("✅ Resilient WebSocket manager created")
-    
+
     async def _create_intelligent_caching_system(self):
         """Create intelligent caching system"""
         logger.info("🧠 Creating intelligent caching system...")
-        
+
         caching_code = '''#!/usr/bin/env python3
 """
 Intelligent Caching System for Sophia AI
@@ -744,18 +755,20 @@ async def cache_cleanup_task():
 # Start cleanup task
 asyncio.create_task(cache_cleanup_task())
 '''
-        
+
         # Write intelligent caching system
-        caching_file = self.project_root / "backend" / "core" / "intelligent_caching_system.py"
+        caching_file = (
+            self.project_root / "backend" / "core" / "intelligent_caching_system.py"
+        )
         caching_file.write_text(caching_code)
         self.files_created.append(str(caching_file))
-        
+
         logger.info("✅ Intelligent caching system created")
-    
+
     async def _create_query_optimization_framework(self):
         """Create query optimization framework"""
         logger.info("⚡ Creating query optimization framework...")
-        
+
         optimization_code = '''#!/usr/bin/env python3
 """
 Query Optimization Framework for Sophia AI
@@ -1070,12 +1083,14 @@ class QueryOptimizer:
 # Global instance
 query_optimizer = QueryOptimizer()
 '''
-        
+
         # Write query optimization framework
-        optimization_file = self.project_root / "backend" / "core" / "query_optimization_framework.py"
+        optimization_file = (
+            self.project_root / "backend" / "core" / "query_optimization_framework.py"
+        )
         optimization_file.write_text(optimization_code)
         self.files_created.append(str(optimization_file))
-        
+
         logger.info("✅ Query optimization framework created")
 
 
@@ -1083,37 +1098,37 @@ async def main():
     """Main execution function"""
     refactoring = DeploymentRefactoringPhase2()
     results = await refactoring.execute_phase2()
-    
-    print("\n" + "="*80)
+
+    print("\n" + "=" * 80)
     print("📊 DEPLOYMENT REFACTORING PHASE 2 RESULTS")
-    print("="*80)
+    print("=" * 80)
     print(f"Phase: {results['phase']}")
     print(f"Success: {'✅ YES' if results['success'] else '❌ NO'}")
     print(f"Tasks Completed: {len(results['tasks_completed'])}")
     print(f"Files Created: {len(results['files_created'])}")
     print(f"Errors: {len(results['errors'])}")
-    
-    if results['tasks_completed']:
-        print(f"\n✅ Completed Tasks:")
-        for task in results['tasks_completed']:
+
+    if results["tasks_completed"]:
+        print("\n✅ Completed Tasks:")
+        for task in results["tasks_completed"]:
             print(f"   • {task}")
-    
-    if results['files_created']:
-        print(f"\n📁 Files Created:")
-        for file_path in results['files_created']:
+
+    if results["files_created"]:
+        print("\n📁 Files Created:")
+        for file_path in results["files_created"]:
             print(f"   • {file_path}")
-    
-    if results['errors']:
-        print(f"\n❌ Errors:")
-        for error in results['errors']:
+
+    if results["errors"]:
+        print("\n❌ Errors:")
+        for error in results["errors"]:
             print(f"   • {error}")
-    
+
     print(f"\nStart Time: {results['start_time']}")
     print(f"End Time: {results.get('end_time', 'N/A')}")
-    print("="*80)
-    
+    print("=" * 80)
+
     return results
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

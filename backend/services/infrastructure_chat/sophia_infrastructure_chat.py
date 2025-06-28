@@ -3,10 +3,11 @@ Sophia Infrastructure Chat Interface
 Natural language interface for AI-driven infrastructure management
 """
 
-from typing import Dict, Any, List, Optional
 import asyncio
-from datetime import datetime
 import os
+from datetime import datetime
+from typing import Any
+
 import httpx
 
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
@@ -47,9 +48,7 @@ class SophiaInfrastructureChatInterface:
         await self.infrastructure_agent.initialize()
         print("🤖 Sophia Infrastructure Chat Interface initialized")
 
-    async def _call_llm_gateway(
-        self, prompt: str, context: Optional[str] = None
-    ) -> str:
+    async def _call_llm_gateway(self, prompt: str, context: str | None = None) -> str:
         """Call the centralized LLM gateway (Portkey/OpenRouter) for completions."""
         endpoint = os.getenv(
             "LLM_GATEWAY_ENDPOINT", "https://llm-gateway.sophia-intel.ai/v1/completions"
@@ -76,8 +75,8 @@ class SophiaInfrastructureChatInterface:
                 return f"[LLM error: {e}]"
 
     async def process_message(
-        self, message: str, user_context: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, message: str, user_context: dict | None = None
+    ) -> dict[str, Any]:
         """
         Process natural language infrastructure command
         """
@@ -118,8 +117,8 @@ class SophiaInfrastructureChatInterface:
         return response
 
     async def _generate_conversational_response(
-        self, result: Dict[str, Any], original_message: str
-    ) -> Dict[str, Any]:
+        self, result: dict[str, Any], original_message: str
+    ) -> dict[str, Any]:
         """Generate a conversational response based on infrastructure action"""
 
         # Extract key information
@@ -193,7 +192,7 @@ class SophiaInfrastructureChatInterface:
 
         return response
 
-    def _format_execution_plan(self, plan: Dict[str, Any]) -> List[Dict[str, str]]:
+    def _format_execution_plan(self, plan: dict[str, Any]) -> list[dict[str, str]]:
         """Format execution plan for display"""
         formatted_steps = []
 
@@ -208,7 +207,7 @@ class SophiaInfrastructureChatInterface:
 
         return formatted_steps
 
-    async def _generate_follow_up_suggestions(self, action: str) -> List[str]:
+    async def _generate_follow_up_suggestions(self, action: str) -> list[str]:
         """Generate contextual follow-up suggestions"""
 
         suggestions_map = {

@@ -10,7 +10,7 @@ Current size: 753 lines
 
 Recommended decomposition:
 - optimized_ai_memory_mcp_server_core.py - Core functionality
-- optimized_ai_memory_mcp_server_utils.py - Utility functions  
+- optimized_ai_memory_mcp_server_utils.py - Utility functions
 - optimized_ai_memory_mcp_server_models.py - Data models
 - optimized_ai_memory_mcp_server_handlers.py - Request handlers
 
@@ -20,16 +20,15 @@ TODO: Implement file decomposition
 import asyncio
 import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-
+from typing import Any
 
 # MCP imports
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 
 # Optimized imports
 from backend.core.optimized_connection_manager import connection_manager
@@ -72,10 +71,10 @@ class OptimizedMemoryRecord:
 
     content: str
     category: str
-    tags: List[str]
-    metadata: Dict[str, Any]
+    tags: list[str]
+    metadata: dict[str, Any]
     importance_score: float
-    embedding_vector: Optional[List[float]] = None
+    embedding_vector: list[float] | None = None
 
 
 class OptimizedAiMemoryMCPServer:
@@ -128,8 +127,8 @@ class OptimizedAiMemoryMCPServer:
 
     @performance_monitor.monitor_performance("batch_memory_storage", 5000)
     async def store_memories_batch(
-        self, memory_records: List[OptimizedMemoryRecord]
-    ) -> List[str]:
+        self, memory_records: list[OptimizedMemoryRecord]
+    ) -> list[str]:
         """
         ✅ OPTIMIZED: Store multiple memories in batch to eliminate N+1 patterns
 
@@ -185,9 +184,11 @@ class OptimizedAiMemoryMCPServer:
                     tags_json,
                     metadata_json,
                     record.importance_score,
-                    json.dumps(record.embedding_vector)
-                    if record.embedding_vector
-                    else None,
+                    (
+                        json.dumps(record.embedding_vector)
+                        if record.embedding_vector
+                        else None
+                    ),
                 )
 
                 batch_queries.append((query, params))
@@ -209,10 +210,10 @@ class OptimizedAiMemoryMCPServer:
     @performance_monitor.monitor_performance("batch_memory_recall", 2000)
     async def recall_memories_batch(
         self,
-        queries: List[str],
-        categories: Optional[List[str]] = None,
+        queries: list[str],
+        categories: list[str] | None = None,
         limit_per_query: int = 10,
-    ) -> List[List[Dict[str, Any]]]:
+    ) -> list[list[dict[str, Any]]]:
         """
         ✅ OPTIMIZED: Recall memories for multiple queries in batch
 
@@ -249,10 +250,10 @@ class OptimizedAiMemoryMCPServer:
                     category_filter = f"AND category IN ({category_placeholders})"
 
                 search_query = f"""
-                SELECT 
+                SELECT
                     id, content, category, tags, metadata, importance_score,
                     VECTOR_COSINE_SIMILARITY(
-                        PARSE_JSON(%s), 
+                        PARSE_JSON(%s),
                         PARSE_JSON(embedding_vector)
                     ) as similarity_score
                 FROM AI_MEMORY.MEMORY_RECORDS
@@ -305,8 +306,8 @@ class OptimizedAiMemoryMCPServer:
 
     @performance_monitor.monitor_performance("gong_insights_batch", 3000)
     async def store_gong_insights_batch(
-        self, call_insights: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, call_insights: list[dict[str, Any]]
+    ) -> list[str]:
         """
         ✅ OPTIMIZED: Store multiple Gong call insights in batch
 
@@ -328,11 +329,11 @@ class OptimizedAiMemoryMCPServer:
             Gong Call Insight: {insight.get("call_title", "Untitled Call")}
             Call ID: {insight["call_id"]}
             Date: {insight.get("call_date", "Unknown")}
-            
+
             Summary: {insight.get("call_summary", "")}
-            
+
             Key Insights: {insight.get("insight_content", "")}
-            
+
             Sentiment Score: {insight.get("sentiment_score", "N/A")}
             Key Topics: {", ".join(insight.get("key_topics", []))}
             Risk Indicators: {", ".join(insight.get("risk_indicators", []))}
@@ -368,8 +369,8 @@ class OptimizedAiMemoryMCPServer:
 
     @performance_monitor.monitor_performance("slack_insights_batch", 2500)
     async def store_slack_insights_batch(
-        self, slack_conversations: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, slack_conversations: list[dict[str, Any]]
+    ) -> list[str]:
         """
         ✅ OPTIMIZED: Store multiple Slack conversations in batch
 
@@ -391,14 +392,14 @@ class OptimizedAiMemoryMCPServer:
             Slack Conversation: {conversation.get("title", "Untitled Conversation")}
             Channel: #{conversation.get("channel_name", "unknown")}
             Participants: {", ".join(conversation.get("participants", []))}
-            
+
             Summary: {conversation.get("summary", "")}
-            
+
             Key Topics: {", ".join(conversation.get("key_topics", []))}
-            
+
             Decisions Made:
             {chr(10).join(f"- {decision}" for decision in conversation.get("decisions_made", []))}
-            
+
             Action Items:
             {chr(10).join(f"- {item}" for item in conversation.get("action_items", []))}
             """
@@ -443,8 +444,8 @@ class OptimizedAiMemoryMCPServer:
 
     @performance_monitor.monitor_performance("linear_issues_batch", 2000)
     async def store_linear_issues_batch(
-        self, linear_issues: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, linear_issues: list[dict[str, Any]]
+    ) -> list[str]:
         """
         ✅ OPTIMIZED: Store multiple Linear issues in batch
 
@@ -468,9 +469,9 @@ class OptimizedAiMemoryMCPServer:
             Assignee: {issue.get("assignee", "Unassigned")}
             Priority: {issue.get("priority", "None")}
             Status: {issue.get("status", "Unknown")}
-            
+
             Description: {issue.get("description", "")}
-            
+
             Labels: {", ".join(issue.get("labels", []))}
             """
 
@@ -529,21 +530,21 @@ class OptimizedAiMemoryMCPServer:
             ),
             (
                 """
-            CREATE INDEX IF NOT EXISTS idx_memory_category 
+            CREATE INDEX IF NOT EXISTS idx_memory_category
             ON AI_MEMORY.MEMORY_RECORDS (category)
             """,
                 None,
             ),
             (
                 """
-            CREATE INDEX IF NOT EXISTS idx_memory_importance 
+            CREATE INDEX IF NOT EXISTS idx_memory_importance
             ON AI_MEMORY.MEMORY_RECORDS (importance_score)
             """,
                 None,
             ),
             (
                 """
-            CREATE INDEX IF NOT EXISTS idx_memory_created 
+            CREATE INDEX IF NOT EXISTS idx_memory_created
             ON AI_MEMORY.MEMORY_RECORDS (created_at)
             """,
                 None,
@@ -553,7 +554,7 @@ class OptimizedAiMemoryMCPServer:
         await connection_manager.execute_batch_queries(schema_queries)
         logger.info("✅ AI Memory schema ensured")
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    def get_performance_stats(self) -> dict[str, Any]:
         """Get performance statistics"""
         connection_stats = connection_manager.get_stats()
         cortex_stats = optimized_cortex_service.get_performance_stats()
@@ -571,10 +572,10 @@ class OptimizedAiMemoryMCPServer:
             },
         }
 
-    async def get_memory_analytics(self) -> Dict[str, Any]:
+    async def get_memory_analytics(self) -> dict[str, Any]:
         """Get comprehensive memory analytics"""
         analytics_query = """
-        SELECT 
+        SELECT
             category,
             COUNT(*) as total_memories,
             AVG(importance_score) as avg_importance,
@@ -609,27 +610,27 @@ optimized_memory_server = OptimizedAiMemoryMCPServer()
 
 # Convenience functions for backward compatibility
 async def store_gong_insights_optimized(
-    call_insights: List[Dict[str, Any]],
-) -> List[str]:
+    call_insights: list[dict[str, Any]],
+) -> list[str]:
     """Store Gong insights with optimized batch processing"""
     return await optimized_memory_server.store_gong_insights_batch(call_insights)
 
 
 async def store_slack_conversations_optimized(
-    conversations: List[Dict[str, Any]],
-) -> List[str]:
+    conversations: list[dict[str, Any]],
+) -> list[str]:
     """Store Slack conversations with optimized batch processing"""
     return await optimized_memory_server.store_slack_insights_batch(conversations)
 
 
-async def store_linear_issues_optimized(issues: List[Dict[str, Any]]) -> List[str]:
+async def store_linear_issues_optimized(issues: list[dict[str, Any]]) -> list[str]:
     """Store Linear issues with optimized batch processing"""
     return await optimized_memory_server.store_linear_issues_batch(issues)
 
 
 async def recall_memories_optimized(
-    queries: List[str], categories: Optional[List[str]] = None
-) -> List[List[Dict[str, Any]]]:
+    queries: list[str], categories: list[str] | None = None
+) -> list[list[dict[str, Any]]]:
     """Recall memories with optimized batch processing"""
     return await optimized_memory_server.recall_memories_batch(queries, categories)
 
@@ -639,7 +640,7 @@ server = Server(optimized_memory_server.server_name)
 
 
 @server.list_tools()
-async def list_tools() -> List[Tool]:
+async def list_tools() -> list[Tool]:
     """List available optimized memory tools"""
     return [
         Tool(
@@ -692,7 +693,7 @@ async def list_tools() -> List[Tool]:
 
 
 @server.call_tool()
-async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
+async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Handle optimized tool calls"""
 
     if not optimized_memory_server.initialized:

@@ -5,10 +5,10 @@ This module provides basic authentication for development and testing.
 In production, this would be replaced with proper OAuth/JWT authentication.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 
-def get_current_user() -> Dict[str, Any]:
+def get_current_user() -> dict[str, Any]:
     """
     Simple auth function that returns a default user for development.
 

@@ -58,7 +58,7 @@ def setup_claude_api():
 
     for profile in shell_profiles:
         if profile.exists():
-            with open(profile, "r") as f:
+            with open(profile) as f:
                 content = f.read()
 
             # Remove existing ANTHROPIC_API_KEY lines

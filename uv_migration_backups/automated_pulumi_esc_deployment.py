@@ -4,12 +4,12 @@ Sophia AI - Automated Infrastructure Deployment Pipeline
 Complete automation aligned with Pulumi ESC for zero manual steps
 """
 
-import os
-import json
 import asyncio
-from pathlib import Path
-from typing import Dict, Any
+import json
+import os
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 
 class PulumiESCIntegratedDeployment:
@@ -23,11 +23,11 @@ class PulumiESCIntegratedDeployment:
         self.pulumi_config = self._load_pulumi_config()
         self.deployment_log = []
 
-    def _load_pulumi_config(self) -> Dict[str, Any]:
+    def _load_pulumi_config(self) -> dict[str, Any]:
         """Load Pulumi ESC configuration."""
         config_path = self.project_root / ".env.esc.json"
         if config_path.exists():
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 return json.load(f)
         return {}
 
@@ -45,7 +45,7 @@ class PulumiESCIntegratedDeployment:
         if details:
             print(f"    {details}")
 
-    async def deploy_complete_automation(self) -> Dict[str, Any]:
+    async def deploy_complete_automation(self) -> dict[str, Any]:
         """Deploy complete automated infrastructure system."""
         self.log_step("Starting Complete Automated Deployment", "START")
 

@@ -17,7 +17,7 @@ Current size: 974 lines
 
 Recommended decomposition:
 - call_analysis_agent_core.py - Core functionality
-- call_analysis_agent_utils.py - Utility functions  
+- call_analysis_agent_utils.py - Utility functions
 - call_analysis_agent_models.py - Data models
 - call_analysis_agent_handlers.py - Request handlers
 
@@ -28,22 +28,22 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
 from backend.core.auto_esc_config import config
-from backend.utils.snowflake_gong_connector import get_gong_connector
-from backend.utils.snowflake_cortex_service import (
-    analyze_gong_call_sentiment,
-    summarize_gong_call_with_context,
-    find_similar_gong_calls,
-)
 
 # Traditional integrations (fallback)
 from backend.integrations.gong_api_client import GongAPIClient
+from backend.utils.snowflake_cortex_service import (
+    analyze_gong_call_sentiment,
+    find_similar_gong_calls,
+    summarize_gong_call_with_context,
+)
+from backend.utils.snowflake_gong_connector import get_gong_connector
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class CallInsight:
     confidence: float
     impact: str  # high, medium, low
     recommendation: str
-    supporting_data: Dict[str, Any]
+    supporting_data: dict[str, Any]
 
 
 @dataclass
@@ -77,11 +77,11 @@ class CallAnalysisResult:
     analysis_timestamp: datetime
     overall_score: float
     priority: CallPriority
-    key_insights: List[CallInsight]
-    sentiment_analysis: Dict[str, Any]
-    business_impact: Dict[str, Any]
-    recommendations: List[str]
-    similar_calls: List[Dict[str, Any]]
+    key_insights: list[CallInsight]
+    sentiment_analysis: dict[str, Any]
+    business_impact: dict[str, Any]
+    recommendations: list[str]
+    similar_calls: list[dict[str, Any]]
     ai_enhanced: bool
 
 
@@ -93,7 +93,7 @@ class CallAnalysisAgent(BaseAgent):
     for sentiment analysis, summarization, and pattern recognition.
     """
 
-    def __init__(self, config_dict: Optional[Dict] = None):
+    def __init__(self, config_dict: dict | None = None):
         super().__init__(config_dict)
         self.agent_type = "call_analysis"
         self.snowflake_enabled = True
@@ -128,7 +128,7 @@ class CallAnalysisAgent(BaseAgent):
             logger.error(f"Failed to initialize Call Analysis Agent: {e}")
             raise
 
-    async def get_capabilities(self) -> List[str]:
+    async def get_capabilities(self) -> list[str]:
         """Get agent capabilities"""
         return [
             "analyze_individual_call",
@@ -141,7 +141,7 @@ class CallAnalysisAgent(BaseAgent):
             "generate_call_reports",
         ]
 
-    async def process_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_task(self, task: dict[str, Any]) -> dict[str, Any]:
         """Process call analysis task with AI enhancement"""
         task_type = task.get("task_type")
 
@@ -173,7 +173,7 @@ class CallAnalysisAgent(BaseAgent):
                 "fallback_available": bool(self.traditional_gong_client),
             }
 
-    async def _analyze_individual_call(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_individual_call(self, task: dict[str, Any]) -> dict[str, Any]:
         """
         Comprehensive analysis of a single call using Snowflake Cortex AI
 
@@ -267,7 +267,7 @@ class CallAnalysisAgent(BaseAgent):
 
             return {"success": False, "error": str(e)}
 
-    async def _analyze_call_batch(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_call_batch(self, task: dict[str, Any]) -> dict[str, Any]:
         """
         Batch analysis of multiple calls with AI insights
 
@@ -333,7 +333,7 @@ class CallAnalysisAgent(BaseAgent):
             logger.error(f"Error in batch call analysis: {e}")
             return {"success": False, "error": str(e)}
 
-    async def _find_call_patterns(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _find_call_patterns(self, task: dict[str, Any]) -> dict[str, Any]:
         """
         Find patterns across calls using AI analysis
 
@@ -398,7 +398,7 @@ class CallAnalysisAgent(BaseAgent):
             logger.error(f"Error finding call patterns: {e}")
             return {"success": False, "error": str(e)}
 
-    async def _track_sentiment_trends(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _track_sentiment_trends(self, task: dict[str, Any]) -> dict[str, Any]:
         """
         Track sentiment trends over time using Snowflake analytics
 
@@ -455,10 +455,10 @@ class CallAnalysisAgent(BaseAgent):
 
     async def _generate_ai_insights(
         self,
-        call_details: Dict[str, Any],
-        sentiment_analysis: Dict[str, Any],
-        call_summary: Dict[str, Any],
-    ) -> List[CallInsight]:
+        call_details: dict[str, Any],
+        sentiment_analysis: dict[str, Any],
+        call_summary: dict[str, Any],
+    ) -> list[CallInsight]:
         """Generate AI-powered insights from call analysis"""
         insights = []
 
@@ -541,7 +541,7 @@ class CallAnalysisAgent(BaseAgent):
         return insights
 
     async def _calculate_call_score(
-        self, call_details: Dict[str, Any], sentiment_analysis: Dict[str, Any]
+        self, call_details: dict[str, Any], sentiment_analysis: dict[str, Any]
     ) -> float:
         """Calculate overall call performance score (0-100)"""
         score = 0.0
@@ -572,7 +572,7 @@ class CallAnalysisAgent(BaseAgent):
         return round(score, 1)
 
     def _determine_call_priority(
-        self, overall_score: float, sentiment_analysis: Dict[str, Any]
+        self, overall_score: float, sentiment_analysis: dict[str, Any]
     ) -> CallPriority:
         """Determine call priority based on score and sentiment"""
         sentiment_score = sentiment_analysis.get("call_sentiment_score", 0.5)
@@ -593,8 +593,8 @@ class CallAnalysisAgent(BaseAgent):
         return CallPriority.LOW
 
     async def _analyze_call_business_impact(
-        self, call_details: Dict[str, Any], sentiment_analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, call_details: dict[str, Any], sentiment_analysis: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze the business impact of the call"""
         impact = {
             "revenue_potential": 0,
@@ -633,10 +633,10 @@ class CallAnalysisAgent(BaseAgent):
 
     async def _generate_call_recommendations(
         self,
-        call_details: Dict[str, Any],
-        sentiment_analysis: Dict[str, Any],
-        key_insights: List[CallInsight],
-    ) -> List[str]:
+        call_details: dict[str, Any],
+        sentiment_analysis: dict[str, Any],
+        key_insights: list[CallInsight],
+    ) -> list[str]:
         """Generate actionable recommendations based on call analysis"""
         recommendations = []
 
@@ -673,8 +673,8 @@ class CallAnalysisAgent(BaseAgent):
         return recommendations[:5]  # Limit to top 5 recommendations
 
     async def _generate_batch_insights(
-        self, batch_results: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, batch_results: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Generate insights from batch analysis results"""
         if not batch_results:
             return {"insights": [], "summary": "No successful analyses in batch"}
@@ -733,7 +733,7 @@ class CallAnalysisAgent(BaseAgent):
         else:
             return "Very Negative"
 
-    def _determine_trend_direction(self, performance_data: Dict[str, Any]) -> str:
+    def _determine_trend_direction(self, performance_data: dict[str, Any]) -> str:
         """Determine sentiment trend direction"""
         # Simple trend analysis - could be enhanced with historical data
         avg_sentiment = performance_data.get("avg_sentiment", 0.5)
@@ -747,8 +747,8 @@ class CallAnalysisAgent(BaseAgent):
             return "stable"
 
     def _generate_sentiment_recommendations(
-        self, performance_data: Dict[str, Any]
-    ) -> List[str]:
+        self, performance_data: dict[str, Any]
+    ) -> list[str]:
         """Generate recommendations for sentiment improvement"""
         recommendations = []
 
@@ -769,8 +769,8 @@ class CallAnalysisAgent(BaseAgent):
         return recommendations
 
     def _generate_batch_recommendations(
-        self, avg_score: float, avg_sentiment: float, priority_counts: Dict[str, int]
-    ) -> List[str]:
+        self, avg_score: float, avg_sentiment: float, priority_counts: dict[str, int]
+    ) -> list[str]:
         """Generate recommendations for batch analysis"""
         recommendations = []
 
@@ -792,7 +792,7 @@ class CallAnalysisAgent(BaseAgent):
 
         return recommendations
 
-    async def _analyze_call_traditional(self, call_id: str) -> Dict[str, Any]:
+    async def _analyze_call_traditional(self, call_id: str) -> dict[str, Any]:
         """Fallback analysis using traditional methods"""
         logger.info(f"Using traditional analysis for call {call_id}")
 
@@ -806,8 +806,8 @@ class CallAnalysisAgent(BaseAgent):
         }
 
     async def _handle_general_analysis_query(
-        self, task: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, task: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle general analysis queries"""
         query = task.get("query", "")
 
@@ -830,7 +830,7 @@ class CallAnalysisAgent(BaseAgent):
                 ],
             }
 
-    async def _score_call_performance(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _score_call_performance(self, task: dict[str, Any]) -> dict[str, Any]:
         """Score call performance using AI metrics"""
         call_id = task.get("call_id")
 
@@ -857,8 +857,8 @@ class CallAnalysisAgent(BaseAgent):
         return analysis_result
 
     async def _analyze_call_patterns(
-        self, similar_calls: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, similar_calls: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Analyze patterns in similar calls"""
         if not similar_calls:
             return {"patterns": [], "insights": "No calls to analyze"}
@@ -886,8 +886,8 @@ class CallAnalysisAgent(BaseAgent):
         return patterns
 
     def _analyze_sentiment_distribution(
-        self, sentiments: List[float]
-    ) -> Dict[str, int]:
+        self, sentiments: list[float]
+    ) -> dict[str, int]:
         """Analyze distribution of sentiments"""
         distribution = {
             "very_positive": 0,
@@ -903,7 +903,7 @@ class CallAnalysisAgent(BaseAgent):
 
         return distribution
 
-    def _analyze_deal_stages(self, deal_stages: List[str]) -> Dict[str, int]:
+    def _analyze_deal_stages(self, deal_stages: list[str]) -> dict[str, int]:
         """Analyze distribution of deal stages"""
         stage_counts = {}
         for stage in deal_stages:
@@ -912,7 +912,7 @@ class CallAnalysisAgent(BaseAgent):
 
         return stage_counts
 
-    def _identify_success_patterns(self, calls: List[Dict[str, Any]]) -> List[str]:
+    def _identify_success_patterns(self, calls: list[dict[str, Any]]) -> list[str]:
         """Identify patterns that indicate success"""
         patterns = []
 
@@ -932,7 +932,7 @@ class CallAnalysisAgent(BaseAgent):
 
         return patterns
 
-    async def _generate_pattern_insights(self, patterns: Dict[str, Any]) -> List[str]:
+    async def _generate_pattern_insights(self, patterns: dict[str, Any]) -> list[str]:
         """Generate insights from identified patterns"""
         insights = []
 
@@ -958,7 +958,7 @@ class CallAnalysisAgent(BaseAgent):
 
         return insights
 
-    async def _analyze_business_impact(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_business_impact(self, task: dict[str, Any]) -> dict[str, Any]:
         """Analyze business impact of calls"""
         # This would be implemented based on specific business requirements
         return {
@@ -967,7 +967,7 @@ class CallAnalysisAgent(BaseAgent):
             "recommendation": "Define specific business impact metrics for implementation",
         }
 
-    async def _generate_call_report(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def _generate_call_report(self, task: dict[str, Any]) -> dict[str, Any]:
         """Generate comprehensive call analysis report"""
         # This would generate formatted reports based on analysis results
         return {
@@ -979,7 +979,7 @@ class CallAnalysisAgent(BaseAgent):
 
 # Agent factory function for AGNO integration
 async def create_call_analysis_agent(
-    config: Dict[str, Any] = None,
+    config: dict[str, Any] = None,
 ) -> CallAnalysisAgent:
     """Create and initialize a Call Analysis Agent instance"""
     agent = CallAnalysisAgent(config)

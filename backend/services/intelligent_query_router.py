@@ -4,9 +4,9 @@ Uses Snowflake Cortex for AI-driven intent analysis and optimal routing
 """
 
 import logging
-from typing import Dict, List, Any
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any
 
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
@@ -38,10 +38,10 @@ class QueryAnalysis:
     query_type: QueryType
     urgency: UrgencyLevel
     confidence: float
-    target_systems: List[str]
+    target_systems: list[str]
     processing_strategy: str
     estimated_response_time: float
-    context_requirements: List[str]
+    context_requirements: list[str]
     business_domain: str
     recommended_model: str
 
@@ -159,7 +159,7 @@ class IntelligentQueryRouter:
         }
 
     async def analyze_and_route(
-        self, query: str, user_context: Dict[str, Any]
+        self, query: str, user_context: dict[str, Any]
     ) -> QueryAnalysis:
         """
         Analyze query using Cortex AI and determine optimal routing strategy
@@ -168,44 +168,44 @@ class IntelligentQueryRouter:
             # Use Cortex for intelligent query analysis
             analysis_prompt = f"""
             Analyze this business intelligence query for optimal system routing:
-            
+
             Query: "{query}"
             User Role: {user_context.get("role", "employee")}
             User Department: {user_context.get("department", "unknown")}
-            
+
             Analyze and classify:
-            
+
             1. QUERY TYPE:
                - OPERATIONAL: Needs real-time data/actions (MCP servers)
                - ANALYTICAL: Needs historical analysis/insights (Snowflake Cortex)
                - HYBRID: Needs both real-time and analytical data
                - SYSTEM: System status/health queries
-            
+
             2. URGENCY LEVEL:
                - CRITICAL: Immediate response needed (<1s)
                - HIGH: Fast response needed (<3s)
                - MEDIUM: Standard response acceptable (<10s)
                - LOW: Detailed analysis acceptable (<30s)
-            
+
             3. BUSINESS DOMAIN:
                - customer_management, project_management, financial_analysis
                - operational_metrics, strategic_planning, infrastructure
                - development, intelligence
-            
+
             4. TARGET SYSTEMS (choose one or more):
                - mcp_servers: For real-time operations and immediate actions
                - snowflake_cortex: For analytics, trends, and complex analysis
                - both: For queries requiring real-time data + analytics
-            
+
             5. PROCESSING STRATEGY:
                - sequential: Process systems in order
                - parallel: Process systems simultaneously
                - conditional: Route based on data availability
-            
+
             Respond in JSON format:
             {{
                 "query_type": "OPERATIONAL|ANALYTICAL|HYBRID|SYSTEM",
-                "urgency": "CRITICAL|HIGH|MEDIUM|LOW", 
+                "urgency": "CRITICAL|HIGH|MEDIUM|LOW",
                 "confidence": 0.0-1.0,
                 "target_systems": ["mcp_servers", "snowflake_cortex"],
                 "processing_strategy": "sequential|parallel|conditional",
@@ -258,7 +258,7 @@ class IntelligentQueryRouter:
             return await self._fallback_analysis(query, user_context)
 
     async def _fallback_analysis(
-        self, query: str, user_context: Dict[str, Any]
+        self, query: str, user_context: dict[str, Any]
     ) -> QueryAnalysis:
         """Rule-based fallback when Cortex analysis fails"""
         query_lower = query.lower()
@@ -326,7 +326,7 @@ class IntelligentQueryRouter:
         )
 
     def _estimate_response_time(
-        self, target_systems: List[str], strategy: str
+        self, target_systems: list[str], strategy: str
     ) -> float:
         """Estimate response time based on target systems and strategy"""
         if not target_systems:
@@ -346,7 +346,7 @@ class IntelligentQueryRouter:
             # Sequential processing - sum of all systems
             return sum(system_times) + 0.2  # Add minimal coordination overhead
 
-    async def get_routing_recommendations(self, business_domain: str) -> Dict[str, Any]:
+    async def get_routing_recommendations(self, business_domain: str) -> dict[str, Any]:
         """Get routing recommendations for a specific business domain"""
         try:
             recommendations = {
@@ -414,7 +414,7 @@ class IntelligentQueryRouter:
             logger.error(f"Error getting routing recommendations: {e}")
             return {"preferred_systems": ["snowflake_cortex"], "strategy": "balanced"}
 
-    async def optimize_routing_performance(self) -> Dict[str, Any]:
+    async def optimize_routing_performance(self) -> dict[str, Any]:
         """Analyze and optimize routing performance"""
         try:
             # This would analyze historical routing decisions and performance

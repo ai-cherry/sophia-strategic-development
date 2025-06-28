@@ -5,7 +5,7 @@ Current size: 639 lines
 
 Recommended decomposition:
 - snowflake_config_manager_core.py - Core functionality
-- snowflake_config_manager_utils.py - Utility functions  
+- snowflake_config_manager_utils.py - Utility functions
 - snowflake_config_manager_models.py - Data models
 - snowflake_config_manager_handlers.py - Request handlers
 
@@ -20,14 +20,14 @@ Provides comprehensive Snowflake administration and configuration management
 Designed for integration with LangChain agents and MCP architecture
 """
 
-import os
-import sys
-import json
 import argparse
 import asyncio
+import json
+import os
+import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Any
 from pathlib import Path
+from typing import Any
 
 # Add the project root to Python path for imports
 project_root = Path(__file__).parent.parent
@@ -43,14 +43,14 @@ class SnowflakeConfigManager:
     Integrates with Sophia AI's secure credential management via Pulumi ESC.
     """
 
-    def __init__(self, config_file: Optional[str] = None):
+    def __init__(self, config_file: str | None = None):
         self.config_file = config_file or os.path.join(
             project_root, "config", "snowflake_config.json"
         )
         self.connection = None
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load Snowflake configuration from secure sources."""
         # Primary: Environment variables (populated by Pulumi ESC)
         config = {
@@ -67,7 +67,7 @@ class SnowflakeConfigManager:
         # Fallback: Configuration file if exists
         if os.path.exists(self.config_file):
             try:
-                with open(self.config_file, "r") as f:
+                with open(self.config_file) as f:
                     file_config = json.load(f)
                     # Environment variables take precedence
                     for key, value in file_config.items():
@@ -98,7 +98,7 @@ class SnowflakeConfigManager:
 
     def execute_query(
         self, query: str, fetch_results: bool = True
-    ) -> Optional[List[Dict]]:
+    ) -> list[dict] | None:
         """Execute a query and return results as dictionaries."""
         if not self.connection:
             raise ConnectionError("No active Snowflake connection")
@@ -132,7 +132,7 @@ class SnowflakeConfigManager:
             print(f"Query: {query}")
             raise
 
-    async def sync_github_schemas(self) -> Dict[str, Any]:
+    async def sync_github_schemas(self) -> dict[str, Any]:
         """Synchronize Snowflake schemas with GitHub codebase definitions."""
         print("🔄 Synchronizing Snowflake schemas with GitHub codebase...")
 
@@ -152,7 +152,7 @@ class SnowflakeConfigManager:
             )
 
             if os.path.exists(schema_file):
-                with open(schema_file, "r") as f:
+                with open(schema_file) as f:
                     schema_sql = f.read()
 
                 # Execute schema creation/updates - split by semicolon and execute separately
@@ -192,7 +192,7 @@ class SnowflakeConfigManager:
 
         return results
 
-    async def _create_estuary_schemas(self, results: Dict[str, Any]):
+    async def _create_estuary_schemas(self, results: dict[str, Any]):
         """Create schemas and tables for Estuary data integration."""
         print("🔗 Creating Estuary integration schemas...")
 
@@ -290,7 +290,7 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def _create_memory_integration(self, results: Dict[str, Any]):
+    async def _create_memory_integration(self, results: dict[str, Any]):
         """Create memory system integration views and functions."""
         print("🧠 Creating memory system integration...")
 
@@ -355,7 +355,7 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def _create_semantic_layer(self, results: Dict[str, Any]):
+    async def _create_semantic_layer(self, results: dict[str, Any]):
         """Create semantic layer for business intelligence."""
         print("📊 Creating semantic layer...")
 
@@ -397,7 +397,7 @@ class SnowflakeConfigManager:
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
-    async def get_system_status(self) -> Dict[str, Any]:
+    async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive Snowflake system status."""
         print("📊 Gathering system status...")
 
@@ -477,7 +477,7 @@ class SnowflakeConfigManager:
 
         return status
 
-    async def _gather_data_stats(self, status: Dict[str, Any]):
+    async def _gather_data_stats(self, status: dict[str, Any]):
         """Gather data statistics for monitoring."""
         try:
             # Count records in key tables
@@ -501,7 +501,7 @@ class SnowflakeConfigManager:
         except Exception as e:
             print(f"⚠️ Error gathering data stats: {e}")
 
-    async def optimize_performance(self) -> Dict[str, Any]:
+    async def optimize_performance(self) -> dict[str, Any]:
         """Optimize Snowflake performance settings."""
         print("⚡ Optimizing Snowflake performance...")
 
@@ -574,7 +574,7 @@ class SnowflakeCLI:
     def __init__(self):
         self.manager = SnowflakeConfigManager()
 
-    async def run_command(self, command: str, **kwargs) -> Dict[str, Any]:
+    async def run_command(self, command: str, **kwargs) -> dict[str, Any]:
         """Execute a management command."""
         if not await self.manager.connect():
             return {"error": "Failed to connect to Snowflake"}

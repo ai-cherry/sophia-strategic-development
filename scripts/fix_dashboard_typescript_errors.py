@@ -4,8 +4,8 @@ Fix TypeScript errors in the new dashboard components.
 This script addresses the linter issues identified in the dashboard integration plan.
 """
 
-import re
 import json
+import re
 from pathlib import Path
 
 
@@ -142,7 +142,7 @@ class DashboardTypeScriptFixer:
             print(f"⚠️  Warning: {package_json_path} not found")
             return
 
-        with open(package_json_path, "r") as f:
+        with open(package_json_path) as f:
             package_data = json.load(f)
 
         # Ensure dependencies section exists
@@ -192,7 +192,7 @@ class DashboardTypeScriptFixer:
     def fix_dashboard_file(self, filepath: Path) -> bool:
         """Fix TypeScript errors in a dashboard file"""
         try:
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 content = f.read()
 
             original_content = content

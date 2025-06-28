@@ -5,7 +5,7 @@ Current size: 634 lines
 
 Recommended decomposition:
 - comprehensive_alignment_analysis_and_fix_core.py - Core functionality
-- comprehensive_alignment_analysis_and_fix_utils.py - Utility functions  
+- comprehensive_alignment_analysis_and_fix_utils.py - Utility functions
 - comprehensive_alignment_analysis_and_fix_models.py - Data models
 - comprehensive_alignment_analysis_and_fix_handlers.py - Request handlers
 
@@ -20,11 +20,12 @@ Ensures GitHub memory system and Snowflake implementation are properly aligned
 Integrates Estuary credentials and validates end-to-end functionality
 """
 
-import snowflake.connector
+import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Any
-import logging
+from typing import Any
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -79,7 +80,7 @@ class ComprehensiveAlignmentAnalyzer:
             logger.error(f"❌ Failed to connect to Snowflake: {e}")
             return False
 
-    def execute_sql(self, sql: str, params: List = None) -> List[Dict]:
+    def execute_sql(self, sql: str, params: list = None) -> list[dict]:
         """Execute SQL and return results"""
         try:
             if params:
@@ -98,14 +99,14 @@ class ComprehensiveAlignmentAnalyzer:
             results = self.cursor.fetchall()
 
             # Convert to list of dictionaries
-            return [dict(zip(columns, row)) for row in results]
+            return [dict(zip(columns, row, strict=False)) for row in results]
 
         except Exception as e:
             logger.error(f"❌ SQL execution failed: {e}")
             logger.error(f"SQL: {sql}")
             return []
 
-    def analyze_github_memory_system(self) -> Dict[str, Any]:
+    def analyze_github_memory_system(self) -> dict[str, Any]:
         """Analyze the GitHub memory system structure"""
         logger.info("🔍 Analyzing GitHub memory system...")
 
@@ -153,7 +154,7 @@ class ComprehensiveAlignmentAnalyzer:
 
         return analysis
 
-    def analyze_snowflake_implementation(self) -> Dict[str, Any]:
+    def analyze_snowflake_implementation(self) -> dict[str, Any]:
         """Analyze the current Snowflake implementation"""
         logger.info("🔍 Analyzing Snowflake implementation...")
 
@@ -232,29 +233,29 @@ class ComprehensiveAlignmentAnalyzer:
                 CATEGORY VARCHAR(100) NOT NULL,
                 TAGS ARRAY,
                 EMBEDDING ARRAY,
-                
+
                 -- Timestamps
                 CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
                 LAST_ACCESSED_AT TIMESTAMP_NTZ,
-                
+
                 -- Metadata for intelligence and retrieval
                 IMPORTANCE_SCORE FLOAT DEFAULT 0.5,
                 CONFIDENCE_SCORE FLOAT DEFAULT 1.0,
                 USAGE_COUNT NUMBER DEFAULT 0,
-                
+
                 -- Contextual links to business entities
                 DEAL_ID VARCHAR(255),
                 CALL_ID VARCHAR(255),
                 CONTACT_ID VARCHAR(255),
-                
+
                 -- Source and detection information
                 SOURCE_SYSTEM VARCHAR(100) DEFAULT 'sophia_ai',
                 AUTO_DETECTED BOOLEAN DEFAULT FALSE,
-                
+
                 -- Additional unstructured metadata
                 ADDITIONAL_METADATA VARIANT
             );
-            
+
             -- Conversation history table for tracking AI interactions
             CREATE TABLE IF NOT EXISTS CONVERSATION_HISTORY (
                 CONVERSATION_ID VARCHAR(255) PRIMARY KEY,
@@ -278,7 +279,7 @@ class ComprehensiveAlignmentAnalyzer:
                 DURATION_SECONDS NUMBER,
                 CONTEXT_METADATA VARIANT
             );
-            
+
             -- Memory categories table
             CREATE TABLE IF NOT EXISTS MEMORY_CATEGORIES (
                 CATEGORY_ID VARCHAR(100) PRIMARY KEY,
@@ -315,7 +316,7 @@ class ComprehensiveAlignmentAnalyzer:
                 CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
                 METADATA VARIANT
             );
-            
+
             -- Vector search function
             CREATE OR REPLACE FUNCTION SEARCH_MEMORIES(
                 QUERY_EMBEDDING ARRAY,
@@ -330,7 +331,7 @@ class ComprehensiveAlignmentAnalyzer:
             )
             AS
             $$
-            SELECT 
+            SELECT
                 MEMORY_ID,
                 VECTOR_COSINE_SIMILARITY(CONTENT_EMBEDDING, QUERY_EMBEDDING) AS SIMILARITY_SCORE,
                 CATEGORY,
@@ -369,7 +370,7 @@ class ComprehensiveAlignmentAnalyzer:
                 IS_ACTIVE,
                 CREATED_AT,
                 METADATA
-            ) VALUES 
+            ) VALUES
             ('ESTUARY', 'CLIENT_ID', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Client ID for API access"}')),
             ('ESTUARY', 'CLIENT_SECRET', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Client Secret for API access"}')),
             ('ESTUARY', 'ACCESS_TOKEN', %s, TRUE, CURRENT_TIMESTAMP(), PARSE_JSON('{"description": "Estuary Access Token for API access", "expires_at": "2025-12-17T04:20:17Z"}')),
@@ -404,7 +405,7 @@ class ComprehensiveAlignmentAnalyzer:
                 DESCRIPTION,
                 IS_ACTIVE,
                 CREATED_AT
-            ) VALUES 
+            ) VALUES
             ('ESTUARY', 'LIST_WORKSPACES', 'https://api.estuary.dev/v1/workspaces', 'GET', 'List all workspaces', TRUE, CURRENT_TIMESTAMP()),
             ('ESTUARY', 'LIST_CONNECTIONS', 'https://api.estuary.dev/v1/connections', 'GET', 'List all connections', TRUE, CURRENT_TIMESTAMP()),
             ('ESTUARY', 'LIST_SOURCES', 'https://api.estuary.dev/v1/sources', 'GET', 'List all sources', TRUE, CURRENT_TIMESTAMP()),
@@ -424,7 +425,7 @@ class ComprehensiveAlignmentAnalyzer:
             logger.error(f"❌ Failed to integrate Estuary credentials: {e}")
             return False
 
-    def validate_end_to_end_functionality(self) -> Dict[str, Any]:
+    def validate_end_to_end_functionality(self) -> dict[str, Any]:
         """Validate that the entire system works end-to-end"""
         logger.info("🧪 Validating end-to-end functionality...")
 

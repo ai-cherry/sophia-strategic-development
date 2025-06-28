@@ -3,24 +3,25 @@ Enhanced AI Memory MCP Server with Cline v3.18 Features
 Implements WebFetch, Self-Knowledge, Improved Diff, and Model Routing
 """
 
-import os
-import json
 import asyncio
-from typing import Dict, List, Any
-from datetime import datetime
-from fastapi import HTTPException
+import json
+import os
 
 # Import the standardized base class
 import sys
+from datetime import datetime
+from typing import Any
+
+from fastapi import HTTPException
 
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 from backend.mcp.base.standardized_mcp_server import (
-    StandardizedMCPServer,
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
+    StandardizedMCPServer,
     SyncPriority,
 )
 from backend.services.comprehensive_memory_service import ComprehensiveMemoryService
@@ -69,7 +70,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         except:
             return False
 
-    async def get_server_capabilities(self) -> List[ServerCapability]:
+    async def get_server_capabilities(self) -> list[ServerCapability]:
         """Return AI Memory server capabilities"""
         return [
             ServerCapability(
@@ -145,8 +146,8 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
     # Enhanced API endpoints
 
     async def store_conversation_enhanced(
-        self, request: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any]
+    ) -> dict[str, Any]:
         """Store conversation with AI-powered categorization and WebFetch integration"""
         try:
             conversation = request.get("conversation", {})
@@ -182,11 +183,11 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             3. Decision points (any key decisions made)
             4. Action items (any todos or next steps)
             5. Related documentation (from fetched docs if any)
-            
+
             Conversation: {json.dumps(conversation, indent=2)}
-            
+
             Fetched Documentation: {json.dumps(fetched_docs, indent=2) if fetched_docs else "None"}
-            
+
             Return as JSON.
             """
 
@@ -235,63 +236,64 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             self.logger.error(f"Error storing conversation: {e}")
             return {"success": False, "error": str(e)}
 
-    async def smart_recall_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def smart_recall_enhanced(self, request: dict[str, Any]) -> dict[str, Any]:
         """Enhanced memory recall with AI ranking and context awareness"""
         try:
             query_context = await self._prepare_query_context(request)
             enhanced_query = await self._enhance_query_with_ai(query_context)
             raw_memories = await self._search_memories(enhanced_query, request)
-            ranked_memories = await self._rank_memories_with_ai(raw_memories, query_context)
-            
+            ranked_memories = await self._rank_memories_with_ai(
+                raw_memories, query_context
+            )
+
             return self._format_recall_response(ranked_memories, enhanced_query)
         except Exception as e:
             return self._handle_recall_error(e)
 
-    async def _prepare_query_context(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def _prepare_query_context(self, request: dict[str, Any]) -> dict[str, Any]:
         """Extract and prepare query context from request"""
         query = request.get("query", "")
         context = request.get("context", {})
         filters = request.get("filters", {})
-        
+
         return {
             "query": query,
             "context": context,
             "filters": filters,
-            "limit": request.get("limit", 10)
+            "limit": request.get("limit", 10),
         }
 
-    async def _enhance_query_with_ai(self, query_context: Dict[str, Any]) -> str:
+    async def _enhance_query_with_ai(self, query_context: dict[str, Any]) -> str:
         """Use AI to enhance search query based on context"""
         query = query_context["query"]
         context = query_context["context"]
-        
+
         if not context:
             return query
-        
+
         # Use AI to enhance the query based on context
         model, _ = await self.route_to_model(
-            task="enhance search query", 
-            context_size=len(str(context))
+            task="enhance search query", context_size=len(str(context))
         )
 
         enhancement_prompt = f"""
         Enhance this search query based on the current context:
         Query: {query}
         Context: {context}
-        
+
         Return an enhanced search query that will find the most relevant memories.
         """
 
-        result = await self.process_with_ai(
-            {"prompt": enhancement_prompt}, model=model
-        )
+        result = await self.process_with_ai({"prompt": enhancement_prompt}, model=model)
         return result.get("response", query)
 
-    async def _search_memories(self, enhanced_query: str, request: Dict[str, Any]) -> List[Dict]:
+    async def _search_memories(
+        self, enhanced_query: str, request: dict[str, Any]
+    ) -> list[dict]:
         """Search memories with enhanced query"""
         filters = request.get("filters", {})
         limit = request.get("limit", 10)
-        
+
         # Search memories using the enhanced query
         memories = await self.memory_service.search_memories(
             query=enhanced_query,
@@ -300,28 +302,29 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             date_from=filters.get("date_from"),
             date_to=filters.get("date_to"),
         )
-        
+
         return memories or []
 
-    async def _rank_memories_with_ai(self, memories: List[Dict], query_context: Dict[str, Any]) -> List[Dict]:
+    async def _rank_memories_with_ai(
+        self, memories: list[dict], query_context: dict[str, Any]
+    ) -> list[dict]:
         """Use AI to rank and filter search results"""
         if not memories or len(memories) <= query_context["limit"]:
-            return memories[:query_context["limit"]]
-        
+            return memories[: query_context["limit"]]
+
         # Use AI to rank results
         model, _ = await self.route_to_model(
-            task="rank search results", 
-            context_size=len(str(memories))
+            task="rank search results", context_size=len(str(memories))
         )
 
         ranking_prompt = f"""
         Rank these search results by relevance to the query and context.
         Return the top {query_context["limit"]} results with relevance scores.
-        
+
         Query: {query_context["query"]}
         Context: {query_context["context"]}
         Results: {memories}
-        
+
         Return as JSON array with relevance scores.
         """
 
@@ -331,12 +334,15 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
 
         try:
             import json
-            ranked_memories = json.loads(ranking_result.get("response", "[]"))
-            return ranked_memories[:query_context["limit"]]
-        except:
-            return memories[:query_context["limit"]]
 
-    def _format_recall_response(self, memories: List[Dict], enhanced_query: str) -> Dict[str, Any]:
+            ranked_memories = json.loads(ranking_result.get("response", "[]"))
+            return ranked_memories[: query_context["limit"]]
+        except:
+            return memories[: query_context["limit"]]
+
+    def _format_recall_response(
+        self, memories: list[dict], enhanced_query: str
+    ) -> dict[str, Any]:
         """Format the final recall response"""
         return {
             "success": True,
@@ -345,11 +351,12 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             "total_found": len(memories),
         }
 
-    def _handle_recall_error(self, error: Exception) -> Dict[str, Any]:
+    def _handle_recall_error(self, error: Exception) -> dict[str, Any]:
         """Handle recall errors consistently"""
         logger.error(f"Error in smart recall: {error}")
         return {"success": False, "error": str(error)}
-    async def update_memory_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def update_memory_enhanced(self, request: dict[str, Any]) -> dict[str, Any]:
         """Update memory using improved diff editing"""
         try:
             memory_id = request.get("memory_id")
@@ -397,8 +404,8 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             return {"success": False, "error": str(e)}
 
     async def fetch_and_store_documentation(
-        self, request: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, request: dict[str, Any]
+    ) -> dict[str, Any]:
         """Fetch external documentation and store as memory"""
         try:
             url = request.get("url")
@@ -451,7 +458,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             self.logger.error(f"Error fetching documentation: {e}")
             return {"success": False, "error": str(e)}
 
-    def _extract_urls(self, text: str) -> List[str]:
+    def _extract_urls(self, text: str) -> list[str]:
         """Extract URLs from text"""
         import re
 
@@ -463,19 +470,19 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         super()._setup_routes()
 
         @self.app.post("/store_conversation")
-        async def store_conversation(request: Dict[str, Any]):
+        async def store_conversation(request: dict[str, Any]):
             return await self.store_conversation_enhanced(request)
 
         @self.app.post("/smart_recall")
-        async def smart_recall(request: Dict[str, Any]):
+        async def smart_recall(request: dict[str, Any]):
             return await self.smart_recall_enhanced(request)
 
         @self.app.post("/update_memory")
-        async def update_memory(request: Dict[str, Any]):
+        async def update_memory(request: dict[str, Any]):
             return await self.update_memory_enhanced(request)
 
         @self.app.post("/fetch_documentation")
-        async def fetch_documentation(request: Dict[str, Any]):
+        async def fetch_documentation(request: dict[str, Any]):
             return await self.fetch_and_store_documentation(request)
 
         @self.app.get("/help/{capability}")
@@ -495,7 +502,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                 status_code=404, detail=f"Capability '{capability}' not found"
             )
 
-    def _get_capability_examples(self, capability: str) -> List[Dict[str, str]]:
+    def _get_capability_examples(self, capability: str) -> list[dict[str, str]]:
         """Get usage examples for capabilities"""
         examples = {
             "store_conversation": [

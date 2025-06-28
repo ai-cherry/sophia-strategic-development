@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 from enum import Enum
+from typing import Any
 
 import redis.asyncio as redis
 import structlog
@@ -45,13 +45,13 @@ class ProcessedCallData(BaseModel):
     webhook_id: str
     title: str
     duration_seconds: int
-    participants: List[Dict[str, Any]]
-    summary: Optional[Dict[str, Any]] = None
-    insights: List[Dict[str, Any]] = Field(default_factory=list)
-    action_items: List[Dict[str, Any]] = Field(default_factory=list)
-    sentiment_score: Optional[float] = None
-    talk_ratio: Optional[float] = None
-    next_steps: List[str] = Field(default_factory=list)
+    participants: list[dict[str, Any]]
+    summary: dict[str, Any] | None = None
+    insights: list[dict[str, Any]] = Field(default_factory=list)
+    action_items: list[dict[str, Any]] = Field(default_factory=list)
+    sentiment_score: float | None = None
+    talk_ratio: float | None = None
+    next_steps: list[str] = Field(default_factory=list)
 
 
 class ProcessedEmailData(BaseModel):
@@ -61,9 +61,9 @@ class ProcessedEmailData(BaseModel):
     webhook_id: str
     subject: str
     sender: str
-    recipients: List[str]
-    sentiment: Optional[str] = None
-    key_topics: List[str] = Field(default_factory=list)
+    recipients: list[str]
+    sentiment: str | None = None
+    key_topics: list[str] = Field(default_factory=list)
     requires_response: bool = False
 
 
@@ -75,9 +75,9 @@ class ProcessedMeetingData(BaseModel):
     title: str
     start_time: datetime
     end_time: datetime
-    attendees: List[Dict[str, Any]]
-    agenda_items: List[str] = Field(default_factory=list)
-    decisions: List[str] = Field(default_factory=list)
+    attendees: list[dict[str, Any]]
+    agenda_items: list[str] = Field(default_factory=list)
+    decisions: list[str] = Field(default_factory=list)
 
 
 class RedisNotificationClient:
@@ -85,7 +85,7 @@ class RedisNotificationClient:
 
     def __init__(self, redis_url: str = "redis://localhost:6379"):
         self.redis_url = redis_url
-        self.redis: Optional[redis.Redis] = None
+        self.redis: redis.Redis | None = None
         self.logger = logger.bind(component="redis_notification_client")
 
         # Channel configuration
@@ -225,7 +225,7 @@ class RedisNotificationClient:
         self,
         webhook_id: str,
         insight_type: str,
-        insight_data: Dict[str, Any],
+        insight_data: dict[str, Any],
         priority: NotificationPriority = NotificationPriority.HIGH,
     ):
         """Send notification for detected insights."""
@@ -257,8 +257,8 @@ class RedisNotificationClient:
     async def notify_action_required(
         self,
         action_type: str,
-        action_data: Dict[str, Any],
-        assigned_to: Optional[str] = None,
+        action_data: dict[str, Any],
+        assigned_to: str | None = None,
     ):
         """Send notification for required actions."""
         await self.ensure_connected()
@@ -291,7 +291,7 @@ class RedisNotificationClient:
         webhook_id: str,
         error_type: str,
         error_message: str,
-        error_details: Optional[Dict[str, Any]] = None,
+        error_details: dict[str, Any] | None = None,
     ):
         """Send notification for processing errors."""
         await self.ensure_connected()
@@ -323,7 +323,7 @@ class RedisNotificationClient:
             "Error notification sent", webhook_id=webhook_id, error_type=error_type
         )
 
-    async def _store_notification(self, key: str, message: Dict[str, Any], ttl: int):
+    async def _store_notification(self, key: str, message: dict[str, Any], ttl: int):
         """Store notification in Redis with TTL."""
         try:
             await self.redis.setex(f"notification:{key}", ttl, json.dumps(message))
@@ -332,7 +332,7 @@ class RedisNotificationClient:
 
     async def get_stored_notifications(
         self, pattern: str = "*", limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Retrieve stored notifications matching pattern."""
         await self.ensure_connected()
 
@@ -386,7 +386,7 @@ class RedisNotificationClient:
             await pubsub.unsubscribe(channel)
             await pubsub.close()
 
-    async def get_channel_stats(self) -> Dict[str, Any]:
+    async def get_channel_stats(self) -> dict[str, Any]:
         """Get statistics about notification channels."""
         await self.ensure_connected()
 

@@ -9,37 +9,38 @@ Current size: 642 lines
 
 Recommended decomposition:
 - enhanced_codacy_server_core.py - Core functionality
-- enhanced_codacy_server_utils.py - Utility functions  
+- enhanced_codacy_server_utils.py - Utility functions
 - enhanced_codacy_server_models.py - Data models
 - enhanced_codacy_server_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import os
-import json
 import asyncio
-from typing import Dict, List, Any
-from datetime import datetime
-from fastapi import HTTPException
+import json
+import os
 
 # Import the standardized base class
 import sys
+from datetime import datetime
+from typing import Any
+
+from fastapi import HTTPException
 
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
+# Import existing Codacy client
+from codacy_api_client import CodacyAPIClient
+
+from backend.core.auto_esc_config import config
 from backend.mcp.base.standardized_mcp_server import (
-    StandardizedMCPServer,
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
+    StandardizedMCPServer,
     SyncPriority,
 )
-from backend.core.auto_esc_config import config
-
-# Import existing Codacy client
-from codacy_api_client import CodacyAPIClient
 
 
 class EnhancedCodacyServer(StandardizedMCPServer):
@@ -85,7 +86,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         except:
             return False
 
-    async def get_server_capabilities(self) -> List[ServerCapability]:
+    async def get_server_capabilities(self) -> list[ServerCapability]:
         """Return Codacy server capabilities"""
         return [
             ServerCapability(
@@ -162,7 +163,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
 
     # Enhanced API endpoints
 
-    async def analyze_code_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_code_enhanced(self, request: dict[str, Any]) -> dict[str, Any]:
         """Analyze code with AI-powered insights and WebFetch integration"""
         try:
             code = request.get("code", "")
@@ -191,15 +192,15 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             4. Performance problems
             5. Best practice violations
             6. Refactoring opportunities
-            
+
             Code to analyze:
             ```{language}
             {code}
             ```
-            
+
             Relevant Standards (summary):
             {standards[:5000] if standards else "Use general best practices"}
-            
+
             Return a detailed JSON analysis with specific line numbers and fix suggestions.
             """
 
@@ -252,7 +253,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             self.logger.error(f"Error analyzing code: {e}")
             return {"success": False, "error": str(e)}
 
-    async def auto_fix_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def auto_fix_enhanced(self, request: dict[str, Any]) -> dict[str, Any]:
         """Automatically fix code issues using improved diff editing"""
         try:
             file_path = request.get("file_path")
@@ -263,7 +264,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
                 return {"success": False, "error": "File path and issues required"}
 
             # Read current file content
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 original_content = f.read()
 
             # Group issues by type for batch fixing
@@ -286,14 +287,14 @@ class EnhancedCodacyServer(StandardizedMCPServer):
 
                 fix_prompt = f"""
                 Generate fixes for these {fix_type} issues in the code:
-                
+
                 Issues: {json.dumps(type_issues, indent=2)}
-                
+
                 Current code:
                 ```
                 {current_content}
                 ```
-                
+
                 Return the fixed code sections with clear SEARCH/REPLACE blocks.
                 """
 
@@ -324,7 +325,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
                                 }
                             )
                             # Update current content for next fix
-                            with open(file_path, "r") as f:
+                            with open(file_path) as f:
                                 current_content = f.read()
                         else:
                             failed_fixes += 1
@@ -347,7 +348,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             self.logger.error(f"Error in auto fix: {e}")
             return {"success": False, "error": str(e)}
 
-    async def security_scan_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def security_scan_enhanced(self, request: dict[str, Any]) -> dict[str, Any]:
         """Enhanced security scanning with AI and WebFetch"""
         try:
             code = request.get("code", "")
@@ -364,7 +365,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
 
             security_prompt = f"""
             Perform a comprehensive security analysis of this {language} code.
-            
+
             Check for:
             1. Injection vulnerabilities (SQL, Command, LDAP, etc.)
             2. Cross-site scripting (XSS)
@@ -373,18 +374,18 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             5. Broken authentication
             6. Security misconfiguration
             7. Using components with known vulnerabilities
-            
+
             Code:
             ```{language}
             {code}
             ```
-            
+
             Recent Security Advisories:
             {json.dumps(security_advisories[:5], indent=2)}
-            
+
             Context:
             {json.dumps(context, indent=2)}
-            
+
             Return detailed findings with:
             - Vulnerability type
             - Severity (critical/high/medium/low)
@@ -467,7 +468,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             except Exception as e:
                 self.logger.warning(f"Could not fetch {language} standards: {e}")
 
-    async def _fetch_security_advisories(self, language: str) -> List[Dict]:
+    async def _fetch_security_advisories(self, language: str) -> list[dict]:
         """Fetch recent security advisories"""
         advisories = []
 
@@ -494,8 +495,8 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         return advisories
 
     def _merge_analysis_results(
-        self, ai_issues: List[Dict], codacy_issues: List[Dict]
-    ) -> List[Dict]:
+        self, ai_issues: list[dict], codacy_issues: list[dict]
+    ) -> list[dict]:
         """Merge and deduplicate issues from AI and Codacy"""
         merged = []
         seen = set()
@@ -527,7 +528,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
 
         return merged
 
-    def _group_issues_by_type(self, issues: List[Dict]) -> Dict[str, List[Dict]]:
+    def _group_issues_by_type(self, issues: list[dict]) -> dict[str, list[dict]]:
         """Group issues by type for batch fixing"""
         grouped = {}
         for issue in issues:
@@ -537,7 +538,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             grouped[issue_type].append(issue)
         return grouped
 
-    def _parse_fix_response(self, response: str) -> List[Dict]:
+    def _parse_fix_response(self, response: str) -> list[dict]:
         """Parse AI fix response into search/replace blocks"""
         fixes = []
 
@@ -553,13 +554,13 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         return fixes
 
     def _merge_security_findings(
-        self, ai_findings: List[Dict], codacy_findings: List[Dict]
-    ) -> List[Dict]:
+        self, ai_findings: list[dict], codacy_findings: list[dict]
+    ) -> list[dict]:
         """Merge security findings with priority to critical issues"""
         # Similar to _merge_analysis_results but with security-specific logic
         return self._merge_analysis_results(ai_findings, codacy_findings)
 
-    def _calculate_security_score(self, vulnerabilities: List[Dict]) -> int:
+    def _calculate_security_score(self, vulnerabilities: list[dict]) -> int:
         """Calculate security score based on vulnerabilities"""
         if not vulnerabilities:
             return 100
@@ -575,10 +576,10 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         score = max(0, 100 - total_penalty)
         return score
 
-    async def _quick_analysis(self, file_path: str) -> Dict:
+    async def _quick_analysis(self, file_path: str) -> dict:
         """Quick analysis after fixes"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 code = f.read()
 
             # Quick check
@@ -595,19 +596,19 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         super()._setup_routes()
 
         @self.app.post("/analyze_code")
-        async def analyze_code(request: Dict[str, Any]):
+        async def analyze_code(request: dict[str, Any]):
             return await self.analyze_code_enhanced(request)
 
         @self.app.post("/auto_fix")
-        async def auto_fix(request: Dict[str, Any]):
+        async def auto_fix(request: dict[str, Any]):
             return await self.auto_fix_enhanced(request)
 
         @self.app.post("/security_scan")
-        async def security_scan(request: Dict[str, Any]):
+        async def security_scan(request: dict[str, Any]):
             return await self.security_scan_enhanced(request)
 
         @self.app.post("/fetch_standards")
-        async def fetch_standards(request: Dict[str, Any]):
+        async def fetch_standards(request: dict[str, Any]):
             language = request.get("language", "python")
             await self._fetch_language_standards(language)
             return {

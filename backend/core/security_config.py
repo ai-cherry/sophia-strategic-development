@@ -4,7 +4,6 @@ Centralized secrets management with Pulumi ESC integration and best practices
 """
 
 import logging
-from typing import Dict, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
@@ -29,7 +28,7 @@ class SecretConfig:
     key: str
     secret_type: SecretType
     required: bool = True
-    default: Optional[str] = None
+    default: str | None = None
     description: str = ""
     rotation_enabled: bool = False
     rotation_days: int = 90
@@ -42,7 +41,7 @@ class SecurityConfig:
     """
 
     # Define all secrets used across the platform
-    SECRETS_REGISTRY: Dict[str, SecretConfig] = {
+    SECRETS_REGISTRY: dict[str, SecretConfig] = {
         # AI/ML Service API Keys
         "openai_api_key": SecretConfig(
             key="openai_api_key",
@@ -180,7 +179,7 @@ class SecurityConfig:
     }
 
     # Non-secret configuration values
-    NON_SECRET_CONFIG: Dict[str, str] = {
+    NON_SECRET_CONFIG: dict[str, str] = {
         # Snowflake Connection Details
         "snowflake_account": "scoobyjava-vw02766",
         "snowflake_user": "PAYREADY",
@@ -208,17 +207,17 @@ class SecurityConfig:
     }
 
     @classmethod
-    def get_secret_keys(cls) -> List[str]:
+    def get_secret_keys(cls) -> list[str]:
         """Get list of all secret keys"""
         return list(cls.SECRETS_REGISTRY.keys())
 
     @classmethod
-    def get_required_secrets(cls) -> List[str]:
+    def get_required_secrets(cls) -> list[str]:
         """Get list of required secret keys"""
         return [key for key, config in cls.SECRETS_REGISTRY.items() if config.required]
 
     @classmethod
-    def get_secrets_by_type(cls, secret_type: SecretType) -> List[str]:
+    def get_secrets_by_type(cls, secret_type: SecretType) -> list[str]:
         """Get secrets by type"""
         return [
             key
@@ -227,7 +226,7 @@ class SecurityConfig:
         ]
 
     @classmethod
-    def get_rotatable_secrets(cls) -> List[str]:
+    def get_rotatable_secrets(cls) -> list[str]:
         """Get secrets that support rotation"""
         return [
             key
@@ -241,7 +240,7 @@ class SecurityConfig:
         return key in cls.SECRETS_REGISTRY
 
     @classmethod
-    def get_secret_config(cls, key: str) -> Optional[SecretConfig]:
+    def get_secret_config(cls, key: str) -> SecretConfig | None:
         """Get configuration for a specific secret"""
         return cls.SECRETS_REGISTRY.get(key)
 
@@ -252,12 +251,12 @@ class SecurityConfig:
         return config.required if config is not None else False
 
     @classmethod
-    def get_non_secret_config(cls, key: str) -> Optional[str]:
+    def get_non_secret_config(cls, key: str) -> str | None:
         """Get non-secret configuration value"""
         return cls.NON_SECRET_CONFIG.get(key)
 
     @classmethod
-    def validate_environment_secrets(cls) -> Dict[str, bool]:
+    def validate_environment_secrets(cls) -> dict[str, bool]:
         """Validate that all required secrets are available"""
         from backend.core.auto_esc_config import get_config_value
 
@@ -272,7 +271,7 @@ class SecurityConfig:
         return validation_results
 
     @classmethod
-    def get_missing_required_secrets(cls) -> List[str]:
+    def get_missing_required_secrets(cls) -> list[str]:
         """Get list of missing required secrets"""
         validation_results = cls.validate_environment_secrets()
         return [key for key, is_valid in validation_results.items() if not is_valid]

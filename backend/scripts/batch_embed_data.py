@@ -26,28 +26,29 @@ Current size: 684 lines
 
 Recommended decomposition:
 - batch_embed_data_core.py - Core functionality
-- batch_embed_data_utils.py - Utility functions  
+- batch_embed_data_utils.py - Utility functions
 - batch_embed_data_models.py - Data models
 - batch_embed_data_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import asyncio
 import argparse
+import asyncio
 import logging
 import sys
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 import structlog
 from tqdm import tqdm
 
+from backend.core.snowflake_config_manager import SnowflakeConfigManager
+
 # Import Sophia AI components
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.core.snowflake_config_manager import SnowflakeConfigManager
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)
@@ -259,8 +260,8 @@ class BatchEmbeddingProcessor:
         self,
         config: EmbeddingConfig,
         force_refresh: bool = False,
-        limit: Optional[int] = None,
-    ) -> List[Dict[str, Any]]:
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         """Get records that need embedding generation"""
 
         # Build WHERE conditions
@@ -270,8 +271,8 @@ class BatchEmbeddingProcessor:
             # Only process records without embeddings or updated since last embedding
             conditions.append(
                 f"""
-                ({config.embedding_column} IS NULL 
-                 OR {config.updated_column} IS NULL 
+                ({config.embedding_column} IS NULL
+                 OR {config.updated_column} IS NULL
                  OR UPDATED_AT > {config.updated_column})
             """
             )
@@ -280,7 +281,7 @@ class BatchEmbeddingProcessor:
 
         # Build query
         query = f"""
-        SELECT 
+        SELECT
             {config.id_column} as id,
             {config.text_column} as text_content,
             {config.embedding_column} as current_embedding,
@@ -303,7 +304,7 @@ class BatchEmbeddingProcessor:
 
             records = []
             for row in results:
-                record = dict(zip(columns, row))
+                record = dict(zip(columns, row, strict=False))
                 records.append(record)
 
             logger.info(
@@ -319,8 +320,8 @@ class BatchEmbeddingProcessor:
                 cursor.close()
 
     async def process_batch(
-        self, records: List[Dict[str, Any]], config: EmbeddingConfig
-    ) -> Tuple[int, int]:
+        self, records: list[dict[str, Any]], config: EmbeddingConfig
+    ) -> tuple[int, int]:
         """Process a batch of records for embedding generation"""
 
         successful = 0
@@ -389,7 +390,7 @@ class BatchEmbeddingProcessor:
         table: EmbeddingTable,
         force_refresh: bool = False,
         dry_run: bool = False,
-        limit: Optional[int] = None,
+        limit: int | None = None,
     ) -> ProcessingStats:
         """Process all records in a specific table"""
 
@@ -475,8 +476,8 @@ class BatchEmbeddingProcessor:
         self,
         force_refresh: bool = False,
         dry_run: bool = False,
-        limit: Optional[int] = None,
-    ) -> Dict[str, ProcessingStats]:
+        limit: int | None = None,
+    ) -> dict[str, ProcessingStats]:
         """Process all supported tables"""
 
         logger.info("Starting batch embedding processing for all tables")
@@ -518,7 +519,7 @@ class BatchEmbeddingProcessor:
 
         return results
 
-    async def get_processing_status(self) -> Dict[str, Any]:
+    async def get_processing_status(self) -> dict[str, Any]:
         """Get current processing status for all tables"""
 
         status = {}
@@ -529,7 +530,7 @@ class BatchEmbeddingProcessor:
             try:
                 # Query table statistics
                 query = f"""
-                SELECT 
+                SELECT
                     COUNT(*) as total_records,
                     COUNT({config.embedding_column}) as records_with_embeddings,
                     COUNT(CASE WHEN {config.embedding_column} IS NULL THEN 1 END) as records_without_embeddings,
@@ -540,7 +541,9 @@ class BatchEmbeddingProcessor:
                 """
 
                 cursor = self.cortex_service.connection.cursor()
-                cursor.execute(query, query_params if "query_params" in locals() else ())
+                cursor.execute(
+                    query, query_params if "query_params" in locals() else ()
+                )
                 result = cursor.fetchone()
 
                 status[table.value] = {

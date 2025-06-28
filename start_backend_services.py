@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,8 +18,8 @@ backend_path = Path(__file__).parent / "backend"
 sys.path.insert(0, str(backend_path))
 
 # Import our services and routes
-from backend.services.enhanced_unified_chat_service import app as chat_app
 from backend.api.knowledge_dashboard_routes import knowledge_router
+from backend.services.enhanced_unified_chat_service import app as chat_app
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

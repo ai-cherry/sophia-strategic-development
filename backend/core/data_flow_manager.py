@@ -9,12 +9,14 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional, Callable
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 import redis.asyncio as redis_client
+
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
@@ -33,13 +35,13 @@ class DataSource:
     endpoint: str
     reliability_pattern: str  # circuit_breaker, retry, queue
     health_status: str = "healthy"
-    last_sync: Optional[datetime] = None
+    last_sync: datetime | None = None
 
 
 @dataclass
 class ProcessingTask:
     task_id: str
-    source_data: Dict[str, Any]
+    source_data: dict[str, Any]
     processing_type: str  # chunk, vectorize, enrich
     priority: int = 1  # 1=high, 2=medium, 3=low
     retry_count: int = 0
@@ -177,7 +179,7 @@ class IntelligentCache:
             except Exception as e:
                 logger.warning(f"Failed to cache in Redis: {e}")
 
-    def _is_expired(self, cache_data: Dict) -> bool:
+    def _is_expired(self, cache_data: dict) -> bool:
         """Check if cached data is expired"""
         return time.time() - cache_data["timestamp"] > cache_data["ttl"]
 
@@ -189,8 +191,8 @@ class DataFlowManager:
     """
 
     def __init__(self):
-        self.data_sources: Dict[str, DataSource] = {}
-        self.circuit_breakers: Dict[str, CircuitBreaker] = {}
+        self.data_sources: dict[str, DataSource] = {}
+        self.circuit_breakers: dict[str, CircuitBreaker] = {}
         self.processing_queue = asyncio.Queue()
         self.dead_letter_queue = asyncio.Queue()
         self.cache = IntelligentCache()
@@ -290,7 +292,7 @@ class DataFlowManager:
                 await self._process_task(task, worker_name)
                 self.processing_queue.task_done()
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # No tasks available, continue waiting
                 continue
             except Exception as e:
@@ -344,7 +346,7 @@ class DataFlowManager:
                     f"Task {task.task_id} sent to dead letter queue after {task.max_retries} retries"
                 )
 
-    async def ingest_data(self, source_name: str, data: Dict[str, Any]) -> bool:
+    async def ingest_data(self, source_name: str, data: dict[str, Any]) -> bool:
         """Ingest data from external source with reliability patterns"""
         source = self.data_sources.get(source_name)
         if not source:
@@ -372,7 +374,7 @@ class DataFlowManager:
             source.health_status = "unhealthy"
             return False
 
-    async def _validate_and_queue_data(self, source_name: str, data: Dict[str, Any]):
+    async def _validate_and_queue_data(self, source_name: str, data: dict[str, Any]):
         """Validate data and queue for processing"""
         # Basic validation
         if not data or not isinstance(data, dict):
@@ -408,7 +410,7 @@ class DataFlowManager:
         logger.info(f"Queued {len(tasks)} processing tasks for {source_name}")
 
     async def _retry_validate_and_queue_data(
-        self, source_name: str, data: Dict[str, Any], max_retries: int = 3
+        self, source_name: str, data: dict[str, Any], max_retries: int = 3
     ):
         """Validate and queue data with retry logic"""
         for attempt in range(max_retries):
@@ -420,7 +422,7 @@ class DataFlowManager:
                     raise e
                 await asyncio.sleep(2**attempt)  # Exponential backoff
 
-    async def _chunk_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _chunk_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """Intelligent chunking based on content type"""
         if "transcript" in data:
             # Gong call chunking by speaker turns
@@ -500,7 +502,7 @@ class DataFlowManager:
                 "chunk_type": "raw",
             }
 
-    async def _vectorize_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _vectorize_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """Generate embeddings for chunks"""
         # This would integrate with OpenAI/Cohere for embeddings
         # For now, return placeholder
@@ -510,7 +512,7 @@ class DataFlowManager:
             "chunk_count": len(data.get("chunks", [])),
         }
 
-    async def _enrich_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _enrich_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """Enrich data with business context"""
         # Extract business entities, sentiment, etc.
         return {
@@ -519,13 +521,13 @@ class DataFlowManager:
             "sentiment_score": 0.0,
         }
 
-    async def _store_processed_data(self, task_id: str, result: Dict[str, Any]):
+    async def _store_processed_data(self, task_id: str, result: dict[str, Any]):
         """Store processed data in appropriate storage systems"""
         # This would integrate with Snowflake, Pinecone, etc.
         logger.debug(f"Storing processed data for task {task_id}")
         # Implementation would depend on result type and storage destination
 
-    async def get_health_status(self) -> Dict[str, Any]:
+    async def get_health_status(self) -> dict[str, Any]:
         """Get comprehensive health status"""
         source_health = {}
         for name, source in self.data_sources.items():

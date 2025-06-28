@@ -6,24 +6,23 @@ Adds predictive optimization, self-healing, and natural language control
 
 import asyncio
 import sys
-from pathlib import Path
-from typing import Dict, Any, List
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 
 # Import existing DNS manager functionality
-from scripts.dns_manager import SophiaDNSManager
-
 # Import AI infrastructure agent
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
-    SophiaDNSIntelligenceAgent,
     InfrastructureContext,
+    SophiaDNSIntelligenceAgent,
 )
 
 # Import existing infrastructure
 from backend.integrations.redis_service import RedisService
+from scripts.dns_manager import SophiaDNSManager
 
 
 class AIEnhancedDNSManager(SophiaDNSManager):
@@ -224,7 +223,7 @@ class AIEnhancedDNSManager(SophiaDNSManager):
         except KeyboardInterrupt:
             print("\n\n✋ Continuous optimization stopped")
 
-    async def _analyze_traffic_patterns(self) -> Dict[str, Any]:
+    async def _analyze_traffic_patterns(self) -> dict[str, Any]:
         """Analyze traffic patterns for AI optimization"""
 
         # Simulate traffic analysis (would connect to real monitoring)
@@ -248,7 +247,7 @@ class AIEnhancedDNSManager(SophiaDNSManager):
             "requests_per_second": 1250,
         }
 
-    async def _detect_dns_issues(self) -> List[Dict[str, Any]]:
+    async def _detect_dns_issues(self) -> list[dict[str, Any]]:
         """Detect DNS configuration issues"""
 
         issues = []
@@ -295,8 +294,8 @@ class AIEnhancedDNSManager(SophiaDNSManager):
         return issues
 
     async def _generate_healing_plan(
-        self, issues: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, issues: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Generate AI-driven healing plan for issues"""
 
         healing_plan = []
@@ -337,7 +336,7 @@ class AIEnhancedDNSManager(SophiaDNSManager):
 
         return healing_plan
 
-    def _calculate_sleep_duration(self, metrics: Dict[str, Any]) -> int:
+    def _calculate_sleep_duration(self, metrics: dict[str, Any]) -> int:
         """Calculate intelligent sleep duration based on system state"""
 
         base_sleep = 60  # Base 60 seconds
@@ -359,7 +358,7 @@ class AIEnhancedDNSManager(SophiaDNSManager):
 
         return base_sleep
 
-    async def _gather_real_time_metrics(self) -> Dict[str, Any]:
+    async def _gather_real_time_metrics(self) -> dict[str, Any]:
         """Gather real-time metrics for optimization decisions"""
 
         # Simulate real-time metrics (would connect to monitoring)

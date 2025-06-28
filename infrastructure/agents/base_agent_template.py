@@ -8,11 +8,11 @@ import asyncio
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
-from typing import Dict, Any, Optional
+from typing import Any
 
-from opentelemetry import trace, metrics
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
 import structlog
+from opentelemetry import metrics, trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 # Configure structured logging
 LoggingInstrumentor().instrument(set_logging_format=True)
@@ -37,8 +37,8 @@ class AgentRequest:
     def __init__(
         self,
         action: str,
-        payload: Dict[str, Any],
-        correlation_id: Optional[str] = None,
+        payload: dict[str, Any],
+        correlation_id: str | None = None,
         priority: int = 5,
     ):
         self.action = action
@@ -59,9 +59,9 @@ class AgentResponse:
     def __init__(
         self,
         status: str,
-        data: Optional[Dict[str, Any]] = None,
-        error: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        error: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self.status = status
         self.data = data or {}
@@ -76,7 +76,7 @@ class BaseAgent(ABC):
     Implements expert-recommended patterns
     """
 
-    def __init__(self, name: str, config: Dict[str, Any]):
+    def __init__(self, name: str, config: dict[str, Any]):
         self.name = name
         self.config = config
         self.logger = logger.bind(agent=name)
@@ -126,7 +126,7 @@ class BaseAgent(ABC):
         """
         pass
 
-    async def get_metrics(self) -> Dict[str, float]:
+    async def get_metrics(self) -> dict[str, float]:
         """
         Return current metrics
         """

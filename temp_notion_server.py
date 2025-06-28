@@ -1,7 +1,8 @@
 import asyncio
-from datetime import datetime
-from aiohttp import web
 import logging
+from datetime import datetime
+
+from aiohttp import web
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Notion")

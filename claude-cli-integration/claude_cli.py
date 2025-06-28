@@ -4,14 +4,15 @@ Sophia AI - Claude CLI Integration (Upgraded)
 Latest Claude models with intelligent routing and MCP integration
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Any
+
 import aiohttp
-import argparse
 
 # Setup logging
 logging.basicConfig(
@@ -27,9 +28,9 @@ class ClaudeMCPIntegration:
         self, config_path: str = "claude-cli-integration/claude_mcp_config.json"
     ):
         self.config_path = Path(config_path)
-        self.config: Dict[str, Any] = {}
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.anthropic_api_key: Optional[str] = None
+        self.config: dict[str, Any] = {}
+        self.session: aiohttp.ClientSession | None = None
+        self.anthropic_api_key: str | None = None
 
         self._load_config()
         self._setup_anthropic()
@@ -38,7 +39,7 @@ class ClaudeMCPIntegration:
         """Load Claude MCP configuration"""
         try:
             if self.config_path.exists():
-                with open(self.config_path, "r") as f:
+                with open(self.config_path) as f:
                     self.config = json.load(f)
                 logger.info("✅ Loaded Claude MCP configuration with latest models")
             else:
@@ -101,7 +102,7 @@ class ClaudeMCPIntegration:
             await self.session.close()
             self.session = None
 
-    async def check_mcp_server_health(self, server_name: str) -> Dict[str, Any]:
+    async def check_mcp_server_health(self, server_name: str) -> dict[str, Any]:
         """Check health of a specific MCP server"""
         if server_name not in self.config.get("mcpServers", {}):
             return {"status": "error", "message": f"Unknown server: {server_name}"}
@@ -120,8 +121,8 @@ class ClaudeMCPIntegration:
             return {"status": "error", "message": str(e)}
 
     async def query_mcp_server(
-        self, server_name: str, endpoint: str, data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, server_name: str, endpoint: str, data: dict | None = None
+    ) -> dict[str, Any]:
         """Query a specific MCP server endpoint"""
         if server_name not in self.config.get("mcpServers", {}):
             return {"error": f"Unknown server: {server_name}"}
@@ -285,7 +286,7 @@ Always provide practical, actionable responses that leverage the available MCP c
 
         return "\n".join(context_parts) if context_parts else "No MCP servers available"
 
-    async def list_servers(self) -> Dict[str, Any]:
+    async def list_servers(self) -> dict[str, Any]:
         """List all configured MCP servers and their status"""
         servers = {}
 

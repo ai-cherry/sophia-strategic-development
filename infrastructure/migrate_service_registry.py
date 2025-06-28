@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
-def load(path: Path) -> Dict[str, Any]:
+def load(path: Path) -> dict[str, Any]:
     """Load JSON data from ``path`` if it exists."""
     if not path.exists():
         return {}
@@ -16,9 +16,9 @@ def load(path: Path) -> Dict[str, Any]:
         return json.load(f)
 
 
-def merge_dicts(primary: Dict[str, Any], secondary: Dict[str, Any]) -> Dict[str, Any]:
+def merge_dicts(primary: dict[str, Any], secondary: dict[str, Any]) -> dict[str, Any]:
     """Merge two service registries."""
-    result: Dict[str, Any] = {}
+    result: dict[str, Any] = {}
     keys = set(primary) | set(secondary)
     for key in sorted(keys):
         a = primary.get(key, {})

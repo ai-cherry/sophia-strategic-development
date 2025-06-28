@@ -6,6 +6,7 @@ of a sales call.
 """
 
 from dataclasses import dataclass
+
 from backend.application.ports.repositories.call_repository import CallRepository
 from backend.application.ports.services.ai_service import AIService
 from backend.domain.entities.call import Call

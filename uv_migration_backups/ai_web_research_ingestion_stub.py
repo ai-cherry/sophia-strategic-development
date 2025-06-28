@@ -19,11 +19,11 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List
 from dataclasses import dataclass
-import pandas as pd
+from datetime import datetime, timedelta
+
 import aiohttp
+import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -36,9 +36,9 @@ logger = logging.getLogger(__name__)
 class WebResearchConfig:
     """Configuration for web research data ingestion"""
 
-    research_sources: List[str]
-    api_keys: Dict[str, str]
-    research_topics: List[str]
+    research_sources: list[str]
+    api_keys: dict[str, str]
+    research_topics: list[str]
     update_frequency_hours: int = 24
 
 
@@ -238,9 +238,11 @@ class AIWebResearchIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_INDUSTRY_TRENDS LIKE INDUSTRY_TRENDS
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -270,7 +272,8 @@ class AIWebResearchIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO INDUSTRY_TRENDS AS target
                 USING TEMP_INDUSTRY_TRENDS AS source
                 ON target.TREND_ID = source.TREND_ID
@@ -291,7 +294,8 @@ class AIWebResearchIngestor:
                     source.RELEVANCE_SCORE, source.BUSINESS_IMPACT_SCORE,
                     source.TREND_CATEGORY, source.GEOGRAPHIC_SCOPE, source.INDUSTRY_SECTOR
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -313,9 +317,11 @@ class AIWebResearchIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_COMPETITOR_INTELLIGENCE LIKE COMPETITOR_INTELLIGENCE
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -345,7 +351,8 @@ class AIWebResearchIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO COMPETITOR_INTELLIGENCE AS target
                 USING TEMP_COMPETITOR_INTELLIGENCE AS source
                 ON target.INTELLIGENCE_ID = source.INTELLIGENCE_ID
@@ -368,7 +375,8 @@ class AIWebResearchIngestor:
                     source.THREAT_LEVEL, source.OPPORTUNITY_LEVEL, source.STRATEGIC_IMPLICATIONS,
                     source.COMPETITIVE_MOAT_IMPACT, source.MARKET_SHARE_IMPACT
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -392,9 +400,11 @@ class AIWebResearchIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PARTNERSHIP_OPPORTUNITIES LIKE PARTNERSHIP_OPPORTUNITIES
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -424,7 +434,8 @@ class AIWebResearchIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO PARTNERSHIP_OPPORTUNITIES AS target
                 USING TEMP_PARTNERSHIP_OPPORTUNITIES AS source
                 ON target.OPPORTUNITY_ID = source.OPPORTUNITY_ID
@@ -448,7 +459,8 @@ class AIWebResearchIngestor:
                     source.IMPLEMENTATION_COMPLEXITY, source.TIMELINE_ESTIMATE,
                     source.KEY_BENEFITS, source.POTENTIAL_RISKS, source.NEXT_STEPS
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -468,7 +480,8 @@ class AIWebResearchIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Generate embeddings for industry trends
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE INDUSTRY_TRENDS
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -484,12 +497,14 @@ class AIWebResearchIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             trends_updated = cursor.rowcount
 
             # Generate embeddings for competitor intelligence
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE COMPETITOR_INTELLIGENCE
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -505,12 +520,14 @@ class AIWebResearchIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             intelligence_updated = cursor.rowcount
 
             # Generate embeddings for partnership opportunities
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE PARTNERSHIP_OPPORTUNITIES
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -526,7 +543,8 @@ class AIWebResearchIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             partnerships_updated = cursor.rowcount
             cursor.close()
@@ -541,7 +559,7 @@ class AIWebResearchIngestor:
             logger.error(f"❌ Failed to generate web research AI embeddings: {e}")
             return 0
 
-    async def run_full_web_research_sync(self) -> Dict[str, int]:
+    async def run_full_web_research_sync(self) -> dict[str, int]:
         """Run full synchronization of web research data"""
         try:
             logger.info("🚀 Starting AI Web Research full sync")
@@ -554,15 +572,15 @@ class AIWebResearchIngestor:
 
             # Extract and load competitor intelligence
             intelligence_df = await self.extract_competitor_intelligence()
-            results[
-                "competitor_intelligence"
-            ] = await self.load_competitor_intelligence(intelligence_df)
+            results["competitor_intelligence"] = (
+                await self.load_competitor_intelligence(intelligence_df)
+            )
 
             # Extract and load partnership opportunities
             partnerships_df = await self.extract_partnership_opportunities()
-            results[
-                "partnership_opportunities"
-            ] = await self.load_partnership_opportunities(partnerships_df)
+            results["partnership_opportunities"] = (
+                await self.load_partnership_opportunities(partnerships_df)
+            )
 
             # Generate AI embeddings
             results["ai_embeddings"] = await self.generate_web_research_ai_embeddings()

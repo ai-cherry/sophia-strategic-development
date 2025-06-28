@@ -4,12 +4,12 @@ Safe Cleanup Script for Sophia AI
 Phase 1B: Remove deprecated code and legacy artifacts with backup
 """
 
-import shutil
+import argparse
 import json
 import re
-from pathlib import Path
+import shutil
 from datetime import datetime
-import argparse
+from pathlib import Path
 
 
 class SafeCleanup:
@@ -60,7 +60,7 @@ class SafeCleanup:
             # Check file content for deprecated markers
             if file_path.is_file() and file_path.suffix in [".py", ".js", ".ts", ".md"]:
                 try:
-                    with open(file_path, "r") as f:
+                    with open(file_path) as f:
                         content = f.read()
                         if "# DEPRECATED" in content or "// DEPRECATED" in content:
                             self.cleanup_targets.append(

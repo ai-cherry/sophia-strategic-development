@@ -8,16 +8,16 @@ import json
 import logging
 import re
 import uuid
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 # Core imports
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +49,12 @@ class KBEntity:
     """Knowledge Base entity structure"""
 
     entity_type: KBEntityType
-    entity_id: Optional[str] = None
-    attributes: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    entity_id: str | None = None
+    attributes: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     created_by: str = "kb_management_service"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "entity_type": self.entity_type.value,
             "entity_id": self.entity_id,
@@ -70,11 +70,11 @@ class KBProcessingResult:
 
     success: bool
     operation: KBOperation
-    entity_type: Optional[KBEntityType] = None
-    entity_id: Optional[str] = None
+    entity_type: KBEntityType | None = None
+    entity_id: str | None = None
     message: str = ""
-    data: Dict[str, Any] = field(default_factory=dict)
-    errors: List[str] = field(default_factory=list)
+    data: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
 
 
 class NaturalLanguageKBProcessor:
@@ -108,7 +108,7 @@ class NaturalLanguageKBProcessor:
             logger.error(f"Failed to initialize NL KB Processor: {e}")
             self.initialized = True
 
-    def _initialize_entity_patterns(self) -> Dict[KBEntityType, Dict[str, Any]]:
+    def _initialize_entity_patterns(self) -> dict[KBEntityType, dict[str, Any]]:
         """Initialize entity type detection patterns"""
         return {
             KBEntityType.EMPLOYEE: {
@@ -128,14 +128,14 @@ class NaturalLanguageKBProcessor:
             },
         }
 
-    def _initialize_operation_patterns(self) -> Dict[KBOperation, List[str]]:
+    def _initialize_operation_patterns(self) -> dict[KBOperation, list[str]]:
         """Initialize operation detection patterns"""
         return {
             KBOperation.ADD: ["add", "create", "new", "define"],
             KBOperation.SEARCH: ["search", "find", "lookup", "get"],
         }
 
-    def _initialize_attribute_extractors(self) -> Dict[str, str]:
+    def _initialize_attribute_extractors(self) -> dict[str, str]:
         """Initialize attribute extraction patterns"""
         return {
             "name": r"name[:\s]+['\"]?([^'\"]+)['\"]?",
@@ -148,7 +148,7 @@ class NaturalLanguageKBProcessor:
 
     async def parse_natural_language_command(
         self, command: str
-    ) -> Tuple[KBOperation, KBEntityType, Dict[str, Any]]:
+    ) -> tuple[KBOperation, KBEntityType, dict[str, Any]]:
         """Parse natural language command"""
         command_lower = command.lower().strip()
 
@@ -177,7 +177,7 @@ class NaturalLanguageKBProcessor:
                 return entity_type
         return KBEntityType.EMPLOYEE
 
-    def _extract_attributes(self, command: str) -> Dict[str, Any]:
+    def _extract_attributes(self, command: str) -> dict[str, Any]:
         """Extract attributes from command"""
         attributes = {}
 
@@ -262,7 +262,7 @@ class KBManagementService:
             )
 
     async def _add_entity(
-        self, entity_type: KBEntityType, attributes: Dict[str, Any], user_id: str
+        self, entity_type: KBEntityType, attributes: dict[str, Any], user_id: str
     ) -> KBProcessingResult:
         """Add new KB entity"""
         try:
@@ -313,7 +313,7 @@ class KBManagementService:
             )
 
     async def _search_knowledge(
-        self, entity_type: KBEntityType, attributes: Dict[str, Any], user_id: str
+        self, entity_type: KBEntityType, attributes: dict[str, Any], user_id: str
     ) -> KBProcessingResult:
         """Search knowledge base"""
         try:
@@ -374,7 +374,7 @@ class KBManagementService:
             content = f"""
             KB Entity: {entity.entity_type.value.title()}
             ID: {entity.entity_id}
-            
+
             Attributes:
             {json.dumps(entity.attributes, indent=2)}
             """

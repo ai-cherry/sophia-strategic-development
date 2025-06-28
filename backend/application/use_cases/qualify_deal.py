@@ -7,13 +7,12 @@ based on various criteria.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
 
-from backend.application.ports.repositories.deal_repository import DealRepository
-from backend.application.ports.repositories.contact_repository import ContactRepository
 from backend.application.ports.repositories.call_repository import CallRepository
-from backend.domain.entities.deal import Deal, DealStage
+from backend.application.ports.repositories.contact_repository import ContactRepository
+from backend.application.ports.repositories.deal_repository import DealRepository
 from backend.domain.entities.contact import EngagementLevel
+from backend.domain.entities.deal import Deal, DealStage
 
 
 @dataclass
@@ -46,8 +45,8 @@ class QualifyDealResponse:
     is_qualified: bool
     qualification_score: float
     criteria: QualificationCriteria
-    recommended_next_steps: List[str]
-    risk_factors: List[str]
+    recommended_next_steps: list[str]
+    risk_factors: list[str]
 
 
 class DealNotFoundError(Exception):
@@ -277,7 +276,7 @@ class QualifyDealUseCase:
 
     def _generate_next_steps(
         self, deal: Deal, criteria: QualificationCriteria, is_qualified: bool
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Generate recommended next steps based on qualification results.
 
@@ -317,7 +316,7 @@ class QualifyDealUseCase:
 
     def _identify_risk_factors(
         self, deal: Deal, criteria: QualificationCriteria
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Identify risk factors for the deal.
 

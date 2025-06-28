@@ -14,7 +14,7 @@ Current size: 872 lines
 
 Recommended decomposition:
 - enhanced_gong_integration_core.py - Core functionality
-- enhanced_gong_integration_utils.py - Utility functions  
+- enhanced_gong_integration_utils.py - Utility functions
 - enhanced_gong_integration_models.py - Data models
 - enhanced_gong_integration_handlers.py - Request handlers
 
@@ -23,13 +23,14 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Any
 
 from ..core.simple_config import get_gong_access_key
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
+
 # EnhancedGongAPIClient is imported conditionally in __init__ method
 
 logger = logging.getLogger(__name__)
@@ -73,15 +74,15 @@ class CustomerInteraction:
     title: str
     description: str
     timestamp: datetime
-    duration_minutes: Optional[int]
-    participants: List[str]
+    duration_minutes: int | None
+    participants: list[str]
     sentiment_score: float
     sentiment_label: SentimentScore
-    key_topics: List[str]
-    action_items: List[str]
-    next_steps: List[str]
-    expansion_signals: List[str]
-    churn_indicators: List[str]
+    key_topics: list[str]
+    action_items: list[str]
+    next_steps: list[str]
+    expansion_signals: list[str]
+    churn_indicators: list[str]
     confidence: float
 
 
@@ -93,15 +94,15 @@ class CustomerTimeline:
     customer_name: str
     company_name: str
     total_interactions: int
-    date_range: Tuple[datetime, datetime]
-    interactions: List[CustomerInteraction]
-    overall_sentiment_trend: List[float]
-    sentiment_summary: Dict[str, int]
+    date_range: tuple[datetime, datetime]
+    interactions: list[CustomerInteraction]
+    overall_sentiment_trend: list[float]
+    sentiment_summary: dict[str, int]
     expansion_readiness_score: float
     churn_risk_score: float
     churn_risk_level: ChurnRiskLevel
     relationship_health_score: float
-    recommended_actions: List[str]
+    recommended_actions: list[str]
 
 
 @dataclass
@@ -113,9 +114,9 @@ class ExpansionSignal:
     signal_type: str
     description: str
     confidence: float
-    potential_value: Optional[float]
+    potential_value: float | None
     timeline: str
-    evidence: List[str]
+    evidence: list[str]
     recommended_approach: str
 
 
@@ -210,7 +211,7 @@ class EnhancedGongIntegration:
 
     async def analyze_customer_expansion_potential(
         self, customer_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Comprehensive customer expansion analysis"""
         try:
             # Get recent interaction timeline
@@ -251,7 +252,7 @@ class EnhancedGongIntegration:
             logger.error(f"Error analyzing customer expansion potential: {e}")
             return self._get_fallback_expansion_analysis(customer_id)
 
-    async def assess_churn_risk(self, customer_id: str) -> Dict[str, Any]:
+    async def assess_churn_risk(self, customer_id: str) -> dict[str, Any]:
         """Comprehensive churn risk assessment"""
         try:
             # Get recent timeline with focus on churn indicators
@@ -300,7 +301,7 @@ class EnhancedGongIntegration:
             logger.error(f"Error assessing churn risk: {e}")
             return self._get_fallback_churn_analysis(customer_id)
 
-    async def analyze_relationship_health(self, customer_id: str) -> Dict[str, Any]:
+    async def analyze_relationship_health(self, customer_id: str) -> dict[str, Any]:
         """Analyze overall customer relationship health"""
         try:
             # Get comprehensive timeline
@@ -350,7 +351,7 @@ class EnhancedGongIntegration:
     # Private methods for data fetching
     async def _get_customer_calls(
         self, customer_id: str, start_date: datetime, end_date: datetime
-    ) -> List[CustomerInteraction]:
+    ) -> list[CustomerInteraction]:
         """Fetch and analyze customer calls from Gong"""
         try:
             if not self.gong_client:
@@ -374,7 +375,7 @@ class EnhancedGongIntegration:
 
     async def _get_customer_emails(
         self, customer_id: str, start_date: datetime, end_date: datetime
-    ) -> List[CustomerInteraction]:
+    ) -> list[CustomerInteraction]:
         """Fetch and analyze customer emails from Gong"""
         try:
             if not self.gong_client:
@@ -398,7 +399,7 @@ class EnhancedGongIntegration:
 
     async def _get_customer_meetings(
         self, customer_id: str, start_date: datetime, end_date: datetime
-    ) -> List[CustomerInteraction]:
+    ) -> list[CustomerInteraction]:
         """Fetch and analyze customer meetings from Gong"""
         try:
             if not self.gong_client:
@@ -424,7 +425,7 @@ class EnhancedGongIntegration:
 
     async def _get_customer_calendar_events(
         self, customer_id: str, start_date: datetime, end_date: datetime
-    ) -> List[CustomerInteraction]:
+    ) -> list[CustomerInteraction]:
         """Fetch and analyze upcoming calendar events"""
         try:
             if not self.gong_client:
@@ -450,19 +451,19 @@ class EnhancedGongIntegration:
 
     # Private methods for interaction analysis
     async def _analyze_call_interaction(
-        self, call_data: Dict, customer_id: str
+        self, call_data: dict, customer_id: str
     ) -> CustomerInteraction:
         """Analyze call interaction using Snowflake Cortex"""
         try:
             # Use Cortex for AI-powered call analysis
             analysis_prompt = f"""
             Analyze this customer call for sentiment, topics, and business signals:
-            
+
             Call Title: {call_data.get("title", "Unknown")}
             Duration: {call_data.get("duration", 0)} minutes
             Participants: {", ".join(call_data.get("participants", []))}
             Transcript: {call_data.get("transcript", "")[:2000]}  # Limit for token efficiency
-            
+
             Provide analysis for:
             1. Sentiment score (-1 to 1)
             2. Key topics discussed
@@ -505,18 +506,18 @@ class EnhancedGongIntegration:
             )
 
     async def _analyze_email_interaction(
-        self, email_data: Dict, customer_id: str
+        self, email_data: dict, customer_id: str
     ) -> CustomerInteraction:
         """Analyze email interaction"""
         try:
             analysis_prompt = f"""
             Analyze this customer email for sentiment and business signals:
-            
+
             Subject: {email_data.get("subject", "Unknown")}
             From: {email_data.get("from", "Unknown")}
             To: {email_data.get("to", "Unknown")}
             Content: {email_data.get("content", "")[:1500]}
-            
+
             Provide sentiment analysis and identify any business opportunities or concerns.
             """
 
@@ -554,18 +555,18 @@ class EnhancedGongIntegration:
             )
 
     async def _analyze_meeting_interaction(
-        self, meeting_data: Dict, customer_id: str
+        self, meeting_data: dict, customer_id: str
     ) -> CustomerInteraction:
         """Analyze meeting interaction"""
         try:
             analysis_prompt = f"""
             Analyze this customer meeting for outcomes and sentiment:
-            
+
             Meeting Title: {meeting_data.get("title", "Unknown")}
             Duration: {meeting_data.get("duration", 0)} minutes
             Attendees: {", ".join(meeting_data.get("attendees", []))}
             Notes: {meeting_data.get("notes", "")[:1500]}
-            
+
             Identify key outcomes, decisions, and relationship health indicators.
             """
 
@@ -603,7 +604,7 @@ class EnhancedGongIntegration:
             )
 
     async def _analyze_calendar_interaction(
-        self, event_data: Dict, customer_id: str
+        self, event_data: dict, customer_id: str
     ) -> CustomerInteraction:
         """Analyze upcoming calendar event"""
         return CustomerInteraction(
@@ -631,7 +632,7 @@ class EnhancedGongIntegration:
     async def _analyze_customer_timeline(
         self,
         customer_id: str,
-        interactions: List[CustomerInteraction],
+        interactions: list[CustomerInteraction],
         start_date: datetime,
         end_date: datetime,
     ) -> CustomerTimeline:
@@ -711,8 +712,8 @@ class EnhancedGongIntegration:
             return ChurnRiskLevel.LOW
 
     def _calculate_sentiment_trend(
-        self, interactions: List[CustomerInteraction]
-    ) -> List[float]:
+        self, interactions: list[CustomerInteraction]
+    ) -> list[float]:
         """Calculate sentiment trend over time"""
         if not interactions:
             return []
@@ -724,8 +725,8 @@ class EnhancedGongIntegration:
         return [interaction.sentiment_score for interaction in sorted_interactions]
 
     def _calculate_sentiment_summary(
-        self, interactions: List[CustomerInteraction]
-    ) -> Dict[str, int]:
+        self, interactions: list[CustomerInteraction]
+    ) -> dict[str, int]:
         """Calculate sentiment distribution summary"""
         summary = {label.value: 0 for label in SentimentScore}
 
@@ -736,7 +737,7 @@ class EnhancedGongIntegration:
 
     # Fallback methods
     def _get_fallback_interaction(
-        self, data: Dict, customer_id: str, interaction_type: InteractionType
+        self, data: dict, customer_id: str, interaction_type: InteractionType
     ) -> CustomerInteraction:
         """Fallback interaction when analysis fails"""
         return CustomerInteraction(
@@ -776,7 +777,7 @@ class EnhancedGongIntegration:
             recommended_actions=["Contact customer to re-establish communication"],
         )
 
-    def _get_fallback_expansion_analysis(self, customer_id: str) -> Dict[str, Any]:
+    def _get_fallback_expansion_analysis(self, customer_id: str) -> dict[str, Any]:
         """Fallback expansion analysis"""
         return {
             "customer_id": customer_id,
@@ -789,7 +790,7 @@ class EnhancedGongIntegration:
             "status": "degraded",
         }
 
-    def _get_fallback_churn_analysis(self, customer_id: str) -> Dict[str, Any]:
+    def _get_fallback_churn_analysis(self, customer_id: str) -> dict[str, Any]:
         """Fallback churn analysis"""
         return {
             "customer_id": customer_id,
@@ -804,7 +805,7 @@ class EnhancedGongIntegration:
             "status": "degraded",
         }
 
-    def _get_fallback_health_analysis(self, customer_id: str) -> Dict[str, Any]:
+    def _get_fallback_health_analysis(self, customer_id: str) -> dict[str, Any]:
         """Fallback health analysis"""
         return {
             "customer_id": customer_id,
@@ -819,13 +820,13 @@ class EnhancedGongIntegration:
         }
 
     # Placeholder methods for future implementation
-    async def _get_customer_details(self, customer_id: str) -> Dict[str, Any]:
+    async def _get_customer_details(self, customer_id: str) -> dict[str, Any]:
         """Get customer details from Gong or CRM"""
         # TODO: Implement customer details retrieval
         return {"name": "Customer", "company": "Company"}
 
     async def _calculate_relationship_health_score(
-        self, interactions: List[CustomerInteraction]
+        self, interactions: list[CustomerInteraction]
     ) -> float:
         """Calculate relationship health score"""
         # TODO: Implement sophisticated health scoring
@@ -835,14 +836,14 @@ class EnhancedGongIntegration:
         return max(0.0, min(1.0, (avg_sentiment + 1) / 2))  # Convert -1,1 to 0,1
 
     async def _calculate_expansion_readiness_score(
-        self, interactions: List[CustomerInteraction]
+        self, interactions: list[CustomerInteraction]
     ) -> float:
         """Calculate expansion readiness score"""
         # TODO: Implement expansion readiness algorithm
         return 0.7  # Placeholder
 
     async def _calculate_churn_risk_score(
-        self, interactions: List[CustomerInteraction]
+        self, interactions: list[CustomerInteraction]
     ) -> float:
         """Calculate churn risk score"""
         # TODO: Implement churn risk algorithm
@@ -860,10 +861,10 @@ class EnhancedGongIntegration:
 
     async def _generate_timeline_recommendations(
         self,
-        interactions: List[CustomerInteraction],
+        interactions: list[CustomerInteraction],
         expansion_score: float,
         churn_score: float,
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate recommendations based on timeline analysis"""
         recommendations = []
 

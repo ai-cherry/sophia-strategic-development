@@ -4,11 +4,10 @@ Documentation Cleanup Script
 Removes obsolete, duplicate, and one-time-use documentation files
 """
 
+import json
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict
-import json
 
 
 class DocumentationCleaner:
@@ -23,7 +22,7 @@ class DocumentationCleaner:
         self.moved_files = []
         self.preserved_files = []
 
-    def get_junk_patterns(self) -> Dict[str, List[str]]:
+    def get_junk_patterns(self) -> dict[str, list[str]]:
         """Define patterns for junk documentation"""
         return {
             "duplicates": [
@@ -120,7 +119,7 @@ class DocumentationCleaner:
         filename = filepath.name.upper()
         return any(keyword in filename for keyword in preserve_keywords)
 
-    def find_files_to_remove(self) -> List[Path]:
+    def find_files_to_remove(self) -> list[Path]:
         """Find all files matching junk patterns"""
         files_to_remove = []
         patterns = self.get_junk_patterns()

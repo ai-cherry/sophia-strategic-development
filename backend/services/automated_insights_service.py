@@ -1,13 +1,14 @@
 # File: backend/services/automated_insights_service.py
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
-from dataclasses import dataclass
-from enum import Enum
-from backend.services.semantic_layer_service import SemanticLayerService
-from backend.services.predictive_analytics_service import PredictiveAnalyticsService
-from backend.services.vector_indexing_service import VectorIndexingService
 import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
+
+from backend.services.predictive_analytics_service import PredictiveAnalyticsService
+from backend.services.semantic_layer_service import SemanticLayerService
+from backend.services.vector_indexing_service import VectorIndexingService
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +43,13 @@ class AutomatedInsight:
     priority: InsightPriority
     title: str
     description: str
-    data_sources: List[str]
-    metrics_affected: List[str]
+    data_sources: list[str]
+    metrics_affected: list[str]
     confidence_score: float
-    actionable_recommendations: List[str]
-    supporting_evidence: Dict[str, Any]
+    actionable_recommendations: list[str]
+    supporting_evidence: dict[str, Any]
     created_timestamp: datetime
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
 
 class AutomatedInsightsService:
@@ -61,7 +62,7 @@ class AutomatedInsightsService:
         self.semantic_service = SemanticLayerService()
         self.predictive_service = PredictiveAnalyticsService()
         self.vector_service = VectorIndexingService()
-        self.active_insights: Dict[str, AutomatedInsight] = {}
+        self.active_insights: dict[str, AutomatedInsight] = {}
 
     async def initialize_insight_generation(self) -> bool:
         """Initialize automated insight generation system"""
@@ -93,7 +94,7 @@ class AutomatedInsightsService:
         # This would load from a config and save to the INSIGHT_RULES table.
         pass
 
-    async def generate_insights_batch(self) -> List[AutomatedInsight]:
+    async def generate_insights_batch(self) -> list[AutomatedInsight]:
         """Generate batch of insights based on active rules (conceptual)."""
         logger.info("Generating batch of automated insights.")
         # This is a mock implementation. A real one would be much more complex.
@@ -120,8 +121,8 @@ class AutomatedInsightsService:
         return [mock_insight]
 
     async def get_active_insights(
-        self, priority_filter: Optional[str] = None, limit: int = 20
-    ) -> List[AutomatedInsight]:
+        self, priority_filter: str | None = None, limit: int = 20
+    ) -> list[AutomatedInsight]:
         """Gets active insights, optionally filtered by priority."""
         # This mock version generates insights on the fly if none exist.
         if not self.active_insights:
@@ -134,8 +135,8 @@ class AutomatedInsightsService:
         return sorted(filtered, key=lambda i: i.created_timestamp, reverse=True)[:limit]
 
     async def get_insights_for_metrics(
-        self, metrics: List[str]
-    ) -> List[AutomatedInsight]:
+        self, metrics: list[str]
+    ) -> list[AutomatedInsight]:
         """Gets insights related to a specific list of metrics."""
         all_insights = await self.get_active_insights()
         return [
@@ -144,7 +145,7 @@ class AutomatedInsightsService:
             if any(metric in insight.metrics_affected for metric in metrics)
         ]
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the automated insights service."""
         return {
             "status": "healthy",

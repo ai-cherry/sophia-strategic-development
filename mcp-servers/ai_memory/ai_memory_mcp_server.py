@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+from __future__ import annotations#!/usr/bin/env python3
 """
 Standardized AI Memory MCP Server for persistent development context
 Built on the StandardizedMCPServer base class with Snowflake Cortex integration
@@ -10,21 +10,19 @@ Current size: 776 lines
 
 Recommended decomposition:
 - ai_memory_mcp_server_core.py - Core functionality
-- ai_memory_mcp_server_utils.py - Utility functions  
+- ai_memory_mcp_server_utils.py - Utility functions
 - ai_memory_mcp_server_models.py - Data models
 - ai_memory_mcp_server_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from __future__ import annotations
 
 import asyncio
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-
+from typing import Any
 
 # Enhanced dependencies with better error handling
 try:
@@ -44,35 +42,33 @@ except ImportError:
     AsyncOpenAI = None
 
 # Import the standardized base class
-from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
-    SyncPriority,
-    HealthStatus,
-    HealthCheckResult,
-)
-
-# Import enhanced Snowflake Cortex service
-from backend.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService,
-    AIProcessingConfig,
-    CortexModel,
-)
+# Import the canonical MemoryRecord from data_models
+from backend.agents.enhanced.data_models import MemoryRecord
 
 # Import existing memory management components
 from backend.core.comprehensive_memory_manager import ComprehensiveMemoryManager
 from backend.core.contextual_memory_intelligence import ContextualMemoryIntelligence
 from backend.core.hierarchical_cache import HierarchicalCache
-
-# Import the canonical MemoryRecord from data_models
-from backend.agents.enhanced.data_models import MemoryRecord
+from backend.mcp_servers.base.standardized_mcp_server import (
+    HealthCheckResult,
+    HealthStatus,
+    MCPServerConfig,
+    StandardizedMCPServer,
+    SyncPriority,
+)
 
 # Import the Snowflake Gong connector
-
 # Import the ComprehensiveMemoryService
 from backend.services.comprehensive_memory_service import (
     ComprehensiveMemoryService,
     MemoryRecord,
+)
+
+# Import enhanced Snowflake Cortex service
+from backend.utils.enhanced_snowflake_cortex_service import (
+    AIProcessingConfig,
+    CortexModel,
+    EnhancedSnowflakeCortexService,
 )
 
 logger = logging.getLogger(__name__)
@@ -166,7 +162,7 @@ class ConversationAnalyzer:
             "performance",
         ]
 
-    def analyze_conversation(self, content: str) -> Dict[str, Any]:
+    def analyze_conversation(self, content: str) -> dict[str, Any]:
         """Analyze conversation content for importance and categorization"""
         content_lower = content.lower()
         importance_score = self._calculate_importance(content_lower)
@@ -208,7 +204,7 @@ class ConversationAnalyzer:
             return max(category_scores, key=category_scores.get)
         return MemoryCategory.CODE_DECISION
 
-    def _extract_tags(self, content: str) -> List[str]:
+    def _extract_tags(self, content: str) -> list[str]:
         tags = []
         tech_patterns = {
             "python": r"\bpython\b",
@@ -233,7 +229,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
     Built on the StandardizedMCPServer base class for consistency and monitoring
     """
 
-    def __init__(self, config: Optional[MCPServerConfig] = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         # Default configuration for AI Memory server
         if config is None:
             config = MCPServerConfig(
@@ -256,9 +252,9 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self.conversation_analyzer = ConversationAnalyzer()
 
         # AI services
-        self.openai_client: Optional[Any] = None
-        self.pinecone_index: Optional[Any] = None
-        self.cortex_service: Optional[EnhancedSnowflakeCortexService] = None
+        self.openai_client: Any | None = None
+        self.pinecone_index: Any | None = None
+        self.cortex_service: EnhancedSnowflakeCortexService | None = None
 
         # State tracking
         self.preloaded_knowledge = False
@@ -411,7 +407,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
 
-    async def sync_data(self) -> Dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         """Sync memory data with external systems"""
         try:
             sync_results = {
@@ -428,7 +424,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     try:
                         await self.cortex_service.generate_ai_insights(
                             data={"content": memory.get("content", "")},
-                            insight_type="memory_analysis"
+                            insight_type="memory_analysis",
                         )
                         sync_results["cortex_insights_generated"] += 1
                     except Exception as e:
@@ -455,7 +451,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             logger.error(f"Failed to update missing embeddings: {e}")
             return 0
 
-    async def perform_health_checks(self) -> List[HealthCheckResult]:
+    async def perform_health_checks(self) -> list[HealthCheckResult]:
         """Perform comprehensive health checks for AI Memory server"""
         health_checks = []
 
@@ -517,7 +513,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
 
         return health_checks
 
-    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+    def get_mcp_tools(self) -> list[dict[str, Any]]:
         """Get MCP tools for AI Memory server"""
         return [
             {
@@ -606,8 +602,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         ]
 
     async def execute_mcp_tool(
-        self, tool_name: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute MCP tool requests"""
         try:
             if tool_name == "store_memory":
@@ -645,7 +641,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             return {"error": str(e), "success": False}
 
     # Core memory management methods
-    async def get_embedding(self, text: str) -> List[float]:
+    async def get_embedding(self, text: str) -> list[float]:
         """Generate embedding for text using available services"""
         try:
             # Try Snowflake Cortex first
@@ -672,11 +668,11 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self,
         content: str,
         category: str,
-        tags: List[str],
+        tags: list[str],
         importance_score: float = 0.5,
         auto_detected: bool = False,
         **kwargs,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Stores a memory by delegating to the ComprehensiveMemoryService."""
         try:
             memory_id = f"{category}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
@@ -702,8 +698,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             return {"success": False, "error": str(e)}
 
     async def recall_memory(
-        self, query: str, category: Optional[str] = None, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+        self, query: str, category: str | None = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
         """Recalls memories by delegating to the ComprehensiveMemoryService."""
         try:
             recalled_records = await self.memory_service.recall_memories(
@@ -716,8 +712,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             return []
 
     async def auto_store_conversation(
-        self, content: str, participants: List[str] = None
-    ) -> Dict[str, Any]:
+        self, content: str, participants: list[str] = None
+    ) -> dict[str, Any]:
         """Automatically analyze and store important conversations"""
         analysis = self.conversation_analyzer.analyze_conversation(content)
         if analysis["should_auto_store"]:
@@ -735,7 +731,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         else:
             return {"auto_stored": False, "reason": "Importance score too low"}
 
-    async def get_ai_coding_tips(self, topic: Optional[str] = None) -> Dict[str, Any]:
+    async def get_ai_coding_tips(self, topic: str | None = None) -> dict[str, Any]:
         """Get AI coding tips for a specific topic"""
         try:
             query = topic if topic else "ai coding patterns best practices"
@@ -759,7 +755,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
 
     async def store_hubspot_deal_analysis(
         self, deal_id: str, analysis_content: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Enhanced HubSpot deal analysis storage with Snowflake Cortex integration"""
         # ... implementation from ai_memory_mcp_server.py ...
         pass

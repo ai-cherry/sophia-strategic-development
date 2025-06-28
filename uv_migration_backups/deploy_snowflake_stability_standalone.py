@@ -5,7 +5,7 @@ Current size: 638 lines
 
 Recommended decomposition:
 - deploy_snowflake_stability_standalone_core.py - Core functionality
-- deploy_snowflake_stability_standalone_utils.py - Utility functions  
+- deploy_snowflake_stability_standalone_utils.py - Utility functions
 - deploy_snowflake_stability_standalone_models.py - Data models
 - deploy_snowflake_stability_standalone_handlers.py - Request handlers
 
@@ -20,12 +20,12 @@ Implements comprehensive database-level stability features for Sophia AI product
 No complex import dependencies - uses direct Snowflake connector.
 """
 
-import snowflake.connector
+import json
 import logging
 import sys
-from typing import Dict
 from datetime import datetime
-import json
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -542,16 +542,18 @@ class SnowflakeStabilityDeployer:
             self.deployment_status["monitoring_schemas"]["status"] = "failed"
             return False
 
-    def generate_deployment_report(self) -> Dict:
+    def generate_deployment_report(self) -> dict:
         """Generate comprehensive deployment report."""
         report = {
             "deployment_timestamp": datetime.now().isoformat(),
-            "overall_status": "success"
-            if all(
-                component["status"] == "completed"
-                for component in self.deployment_status.values()
-            )
-            else "partial_failure",
+            "overall_status": (
+                "success"
+                if all(
+                    component["status"] == "completed"
+                    for component in self.deployment_status.values()
+                )
+                else "partial_failure"
+            ),
             "components": self.deployment_status,
             "summary": {
                 "total_components": len(self.deployment_status),
@@ -612,7 +614,8 @@ class SnowflakeStabilityDeployer:
         report = self.generate_deployment_report()
 
         # Log summary
-        logger.info(f"""
+        logger.info(
+            f"""
         ============================================================
         🎉 SNOWFLAKE STABILITY DEPLOYMENT COMPLETED
         ============================================================
@@ -623,7 +626,8 @@ class SnowflakeStabilityDeployer:
            Overall Status: {report["overall_status"]}
         
         📋 Components Status:
-        """)
+        """
+        )
 
         for comp_name, status in self.deployment_status.items():
             status_icon = "✅" if status["status"] == "completed" else "❌"

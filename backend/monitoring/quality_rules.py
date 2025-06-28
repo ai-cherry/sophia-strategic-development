@@ -8,14 +8,14 @@ beyond the core rules in gong_data_quality.py.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 
 import structlog
 from pydantic import BaseModel
 
-from .gong_data_quality import ValidationResult, AlertSeverity
+from .gong_data_quality import AlertSeverity, ValidationResult
 
 logger = structlog.get_logger()
 
@@ -40,7 +40,7 @@ class ValidationRule(BaseModel):
     description: str
     enabled: bool = True
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Validate data against this rule."""
         raise NotImplementedError
 
@@ -56,7 +56,7 @@ class TranscriptQualityRule(ValidationRule):
             description="Validates transcript quality metrics",
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check transcript quality."""
         transcript = data.get("transcript", {})
 
@@ -121,7 +121,7 @@ class ParticipantEnrichmentRule(ValidationRule):
             description="Validates participant data enrichment",
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check participant enrichment quality."""
         participants = data.get("participants", [])
 
@@ -204,7 +204,7 @@ class CallMetadataRule(ValidationRule):
             description="Validates call metadata quality",
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check call metadata quality."""
         issues = []
 
@@ -269,7 +269,7 @@ class TimeConsistencyRule(ValidationRule):
             description="Validates temporal data consistency",
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check time-related consistency."""
         issues = []
 
@@ -300,7 +300,7 @@ class TimeConsistencyRule(ValidationRule):
                     )
 
                 # Check for future dates
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 if start_dt > now:
                     issues.append("Start time in the future")
                 if end_dt > now:
@@ -347,7 +347,7 @@ class AnalyticsQualityRule(ValidationRule):
             description="Validates analytics data extraction",
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check analytics data quality."""
         analytics = data.get("analytics", {})
 
@@ -435,7 +435,7 @@ class PIIDetectionRule(ValidationRule):
             r"\b(?:\+?1[-.]?)?\(?([0-9]{3})\)?[-.]?([0-9]{3})[-.]?([0-9]{4})\b"
         )
 
-    async def validate(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate(self, data: dict[str, Any]) -> ValidationResult:
         """Check for potential PII."""
         pii_found = []
 
@@ -490,7 +490,7 @@ class CustomRuleRegistry:
     """Registry for managing custom validation rules."""
 
     def __init__(self):
-        self.rules: Dict[str, ValidationRule] = {}
+        self.rules: dict[str, ValidationRule] = {}
         self.logger = logger.bind(component="custom_rule_registry")
 
         # Register default rules
@@ -521,19 +521,19 @@ class CustomRuleRegistry:
             del self.rules[rule_name]
             self.logger.info(f"Unregistered rule: {rule_name}")
 
-    def get_rule(self, rule_name: str) -> Optional[ValidationRule]:
+    def get_rule(self, rule_name: str) -> ValidationRule | None:
         """Get a specific rule by name."""
         return self.rules.get(rule_name)
 
-    def get_rules_by_category(self, category: RuleCategory) -> List[ValidationRule]:
+    def get_rules_by_category(self, category: RuleCategory) -> list[ValidationRule]:
         """Get all rules in a category."""
         return [r for r in self.rules.values() if r.category == category]
 
-    def get_enabled_rules(self) -> List[ValidationRule]:
+    def get_enabled_rules(self) -> list[ValidationRule]:
         """Get all enabled rules."""
         return [r for r in self.rules.values() if r.enabled]
 
-    async def validate_all(self, data: Dict[str, Any]) -> List[ValidationResult]:
+    async def validate_all(self, data: dict[str, Any]) -> list[ValidationResult]:
         """Run all enabled rules against data."""
         results = []
 
@@ -555,8 +555,8 @@ class CustomRuleRegistry:
         return results
 
     async def validate_by_category(
-        self, data: Dict[str, Any], category: RuleCategory
-    ) -> List[ValidationResult]:
+        self, data: dict[str, Any], category: RuleCategory
+    ) -> list[ValidationResult]:
         """Run all rules in a specific category."""
         results = []
 

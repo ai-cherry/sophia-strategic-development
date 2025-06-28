@@ -37,10 +37,10 @@ TODO: Implement file decomposition
 import asyncio
 import json
 import logging
-import time
-from typing import Dict, Any, List
-from pathlib import Path
 import sys
+import time
+from pathlib import Path
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -76,7 +76,7 @@ class SophiaAIPerformanceActivator:
             "system_health_score": 80,  # 80/100 target
         }
 
-    async def activate_all_optimizations(self) -> Dict[str, Any]:
+    async def activate_all_optimizations(self) -> dict[str, Any]:
         """
         Activate all performance optimizations
         """
@@ -324,7 +324,7 @@ class SophiaAIPerformanceActivator:
             for service_path in key_services:
                 full_path = self.base_path / service_path
                 if full_path.exists():
-                    with open(full_path, "r") as f:
+                    with open(full_path) as f:
                         content = f.read()
 
                     # Check for optimized imports
@@ -473,7 +473,7 @@ class SophiaAIPerformanceActivator:
         except Exception as e:
             logger.warning(f"Connection test failed: {e}")
 
-    async def _calculate_performance_improvements(self) -> Dict[str, Any]:
+    async def _calculate_performance_improvements(self) -> dict[str, Any]:
         """Calculate actual performance improvements achieved"""
         try:
             improvements = {
@@ -507,7 +507,7 @@ class SophiaAIPerformanceActivator:
             logger.error(f"Error calculating performance improvements: {e}")
             return {}
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate recommendations based on activation results"""
         recommendations = []
 
@@ -588,7 +588,7 @@ STATUS: {"🎉 Performance optimizations are ACTIVE and delivering improvements!
 performance_activator = SophiaAIPerformanceActivator()
 
 
-async def activate_sophia_ai_performance() -> Dict[str, Any]:
+async def activate_sophia_ai_performance() -> dict[str, Any]:
     """Activate all Sophia AI performance optimizations"""
     return await performance_activator.activate_all_optimizations()
 

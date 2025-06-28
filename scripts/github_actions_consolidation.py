@@ -6,11 +6,11 @@ Analyzes existing workflows and creates reusable templates to reduce from 25+ to
 
 import json
 import re
-import yaml
-from pathlib import Path
-from typing import Dict, List, Set
-from dataclasses import dataclass, asdict
 from collections import defaultdict
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+import yaml
 
 
 @dataclass
@@ -19,9 +19,9 @@ class WorkflowAnalysis:
 
     name: str
     file_path: str
-    triggers: List[str]
-    jobs: List[str]
-    secrets_used: Set[str]
+    triggers: list[str]
+    jobs: list[str]
+    secrets_used: set[str]
     complexity_score: int
     lines_of_code: int
     consolidation_group: str
@@ -34,9 +34,9 @@ class ConsolidationTemplate:
     name: str
     description: str
     template_path: str
-    replaces_workflows: List[str]
+    replaces_workflows: list[str]
     reusable: bool
-    parameters: List[str]
+    parameters: list[str]
 
 
 class GitHubActionsConsolidator:
@@ -68,7 +68,7 @@ class GitHubActionsConsolidator:
             "DOCKER_TOKEN",
         }
 
-    def analyze_existing_workflows(self) -> List[WorkflowAnalysis]:
+    def analyze_existing_workflows(self) -> list[WorkflowAnalysis]:
         """Analyze all existing GitHub Actions workflows."""
         print("🔍 Analyzing existing GitHub Actions workflows...")
 
@@ -90,7 +90,7 @@ class GitHubActionsConsolidator:
 
     def _analyze_single_workflow(self, workflow_file: Path) -> WorkflowAnalysis:
         """Analyze a single workflow file."""
-        with open(workflow_file, "r") as f:
+        with open(workflow_file) as f:
             content = f.read()
 
         try:
@@ -141,7 +141,7 @@ class GitHubActionsConsolidator:
         )
 
     def _determine_consolidation_group(
-        self, name: str, triggers: List[str], jobs: List[str], content: str
+        self, name: str, triggers: list[str], jobs: list[str], content: str
     ) -> str:
         """Determine which consolidation group a workflow belongs to."""
         name_lower = name.lower()
@@ -193,7 +193,7 @@ class GitHubActionsConsolidator:
 
         return "miscellaneous"
 
-    def generate_consolidation_report(self) -> Dict:
+    def generate_consolidation_report(self) -> dict:
         """Generate comprehensive consolidation report."""
         print("📊 Generating consolidation report...")
 

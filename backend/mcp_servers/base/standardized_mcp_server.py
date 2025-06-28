@@ -10,36 +10,37 @@ Current size: 986 lines
 
 Recommended decomposition:
 - standardized_mcp_server_core.py - Core functionality
-- standardized_mcp_server_utils.py - Utility functions  
+- standardized_mcp_server_utils.py - Utility functions
 - standardized_mcp_server_models.py - Data models
 - standardized_mcp_server_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
-import logging
-import aiohttp
-import time
-from dataclasses import dataclass
-from enum import Enum
-import json
-from pathlib import Path
 import hashlib
+import json
+import logging
+import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
-from prometheus_client import Counter, Histogram, Gauge, Info
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from fastapi import FastAPI, APIRouter
+import aiohttp
 import uvicorn
+from fastapi import APIRouter, FastAPI
+from prometheus_client import Counter, Gauge, Histogram, Info
+
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Import Gemini CLI provider
 try:
     from gemini_cli_integration.gemini_cli_provider import (
-        GeminiCLIProvider,
         GeminiCLIModelRouter,
+        GeminiCLIProvider,
     )
 
     GEMINI_CLI_AVAILABLE = True
@@ -106,9 +107,9 @@ class HealthCheckResult:
     component: str
     status: HealthStatus
     response_time_ms: float
-    error_message: Optional[str] = None
-    last_success: Optional[datetime] = None
-    metadata: Optional[Dict[str, Any]] = None
+    error_message: str | None = None
+    last_success: datetime | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -120,7 +121,7 @@ class WebFetchResult:
     markdown_content: str
     fetch_time_ms: float
     cached: bool = False
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -132,7 +133,7 @@ class ServerCapability:
     category: str
     available: bool = True
     version: str = "1.0.0"
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 class StandardizedMCPServer(ABC):
@@ -156,22 +157,22 @@ class StandardizedMCPServer(ABC):
         self._load_port_from_config()
 
         self.server_name = config.server_name
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.session: aiohttp.ClientSession | None = None
 
         # Health tracking
         self.last_health_check = datetime.utcnow()
-        self.health_results: Dict[str, HealthCheckResult] = {}
+        self.health_results: dict[str, HealthCheckResult] = {}
         self.is_healthy = False
 
         # Performance tracking
-        self.last_sync_time: Optional[datetime] = None
+        self.last_sync_time: datetime | None = None
         self.sync_success_count = 0
         self.sync_error_count = 0
 
         # Cline v3.18 features
-        self.webfetch_cache: Dict[str, WebFetchResult] = {}
-        self.server_capabilities: List[ServerCapability] = []
+        self.webfetch_cache: dict[str, WebFetchResult] = {}
+        self.server_capabilities: list[ServerCapability] = []
         self.diff_success_rate = 1.0
 
         # Initialize metrics if enabled
@@ -209,11 +210,11 @@ class StandardizedMCPServer(ABC):
 
         self.app.include_router(router)
 
-    async def get_health_endpoint(self) -> Dict[str, Any]:
+    async def get_health_endpoint(self) -> dict[str, Any]:
         """The FastAPI endpoint for health checks."""
         return await self.comprehensive_health_check()
 
-    async def get_capabilities_endpoint(self) -> Dict[str, Any]:
+    async def get_capabilities_endpoint(self) -> dict[str, Any]:
         """Get server capabilities for self-knowledge."""
         return {
             "server_name": self.server_name,
@@ -228,7 +229,7 @@ class StandardizedMCPServer(ABC):
             },
         }
 
-    async def get_features_endpoint(self) -> Dict[str, Any]:
+    async def get_features_endpoint(self) -> dict[str, Any]:
         """Get detailed feature information."""
         return {
             "webfetch": {
@@ -574,7 +575,7 @@ class StandardizedMCPServer(ABC):
 
     async def route_to_model(
         self, task: str, context_size: int = 0
-    ) -> Tuple[ModelProvider, Dict[str, Any]]:
+    ) -> tuple[ModelProvider, dict[str, Any]]:
         """
         Intelligently route requests to appropriate AI models based on task and context.
 
@@ -629,7 +630,7 @@ class StandardizedMCPServer(ABC):
         search_content: str,
         replace_content: str,
         strategy: str = "exact",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Improved diff editing with multiple strategies (Cline v3.18 feature).
 
@@ -738,7 +739,7 @@ class StandardizedMCPServer(ABC):
         except Exception as e:
             logger.error(f"❌ Error during {self.server_name} shutdown: {e}")
 
-    async def comprehensive_health_check(self) -> Dict[str, Any]:
+    async def comprehensive_health_check(self) -> dict[str, Any]:
         """Perform comprehensive health check of all components."""
         try:
             health_results = {}
@@ -950,7 +951,7 @@ class StandardizedMCPServer(ABC):
                 Path(__file__).parent.parent.parent / "config" / "mcp_ports.json"
             )
             if config_path.exists():
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     ports_config = json.load(f)
                     if self.server_name in ports_config:
                         self.config.port = ports_config[self.server_name]
@@ -982,18 +983,18 @@ class StandardizedMCPServer(ABC):
         pass
 
     @abstractmethod
-    async def get_server_capabilities(self) -> List[ServerCapability]:
+    async def get_server_capabilities(self) -> list[ServerCapability]:
         """Get server-specific capabilities."""
         pass
 
     @abstractmethod
-    async def sync_data(self) -> Dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         """Synchronize data with external platform."""
         pass
 
     @abstractmethod
     async def process_with_ai(
-        self, data: Any, model: Optional[ModelProvider] = None
+        self, data: Any, model: ModelProvider | None = None
     ) -> Any:
         """Process data using AI capabilities."""
         pass

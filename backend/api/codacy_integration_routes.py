@@ -6,12 +6,11 @@ Provides endpoints for code quality analysis and security scanning via MCP serve
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ class CodeQualityIssue(BaseModel):
     category: str
     message: str
     file_path: str
-    line_number: Optional[int] = None
+    line_number: int | None = None
     tool: str
 
 
@@ -35,8 +34,8 @@ class SecurityVulnerability(BaseModel):
     title: str
     description: str
     file_path: str
-    line_number: Optional[int] = None
-    cwe_id: Optional[str] = None
+    line_number: int | None = None
+    cwe_id: str | None = None
     recommendation: str
 
 
@@ -46,7 +45,7 @@ class QualityMetrics(BaseModel):
     security_score: int
     maintainability: str
     technical_debt: str
-    test_coverage: Optional[float] = None
+    test_coverage: float | None = None
 
 
 class CodacyIntegrationHealth(BaseModel):
@@ -56,7 +55,7 @@ class CodacyIntegrationHealth(BaseModel):
     api_health: bool
     total_issues: int
     critical_issues: int
-    sync_errors: List[str] = []
+    sync_errors: list[str] = []
 
 
 class CodacyMCPClient:
@@ -67,8 +66,8 @@ class CodacyMCPClient:
         self.timeout = 60  # Longer timeout for code analysis
 
     async def call_tool(
-        self, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, arguments: dict[str, Any]
+    ) -> dict[str, Any]:
         """Call a tool on the Codacy MCP server."""
         try:
             async with aiohttp.ClientSession(
@@ -156,8 +155,8 @@ async def get_codacy_health():
 
 @router.post("/analyze")
 async def analyze_project(
-    path: Optional[str] = Query(None, description="Project path to analyze"),
-    tools: Optional[List[str]] = Query(None, description="Specific tools to run"),
+    path: str | None = Query(None, description="Project path to analyze"),
+    tools: list[str] | None = Query(None, description="Specific tools to run"),
     severity: str = Query("warning", description="Minimum severity level"),
     format: str = Query("json", description="Output format"),
 ):
@@ -181,9 +180,9 @@ async def analyze_project(
 
 @router.post("/security-scan")
 async def security_scan(
-    path: Optional[str] = Query(None, description="Path to scan for security issues"),
-    rules: Optional[List[str]] = Query(None, description="Specific security rule sets"),
-    exclude_paths: Optional[List[str]] = Query(None, description="Paths to exclude"),
+    path: str | None = Query(None, description="Path to scan for security issues"),
+    rules: list[str] | None = Query(None, description="Specific security rule sets"),
+    exclude_paths: list[str] | None = Query(None, description="Paths to exclude"),
 ):
     """Run security-focused analysis with Semgrep and other security tools."""
     try:
@@ -207,7 +206,7 @@ async def security_scan(
 
 @router.get("/quality-metrics", response_model=QualityMetrics)
 async def get_quality_metrics(
-    path: Optional[str] = Query(None, description="Path to analyze"),
+    path: str | None = Query(None, description="Path to analyze"),
     include_history: bool = Query(False, description="Include historical trend data"),
 ):
     """Get code quality metrics and technical debt analysis."""
@@ -259,10 +258,8 @@ async def get_quality_metrics(
 
 @router.post("/fix-issues")
 async def fix_issues(
-    path: Optional[str] = Query(None, description="Path to fix issues in"),
-    issue_ids: Optional[List[str]] = Query(
-        None, description="Specific issue IDs to fix"
-    ),
+    path: str | None = Query(None, description="Path to fix issues in"),
+    issue_ids: list[str] | None = Query(None, description="Specific issue IDs to fix"),
     auto_commit: bool = Query(False, description="Automatically commit fixes"),
 ):
     """Automatically fix code quality issues where possible."""
@@ -283,7 +280,7 @@ async def fix_issues(
 
 @router.get("/project-status")
 async def get_project_status(
-    project_id: Optional[str] = Query(None, description="Codacy project ID"),
+    project_id: str | None = Query(None, description="Codacy project ID"),
 ):
     """Get overall project health and quality status."""
     try:
@@ -302,10 +299,8 @@ async def get_project_status(
 
 @router.get("/coverage")
 async def get_coverage_analysis(
-    path: Optional[str] = Query(None, description="Path to analyze coverage"),
-    coverage_file: Optional[str] = Query(
-        None, description="Path to coverage report file"
-    ),
+    path: str | None = Query(None, description="Path to analyze coverage"),
+    coverage_file: str | None = Query(None, description="Path to coverage report file"),
 ):
     """Analyze code coverage and identify uncovered areas."""
     try:
@@ -327,7 +322,7 @@ async def get_coverage_analysis(
 
 @router.get("/duplication")
 async def get_duplication_analysis(
-    path: Optional[str] = Query(None, description="Path to analyze for duplication"),
+    path: str | None = Query(None, description="Path to analyze for duplication"),
     min_tokens: int = Query(50, description="Minimum tokens for duplication detection"),
 ):
     """Detect code duplication and suggest refactoring opportunities."""
@@ -353,7 +348,7 @@ async def apply_custom_rules(
         description="Custom rule set to apply",
         enum=["sophia-security", "sophia-performance", "sophia-architecture"],
     ),
-    path: Optional[str] = Query(None, description="Path to apply custom rules"),
+    path: str | None = Query(None, description="Path to apply custom rules"),
 ):
     """Apply custom rules specific to Sophia AI architecture."""
     try:

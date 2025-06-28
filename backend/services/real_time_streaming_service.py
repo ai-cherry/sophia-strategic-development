@@ -11,24 +11,25 @@ Current size: 719 lines
 
 Recommended decomposition:
 - real_time_streaming_service_core.py - Core functionality
-- real_time_streaming_service_utils.py - Utility functions  
+- real_time_streaming_service_utils.py - Utility functions
 - real_time_streaming_service_models.py - Data models
 - real_time_streaming_service_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import logging
-import json
 import asyncio
-from typing import Dict, List, Any, Set
-from datetime import datetime, timedelta
+import json
+import logging
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
-import websockets
-from websockets.server import WebSocketServerProtocol
+from typing import Any
+
 import snowflake.connector
+import websockets
 from snowflake.connector import DictCursor
+from websockets.server import WebSocketServerProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,9 @@ class StreamEvent:
     table_name: str
     schema_name: str
     record_id: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
     timestamp: datetime
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
 
 @dataclass
@@ -69,7 +70,7 @@ class WebSocketClient:
     client_id: str
     websocket: WebSocketServerProtocol
     user_id: str
-    subscriptions: Set[str]
+    subscriptions: set[str]
     connected_at: datetime
     last_activity: datetime
 
@@ -80,18 +81,18 @@ class RealTimeStreamingService:
     Addresses high priority requirement for real-time processing
     """
 
-    def __init__(self, snowflake_config: Dict[str, str], websocket_port: int = 8765):
+    def __init__(self, snowflake_config: dict[str, str], websocket_port: int = 8765):
         self.snowflake_config = snowflake_config
         self.websocket_port = websocket_port
         self.connection = None
 
         # WebSocket management
-        self.websocket_clients: Dict[str, WebSocketClient] = {}
+        self.websocket_clients: dict[str, WebSocketClient] = {}
         self.websocket_server = None
 
         # Stream management
-        self.active_streams: Dict[str, Dict[str, Any]] = {}
-        self.stream_processors: Dict[StreamType, List] = {}
+        self.active_streams: dict[str, dict[str, Any]] = {}
+        self.stream_processors: dict[StreamType, list] = {}
 
         # Event queues for processing
         self.event_queue = asyncio.Queue()
@@ -147,46 +148,58 @@ class RealTimeStreamingService:
 
         try:
             # Knowledge Base Updates Stream
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS KNOWLEDGE_UPDATES_STREAM
             ON TABLE UNIVERSAL_CHAT.KNOWLEDGE_BASE_ENTRIES
             COMMENT = 'Real-time stream for knowledge base changes'
-            """)
+            """
+            )
 
             # Conversation Updates Stream
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS CONVERSATION_UPDATES_STREAM
             ON TABLE UNIVERSAL_CHAT.CONVERSATION_MESSAGES
             COMMENT = 'Real-time stream for conversation changes'
-            """)
+            """
+            )
 
             # System Analytics Stream
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS SYSTEM_ANALYTICS_STREAM
             ON TABLE UNIVERSAL_CHAT.SYSTEM_ANALYTICS
             COMMENT = 'Real-time stream for system metrics'
-            """)
+            """
+            )
 
             # User Activity Stream
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS USER_ACTIVITY_STREAM
             ON TABLE UNIVERSAL_CHAT.KNOWLEDGE_USAGE_ANALYTICS
             COMMENT = 'Real-time stream for user activity'
-            """)
+            """
+            )
 
             # Ingestion Jobs Stream (for our new table)
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS INGESTION_JOBS_STREAM
             ON TABLE UNIVERSAL_CHAT.INGESTION_JOBS
             COMMENT = 'Real-time stream for ingestion job status'
-            """)
+            """
+            )
 
             # Search Analytics Stream
-            cursor.execute("""
+            cursor.execute(
+                """
             CREATE STREAM IF NOT EXISTS SEARCH_ANALYTICS_STREAM
             ON TABLE UNIVERSAL_CHAT.SEARCH_ANALYTICS
             COMMENT = 'Real-time stream for search analytics'
-            """)
+            """
+            )
 
             cursor.close()
 
@@ -378,19 +391,21 @@ class RealTimeStreamingService:
                 logger.error(f"Error in stream processor: {e}")
                 await asyncio.sleep(10)
 
-    async def _process_stream(self, stream_id: str, stream_config: Dict[str, Any]):
+    async def _process_stream(self, stream_id: str, stream_config: dict[str, Any]):
         """Process individual Snowflake stream for changes"""
         try:
             cursor = self.connection.cursor(DictCursor)
 
             # Query stream for changes - SECURE: Use validated identifiers
             from backend.core.sql_security_validator import validate_schema_name
-            
+
             safe_schema = validate_schema_name(stream_config["schema_name"])
-            safe_stream = stream_config["stream_name"]  # Stream names are controlled internally
-            
+            safe_stream = stream_config[
+                "stream_name"
+            ]  # Stream names are controlled internally
+
             stream_query = f"""
-            SELECT 
+            SELECT
                 METADATA$ACTION as ACTION,
                 METADATA$ISUPDATE as IS_UPDATE,
                 METADATA$ROW_ID as ROW_ID,
@@ -473,7 +488,7 @@ class RealTimeStreamingService:
 
     async def _create_notifications_for_event(
         self, event: StreamEvent
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create notifications based on stream event"""
         notifications = []
 
@@ -500,7 +515,7 @@ class RealTimeStreamingService:
 
     async def _create_knowledge_notifications(
         self, event: StreamEvent
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create notifications for knowledge base updates"""
         notifications = []
 
@@ -541,7 +556,7 @@ class RealTimeStreamingService:
 
     async def _create_conversation_notifications(
         self, event: StreamEvent
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create notifications for conversation updates"""
         notifications = []
 
@@ -568,7 +583,7 @@ class RealTimeStreamingService:
 
     async def _create_ingestion_notifications(
         self, event: StreamEvent
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create notifications for ingestion job updates"""
         notifications = []
 
@@ -685,7 +700,7 @@ class RealTimeStreamingService:
         except Exception as e:
             logger.error(f"❌ Failed to reconnect to Snowflake: {e}")
 
-    async def get_streaming_status(self) -> Dict[str, Any]:
+    async def get_streaming_status(self) -> dict[str, Any]:
         """Get current streaming service status"""
         return {
             "active_streams": len(self.active_streams),
@@ -724,7 +739,7 @@ class RealTimeStreamingService:
 
 # Factory function
 async def create_streaming_service(
-    snowflake_config: Dict[str, str], websocket_port: int = 8765
+    snowflake_config: dict[str, str], websocket_port: int = 8765
 ) -> RealTimeStreamingService:
     """Create and initialize streaming service"""
     service = RealTimeStreamingService(snowflake_config, websocket_port)

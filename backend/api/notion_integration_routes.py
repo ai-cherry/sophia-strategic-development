@@ -6,12 +6,11 @@ Provides endpoints for Notion knowledge base and strategic planning data via MCP
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,29 +21,29 @@ router = APIRouter(prefix="/api/v1/integrations/notion", tags=["notion"])
 class NotionPageSummary(BaseModel):
     id: str
     title: str
-    url: Optional[str] = None
+    url: str | None = None
     created_time: str
     last_edited_time: str
-    created_by: Optional[str] = None
-    last_edited_by: Optional[str] = None
-    properties: Dict[str, Any] = {}
-    content_preview: Optional[str] = None
+    created_by: str | None = None
+    last_edited_by: str | None = None
+    properties: dict[str, Any] = {}
+    content_preview: str | None = None
 
 
 class NotionDatabaseSummary(BaseModel):
     id: str
     title: str
-    url: Optional[str] = None
+    url: str | None = None
     created_time: str
     last_edited_time: str
-    properties: Dict[str, Any] = {}
-    page_count: Optional[int] = None
+    properties: dict[str, Any] = {}
+    page_count: int | None = None
 
 
 class NotionStrategicContent(BaseModel):
     content_type: str
-    pages: List[NotionPageSummary]
-    summary: Dict[str, int]
+    pages: list[NotionPageSummary]
+    summary: dict[str, int]
 
 
 class NotionIntegrationHealth(BaseModel):
@@ -53,7 +52,7 @@ class NotionIntegrationHealth(BaseModel):
     api_health: bool
     total_pages: int
     total_databases: int
-    sync_errors: List[str] = []
+    sync_errors: list[str] = []
 
 
 class NotionMCPClient:
@@ -64,8 +63,8 @@ class NotionMCPClient:
         self.timeout = 30
 
     async def call_tool(
-        self, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, arguments: dict[str, Any]
+    ) -> dict[str, Any]:
         """Call a tool on the Notion MCP server."""
         try:
             async with aiohttp.ClientSession(
@@ -133,9 +132,9 @@ async def get_notion_health():
         )
 
 
-@router.get("/search", response_model=List[NotionPageSummary])
+@router.get("/search", response_model=list[NotionPageSummary])
 async def search_pages(
-    query: Optional[str] = Query(None, description="Search query text"),
+    query: str | None = Query(None, description="Search query text"),
     page_size: int = Query(50, description="Number of results to return"),
 ):
     """Search for pages in Notion workspace."""
@@ -216,8 +215,8 @@ async def get_database(database_id: str):
 @router.post("/databases/{database_id}/query")
 async def query_database(
     database_id: str,
-    filter_criteria: Optional[Dict] = None,
-    sorts: Optional[List] = None,
+    filter_criteria: dict | None = None,
+    sorts: list | None = None,
     page_size: int = Query(100, description="Number of results to return"),
 ):
     """Query a database with filters and sorting."""
@@ -238,7 +237,7 @@ async def query_database(
         )
 
 
-@router.get("/search/title/{title}", response_model=List[NotionPageSummary])
+@router.get("/search/title/{title}", response_model=list[NotionPageSummary])
 async def search_by_title(
     title: str,
     exact_match: bool = Query(False, description="Whether to match exact title"),
@@ -261,7 +260,7 @@ async def search_by_title(
         )
 
 
-@router.get("/recent", response_model=List[NotionPageSummary])
+@router.get("/recent", response_model=list[NotionPageSummary])
 async def get_recent_pages(
     days: int = Query(7, description="Number of days to look back"),
     page_size: int = Query(50, description="Number of pages to return"),
@@ -286,12 +285,12 @@ async def get_recent_pages(
 
 @router.get("/strategic", response_model=NotionStrategicContent)
 async def get_strategic_content(
-    content_type: Optional[str] = Query(
+    content_type: str | None = Query(
         None,
         description="Type of strategic content",
         enum=["okr", "strategy", "planning", "goals", "metrics"],
     ),
-    quarter: Optional[str] = Query(
+    quarter: str | None = Query(
         None, description="Quarter to filter by (e.g., 'Q3 2024')"
     ),
 ):
@@ -309,7 +308,7 @@ async def get_strategic_content(
         categorized = result.get("categorized_results", {})
         all_pages = []
 
-        for category, pages in categorized.items():
+        for _category, pages in categorized.items():
             for page in pages:
                 all_pages.append(_convert_to_page_summary(page))
 
@@ -416,7 +415,7 @@ async def get_dashboard_summary():
 
 
 # Helper functions
-def _convert_to_page_summary(page: Dict[str, Any]) -> NotionPageSummary:
+def _convert_to_page_summary(page: dict[str, Any]) -> NotionPageSummary:
     """Convert Notion page data to summary model."""
     return NotionPageSummary(
         id=page["id"],
@@ -437,7 +436,7 @@ def _convert_to_page_summary(page: Dict[str, Any]) -> NotionPageSummary:
     )
 
 
-def _extract_title(page: Dict[str, Any]) -> str:
+def _extract_title(page: dict[str, Any]) -> str:
     """Extract title from page object."""
     # Try extracted title first
     if "extracted_title" in page:
@@ -445,7 +444,7 @@ def _extract_title(page: Dict[str, Any]) -> str:
 
     # Try properties for database pages
     if "properties" in page:
-        for prop_name, prop_data in page["properties"].items():
+        for _prop_name, prop_data in page["properties"].items():
             if prop_data.get("type") == "title":
                 title_blocks = prop_data.get("title", [])
                 if title_blocks:

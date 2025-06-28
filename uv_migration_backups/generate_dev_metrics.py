@@ -20,12 +20,13 @@ TODO: Implement file decomposition
 import json
 import logging
 import statistics
+import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
+
 import git
-import subprocess
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ class DevelopmentMetricsGenerator:
         except git.InvalidGitRepositoryError:
             raise ValueError(f"Not a git repository: {self.project_root}")
 
-    def get_commit_metrics(self, days: int = 30) -> Dict[str, Any]:
+    def get_commit_metrics(self, days: int = 30) -> dict[str, Any]:
         """Get commit-related metrics"""
         logger.info(f"📊 Analyzing commit metrics for last {days} days")
 
@@ -109,7 +110,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_code_quality_metrics(self) -> Dict[str, Any]:
+    def get_code_quality_metrics(self) -> dict[str, Any]:
         """Get code quality metrics"""
         logger.info("🎯 Analyzing code quality metrics")
 
@@ -187,7 +188,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_testing_metrics(self) -> Dict[str, Any]:
+    def get_testing_metrics(self) -> dict[str, Any]:
         """Get testing-related metrics"""
         logger.info("🧪 Analyzing testing metrics")
 
@@ -261,7 +262,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_dependency_metrics(self) -> Dict[str, Any]:
+    def get_dependency_metrics(self) -> dict[str, Any]:
         """Get dependency-related metrics"""
         logger.info("📦 Analyzing dependency metrics")
 
@@ -304,7 +305,7 @@ class DevelopmentMetricsGenerator:
         if package_json.exists():
             metrics["dependency_files"].append("package.json")
             try:
-                with open(package_json, "r") as f:
+                with open(package_json) as f:
                     package_data = json.load(f)
 
                 deps = package_data.get("dependencies", {})
@@ -343,7 +344,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get performance-related metrics"""
         logger.info("⚡ Analyzing performance metrics")
 
@@ -408,7 +409,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_mcp_integration_metrics(self) -> Dict[str, Any]:
+    def get_mcp_integration_metrics(self) -> dict[str, Any]:
         """Get MCP integration metrics"""
         logger.info("🔌 Analyzing MCP integration metrics")
 
@@ -424,7 +425,7 @@ class DevelopmentMetricsGenerator:
         mcp_config_file = self.project_root / "cursor_mcp_config.json"
         if mcp_config_file.exists():
             try:
-                with open(mcp_config_file, "r") as f:
+                with open(mcp_config_file) as f:
                     mcp_config = json.load(f)
 
                 servers = mcp_config.get("mcpServers", {})
@@ -447,7 +448,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def get_github_integration_metrics(self) -> Dict[str, Any]:
+    def get_github_integration_metrics(self) -> dict[str, Any]:
         """Get GitHub integration metrics"""
         logger.info("🔗 Analyzing GitHub integration metrics")
 
@@ -482,7 +483,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def _get_most_frequent(self, items: List) -> List:
+    def _get_most_frequent(self, items: list) -> list:
         """Get most frequent items from a list"""
         if not items:
             return []
@@ -494,7 +495,7 @@ class DevelopmentMetricsGenerator:
         max_freq = max(frequency.values())
         return [item for item, freq in frequency.items() if freq == max_freq]
 
-    def generate_comprehensive_metrics(self) -> Dict[str, Any]:
+    def generate_comprehensive_metrics(self) -> dict[str, Any]:
         """Generate comprehensive development metrics"""
         logger.info("📊 Generating comprehensive development metrics")
 
@@ -518,7 +519,7 @@ class DevelopmentMetricsGenerator:
 
         return metrics
 
-    def _calculate_overall_scores(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_overall_scores(self, metrics: dict[str, Any]) -> dict[str, Any]:
         """Calculate overall development scores"""
         scores = {
             "development_velocity": 0,
@@ -588,7 +589,7 @@ class DevelopmentMetricsGenerator:
 
         return scores
 
-    def generate_metrics_report(self, metrics: Dict[str, Any]) -> str:
+    def generate_metrics_report(self, metrics: dict[str, Any]) -> str:
         """Generate comprehensive metrics report"""
         report = []
         report.append("# 📊 Development Metrics Report")

@@ -5,12 +5,12 @@ Complete automation for webhook setup, configuration, and management
 Aligned with Pulumi ESC for zero manual steps
 """
 
-import os
-import json
 import asyncio
-from typing import Dict, Any
+import json
+import os
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 
 class AutomatedWebhookManager:
@@ -26,7 +26,7 @@ class AutomatedWebhookManager:
         self.webhook_configs = self._initialize_webhook_configs()
         self.deployment_log = []
 
-    def _initialize_webhook_configs(self) -> Dict[str, Any]:
+    def _initialize_webhook_configs(self) -> dict[str, Any]:
         """Initialize webhook configurations for all platforms."""
         return {
             "gong": {
@@ -175,7 +175,7 @@ class AutomatedWebhookManager:
         if details:
             print(f"    {details}")
 
-    async def deploy_all_webhooks(self) -> Dict[str, Any]:
+    async def deploy_all_webhooks(self) -> dict[str, Any]:
         """Deploy all webhook configurations automatically."""
         self.log_step("Starting Automated Webhook Deployment", "START")
 
@@ -205,8 +205,8 @@ class AutomatedWebhookManager:
         }
 
     async def _deploy_platform_webhooks(
-        self, platform: str, config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, platform: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Deploy webhooks for a specific platform."""
         platform_results = {
             "platform": platform,
@@ -268,8 +268,8 @@ class AutomatedWebhookManager:
         return platform_results
 
     async def _configure_gong_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Gong webhook automatically."""
         if not credentials.get("access_key") or not credentials.get("client_secret"):
             return {"success": False, "error": "Missing Gong credentials"}
@@ -293,8 +293,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_slack_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Slack webhook automatically."""
         if not credentials.get("bot_token"):
             return {"success": False, "error": "Missing Slack bot token"}
@@ -316,8 +316,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_hubspot_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure HubSpot webhook automatically."""
         if not credentials.get("access_token"):
             return {"success": False, "error": "Missing HubSpot access token"}
@@ -335,8 +335,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_estuary_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Estuary webhook automatically."""
         if not credentials.get("access_token"):
             return {"success": False, "error": "Missing Estuary access token"}
@@ -357,8 +357,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_vercel_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Vercel webhook automatically."""
         if not credentials.get("token"):
             return {"success": False, "error": "Missing Vercel token"}
@@ -376,8 +376,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_linear_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Linear webhook automatically."""
         if not credentials.get("api_key"):
             return {"success": False, "error": "Missing Linear API key"}
@@ -395,8 +395,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_figma_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Figma webhook automatically."""
         if not credentials.get("access_token"):
             return {"success": False, "error": "Missing Figma access token"}
@@ -414,8 +414,8 @@ class AutomatedWebhookManager:
         }
 
     async def _configure_asana_webhook(
-        self, webhook_url: str, endpoint_config: Dict, credentials: Dict
-    ) -> Dict[str, Any]:
+        self, webhook_url: str, endpoint_config: dict, credentials: dict
+    ) -> dict[str, Any]:
         """Configure Asana webhook automatically."""
         if not credentials.get("access_token"):
             return {"success": False, "error": "Missing Asana access token"}

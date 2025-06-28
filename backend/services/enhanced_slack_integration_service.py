@@ -11,22 +11,24 @@ Current size: 640 lines
 
 Recommended decomposition:
 - enhanced_slack_integration_service_core.py - Core functionality
-- enhanced_slack_integration_service_utils.py - Utility functions  
+- enhanced_slack_integration_service_utils.py - Utility functions
 - enhanced_slack_integration_service_models.py - Data models
 - enhanced_slack_integration_service_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import logging
 import asyncio
-from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timedelta
+import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from slack_sdk.web.async_client import AsyncWebClient
+from datetime import datetime, timedelta
+from typing import Any
+
 from slack_sdk.socket_mode.async_client import AsyncSocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
+from slack_sdk.web.async_client import AsyncWebClient
 
 logger = logging.getLogger(__name__)
 
@@ -39,12 +41,12 @@ class SlackMessage:
     user_id: str
     text: str
     timestamp: str
-    thread_ts: Optional[str] = None
+    thread_ts: str | None = None
     message_type: str = "message"
-    subtype: Optional[str] = None
-    attachments: List[Dict] = None
-    blocks: List[Dict] = None
-    metadata: Dict[str, Any] = None
+    subtype: str | None = None
+    attachments: list[dict] = None
+    blocks: list[dict] = None
+    metadata: dict[str, Any] = None
 
 
 @dataclass
@@ -56,9 +58,9 @@ class SlackAnalytics:
     message_count: int
     user_count: int
     sentiment_score: float
-    topics: List[str]
-    action_items: List[str]
-    decisions: List[str]
+    topics: list[str]
+    action_items: list[str]
+    decisions: list[str]
     business_impact_score: float
     engagement_score: float
 
@@ -69,7 +71,7 @@ class EnhancedSlackIntegrationService:
     REPLACES deprecated RTM API to prevent service disruption
     """
 
-    def __init__(self, config: Dict[str, str]):
+    def __init__(self, config: dict[str, str]):
         self.config = config
         self.bot_token = config.get("SLACK_BOT_TOKEN")
         self.app_token = config.get("SLACK_APP_TOKEN")  # For Socket Mode
@@ -80,11 +82,11 @@ class EnhancedSlackIntegrationService:
         self.socket_client = None
 
         # Event handlers
-        self.message_handlers: List[Callable] = []
-        self.event_handlers: Dict[str, List[Callable]] = {}
+        self.message_handlers: list[Callable] = []
+        self.event_handlers: dict[str, list[Callable]] = {}
 
         # Analytics and monitoring
-        self.analytics_buffer: List[SlackAnalytics] = []
+        self.analytics_buffer: list[SlackAnalytics] = []
         self.is_connected = False
         self.connection_health = {"status": "disconnected", "last_ping": None}
 
@@ -155,7 +157,7 @@ class EnhancedSlackIntegrationService:
             except Exception as e:
                 logger.error(f"Error handling socket mode request: {e}")
 
-    async def _handle_events_api_event(self, payload: Dict[str, Any]):
+    async def _handle_events_api_event(self, payload: dict[str, Any]):
         """Handle Events API events (modern replacement for RTM)"""
         event = payload.get("event", {})
         event_type = event.get("type")
@@ -177,7 +179,7 @@ class EnhancedSlackIntegrationService:
             except Exception as e:
                 logger.error(f"Event handler error for {event_type}: {e}")
 
-    async def _handle_message_event(self, event: Dict[str, Any]):
+    async def _handle_message_event(self, event: dict[str, Any]):
         """Enhanced message handling with analytics"""
         try:
             # Skip bot messages and message changes
@@ -228,7 +230,7 @@ class EnhancedSlackIntegrationService:
                     message = await asyncio.wait_for(
                         self.message_queue.get(), timeout=1.0
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     continue
 
                 # Enhanced message processing
@@ -326,7 +328,7 @@ class EnhancedSlackIntegrationService:
 
         return (positive_count - negative_count) / (positive_count + negative_count)
 
-    async def _extract_topics(self, text: str) -> List[str]:
+    async def _extract_topics(self, text: str) -> list[str]:
         """Extract topics from message text"""
         # Placeholder implementation - would use NLP service
         business_topics = {
@@ -346,7 +348,7 @@ class EnhancedSlackIntegrationService:
 
         return detected_topics
 
-    async def _detect_action_items(self, text: str) -> List[str]:
+    async def _detect_action_items(self, text: str) -> list[str]:
         """Detect action items in messages"""
         action_patterns = [
             "todo:",
@@ -375,7 +377,7 @@ class EnhancedSlackIntegrationService:
 
         return actions
 
-    async def _detect_decisions(self, text: str) -> List[str]:
+    async def _detect_decisions(self, text: str) -> list[str]:
         """Detect decisions made in messages"""
         decision_patterns = [
             "decided",
@@ -403,7 +405,7 @@ class EnhancedSlackIntegrationService:
         return decisions
 
     async def _assess_business_impact(
-        self, message: SlackMessage, channel_info: Dict
+        self, message: SlackMessage, channel_info: dict
     ) -> float:
         """Assess business impact of message content"""
         impact_score = 0.0
@@ -502,7 +504,7 @@ class EnhancedSlackIntegrationService:
 
     async def send_message(
         self, channel_id: str, text: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send message using Web API"""
         try:
             response = await self.web_client.chat_postMessage(
@@ -543,9 +545,7 @@ class EnhancedSlackIntegrationService:
 
             # Analyze messages
             total_messages = len(messages)
-            unique_users = len(
-                set(msg.get("user") for msg in messages if msg.get("user"))
-            )
+            unique_users = len({msg.get("user") for msg in messages if msg.get("user")})
 
             # Calculate metrics
             sentiments = []
@@ -583,7 +583,7 @@ class EnhancedSlackIntegrationService:
             logger.error(f"Error getting channel analytics: {e}")
             raise
 
-    async def _get_channel_info(self, channel_id: str) -> Dict[str, Any]:
+    async def _get_channel_info(self, channel_id: str) -> dict[str, Any]:
         """Get channel information"""
         try:
             response = await self.web_client.conversations_info(channel=channel_id)
@@ -596,7 +596,7 @@ class EnhancedSlackIntegrationService:
             logger.error(f"Error getting channel info: {e}")
             return {"name": "unknown", "id": channel_id}
 
-    async def _calculate_channel_business_impact(self, messages: List[Dict]) -> float:
+    async def _calculate_channel_business_impact(self, messages: list[dict]) -> float:
         """Calculate overall business impact for channel"""
         if not messages:
             return 0.0
@@ -631,7 +631,7 @@ class EnhancedSlackIntegrationService:
             self.event_handlers[event_type] = []
         self.event_handlers[event_type].append(handler)
 
-    async def get_connection_status(self) -> Dict[str, Any]:
+    async def get_connection_status(self) -> dict[str, Any]:
         """Get current connection status"""
         return {
             "is_connected": self.is_connected,
@@ -645,7 +645,7 @@ class EnhancedSlackIntegrationService:
 
 # Factory function for easy initialization
 async def create_enhanced_slack_service(
-    config: Dict[str, str],
+    config: dict[str, str],
 ) -> EnhancedSlackIntegrationService:
     """Create and initialize enhanced Slack service"""
     service = EnhancedSlackIntegrationService(config)

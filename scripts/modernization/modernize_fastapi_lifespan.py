@@ -12,8 +12,8 @@ Usage:
 
 import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 class FastAPILifespanModernizer:
@@ -95,12 +95,12 @@ def get_config_service():
 async def get_chat_service() -> SophiaUniversalChatService:
     """
     Get the chat service instance.
-    
+
     This function ensures we have a single instance of the chat service
     that is properly initialized and reused across requests.
     """
     global _chat_service_instance
-    
+
     if _chat_service_instance is None:
         if CHAT_SERVICE_AVAILABLE:
             try:
@@ -113,13 +113,13 @@ async def get_chat_service() -> SophiaUniversalChatService:
         else:
             print("Warning: Chat service not available, using mock")
             _chat_service_instance = SophiaUniversalChatService()
-    
+
     return _chat_service_instance
 
 def get_chat_service_from_app_state(request):
     """
     Get chat service from FastAPI app state.
-    
+
     This is used in routes to access the chat service instance
     that was initialized during app startup.
     """
@@ -159,7 +159,7 @@ def get_request_chat_service(request):
             return
 
         # Read current content
-        with open(routes_file, "r", encoding="utf-8") as f:
+        with open(routes_file, encoding="utf-8") as f:
             f.read()
 
         # Create fixed content
@@ -198,7 +198,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., description="The user's message")
     user_id: str = Field(default="default_user", description="User identifier")
     context: Optional[Dict[str, Any]] = Field(default={}, description="Additional context")
-    
+
     class Config:
         # Avoid Pydantic model_ namespace conflicts
         protected_namespaces = ()
@@ -209,7 +209,7 @@ class ChatResponse(BaseModel):
     user_id: str = Field(..., description="User identifier")
     model_used: Optional[str] = Field(None, description="AI model used")
     processing_time: Optional[float] = Field(None, description="Processing time in seconds")
-    
+
     class Config:
         # Avoid Pydantic model_ namespace conflicts
         protected_namespaces = ()
@@ -222,7 +222,7 @@ async def process_chat_message(
 ):
     """
     Process a chat message through the Sophia AI system
-    
+
     This endpoint provides universal chat functionality with proper
     dependency injection and no circular imports.
     """
@@ -235,7 +235,7 @@ async def process_chat_message(
                 status_code=503,
                 detail="Chat service not available"
             )
-        
+
         # Process the message
         if hasattr(chat_service, 'process_chat_message'):
             response = await chat_service.process_chat_message(
@@ -251,9 +251,9 @@ async def process_chat_message(
                 "model_used": "fallback",
                 "processing_time": 0.1
             }
-        
+
         return ChatResponse(**response)
-        
+
     except Exception as e:
         logger.error(f"Error processing chat message: {e}", exc_info=True)
         raise HTTPException(
@@ -284,7 +284,7 @@ async def get_chat_capabilities(request: Request):
     try:
         if hasattr(request.app.state, 'chat_service_instance'):
             chat_service = request.app.state.chat_service_instance
-            
+
             # Extract capabilities if available
             capabilities = {
                 "universal_chat": True,
@@ -292,22 +292,22 @@ async def get_chat_capabilities(request: Request):
                 "multi_user": True,
                 "available_methods": []
             }
-            
+
             # Add method names if available
             if hasattr(chat_service, '__dict__'):
                 methods = [
-                    method for method in dir(chat_service) 
+                    method for method in dir(chat_service)
                     if not method.startswith('_') and callable(getattr(chat_service, method))
                 ]
                 capabilities["available_methods"] = methods[:10]  # Limit output
-            
+
             return capabilities
         else:
             return {
                 "universal_chat": False,
                 "error": "Chat service not initialized"
             }
-            
+
     except Exception as e:
         return {
             "error": str(e),

@@ -4,7 +4,7 @@ Current size: 1021 lines
 
 Recommended decomposition:
 - asana_project_intelligence_agent_core.py - Core functionality
-- asana_project_intelligence_agent_utils.py - Utility functions  
+- asana_project_intelligence_agent_utils.py - Utility functions
 - asana_project_intelligence_agent_models.py - Data models
 - asana_project_intelligence_agent_handlers.py - Request handlers
 
@@ -14,16 +14,16 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
-import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, field
-from enum import Enum
 import json
+import logging
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.smart_ai_service import SmartAIService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -65,14 +65,14 @@ class AsanaProjectMetrics:
     task_count: int
     completed_task_count: int
     overdue_task_count: int
-    team_name: Optional[str]
-    owner_name: Optional[str]
-    due_date: Optional[datetime]
+    team_name: str | None
+    owner_name: str | None
+    due_date: datetime | None
     created_at: datetime
     modified_at: datetime
     health_score: float = 0.0
     risk_level: RiskLevel = RiskLevel.LOW
-    ai_insights: Dict[str, Any] = field(default_factory=dict)
+    ai_insights: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -101,15 +101,15 @@ class ProjectRiskAssessment:
     resource_risk: RiskLevel
     scope_risk: RiskLevel
     quality_risk: RiskLevel
-    risk_factors: List[str] = field(default_factory=list)
-    mitigation_suggestions: List[str] = field(default_factory=list)
-    predicted_completion_date: Optional[datetime] = None
+    risk_factors: list[str] = field(default_factory=list)
+    mitigation_suggestions: list[str] = field(default_factory=list)
+    predicted_completion_date: datetime | None = None
 
 
 class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
     """Advanced Asana project intelligence and analytics agent"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__(config)
         self.cortex_service = None
         self.ai_memory_service = None
@@ -137,8 +137,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             raise
 
     async def get_project_metrics(
-        self, project_gid: Optional[str] = None
-    ) -> List[AsanaProjectMetrics]:
+        self, project_gid: str | None = None
+    ) -> list[AsanaProjectMetrics]:
         """Get comprehensive project metrics from Asana data"""
         try:
             # Build query based on whether specific project is requested
@@ -150,7 +150,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
 
             query = f"""
             WITH project_task_summary AS (
-                SELECT 
+                SELECT
                     p.PROJECT_GID,
                     COUNT(t.TASK_GID) as total_tasks,
                     COUNT(CASE WHEN t.IS_COMPLETED = TRUE THEN 1 END) as completed_tasks,
@@ -160,7 +160,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 LEFT JOIN STG_TRANSFORMED.STG_ASANA_TASKS t ON p.PROJECT_GID = t.PROJECT_GID
                 GROUP BY p.PROJECT_GID
             )
-            SELECT 
+            SELECT
                 p.PROJECT_GID,
                 p.PROJECT_NAME,
                 p.COMPLETION_PERCENTAGE,
@@ -224,7 +224,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             logger.error(f"❌ Failed to get project metrics: {e}")
             return []
 
-    def _calculate_project_health_score(self, project_data: Dict[str, Any]) -> float:
+    def _calculate_project_health_score(self, project_data: dict[str, Any]) -> float:
         """Calculate comprehensive project health score"""
         try:
             score = 0.0
@@ -268,7 +268,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             logger.error(f"❌ Error calculating health score: {e}")
             return 0.5
 
-    def _assess_project_risk_level(self, project_data: Dict[str, Any]) -> RiskLevel:
+    def _assess_project_risk_level(self, project_data: dict[str, Any]) -> RiskLevel:
         """Assess project risk level based on multiple factors"""
         try:
             risk_score = 0.0
@@ -313,15 +313,15 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return RiskLevel.MEDIUM
 
     async def analyze_team_productivity(
-        self, team_name: Optional[str] = None
-    ) -> List[TeamProductivityMetrics]:
+        self, team_name: str | None = None
+    ) -> list[TeamProductivityMetrics]:
         """Analyze team productivity across projects"""
         try:
             where_clause = f"WHERE p.TEAM_NAME = '{team_name}'" if team_name else ""
 
             query = f"""
             WITH team_metrics AS (
-                SELECT 
+                SELECT
                     p.TEAM_NAME,
                     COUNT(DISTINCT p.PROJECT_GID) as total_projects,
                     COUNT(DISTINCT CASE WHEN p.IS_ARCHIVED = FALSE THEN p.PROJECT_GID END) as active_projects,
@@ -335,7 +335,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 GROUP BY p.TEAM_NAME
             ),
             task_metrics AS (
-                SELECT 
+                SELECT
                     p.TEAM_NAME,
                     COUNT(t.TASK_GID) as total_tasks,
                     COUNT(CASE WHEN t.IS_COMPLETED = TRUE THEN 1 END) as completed_tasks,
@@ -346,7 +346,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 {where_clause}
                 GROUP BY p.TEAM_NAME
             )
-            SELECT 
+            SELECT
                 tm.TEAM_NAME,
                 tm.total_projects,
                 tm.active_projects,
@@ -406,7 +406,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return []
 
     def _calculate_team_productivity_score(
-        self, team_data: Dict[str, Any], overdue_ratio: float, velocity: float
+        self, team_data: dict[str, Any], overdue_ratio: float, velocity: float
     ) -> float:
         """Calculate team productivity score"""
         try:
@@ -438,8 +438,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return 0.5
 
     async def perform_risk_assessment(
-        self, project_gid: Optional[str] = None
-    ) -> List[ProjectRiskAssessment]:
+        self, project_gid: str | None = None
+    ) -> list[ProjectRiskAssessment]:
         """Perform comprehensive risk assessment for projects"""
         try:
             projects = await self.get_project_metrics(project_gid)
@@ -448,7 +448,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             for project in projects:
                 # Get detailed task data for risk analysis
                 task_query = f"""
-                SELECT 
+                SELECT
                     COUNT(*) as total_tasks,
                     COUNT(CASE WHEN TASK_STATUS = 'OVERDUE' THEN 1 END) as overdue_tasks,
                     COUNT(CASE WHEN ASSIGNEE_GID IS NULL THEN 1 END) as unassigned_tasks,
@@ -518,7 +518,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return []
 
     def _assess_schedule_risk(
-        self, project: AsanaProjectMetrics, task_data: Dict[str, Any]
+        self, project: AsanaProjectMetrics, task_data: dict[str, Any]
     ) -> float:
         """Assess schedule-related risks"""
         risk_score = 0.0
@@ -551,7 +551,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         return min(1.0, risk_score)
 
     def _assess_resource_risk(
-        self, project: AsanaProjectMetrics, task_data: Dict[str, Any]
+        self, project: AsanaProjectMetrics, task_data: dict[str, Any]
     ) -> float:
         """Assess resource-related risks"""
         risk_score = 0.0
@@ -570,7 +570,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         return min(1.0, risk_score)
 
     def _assess_scope_risk(
-        self, project: AsanaProjectMetrics, task_data: Dict[str, Any]
+        self, project: AsanaProjectMetrics, task_data: dict[str, Any]
     ) -> float:
         """Assess scope-related risks"""
         risk_score = 0.0
@@ -591,7 +591,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         return min(1.0, risk_score)
 
     def _assess_quality_risk(
-        self, project: AsanaProjectMetrics, task_data: Dict[str, Any]
+        self, project: AsanaProjectMetrics, task_data: dict[str, Any]
     ) -> float:
         """Assess quality-related risks"""
         risk_score = 0.0
@@ -623,12 +623,12 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
     async def _generate_risk_insights(
         self,
         project: AsanaProjectMetrics,
-        task_data: Dict[str, Any],
+        task_data: dict[str, Any],
         schedule_risk: float,
         resource_risk: float,
         scope_risk: float,
         quality_risk: float,
-    ) -> Tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Generate AI-powered risk insights and mitigation suggestions"""
         try:
             # Prepare context for AI analysis
@@ -647,13 +647,13 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             # Generate insights using Smart AI Service
             insights_prompt = f"""
             Analyze this project data and identify the top 3 risk factors and 3 mitigation strategies:
-            
+
             {context}
-            
+
             Provide:
             1. Risk factors (specific, actionable insights)
             2. Mitigation suggestions (concrete next steps)
-            
+
             Format as JSON with 'risk_factors' and 'mitigation_suggestions' arrays.
             """
 
@@ -693,12 +693,12 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
     def _generate_fallback_insights(
         self,
         project: AsanaProjectMetrics,
-        task_data: Dict[str, Any],
+        task_data: dict[str, Any],
         schedule_risk: float,
         resource_risk: float,
         scope_risk: float,
         quality_risk: float,
-    ) -> Tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Generate fallback insights using rule-based logic"""
         risk_factors = []
         mitigation_suggestions = []
@@ -731,8 +731,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         return risk_factors, mitigation_suggestions
 
     def _predict_completion_date(
-        self, project: AsanaProjectMetrics, task_data: Dict[str, Any]
-    ) -> Optional[datetime]:
+        self, project: AsanaProjectMetrics, task_data: dict[str, Any]
+    ) -> datetime | None:
         """Predict project completion date based on current progress"""
         try:
             if project.completion_percentage >= 100:
@@ -770,8 +770,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return None
 
     async def generate_project_intelligence_report(
-        self, project_gid: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, project_gid: str | None = None
+    ) -> dict[str, Any]:
         """Generate comprehensive project intelligence report"""
         try:
             logger.info(
@@ -828,9 +828,11 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                         "overall_risk": r.overall_risk.value,
                         "risk_factors": r.risk_factors,
                         "mitigation_suggestions": r.mitigation_suggestions,
-                        "predicted_completion": r.predicted_completion_date.isoformat()
-                        if r.predicted_completion_date
-                        else None,
+                        "predicted_completion": (
+                            r.predicted_completion_date.isoformat()
+                            if r.predicted_completion_date
+                            else None
+                        ),
                     }
                     for r in risks
                 ],
@@ -848,9 +850,9 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
 
     async def _store_intelligence_insights(
         self,
-        projects: List[AsanaProjectMetrics],
-        teams: List[TeamProductivityMetrics],
-        risks: List[ProjectRiskAssessment],
+        projects: list[AsanaProjectMetrics],
+        teams: list[TeamProductivityMetrics],
+        risks: list[ProjectRiskAssessment],
     ) -> None:
         """Store intelligence insights in AI Memory for future reference"""
         try:
@@ -908,10 +910,10 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
 
     async def _generate_summary_insights(
         self,
-        projects: List[AsanaProjectMetrics],
-        teams: List[TeamProductivityMetrics],
-        risks: List[ProjectRiskAssessment],
-    ) -> Dict[str, Any]:
+        projects: list[AsanaProjectMetrics],
+        teams: list[TeamProductivityMetrics],
+        risks: list[ProjectRiskAssessment],
+    ) -> dict[str, Any]:
         """Generate high-level summary insights"""
         try:
             if not projects:
@@ -965,9 +967,11 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                     f"Portfolio health score: {avg_health_score:.1%}",
                     f"Average project completion: {avg_completion:.1f}%",
                     f"{len(at_risk_projects)} projects need immediate attention",
-                    f"Top team: {top_teams[0].team_name}"
-                    if top_teams
-                    else "No team data available",
+                    (
+                        f"Top team: {top_teams[0].team_name}"
+                        if top_teams
+                        else "No team data available"
+                    ),
                 ],
             }
 

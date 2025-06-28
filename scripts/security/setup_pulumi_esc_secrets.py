@@ -4,18 +4,17 @@ Secure Pulumi ESC Setup and Management Script for Sophia AI
 This script manages all secrets and configuration in Pulumi ESC safely
 """
 
-import sys
-import subprocess
-import logging
-import json
 import getpass
-from typing import List, Optional, Tuple
+import json
+import logging
+import subprocess
+import sys
 from pathlib import Path
 
 # Add the backend directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "backend"))
 
-from backend.core.security_config import SecurityConfig, SecretType
+from backend.core.security_config import SecretType, SecurityConfig
 
 # Configure logging
 logging.basicConfig(
@@ -98,7 +97,7 @@ class PulumiESCManager:
                 logger.error(f"❌ Template file not found: {template_path}")
                 return False
 
-            with open(template_path, "r") as f:
+            with open(template_path) as f:
                 f.read()
 
             # Create environment using ESC CLI
@@ -151,7 +150,7 @@ class PulumiESCManager:
             logger.error(f"❌ Error setting {key}: {e}")
             return False
 
-    def get_secret(self, key: str) -> Optional[str]:
+    def get_secret(self, key: str) -> str | None:
         """Get a secret value from ESC"""
         try:
             result = subprocess.run(
@@ -169,7 +168,7 @@ class PulumiESCManager:
             logger.error(f"❌ Error getting {key}: {e}")
             return None
 
-    def validate_secrets(self) -> Tuple[List[str], List[str]]:
+    def validate_secrets(self) -> tuple[list[str], list[str]]:
         """Validate all secrets are properly set"""
         missing_secrets = []
         valid_secrets = []

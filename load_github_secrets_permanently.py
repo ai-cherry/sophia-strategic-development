@@ -5,11 +5,11 @@ This script loads ALL GitHub organization secrets into the local environment
 and ensures the Pulumi ESC pipeline works correctly.
 """
 
-import os
-import subprocess
 import json
 import logging
-from typing import Dict, Any
+import os
+import subprocess
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -25,7 +25,7 @@ class PermanentSecretsLoader:
         self.secrets_loaded = 0
         self.failed_secrets = []
 
-    def load_all_github_secrets(self) -> Dict[str, str]:
+    def load_all_github_secrets(self) -> dict[str, str]:
         """Load ALL secrets from GitHub organization"""
         logger.info("🔑 Loading ALL GitHub Organization Secrets...")
 
@@ -88,7 +88,7 @@ class PermanentSecretsLoader:
             logger.error(f"❌ Pulumi setup failed: {e}")
             return False
 
-    def load_secrets_from_pulumi_esc(self) -> Dict[str, str]:
+    def load_secrets_from_pulumi_esc(self) -> dict[str, str]:
         """Load secrets from Pulumi ESC (after token is set)"""
         logger.info("📦 Loading secrets from Pulumi ESC...")
 
@@ -117,7 +117,7 @@ class PermanentSecretsLoader:
             logger.error(f"❌ ESC loading failed: {e}")
             return {}
 
-    def set_environment_variables(self, secrets: Dict[str, Any]) -> None:
+    def set_environment_variables(self, secrets: dict[str, Any]) -> None:
         """Set all secrets as environment variables"""
         logger.info("🔄 Setting environment variables...")
 
@@ -150,8 +150,8 @@ class PermanentSecretsLoader:
         logger.info(f"🎯 Set {set_count}/{len(critical_secrets)} critical secrets")
 
     def _flatten_esc_config(
-        self, config: Dict[str, Any], prefix: str = ""
-    ) -> Dict[str, Any]:
+        self, config: dict[str, Any], prefix: str = ""
+    ) -> dict[str, Any]:
         """Flatten nested ESC configuration"""
         flat = {}
 
@@ -181,7 +181,7 @@ class PermanentSecretsLoader:
 
         return flat
 
-    def test_secret_access(self) -> Dict[str, bool]:
+    def test_secret_access(self) -> dict[str, bool]:
         """Test that critical secrets are accessible"""
         logger.info("🧪 Testing secret accessibility...")
 

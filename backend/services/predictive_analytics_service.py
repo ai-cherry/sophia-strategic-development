@@ -1,10 +1,11 @@
 # File: backend/services/predictive_analytics_service.py
 
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
-from dataclasses import dataclass, field
-from backend.services.semantic_layer_service import SemanticLayerService
 import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any
+
+from backend.services.semantic_layer_service import SemanticLayerService
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +17,10 @@ class PredictionModel:
     model_id: str
     model_type: str
     target_variable: str
-    features: List[str]
-    accuracy_score: Optional[float] = None
-    last_trained: Optional[datetime] = None
-    prediction_horizon: Optional[str] = None
+    features: list[str]
+    accuracy_score: float | None = None
+    last_trained: datetime | None = None
+    prediction_horizon: str | None = None
 
 
 @dataclass
@@ -28,10 +29,10 @@ class PredictionResult:
 
     model_id: str
     prediction_value: Any
-    confidence_interval: Optional[Tuple[float, float]] = None
-    confidence_score: Optional[float] = None
-    contributing_factors: List[Dict[str, Any]] = field(default_factory=list)
-    recommendation: Optional[str] = None
+    confidence_interval: tuple[float, float] | None = None
+    confidence_score: float | None = None
+    contributing_factors: list[dict[str, Any]] = field(default_factory=list)
+    recommendation: str | None = None
 
 
 class PredictiveAnalyticsService:
@@ -42,7 +43,7 @@ class PredictiveAnalyticsService:
 
     def __init__(self):
         self.semantic_service = SemanticLayerService()
-        self.active_models: Dict[str, PredictionModel] = {}
+        self.active_models: dict[str, PredictionModel] = {}
 
     async def initialize_prediction_models(self) -> bool:
         """Initialize predictive models for key business metrics"""
@@ -101,7 +102,7 @@ class PredictiveAnalyticsService:
             logger.error(f"Failed to initialize prediction models: {e}", exc_info=True)
             return False
 
-    async def _create_ml_model(self, config: Dict[str, Any]) -> bool:
+    async def _create_ml_model(self, config: dict[str, Any]) -> bool:
         """Create ML model using Snowflake ML functions (conceptual)."""
         logger.info(f"Creating ML model: {config['model_id']}")
         try:
@@ -118,7 +119,7 @@ class PredictiveAnalyticsService:
             )
             return False
 
-    def _generate_training_data_query(self, config: Dict[str, Any]) -> str:
+    def _generate_training_data_query(self, config: dict[str, Any]) -> str:
         """Generate training data query based on model configuration"""
         if config["model_id"] == "customer_churn_prediction":
             return "SELECT c.customer_id, DATEDIFF(day, c.last_activity_date, CURRENT_DATE()) as last_activity_days, COUNT(DISTINCT i.ticket_id) as support_tickets, AVG(g.sentiment_score) as sentiment_score, c.contract_value, CASE WHEN c.status = 'churned' THEN 1 ELSE 0 END as churn_risk FROM SOPHIA_SEMANTIC.CUSTOMER_360 c LEFT JOIN INTERCOM_DATA.TICKETS i ON c.customer_id = i.customer_id LEFT JOIN GONG_DATA.CALLS g ON c.customer_id = g.customer_id WHERE c.created_date <= DATEADD(month, -3, CURRENT_DATE()) GROUP BY c.customer_id, c.last_activity_date, c.contract_value, c.status"
@@ -129,7 +130,7 @@ class PredictiveAnalyticsService:
         return "SELECT 1 as dummy"
 
     async def generate_prediction(
-        self, model_id: str, input_data: Dict[str, Any]
+        self, model_id: str, input_data: dict[str, Any]
     ) -> PredictionResult:
         """Generate prediction using trained model"""
         logger.info(f"Generating prediction for model: {model_id}")
@@ -162,15 +163,15 @@ class PredictiveAnalyticsService:
             )
 
     async def _analyze_contributing_factors(
-        self, model_id: str, input_data: Dict[str, Any], prediction: Any
-    ) -> List[Dict[str, Any]]:
+        self, model_id: str, input_data: dict[str, Any], prediction: Any
+    ) -> list[dict[str, Any]]:
         """Analyze factors contributing to prediction (conceptual)."""
         logger.info(f"Analyzing factors for {model_id}")
         # Conceptual: In reality, this would use SHAP or feature importance from Snowflake
         return [{"factor": "sample_factor", "importance": 0.5, "value": "sample_value"}]
 
     async def _generate_prediction_recommendation(
-        self, model_id: str, prediction: Any, factors: List[Dict[str, Any]]
+        self, model_id: str, prediction: Any, factors: list[dict[str, Any]]
     ) -> str:
         """Generate actionable recommendation based on prediction (conceptual)."""
         logger.info(f"Generating recommendation for {model_id}")
@@ -179,7 +180,7 @@ class PredictiveAnalyticsService:
             return "High churn risk detected. Engage with customer immediately."
         return "Monitor performance and adjust strategy as needed."
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Performs a health check on the predictive analytics service."""
         # A real health check would query model status in Snowflake.
         return {

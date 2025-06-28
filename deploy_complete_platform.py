@@ -7,12 +7,12 @@ Orchestrates deployment across Snowflake, Estuary Flow, and application services
 """
 
 import asyncio
-import logging
 import json
+import logging
 import os
 import subprocess
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -127,7 +127,7 @@ class CompletePlatformDeployment:
 
                 # Validate configuration
                 try:
-                    with open(config_path, "r") as f:
+                    with open(config_path) as f:
                         config_content = f.read()
                         if (
                             "collections:" in config_content
@@ -398,7 +398,7 @@ class CompletePlatformDeployment:
         else:
             return "in_progress"
 
-    def _print_deployment_summary(self, report: Dict[str, Any]):
+    def _print_deployment_summary(self, report: dict[str, Any]):
         """Print deployment summary to console"""
         print("\n" + "=" * 80)
         print("🎉 SOPHIA AI PLATFORM DEPLOYMENT COMPLETE!")
@@ -417,9 +417,7 @@ class CompletePlatformDeployment:
             status_icon = (
                 "✅"
                 if status["status"] == "completed"
-                else "⚠️"
-                if status["status"] == "partial"
-                else "❌"
+                else "⚠️" if status["status"] == "partial" else "❌"
             )
             print(f"   {status_icon} {component.title()}: {status['status']}")
 

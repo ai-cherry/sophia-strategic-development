@@ -6,9 +6,10 @@ Fix Alignment Issues Script
 Fixes the SQL syntax and table creation issues found in the alignment analysis
 """
 
-import snowflake.connector
 import logging
 from datetime import datetime
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -80,7 +81,7 @@ class AlignmentIssuesFixer:
             results = self.cursor.fetchall()
 
             # Convert to list of dictionaries
-            return [dict(zip(columns, row)) for row in results]
+            return [dict(zip(columns, row, strict=False)) for row in results]
 
         except Exception as e:
             logger.error(f"❌ SQL execution failed: {e}")

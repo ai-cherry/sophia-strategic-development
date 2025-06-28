@@ -11,7 +11,7 @@ Current size: 727 lines
 
 Recommended decomposition:
 - sales_coach_agent_core.py - Core functionality
-- sales_coach_agent_utils.py - Utility functions  
+- sales_coach_agent_utils.py - Utility functions
 - sales_coach_agent_models.py - Data models
 - sales_coach_agent_handlers.py - Request handlers
 
@@ -21,19 +21,19 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
     MemoryCategory,
 )
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -75,14 +75,14 @@ class CallAnalysisResult:
     sentiment_category: str
     talk_ratio: float
     cortex_summary: str
-    speaker_sentiments: Dict[str, float]
-    key_topics: List[str]
+    speaker_sentiments: dict[str, float]
+    key_topics: list[str]
 
     # HubSpot context
-    deal_id: Optional[str] = None
-    deal_stage: Optional[str] = None
-    deal_value: Optional[float] = None
-    company_name: Optional[str] = None
+    deal_id: str | None = None
+    deal_stage: str | None = None
+    deal_value: float | None = None
+    company_name: str | None = None
 
     # Analysis metadata
     confidence_score: float = 0.0
@@ -98,13 +98,13 @@ class CoachingRecommendation:
     title: str
     description: str
     specific_feedback: str
-    suggested_actions: List[str]
+    suggested_actions: list[str]
     confidence_score: float
 
     # Context
     call_id: str
-    deal_context: Optional[str] = None
-    supporting_evidence: List[str] = None
+    deal_context: str | None = None
+    supporting_evidence: list[str] = None
 
 
 class SalesCoachAgent(BaseAgent):
@@ -124,10 +124,10 @@ class SalesCoachAgent(BaseAgent):
         self.description = "AI-powered sales coaching with Snowflake Cortex insights"
 
         # Snowflake integrations
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.gong_connector: Optional[SnowflakeGongConnector] = None
-        self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.gong_connector: SnowflakeGongConnector | None = None
+        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
 
         self.initialized = False
 
@@ -151,9 +151,7 @@ class SalesCoachAgent(BaseAgent):
             logger.error(f"Failed to initialize Sales Coach Agent: {e}")
             raise
 
-    async def analyze_call_with_cortex(
-        self, call_id: str
-    ) -> Optional[CallAnalysisResult]:
+    async def analyze_call_with_cortex(self, call_id: str) -> CallAnalysisResult | None:
         """
         Perform comprehensive call analysis using Snowflake Cortex
 
@@ -182,17 +180,17 @@ class SalesCoachAgent(BaseAgent):
                 # Generate comprehensive call summary
                 summary_prompt = f"""
                 Analyze this sales call and provide key insights:
-                
+
                 Call: {call_data.get("CALL_TITLE", "Unknown")}
                 Sales Rep: {call_data.get("PRIMARY_USER_NAME", "Unknown")}
                 Duration: {call_data.get("CALL_DURATION_SECONDS", 0)} seconds
                 Participants: {call_data.get("PARTICIPANT_LIST", "Unknown")}
-                
+
                 Current metrics:
                 - Overall sentiment: {call_data.get("SENTIMENT_SCORE", 0):.2f}
                 - Talk ratio: {call_data.get("TALK_RATIO", 0):.2f}
                 - Questions asked: {call_data.get("QUESTIONS_ASKED_COUNT", 0)}
-                
+
                 Provide analysis on:
                 1. Call effectiveness and key outcomes
                 2. Sales rep performance strengths
@@ -301,7 +299,7 @@ class SalesCoachAgent(BaseAgent):
 
     async def generate_coaching_recommendations(
         self, analysis: CallAnalysisResult, historical_context: bool = True
-    ) -> List[CoachingRecommendation]:
+    ) -> list[CoachingRecommendation]:
         """
         Generate personalized coaching recommendations based on call analysis
 
@@ -520,7 +518,7 @@ class SalesCoachAgent(BaseAgent):
         sales_rep: str,
         time_period_days: int = 30,
         include_action_plan: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create comprehensive coaching summary for a sales rep
 
@@ -554,22 +552,22 @@ class SalesCoachAgent(BaseAgent):
                 performance_summary = await cortex.complete_text_with_cortex(
                     prompt=f"""
                     Analyze this sales rep's performance and provide coaching insights:
-                    
+
                     Sales Rep: {sales_rep}
                     Period: Last {time_period_days} days
-                    
+
                     Performance Metrics:
                     - Total calls: {rep_performance.get("TOTAL_CALLS", 0)}
                     - Average sentiment: {rep_performance.get("AVG_SENTIMENT", 0):.2f}
                     - Average talk ratio: {rep_performance.get("AVG_TALK_RATIO", 0):.2f}
                     - Win rate: {rep_performance.get("WIN_RATE", 0):.1f}%
                     - Revenue won: ${rep_performance.get("REVENUE_WON", 0):,.0f}
-                    
+
                     Coaching Needs:
                     - Sentiment coaching needed: {rep_performance.get("NEEDS_SENTIMENT_COACHING", 0)} calls
                     - Talk ratio coaching needed: {rep_performance.get("NEEDS_TALK_RATIO_COACHING", 0)} calls
                     - Discovery coaching needed: {rep_performance.get("NEEDS_DISCOVERY_COACHING", 0)} calls
-                    
+
                     Provide:
                     1. Overall performance assessment
                     2. Top 3 strengths
@@ -650,9 +648,7 @@ class SalesCoachAgent(BaseAgent):
             logger.error(f"Error creating coaching summary for {sales_rep}: {e}")
             return {"error": str(e), "sales_rep": sales_rep, "status": "failed"}
 
-    async def _get_deal_context(
-        self, deal_id: Optional[str]
-    ) -> Optional[Dict[str, Any]]:
+    async def _get_deal_context(self, deal_id: str | None) -> dict[str, Any] | None:
         """Get HubSpot deal context for call analysis"""
         if not deal_id or not self.hubspot_connector:
             return None
@@ -689,9 +685,9 @@ class SalesCoachAgent(BaseAgent):
 
     def _analyze_historical_patterns(
         self,
-        historical_insights: List[Dict[str, Any]],
+        historical_insights: list[dict[str, Any]],
         current_analysis: CallAnalysisResult,
-    ) -> Optional[CoachingRecommendation]:
+    ) -> CoachingRecommendation | None:
         """Analyze historical patterns to provide trend-based coaching"""
         if len(historical_insights) < 2:
             return None
@@ -733,7 +729,7 @@ class SalesCoachAgent(BaseAgent):
 
 
 # Agent factory function for AGNO integration
-async def create_sales_coach_agent(config: Dict[str, Any] = None) -> SalesCoachAgent:
+async def create_sales_coach_agent(config: dict[str, Any] = None) -> SalesCoachAgent:
     """Create and initialize a Sales Coach Agent instance"""
     agent = SalesCoachAgent()
     await agent.initialize()

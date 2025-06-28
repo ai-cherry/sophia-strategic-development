@@ -4,8 +4,8 @@ Automated System Validation and Activation
 Validates all components and activates the complete IaC system
 """
 
-import json
 import asyncio
+import json
 from datetime import datetime
 
 

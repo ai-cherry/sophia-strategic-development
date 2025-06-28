@@ -5,16 +5,16 @@ AI-enhanced code analysis optimized for Cursor GitHub integration
 """
 
 import argparse
+import ast
 import json
 import logging
 import sys
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
-import ast
 import git
-from dataclasses import dataclass, asdict
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -28,10 +28,10 @@ class CodeAnalysisResult:
     quality_score: int
     security_issues: int
     performance_opportunities: int
-    cursor_optimizations: List[str]
-    mcp_integration_health: Dict[str, Any]
-    github_integration_status: Dict[str, Any]
-    recommendations: List[str]
+    cursor_optimizations: list[str]
+    mcp_integration_health: dict[str, Any]
+    github_integration_status: dict[str, Any]
+    recommendations: list[str]
     analysis_timestamp: str
     commit_hash: str
     branch: str
@@ -100,7 +100,7 @@ class CursorAIAnalyzer:
 
         return int(sum(scores) / len(scores)) if scores else 50
 
-    def _analyze_python_quality(self, python_files: List[Path]) -> int:
+    def _analyze_python_quality(self, python_files: list[Path]) -> int:
         """Analyze Python code quality"""
         total_score = 0
         file_count = 0
@@ -110,7 +110,7 @@ class CursorAIAnalyzer:
                 continue
 
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
 
                 # Parse AST for analysis
@@ -166,11 +166,11 @@ class CursorAIAnalyzer:
 
         for node in ast.walk(tree):
             # Nested loops penalty
-            if isinstance(node, (ast.For, ast.While)):
+            if isinstance(node, ast.For | ast.While):
                 nested_loops = sum(
                     1
                     for child in ast.walk(node)
-                    if isinstance(child, (ast.For, ast.While)) and child != node
+                    if isinstance(child, ast.For | ast.While) and child != node
                 )
                 penalty += nested_loops * 5
 
@@ -187,7 +187,7 @@ class CursorAIAnalyzer:
         max_depth = depth
 
         for child in ast.iter_child_nodes(node):
-            if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+            if isinstance(child, ast.If | ast.For | ast.While | ast.With | ast.Try):
                 child_depth = self._calculate_nesting_depth(child, depth + 1)
                 max_depth = max(max_depth, child_depth)
 
@@ -201,7 +201,7 @@ class CursorAIAnalyzer:
         python_files = list(self.repo_path.rglob("*.py"))
         for file_path in python_files:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
 
                 # Common security patterns
@@ -231,7 +231,7 @@ class CursorAIAnalyzer:
         python_files = list(self.repo_path.rglob("*.py"))
         for file_path in python_files:
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
 
                 # Performance anti-patterns
@@ -247,7 +247,7 @@ class CursorAIAnalyzer:
 
         return opportunities
 
-    def _analyze_cursor_optimizations(self) -> List[str]:
+    def _analyze_cursor_optimizations(self) -> list[str]:
         """Analyze Cursor-specific optimizations"""
         optimizations = []
 
@@ -256,7 +256,7 @@ class CursorAIAnalyzer:
         if not cursorrules_path.exists():
             optimizations.append("Create .cursorrules file for Cursor AI optimization")
         else:
-            with open(cursorrules_path, "r") as f:
+            with open(cursorrules_path) as f:
                 content = f.read()
                 if "MCP" not in content:
                     optimizations.append("Add MCP integration rules to .cursorrules")
@@ -266,7 +266,7 @@ class CursorAIAnalyzer:
         # Check MCP configuration
         mcp_config_path = self.repo_path / "cursor_mcp_config.json"
         if mcp_config_path.exists():
-            with open(mcp_config_path, "r") as f:
+            with open(mcp_config_path) as f:
                 config = json.load(f)
                 if "autoTriggers" not in str(config):
                     optimizations.append("Enable auto-triggers in MCP configuration")
@@ -275,7 +275,7 @@ class CursorAIAnalyzer:
 
         return optimizations
 
-    def _analyze_mcp_integration(self) -> Dict[str, Any]:
+    def _analyze_mcp_integration(self) -> dict[str, Any]:
         """Analyze MCP integration health"""
         health = {
             "servers_configured": 0,
@@ -288,14 +288,14 @@ class CursorAIAnalyzer:
         mcp_config_path = self.repo_path / "cursor_mcp_config.json"
         if mcp_config_path.exists():
             try:
-                with open(mcp_config_path, "r") as f:
+                with open(mcp_config_path) as f:
                     config = json.load(f)
 
                 if "mcpServers" in config:
                     health["servers_configured"] = len(config["mcpServers"])
 
                     # Check for health monitoring
-                    for server_name, server_config in config["mcpServers"].items():
+                    for _server_name, server_config in config["mcpServers"].items():
                         if "healthCheck" in str(server_config):
                             health["servers_with_health_checks"] += 1
 
@@ -312,7 +312,7 @@ class CursorAIAnalyzer:
 
         return health
 
-    def _analyze_github_integration(self) -> Dict[str, Any]:
+    def _analyze_github_integration(self) -> dict[str, Any]:
         """Analyze GitHub integration status"""
         status = {
             "workflows_configured": 0,
@@ -330,7 +330,7 @@ class CursorAIAnalyzer:
 
             for workflow_file in workflow_files:
                 try:
-                    with open(workflow_file, "r") as f:
+                    with open(workflow_file) as f:
                         content = f.read()
                         if "cursor" in content.lower():
                             status["cursor_specific_workflows"] = True
@@ -398,7 +398,7 @@ class CursorAIAnalyzer:
             server_files = list(server_dir.glob("*.py"))
             for server_file in server_files:
                 try:
-                    with open(server_file, "r") as f:
+                    with open(server_file) as f:
                         content = f.read()
                         if "health_check" in content:
                             servers_with_health += 1
@@ -411,7 +411,7 @@ class CursorAIAnalyzer:
 
         return max(20, score)
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate AI-powered recommendations"""
         recommendations = []
 

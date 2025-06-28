@@ -4,13 +4,15 @@ Intelligent multi-model routing with streaming and cost optimization
 """
 
 import asyncio
-import logging
-import aiohttp
 import json
-from typing import Dict, List, Any, Optional, AsyncGenerator
-from datetime import datetime
+import logging
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
+import aiohttp
 
 from ..core.simple_config import SophiaConfig
 
@@ -94,7 +96,7 @@ class PortkeyGatewayService:
         # Intelligent routing configuration
         self.routing_config = self._create_routing_config()
 
-    def _create_routing_config(self) -> Dict[str, Any]:
+    def _create_routing_config(self) -> dict[str, Any]:
         """Create intelligent routing configuration"""
         return {
             "strategy": {
@@ -169,9 +171,9 @@ class PortkeyGatewayService:
 
     async def completion(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         task_type: str = "general",
-        model_preference: Optional[str] = None,
+        model_preference: str | None = None,
         stream: bool = False,
         max_tokens: int = 2000,
         temperature: float = 0.7,
@@ -218,7 +220,7 @@ class PortkeyGatewayService:
             return "I encountered an error processing your request. Please try again."
 
     async def stream_completion(
-        self, messages: List[Dict[str, str]], task_type: str = "general", **kwargs
+        self, messages: list[dict[str, str]], task_type: str = "general", **kwargs
     ) -> AsyncGenerator[str, None]:
         """Stream completion for real-time responses"""
         try:
@@ -247,8 +249,8 @@ class PortkeyGatewayService:
     def _select_optimal_model(
         self,
         task_type: str,
-        messages: List[Dict[str, str]],
-        preference: Optional[str] = None,
+        messages: list[dict[str, str]],
+        preference: str | None = None,
     ) -> ModelTarget:
         """Select optimal model based on task requirements"""
 
@@ -272,7 +274,7 @@ class PortkeyGatewayService:
         else:
             return self.model_targets["openai-target"]
 
-    async def _make_portkey_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    async def _make_portkey_request(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Make actual request to Portkey API"""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -287,7 +289,7 @@ class PortkeyGatewayService:
                 return await response.json()
 
     async def _stream_portkey_request(
-        self, messages: List[Dict[str, str]], target_model: ModelTarget, **kwargs
+        self, messages: list[dict[str, str]], target_model: ModelTarget, **kwargs
     ) -> AsyncGenerator[str, None]:
         """Stream request to Portkey API"""
         payload = {
@@ -322,7 +324,7 @@ class PortkeyGatewayService:
                             continue
 
     def _generate_mock_response(
-        self, task_type: str, messages: List[Dict[str, str]], target_model: ModelTarget
+        self, task_type: str, messages: list[dict[str, str]], target_model: ModelTarget
     ) -> str:
         """Generate mock response for development"""
         user_message = messages[-1]["content"] if messages else ""
@@ -339,7 +341,7 @@ class PortkeyGatewayService:
             f"**AI Response** (via {target_model.model}):\n\nProcessing your request: '{user_message[:100]}...'\n\nI can help you with business intelligence, web research, code analysis, and design requests. This response demonstrates our multi-model routing capability.",
         )
 
-    def get_model_stats(self) -> Dict[str, Any]:
+    def get_model_stats(self) -> dict[str, Any]:
         """Get model usage and performance statistics"""
         return {
             "available_models": len(self.model_targets),
@@ -357,7 +359,7 @@ class PortkeyGatewayService:
             "streaming_support": True,
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Health check for Portkey gateway service"""
         return {
             "service": "portkey_gateway",

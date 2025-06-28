@@ -3,20 +3,21 @@ Project Dashboard API Routes
 Provides endpoints for project management, tasks, team performance, and analytics
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
+from typing import Any
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_session
 from backend.core.auth import get_current_user
+from backend.core.cache_manager import DashboardCacheManager
+from backend.core.database import get_session
+from backend.core.logger import logger
+from backend.models.project import Project, SprintVelocity, Task, TeamMember
+from backend.services.analytics_service import AnalyticsService
 from backend.services.project_service import ProjectService
 from backend.services.task_service import TaskService
 from backend.services.team_service import TeamService
-from backend.services.analytics_service import AnalyticsService
-from backend.models.project import Project, Task, TeamMember, SprintVelocity
-from backend.core.cache_manager import DashboardCacheManager
-from backend.core.logger import logger
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 
@@ -28,13 +29,13 @@ analytics_service = AnalyticsService()
 cache_manager = DashboardCacheManager()
 
 
-@router.get("/", response_model=List[Project])
+@router.get("/", response_model=list[Project])
 async def get_projects(
-    status: Optional[str] = Query(None, description="Filter by project status"),
-    priority: Optional[str] = Query(None, description="Filter by priority"),
+    status: str | None = Query(None, description="Filter by project status"),
+    priority: str | None = Query(None, description="Filter by priority"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> List[Project]:
+) -> list[Project]:
     """
     Get all projects with optional filters
 
@@ -55,21 +56,19 @@ async def get_projects(
         raise HTTPException(status_code=500, detail="Failed to fetch projects")
 
 
-@router.get("/tasks", response_model=List[Task])
+@router.get("/tasks", response_model=list[Task])
 async def get_tasks(
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
-    assignee: Optional[str] = Query(None, description="Filter by assignee"),
-    status: Optional[str] = Query(None, description="Filter by task status"),
-    priority: Optional[str] = Query(None, description="Filter by priority"),
-    due_date_start: Optional[datetime] = Query(
+    project_id: str | None = Query(None, description="Filter by project ID"),
+    assignee: str | None = Query(None, description="Filter by assignee"),
+    status: str | None = Query(None, description="Filter by task status"),
+    priority: str | None = Query(None, description="Filter by priority"),
+    due_date_start: datetime | None = Query(
         None, description="Filter by due date start"
     ),
-    due_date_end: Optional[datetime] = Query(
-        None, description="Filter by due date end"
-    ),
+    due_date_end: datetime | None = Query(None, description="Filter by due date end"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> List[Task]:
+) -> list[Task]:
     """
     Get tasks with multiple filter options
 
@@ -96,14 +95,14 @@ async def get_tasks(
         raise HTTPException(status_code=500, detail="Failed to fetch tasks")
 
 
-@router.get("/team/performance", response_model=List[TeamMember])
+@router.get("/team/performance", response_model=list[TeamMember])
 async def get_team_performance(
     time_period: str = Query(
         "30d", description="Time period for metrics (7d, 30d, 90d)"
     ),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> List[TeamMember]:
+) -> list[TeamMember]:
     """
     Get team performance metrics
 
@@ -126,13 +125,13 @@ async def get_team_performance(
         raise HTTPException(status_code=500, detail="Failed to fetch team performance")
 
 
-@router.get("/stats/sprint-velocity", response_model=List[SprintVelocity])
+@router.get("/stats/sprint-velocity", response_model=list[SprintVelocity])
 async def get_sprint_velocity(
-    project_id: Optional[str] = Query(None, description="Filter by project ID"),
+    project_id: str | None = Query(None, description="Filter by project ID"),
     sprints: int = Query(6, description="Number of sprints to include"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> List[SprintVelocity]:
+) -> list[SprintVelocity]:
     """
     Get sprint velocity data for analytics
 
@@ -149,11 +148,11 @@ async def get_sprint_velocity(
         raise HTTPException(status_code=500, detail="Failed to fetch sprint velocity")
 
 
-@router.get("/stats/overview", response_model=Dict[str, Any])
+@router.get("/stats/overview", response_model=dict[str, Any])
 async def get_project_stats_overview(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get comprehensive project statistics overview
 
@@ -192,7 +191,7 @@ async def get_project_stats_overview(
 @router.post("/{project_id}/tasks")
 async def create_task(
     project_id: str,
-    task_data: Dict[str, Any],
+    task_data: dict[str, Any],
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> Task:
@@ -228,7 +227,7 @@ async def create_task(
 @router.put("/tasks/{task_id}")
 async def update_task(
     task_id: str,
-    task_update: Dict[str, Any],
+    task_update: dict[str, Any],
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> Task:
@@ -259,15 +258,13 @@ async def update_task(
         raise HTTPException(status_code=500, detail="Failed to update task")
 
 
-@router.get("/department-okrs", response_model=Dict[str, Any])
+@router.get("/department-okrs", response_model=dict[str, Any])
 async def get_department_okrs(
-    department: Optional[str] = Query(None, description="Filter by department"),
-    quarter: Optional[str] = Query(
-        None, description="Filter by quarter (e.g., Q1-2025)"
-    ),
+    department: str | None = Query(None, description="Filter by department"),
+    quarter: str | None = Query(None, description="Filter by quarter (e.g., Q1-2025)"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get OKRs organized by department
 
@@ -284,11 +281,11 @@ async def get_department_okrs(
         raise HTTPException(status_code=500, detail="Failed to fetch department OKRs")
 
 
-@router.get("/cross-functional-insights", response_model=Dict[str, Any])
+@router.get("/cross-functional-insights", response_model=dict[str, Any])
 async def get_cross_functional_insights(
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get insights on cross-functional collaboration
 
@@ -307,12 +304,12 @@ async def get_cross_functional_insights(
         )
 
 
-@router.get("/resource-allocation", response_model=Dict[str, Any])
+@router.get("/resource-allocation", response_model=dict[str, Any])
 async def get_resource_allocation(
     view: str = Query("team", description="View type: team, project, or department"),
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get resource allocation data
 

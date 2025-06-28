@@ -38,7 +38,7 @@ def validate_ddl_file(file_path: str) -> dict:
         results["file_size"] = ddl_path.stat().st_size
 
         # Read and analyze the file
-        with open(ddl_path, "r") as file:
+        with open(ddl_path) as file:
             content = file.read()
 
         # Split into statements

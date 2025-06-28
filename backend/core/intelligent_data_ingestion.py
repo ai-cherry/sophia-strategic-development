@@ -11,7 +11,7 @@ Current size: 604 lines
 
 Recommended decomposition:
 - intelligent_data_ingestion_core.py - Core functionality
-- intelligent_data_ingestion_utils.py - Utility functions  
+- intelligent_data_ingestion_utils.py - Utility functions
 - intelligent_data_ingestion_models.py - Data models
 - intelligent_data_ingestion_handlers.py - Request handlers
 
@@ -22,9 +22,9 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 import uuid
+from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -40,9 +40,9 @@ class DataSource(BaseModel):
     name: str
     type: str  # 'file', 'url', 'email', 'slack', 'api'
     format: str  # 'pdf', 'csv', 'excel', 'json', 'docx', 'pptx', 'txt'
-    size_bytes: Optional[int] = None
-    checksum: Optional[str] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    size_bytes: int | None = None
+    checksum: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -64,11 +64,11 @@ class IngestionResult(BaseModel):
     records_processed: int = 0
     chunks_created: int = 0
     embeddings_generated: int = 0
-    metadata_tags: List[MetadataTag] = Field(default_factory=list)
-    suggested_tags: List[MetadataTag] = Field(default_factory=list)
+    metadata_tags: list[MetadataTag] = Field(default_factory=list)
+    suggested_tags: list[MetadataTag] = Field(default_factory=list)
     processing_time_seconds: float = 0.0
-    errors: List[str] = Field(default_factory=list)
-    storage_locations: Dict[str, str] = Field(default_factory=dict)
+    errors: list[str] = Field(default_factory=list)
+    storage_locations: dict[str, str] = Field(default_factory=dict)
 
 
 class IntelligentDataIngestion:
@@ -100,8 +100,8 @@ class IntelligentDataIngestion:
             "communications": ["eml", "msg"],
             "web": ["html", "htm"],
         }
-        self.processing_queue: List[DataSource] = []
-        self.active_ingestions: Dict[str, Dict[str, Any]] = {}
+        self.processing_queue: list[DataSource] = []
+        self.active_ingestions: dict[str, dict[str, Any]] = {}
 
     async def initialize(self) -> None:
         """Initialize the ingestion system and dependencies."""
@@ -168,7 +168,7 @@ class IntelligentDataIngestion:
         self,
         source: DataSource,
         interactive_mode: bool = True,
-        user_metadata: Optional[Dict[str, Any]] = None,
+        user_metadata: dict[str, Any] | None = None,
     ) -> IngestionResult:
         """
         Main ingestion method with interactive metadata handling.
@@ -266,7 +266,7 @@ class IntelligentDataIngestion:
 
         return result
 
-    async def _validate_source(self, source: DataSource) -> Dict[str, Any]:
+    async def _validate_source(self, source: DataSource) -> dict[str, Any]:
         """Validate data source before processing."""
         errors = []
 
@@ -288,7 +288,7 @@ class IntelligentDataIngestion:
 
         return {"valid": len(errors) == 0, "errors": errors}
 
-    async def _extract_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from source based on format."""
         format_lower = source.format.lower()
 
@@ -303,7 +303,7 @@ class IntelligentDataIngestion:
         else:
             return await self._extract_generic_content(source)
 
-    async def _extract_spreadsheet_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_spreadsheet_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from spreadsheet files."""
         # Simulate spreadsheet processing
         return {
@@ -317,7 +317,7 @@ class IntelligentDataIngestion:
             "sheets": ["Sheet1"],
         }
 
-    async def _extract_document_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_document_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from document files."""
         # Simulate document processing
         return {
@@ -328,7 +328,7 @@ class IntelligentDataIngestion:
             "sections": ["Introduction", "Main Content", "Conclusion"],
         }
 
-    async def _extract_json_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_json_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from JSON files."""
         # Simulate JSON processing
         return {
@@ -338,7 +338,7 @@ class IntelligentDataIngestion:
             "record_count": 1,
         }
 
-    async def _extract_presentation_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_presentation_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from presentation files."""
         # Simulate presentation processing
         return {
@@ -351,7 +351,7 @@ class IntelligentDataIngestion:
             "text_content": "Combined slide text content",
         }
 
-    async def _extract_generic_content(self, source: DataSource) -> Dict[str, Any]:
+    async def _extract_generic_content(self, source: DataSource) -> dict[str, Any]:
         """Extract content from generic files."""
         return {
             "type": "generic",
@@ -360,8 +360,8 @@ class IntelligentDataIngestion:
         }
 
     async def _generate_metadata_suggestions(
-        self, source: DataSource, content_data: Dict[str, Any]
-    ) -> List[MetadataTag]:
+        self, source: DataSource, content_data: dict[str, Any]
+    ) -> list[MetadataTag]:
         """Generate AI-powered metadata suggestions."""
         suggestions = []
 
@@ -424,9 +424,9 @@ class IntelligentDataIngestion:
     async def _handle_interactive_metadata(
         self,
         source: DataSource,
-        ai_suggestions: List[MetadataTag],
-        user_metadata: Optional[Dict[str, Any]],
-    ) -> List[MetadataTag]:
+        ai_suggestions: list[MetadataTag],
+        user_metadata: dict[str, Any] | None,
+    ) -> list[MetadataTag]:
         """Handle interactive metadata refinement."""
         final_metadata = []
 
@@ -460,8 +460,8 @@ class IntelligentDataIngestion:
         return final_metadata
 
     async def _auto_apply_metadata(
-        self, ai_suggestions: List[MetadataTag], user_metadata: Optional[Dict[str, Any]]
-    ) -> List[MetadataTag]:
+        self, ai_suggestions: list[MetadataTag], user_metadata: dict[str, Any] | None
+    ) -> list[MetadataTag]:
         """Automatically apply metadata without user interaction."""
         final_metadata = []
 
@@ -486,8 +486,8 @@ class IntelligentDataIngestion:
         return final_metadata
 
     async def _create_content_chunks(
-        self, content_data: Dict[str, Any], metadata: List[MetadataTag]
-    ) -> List[Dict[str, Any]]:
+        self, content_data: dict[str, Any], metadata: list[MetadataTag]
+    ) -> list[dict[str, Any]]:
         """Create content chunks optimized for vectorization."""
         chunks = []
 
@@ -535,8 +535,8 @@ class IntelligentDataIngestion:
         return chunks
 
     async def _generate_and_store_embeddings(
-        self, chunks: List[Dict[str, Any]], source: DataSource
-    ) -> Dict[str, Any]:
+        self, chunks: list[dict[str, Any]], source: DataSource
+    ) -> dict[str, Any]:
         """Generate embeddings and store in Pinecone."""
         # Simulate embedding generation and Pinecone storage
         index_name = f"sophia-ai-{source.format}-{datetime.now().strftime('%Y%m')}"
@@ -555,10 +555,10 @@ class IntelligentDataIngestion:
 
     async def _store_in_snowflake(
         self,
-        content_data: Dict[str, Any],
-        metadata: List[MetadataTag],
+        content_data: dict[str, Any],
+        metadata: list[MetadataTag],
         source: DataSource,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Store structured data in Snowflake."""
         # Simulate Snowflake storage
         table_name = f"SOPHIA_AI.INGESTED_DATA.{source.format.upper()}_{datetime.now().strftime('%Y%m%d')}"
@@ -587,17 +587,17 @@ class IntelligentDataIngestion:
                 }
             )
 
-    async def get_ingestion_status(self, source_id: str) -> Optional[Dict[str, Any]]:
+    async def get_ingestion_status(self, source_id: str) -> dict[str, Any] | None:
         """Get current ingestion status for a source."""
         return self.active_ingestions.get(source_id)
 
-    async def list_supported_formats(self) -> Dict[str, List[str]]:
+    async def list_supported_formats(self) -> dict[str, list[str]]:
         """Get list of supported file formats by category."""
         return self.supported_formats
 
     async def search_ingested_content(
-        self, query: str, filters: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, filters: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Search ingested content using semantic search."""
         # Simulate semantic search across ingested content
         # In production, this would query Pinecone and Snowflake

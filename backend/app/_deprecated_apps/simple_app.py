@@ -2,10 +2,11 @@
 Simple Sophia AI FastAPI App for Testing
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

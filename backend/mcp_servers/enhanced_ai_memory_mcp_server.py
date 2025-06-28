@@ -544,7 +544,7 @@ class EnhancedAiMemoryMCPServer:
         importance_score: float = 0.8,
         tags: List[str] = None,
         custom_metadata: Dict[str, Any] = None,
-        correlation_id: str = None
+        correlation_id: str = None,
     ) -> Dict[str, Any]:
         """Store Gong call insight with comprehensive validation and processing"""
         try:
@@ -554,57 +554,69 @@ class EnhancedAiMemoryMCPServer:
             )
             if not validation_result["valid"]:
                 return {"success": False, "error": validation_result["error"]}
-            
+
             # Process and enrich data
             enriched_data = await self._process_gong_insight_data(
                 participant_data, transcript_data, call_metadata, analysis_data
             )
-            
+
             # Generate memory content
             memory_content = await self._generate_gong_memory_content(
                 call_id, enriched_data, analysis_data
             )
-            
+
             # Store in AI Memory
             memory_id = await self._store_gong_memory(
-                memory_content, call_id, user_id, importance_score, tags, custom_metadata
+                memory_content,
+                call_id,
+                user_id,
+                importance_score,
+                tags,
+                custom_metadata,
             )
-            
+
             # Update analytics and correlations
             await self._update_gong_analytics(call_id, memory_id, correlation_id)
-            
+
             return self._format_gong_insight_response(memory_id, call_id, enriched_data)
-            
+
         except Exception as e:
             return self._handle_gong_insight_error(e, call_id)
 
     async def _validate_gong_insight_data(
-        self, call_id: str, participant_data: Dict, transcript_data: Dict, 
-        call_metadata: Dict, analysis_data: Dict
+        self,
+        call_id: str,
+        participant_data: Dict,
+        transcript_data: Dict,
+        call_metadata: Dict,
+        analysis_data: Dict,
     ) -> Dict[str, Any]:
         """Validate Gong insight data for completeness and format"""
         if not call_id or not isinstance(call_id, str):
             return {"valid": False, "error": "Invalid call_id"}
-        
+
         if not participant_data or not isinstance(participant_data, dict):
             return {"valid": False, "error": "Invalid participant_data"}
-        
+
         if not transcript_data or not isinstance(transcript_data, dict):
             return {"valid": False, "error": "Invalid transcript_data"}
-        
+
         # Additional validation logic here
         return {"valid": True}
 
     async def _process_gong_insight_data(
-        self, participant_data: Dict, transcript_data: Dict, 
-        call_metadata: Dict, analysis_data: Dict
+        self,
+        participant_data: Dict,
+        transcript_data: Dict,
+        call_metadata: Dict,
+        analysis_data: Dict,
     ) -> Dict[str, Any]:
         """Process and enrich Gong insight data"""
         enriched_data = {
             "participants": self._process_participants(participant_data),
             "transcript": self._process_transcript(transcript_data),
             "metadata": self._process_metadata(call_metadata),
-            "analysis": self._process_analysis(analysis_data)
+            "analysis": self._process_analysis(analysis_data),
         }
         return enriched_data
 
@@ -617,57 +629,63 @@ class EnhancedAiMemoryMCPServer:
             f"Participants: {len(enriched_data['participants'])}",
             f"Key Topics: {', '.join(analysis_data.get('topics', []))}",
             f"Sentiment: {analysis_data.get('sentiment', 'neutral')}",
-            f"Action Items: {len(analysis_data.get('action_items', []))}"
+            f"Action Items: {len(analysis_data.get('action_items', []))}",
         ]
-        return "
-".join(content_parts)
+        return "\n".join(content_parts)
 
     async def _store_gong_memory(
-        self, content: str, call_id: str, user_id: str, 
-        importance_score: float, tags: List[str], custom_metadata: Dict
+        self,
+        content: str,
+        call_id: str,
+        user_id: str,
+        importance_score: float,
+        tags: List[str],
+        custom_metadata: Dict,
     ) -> str:
         """Store processed Gong data in AI Memory"""
         memory_tags = ["gong_call", "sales_insight"] + (tags or [])
-        
+
         metadata = {
             "call_id": call_id,
             "source": "gong",
             "type": "call_insight",
-            **(custom_metadata or {})
+            **(custom_metadata or {}),
         }
-        
+
         return await self.store_memory(
             content=content,
             category=MemoryCategory.SALES_CALL_INSIGHT,
             tags=memory_tags,
             importance_score=importance_score,
-            metadata=metadata
+            metadata=metadata,
         )
 
-    async def _update_gong_analytics(self, call_id: str, memory_id: str, correlation_id: str):
+    async def _update_gong_analytics(
+        self, call_id: str, memory_id: str, correlation_id: str
+    ):
         """Update analytics and correlation tracking"""
         # Analytics update logic here
         pass
 
-    def _format_gong_insight_response(self, memory_id: str, call_id: str, enriched_data: Dict) -> Dict[str, Any]:
+    def _format_gong_insight_response(
+        self, memory_id: str, call_id: str, enriched_data: Dict
+    ) -> Dict[str, Any]:
         """Format the final response for Gong insight storage"""
         return {
             "success": True,
             "memory_id": memory_id,
             "call_id": call_id,
-            "participants_processed": len(enriched_data['participants']),
-            "transcript_length": len(enriched_data['transcript']),
-            "stored_at": datetime.utcnow().isoformat()
+            "participants_processed": len(enriched_data["participants"]),
+            "transcript_length": len(enriched_data["transcript"]),
+            "stored_at": datetime.utcnow().isoformat(),
         }
 
-    def _handle_gong_insight_error(self, error: Exception, call_id: str) -> Dict[str, Any]:
+    def _handle_gong_insight_error(
+        self, error: Exception, call_id: str
+    ) -> Dict[str, Any]:
         """Handle errors in Gong insight processing"""
         logger.error(f"Error storing Gong insight for call {call_id}: {error}")
-        return {
-            "success": False,
-            "error": str(error),
-            "call_id": call_id
-        }
+        return {"success": False, "error": str(error), "call_id": call_id}
 
     def _process_participants(self, participant_data: Dict) -> List[Dict]:
         """Process participant data"""
@@ -684,6 +702,7 @@ class EnhancedAiMemoryMCPServer:
     def _process_analysis(self, analysis_data: Dict) -> Dict:
         """Process analysis data"""
         return analysis_data
+
     async def recall_gong_call_insights(
         self,
         query: str,
@@ -899,7 +918,7 @@ class EnhancedAiMemoryMCPServer:
             if key_phrases:
                 content_parts.append(f"Key Phrases: {', '.join(key_phrases)}")
 
-            full_content = " | ".join(content_parts)
+            full_content = "\n".join(content_parts)
 
             # Generate embedding
             embedding = await self.get_embedding(full_content)
@@ -1147,22 +1166,26 @@ class EnhancedAiMemoryMCPServer:
                                     row["CALLS_WITH_SUMMARIES"]
                                 ),
                                 "calls_with_topics": int(row["CALLS_WITH_TOPICS"]),
-                                "avg_sentiment_score": float(row["AVG_SENTIMENT_SCORE"])
-                                if pd.notna(row["AVG_SENTIMENT_SCORE"])
-                                else None,
-                                "latest_ai_memory_update": row[
-                                    "LATEST_AI_MEMORY_UPDATE"
-                                ].isoformat()
-                                if pd.notna(row["LATEST_AI_MEMORY_UPDATE"])
-                                else None,
+                                "avg_sentiment_score": (
+                                    float(row["AVG_SENTIMENT_SCORE"])
+                                    if pd.notna(row["AVG_SENTIMENT_SCORE"])
+                                    else None
+                                ),
+                                "latest_ai_memory_update": (
+                                    row["LATEST_AI_MEMORY_UPDATE"].isoformat()
+                                    if pd.notna(row["LATEST_AI_MEMORY_UPDATE"])
+                                    else None
+                                ),
                                 "embedding_coverage_percent": round(
                                     (
-                                        row["CALLS_WITH_EMBEDDINGS"]
-                                        / row["TOTAL_CALLS"]
-                                        * 100
-                                    )
-                                    if row["TOTAL_CALLS"] > 0
-                                    else 0,
+                                        (
+                                            row["CALLS_WITH_EMBEDDINGS"]
+                                            / row["TOTAL_CALLS"]
+                                            * 100
+                                        )
+                                        if row["TOTAL_CALLS"] > 0
+                                        else 0
+                                    ),
                                     1,
                                 ),
                             }
@@ -1196,12 +1219,14 @@ class EnhancedAiMemoryMCPServer:
                                 ),
                                 "embedding_coverage_percent": round(
                                     (
-                                        row["TRANSCRIPTS_WITH_EMBEDDINGS"]
-                                        / row["TOTAL_TRANSCRIPTS"]
-                                        * 100
-                                    )
-                                    if row["TOTAL_TRANSCRIPTS"] > 0
-                                    else 0,
+                                        (
+                                            row["TRANSCRIPTS_WITH_EMBEDDINGS"]
+                                            / row["TOTAL_TRANSCRIPTS"]
+                                            * 100
+                                        )
+                                        if row["TOTAL_TRANSCRIPTS"] > 0
+                                        else 0
+                                    ),
                                     1,
                                 ),
                             }
@@ -1228,16 +1253,16 @@ class EnhancedAiMemoryMCPServer:
                                     row["MEMORIES_WITH_EMBEDDINGS"]
                                 ),
                                 "unique_categories": int(row["UNIQUE_CATEGORIES"]),
-                                "latest_memory_created": row[
-                                    "LATEST_MEMORY_CREATED"
-                                ].isoformat()
-                                if pd.notna(row["LATEST_MEMORY_CREATED"])
-                                else None,
-                                "latest_memory_updated": row[
-                                    "LATEST_MEMORY_UPDATED"
-                                ].isoformat()
-                                if pd.notna(row["LATEST_MEMORY_UPDATED"])
-                                else None,
+                                "latest_memory_created": (
+                                    row["LATEST_MEMORY_CREATED"].isoformat()
+                                    if pd.notna(row["LATEST_MEMORY_CREATED"])
+                                    else None
+                                ),
+                                "latest_memory_updated": (
+                                    row["LATEST_MEMORY_UPDATED"].isoformat()
+                                    if pd.notna(row["LATEST_MEMORY_UPDATED"])
+                                    else None
+                                ),
                             }
 
                 except Exception as e:

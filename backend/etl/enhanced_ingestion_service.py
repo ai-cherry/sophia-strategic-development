@@ -1,14 +1,15 @@
 # File: backend/etl/enhanced_ingestion_service.py
 
-from typing import Dict, List, Any
 import asyncio
+import logging
 from datetime import datetime
+from typing import Any
+
 from backend.etl.estuary.estuary_configuration_manager import (
     EnhancedEstuaryManager,
     SourceType,
 )
 from backend.services.semantic_layer_service import SemanticLayerService
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class EnhancedIngestionService:
             logger.error(f"Failed to setup enhanced pipelines: {e}")
             return False
 
-    async def _setup_enhanced_connection(self, config: Dict[str, Any]) -> bool:
+    async def _setup_enhanced_connection(self, config: dict[str, Any]) -> bool:
         """Setup individual enhanced connection with quality rules"""
         try:
             # Create or update Estuary connection
@@ -109,7 +110,7 @@ class EnhancedIngestionService:
             )
             return False
 
-    async def _create_quality_procedures(self, config: Dict[str, Any]):
+    async def _create_quality_procedures(self, config: dict[str, Any]):
         """Placeholder for creating data quality stored procedures in Snowflake."""
         logger.info(
             f"Placeholder: Creating data quality procedures for schema {config['schema']}"
@@ -118,12 +119,12 @@ class EnhancedIngestionService:
         # for each quality rule, which can be run by Snowflake tasks.
         await asyncio.sleep(0.1)
 
-    def _get_crm_quality_rules(self) -> List[Dict[str, Any]]:
+    def _get_crm_quality_rules(self) -> list[dict[str, Any]]:
         """Define data quality rules for CRM data"""
         return [
             {
                 "rule_name": "email_format_validation",
-                "sql": "SELECT COUNT(*) FROM {table} WHERE email IS NOT NULL AND email NOT RLIKE '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\.[A-Za-z]{2,}$'",
+                "sql": "SELECT COUNT(*) FROM {table} WHERE email IS NOT NULL AND email NOT RLIKE '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,}$'",
                 "severity": "high",
                 "threshold": 0,
             },
@@ -141,7 +142,7 @@ class EnhancedIngestionService:
             },
         ]
 
-    def _get_slack_quality_rules(self) -> List[Dict[str, Any]]:
+    def _get_slack_quality_rules(self) -> list[dict[str, Any]]:
         """Define data quality rules for Slack data"""
         return [
             {
@@ -158,7 +159,7 @@ class EnhancedIngestionService:
             },
         ]
 
-    def _get_intercom_quality_rules(self) -> List[Dict[str, Any]]:
+    def _get_intercom_quality_rules(self) -> list[dict[str, Any]]:
         """Define data quality rules for Intercom data."""
         return [
             {
@@ -184,7 +185,7 @@ class EnhancedIngestionService:
             logger.info("OpenFlow is not enabled, skipping real-time triggers setup.")
         await asyncio.sleep(0.1)
 
-    async def run_quality_checks(self, schema_name: str) -> Dict[str, Any]:
+    async def run_quality_checks(self, schema_name: str) -> dict[str, Any]:
         """Run comprehensive data quality checks"""
         quality_results = {
             "schema": schema_name,

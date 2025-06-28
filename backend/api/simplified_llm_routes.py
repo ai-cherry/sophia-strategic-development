@@ -6,17 +6,18 @@ This module provides a single, unified API interface for all LLM operations
 using Portkey virtual keys for simplified management and enhanced reliability.
 """
 
+import json
+import logging
+from datetime import datetime
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional
-import logging
-import json
-from datetime import datetime
 
 from backend.services.simplified_portkey_service import (
-    SophiaLLM,
     SimplifiedLLMRequest,
+    SophiaLLM,
     TaskType,
 )
 
@@ -36,7 +37,7 @@ class ChatRequest(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Temperature")
     stream: bool = Field(default=False, description="Enable streaming")
     user_id: str = Field(default="anonymous", description="User identifier")
-    context: Optional[Dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None, description="Additional context"
     )
 
@@ -51,7 +52,7 @@ class ChatResponse(BaseModel):
     processing_time_ms: int
     task_type: str
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
     timestamp: str
 
 
@@ -59,9 +60,7 @@ class BusinessAnalysisRequest(BaseModel):
     """Business analysis request"""
 
     query: str = Field(..., description="Business query")
-    context: Optional[Dict[str, Any]] = Field(
-        default=None, description="Business context"
-    )
+    context: dict[str, Any] | None = Field(default=None, description="Business context")
     include_recommendations: bool = Field(
         default=True, description="Include recommendations"
     )
@@ -89,7 +88,7 @@ class LLMStatus(BaseModel):
     portkey_connected: bool
     virtual_key_configured: bool
     last_health_check: str
-    supported_models: List[str]
+    supported_models: list[str]
     cost_tracking_enabled: bool
 
 

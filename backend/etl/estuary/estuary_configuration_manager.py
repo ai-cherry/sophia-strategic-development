@@ -13,22 +13,23 @@ Current size: 867 lines
 
 Recommended decomposition:
 - estuary_configuration_manager_core.py - Core functionality
-- estuary_configuration_manager_utils.py - Utility functions  
+- estuary_configuration_manager_utils.py - Utility functions
 - estuary_configuration_manager_models.py - Data models
 - estuary_configuration_manager_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-from datetime import datetime
-from typing import Dict, List, Optional, Any
+import asyncio
+import random
+import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
 import aiohttp
 import structlog
-import asyncio
-import time
-import random
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -94,8 +95,8 @@ class DataQualityMetrics:
     data_type_violations: int = 0
     business_rule_violations: int = 0
     quality_score: float = 0.0
-    validation_timestamp: Optional[datetime] = None
-    issues: List[str] = field(default_factory=list)
+    validation_timestamp: datetime | None = None
+    issues: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -104,13 +105,13 @@ class EstuaryOperationResult:
 
     status: EstuaryOperationStatus
     operation_type: str
-    resource_id: Optional[str] = None
-    execution_time: Optional[float] = None
-    error_type: Optional[ErrorType] = None
-    error_message: Optional[str] = None
+    resource_id: str | None = None
+    execution_time: float | None = None
+    error_type: ErrorType | None = None
+    error_message: str | None = None
     retry_count: int = 0
-    data_quality: Optional[DataQualityMetrics] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    data_quality: DataQualityMetrics | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -119,8 +120,8 @@ class EnhancedEstuaryManager:
 
     def __init__(self, environment: str = "dev"):
         self.environment = environment
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.cortex_service: Optional[SnowflakeCortexService] = None
+        self.session: aiohttp.ClientSession | None = None
+        self.cortex_service: SnowflakeCortexService | None = None
 
         # Configuration
         self.estuary_config = self._load_estuary_config()
@@ -132,7 +133,7 @@ class EnhancedEstuaryManager:
         self.retry_config = RetryConfig()
 
         # Operation tracking
-        self.operation_history: List[EstuaryOperationResult] = []
+        self.operation_history: list[EstuaryOperationResult] = []
         self.health_status = {"last_check": None, "status": "unknown"}
 
         # Estuary Flow connector definitions
@@ -149,7 +150,7 @@ class EnhancedEstuaryManager:
             },
         }
 
-    def _load_estuary_config(self) -> Dict[str, Any]:
+    def _load_estuary_config(self) -> dict[str, Any]:
         """Load Estuary configuration from Pulumi ESC"""
         return {
             "base_url": get_config_value("estuary_server_url", "http://localhost:8000"),
@@ -158,7 +159,7 @@ class EnhancedEstuaryManager:
             "workspace_id": get_config_value("estuary_workspace_id", "default"),
         }
 
-    def _load_gong_config(self) -> Dict[str, Any]:
+    def _load_gong_config(self) -> dict[str, Any]:
         """Load Gong configuration from Pulumi ESC"""
         return {
             "access_key": get_config_value("gong_access_key"),
@@ -170,7 +171,7 @@ class EnhancedEstuaryManager:
             "call_types": get_config_value("gong_call_types", ["inbound", "outbound"]),
         }
 
-    def _load_asana_config(self) -> Dict[str, Any]:
+    def _load_asana_config(self) -> dict[str, Any]:
         """Load Asana configuration from Pulumi ESC"""
         return {
             "personal_access_token": get_config_value("asana_api_token"),
@@ -183,7 +184,7 @@ class EnhancedEstuaryManager:
             "team_gids": get_config_value("asana_team_gids", []),
         }
 
-    def _load_snowflake_config(self) -> Dict[str, Any]:
+    def _load_snowflake_config(self) -> dict[str, Any]:
         """Load Snowflake configuration from Pulumi ESC"""
         return {
             "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
@@ -302,8 +303,8 @@ class EnhancedEstuaryManager:
         )
 
     async def _make_estuary_request(
-        self, method: str, endpoint: str, data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, method: str, endpoint: str, data: dict | None = None
+    ) -> dict[str, Any]:
         """Make authenticated request to Estuary Flow API"""
         url = f"{self.estuary_config['base_url']}/api/v1/{endpoint}"
 
@@ -533,7 +534,7 @@ class EnhancedEstuaryManager:
                 error_message=str(e),
             )
 
-    async def setup_complete_asana_pipeline(self) -> Dict[str, EstuaryOperationResult]:
+    async def setup_complete_asana_pipeline(self) -> dict[str, EstuaryOperationResult]:
         """Set up complete Asana data pipeline end-to-end"""
         try:
             logger.info("🚀 Setting up complete Asana data pipeline")
@@ -647,7 +648,7 @@ class EnhancedEstuaryManager:
             # Query raw Asana data from Snowflake
             quality_queries = {
                 "projects": """
-                    SELECT 
+                    SELECT
                         COUNT(*) as total_records,
                         COUNT(CASE WHEN _estuary_data:gid IS NOT NULL THEN 1 END) as valid_gids,
                         COUNT(CASE WHEN _estuary_data:name IS NOT NULL THEN 1 END) as valid_names,
@@ -655,7 +656,7 @@ class EnhancedEstuaryManager:
                     FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS
                 """,
                 "tasks": """
-                    SELECT 
+                    SELECT
                         COUNT(*) as total_records,
                         COUNT(CASE WHEN _estuary_data:gid IS NOT NULL THEN 1 END) as valid_gids,
                         COUNT(CASE WHEN _estuary_data:name IS NOT NULL THEN 1 END) as valid_names,
@@ -716,7 +717,7 @@ class EnhancedEstuaryManager:
                 issues=[f"Validation failed: {str(e)}"],
             )
 
-    async def perform_health_check(self) -> Dict[str, Any]:
+    async def perform_health_check(self) -> dict[str, Any]:
         """Perform comprehensive health check of Estuary pipelines"""
         try:
             logger.info("🏥 Performing Estuary health check")
@@ -775,13 +776,13 @@ class EnhancedEstuaryManager:
 
     # CLI SUPPORT METHODS
 
-    def get_supported_sources(self) -> List[str]:
+    def get_supported_sources(self) -> list[str]:
         """Get list of supported source types"""
         return [source.value for source in SourceType]
 
     async def setup_source_pipeline(
         self, source_type: str
-    ) -> Dict[str, EstuaryOperationResult]:
+    ) -> dict[str, EstuaryOperationResult]:
         """Generic method to setup pipeline for any supported source"""
         source_enum = SourceType(source_type.lower())
 

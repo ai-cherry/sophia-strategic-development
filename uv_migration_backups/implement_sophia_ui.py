@@ -26,14 +26,13 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-import sys
-import json
-import subprocess
 import argparse
+import json
 import logging
-from pathlib import Path
-from typing import List
+import subprocess
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -807,7 +806,7 @@ async def dashboard_health():
 
         # Read existing package.json or create new one
         if package_json_path.exists():
-            with open(package_json_path, "r") as f:
+            with open(package_json_path) as f:
                 package_data = json.load(f)
         else:
             package_data = {
@@ -860,7 +859,7 @@ async def dashboard_health():
         with open(package_json_path, "w") as f:
             json.dump(package_data, f, indent=2)
 
-    def _run_command(self, command: List[str], cwd: Path, description: str) -> bool:
+    def _run_command(self, command: list[str], cwd: Path, description: str) -> bool:
         """Run a shell command and return success status."""
         logger.info(f"Running: {description}")
         try:

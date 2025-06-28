@@ -7,9 +7,9 @@ Sophia AI system. It encapsulates business rules related to calls.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
-from backend.domain.value_objects.sentiment import Sentiment
+
 from backend.domain.value_objects.call_participant import CallParticipant
+from backend.domain.value_objects.sentiment import Sentiment
 
 
 @dataclass
@@ -26,12 +26,12 @@ class Call:
     title: str
     scheduled_at: datetime
     duration_seconds: int
-    participants: List[CallParticipant]
-    transcript: Optional[str] = None
-    sentiment: Optional[Sentiment] = None
-    talk_ratio: Optional[float] = None  # Ratio of customer vs sales rep talking
-    next_steps: Optional[List[str]] = None
-    topics: Optional[List[str]] = None
+    participants: list[CallParticipant]
+    transcript: str | None = None
+    sentiment: Sentiment | None = None
+    talk_ratio: float | None = None  # Ratio of customer vs sales rep talking
+    next_steps: list[str] | None = None
+    topics: list[str] | None = None
 
     def __post_init__(self):
         """Initialize default values."""
@@ -99,7 +99,7 @@ class Call:
 
         return score
 
-    def get_risk_indicators(self) -> List[str]:
+    def get_risk_indicators(self) -> list[str]:
         """
         Identify risk indicators based on call characteristics.
 

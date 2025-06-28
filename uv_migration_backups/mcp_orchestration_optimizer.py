@@ -23,11 +23,11 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-import os
 import json
+import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 
 class MCPOrchestrationOptimizer:
@@ -66,7 +66,7 @@ class MCPOrchestrationOptimizer:
                 docker_compose_path, self.backup_dir / "docker-compose.yml.backup"
             )
 
-            with open(docker_compose_path, "r") as f:
+            with open(docker_compose_path) as f:
                 content = f.read()
 
             # Remove claude-mcp service block (lines 200-207 approximately)
@@ -105,7 +105,7 @@ class MCPOrchestrationOptimizer:
                 backup_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(config_path, backup_path)
 
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     config = json.load(f)
 
                 # Remove claude server references
@@ -139,7 +139,7 @@ class MCPOrchestrationOptimizer:
         if cursorrules_path.exists():
             shutil.copy(cursorrules_path, self.backup_dir / ".cursorrules.backup")
 
-            with open(cursorrules_path, "r") as f:
+            with open(cursorrules_path) as f:
                 content = f.read()
 
             # Update Claude references to point to Sophia Intelligence

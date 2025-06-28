@@ -11,7 +11,7 @@ Current size: 631 lines
 
 Recommended decomposition:
 - progressive_autonomy_manager_core.py - Core functionality
-- progressive_autonomy_manager_utils.py - Utility functions  
+- progressive_autonomy_manager_utils.py - Utility functions
 - progressive_autonomy_manager_models.py - Data models
 - progressive_autonomy_manager_handlers.py - Request handlers
 
@@ -19,10 +19,10 @@ TODO: Implement file decomposition
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 
@@ -73,7 +73,7 @@ class ActionRequest:
     confidence_score: float
     impact_score: float
     risk_score: float
-    context: Dict[str, Any]
+    context: dict[str, Any]
     recommended_action: str
     timestamp: datetime
 
@@ -114,7 +114,7 @@ class ProgressiveAutonomyManager:
         self.user_patterns = {}
         self.action_history = []
 
-    def _initialize_autonomy_rules(self) -> Dict[ActionCategory, AutonomyRule]:
+    def _initialize_autonomy_rules(self) -> dict[ActionCategory, AutonomyRule]:
         """Initialize default autonomy rules for each action category"""
         return {
             ActionCategory.CUSTOMER_OUTREACH: AutonomyRule(
@@ -304,7 +304,7 @@ class ProgressiveAutonomyManager:
         except Exception as e:
             logger.error(f"Error updating approval pattern: {e}")
 
-    async def get_autonomy_dashboard(self) -> Dict[str, Any]:
+    async def get_autonomy_dashboard(self) -> dict[str, Any]:
         """Get comprehensive autonomy management dashboard"""
         try:
             dashboard_data = {
@@ -344,7 +344,7 @@ class ProgressiveAutonomyManager:
         try:
             # Query Snowflake for historical success rates
             sql_query = f"""
-            SELECT 
+            SELECT
                 COUNT(CASE WHEN success = true THEN 1 END) / COUNT(*) as success_rate
             FROM AI_USAGE_ANALYTICS.AUTONOMY_ACTIONS
             WHERE category = '{category.value}'
@@ -478,7 +478,7 @@ class ProgressiveAutonomyManager:
                     )
 
     # Dashboard and reporting methods
-    async def _calculate_overall_autonomy_score(self) -> Dict[str, float]:
+    async def _calculate_overall_autonomy_score(self) -> dict[str, float]:
         """Calculate overall autonomy maturity score"""
         total_score = 0
         category_count = len(self.autonomy_rules)
@@ -514,7 +514,7 @@ class ProgressiveAutonomyManager:
         else:
             return "D"
 
-    def _get_category_autonomy_summary(self) -> List[Dict[str, Any]]:
+    def _get_category_autonomy_summary(self) -> list[dict[str, Any]]:
         """Get summary of autonomy levels by category"""
         summary = []
 
@@ -531,7 +531,7 @@ class ProgressiveAutonomyManager:
 
         return summary
 
-    def _get_approval_patterns_summary(self) -> List[Dict[str, Any]]:
+    def _get_approval_patterns_summary(self) -> list[dict[str, Any]]:
         """Get summary of user approval patterns"""
         summary = []
 
@@ -586,7 +586,7 @@ class ProgressiveAutonomyManager:
             risk_assessment="Unknown",
         )
 
-    def _get_fallback_dashboard(self) -> Dict[str, Any]:
+    def _get_fallback_dashboard(self) -> dict[str, Any]:
         """Fallback dashboard when data unavailable"""
         return {
             "overall_autonomy_score": {"score": 0.5, "percentage": 50, "grade": "C"},
@@ -604,7 +604,7 @@ class ProgressiveAutonomyManager:
         }
 
     # Placeholder methods for future implementation
-    async def _get_action_request(self, action_id: str) -> Optional[ActionRequest]:
+    async def _get_action_request(self, action_id: str) -> ActionRequest | None:
         """Get action request by ID"""
         # TODO: Implement action request retrieval
         return None
@@ -616,22 +616,22 @@ class ProgressiveAutonomyManager:
         # TODO: Implement pattern storage
         pass
 
-    async def _get_recent_decisions(self, limit: int) -> List[Dict[str, Any]]:
+    async def _get_recent_decisions(self, limit: int) -> list[dict[str, Any]]:
         """Get recent autonomy decisions"""
         # TODO: Implement recent decisions retrieval
         return []
 
-    async def _get_autonomy_progression_trends(self) -> Dict[str, Any]:
+    async def _get_autonomy_progression_trends(self) -> dict[str, Any]:
         """Get autonomy progression trends over time"""
         # TODO: Implement trend analysis
         return {"trend": "stable", "direction": "improving"}
 
-    async def _get_performance_metrics(self) -> Dict[str, Any]:
+    async def _get_performance_metrics(self) -> dict[str, Any]:
         """Get performance metrics for autonomous actions"""
         # TODO: Implement performance metrics
         return {"success_rate": 0.85, "efficiency_gain": 0.40}
 
-    async def _get_autonomy_recommendations(self) -> List[str]:
+    async def _get_autonomy_recommendations(self) -> list[str]:
         """Get recommendations for autonomy improvements"""
         # TODO: Implement intelligent recommendations
         return [

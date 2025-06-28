@@ -4,12 +4,11 @@ Sophia AI Infrastructure Modernization - Kickoff Script
 Executes Phase 1 cleanup and preparation tasks
 """
 
-import json
-from pathlib import Path
-from datetime import datetime
-from typing import List
 import asyncio
+import json
 import logging
+from datetime import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -95,7 +94,7 @@ class InfrastructureModernizationKickoff:
 
     def _has_syntax_errors(self, file_path: Path) -> bool:
         """Check if a Python file has syntax errors"""
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             try:
                 compile(f.read(), str(file_path), "exec")
             except Exception:
@@ -146,7 +145,7 @@ class InfrastructureModernizationKickoff:
         # Analyze workflow purposes
         workflow_analysis = {}
         for workflow in self.workflow_files:
-            with open(workflow, "r") as f:
+            with open(workflow) as f:
                 content = f.read()
                 workflow_analysis[workflow.name] = {
                     "triggers": self._extract_workflow_triggers(content),
@@ -165,7 +164,7 @@ class InfrastructureModernizationKickoff:
 
         logger.info(f"Found {len(self.workflow_files)} workflows to consolidate")
 
-    def _extract_workflow_triggers(self, content: str) -> List[str]:
+    def _extract_workflow_triggers(self, content: str) -> list[str]:
         """Extract workflow triggers from YAML content"""
         triggers = []
         if "push:" in content:
@@ -205,7 +204,7 @@ class InfrastructureModernizationKickoff:
         }
 
         for esc_file in esc_files:
-            with open(esc_file, "r") as f:
+            with open(esc_file) as f:
                 content = f.read()
                 esc_analysis["environments"].append(esc_file.stem)
 

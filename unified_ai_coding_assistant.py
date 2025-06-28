@@ -5,13 +5,14 @@ Natural language interface to ALL AI coding solutions, agents, and tools
 """
 
 import asyncio
-import subprocess
-import os
-import sys
-import httpx
-from typing import Dict, Any
-from datetime import datetime
 import logging
+import os
+import subprocess
+import sys
+from datetime import datetime
+from typing import Any
+
+import httpx
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -240,7 +241,7 @@ class UnifiedAICodingAssistant:
         print("   • 'Scan my code for security vulnerabilities'")
         print("\n🛑 Type 'exit' to quit\n")
 
-    async def process_request(self, user_input: str) -> Dict[str, Any]:
+    async def process_request(self, user_input: str) -> dict[str, Any]:
         """Process natural language request and route to appropriate solution"""
 
         # Detect intent
@@ -293,7 +294,7 @@ class UnifiedAICodingAssistant:
             return max(intent_scores.items(), key=lambda x: x[1])[0]
         return "general"
 
-    async def _handle_coding_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_coding_request(self, user_input: str) -> dict[str, Any]:
         """Handle coding-related requests"""
         print("🔧 Routing to coding solutions...")
 
@@ -305,7 +306,7 @@ class UnifiedAICodingAssistant:
         else:
             return await self._call_sophia_main_chat(user_input)
 
-    async def _handle_infrastructure_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_infrastructure_request(self, user_input: str) -> dict[str, Any]:
         """Handle infrastructure-related requests"""
         print("🏗️ Routing to infrastructure solutions...")
 
@@ -334,20 +335,20 @@ class UnifiedAICodingAssistant:
                 "success": False,
             }
 
-    async def _handle_database_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_database_request(self, user_input: str) -> dict[str, Any]:
         """Handle database-related requests"""
         print("🗃️ Routing to database solutions...")
 
         # Route to Snowflake admin agent or main chat
         return await self._call_sophia_main_chat(f"Snowflake: {user_input}")
 
-    async def _handle_business_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_business_request(self, user_input: str) -> dict[str, Any]:
         """Handle business intelligence requests"""
         print("📊 Routing to business intelligence solutions...")
 
         return await self._call_sophia_main_chat(f"Business Intelligence: {user_input}")
 
-    async def _handle_design_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_design_request(self, user_input: str) -> dict[str, Any]:
         """Handle design-related requests"""
         print("🎨 Routing to design solutions...")
 
@@ -373,19 +374,19 @@ class UnifiedAICodingAssistant:
 
         return await self._call_sophia_main_chat(f"Design: {user_input}")
 
-    async def _handle_project_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_project_request(self, user_input: str) -> dict[str, Any]:
         """Handle project management requests"""
         print("📋 Routing to project management solutions...")
 
         return await self._call_sophia_main_chat(f"Project Management: {user_input}")
 
-    async def _handle_communication_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_communication_request(self, user_input: str) -> dict[str, Any]:
         """Handle communication requests"""
         print("💬 Routing to communication solutions...")
 
         return await self._call_sophia_main_chat(f"Slack: {user_input}")
 
-    async def _handle_memory_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_memory_request(self, user_input: str) -> dict[str, Any]:
         """Handle AI memory requests"""
         print("🧠 Routing to AI memory solutions...")
 
@@ -396,7 +397,7 @@ class UnifiedAICodingAssistant:
 
         return await self._call_sophia_main_chat(f"Memory: {user_input}")
 
-    async def _handle_quality_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_quality_request(self, user_input: str) -> dict[str, Any]:
         """Handle code quality requests"""
         print("🔍 Routing to code quality solutions...")
 
@@ -407,13 +408,13 @@ class UnifiedAICodingAssistant:
 
         return await self._call_sophia_main_chat(f"Code Quality: {user_input}")
 
-    async def _handle_general_request(self, user_input: str) -> Dict[str, Any]:
+    async def _handle_general_request(self, user_input: str) -> dict[str, Any]:
         """Handle general requests"""
         print("🤖 Routing to general AI assistant...")
 
         return await self._call_sophia_main_chat(user_input)
 
-    async def _call_claude_cli(self, user_input: str) -> Dict[str, Any]:
+    async def _call_claude_cli(self, user_input: str) -> dict[str, Any]:
         """Call Claude CLI"""
         try:
             result = subprocess.run(
@@ -435,7 +436,7 @@ class UnifiedAICodingAssistant:
                 "success": False,
             }
 
-    async def _call_gemini_cli(self, user_input: str) -> Dict[str, Any]:
+    async def _call_gemini_cli(self, user_input: str) -> dict[str, Any]:
         """Call Gemini CLI"""
         try:
             result = subprocess.run(
@@ -461,7 +462,7 @@ class UnifiedAICodingAssistant:
                 "success": False,
             }
 
-    async def _call_sophia_main_chat(self, user_input: str) -> Dict[str, Any]:
+    async def _call_sophia_main_chat(self, user_input: str) -> dict[str, Any]:
         """Call main Sophia AI chat interface"""
         try:
             # Use the main Sophia AI backend API

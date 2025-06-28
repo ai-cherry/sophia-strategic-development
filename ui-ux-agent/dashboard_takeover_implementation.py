@@ -8,8 +8,9 @@ Based on gap analysis findings and strategic recommendations
 import asyncio
 import json
 import logging
-import requests
 from datetime import datetime
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -239,9 +240,11 @@ class DashboardTakeoverManager:
                     "file_id": "sophia_dashboard",
                     "node_id": target["component"].lower(),
                     "component_type": "react_component",
-                    "styling_approach": "glassmorphism"
-                    if target["enhancement_type"] == "glassmorphism_styling"
-                    else "tailwind",
+                    "styling_approach": (
+                        "glassmorphism"
+                        if target["enhancement_type"] == "glassmorphism_styling"
+                        else "tailwind"
+                    ),
                     "framework": "react_typescript",
                     "enhancement_target": target["component"],
                     "enhancement_type": target["enhancement_type"],

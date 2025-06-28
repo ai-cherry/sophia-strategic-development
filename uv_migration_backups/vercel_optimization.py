@@ -4,13 +4,13 @@ Sophia AI - Vercel Optimization & Monitoring
 Advanced Vercel deployment optimization, performance monitoring, and analytics
 """
 
+import asyncio
 import json
 import os
 import time
-from typing import Dict, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
-import asyncio
+
 import aiohttp
 
 
@@ -38,7 +38,7 @@ class DeploymentInfo:
     environment: str
     branch: str
     commit_sha: str
-    build_time: Optional[float] = None
+    build_time: float | None = None
 
 
 @dataclass
@@ -110,7 +110,7 @@ class VercelOptimizer:
             raise ValueError("VERCEL_ORG_ID not found in environment")
         return team_id
 
-    def _get_project_ids(self) -> Dict[str, str]:
+    def _get_project_ids(self) -> dict[str, str]:
         """Get project IDs for different environments."""
         return {
             "production": os.getenv("VERCEL_PROJECT_ID_SOPHIA_PROD", ""),
@@ -120,7 +120,7 @@ class VercelOptimizer:
 
     async def get_deployment_info(
         self, project_id: str, limit: int = 10
-    ) -> List[DeploymentInfo]:
+    ) -> list[DeploymentInfo]:
         """Get recent deployment information."""
         url = f"{self.base_url}/v6/deployments"
         params = {"projectId": project_id, "teamId": self.team_id, "limit": limit}
@@ -186,7 +186,7 @@ class VercelOptimizer:
                         bundle_size=int(1024 * 1024 * 2.5),  # ~2.5MB
                         load_time=load_time,
                     )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 print(f"Timeout accessing {deployment_url}")
                 return PerformanceMetrics(
                     first_contentful_paint=10.0,
@@ -198,7 +198,7 @@ class VercelOptimizer:
                     load_time=30.0,
                 )
 
-    def optimize_vercel_config(self) -> Dict:
+    def optimize_vercel_config(self) -> dict:
         """Generate optimized Vercel configuration."""
         optimized_config = {
             "version": 2,
@@ -300,7 +300,7 @@ class VercelOptimizer:
 
         return optimized_config
 
-    def setup_monitoring_alerts(self) -> List[MonitoringAlert]:
+    def setup_monitoring_alerts(self) -> list[MonitoringAlert]:
         """Setup comprehensive monitoring alerts."""
         slack_webhook = os.getenv("SLACK_WEBHOOK_URL", "")
 
@@ -339,7 +339,7 @@ class VercelOptimizer:
 
         return alerts
 
-    async def run_performance_audit(self, environment: str = "production") -> Dict:
+    async def run_performance_audit(self, environment: str = "production") -> dict:
         """Run comprehensive performance audit."""
         project_id = self.project_ids.get(environment)
         if not project_id:
@@ -468,7 +468,7 @@ class VercelOptimizer:
 
         return round(total_score, 1)
 
-    def _generate_recommendations(self, summary: Dict) -> List[str]:
+    def _generate_recommendations(self, summary: dict) -> list[str]:
         """Generate optimization recommendations based on performance data."""
         recommendations = []
 
@@ -514,7 +514,7 @@ class VercelOptimizer:
 
         return recommendations
 
-    async def generate_optimization_report(self) -> Dict:
+    async def generate_optimization_report(self) -> dict:
         """Generate comprehensive optimization report."""
         print("🚀 Generating Vercel Optimization Report")
         print("=" * 50)

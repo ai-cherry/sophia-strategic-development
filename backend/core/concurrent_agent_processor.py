@@ -17,8 +17,8 @@ PERFORMANCE IMPROVEMENTS:
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass, field
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +29,9 @@ class AgentTask:
 
     agent_id: str
     task_type: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     priority: int = 1
-    dependencies: Set[str] = field(default_factory=set)
+    dependencies: set[str] = field(default_factory=set)
     timeout: float = 30.0
     retry_count: int = 3
 
@@ -44,7 +44,7 @@ class AgentResult:
     task_type: str
     success: bool
     result: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     execution_time: float = 0.0
     retry_attempts: int = 0
 
@@ -59,10 +59,10 @@ class AgentPool:
 
     def __init__(self, max_agents_per_type: int = 5):
         self.max_agents_per_type = max_agents_per_type
-        self.agent_pools: Dict[str, List[Any]] = {}
-        self.active_agents: Dict[str, Set[Any]] = {}
-        self.agent_locks: Dict[str, asyncio.Lock] = {}
-        self._initialized_types: Set[str] = set()
+        self.agent_pools: dict[str, list[Any]] = {}
+        self.active_agents: dict[str, set[Any]] = {}
+        self.agent_locks: dict[str, asyncio.Lock] = {}
+        self._initialized_types: set[str] = set()
 
     async def get_agent(self, agent_type: str) -> Any:
         """Get an agent instance from the pool"""
@@ -191,8 +191,8 @@ class ConcurrentAgentProcessor:
         }
 
     async def process_agents_concurrently(
-        self, tasks: List[AgentTask]
-    ) -> List[AgentResult]:
+        self, tasks: list[AgentTask]
+    ) -> list[AgentResult]:
         """
         OPTIMIZED: Process multiple agent tasks concurrently
 
@@ -257,7 +257,7 @@ class ConcurrentAgentProcessor:
                 for task in tasks
             ]
 
-    async def _execute_task_batch(self, tasks: List[AgentTask]) -> List[AgentResult]:
+    async def _execute_task_batch(self, tasks: list[AgentTask]) -> list[AgentResult]:
         """Execute a batch of independent tasks concurrently"""
         if not tasks:
             return []
@@ -333,7 +333,7 @@ class ConcurrentAgentProcessor:
                 )
                 return result
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 last_error = f"Task timed out after {task.timeout}s"
                 logger.warning(
                     f"Attempt {attempt + 1} timed out for {task.agent_id}.{task.task_type}"
@@ -374,7 +374,7 @@ class ConcurrentAgentProcessor:
         method = getattr(agent, method_name)
         return await method(**task.parameters)
 
-    def _resolve_dependencies(self, tasks: List[AgentTask]) -> List[List[AgentTask]]:
+    def _resolve_dependencies(self, tasks: list[AgentTask]) -> list[list[AgentTask]]:
         """
         OPTIMIZED: Resolve task dependencies and create execution batches
 
@@ -427,7 +427,7 @@ class ConcurrentAgentProcessor:
             return True
         return False
 
-    def _update_circuit_breaker(self, results: List[AgentResult]):
+    def _update_circuit_breaker(self, results: list[AgentResult]):
         """Update circuit breaker based on execution results"""
         failed_count = sum(1 for r in results if not r.success)
 
@@ -459,7 +459,7 @@ class ConcurrentAgentProcessor:
         ):
             self.circuit_breaker["state"] = "open"
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get comprehensive performance metrics"""
         total_tasks = self.metrics["total_tasks"]
         success_rate = (
@@ -479,10 +479,15 @@ class ConcurrentAgentProcessor:
                 "success_rate": f"{success_rate:.1f}%",
                 "average_execution_time": f"{avg_execution_time:.2f}s",
                 "concurrent_executions": self.metrics["concurrent_executions"],
-                "agent_pool_efficiency": f"{self.metrics['agent_pool_hits'] / (self.metrics['agent_pool_hits'] + self.metrics['agent_pool_misses']) * 100:.1f}%"
-                if (self.metrics["agent_pool_hits"] + self.metrics["agent_pool_misses"])
-                > 0
-                else "0%",
+                "agent_pool_efficiency": (
+                    f"{self.metrics['agent_pool_hits'] / (self.metrics['agent_pool_hits'] + self.metrics['agent_pool_misses']) * 100:.1f}%"
+                    if (
+                        self.metrics["agent_pool_hits"]
+                        + self.metrics["agent_pool_misses"]
+                    )
+                    > 0
+                    else "0%"
+                ),
             },
             "circuit_breaker": {
                 "state": self.circuit_breaker["state"],
@@ -509,7 +514,7 @@ concurrent_processor = ConcurrentAgentProcessor()
 
 
 # Convenience functions for easy integration
-async def process_agents_concurrently(tasks: List[AgentTask]) -> List[AgentResult]:
+async def process_agents_concurrently(tasks: list[AgentTask]) -> list[AgentResult]:
     """
     Convenience function to process agent tasks concurrently
 
@@ -526,9 +531,9 @@ async def process_agents_concurrently(tasks: List[AgentTask]) -> List[AgentResul
 async def create_agent_task(
     agent_id: str,
     task_type: str,
-    parameters: Dict[str, Any],
+    parameters: dict[str, Any],
     priority: int = 1,
-    dependencies: Set[str] = None,
+    dependencies: set[str] = None,
 ) -> AgentTask:
     """Create an agent task with proper configuration"""
     return AgentTask(

@@ -4,13 +4,13 @@ Gemini CLI Provider for Sophia AI
 Provides free access to Gemini models through the CLI
 """
 
-import os
-import json
-import subprocess
 import asyncio
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+import json
 import logging
+import os
+import subprocess
+from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +39,11 @@ class GeminiCLIProvider:
     async def generate(
         self,
         prompt: str,
-        model: Optional[str] = None,
-        max_tokens: Optional[int] = None,
+        model: str | None = None,
+        max_tokens: int | None = None,
         temperature: float = 0.7,
-        system_prompt: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        system_prompt: str | None = None,
+    ) -> dict[str, Any]:
         """Generate response using Gemini CLI"""
 
         model = model or self.default_model
@@ -97,7 +97,7 @@ class GeminiCLIProvider:
             logger.error(f"Gemini generation error: {e}")
             return {"success": False, "error": str(e), "model": model}
 
-    async def count_tokens(self, text: str, model: Optional[str] = None) -> int:
+    async def count_tokens(self, text: str, model: str | None = None) -> int:
         """Count tokens for a given text"""
         model = model or self.default_model
 
@@ -121,7 +121,7 @@ class GeminiCLIProvider:
 
     async def process_large_document(
         self, document: str, operation: str = "summarize", chunk_size: int = 100000
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process large documents that exceed normal context limits"""
 
         token_count = await self.count_tokens(document)
@@ -149,7 +149,7 @@ class GeminiCLIProvider:
 
             return await self.generate(final_prompt, max_tokens=4000)
 
-    def _split_document(self, document: str, chunk_size: int) -> List[str]:
+    def _split_document(self, document: str, chunk_size: int) -> list[str]:
         """Split document into chunks"""
         words = document.split()
         chunks = []
@@ -162,7 +162,7 @@ class GeminiCLIProvider:
 
     async def analyze_code(
         self, code: str, language: str = "python", analysis_type: str = "review"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze code using Gemini"""
 
         prompt = f"""
@@ -186,7 +186,7 @@ Provide:
 
     async def web_fetch_and_summarize(
         self, url: str, fetch_content: str, summary_type: str = "comprehensive"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process web-fetched content"""
 
         prompt = f"""
@@ -203,7 +203,7 @@ Include:
 
         return await self.generate(prompt, max_tokens=2000)
 
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Get information about available models"""
 
         try:
@@ -266,8 +266,8 @@ class GeminiCLIModelRouter:
         return False
 
     async def route_request(
-        self, prompt: str, context: Dict[str, Any], **kwargs
-    ) -> Dict[str, Any]:
+        self, prompt: str, context: dict[str, Any], **kwargs
+    ) -> dict[str, Any]:
         """Route request to appropriate model"""
 
         context_size = len(prompt.split())
@@ -307,7 +307,7 @@ class GeminiCLIModelRouter:
                 "reason": "Not suitable for Gemini CLI",
             }
 
-    def get_usage_stats(self) -> Dict[str, Any]:
+    def get_usage_stats(self) -> dict[str, Any]:
         """Get usage statistics"""
         return {
             "gemini_cli_stats": self.usage_tracker,

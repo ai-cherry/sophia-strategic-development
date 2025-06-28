@@ -3,7 +3,8 @@ Analytics Service - Stub Implementation
 Provides basic analytics functionality
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -17,16 +18,16 @@ class AnalyticsService:
         self,
         session: AsyncSession,
         user_id: str,
-        project_id: Optional[str],
+        project_id: str | None,
         sprints: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get sprint velocity data"""
         # Stub implementation
         return []
 
     async def get_recent_activity(
         self, session: AsyncSession, user_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get recent activity"""
         # Stub implementation
         return []
@@ -35,23 +36,23 @@ class AnalyticsService:
         self,
         session: AsyncSession,
         user_id: str,
-        department: Optional[str],
-        quarter: Optional[str],
-    ) -> Dict[str, Any]:
+        department: str | None,
+        quarter: str | None,
+    ) -> dict[str, Any]:
         """Get department OKRs"""
         # Stub implementation
         return {"departments": [], "okrs": []}
 
     async def get_cross_functional_insights(
         self, session: AsyncSession, user_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get cross-functional insights"""
         # Stub implementation
         return {"insights": [], "collaboration_score": 0.0}
 
     async def get_resource_allocation(
         self, session: AsyncSession, user_id: str, view: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get resource allocation data"""
         # Stub implementation
         return {"allocation": [], "utilization": 0.0}

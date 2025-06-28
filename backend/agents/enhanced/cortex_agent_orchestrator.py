@@ -1,18 +1,19 @@
 # File: backend/agents/enhanced/cortex_agent_orchestrator.py
 
-from typing import Dict, List, Any, Optional
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
+
 from backend.agents.core.base_agent import BaseAgent
-from backend.services.snowflake_intelligence_service import SnowflakeIntelligenceService
-from backend.mcp_servers.mcp_client import MCPClient
-import logging
+from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
+from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
 
 # Import specialized agents
 from backend.agents.specialized.sales_intelligence_agent import SalesIntelligenceAgent
-from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
-from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
+from backend.mcp_servers.mcp_client import MCPClient
+from backend.services.snowflake_intelligence_service import SnowflakeIntelligenceService
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +36,10 @@ class AgentTask:
 
     task_id: str
     task_type: str
-    parameters: Dict[str, Any]
-    required_capabilities: List[AgentCapability]
+    parameters: dict[str, Any]
+    required_capabilities: list[AgentCapability]
     priority: int = 1
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -51,7 +52,7 @@ class AgentResult:
     result: Any
     execution_time: float
     confidence_score: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class CortexAgentOrchestrator:
@@ -63,8 +64,8 @@ class CortexAgentOrchestrator:
     def __init__(self):
         self.intelligence_service = SnowflakeIntelligenceService()
         self.mcp_client = MCPClient()
-        self.registered_agents: Dict[str, BaseAgent] = {}
-        self.active_workflows: Dict[str, Any] = {}
+        self.registered_agents: dict[str, BaseAgent] = {}
+        self.active_workflows: dict[str, Any] = {}
         self.agent_classes = {
             "SalesIntelligenceAgent": SalesIntelligenceAgent,
             "MarketingAnalysisAgent": MarketingAnalysisAgent,
@@ -121,9 +122,7 @@ class CortexAgentOrchestrator:
             logger.error(f"Failed to initialize enhanced agents: {e}", exc_info=True)
             return False
 
-    async def _create_enhanced_agent(
-        self, config: Dict[str, Any]
-    ) -> Optional[BaseAgent]:
+    async def _create_enhanced_agent(self, config: dict[str, Any]) -> BaseAgent | None:
         """Create enhanced agent with Cortex capabilities"""
 
         base_class = self.agent_classes.get(config["base_class"])
@@ -184,12 +183,12 @@ class CortexAgentOrchestrator:
         return agent_instance
 
     async def execute_complex_workflow(
-        self, workflow_request: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, workflow_request: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute complex multi-agent workflow"""
         workflow_id = f"workflow_{int(asyncio.get_event_loop().time())}"
         self.active_workflows[workflow_id] = {"status": "running", "tasks": {}}
-        results: Dict[str, AgentResult] = {}
+        results: dict[str, AgentResult] = {}
 
         try:
             task_plan = self._create_task_plan(workflow_request)
@@ -235,7 +234,7 @@ class CortexAgentOrchestrator:
             logger.error(f"Workflow {workflow_id} failed: {e}", exc_info=True)
             return {"workflow_id": workflow_id, "status": "failed", "error": str(e)}
 
-    def _create_task_plan(self, workflow_request: Dict[str, Any]) -> List[AgentTask]:
+    def _create_task_plan(self, workflow_request: dict[str, Any]) -> list[AgentTask]:
         request_type = workflow_request.get("type", "general_analysis")
         if request_type == "customer_health_analysis":
             return [
@@ -284,18 +283,18 @@ class CortexAgentOrchestrator:
             )
         ]
 
-    def _find_capable_agents(self, required: List[AgentCapability]) -> List[str]:
+    def _find_capable_agents(self, required: list[AgentCapability]) -> list[str]:
         capable = []
         for agent_id, agent in self.registered_agents.items():
             if all(cap in agent.capabilities for cap in required):
                 capable.append(agent_id)
         return capable
 
-    def _select_optimal_agent(self, agents: List[str], task: AgentTask) -> str:
+    def _select_optimal_agent(self, agents: list[str], task: AgentTask) -> str:
         return agents[0]
 
     async def _execute_agent_task(
-        self, agent_id: str, task: AgentTask, results: Dict
+        self, agent_id: str, task: AgentTask, results: dict
     ) -> AgentResult:
         # Mock implementation
         start_time = asyncio.get_event_loop().time()
@@ -314,13 +313,13 @@ class CortexAgentOrchestrator:
             0.85,
         )
 
-    def _synthesize_workflow_result(self, request: Dict, results: Dict) -> Dict:
+    def _synthesize_workflow_result(self, request: dict, results: dict) -> dict:
         return {
             "final_summary": "Workflow completed",
             "results": {k: v.result for k, v in results.items()},
         }
 
-    def _create_execution_summary(self, results: Dict) -> Dict:
+    def _create_execution_summary(self, results: dict) -> dict:
         return {
             "total_tasks": len(results),
             "total_time": sum(r.execution_time for r in results.values()),

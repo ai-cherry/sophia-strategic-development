@@ -4,8 +4,8 @@ Automated Platform Integration
 Configures all 14 platforms automatically using the IaC orchestrator
 """
 
-import sys
 import asyncio
+import sys
 from pathlib import Path
 
 # Add project root to path

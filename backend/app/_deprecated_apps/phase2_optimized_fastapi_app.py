@@ -22,25 +22,26 @@ Expected Performance Improvements:
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 from contextlib import asynccontextmanager
+from datetime import datetime
+from typing import Any
 
 # FastAPI imports
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-# Internal imports - Phase 2 optimized components
-from backend.core.optimized_connection_manager import connection_manager
-from backend.core.hierarchical_cache import hierarchical_cache
-from backend.core.performance_monitor import performance_monitor
-from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 from backend.agents.integrations.optimized_gong_data_integration import (
     optimized_gong_integration,
 )
 from backend.core.centralized_config_manager import centralized_config_manager
+from backend.core.hierarchical_cache import hierarchical_cache
+
+# Internal imports - Phase 2 optimized components
+from backend.core.optimized_connection_manager import connection_manager
+from backend.core.performance_monitor import performance_monitor
+from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 
 
 # Pydantic models
@@ -56,29 +57,29 @@ class HealthResponse(BaseModel):
 
 
 class PerformanceResponse(BaseModel):
-    connection_manager: Dict[str, Any] = Field(
+    connection_manager: dict[str, Any] = Field(
         ..., description="Connection manager metrics"
     )
-    cache_system: Dict[str, Any] = Field(..., description="Cache system metrics")
-    cortex_service: Dict[str, Any] = Field(..., description="Cortex service metrics")
-    gong_integration: Dict[str, Any] = Field(
+    cache_system: dict[str, Any] = Field(..., description="Cache system metrics")
+    cortex_service: dict[str, Any] = Field(..., description="Cortex service metrics")
+    gong_integration: dict[str, Any] = Field(
         ..., description="Gong integration metrics"
     )
-    overall_performance: Dict[str, Any] = Field(
+    overall_performance: dict[str, Any] = Field(
         ..., description="Overall performance metrics"
     )
 
 
 class CortexAnalysisRequest(BaseModel):
-    texts: List[str] = Field(..., description="Texts to analyze")
+    texts: list[str] = Field(..., description="Texts to analyze")
     operation: str = Field(default="sentiment", description="Analysis operation")
-    model: Optional[str] = Field(None, description="Model to use")
+    model: str | None = Field(None, description="Model to use")
 
 
 class WorkflowRequest(BaseModel):
     workflow_type: str = Field(..., description="Workflow type")
-    call_data: Dict[str, Any] = Field(..., description="Call data")
-    agent_types: List[str] = Field(..., description="Agent types to process")
+    call_data: dict[str, Any] = Field(..., description="Call data")
+    agent_types: list[str] = Field(..., description="Agent types to process")
 
 
 # Global variables
@@ -278,18 +279,26 @@ async def get_performance_metrics():
         }
 
         return PerformanceResponse(
-            connection_manager=conn_stats
-            if isinstance(conn_stats, dict)
-            else {"error": str(conn_stats)},
-            cache_system=cache_stats
-            if isinstance(cache_stats, dict)
-            else {"error": str(cache_stats)},
-            cortex_service=cortex_stats
-            if isinstance(cortex_stats, dict)
-            else {"error": str(cortex_stats)},
-            gong_integration=gong_stats
-            if isinstance(gong_stats, dict)
-            else {"error": str(gong_stats)},
+            connection_manager=(
+                conn_stats
+                if isinstance(conn_stats, dict)
+                else {"error": str(conn_stats)}
+            ),
+            cache_system=(
+                cache_stats
+                if isinstance(cache_stats, dict)
+                else {"error": str(cache_stats)}
+            ),
+            cortex_service=(
+                cortex_stats
+                if isinstance(cortex_stats, dict)
+                else {"error": str(cortex_stats)}
+            ),
+            gong_integration=(
+                gong_stats
+                if isinstance(gong_stats, dict)
+                else {"error": str(gong_stats)}
+            ),
             overall_performance=overall_performance,
         )
 
@@ -437,7 +446,7 @@ async def get_cache_stats():
 
 @app.post("/api/cache/warm")
 @performance_monitor.monitor_performance("cache_warm", 5000)
-async def warm_cache(request: Dict[str, Any]):
+async def warm_cache(request: dict[str, Any]):
     """
     ✅ OPTIMIZED: Warm cache with pre-loaded data
 
@@ -462,7 +471,7 @@ async def warm_cache(request: Dict[str, Any]):
 
 @app.delete("/api/cache/clear")
 @performance_monitor.monitor_performance("cache_clear", 1000)
-async def clear_cache(cache_level: Optional[str] = None):
+async def clear_cache(cache_level: str | None = None):
     """
     ✅ OPTIMIZED: Clear cache entries
 

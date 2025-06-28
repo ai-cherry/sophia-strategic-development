@@ -9,7 +9,7 @@ Current size: 776 lines
 
 Recommended decomposition:
 - deployment_tracker_core.py - Core functionality
-- deployment_tracker_utils.py - Utility functions  
+- deployment_tracker_utils.py - Utility functions
 - deployment_tracker_models.py - Data models
 - deployment_tracker_handlers.py - Request handlers
 
@@ -17,13 +17,13 @@ TODO: Implement file decomposition
 """
 
 import json
-import os
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-from enum import Enum
-import subprocess
 import logging
+import os
+import subprocess
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -70,13 +70,13 @@ class DeploymentEvent:
     version: str
     status: DeploymentStatus
     timestamp: datetime
-    duration_seconds: Optional[int] = None
-    github_sha: Optional[str] = None
-    github_ref: Optional[str] = None
-    github_actor: Optional[str] = None
-    error_message: Optional[str] = None
-    rollback_target: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    duration_seconds: int | None = None
+    github_sha: str | None = None
+    github_ref: str | None = None
+    github_actor: str | None = None
+    error_message: str | None = None
+    rollback_target: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -86,10 +86,10 @@ class DeploymentHealth:
     component: ComponentType
     environment: Environment
     status: str
-    last_deployment: Optional[datetime]
+    last_deployment: datetime | None
     success_rate: float
     average_duration: float
-    issues: List[str]
+    issues: list[str]
 
 
 @dataclass
@@ -101,7 +101,7 @@ class RollbackPlan:
     environment: Environment
     current_version: str
     target_version: str
-    rollback_steps: List[str]
+    rollback_steps: list[str]
     estimated_duration: int
     risk_level: str
 
@@ -111,8 +111,8 @@ class EnhancedDeploymentTracker:
 
     def __init__(self):
         self.snowflake_service = SnowflakeCortexService()
-        self.deployment_history: List[DeploymentEvent] = []
-        self.active_deployments: Dict[str, DeploymentEvent] = {}
+        self.deployment_history: list[DeploymentEvent] = []
+        self.active_deployments: dict[str, DeploymentEvent] = {}
 
     async def initialize_tracking_schema(self) -> bool:
         """Initialize deployment tracking schema in Snowflake."""
@@ -121,7 +121,7 @@ class EnhancedDeploymentTracker:
             -- Deployment Tracking Schema
             CREATE SCHEMA IF NOT EXISTS SOPHIA_AI.DEPLOYMENT_TRACKING;
             USE SCHEMA SOPHIA_AI.DEPLOYMENT_TRACKING;
-            
+
             -- Deployment Events Table
             CREATE TABLE IF NOT EXISTS DEPLOYMENT_EVENTS (
                 deployment_id VARCHAR(50) PRIMARY KEY,
@@ -140,10 +140,10 @@ class EnhancedDeploymentTracker:
                 created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
                 updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
             );
-            
+
             -- Deployment Health View
             CREATE OR REPLACE VIEW DEPLOYMENT_HEALTH AS
-            SELECT 
+            SELECT
                 component,
                 environment,
                 COUNT(*) as total_deployments,
@@ -155,7 +155,7 @@ class EnhancedDeploymentTracker:
             FROM DEPLOYMENT_EVENTS
             WHERE timestamp >= DATEADD(DAY, -30, CURRENT_TIMESTAMP())
             GROUP BY component, environment;
-            
+
             -- Component Status Table
             CREATE TABLE IF NOT EXISTS COMPONENT_STATUS (
                 component VARCHAR(50),
@@ -168,7 +168,7 @@ class EnhancedDeploymentTracker:
                 issues VARIANT,
                 PRIMARY KEY (component, environment)
             );
-            
+
             -- Rollback History Table
             CREATE TABLE IF NOT EXISTS ROLLBACK_HISTORY (
                 rollback_id VARCHAR(50) PRIMARY KEY,
@@ -205,7 +205,7 @@ class EnhancedDeploymentTracker:
         component: ComponentType,
         environment: Environment,
         version: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Start tracking a new deployment."""
 
@@ -243,7 +243,7 @@ class EnhancedDeploymentTracker:
         self,
         deployment_id: str,
         status: DeploymentStatus,
-        error_message: Optional[str] = None,
+        error_message: str | None = None,
     ) -> bool:
         """Update deployment status."""
 
@@ -281,7 +281,7 @@ class EnhancedDeploymentTracker:
         return True
 
     async def complete_deployment(
-        self, deployment_id: str, success: bool, error_message: Optional[str] = None
+        self, deployment_id: str, success: bool, error_message: str | None = None
     ) -> bool:
         """Complete deployment tracking."""
 
@@ -290,16 +290,16 @@ class EnhancedDeploymentTracker:
 
     async def get_deployment_health(
         self,
-        component: Optional[ComponentType] = None,
-        environment: Optional[Environment] = None,
-    ) -> List[DeploymentHealth]:
+        component: ComponentType | None = None,
+        environment: Environment | None = None,
+    ) -> list[DeploymentHealth]:
         """Get deployment health status."""
 
         query = """
-        SELECT 
+        SELECT
             component,
             environment,
-            CASE 
+            CASE
                 WHEN success_rate >= 95 THEN 'HEALTHY'
                 WHEN success_rate >= 80 THEN 'WARNING'
                 ELSE 'CRITICAL'
@@ -352,8 +352,8 @@ class EnhancedDeploymentTracker:
         self,
         component: ComponentType,
         environment: Environment,
-        target_version: Optional[str] = None,
-    ) -> Optional[RollbackPlan]:
+        target_version: str | None = None,
+    ) -> RollbackPlan | None:
         """Generate rollback plan for a component."""
 
         try:
@@ -460,7 +460,7 @@ class EnhancedDeploymentTracker:
             logger.error(f"❌ Rollback execution failed: {e}")
             return False
 
-    def _get_github_context(self) -> Dict[str, str]:
+    def _get_github_context(self) -> dict[str, str]:
         """Get GitHub context from environment variables."""
         return {
             "sha": os.getenv("GITHUB_SHA", ""),
@@ -477,7 +477,7 @@ class EnhancedDeploymentTracker:
             query = """
             MERGE INTO SOPHIA_AI.DEPLOYMENT_TRACKING.DEPLOYMENT_EVENTS AS target
             USING (
-                SELECT 
+                SELECT
                     %s as deployment_id,
                     %s as component,
                     %s as environment,
@@ -604,7 +604,7 @@ class EnhancedDeploymentTracker:
 
     def _get_rollback_steps(
         self, component: ComponentType, environment: Environment, target_version: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Get rollback steps for component type."""
 
         rollback_steps = {
@@ -623,9 +623,11 @@ class EnhancedDeploymentTracker:
             ],
             ComponentType.FRONTEND: [
                 f"vercel env pull .env.{environment.value}",
-                "vercel deploy --prod"
-                if environment == Environment.PRODUCTION
-                else "vercel deploy",
+                (
+                    "vercel deploy --prod"
+                    if environment == Environment.PRODUCTION
+                    else "vercel deploy"
+                ),
                 "vercel alias set",
             ],
         }
@@ -679,13 +681,13 @@ class EnhancedDeploymentTracker:
 
     async def _get_current_version(
         self, component: ComponentType, environment: Environment
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get current deployed version."""
 
         try:
             query = """
-            SELECT version 
-            FROM SOPHIA_AI.DEPLOYMENT_TRACKING.COMPONENT_STATUS 
+            SELECT version
+            FROM SOPHIA_AI.DEPLOYMENT_TRACKING.COMPONENT_STATUS
             WHERE component = %s AND environment = %s
             """
 
@@ -704,17 +706,17 @@ class EnhancedDeploymentTracker:
 
     async def _get_last_successful_version(
         self, component: ComponentType, environment: Environment
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get last successful deployment version."""
 
         try:
             query = """
-            SELECT version 
-            FROM SOPHIA_AI.DEPLOYMENT_TRACKING.DEPLOYMENT_EVENTS 
-            WHERE component = %s 
-              AND environment = %s 
+            SELECT version
+            FROM SOPHIA_AI.DEPLOYMENT_TRACKING.DEPLOYMENT_EVENTS
+            WHERE component = %s
+              AND environment = %s
               AND status = 'COMPLETED'
-            ORDER BY timestamp DESC 
+            ORDER BY timestamp DESC
             LIMIT 1
             """
 
@@ -733,7 +735,7 @@ class EnhancedDeploymentTracker:
 
     async def _detect_deployment_issues(
         self, component: ComponentType, environment: Environment
-    ) -> List[str]:
+    ) -> list[str]:
         """Detect deployment issues for a component."""
 
         issues = []
@@ -744,8 +746,8 @@ class EnhancedDeploymentTracker:
             SELECT COUNT(*) as total_deployments,
                    SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as failed_deployments
             FROM SOPHIA_AI.DEPLOYMENT_TRACKING.DEPLOYMENT_EVENTS
-            WHERE component = %s 
-              AND environment = %s 
+            WHERE component = %s
+              AND environment = %s
               AND timestamp >= DATEADD(DAY, -7, CURRENT_TIMESTAMP())
             """
 

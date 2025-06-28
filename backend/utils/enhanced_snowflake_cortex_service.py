@@ -5,10 +5,10 @@ Unified AI processing using pure Snowflake Cortex for embeddings, LLM, and analy
 
 import json
 import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -50,7 +50,7 @@ class EmbeddingResult:
     """Result from embedding generation."""
 
     text: str
-    embedding: List[float]
+    embedding: list[float]
     model: str
     timestamp: datetime
     processing_time_ms: float
@@ -62,7 +62,7 @@ class SemanticSearchResult:
 
     content: str
     similarity_score: float
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     source_table: str
     record_id: str
 
@@ -74,7 +74,7 @@ class AIInsight:
     insight_type: str
     content: str
     confidence_score: float
-    supporting_data: List[str]
+    supporting_data: list[str]
     generated_at: datetime
 
 
@@ -90,11 +90,11 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
     - Cross-platform data enrichment
     """
 
-    def __init__(self, config: Optional[AIProcessingConfig] = None):
+    def __init__(self, config: AIProcessingConfig | None = None):
         super().__init__()
         self.config = config or AIProcessingConfig()
-        self.embedding_cache: Dict[str, EmbeddingResult] = {}
-        self.insight_cache: Dict[str, List[AIInsight]] = {}
+        self.embedding_cache: dict[str, EmbeddingResult] = {}
+        self.insight_cache: dict[str, list[AIInsight]] = {}
 
     async def initialize(self) -> None:
         """Initialize enhanced Cortex service."""
@@ -165,8 +165,8 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             raise
 
     async def generate_embeddings(
-        self, texts: List[str], use_cache: bool = True
-    ) -> List[EmbeddingResult]:
+        self, texts: list[str], use_cache: bool = True
+    ) -> list[EmbeddingResult]:
         """
         Generate embeddings using Snowflake Cortex with intelligent caching.
 
@@ -192,12 +192,14 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                 for text in batch:
                     # Escape single quotes and limit text length
                     escaped_text = text.replace("'", "''")[:8000]  # Cortex text limit
-                    embedding_queries.append(f"""
-                        SELECT 
+                    embedding_queries.append(
+                        f"""
+                        SELECT
                             '{escaped_text}' as text,
                             SNOWFLAKE.CORTEX.EMBED_TEXT_768('{self.config.embedding_model.value}', '{escaped_text}') as embedding,
                             '{self.config.embedding_model.value}' as model
-                    """)
+                    """
+                    )
 
                 # Execute batch query
                 if embedding_queries:
@@ -229,10 +231,10 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
     async def semantic_search(
         self,
         query_text: str,
-        source_tables: Optional[List[str]] = None,
+        source_tables: list[str] | None = None,
         limit: int = 10,
         similarity_threshold: float = 0.7,
-    ) -> List[SemanticSearchResult]:
+    ) -> list[SemanticSearchResult]:
         """
         Perform semantic search across specified tables.
 
@@ -261,7 +263,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # Perform semantic search using the index
             search_query = f"""
-            SELECT 
+            SELECT
                 content,
                 source_table,
                 record_id,
@@ -322,12 +324,12 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             prompt = f"""
             {base_prompt}
-            
+
             Context: {context}
-            
+
             Content to summarize:
             {content[:6000]}
-            
+
             Summary:
             """
 
@@ -350,10 +352,10 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
     async def generate_ai_insights(
         self,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         insight_type: str = "business",
         num_insights: int = 5,
-    ) -> List[AIInsight]:
+    ) -> list[AIInsight]:
         """
         Generate AI insights from structured data.
 
@@ -381,10 +383,10 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             prompt = f"""
             {base_prompt}
-            
+
             Data to analyze:
             {data_json}
-            
+
             Please provide {num_insights} key insights in JSON format:
             [
                 {{
@@ -393,7 +395,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                     "supporting_evidence": ["data point 1", "data point 2"]
                 }}
             ]
-            
+
             Insights:
             """
 
@@ -452,7 +454,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         content: str,
         source_table: str,
         record_id: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """
         Index content in the semantic search index.
@@ -479,7 +481,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             index_query = f"""
             MERGE INTO SOPHIA_AI_PROD.AI_PROCESSING.SEMANTIC_SEARCH_INDEX AS target
             USING (
-                SELECT 
+                SELECT
                     '{index_id}' as index_id,
                     '{source_table}' as source_table,
                     '{record_id}' as record_id,
@@ -496,7 +498,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                     updated_at = CURRENT_TIMESTAMP()
             WHEN NOT MATCHED THEN
                 INSERT (index_id, source_table, record_id, content, content_embedding, metadata)
-                VALUES (source.index_id, source.source_table, source.record_id, 
+                VALUES (source.index_id, source.source_table, source.record_id,
                        source.content, source.content_embedding, source.metadata)
             """
 

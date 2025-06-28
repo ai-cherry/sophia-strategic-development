@@ -4,8 +4,9 @@ Advanced Snowflake Features Implementation
 Implementing cutting-edge 2025 capabilities while access is available
 """
 
-import snowflake.connector
 import logging
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -99,7 +100,7 @@ class AdvancedSnowflakeImplementation:
         # Create time travel views for audit trails
         audit_view_query = """
         CREATE OR REPLACE VIEW SYSTEM_MONITORING.AUDIT_TRAIL AS
-        SELECT 
+        SELECT
             'GONG_CALLS' as table_name,
             call_id as record_id,
             METADATA$ACTION as action_type,
@@ -125,7 +126,7 @@ class AdvancedSnowflakeImplementation:
         TARGET_LAG = '1 minute'
         WAREHOUSE = REALTIME_ANALYTICS_WH
         AS
-        SELECT 
+        SELECT
             customer_id,
             customer_name,
             AVG(SNOWFLAKE.CORTEX.SENTIMENT(interaction_text):positive) as avg_positive_sentiment,
@@ -137,9 +138,9 @@ class AdvancedSnowflakeImplementation:
             SELECT customer_id, customer_name, call_transcript as interaction_text, call_timestamp as interaction_timestamp
             FROM RAW_MULTIMODAL.GONG_CALLS_MULTIMODAL
             WHERE call_timestamp >= DATEADD(day, -30, CURRENT_TIMESTAMP())
-            
+
             UNION ALL
-            
+
             SELECT customer_id, customer_name, message_text as interaction_text, message_timestamp as interaction_timestamp
             FROM RAW_MULTIMODAL.SLACK_MESSAGES_MULTIMODAL
             WHERE message_timestamp >= DATEADD(day, -30, CURRENT_TIMESTAMP())
@@ -158,14 +159,14 @@ class AdvancedSnowflakeImplementation:
         TARGET_LAG = '5 minutes'
         WAREHOUSE = REALTIME_ANALYTICS_WH
         AS
-        SELECT 
+        SELECT
             deal_id,
             deal_name,
             deal_stage,
             deal_value,
             probability,
-            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet', 
-                CONCAT('Analyze this sales deal and provide risk assessment: Deal: ', deal_name, 
+            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet',
+                CONCAT('Analyze this sales deal and provide risk assessment: Deal: ', deal_name,
                        ', Stage: ', deal_stage, ', Value: $', deal_value, ', Probability: ', probability, '%')
             ) as ai_risk_assessment,
             close_date,
@@ -188,7 +189,7 @@ class AdvancedSnowflakeImplementation:
         row_access_policy = """
         CREATE OR REPLACE ROW ACCESS POLICY CUSTOMER_DATA_PRIVACY
         AS (customer_id VARCHAR) RETURNS BOOLEAN ->
-        CASE 
+        CASE
             WHEN CURRENT_ROLE() = 'ACCOUNTADMIN' THEN TRUE
             WHEN CURRENT_ROLE() = 'COMPLIANCE_OFFICER' THEN TRUE
             WHEN CURRENT_ROLE() = 'SALES_MANAGER' AND customer_id IN (
@@ -215,7 +216,7 @@ class AdvancedSnowflakeImplementation:
         # Create masking policies for PII data
         masking_policy = """
         CREATE OR REPLACE MASKING POLICY PII_MASKING_POLICY AS (val STRING) RETURNS STRING ->
-        CASE 
+        CASE
             WHEN CURRENT_ROLE() IN ('ACCOUNTADMIN', 'COMPLIANCE_OFFICER') THEN val
             WHEN CURRENT_ROLE() = 'SALES_MANAGER' THEN REGEXP_REPLACE(val, '([0-9]{3})[0-9]{2}([0-9]{4})', '\\\\1-XX-\\\\2')
             ELSE '***MASKED***'
@@ -231,13 +232,13 @@ class AdvancedSnowflakeImplementation:
         # Create system health monitoring view
         system_health_view = """
         CREATE OR REPLACE VIEW SYSTEM_MONITORING.SYSTEM_HEALTH_DASHBOARD AS
-        SELECT 
+        SELECT
             'Warehouse Performance' as metric_category,
             warehouse_name,
             AVG(execution_time) as avg_execution_time_ms,
             COUNT(*) as query_count,
             SUM(credits_used) as total_credits_used,
-            CASE 
+            CASE
                 WHEN AVG(execution_time) > 10000 THEN 'HIGH_LATENCY'
                 WHEN AVG(execution_time) > 5000 THEN 'MEDIUM_LATENCY'
                 ELSE 'OPTIMAL'
@@ -246,16 +247,16 @@ class AdvancedSnowflakeImplementation:
         FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
         WHERE start_time >= DATEADD(hour, -1, CURRENT_TIMESTAMP())
         GROUP BY warehouse_name
-        
+
         UNION ALL
-        
-        SELECT 
+
+        SELECT
             'Data Freshness' as metric_category,
             table_name as warehouse_name,
             DATEDIFF(minute, MAX(last_altered), CURRENT_TIMESTAMP()) as avg_execution_time_ms,
             COUNT(*) as query_count,
             0 as total_credits_used,
-            CASE 
+            CASE
                 WHEN DATEDIFF(minute, MAX(last_altered), CURRENT_TIMESTAMP()) > 60 THEN 'STALE_DATA'
                 WHEN DATEDIFF(minute, MAX(last_altered), CURRENT_TIMESTAMP()) > 30 THEN 'AGING_DATA'
                 ELSE 'FRESH_DATA'
@@ -285,24 +286,24 @@ class AdvancedSnowflakeImplementation:
             SELECT COUNT(*) INTO alert_count
             FROM SYSTEM_MONITORING.SYSTEM_HEALTH_DASHBOARD
             WHERE performance_status = 'HIGH_LATENCY';
-            
+
             IF (alert_count > 0) THEN
                 alert_message := 'ALERT: High latency detected in ' || alert_count || ' warehouses';
                 INSERT INTO SYSTEM_MONITORING.SYSTEM_ALERTS (alert_type, alert_message, alert_timestamp)
                 VALUES ('HIGH_LATENCY', alert_message, CURRENT_TIMESTAMP());
             END IF;
-            
+
             -- Check for stale data
             SELECT COUNT(*) INTO alert_count
             FROM SYSTEM_MONITORING.SYSTEM_HEALTH_DASHBOARD
             WHERE performance_status = 'STALE_DATA';
-            
+
             IF (alert_count > 0) THEN
                 alert_message := 'ALERT: Stale data detected in ' || alert_count || ' tables';
                 INSERT INTO SYSTEM_MONITORING.SYSTEM_ALERTS (alert_type, alert_message, alert_timestamp)
                 VALUES ('STALE_DATA', alert_message, CURRENT_TIMESTAMP());
             END IF;
-            
+
             RETURN 'System health check completed';
         END;
         $$
@@ -319,27 +320,27 @@ class AdvancedSnowflakeImplementation:
         # Create AI-powered customer churn prediction
         churn_prediction_view = """
         CREATE OR REPLACE VIEW CUSTOMER_INTELLIGENCE.CHURN_PREDICTION AS
-        SELECT 
+        SELECT
             customer_id,
             customer_name,
             days_since_last_interaction,
             avg_sentiment_score,
             interaction_frequency,
-            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet', 
+            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet',
                 CONCAT('Based on this customer data, predict churn risk and provide retention recommendations: ',
                        'Customer: ', customer_name,
                        ', Days since last interaction: ', days_since_last_interaction,
                        ', Average sentiment: ', avg_sentiment_score,
                        ', Interaction frequency: ', interaction_frequency, ' per month')
             ) as churn_analysis,
-            CASE 
+            CASE
                 WHEN days_since_last_interaction > 30 AND avg_sentiment_score < 0.3 THEN 'HIGH_RISK'
                 WHEN days_since_last_interaction > 14 AND avg_sentiment_score < 0.5 THEN 'MEDIUM_RISK'
                 ELSE 'LOW_RISK'
             END as churn_risk_level,
             CURRENT_TIMESTAMP() as analysis_timestamp
         FROM (
-            SELECT 
+            SELECT
                 customer_id,
                 customer_name,
                 DATEDIFF(day, MAX(last_interaction), CURRENT_TIMESTAMP()) as days_since_last_interaction,
@@ -357,19 +358,19 @@ class AdvancedSnowflakeImplementation:
         # Create intelligent deal scoring
         deal_scoring_view = """
         CREATE OR REPLACE VIEW SALES_OPTIMIZATION.INTELLIGENT_DEAL_SCORING AS
-        SELECT 
+        SELECT
             deal_id,
             deal_name,
             deal_value,
             current_probability,
-            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet', 
+            SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet',
                 CONCAT('Analyze this sales deal and provide an improved probability score with reasoning: ',
                        'Deal: ', deal_name,
                        ', Value: $', deal_value,
                        ', Current probability: ', current_probability, '%',
                        ', AI Risk Assessment: ', SUBSTR(ai_risk_assessment, 1, 500))
             ) as ai_probability_analysis,
-            CASE 
+            CASE
                 WHEN deal_value > 100000 AND current_probability > 70 THEN 'PRIORITY_HIGH'
                 WHEN deal_value > 50000 AND current_probability > 50 THEN 'PRIORITY_MEDIUM'
                 ELSE 'PRIORITY_LOW'
@@ -388,14 +389,14 @@ class AdvancedSnowflakeImplementation:
         # Create warehouse usage optimization view
         cost_optimization_view = """
         CREATE OR REPLACE VIEW SYSTEM_MONITORING.COST_OPTIMIZATION_DASHBOARD AS
-        SELECT 
+        SELECT
             warehouse_name,
             DATE(start_time) as usage_date,
             SUM(credits_used) as daily_credits,
             COUNT(*) as query_count,
             AVG(execution_time) as avg_execution_time,
             SUM(credits_used) / COUNT(*) as credits_per_query,
-            CASE 
+            CASE
                 WHEN SUM(credits_used) / COUNT(*) > 0.1 THEN 'OPTIMIZE_QUERIES'
                 WHEN COUNT(*) < 10 THEN 'CONSIDER_SMALLER_WAREHOUSE'
                 WHEN AVG(execution_time) > 30000 THEN 'CONSIDER_LARGER_WAREHOUSE'
@@ -421,7 +422,7 @@ class AdvancedSnowflakeImplementation:
         AS
         $$
         DECLARE
-            wh_cursor CURSOR FOR 
+            wh_cursor CURSOR FOR
                 SELECT warehouse_name, avg_execution_time, query_count
                 FROM SYSTEM_MONITORING.COST_OPTIMIZATION_DASHBOARD
                 WHERE usage_date = CURRENT_DATE()
@@ -434,7 +435,7 @@ class AdvancedSnowflakeImplementation:
                     EXECUTE IMMEDIATE 'ALTER WAREHOUSE ' || wh_record.warehouse_name || ' SET AUTO_SUSPEND = 300';
                 END IF;
             END FOR;
-            
+
             RETURN 'Warehouse optimization completed';
         END;
         $$

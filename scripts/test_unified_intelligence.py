@@ -6,17 +6,17 @@ Demonstrates the revolutionary unified AI ecosystem in action.
 """
 
 import asyncio
-import sys
 import os
+import sys
 
 # Add backend to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from backend.core.constitutional_ai import SophiaConstitutionalFramework
+from backend.core.self_optimization import SophiaSelfOptimizer
 from backend.services.unified_intelligence_service import (
     get_unified_intelligence_service,
 )
-from backend.core.constitutional_ai import SophiaConstitutionalFramework
-from backend.core.self_optimization import SophiaSelfOptimizer
 
 
 async def test_unified_intelligence():

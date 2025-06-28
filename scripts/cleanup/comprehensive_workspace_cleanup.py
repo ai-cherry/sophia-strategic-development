@@ -13,11 +13,11 @@ Usage:
     python scripts/cleanup/comprehensive_workspace_cleanup.py
 """
 
+import logging
 import os
 import shutil
-from pathlib import Path
 from datetime import datetime, timedelta
-import logging
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ class WorkspaceCleanup:
         """Calculate total size of directory"""
         total_size = 0
         try:
-            for dirpath, dirnames, filenames in os.walk(path):
+            for dirpath, _dirnames, filenames in os.walk(path):
                 for filename in filenames:
                     filepath = Path(dirpath) / filename
                     try:
@@ -151,7 +151,7 @@ class WorkspaceCleanup:
         logger.info("💾 Cleaning up cache directories...")
 
         # Find and remove cache directories recursively
-        for root, dirs, files in os.walk(self.workspace_root):
+        for root, dirs, _files in os.walk(self.workspace_root):
             for dirname in list(dirs):  # Create a copy to modify during iteration
                 if dirname in self.cleanup_patterns["cache_directories"]:
                     cache_path = Path(root) / dirname
@@ -232,7 +232,7 @@ class WorkspaceCleanup:
         logger.info("📁 Cleaning up empty directories...")
 
         # Walk bottom-up to handle nested empty directories
-        for root, dirs, files in os.walk(self.workspace_root, topdown=False):
+        for root, dirs, _files in os.walk(self.workspace_root, topdown=False):
             for dirname in dirs:
                 dir_path = Path(root) / dirname
                 try:

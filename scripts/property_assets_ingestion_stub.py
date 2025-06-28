@@ -6,8 +6,9 @@ Placeholder for ingesting property management data into PROPERTY_ASSETS schema
 
 import asyncio
 import logging
-from typing import Dict, Any
 from dataclasses import dataclass
+from typing import Any
+
 import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
@@ -22,7 +23,7 @@ class PropertyIngestionConfig:
     """Configuration for property data ingestion"""
 
     source_system: str  # "PROPERTY_MANAGEMENT_SYSTEM", "CSV_IMPORT", "API_INTEGRATION"
-    connection_details: Dict[str, Any]
+    connection_details: dict[str, Any]
     batch_size: int = 500
     sync_frequency_hours: int = 6
 
@@ -228,9 +229,11 @@ class PropertyAssetsIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PROPERTIES LIKE PROPERTIES
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -262,7 +265,8 @@ class PropertyAssetsIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO PROPERTIES AS target
                 USING TEMP_PROPERTIES AS source
                 ON target.PROPERTY_ID = source.PROPERTY_ID
@@ -287,7 +291,8 @@ class PropertyAssetsIngestor:
                     source.MONTHLY_RENT_POTENTIAL, source.ACTUAL_MONTHLY_RENT, source.PROPERTY_MANAGER_ID,
                     source.ACQUISITION_DATE, source.PROPERTY_VALUE, source.PROPERTY_STATUS
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -309,9 +314,11 @@ class PropertyAssetsIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PROPERTY_UNITS LIKE PROPERTY_UNITS
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -342,7 +349,8 @@ class PropertyAssetsIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO PROPERTY_UNITS AS target
                 USING TEMP_PROPERTY_UNITS AS source
                 ON target.UNIT_ID = source.UNIT_ID
@@ -365,7 +373,8 @@ class PropertyAssetsIngestor:
                     source.SQUARE_FOOTAGE, source.BEDROOMS, source.BATHROOMS, source.MONTHLY_RENT,
                     source.OCCUPANCY_STATUS, source.LEASE_START_DATE, source.LEASE_END_DATE, source.TENANT_ID
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -387,9 +396,11 @@ class PropertyAssetsIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Create temporary table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE TEMPORARY TABLE TEMP_PROPERTY_CONTACTS LIKE PROPERTY_CONTACTS
-            """)
+            """
+            )
 
             # Insert data into temporary table
             for _, row in df.iterrows():
@@ -417,7 +428,8 @@ class PropertyAssetsIngestor:
                 )
 
             # MERGE into main table
-            cursor.execute("""
+            cursor.execute(
+                """
                 MERGE INTO PROPERTY_CONTACTS AS target
                 USING TEMP_PROPERTY_CONTACTS AS source
                 ON target.CONTACT_ID = source.CONTACT_ID
@@ -439,7 +451,8 @@ class PropertyAssetsIngestor:
                     source.EMAIL, source.PHONE, source.COMPANY_NAME, source.ROLE,
                     source.IS_PRIMARY, source.EMERGENCY_CONTACT
                 )
-            """)
+            """
+            )
 
             rows_affected = cursor.rowcount
             cursor.close()
@@ -457,10 +470,11 @@ class PropertyAssetsIngestor:
             cursor = self.snowflake_conn.cursor()
 
             # Generate embeddings for properties
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE PROPERTIES
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
-                    'e5-base-v2', 
+                    'e5-base-v2',
                     PROPERTY_NAME || ' ' || ADDRESS || ' ' || PROPERTY_TYPE
                 ),
                 AI_MEMORY_METADATA = OBJECT_CONSTRUCT(
@@ -471,12 +485,14 @@ class PropertyAssetsIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             properties_updated = cursor.rowcount
 
             # Generate embeddings for property contacts
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE PROPERTY_CONTACTS
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
                     'e5-base-v2',
@@ -490,7 +506,8 @@ class PropertyAssetsIngestor:
                 ),
                 AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP()
                 WHERE AI_MEMORY_EMBEDDING IS NULL
-            """)
+            """
+            )
 
             contacts_updated = cursor.rowcount
             cursor.close()
@@ -503,7 +520,7 @@ class PropertyAssetsIngestor:
             logger.error(f"❌ Failed to generate property AI embeddings: {e}")
             return 0
 
-    async def run_full_property_sync(self) -> Dict[str, int]:
+    async def run_full_property_sync(self) -> dict[str, int]:
         """Run full synchronization of property assets data"""
         try:
             logger.info("🚀 Starting Property Assets full sync")

@@ -12,7 +12,8 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any
+
 import aiohttp
 import psutil
 
@@ -35,11 +36,11 @@ class MCPServerInfo:
 
     name: str
     port: int
-    pid: Optional[int] = None
+    pid: int | None = None
     status: MCPServerStatus = MCPServerStatus.STOPPED
-    last_health_check: Optional[float] = None
-    error_message: Optional[str] = None
-    capabilities: List[str] = None
+    last_health_check: float | None = None
+    error_message: str | None = None
+    capabilities: list[str] = None
     auto_start: bool = True
 
 
@@ -58,10 +59,10 @@ class GeminiMCPIntegration:
     def __init__(self, config_path: str = ".gemini/settings.json"):
         """Initialize Gemini MCP Integration."""
         self.config_path = Path(config_path)
-        self.config: Dict[str, Any] = {}
-        self.servers: Dict[str, MCPServerInfo] = {}
-        self.session: Optional[aiohttp.ClientSession] = None
-        self.monitoring_task: Optional[asyncio.Task] = None
+        self.config: dict[str, Any] = {}
+        self.servers: dict[str, MCPServerInfo] = {}
+        self.session: aiohttp.ClientSession | None = None
+        self.monitoring_task: asyncio.Task | None = None
 
         # Load configuration
         self._load_config()
@@ -71,7 +72,7 @@ class GeminiMCPIntegration:
         """Load MCP configuration from JSON file."""
         try:
             if self.config_path.exists():
-                with open(self.config_path, "r") as f:
+                with open(self.config_path) as f:
                     self.config = json.load(f)
                 logger.info(f"Loaded configuration from {self.config_path}")
             else:
@@ -225,7 +226,7 @@ class GeminiMCPIntegration:
             server_info.error_message = str(e)
             return False
 
-    async def start_all_servers(self) -> Dict[str, bool]:
+    async def start_all_servers(self) -> dict[str, bool]:
         """Start all auto-start MCP servers."""
         results = {}
 
@@ -238,7 +239,7 @@ class GeminiMCPIntegration:
 
         return results
 
-    async def stop_all_servers(self) -> Dict[str, bool]:
+    async def stop_all_servers(self) -> dict[str, bool]:
         """Stop all MCP servers."""
         results = {}
 
@@ -309,7 +310,7 @@ class GeminiMCPIntegration:
         except Exception as e:
             logger.warning(f"Error killing process on port {port}: {e}")
 
-    async def get_server_status(self, server_name: str) -> Dict[str, Any]:
+    async def get_server_status(self, server_name: str) -> dict[str, Any]:
         """Get detailed status of MCP server."""
         if server_name not in self.servers:
             return {"error": f"Unknown server: {server_name}"}
@@ -331,7 +332,7 @@ class GeminiMCPIntegration:
             "auto_start": server_info.auto_start,
         }
 
-    async def get_all_server_status(self) -> Dict[str, Dict[str, Any]]:
+    async def get_all_server_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all MCP servers."""
         status = {}
 
@@ -406,7 +407,7 @@ class GeminiMCPIntegration:
         logger.info(f"Using fallback server: {fallback_server}")
         return fallback_server
 
-    def get_gemini_cli_config(self) -> Dict[str, Any]:
+    def get_gemini_cli_config(self) -> dict[str, Any]:
         """Get Gemini CLI compatible configuration."""
         return {
             "mcpServers": self.config.get("mcpServers", {}),

@@ -6,7 +6,7 @@ data persistence contracts.
 """
 
 from .call_repository import CallRepository
-from .deal_repository import DealRepository
 from .contact_repository import ContactRepository
+from .deal_repository import DealRepository
 
 __all__ = ["CallRepository", "DealRepository", "ContactRepository"]

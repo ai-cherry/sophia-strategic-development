@@ -10,9 +10,10 @@ import json
 import logging
 import sys
 import time
-import aiohttp
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
+import aiohttp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,15 +28,15 @@ class MCPServerValidator:
         self.config = self._load_config()
         self.server_config = self._get_server_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load MCP configuration"""
         if not self.config_file.exists():
             raise FileNotFoundError(f"MCP config file not found: {self.config_file}")
 
-        with open(self.config_file, "r") as f:
+        with open(self.config_file) as f:
             return json.load(f)
 
-    def _get_server_config(self) -> Dict[str, Any]:
+    def _get_server_config(self) -> dict[str, Any]:
         """Get specific server configuration"""
         servers = self.config.get("mcpServers", {})
         if self.server_name not in servers:
@@ -43,7 +44,7 @@ class MCPServerValidator:
 
         return servers[self.server_name]
 
-    async def validate_health_check(self) -> Dict[str, Any]:
+    async def validate_health_check(self) -> dict[str, Any]:
         """Validate server health check"""
         logger.info(f"🔍 Validating health check for {self.server_name}")
 
@@ -71,12 +72,12 @@ class MCPServerValidator:
                             "status_code": response.status,
                             "message": await response.text(),
                         }
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return {"status": "timeout", "message": "Health check timed out"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    async def validate_capabilities(self) -> Dict[str, Any]:
+    async def validate_capabilities(self) -> dict[str, Any]:
         """Validate server capabilities"""
         logger.info(f"🔧 Validating capabilities for {self.server_name}")
 
@@ -95,7 +96,7 @@ class MCPServerValidator:
             "total_capabilities": len(capabilities),
         }
 
-    async def _test_capability(self, capability: str) -> Dict[str, Any]:
+    async def _test_capability(self, capability: str) -> dict[str, Any]:
         """Test a specific capability"""
         base_url = self.server_config.get("baseUrl")
         if not base_url:
@@ -132,7 +133,7 @@ class MCPServerValidator:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    async def validate_integration(self) -> Dict[str, Any]:
+    async def validate_integration(self) -> dict[str, Any]:
         """Validate integration with other components"""
         logger.info(f"🔗 Validating integration for {self.server_name}")
 
@@ -164,7 +165,7 @@ class MCPServerValidator:
 
     async def performance_test(
         self, duration: int = 60, concurrent_requests: int = 10
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run performance test on MCP server"""
         logger.info(f"⚡ Running performance test for {self.server_name}")
 
@@ -228,7 +229,7 @@ class MCPServerValidator:
 
     async def comprehensive_validation(
         self, include_performance: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run comprehensive validation"""
         logger.info(f"🔍 Running comprehensive validation for {self.server_name}")
 

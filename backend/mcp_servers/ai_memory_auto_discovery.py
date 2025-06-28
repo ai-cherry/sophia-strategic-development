@@ -9,7 +9,7 @@ Current size: 1106 lines
 
 Recommended decomposition:
 - ai_memory_auto_discovery_core.py - Core functionality
-- ai_memory_auto_discovery_utils.py - Utility functions  
+- ai_memory_auto_discovery_utils.py - Utility functions
 - ai_memory_auto_discovery_models.py - Data models
 - ai_memory_auto_discovery_handlers.py - Request handlers
 
@@ -20,10 +20,10 @@ import asyncio
 import json
 import logging
 import re
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
@@ -63,9 +63,9 @@ class ContextPattern:
     """Pattern for detecting specific types of development context"""
 
     context_type: ContextType
-    keywords: List[str]
-    phrases: List[str]
-    code_indicators: List[str]
+    keywords: list[str]
+    phrases: list[str]
+    code_indicators: list[str]
     importance_weight: float
     confidence_threshold: float = 0.6
 
@@ -76,14 +76,14 @@ class DetectedContext:
 
     context_type: ContextType
     confidence: float
-    key_points: List[str]
+    key_points: list[str]
     suggested_category: str
-    suggested_tags: List[str]
+    suggested_tags: list[str]
     importance_score: float
     reasoning: str
-    extracted_code: Optional[str] = None
-    related_files: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
+    extracted_code: str | None = None
+    related_files: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
 
 class IntelligentContextDetector:
@@ -120,7 +120,7 @@ class IntelligentContextDetector:
             logger.error(f"Failed to initialize Intelligent Context Detector: {e}")
             self.initialized = True  # Continue with pattern-based detection
 
-    def _initialize_patterns(self) -> List[ContextPattern]:
+    def _initialize_patterns(self) -> list[ContextPattern]:
         """Initialize detection patterns for different context types"""
         return [
             ContextPattern(
@@ -414,8 +414,8 @@ class IntelligentContextDetector:
         ]
 
     async def detect_context(
-        self, conversation: str, file_context: Optional[Dict[str, Any]] = None
-    ) -> List[DetectedContext]:
+        self, conversation: str, file_context: dict[str, Any] | None = None
+    ) -> list[DetectedContext]:
         """
         Detect development context from conversation with advanced AI analysis
 
@@ -454,8 +454,8 @@ class IntelligentContextDetector:
         return high_confidence_contexts
 
     def _detect_with_patterns(
-        self, conversation: str, file_context: Optional[Dict[str, Any]] = None
-    ) -> List[DetectedContext]:
+        self, conversation: str, file_context: dict[str, Any] | None = None
+    ) -> list[DetectedContext]:
         """Pattern-based context detection"""
         detected = []
         conversation_lower = conversation.lower()
@@ -532,8 +532,8 @@ class IntelligentContextDetector:
         return detected
 
     async def _detect_with_ai(
-        self, conversation: str, file_context: Optional[Dict[str, Any]] = None
-    ) -> List[DetectedContext]:
+        self, conversation: str, file_context: dict[str, Any] | None = None
+    ) -> list[DetectedContext]:
         """AI-enhanced context detection using OpenAI"""
         try:
             # Prepare context for AI analysis
@@ -543,11 +543,11 @@ class IntelligentContextDetector:
 
             prompt = f"""
             Analyze this development conversation and identify important contexts that should be remembered for future AI assistance.
-            
+
             Conversation:
             {conversation[:4000]}  # Limit to avoid token limits
             {context_info}
-            
+
             Identify and extract:
             1. Architectural decisions and reasoning
             2. Bug fixes and their root causes
@@ -559,7 +559,7 @@ class IntelligentContextDetector:
             8. Error handling strategies
             9. Deployment strategies
             10. Important insights or lessons learned
-            
+
             For each identified context, provide:
             - Type of context
             - Confidence level (0.0-1.0)
@@ -567,7 +567,7 @@ class IntelligentContextDetector:
             - Suggested tags
             - Importance score (0.0-1.0)
             - Brief reasoning
-            
+
             Return as JSON array with this structure:
             [{{
                 "context_type": "architecture_decision|bug_analysis|code_pattern|performance_insight|security_consideration|integration_pattern|business_logic|error_resolution|deployment_strategy",
@@ -630,7 +630,7 @@ class IntelligentContextDetector:
             logger.error(f"AI context detection failed: {e}")
             return []
 
-    def _parse_context_type(self, type_str: str) -> Optional[ContextType]:
+    def _parse_context_type(self, type_str: str) -> ContextType | None:
         """Parse context type string to enum"""
         type_mapping = {
             "architecture_decision": ContextType.ARCHITECTURE_DECISION,
@@ -662,7 +662,7 @@ class IntelligentContextDetector:
         }
         return mapping.get(context_type, MemoryCategory.CODE_DECISION)
 
-    def _extract_code_blocks(self, text: str) -> Optional[str]:
+    def _extract_code_blocks(self, text: str) -> str | None:
         """Extract code blocks from text"""
         # Match code blocks (```...``` or `...`)
         code_patterns = [r"```[\w]*\n(.*?)\n```", r"`([^`\n]+)`"]
@@ -676,7 +676,7 @@ class IntelligentContextDetector:
             return "\n\n".join(code_blocks[:3])  # Limit to first 3 blocks
         return None
 
-    def _merge_contexts(self, contexts: List[DetectedContext]) -> List[DetectedContext]:
+    def _merge_contexts(self, contexts: list[DetectedContext]) -> list[DetectedContext]:
         """Merge similar contexts and remove duplicates"""
         if not contexts:
             return []
@@ -757,10 +757,10 @@ class AutoDiscoveryOrchestrator:
     async def analyze_and_store_conversation(
         self,
         conversation: str,
-        participants: List[str] = None,
-        file_context: Optional[Dict[str, Any]] = None,
+        participants: list[str] = None,
+        file_context: dict[str, Any] | None = None,
         auto_store: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze conversation for important context and automatically store memories
 
@@ -869,8 +869,8 @@ class AutoDiscoveryOrchestrator:
         self,
         conversation: str,
         context: DetectedContext,
-        participants: List[str] = None,
-        file_context: Optional[Dict[str, Any]] = None,
+        participants: list[str] = None,
+        file_context: dict[str, Any] | None = None,
     ) -> str:
         """Create comprehensive memory content from detected context"""
 
@@ -920,7 +920,7 @@ class AutoDiscoveryOrchestrator:
 
         return "\n".join(content_parts)
 
-    async def get_discovery_stats(self) -> Dict[str, Any]:
+    async def get_discovery_stats(self) -> dict[str, Any]:
         """Get auto-discovery statistics"""
         return {
             **self.discovery_stats,
@@ -934,10 +934,10 @@ class AutoDiscoveryOrchestrator:
     async def smart_recall(
         self,
         query: str,
-        context_hint: Optional[str] = None,
-        file_context: Optional[Dict[str, Any]] = None,
+        context_hint: str | None = None,
+        file_context: dict[str, Any] | None = None,
         limit: int = 5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Smart recall that considers current context and file awareness
 
@@ -1017,10 +1017,10 @@ auto_discovery = AutoDiscoveryOrchestrator()
 
 async def analyze_conversation_auto(
     conversation: str,
-    participants: List[str] = None,
-    file_context: Optional[Dict[str, Any]] = None,
+    participants: list[str] = None,
+    file_context: dict[str, Any] | None = None,
     auto_store: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convenience function for automatic conversation analysis
 
@@ -1043,10 +1043,10 @@ async def analyze_conversation_auto(
 
 async def smart_memory_recall(
     query: str,
-    context_hint: Optional[str] = None,
-    file_context: Optional[Dict[str, Any]] = None,
+    context_hint: str | None = None,
+    file_context: dict[str, Any] | None = None,
     limit: int = 5,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Convenience function for smart memory recall
 
@@ -1071,22 +1071,22 @@ if __name__ == "__main__":
         """Test the auto-discovery system"""
 
         test_conversation = """
-        We decided to use Snowflake Cortex for our vector embeddings because it provides 
+        We decided to use Snowflake Cortex for our vector embeddings because it provides
         native integration with our data warehouse. The architecture decision was based on:
-        
+
         1. Performance - native vector operations are faster
         2. Cost - reduces external dependencies on Pinecone for business data
         3. Security - data stays within our enterprise data warehouse
-        
+
         Here's the implementation pattern we're using:
-        
+
         ```python
         async def store_embedding_in_business_table(self, table_name: str, record_id: str):
             embedding = await cortex.embed_text(text_content)
             await self.update_record(table_name, record_id, embedding)
         ```
-        
-        This approach solved the SQL injection vulnerability we had before by using 
+
+        This approach solved the SQL injection vulnerability we had before by using
         parameterized queries and whitelist validation.
         """
 

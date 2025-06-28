@@ -8,8 +8,6 @@ circular imports and ensure proper lifecycle management.
 
 import asyncio
 from functools import lru_cache
-from typing import Optional
-
 
 # Import the chat service
 try:
@@ -36,10 +34,10 @@ except ImportError:
 
 
 # Global instance (singleton pattern)
-_chat_service_instance: Optional[SophiaUniversalChatService] = None
+_chat_service_instance: SophiaUniversalChatService | None = None
 
 
-@lru_cache()
+@lru_cache
 def get_config_service():
     """Get configuration service (cached singleton)"""
     # This is already implemented in simple_config.py

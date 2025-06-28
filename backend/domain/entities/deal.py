@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import List, Optional
 
 
 class DealStage(Enum):
@@ -43,8 +42,8 @@ class Deal:
     owner_id: str
     created_at: datetime
     updated_at: datetime
-    contacts: Optional[List[str]] = None  # List of contact IDs
-    products: Optional[List[str]] = None  # List of product IDs
+    contacts: list[str] | None = None  # List of contact IDs
+    products: list[str] | None = None  # List of product IDs
     competitor_mentioned: bool = False
     budget_confirmed: bool = False
     decision_maker_involved: bool = False

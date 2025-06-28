@@ -4,51 +4,50 @@ Priority Function Refactoring Tool for Sophia AI
 Addresses the most critical long functions identified by Lizard analyzer
 """
 
+import logging
 import os
 import re
-import logging
 import shutil
-from pathlib import Path
-from typing import Dict, List, Tuple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class PriorityFunctionRefactorer:
     """Refactors priority long functions using proven patterns"""
-    
+
     def __init__(self):
         self.refactored_files = []
         self.errors = []
-        
+
     def refactor_create_application_router(self) -> bool:
         """Refactor the 129-line create_application_router function"""
         file_path = "backend/presentation/api/router.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_setup_core_routes" in content:
                 logger.info("create_application_router already refactored")
                 return True
-            
+
             # Find the function
-            pattern = r'def create_application_router\(\) -> APIRouter:.*?(?=\ndef|\nclass|\Z)'
+            pattern = r"def create_application_router\(\) -> APIRouter:.*?(?=\ndef|\nclass|\Z)"
             match = re.search(pattern, content, re.DOTALL)
-            
+
             if not match:
                 logger.warning("create_application_router function not found")
                 return False
-            
+
             # Create backup
             shutil.copy2(file_path, f"{file_path}.backup")
-            
+
             # Helper functions
             helper_functions = '''
 def _setup_core_routes(router: APIRouter) -> None:
@@ -124,7 +123,7 @@ def _setup_admin_routes(router: APIRouter) -> None:
     )
 
 '''
-            
+
             # Refactored main function
             refactored_function = '''def create_application_router() -> APIRouter:
     """
@@ -143,55 +142,59 @@ def _setup_admin_routes(router: APIRouter) -> None:
     
     logger.info("✅ Application router created with all endpoints")
     return router'''
-            
+
             # Replace the function
             function_start = match.start()
-            new_content = (content[:function_start] + 
-                         helper_functions + 
-                         refactored_function + 
-                         content[match.end():])
-            
+            new_content = (
+                content[:function_start]
+                + helper_functions
+                + refactored_function
+                + content[match.end() :]
+            )
+
             # Write refactored content
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-            
-            logger.info(f"✅ Refactored create_application_router: 129 lines → 4 functions of ~25 lines each")
+
+            logger.info(
+                "✅ Refactored create_application_router: 129 lines → 4 functions of ~25 lines each"
+            )
             self.refactored_files.append(file_path)
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Error refactoring create_application_router: {e}")
             self.errors.append(f"create_application_router: {e}")
             return False
-    
+
     def refactor_unified_chat_endpoint(self) -> bool:
         """Refactor the 60-line unified_chat_endpoint function"""
         file_path = "backend/api/llm_strategy_routes.py"
-        
+
         if not os.path.exists(file_path):
             logger.warning(f"File not found: {file_path}")
             return False
-        
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Check if already refactored
             if "_validate_chat_request" in content:
                 logger.info("unified_chat_endpoint already refactored")
                 return True
-            
+
             # Find the function
-            pattern = r'async def unified_chat_endpoint\([^)]*\)[^:]*:.*?(?=\n@|\nasync def|\ndef|\nclass|\Z)'
+            pattern = r"async def unified_chat_endpoint\([^)]*\)[^:]*:.*?(?=\n@|\nasync def|\ndef|\nclass|\Z)"
             match = re.search(pattern, content, re.DOTALL)
-            
+
             if not match:
                 logger.warning("unified_chat_endpoint function not found")
                 return False
-            
+
             # Create backup
             shutil.copy2(file_path, f"{file_path}.backup")
-            
+
             # Helper functions
             helper_functions = '''
 async def _validate_chat_request(request: Request) -> Dict[str, Any]:
@@ -256,7 +259,7 @@ async def _handle_streaming_response(validated_data: Dict[str, Any]) -> Streamin
     )
 
 '''
-            
+
             # Refactored main function
             refactored_function = '''@router.post("/unified-chat", response_model=ChatResponse)
 async def unified_chat_endpoint(request: Request):
@@ -287,67 +290,75 @@ async def unified_chat_endpoint(request: Request):
     except Exception as e:
         logger.error(f"Unexpected error in unified chat: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")'''
-            
+
             # Replace the function
             function_start = match.start()
-            new_content = (content[:function_start] + 
-                         helper_functions + 
-                         refactored_function + 
-                         content[match.end():])
-            
+            new_content = (
+                content[:function_start]
+                + helper_functions
+                + refactored_function
+                + content[match.end() :]
+            )
+
             # Write refactored content
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-            
-            logger.info(f"✅ Refactored unified_chat_endpoint: 60 lines → 4 functions of ~15 lines each")
+
+            logger.info(
+                "✅ Refactored unified_chat_endpoint: 60 lines → 4 functions of ~15 lines each"
+            )
             self.refactored_files.append(file_path)
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Error refactoring unified_chat_endpoint: {e}")
             self.errors.append(f"unified_chat_endpoint: {e}")
             return False
-    
+
     def refactor_large_init_methods(self) -> int:
         """Refactor large __init__ methods across the codebase"""
         refactored_count = 0
-        
+
         # Target files with known large __init__ methods
         target_files = [
             "backend/services/intelligent_query_router.py",
             "backend/scripts/batch_embed_data.py",
             "backend/workflows/multi_agent_workflow.py",
-            "backend/core/comprehensive_snowflake_config.py"
+            "backend/core/comprehensive_snowflake_config.py",
         ]
-        
+
         for file_path in target_files:
             if os.path.exists(file_path):
                 if self._refactor_init_in_file(file_path):
                     refactored_count += 1
-        
+
         return refactored_count
-    
+
     def _refactor_init_in_file(self, file_path: str) -> bool:
         """Refactor __init__ methods in a specific file"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             # Find long __init__ methods
-            init_pattern = r'def __init__\(self[^)]*\):[^}]*?(?=\n    def|\n\nclass|\nclass|\Z)'
+            init_pattern = (
+                r"def __init__\(self[^)]*\):[^}]*?(?=\n    def|\n\nclass|\nclass|\Z)"
+            )
             matches = list(re.finditer(init_pattern, content, re.DOTALL))
-            
+
             modified = False
             for match in reversed(matches):  # Process in reverse to maintain positions
                 init_content = match.group(0)
-                line_count = init_content.count('\n')
-                
+                line_count = init_content.count("\n")
+
                 if line_count > 50:
                     # Extract method signature
-                    signature_match = re.match(r'def __init__\(self[^)]*\):', init_content)
+                    signature_match = re.match(
+                        r"def __init__\(self[^)]*\):", init_content
+                    )
                     if signature_match:
                         signature = signature_match.group(0)
-                        
+
                         # Create refactored version
                         refactored_init = f'''    {signature}
         """Initialize the service with configuration and setup"""
@@ -375,58 +386,58 @@ async def unified_chat_endpoint(request: Request):
         """Finalize initialization process"""
         # TODO: Move finalization logic here
         pass'''
-                        
+
                         # Replace the init method
-                        content = content[:match.start()] + refactored_init + content[match.end():]
+                        content = (
+                            content[: match.start()]
+                            + refactored_init
+                            + content[match.end() :]
+                        )
                         modified = True
-            
+
             if modified:
                 # Create backup
                 shutil.copy2(file_path, f"{file_path}.backup")
-                
+
                 # Write refactored content
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-                
+
                 logger.info(f"✅ Refactored __init__ methods in {file_path}")
                 self.refactored_files.append(file_path)
                 return True
-                
+
         except Exception as e:
             logger.error(f"❌ Error refactoring __init__ methods in {file_path}: {e}")
             self.errors.append(f"__init__ in {file_path}: {e}")
-        
+
         return False
-    
-    def run_priority_refactoring(self) -> Dict[str, int]:
+
+    def run_priority_refactoring(self) -> dict[str, int]:
         """Run refactoring on priority functions"""
         logger.info("🚀 Starting Priority Function Refactoring")
-        
-        results = {
-            "functions_refactored": 0,
-            "files_modified": 0,
-            "errors": 0
-        }
-        
+
+        results = {"functions_refactored": 0, "files_modified": 0, "errors": 0}
+
         # Refactor create_application_router (highest priority)
         if self.refactor_create_application_router():
             results["functions_refactored"] += 1
-        
+
         # Refactor unified_chat_endpoint
         if self.refactor_unified_chat_endpoint():
             results["functions_refactored"] += 1
-        
+
         # Refactor large __init__ methods
         init_count = self.refactor_large_init_methods()
         results["functions_refactored"] += init_count
-        
+
         # Count unique files modified
         results["files_modified"] = len(set(self.refactored_files))
         results["errors"] = len(self.errors)
-        
+
         return results
-    
-    def generate_refactoring_report(self, results: Dict[str, int]) -> str:
+
+    def generate_refactoring_report(self, results: dict[str, int]) -> str:
         """Generate detailed refactoring report"""
         report = f"""# Priority Function Refactoring Report
 
@@ -481,30 +492,32 @@ async def unified_chat_endpoint(request: Request):
 """
         return report
 
+
 def main():
     """Main execution function"""
     refactorer = PriorityFunctionRefactorer()
-    
+
     # Run priority refactoring
     results = refactorer.run_priority_refactoring()
-    
+
     # Generate report
     report = refactorer.generate_refactoring_report(results)
-    
+
     # Save report
     with open("PRIORITY_FUNCTION_REFACTORING_REPORT.md", "w") as f:
         f.write(report)
-    
+
     # Summary
     logger.info("🎉 Priority Function Refactoring Complete!")
     logger.info(f"📊 Results: {results}")
-    
+
     if results["functions_refactored"] > 0:
         logger.info("📝 Report saved to PRIORITY_FUNCTION_REFACTORING_REPORT.md")
         logger.info("🔍 Please review refactored functions and update tests")
-    
+
     if results["errors"] > 0:
         logger.warning(f"⚠️  {results['errors']} errors encountered - check logs")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

@@ -3,7 +3,8 @@ Project Service - Stub Implementation
 Provides basic project management functionality
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -17,23 +18,23 @@ class ProjectService:
         self,
         session: AsyncSession,
         user_id: str,
-        status: Optional[str] = None,
-        priority: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        status: str | None = None,
+        priority: str | None = None,
+    ) -> list[dict[str, Any]]:
         """Get projects for user with filters"""
         # Stub implementation
         return []
 
     async def get_project(
         self, session: AsyncSession, project_id: str, user_id: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Get single project by ID"""
         # Stub implementation
         return None
 
     async def get_project_stats(
         self, session: AsyncSession, user_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get project statistics"""
         # Stub implementation
         return {

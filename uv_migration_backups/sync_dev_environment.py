@@ -23,7 +23,8 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
 import git
 
 logging.basicConfig(level=logging.INFO)
@@ -45,7 +46,7 @@ class DevEnvironmentSyncer:
         except git.InvalidGitRepositoryError:
             raise ValueError(f"Not a git repository: {self.project_root}")
 
-    def _load_project_config(self) -> Dict[str, Any]:
+    def _load_project_config(self) -> dict[str, Any]:
         """Load project configuration"""
         config_files = [
             "cursor_mcp_config.json",
@@ -60,14 +61,14 @@ class DevEnvironmentSyncer:
             file_path = self.project_root / config_file
             if file_path.exists():
                 if config_file.endswith(".json"):
-                    with open(file_path, "r") as f:
+                    with open(file_path) as f:
                         config[config_file] = json.load(f)
                 else:
                     config[config_file] = file_path.read_text()
 
         return config
 
-    async def sync_with_remote(self) -> Dict[str, Any]:
+    async def sync_with_remote(self) -> dict[str, Any]:
         """Sync with remote repository"""
         logger.info("🔄 Syncing with remote repository")
 
@@ -126,7 +127,7 @@ class DevEnvironmentSyncer:
 
         return sync_result
 
-    async def sync_dependencies(self) -> Dict[str, Any]:
+    async def sync_dependencies(self) -> dict[str, Any]:
         """Sync project dependencies"""
         logger.info("📦 Syncing dependencies")
 
@@ -188,7 +189,7 @@ class DevEnvironmentSyncer:
 
         return dependency_result
 
-    async def sync_mcp_servers(self) -> Dict[str, Any]:
+    async def sync_mcp_servers(self) -> dict[str, Any]:
         """Sync MCP server configurations"""
         logger.info("🔌 Syncing MCP servers")
 
@@ -204,7 +205,7 @@ class DevEnvironmentSyncer:
             mcp_config_file = self.project_root / "cursor_mcp_config.json"
 
             if mcp_config_file.exists():
-                with open(mcp_config_file, "r") as f:
+                with open(mcp_config_file) as f:
                     mcp_config = json.load(f)
 
                 servers = mcp_config.get("mcpServers", {})
@@ -247,7 +248,7 @@ class DevEnvironmentSyncer:
 
         return mcp_result
 
-    async def sync_github_integration(self) -> Dict[str, Any]:
+    async def sync_github_integration(self) -> dict[str, Any]:
         """Sync GitHub integration settings"""
         logger.info("🔗 Syncing GitHub integration")
 
@@ -287,7 +288,7 @@ class DevEnvironmentSyncer:
 
         return github_result
 
-    async def sync_cursor_settings(self) -> Dict[str, Any]:
+    async def sync_cursor_settings(self) -> dict[str, Any]:
         """Sync Cursor IDE settings"""
         logger.info("🎯 Syncing Cursor settings")
 
@@ -303,7 +304,7 @@ class DevEnvironmentSyncer:
             settings_file = vscode_dir / "settings.json"
 
             if settings_file.exists():
-                with open(settings_file, "r") as f:
+                with open(settings_file) as f:
                     settings = json.load(f)
 
                 # Ensure key Cursor settings are present
@@ -343,7 +344,7 @@ class DevEnvironmentSyncer:
 
         return cursor_result
 
-    async def sync_environment_variables(self) -> Dict[str, Any]:
+    async def sync_environment_variables(self) -> dict[str, Any]:
         """Sync environment variables and secrets"""
         logger.info("🔐 Syncing environment variables")
 
@@ -392,7 +393,7 @@ class DevEnvironmentSyncer:
 
         return env_result
 
-    async def validate_development_setup(self) -> Dict[str, Any]:
+    async def validate_development_setup(self) -> dict[str, Any]:
         """Validate complete development setup"""
         logger.info("🔍 Validating development setup")
 
@@ -576,7 +577,7 @@ class DevEnvironmentSyncer:
 
         return "\n".join(report)
 
-    async def auto_fix_issues(self) -> Dict[str, Any]:
+    async def auto_fix_issues(self) -> dict[str, Any]:
         """Automatically fix common development environment issues"""
         logger.info("🔧 Auto-fixing development environment issues")
 

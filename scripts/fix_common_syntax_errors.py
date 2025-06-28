@@ -12,14 +12,13 @@ Common patterns:
 import json
 import re
 from pathlib import Path
-from typing import List, Tuple
 
 # Load syntax validation report
-with open("syntax_validation_report.json", "r") as f:
+with open("syntax_validation_report.json") as f:
     report = json.load(f)
 
 
-def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
+def fix_common_syntax_errors(content: str) -> tuple[str, list[str]]:
     """Fix common syntax errors in Python code."""
     lines = content.split("\n")
     fixes_made = []
@@ -110,7 +109,7 @@ def fix_common_syntax_errors(content: str) -> Tuple[str, List[str]]:
 def process_file(file_path: Path) -> bool:
     """Process a single file to fix syntax errors."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         fixed_content, fixes = fix_common_syntax_errors(content)

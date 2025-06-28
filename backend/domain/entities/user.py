@@ -8,7 +8,6 @@ in the Sophia AI system.
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Set
 
 
 class UserRole(Enum):
@@ -45,13 +44,13 @@ class User:
     last_name: str
     role: UserRole
     is_active: bool = True
-    team_id: Optional[str] = None
-    manager_id: Optional[str] = None
-    permissions: Optional[Set[str]] = None
-    owned_deal_ids: Optional[List[str]] = None
-    last_login: Optional[datetime] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    team_id: str | None = None
+    manager_id: str | None = None
+    permissions: set[str] | None = None
+    owned_deal_ids: list[str] | None = None
+    last_login: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     def __post_init__(self):
         """Initialize default values."""
@@ -74,7 +73,7 @@ class User:
         """Get formatted display name with role."""
         return f"{self.full_name} ({self.role.value.replace('_', ' ').title()})"
 
-    def _get_default_permissions(self) -> Set[str]:
+    def _get_default_permissions(self) -> set[str]:
         """
         Get default permissions based on role.
 
@@ -134,7 +133,7 @@ class User:
         return self.permissions is not None and permission in self.permissions
 
     def can_view_deal(
-        self, deal_owner_id: str, deal_team_id: Optional[str] = None
+        self, deal_owner_id: str, deal_team_id: str | None = None
     ) -> bool:
         """
         Business rule: Check if user can view a specific deal.

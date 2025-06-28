@@ -8,16 +8,17 @@ from __future__ import annotations
 
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
+
 from backend.integrations.gong_api_client import GongAPIClient
 from backend.integrations.gong_redis_client import (
-    RedisNotificationClient,
+    NotificationPriority,
     ProcessedCallData,
     ProcessedEmailData,
     ProcessedMeetingData,
-    NotificationPriority,
+    RedisNotificationClient,
 )
 from backend.integrations.gong_snowflake_client import SnowflakeWebhookClient
 from backend.integrations.gong_webhook_server import (
@@ -34,7 +35,7 @@ class WebhookProcessor:
     def __init__(
         self,
         gong_api_key: str,
-        snowflake_config: Dict[str, str],
+        snowflake_config: dict[str, str],
         redis_url: str = "redis://localhost:6379",
     ):
         self.gong_api = GongAPIClient(api_key=gong_api_key)
@@ -55,8 +56,8 @@ class WebhookProcessor:
         self.snowflake.close()
 
     async def process_call_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process a call webhook through the complete pipeline."""
         start_time = time.time()
         call_id = webhook_data.get("call_id", "")
@@ -273,8 +274,8 @@ class WebhookProcessor:
         return processing_result
 
     async def process_email_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process an email webhook."""
         # Similar implementation to call webhook
         # Simplified for brevity
@@ -325,8 +326,8 @@ class WebhookProcessor:
             raise
 
     async def process_meeting_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process a meeting webhook."""
         meeting_id = webhook_data.get("meeting_id", "")
 
@@ -367,7 +368,7 @@ class WebhookProcessor:
             await self.snowflake.update_webhook_status(webhook_id, "failed", str(e))
             raise
 
-    def _calculate_data_quality(self, enhanced_data: Dict[str, Any]) -> float:
+    def _calculate_data_quality(self, enhanced_data: dict[str, Any]) -> float:
         """Calculate data quality score."""
         if not enhanced_data:
             return 0.0
@@ -390,8 +391,8 @@ class WebhookProcessor:
         return score
 
     def _extract_insights(
-        self, enhanced_data: Optional[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, enhanced_data: dict[str, Any] | None
+    ) -> list[dict[str, Any]]:
         """Extract business insights from enhanced data."""
         if not enhanced_data:
             return []
@@ -467,9 +468,7 @@ class WebhookProcessor:
         # Default to medium
         return NotificationPriority.MEDIUM
 
-    def _determine_next_steps(
-        self, enhanced_data: Optional[Dict[str, Any]]
-    ) -> List[str]:
+    def _determine_next_steps(self, enhanced_data: dict[str, Any] | None) -> list[str]:
         """Determine recommended next steps."""
         if not enhanced_data:
             return []
@@ -509,7 +508,7 @@ class WebhookProcessor:
         else:
             return "neutral"
 
-    def _extract_topics(self, content: str) -> List[str]:
+    def _extract_topics(self, content: str) -> list[str]:
         """Extract key topics from content."""
         # Simplified topic extraction
         # In production, use proper NLP service
@@ -529,7 +528,7 @@ class WebhookProcessor:
 
         return topics
 
-    def _requires_response(self, email_data: Dict[str, Any]) -> bool:
+    def _requires_response(self, email_data: dict[str, Any]) -> bool:
         """Determine if email requires response."""
         # Check if it's a question or request
         content = email_data.get("content", "").lower()
@@ -537,12 +536,12 @@ class WebhookProcessor:
 
         return any(indicator in content for indicator in question_indicators)
 
-    def _extract_agenda_items(self, meeting_data: Dict[str, Any]) -> List[str]:
+    def _extract_agenda_items(self, meeting_data: dict[str, Any]) -> list[str]:
         """Extract agenda items from meeting data."""
         # Simplified extraction
         return meeting_data.get("agenda", [])
 
-    def _extract_decisions(self, meeting_data: Dict[str, Any]) -> List[str]:
+    def _extract_decisions(self, meeting_data: dict[str, Any]) -> list[str]:
         """Extract decisions from meeting data."""
         # Simplified extraction
         return meeting_data.get("decisions", [])

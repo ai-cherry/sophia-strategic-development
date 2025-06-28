@@ -4,15 +4,16 @@ Sophia AI Migration Script: MCP to Cortex + Estuary
 Automated migration tool for transitioning infrastructure
 """
 
-import sys
-import json
-import yaml
-import asyncio
-import logging
 import argparse
-from pathlib import Path
-from datetime import datetime
+import asyncio
+import json
+import logging
 import shutil
+import sys
+from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

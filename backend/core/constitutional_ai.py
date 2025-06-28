@@ -4,9 +4,9 @@ Sophia AI Constitutional AI Framework
 Ensures all AI operations comply with ethical principles and business constraints.
 """
 
-from typing import Dict, List, Any
 import logging
 from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class SophiaConstitutionalFramework:
             len(self.principles),
         )
 
-    def _define_principles(self) -> List[Dict[str, Any]]:
+    def _define_principles(self) -> list[dict[str, Any]]:
         """Define the core constitutional principles for Sophia AI"""
         return [
             {
@@ -78,8 +78,8 @@ class SophiaConstitutionalFramework:
         ]
 
     async def validate_query(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Validate a business intelligence query against constitutional principles
 
@@ -133,7 +133,7 @@ class SophiaConstitutionalFramework:
         return result
 
     async def _validate_principle(
-        self, principle: Dict[str, Any], query: str, context: Dict[str, Any]
+        self, principle: dict[str, Any], query: str, context: dict[str, Any]
     ) -> float:
         """Validate a query against a specific principle"""
         scores = []
@@ -152,7 +152,7 @@ class SophiaConstitutionalFramework:
 
     # Validation Functions for Business Intelligence Accuracy
     async def _validate_data_accuracy(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that the query seeks accurate data"""
         # Check for misleading keywords
@@ -168,7 +168,7 @@ class SophiaConstitutionalFramework:
         return 0.8  # Default high score for normal queries
 
     async def _validate_confidence_scores(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that confidence scores will be provided"""
         # Queries asking for certainty or confidence are good
@@ -181,7 +181,7 @@ class SophiaConstitutionalFramework:
         return 0.9  # Default high score
 
     async def _validate_source_attribution(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that sources will be properly attributed"""
         # Check if query asks for sources
@@ -195,7 +195,7 @@ class SophiaConstitutionalFramework:
 
     # Validation Functions for Privacy Protection
     async def _validate_no_pii_exposure(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that no PII will be exposed"""
         # Check for PII-related keywords
@@ -217,7 +217,7 @@ class SophiaConstitutionalFramework:
         return 0.95  # Default high score
 
     async def _validate_data_handling(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate proper data handling practices"""
         # Check user role for data access
@@ -236,7 +236,7 @@ class SophiaConstitutionalFramework:
         return 0.9  # Default good score
 
     async def _validate_consent_compliance(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate consent compliance"""
         # For now, assume consent is properly managed
@@ -244,7 +244,7 @@ class SophiaConstitutionalFramework:
 
     # Validation Functions for Human Autonomy
     async def _validate_recommendation_language(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that recommendations respect human autonomy"""
         # Check for overly prescriptive language
@@ -260,13 +260,13 @@ class SophiaConstitutionalFramework:
         return 0.85
 
     async def _validate_ai_identification(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that AI will identify itself properly"""
         return 0.95  # Always identify as AI
 
     async def _validate_multiple_perspectives(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate consideration of multiple perspectives"""
         # Check for perspective-seeking language
@@ -280,7 +280,7 @@ class SophiaConstitutionalFramework:
 
     # Validation Functions for Transparency
     async def _validate_explainability(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate that responses will be explainable"""
         if any(
@@ -291,20 +291,20 @@ class SophiaConstitutionalFramework:
         return 0.85
 
     async def _validate_uncertainty_communication(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate proper communication of uncertainty"""
         return 0.9  # Always communicate uncertainty
 
     async def _validate_limitation_disclosure(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate disclosure of AI limitations"""
         return 0.9  # Always disclose limitations when relevant
 
     # Validation Functions for Fairness
     async def _validate_bias_mitigation(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate bias mitigation"""
         # Check for potentially biased language
@@ -315,18 +315,18 @@ class SophiaConstitutionalFramework:
         return 0.9
 
     async def _validate_inclusive_language(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate use of inclusive language"""
         return 0.95  # Default high score
 
     async def _validate_equitable_treatment(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> float:
         """Validate equitable treatment"""
         return 0.95  # Default high score
 
-    def _generate_violation_reason(self, violations: List[Dict[str, Any]]) -> str:
+    def _generate_violation_reason(self, violations: list[dict[str, Any]]) -> str:
         """Generate a human-readable reason for violations"""
         if not violations:
             return ""
@@ -335,8 +335,8 @@ class SophiaConstitutionalFramework:
         return f"Query violates constitutional principles: {', '.join(violation_names)}"
 
     def _generate_improvement_suggestions(
-        self, violations: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, violations: list[dict[str, Any]]
+    ) -> list[str]:
         """Generate suggestions to improve compliance"""
         suggestions = []
 
@@ -360,7 +360,7 @@ class SophiaConstitutionalFramework:
 
         return suggestions
 
-    async def validate_response(self, response: Dict[str, Any]) -> Dict[str, Any]:
+    async def validate_response(self, response: dict[str, Any]) -> dict[str, Any]:
         """Validate an AI response against constitutional principles"""
         # Simplified validation for responses
         return {
@@ -370,8 +370,8 @@ class SophiaConstitutionalFramework:
         }
 
     async def validate_optimization(
-        self, optimization: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, optimization: dict[str, Any]
+    ) -> dict[str, Any]:
         """Validate a proposed optimization against constitutional principles"""
         # Ensure optimizations don't violate principles
         score = 0.9  # Default high score

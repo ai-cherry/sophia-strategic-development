@@ -3,9 +3,9 @@
 Script to fix priority syntax errors in existing files.
 """
 
+import logging
 import re
 from pathlib import Path
-import logging
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def fix_syntax_in_file(file_path):
         return False
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content

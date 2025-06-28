@@ -1,9 +1,9 @@
 # File: backend/agents/enhanced/data_models.py
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 
 class AgentCapability(Enum):
@@ -28,10 +28,10 @@ class AgentTask:
 
     task_id: str
     task_type: str
-    parameters: Dict[str, Any]
-    required_capabilities: List[AgentCapability]
+    parameters: dict[str, Any]
+    required_capabilities: list[AgentCapability]
     priority: int = 1
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -47,7 +47,7 @@ class AgentResult:
     result: Any
     execution_time: float
     confidence_score: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -57,12 +57,12 @@ class MemoryRecord:
     id: str
     content: str
     category: str
-    tags: List[str] = field(default_factory=list)
-    embedding: Optional[List[float]] = None
+    tags: list[str] = field(default_factory=list)
+    embedding: list[float] | None = None
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed_at: Optional[datetime] = None
+    last_accessed_at: datetime | None = None
 
     # Metadata for intelligence and retrieval
     importance_score: float = 0.5
@@ -70,13 +70,13 @@ class MemoryRecord:
     usage_count: int = 0
 
     # Contextual links to business entities
-    deal_id: Optional[str] = None
-    call_id: Optional[str] = None
-    contact_id: Optional[str] = None
+    deal_id: str | None = None
+    call_id: str | None = None
+    contact_id: str | None = None
 
     # Source and detection information
     source_system: str = "sophia_ai"
     auto_detected: bool = False
 
     # Additional unstructured metadata
-    additional_metadata: Dict[str, Any] = field(default_factory=dict)
+    additional_metadata: dict[str, Any] = field(default_factory=dict)

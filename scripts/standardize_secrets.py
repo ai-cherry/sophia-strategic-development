@@ -7,7 +7,6 @@ Executes the migration plan from secret audit results
 import json
 import re
 from pathlib import Path
-from typing import Dict, List
 
 
 class SecretStandardizer:
@@ -18,7 +17,7 @@ class SecretStandardizer:
         self.migration_plan = self._load_migration_plan()
         self.analysis_report = self._load_analysis_report()
 
-    def _load_migration_plan(self) -> Dict:
+    def _load_migration_plan(self) -> dict:
         """Load the migration plan from audit results."""
         plan_file = self.workspace_root / "secret_migration_plan.json"
         if not plan_file.exists():
@@ -26,10 +25,10 @@ class SecretStandardizer:
                 "Run secret audit first: python scripts/audit_secret_naming.py"
             )
 
-        with open(plan_file, "r") as f:
+        with open(plan_file) as f:
             return json.load(f)
 
-    def _load_analysis_report(self) -> Dict:
+    def _load_analysis_report(self) -> dict:
         """Load the analysis report from audit results."""
         report_file = self.workspace_root / "secret_analysis_report.json"
         if not report_file.exists():
@@ -37,10 +36,10 @@ class SecretStandardizer:
                 "Run secret audit first: python scripts/audit_secret_naming.py"
             )
 
-        with open(report_file, "r") as f:
+        with open(report_file) as f:
             return json.load(f)
 
-    def generate_cleanup_list(self) -> Dict:
+    def generate_cleanup_list(self) -> dict:
         """Generate prioritized cleanup list based on audit results."""
 
         # Priority 1: Critical secrets that are actively used
@@ -118,7 +117,7 @@ class SecretStandardizer:
 
         return cleanup_plan
 
-    def update_pulumi_esc_sync(self, secrets_to_add: List[str]) -> None:
+    def update_pulumi_esc_sync(self, secrets_to_add: list[str]) -> None:
         """Update Pulumi ESC sync script with new secret mappings."""
         sync_script_path = (
             self.workspace_root / "scripts" / "ci" / "sync_from_gh_to_pulumi.py"
@@ -128,7 +127,7 @@ class SecretStandardizer:
             print("❌ Pulumi sync script not found")
             return
 
-        with open(sync_script_path, "r") as f:
+        with open(sync_script_path) as f:
             content = f.read()
 
         # Find the secret_mappings dictionary
@@ -180,7 +179,7 @@ class SecretStandardizer:
                 f"✅ Added {len(new_mappings)} new secret mappings to Pulumi ESC sync"
             )
 
-    def generate_github_actions_cleanup(self) -> Dict:
+    def generate_github_actions_cleanup(self) -> dict:
         """Generate GitHub Actions workflow cleanup recommendations."""
         workflow_dir = self.workspace_root / ".github" / "workflows"
         workflows = list(workflow_dir.glob("*.yml"))
@@ -190,7 +189,7 @@ class SecretStandardizer:
         secret_usage = {}
 
         for workflow_file in workflows:
-            with open(workflow_file, "r") as f:
+            with open(workflow_file) as f:
                 content = f.read()
 
             # Count secrets usage

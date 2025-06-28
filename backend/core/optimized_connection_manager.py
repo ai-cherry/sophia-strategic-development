@@ -23,7 +23,7 @@ Current size: 838 lines
 
 Recommended decomposition:
 - optimized_connection_manager_core.py - Core functionality
-- optimized_connection_manager_utils.py - Utility functions  
+- optimized_connection_manager_utils.py - Utility functions
 - optimized_connection_manager_models.py - Data models
 - optimized_connection_manager_handlers.py - Request handlers
 
@@ -33,11 +33,11 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Any, Tuple, Union
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 # Database connection libraries with graceful fallbacks
 import asyncpg
@@ -129,7 +129,7 @@ class ConnectionStats:
     avg_connection_time_ms: float = 0.0
     pool_efficiency: float = 0.0
     circuit_breaker_trips: int = 0
-    last_health_check: Optional[datetime] = None
+    last_health_check: datetime | None = None
     uptime_seconds: float = 0.0
 
 
@@ -138,8 +138,8 @@ class BatchQuery:
     """Batch query structure for N+1 elimination"""
 
     query: str
-    params: Optional[Union[Tuple, Dict]] = None
-    query_id: Optional[str] = None
+    params: tuple | dict | None = None
+    query_id: str | None = None
 
 
 @dataclass
@@ -148,8 +148,8 @@ class BatchResult:
 
     query_id: str
     success: bool
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    result: Any | None = None
+    error: str | None = None
     execution_time_ms: float = 0.0
 
 
@@ -210,10 +210,10 @@ class OptimizedConnectionPool:
         self.idle_timeout = idle_timeout
 
         # Connection management
-        self._pool: List[Any] = []
+        self._pool: list[Any] = []
         self._active_connections: set = set()
-        self._connection_created_times: Dict[Any, float] = {}
-        self._connection_last_used: Dict[Any, float] = {}
+        self._connection_created_times: dict[Any, float] = {}
+        self._connection_last_used: dict[Any, float] = {}
         self._pool_lock = asyncio.Lock()
 
         # Performance tracking
@@ -253,7 +253,7 @@ class OptimizedConnectionPool:
             logger.error(f"❌ Failed to initialize {self.connection_type} pool: {e}")
             raise
 
-    async def _create_connection(self) -> Optional[Any]:
+    async def _create_connection(self) -> Any | None:
         """Create a new database connection"""
         connection_start = time.time()
 
@@ -493,7 +493,7 @@ class OptimizedConnectionPool:
             self._pool = connections_to_keep
             self.stats.idle_connections = len(self._pool)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get pool statistics"""
         self.stats.uptime_seconds = time.time() - self.start_time
         self.stats.pool_efficiency = (
@@ -514,9 +514,11 @@ class OptimizedConnectionPool:
             "circuit_breaker_trips": self.stats.circuit_breaker_trips,
             "circuit_breaker_state": self.circuit_breaker.state,
             "uptime_seconds": round(self.stats.uptime_seconds, 2),
-            "last_health_check": self.stats.last_health_check.isoformat()
-            if self.stats.last_health_check
-            else None,
+            "last_health_check": (
+                self.stats.last_health_check.isoformat()
+                if self.stats.last_health_check
+                else None
+            ),
         }
 
 
@@ -533,7 +535,7 @@ class OptimizedConnectionManager:
     """
 
     def __init__(self):
-        self.pools: Dict[ConnectionType, OptimizedConnectionPool] = {}
+        self.pools: dict[ConnectionType, OptimizedConnectionPool] = {}
         self.initialized = False
         self.global_stats = {
             "total_queries": 0,
@@ -586,7 +588,7 @@ class OptimizedConnectionManager:
     async def execute_query(
         self,
         query: str,
-        params: Optional[Union[Tuple, Dict]] = None,
+        params: tuple | dict | None = None,
         connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
     ) -> Any:
         """Execute single query with connection pooling"""
@@ -647,9 +649,9 @@ class OptimizedConnectionManager:
     @performance_monitor.monitor_performance("execute_batch_queries", 5000)
     async def execute_batch_queries(
         self,
-        queries: List[BatchQuery],
+        queries: list[BatchQuery],
         connection_type: ConnectionType = ConnectionType.SNOWFLAKE,
-    ) -> List[BatchResult]:
+    ) -> list[BatchResult]:
         """
         ✅ OPTIMIZED: Execute batch queries eliminating N+1 patterns
 
@@ -754,7 +756,7 @@ class OptimizedConnectionManager:
                 logger.error(f"Batch query execution failed: {e}")
                 raise
 
-    async def get_connection_stats(self) -> Dict[str, Any]:
+    async def get_connection_stats(self) -> dict[str, Any]:
         """Get comprehensive connection statistics"""
         if not self.initialized:
             return {"status": "not_initialized"}
@@ -780,7 +782,7 @@ class OptimizedConnectionManager:
             },
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Comprehensive health check"""
         if not self.initialized:
             return {
@@ -814,9 +816,11 @@ class OptimizedConnectionManager:
             }
 
         return {
-            "status": ConnectionStatus.HEALTHY
-            if overall_healthy
-            else ConnectionStatus.DEGRADED,
+            "status": (
+                ConnectionStatus.HEALTHY
+                if overall_healthy
+                else ConnectionStatus.DEGRADED
+            ),
             "pools": health_results,
             "performance_metrics": {
                 "total_queries": self.global_stats["total_queries"],
@@ -836,7 +840,7 @@ async def get_connection():
     return connection_manager.get_connection()
 
 
-async def execute_query(query: str, params: Optional[tuple] = None):
+async def execute_query(query: str, params: tuple | None = None):
     """Execute query using global connection manager"""
     return await connection_manager.execute_query(query, params)
 

@@ -9,7 +9,7 @@ Current size: 727 lines
 
 Recommended decomposition:
 - enhanced_cortex_agent_service_core.py - Core functionality
-- enhanced_cortex_agent_service_utils.py - Utility functions  
+- enhanced_cortex_agent_service_utils.py - Utility functions
 - enhanced_cortex_agent_service_models.py - Data models
 - enhanced_cortex_agent_service_handlers.py - Request handlers
 
@@ -18,10 +18,11 @@ TODO: Implement file decomposition
 
 import json
 import logging
-from typing import Dict, List, Any, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Any
+
 import snowflake.connector
+from pydantic import BaseModel
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -38,11 +39,11 @@ class AgentRequest(BaseModel):
     """Base agent request model"""
 
     prompt: str
-    context: Optional[Dict[str, Any]] = None
-    tools: Optional[List[str]] = None
-    max_tokens: Optional[int] = 4096
-    temperature: Optional[float] = 0.7
-    stream: Optional[bool] = False
+    context: dict[str, Any] | None = None
+    tools: list[str] | None = None
+    max_tokens: int | None = 4096
+    temperature: float | None = 0.7
+    stream: bool | None = False
 
 
 class AgentResponse(BaseModel):
@@ -50,10 +51,10 @@ class AgentResponse(BaseModel):
 
     agent_name: str
     response: str
-    tools_used: List[str] = []
+    tools_used: list[str] = []
     tokens_used: int
     execution_time: float
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class CortexTool(BaseModel):
@@ -61,7 +62,7 @@ class CortexTool(BaseModel):
 
     name: str
     description: str
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
 
 
 class CortexAgentService:
@@ -77,17 +78,17 @@ class MultimodalFile(BaseModel):
 
     file_id: str
     file_type: str  # 'audio', 'document', 'image'
-    file_url: Optional[str] = None
-    file_content: Optional[bytes] = None
-    metadata: Dict[str, Any] = {}
+    file_url: str | None = None
+    file_content: bytes | None = None
+    metadata: dict[str, Any] = {}
 
 
 class MultimodalAgentRequest(AgentRequest):
     """Enhanced agent request with multimodal support"""
 
-    files: List[MultimodalFile] = []
-    processing_options: Dict[str, Any] = {}
-    business_context: Optional[Dict[str, Any]] = None
+    files: list[MultimodalFile] = []
+    processing_options: dict[str, Any] = {}
+    business_context: dict[str, Any] | None = None
 
 
 class AdvancedAnalyticsQuery(BaseModel):
@@ -96,20 +97,20 @@ class AdvancedAnalyticsQuery(BaseModel):
     query_type: (
         str  # 'customer_intelligence', 'sales_optimization', 'compliance_monitoring'
     )
-    parameters: Dict[str, Any]
-    time_range: Optional[Dict[str, str]] = None
-    filters: Dict[str, Any] = {}
+    parameters: dict[str, Any]
+    time_range: dict[str, str] | None = None
+    filters: dict[str, Any] = {}
 
 
 class AnalyticsResponse(BaseModel):
     """Response model for analytics queries"""
 
     query_type: str
-    results: Dict[str, Any]
-    insights: List[str]
-    recommendations: List[str]
+    results: dict[str, Any]
+    insights: list[str]
+    recommendations: list[str]
     confidence_score: float
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class ComplianceAlert(BaseModel):
@@ -119,8 +120,8 @@ class ComplianceAlert(BaseModel):
     severity: str  # 'low', 'medium', 'high', 'critical'
     category: str  # 'fdcpa', 'privacy', 'data_governance'
     description: str
-    affected_records: List[str]
-    recommended_actions: List[str]
+    affected_records: list[str]
+    recommended_actions: list[str]
     timestamp: datetime
 
 
@@ -206,7 +207,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 status_code=500, detail=f"Multimodal processing failed: {str(e)}"
             )
 
-    async def _process_audio_file(self, file: MultimodalFile) -> Dict[str, Any]:
+    async def _process_audio_file(self, file: MultimodalFile) -> dict[str, Any]:
         """Process audio files (Gong recordings)"""
         logger.info(f"Processing audio file: {file.file_id}")
 
@@ -246,7 +247,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             cursor.close()
             conn.close()
 
-    async def _process_document_file(self, file: MultimodalFile) -> Dict[str, Any]:
+    async def _process_document_file(self, file: MultimodalFile) -> dict[str, Any]:
         """Process document files (contracts, proposals, meeting notes)"""
         logger.info(f"Processing document file: {file.file_id}")
 
@@ -273,7 +274,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             # Use Cortex AI for document analysis
             if text_content:
                 analysis_query = """
-                SELECT 
+                SELECT
                     SNOWFLAKE.CORTEX.COMPLETE(
                         %s,
                         %s
@@ -290,7 +291,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             cursor.close()
             conn.close()
 
-    async def _process_image_file(self, file: MultimodalFile) -> Dict[str, Any]:
+    async def _process_image_file(self, file: MultimodalFile) -> dict[str, Any]:
         """Process image files (Slack attachments, screenshots)"""
         logger.info(f"Processing image file: {file.file_id}")
 
@@ -316,10 +317,10 @@ class EnhancedCortexAgentService(CortexAgentService):
 
     async def _generate_multimodal_insights(
         self,
-        processing_results: Dict[str, Any],
+        processing_results: dict[str, Any],
         prompt: str,
-        business_context: Optional[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        business_context: dict[str, Any] | None,
+    ) -> dict[str, Any]:
         """Generate AI insights from multimodal processing results"""
 
         conn = await self.get_advanced_connection()
@@ -343,20 +344,20 @@ class EnhancedCortexAgentService(CortexAgentService):
             # Generate comprehensive AI analysis
             analysis_prompt = f"""
             Analyze the following multimodal content in the context of real estate collections business:
-            
+
             User Request: {prompt}
             Business Context: {json.dumps(business_context) if business_context else "None"}
-            
+
             Content Analysis:
             {content_summary}
-            
+
             Provide:
             1. Executive summary of key insights
             2. Business implications and opportunities
             3. Risk assessment and compliance considerations
             4. Recommended actions with priorities
             5. Confidence score (0-1) for the analysis
-            
+
             Format as JSON with fields: summary, business_implications, risks, recommendations, confidence_score
             """
 
@@ -402,7 +403,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             conn.close()
 
     async def _store_multimodal_results(
-        self, processing_results: Dict[str, Any], ai_insights: Dict[str, Any]
+        self, processing_results: dict[str, Any], ai_insights: dict[str, Any]
     ):
         """Store multimodal processing results in Snowflake"""
 
@@ -479,7 +480,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
     async def _analyze_customer_intelligence(
         self, query: AdvancedAnalyticsQuery
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze customer intelligence with AI insights"""
 
         conn = await self.get_advanced_connection()
@@ -488,7 +489,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         try:
             # Execute customer intelligence query - SECURE VERSION with parameterized query
             intelligence_query = """
-            SELECT 
+            SELECT
                 record_id,
                 email,
                 firstname,
@@ -513,10 +514,10 @@ class EnhancedCortexAgentService(CortexAgentService):
                 %s
             ) as insights
             """
-            
-            insights_prompt = f'Analyze customer intelligence data and provide key insights about customer health, churn risks, and retention opportunities. Data shows {len(results)} customers with varying sentiment scores.'
-            
-            cursor.execute(insights_query, ('claude-3-5-sonnet', insights_prompt))
+
+            insights_prompt = f"Analyze customer intelligence data and provide key insights about customer health, churn risks, and retention opportunities. Data shows {len(results)} customers with varying sentiment scores."
+
+            cursor.execute(insights_query, ("claude-3-5-sonnet", insights_prompt))
             insights_result = cursor.fetchone()
 
             return {
@@ -525,15 +526,19 @@ class EnhancedCortexAgentService(CortexAgentService):
                     "high_risk_customers": len(
                         [r for r in results if r[6] == "HIGH_RISK"]
                     ),
-                    "avg_sentiment": sum([r[5] for r in results if r[5]]) / len(results)
-                    if results
-                    else 0,
+                    "avg_sentiment": (
+                        sum([r[5] for r in results if r[5]]) / len(results)
+                        if results
+                        else 0
+                    ),
                     "customer_details": results[:10],  # Top 10 for response size
                 },
                 "insights": [
-                    insights_result[0]
-                    if insights_result
-                    else "Customer intelligence analysis completed"
+                    (
+                        insights_result[0]
+                        if insights_result
+                        else "Customer intelligence analysis completed"
+                    )
                 ],
                 "recommendations": [
                     "Focus on high-risk customers for retention campaigns",
@@ -549,7 +554,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
     async def _analyze_sales_optimization(
         self, query: AdvancedAnalyticsQuery
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze sales optimization opportunities"""
 
         conn = await self.get_advanced_connection()
@@ -558,7 +563,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         try:
             # Execute sales optimization query - SECURE VERSION with parameterized query
             sales_query = """
-            SELECT 
+            SELECT
                 record_id,
                 deal_name,
                 deal_amount,
@@ -606,7 +611,7 @@ class EnhancedCortexAgentService(CortexAgentService):
 
     async def _analyze_compliance_monitoring(
         self, query: AdvancedAnalyticsQuery
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze compliance monitoring status"""
 
         conn = await self.get_advanced_connection()
@@ -615,7 +620,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         try:
             # Execute compliance monitoring query - SECURE VERSION with parameterized query
             compliance_query = """
-            SELECT 
+            SELECT
                 compliance_area,
                 total_communications,
                 high_urgency_items,
@@ -662,7 +667,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             cursor.close()
             conn.close()
 
-    async def monitor_compliance_realtime(self) -> List[ComplianceAlert]:
+    async def monitor_compliance_realtime(self) -> list[ComplianceAlert]:
         """Real-time compliance monitoring with automated alerts"""
         logger.info("Executing real-time compliance monitoring")
 
@@ -672,7 +677,7 @@ class EnhancedCortexAgentService(CortexAgentService):
         try:
             # Check for compliance violations in recent communications - SECURE VERSION
             violation_query = """
-            SELECT 
+            SELECT
                 message_id,
                 user_id,
                 message_text,
@@ -682,7 +687,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.COMMUNICATION_INTELLIGENCE_REALTIME
             WHERE message_timestamp >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
             AND (
-                message_sentiment < %s 
+                message_sentiment < %s
                 OR ai_message_classification:urgency::STRING = %s
                 OR LOWER(message_text) LIKE %s
                 OR LOWER(message_text) LIKE %s
@@ -690,7 +695,10 @@ class EnhancedCortexAgentService(CortexAgentService):
             )
             """
 
-            cursor.execute(violation_query, (-0.5, 'high', '%lawsuit%', '%attorney%', '%legal action%'))
+            cursor.execute(
+                violation_query,
+                (-0.5, "high", "%lawsuit%", "%attorney%", "%legal action%"),
+            )
             violations = cursor.fetchall()
 
             alerts = []

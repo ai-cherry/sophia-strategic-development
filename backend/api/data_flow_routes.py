@@ -5,13 +5,14 @@ Simple and practical API endpoints for data ingestion and monitoring.
 Focuses on stability and ease of use without over-complexity.
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
-from pydantic import BaseModel
-from typing import Dict, Any, Optional
 import logging
 from datetime import datetime
+from typing import Any
 
-from backend.core.data_flow_manager import get_data_flow_manager, DataFlowManager
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
+
+from backend.core.data_flow_manager import DataFlowManager, get_data_flow_manager
 
 logger = logging.getLogger(__name__)
 
@@ -20,15 +21,15 @@ router = APIRouter(prefix="/api/v1/data-flow", tags=["data-flow"])
 
 class DataIngestionRequest(BaseModel):
     source_name: str
-    data: Dict[str, Any]
-    priority: Optional[int] = 2  # 1=high, 2=medium, 3=low
+    data: dict[str, Any]
+    priority: int | None = 2  # 1=high, 2=medium, 3=low
 
 
 class HealthResponse(BaseModel):
     overall_status: str
-    data_sources: Dict[str, Dict[str, Any]]
-    queue_status: Dict[str, Any]
-    metrics: Dict[str, Any]
+    data_sources: dict[str, dict[str, Any]]
+    queue_status: dict[str, Any]
+    metrics: dict[str, Any]
     timestamp: str
 
 
@@ -115,7 +116,7 @@ async def list_data_sources(
     """
     try:
         sources = []
-        for name, source in data_manager.data_sources.items():
+        for _name, source in data_manager.data_sources.items():
             sources.append(
                 {
                     "name": source.name,
@@ -301,7 +302,7 @@ async def get_queue_status(
 
 @router.post("/cache/clear")
 async def clear_cache(
-    cache_type: Optional[str] = None,
+    cache_type: str | None = None,
     data_manager: DataFlowManager = Depends(get_data_flow_manager),
 ):
     """
@@ -354,7 +355,7 @@ async def clear_cache(
 @router.post("/webhook/{source_name}")
 async def webhook_endpoint(
     source_name: str,
-    data: Dict[str, Any],
+    data: dict[str, Any],
     data_manager: DataFlowManager = Depends(get_data_flow_manager),
 ):
     """

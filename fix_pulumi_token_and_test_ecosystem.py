@@ -4,13 +4,13 @@ Sophia AI - Fix Pulumi Token & Test Complete Ecosystem
 This script diagnoses and fixes the PULUMI_ACCESS_TOKEN issue and tests all integrations
 """
 
-import os
-import sys
-import subprocess
 import json
 import logging
+import os
+import subprocess
+import sys
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Any
 
 # Setup logging
 logging.basicConfig(
@@ -27,7 +27,7 @@ class SophiaEcosystemFixer:
         self.fixes_applied = []
         self.test_results = {}
 
-    def run_diagnostic(self) -> Dict[str, Any]:
+    def run_diagnostic(self) -> dict[str, Any]:
         """Run complete ecosystem diagnostic"""
         logger.info("🔍 Starting Sophia AI Ecosystem Diagnostic...")
 
@@ -56,7 +56,7 @@ class SophiaEcosystemFixer:
             "timestamp": datetime.now().isoformat(),
         }
 
-    def _check_pulumi_auth(self) -> Dict[str, Any]:
+    def _check_pulumi_auth(self) -> dict[str, Any]:
         """Check Pulumi authentication status"""
         logger.info("🔐 Checking Pulumi authentication...")
 
@@ -93,7 +93,7 @@ class SophiaEcosystemFixer:
             self.issues_found.append(issue)
             return {"status": "error", "message": issue}
 
-    def _check_github_secrets(self) -> Dict[str, Any]:
+    def _check_github_secrets(self) -> dict[str, Any]:
         """Check GitHub organization secrets availability"""
         logger.info("🔗 Checking GitHub organization secrets...")
 
@@ -133,7 +133,7 @@ class SophiaEcosystemFixer:
             "missing_secrets": missing_secrets,
         }
 
-    def _check_esc_access(self) -> Dict[str, Any]:
+    def _check_esc_access(self) -> dict[str, Any]:
         """Check Pulumi ESC stack access"""
         logger.info("📦 Checking Pulumi ESC stack access...")
 
@@ -168,7 +168,7 @@ class SophiaEcosystemFixer:
             self.issues_found.append(issue)
             return {"status": "error", "message": issue}
 
-    def _check_mcp_servers(self) -> Dict[str, Any]:
+    def _check_mcp_servers(self) -> dict[str, Any]:
         """Check MCP server health"""
         logger.info("🤖 Checking MCP server health...")
 
@@ -214,7 +214,7 @@ class SophiaEcosystemFixer:
             "servers": server_status,
         }
 
-    def _check_secret_availability(self) -> Dict[str, Any]:
+    def _check_secret_availability(self) -> dict[str, Any]:
         """Check if critical secrets are available through auto_esc_config"""
         logger.info("🔑 Checking secret availability through auto_esc_config...")
 
@@ -256,9 +256,9 @@ class SophiaEcosystemFixer:
                     }
 
             return {
-                "status": "partial"
-                if available_count < len(critical_secrets)
-                else "success",
+                "status": (
+                    "partial" if available_count < len(critical_secrets) else "success"
+                ),
                 "available_count": available_count,
                 "total_secrets": len(critical_secrets),
                 "secrets": secret_results,
@@ -270,8 +270,8 @@ class SophiaEcosystemFixer:
             return {"status": "error", "message": issue}
 
     def generate_fix_recommendations(
-        self, diagnostic_results: Dict[str, Any]
-    ) -> List[str]:
+        self, diagnostic_results: dict[str, Any]
+    ) -> list[str]:
         """Generate specific fix recommendations based on diagnostic results"""
         recommendations = []
 
@@ -321,7 +321,7 @@ class SophiaEcosystemFixer:
 
         return recommendations
 
-    def run_codacy_mcp_test(self) -> Dict[str, Any]:
+    def run_codacy_mcp_test(self) -> dict[str, Any]:
         """Test Codacy MCP server integration"""
         logger.info("🧪 Testing Codacy MCP Server Integration...")
 
@@ -364,9 +364,7 @@ def main():
             status_emoji = (
                 "✅"
                 if status["status"] == "success"
-                else "⚠️"
-                if status["status"] == "partial"
-                else "❌"
+                else "⚠️" if status["status"] == "partial" else "❌"
             )
             print(f"{status_emoji} {component.upper()}: {status['status']}")
 

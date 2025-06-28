@@ -10,23 +10,24 @@ Current size: 802 lines
 
 Recommended decomposition:
 - estuary_flow_manager_core.py - Core functionality
-- estuary_flow_manager_utils.py - Utility functions  
+- estuary_flow_manager_utils.py - Utility functions
 - estuary_flow_manager_models.py - Data models
 - estuary_flow_manager_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import subprocess
 import json
 import logging
-import yaml
 import os
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from pathlib import Path
+import subprocess
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -110,7 +111,7 @@ class EstuaryCredentials:
             # Ensure refresh_token is not None
             if not refresh_token:
                 raise ValueError("Refresh token is required but not found")
-                
+
             # Ensure refresh_token is str (not None) to satisfy type checker
             assert refresh_token is not None, "Refresh token must not be None"
             refresh_token_str: str = refresh_token
@@ -128,11 +129,11 @@ class EstuaryCapture:
 
     name: str
     connector_image: str
-    config: Dict[str, Any]
-    bindings: List[Dict[str, Any]]
+    config: dict[str, Any]
+    bindings: list[dict[str, Any]]
     tenant: str = "Pay_Ready"
 
-    def to_flow_yaml(self) -> Dict[str, Any]:
+    def to_flow_yaml(self) -> dict[str, Any]:
         """Convert to Flow YAML format"""
         return {
             "captures": {
@@ -155,11 +156,11 @@ class EstuaryMaterialization:
 
     name: str
     connector_image: str
-    config: Dict[str, Any]
-    bindings: List[Dict[str, Any]]
+    config: dict[str, Any]
+    bindings: list[dict[str, Any]]
     tenant: str = "Pay_Ready"
 
-    def to_flow_yaml(self) -> Dict[str, Any]:
+    def to_flow_yaml(self) -> dict[str, Any]:
         """Convert to Flow YAML format"""
         return {
             "materializations": {
@@ -179,7 +180,7 @@ class EstuaryMaterialization:
 class EstuaryFlowManager:
     """Comprehensive Estuary Flow management for Sophia AI"""
 
-    def __init__(self, credentials: Optional[EstuaryCredentials] = None):
+    def __init__(self, credentials: EstuaryCredentials | None = None):
         self.credentials = credentials or EstuaryCredentials.from_pulumi_esc()
         self.flowctl_path = self._ensure_flowctl_installed()
         self.project_root = Path(__file__).parent.parent.parent
@@ -202,25 +203,25 @@ class EstuaryFlowManager:
 
             # Install flowctl if not found
             logger.info("📦 Installing flowctl CLI...")
-            
+
             # Download flowctl binary securely (without shell=True)
             download_cmd = [
-                "curl", 
-                "-L", 
-                "https://github.com/estuary/flow/releases/download/v0.5.15/flowctl-x86_64-linux", 
-                "-o", 
-                "/tmp/flowctl"
+                "curl",
+                "-L",
+                "https://github.com/estuary/flow/releases/download/v0.5.15/flowctl-x86_64-linux",
+                "-o",
+                "/tmp/flowctl",
             ]
             subprocess.run(download_cmd, check=True)
-            
+
             # Make the binary executable
             chmod_cmd = ["chmod", "+x", "/tmp/flowctl"]
             subprocess.run(chmod_cmd, check=True)
-            
+
             # Move the binary to /usr/local/bin (requires sudo)
             move_cmd = ["sudo", "mv", "/tmp/flowctl", "/usr/local/bin/flowctl"]
             subprocess.run(move_cmd, check=True)
-            
+
             logger.info("✅ flowctl CLI installed successfully")
             return "/usr/local/bin/flowctl"
 
@@ -251,8 +252,8 @@ class EstuaryFlowManager:
             raise
 
     def run_flowctl_command(
-        self, command: List[str], description: str = ""
-    ) -> Optional[Dict]:
+        self, command: list[str], description: str = ""
+    ) -> dict | None:
         """Execute a flowctl command with error handling"""
         try:
             if command[0] != "flowctl":
@@ -371,7 +372,7 @@ class EstuaryFlowManager:
         )
 
     def create_slack_capture(
-        self, api_token: str, channels: List[str]
+        self, api_token: str, channels: list[str]
     ) -> EstuaryCapture:
         """Create Slack capture configuration"""
         config = {
@@ -404,7 +405,7 @@ class EstuaryFlowManager:
         )
 
     def create_snowflake_materialization(
-        self, snowflake_config: Dict[str, str]
+        self, snowflake_config: dict[str, str]
     ) -> EstuaryMaterialization:
         """Create Snowflake materialization configuration"""
         config = {
@@ -434,7 +435,7 @@ class EstuaryFlowManager:
         )
 
     def create_custom_connector(
-        self, name: str, api_config: Dict[str, Any]
+        self, name: str, api_config: dict[str, Any]
     ) -> EstuaryCapture:
         """Create custom connector using HTTP inbound"""
         config = {
@@ -538,7 +539,7 @@ class EstuaryFlowManager:
             )
             return False
 
-    def list_captures(self) -> List[Dict[str, Any]]:
+    def list_captures(self) -> list[dict[str, Any]]:
         """List all captures in the tenant"""
         result = self.run_flowctl_command(
             [
@@ -562,7 +563,7 @@ class EstuaryFlowManager:
 
         return []
 
-    def list_materializations(self) -> List[Dict[str, Any]]:
+    def list_materializations(self) -> list[dict[str, Any]]:
         """List all materializations in the tenant"""
         result = self.run_flowctl_command(
             [
@@ -586,7 +587,7 @@ class EstuaryFlowManager:
 
         return []
 
-    def get_capture_status(self, capture_name: str) -> Optional[Dict[str, Any]]:
+    def get_capture_status(self, capture_name: str) -> dict[str, Any] | None:
         """Get status of a specific capture"""
         full_name = f"{self.credentials.tenant}/{capture_name}"
         result = self.run_flowctl_command(
@@ -622,7 +623,7 @@ class EstuaryFlowManager:
 
         return result is not None
 
-    def create_sophia_ai_foundation(self) -> Dict[str, Any]:
+    def create_sophia_ai_foundation(self) -> dict[str, Any]:
         """Create complete Sophia AI foundation with Estuary Flow"""
         logger.info("🏗️ Creating Sophia AI foundation with Estuary Flow...")
 
@@ -677,7 +678,7 @@ class EstuaryFlowManager:
             # Save capture configurations
             for name, config in capture_configs.items():
                 capture = None  # Initialize capture to avoid unbound variable error
-                
+
                 if name == "github":
                     capture = self.create_github_capture(
                         config["repository"], config["access_token"]
@@ -692,12 +693,12 @@ class EstuaryFlowManager:
                     capture = self.create_slack_capture(
                         config["api_token"], config["channels"]
                     )
-                
+
                 if capture:  # Only proceed if we have a valid capture
                     config_file = self.config_dir / f"{capture.name}.flow.yaml"
                     with open(config_file, "w") as f:
                         yaml.dump(capture.to_flow_yaml(), f, default_flow_style=False)
-                    
+
                     deployment_results["captures_deployed"].append(capture.name)
 
             # Create custom connectors for missing tools
@@ -800,7 +801,7 @@ def get_estuary_manager() -> EstuaryFlowManager:
     return EstuaryFlowManager()
 
 
-def create_sophia_ai_foundation() -> Dict[str, Any]:
+def create_sophia_ai_foundation() -> dict[str, Any]:
     """Create complete Sophia AI foundation"""
     manager = get_estuary_manager()
     return manager.create_sophia_ai_foundation()

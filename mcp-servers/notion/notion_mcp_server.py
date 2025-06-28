@@ -10,7 +10,7 @@ Current size: 894 lines
 
 Recommended decomposition:
 - notion_mcp_server_core.py - Core functionality
-- notion_mcp_server_utils.py - Utility functions  
+- notion_mcp_server_utils.py - Utility functions
 - notion_mcp_server_models.py - Data models
 - notion_mcp_server_handlers.py - Request handlers
 
@@ -23,11 +23,11 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
-from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
+from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolResult,
@@ -338,8 +338,8 @@ class NotionMCPServer:
                 )
 
     async def make_request(
-        self, method: str, endpoint: str, data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, method: str, endpoint: str, data: dict | None = None
+    ) -> dict[str, Any]:
         """Make authenticated request to Notion API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
@@ -359,7 +359,7 @@ class NotionMCPServer:
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
 
-    async def _handle_response(self, response) -> Dict[str, Any]:
+    async def _handle_response(self, response) -> dict[str, Any]:
         """Handle API response."""
         if response.status == 200:
             return await response.json()
@@ -369,11 +369,11 @@ class NotionMCPServer:
 
     async def search_pages(
         self,
-        query: Optional[str] = None,
-        filter: Optional[Dict] = None,
-        sort: Optional[Dict] = None,
+        query: str | None = None,
+        filter: dict | None = None,
+        sort: dict | None = None,
         page_size: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search for pages in Notion."""
         search_data = {"page_size": min(page_size, 100)}
 
@@ -409,7 +409,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_page(self, page_id: str) -> Dict[str, Any]:
+    async def get_page(self, page_id: str) -> dict[str, Any]:
         """Get detailed page information."""
         page = await self.make_request("GET", f"pages/{page_id}")
         enhanced_page = await self._enhance_page_data(page)
@@ -418,7 +418,7 @@ class NotionMCPServer:
 
     async def get_page_content(
         self, page_id: str, page_size: int = 100
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get page content blocks."""
         params = {"page_size": min(page_size, 100)}
 
@@ -436,7 +436,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_database(self, database_id: str) -> Dict[str, Any]:
+    async def get_database(self, database_id: str) -> dict[str, Any]:
         """Get database information."""
         database = await self.make_request("GET", f"databases/{database_id}")
 
@@ -445,10 +445,10 @@ class NotionMCPServer:
     async def query_database(
         self,
         database_id: str,
-        filter: Optional[Dict] = None,
-        sorts: Optional[List] = None,
+        filter: dict | None = None,
+        sorts: list | None = None,
         page_size: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Query database with filters and sorting."""
         query_data = {"page_size": min(page_size, 100)}
 
@@ -484,7 +484,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_users(self, page_size: int = 100) -> Dict[str, Any]:
+    async def get_users(self, page_size: int = 100) -> dict[str, Any]:
         """Get workspace users."""
         params = {"page_size": min(page_size, 100)}
 
@@ -498,7 +498,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_user(self, user_id: str) -> Dict[str, Any]:
+    async def get_user(self, user_id: str) -> dict[str, Any]:
         """Get specific user information."""
         user = await self.make_request("GET", f"users/{user_id}")
 
@@ -506,7 +506,7 @@ class NotionMCPServer:
 
     async def search_by_title(
         self, title: str, exact_match: bool = False
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search pages by title."""
         if exact_match:
             filter_criteria = {"property": "object", "value": "page"}
@@ -540,7 +540,7 @@ class NotionMCPServer:
 
     async def get_recent_pages(
         self, days: int = 7, page_size: int = 100
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get recently edited pages."""
         cutoff_date = (datetime.now() - timedelta(days=days)).isoformat()
 
@@ -567,7 +567,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def get_page_analytics(self, page_id: str) -> Dict[str, Any]:
+    async def get_page_analytics(self, page_id: str) -> dict[str, Any]:
         """Get analytics and metadata for a page."""
         page = await self.get_page(page_id)
         content = await self.get_page_content(page_id)
@@ -592,8 +592,8 @@ class NotionMCPServer:
         return analytics
 
     async def search_strategic_content(
-        self, content_type: Optional[str] = None, quarter: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, content_type: str | None = None, quarter: str | None = None
+    ) -> dict[str, Any]:
         """Search for strategic planning content."""
         search_terms = {
             "okr": ["OKR", "objective", "key result", "goal"],
@@ -675,7 +675,7 @@ class NotionMCPServer:
             "sync_time": datetime.now().isoformat(),
         }
 
-    async def _enhance_page_data(self, page: Dict[str, Any]) -> Dict[str, Any]:
+    async def _enhance_page_data(self, page: dict[str, Any]) -> dict[str, Any]:
         """Enhance page data with additional metadata."""
         enhanced = page.copy()
 
@@ -698,7 +698,7 @@ class NotionMCPServer:
 
         return enhanced
 
-    async def _enhance_database_page(self, page: Dict[str, Any]) -> Dict[str, Any]:
+    async def _enhance_database_page(self, page: dict[str, Any]) -> dict[str, Any]:
         """Enhance database page with extracted property values."""
         enhanced = page.copy()
 
@@ -755,11 +755,11 @@ class NotionMCPServer:
         except Exception:
             return ""
 
-    def _extract_title(self, page: Dict[str, Any]) -> str:
+    def _extract_title(self, page: dict[str, Any]) -> str:
         """Extract title from page object."""
         if "properties" in page:
             # Database page
-            for prop_name, prop_data in page["properties"].items():
+            for _prop_name, prop_data in page["properties"].items():
                 if prop_data.get("type") == "title":
                     return self._extract_title_property(prop_data)
 
@@ -771,17 +771,17 @@ class NotionMCPServer:
 
         return "Untitled"
 
-    def _extract_title_property(self, title_prop: Dict[str, Any]) -> str:
+    def _extract_title_property(self, title_prop: dict[str, Any]) -> str:
         """Extract text from title property."""
         title_blocks = title_prop.get("title", [])
         return "".join(block.get("plain_text", "") for block in title_blocks)
 
-    def _extract_rich_text(self, rich_text_prop: Dict[str, Any]) -> str:
+    def _extract_rich_text(self, rich_text_prop: dict[str, Any]) -> str:
         """Extract text from rich text property."""
         rich_text_blocks = rich_text_prop.get("rich_text", [])
         return "".join(block.get("plain_text", "") for block in rich_text_blocks)
 
-    def _extract_properties(self, page: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_properties(self, page: dict[str, Any]) -> dict[str, Any]:
         """Extract properties in a normalized format."""
         if "properties" not in page:
             return {}
@@ -791,7 +791,7 @@ class NotionMCPServer:
             for prop_name, prop_data in page["properties"].items()
         }
 
-    def _normalize_property_value(self, prop_data: Dict[str, Any]) -> Any:
+    def _normalize_property_value(self, prop_data: dict[str, Any]) -> Any:
         """Normalize property value based on type."""
         prop_type = prop_data.get("type")
 
@@ -820,7 +820,7 @@ class NotionMCPServer:
         else:
             return str(prop_data)
 
-    def _analyze_content_blocks(self, blocks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_content_blocks(self, blocks: list[dict[str, Any]]) -> dict[str, Any]:
         """Analyze content blocks for structure and metrics."""
         analysis = {
             "total_blocks": len(blocks),
@@ -856,7 +856,7 @@ class NotionMCPServer:
 
         return analysis
 
-    def _extract_block_text(self, block: Dict[str, Any]) -> str:
+    def _extract_block_text(self, block: dict[str, Any]) -> str:
         """Extract text content from a block."""
         block_type = block.get("type")
 

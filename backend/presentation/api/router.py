@@ -6,121 +6,105 @@ included in the main FastAPI application.
 """
 
 from fastapi import APIRouter
+
 from backend.api import (
-    enhanced_ceo_chat_routes,
-    simplified_llm_routes,
-    unified_intelligence_routes,
     asana_integration_routes,
     codacy_integration_routes,
-    cortex_routes,
-    costar_routes,
-    data_flow_routes,
     enhanced_cortex_routes,
-    foundational_knowledge_routes,
     kb_management_routes,
     knowledge_dashboard_routes,
     large_data_import_routes,
     linear_integration_routes,
     llm_strategy_routes,
     notion_integration_routes,
-    project_dashboard_routes,
     slack_linear_knowledge_routes,
-    smart_ai_routes,
     snowflake_intelligence_routes,
-    sophia_ai_phase1_routes,
     sophia_universal_chat_routes,
-    unified_ai_routes,
-    universal_chat_routes,
 )
-
 
 
 def _setup_core_routes(router: APIRouter) -> None:
     """Setup core AI and chat routes"""
     router.include_router(
-        enhanced_cortex_routes.router,
-        prefix="/api/v1/cortex",
-        tags=["cortex", "ai"]
+        enhanced_cortex_routes.router, prefix="/api/v1/cortex", tags=["cortex", "ai"]
     )
     router.include_router(
-        sophia_universal_chat_routes.router,
-        prefix="/api/v1/chat", 
-        tags=["chat", "ai"]
+        sophia_universal_chat_routes.router, prefix="/api/v1/chat", tags=["chat", "ai"]
     )
     router.include_router(
-        llm_strategy_routes.router,
-        prefix="/api/v1/llm",
-        tags=["llm", "ai"]
+        llm_strategy_routes.router, prefix="/api/v1/llm", tags=["llm", "ai"]
     )
+
 
 def _setup_integration_routes(router: APIRouter) -> None:
     """Setup third-party integration routes"""
     router.include_router(
         asana_integration_routes.router,
         prefix="/api/v1/integrations/asana",
-        tags=["integrations", "asana"]
+        tags=["integrations", "asana"],
     )
     router.include_router(
         linear_integration_routes.router,
         prefix="/api/v1/integrations/linear",
-        tags=["integrations", "linear"]
+        tags=["integrations", "linear"],
     )
     router.include_router(
         notion_integration_routes.router,
         prefix="/api/v1/integrations/notion",
-        tags=["integrations", "notion"]
+        tags=["integrations", "notion"],
     )
+
 
 def _setup_data_routes(router: APIRouter) -> None:
     """Setup data and analytics routes"""
     router.include_router(
         snowflake_intelligence_routes.router,
         prefix="/api/v1/intelligence",
-        tags=["intelligence", "analytics"]
+        tags=["intelligence", "analytics"],
     )
     router.include_router(
         knowledge_dashboard_routes.router,
         prefix="/api/v1/knowledge",
-        tags=["knowledge", "dashboard"]
+        tags=["knowledge", "dashboard"],
     )
     router.include_router(
-        large_data_import_routes.router,
-        prefix="/api/v1/data",
-        tags=["data", "import"]
+        large_data_import_routes.router, prefix="/api/v1/data", tags=["data", "import"]
     )
+
 
 def _setup_admin_routes(router: APIRouter) -> None:
     """Setup administrative and management routes"""
     router.include_router(
         kb_management_routes.router,
         prefix="/api/v1/kb",
-        tags=["knowledge-base", "admin"]
+        tags=["knowledge-base", "admin"],
     )
     router.include_router(
         slack_linear_knowledge_routes.router,
         prefix="/api/v1/slack-linear",
-        tags=["slack", "linear", "knowledge"]
+        tags=["slack", "linear", "knowledge"],
     )
     router.include_router(
         codacy_integration_routes.router,
         prefix="/api/v1/integrations/codacy",
-        tags=["integrations", "codacy"]
+        tags=["integrations", "codacy"],
     )
+
 
 def create_application_router() -> APIRouter:
     """
     Create and configure the main application router with all endpoints
-    
+
     Returns:
         APIRouter: Configured router with all application routes
     """
     router = APIRouter()
-    
+
     # Setup route groups in logical order
     _setup_core_routes(router)
     _setup_integration_routes(router)
     _setup_data_routes(router)
     _setup_admin_routes(router)
-    
+
     logger.info("✅ Application router created with all endpoints")
     return router

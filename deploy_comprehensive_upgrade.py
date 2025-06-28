@@ -10,33 +10,33 @@ Current size: 851 lines
 
 Recommended decomposition:
 - deploy_comprehensive_upgrade_core.py - Core functionality
-- deploy_comprehensive_upgrade_utils.py - Utility functions  
+- deploy_comprehensive_upgrade_utils.py - Utility functions
 - deploy_comprehensive_upgrade_models.py - Data models
 - deploy_comprehensive_upgrade_handlers.py - Request handlers
 
 TODO: Implement file decomposition
 """
 
-import sys
-import json
-import asyncio
-import logging
 import argparse
-from pathlib import Path
-from datetime import datetime
-import subprocess
+import asyncio
+import json
+import logging
 import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from backend.services.enhanced_cortex_agent_service import (
-    get_enhanced_cortex_agent_service,
-)
+from backend.core.auto_esc_config import get_config_value
 from backend.integrations.advanced_estuary_flow_manager import (
     get_advanced_estuary_flow_manager,
 )
-from backend.core.auto_esc_config import get_config_value
+from backend.services.enhanced_cortex_agent_service import (
+    get_enhanced_cortex_agent_service,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -190,16 +190,16 @@ class SophiaAIComprehensiveUpgrade:
             materialization_results = (
                 await estuary_manager.deploy_ai_powered_materializations()
             )
-            self.deployment_status["components_deployed"]["materializations"] = (
-                materialization_results
-            )
+            self.deployment_status["components_deployed"][
+                "materializations"
+            ] = materialization_results
             self.deployment_status["steps_completed"].append("ai_materializations")
 
             # Setup AI processing transforms
             transform_results = await estuary_manager.setup_ai_processing_transforms()
-            self.deployment_status["components_deployed"]["transforms"] = (
-                transform_results
-            )
+            self.deployment_status["components_deployed"][
+                "transforms"
+            ] = transform_results
             self.deployment_status["steps_completed"].append("ai_transforms")
 
             # Test data flow
@@ -494,11 +494,13 @@ class SophiaAIComprehensiveUpgrade:
 
         try:
             # Check if multimodal tables exist
-            cursor.execute("""
-            SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES 
-            WHERE TABLE_SCHEMA = 'RAW_MULTIMODAL' 
+            cursor.execute(
+                """
+            SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_SCHEMA = 'RAW_MULTIMODAL'
             AND TABLE_NAME LIKE '%MULTIMODAL%'
-            """)
+            """
+            )
 
             table_count = cursor.fetchone()[0]
             if table_count >= 3:
@@ -520,11 +522,13 @@ class SophiaAIComprehensiveUpgrade:
 
         try:
             # Check if AI views exist
-            cursor.execute("""
-            SELECT COUNT(*) FROM INFORMATION_SCHEMA.VIEWS 
-            WHERE TABLE_SCHEMA = 'PROCESSED_AI' 
+            cursor.execute(
+                """
+            SELECT COUNT(*) FROM INFORMATION_SCHEMA.VIEWS
+            WHERE TABLE_SCHEMA = 'PROCESSED_AI'
             AND TABLE_NAME LIKE '%INTELLIGENCE%'
-            """)
+            """
+            )
 
             view_count = cursor.fetchone()[0]
             if view_count >= 3:

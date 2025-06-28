@@ -1,15 +1,16 @@
 # File: scripts/monitor_all_mcp_servers.py
 
 import asyncio
-import aiohttp
 import json
+import logging
 import os
+import sys
 import time
 from pathlib import Path
+
+import aiohttp
 from rich.console import Console
 from rich.table import Table
-import logging
-import sys
 
 # Add project root to path
 project_root = Path.cwd()
@@ -47,7 +48,7 @@ async def get_server_health(session, server_name, port):
                     "status": "❌ Unhealthy",
                     "details": {"status_code": response.status},
                 }
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning(f"Timeout connecting to {server_name} at {url}")
         return {
             "name": server_name,
@@ -102,7 +103,7 @@ async def main():
         console.print("[bold red]Port configuration file not found.[/bold red]")
         return
 
-    with open(ports_config_path, "r") as f:
+    with open(ports_config_path) as f:
         ports_config = json.load(f)
 
     servers_to_monitor = list(ports_config.get("servers", {}).items())

@@ -26,7 +26,7 @@ Current size: 651 lines
 
 Recommended decomposition:
 - performance_monitor_core.py - Core functionality
-- performance_monitor_utils.py - Utility functions  
+- performance_monitor_utils.py - Utility functions
 - performance_monitor_models.py - Data models
 - performance_monitor_handlers.py - Request handlers
 
@@ -35,16 +35,18 @@ TODO: Implement file decomposition
 
 import asyncio
 import logging
-import time
-import psutil
+import statistics
 import threading
+import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
-from datetime import datetime, timedelta
-import statistics
+from typing import Any
+
+import psutil
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +78,9 @@ class PerformanceMetric:
     value: float
     unit: str
     timestamp: datetime
-    tags: Dict[str, str] = field(default_factory=dict)
-    threshold_ms: Optional[float] = None
-    level: Optional[PerformanceLevel] = None
+    tags: dict[str, str] = field(default_factory=dict)
+    threshold_ms: float | None = None
+    level: PerformanceLevel | None = None
 
 
 @dataclass
@@ -91,7 +93,7 @@ class PerformanceAlert:
     current_value: float
     threshold_value: float
     timestamp: datetime
-    tags: Dict[str, str] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -118,7 +120,7 @@ class PerformanceTracker:
         self.min_time_ms = float("inf")
         self.max_time_ms = 0.0
 
-    def record(self, duration_ms: float, tags: Optional[Dict[str, str]] = None):
+    def record(self, duration_ms: float, tags: dict[str, str] | None = None):
         """Record a performance measurement"""
         self.measurements.append(
             {
@@ -133,7 +135,7 @@ class PerformanceTracker:
         self.min_time_ms = min(self.min_time_ms, duration_ms)
         self.max_time_ms = max(self.max_time_ms, duration_ms)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get comprehensive statistics"""
         if not self.measurements:
             return {
@@ -228,7 +230,7 @@ class PerformanceMonitor:
     """
 
     def __init__(self):
-        self.trackers: Dict[str, PerformanceTracker] = {}
+        self.trackers: dict[str, PerformanceTracker] = {}
         self.alerts: deque = deque(maxlen=1000)
         self.system_metrics: deque = deque(maxlen=288)  # 24 hours at 5-minute intervals
         self.start_time = time.time()
@@ -266,9 +268,7 @@ class PerformanceMonitor:
             self._monitor_task.cancel()
         logger.info("🔄 Performance monitoring stopped")
 
-    def monitor_performance(
-        self, metric_name: str, threshold_ms: Optional[float] = None
-    ):
+    def monitor_performance(self, metric_name: str, threshold_ms: float | None = None):
         """Decorator for automatic performance monitoring"""
 
         def decorator(func: Callable):
@@ -336,8 +336,8 @@ class PerformanceMonitor:
         self,
         metric_name: str,
         duration_ms: float,
-        tags: Optional[Dict[str, str]] = None,
-        threshold_ms: Optional[float] = None,
+        tags: dict[str, str] | None = None,
+        threshold_ms: float | None = None,
     ):
         """Record a performance metric"""
         with self._lock:
@@ -378,7 +378,7 @@ class PerformanceMonitor:
         message: str,
         current_value: float,
         threshold_value: float,
-        tags: Dict[str, str],
+        tags: dict[str, str],
     ):
         """Create performance alert"""
         alert = PerformanceAlert(
@@ -510,7 +510,7 @@ class PerformanceMonitor:
         while self.system_metrics and self.system_metrics[0].timestamp < cutoff_time:
             self.system_metrics.popleft()
 
-    def get_performance_report(self) -> Dict[str, Any]:
+    def get_performance_report(self) -> dict[str, Any]:
         """Get comprehensive performance report"""
         with self._lock:
             # Tracker statistics
@@ -591,7 +591,7 @@ class PerformanceMonitor:
 
         return round(sum(scores) / len(scores), 1)
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate performance optimization recommendations"""
         recommendations = []
 
@@ -631,15 +631,15 @@ class PerformanceMonitor:
 
         return recommendations[:10]  # Top 10 recommendations
 
-    def get_metric_stats(self, metric_name: str) -> Optional[Dict[str, Any]]:
+    def get_metric_stats(self, metric_name: str) -> dict[str, Any] | None:
         """Get statistics for specific metric"""
         with self._lock:
             tracker = self.trackers.get(metric_name)
             return tracker.get_stats() if tracker else None
 
     def get_recent_alerts(
-        self, severity: Optional[AlertSeverity] = None
-    ) -> List[Dict[str, Any]]:
+        self, severity: AlertSeverity | None = None
+    ) -> list[dict[str, Any]]:
         """Get recent alerts, optionally filtered by severity"""
         alerts = list(self.alerts)
 

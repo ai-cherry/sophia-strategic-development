@@ -4,14 +4,13 @@ Comprehensive Security Audit and Cleanup Script for Sophia AI
 Scans the entire codebase for exposed secrets, hardcoded credentials, and security issues
 """
 
+import logging
 import os
 import re
-import sys
-import logging
 import subprocess
-from pathlib import Path
-from typing import List, Optional
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -30,7 +29,7 @@ class SecurityIssue:
     description: str
     severity: str
     line_content: str
-    suggested_fix: Optional[str] = None
+    suggested_fix: str | None = None
 
 
 class SecurityAuditor:
@@ -102,9 +101,9 @@ class SecurityAuditor:
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.issues: List[SecurityIssue] = []
+        self.issues: list[SecurityIssue] = []
 
-    def scan_codebase(self) -> List[SecurityIssue]:
+    def scan_codebase(self) -> list[SecurityIssue]:
         """Scan the entire codebase for security issues"""
         logger.info("🔍 Starting comprehensive security audit...")
 
@@ -123,7 +122,7 @@ class SecurityAuditor:
         logger.info(f"🔍 Security audit complete. Found {len(self.issues)} issues.")
         return self.issues
 
-    def _get_files_to_scan(self) -> List[Path]:
+    def _get_files_to_scan(self) -> list[Path]:
         """Get list of files to scan, excluding patterns"""
         files = []
 
@@ -158,7 +157,7 @@ class SecurityAuditor:
     def _scan_file(self, file_path: Path) -> None:
         """Scan a single file for security issues"""
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 lines = f.readlines()
 
             for line_num, line in enumerate(lines, 1):

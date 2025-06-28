@@ -8,7 +8,7 @@ Estuary Flow, and the complete ecosystem to provide a seamless experience.
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from backend.services.unified_intelligence_service import (
     SophiaUnifiedIntelligenceService,
@@ -39,33 +39,41 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         self,
         query: str,
         query_type: str = "general",
-        context: Dict[str, Any] = None,
+        context: dict[str, Any] = None,
         user_id: str = None,
         include_analytics: bool = True,
-        max_results: int = 10
-    ) -> Dict[str, Any]:
+        max_results: int = 10,
+    ) -> dict[str, Any]:
         """
         Process unified business query using intelligent routing and analysis
         """
         try:
             # Validate and prepare query
-            query_context = await self._prepare_query_context(query, query_type, context, user_id)
-            
+            query_context = await self._prepare_query_context(
+                query, query_type, context, user_id
+            )
+
             # Route query to appropriate handlers
             query_results = await self._route_query_by_type(query_context)
-            
+
             # Enhance results with analytics
             if include_analytics:
-                query_results = await self._enhance_with_analytics(query_results, query_context)
-            
+                query_results = await self._enhance_with_analytics(
+                    query_results, query_context
+                )
+
             # Format final response
-            return self._format_unified_response(query_results, query_context, max_results)
-            
+            return self._format_unified_response(
+                query_results, query_context, max_results
+            )
+
         except Exception as e:
             logger.error(f"Error in unified business query: {e}")
             return {"error": str(e), "results": []}
 
-    async def _prepare_query_context(self, query: str, query_type: str, context: Dict, user_id: str) -> Dict[str, Any]:
+    async def _prepare_query_context(
+        self, query: str, query_type: str, context: dict, user_id: str
+    ) -> dict[str, Any]:
         """Prepare comprehensive query context"""
         return {
             "original_query": query,
@@ -73,13 +81,15 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "context": context or {},
             "user_id": user_id,
             "timestamp": datetime.utcnow().isoformat(),
-            "session_id": context.get("session_id") if context else None
+            "session_id": context.get("session_id") if context else None,
         }
 
-    async def _route_query_by_type(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _route_query_by_type(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Route query to appropriate specialized handlers"""
         query_type = query_context["query_type"]
-        
+
         if query_type == "sales":
             return await self._handle_sales_query(query_context)
         elif query_type == "marketing":
@@ -91,42 +101,59 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         else:
             return await self._handle_general_query(query_context)
 
-    async def _handle_sales_query(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_sales_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle sales-specific queries"""
         # Sales query processing logic
         return {"type": "sales", "results": [], "insights": []}
 
-    async def _handle_marketing_query(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_marketing_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle marketing-specific queries"""
         # Marketing query processing logic
         return {"type": "marketing", "results": [], "insights": []}
 
-    async def _handle_analytics_query(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_analytics_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle analytics-specific queries"""
         # Analytics query processing logic
         return {"type": "analytics", "results": [], "insights": []}
 
-    async def _handle_operational_query(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_operational_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle operational queries"""
         # Operational query processing logic
         return {"type": "operational", "results": [], "insights": []}
 
-    async def _handle_general_query(self, query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _handle_general_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle general business queries"""
         # General query processing logic
         return {"type": "general", "results": [], "insights": []}
 
-    async def _enhance_with_analytics(self, query_results: Dict[str, Any], query_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _enhance_with_analytics(
+        self, query_results: dict[str, Any], query_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Enhance query results with analytics and insights"""
         # Analytics enhancement logic
         query_results["analytics"] = {
             "query_performance": 0.95,
             "result_confidence": 0.87,
-            "processing_time_ms": 245
+            "processing_time_ms": 245,
         }
         return query_results
 
-    def _format_unified_response(self, query_results: Dict[str, Any], query_context: Dict[str, Any], max_results: int) -> Dict[str, Any]:
+    def _format_unified_response(
+        self,
+        query_results: dict[str, Any],
+        query_context: dict[str, Any],
+        max_results: int,
+    ) -> dict[str, Any]:
         """Format the unified query response"""
         return {
             "success": True,
@@ -135,9 +162,10 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "results": query_results.get("results", [])[:max_results],
             "insights": query_results.get("insights", []),
             "analytics": query_results.get("analytics", {}),
-            "timestamp": query_context["timestamp"]
+            "timestamp": query_context["timestamp"],
         }
-    def _should_use_snowflake(self, query: str, context: Dict[str, Any]) -> bool:
+
+    def _should_use_snowflake(self, query: str, context: dict[str, Any]) -> bool:
         """Determine if query should be processed by Snowflake Cortex AI"""
 
         # Use Snowflake for structured business data queries
@@ -170,8 +198,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         return has_business_keywords and prefer_snowflake
 
     async def _execute_snowflake_intelligence(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute Snowflake Cortex AI intelligence function"""
 
         try:
@@ -179,7 +207,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             if hasattr(self, "snowflake_cortex") and self.snowflake_cortex:
                 # Use the Snowflake function we created
                 sql = """
-                SELECT 
+                SELECT
                     insights,
                     confidence_score,
                     processing_cost,
@@ -217,8 +245,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             raise
 
     async def _simulate_snowflake_response(
-        self, query: str, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Simulate Snowflake Cortex AI response until functions are deployed"""
 
         # This will be replaced with actual Snowflake function calls
@@ -243,8 +271,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         }
 
     def _merge_intelligence_results(
-        self, snowflake_results: Dict, external_results: Dict
-    ) -> Dict[str, Any]:
+        self, snowflake_results: dict, external_results: dict
+    ) -> dict[str, Any]:
         """Merge Snowflake and external AI results intelligently"""
 
         merged = {
@@ -271,7 +299,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         return merged
 
-    def _extract_business_data(self, insights: Any) -> Dict[str, Any]:
+    def _extract_business_data(self, insights: Any) -> dict[str, Any]:
         """Extract structured business data from insights"""
 
         if isinstance(insights, dict):
@@ -287,7 +315,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         else:
             return {"raw_insights": str(insights)}
 
-    def _identify_data_sources(self, results: Dict[str, Any]) -> List[str]:
+    def _identify_data_sources(self, results: dict[str, Any]) -> list[str]:
         """Identify which data sources were used in the analysis"""
 
         sources = []
@@ -306,25 +334,25 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         return list(set(sources))
 
-    async def _get_ecosystem_health(self) -> Dict[str, Any]:
+    async def _get_ecosystem_health(self) -> dict[str, Any]:
         """Get health status of the entire ecosystem"""
 
         health = {
             "overall_status": "healthy",
             "components": {
                 "unified_intelligence": "operational",
-                "constitutional_ai": "operational"
-                if self.constitutional_ai
-                else "disabled",
-                "snowflake_cortex": "operational"
-                if self.snowflake_integration
-                else "disabled",
-                "estuary_flow": "operational"
-                if self.estuary_flow_enabled
-                else "disabled",
-                "portkey_gateway": "operational"
-                if self.portkey_gateway
-                else "disabled",
+                "constitutional_ai": (
+                    "operational" if self.constitutional_ai else "disabled"
+                ),
+                "snowflake_cortex": (
+                    "operational" if self.snowflake_integration else "disabled"
+                ),
+                "estuary_flow": (
+                    "operational" if self.estuary_flow_enabled else "disabled"
+                ),
+                "portkey_gateway": (
+                    "operational" if self.portkey_gateway else "disabled"
+                ),
             },
             "performance_score": self._calculate_performance_score(),
             "uptime": "99.9%",  # This would come from monitoring
@@ -368,7 +396,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         return max(0.0, min(1.0, score))
 
     def _update_performance_metrics(
-        self, processing_time: float, results: Dict[str, Any]
+        self, processing_time: float, results: dict[str, Any]
     ):
         """Update performance tracking metrics"""
 
@@ -384,7 +412,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         if "processing_cost" in results:
             self.performance_metrics["cost_savings"] += results["processing_cost"]
 
-    async def get_performance_dashboard(self) -> Dict[str, Any]:
+    async def get_performance_dashboard(self) -> dict[str, Any]:
         """Get comprehensive performance dashboard data"""
 
         return {
@@ -413,7 +441,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             },
         }
 
-    async def _get_recent_optimizations(self) -> List[Dict[str, Any]]:
+    async def _get_recent_optimizations(self) -> list[dict[str, Any]]:
         """Get recent optimization activities"""
 
         # This would come from the self-optimization engine
@@ -434,9 +462,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
 
 # Singleton pattern for the enhanced service
-_enhanced_unified_intelligence_service: Optional[EnhancedUnifiedIntelligenceService] = (
-    None
-)
+_enhanced_unified_intelligence_service: EnhancedUnifiedIntelligenceService | None = None
 
 
 async def get_enhanced_unified_intelligence_service() -> (

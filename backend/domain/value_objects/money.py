@@ -8,7 +8,6 @@ with currency in the Sophia AI system.
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
-from typing import Union
 
 
 class Currency(Enum):
@@ -51,7 +50,7 @@ class Money:
             raise ValueError(f"Invalid currency: {self.currency}")
 
     @classmethod
-    def from_string(cls, amount_str: str, currency: Union[str, Currency]) -> "Money":
+    def from_string(cls, amount_str: str, currency: str | Currency) -> "Money":
         """
         Create Money from string representation.
 
@@ -141,15 +140,15 @@ class Money:
             raise ValueError("Subtraction would result in negative money")
         return Money(amount=result, currency=self.currency)
 
-    def __mul__(self, scalar: Union[int, float, Decimal]) -> "Money":
+    def __mul__(self, scalar: int | float | Decimal) -> "Money":
         """Multiply money by a scalar."""
-        if isinstance(scalar, (int, float)):
+        if isinstance(scalar, int | float):
             scalar = Decimal(str(scalar))
         return Money(amount=self.amount * scalar, currency=self.currency)
 
-    def __truediv__(self, scalar: Union[int, float, Decimal]) -> "Money":
+    def __truediv__(self, scalar: int | float | Decimal) -> "Money":
         """Divide money by a scalar."""
-        if isinstance(scalar, (int, float)):
+        if isinstance(scalar, int | float):
             scalar = Decimal(str(scalar))
         if scalar == 0:
             raise ValueError("Cannot divide by zero")

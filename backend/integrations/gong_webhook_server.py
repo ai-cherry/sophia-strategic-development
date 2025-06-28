@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import jwt
@@ -24,9 +25,9 @@ from fastapi import (
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
-from prometheus_client import Counter, Histogram, Gauge, generate_latest
 
 from backend.integrations.gong_webhook_processor import WebhookProcessor
 
@@ -81,7 +82,7 @@ class WebhookServerConfig(BaseSettings):
     # Gong API settings
     GONG_API_BASE_URL: str = "https://api.gong.io"
     GONG_API_KEY: str = Field(..., env="GONG_API_KEY")
-    GONG_WEBHOOK_SECRETS: List[str] = Field(..., env="GONG_WEBHOOK_SECRETS")
+    GONG_WEBHOOK_SECRETS: list[str] = Field(..., env="GONG_WEBHOOK_SECRETS")
 
     # Rate limiting
     GONG_API_RATE_LIMIT: float = 2.5
@@ -130,8 +131,8 @@ class GongCallWebhook(GongWebhookBase):
     call_id: str
     call_start_time: datetime
     duration: int
-    participants: List[Dict[str, Any]]
-    recording_url: Optional[str] = None
+    participants: list[dict[str, Any]]
+    recording_url: str | None = None
 
 
 class GongEmailWebhook(GongWebhookBase):
@@ -140,7 +141,7 @@ class GongEmailWebhook(GongWebhookBase):
     email_id: str
     subject: str
     sender: str
-    recipients: List[str]
+    recipients: list[str]
     sent_time: datetime
 
 
@@ -151,7 +152,7 @@ class GongMeetingWebhook(GongWebhookBase):
     title: str
     start_time: datetime
     end_time: datetime
-    attendees: List[Dict[str, Any]]
+    attendees: list[dict[str, Any]]
 
 
 class WebhookVerificationError(Exception):
@@ -173,7 +174,7 @@ class ValidationResult(BaseModel):
 
     is_valid: bool
     quality_score: float
-    issues: List[str]
+    issues: list[str]
 
 
 class ProcessingResult(BaseModel):
@@ -182,14 +183,14 @@ class ProcessingResult(BaseModel):
     webhook_id: str
     status: str
     processing_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # JWT Webhook Verification
 class GongWebhookVerifier:
     """Verifies Gong webhook signatures using JWT."""
 
-    def __init__(self, webhook_secrets: List[str]):
+    def __init__(self, webhook_secrets: list[str]):
         self.secrets = webhook_secrets
         self.logger = logger.bind(component="webhook_verifier")
 
@@ -227,10 +228,8 @@ class GongWebhookVerifier:
 
             # Validate timestamp to prevent replay attacks (5-minute window)
             if "iat" in decoded_payload:
-                issued_at = datetime.fromtimestamp(
-                    decoded_payload["iat"], tz=timezone.utc
-                )
-                now = datetime.now(tz=timezone.utc)
+                issued_at = datetime.fromtimestamp(decoded_payload["iat"], tz=UTC)
+                now = datetime.now(tz=UTC)
                 if abs((now - issued_at).total_seconds()) > 300:
                     raise WebhookVerificationError(
                         "Webhook timestamp outside acceptable window"
@@ -334,7 +333,7 @@ class RetryManager:
 class DataValidator:
     """Validates webhook data quality."""
 
-    async def validate_call_data(self, data: Dict[str, Any]) -> ValidationResult:
+    async def validate_call_data(self, data: dict[str, Any]) -> ValidationResult:
         """Validate call webhook data."""
         issues = []
 
@@ -345,7 +344,7 @@ class DataValidator:
                 issues.append(f"Missing required field: {field}")
 
         # Validate data types
-        if "duration" in data and not isinstance(data.get("duration"), (int, float)):
+        if "duration" in data and not isinstance(data.get("duration"), int | float):
             issues.append("Duration must be a number")
 
         if "participants" in data and not isinstance(data.get("participants"), list):
@@ -532,7 +531,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
 
-async def process_call_webhook(webhook_id: str, webhook_data: Dict[str, Any]):
+async def process_call_webhook(webhook_id: str, webhook_data: dict[str, Any]):
     """Process call webhook in the background."""
     async with webhook_processor:
         await webhook_processor.process_call_webhook(webhook_id, webhook_data)

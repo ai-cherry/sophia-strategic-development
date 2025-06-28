@@ -15,11 +15,11 @@ PERFORMANCE IMPROVEMENTS:
 - Comprehensive monitoring integration
 """
 
-import re
-import logging
 import asyncio
-from typing import Dict, Any
+import logging
+import re
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class ServiceOptimizationUpdater:
             "errors": [],
         }
 
-    async def update_all_services(self) -> Dict[str, Any]:
+    async def update_all_services(self) -> dict[str, Any]:
         """
         Update all services to use optimized components
         """
@@ -132,7 +132,7 @@ class ServiceOptimizationUpdater:
             logger.info(f"Updating service file: {file_path.name}")
 
             # Read current file content
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -448,7 +448,7 @@ Status: {self.update_results.get("status", "unknown")}
 service_updater = ServiceOptimizationUpdater()
 
 
-async def update_all_sophia_services() -> Dict[str, Any]:
+async def update_all_sophia_services() -> dict[str, Any]:
     """Update all Sophia AI services to use optimized components"""
     return await service_updater.update_all_services()
 

@@ -7,13 +7,12 @@ Natural language interface for Snowflake administration through LangChain SQL Ag
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional
+import os
 
 # MCP imports
-
 # Snowflake Admin Agent
 import sys
-import os
+from typing import Any
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -21,17 +20,17 @@ from backend.agents.specialized.snowflake_admin_agent import (
     SnowflakeAdminAgent,
 )
 from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
     HealthCheckResult,
     HealthStatus,
+    MCPServerConfig,
+    StandardizedMCPServer,
 )
 
 logger = logging.getLogger(__name__)
 
 
 class SnowflakeAdminMCPServer(StandardizedMCPServer):
-    def __init__(self, config: Optional[MCPServerConfig] = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         if config is None:
             config = MCPServerConfig(
                 server_name="snowflake_admin",
@@ -39,7 +38,7 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
             )
         super().__init__(config)
         self.admin_agent = SnowflakeAdminAgent()
-        self.pending_confirmations: Dict[str, Any] = {}
+        self.pending_confirmations: dict[str, Any] = {}
 
     async def server_specific_init(self) -> None:
         await self.admin_agent.initialize()
@@ -68,10 +67,10 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
                 logger.info(f"Expired confirmation: {cid}")
 
     # The following abstract methods are implemented to satisfy the base class.
-    async def sync_data(self) -> Dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         return {}
 
-    async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_with_ai(self, data: dict[str, Any]) -> dict[str, Any]:
         return {}
 
     async def check_external_api(self) -> bool:

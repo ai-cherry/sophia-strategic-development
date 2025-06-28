@@ -7,11 +7,10 @@ Implements SOPHIA_{SERVICE}_{TYPE}_{ENV} pattern with advanced Pulumi ESC integr
 import json
 import os
 import re
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Set, Tuple, Optional
-from dataclasses import dataclass, asdict
 from enum import Enum
+from pathlib import Path
 
 
 class Environment(Enum):
@@ -53,8 +52,8 @@ class ESCEnvironmentConfig:
 
     name: str
     environment: Environment
-    values_structure: Dict
-    imports: List[str]
+    values_structure: dict
+    imports: list[str]
 
 
 class EnhancedSecretStandardizer:
@@ -63,10 +62,10 @@ class EnhancedSecretStandardizer:
     def __init__(self):
         self.workspace_root = Path.cwd()
         self.current_secrets = self._discover_current_secrets()
-        self.secret_mappings: List[SecretMapping] = []
-        self.esc_configs: List[ESCEnvironmentConfig] = []
+        self.secret_mappings: list[SecretMapping] = []
+        self.esc_configs: list[ESCEnvironmentConfig] = []
 
-    def _discover_current_secrets(self) -> Set[str]:
+    def _discover_current_secrets(self) -> set[str]:
         """Discover all current secrets from workflows and code."""
         secrets = set()
 
@@ -74,7 +73,7 @@ class EnhancedSecretStandardizer:
         workflows_dir = self.workspace_root / ".github" / "workflows"
         if workflows_dir.exists():
             for workflow_file in workflows_dir.glob("*.yml"):
-                with open(workflow_file, "r") as f:
+                with open(workflow_file) as f:
                     content = f.read()
                     secrets.update(re.findall(r"secrets\.([A-Z_]+)", content))
 
@@ -83,7 +82,7 @@ class EnhancedSecretStandardizer:
         if backend_dir.exists():
             for py_file in backend_dir.rglob("*.py"):
                 try:
-                    with open(py_file, "r") as f:
+                    with open(py_file) as f:
                         content = f.read()
                         secrets.update(
                             re.findall(r'os\.getenv\(["\']([A-Z_]+)["\']', content)
@@ -97,7 +96,7 @@ class EnhancedSecretStandardizer:
         print(f"🔍 Discovered {len(secrets)} unique secrets")
         return secrets
 
-    def generate_enhanced_secret_mappings(self) -> List[SecretMapping]:
+    def generate_enhanced_secret_mappings(self) -> list[SecretMapping]:
         """Generate enhanced secret mappings with SOPHIA_ prefix and environment awareness."""
 
         # Define enhanced service mappings
@@ -136,7 +135,7 @@ class EnhancedSecretStandardizer:
 
     def _extract_service_info(
         self, secret_name: str
-    ) -> Optional[Tuple[str, ServiceCategory, str]]:
+    ) -> tuple[str, ServiceCategory, str] | None:
         """Extract service, category, and credential type from secret name."""
 
         service_patterns = {
@@ -181,7 +180,7 @@ class EnhancedSecretStandardizer:
 
         return None
 
-    def generate_esc_environments(self) -> List[ESCEnvironmentConfig]:
+    def generate_esc_environments(self) -> list[ESCEnvironmentConfig]:
         """Generate Pulumi ESC environment configurations."""
 
         esc_configs = []
@@ -212,9 +211,9 @@ class EnhancedSecretStandardizer:
                 if service_key not in values_structure["sophia"][category_key]:
                     values_structure["sophia"][category_key][service_key] = {}
 
-                values_structure["sophia"][category_key][service_key][cred_key] = (
-                    f"${{{mapping.new_name}}}"
-                )
+                values_structure["sophia"][category_key][service_key][
+                    cred_key
+                ] = f"${{{mapping.new_name}}}"
 
             esc_config = ESCEnvironmentConfig(
                 name=f"scoobyjava-org/sophia-ai-{env.value.lower()}",
@@ -228,7 +227,7 @@ class EnhancedSecretStandardizer:
         self.esc_configs = esc_configs
         return esc_configs
 
-    def create_migration_scripts(self) -> Dict[str, str]:
+    def create_migration_scripts(self) -> dict[str, str]:
         """Create migration scripts for different phases."""
 
         scripts = {}
@@ -265,7 +264,7 @@ class EnhancedSecretStandardizer:
         return scripts
 
     def _generate_migration_script(
-        self, mappings: List[SecretMapping], description: str
+        self, mappings: list[SecretMapping], description: str
     ) -> str:
         """Generate shell script for secret migration."""
 
@@ -335,7 +334,7 @@ import subprocess
 class Environment(Enum):
     """Deployment environments."""
     PRODUCTION = "prod"
-    STAGING = "stg"  
+    STAGING = "stg"
     DEVELOPMENT = "dev"
 
 class SophiaPlatformSettings(BaseModel):
@@ -397,15 +396,15 @@ class SophiaSettings(BaseModel):
 def load_environment_settings(environment: Environment) -> SophiaSettings:
     """Load settings for specific environment from Pulumi ESC."""
     esc_env = f"scoobyjava-org/sophia-ai-{environment.value}"
-    
+
     try:
         result = subprocess.run([
             "pulumi", "env", "open", esc_env, "--format", "json"
         ], capture_output=True, text=True, check=True)
-        
+
         config_data = json.loads(result.stdout)
         sophia_config = config_data.get("values", {}).get("sophia", {})
-        
+
         return SophiaSettings(
             platform=SophiaPlatformSettings(**sophia_config.get("platform", {})),
             infrastructure=SophiaInfrastructureSettings(**sophia_config.get("infrastructure", {})),
@@ -414,7 +413,7 @@ def load_environment_settings(environment: Environment) -> SophiaSettings:
             ai=SophiaAISettings(**sophia_config.get("ai", {})),
             communication=SophiaCommunicationSettings(**sophia_config.get("communication", {}))
         )
-    
+
     except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError) as e:
         print(f"Failed to load from Pulumi ESC: {e}")
         return load_fallback_settings()
@@ -462,7 +461,7 @@ config = load_environment_settings(current_env)
 
         return config_code
 
-    def generate_comprehensive_report(self) -> Dict:
+    def generate_comprehensive_report(self) -> dict:
         """Generate comprehensive migration report."""
 
         # Generate all components
@@ -522,7 +521,7 @@ config = load_environment_settings(current_env)
 
     def _json_serializer(self, obj):
         """Custom JSON serializer for enum objects."""
-        if isinstance(obj, (ServiceCategory, Environment)):
+        if isinstance(obj, ServiceCategory | Environment):
             return obj.value
         elif isinstance(obj, datetime):
             return obj.isoformat()

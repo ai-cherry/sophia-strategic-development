@@ -9,20 +9,22 @@ Phase 1 Critical Stability Implementation:
 - Proper error handling and logging
 """
 
+import logging
+import os
+from typing import Any
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Dict, Any
-import logging
-import os
+
+from backend.api.asana_integration_routes import router as asana_router
+from backend.api.codacy_integration_routes import router as codacy_router
+from backend.api.data_flow_routes import router as data_flow_router
 
 # Import route modules
 from backend.api.llm_strategy_routes import router as llm_router
-from backend.api.data_flow_routes import router as data_flow_router
-from backend.api.asana_integration_routes import router as asana_router
 from backend.api.notion_integration_routes import router as notion_router
-from backend.api.codacy_integration_routes import router as codacy_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -146,13 +148,13 @@ async def api_health_check() -> APIHealthResponse:
 
 
 @app.get("/api/health/simple", tags=["health"])
-async def simple_health_check() -> Dict[str, str]:
+async def simple_health_check() -> dict[str, str]:
     """Ultra-simple health check for load balancers."""
     return {"status": "ok"}
 
 
 @app.get("/api/config/status", tags=["config"])
-async def config_status() -> Dict[str, Any]:
+async def config_status() -> dict[str, Any]:
     """Configuration status without external connectivity tests."""
     try:
         from backend.core.auto_esc_config import get_config_value
@@ -306,7 +308,7 @@ async def shutdown_event():
 
 # Health check for the optimized connection manager
 @app.get("/api/connection-manager/health", tags=["performance"])
-async def connection_manager_health() -> Dict[str, Any]:
+async def connection_manager_health() -> dict[str, Any]:
     """Check the health of the optimized connection manager."""
     try:
         from backend.core.optimized_connection_manager import connection_manager

@@ -18,7 +18,7 @@ Current size: 789 lines
 
 Recommended decomposition:
 - ingest_gong_data_core.py - Core functionality
-- ingest_gong_data_utils.py - Utility functions  
+- ingest_gong_data_utils.py - Utility functions
 - ingest_gong_data_models.py - Data models
 - ingest_gong_data_handlers.py - Request handlers
 
@@ -27,19 +27,18 @@ TODO: Implement file decomposition
 
 from __future__ import annotations
 
-import re
-
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
-from enum import Enum
+import re
 import uuid
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
-import snowflake.connector
 import aiohttp
+import snowflake.connector
 import structlog
 from pydantic import BaseModel, Field
 
@@ -53,9 +52,10 @@ class SyncMode(Enum):
     def _validate_schema_name(self, schema_name: str) -> str:
         """Validate schema name for security"""
         # Allow only alphanumeric, dots, and underscores
-        if not re.match(r'^[a-zA-Z0-9_.]+$', schema_name):
+        if not re.match(r"^[a-zA-Z0-9_.]+$", schema_name):
             raise ValueError(f"Invalid schema name: {schema_name}")
         return schema_name
+
     """Sync modes for Gong data ingestion"""
 
     FULL = "full"
@@ -68,7 +68,7 @@ class IngestionState:
     """State tracking for incremental ingestion"""
 
     last_sync_timestamp: datetime
-    last_call_id: Optional[str] = None
+    last_call_id: str | None = None
     total_calls_processed: int = 0
     sync_mode: SyncMode = SyncMode.INCREMENTAL
     correlation_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -89,9 +89,9 @@ class GongCall(BaseModel):
     language: str
     workspace_id: str
     call_url: str
-    participants: List[Dict[str, Any]] = Field(default_factory=list)
-    custom_data: Dict[str, Any] = Field(default_factory=dict)
-    crm_data: Dict[str, Any] = Field(default_factory=dict)
+    participants: list[dict[str, Any]] = Field(default_factory=list)
+    custom_data: dict[str, Any] = Field(default_factory=dict)
+    crm_data: dict[str, Any] = Field(default_factory=dict)
 
 
 class GongAPIClient:
@@ -99,7 +99,7 @@ class GongAPIClient:
 
     def __init__(self):
         self.base_url = "https://api.gong.io/v2"
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self.access_key = config.get("gong_access_key")
         self.access_key_secret = config.get("gong_access_key_secret")
         self.rate_limit_delay = 1.0  # seconds between requests
@@ -131,9 +131,9 @@ class GongAPIClient:
         self,
         from_date: datetime,
         to_date: datetime,
-        cursor: Optional[str] = None,
+        cursor: str | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Fetch calls from Gong API with pagination support
 
@@ -186,7 +186,7 @@ class GongAPIClient:
             logger.error(f"Unexpected error in Gong API call: {e}")
             raise
 
-    async def get_call_transcript(self, call_id: str) -> Dict[str, Any]:
+    async def get_call_transcript(self, call_id: str) -> dict[str, Any]:
         """
         Fetch transcript for a specific call
 
@@ -252,8 +252,14 @@ class SnowflakeGongLoader:
         """Ensure the Gong data schema exists"""
         cursor = self.connection.cursor()
         try:
-            cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{self.schema}"))
-            cursor.execute("USE SCHEMA " + self._validate_schema_name(f"{self.database}.{self.schema}"))
+            cursor.execute(
+                "CREATE SCHEMA IF NOT EXISTS "
+                + self._validate_schema_name(f"{self.database}.{self.schema}")
+            )
+            cursor.execute(
+                "USE SCHEMA "
+                + self._validate_schema_name(f"{self.database}.{self.schema}")
+            )
             logger.debug(f"Ensured schema {self.database}.{self.schema} exists")
         except Exception as e:
             logger.error(f"Failed to ensure schema exists: {e}")
@@ -261,7 +267,7 @@ class SnowflakeGongLoader:
         finally:
             cursor.close()
 
-    async def load_raw_calls(self, calls_data: List[Dict[str, Any]]) -> int:
+    async def load_raw_calls(self, calls_data: list[dict[str, Any]]) -> int:
         """
         Load raw call data into GONG_CALLS_RAW table
 
@@ -326,7 +332,7 @@ class SnowflakeGongLoader:
             cursor.close()
 
     async def load_call_transcripts(
-        self, transcripts_data: List[Dict[str, Any]]
+        self, transcripts_data: list[dict[str, Any]]
     ) -> int:
         """
         Load call transcripts into GONG_CALL_TRANSCRIPTS_RAW table
@@ -442,7 +448,7 @@ class SnowflakeGongLoader:
         finally:
             cursor.close()
 
-    async def get_last_sync_state(self) -> Optional[IngestionState]:
+    async def get_last_sync_state(self) -> IngestionState | None:
         """Get the last sync state from Snowflake"""
         cursor = self.connection.cursor()
         try:
@@ -464,14 +470,14 @@ class SnowflakeGongLoader:
             # Get latest state
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     LAST_SYNC_TIMESTAMP,
                     LAST_CALL_ID,
                     TOTAL_CALLS_PROCESSED,
                     SYNC_MODE,
                     CORRELATION_ID
-                FROM GONG_INGESTION_STATE 
-                ORDER BY ID DESC 
+                FROM GONG_INGESTION_STATE
+                ORDER BY ID DESC
                 LIMIT 1
             """
             )
@@ -566,10 +572,10 @@ class GongDataIngestionOrchestrator:
 
     async def run_ingestion(
         self,
-        from_date: Optional[datetime] = None,
-        to_date: Optional[datetime] = None,
+        from_date: datetime | None = None,
+        to_date: datetime | None = None,
         include_transcripts: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run the complete Gong data ingestion process
 
@@ -706,9 +712,9 @@ class GongDataIngestionOrchestrator:
         try:
             cursor.execute(
                 """
-                SELECT CALL_ID 
-                FROM GONG_CALLS_RAW 
-                WHERE INGESTED_AT >= ? 
+                SELECT CALL_ID
+                FROM GONG_CALLS_RAW
+                WHERE INGESTED_AT >= ?
                 AND INGESTED_AT <= ?
                 AND CALL_ID NOT IN (
                     SELECT CALL_ID FROM GONG_CALL_TRANSCRIPTS_RAW

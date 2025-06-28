@@ -10,17 +10,18 @@ Features:
 - CEO-level access controls and deep research
 """
 
+import json
+import logging
+from datetime import datetime
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional
-import logging
-import json
-from datetime import datetime
 
 from backend.services.enhanced_portkey_orchestrator import (
+    EnhancedLLMResponse,
     SophiaAI,
     TaskComplexity,
-    EnhancedLLMResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,8 +56,8 @@ class ChatResponse(BaseModel):
     task_complexity: str
     quality_score: float
     success: bool
-    suggestions: List[str] = []
-    provider_info: Optional[Dict[str, Any]] = None
+    suggestions: list[str] = []
+    provider_info: dict[str, Any] | None = None
 
 
 class CodeRequest(BaseModel):
@@ -71,7 +72,7 @@ class BusinessAnalysisRequest(BaseModel):
     """Business analysis request"""
 
     query: str = Field(..., description="Business query")
-    context: Optional[Dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None, description="Additional context"
     )
     depth: str = Field(default="comprehensive", description="Analysis depth")
@@ -92,14 +93,14 @@ class ProviderStatusResponse(BaseModel):
 
     total_providers: int
     active_providers: int
-    provider_details: Dict[str, Any]
+    provider_details: dict[str, Any]
     system_health: str
 
 
 # WebSocket connection manager for real-time chat
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -406,7 +407,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
 def _generate_suggestions(
     response: EnhancedLLMResponse, context_type: str
-) -> List[str]:
+) -> list[str]:
     """Generate contextual suggestions based on response and context"""
     base_suggestions = []
 

@@ -4,14 +4,15 @@ Sophia AI Complete System Startup
 Comprehensive script to start all essential services for active development
 """
 
-import subprocess
-import time
-import sys
+import asyncio
 import os
 import signal
-import asyncio
-import aiohttp
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+import aiohttp
 
 
 class SophiaSystemManager:
@@ -130,7 +131,7 @@ async def system_status():
         "backend": "running",
         "mcp_servers": {{
             "ai_memory": "http://localhost:9000",
-            "codacy": "http://localhost:3008", 
+            "codacy": "http://localhost:3008",
             "asana": "http://localhost:3006",
             "notion": "http://localhost:3007"
         }},

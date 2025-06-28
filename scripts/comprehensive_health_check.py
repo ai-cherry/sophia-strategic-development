@@ -4,23 +4,23 @@ Comprehensive Health Check for Sophia AI Platform
 Validates all system components and generates detailed health report
 """
 
-import asyncio
 import argparse
+import asyncio
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from backend.core.auto_esc_config import config
-from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
     SophiaInfrastructureAgent,
 )
+from backend.core.auto_esc_config import config
+from backend.mcp.ai_memory_mcp_server import AiMemoryMCPServer
 
 # Setup logging
 logging.basicConfig(
@@ -48,11 +48,11 @@ class ComponentHealthCheck:
         self.start_time = None
         self.end_time = None
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Perform health check - to be implemented by subclasses"""
         raise NotImplementedError
 
-    def get_execution_time(self) -> Optional[float]:
+    def get_execution_time(self) -> float | None:
         """Get execution time in seconds"""
         if self.start_time and self.end_time:
             return (self.end_time - self.start_time).total_seconds()
@@ -65,9 +65,9 @@ class ConfigurationHealthCheck(ComponentHealthCheck):
     def __init__(self):
         super().__init__("Configuration System")
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Check configuration system health"""
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
 
         try:
             # Test configuration loading
@@ -107,7 +107,7 @@ class ConfigurationHealthCheck(ComponentHealthCheck):
             self.details = {"error": str(e)}
             logger.error(f"Configuration health check failed: {e}")
 
-        self.end_time = datetime.now(timezone.utc)
+        self.end_time = datetime.now(UTC)
 
         return {
             "component": self.name,
@@ -123,9 +123,9 @@ class MCPServerHealthCheck(ComponentHealthCheck):
     def __init__(self):
         super().__init__("MCP Servers")
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Check MCP server health"""
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
 
         try:
             # Test AI Memory MCP Server
@@ -175,7 +175,7 @@ class MCPServerHealthCheck(ComponentHealthCheck):
             self.details = {"error": str(e)}
             logger.error(f"MCP server health check failed: {e}")
 
-        self.end_time = datetime.now(timezone.utc)
+        self.end_time = datetime.now(UTC)
 
         return {
             "component": self.name,
@@ -191,9 +191,9 @@ class AgentFrameworkHealthCheck(ComponentHealthCheck):
     def __init__(self):
         super().__init__("Agent Framework")
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Check agent framework health"""
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
 
         try:
             # Test infrastructure agent
@@ -235,7 +235,7 @@ class AgentFrameworkHealthCheck(ComponentHealthCheck):
             self.details = {"error": str(e)}
             logger.error(f"Agent framework health check failed: {e}")
 
-        self.end_time = datetime.now(timezone.utc)
+        self.end_time = datetime.now(UTC)
 
         return {
             "component": self.name,
@@ -251,9 +251,9 @@ class FastAPIHealthCheck(ComponentHealthCheck):
     def __init__(self):
         super().__init__("FastAPI Application")
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Check FastAPI application health"""
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
 
         try:
             # Test FastAPI import
@@ -287,7 +287,7 @@ class FastAPIHealthCheck(ComponentHealthCheck):
             self.details = {"error": str(e)}
             logger.error(f"FastAPI health check failed: {e}")
 
-        self.end_time = datetime.now(timezone.utc)
+        self.end_time = datetime.now(UTC)
 
         return {
             "component": self.name,
@@ -303,9 +303,9 @@ class DependencyHealthCheck(ComponentHealthCheck):
     def __init__(self):
         super().__init__("Dependencies")
 
-    async def check(self) -> Dict[str, Any]:
+    async def check(self) -> dict[str, Any]:
         """Check critical dependencies"""
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
 
         dependency_status = {}
         critical_imports = [
@@ -362,7 +362,7 @@ class DependencyHealthCheck(ComponentHealthCheck):
             self.details = {"error": str(e)}
             logger.error(f"Dependency health check failed: {e}")
 
-        self.end_time = datetime.now(timezone.utc)
+        self.end_time = datetime.now(UTC)
 
         return {
             "component": self.name,
@@ -385,11 +385,11 @@ class SophiaHealthChecker:
             FastAPIHealthCheck(),
         ]
 
-    async def run_all_checks(self) -> Dict[str, Any]:
+    async def run_all_checks(self) -> dict[str, Any]:
         """Run all health checks"""
         logger.info("🔍 Starting Sophia AI Comprehensive Health Check...")
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         results = []
 
         for health_check in self.health_checks:
@@ -406,13 +406,13 @@ class SophiaHealthChecker:
 
             logger.info(f"{status_emoji} {health_check.name}: {result['status']}")
 
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
 
         # Generate summary
         summary = self._generate_summary(results)
 
         final_report = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "total_execution_time": (end_time - start_time).total_seconds(),
             "sophia_ai_version": "v2.0.0",
             "environment": "staging",  # Could be dynamic
@@ -422,7 +422,7 @@ class SophiaHealthChecker:
 
         return final_report
 
-    def _generate_summary(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _generate_summary(self, results: list[dict[str, Any]]) -> dict[str, Any]:
         """Generate health check summary"""
         status_counts = {}
         total_components = len(results)
@@ -459,7 +459,7 @@ class SophiaHealthChecker:
             "status_distribution": status_counts,
         }
 
-    def save_report(self, report: Dict[str, Any], output_file: str = None) -> str:
+    def save_report(self, report: dict[str, Any], output_file: str = None) -> str:
         """Save health check report to file"""
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -470,7 +470,7 @@ class SophiaHealthChecker:
 
         return output_file
 
-    def print_summary(self, report: Dict[str, Any]) -> None:
+    def print_summary(self, report: dict[str, Any]) -> None:
         """Print formatted health check summary"""
         summary = report["summary"]
 
@@ -512,7 +512,7 @@ class SophiaHealthChecker:
                 if "error" in details:
                     print(f"    Error: {details['error']}")
                 elif isinstance(details, dict):
-                    for key, value in details.items():
+                    for _key, value in details.items():
                         if isinstance(value, dict) and not all(
                             v for v in value.values()
                         ):

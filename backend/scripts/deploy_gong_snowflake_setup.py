@@ -15,17 +15,18 @@ Usage:
     python backend/scripts/deploy_gong_snowflake_setup.py --env prod --execute-all
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any
 
 import snowflake.connector
+
 from backend.core.auto_esc_config import get_config_value
 
 logging.basicConfig(level=logging.INFO)
@@ -75,13 +76,13 @@ class GongSnowflakeDeployer:
     def __init__(self, env: DeploymentEnvironment, dry_run: bool = False):
         self.env = env
         self.dry_run = dry_run
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
 
         # Load environment-specific configuration
         self.config = self._load_config()
 
         # Track deployment progress
-        self.deployment_log: List[Dict[str, Any]] = []
+        self.deployment_log: list[dict[str, Any]] = []
 
     def _load_config(self) -> SnowflakeDeploymentConfig:
         """Load configuration based on environment"""
@@ -106,7 +107,7 @@ class GongSnowflakeDeployer:
         else:
             raise ValueError(f"Unsupported environment: {self.env}")
 
-    async def deploy_complete_pipeline(self) -> Dict[str, Any]:
+    async def deploy_complete_pipeline(self) -> dict[str, Any]:
         """Deploy the complete Gong data pipeline to Snowflake"""
         try:
             logger.info(
@@ -162,13 +163,13 @@ class GongSnowflakeDeployer:
         finally:
             await self._cleanup()
 
-    async def execute_manus_ai_ddl(self, ddl_file_path: str) -> Dict[str, Any]:
+    async def execute_manus_ai_ddl(self, ddl_file_path: str) -> dict[str, Any]:
         """Execute Manus AI's consolidated DDL script"""
         try:
             logger.info(f"📜 Executing Manus AI DDL from: {ddl_file_path}")
 
             # Read the DDL file
-            with open(ddl_file_path, "r") as file:
+            with open(ddl_file_path) as file:
                 ddl_content = file.read()
 
             if self.dry_run:
@@ -245,7 +246,9 @@ class GongSnowflakeDeployer:
             ]
 
             for table in tables_to_check:
-                cursor.execute("SELECT COUNT(*) FROM " + self._validate_table_name(table))
+                cursor.execute(
+                    "SELECT COUNT(*) FROM " + self._validate_table_name(table)
+                )
                 # If this doesn't throw an error, table exists
                 logger.info(f"✅ Verified table exists: {table}")
 

@@ -11,16 +11,15 @@ Expected Performance Improvements:
 
 import logging
 import time
-from typing import Dict
-from datetime import datetime
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from backend.core.centralized_config_manager import centralized_config_manager
 from backend.core.auto_esc_config import get_config_value
+from backend.core.centralized_config_manager import centralized_config_manager
 
 
 class HealthResponse(BaseModel):
@@ -32,7 +31,7 @@ class HealthResponse(BaseModel):
     configuration_status: str = Field(..., description="Configuration status")
     performance_level: str = Field(..., description="Performance level")
     uptime_seconds: float = Field(..., description="Uptime in seconds")
-    phase2_optimizations: Dict[str, str] = Field(
+    phase2_optimizations: dict[str, str] = Field(
         ..., description="Phase 2 optimizations status"
     )
 

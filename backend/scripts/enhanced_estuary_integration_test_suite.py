@@ -15,22 +15,22 @@ Usage:
     python backend/scripts/enhanced_estuary_integration_test_suite.py --environment prod --test-category all
 """
 
+import argparse
 import asyncio
 import json
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any
 
 import aiohttp
 import structlog
 
 from backend.core.auto_esc_config import get_config_value
-from backend.scripts.estuary_gong_setup import EstuaryGongOrchestrator, EstuaryConfig
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.scripts.estuary_gong_setup import EstuaryConfig, EstuaryGongOrchestrator
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = structlog.get_logger(__name__)
 
@@ -65,7 +65,7 @@ class TestResult:
     status: TestStatus
     message: str
     execution_time: float
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -81,9 +81,9 @@ class TestSuiteReport:
     error_tests: int
     overall_status: str
     execution_time: float
-    test_results: List[TestResult]
-    performance_metrics: Dict[str, Any]
-    recommendations: List[str]
+    test_results: list[TestResult]
+    performance_metrics: dict[str, Any]
+    recommendations: list[str]
     timestamp: datetime
 
 
@@ -97,14 +97,14 @@ class EstuaryIntegrationTestSuite:
 
     def __init__(self, environment: str = "dev"):
         self.environment = environment
-        self.test_results: List[TestResult] = []
-        self.performance_metrics: Dict[str, Any] = {}
+        self.test_results: list[TestResult] = []
+        self.performance_metrics: dict[str, Any] = {}
 
         # Initialize service clients
-        self.estuary_orchestrator: Optional[EstuaryGongOrchestrator] = None
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.ai_memory_server: Optional[EnhancedAiMemoryMCPServer] = None
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.estuary_orchestrator: EstuaryGongOrchestrator | None = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.ai_memory_server: EnhancedAiMemoryMCPServer | None = None
+        self.session: aiohttp.ClientSession | None = None
 
         # Test configuration
         self.test_data_sample_size = 10  # Small sample for testing
@@ -116,7 +116,7 @@ class EstuaryIntegrationTestSuite:
         }
 
     async def run_comprehensive_test_suite(
-        self, categories: List[TestCategory] = None
+        self, categories: list[TestCategory] = None
     ) -> TestSuiteReport:
         """
         Run comprehensive test suite across specified categories
@@ -484,7 +484,7 @@ class EstuaryIntegrationTestSuite:
             database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
 
             quality_query = f"""
-            SELECT 
+            SELECT
                 COUNT(*) as total_records,
                 COUNT(CASE WHEN _ESTUARY_DATA:id IS NOT NULL THEN 1 END) as has_id,
                 COUNT(CASE WHEN _ESTUARY_DATA:metaData IS NOT NULL THEN 1 END) as has_metadata,
@@ -573,7 +573,7 @@ class EstuaryIntegrationTestSuite:
             database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
 
             freshness_query = f"""
-            SELECT 
+            SELECT
                 MAX(_ESTUARY_EMITTED_AT) as latest_record,
                 DATEDIFF('minute', MAX(_ESTUARY_EMITTED_AT), CURRENT_TIMESTAMP()) as minutes_old
             FROM {database}.RAW_ESTUARY.RAW_GONG_CALLS_RAW
@@ -1033,7 +1033,7 @@ class EstuaryIntegrationTestSuite:
             timestamp=datetime.utcnow(),
         )
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate actionable recommendations based on test results"""
         recommendations = []
 

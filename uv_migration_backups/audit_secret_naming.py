@@ -4,10 +4,9 @@ Sophia AI - Comprehensive Secret Naming Audit & Standardization
 Analyzes GitHub secrets, Pulumi ESC mappings, and codebase references
 """
 
-import re
 import json
-from typing import Dict, List, Set, Tuple
-from dataclasses import dataclass, asdict
+import re
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 
@@ -30,7 +29,7 @@ class SecretAnalysis:
     recommended_name: str
     service: str
     credential_type: str
-    references: List[SecretReference]
+    references: list[SecretReference]
     is_consistent: bool
     action_required: str  # 'keep', 'rename', 'delete', 'consolidate'
 
@@ -40,10 +39,10 @@ class SecretAuditor:
 
     def __init__(self):
         self.workspace_root = Path.cwd()
-        self.github_secrets: Set[str] = set()
-        self.pulumi_esc_secrets: Set[str] = set()
-        self.code_references: List[SecretReference] = []
-        self.analysis_results: List[SecretAnalysis] = []
+        self.github_secrets: set[str] = set()
+        self.pulumi_esc_secrets: set[str] = set()
+        self.code_references: list[SecretReference] = []
+        self.analysis_results: list[SecretAnalysis] = []
 
         # Standard service mapping for consistent naming
         self.service_mappings = {
@@ -92,7 +91,7 @@ class SecretAuditor:
             return
 
         for workflow_file in workflow_dir.glob("*.yml"):
-            with open(workflow_file, "r") as f:
+            with open(workflow_file) as f:
                 content = f.read()
 
             # Find secrets.SECRET_NAME patterns
@@ -129,7 +128,7 @@ class SecretAuditor:
             print("❌ Pulumi sync script not found")
             return
 
-        with open(sync_script, "r") as f:
+        with open(sync_script) as f:
             content = f.read()
 
         # Extract secret mappings dictionary
@@ -181,7 +180,7 @@ class SecretAuditor:
                     continue
 
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with open(file_path, encoding="utf-8") as f:
                         content = f.read()
 
                     for pattern in patterns:
@@ -262,7 +261,7 @@ class SecretAuditor:
             action_required=action_required,
         )
 
-    def _extract_service_and_type(self, secret_name: str) -> Tuple[str, str]:
+    def _extract_service_and_type(self, secret_name: str) -> tuple[str, str]:
         """Extract service and credential type from secret name."""
         # Common patterns
         if "OPENAI" in secret_name:
@@ -354,7 +353,7 @@ class SecretAuditor:
         return f"{service_upper}_{cred_type}"
 
     def _determine_action(
-        self, secret_name: str, references: List[SecretReference]
+        self, secret_name: str, references: list[SecretReference]
     ) -> str:
         """Determine what action is required for this secret."""
         if not references:
@@ -375,7 +374,7 @@ class SecretAuditor:
         else:
             return "keep"  # Well-used, keep
 
-    def generate_report(self) -> Dict:
+    def generate_report(self) -> dict:
         """Generate comprehensive analysis report."""
         print("📋 Generating analysis report...")
 
@@ -386,9 +385,11 @@ class SecretAuditor:
             "summary": {
                 "total_secrets": total_secrets,
                 "consistent_secrets": consistent_secrets,
-                "consistency_rate": f"{(consistent_secrets / total_secrets * 100):.1f}%"
-                if total_secrets > 0
-                else "0%",
+                "consistency_rate": (
+                    f"{(consistent_secrets / total_secrets * 100):.1f}%"
+                    if total_secrets > 0
+                    else "0%"
+                ),
                 "github_secrets": len(self.github_secrets),
                 "pulumi_esc_secrets": len(self.pulumi_esc_secrets),
                 "code_references": len(self.code_references),
@@ -402,23 +403,23 @@ class SecretAuditor:
 
         return report
 
-    def _summarize_actions(self) -> Dict[str, List[str]]:
+    def _summarize_actions(self) -> dict[str, list[str]]:
         """Summarize required actions for secrets."""
-        actions: Dict[str, List[str]] = {}
+        actions: dict[str, list[str]] = {}
         for analysis in self.analysis_results:
             action = analysis.action_required
             actions.setdefault(action, []).append(analysis.current_name)
         return actions
 
-    def _summarize_services(self) -> Dict[str, List[str]]:
+    def _summarize_services(self) -> dict[str, list[str]]:
         """Summarize secrets by service."""
-        services: Dict[str, List[str]] = {}
+        services: dict[str, list[str]] = {}
         for analysis in self.analysis_results:
             service = analysis.service
             services.setdefault(service, []).append(analysis.current_name)
         return services
 
-    def generate_migration_plan(self) -> Dict:
+    def generate_migration_plan(self) -> dict:
         """Generate specific migration plan with commands."""
         print("🔄 Generating migration plan...")
 

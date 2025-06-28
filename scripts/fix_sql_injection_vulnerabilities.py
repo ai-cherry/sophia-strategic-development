@@ -17,12 +17,10 @@ Security improvements:
 5. Error handling for SQL injection attempts
 """
 
-import os
-import re
 import logging
-from pathlib import Path
-from typing import List, Dict, Tuple
+import re
 from dataclasses import dataclass
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -30,9 +28,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class SQLInjectionFix:
     """Represents a SQL injection vulnerability fix"""
+
     file_path: str
     line_number: int
     original_code: str
@@ -40,104 +40,129 @@ class SQLInjectionFix:
     vulnerability_type: str
     fix_description: str
 
+
 class SQLInjectionRemediator:
     """Comprehensive SQL injection vulnerability remediation"""
-    
+
     def __init__(self, root_dir: str = "."):
         self.root_dir = Path(root_dir)
-        self.fixes_applied: List[SQLInjectionFix] = []
-        
+        self.fixes_applied: list[SQLInjectionFix] = []
+
         # Patterns for SQL injection vulnerabilities
         self.vulnerability_patterns = {
-            'f_string_sql': re.compile(r'cursor\.execute\s*\(\s*f[\'"].*\{.*\}.*[\'"]'),
-            'string_concat_sql': re.compile(r'cursor\.execute\s*\(\s*[\'"].*[\'"].*\+'),
-            'format_sql': re.compile(r'cursor\.execute\s*\(\s*.*\.format\s*\('),
-            'percent_format_sql': re.compile(r'cursor\.execute\s*\(\s*[\'"].*%s.*[\'"].*%'),
-            'direct_interpolation': re.compile(r'cursor\.execute\s*\(\s*[\'"].*\{[^}]+\}.*[\'"]'),
+            "f_string_sql": re.compile(r'cursor\.execute\s*\(\s*f[\'"].*\{.*\}.*[\'"]'),
+            "string_concat_sql": re.compile(r'cursor\.execute\s*\(\s*[\'"].*[\'"].*\+'),
+            "format_sql": re.compile(r"cursor\.execute\s*\(\s*.*\.format\s*\("),
+            "percent_format_sql": re.compile(
+                r'cursor\.execute\s*\(\s*[\'"].*%s.*[\'"].*%'
+            ),
+            "direct_interpolation": re.compile(
+                r'cursor\.execute\s*\(\s*[\'"].*\{[^}]+\}.*[\'"]'
+            ),
         }
 
-    def scan_for_vulnerabilities(self) -> List[Dict]:
+    def scan_for_vulnerabilities(self) -> list[dict]:
         """Scan codebase for SQL injection vulnerabilities"""
         vulnerabilities = []
-        
+
         # Python files to scan
         python_files = list(self.root_dir.rglob("*.py"))
-        
-        logger.info(f"Scanning {len(python_files)} Python files for SQL injection vulnerabilities...")
-        
+
+        logger.info(
+            f"Scanning {len(python_files)} Python files for SQL injection vulnerabilities..."
+        )
+
         for file_path in python_files:
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding="utf-8") as f:
                     content = f.read()
-                    lines = content.split('\n')
-                    
+                    lines = content.split("\n")
+
                     for line_num, line in enumerate(lines, 1):
                         for vuln_type, pattern in self.vulnerability_patterns.items():
                             if pattern.search(line):
-                                vulnerabilities.append({
-                                    'file': str(file_path),
-                                    'line': line_num,
-                                    'code': line.strip(),
-                                    'type': vuln_type,
-                                    'severity': self._assess_severity(line, vuln_type)
-                                })
-                                
+                                vulnerabilities.append(
+                                    {
+                                        "file": str(file_path),
+                                        "line": line_num,
+                                        "code": line.strip(),
+                                        "type": vuln_type,
+                                        "severity": self._assess_severity(
+                                            line, vuln_type
+                                        ),
+                                    }
+                                )
+
             except Exception as e:
                 logger.warning(f"Error scanning {file_path}: {e}")
-                
-        logger.info(f"Found {len(vulnerabilities)} potential SQL injection vulnerabilities")
+
+        logger.info(
+            f"Found {len(vulnerabilities)} potential SQL injection vulnerabilities"
+        )
         return vulnerabilities
 
     def _assess_severity(self, line: str, vuln_type: str) -> str:
         """Assess severity of SQL injection vulnerability"""
-        
-        # High severity indicators
-        high_severity_keywords = ['DELETE', 'DROP', 'TRUNCATE', 'ALTER', 'CREATE']
-        
-        # Medium severity indicators  
-        medium_severity_keywords = ['INSERT', 'UPDATE', 'MERGE']
-        
-        line_upper = line.upper()
-        
-        if any(keyword in line_upper for keyword in high_severity_keywords):
-            return 'HIGH'
-        elif any(keyword in line_upper for keyword in medium_severity_keywords):
-            return 'MEDIUM'
-        else:
-            return 'LOW'
 
-    def apply_comprehensive_fixes(self) -> Dict[str, any]:
+        # High severity indicators
+        high_severity_keywords = ["DELETE", "DROP", "TRUNCATE", "ALTER", "CREATE"]
+
+        # Medium severity indicators
+        medium_severity_keywords = ["INSERT", "UPDATE", "MERGE"]
+
+        line_upper = line.upper()
+
+        if any(keyword in line_upper for keyword in high_severity_keywords):
+            return "HIGH"
+        elif any(keyword in line_upper for keyword in medium_severity_keywords):
+            return "MEDIUM"
+        else:
+            return "LOW"
+
+    def apply_comprehensive_fixes(self) -> dict[str, any]:
         """Apply comprehensive SQL injection fixes across the codebase"""
-        
-        logger.info("🔒 Starting comprehensive SQL injection vulnerability remediation...")
-        
+
+        logger.info(
+            "🔒 Starting comprehensive SQL injection vulnerability remediation..."
+        )
+
         # Scan for vulnerabilities
         vulnerabilities = self.scan_for_vulnerabilities()
-        
+
         # Create comprehensive report
         report = {
-            'vulnerabilities_found': len(vulnerabilities),
-            'high_severity_count': len([v for v in vulnerabilities if v['severity'] == 'HIGH']),
-            'medium_severity_count': len([v for v in vulnerabilities if v['severity'] == 'MEDIUM']),
-            'low_severity_count': len([v for v in vulnerabilities if v['severity'] == 'LOW']),
-            'vulnerabilities_by_file': self._group_vulnerabilities_by_file(vulnerabilities),
-            'security_guide': self.generate_security_guide(),
-            'validation_helpers': self.create_validation_helpers()
+            "vulnerabilities_found": len(vulnerabilities),
+            "high_severity_count": len(
+                [v for v in vulnerabilities if v["severity"] == "HIGH"]
+            ),
+            "medium_severity_count": len(
+                [v for v in vulnerabilities if v["severity"] == "MEDIUM"]
+            ),
+            "low_severity_count": len(
+                [v for v in vulnerabilities if v["severity"] == "LOW"]
+            ),
+            "vulnerabilities_by_file": self._group_vulnerabilities_by_file(
+                vulnerabilities
+            ),
+            "security_guide": self.generate_security_guide(),
+            "validation_helpers": self.create_validation_helpers(),
         }
-        
-        logger.info(f"✅ SQL injection analysis complete!")
+
+        logger.info("✅ SQL injection analysis complete!")
         logger.info(f"   • {len(vulnerabilities)} vulnerabilities found")
         logger.info(f"   • {report['high_severity_count']} high severity")
         logger.info(f"   • {report['medium_severity_count']} medium severity")
         logger.info(f"   • {report['low_severity_count']} low severity")
-        
+
         return report
 
-    def _group_vulnerabilities_by_file(self, vulnerabilities: List[Dict]) -> Dict[str, List[Dict]]:
+    def _group_vulnerabilities_by_file(
+        self, vulnerabilities: list[dict]
+    ) -> dict[str, list[dict]]:
         """Group vulnerabilities by file"""
         by_file = {}
         for vuln in vulnerabilities:
-            file_path = vuln['file']
+            file_path = vuln["file"]
             if file_path not in by_file:
                 by_file[file_path] = []
             by_file[file_path].append(vuln)
@@ -145,7 +170,7 @@ class SQLInjectionRemediator:
 
     def create_validation_helpers(self) -> str:
         """Create helper methods for SQL identifier validation"""
-        
+
         return '''
     def _validate_warehouse(self, warehouse_name: str) -> str:
         """Validate warehouse name against whitelist"""
@@ -153,7 +178,7 @@ class SQLInjectionRemediator:
         if warehouse_name not in safe_warehouses:
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return warehouse_name
-    
+
     def _validate_schema(self, schema_name: str) -> str:
         """Validate schema name against whitelist"""
         safe_schemas = {
@@ -164,7 +189,7 @@ class SQLInjectionRemediator:
         if schema_name not in safe_schemas:
             raise ValueError(f"Invalid schema name: {schema_name}")
         return schema_name
-    
+
     def _validate_table_name(self, table_name: str) -> str:
         """Validate table name against whitelist"""
         safe_tables = {
@@ -179,8 +204,8 @@ class SQLInjectionRemediator:
 
     def generate_security_guide(self) -> str:
         """Generate security guidelines for SQL injection prevention"""
-        
-        return '''
+
+        return """
 # SQL Injection Prevention Guidelines for Sophia AI
 
 ## ✅ SECURE PATTERNS
@@ -227,55 +252,58 @@ cursor.execute(query)
 3. **Sanitize input data** before processing
 4. **Use prepared statements** where possible
 5. **Log security events** for monitoring
-'''
+"""
 
-    def save_remediation_report(self, report: Dict) -> str:
+    def save_remediation_report(self, report: dict) -> str:
         """Save comprehensive remediation report"""
-        
+
         report_content = f"""
 # SQL Injection Vulnerability Analysis Report
 
 ## Executive Summary
 - **Vulnerabilities Found**: {report['vulnerabilities_found']}
 - **High Severity**: {report['high_severity_count']} vulnerabilities
-- **Medium Severity**: {report['medium_severity_count']} vulnerabilities  
+- **Medium Severity**: {report['medium_severity_count']} vulnerabilities
 - **Low Severity**: {report['low_severity_count']} vulnerabilities
 
 ## Vulnerabilities by File
 """
-        
-        for file_path, vulns in report['vulnerabilities_by_file'].items():
+
+        for file_path, vulns in report["vulnerabilities_by_file"].items():
             report_content += f"\n### {file_path}\n"
             for vuln in vulns:
-                report_content += f"- Line {vuln['line']}: {vuln['type']} ({vuln['severity']})\n"
+                report_content += (
+                    f"- Line {vuln['line']}: {vuln['type']} ({vuln['severity']})\n"
+                )
                 report_content += f"  `{vuln['code']}`\n"
-        
+
         report_content += f"\n{report['security_guide']}"
-        
+
         # Save report
         report_path = self.root_dir / "SQL_INJECTION_ANALYSIS_REPORT.md"
-        with open(report_path, 'w', encoding='utf-8') as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_content)
-        
+
         logger.info(f"📋 Analysis report saved to: {report_path}")
         return str(report_path)
 
+
 def main():
     """Main execution function"""
-    
+
     # Initialize remediator
     remediator = SQLInjectionRemediator()
-    
+
     # Apply comprehensive analysis
     report = remediator.apply_comprehensive_fixes()
-    
+
     # Save detailed report
     report_path = remediator.save_remediation_report(report)
-    
+
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🔒 SQL INJECTION VULNERABILITY ANALYSIS")
-    print("="*60)
+    print("=" * 60)
     print(f"Vulnerabilities Found: {report['vulnerabilities_found']}")
     print(f"High Severity: {report['high_severity_count']}")
     print(f"Medium Severity: {report['medium_severity_count']}")
@@ -283,5 +311,6 @@ def main():
     print(f"Report Location: {report_path}")
     print("\n✅ Analysis complete - review report for remediation steps!")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

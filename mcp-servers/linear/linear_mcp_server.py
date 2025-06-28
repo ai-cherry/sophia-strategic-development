@@ -10,7 +10,7 @@ Current size: 1075 lines
 
 Recommended decomposition:
 - linear_mcp_server_core.py - Core functionality
-- linear_mcp_server_utils.py - Utility functions  
+- linear_mcp_server_utils.py - Utility functions
 - linear_mcp_server_models.py - Data models
 - linear_mcp_server_handlers.py - Request handlers
 
@@ -22,11 +22,11 @@ import json
 import logging
 import os
 import sys
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiohttp
-from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
+from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     CallToolResult,
@@ -307,8 +307,8 @@ class LinearMCPServer:
                 )
 
     async def make_request(
-        self, query: str, variables: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, query: str, variables: dict | None = None
+    ) -> dict[str, Any]:
         """Make authenticated GraphQL request to Linear API."""
         headers = {
             "Authorization": f"Bearer {self.access_token}",
@@ -356,10 +356,10 @@ class LinearMCPServer:
 
     async def get_projects(
         self,
-        team_id: Optional[str] = None,
-        state: Optional[str] = None,
+        team_id: str | None = None,
+        state: str | None = None,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get projects from workspace."""
         if not team_id:
             team_id = await self.get_team_id()
@@ -442,9 +442,9 @@ class LinearMCPServer:
             project["metrics"] = {
                 "total_issues": total_issues,
                 "completed_issues": completed_issues,
-                "completion_rate": (completed_issues / total_issues * 100)
-                if total_issues > 0
-                else 0,
+                "completion_rate": (
+                    (completed_issues / total_issues * 100) if total_issues > 0 else 0
+                ),
                 "progress_percentage": project.get("progress", 0) * 100,
             }
 
@@ -458,7 +458,7 @@ class LinearMCPServer:
             ),
         }
 
-    async def get_project_details(self, project_id: str) -> Dict[str, Any]:
+    async def get_project_details(self, project_id: str) -> dict[str, Any]:
         """Get detailed information about a specific project."""
         query = f"""
         query {{
@@ -525,13 +525,13 @@ class LinearMCPServer:
 
     async def get_issues(
         self,
-        team_id: Optional[str] = None,
-        project_id: Optional[str] = None,
-        assignee_id: Optional[str] = None,
-        state: Optional[str] = None,
-        priority: Optional[int] = None,
+        team_id: str | None = None,
+        project_id: str | None = None,
+        assignee_id: str | None = None,
+        state: str | None = None,
+        priority: int | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get issues with filtering options."""
         # Build filter conditions
         filter_conditions = []
@@ -609,7 +609,7 @@ class LinearMCPServer:
             "has_next_page": issues_data.get("pageInfo", {}).get("hasNextPage", False),
         }
 
-    async def get_issue_details(self, issue_id: str) -> Dict[str, Any]:
+    async def get_issue_details(self, issue_id: str) -> dict[str, Any]:
         """Get detailed information about a specific issue."""
         query = f"""
         query {{
@@ -675,7 +675,7 @@ class LinearMCPServer:
         result = await self.make_request(query)
         return result.get("issue", {})
 
-    async def get_teams(self, include_archived: bool = False) -> Dict[str, Any]:
+    async def get_teams(self, include_archived: bool = False) -> dict[str, Any]:
         """Get teams in the workspace."""
         filter_clause = ""
         if not include_archived:
@@ -749,7 +749,7 @@ class LinearMCPServer:
 
         return {"teams": enhanced_teams, "total_count": len(enhanced_teams)}
 
-    async def get_team_members(self, team_id: str) -> Dict[str, Any]:
+    async def get_team_members(self, team_id: str) -> dict[str, Any]:
         """Get members of a specific team."""
         query = f"""
         query {{
@@ -808,10 +808,10 @@ class LinearMCPServer:
 
     async def get_milestones(
         self,
-        project_id: Optional[str] = None,
-        team_id: Optional[str] = None,
+        project_id: str | None = None,
+        team_id: str | None = None,
         limit: int = 20,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get milestones for a project or team."""
         filter_conditions = []
         if project_id:
@@ -852,12 +852,12 @@ class LinearMCPServer:
 
     async def search_issues(
         self,
-        query: Optional[str] = None,
-        team_id: Optional[str] = None,
-        assignee_id: Optional[str] = None,
-        state: Optional[str] = None,
+        query: str | None = None,
+        team_id: str | None = None,
+        assignee_id: str | None = None,
+        state: str | None = None,
         limit: int = 50,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search for issues across the workspace."""
         filter_conditions = []
         if team_id:
@@ -951,9 +951,9 @@ class LinearMCPServer:
     async def get_user_issues(
         self,
         user_id: str,
-        state: Optional[str] = None,
-        team_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        state: str | None = None,
+        team_id: str | None = None,
+    ) -> dict[str, Any]:
         """Get issues assigned to a specific user."""
         filter_conditions = [f'assignee: {{ id: {{ eq: "{user_id}" }} }}']
 
@@ -1000,7 +1000,7 @@ class LinearMCPServer:
             "total_count": len(issues_data.get("nodes", [])),
         }
 
-    async def get_workspace_users(self, include_guests: bool = False) -> Dict[str, Any]:
+    async def get_workspace_users(self, include_guests: bool = False) -> dict[str, Any]:
         """Get users in the workspace."""
         filter_clause = ""
         if not include_guests:

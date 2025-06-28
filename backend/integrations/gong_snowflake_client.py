@@ -6,9 +6,9 @@ Handles all Snowflake operations for storing raw and enhanced webhook data.
 
 from __future__ import annotations
 
-import json
-from typing import Any, Dict, List, Optional
 import hashlib
+import json
+from typing import Any
 
 import structlog
 from snowflake.connector import DictCursor
@@ -157,7 +157,7 @@ class SnowflakeWebhookClient:
             conn.commit()
             self.logger.info("Snowflake tables initialized successfully")
 
-    async def store_raw_webhook(self, webhook_data: Dict[str, Any]) -> str:
+    async def store_raw_webhook(self, webhook_data: dict[str, Any]) -> str:
         """Store raw webhook data for immediate response."""
         webhook_id = webhook_data.get(
             "webhook_id", self._generate_webhook_id(webhook_data)
@@ -194,7 +194,7 @@ class SnowflakeWebhookClient:
                 raise
 
     async def update_webhook_status(
-        self, webhook_id: str, status: str, error_message: Optional[str] = None
+        self, webhook_id: str, status: str, error_message: str | None = None
     ):
         """Update webhook processing status."""
         with self.pool.get_connection() as conn:
@@ -204,8 +204,8 @@ class SnowflakeWebhookClient:
                 if error_message:
                     cursor.execute(
                         """
-                        UPDATE gong_webhooks_raw 
-                        SET processing_status = %s, 
+                        UPDATE gong_webhooks_raw
+                        SET processing_status = %s,
                             error_message = %s,
                             processed_at = CURRENT_TIMESTAMP(),
                             retry_count = retry_count + 1
@@ -216,7 +216,7 @@ class SnowflakeWebhookClient:
                 else:
                     cursor.execute(
                         """
-                        UPDATE gong_webhooks_raw 
+                        UPDATE gong_webhooks_raw
                         SET processing_status = %s,
                             processed_at = CURRENT_TIMESTAMP()
                         WHERE webhook_id = %s
@@ -235,7 +235,7 @@ class SnowflakeWebhookClient:
                 )
                 raise
 
-    async def store_enhanced_call_data(self, enhanced_data: Dict[str, Any]):
+    async def store_enhanced_call_data(self, enhanced_data: dict[str, Any]):
         """Store enhanced call data."""
         call_data = enhanced_data.get("call_data", {})
 
@@ -333,9 +333,9 @@ class SnowflakeWebhookClient:
         event_type: str,
         stage: str,
         status: str,
-        duration_ms: Optional[int] = None,
-        error_message: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        duration_ms: int | None = None,
+        error_message: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """Log webhook processing stages for monitoring."""
         with self.pool.get_connection() as conn:
@@ -370,7 +370,7 @@ class SnowflakeWebhookClient:
                     error=str(e),
                 )
 
-    async def get_pending_webhooks(self, limit: int = 100) -> List[Dict[str, Any]]:
+    async def get_pending_webhooks(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get pending webhooks for reprocessing."""
         with self.pool.get_connection() as conn:
             cursor = conn.cursor(DictCursor)
@@ -390,7 +390,7 @@ class SnowflakeWebhookClient:
 
             return cursor.fetchall()
 
-    async def batch_insert(self, table: str, data_list: List[Dict[str, Any]]):
+    async def batch_insert(self, table: str, data_list: list[dict[str, Any]]):
         """Efficient batch insertion."""
         if not data_list:
             return
@@ -424,7 +424,7 @@ class SnowflakeWebhookClient:
                 self.logger.error("Batch insert failed", table=table, error=str(e))
                 raise
 
-    def _generate_webhook_id(self, data: Dict[str, Any]) -> str:
+    def _generate_webhook_id(self, data: dict[str, Any]) -> str:
         """Generate deterministic webhook ID."""
         content = json.dumps(data, sort_keys=True)
         return hashlib.sha256(content.encode()).hexdigest()[:16]

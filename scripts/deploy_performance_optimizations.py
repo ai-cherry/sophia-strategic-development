@@ -5,20 +5,21 @@ Implements all critical performance fixes from the optimization report
 """
 
 import asyncio
+import json
 import logging
 import time
-from typing import Dict, Any, List
-import json
 from datetime import datetime
+from typing import Any
+
+from backend.agents.integrations.optimized_gong_data_integration import (
+    optimized_gong_integration,
+)
 
 # Import optimized services
 from backend.core.optimized_connection_manager import connection_manager
 from backend.core.performance_monitor import performance_monitor
-from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
-from backend.agents.integrations.optimized_gong_data_integration import (
-    optimized_gong_integration,
-)
 from backend.mcp.optimized_ai_memory_mcp_server import optimized_memory_server
+from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class PerformanceOptimizationDeployer:
         self.deployment_start_time = time.time()
         self.optimization_results = {}
 
-    async def deploy_all_optimizations(self) -> Dict[str, Any]:
+    async def deploy_all_optimizations(self) -> dict[str, Any]:
         """Deploy all performance optimizations"""
         logger.info("🚀 Starting comprehensive performance optimization deployment")
 
@@ -319,7 +320,7 @@ class PerformanceOptimizationDeployer:
         phase_time = (time.time() - phase_start) * 1000
         logger.info(f"✅ Phase 4 completed in {phase_time:.2f}ms")
 
-    async def _run_performance_benchmark(self) -> Dict[str, Any]:
+    async def _run_performance_benchmark(self) -> dict[str, Any]:
         """Run comprehensive performance benchmark"""
 
         benchmark_start = time.time()
@@ -363,19 +364,25 @@ class PerformanceOptimizationDeployer:
             "cortex_performance_ms": cortex_time,
             "workflow_performance_ms": workflow_time,
             "performance_targets": {
-                "database_query": "< 100ms (achieved)"
-                if db_time < 100
-                else f"> 100ms ({db_time:.2f}ms)",
-                "cortex_batch": "< 2000ms (achieved)"
-                if cortex_time < 2000
-                else f"> 2000ms ({cortex_time:.2f}ms)",
-                "workflow_concurrent": "< 5000ms (achieved)"
-                if workflow_time < 5000
-                else f"> 5000ms ({workflow_time:.2f}ms)",
+                "database_query": (
+                    "< 100ms (achieved)"
+                    if db_time < 100
+                    else f"> 100ms ({db_time:.2f}ms)"
+                ),
+                "cortex_batch": (
+                    "< 2000ms (achieved)"
+                    if cortex_time < 2000
+                    else f"> 2000ms ({cortex_time:.2f}ms)"
+                ),
+                "workflow_concurrent": (
+                    "< 5000ms (achieved)"
+                    if workflow_time < 5000
+                    else f"> 5000ms ({workflow_time:.2f}ms)"
+                ),
             },
         }
 
-    async def _generate_deployment_report(self) -> Dict[str, Any]:
+    async def _generate_deployment_report(self) -> dict[str, Any]:
         """Generate comprehensive deployment report"""
 
         total_deployment_time = (time.time() - self.deployment_start_time) * 1000
@@ -407,11 +414,11 @@ class PerformanceOptimizationDeployer:
         # Create comprehensive report
         report = {
             "deployment_summary": {
-                "status": "SUCCESS"
-                if success_rate >= 90
-                else "PARTIAL"
-                if success_rate >= 70
-                else "FAILED",
+                "status": (
+                    "SUCCESS"
+                    if success_rate >= 90
+                    else "PARTIAL" if success_rate >= 70 else "FAILED"
+                ),
                 "total_deployment_time_ms": total_deployment_time,
                 "success_rate_percentage": round(success_rate, 2),
                 "optimizations_deployed": successful_optimizations,
@@ -439,7 +446,7 @@ class PerformanceOptimizationDeployer:
 
         return report
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate optimization recommendations based on results"""
         recommendations = []
 

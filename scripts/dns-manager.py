@@ -5,17 +5,17 @@ Automated DNS management for sophia-intel.ai using Namecheap API
 Integrates with Pulumi ESC for secret management and IP whitelisting
 """
 
-import os
-import sys
-import json
-import asyncio
 import argparse
-import subprocess
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
-import xml.etree.ElementTree as ET
-import requests
+import asyncio
+import json
+import os
 import socket
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass
+
+import requests
 
 
 @dataclass
@@ -51,7 +51,7 @@ class PulumiESCIntegration:
         self.project = project
         self.environment = environment
 
-    async def get_configuration(self) -> Dict:
+    async def get_configuration(self) -> dict:
         """Get configuration from Pulumi ESC"""
         try:
             cmd = [
@@ -76,7 +76,7 @@ class PulumiESCIntegration:
             print(f"❌ Failed to parse Pulumi ESC configuration: {e}")
             raise
 
-    async def get_secret(self, secret_name: str) -> Optional[str]:
+    async def get_secret(self, secret_name: str) -> str | None:
         """Get a specific secret from Pulumi ESC"""
         try:
             cmd = [
@@ -99,7 +99,7 @@ class PulumiESCIntegration:
 class IPContextDetector:
     """Detect execution context and determine appropriate IP"""
 
-    def __init__(self, ip_addresses: Dict[str, str]):
+    def __init__(self, ip_addresses: dict[str, str]):
         self.ip_addresses = ip_addresses
 
     def detect_context(self) -> IPContext:
@@ -198,7 +198,7 @@ class NamecheapDNSManager:
             print(f"  ❌ Error creating DNS record: {e}")
             return False
 
-    async def get_host_records(self, domain: str) -> List[DNSRecord]:
+    async def get_host_records(self, domain: str) -> list[DNSRecord]:
         """Get current host records for domain"""
         try:
             sld, tld = self._split_domain(domain)
@@ -236,7 +236,7 @@ class NamecheapDNSManager:
             print(f"❌ Error getting host records: {e}")
             return []
 
-    async def set_host_records(self, domain: str, records: List[DNSRecord]) -> bool:
+    async def set_host_records(self, domain: str, records: list[DNSRecord]) -> bool:
         """Set all host records for domain"""
         try:
             sld, tld = self._split_domain(domain)
@@ -268,7 +268,7 @@ class NamecheapDNSManager:
             print(f"❌ Error setting host records: {e}")
             return False
 
-    def _split_domain(self, domain: str) -> Tuple[str, str]:
+    def _split_domain(self, domain: str) -> tuple[str, str]:
         """Split domain into SLD and TLD"""
         parts = domain.split(".")
         if len(parts) < 2:
@@ -283,8 +283,8 @@ class NamecheapDNSManager:
             return parts[0], ".".join(parts[1:])
 
     def _update_record_in_list(
-        self, existing_records: List[DNSRecord], new_record: DNSRecord
-    ) -> List[DNSRecord]:
+        self, existing_records: list[DNSRecord], new_record: DNSRecord
+    ) -> list[DNSRecord]:
         """Update or add record in existing records list"""
         # Remove existing record with same name and type
         filtered_records = [

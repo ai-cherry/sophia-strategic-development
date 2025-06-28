@@ -7,7 +7,7 @@ Centralized configuration and initialization for all MCP servers with sync orche
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
+from typing import Any
 
 from backend.core.cross_platform_sync_orchestrator import (
     CrossPlatformSyncOrchestrator,
@@ -16,6 +16,8 @@ from backend.core.cross_platform_sync_orchestrator import (
 )
 from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
+)
+from backend.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )
 from backend.monitoring.mcp_metrics_collector import MCPMetricsCollector
@@ -33,8 +35,8 @@ class MCPServerDefinition:
         server_class: str,
         sync_priority: SyncPriority,
         sync_interval_minutes: int,
-        data_types: List[str],
-        dependencies: List[str] = None,
+        data_types: list[str],
+        dependencies: list[str] = None,
         enable_monitoring: bool = True,
         max_concurrent_requests: int = 20,
         request_timeout_seconds: int = 30,
@@ -60,11 +62,11 @@ class MCPSyncOrchestratorConfig:
     def __init__(self):
         self.sync_orchestrator = CrossPlatformSyncOrchestrator()
         self.metrics_collector = MCPMetricsCollector("mcp_orchestrator")
-        self.active_servers: Dict[str, Any] = {}
+        self.active_servers: dict[str, Any] = {}
         self.server_definitions = self._get_server_definitions()
         self.sync_scheduler_running = False
 
-    def _get_server_definitions(self) -> Dict[str, MCPServerDefinition]:
+    def _get_server_definitions(self) -> dict[str, MCPServerDefinition]:
         """Define all MCP servers with their configurations"""
         return {
             "ai_memory": MCPServerDefinition(
@@ -133,7 +135,7 @@ class MCPSyncOrchestratorConfig:
             ),
         }
 
-    async def initialize_orchestrator(self) -> Dict[str, Any]:
+    async def initialize_orchestrator(self) -> dict[str, Any]:
         """Initialize the sync orchestrator with all server configurations"""
         logger.info("Initializing MCP Sync Orchestrator...")
 
@@ -266,7 +268,7 @@ class MCPSyncOrchestratorConfig:
                 logger.error(f"Error in sync scheduler loop: {e}")
                 await asyncio.sleep(60)  # Sleep longer on error
 
-    async def _execute_priority_sync(self, servers_to_sync: List[tuple]):
+    async def _execute_priority_sync(self, servers_to_sync: list[tuple]):
         """Execute syncs in priority order with dependency management"""
         # Sort by priority (Real-time > High > Medium > Low)
         priority_order = {
@@ -313,7 +315,7 @@ class MCPSyncOrchestratorConfig:
                 logger.error(f"Failed to sync {server_name}: {e}")
                 server_info["error_count"] += 1
 
-    async def _check_dependencies(self, dependencies: List[str]) -> bool:
+    async def _check_dependencies(self, dependencies: list[str]) -> bool:
         """Check if all dependencies are healthy and recently synced"""
         if not dependencies:
             return True
@@ -340,8 +342,8 @@ class MCPSyncOrchestratorConfig:
         return True
 
     async def _execute_server_sync(
-        self, server_name: str, server_info: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, server_name: str, server_info: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute sync for a specific server"""
         try:
             # This would call the actual server's sync method
@@ -410,30 +412,31 @@ class MCPSyncOrchestratorConfig:
         self.sync_scheduler_running = False
         logger.info("🛑 MCP sync scheduler stopped")
 
-    def get_orchestrator_status(self) -> Dict[str, Any]:
+    def get_orchestrator_status(self) -> dict[str, Any]:
         """Get current status of the orchestrator"""
         return {
             "scheduler_running": self.sync_scheduler_running,
             "active_servers": len(self.active_servers),
             "server_status": {
                 name: {
-                    "last_sync": info["last_sync"].isoformat()
-                    if info["last_sync"]
-                    else None,
+                    "last_sync": (
+                        info["last_sync"].isoformat() if info["last_sync"] else None
+                    ),
                     "next_sync": info["next_sync"].isoformat(),
                     "sync_count": info["sync_count"],
                     "error_count": info["error_count"],
-                    "success_rate": (info["sync_count"] - info["error_count"])
-                    / info["sync_count"]
-                    if info["sync_count"] > 0
-                    else 1.0,
+                    "success_rate": (
+                        (info["sync_count"] - info["error_count"]) / info["sync_count"]
+                        if info["sync_count"] > 0
+                        else 1.0
+                    ),
                 }
                 for name, info in self.active_servers.items()
             },
             "total_configurations": len(self.server_definitions),
         }
 
-    async def force_sync(self, server_name: str) -> Dict[str, Any]:
+    async def force_sync(self, server_name: str) -> dict[str, Any]:
         """Force sync for a specific server"""
         if server_name not in self.active_servers:
             return {"success": False, "error": f"Server {server_name} not found"}
@@ -461,7 +464,7 @@ class MCPSyncOrchestratorConfig:
 mcp_orchestrator_config = MCPSyncOrchestratorConfig()
 
 
-async def initialize_mcp_orchestration() -> Dict[str, Any]:
+async def initialize_mcp_orchestration() -> dict[str, Any]:
     """Initialize the global MCP orchestration system"""
     return await mcp_orchestrator_config.initialize_orchestrator()
 
@@ -471,7 +474,7 @@ async def start_mcp_sync_scheduler():
     await mcp_orchestrator_config.start_sync_scheduler()
 
 
-def get_mcp_orchestrator_status() -> Dict[str, Any]:
+def get_mcp_orchestrator_status() -> dict[str, Any]:
     """Get the status of the MCP orchestrator"""
     return mcp_orchestrator_config.get_orchestrator_status()
 

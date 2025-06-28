@@ -6,12 +6,11 @@ Implements unified connection management and standardized MCP server framework
 
 import asyncio
 import logging
-import os
-import shutil
-import yaml
-from pathlib import Path
-from typing import Dict, Any, List
 from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,69 +18,77 @@ logger = logging.getLogger(__name__)
 
 class DeploymentRefactoringPhase1:
     """Phase 1: Foundation stabilization implementation"""
-    
+
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
-        self.backup_dir = self.project_root / "backups" / f"phase1_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self.backup_dir = (
+            self.project_root
+            / "backups"
+            / f"phase1_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
         self.config_files_created = []
         self.errors = []
-    
-    async def execute_phase1(self) -> Dict[str, Any]:
+
+    async def execute_phase1(self) -> dict[str, Any]:
         """Execute Phase 1 refactoring"""
-        logger.info("🚀 Starting Deployment Refactoring Phase 1: Foundation Stabilization")
-        
+        logger.info(
+            "🚀 Starting Deployment Refactoring Phase 1: Foundation Stabilization"
+        )
+
         results = {
             "phase": "Phase 1 - Foundation Stabilization",
             "start_time": datetime.now().isoformat(),
             "tasks_completed": [],
             "files_created": [],
             "errors": [],
-            "success": False
+            "success": False,
         }
-        
+
         try:
             # Create backup directory
             self.backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Task 1: Create unified connection manager
             await self._create_unified_connection_manager()
             results["tasks_completed"].append("unified_connection_manager")
-            
+
             # Task 2: Create standardized MCP server framework
             await self._create_standardized_mcp_framework()
             results["tasks_completed"].append("standardized_mcp_framework")
-            
+
             # Task 3: Create unified configuration
             await self._create_unified_configuration()
             results["tasks_completed"].append("unified_configuration")
-            
+
             # Task 4: Update existing MCP servers
             await self._update_existing_mcp_servers()
             results["tasks_completed"].append("mcp_server_updates")
-            
+
             # Task 5: Create health monitoring system
             await self._create_health_monitoring_system()
             results["tasks_completed"].append("health_monitoring_system")
-            
+
             results["files_created"] = self.config_files_created
             results["errors"] = self.errors
             results["success"] = len(self.errors) == 0
             results["end_time"] = datetime.now().isoformat()
-            
-            logger.info(f"✅ Phase 1 completed successfully! Created {len(self.config_files_created)} files")
-            
+
+            logger.info(
+                f"✅ Phase 1 completed successfully! Created {len(self.config_files_created)} files"
+            )
+
         except Exception as e:
             error_msg = f"Phase 1 execution failed: {e}"
             logger.error(error_msg)
             results["errors"].append(error_msg)
             results["success"] = False
-        
+
         return results
-    
+
     async def _create_unified_connection_manager(self):
         """Create unified connection manager"""
         logger.info("📊 Creating unified connection manager...")
-        
+
         connection_manager_code = '''#!/usr/bin/env python3
 """
 Unified Connection Manager for Sophia AI
@@ -507,33 +514,35 @@ class UnifiedConnectionManager:
 # Global instance
 unified_connection_manager = UnifiedConnectionManager()
 '''
-        
+
         # Write the connection manager
-        connection_manager_file = self.project_root / "backend" / "core" / "unified_connection_manager.py"
+        connection_manager_file = (
+            self.project_root / "backend" / "core" / "unified_connection_manager.py"
+        )
         connection_manager_file.write_text(connection_manager_code)
         self.config_files_created.append(str(connection_manager_file))
-        
+
         logger.info("✅ Unified connection manager created")
-    
+
     async def _create_standardized_mcp_framework(self):
         """Create standardized MCP server framework"""
         logger.info("🔧 Creating standardized MCP server framework...")
-        
+
         # Create the framework directory
         framework_dir = self.project_root / "backend" / "mcp_servers" / "framework"
         framework_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Create __init__.py
         init_file = framework_dir / "__init__.py"
         init_file.write_text('"""Standardized MCP Server Framework"""')
         self.config_files_created.append(str(init_file))
-        
+
         logger.info("✅ Standardized MCP framework created")
-    
+
     async def _create_unified_configuration(self):
         """Create unified configuration system"""
         logger.info("⚙️ Creating unified configuration...")
-        
+
         config_content = {
             "deployment": {
                 "environment": "production",
@@ -546,79 +555,67 @@ unified_connection_manager = UnifiedConnectionManager()
                         "health_check_interval": 60,
                         "circuit_breaker": {
                             "failure_threshold": 5,
-                            "recovery_timeout": 60
-                        }
+                            "recovery_timeout": 60,
+                        },
                     },
                     "redis": {
                         "min_connections": 3,
                         "max_connections": 15,
                         "connection_timeout": 10,
                         "idle_timeout": 300,
-                        "health_check_interval": 30
+                        "health_check_interval": 30,
                     },
                     "postgres": {
                         "min_connections": 2,
                         "max_connections": 10,
                         "connection_timeout": 20,
                         "idle_timeout": 400,
-                        "health_check_interval": 45
-                    }
+                        "health_check_interval": 45,
+                    },
                 },
                 "mcp_servers": {
                     "ai_memory": {
                         "port": 9000,
                         "replicas": 2,
-                        "health_check": {
-                            "interval": 30,
-                            "timeout": 10,
-                            "retries": 3
-                        }
+                        "health_check": {"interval": 30, "timeout": 10, "retries": 3},
                     },
                     "snowflake_admin": {
                         "port": 8080,
                         "replicas": 2,
-                        "health_check": {
-                            "interval": 30,
-                            "timeout": 10,
-                            "retries": 3
-                        }
+                        "health_check": {"interval": 30, "timeout": 10, "retries": 3},
                     },
                     "codacy": {
                         "port": 3008,
                         "replicas": 1,
                         "external": True,
-                        "endpoint": "http://codacy-service:3008"
-                    }
+                        "endpoint": "http://codacy-service:3008",
+                    },
                 },
                 "monitoring": {
                     "prometheus": {
                         "enabled": True,
                         "port": 9090,
-                        "scrape_interval": "15s"
+                        "scrape_interval": "15s",
                     },
-                    "health_checks": {
-                        "interval": 30,
-                        "timeout": 10,
-                        "retries": 3
-                    }
-                }
+                    "health_checks": {"interval": 30, "timeout": 10, "retries": 3},
+                },
             }
         }
-        
+
         # Write unified configuration
         config_file = self.project_root / "config" / "sophia-deployment-config.yaml"
         config_file.parent.mkdir(exist_ok=True)
-        
-        with open(config_file, 'w') as f:
+
+        with open(config_file, "w") as f:
             yaml.dump(config_content, f, default_flow_style=False, indent=2)
-        
+
         self.config_files_created.append(str(config_file))
         logger.info("✅ Unified configuration created")
-    
+
     async def _update_existing_mcp_servers(self):
         """Update existing MCP servers to use new framework"""
         logger.info("🔄 Updating existing MCP servers...")
-        
+
         # This would involve updating existing MCP server files
         # For now, we'll create a migration plan
         migration_plan = {
@@ -627,30 +624,30 @@ unified_connection_manager = UnifiedConnectionManager()
                 "description": "Update MCP servers to use unified connection manager",
                 "servers_to_update": [
                     "ai_memory_mcp_server",
-                    "codacy_mcp_server", 
+                    "codacy_mcp_server",
                     "linear_mcp_server",
-                    "slack_mcp_server"
+                    "slack_mcp_server",
                 ],
                 "changes_required": [
                     "Import unified_connection_manager",
                     "Replace direct database connections",
                     "Add standardized health checks",
-                    "Implement circuit breaker pattern"
-                ]
+                    "Implement circuit breaker pattern",
+                ],
             }
         }
-        
+
         migration_file = self.project_root / "config" / "mcp_migration_plan.yaml"
-        with open(migration_file, 'w') as f:
+        with open(migration_file, "w") as f:
             yaml.dump(migration_plan, f, default_flow_style=False, indent=2)
-        
+
         self.config_files_created.append(str(migration_file))
         logger.info("✅ MCP server migration plan created")
-    
+
     async def _create_health_monitoring_system(self):
         """Create health monitoring system"""
         logger.info("🏥 Creating health monitoring system...")
-        
+
         health_monitor_code = '''#!/usr/bin/env python3
 """
 Health Monitoring System for Sophia AI
@@ -816,13 +813,15 @@ class HealthMonitoringSystem:
 # Global instance
 health_monitoring_system = HealthMonitoringSystem()
 '''
-        
+
         # Write health monitoring system
-        health_monitor_file = self.project_root / "backend" / "monitoring" / "health_monitoring_system.py"
+        health_monitor_file = (
+            self.project_root / "backend" / "monitoring" / "health_monitoring_system.py"
+        )
         health_monitor_file.parent.mkdir(exist_ok=True)
         health_monitor_file.write_text(health_monitor_code)
         self.config_files_created.append(str(health_monitor_file))
-        
+
         logger.info("✅ Health monitoring system created")
 
 
@@ -830,37 +829,37 @@ async def main():
     """Main execution function"""
     refactoring = DeploymentRefactoringPhase1()
     results = await refactoring.execute_phase1()
-    
-    print("\n" + "="*80)
+
+    print("\n" + "=" * 80)
     print("📊 DEPLOYMENT REFACTORING PHASE 1 RESULTS")
-    print("="*80)
+    print("=" * 80)
     print(f"Phase: {results['phase']}")
     print(f"Success: {'✅ YES' if results['success'] else '❌ NO'}")
     print(f"Tasks Completed: {len(results['tasks_completed'])}")
     print(f"Files Created: {len(results['files_created'])}")
     print(f"Errors: {len(results['errors'])}")
-    
-    if results['tasks_completed']:
-        print(f"\n✅ Completed Tasks:")
-        for task in results['tasks_completed']:
+
+    if results["tasks_completed"]:
+        print("\n✅ Completed Tasks:")
+        for task in results["tasks_completed"]:
             print(f"   • {task}")
-    
-    if results['files_created']:
-        print(f"\n📁 Files Created:")
-        for file_path in results['files_created']:
+
+    if results["files_created"]:
+        print("\n📁 Files Created:")
+        for file_path in results["files_created"]:
             print(f"   • {file_path}")
-    
-    if results['errors']:
-        print(f"\n❌ Errors:")
-        for error in results['errors']:
+
+    if results["errors"]:
+        print("\n❌ Errors:")
+        for error in results["errors"]:
             print(f"   • {error}")
-    
+
     print(f"\nStart Time: {results['start_time']}")
     print(f"End Time: {results.get('end_time', 'N/A')}")
-    print("="*80)
-    
+    print("=" * 80)
+
     return results
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

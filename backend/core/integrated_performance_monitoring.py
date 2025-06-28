@@ -22,7 +22,7 @@ Current size: 696 lines
 
 Recommended decomposition:
 - integrated_performance_monitoring_core.py - Core functionality
-- integrated_performance_monitoring_utils.py - Utility functions  
+- integrated_performance_monitoring_utils.py - Utility functions
 - integrated_performance_monitoring_models.py - Data models
 - integrated_performance_monitoring_handlers.py - Request handlers
 
@@ -33,9 +33,10 @@ import asyncio
 import json
 import logging
 import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict
+from typing import Any
+
 import psutil
 import redis.asyncio as redis
 
@@ -50,9 +51,9 @@ class PerformanceMetric:
     metric_name: str
     value: float
     timestamp: datetime
-    tags: Dict[str, str] = None
+    tags: dict[str, str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "service_name": self.service_name,
             "metric_name": self.metric_name,
@@ -71,7 +72,7 @@ class ServiceHealthStatus:
     response_time: float
     error_rate: float
     last_check: datetime
-    details: Dict[str, Any] = None
+    details: dict[str, Any] = None
 
 
 class PerformanceMonitoringIntegration:
@@ -82,9 +83,9 @@ class PerformanceMonitoringIntegration:
     """
 
     def __init__(self):
-        self.redis_client: Optional[redis.Redis] = None
-        self.metrics_buffer: List[PerformanceMetric] = []
-        self.service_health: Dict[str, ServiceHealthStatus] = {}
+        self.redis_client: redis.Redis | None = None
+        self.metrics_buffer: list[PerformanceMetric] = []
+        self.service_health: dict[str, ServiceHealthStatus] = {}
         self.monitoring_active = False
 
         # Performance thresholds
@@ -131,7 +132,7 @@ class PerformanceMonitoringIntegration:
         }
 
         # Alert tracking
-        self.last_alerts: Dict[str, datetime] = {}
+        self.last_alerts: dict[str, datetime] = {}
 
     async def initialize_monitoring(self) -> bool:
         """Initialize the performance monitoring system"""
@@ -170,7 +171,7 @@ class PerformanceMonitoringIntegration:
         service_name: str,
         metric_name: str,
         value: float,
-        tags: Dict[str, str] = None,
+        tags: dict[str, str] = None,
     ):
         """Track a performance metric"""
         try:
@@ -200,7 +201,7 @@ class PerformanceMonitoringIntegration:
         service_name: str,
         response_time: float,
         error_rate: float,
-        details: Dict[str, Any] = None,
+        details: dict[str, Any] = None,
     ):
         """Track service health status"""
         try:
@@ -477,7 +478,7 @@ class PerformanceMonitoringIntegration:
         except Exception as e:
             logger.error(f"Error processing alerts: {e}")
 
-    async def get_performance_dashboard(self) -> Dict[str, Any]:
+    async def get_performance_dashboard(self) -> dict[str, Any]:
         """Get comprehensive performance dashboard data"""
         try:
             dashboard_data = {
@@ -523,7 +524,7 @@ class PerformanceMonitoringIntegration:
 
     async def get_service_metrics(
         self, service_name: str, hours: int = 24
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get metrics for a specific service"""
         try:
             if not self.redis_client:
@@ -664,13 +665,13 @@ async def initialize_performance_monitoring() -> bool:
     return await performance_monitoring.initialize_monitoring()
 
 
-async def get_performance_dashboard() -> Dict[str, Any]:
+async def get_performance_dashboard() -> dict[str, Any]:
     """Get performance dashboard data"""
     return await performance_monitoring.get_performance_dashboard()
 
 
 async def track_metric(
-    service_name: str, metric_name: str, value: float, tags: Dict[str, str] = None
+    service_name: str, metric_name: str, value: float, tags: dict[str, str] = None
 ):
     """Track a performance metric"""
     await performance_monitoring.track_performance(

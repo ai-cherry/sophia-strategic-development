@@ -1,5 +1,7 @@
+from typing import Any
+
 import aiohttp
-from typing import Dict, Any, List, Optional
+
 from backend.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -16,7 +18,7 @@ class CodacyAPIClient:
 
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Makes a request to the Codacy API."""
         url = f"{self.base_url}/{endpoint}"
         async with aiohttp.ClientSession(headers=self.headers) as session:
@@ -29,8 +31,8 @@ class CodacyAPIClient:
                 raise
 
     async def get_project_issues(
-        self, severity_level: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        self, severity_level: str | None = None
+    ) -> list[dict[str, Any]]:
         """Gets all open issues for the project."""
         params = {}
         if severity_level:
@@ -44,7 +46,7 @@ class CodacyAPIClient:
         )
         return response.get("data", [])
 
-    async def trigger_analysis(self, commit_uuid: str) -> Dict[str, Any]:
+    async def trigger_analysis(self, commit_uuid: str) -> dict[str, Any]:
         """Triggers a new analysis for a specific commit."""
         # This is a conceptual endpoint.
         logger.info(f"Triggering analysis for commit: {commit_uuid}")
@@ -55,7 +57,7 @@ class CodacyAPIClient:
 
     async def analyze_file_content(
         self, file_path: str, content: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Submits a file for a standalone analysis."""
         # This endpoint is conceptual and may not exist in the Codacy API.
         # It represents the ideal functionality for our MCP server.

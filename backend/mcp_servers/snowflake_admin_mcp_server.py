@@ -5,10 +5,10 @@ Provides Model Context Protocol interface for Snowflake management
 Integrates with the standardized MCP architecture
 """
 
-import sys
 import asyncio
+import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -31,8 +31,8 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
         print("🏔️ Snowflake Administration MCP Server initialized")
 
     async def handle_tool_call(
-        self, tool_name: str, arguments: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, arguments: dict[str, Any]
+    ) -> dict[str, Any]:
         """Handle MCP tool calls for Snowflake operations."""
         try:
             if not await self.snowflake_manager.connect():
@@ -109,14 +109,14 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
         estuary_setup_sql = """
         -- Create Estuary service role
         CREATE ROLE IF NOT EXISTS ESTUARY_SERVICE_ROLE;
-        
+
         -- Grant necessary permissions
         GRANT USAGE ON DATABASE SOPHIA_AI_CORE TO ROLE ESTUARY_SERVICE_ROLE;
         GRANT USAGE ON SCHEMA SOPHIA_GONG_RAW TO ROLE ESTUARY_SERVICE_ROLE;
         GRANT USAGE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE ESTUARY_SERVICE_ROLE;
         GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_GONG_RAW TO ROLE ESTUARY_SERVICE_ROLE;
         GRANT INSERT, SELECT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_SLACK_RAW TO ROLE ESTUARY_SERVICE_ROLE;
-        
+
         -- Create Estuary monitoring table
         CREATE TABLE IF NOT EXISTS SOPHIA_AI_CORE.PUBLIC.estuary_sync_log (
             sync_id VARCHAR(255),
@@ -132,7 +132,7 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
 
         self.snowflake_manager.execute_query(estuary_setup_sql, fetch_results=False)
 
-    def get_available_tools(self) -> List[Dict[str, Any]]:
+    def get_available_tools(self) -> list[dict[str, Any]]:
         """Return list of available tools for this MCP server."""
         return [
             {

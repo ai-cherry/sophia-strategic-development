@@ -4,8 +4,8 @@ Sophia AI Infrastructure Cleanup - Phase 1
 Removes legacy files, consolidates infrastructure, and prepares for modernization
 """
 
-import shutil
 import json
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -212,36 +212,36 @@ from typing import Dict, Any
 class DNSManagerService:
     def __init__(self):
         self.ts_path = str(Path(__file__).parent.parent / "archive" / f"infrastructure_{self.timestamp}" / "typescript-dns")
-        
+
     def update_dns(self, domain: str, records: Dict[str, Any]) -> bool:
         """Update DNS records using the TypeScript implementation"""
         cmd = [
             "npm", "run", "update-dns",
-            "--", 
+            "--",
             f"--domain={domain}",
             f"--records={json.dumps(records)}"
         ]
-        
+
         result = subprocess.run(
             cmd,
             cwd=self.ts_path,
             capture_output=True,
             text=True
         )
-        
+
         return result.returncode == 0
-        
+
     def health_check(self) -> Dict[str, Any]:
         """Check DNS health"""
         cmd = ["npm", "run", "health-check"]
-        
+
         result = subprocess.run(
             cmd,
             cwd=self.ts_path,
             capture_output=True,
             text=True
         )
-        
+
         if result.returncode == 0:
             return json.loads(result.stdout)
         return {"status": "error", "message": result.stderr}
@@ -273,7 +273,7 @@ dns_service = DNSManagerService()
 
         # Load existing registry or create new
         if registry_path.exists():
-            with open(registry_path, "r") as f:
+            with open(registry_path) as f:
                 registry = json.load(f)
         else:
             registry = {}

@@ -4,16 +4,17 @@ Docker Deployment Validation for Sophia AI Platform
 Validates Docker Compose deployment and service health
 """
 
-import asyncio
 import argparse
+import asyncio
 import json
 import logging
 import sys
 import time
-import requests
+from datetime import UTC, datetime
+from typing import Any
+
 import docker
-from datetime import datetime, timezone
-from typing import Dict, Any
+import requests
 
 # Setup logging
 logging.basicConfig(
@@ -32,7 +33,7 @@ class DockerServiceValidator:
             logger.error(f"Failed to connect to Docker: {e}")
             self.client = None
 
-    def get_service_status(self, service_name: str) -> Dict[str, Any]:
+    def get_service_status(self, service_name: str) -> dict[str, Any]:
         """Get status of a specific Docker service"""
         if not self.client:
             return {"status": "error", "error": "Docker client not available"}
@@ -72,7 +73,7 @@ class DockerServiceValidator:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def validate_network_connectivity(self) -> Dict[str, Any]:
+    def validate_network_connectivity(self) -> dict[str, Any]:
         """Validate Docker network connectivity"""
         if not self.client:
             return {"status": "error", "error": "Docker client not available"}
@@ -108,7 +109,7 @@ class HealthEndpointValidator:
 
     async def check_endpoint(
         self, url: str, expected_status: int = 200
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Check if a health endpoint is responding"""
         try:
             start_time = time.perf_counter()
@@ -167,11 +168,11 @@ class DockerDeploymentValidator:
             {"name": "mcp_gateway", "url": "http://localhost:8080/health"},
         ]
 
-    async def validate_deployment(self) -> Dict[str, Any]:
+    async def validate_deployment(self) -> dict[str, Any]:
         """Validate the entire Docker deployment"""
         logger.info("🔍 Starting Docker Deployment Validation...")
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         validation_results = {
             "docker_services": await self._validate_docker_services(),
@@ -180,13 +181,13 @@ class DockerDeploymentValidator:
             "resource_usage": self._validate_resource_usage(),
         }
 
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
 
         # Generate summary
         summary = self._generate_summary(validation_results)
 
         report = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "total_execution_time": (end_time - start_time).total_seconds(),
             "sophia_ai_version": "v2.0.0",
             "deployment_type": "docker-compose",
@@ -196,7 +197,7 @@ class DockerDeploymentValidator:
 
         return report
 
-    async def _validate_docker_services(self) -> Dict[str, Any]:
+    async def _validate_docker_services(self) -> dict[str, Any]:
         """Validate Docker services"""
         logger.info("Checking Docker services...")
 
@@ -224,12 +225,12 @@ class DockerDeploymentValidator:
             ),
         }
 
-    def _validate_network_connectivity(self) -> Dict[str, Any]:
+    def _validate_network_connectivity(self) -> dict[str, Any]:
         """Validate network connectivity"""
         logger.info("Checking network connectivity...")
         return self.docker_validator.validate_network_connectivity()
 
-    async def _validate_health_endpoints(self) -> Dict[str, Any]:
+    async def _validate_health_endpoints(self) -> dict[str, Any]:
         """Validate health endpoints"""
         logger.info("Checking health endpoints...")
 
@@ -237,9 +238,9 @@ class DockerDeploymentValidator:
 
         for endpoint in self.health_endpoints:
             logger.info(f"  Checking {endpoint['name']}...")
-            endpoint_results[
-                endpoint["name"]
-            ] = await self.health_validator.check_endpoint(endpoint["url"])
+            endpoint_results[endpoint["name"]] = (
+                await self.health_validator.check_endpoint(endpoint["url"])
+            )
 
         # Count healthy endpoints
         healthy_endpoints = sum(
@@ -259,7 +260,7 @@ class DockerDeploymentValidator:
             ),
         }
 
-    def _validate_resource_usage(self) -> Dict[str, Any]:
+    def _validate_resource_usage(self) -> dict[str, Any]:
         """Validate resource usage"""
         logger.info("Checking resource usage...")
 
@@ -330,7 +331,7 @@ class DockerDeploymentValidator:
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def _generate_summary(self, results: Dict[str, Any]) -> Dict[str, Any]:
+    def _generate_summary(self, results: dict[str, Any]) -> dict[str, Any]:
         """Generate validation summary"""
         # Count healthy components
         service_status = results.get("docker_services", {}).get(
@@ -379,7 +380,7 @@ class DockerDeploymentValidator:
             "resource_health": resource_status,
         }
 
-    def save_report(self, report: Dict[str, Any], output_file: str = None) -> str:
+    def save_report(self, report: dict[str, Any], output_file: str = None) -> str:
         """Save validation report to file"""
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -390,7 +391,7 @@ class DockerDeploymentValidator:
 
         return output_file
 
-    def print_summary(self, report: Dict[str, Any]) -> None:
+    def print_summary(self, report: dict[str, Any]) -> None:
         """Print formatted validation summary"""
         summary = report["summary"]
 

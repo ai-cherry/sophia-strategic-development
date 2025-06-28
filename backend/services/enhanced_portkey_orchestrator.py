@@ -19,7 +19,7 @@ Current size: 775 lines
 
 Recommended decomposition:
 - enhanced_portkey_orchestrator_core.py - Core functionality
-- enhanced_portkey_orchestrator_utils.py - Utility functions  
+- enhanced_portkey_orchestrator_utils.py - Utility functions
 - enhanced_portkey_orchestrator_models.py - Data models
 - enhanced_portkey_orchestrator_handlers.py - Request handlers
 
@@ -29,9 +29,10 @@ TODO: Implement file decomposition
 import asyncio
 import json
 import time
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
+
 import aiohttp
 import structlog
 
@@ -68,11 +69,11 @@ class ProviderConfig:
     name: str
     virtual_key: str
     tier: ProviderTier
-    models: List[str]
+    models: list[str]
     cost_per_1k_tokens: float
     max_tokens: int
-    strengths: List[str]
-    best_for: List[TaskComplexity]
+    strengths: list[str]
+    best_for: list[TaskComplexity]
     rate_limit_rpm: int = 60
     fallback_priority: int = 5
 
@@ -81,9 +82,9 @@ class ProviderConfig:
 class EnhancedLLMRequest:
     """Enhanced request with intelligent routing metadata"""
 
-    messages: List[Dict[str, str]]
+    messages: list[dict[str, str]]
     task_complexity: TaskComplexity = TaskComplexity.MODERATE
-    preferred_providers: Optional[List[str]] = None
+    preferred_providers: list[str] | None = None
     cost_preference: str = "balanced"  # "cost_optimized", "balanced", "quality_first"
     max_tokens: int = 2000
     temperature: float = 0.7
@@ -91,7 +92,7 @@ class EnhancedLLMRequest:
     user_id: str = "sophia-ai"
     context_type: str = "general"  # "code", "business", "creative", "research"
     urgency: str = "normal"  # "low", "normal", "high", "critical"
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -106,11 +107,11 @@ class EnhancedLLMResponse:
     processing_time_ms: int
     task_complexity: TaskComplexity
     quality_score: float = 0.0
-    reasoning_path: List[str] = field(default_factory=list)
-    fallbacks_attempted: List[str] = field(default_factory=list)
+    reasoning_path: list[str] = field(default_factory=list)
+    fallbacks_attempted: list[str] = field(default_factory=list)
     success: bool = True
-    error: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class EnhancedPortkeyOrchestrator:
@@ -127,7 +128,7 @@ class EnhancedPortkeyOrchestrator:
 
     def __init__(self):
         self.base_url = "https://api.portkey.ai/v1"
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
         # Load virtual keys from config
         self.virtual_keys = self._load_virtual_keys()
@@ -140,7 +141,7 @@ class EnhancedPortkeyOrchestrator:
         self.cost_tracker = {}  # Track cost across providers
         self.fallback_history = {}  # Learn from fallback patterns
 
-    def _load_virtual_keys(self) -> Dict[str, str]:
+    def _load_virtual_keys(self) -> dict[str, str]:
         """Load all virtual keys from configuration"""
         return {
             "deepseek": get_config_value("portkey_virtual_key_deepseek"),
@@ -156,7 +157,7 @@ class EnhancedPortkeyOrchestrator:
             "default": get_config_value("portkey_virtual_key_prod"),
         }
 
-    def _initialize_providers(self) -> Dict[str, ProviderConfig]:
+    def _initialize_providers(self) -> dict[str, ProviderConfig]:
         """Initialize provider configurations"""
         return {
             "groq": ProviderConfig(
@@ -296,12 +297,12 @@ class EnhancedPortkeyOrchestrator:
             logger.error(f"Failed to initialize orchestrator: {e}")
             return False
 
-    async def _test_provider_connectivity(self) -> Dict[str, bool]:
+    async def _test_provider_connectivity(self) -> dict[str, bool]:
         """Test connectivity to all providers"""
         results = {}
 
         if not self.session:
-            return {name: False for name in self.providers.keys()}
+            return dict.fromkeys(self.providers.keys(), False)
 
         for provider_name, config in self.providers.items():
             if not config.virtual_key:
@@ -359,7 +360,7 @@ class EnhancedPortkeyOrchestrator:
         return self._select_best_performing_provider(suitable_providers, request)
 
     def _select_best_performing_provider(
-        self, candidates: List[str], request: EnhancedLLMRequest
+        self, candidates: list[str], request: EnhancedLLMRequest
     ) -> str:
         """Select provider based on performance metrics"""
         if not candidates:
@@ -396,7 +397,7 @@ class EnhancedPortkeyOrchestrator:
         provider_config = self.providers[selected_provider]
 
         # Attempt completion with selected provider
-        for attempt in range(3):  # Try up to 3 providers
+        for _attempt in range(3):  # Try up to 3 providers
             try:
                 response = await self._attempt_completion(
                     request, selected_provider, provider_config
@@ -570,7 +571,7 @@ class EnhancedPortkeyOrchestrator:
             metrics["successful_requests"] / metrics["total_requests"]
         )
 
-    async def get_provider_status(self) -> Dict[str, Any]:
+    async def get_provider_status(self) -> dict[str, Any]:
         """Get comprehensive provider status"""
         connectivity = await self._test_provider_connectivity()
 
@@ -602,7 +603,7 @@ class EnhancedPortkeyOrchestrator:
 class SophiaAI:
     """Enhanced Sophia AI interface with 11-provider intelligence"""
 
-    _orchestrator: Optional[EnhancedPortkeyOrchestrator] = None
+    _orchestrator: EnhancedPortkeyOrchestrator | None = None
 
     @classmethod
     async def _get_orchestrator(cls) -> EnhancedPortkeyOrchestrator:
@@ -661,7 +662,7 @@ Provide:
 
     @classmethod
     async def business_analyst(
-        cls, query: str, context: Optional[Dict] = None
+        cls, query: str, context: dict | None = None
     ) -> EnhancedLLMResponse:
         """Business analysis with premium model routing"""
         enhanced_prompt = f"""
@@ -714,7 +715,7 @@ Provide:
         )
 
     @classmethod
-    async def get_status(cls) -> Dict[str, Any]:
+    async def get_status(cls) -> dict[str, Any]:
         """Get comprehensive system status"""
         orchestrator = await cls._get_orchestrator()
         return await orchestrator.get_provider_status()

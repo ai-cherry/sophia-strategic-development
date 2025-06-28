@@ -5,10 +5,11 @@ Fixed to eliminate circular imports by using proper dependency injection
 and accessing the chat service from FastAPI app state.
 """
 
+import logging
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
-import logging
 
 # Import dependency function
 from backend.core.dependencies import get_request_chat_service
@@ -23,9 +24,7 @@ class ChatRequest(BaseModel):
 
     message: str = Field(..., description="The user's message")
     user_id: str = Field(default="default_user", description="User identifier")
-    context: Optional[Dict[str, Any]] = Field(
-        default={}, description="Additional context"
-    )
+    context: dict[str, Any] | None = Field(default={}, description="Additional context")
 
     class Config:
         # Avoid Pydantic model_ namespace conflicts
@@ -37,8 +36,8 @@ class ChatResponse(BaseModel):
 
     response: str = Field(..., description="AI response")
     user_id: str = Field(..., description="User identifier")
-    model_used: Optional[str] = Field(None, description="AI model used")
-    processing_time: Optional[float] = Field(
+    model_used: str | None = Field(None, description="AI model used")
+    processing_time: float | None = Field(
         None, description="Processing time in seconds"
     )
 

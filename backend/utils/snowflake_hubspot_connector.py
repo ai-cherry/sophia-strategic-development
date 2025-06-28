@@ -15,12 +15,12 @@ Key Features:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Any
 
-import snowflake.connector
 import pandas as pd
+import snowflake.connector
 
 from backend.core.auto_esc_config import config
 
@@ -32,10 +32,10 @@ class HubSpotDataQuery:
     """Configuration for HubSpot data queries via Snowflake"""
 
     table_name: str
-    filters: Dict[str, Any]
-    date_range: Optional[Dict[str, datetime]] = None
-    limit: Optional[int] = None
-    columns: Optional[List[str]] = None
+    filters: dict[str, Any]
+    date_range: dict[str, datetime] | None = None
+    limit: int | None = None
+    columns: list[str] | None = None
 
 
 class SnowflakeHubSpotConnector:
@@ -105,9 +105,9 @@ class SnowflakeHubSpotConnector:
 
     async def query_hubspot_contacts(
         self,
-        filters: Optional[Dict[str, Any]] = None,
-        date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 1000,
+        filters: dict[str, Any] | None = None,
+        date_range: dict[str, datetime] | None = None,
+        limit: int | None = 1000,
     ) -> pd.DataFrame:
         """
         Query HubSpot contacts from Snowflake Secure Data Share
@@ -146,10 +146,10 @@ class SnowflakeHubSpotConnector:
 
     async def query_hubspot_deals(
         self,
-        pipeline_filters: Optional[List[str]] = None,
-        stage_filters: Optional[List[str]] = None,
-        date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 1000,
+        pipeline_filters: list[str] | None = None,
+        stage_filters: list[str] | None = None,
+        date_range: dict[str, datetime] | None = None,
+        limit: int | None = 1000,
     ) -> pd.DataFrame:
         """
         Query HubSpot deals with pipeline and stage filtering
@@ -190,10 +190,10 @@ class SnowflakeHubSpotConnector:
 
     async def query_hubspot_activities(
         self,
-        activity_types: Optional[List[str]] = None,
-        contact_ids: Optional[List[str]] = None,
-        date_range: Optional[Dict[str, datetime]] = None,
-        limit: Optional[int] = 5000,
+        activity_types: list[str] | None = None,
+        contact_ids: list[str] | None = None,
+        date_range: dict[str, datetime] | None = None,
+        limit: int | None = 5000,
     ) -> pd.DataFrame:
         """
         Query HubSpot activities (emails, calls, meetings, notes)
@@ -236,14 +236,14 @@ class SnowflakeHubSpotConnector:
 
     def _build_contact_query(
         self,
-        filters: Optional[Dict[str, Any]],
-        date_range: Optional[Dict[str, datetime]],
-        limit: Optional[int],
+        filters: dict[str, Any] | None,
+        date_range: dict[str, datetime] | None,
+        limit: int | None,
     ) -> str:
         """Build SQL query for HubSpot contacts"""
 
         base_query = f"""
-        SELECT 
+        SELECT
             contact_id,
             email,
             firstname,
@@ -302,15 +302,15 @@ class SnowflakeHubSpotConnector:
 
     def _build_deals_query(
         self,
-        pipeline_filters: Optional[List[str]],
-        stage_filters: Optional[List[str]],
-        date_range: Optional[Dict[str, datetime]],
-        limit: Optional[int],
+        pipeline_filters: list[str] | None,
+        stage_filters: list[str] | None,
+        date_range: dict[str, datetime] | None,
+        limit: int | None,
     ) -> str:
         """Build SQL query for HubSpot deals"""
 
         base_query = f"""
-        SELECT 
+        SELECT
             d.deal_id,
             d.deal_name,
             d.amount,
@@ -369,15 +369,15 @@ class SnowflakeHubSpotConnector:
 
     def _build_activities_query(
         self,
-        activity_types: Optional[List[str]],
-        contact_ids: Optional[List[str]],
-        date_range: Optional[Dict[str, datetime]],
-        limit: Optional[int],
+        activity_types: list[str] | None,
+        contact_ids: list[str] | None,
+        date_range: dict[str, datetime] | None,
+        limit: int | None,
     ) -> str:
         """Build SQL query for HubSpot activities"""
 
         base_query = f"""
-        SELECT 
+        SELECT
             activity_id,
             activity_type,
             activity_date,
@@ -429,9 +429,9 @@ class SnowflakeHubSpotConnector:
     async def get_hubspot_data_for_ai_processing(
         self,
         data_type: str = "contacts",
-        ai_context: Optional[str] = None,
+        ai_context: str | None = None,
         limit: int = 1000,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get HubSpot data optimized for AI processing and analysis
 
@@ -502,7 +502,7 @@ async def get_active_hubspot_deals(limit: int = 500) -> pd.DataFrame:
 
 async def get_hubspot_activity_summary(
     contact_id: str, days: int = 90
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get activity summary for a specific contact"""
     connector = await get_hubspot_connector()
     date_range = {

@@ -10,7 +10,7 @@ Current size: 612 lines
 
 Recommended decomposition:
 - sophia_ai_phase1_routes_core.py - Core functionality
-- sophia_ai_phase1_routes_utils.py - Utility functions  
+- sophia_ai_phase1_routes_utils.py - Utility functions
 - sophia_ai_phase1_routes_models.py - Data models
 - sophia_ai_phase1_routes_handlers.py - Request handlers
 
@@ -19,15 +19,16 @@ TODO: Implement file decomposition
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from typing import Any
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.services.sophia_ai_orchestrator import (
-    SophiaAIOrchestrator,
+    OrchestrationMode,
     OrchestrationRequest,
     RequestType,
-    OrchestrationMode,
+    SophiaAIOrchestrator,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/sophia-ai", tags=["Sophia AI Phase 1"])
 
 # Global orchestrator instance
-orchestrator: Optional[SophiaAIOrchestrator] = None
+orchestrator: SophiaAIOrchestrator | None = None
 
 
 # Pydantic Models
@@ -44,7 +45,7 @@ class KnowledgeQueryRequest(BaseModel):
     """Request model for knowledge queries"""
 
     query: str = Field(..., description="Knowledge query text")
-    context: Dict[str, Any] = Field(default_factory=dict, description="Query context")
+    context: dict[str, Any] = Field(default_factory=dict, description="Query context")
     user_id: str = Field(..., description="User ID making the request")
     limit: int = Field(default=5, description="Maximum number of results")
 
@@ -54,7 +55,7 @@ class KnowledgeIngestionRequest(BaseModel):
 
     content: str = Field(..., description="Knowledge content to ingest")
     source: str = Field(default="manual", description="Source of the knowledge")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
     user_id: str = Field(..., description="User ID ingesting the knowledge")
@@ -64,27 +65,27 @@ class SalesCoachingRequest(BaseModel):
     """Request model for sales coaching"""
 
     sales_rep_id: str = Field(..., description="Sales representative ID")
-    context: Dict[str, Any] = Field(..., description="Coaching context")
-    query: Optional[str] = Field(None, description="Specific coaching query")
-    coaching_type: Optional[str] = Field(None, description="Type of coaching needed")
+    context: dict[str, Any] = Field(..., description="Coaching context")
+    query: str | None = Field(None, description="Specific coaching query")
+    coaching_type: str | None = Field(None, description="Type of coaching needed")
 
 
 class TeachingSessionRequest(BaseModel):
     """Request model for teaching sessions"""
 
-    teaching_data: Dict[str, Any] = Field(..., description="Teaching session data")
+    teaching_data: dict[str, Any] = Field(..., description="Teaching session data")
     user_id: str = Field(..., description="User ID conducting the teaching")
-    knowledge_id: Optional[str] = Field(None, description="Knowledge ID being taught")
+    knowledge_id: str | None = Field(None, description="Knowledge ID being taught")
 
 
 class MemoryPreservationRequest(BaseModel):
     """Request model for memory preservation"""
 
     operation: str = Field(..., description="Preservation operation type")
-    source_systems: Optional[List[str]] = Field(
+    source_systems: list[str] | None = Field(
         None, description="Source systems to preserve from"
     )
-    context: Dict[str, Any] = Field(
+    context: dict[str, Any] = Field(
         default_factory=dict, description="Operation context"
     )
 
@@ -95,8 +96,8 @@ class SlackEventRequest(BaseModel):
     event_type: str = Field(..., description="Type of Slack event")
     user: str = Field(..., description="Slack user ID")
     channel: str = Field(..., description="Slack channel ID")
-    text: Optional[str] = Field(None, description="Message text")
-    metadata: Dict[str, Any] = Field(
+    text: str | None = Field(None, description="Message text")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional event metadata"
     )
 
@@ -106,7 +107,7 @@ class UnifiedIntelligenceRequest(BaseModel):
 
     query: str = Field(..., description="Intelligence query")
     user_id: str = Field(..., description="User ID making the request")
-    context: Dict[str, Any] = Field(default_factory=dict, description="Query context")
+    context: dict[str, Any] = Field(default_factory=dict, description="Query context")
     mode: str = Field(default="unified_intelligence", description="Orchestration mode")
     priority: int = Field(default=1, description="Request priority (1=high, 3=low)")
 
@@ -467,9 +468,7 @@ async def unified_intelligence_query(request: UnifiedIntelligenceRequest):
                 "confidence_level": (
                     "high"
                     if response.confidence_score > 0.8
-                    else "medium"
-                    if response.confidence_score > 0.6
-                    else "low"
+                    else "medium" if response.confidence_score > 0.6 else "low"
                 ),
                 "data_sources": len(response.supporting_responses),
             },

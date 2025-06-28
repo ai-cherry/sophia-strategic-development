@@ -5,7 +5,7 @@ Current size: 638 lines
 
 Recommended decomposition:
 - deploy_snowflake_stability_standalone_core.py - Core functionality
-- deploy_snowflake_stability_standalone_utils.py - Utility functions  
+- deploy_snowflake_stability_standalone_utils.py - Utility functions
 - deploy_snowflake_stability_standalone_models.py - Data models
 - deploy_snowflake_stability_standalone_handlers.py - Request handlers
 
@@ -20,12 +20,12 @@ Implements comprehensive database-level stability features for Sophia AI product
 No complex import dependencies - uses direct Snowflake connector.
 """
 
-import snowflake.connector
+import json
 import logging
 import sys
-from typing import Dict
 from datetime import datetime
-import json
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(
@@ -107,9 +107,9 @@ class SnowflakeStabilityDeployer:
             (
                 """
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_PROD_MONITOR
-            WITH CREDIT_QUOTA = 1000 
+            WITH CREDIT_QUOTA = 1000
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 75 PERCENT DO NOTIFY
                 ON 90 PERCENT DO SUSPEND_IMMEDIATE
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
@@ -121,7 +121,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_DEV_MONITOR
             WITH CREDIT_QUOTA = 200
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 80 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
             """,
@@ -132,7 +132,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_ANALYTICS_MONITOR
             WITH CREDIT_QUOTA = 500
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 85 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
             """,
@@ -162,7 +162,7 @@ class SnowflakeStabilityDeployer:
         warehouse_queries = [
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH
             WITH WAREHOUSE_SIZE = 'SMALL'
                 AUTO_SUSPEND = 30
                 AUTO_RESUME = TRUE
@@ -176,7 +176,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH
             WITH WAREHOUSE_SIZE = 'MEDIUM'
                 AUTO_SUSPEND = 300
                 AUTO_RESUME = TRUE
@@ -190,7 +190,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH
             WITH WAREHOUSE_SIZE = 'LARGE'
                 AUTO_SUSPEND = 60
                 AUTO_RESUME = TRUE
@@ -204,7 +204,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH
             WITH WAREHOUSE_SIZE = 'X-LARGE'
                 AUTO_SUSPEND = 180
                 AUTO_RESUME = TRUE
@@ -542,16 +542,18 @@ class SnowflakeStabilityDeployer:
             self.deployment_status["monitoring_schemas"]["status"] = "failed"
             return False
 
-    def generate_deployment_report(self) -> Dict:
+    def generate_deployment_report(self) -> dict:
         """Generate comprehensive deployment report."""
         report = {
             "deployment_timestamp": datetime.now().isoformat(),
-            "overall_status": "success"
-            if all(
-                component["status"] == "completed"
-                for component in self.deployment_status.values()
-            )
-            else "partial_failure",
+            "overall_status": (
+                "success"
+                if all(
+                    component["status"] == "completed"
+                    for component in self.deployment_status.values()
+                )
+                else "partial_failure"
+            ),
             "components": self.deployment_status,
             "summary": {
                 "total_components": len(self.deployment_status),
@@ -612,7 +614,8 @@ class SnowflakeStabilityDeployer:
         report = self.generate_deployment_report()
 
         # Log summary
-        logger.info(f"""
+        logger.info(
+            f"""
         ============================================================
         🎉 SNOWFLAKE STABILITY DEPLOYMENT COMPLETED
         ============================================================
@@ -621,9 +624,10 @@ class SnowflakeStabilityDeployer:
            Successful: {success_count}
            Failed: {len(components) - success_count}
            Overall Status: {report["overall_status"]}
-        
+
         📋 Components Status:
-        """)
+        """
+        )
 
         for comp_name, status in self.deployment_status.items():
             status_icon = "✅" if status["status"] == "completed" else "❌"

@@ -19,7 +19,7 @@ Current size: 936 lines
 
 Recommended decomposition:
 - langgraph_agent_orchestration_core.py - Core functionality
-- langgraph_agent_orchestration_utils.py - Utility functions  
+- langgraph_agent_orchestration_utils.py - Utility functions
 - langgraph_agent_orchestration_models.py - Data models
 - langgraph_agent_orchestration_handlers.py - Request handlers
 
@@ -31,16 +31,16 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional, TypedDict
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any, TypedDict
 
 # LangGraph imports
 try:
-    from langgraph.graph import StateGraph, END
-    from langgraph.prebuilt import ToolExecutor
     from langgraph.checkpoint.sqlite import SqliteSaver
+    from langgraph.graph import END, StateGraph
+    from langgraph.prebuilt import ToolExecutor
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -49,10 +49,10 @@ except ImportError:
     END = None
 
 from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -81,22 +81,22 @@ class WorkflowState(TypedDict):
     call_analysis_status: AgentStatus
 
     # Data collected by agents
-    hubspot_deal_data: Optional[Dict[str, Any]]
-    gong_calls_data: Optional[List[Dict[str, Any]]]
+    hubspot_deal_data: dict[str, Any] | None
+    gong_calls_data: list[dict[str, Any]] | None
 
     # Analysis results
-    sales_coach_insights: Optional[Dict[str, Any]]
-    call_analysis_insights: Optional[Dict[str, Any]]
+    sales_coach_insights: dict[str, Any] | None
+    call_analysis_insights: dict[str, Any] | None
 
     # Final consolidated results
-    consolidated_findings: Optional[Dict[str, Any]]
-    recommendations: Optional[List[Dict[str, Any]]]
+    consolidated_findings: dict[str, Any] | None
+    recommendations: list[dict[str, Any]] | None
 
     # Workflow metadata
     workflow_id: str
     started_at: datetime
-    completed_at: Optional[datetime]
-    error_messages: List[str]
+    completed_at: datetime | None
+    error_messages: list[str]
     next_action: str
 
 
@@ -113,9 +113,9 @@ class CallAnalysisAgent:
     description: str = "Analyzes Gong call data for insights and patterns"
 
     # Snowflake integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    gong_connector: Optional[SnowflakeGongConnector] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+    cortex_service: SnowflakeCortexService | None = None
+    gong_connector: SnowflakeGongConnector | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
 
     initialized: bool = False
 
@@ -140,7 +140,7 @@ class CallAnalysisAgent:
 
     async def analyze_deal_calls(
         self, deal_id: str, company_name: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze all calls related to a specific deal
 
@@ -194,13 +194,13 @@ class CallAnalysisAgent:
                     call_analysis = await cortex.complete_text_with_cortex(
                         prompt=f"""
                         Analyze this sales call and provide structured insights:
-                        
+
                         Call: {call.get("CALL_TITLE", "Unknown")}
                         Duration: {call.get("CALL_DURATION_SECONDS", 0)} seconds
                         Participants: {call.get("PARTICIPANT_LIST", "Unknown")}
                         Sentiment: {call.get("SENTIMENT_SCORE", 0):.2f}
                         Talk Ratio: {call.get("TALK_RATIO", 0):.2f}
-                        
+
                         Provide insights on:
                         1. Call objective and outcome
                         2. Customer engagement level
@@ -272,13 +272,13 @@ class CallAnalysisAgent:
                 overall_assessment = await cortex.complete_text_with_cortex(
                     prompt=f"""
                     Provide an overall assessment of the call activity for this deal:
-                    
+
                     Call Summary:
                     - Total calls analyzed: {len(call_insights)}
                     - Average sentiment: {avg_sentiment:.2f}
                     - Average talk ratio: {avg_talk_ratio:.2f}
                     - Top topics: {", ".join([topic for topic, _ in top_topics[:3]])}
-                    
+
                     Assessment areas:
                     1. Overall engagement quality
                     2. Sales process progression
@@ -310,9 +310,7 @@ class CallAnalysisAgent:
                     "sentiment_trend": (
                         "positive"
                         if avg_sentiment > 0.3
-                        else "negative"
-                        if avg_sentiment < -0.3
-                        else "neutral"
+                        else "negative" if avg_sentiment < -0.3 else "neutral"
                     ),
                     "talk_ratio_assessment": (
                         "optimal"
@@ -332,8 +330,8 @@ class CallAnalysisAgent:
             return {"status": "error", "error": str(e), "call_count": 0, "insights": {}}
 
     def _generate_call_recommendations(
-        self, avg_sentiment: float, avg_talk_ratio: float, top_topics: List[tuple]
-    ) -> List[Dict[str, Any]]:
+        self, avg_sentiment: float, avg_talk_ratio: float, top_topics: list[tuple]
+    ) -> list[dict[str, Any]]:
         """Generate recommendations based on call analysis"""
         recommendations = []
 
@@ -402,9 +400,9 @@ class SupervisorAgent:
     description: str = "Orchestrates deal analysis workflow and consolidates insights"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+    cortex_service: SnowflakeCortexService | None = None
+    hubspot_connector: SnowflakeHubSpotConnector | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
 
     initialized: bool = False
 
@@ -495,19 +493,19 @@ class SupervisorAgent:
             async with self.cortex_service as cortex:
                 consolidation_prompt = f"""
                 Consolidate the following analysis results into executive insights and recommendations:
-                
+
                 Deal Information:
                 - Deal: {state["hubspot_deal_data"]["deal_name"] if state["hubspot_deal_data"] else "Unknown"}
                 - Company: {state["hubspot_deal_data"]["company_name"] if state["hubspot_deal_data"] else "Unknown"}
                 - Stage: {state["hubspot_deal_data"]["deal_stage"] if state["hubspot_deal_data"] else "Unknown"}
                 - Value: ${state["hubspot_deal_data"]["amount"]:,.0f if state['hubspot_deal_data'] and state['hubspot_deal_data']['amount'] else 0}
-                
+
                 Sales Coach Analysis:
                 {state.get("sales_coach_insights", {}).get("summary", "No sales coach analysis available")}
-                
+
                 Call Analysis Results:
                 {state.get("call_analysis_insights", {}).get("overall_assessment", "No call analysis available")}
-                
+
                 Provide:
                 1. Executive summary of deal health
                 2. Key opportunities and risks
@@ -844,7 +842,7 @@ class LangGraphWorkflowOrchestrator:
         deal_id: str,
         analysis_type: str = "comprehensive",
         user_request: str = "Analyze this deal",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run the complete deal analysis workflow
 
@@ -911,7 +909,7 @@ class LangGraphWorkflowOrchestrator:
 
 
 # Example usage function
-async def run_deal_analysis_workflow(deal_id: str) -> Dict[str, Any]:
+async def run_deal_analysis_workflow(deal_id: str) -> dict[str, Any]:
     """
     Example function to run the deal analysis workflow
 

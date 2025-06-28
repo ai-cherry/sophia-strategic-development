@@ -5,11 +5,10 @@ Loads secrets from GitHub organization level for local development
 Part of the permanent GitHub → Pulumi ESC → Backend secret management solution
 """
 
-import os
-import subprocess
 import json
 import logging
-from typing import Dict
+import os
+import subprocess
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ class GitHubSecretsLoader:
             "NOTION_API_KEY": "Notion API key for knowledge management",
         }
 
-    def load_from_pulumi_esc_fallback(self) -> Dict[str, str]:
+    def load_from_pulumi_esc_fallback(self) -> dict[str, str]:
         """Load secrets from Pulumi ESC if available"""
         secrets = {}
 
@@ -82,7 +81,7 @@ class GitHubSecretsLoader:
 
         return secrets
 
-    def load_from_local_env(self) -> Dict[str, str]:
+    def load_from_local_env(self) -> dict[str, str]:
         """Load secrets from local environment variables"""
         secrets = {}
 
@@ -94,7 +93,7 @@ class GitHubSecretsLoader:
 
         return secrets
 
-    def create_development_secrets(self) -> Dict[str, str]:
+    def create_development_secrets(self) -> dict[str, str]:
         """Create development-appropriate secrets for local testing"""
         dev_secrets = {
             "OPENAI_API_KEY": "sk-development-key-for-local-testing",
@@ -111,7 +110,7 @@ class GitHubSecretsLoader:
         logger.info("�� Created development secrets for local testing")
         return dev_secrets
 
-    def create_env_file(self, secrets: Dict[str, str]) -> None:
+    def create_env_file(self, secrets: dict[str, str]) -> None:
         """Create .env file with loaded secrets"""
         env_file_path = ".env.secrets"
 
@@ -131,7 +130,7 @@ class GitHubSecretsLoader:
         # Add to .gitignore if not already there
         gitignore_path = ".gitignore"
         if os.path.exists(gitignore_path):
-            with open(gitignore_path, "r") as f:
+            with open(gitignore_path) as f:
                 content = f.read()
 
             if ".env.secrets" not in content:
@@ -139,7 +138,7 @@ class GitHubSecretsLoader:
                     f.write("\n# Auto-generated secrets\n.env.secrets\n")
                 logger.info("✅ Added .env.secrets to .gitignore")
 
-    def load_all_secrets(self) -> Dict[str, str]:
+    def load_all_secrets(self) -> dict[str, str]:
         """Load secrets from all available sources"""
         all_secrets = {}
 
@@ -161,7 +160,7 @@ class GitHubSecretsLoader:
 
         return all_secrets
 
-    def apply_secrets_to_environment(self, secrets: Dict[str, str]) -> None:
+    def apply_secrets_to_environment(self, secrets: dict[str, str]) -> None:
         """Apply secrets to current environment"""
         for secret_name, value in secrets.items():
             os.environ[secret_name] = value
@@ -169,7 +168,7 @@ class GitHubSecretsLoader:
 
         logger.info(f"✅ Applied {len(secrets)} secrets to environment")
 
-    def print_status_report(self, secrets: Dict[str, str]) -> None:
+    def print_status_report(self, secrets: dict[str, str]) -> None:
         """Print status report of loaded secrets"""
         print("\n🔐 SOPHIA AI SECRETS STATUS REPORT")
         print("=" * 50)

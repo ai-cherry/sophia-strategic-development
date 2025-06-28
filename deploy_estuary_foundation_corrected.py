@@ -6,11 +6,12 @@ Deploy Estuary Foundation for Sophia AI - Corrected Version
 Uses proper flowctl workflow: develop -> author -> publish
 """
 
-import os
-import yaml
 import logging
+import os
 import subprocess
 from pathlib import Path
+
+import yaml
 
 # Configure logging
 logging.basicConfig(

@@ -9,7 +9,7 @@ Current size: 787 lines
 
 Recommended decomposition:
 - payready_business_intelligence_core.py - Core functionality
-- payready_business_intelligence_utils.py - Utility functions  
+- payready_business_intelligence_utils.py - Utility functions
 - payready_business_intelligence_models.py - Data models
 - payready_business_intelligence_handlers.py - Request handlers
 
@@ -17,8 +17,8 @@ TODO: Implement file decomposition
 """
 
 import logging
-from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -38,9 +38,9 @@ class BusinessIntelligenceRequest(BaseModel):
     request_type: str = Field(
         pattern="^(prospect_enrichment|competitive_analysis|roi_validation|sales_brief|market_intelligence)$"
     )
-    target: Optional[str] = None  # Company name or competitor
-    parameters: Dict[str, Any] = {}
-    user_context: Dict[str, Any] = {}
+    target: str | None = None  # Company name or competitor
+    parameters: dict[str, Any] = {}
+    user_context: dict[str, Any] = {}
 
 
 class BusinessIntelligenceResponse(BaseModel):
@@ -49,16 +49,16 @@ class BusinessIntelligenceResponse(BaseModel):
     request_id: str
     request_type: str
     status: str
-    data: Dict[str, Any]
-    recommendations: List[str] = []
-    action_items: List[Dict[str, Any]] = []
+    data: dict[str, Any]
+    recommendations: list[str] = []
+    action_items: list[dict[str, Any]] = []
     timestamp: datetime
 
 
 class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
     """Orchestrator for Pay Ready business intelligence operations"""
 
-    def __init__(self, config_dict: Optional[Dict] = None):
+    def __init__(self, config_dict: dict | None = None):
         super().__init__(
             config_dict
             or {
@@ -152,7 +152,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _process_prospect_enrichment(
         self, request: BusinessIntelligenceRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process prospect enrichment request"""
         company_name = request.target
         if not company_name:
@@ -185,7 +185,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _process_competitive_analysis(
         self, request: BusinessIntelligenceRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process competitive analysis request"""
 
         # Get competitive landscape
@@ -212,7 +212,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _process_roi_validation(
         self, request: BusinessIntelligenceRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process ROI validation request"""
         client_id = request.target or request.parameters.get("client_id")
 
@@ -232,15 +232,15 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         roi_data["buzz_performance"] = buzz_metrics
 
         # Add competitive comparison
-        roi_data[
-            "competitive_advantage"
-        ] = await self._calculate_competitive_roi_advantage(roi_data)
+        roi_data["competitive_advantage"] = (
+            await self._calculate_competitive_roi_advantage(roi_data)
+        )
 
         return roi_data
 
     async def _process_sales_brief(
         self, request: BusinessIntelligenceRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process sales brief generation request"""
         company_name = request.target
         if not company_name:
@@ -285,7 +285,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _process_market_intelligence(
         self, request: BusinessIntelligenceRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process market intelligence request"""
 
         # Aggregate intelligence from multiple sources
@@ -315,8 +315,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         return market_data
 
     async def _assess_buzz_potential(
-        self, company_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, company_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Assess potential for Buzz AI integration"""
         potential_score = 0.0
         factors = []
@@ -358,14 +358,12 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             "recommendation": (
                 "High priority"
                 if potential_score > 0.7
-                else "Medium priority"
-                if potential_score > 0.4
-                else "Low priority"
+                else "Medium priority" if potential_score > 0.4 else "Low priority"
             ),
         }
 
     async def _calculate_sales_priority(
-        self, company_data: Dict[str, Any], competitive_data: Dict[str, Any]
+        self, company_data: dict[str, Any], competitive_data: dict[str, Any]
     ) -> float:
         """Calculate sales priority score"""
         priority_score = 0.0
@@ -387,8 +385,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         return min(priority_score, 1.0)
 
     async def _analyze_competitive_impact(
-        self, landscape_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, landscape_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze competitive landscape impact on Pay Ready"""
         impact_analysis = {
             "threat_level": "low",
@@ -424,7 +422,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
         return impact_analysis
 
-    async def _get_aggregate_roi_metrics(self) -> Dict[str, Any]:
+    async def _get_aggregate_roi_metrics(self) -> dict[str, Any]:
         """Get aggregate ROI metrics across all Pay Ready clients"""
         # This would query actual data from Snowflake via MCP
         return {
@@ -437,8 +435,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         }
 
     async def _calculate_competitive_roi_advantage(
-        self, roi_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, roi_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Calculate ROI advantage over competitors"""
         return {
             "vs_traditional_collections": "3.2x higher ROI",
@@ -453,7 +451,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
     async def _generate_competitive_positioning(
         self, company_name: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate competitive positioning for specific prospect"""
         return {
             "positioning_statement": f"For {company_name}, Buzz AI delivers specialized collections intelligence that complements your existing systems while delivering measurable ROI in under 90 days.",
@@ -471,8 +469,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         }
 
     async def _generate_buzz_value_props(
-        self, sales_brief: Dict[str, Any]
-    ) -> List[str]:
+        self, sales_brief: dict[str, Any]
+    ) -> list[str]:
         """Generate Buzz-specific value propositions"""
         value_props = []
 
@@ -506,14 +504,14 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         return value_props
 
     async def _identify_market_opportunities(
-        self, market_data: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, market_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Identify market opportunities from intelligence data"""
         opportunities = []
 
         # Competitive displacement
         competitive_data = market_data.get("competitive_landscape", {})
-        for competitor, data in competitive_data.get("competitors", {}).items():
+        for _competitor, data in competitive_data.get("competitors", {}).items():
             if data.get("vulnerability_score", 0) > 0.7:
                 opportunities.append(
                     {
@@ -527,8 +525,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         return opportunities
 
     async def _analyze_market_trends(
-        self, market_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, market_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze market trends from intelligence data"""
         return {
             "ai_adoption": {
@@ -549,8 +547,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         }
 
     async def _generate_recommendations(
-        self, request_type: str, data: Dict[str, Any]
-    ) -> List[str]:
+        self, request_type: str, data: dict[str, Any]
+    ) -> list[str]:
         """Generate recommendations based on intelligence data"""
         recommendations = []
 
@@ -578,8 +576,8 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         return recommendations
 
     async def _generate_action_items(
-        self, request_type: str, data: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, request_type: str, data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Generate action items based on intelligence data"""
         action_items = []
 
@@ -636,7 +634,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
     # Sophia Chat Integration Methods
 
     async def handle_conversational_query(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> str:
         """Handle natural language BI queries from Sophia chat"""
 
@@ -671,7 +669,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         # Format conversational response
         return await self._format_conversational_response(response)
 
-    async def _parse_bi_intent(self, query: str) -> Dict[str, Any]:
+    async def _parse_bi_intent(self, query: str) -> dict[str, Any]:
         """Parse business intelligence intent from natural language"""
         query_lower = query.lower()
 
@@ -721,9 +719,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             priority_text = (
                 "high priority"
                 if priority > 0.7
-                else "medium priority"
-                if priority > 0.4
-                else "lower priority"
+                else "medium priority" if priority > 0.4 else "lower priority"
             )
 
             return f"""

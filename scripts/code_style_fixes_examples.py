@@ -5,27 +5,27 @@ This file demonstrates practical implementations of code style fixes for identif
 """
 
 import abc
-from typing import Dict, List, Any, Optional, TypeVar, Generic
 from dataclasses import dataclass
-
+from typing import Any, Generic, TypeVar
 
 # -----------------------------------------------------------------------------
 # 1. Abstract Class Instantiation Fixes
 # -----------------------------------------------------------------------------
 
+
 # PROBLEMATIC - Abstract class that's being directly instantiated
 class AbstractAgent(abc.ABC):
     """Abstract base class for agents."""
-    
-    def __init__(self, name: str, config: Dict[str, Any]):
+
+    def __init__(self, name: str, config: dict[str, Any]):
         self.name = name
         self.config = config
-    
+
     @abc.abstractmethod
     def process_data(self, data: Any) -> Any:
         """Process data (abstract method)."""
         pass
-    
+
     @abc.abstractmethod
     def generate_response(self, query: str) -> str:
         """Generate a response (abstract method)."""
@@ -39,11 +39,11 @@ class AbstractAgent(abc.ABC):
 # CORRECT - Create a concrete subclass
 class ConcreteAgent(AbstractAgent):
     """Concrete implementation of AbstractAgent."""
-    
+
     def process_data(self, data: Any) -> Any:
         """Implement the abstract method."""
         return f"Processed: {data}"
-    
+
     def generate_response(self, query: str) -> str:
         """Implement the abstract method."""
         return f"Response to: {query}"
@@ -54,7 +54,7 @@ class ConcreteAgent(AbstractAgent):
 
 
 # ALTERNATIVE - Factory method to create appropriate agent
-def create_agent(agent_type: str, name: str, config: Dict[str, Any]) -> AbstractAgent:
+def create_agent(agent_type: str, name: str, config: dict[str, Any]) -> AbstractAgent:
     """Factory method to create the appropriate agent type."""
     if agent_type == "concrete":
         return ConcreteAgent(name=name, config=config)
@@ -67,11 +67,11 @@ def create_agent(agent_type: str, name: str, config: Dict[str, Any]) -> Abstract
 # Another concrete implementation
 class SpecializedAgent(AbstractAgent):
     """Specialized implementation of AbstractAgent."""
-    
+
     def process_data(self, data: Any) -> Any:
         """Specialized data processing."""
         return f"Specialized processing: {data}"
-    
+
     def generate_response(self, query: str) -> str:
         """Specialized response generation."""
         return f"Specialized response to: {query}"
@@ -81,12 +81,14 @@ class SpecializedAgent(AbstractAgent):
 # 2. Constructor/Method Argument Mismatch Fixes
 # -----------------------------------------------------------------------------
 
+
 # PROBLEMATIC - Class with specific expected arguments
 class ConfigurationManager:
     """Configuration manager with specific expected arguments."""
-    
-    def __init__(self, config_path: str, enable_caching: bool = True, 
-                 refresh_interval: int = 300):
+
+    def __init__(
+        self, config_path: str, enable_caching: bool = True, refresh_interval: int = 300
+    ):
         self.config_path = config_path
         self.enable_caching = enable_caching
         self.refresh_interval = refresh_interval
@@ -105,7 +107,7 @@ class ConfigurationManager:
 @dataclass
 class ProcessingConfig:
     """Processing configuration with well-defined parameters."""
-    
+
     model_name: str
     temperature: float = 0.7
     max_tokens: int = 1000
@@ -120,15 +122,20 @@ class ProcessingConfig:
 # IMPROVED - Add explicit validation for required parameters
 class AIProcessingConfig:
     """AI processing configuration with validation."""
-    
-    def __init__(self, embedding_model: str, llm_model: str, 
-                 enable_caching: bool = True, cache_ttl_minutes: int = 60):
+
+    def __init__(
+        self,
+        embedding_model: str,
+        llm_model: str,
+        enable_caching: bool = True,
+        cache_ttl_minutes: int = 60,
+    ):
         # Validate required parameters
         if not embedding_model:
             raise ValueError("embedding_model is required")
         if not llm_model:
             raise ValueError("llm_model is required")
-        
+
         self.embedding_model = embedding_model
         self.llm_model = llm_model
         self.enable_caching = enable_caching
@@ -141,14 +148,15 @@ class AIProcessingConfig:
 
 # PROBLEMATIC - Duplicate class definitions
 
+
 # First definition (in one file)
 class SlackAnalysisAgent:
     """Slack analysis agent - first definition."""
-    
+
     def __init__(self, api_key: str):
         self.api_key = api_key
-    
-    def analyze_conversation(self, conversation_id: str) -> Dict[str, Any]:
+
+    def analyze_conversation(self, conversation_id: str) -> dict[str, Any]:
         """Analyze a Slack conversation."""
         return {"id": conversation_id, "sentiment": 0.8}
 
@@ -156,10 +164,10 @@ class SlackAnalysisAgent:
 # Second definition (in another file) - Duplicate!
 # class SlackAnalysisAgent:  # This causes a name collision
 #     """Slack analysis agent - second definition."""
-#     
+#
 #     def __init__(self, credentials: Dict[str, str]):
 #         self.credentials = credentials
-#     
+#
 #     def process_channel(self, channel_id: str) -> List[Dict[str, Any]]:
 #         """Process a Slack channel."""
 #         return [{"channel": channel_id, "activity": "high"}]
@@ -168,11 +176,11 @@ class SlackAnalysisAgent:
 # CORRECT - Rename one of the classes to avoid collision
 class SlackChannelAnalyzer:
     """Renamed class to avoid collision with SlackAnalysisAgent."""
-    
-    def __init__(self, credentials: Dict[str, str]):
+
+    def __init__(self, credentials: dict[str, str]):
         self.credentials = credentials
-    
-    def process_channel(self, channel_id: str) -> List[Dict[str, Any]]:
+
+    def process_channel(self, channel_id: str) -> list[dict[str, Any]]:
         """Process a Slack channel."""
         return [{"channel": channel_id, "activity": "high"}]
 
@@ -180,24 +188,24 @@ class SlackChannelAnalyzer:
 # ALTERNATIVE - Use namespaces or modules to organize related classes
 class SlackAnalysis:
     """Namespace class for Slack analysis functionality."""
-    
+
     class ConversationAnalyzer:
         """Analyzes individual conversations."""
-        
+
         def __init__(self, api_key: str):
             self.api_key = api_key
-        
-        def analyze_conversation(self, conversation_id: str) -> Dict[str, Any]:
+
+        def analyze_conversation(self, conversation_id: str) -> dict[str, Any]:
             """Analyze a Slack conversation."""
             return {"id": conversation_id, "sentiment": 0.8}
-    
+
     class ChannelAnalyzer:
         """Analyzes entire channels."""
-        
-        def __init__(self, credentials: Dict[str, str]):
+
+        def __init__(self, credentials: dict[str, str]):
             self.credentials = credentials
-        
-        def process_channel(self, channel_id: str) -> List[Dict[str, Any]]:
+
+        def process_channel(self, channel_id: str) -> list[dict[str, Any]]:
             """Process a Slack channel."""
             return [{"channel": channel_id, "activity": "high"}]
 
@@ -206,10 +214,11 @@ class SlackAnalysis:
 # 4. Member Access Before Definition Fixes
 # -----------------------------------------------------------------------------
 
+
 # PROBLEMATIC - Accessing class members before they're defined
 class DataQuality:
     """Class with member access before definition issues."""
-    
+
     def analyze_quality(self, data_point: float) -> None:
         """Analyze data point quality.
         ISSUE: Accessing self._quality_window before it's defined."""
@@ -223,25 +232,26 @@ class DataQuality:
 # CORRECT - Initialize all members in __init__
 class ImprovedDataQuality:
     """Improved class with proper member initialization."""
-    
+
     def __init__(self):
         """Initialize all class members."""
         self._quality_window = []
         self._threshold = 0.7
         self._total_processed = 0
-    
+
     def analyze_quality(self, data_point: float) -> None:
         """Analyze data point quality."""
         self._quality_window.append(data_point)
         if len(self._quality_window) > 100:
             self._quality_window.pop(0)
-        
+
         self._total_processed += 1
 
 
 # -----------------------------------------------------------------------------
 # 5. Function Call with No Return Value Fixes
 # -----------------------------------------------------------------------------
+
 
 # PROBLEMATIC - Function without return value being assigned
 def run_cleanup_process() -> None:
@@ -255,13 +265,13 @@ def run_cleanup_process() -> None:
 
 
 # CORRECT - Function with proper return value
-def run_cleanup_process_with_result() -> Dict[str, Any]:
+def run_cleanup_process_with_result() -> dict[str, Any]:
     """Run cleanup process and return a result."""
     print("Cleaning up resources...")
     return {
         "status": "success",
         "items_cleaned": 5,
-        "timestamp": "2025-06-28T12:00:00Z"
+        "timestamp": "2025-06-28T12:00:00Z",
     }
 
 
@@ -277,15 +287,17 @@ def run_cleanup_process_with_result() -> Dict[str, Any]:
 # 6. Too Many Arguments for Logging Format String Fixes
 # -----------------------------------------------------------------------------
 
+
 # PROBLEMATIC - Logging with mismatched format specifiers and arguments
 def problematic_logging():
     """Logging with mismatched format specifiers and arguments."""
     import logging
-    logger = logging.getLogger(__name__)
-    
+
+    logging.getLogger(__name__)
+
     # Too many arguments for format string
     # logger.info("Processing item %s", "item1", "extra_arg")
-    
+
     # Not enough arguments for format string
     # logger.error("Error processing items %s and %s", "item1")
 
@@ -294,39 +306,40 @@ def problematic_logging():
 def correct_logging():
     """Logging with properly matched format specifiers and arguments."""
     import logging
+
     logger = logging.getLogger(__name__)
-    
+
     # Correct number of arguments
     logger.info("Processing item %s", "item1")
     logger.error("Error processing items %s and %s", "item1", "item2")
-    
+
     # Alternative using format dictionary
-    logger.info("Processing %(item_type)s: %(item_id)s", {
-        "item_type": "document",
-        "item_id": "doc123"
-    })
+    logger.info(
+        "Processing %(item_type)s: %(item_id)s",
+        {"item_type": "document", "item_id": "doc123"},
+    )
 
 
 # -----------------------------------------------------------------------------
 # 7. Generic Type Improvements
 # -----------------------------------------------------------------------------
 
-T = TypeVar('T')
-U = TypeVar('U')
+T = TypeVar("T")
+U = TypeVar("U")
 
 
 # IMPROVED - Using generic types for better type checking
 class Repository(Generic[T]):
     """Generic repository for any entity type."""
-    
+
     def __init__(self):
-        self.items: Dict[str, T] = {}
-    
+        self.items: dict[str, T] = {}
+
     def add(self, id: str, item: T) -> None:
         """Add an item to the repository."""
         self.items[id] = item
-    
-    def get(self, id: str) -> Optional[T]:
+
+    def get(self, id: str) -> T | None:
         """Get an item from the repository."""
         return self.items.get(id)
 
@@ -341,25 +354,26 @@ class Repository(Generic[T]):
 # 8. Dependency Injection for Testability
 # -----------------------------------------------------------------------------
 
+
 # IMPROVED - Using dependency injection for better testability
 class ServiceWithDependencies:
     """Service class with dependency injection."""
-    
+
     def __init__(self, database_client, cache_service, logger):
         """Initialize with injected dependencies."""
         self.db = database_client
         self.cache = cache_service
         self.logger = logger
-    
-    def process_request(self, request_id: str) -> Dict[str, Any]:
+
+    def process_request(self, request_id: str) -> dict[str, Any]:
         """Process a request using injected dependencies."""
         self.logger.info("Processing request %s", request_id)
-        
+
         # Try cache first
         cached = self.cache.get(request_id)
         if cached:
             return cached
-        
+
         # Fall back to database
         result = self.db.fetch(request_id)
         self.cache.set(request_id, result)
@@ -369,21 +383,21 @@ class ServiceWithDependencies:
 if __name__ == "__main__":
     # Example usage of the patterns
     print("Code Style Fixes Examples")
-    
+
     # Abstract class example
     agent = ConcreteAgent(name="test_agent", config={"model": "gpt-4"})
     response = agent.generate_response("Hello")
     print(f"Agent response: {response}")
-    
+
     # Dataclass config example
     config = ProcessingConfig(model_name="gpt-4")
     print(f"Config: {config}")
-    
+
     # Slack analysis namespace example
     conversation_analyzer = SlackAnalysis.ConversationAnalyzer(api_key="test-api-key")
     result = conversation_analyzer.analyze_conversation("conv123")
     print(f"Analysis result: {result}")
-    
+
     print("\nREMEMBER: Always follow good code style practices!")
     print("- Use concrete classes instead of abstract classes")
     print("- Match constructor arguments correctly")

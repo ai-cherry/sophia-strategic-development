@@ -6,20 +6,21 @@ Deploy Estuary Foundation for Sophia AI
 Complete deployment of Estuary Flow captures and materializations
 """
 
+import json
+import logging
 import os
 import sys
-import json
-import yaml
-import logging
 from pathlib import Path
+
+import yaml
 
 # Add the project root to Python path
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
 from backend.integrations.estuary_flow_manager import (
-    EstuaryFlowManager,
     EstuaryCredentials,
+    EstuaryFlowManager,
 )
 
 # Configure logging

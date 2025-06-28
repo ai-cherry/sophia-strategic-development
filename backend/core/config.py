@@ -16,7 +16,7 @@ class Config(BaseModel):
     snowflake_account: str | None = None
 
     @classmethod
-    def from_esc(cls) -> "Config":
+    def from_esc(cls) -> Config:
         """Instantiate :class:`Config` using Pulumi ESC values."""
 
         esc_config = AutoESCConfig()

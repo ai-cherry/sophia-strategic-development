@@ -7,7 +7,6 @@ without exposing secrets in data warehouse or logs.
 from __future__ import annotations
 
 import logging
-from typing import Dict, Optional
 
 from backend.security.secret_management import SecretManager
 
@@ -17,12 +16,12 @@ logger = logging.getLogger(__name__)
 class SecureCredentialService:
     """Secure credential retrieval service integrated with Pulumi ESC."""
 
-    def __init__(self, secret_manager: Optional[SecretManager] = None):
+    def __init__(self, secret_manager: SecretManager | None = None):
         self.secret_manager = secret_manager or SecretManager()
         self.config = self.secret_manager.config
         self.logger = logger.bind(component="secure_credential_service")
 
-    async def get_api_credentials(self, platform: str) -> Dict[str, str]:
+    async def get_api_credentials(self, platform: str) -> dict[str, str]:
         """Retrieve API credentials securely from Pulumi ESC.
 
         Args:
@@ -110,7 +109,7 @@ class SecureCredentialService:
             self.logger.error(f"Failed to retrieve credentials for {platform}: {e}")
             raise
 
-    async def get_platform_endpoints(self, platform: str) -> Dict[str, Dict[str, str]]:
+    async def get_platform_endpoints(self, platform: str) -> dict[str, dict[str, str]]:
         """Get platform API endpoints configuration.
 
         Args:
@@ -160,6 +159,6 @@ class SecureCredentialService:
 
         return endpoints.get(platform, {})
 
-    async def health_check(self) -> Dict[str, bool]:
+    async def health_check(self) -> dict[str, bool]:
         """Perform health check on all managed credentials."""
         return await self.secret_manager.validate_secrets()

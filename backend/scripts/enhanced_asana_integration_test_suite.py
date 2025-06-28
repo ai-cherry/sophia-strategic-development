@@ -10,26 +10,26 @@ Comprehensive testing framework for Asana integration including:
 - Performance and quality validation
 """
 
-import asyncio
-import logging
-import json
-import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
-from enum import Enum
 import argparse
+import asyncio
+import json
+import logging
+import time
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
-from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.agents.specialized.asana_project_intelligence_agent import (
     AsanaProjectIntelligenceAgent,
 )
+from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_chat_service import (
     EnhancedUnifiedChatService,
     QueryContext,
 )
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -58,8 +58,8 @@ class TestResult:
     status: str  # PASS, FAIL, SKIP
     execution_time: float
     message: str
-    details: Dict[str, Any] = field(default_factory=dict)
-    metrics: Dict[str, float] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
+    metrics: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -68,10 +68,10 @@ class TestSuite:
 
     environment: str
     include_data_validation: bool
-    performance_thresholds: Dict[str, float]
-    results: List[TestResult] = field(default_factory=list)
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    performance_thresholds: dict[str, float]
+    results: list[TestResult] = field(default_factory=list)
+    start_time: datetime | None = None
+    end_time: datetime | None = None
 
 
 class EnhancedAsanaIntegrationTestSuite:
@@ -129,7 +129,7 @@ class EnhancedAsanaIntegrationTestSuite:
             logger.error(f"❌ Failed to initialize test services: {e}")
             raise
 
-    async def run_connectivity_tests(self) -> List[TestResult]:
+    async def run_connectivity_tests(self) -> list[TestResult]:
         """Test connectivity to all required services"""
         logger.info("🔗 Running connectivity tests")
         results = []
@@ -250,7 +250,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_data_ingestion_tests(self) -> List[TestResult]:
+    async def run_data_ingestion_tests(self) -> list[TestResult]:
         """Test Asana data ingestion pipeline"""
         logger.info("📥 Running data ingestion tests")
         results = []
@@ -323,7 +323,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
                 # Validate raw data exists
                 raw_data_query = """
-                SELECT 
+                SELECT
                     COUNT(*) as total_records,
                     COUNT(DISTINCT _estuary_data:gid) as unique_gids
                 FROM RAW_ESTUARY._ESTUARY_RAW_ASANA_PROJECTS
@@ -388,7 +388,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_transformation_tests(self) -> List[TestResult]:
+    async def run_transformation_tests(self) -> list[TestResult]:
         """Test data transformation procedures"""
         logger.info("🔄 Running transformation tests")
         results = []
@@ -402,7 +402,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
             # Validate transformed data
             validation_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as transformed_records,
                 COUNT(CASE WHEN AI_MEMORY_METADATA IS NOT NULL THEN 1 END) as records_with_metadata,
                 AVG(CONFIDENCE_SCORE) as avg_confidence_score
@@ -478,7 +478,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
             # Validate task transformation
             task_validation_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as transformed_tasks,
                 COUNT(CASE WHEN ASSIGNEE_GID IS NOT NULL THEN 1 END) as assigned_tasks,
                 COUNT(CASE WHEN TASK_STATUS = 'OVERDUE' THEN 1 END) as overdue_tasks
@@ -534,7 +534,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_ai_enrichment_tests(self) -> List[TestResult]:
+    async def run_ai_enrichment_tests(self) -> list[TestResult]:
         """Test AI enrichment procedures"""
         logger.info("🤖 Running AI enrichment tests")
         results = []
@@ -550,7 +550,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
             # Validate AI enrichment
             enrichment_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_projects,
                 COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as projects_with_embeddings,
                 COUNT(CASE WHEN AI_PROJECT_SUMMARY IS NOT NULL THEN 1 END) as projects_with_summaries,
@@ -632,7 +632,7 @@ class EnhancedAsanaIntegrationTestSuite:
         try:
             # Test semantic search on enriched data
             search_query = """
-            SELECT 
+            SELECT
                 PROJECT_NAME,
                 VECTOR_COSINE_SIMILARITY(
                     AI_MEMORY_EMBEDDING,
@@ -688,7 +688,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_intelligence_tests(self) -> List[TestResult]:
+    async def run_intelligence_tests(self) -> list[TestResult]:
         """Test project intelligence and analytics"""
         logger.info("🧠 Running intelligence tests")
         results = []
@@ -797,7 +797,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_chat_integration_tests(self) -> List[TestResult]:
+    async def run_chat_integration_tests(self) -> list[TestResult]:
         """Test chat service integration with Asana data"""
         logger.info("💬 Running chat integration tests")
         results = []
@@ -841,9 +841,9 @@ class EnhancedAsanaIntegrationTestSuite:
                         execution_time=execution_time,
                         message="Asana project query failed or low confidence",
                         details={
-                            "query_result": query_result.__dict__
-                            if query_result
-                            else None
+                            "query_result": (
+                                query_result.__dict__ if query_result else None
+                            )
                         },
                     )
                 )
@@ -863,7 +863,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_performance_tests(self) -> List[TestResult]:
+    async def run_performance_tests(self) -> list[TestResult]:
         """Test performance benchmarks"""
         logger.info("⚡ Running performance tests")
         results = []
@@ -874,7 +874,7 @@ class EnhancedAsanaIntegrationTestSuite:
             # Execute multiple queries and measure average response time
             query_times = []
 
-            for i in range(5):
+            for _i in range(5):
                 query_start = time.time()
                 await self.cortex_service.execute_query(
                     "SELECT COUNT(*) FROM STG_TRANSFORMED.STG_ASANA_PROJECTS LIMIT 100"
@@ -929,7 +929,7 @@ class EnhancedAsanaIntegrationTestSuite:
 
         return results
 
-    async def run_data_quality_tests(self) -> List[TestResult]:
+    async def run_data_quality_tests(self) -> list[TestResult]:
         """Test data quality metrics"""
         logger.info("📊 Running data quality tests")
         results = []
@@ -1050,7 +1050,7 @@ class EnhancedAsanaIntegrationTestSuite:
         except Exception as e:
             logger.error(f"❌ Error cleaning up services: {e}")
 
-    def generate_test_report(self) -> Dict[str, Any]:
+    def generate_test_report(self) -> dict[str, Any]:
         """Generate comprehensive test report"""
         total_tests = len(self.test_suite.results)
         passed_tests = sum(1 for r in self.test_suite.results if r.status == "PASS")
@@ -1081,12 +1081,16 @@ class EnhancedAsanaIntegrationTestSuite:
         return {
             "test_suite_summary": {
                 "environment": self.test_suite.environment,
-                "start_time": self.test_suite.start_time.isoformat()
-                if self.test_suite.start_time
-                else None,
-                "end_time": self.test_suite.end_time.isoformat()
-                if self.test_suite.end_time
-                else None,
+                "start_time": (
+                    self.test_suite.start_time.isoformat()
+                    if self.test_suite.start_time
+                    else None
+                ),
+                "end_time": (
+                    self.test_suite.end_time.isoformat()
+                    if self.test_suite.end_time
+                    else None
+                ),
                 "total_execution_time": total_execution_time,
                 "total_tests": total_tests,
                 "passed_tests": passed_tests,

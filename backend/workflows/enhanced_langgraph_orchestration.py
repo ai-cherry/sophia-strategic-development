@@ -10,7 +10,7 @@ Current size: 1685 lines
 
 Recommended decomposition:
 - enhanced_langgraph_orchestration_core.py - Core functionality
-- enhanced_langgraph_orchestration_utils.py - Utility functions  
+- enhanced_langgraph_orchestration_utils.py - Utility functions
 - enhanced_langgraph_orchestration_models.py - Data models
 - enhanced_langgraph_orchestration_handlers.py - Request handlers
 
@@ -20,14 +20,14 @@ TODO: Implement file decomposition
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Any, TypedDict
 from dataclasses import dataclass, field
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any, TypedDict
 
 # LangGraph imports
 try:
-    from langgraph.graph import StateGraph, END
+    from langgraph.graph import END, StateGraph
     from langgraph.prebuilt import ToolExecutor
 
     LANGGRAPH_AVAILABLE = True
@@ -37,20 +37,20 @@ except ImportError:
     END = None
 
 # Core imports
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
-from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.agents.specialized.call_analysis_agent import CallAnalysisAgent
-from backend.agents.specialized.slack_analysis_agent import SlackAnalysisAgent
 from backend.agents.specialized.linear_project_health_agent import (
     LinearProjectHealthAgent,
 )
-from backend.services.kb_management_service import KBManagementService
 from backend.agents.specialized.marketing_analysis_agent import MarketingAnalysisAgent
+from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
 from backend.agents.specialized.sales_intelligence_agent import SalesIntelligenceAgent
+from backend.agents.specialized.slack_analysis_agent import SlackAnalysisAgent
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.kb_management_service import KBManagementService
 from backend.services.smart_ai_service import SmartAIService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -81,41 +81,41 @@ class WorkflowState(TypedDict):
     # Original fields
     query: str
     workflow_type: str
-    deal_id: Optional[str]
-    hubspot_data: Optional[Dict[str, Any]]
-    gong_data: Optional[Dict[str, Any]]
+    deal_id: str | None
+    hubspot_data: dict[str, Any] | None
+    gong_data: dict[str, Any] | None
 
     # Enhanced fields for new integrations
-    slack_data: Optional[Dict[str, Any]]
-    linear_data: Optional[Dict[str, Any]]
-    kb_data: Optional[Dict[str, Any]]
+    slack_data: dict[str, Any] | None
+    linear_data: dict[str, Any] | None
+    kb_data: dict[str, Any] | None
 
     # New fields for Marketing and Sales Intelligence
-    marketing_data: Optional[Dict[str, Any]]
-    sales_data: Optional[Dict[str, Any]]
-    campaign_data: Optional[Dict[str, Any]]
-    competitive_data: Optional[Dict[str, Any]]
+    marketing_data: dict[str, Any] | None
+    sales_data: dict[str, Any] | None
+    campaign_data: dict[str, Any] | None
+    competitive_data: dict[str, Any] | None
 
     # Analysis results
-    call_analysis: Optional[Dict[str, Any]]
-    deal_insights: Optional[Dict[str, Any]]
-    coaching_recommendations: Optional[Dict[str, Any]]
-    slack_insights: Optional[Dict[str, Any]]
-    linear_health: Optional[Dict[str, Any]]
-    kb_insights: Optional[Dict[str, Any]]
+    call_analysis: dict[str, Any] | None
+    deal_insights: dict[str, Any] | None
+    coaching_recommendations: dict[str, Any] | None
+    slack_insights: dict[str, Any] | None
+    linear_health: dict[str, Any] | None
+    kb_insights: dict[str, Any] | None
 
     # New analysis results for Marketing and Sales Intelligence
-    marketing_insights: Optional[Dict[str, Any]]
-    sales_intelligence: Optional[Dict[str, Any]]
-    campaign_analysis: Optional[Dict[str, Any]]
-    competitive_analysis: Optional[Dict[str, Any]]
-    content_recommendations: Optional[Dict[str, Any]]
-    deal_risk_assessment: Optional[Dict[str, Any]]
+    marketing_insights: dict[str, Any] | None
+    sales_intelligence: dict[str, Any] | None
+    campaign_analysis: dict[str, Any] | None
+    competitive_analysis: dict[str, Any] | None
+    content_recommendations: dict[str, Any] | None
+    deal_risk_assessment: dict[str, Any] | None
 
     # Workflow control
     next_action: str
-    error: Optional[str]
-    final_response: Optional[Dict[str, Any]]
+    error: str | None
+    final_response: dict[str, Any] | None
 
 
 @dataclass
@@ -124,9 +124,9 @@ class WorkflowRequest:
 
     query: str
     workflow_type: WorkflowType
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    user_context: Optional[Dict[str, Any]] = None
-    data_sources: List[str] = field(
+    parameters: dict[str, Any] = field(default_factory=dict)
+    user_context: dict[str, Any] | None = None
+    data_sources: list[str] = field(
         default_factory=lambda: ["hubspot", "gong", "slack", "linear", "kb"]
     )
 
@@ -137,12 +137,12 @@ class WorkflowResult:
 
     success: bool
     workflow_type: WorkflowType
-    insights: Dict[str, Any]
-    recommendations: List[str]
-    data_sources_used: List[str]
+    insights: dict[str, Any]
+    recommendations: list[str]
+    data_sources_used: list[str]
     processing_time: float
     confidence_score: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # Enhanced Agent Classes
@@ -156,9 +156,9 @@ class SlackAnalysisAgent:
     description: str = "Analyzes Slack conversations for business insights"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    slack_agent: Optional[SlackAnalysisAgent] = None
+    cortex_service: SnowflakeCortexService | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
+    slack_agent: SlackAnalysisAgent | None = None
 
     initialized: bool = False
 
@@ -233,13 +233,13 @@ class SlackAnalysisAgent:
             state["error"] = f"Slack analysis failed: {str(e)}"
             return state
 
-    async def _get_relevant_slack_conversations(self, query: str) -> List[Any]:
+    async def _get_relevant_slack_conversations(self, query: str) -> list[Any]:
         """Get relevant Slack conversations (placeholder implementation)"""
         # In production, this would query STG_SLACK_CONVERSATIONS table
         # For now, return empty list
         return []
 
-    def _aggregate_slack_insights(self, results: List[Any]) -> Dict[str, Any]:
+    def _aggregate_slack_insights(self, results: list[Any]) -> dict[str, Any]:
         """Aggregate insights from multiple Slack conversation analyses"""
         if not results:
             return {"message": "No analysis results to aggregate"}
@@ -280,9 +280,7 @@ class SlackAnalysisAgent:
             "sentiment_summary": (
                 "positive"
                 if avg_sentiment > 0.1
-                else "negative"
-                if avg_sentiment < -0.1
-                else "neutral"
+                else "negative" if avg_sentiment < -0.1 else "neutral"
             ),
         }
 
@@ -295,9 +293,9 @@ class LinearAnalysisAgent:
     description: str = "Analyzes Linear project health and development insights"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    linear_agent: Optional[LinearProjectHealthAgent] = None
+    cortex_service: SnowflakeCortexService | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
+    linear_agent: LinearProjectHealthAgent | None = None
 
     initialized: bool = False
 
@@ -377,17 +375,17 @@ class LinearAnalysisAgent:
             state["error"] = f"Linear analysis failed: {str(e)}"
             return state
 
-    async def _get_relevant_linear_projects(self, query: str) -> List[Dict[str, Any]]:
+    async def _get_relevant_linear_projects(self, query: str) -> list[dict[str, Any]]:
         """Get relevant Linear projects (placeholder implementation)"""
         # In production, this would query STG_LINEAR_PROJECTS table
         return []
 
-    async def _get_project_issues(self, project_id: str) -> List[Any]:
+    async def _get_project_issues(self, project_id: str) -> list[Any]:
         """Get issues for a Linear project (placeholder implementation)"""
         # In production, this would query STG_LINEAR_ISSUES table
         return []
 
-    def _aggregate_linear_insights(self, reports: List[Any]) -> Dict[str, Any]:
+    def _aggregate_linear_insights(self, reports: list[Any]) -> dict[str, Any]:
         """Aggregate insights from multiple Linear project health reports"""
         if not reports:
             return {"message": "No health reports to aggregate"}
@@ -432,9 +430,7 @@ class LinearAnalysisAgent:
             "overall_health": (
                 "healthy"
                 if avg_health_score > 0.7
-                else "at_risk"
-                if avg_health_score > 0.5
-                else "critical"
+                else "at_risk" if avg_health_score > 0.5 else "critical"
             ),
         }
 
@@ -447,9 +443,9 @@ class KnowledgeCuratorAgent:
     description: str = "Manages and curates knowledge base content"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    kb_service: Optional[KBManagementService] = None
+    cortex_service: SnowflakeCortexService | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
+    kb_service: KBManagementService | None = None
 
     initialized: bool = False
 
@@ -527,7 +523,7 @@ class KnowledgeCuratorAgent:
             state["error"] = f"Knowledge curation failed: {str(e)}"
             return state
 
-    def _extract_slack_knowledge(self, slack_insights: Dict[str, Any]) -> List[str]:
+    def _extract_slack_knowledge(self, slack_insights: dict[str, Any]) -> list[str]:
         """Extract knowledge items from Slack insights"""
         knowledge = []
 
@@ -540,7 +536,7 @@ class KnowledgeCuratorAgent:
 
         return knowledge
 
-    def _extract_linear_knowledge(self, linear_health: Dict[str, Any]) -> List[str]:
+    def _extract_linear_knowledge(self, linear_health: dict[str, Any]) -> list[str]:
         """Extract knowledge items from Linear health insights"""
         knowledge = []
 
@@ -555,7 +551,7 @@ class KnowledgeCuratorAgent:
 
         return knowledge
 
-    def _extract_deal_knowledge(self, deal_insights: Dict[str, Any]) -> List[str]:
+    def _extract_deal_knowledge(self, deal_insights: dict[str, Any]) -> list[str]:
         """Extract knowledge items from deal insights"""
         knowledge = []
 
@@ -569,8 +565,8 @@ class KnowledgeCuratorAgent:
         return knowledge
 
     async def _synthesize_knowledge(
-        self, knowledge_sources: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, knowledge_sources: list[dict[str, Any]]
+    ) -> list[str]:
         """Synthesize knowledge across sources using AI"""
         try:
             if not knowledge_sources:
@@ -587,10 +583,10 @@ class KnowledgeCuratorAgent:
             async with self.cortex_service as cortex:
                 synthesis_prompt = f"""
                 Synthesize these business insights from multiple sources into key strategic knowledge:
-                
+
                 Knowledge Items:
                 {chr(10).join([f"- {item}" for item in all_knowledge[:20]])}
-                
+
                 Generate 3-5 synthesized insights that connect patterns across sources.
                 Focus on actionable business intelligence.
                 """
@@ -610,12 +606,12 @@ class KnowledgeCuratorAgent:
             return ["Knowledge synthesis failed"]
 
     async def _identify_knowledge_gaps(
-        self, knowledge_sources: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, knowledge_sources: list[dict[str, Any]]
+    ) -> list[str]:
         """Identify gaps in knowledge coverage"""
         gaps = []
 
-        source_types = set(source["source"] for source in knowledge_sources)
+        source_types = {source["source"] for source in knowledge_sources}
 
         if "slack" not in source_types:
             gaps.append("Missing team communication insights")
@@ -629,8 +625,8 @@ class KnowledgeCuratorAgent:
         return gaps
 
     async def _recommend_knowledge_actions(
-        self, synthesized_knowledge: List[str]
-    ) -> List[str]:
+        self, synthesized_knowledge: list[str]
+    ) -> list[str]:
         """Recommend actions based on synthesized knowledge"""
         actions = []
 
@@ -657,10 +653,10 @@ class MarketingAnalysisLangGraphAgent:
     )
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    marketing_agent: Optional[MarketingAnalysisAgent] = None
-    smart_ai_service: Optional[SmartAIService] = None
+    cortex_service: SnowflakeCortexService | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
+    marketing_agent: MarketingAnalysisAgent | None = None
+    smart_ai_service: SmartAIService | None = None
 
     initialized: bool = False
 
@@ -762,7 +758,7 @@ class MarketingAnalysisLangGraphAgent:
 
     async def _get_marketing_data(
         self, analysis_type: str, query: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get relevant marketing data based on analysis type"""
         # In production, this would query STG_MARKETING_CAMPAIGNS, STG_CUSTOMER_DATA, etc.
         # For now, return structured data based on analysis needs
@@ -789,17 +785,17 @@ class MarketingAnalysisLangGraphAgent:
         return data
 
     async def _generate_content_recommendations(
-        self, insights: Dict[str, Any], query: str
-    ) -> Dict[str, Any]:
+        self, insights: dict[str, Any], query: str
+    ) -> dict[str, Any]:
         """Generate content recommendations based on insights"""
         try:
             # Use SmartAIService for advanced content generation
             content_prompt = f"""
             Based on these marketing insights, generate content recommendations:
-            
+
             Insights: {json.dumps(insights, indent=2)}
             Query: {query}
-            
+
             Provide:
             1. Content themes and topics
             2. Messaging recommendations
@@ -828,17 +824,17 @@ class MarketingAnalysisLangGraphAgent:
             return {"error": f"Content generation failed: {str(e)}"}
 
     async def _perform_competitive_analysis(
-        self, insights: Dict[str, Any], query: str
-    ) -> Dict[str, Any]:
+        self, insights: dict[str, Any], query: str
+    ) -> dict[str, Any]:
         """Perform competitive analysis based on insights"""
         try:
             # Use SmartAIService for competitive intelligence
             competitive_prompt = f"""
             Analyze competitive landscape based on these insights:
-            
+
             Marketing Insights: {json.dumps(insights, indent=2)}
             Query: {query}
-            
+
             Provide:
             1. Competitive positioning analysis
             2. Market differentiation opportunities
@@ -875,12 +871,12 @@ class SalesIntelligenceLangGraphAgent:
     description: str = "Provides advanced sales intelligence and deal risk assessment"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-    sales_agent: Optional[SalesIntelligenceAgent] = None
-    smart_ai_service: Optional[SmartAIService] = None
-    hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-    gong_connector: Optional[SnowflakeGongConnector] = None
+    cortex_service: SnowflakeCortexService | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
+    sales_agent: SalesIntelligenceAgent | None = None
+    smart_ai_service: SmartAIService | None = None
+    hubspot_connector: SnowflakeHubSpotConnector | None = None
+    gong_connector: SnowflakeGongConnector | None = None
 
     initialized: bool = False
 
@@ -986,8 +982,8 @@ class SalesIntelligenceLangGraphAgent:
             return "comprehensive"
 
     async def _get_sales_data(
-        self, analysis_type: str, deal_id: Optional[str], query: str
-    ) -> Dict[str, Any]:
+        self, analysis_type: str, deal_id: str | None, query: str
+    ) -> dict[str, Any]:
         """Get relevant sales data based on analysis type"""
         try:
             data = {}
@@ -1048,16 +1044,16 @@ class SalesIntelligenceLangGraphAgent:
             return {}
 
     async def _enhance_competitive_analysis(
-        self, insights: Dict[str, Any], query: str
-    ) -> Dict[str, Any]:
+        self, insights: dict[str, Any], query: str
+    ) -> dict[str, Any]:
         """Enhance competitive analysis using SmartAIService"""
         try:
             competitive_prompt = f"""
             Enhance this competitive analysis with strategic insights:
-            
+
             Sales Intelligence: {json.dumps(insights, indent=2)}
             Query: {query}
-            
+
             Provide:
             1. Competitive positioning strategy
             2. Differentiation talking points
@@ -1094,10 +1090,10 @@ class SupervisorAgent:
     description: str = "Orchestrates enhanced multi-source analysis workflows"
 
     # Service integrations
-    cortex_service: Optional[SnowflakeCortexService] = None
-    hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-    gong_connector: Optional[SnowflakeGongConnector] = None
-    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+    cortex_service: SnowflakeCortexService | None = None
+    hubspot_connector: SnowflakeHubSpotConnector | None = None
+    gong_connector: SnowflakeGongConnector | None = None
+    ai_memory: EnhancedAiMemoryMCPServer | None = None
 
     initialized: bool = False
 
@@ -1263,8 +1259,8 @@ class SupervisorAgent:
             return state
 
     async def _generate_comprehensive_synthesis(
-        self, all_insights: List[Dict[str, Any]], query: str
-    ) -> Dict[str, Any]:
+        self, all_insights: list[dict[str, Any]], query: str
+    ) -> dict[str, Any]:
         """Generate comprehensive synthesis using AI"""
         try:
             if not all_insights:
@@ -1281,7 +1277,7 @@ class SupervisorAgent:
                     key_points = []
 
                     for key, value in insights.items():
-                        if isinstance(value, (str, int, float)):
+                        if isinstance(value, str | int | float):
                             key_points.append(f"{key}: {value}")
                         elif isinstance(value, list) and value:
                             key_points.append(
@@ -1294,19 +1290,19 @@ class SupervisorAgent:
             async with self.cortex_service as cortex:
                 synthesis_prompt = f"""
                 Generate a comprehensive business intelligence synthesis for this query:
-                
+
                 Query: {query}
-                
+
                 Available insights from multiple sources:
                 {chr(10).join(insights_summary)}
-                
+
                 Provide:
                 1. Executive summary
                 2. Key cross-source patterns
                 3. Strategic recommendations
                 4. Risk assessment
                 5. Next steps
-                
+
                 Focus on actionable business intelligence.
                 """
 
@@ -1330,8 +1326,8 @@ class SupervisorAgent:
             return {"error": f"Synthesis generation failed: {str(e)}"}
 
     def _identify_cross_source_patterns(
-        self, all_insights: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, all_insights: list[dict[str, Any]]
+    ) -> list[str]:
         """Identify patterns across different data sources"""
         patterns = []
 
@@ -1375,8 +1371,8 @@ class SupervisorAgent:
         return patterns[:5]
 
     def _generate_strategic_recommendations(
-        self, all_insights: List[Dict[str, Any]]
-    ) -> List[str]:
+        self, all_insights: list[dict[str, Any]]
+    ) -> list[str]:
         """Generate strategic recommendations based on all insights"""
         recommendations = []
 
@@ -1405,7 +1401,7 @@ class SupervisorAgent:
 
         return list(set(recommendations))[:5]  # Remove duplicates and limit
 
-    def _calculate_confidence_score(self, all_insights: List[Dict[str, Any]]) -> float:
+    def _calculate_confidence_score(self, all_insights: list[dict[str, Any]]) -> float:
         """Calculate confidence score based on number and quality of insights"""
         if not all_insights:
             return 0.0
@@ -1415,7 +1411,7 @@ class SupervisorAgent:
         )  # More sources = higher confidence
 
         # Bonus for having diverse source types
-        source_types = set(insight["source"] for insight in all_insights)
+        source_types = {insight["source"] for insight in all_insights}
         diversity_bonus = len(source_types) * 0.05
 
         return min(base_score + diversity_bonus, 1.0)

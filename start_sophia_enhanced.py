@@ -4,14 +4,15 @@ Enhanced Sophia AI Live Deployment Script
 Optimized for production deployment with proper environment configuration
 """
 
+import logging
 import os
+import signal
+import subprocess
 import sys
 import time
-import subprocess
-import signal
-import logging
-import psutil
 from pathlib import Path
+
+import psutil
 import requests
 
 # Configure logging

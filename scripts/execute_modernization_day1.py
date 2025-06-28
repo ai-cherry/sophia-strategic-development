@@ -4,12 +4,12 @@ Sophia AI Infrastructure Modernization - Day 1 Execution Script
 Automated cleanup and foundation setup
 """
 
-import shutil
+import asyncio
 import json
+import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
-import subprocess
-import asyncio
 
 
 class ModernizationExecutor:
@@ -164,7 +164,7 @@ from .agents.secret_manager import SecretComplianceManager
 
 __all__ = [
     "EnhancedSophiaIntelligenceAgent",
-    "InfrastructureOrchestrator", 
+    "InfrastructureOrchestrator",
     "BusinessIntelligenceDeployer",
     "SecretComplianceManager"
 ]

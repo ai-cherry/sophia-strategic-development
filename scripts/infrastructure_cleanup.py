@@ -6,7 +6,6 @@ Removes legacy and broken infrastructure files to streamline the codebase
 
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 # Define legacy files to remove
 LEGACY_FILES_TO_REMOVE = [
@@ -39,7 +38,7 @@ PATTERNS_TO_CLEAN = [
 ]
 
 
-def remove_files(files: List[str], dry_run: bool = True) -> List[Tuple[str, bool]]:
+def remove_files(files: list[str], dry_run: bool = True) -> list[tuple[str, bool]]:
     """Remove specified files and return results"""
     results = []
 

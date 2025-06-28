@@ -2,9 +2,10 @@
 Minimal Sophia AI FastAPI App
 """
 
-from fastapi import FastAPI
 import logging
 import os
+
+from fastapi import FastAPI
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
