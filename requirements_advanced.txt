@@ -22,7 +22,7 @@ anthropic==0.34.2  # Latest compatible version
 agno[all]==1.6.3
 
 # High-Performance HTTP and Async
-aiohttp[speedups]==3.9.1
+aiohttp[speedups]==3.9.4
 aiofiles==23.2.1  # Async file I/O
 asyncio-throttle==1.0.2
 
@@ -43,7 +43,7 @@ memory-profiler==0.61.0  # Memory usage tracking
 
 # Pulumi ESC Integration with Security
 pulumi>=3.0.0
-cryptography==41.0.8  # Enhanced security
+cryptography==42.0.0  # Enhanced security
 
 # Database and Caching (Performance Optimized)
 redis[hiredis]==5.0.1  # High-performance Redis client

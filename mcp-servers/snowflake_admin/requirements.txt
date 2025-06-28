@@ -3,11 +3,11 @@ mcp>=0.1.0
 
 # LangChain for SQL Agent
 langchain>=0.1.0
-langchain-community>=0.0.10
+langchain-community>=0.2.4
 langchain-experimental>=0.0.10
 
 # Snowflake connector
-snowflake-connector-python==3.4.0
+snowflake-connector-python==3.13.1
 
 # OpenAI for LLM
 openai>=1.0.0
