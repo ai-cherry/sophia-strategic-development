@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-06-27T17:19:46.691793",
+  "overall_status": "EXCELLENT",
+  "summary": {
+    "passed": 6,
+    "failed": 1,
+    "total": 7
+  },
+  "detailed_results": [
+    {
+      "test": "FastAPI Root",
+      "status": "PASS",
+      "details": "Status: healthy"
+    },
+    {
+      "test": "FastAPI Health",
+      "status": "PASS",
+      "details": "Status: degraded"
+    },
+    {
+      "test": "API Documentation",
+      "status": "PASS",
+      "details": "OpenAPI docs available"
+    },
+    {
+      "test": "Deployment Validation",
+      "status": "PASS",
+      "details": "Status: NOT_READY"
+    },
+    {
+      "test": "MCP Servers",
+      "status": "FAIL",
+      "details": "No MCP servers accessible"
+    },
+    {
+      "test": "FastAPI Process",
+      "status": "PASS",
+      "details": "Process running"
+    },
+    {
+      "test": "MCP Process",
+      "status": "PASS",
+      "details": "Process running"
+    }
+  ]
+}
