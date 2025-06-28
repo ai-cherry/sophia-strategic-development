@@ -474,7 +474,7 @@ BEGIN
     END IF;
     
     -- Calculate new version
-    SET new_version = old_version + 1;
+    new_version := old_version + 1;
     
     -- Update the setting
     UPDATE APPLICATION_SETTINGS
