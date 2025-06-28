@@ -40,6 +40,17 @@ python scripts/health_check.py
 
 ## 🏗️ **System Architecture**
 
+### **Clean Architecture Implementation (NEW)**
+
+We are transitioning to Clean Architecture (Hexagonal Architecture) for improved maintainability and testability:
+
+- **Domain Layer** - Pure business logic with no external dependencies
+- **Application Layer** - Use cases and business workflows
+- **Infrastructure Layer** - External service implementations (Snowflake, Portkey, etc.)
+- **Presentation Layer** - API endpoints and request handling
+
+See [Architecture Documentation](./docs/03-architecture/) for detailed implementation guide.
+
 ### **Core Components**
 ```
 ┌─────────────────────────────────────────────────────────────────┐

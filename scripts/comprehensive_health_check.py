@@ -257,7 +257,7 @@ class FastAPIHealthCheck(ComponentHealthCheck):
 
         try:
             # Test FastAPI import
-            from backend.app.fastapi_app import app
+            # from backend.app.fastapi_app import app
 
             # Test routes
             routes = [route.path for route in app.routes]

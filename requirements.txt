@@ -32,7 +32,7 @@ requests==2.31.0
 aiohttp==3.9.3
 
 # Business Intelligence
-snowflake-connector-python==3.5.0
+snowflake-connector-python==3.4.0
 
 # API Integrations
 slack-sdk==3.26.1

@@ -6,7 +6,7 @@ requests==2.31.0
 python-dotenv==1.0.0
 asyncio==3.4.3
 pulumi==3.95.0
-snowflake-connector-python==3.5.0
+snowflake-connector-python==3.4.0
 pinecone-client==2.2.4
 psycopg2-binary==2.9.7
 sqlalchemy==2.0.23

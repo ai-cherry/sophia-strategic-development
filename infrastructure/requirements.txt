@@ -8,7 +8,7 @@ pulumi-eks
 pulumiverse-vercel
 pulumi-github
 pulumi-snowflake
-snowflake-connector-python
+snowflake-connector-python==3.4.0
 paramiko
 pinecone
 fastapi

@@ -1,43 +1,44 @@
 {
   "name": "sophia-ai-infrastructure",
-  "version": "2.0.0",
-  "description": "Sophia AI Platform - Infrastructure as Code with TypeScript Pulumi",
+  "version": "1.0.0",
+  "description": "Sophia AI Platform Infrastructure as Code",
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "deploy": "pulumi up",
-    "destroy": "pulumi destroy",
+    "lint": "eslint '**/*.{ts,tsx}'",
+    "test": "jest",
     "preview": "pulumi preview",
+    "up": "pulumi up",
     "refresh": "pulumi refresh",
-    "stack:init": "pulumi stack init",
-    "stack:select": "pulumi stack select",
-    "config:set": "pulumi config set",
-    "type-check": "tsc --noEmit"
+    "destroy": "pulumi destroy"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.90.1",
-    "@pulumi/aws": "^6.10.0",
-    "@pulumi/kubernetes": "^4.4.0",
-    "@pulumi/docker": "^4.5.1",
-    "@pulumi/github": "^5.21.0",
-    "@pulumiverse/vercel": "^1.7.0"
+    "@pulumi/aws": "^5.30.0",
+    "@pulumi/awsx": "^1.0.2",
+    "@pulumi/eks": "^1.0.2",
+    "@pulumi/kubernetes": "^3.24.0",
+    "@pulumi/pulumi": "^3.55.0",
+    "@pulumi/random": "^4.8.2",
+    "@pulumi/command": "^0.7.0",
+    "@types/node": "^18.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.8.0",
-    "typescript": "^5.2.2"
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.38.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
   },
-  "keywords": [
-    "pulumi",
-    "infrastructure",
-    "typescript",
-    "aws",
-    "kubernetes",
-    "vercel",
-    "sophia-ai"
-  ],
-  "author": "Sophia AI Platform Team",
-  "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/sophia-ai.git"
+  },
+  "author": "Sophia AI Team",
+  "license": "UNLICENSED",
+  "private": true
 }
