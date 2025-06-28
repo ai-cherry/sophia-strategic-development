@@ -9,9 +9,9 @@
 -- Purpose: Store and process Slack conversations for knowledge extraction
 -- =====================================================================
 
-USE DATABASE SOPHIA_AI;
+-- USE DATABASE SOPHIA_AI;
 CREATE SCHEMA IF NOT EXISTS SLACK_DATA;
-USE SCHEMA SLACK_DATA;
+-- USE SCHEMA SLACK_DATA;
 
 -- =====================================================================
 -- 1. RAW SLACK DATA TABLES
@@ -31,28 +31,28 @@ CREATE TABLE IF NOT EXISTS SLACK_MESSAGES_RAW (
     
     -- Timing
     TIMESTAMP_SLACK FLOAT, -- Slack's timestamp format
-    MESSAGE_DATETIME TIMESTAMP_LTZ GENERATED ALWAYS AS (
+    MESSAGE_DATETIME TIMESTAMP GENERATED ALWAYS AS (
         TO_TIMESTAMP(TIMESTAMP_SLACK)
     ),
     
     -- Threading
     THREAD_TS FLOAT, -- Parent message timestamp for threaded messages
     REPLY_COUNT NUMBER DEFAULT 0,
-    REPLY_USERS VARIANT, -- JSON array of users who replied
+    REPLY_USERS TEXT, -- JSON array of users who replied
     
     -- Message metadata
-    ATTACHMENTS VARIANT, -- JSON array of attachments
-    FILES VARIANT, -- JSON array of files
-    REACTIONS VARIANT, -- JSON array of reactions
-    MENTIONS VARIANT, -- JSON array of mentioned users/channels
+    ATTACHMENTS TEXT, -- JSON array of attachments
+    FILES TEXT, -- JSON array of files
+    REACTIONS TEXT, -- JSON array of reactions
+    MENTIONS TEXT, -- JSON array of mentioned users/channels
     
     -- Raw API response
-    RAW_DATA VARIANT NOT NULL,
+    RAW_DATA TEXT NOT NULL,
     
     -- Processing status
-    INGESTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+    INGESTED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PROCESSED BOOLEAN DEFAULT FALSE,
-    PROCESSED_AT TIMESTAMP_LTZ,
+    PROCESSED_AT TIMESTAMP,
     PROCESSING_ERROR VARCHAR(16777216)
 );
 
@@ -71,23 +71,23 @@ CREATE TABLE IF NOT EXISTS SLACK_CHANNELS_RAW (
     IS_ARCHIVED BOOLEAN,
     
     -- Channel metadata
-    TOPIC VARIANT, -- JSON object with topic info
-    PURPOSE VARIANT, -- JSON object with purpose info
-    MEMBERS VARIANT, -- JSON array of member IDs
+    TOPIC TEXT, -- JSON object with topic info
+    PURPOSE TEXT, -- JSON object with purpose info
+    MEMBERS TEXT, -- JSON array of member IDs
     MEMBER_COUNT NUMBER,
     
     -- Timestamps
     CREATED FLOAT,
-    CREATED_DATETIME TIMESTAMP_LTZ GENERATED ALWAYS AS (
+    CREATED_DATETIME TIMESTAMP GENERATED ALWAYS AS (
         TO_TIMESTAMP(CREATED)
     ),
     
     -- Raw API response
-    RAW_DATA VARIANT NOT NULL,
+    RAW_DATA TEXT NOT NULL,
     
     -- Processing metadata
-    INGESTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    LAST_UPDATED TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
+    INGESTED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    LAST_UPDATED TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Raw Slack users data
@@ -109,15 +109,15 @@ CREATE TABLE IF NOT EXISTS SLACK_USERS_RAW (
     IS_DELETED BOOLEAN DEFAULT FALSE,
     
     -- Profile information
-    PROFILE VARIANT, -- JSON object with full profile
+    PROFILE TEXT, -- JSON object with full profile
     TIMEZONE VARCHAR(100),
     
     -- Raw API response
-    RAW_DATA VARIANT NOT NULL,
+    RAW_DATA TEXT NOT NULL,
     
     -- Processing metadata
-    INGESTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    LAST_UPDATED TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
+    INGESTED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    LAST_UPDATED TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================================
@@ -137,12 +137,12 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_CONVERSATIONS (
     
     -- Participants
     PARTICIPANT_COUNT NUMBER,
-    PARTICIPANTS VARIANT, -- JSON array of participant user IDs
+    PARTICIPANTS TEXT, -- JSON array of participant user IDs
     INITIATOR_USER_ID VARCHAR(255),
     
     -- Timing
-    START_TIME TIMESTAMP_LTZ,
-    END_TIME TIMESTAMP_LTZ,
+    START_TIME TIMESTAMP,
+    END_TIME TIMESTAMP,
     DURATION_MINUTES NUMBER GENERATED ALWAYS AS (
         DATEDIFF('minute', START_TIME, END_TIME)
     ),
@@ -153,34 +153,34 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_CONVERSATIONS (
     UNIQUE_PARTICIPANTS NUMBER DEFAULT 0,
     
     -- Business context
-    MENTIONS_CUSTOMERS VARIANT, -- JSON array of mentioned customer names
-    MENTIONS_PRODUCTS VARIANT, -- JSON array of mentioned products
-    MENTIONS_COMPETITORS VARIANT, -- JSON array of mentioned competitors
+    MENTIONS_CUSTOMERS TEXT, -- JSON array of mentioned customer names
+    MENTIONS_PRODUCTS TEXT, -- JSON array of mentioned products
+    MENTIONS_COMPETITORS TEXT, -- JSON array of mentioned competitors
     CONTAINS_DECISIONS BOOLEAN DEFAULT FALSE,
     CONTAINS_ACTION_ITEMS BOOLEAN DEFAULT FALSE,
     
     -- AI-generated insights (Cortex)
     CONVERSATION_SUMMARY VARCHAR(4000), -- SNOWFLAKE.CORTEX.SUMMARIZE()
     SENTIMENT_SCORE FLOAT, -- SNOWFLAKE.CORTEX.SENTIMENT()
-    KEY_TOPICS VARIANT, -- JSON array of extracted topics
-    ACTION_ITEMS VARIANT, -- JSON array of extracted action items
-    DECISIONS_MADE VARIANT, -- JSON array of decisions
+    KEY_TOPICS TEXT, -- JSON array of extracted topics
+    ACTION_ITEMS TEXT, -- JSON array of extracted action items
+    DECISIONS_MADE TEXT, -- JSON array of decisions
     
     -- Knowledge extraction
     KNOWLEDGE_EXTRACTED BOOLEAN DEFAULT FALSE,
-    EXTRACTED_INSIGHTS VARIANT, -- JSON array of knowledge insights
+    EXTRACTED_INSIGHTS TEXT, -- JSON array of knowledge insights
     BUSINESS_VALUE_SCORE FLOAT, -- 0.0 to 1.0 - how valuable for knowledge base
     
     -- AI Memory integration
     AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768), -- Cortex embedding for semantic search
     AI_MEMORY_METADATA VARCHAR(16777216), -- JSON metadata for AI Memory
-    AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
+    AI_MEMORY_UPDATED_AT TIMESTAMP,
     
     -- Metadata
-    CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PROCESSED_BY_CORTEX BOOLEAN DEFAULT FALSE,
-    CORTEX_PROCESSED_AT TIMESTAMP_LTZ,
+    CORTEX_PROCESSED_AT TIMESTAMP,
     
     FOREIGN KEY (CHANNEL_ID) REFERENCES SLACK_CHANNELS_RAW(CHANNEL_ID)
 );
@@ -203,39 +203,39 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_MESSAGES (
     IS_REPLY BOOLEAN DEFAULT FALSE,
     
     -- Timing
-    MESSAGE_DATETIME TIMESTAMP_LTZ,
+    MESSAGE_DATETIME TIMESTAMP,
     REPLY_TO_MESSAGE_ID VARCHAR(255), -- For threaded replies
     
     -- Engagement
     REACTION_COUNT NUMBER DEFAULT 0,
-    REACTIONS VARIANT, -- JSON array of reactions
+    REACTIONS TEXT, -- JSON array of reactions
     REPLY_COUNT NUMBER DEFAULT 0,
     
     -- Content analysis
-    MENTIONS_USERS VARIANT, -- JSON array of mentioned user IDs
-    MENTIONS_CHANNELS VARIANT, -- JSON array of mentioned channels
+    MENTIONS_USERS TEXT, -- JSON array of mentioned user IDs
+    MENTIONS_CHANNELS TEXT, -- JSON array of mentioned channels
     CONTAINS_URLS BOOLEAN DEFAULT FALSE,
     CONTAINS_FILES BOOLEAN DEFAULT FALSE,
-    ATTACHED_FILES VARIANT, -- JSON array of file information
+    ATTACHED_FILES TEXT, -- JSON array of file information
     
     -- Business entity extraction
-    MENTIONS_CUSTOMERS VARIANT, -- Extracted customer mentions
-    MENTIONS_PRODUCTS VARIANT, -- Extracted product mentions
-    MENTIONS_COMPETITORS VARIANT, -- Extracted competitor mentions
+    MENTIONS_CUSTOMERS TEXT, -- Extracted customer mentions
+    MENTIONS_PRODUCTS TEXT, -- Extracted product mentions
+    MENTIONS_COMPETITORS TEXT, -- Extracted competitor mentions
     CONTAINS_PRICING_INFO BOOLEAN DEFAULT FALSE,
     CONTAINS_TECHNICAL_INFO BOOLEAN DEFAULT FALSE,
     
     -- AI processing
     SENTIMENT_SCORE FLOAT, -- Message-level sentiment
     IMPORTANCE_SCORE FLOAT, -- 0.0 to 1.0 - importance for knowledge base
-    EXTRACTED_ENTITIES VARIANT, -- JSON array of named entities
+    EXTRACTED_ENTITIES TEXT, -- JSON array of named entities
     
     -- Vector embedding for semantic search
     MESSAGE_EMBEDDING VECTOR(FLOAT, 768), -- Cortex embedding
     
     -- Metadata
-    CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PROCESSED_BY_CORTEX BOOLEAN DEFAULT FALSE,
     
     FOREIGN KEY (CONVERSATION_ID) REFERENCES STG_SLACK_CONVERSATIONS(CONVERSATION_ID),
@@ -267,17 +267,17 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_CHANNELS (
     KNOWLEDGE_VALUE_SCORE FLOAT, -- How valuable this channel is for knowledge
     
     -- Members and participation
-    ACTIVE_MEMBERS VARIANT, -- JSON array of active member IDs
-    TOP_CONTRIBUTORS VARIANT, -- JSON array of most active contributors
+    ACTIVE_MEMBERS TEXT, -- JSON array of active member IDs
+    TOP_CONTRIBUTORS TEXT, -- JSON array of most active contributors
     
     -- AI Memory integration
     AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768),
     AI_MEMORY_METADATA VARCHAR(16777216),
-    AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
+    AI_MEMORY_UPDATED_AT TIMESTAMP,
     
     -- Metadata
-    CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Slack users with enriched information
@@ -299,9 +299,9 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_USERS (
     CONVERSATION_COUNT_TOTAL NUMBER DEFAULT 0,
     
     -- Communication patterns
-    MOST_ACTIVE_CHANNELS VARIANT, -- JSON array of channel IDs
+    MOST_ACTIVE_CHANNELS TEXT, -- JSON array of channel IDs
     COMMUNICATION_STYLE VARCHAR(100), -- 'frequent', 'moderate', 'occasional'
-    EXPERTISE_AREAS VARIANT, -- JSON array of inferred expertise areas
+    EXPERTISE_AREAS TEXT, -- JSON array of inferred expertise areas
     
     -- Knowledge contribution
     KNOWLEDGE_CONTRIBUTIONS NUMBER DEFAULT 0, -- Count of valuable knowledge shared
@@ -310,11 +310,11 @@ CREATE TABLE IF NOT EXISTS STG_SLACK_USERS (
     -- AI Memory integration
     AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768),
     AI_MEMORY_METADATA VARCHAR(16777216),
-    AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
+    AI_MEMORY_UPDATED_AT TIMESTAMP,
     
     -- Metadata
-    CREATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (EMPLOYEE_ID) REFERENCES FOUNDATIONAL_KNOWLEDGE.EMPLOYEES(EMPLOYEE_ID)
 );
@@ -340,19 +340,19 @@ CREATE TABLE IF NOT EXISTS SLACK_KNOWLEDGE_INSIGHTS (
     INSIGHT_SUMMARY VARCHAR(1000),
     
     -- Business context
-    RELATED_CUSTOMERS VARIANT, -- JSON array of related customer IDs
-    RELATED_PRODUCTS VARIANT, -- JSON array of related product IDs
-    RELATED_EMPLOYEES VARIANT, -- JSON array of involved employee IDs
+    RELATED_CUSTOMERS TEXT, -- JSON array of related customer IDs
+    RELATED_PRODUCTS TEXT, -- JSON array of related product IDs
+    RELATED_EMPLOYEES TEXT, -- JSON array of involved employee IDs
     
     -- Actionability
     IS_ACTIONABLE BOOLEAN DEFAULT FALSE,
-    SUGGESTED_ACTIONS VARIANT, -- JSON array of suggested actions
+    SUGGESTED_ACTIONS TEXT, -- JSON array of suggested actions
     BUSINESS_IMPACT VARCHAR(50), -- 'high', 'medium', 'low'
     
     -- Validation
     HUMAN_VALIDATED BOOLEAN DEFAULT FALSE,
     VALIDATED_BY_USER_ID VARCHAR(255),
-    VALIDATED_AT TIMESTAMP_LTZ,
+    VALIDATED_AT TIMESTAMP,
     VALIDATION_NOTES VARCHAR(2000),
     
     -- Knowledge base integration
@@ -362,10 +362,10 @@ CREATE TABLE IF NOT EXISTS SLACK_KNOWLEDGE_INSIGHTS (
     -- AI Memory integration
     AI_MEMORY_EMBEDDING VECTOR(FLOAT, 768),
     AI_MEMORY_METADATA VARCHAR(16777216),
-    AI_MEMORY_UPDATED_AT TIMESTAMP_NTZ,
+    AI_MEMORY_UPDATED_AT TIMESTAMP,
     
     -- Metadata
-    EXTRACTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
+    EXTRACTED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255) DEFAULT 'system',
     
     FOREIGN KEY (CONVERSATION_ID) REFERENCES STG_SLACK_CONVERSATIONS(CONVERSATION_ID),
@@ -703,7 +703,7 @@ FROM STG_SLACK_CHANNELS sc
 LEFT JOIN STG_SLACK_CONVERSATIONS conv ON sc.CHANNEL_ID = conv.CHANNEL_ID
 LEFT JOIN STG_SLACK_MESSAGES msg ON conv.CONVERSATION_ID = msg.CONVERSATION_ID
 LEFT JOIN SLACK_KNOWLEDGE_INSIGHTS ins ON conv.CONVERSATION_ID = ins.CONVERSATION_ID
-WHERE msg.MESSAGE_DATETIME >= DATEADD('month', -12, CURRENT_DATE())
+WHERE msg.MESSAGE_DATETIME >= DATEADD('month', -12, CURRENT_DATE)
 GROUP BY 
     sc.CHANNEL_NAME,
     sc.BUSINESS_FUNCTION,

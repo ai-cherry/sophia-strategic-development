@@ -16,9 +16,9 @@
 -- =====================================================================
 
 -- Set context for DEV environment
-USE DATABASE SOPHIA_AI_DEV;
+-- USE DATABASE SOPHIA_AI_DEV;
 CREATE SCHEMA IF NOT EXISTS CONFIG;
-USE SCHEMA CONFIG;
+-- USE SCHEMA CONFIG;
 
 -- =====================================================================
 -- 1. APPLICATION SETTINGS TABLES
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS APPLICATION_SETTINGS (
     SETTING_ID VARCHAR(255) PRIMARY KEY,
     SETTING_NAME VARCHAR(255) NOT NULL,
     SETTING_VALUE VARCHAR(16777216), -- Support large configuration values (JSON, etc.)
-    DATA_TYPE VARCHAR(50) NOT NULL, -- 'STRING', 'NUMBER', 'BOOLEAN', 'JSON', 'ARRAY'
+    DATA_TYPE VARCHAR(50) NOT NULL, -- 'STRING', 'NUMBER', 'BOOLEAN', 'JSON', 'TEXT'
     DESCRIPTION VARCHAR(1000),
     
     -- Environment and scope
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS APPLICATION_SETTINGS (
     VALIDATION_RULE VARCHAR(1000), -- Validation expression or pattern
     MIN_VALUE FLOAT, -- For numeric settings
     MAX_VALUE FLOAT, -- For numeric settings
-    ALLOWED_VALUES VARIANT, -- JSON array of allowed values
+    ALLOWED_VALUES TEXT, -- JSON array of allowed values
     
     -- Lifecycle management
     IS_ACTIVE BOOLEAN DEFAULT TRUE,
@@ -59,12 +59,12 @@ CREATE TABLE IF NOT EXISTS APPLICATION_SETTINGS (
     VERSION NUMBER DEFAULT 1,
     PREVIOUS_VALUE VARCHAR(16777216), -- Previous value for rollback
     CHANGED_BY VARCHAR(255), -- User or system that made the change
-    CHANGED_AT TIMESTAMP_NTZ,
+    CHANGED_AT TIMESTAMP,
     CHANGE_REASON VARCHAR(1000), -- Reason for the change
     
     -- Metadata
-    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255),
     
     -- Constraints
@@ -85,18 +85,18 @@ CREATE TABLE IF NOT EXISTS CONFIGURATION_HISTORY (
     
     -- Change context
     CHANGED_BY VARCHAR(255) NOT NULL,
-    CHANGED_AT TIMESTAMP_NTZ NOT NULL,
+    CHANGED_AT TIMESTAMP NOT NULL,
     CHANGE_REASON VARCHAR(1000),
     CHANGE_SOURCE VARCHAR(100), -- 'ADMIN_UI', 'API', 'SCRIPT', 'AUTOMATED'
     
     -- Impact tracking
-    AFFECTED_SERVICES VARIANT, -- JSON array of services affected by this change
+    AFFECTED_SERVICES TEXT, -- JSON array of services affected by this change
     ROLLBACK_REQUIRED BOOLEAN DEFAULT FALSE,
     ROLLBACK_COMPLETED BOOLEAN DEFAULT FALSE,
-    ROLLBACK_COMPLETED_AT TIMESTAMP_NTZ,
+    ROLLBACK_COMPLETED_AT TIMESTAMP,
     
     -- Additional metadata
-    CHANGE_METADATA VARIANT, -- JSON object for additional change context
+    CHANGE_METADATA TEXT, -- JSON object for additional change context
     
     FOREIGN KEY (SETTING_ID) REFERENCES APPLICATION_SETTINGS(SETTING_ID)
 );
@@ -122,33 +122,33 @@ CREATE TABLE IF NOT EXISTS FEATURE_FLAGS (
     
     -- Targeting and rollout
     ROLLOUT_PERCENTAGE FLOAT DEFAULT 0, -- For percentage-based rollouts (0-100)
-    TARGET_USERS VARIANT, -- JSON array of specific users to target
-    TARGET_GROUPS VARIANT, -- JSON array of user groups to target
-    TARGET_CONDITIONS VARIANT, -- JSON object with targeting conditions
+    TARGET_USERS TEXT, -- JSON array of specific users to target
+    TARGET_GROUPS TEXT, -- JSON array of user groups to target
+    TARGET_CONDITIONS TEXT, -- JSON object with targeting conditions
     
     -- Experiment configuration (for A/B testing)
     EXPERIMENT_NAME VARCHAR(255),
-    EXPERIMENT_VARIANTS VARIANT, -- JSON object defining experiment variants
-    TRAFFIC_ALLOCATION VARIANT, -- JSON object defining traffic split
+    EXPERIMENT_VARIANTS TEXT, -- JSON object defining experiment variants
+    TRAFFIC_ALLOCATION TEXT, -- JSON object defining traffic split
     
     -- Lifecycle management
-    START_DATE TIMESTAMP_NTZ, -- When this flag becomes active
-    END_DATE TIMESTAMP_NTZ, -- When this flag should be disabled
+    START_DATE TIMESTAMP, -- When this flag becomes active
+    END_DATE TIMESTAMP, -- When this flag should be disabled
     IS_PERMANENT BOOLEAN DEFAULT FALSE, -- Whether this is a permanent flag
-    CLEANUP_DATE TIMESTAMP_NTZ, -- When this flag can be safely removed
+    CLEANUP_DATE TIMESTAMP, -- When this flag can be safely removed
     
     -- Monitoring and metrics
     USAGE_COUNT NUMBER DEFAULT 0, -- How many times this flag has been evaluated
-    LAST_EVALUATED_AT TIMESTAMP_NTZ,
+    LAST_EVALUATED_AT TIMESTAMP,
     PERFORMANCE_IMPACT VARCHAR(1000), -- Notes on performance impact
     
     -- Dependencies
-    DEPENDS_ON_FLAGS VARIANT, -- JSON array of other flags this depends on
-    CONFLICTS_WITH_FLAGS VARIANT, -- JSON array of flags that conflict with this one
+    DEPENDS_ON_FLAGS TEXT, -- JSON array of other flags this depends on
+    CONFLICTS_WITH_FLAGS TEXT, -- JSON array of flags that conflict with this one
     
     -- Metadata
-    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255),
     LAST_MODIFIED_BY VARCHAR(255),
     
@@ -167,13 +167,13 @@ CREATE TABLE IF NOT EXISTS FEATURE_FLAG_EVALUATIONS (
     REQUEST_ID VARCHAR(255),
     
     -- Evaluation result
-    EVALUATED_AT TIMESTAMP_NTZ NOT NULL,
-    RESULT_VALUE VARIANT, -- The actual result (boolean, string, number, object)
+    EVALUATED_AT TIMESTAMP NOT NULL,
+    RESULT_VALUE TEXT, -- The actual result (boolean, string, number, object)
     EVALUATION_REASON VARCHAR(255), -- Why this result was returned
     
     -- Context information
-    USER_PROPERTIES VARIANT, -- JSON object with user properties used in evaluation
-    REQUEST_PROPERTIES VARIANT, -- JSON object with request properties
+    USER_PROPERTIES TEXT, -- JSON object with user properties used in evaluation
+    REQUEST_PROPERTIES TEXT, -- JSON object with request properties
     
     -- Performance tracking
     EVALUATION_TIME_MS NUMBER, -- Time taken to evaluate the flag
@@ -212,24 +212,24 @@ CREATE TABLE IF NOT EXISTS SYSTEM_PARAMETERS (
     VALIDATION_PATTERN VARCHAR(1000), -- Regex or validation rule
     MIN_VALUE FLOAT,
     MAX_VALUE FLOAT,
-    ALLOWED_VALUES VARIANT,
+    ALLOWED_VALUES TEXT,
     UNIT_OF_MEASURE VARCHAR(50), -- 'SECONDS', 'MB', 'PERCENT', etc.
     
     -- Impact and dependencies
     REQUIRES_RESTART BOOLEAN DEFAULT FALSE,
     AFFECTS_PERFORMANCE BOOLEAN DEFAULT FALSE,
     AFFECTS_SECURITY BOOLEAN DEFAULT FALSE,
-    DEPENDENT_PARAMETERS VARIANT, -- JSON array of dependent parameters
+    DEPENDENT_PARAMETERS TEXT, -- JSON array of dependent parameters
     
     -- Monitoring
     CURRENT_USAGE_VALUE FLOAT, -- Current actual usage (for monitoring)
     USAGE_THRESHOLD_WARNING FLOAT, -- Warning threshold
     USAGE_THRESHOLD_CRITICAL FLOAT, -- Critical threshold
-    LAST_MONITORED_AT TIMESTAMP_NTZ,
+    LAST_MONITORED_AT TIMESTAMP,
     
     -- Metadata
-    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255),
     LAST_MODIFIED_BY VARCHAR(255),
     
@@ -249,9 +249,9 @@ CREATE TABLE IF NOT EXISTS CONFIGURATION_TEMPLATES (
     SERVICE_NAME VARCHAR(255),
     
     -- Template content
-    CONFIGURATION_JSON VARIANT NOT NULL, -- JSON object with all configuration settings
-    FEATURE_FLAGS_JSON VARIANT, -- JSON object with feature flag settings
-    SYSTEM_PARAMETERS_JSON VARIANT, -- JSON object with system parameters
+    CONFIGURATION_JSON TEXT NOT NULL, -- JSON object with all configuration settings
+    FEATURE_FLAGS_JSON TEXT, -- JSON object with feature flag settings
+    SYSTEM_PARAMETERS_JSON TEXT, -- JSON object with system parameters
     
     -- Template metadata
     VERSION VARCHAR(50) DEFAULT '1.0',
@@ -260,12 +260,12 @@ CREATE TABLE IF NOT EXISTS CONFIGURATION_TEMPLATES (
     
     -- Usage tracking
     USAGE_COUNT NUMBER DEFAULT 0,
-    LAST_USED_AT TIMESTAMP_NTZ,
+    LAST_USED_AT TIMESTAMP,
     LAST_USED_BY VARCHAR(255),
     
     -- Metadata
-    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    UPDATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255),
     
     UNIQUE (TEMPLATE_NAME, TARGET_ENVIRONMENT, APPLICATION_NAME)
@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS CONFIGURATION_VALIDATION_RULES (
     IS_ACTIVE BOOLEAN DEFAULT TRUE,
     
     -- Metadata
-    CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CREATED_BY VARCHAR(255)
 );
 
@@ -313,30 +313,30 @@ CREATE TABLE IF NOT EXISTS CONFIGURATION_DEPLOYMENTS (
     DEPLOYMENT_TYPE VARCHAR(100), -- 'FULL', 'PARTIAL', 'ROLLBACK', 'TEMPLATE'
     
     -- Deployment content
-    SETTINGS_DEPLOYED VARIANT, -- JSON array of setting IDs deployed
-    FLAGS_DEPLOYED VARIANT, -- JSON array of flag IDs deployed
-    PARAMETERS_DEPLOYED VARIANT, -- JSON array of parameter IDs deployed
+    SETTINGS_DEPLOYED TEXT, -- JSON array of setting IDs deployed
+    FLAGS_DEPLOYED TEXT, -- JSON array of flag IDs deployed
+    PARAMETERS_DEPLOYED TEXT, -- JSON array of parameter IDs deployed
     TEMPLATE_USED VARCHAR(255), -- Template ID if deployment used a template
     
     -- Deployment status
     STATUS VARCHAR(50) DEFAULT 'PENDING', -- 'PENDING', 'IN_PROGRESS', 'SUCCESS', 'FAILED', 'ROLLED_BACK'
-    STARTED_AT TIMESTAMP_NTZ,
-    COMPLETED_AT TIMESTAMP_NTZ,
+    STARTED_AT TIMESTAMP,
+    COMPLETED_AT TIMESTAMP,
     DURATION_SECONDS NUMBER,
     
     -- Validation and testing
     VALIDATION_PASSED BOOLEAN,
-    VALIDATION_ERRORS VARIANT, -- JSON array of validation errors
+    VALIDATION_ERRORS TEXT, -- JSON array of validation errors
     SMOKE_TESTS_PASSED BOOLEAN,
-    SMOKE_TEST_RESULTS VARIANT, -- JSON object with smoke test results
+    SMOKE_TEST_RESULTS TEXT, -- JSON object with smoke test results
     
     -- Rollback information
     ROLLBACK_DEPLOYMENT_ID VARCHAR(255), -- Reference to rollback deployment if this was rolled back
     CAN_ROLLBACK BOOLEAN DEFAULT TRUE,
-    ROLLBACK_DEADLINE TIMESTAMP_NTZ, -- After this time, rollback may not be safe
+    ROLLBACK_DEADLINE TIMESTAMP, -- After this time, rollback may not be safe
     
     -- Impact tracking
-    AFFECTED_SERVICES VARIANT, -- JSON array of services affected
+    AFFECTED_SERVICES TEXT, -- JSON array of services affected
     DOWNTIME_REQUIRED BOOLEAN DEFAULT FALSE,
     ESTIMATED_IMPACT VARCHAR(1000),
     ACTUAL_IMPACT VARCHAR(1000),
@@ -361,7 +361,7 @@ CREATE OR REPLACE FUNCTION GET_CONFIG_VALUE(
     service_name VARCHAR DEFAULT NULL,
     component_name VARCHAR DEFAULT NULL
 )
-RETURNS VARIANT
+RETURNS TEXT
 LANGUAGE SQL
 AS
 $$
@@ -370,7 +370,7 @@ $$
             WHEN DATA_TYPE = 'NUMBER' THEN TO_VARIANT(TO_NUMBER(SETTING_VALUE))
             WHEN DATA_TYPE = 'BOOLEAN' THEN TO_VARIANT(TO_BOOLEAN(SETTING_VALUE))
             WHEN DATA_TYPE = 'JSON' THEN PARSE_JSON(SETTING_VALUE)
-            WHEN DATA_TYPE = 'ARRAY' THEN PARSE_JSON(SETTING_VALUE)
+            WHEN DATA_TYPE = 'TEXT' THEN PARSE_JSON(SETTING_VALUE)
             ELSE TO_VARIANT(SETTING_VALUE)
         END
     FROM APPLICATION_SETTINGS
@@ -393,9 +393,9 @@ CREATE OR REPLACE FUNCTION EVALUATE_FEATURE_FLAG(
     environment VARCHAR DEFAULT 'DEV',
     application_name VARCHAR DEFAULT 'SOPHIA_AI',
     service_name VARCHAR DEFAULT NULL,
-    user_properties VARIANT DEFAULT NULL
+    user_properties TEXT DEFAULT NULL
 )
-RETURNS VARIANT
+RETURNS TEXT
 LANGUAGE SQL
 AS
 $$
@@ -408,8 +408,8 @@ $$
         AND ENVIRONMENT = environment
         AND APPLICATION_NAME = application_name
         AND (SERVICE_NAME = service_name OR (service_name IS NULL AND SERVICE_NAME IS NULL))
-        AND (START_DATE IS NULL OR START_DATE <= CURRENT_TIMESTAMP())
-        AND (END_DATE IS NULL OR END_DATE > CURRENT_TIMESTAMP())
+        AND (START_DATE IS NULL OR START_DATE <= CURRENT_TIMESTAMP)
+        AND (END_DATE IS NULL OR END_DATE > CURRENT_TIMESTAMP)
         LIMIT 1
     )
     SELECT 
@@ -428,7 +428,7 @@ $$
                 TO_VARIANT(
                     CASE 
                         WHEN user_id IS NULL THEN FALSE
-                        WHEN ARRAY_CONTAINS(user_id::VARIANT, TARGET_USERS) THEN TRUE
+                        WHEN ARRAY_CONTAINS(user_id::TEXT, TARGET_USERS) THEN TRUE
                         ELSE FALSE
                     END
                 )
@@ -474,7 +474,7 @@ BEGIN
     END IF;
     
     -- Calculate new version
-    new_version := old_version + 1;
+--     new_version := old_version + 1;
     
     -- Update the setting
     UPDATE APPLICATION_SETTINGS
@@ -483,9 +483,9 @@ BEGIN
         PREVIOUS_VALUE = old_value,
         VERSION = new_version,
         CHANGED_BY = changed_by,
-        CHANGED_AT = CURRENT_TIMESTAMP(),
+        CHANGED_AT = CURRENT_TIMESTAMP,
         CHANGE_REASON = change_reason,
-        UPDATED_AT = CURRENT_TIMESTAMP()
+        UPDATED_AT = CURRENT_TIMESTAMP
     WHERE SETTING_ID = setting_id;
     
     -- Log the change in history
@@ -494,12 +494,12 @@ BEGIN
         OLD_VERSION, NEW_VERSION, CHANGED_BY, CHANGED_AT, CHANGE_REASON, CHANGE_SOURCE
     ) VALUES (
         setting_id || '_' || new_version, setting_id, 'UPDATE', old_value, new_value,
-        old_version, new_version, changed_by, CURRENT_TIMESTAMP(), change_reason, 'PROCEDURE'
+        old_version, new_version, changed_by, CURRENT_TIMESTAMP, change_reason, 'PROCEDURE'
     );
     
     RETURN 'Successfully updated setting: ' || setting_name || ' to version ' || new_version;
     
-EXCEPTION
+-- EXCEPTION
     WHEN OTHER THEN
         RETURN 'Error updating setting: ' || SQLERRM;
 END;
@@ -518,12 +518,12 @@ AS
 $$
 DECLARE
     deployment_id VARCHAR;
-    template_config VARIANT;
+    template_config TEXT;
     settings_count NUMBER DEFAULT 0;
 BEGIN
     
     -- Generate deployment ID
-    SET deployment_id = 'DEPLOY_' || template_id || '_' || target_environment || '_' || DATE_PART('epoch', CURRENT_TIMESTAMP());
+    SET deployment_id = 'DEPLOY_' || template_id || '_' || target_environment || '_' || DATE_PART('epoch', CURRENT_TIMESTAMP);
     
     -- Get template configuration
     SELECT CONFIGURATION_JSON
@@ -541,7 +541,7 @@ BEGIN
         TEMPLATE_USED, STATUS, STARTED_AT, INITIATED_BY, DEPLOYMENT_NOTES
     ) VALUES (
         deployment_id, 'Template Deployment: ' || template_id, target_environment, 'TEMPLATE',
-        template_id, 'IN_PROGRESS', CURRENT_TIMESTAMP(), deployed_by, deployment_notes
+        template_id, 'IN_PROGRESS', CURRENT_TIMESTAMP, deployed_by, deployment_notes
     );
     
     -- Deploy each setting from the template
@@ -552,25 +552,25 @@ BEGIN
     UPDATE CONFIGURATION_DEPLOYMENTS
     SET 
         STATUS = 'SUCCESS',
-        COMPLETED_AT = CURRENT_TIMESTAMP(),
-        DURATION_SECONDS = DATEDIFF('second', STARTED_AT, CURRENT_TIMESTAMP())
+        COMPLETED_AT = CURRENT_TIMESTAMP,
+        DURATION_SECONDS = DATEDIFF('second', STARTED_AT, CURRENT_TIMESTAMP)
     WHERE DEPLOYMENT_ID = deployment_id;
     
     -- Update template usage
     UPDATE CONFIGURATION_TEMPLATES
     SET 
         USAGE_COUNT = USAGE_COUNT + 1,
-        LAST_USED_AT = CURRENT_TIMESTAMP(),
+        LAST_USED_AT = CURRENT_TIMESTAMP,
         LAST_USED_BY = deployed_by
     WHERE TEMPLATE_ID = template_id;
     
     RETURN 'Successfully deployed template ' || template_id || ' to ' || target_environment || ' (Deployment: ' || deployment_id || ')';
     
-EXCEPTION
+-- EXCEPTION
     WHEN OTHER THEN
         -- Update deployment status to failed
         UPDATE CONFIGURATION_DEPLOYMENTS
-        SET STATUS = 'FAILED', COMPLETED_AT = CURRENT_TIMESTAMP()
+        SET STATUS = 'FAILED', COMPLETED_AT = CURRENT_TIMESTAMP
         WHERE DEPLOYMENT_ID = deployment_id;
         
         RETURN 'Error deploying template: ' || SQLERRM;
@@ -725,7 +725,7 @@ SELECT
     AVG(CASE WHEN RESULT_VALUE::BOOLEAN THEN 1 ELSE 0 END) AS enabled_rate
 FROM FEATURE_FLAG_EVALUATIONS ffe
 JOIN FEATURE_FLAGS ff ON ffe.FLAG_ID = ff.FLAG_ID
-WHERE EVALUATED_AT >= DATEADD('day', -7, CURRENT_TIMESTAMP())
+WHERE EVALUATED_AT >= DATEADD('day', -7, CURRENT_TIMESTAMP)
 GROUP BY FLAG_NAME
 ORDER BY evaluation_count DESC;
 */ 
