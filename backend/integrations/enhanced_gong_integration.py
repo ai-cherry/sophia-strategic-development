@@ -18,7 +18,7 @@ import json
 
 from ..core.auto_esc_config import get_config_value
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
-from .gong_api_client_enhanced import EnhancedGongAPIClient
+# EnhancedGongAPIClient is imported conditionally in __init__ method
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +108,17 @@ class EnhancedGongIntegration:
         try:
             # Get Gong API key from configuration
             gong_api_key = get_config_value("gong_access_key")
-            self.gong_client = EnhancedGongAPIClient(gong_api_key) if gong_api_key else None
+            if gong_api_key and gong_api_key != "None":
+                # Find the actual EnhancedGongAPIClient class and import it properly
+                try:
+                    from backend.integrations.gong_api_client_enhanced import EnhancedGongAPIClient
+                    self.gong_client = EnhancedGongAPIClient(gong_api_key)
+                except ImportError:
+                    logger.warning("EnhancedGongAPIClient not found - running in mock mode")
+                    self.gong_client = None
+            else:
+                logger.warning("Gong API key not available - running in mock mode")
+                self.gong_client = None
         except Exception as e:
             logger.warning(f"Gong client initialization failed: {e}")
             self.gong_client = None

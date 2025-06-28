@@ -140,3 +140,53 @@ def initialize_default_config():
 # Initialize defaults on import
 initialize_default_config()
 
+# Backward compatibility - create a config object that mimics the old interface
+class ConfigObject:
+    """Backward compatibility object for legacy config access patterns"""
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Dictionary-style get method for backward compatibility"""
+        return get_config_value(key, default)
+    
+    def __getitem__(self, key: str) -> Any:
+        """Dictionary-style access for backward compatibility"""
+        return get_config_value(key)
+    
+    def __getattr__(self, name):
+        return get_config_value(name)
+    
+    @property
+    def redis_url(self):
+        return get_config_value("redis_url", "redis://localhost:6379")
+    
+    @property
+    def gong_api_base_url(self):
+        return get_config_value("gong_api_base_url", "https://api.gong.io")
+    
+    @property
+    def hubspot_api_base_url(self):
+        return get_config_value("hubspot_api_base_url", "https://api.hubapi.com")
+    
+    @property
+    def slack_webhook_url(self):
+        return get_config_value("slack_webhook_url", "")
+    
+    @property
+    def linear_api_base_url(self):
+        return get_config_value("linear_api_base_url", "https://api.linear.app")
+    
+    @property
+    def github_webhook_url(self):
+        return get_config_value("github_webhook_url", "")
+    
+    @property
+    def costar_api_base_url(self):
+        return get_config_value("costar_api_base_url", "")
+    
+    @property
+    def apollo_api_base_url(self):
+        return get_config_value("apollo_api_base_url", "https://api.apollo.io")
+
+# Create backward compatibility config object
+config = ConfigObject()
+

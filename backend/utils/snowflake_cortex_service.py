@@ -25,7 +25,7 @@ from datetime import datetime
 import pandas as pd
 import snowflake.connector
 
-from backend.core.auto_esc_config import config
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -109,9 +109,9 @@ class SnowflakeCortexService:
         from backend.core.optimized_connection_manager import connection_manager
         self.connection_manager = connection_manager
         
-        self.database = config.get("snowflake_database", "SOPHIA_AI")
-        self.schema = config.get("snowflake_schema", "AI_PROCESSING")
-        self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
+        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
+        self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
+        self.warehouse = get_config_value("snowflake_warehouse", "COMPUTE_WH")
         self.initialized = False
 
         # Vector storage tables

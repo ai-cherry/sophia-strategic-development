@@ -5,6 +5,7 @@ Advanced RESTful endpoints with multimodal support and real-time analytics
 
 from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect, Header, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 import json
 import logging
@@ -30,6 +31,13 @@ async def get_advanced_estuary_flow_manager():
 async def get_portkey_gateway():
     """Get Portkey gateway instance - placeholder"""
     return None
+
+# Import service classes for type hints
+try:
+    from backend.services.enhanced_cortex_agent_service import EnhancedCortexAgentService
+except ImportError:
+    # Fallback for type hints
+    EnhancedCortexAgentService = Any
 
 # Model definitions for API
 class MultimodalFile(BaseModel):
