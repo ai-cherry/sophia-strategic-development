@@ -72,7 +72,7 @@ async def api_health_check() -> dict:
     """Simple API health check without external connectivity tests."""
     try:
         # Check if we can load basic configuration
-        from backend.core.auto_esc_config import get_config_value
+        from backend.core.simple_config import get_config_value
         
         # Test basic config loading
         try:
@@ -202,7 +202,7 @@ async def startup_event():
 
     try:
         # Basic configuration check
-        from backend.core.auto_esc_config import get_config_value
+        from backend.core.simple_config import get_config_value
         
         # Test basic config loading
         try:
