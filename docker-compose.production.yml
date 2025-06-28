@@ -1,312 +1,192 @@
-version: '3.8'
-
-# Sophia AI Production Deployment
-# Implements solutions from deployment guide:
-# - Dynamic port allocation
-# - Service discovery via Docker networking
-# - Container resource optimization
-# - ESC integration
-
 networks:
-  sophia-net:
+  sophia-network:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
-
+      - subnet: 172.20.0.0/16
 services:
-  # Enhanced Backend (Main API)
-  enhanced-backend:
+  ai-memory-mcp:
     build:
       context: .
-      dockerfile: Dockerfile.production
-    container_name: sophia-enhanced-backend
-    environment:
-      - PORT=8000
-      - HOST=0.0.0.0
-      - PULUMI_ORG=scoobyjava-org
-      - SERVICE_NAME=enhanced-backend
-      - ENVIRONMENT=production
-    ports:
-      - "8000:8000"
-    networks:
-      - sophia-net
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      dockerfile: mcp-servers/ai-memory/Dockerfile.production
     depends_on:
-      - redis
-      - prometheus
-
-  # SOTA Gateway (AI Model Routing)
-  sota-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
-    container_name: sophia-sota-gateway
+    - redis-cluster
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
     environment:
-      - PORT=8005
-      - HOST=0.0.0.0
-      - PULUMI_ORG=scoobyjava-org
-      - SERVICE_NAME=sota-gateway
-      - ENVIRONMENT=production
-    ports:
-      - "8005:8005"
-    networks:
-      - sophia-net
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
+    - MCP_SERVER_NAME=ai-memory
+    - MCP_SERVER_PORT=9000
+    - PULUMI_ORG=scoobyjava-org
+    - CONNECTION_POOL_SIZE=10
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
       interval: 30s
-      timeout: 10s
       retries: 3
-    depends_on:
-      - enhanced-backend
-
-  # AI Gateway (Intelligent Routing)
-  ai-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
-    container_name: sophia-ai-gateway
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9000/health
+      timeout: 10s
+    networks:
+    - sophia-network
+    ports:
+    - 9000:9000
+    restart: unless-stopped
+  grafana:
     environment:
-      - PORT=8003
-      - HOST=0.0.0.0
-      - PULUMI_ORG=scoobyjava-org
-      - SERVICE_NAME=ai-gateway
-      - ENVIRONMENT=production
-    ports:
-      - "8003:8003"
+    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    image: grafana/grafana:latest
     networks:
-      - sophia-net
-    volumes:
-      - ./logs:/app/logs
+    - sophia-network
+    ports:
+    - 3001:3000
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # MCP Gateway (Model Context Protocol)
+    volumes:
+    - grafana-data:/var/lib/grafana
+    - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
   mcp-gateway:
     build:
-      context: .
-      dockerfile: Dockerfile.mcp-gateway
-    container_name: sophia-mcp-gateway
+      context: ./infrastructure/mcp-gateway
+      dockerfile: Dockerfile.production
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
     environment:
-      - PORT=8090
-      - HOST=0.0.0.0
-      - PULUMI_ORG=scoobyjava-org
-      - SERVICE_NAME=mcp-gateway
-      - ENVIRONMENT=production
-    ports:
-      - "8090:8090"
-    networks:
-      - sophia-net
-    volumes:
-      - ./logs:/app/logs
-      - ./mcp-config:/app/config
-    restart: unless-stopped
+    - GATEWAY_ENVIRONMENT=production
+    - GATEWAY_PORT=8090
+    - METRICS_PORT=9090
+    - CIRCUIT_BREAKER_THRESHOLD=5
+    - RATE_LIMIT_RPM=1000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
       interval: 30s
-      timeout: 10s
       retries: 3
-
-  # Streamlit Dashboard
-  streamlit-dashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile.streamlit
-    container_name: sophia-streamlit-dashboard
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/health
+      timeout: 10s
+    networks:
+    - sophia-network
+    ports:
+    - 8090:8090
+    - 9090:9090
+    restart: unless-stopped
+    volumes:
+    - ./config/mcp-gateway-production.yaml:/app/config/gateway.yaml:ro
+    - mcp-logs:/app/logs
+  postgres-primary:
     environment:
-      - PORT=8501
-      - HOST=0.0.0.0
-      - BACKEND_URL=http://enhanced-backend:8000
-      - ENVIRONMENT=production
-    ports:
-      - "8501:8501"
-    networks:
-      - sophia-net
-    volumes:
-      - ./dashboard:/app/dashboard
-      - ./logs:/app/logs
-    restart: unless-stopped
+    - POSTGRES_DB=sophia_ai
+    - POSTGRES_USER=sophia
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_REPLICATION_USER=replicator
+    - POSTGRES_REPLICATION_PASSWORD=${POSTGRES_REPLICATION_PASSWORD}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
       interval: 30s
-      timeout: 10s
       retries: 3
-    depends_on:
-      - enhanced-backend
-
-  # Redis for caching and session management
-  redis:
-    image: redis:7-alpine
-    container_name: sophia-redis
-    ports:
-      - "6379:6379"
+      test:
+      - CMD-SHELL
+      - pg_isready -U sophia -d sophia_ai
+      timeout: 10s
+    image: postgres:15-alpine
     networks:
-      - sophia-net
-    volumes:
-      - redis_data:/data
+    - sophia-network
+    ports:
+    - 5432:5432
     restart: unless-stopped
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Prometheus for metrics collection
+    volumes:
+    - postgres-primary-data:/var/lib/postgresql/data
+    - ./config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
   prometheus:
-    image: prom/prometheus:latest
-    container_name: sophia-prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - sophia-net
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    restart: unless-stopped
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Grafana for visualization
-  grafana:
-    image: grafana/grafana:latest
-    container_name: sophia-grafana
-    ports:
-      - "3000:3000"
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    - --web.console.libraries=/etc/prometheus/console_libraries
+    - --web.console.templates=/etc/prometheus/consoles
+    image: prom/prometheus:latest
     networks:
-      - sophia-net
+    - sophia-network
+    ports:
+    - 9091:9090
+    restart: unless-stopped
     volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=sophia-ai-admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    restart: unless-stopped
-    depends_on:
-      - prometheus
-
-  # NGINX Load Balancer
-  nginx:
-    image: nginx:alpine
-    container_name: sophia-nginx
-    ports:
-      - "80:80"
-      - "443:443"
+    - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - prometheus-data:/prometheus
+  redis-cluster:
+    command: redis-server --appendonly yes --cluster-enabled yes
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      timeout: 10s
+    image: redis:7-alpine
     networks:
-      - sophia-net
+    - sophia-network
+    ports:
+    - 6379:6379
+    restart: unless-stopped
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/ssl:/etc/nginx/ssl
-      - ./logs/nginx:/var/log/nginx
-    restart: unless-stopped
+    - redis-data:/data
+  sophia-backend:
+    build:
+      args:
+        ENVIRONMENT: production
+      context: .
+      dockerfile: Dockerfile.production
     depends_on:
-      - enhanced-backend
-      - sota-gateway
-      - ai-gateway
-      - mcp-gateway
-      - streamlit-dashboard
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # MCP Servers (Containerized)
-  mcp-pulumi:
-    image: sophia-ai/mcp-pulumi:latest
-    container_name: sophia-mcp-pulumi
+    - redis-cluster
+    - postgres-primary
+    - mcp-gateway
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     environment:
-      - PORT=3001
-      - PULUMI_ORG=scoobyjava-org
-    ports:
-      - "3001:3001"
-    networks:
-      - sophia-net
-    restart: unless-stopped
+    - SOPHIA_ENVIRONMENT=production
+    - SOPHIA_HOST=0.0.0.0
+    - SOPHIA_PORT=8000
+    - PULUMI_ORG=scoobyjava-org
+    - CONNECTION_POOL_SIZE=25
+    - REDIS_POOL_SIZE=15
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
-      timeout: 10s
       retries: 3
-
-  mcp-github:
-    image: sophia-ai/mcp-github:latest
-    container_name: sophia-mcp-github
-    environment:
-      - PORT=3002
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-    ports:
-      - "3002:3002"
+      start_period: 60s
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/api/health
+      timeout: 10s
     networks:
-      - sophia-net
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  mcp-slack:
-    image: sophia-ai/mcp-slack:latest
-    container_name: sophia-mcp-slack
-    environment:
-      - PORT=3004
-      - SLACK_TOKEN=${SLACK_TOKEN}
+    - sophia-network
     ports:
-      - "3004:3004"
-    networks:
-      - sophia-net
+    - 8000:8000
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
+    volumes:
+    - sophia-logs:/app/logs
+    - sophia-cache:/app/cache
+version: '3.8'
 volumes:
-  redis_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  grafana_data:
-    driver: local
-  sophia_logs:
-    driver: local
-
-# Health check script for the entire stack
-x-healthcheck-script: &healthcheck-script
-  test: |
-    curl -f http://enhanced-backend:8000/health &&
-    curl -f http://sota-gateway:8005/health &&
-    curl -f http://ai-gateway:8003/health &&
-    curl -f http://mcp-gateway:8090/health &&
-    curl -f http://streamlit-dashboard:8501/_stcore/health
-  interval: 60s
-  timeout: 30s
-  retries: 3 
+  grafana-data: null
+  mcp-logs: null
+  postgres-primary-data: null
+  prometheus-data: null
+  redis-data: null
+  sophia-cache: null
+  sophia-logs: null

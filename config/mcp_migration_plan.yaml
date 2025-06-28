@@ -1,0 +1,13 @@
+migration_plan:
+  changes_required:
+  - Import unified_connection_manager
+  - Replace direct database connections
+  - Add standardized health checks
+  - Implement circuit breaker pattern
+  description: Update MCP servers to use unified connection manager
+  phase: '1'
+  servers_to_update:
+  - ai_memory_mcp_server
+  - codacy_mcp_server
+  - linear_mcp_server
+  - slack_mcp_server

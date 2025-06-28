@@ -1,0 +1,53 @@
+deployment:
+  connection_pools:
+    postgres:
+      connection_timeout: 20
+      health_check_interval: 45
+      idle_timeout: 400
+      max_connections: 10
+      min_connections: 2
+    redis:
+      connection_timeout: 10
+      health_check_interval: 30
+      idle_timeout: 300
+      max_connections: 15
+      min_connections: 3
+    snowflake:
+      circuit_breaker:
+        failure_threshold: 5
+        recovery_timeout: 60
+      connection_timeout: 30
+      health_check_interval: 60
+      idle_timeout: 600
+      max_connections: 25
+      min_connections: 5
+  environment: production
+  mcp_servers:
+    ai_memory:
+      health_check:
+        interval: 30
+        retries: 3
+        timeout: 10
+      port: 9000
+      replicas: 2
+    codacy:
+      endpoint: http://codacy-service:3008
+      external: true
+      port: 3008
+      replicas: 1
+    snowflake_admin:
+      health_check:
+        interval: 30
+        retries: 3
+        timeout: 10
+      port: 8080
+      replicas: 2
+  monitoring:
+    health_checks:
+      interval: 30
+      retries: 3
+      timeout: 10
+    prometheus:
+      enabled: true
+      port: 9090
+      scrape_interval: 15s
