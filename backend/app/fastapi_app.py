@@ -18,6 +18,7 @@ from backend.api.notion_integration_routes import router as notion_router
 from backend.api.codacy_integration_routes import router as codacy_router
 from backend.api.universal_chat_routes import router as chat_router
 from backend.api.enhanced_ceo_chat_routes import router as ceo_chat_router
+from backend.api.simplified_llm_routes import router as simplified_llm_router
 
 # Import enhanced configuration validation
 from backend.core.config_validator import validate_deployment_readiness
@@ -55,6 +56,7 @@ app.include_router(notion_router)
 app.include_router(codacy_router)
 app.include_router(chat_router)
 app.include_router(ceo_chat_router)
+app.include_router(simplified_llm_router)
 
 
 @app.get("/", tags=["health"])
