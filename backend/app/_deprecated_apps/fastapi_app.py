@@ -138,7 +138,6 @@ app.include_router(unified_intelligence_routes.router, tags=["Unified Intelligen
 def run_server():
     """Run the server with proper configuration"""
     uvicorn.run(
-        "backend.app.fastapi_app:app",
         host="0.0.0.0",
         port=8000,
         reload=True,

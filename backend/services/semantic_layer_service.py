@@ -20,8 +20,8 @@ class SemanticLayerService:
         """Initializes the service and the connection to Snowflake."""
         self.snowflake_service = EnhancedSnowflakeCortexService()
 
+    @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):
-    @performance_monitor.track_performance
         """Gets a snowflake connection."""
         return await self.snowflake_service.get_connection()
 
@@ -41,8 +41,8 @@ class SemanticLayerService:
         finally:
             conn.close()
 
+    @performance_monitor.monitor_performance("semantic_execute_query")
     async def _execute_query(self, query: str, params: Optional[List[Any]] = None) -> List[Dict[str, Any]]:
-    @performance_monitor.track_performance
         """Executes a SQL query and returns the results as a list of dicts."""
         conn = await self._get_connection()
         try:

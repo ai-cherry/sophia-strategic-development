@@ -52,20 +52,18 @@ from backend.core.performance_monitor import performance_monitor
 
 # Try to import optional dependencies
 try:
-    import snowflake.connector.aio
-    SNOWFLAKE_ASYNC_AVAILABLE = True
+    import snowflake.connector
+    SNOWFLAKE_AVAILABLE = True
 except ImportError:
-    SNOWFLAKE_ASYNC_AVAILABLE = False
-    # Create placeholder for snowflake.connector.aio
+    SNOWFLAKE_AVAILABLE = False
+    # Create placeholder for snowflake.connector
     class MockSnowflakeConnector:
         @staticmethod
-        async def connect(**kwargs):
-            raise NotImplementedError("Snowflake async connector not available")
+        def connect(**kwargs):
+            raise NotImplementedError("Snowflake connector not available")
     
     snowflake = type('snowflake', (), {
-        'connector': type('connector', (), {
-            'aio': MockSnowflakeConnector()
-        })()
+        'connector': MockSnowflakeConnector()
     })()
 
 try:
@@ -247,16 +245,20 @@ class OptimizedConnectionPool:
     
     async def _create_snowflake_connection(self):
         """Create Snowflake connection"""
-        return await snowflake.connector.aio.connect_async(
-            account=get_config_value("snowflake_account"),
-            user=get_config_value("snowflake_user"),
-            password=get_config_value("snowflake_password"),
-            warehouse=get_config_value("snowflake_warehouse"),
-            database=get_config_value("snowflake_database"),
-            schema=get_config_value("snowflake_schema", "PUBLIC"),
-            role=get_config_value("snowflake_role", "SYSADMIN"),
-            timeout=self.connection_timeout
-        )
+        # Use asyncio.to_thread to run synchronous connector in thread pool
+        def _sync_connect():
+            return snowflake.connector.connect(
+                account=get_config_value("snowflake_account"),
+                user=get_config_value("snowflake_user"),
+                password=get_config_value("snowflake_password"),
+                warehouse=get_config_value("snowflake_warehouse"),
+                database=get_config_value("snowflake_database"),
+                schema=get_config_value("snowflake_schema", "PUBLIC"),
+                role=get_config_value("snowflake_role", "SYSADMIN"),
+                timeout=self.connection_timeout
+            )
+        
+        return await asyncio.to_thread(_sync_connect)
     
     async def _create_postgres_connection(self):
         """Create PostgreSQL connection"""
@@ -352,10 +354,13 @@ class OptimizedConnectionPool:
         """Check if connection is healthy"""
         try:
             if self.connection_type == ConnectionType.SNOWFLAKE:
-                cursor = connection.cursor()
-                await cursor.execute_async("SELECT 1")
-                await cursor.close()
-                return True
+                def _sync_health_check():
+                    cursor = connection.cursor()
+                    cursor.execute("SELECT 1")
+                    cursor.close()
+                    return True
+                
+                return await asyncio.to_thread(_sync_health_check)
             elif self.connection_type == ConnectionType.POSTGRES:
                 await connection.execute("SELECT 1")
                 return True
@@ -370,7 +375,10 @@ class OptimizedConnectionPool:
         """Close database connection"""
         try:
             if self.connection_type == ConnectionType.SNOWFLAKE:
-                await connection.close_async()
+                def _sync_close():
+                    connection.close()
+                
+                await asyncio.to_thread(_sync_close)
             elif self.connection_type == ConnectionType.POSTGRES:
                 await connection.close()
             elif self.connection_type == ConnectionType.REDIS:
@@ -544,13 +552,17 @@ class OptimizedConnectionManager:
         async with pool.get_connection() as connection:
             try:
                 if connection_type == ConnectionType.SNOWFLAKE:
-                    cursor = connection.cursor()
-                    if params:
-                        await cursor.execute_async(query, params)
-                    else:
-                        await cursor.execute_async(query)
-                    result = await cursor.fetchall()
-                    await cursor.close()
+                    def _sync_execute():
+                        cursor = connection.cursor()
+                        if params:
+                            cursor.execute(query, params)
+                        else:
+                            cursor.execute(query)
+                        result = cursor.fetchall()
+                        cursor.close()
+                        return result
+                    
+                    result = await asyncio.to_thread(_sync_execute)
                 elif connection_type == ConnectionType.POSTGRES:
                     if params:
                         result = await connection.fetch(query, *params)
@@ -612,13 +624,17 @@ class OptimizedConnectionManager:
                     
                     try:
                         if connection_type == ConnectionType.SNOWFLAKE:
-                            cursor = connection.cursor()
-                            if batch_query.params:
-                                await cursor.execute_async(batch_query.query, batch_query.params)
-                            else:
-                                await cursor.execute_async(batch_query.query)
-                            result = await cursor.fetchall()
-                            await cursor.close()
+                            def _sync_batch_execute():
+                                cursor = connection.cursor()
+                                if batch_query.params:
+                                    cursor.execute(batch_query.query, batch_query.params)
+                                else:
+                                    cursor.execute(batch_query.query)
+                                result = cursor.fetchall()
+                                cursor.close()
+                                return result
+                            
+                            result = await asyncio.to_thread(_sync_batch_execute)
                         elif connection_type == ConnectionType.POSTGRES:
                             if batch_query.params:
                                 result = await connection.fetch(batch_query.query, *batch_query.params)

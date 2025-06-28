@@ -342,7 +342,6 @@ async def get_chat_capabilities(request: Request):
             
             print(f"\n💾 Backup created at: {self.backup_dir}")
             print("\n🔄 Next steps:")
-            print("  1. Test the application: python -m backend.app.fastapi_app")
             print("  2. Verify no deprecation warnings appear")
             print("  3. Test all API endpoints work correctly")
             print("  4. If successful, remove backup directory")

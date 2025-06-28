@@ -1,3 +1,4 @@
+from typing import Any
 """
 Snowflake Cortex API Routes for Sophia AI
 RESTful endpoints and WebSocket support for Cortex agents
@@ -60,7 +61,7 @@ async def list_agents(
 async def get_agent_details(
     agent_name: str,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """Get detailed information about a specific agent"""
     try:
         agents = await cortex_service.list_agents()
@@ -86,7 +87,7 @@ async def invoke_agent(
     request: AgentRequest,
     jwt_token: Optional[str] = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Invoke a Cortex agent with optional JWT authentication
     
@@ -138,10 +139,10 @@ async def invoke_agent(
 async def execute_agent_tool(
     agent_name: str,
     tool_name: str,
-    parameters: Dict[str, any],
+    parameters: Dict[str, Any],
     jwt_token: Optional[str] = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Execute a specific tool for an agent
     
@@ -268,7 +269,7 @@ async def generate_agent_token(
 @router.get("/health")
 async def cortex_health_check(
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """Check health of Cortex agent service"""
     try:
         # Check if we can list agents
@@ -299,7 +300,7 @@ async def analyze_gong_call(
     call_id: str,
     analysis_type: str = "summary",
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Analyze a Gong call using the business intelligence agent
     
@@ -349,9 +350,9 @@ async def analyze_gong_call(
 async def search_knowledge_base(
     query: str,
     limit: int = 10,
-    filters: Optional[Dict[str, any]] = None,
+    filters: Optional[Dict[str, Any]] = None,
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Search the knowledge base using semantic memory agent
     
@@ -394,7 +395,7 @@ async def optimize_sql_query(
     query: str,
     warehouse: str = "COMPUTE_WH",
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service)
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Optimize a SQL query using the Snowflake operations agent
     

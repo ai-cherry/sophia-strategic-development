@@ -31,9 +31,10 @@ class VectorIndexingService:
         self.semantic_service = SemanticLayerService()
         gong_api_key = get_config_value("gong_access_key")
         if not gong_api_key:
-            logger.error("Gong API key not configured.")
-            raise ValueError("Gong API key is required.")
-        self.gong_client = GongAPIClient(api_key=gong_api_key)
+            logger.warning("Gong API key not configured. Gong integration will be disabled.")
+            self.gong_client = None
+        else:
+            self.gong_client = GongAPIClient(api_key=gong_api_key)
         
     async def _create_cortex_search_index(self, config: Dict[str, Any]) -> None:
         """Creates a Snowflake Cortex Search index."""

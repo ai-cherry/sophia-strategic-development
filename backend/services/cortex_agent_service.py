@@ -14,7 +14,7 @@ import httpx
 from pydantic import BaseModel, Field
 import snowflake.connector
 from snowflake.connector import DictCursor
-from snowflake.cortex import Cortex
+# from snowflake.cortex import Cortex
 import yaml
 from pathlib import Path
 

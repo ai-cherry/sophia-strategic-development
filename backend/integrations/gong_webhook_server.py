@@ -24,7 +24,8 @@ from fastapi import (
     status,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, BaseSettings
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 from prometheus_client import Counter, Histogram, Gauge, generate_latest
 
 from backend.integrations.gong_webhook_processor import WebhookProcessor

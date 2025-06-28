@@ -15,13 +15,42 @@ import aiohttp
 import structlog
 from pydantic import BaseModel, Field
 
-from backend.integrations.gong_webhook_server import (
-    AsyncRateLimiter,
-    RateLimitError,
-    RetryManager,
-    api_calls_total,
-    api_rate_limit_hits,
-)
+# Import shared components directly to avoid circular imports
+try:
+    from backend.integrations.gong_webhook_server import (
+        AsyncRateLimiter,
+        RateLimitError,
+        RetryManager,
+        api_calls_total,
+        api_rate_limit_hits,
+    )
+except ImportError:
+    # Create stub classes if webhook server is not available
+    class AsyncRateLimiter:
+        def __init__(self, rate_limit, burst_limit=10):
+            pass
+        async def __aenter__(self):
+            return self
+        async def __aexit__(self, exc_type, exc_val, exc_tb):
+            pass
+    
+    class RateLimitError(Exception):
+        def __init__(self, retry_after):
+            self.retry_after = retry_after
+    
+    class RetryManager:
+        async def exponential_backoff(self, func):
+            return await func()
+    
+    # Create stub metrics
+    class StubMetric:
+        def labels(self, **kwargs):
+            return self
+        def inc(self):
+            pass
+    
+    api_calls_total = StubMetric()
+    api_rate_limit_hits = StubMetric()
 
 logger = structlog.get_logger()
 

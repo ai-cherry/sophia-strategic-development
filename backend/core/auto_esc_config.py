@@ -1,21 +1,84 @@
 """
 Auto ESC Configuration Module for Sophia AI
-Handles environment variable and configuration management
+Handles environment variable and configuration management with Pulumi ESC integration
 """
 
 import os
 import json
 import logging
+import subprocess
 from typing import Any, Optional, Dict
 
 logger = logging.getLogger(__name__)
 
 # Configuration cache
 _config_cache: Dict[str, Any] = {}
+_esc_cache: Optional[Dict[str, Any]] = None
+
+def _load_esc_environment() -> Dict[str, Any]:
+    """
+    Load configuration from Pulumi ESC environment
+    
+    Returns:
+        ESC environment configuration
+    """
+    global _esc_cache
+    
+    if _esc_cache is not None:
+        return _esc_cache
+    
+    try:
+        # Get the ESC environment using pulumi env get
+        result = subprocess.run(
+            ['pulumi', 'env', 'get', 'default/sophia-ai-production'],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode == 0:
+            # Parse the output to extract the values
+            output_lines = result.stdout.strip().split('\n')
+            esc_data = {}
+            
+            for line in output_lines:
+                if ':' in line and not line.strip().startswith('#'):
+                    # Parse key-value pairs
+                    if '[secret]' in line:
+                        # This is a secret, we'll need to get it differently
+                        key = line.split(':')[0].strip()
+                        esc_data[key] = '[secret]'
+                    elif 'data_infrastructure:' in line:
+                        # Skip structural lines
+                        continue
+                    else:
+                        try:
+                            parts = line.split(':', 1)
+                            if len(parts) == 2:
+                                key = parts[0].strip()
+                                value = parts[1].strip()
+                                esc_data[key] = value
+                        except:
+                            continue
+            
+            _esc_cache = esc_data
+            logger.info(f"Loaded {len(esc_data)} configuration items from Pulumi ESC")
+            return esc_data
+            
+    except subprocess.TimeoutExpired:
+        logger.warning("Timeout loading Pulumi ESC environment")
+    except FileNotFoundError:
+        logger.warning("Pulumi CLI not found, using fallback configuration")
+    except Exception as e:
+        logger.warning(f"Failed to load Pulumi ESC environment: {e}")
+    
+    # Fallback to empty dict
+    _esc_cache = {}
+    return _esc_cache
 
 def get_config_value(key: str, default: Any = None) -> Any:
     """
-    Get configuration value from environment variables or cache
+    Get configuration value from Pulumi ESC, environment variables, or cache
     
     Args:
         key: Configuration key
@@ -28,7 +91,7 @@ def get_config_value(key: str, default: Any = None) -> Any:
     if key in _config_cache:
         return _config_cache[key]
     
-    # Check environment variables
+    # Check environment variables first (highest priority)
     env_value = os.getenv(key.upper())
     if env_value is not None:
         _config_cache[key] = env_value
@@ -39,6 +102,47 @@ def get_config_value(key: str, default: Any = None) -> Any:
     if env_value is not None:
         _config_cache[key] = env_value
         return env_value
+    
+    # Try to load from Pulumi ESC
+    esc_data = _load_esc_environment()
+    
+    # Map common key variations for Pulumi ESC
+    esc_key_mappings = {
+        'snowflake_account': 'snowflake_account',
+        'snowflake_user': 'snowflake_user', 
+        'snowflake_password': 'snowflake_password',  # Use the new SNOWFLAKE_PASSWORD secret
+        'snowflake_role': 'snowflake_role',
+        'snowflake_warehouse': 'snowflake_warehouse_dev',
+        'snowflake_database': 'snowflake_database',
+        'snowflake_schema': 'snowflake_schema',
+        'gong_access_key': 'gong_access_key',
+        'openai_api_key': 'openai_api_key',
+        'anthropic_api_key': 'anthropic_api_key',
+        'pinecone_api_key': 'pinecone_api_key',
+    }
+    
+    # Try to get from ESC using mapped key
+    esc_key = esc_key_mappings.get(key, key)
+    if esc_key in esc_data and esc_data[esc_key] != '[secret]':
+        _config_cache[key] = esc_data[esc_key]
+        return esc_data[esc_key]
+    
+    # For secrets, try to get them via pulumi env run
+    if esc_key in esc_data and esc_data[esc_key] == '[secret]':
+        try:
+            # Try to get secret value via environment variable in ESC context
+            result = subprocess.run(
+                ['pulumi', 'env', 'run', 'default/sophia-ai-production', '--', 'bash', '-c', f'echo ${esc_key.upper()}'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                secret_value = result.stdout.strip()
+                _config_cache[key] = secret_value
+                return secret_value
+        except Exception as e:
+            logger.debug(f"Failed to get secret {esc_key}: {e}")
     
     # Return default
     _config_cache[key] = default
@@ -56,15 +160,15 @@ def set_config_value(key: str, value: Any) -> None:
 
 def get_snowflake_config() -> Dict[str, Any]:
     """
-    Get Snowflake configuration
+    Get Snowflake configuration from Pulumi ESC
     
     Returns:
         Snowflake configuration dictionary
     """
     return {
         'account': get_config_value('snowflake_account', 'UHDECNO-CVB64222'),
-        'user': get_config_value('snowflake_user', 'MUSILLYNN'),
-        'password': get_config_value('snowflake_password'),
+        'user': get_config_value('snowflake_user', 'SCOOBYJAVA15'),
+        'password': get_config_value('snowflake_password'),  # Will load PAT from ESC
         'role': get_config_value('snowflake_role', 'ACCOUNTADMIN'),
         'warehouse': get_config_value('snowflake_warehouse', 'AI_COMPUTE_WH'),
         'database': get_config_value('snowflake_database', 'SOPHIA_AI_ADVANCED'),
@@ -117,25 +221,41 @@ def get_integration_config() -> Dict[str, Any]:
 def initialize_default_config():
     """Initialize default configuration values"""
     
-    # Snowflake defaults with correct PAT configuration
-    set_config_value('snowflake_account', 'UHDECNO-CVB64222')
-    set_config_value('snowflake_user', 'SCOOBYJAVA15')
-    set_config_value('snowflake_password', 'eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A')
-    set_config_value('snowflake_role', 'ACCOUNTADMIN')
-    set_config_value('snowflake_warehouse', 'AI_COMPUTE_WH')
-    set_config_value('snowflake_database', 'SOPHIA_AI_ADVANCED')
-    set_config_value('snowflake_schema', 'PROCESSED_AI')
+    # Try to load from Pulumi ESC first
+    logger.info("Loading configuration from Pulumi ESC...")
+    
+    # Load ESC environment to populate cache
+    _load_esc_environment()
+    
+    # Set fallback defaults only if not available from ESC
+    if not get_config_value('snowflake_account'):
+        set_config_value('snowflake_account', 'UHDECNO-CVB64222')
+    if not get_config_value('snowflake_user'):
+        set_config_value('snowflake_user', 'SCOOBYJAVA15')
+    if not get_config_value('snowflake_role'):
+        set_config_value('snowflake_role', 'ACCOUNTADMIN')
+    if not get_config_value('snowflake_warehouse'):
+        set_config_value('snowflake_warehouse', 'AI_COMPUTE_WH')
+    if not get_config_value('snowflake_database'):
+        set_config_value('snowflake_database', 'SOPHIA_AI_ADVANCED')
+    if not get_config_value('snowflake_schema'):
+        set_config_value('snowflake_schema', 'PROCESSED_AI')
     
     # Estuary defaults
-    set_config_value('estuary_tenant', 'Pay_Ready')
-    set_config_value('estuary_endpoint', 'https://api.estuary.dev')
+    if not get_config_value('estuary_tenant'):
+        set_config_value('estuary_tenant', 'Pay_Ready')
+    if not get_config_value('estuary_endpoint'):
+        set_config_value('estuary_endpoint', 'https://api.estuary.dev')
     
     # JWT defaults
-    set_config_value('jwt_secret', 'sophia-ai-cortex-secret-key-2025')
-    set_config_value('jwt_algorithm', 'HS256')
-    set_config_value('jwt_expiration_hours', '24')
+    if not get_config_value('jwt_secret'):
+        set_config_value('jwt_secret', 'sophia-ai-cortex-secret-key-2025')
+    if not get_config_value('jwt_algorithm'):
+        set_config_value('jwt_algorithm', 'HS256')
+    if not get_config_value('jwt_expiration_hours'):
+        set_config_value('jwt_expiration_hours', '24')
     
-    logger.info("Default configuration initialized with PAT authentication")
+    logger.info("Configuration initialized with Pulumi ESC integration")
 
 # Initialize defaults on import
 initialize_default_config()

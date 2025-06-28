@@ -1,3 +1,11 @@
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "patches"))
+import snowflake_test_util_fix
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "patches"))
+import snowflake_test_util_fix  # Patch for snowflake.connector.test_util
 """
 Sophia AI FastAPI Application
 

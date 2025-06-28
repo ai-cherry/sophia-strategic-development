@@ -242,7 +242,6 @@ if __name__ == "__main__":
         print("   - View system status at http://localhost:8000/api/v1/status")
 
         print("\\n4. 🔧 **Advanced Features:**")
-        print("   - Deploy full backend: python -m backend.app.fastapi_app")
         print(
             "   - Scale MCP servers: docker-compose -f docker-compose.mcp-gateway.yml up"
         )

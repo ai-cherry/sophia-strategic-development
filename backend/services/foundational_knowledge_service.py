@@ -1,3 +1,4 @@
+from backend.services.knowledge_service import KnowledgeService
 """
 Foundational Knowledge Service
 Manages Pay Ready's foundational business information and integrates it with the existing knowledge base

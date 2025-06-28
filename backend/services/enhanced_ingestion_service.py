@@ -120,12 +120,14 @@ class EnhancedIngestionService:
             FileType.PPTX, FileType.PPT, FileType.MD, FileType.RTF
         }
 
+    @performance_monitor.monitor_performance("ingestion_connect")
     async def connect(self):
-    @performance_monitor.track_performance
-    @performance_monitor.track_performance
         """Connect to Snowflake"""
         try:
-            self.connection = await connection_manager.get_connection()
+            # Initialize connection manager if needed
+            if not connection_manager.initialized:
+                await connection_manager.initialize()
+            self.connection = connection_manager
             logger.info("✅ Enhanced Ingestion Service connected to Snowflake")
         except Exception as e:
             logger.error(f"❌ Enhanced Ingestion Service connection failed: {e}")
@@ -133,17 +135,14 @@ class EnhancedIngestionService:
 
     async def disconnect(self):
         """Disconnect from Snowflake"""
-        if self.connection:
-            self.connection.close()
+        # Connection manager handles cleanup automatically
+        self.connection = None
 
     async def execute_query(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
         """Execute Snowflake query"""
         try:
-            cursor = self.connection.cursor(DictCursor)
-            await cursor.execute(query, params or ())
-            results = await cursor.fetchall()
-            cursor.close()
-            return results
+            result = await self.connection.execute_query(query, params)
+            return result
         except Exception as e:
             logger.error(f"Query execution failed: {e}")
             raise

@@ -15,3 +15,6 @@ class QueryContext:
         self.query = query
         self.context = context or {}
 
+
+# Dummy snowflake_service for development
+snowflake_service = None

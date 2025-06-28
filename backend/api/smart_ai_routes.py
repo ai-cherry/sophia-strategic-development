@@ -572,15 +572,4 @@ async def get_ceo_dashboard_summary():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Error handling
-@router.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions"""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.detail,
-            "status_code": exc.status_code,
-            "timestamp": datetime.now().isoformat()
-        }
-    ) 
+# Error handling - Note: Exception handlers should be added to the FastAPI app, not router 
