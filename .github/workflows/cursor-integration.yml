@@ -45,7 +45,7 @@ jobs:
     
     - name: 📦 Install Dependencies
       run: |
-        pip install -r requirements.txt
+        uv sync
         pip install pylint black isort mypy pytest-cov
     
     - name: 🔍 AI-Enhanced Code Analysis

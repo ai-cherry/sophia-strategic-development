@@ -4,7 +4,7 @@ services:
   snowflake-admin-mcp:
     build:
       context: ./mcp-servers/snowflake_admin
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: sophia-snowflake-admin-mcp
     ports:
       - "8085:8085"

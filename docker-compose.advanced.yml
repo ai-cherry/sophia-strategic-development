@@ -24,7 +24,7 @@ services:
   advanced-backend:
     build:
       context: .
-      dockerfile: Dockerfile.advanced
+      dockerfile: Dockerfile.uv.advanced
     container_name: sophia-advanced-backend
     environment:
       - PORT=8000
@@ -66,7 +66,7 @@ services:
   sota-gateway-advanced:
     build:
       context: .
-      dockerfile: Dockerfile.advanced
+      dockerfile: Dockerfile.uv.advanced
     container_name: sophia-sota-gateway-advanced
     environment:
       - PORT=8005
@@ -105,7 +105,7 @@ services:
   ai-gateway-advanced:
     build:
       context: .
-      dockerfile: Dockerfile.advanced
+      dockerfile: Dockerfile.uv.advanced
     container_name: sophia-ai-gateway-advanced
     environment:
       - PORT=8003
@@ -141,7 +141,7 @@ services:
   mcp-gateway-advanced:
     build:
       context: .
-      dockerfile: Dockerfile.mcp-advanced
+      dockerfile: Dockerfile.uv.mcp-advanced
     container_name: sophia-mcp-gateway-advanced
     environment:
       - PORT=8090
@@ -179,7 +179,7 @@ services:
   streamlit-dashboard-advanced:
     build:
       context: .
-      dockerfile: Dockerfile.streamlit-advanced
+      dockerfile: Dockerfile.uv.streamlit-advanced
     container_name: sophia-streamlit-dashboard-advanced
     environment:
       - PORT=8501
@@ -341,7 +341,7 @@ services:
   performance-validator:
     build:
       context: .
-      dockerfile: Dockerfile.performance-validator
+      dockerfile: Dockerfile.uv.performance-validator
     container_name: sophia-performance-validator
     environment:
       - TARGET_SERVICES=advanced-backend:8000,sota-gateway-advanced:8005,ai-gateway-advanced:8003,mcp-gateway-advanced:8090

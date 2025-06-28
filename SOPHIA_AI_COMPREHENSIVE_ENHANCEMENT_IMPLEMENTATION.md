@@ -43,11 +43,11 @@ cd /Users/lynnmusil/sophia-main
 python scripts/type_safety_audit.py
 
 # Step 2: Add automated type annotations
-pip install astor
+uv add astor
 python scripts/add_type_annotations.py
 
 # Step 3: Run mypy for validation
-pip install mypy
+uv add mypy
 mypy backend/ --config-file mypy.ini
 ```
 
@@ -217,7 +217,7 @@ mypy backend/ --config-file mypy.ini
 
 1. **Install Required Dependencies**:
    ```bash
-   pip install mypy astor pytest pytest-cov hypothesis
+   uv add mypy astor pytest pytest-cov hypothesis
    ```
 
 2. **Run Type Improvements**:

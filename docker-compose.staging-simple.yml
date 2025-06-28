@@ -33,7 +33,7 @@ services:
   sophia-backend-staging:
     build:
       context: .
-      dockerfile: Dockerfile.staging
+      dockerfile: Dockerfile.uv.staging
     container_name: sophia-backend-staging
     depends_on:
     - redis-staging

@@ -24,7 +24,7 @@ jobs:
       - name: Install Sophia AI Dependencies
         run: |
           pip install -r infrastructure/requirements.txt
-          pip install pulumi pulumi-esc
+          uv add pulumi pulumi-esc
       - name: Configure Sophia AI Pulumi ESC
         uses: pulumi/esc-action@v1
         with:

@@ -325,9 +325,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r backend/requirements.txt
-          pip install -r requirements-dev.txt
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+          uv sync
+          uv sync --group dev
 
       - name: Configure Pulumi ESC
         run: |
@@ -507,7 +508,7 @@ jobs:
       - name: Install Pulumi dependencies
         working-directory: infrastructure
         run: |
-          pip install -r requirements.txt
+          uv sync
 
       - name: Configure Pulumi ESC
         env:
@@ -645,8 +646,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv sync
+          uv sync --group dev
 
       - name: Run smoke tests
         env:

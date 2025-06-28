@@ -1,4 +1,10 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,10 +16,10 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements
-COPY requirements.txt .
+COPY pyproject.toml uv.lock ./
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv sync --frozen --no-cache
 
 # Copy source code
 COPY . .

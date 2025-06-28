@@ -9,6 +9,6 @@ if [ ! -f requirements.txt ]; then
   exit 1
 fi
 
-pip install -r requirements.txt
+uv sync
 
 echo "Dependencies installed."

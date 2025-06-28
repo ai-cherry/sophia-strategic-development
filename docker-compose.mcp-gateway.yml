@@ -3,7 +3,7 @@ services:
   sophia-backend:
     build:
       context: .
-      dockerfile: Dockerfile.containerized
+      dockerfile: Dockerfile.uv.containerized
     ports:
       - "8000:8000"
     environment:
@@ -123,7 +123,7 @@ services:
   asana-mcp:
     build:
       context: ./mcp-servers/asana
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     environment:
       - ASANA_ACCESS_TOKEN=${ASANA_ACCESS_TOKEN}
       - ASANA_WORKSPACE_GID=${ASANA_WORKSPACE_GID}
@@ -138,7 +138,7 @@ services:
   notion-mcp:
     build:
       context: ./mcp-servers/notion
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     environment:
       - NOTION_ACCESS_TOKEN=${NOTION_ACCESS_TOKEN}
       - MCP_TRANSPORT=sse
@@ -153,7 +153,7 @@ services:
   codacy-mcp:
     build:
       context: ./mcp-servers/codacy
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     environment:
       - CODACY_ACCOUNT_TOKEN=${CODACY_ACCOUNT_TOKEN}
       - CODACY_PROJECT_TOKEN=${CODACY_PROJECT_TOKEN}

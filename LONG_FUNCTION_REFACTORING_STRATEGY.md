@@ -220,7 +220,7 @@ def _create_enrichment_procedures(self) -> None:
 ### 1. Static Analysis
 ```bash
 # Install tools
-pip install lizard radon
+uv add lizard radon
 
 # Analyze current state
 lizard . --CCN 15 --length 50 --output_file complexity_report.txt

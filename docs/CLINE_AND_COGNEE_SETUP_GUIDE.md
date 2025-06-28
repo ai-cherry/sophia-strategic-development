@@ -39,7 +39,7 @@ This creates a unified environment where you can ask deep, contextual questions 
 ## 2. Prerequisites
 
 -   You have **VSCode** installed.
--   You have `git` and `uv` (a Python package installer) installed. `pip install uv`.
+-   You have `git` and `uv` (a Python package installer) installed. `uv add uv`.
 -   You have a Python project with virtual environment (`.venv`) set up.
 
 ---

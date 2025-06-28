@@ -1,0 +1,757 @@
+name: Deploy Sophia AI Platform
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'infrastructure/**'
+      - 'kubernetes/**'
+      - 'docker-compose*.yml'
+      - 'Dockerfile*'
+      - '.github/workflows/deploy-sophia-platform.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options: ['dev', 'staging', 'prod']
+      force_deploy:
+        description: 'Force deployment even if no changes detected'
+        required: false
+        default: false
+        type: boolean
+      skip_tests:
+        description: 'Skip test suite (emergency deployments only)'
+        required: false
+        default: false
+        type: boolean
+      deploy_frontend_only:
+        description: 'Deploy only frontend to Vercel'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PULUMI_ORG: scoobyjava-org
+  PULUMI_STACK_PREFIX: sophia-ai-platform
+  DOCKER_REGISTRY: registry.digitalocean.com/sophia-ai
+  KUBERNETES_NAMESPACE: sophia-ai
+
+# OIDC permissions for GitHub Actions
+permissions:
+  id-token: write      # Required for OIDC authentication
+  contents: read       # Required for checkout
+  actions: read        # Required for workflow access
+  packages: write      # Required for Docker registry access
+  deployments: write   # Required for deployment status
+  statuses: write      # Required for commit status
+  pull-requests: write # Required for PR comments
+
+jobs:
+  # Job 1: Determine deployment environment and validate changes
+  detect-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env-detect.outputs.environment }}
+      should_deploy_backend: ${{ steps.change-detect.outputs.should_deploy_backend }}
+      should_deploy_frontend: ${{ steps.change-detect.outputs.should_deploy_frontend }}
+      stack_name: ${{ steps.env-detect.outputs.stack_name }}
+      is_preview: ${{ steps.env-detect.outputs.is_preview }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect environment
+        id: env-detect
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+            IS_PREVIEW="false"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ENVIRONMENT="preview"
+            IS_PREVIEW="true"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENVIRONMENT="prod"
+            IS_PREVIEW="false"
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            ENVIRONMENT="staging"
+            IS_PREVIEW="false"
+          else
+            ENVIRONMENT="dev"
+            IS_PREVIEW="false"
+          fi
+          
+          STACK_NAME="${PULUMI_STACK_PREFIX}-${ENVIRONMENT}"
+          
+          echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+          echo "stack_name=${STACK_NAME}" >> $GITHUB_OUTPUT
+          echo "is_preview=${IS_PREVIEW}" >> $GITHUB_OUTPUT
+          echo "🎯 Detected environment: ${ENVIRONMENT}"
+          echo "📦 Stack name: ${STACK_NAME}"
+          echo "🔍 Is preview: ${IS_PREVIEW}"
+
+      - name: Detect changes
+        id: change-detect
+        run: |
+          if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+            echo "should_deploy_backend=true" >> $GITHUB_OUTPUT
+            echo "should_deploy_frontend=true" >> $GITHUB_OUTPUT
+            echo "🚀 Force deployment requested"
+          elif [[ "${{ github.event.inputs.deploy_frontend_only }}" == "true" ]]; then
+            echo "should_deploy_backend=false" >> $GITHUB_OUTPUT
+            echo "should_deploy_frontend=true" >> $GITHUB_OUTPUT
+            echo "🎨 Frontend-only deployment requested"
+          else
+            # Check for relevant changes
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
+            
+            # Backend changes
+            if echo "$CHANGED_FILES" | grep -E "(backend/|infrastructure/|kubernetes/|docker-compose|Dockerfile)" > /dev/null; then
+              echo "should_deploy_backend=true" >> $GITHUB_OUTPUT
+              echo "📝 Backend changes detected"
+            else
+              echo "should_deploy_backend=false" >> $GITHUB_OUTPUT
+              echo "⏭️ No backend changes detected"
+            fi
+            
+            # Frontend changes
+            if echo "$CHANGED_FILES" | grep -E "(frontend/|\.github/workflows/deploy-sophia-platform\.yml)" > /dev/null; then
+              echo "should_deploy_frontend=true" >> $GITHUB_OUTPUT
+              echo "🎨 Frontend changes detected"
+            else
+              echo "should_deploy_frontend=false" >> $GITHUB_OUTPUT
+              echo "⏭️ No frontend changes detected"
+            fi
+          fi
+
+  # Job 2: Build and Deploy Frontend to Vercel
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: detect-environment
+    if: needs.detect-environment.outputs.should_deploy_frontend == 'true'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        if: github.event.inputs.skip_tests != 'true'
+        working-directory: frontend
+        run: |
+          npm run lint
+          npm run test -- --watchAll=false
+
+      - name: Set environment variables
+        id: env-vars
+        run: |
+          ENVIRONMENT="${{ needs.detect-environment.outputs.environment }}"
+          IS_PREVIEW="${{ needs.detect-environment.outputs.is_preview }}"
+          
+          if [[ "$IS_PREVIEW" == "true" ]]; then
+            # Preview deployment - use staging backend
+            echo "api_url=https://api.staging.sophia.payready.com" >> $GITHUB_OUTPUT
+            echo "ws_url=wss://api.staging.sophia.payready.com/ws" >> $GITHUB_OUTPUT
+            echo "environment=preview" >> $GITHUB_OUTPUT
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_SOPHIA_PROD }}" >> $GITHUB_ENV
+            echo "DEPLOYMENT_TYPE=preview" >> $GITHUB_ENV
+          elif [[ "$ENVIRONMENT" == "prod" ]]; then
+            # Production deployment
+            echo "api_url=https://api.sophia.payready.com" >> $GITHUB_OUTPUT
+            echo "ws_url=wss://api.sophia.payready.com/ws" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_SOPHIA_PROD }}" >> $GITHUB_ENV
+            echo "DEPLOYMENT_TYPE=production" >> $GITHUB_ENV
+          elif [[ "$ENVIRONMENT" == "staging" ]]; then
+            # Staging deployment
+            echo "api_url=https://api.staging.sophia.payready.com" >> $GITHUB_OUTPUT
+            echo "ws_url=wss://api.staging.sophia.payready.com/ws" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_SOPHIA_PROD }}" >> $GITHUB_ENV
+            echo "DEPLOYMENT_TYPE=preview" >> $GITHUB_ENV
+          else
+            # Development deployment
+            echo "api_url=https://api.dev.sophia.payready.com" >> $GITHUB_OUTPUT
+            echo "ws_url=wss://api.dev.sophia.payready.com/ws" >> $GITHUB_OUTPUT
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_SOPHIA_PROD }}" >> $GITHUB_ENV
+            echo "DEPLOYMENT_TYPE=preview" >> $GITHUB_ENV
+          fi
+          
+          echo "🔧 Environment: $ENVIRONMENT"
+          echo "🌐 API URL: $(echo ${{ steps.env-vars.outputs.api_url }})"
+          echo "📡 WebSocket URL: $(echo ${{ steps.env-vars.outputs.ws_url }})"
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          echo "🏗️ Building frontend for ${{ steps.env-vars.outputs.environment }} environment..."
+          echo "📡 API URL will be managed by Vercel: ${{ steps.env-vars.outputs.api_url }}"
+          echo "🎯 Vercel will inject environment variables based on deployment target"
+          npm run build
+          echo "✅ Frontend build completed"
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ env.VERCEL_PROJECT_ID }}
+          working-directory: frontend
+          production: ${{ env.DEPLOYMENT_TYPE == 'production' }}
+          github-comment: ${{ github.event_name == 'pull_request' }}
+          vercel-args: ${{ env.DEPLOYMENT_TYPE == 'production' && '--prod' || '' }}
+
+      - name: Get deployment URL
+        id: deployment
+        run: |
+          if [[ "${{ env.DEPLOYMENT_TYPE }}" == "production" ]]; then
+            echo "url=https://sophia.payready.com" >> $GITHUB_OUTPUT
+          else
+            # For preview deployments, the URL will be set by the Vercel action
+            echo "url=${{ steps.vercel.outputs.preview-url || 'https://preview.sophia.payready.com' }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run deployment health check
+        run: |
+          DEPLOYMENT_URL="${{ steps.deployment.outputs.url }}"
+          echo "🏥 Running health check on: $DEPLOYMENT_URL"
+          
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Check if the deployment is accessible with retry logic
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s --max-time 10 "$DEPLOYMENT_URL" > /dev/null; then
+              echo "✅ Deployment health check passed"
+              exit 0
+            else
+              echo "⏳ Attempt $((RETRY_COUNT + 1))/$MAX_RETRIES failed, retrying in 10s..."
+              sleep 10
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+            fi
+          done
+          
+          echo "❌ Deployment health check failed after $MAX_RETRIES attempts"
+          echo "🔍 Manual verification may be required"
+          # Don't fail the entire workflow for health check issues
+          exit 0
+
+      - name: Comment PR with deployment info
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deployment.outputs.url }}';
+            const environment = '${{ needs.detect-environment.outputs.environment }}';
+            
+            const comment = `🚀 **Frontend Deployment Complete**
+            
+            **Environment**: ${environment}
+            **Preview URL**: ${deploymentUrl}
+            **API Backend**: ${{ steps.env-vars.outputs.api_url }}
+            
+            ✅ Deployment health check passed
+            🔗 [View Preview](${deploymentUrl})
+            
+            **Test the deployment:**
+            - [ ] Dashboard loads correctly
+            - [ ] Chat interface works
+            - [ ] API connectivity verified
+            - [ ] WebSocket connection stable
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Update deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deployment.outputs.url }}';
+            const environment = '${{ needs.detect-environment.outputs.environment }}';
+            
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment?.id || 0,
+              state: 'success',
+              environment: environment,
+              environment_url: deploymentUrl,
+              description: `Frontend deployed successfully to ${environment}`
+            });
+
+  # Job 3: Run tests and validation (Backend)
+  test-and-validate:
+    runs-on: ubuntu-latest
+    needs: detect-environment
+    if: needs.detect-environment.outputs.should_deploy_backend == 'true'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Configure Pulumi ESC
+        run: |
+          # Install Pulumi CLI
+          curl -fsSL https://get.pulumi.com | sh
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+          
+          # Set ESC environment
+          export PULUMI_CONFIG_PASSPHRASE=""
+          export PULUMI_STACK="${{ needs.detect-environment.outputs.stack_name }}"
+          
+          echo "🔐 Configured Pulumi ESC for stack: ${PULUMI_STACK}"
+
+      - name: Run syntax validation
+        run: |
+          echo "🔍 Running syntax validation..."
+          python -m py_compile backend/**/*.py
+          echo "✅ Syntax validation passed"
+
+      - name: Run type checking
+        run: |
+          echo "🔍 Running type checking..."
+          python -m mypy backend/ --ignore-missing-imports || true
+          echo "✅ Type checking completed"
+
+      - name: Run unit tests
+        if: github.event.inputs.skip_tests != 'true'
+        run: |
+          echo "🧪 Running unit tests..."
+          python -m pytest tests/ -v --tb=short
+          echo "✅ Unit tests passed"
+
+      - name: Run integration tests
+        if: github.event.inputs.skip_tests != 'true' && needs.detect-environment.outputs.environment != 'prod'
+        env:
+          PULUMI_STACK: ${{ needs.detect-environment.outputs.stack_name }}
+        run: |
+          echo "🔗 Running integration tests..."
+          python -m pytest tests/integration/ -v --tb=short
+          echo "✅ Integration tests passed"
+
+      - name: Validate Kubernetes manifests
+        run: |
+          echo "🔍 Validating Kubernetes manifests..."
+          find infrastructure/kubernetes -name "*.yaml" -exec kubectl apply --dry-run=client --validate=true -f {} \;
+          echo "✅ Kubernetes manifest validation passed"
+
+      - name: Run Gong Data Pipeline
+        env:
+          SNOWFLAKE_PAT: ${{ secrets.SNOWFLAKE_PAT }}
+          GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
+          GONG_ACCESS_KEY_SECRET: ${{ secrets.GONG_ACCESS_KEY_SECRET }}
+          PORTKEY_API_KEY: ${{ secrets.PORTKEY_API_KEY }}
+          PULUMI_ORG: scoobyjava-org
+        run: |
+          echo "🚀 Running Sophia Gong data pipeline..."
+          cd backend
+          python scripts/sophia_data_pipeline_ultimate.py --mode incremental
+          echo "✅ Gong pipeline completed"
+
+      - name: Run Integration Tests
+        env:
+          TEST_ENVIRONMENT: "preview"
+          SNOWFLAKE_PAT: ${{ secrets.SNOWFLAKE_PAT }}
+          GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
+          GONG_ACCESS_KEY_SECRET: ${{ secrets.GONG_ACCESS_KEY_SECRET }}
+          PULUMI_ORG: scoobyjava-org
+        run: |
+          echo "🧪 Running integration tests..."
+          cd backend
+          python -m pytest scripts/enhanced_gong_pipeline_test_suite.py -v --tb=short
+          echo "✅ Integration tests completed"
+
+  # Job 4: Build and push Docker images
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [detect-environment, test-and-validate]
+    if: needs.detect-environment.outputs.should_deploy_backend == 'true'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure OIDC for Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push webhook server
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.gong-webhook
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/gong-webhook-server:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY }}/gong-webhook-server:${{ needs.detect-environment.outputs.environment }}
+            ${{ env.DOCKER_REGISTRY }}/gong-webhook-server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            ENVIRONMENT=${{ needs.detect-environment.outputs.environment }}
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+
+      - name: Build and push main backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ needs.detect-environment.outputs.environment }}
+            ${{ env.DOCKER_REGISTRY }}/sophia-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            ENVIRONMENT=${{ needs.detect-environment.outputs.environment }}
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+
+      - name: Build and push MCP gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mcp-gateway
+          file: ./mcp-gateway/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/mcp-gateway:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY }}/mcp-gateway:${{ needs.detect-environment.outputs.environment }}
+            ${{ env.DOCKER_REGISTRY }}/mcp-gateway:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Job 5: Deploy infrastructure with Pulumi
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    needs: [detect-environment, test-and-validate, build-and-push]
+    if: needs.detect-environment.outputs.should_deploy_backend == 'true'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure OIDC for AWS
+        if: env.AWS_OIDC_ROLE_ARN
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: GitHubActions-${{ github.sha }}
+
+      - name: Configure OIDC for Azure
+        if: env.AZURE_OIDC_CLIENT_ID
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_OIDC_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Pulumi CLI
+        run: |
+          curl -fsSL https://get.pulumi.com | sh
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+
+      - name: Install Pulumi dependencies
+        working-directory: infrastructure
+        run: |
+          pip install -r requirements.txt
+
+      - name: Configure Pulumi ESC
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          PULUMI_CONFIG_PASSPHRASE: ""
+        run: |
+          pulumi login
+          pulumi stack select ${{ needs.detect-environment.outputs.stack_name }} || pulumi stack init ${{ needs.detect-environment.outputs.stack_name }}
+          
+          # Set ESC environment
+          pulumi config set --path "environment" "scoobyjava-org/default/${{ needs.detect-environment.outputs.stack_name }}"
+          
+          echo "🔐 Configured Pulumi ESC for stack: ${{ needs.detect-environment.outputs.stack_name }}"
+
+      - name: Preview infrastructure changes
+        working-directory: infrastructure
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          echo "🔍 Previewing infrastructure changes..."
+          pulumi preview --diff --suppress-outputs
+          echo "✅ Infrastructure preview completed"
+
+      - name: Deploy infrastructure
+        working-directory: infrastructure
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          echo "🚀 Deploying infrastructure..."
+          pulumi up --yes --suppress-outputs
+          echo "✅ Infrastructure deployment completed"
+
+      - name: Export stack outputs
+        working-directory: infrastructure
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+        run: |
+          echo "📋 Exporting stack outputs..."
+          pulumi stack output --json > stack-outputs.json
+          cat stack-outputs.json
+          
+          # Make outputs available to subsequent jobs
+          echo "KUBECONFIG_DATA=$(pulumi stack output kubeconfig --show-secrets)" >> $GITHUB_ENV
+          echo "CLUSTER_ENDPOINT=$(pulumi stack output cluster-endpoint)" >> $GITHUB_ENV
+
+  # Job 6: Deploy to Kubernetes
+  deploy-kubernetes:
+    runs-on: ubuntu-latest
+    needs: [detect-environment, deploy-infrastructure]
+    if: needs.detect-environment.outputs.should_deploy_backend == 'true'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ env.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Create namespace if not exists
+        run: |
+          kubectl create namespace ${{ env.KUBERNETES_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Kubernetes secrets
+        run: |
+          echo "🔐 Deploying Kubernetes secrets..."
+          
+          # Apply secret manifests with ESC integration
+          find infrastructure/kubernetes -name "*secret*.yaml" -exec kubectl apply -f {} \;
+          
+          echo "✅ Kubernetes secrets deployed"
+
+      - name: Deploy Kubernetes manifests
+        run: |
+          echo "🚀 Deploying Kubernetes manifests..."
+          
+          # Update image tags with current SHA
+          find infrastructure/kubernetes -name "*.yaml" -exec sed -i "s/:latest/:${{ github.sha }}/g" {} \;
+          
+          # Apply all manifests
+          kubectl apply -f infrastructure/kubernetes/manifests/ --recursive
+          
+          echo "✅ Kubernetes manifests deployed"
+
+      - name: Wait for deployment rollout
+        run: |
+          echo "⏳ Waiting for deployment rollout..."
+          
+          # Wait for all deployments to be ready
+          kubectl rollout status deployment/gong-webhook-service -n ${{ env.KUBERNETES_NAMESPACE }} --timeout=300s
+          kubectl rollout status deployment/sophia-backend -n ${{ env.KUBERNETES_NAMESPACE }} --timeout=300s
+          kubectl rollout status deployment/mcp-gateway -n ${{ env.KUBERNETES_NAMESPACE }} --timeout=300s
+          
+          echo "✅ All deployments rolled out successfully"
+
+      - name: Run health checks
+        run: |
+          echo "🏥 Running health checks..."
+          
+          # Check pod status
+          kubectl get pods -n ${{ env.KUBERNETES_NAMESPACE }}
+          
+          # Check service endpoints
+          kubectl get services -n ${{ env.KUBERNETES_NAMESPACE }}
+          
+          # Test webhook endpoint
+          WEBHOOK_URL=$(kubectl get service gong-webhook-service -n ${{ env.KUBERNETES_NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          if [ -n "$WEBHOOK_URL" ]; then
+            curl -f http://$WEBHOOK_URL/health || echo "⚠️ Webhook health check failed"
+          fi
+          
+          echo "✅ Health checks completed"
+
+  # Job 7: Run post-deployment tests
+  post-deployment-tests:
+    runs-on: ubuntu-latest
+    needs: [detect-environment, deploy-kubernetes]
+    if: needs.detect-environment.outputs.should_deploy_backend == 'true' && needs.detect-environment.outputs.environment != 'prod'
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run smoke tests
+        env:
+          ENVIRONMENT: ${{ needs.detect-environment.outputs.environment }}
+        run: |
+          echo "🔥 Running smoke tests..."
+          python -m pytest tests/smoke/ -v --tb=short
+          echo "✅ Smoke tests passed"
+
+      - name: Run end-to-end tests
+        env:
+          ENVIRONMENT: ${{ needs.detect-environment.outputs.environment }}
+        run: |
+          echo "🔄 Running end-to-end tests..."
+          python -m pytest tests/e2e/ -v --tb=short
+          echo "✅ End-to-end tests passed"
+
+  # Job 8: Update deployment status and notifications
+  finalize-deployment:
+    runs-on: ubuntu-latest
+    needs: [detect-environment, deploy-frontend, deploy-kubernetes, post-deployment-tests]
+    if: always() && (needs.detect-environment.outputs.should_deploy_frontend == 'true' || needs.detect-environment.outputs.should_deploy_backend == 'true')
+    environment: ${{ needs.detect-environment.outputs.environment }}
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          FRONTEND_STATUS="${{ needs.deploy-frontend.result }}"
+          BACKEND_STATUS="${{ needs.deploy-kubernetes.result }}"
+          
+          if [[ "$FRONTEND_STATUS" == "success" || "$FRONTEND_STATUS" == "skipped" ]] && [[ "$BACKEND_STATUS" == "success" || "$BACKEND_STATUS" == "skipped" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=✅ Sophia AI Platform deployed successfully to ${{ needs.detect-environment.outputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Sophia AI Platform deployment failed for ${{ needs.detect-environment.outputs.environment }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify Slack on success
+        if: steps.status.outputs.status == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: |
+            🚀 *Sophia AI Platform Deployment Success*
+            
+            • **Environment**: ${{ needs.detect-environment.outputs.environment }}
+            • **Frontend**: ${{ needs.deploy-frontend.result == 'success' && '✅ Deployed' || '⏭️ Skipped' }}
+            • **Backend**: ${{ needs.deploy-kubernetes.result == 'success' && '✅ Deployed' || '⏭️ Skipped' }}
+            • **Commit**: ${{ github.sha }}
+            • **Author**: ${{ github.actor }}
+            
+            All services are healthy and running! 🎉
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on failure
+        if: steps.status.outputs.status == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            🚨 *Sophia AI Platform Deployment Failed*
+            
+            • **Environment**: ${{ needs.detect-environment.outputs.environment }}
+            • **Frontend**: ${{ needs.deploy-frontend.result }}
+            • **Backend**: ${{ needs.deploy-kubernetes.result }}
+            • **Commit**: ${{ github.sha }}
+            • **Author**: ${{ github.actor }}
+            • **Error**: Check GitHub Actions logs
+            
+            Please investigate immediately! 🔥
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Generate deployment report
+        run: |
+          echo "📊 Deployment Report" > deployment-report.md
+          echo "===================" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Environment**: ${{ needs.detect-environment.outputs.environment }}" >> deployment-report.md
+          echo "**Status**: ${{ steps.status.outputs.status }}" >> deployment-report.md
+          echo "**Frontend**: ${{ needs.deploy-frontend.result }}" >> deployment-report.md
+          echo "**Backend**: ${{ needs.deploy-kubernetes.result }}" >> deployment-report.md
+          echo "**Commit**: ${{ github.sha }}" >> deployment-report.md
+          echo "**Author**: ${{ github.actor }}" >> deployment-report.md
+          echo "**Timestamp**: $(date -u)" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Components Deployed**:" >> deployment-report.md
+          echo "- Frontend (Vercel)" >> deployment-report.md
+          echo "- Gong Webhook Service" >> deployment-report.md
+          echo "- Sophia Backend" >> deployment-report.md
+          echo "- MCP Gateway" >> deployment-report.md
+          echo "- Kubernetes Infrastructure" >> deployment-report.md
+          echo "" >> deployment-report.md
+          
+          cat deployment-report.md
+
+      - name: Archive deployment artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report-${{ needs.detect-environment.outputs.environment }}-${{ github.sha }}
+          path: |
+            deployment-report.md
+            infrastructure/stack-outputs.json
+          retention-days: 30 

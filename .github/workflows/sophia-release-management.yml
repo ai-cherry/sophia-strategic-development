@@ -151,8 +151,8 @@ jobs:
       
       - name: 📦 Install Dependencies
         run: |
-          pip install -r backend/requirements.txt
-          pip install bandit safety
+          uv sync
+          uv sync --group security
       
       - name: 🔍 Security Analysis
         run: |
@@ -425,8 +425,8 @@ jobs:
       
       - name: 📦 Install Dependencies
         run: |
-          pip install -r backend/requirements.txt
-          pip install pytest pytest-asyncio requests
+          uv sync
+          uv sync --group test pytest-asyncio requests
       
       - name: 🧪 Run Integration Tests
         env:

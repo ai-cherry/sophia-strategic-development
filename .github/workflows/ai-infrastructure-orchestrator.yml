@@ -117,8 +117,8 @@ jobs:
           echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
           
           # Setup Python
-          pip install -r requirements.txt
-          pip install pulumi pulumi-kubernetes pulumi-aws
+          uv sync
+          uv add pulumi pulumi-kubernetes pulumi-aws
 
       - name: Configure Pulumi ESC
         run: |

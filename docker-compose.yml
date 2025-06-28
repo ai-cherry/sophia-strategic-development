@@ -178,7 +178,7 @@ services:
   x-base-mcp-service: &base-mcp-service
     build:
       context: .
-      dockerfile: Dockerfile.mcp
+      dockerfile: Dockerfile.uv.mcp
       args:
         MCP_SERVER_MODULE: "placeholder" # This will be overridden
     volumes:
@@ -291,7 +291,7 @@ services:
   iac-toolkit:
     build:
       context: .
-      dockerfile: Dockerfile.iac
+      dockerfile: Dockerfile.uv.iac
     container_name: sophia-iac-toolkit
     # We mount the project directory to have access to the latest code.
     volumes:
@@ -303,7 +303,7 @@ services:
   mcp-gateway:
     build:
       context: ./mcp-gateway
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     command: uvicorn main:app --host 0.0.0.0 --port 8080
     ports:
       - "8090:8080"

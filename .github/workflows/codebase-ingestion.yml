@@ -22,9 +22,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
           # We will add openai, pinecone-client, etc. here later
-          pip install -r requirements.txt || pip install -r docker-requirements.txt || echo "No requirements file found, proceeding without."
+          uv sync || pip install -r docker-requirements.txt || echo "No requirements file found, proceeding without."
 
 
       - name: Run Ingestion Script

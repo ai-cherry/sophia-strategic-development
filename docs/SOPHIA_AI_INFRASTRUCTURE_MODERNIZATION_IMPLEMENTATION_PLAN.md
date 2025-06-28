@@ -27,7 +27,7 @@ python scripts/archive_legacy_infrastructure.py
 #### 1.2 Pulumi AI SDK Integration
 ```python
 # Install Pulumi AI SDK
-pip install pulumi-ai pulumi-policy-ai
+uv add pulumi-ai pulumi-policy-ai
 
 # Initialize AI-powered infrastructure
 pulumi ai init sophia-intelligence-platform

@@ -194,7 +194,7 @@ Expected Output:
 python scripts/fix_syntax_errors.py --aggressive
 
 # If dependencies missing
-pip install -r requirements.txt --upgrade
+uv sync --upgrade
 ```
 
 #### 2. Docker Build Failures

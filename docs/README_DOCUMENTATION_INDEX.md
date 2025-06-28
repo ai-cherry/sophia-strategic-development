@@ -66,7 +66,7 @@ cp .env.example .env
 # Edit .env with your credentials
 
 # 4. Install dependencies
-pip install -r requirements.txt
+uv sync
 npm install
 
 # 5. Start MCP servers

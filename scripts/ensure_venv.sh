@@ -23,7 +23,7 @@ if [[ ! -f "$VENV_PYTHON" ]]; then
     echo "💡 Creating virtual environment..."
     python3 -m venv "$VENV_PATH"
     echo "💡 Installing dependencies..."
-    "$VENV_PYTHON" -m pip install --upgrade pip
+    "$VENV_PYTHON" -m # UV handles package management
     "$VENV_PYTHON" -m pip install -r "$PROJECT_ROOT/requirements.txt"
 fi
 

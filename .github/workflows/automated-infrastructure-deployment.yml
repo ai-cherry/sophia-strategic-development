@@ -46,8 +46,8 @@ jobs:
         
     - name: Install Dependencies
       run: |
-        pip install -r requirements.txt
-        pip install pulumi pulumi-aws pulumi-gcp pulumi-azure
+        uv sync
+        uv add pulumi pulumi-aws pulumi-gcp pulumi-azure
         
     - name: Configure Pulumi ESC Environment
       run: |

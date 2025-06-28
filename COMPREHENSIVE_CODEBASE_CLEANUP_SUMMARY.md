@@ -61,7 +61,7 @@ The comprehensive cleanup addressed the following issues identified in the Sophi
 - **Resolved 1 import conflict** in the cleanup script itself
 
 ### 7. Requirements File Management
-- **Preserved specialized requirements.txt files** for:
+- **Preserved specialized pyproject.toml configurations** for:
   - MCP servers (18 specialized files)
   - Infrastructure components
   - Gong webhook service
@@ -105,7 +105,7 @@ The comprehensive cleanup addressed the following issues identified in the Sophi
 ```
 
 ### Requirements Structure Maintained
-- **Main**: `requirements.txt` (86 dependencies)
+- **Main**: `pyproject.toml` and `uv.lock` (86 dependencies)
 - **Development**: `requirements-dev.txt`
 - **Specialized**: 18 MCP server-specific requirements files
 - **Infrastructure**: `infrastructure/requirements.txt`

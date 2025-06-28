@@ -544,7 +544,7 @@ class DeploymentRefactoringPhase3:
                         },
                         {
                             "name": "Install dependencies",
-                            "run": "pip install -r requirements.txt"
+                            "run": "uv sync"
                         },
                         {
                             "name": "Run tests",

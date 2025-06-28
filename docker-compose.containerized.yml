@@ -4,7 +4,7 @@ services:
   sophia-containerized:
     build:
       context: .
-      dockerfile: Dockerfile.containerized
+      dockerfile: Dockerfile.uv.containerized
     container_name: sophia-ai-containerized
     ports:
       - "8000:8000"

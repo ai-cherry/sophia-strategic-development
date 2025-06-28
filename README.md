@@ -22,7 +22,7 @@ cd sophia-main
 cat docs/AI_CODER_REFERENCE.md
 
 # 3. Install dependencies
-pip install -r requirements.txt
+uv sync
 npm install
 
 # 4. Configure environment (see docs/GITHUB_SECRETS_TEMPLATE.md)

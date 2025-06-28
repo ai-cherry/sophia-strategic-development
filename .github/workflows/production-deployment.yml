@@ -45,7 +45,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: uv sync
     - name: Run tests
       run: pytest tests/ -v
     - name: Run linting

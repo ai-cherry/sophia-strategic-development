@@ -1,14 +1,20 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 WORKDIR /app
 
 # Copy only necessary files
-COPY mcp-servers/codacy/requirements.txt .
+COPY pyproject.toml uv.lock ./
 COPY backend/ /app/backend
 COPY mcp-servers/codacy/ /app/mcp-servers/codacy/
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv sync --frozen --no-cache
 
 # Set environment variables for production-first operation
 ENV ENVIRONMENT="prod"

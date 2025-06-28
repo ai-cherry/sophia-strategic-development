@@ -51,8 +51,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+        uv sync
+        uv sync --group dev
 
     - name: Security scan
       run: |
@@ -264,7 +264,7 @@ jobs:
         python-version: '3.11'
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: uv sync
 
     - name: Comprehensive system validation
       run: |

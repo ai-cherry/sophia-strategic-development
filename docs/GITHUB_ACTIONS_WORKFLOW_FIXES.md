@@ -74,7 +74,7 @@ python -m pytest enhanced_gong_pipeline_test_suite.py
 ### **Problem:**
 ```yaml
 # ❌ Incomplete dependencies
-pip install snowflake-connector-python requests pandas numpy
+uv add snowflake-connector-python requests pandas numpy
 ```
 
 ### **Solution:**
@@ -82,8 +82,8 @@ pip install snowflake-connector-python requests pandas numpy
 # ✅ Use full requirements file
 - name: Install Pipeline Dependencies
   run: |
-    pip install --upgrade pip
-    pip install -r backend/requirements.txt
+    # UV manages packages automatically
+    uv add -r backend/requirements.txt
 ```
 
 ## 4. **Fix Secret Names Consistency** ⚠️ VERIFY NEEDED
@@ -161,7 +161,7 @@ echo "Backend deployment would happen here"
 
 ### **Immediate Fixes (Required for Deployment):**
 - [ ] Fix script paths (`cd backend` before running scripts)
-- [ ] Use `pip install -r backend/requirements.txt` for dependencies
+- [ ] Use `uv add -r backend/requirements.txt` for dependencies
 - [ ] Verify all GitHub secrets are correctly named
 - [ ] Add retry logic to health checks
 - [ ] Remove hardcoded environment variables from build step

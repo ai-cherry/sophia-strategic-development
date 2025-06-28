@@ -78,10 +78,10 @@ python scripts/consolidate_infrastructure.py
 
 ```bash
 # Update all Pulumi packages
-pip install pulumi==3.94.2 pulumi-ai pulumi-esc
+uv add pulumi==3.94.2 pulumi-ai pulumi-esc
 
 # Update infrastructure requirements
-pip install -r infrastructure/requirements.txt
+uv add -r infrastructure/requirements.txt
 ```
 
 ## Phase 2: AI Infrastructure Agents

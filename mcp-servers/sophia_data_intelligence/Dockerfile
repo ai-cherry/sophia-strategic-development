@@ -1,4 +1,10 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Set working directory
 WORKDIR /app
@@ -11,8 +17,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY mcp-servers/sophia_data_intelligence/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-cache
 
 # Copy application code
 COPY mcp-servers/sophia_data_intelligence/sophia_data_intelligence_mcp_server.py .

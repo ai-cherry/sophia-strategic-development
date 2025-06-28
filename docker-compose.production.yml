@@ -51,7 +51,7 @@ services:
   mcp-gateway:
     build:
       context: ./infrastructure/mcp-gateway
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.uv.production
     deploy:
       replicas: 3
       resources:
@@ -143,7 +143,7 @@ services:
       args:
         ENVIRONMENT: production
       context: .
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.uv.production
     depends_on:
     - redis-cluster
     - postgres-primary

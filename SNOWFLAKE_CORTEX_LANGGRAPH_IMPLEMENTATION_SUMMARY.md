@@ -370,7 +370,7 @@ Executive Insights & Recommendations
 
 ### **System Requirements:**
 - **Snowflake**: VECTOR(FLOAT, 768) support, Cortex functions enabled
-- **LangGraph**: `pip install langgraph` for workflow orchestration
+- **LangGraph**: `uv add langgraph` for workflow orchestration
 - **Python 3.11+**: Async/await support for all operations
 
 ### **Production Score: 95/100**

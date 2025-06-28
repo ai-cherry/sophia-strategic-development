@@ -326,8 +326,8 @@ backend/
 #### Key Implementation Commands
 ```bash
 # Backend setup
-pip install fastapi uvicorn websockets sqlalchemy psycopg2-binary redis
-pip install python-multipart python-jose[cryptography] passlib[bcrypt]
+uv add fastapi uvicorn websockets sqlalchemy psycopg2-binary redis
+uv add python-multipart python-jose[cryptography] passlib[bcrypt]
 
 # Database setup
 alembic init alembic

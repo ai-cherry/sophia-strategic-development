@@ -61,7 +61,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # Install dependencies
-pip install -r backend/requirements.txt
+uv add -r backend/requirements.txt
 ```
 
 ### **2. Set Environment Variables**

@@ -167,7 +167,7 @@ Successfully implemented the **three core Phase 1 services** as requested, deliv
 source .venv/bin/activate
 
 # Install dependencies (if not already installed)
-pip install fastapi uvicorn pydantic asyncio dataclasses
+uv add fastapi uvicorn pydantic asyncio dataclasses
 ```
 
 ### **2. Snowflake Setup**

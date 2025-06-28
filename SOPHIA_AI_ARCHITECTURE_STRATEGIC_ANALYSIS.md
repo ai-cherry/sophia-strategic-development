@@ -290,7 +290,7 @@ Based on comprehensive analysis of the Sophia AI platform, this document provide
 
 ### Solutions
 1. **Fix Import Paths**: Update to `backend.mcp_servers`
-2. **Install Dependencies**: `pip install openai pinecone-client`
+2. **Install Dependencies**: `uv add openai pinecone-client`
 3. **Configure Ports**: Assign unique ports, avoid conflicts
 4. **Test Integration**: Verify Cursor IDE connectivity
 
@@ -329,13 +329,13 @@ pulumi env open scoobyjava-org/default/sophia-ai-production
 #### 1.2 Install Missing Dependencies
 ```bash
 # Core dependencies
-pip install snowflake-cortex langchain openai pinecone-client
+uv add snowflake-cortex langchain openai pinecone-client
 
 # MCP dependencies  
-pip install aiohttp asyncio websockets
+uv add aiohttp asyncio websockets
 
 # Infrastructure dependencies
-pip install pulumi pulumi-ai
+uv add pulumi pulumi-ai
 ```
 
 #### 1.3 Fix Import Paths

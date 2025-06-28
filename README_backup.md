@@ -125,7 +125,7 @@ Would you like me to automatically notify the project leads and suggest mitigati
 ### **Backend Development**
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+uv sync
 
 # Start backend with hot reload
 uvicorn backend.app.fastapi_app:app --reload --port 8000

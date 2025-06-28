@@ -241,7 +241,7 @@ uv run cyclonedx-bom -o sbom.json
 
 ## 8. Issues to Avoid
 
-- Avoid system-wide `pip install uv`; use `pipx` or installer.
+- Avoid system-wide `uv add uv`; use `pipx` or installer.
 - Do not manually edit `uv.lock`.
 - Sync `.python-version` with `pyproject.toml`.
 - Always commit `uv.lock`.

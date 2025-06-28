@@ -188,7 +188,7 @@ curl -X GET "http://localhost:9000/health"
 
 1. **Check if venv exists**: `ls -la .venv/`
 2. **Recreate if needed**: `python3 -m venv .venv`
-3. **Install requirements**: `pip install -r requirements.txt`
+3. **Install requirements**: `uv sync`
 4. **Restart Cursor**: Close and reopen Cursor IDE
 
 ### Import Errors:

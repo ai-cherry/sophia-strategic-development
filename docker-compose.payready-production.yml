@@ -29,7 +29,7 @@ services:
   apollo-mcp:
     build: 
       context: ./mcp-servers/apollo_io/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-apollo-mcp
     ports: 
       - "3010:3000"
@@ -52,7 +52,7 @@ services:
   linkedin-intelligence-mcp:
     build: 
       context: ./mcp-servers/linkedin_intel/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-linkedin-mcp
     ports: 
       - "3011:3000"
@@ -75,7 +75,7 @@ services:
   competitive-monitor-mcp:
     build: 
       context: ./mcp-servers/competitive_monitor/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-competitive-monitor
     ports: 
       - "3012:3000"
@@ -102,7 +102,7 @@ services:
   nmhc-targeting-mcp:
     build: 
       context: ./mcp-servers/nmhc_targeting/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-nmhc-targeting
     ports: 
       - "3013:3000"
@@ -130,7 +130,7 @@ services:
   buzz-roi-validation-mcp:
     build: 
       context: ./mcp-servers/buzz_roi_validation/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-buzz-roi
     ports: 
       - "3014:3000"
@@ -175,7 +175,7 @@ services:
   payready-bi-dashboard:
     build:
       context: ./monitoring/payready_dashboard/
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: payready-bi-monitoring
     ports:
       - "3015:8501"  # Streamlit dashboard

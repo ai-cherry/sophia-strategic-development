@@ -315,8 +315,9 @@ jobs:
       - name: Install Pipeline Dependencies
         run: |
           echo "📦 Installing Gong pipeline dependencies..."
-          pip install --upgrade pip
-          pip install -r backend/requirements.txt
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+          uv sync
           echo "✅ Pipeline dependencies installed"
 
       - name: Run Gong Data Pipeline
@@ -361,9 +362,10 @@ jobs:
       - name: Install Test Dependencies
         run: |
           echo "📦 Installing test dependencies..."
-          pip install --upgrade pip
-          pip install -r backend/requirements.txt
-          pip install pytest
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+          uv sync
+          uv sync --group test
           echo "✅ Test dependencies installed"
 
       - name: Run Integration Tests

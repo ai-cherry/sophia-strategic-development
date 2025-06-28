@@ -1,0 +1,46 @@
+# .github/workflows/deploy_platform.yml
+name: Deploy Sophia AI Platform via OIDC
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC authentication with Pulumi
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        working-directory: ./infrastructure
+        run: pip install -r requirements.txt
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME }} # Assumes OIDC trust with AWS
+          aws-region: us-west-2
+
+      - name: Run Pulumi Deployment
+        uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: scoobyjava-org/sophia-prod-on-lambda # Fully-qualified stack name
+          work-dir: ./infrastructure
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }} # Needed for non-interactive login
+          PULUMI_CICD_BUILD_DESCRIPTION: "Deployment triggered by ${{ github.actor }} on commit ${{ github.sha }}"

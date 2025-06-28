@@ -78,7 +78,7 @@ def example_secure_command_usage():
     result = secure_run_command(["ls"], cwd="/tmp")
     
     # For pip/npm installs:
-    # Instead of: subprocess.run("pip install requests", shell=True)
+    # Instead of: subprocess.run("uv add requests", shell=True)
     result = secure_run_command(["pip", "install", "requests"])
 
 

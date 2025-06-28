@@ -95,7 +95,7 @@ find backend/ -name "*context*" -o -name "*shared*" | grep -v __pycache__
 git checkout -b mcp-orchestration-modernization
 
 # Install additional dependencies
-pip install agno openrouter anthropic
+uv add agno openrouter anthropic
 
 # Setup development MCP configuration
 cp cursor_mcp_config.json cursor_mcp_config.dev.json

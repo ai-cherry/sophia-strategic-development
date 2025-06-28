@@ -3,7 +3,7 @@ services:
   sophia-backend:
     build:
       context: .
-      dockerfile: Dockerfile.containerized
+      dockerfile: Dockerfile.uv.containerized
     ports:
       - "8000:8000"
     environment:
@@ -29,7 +29,7 @@ services:
   mcp-gateway:
     build:
       context: ./mcp-gateway
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     ports:
       - "8090:8090"
     environment:
@@ -49,7 +49,7 @@ services:
   sophia-ai-intelligence:
     build:
       context: ./mcp-servers/sophia_ai_intelligence
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: sophia-ai-intelligence-mcp
     ports:
       - "8091:8091"
@@ -75,7 +75,7 @@ services:
   sophia-data-intelligence:
     build:
       context: ./mcp-servers/sophia_data_intelligence
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: sophia-data-intelligence-mcp
     ports:
       - "8092:8092"
@@ -101,7 +101,7 @@ services:
   sophia-infrastructure:
     build:
       context: ./mcp-servers/sophia_infrastructure
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: sophia-infrastructure-mcp
     ports:
       - "8093:8093"
@@ -124,7 +124,7 @@ services:
   sophia-business-intelligence:
     build:
       context: ./mcp-servers/sophia_business_intelligence
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.uv
     container_name: sophia-business-intelligence-mcp
     ports:
       - "8094:8094"

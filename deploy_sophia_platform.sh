@@ -21,7 +21,7 @@ echo "\n🔹 Entering infrastructure project directory..."
 cd "$INFRA_DIR"
 
 echo "\n🔹 Installing Python dependencies..."
-pip install -r requirements.txt
+uv sync
 
 echo "\n🔹 Selecting or creating the main infrastructure stack..."
 if ! pulumi stack ls | grep -q "$STACK_NAME"; then

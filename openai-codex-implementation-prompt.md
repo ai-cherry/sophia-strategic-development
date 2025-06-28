@@ -1042,7 +1042,7 @@ if __name__ == "__main__":
 ### Environment Setup
 1. Install required dependencies:
 ```bash
-pip install aiohttp aioredis beautifulsoup4 snowflake-connector-python
+uv add aiohttp aioredis beautifulsoup4 snowflake-connector-python
 ```
 
 2. Set environment variables:

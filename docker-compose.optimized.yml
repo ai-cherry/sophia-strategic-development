@@ -54,7 +54,7 @@ services:
     <<: *sophia-base-service
     build:
       context: .
-      dockerfile: Dockerfile.optimized
+      dockerfile: Dockerfile.uv.optimized
       target: production
     image: sophia-ai/api:latest
     container_name: sophia-api
@@ -93,7 +93,7 @@ services:
     <<: *sophia-base-service
     build:
       context: .
-      dockerfile: Dockerfile.optimized
+      dockerfile: Dockerfile.uv.optimized
       target: production
     image: sophia-ai/ml-gateway:latest
     container_name: sophia-ml-gateway
@@ -129,7 +129,7 @@ services:
     <<: *sophia-base-service
     build:
       context: .
-      dockerfile: Dockerfile.optimized
+      dockerfile: Dockerfile.uv.optimized
       target: production
     image: sophia-ai/mcp-gateway:latest
     container_name: sophia-mcp-gateway
@@ -288,7 +288,7 @@ services:
   #   <<: *sophia-base-service
   #   build:
   #     context: .
-  #     dockerfile: Dockerfile.optimized
+  #     dockerfile: Dockerfile.uv.optimized
   #     target: production-gpu
   #   image: sophia-ai/ml-gpu:latest
   #   container_name: sophia-ml-gpu

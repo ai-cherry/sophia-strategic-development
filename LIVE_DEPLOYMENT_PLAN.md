@@ -60,10 +60,10 @@
 ```bash
 # Install backend dependencies
 cd sophia-main
-pip install -r backend/requirements.txt
+uv add -r backend/requirements.txt
 
 # Additional required packages
-pip install websockets httpx
+uv add websockets httpx
 ```
 
 #### **Step 2: Start Backend Services**
@@ -285,8 +285,8 @@ curl -X POST "http://localhost:8000/api/v1/knowledge/upload" \
 
 ```bash
 # 1. Install dependencies
-pip install -r backend/requirements.txt
-pip install websockets httpx
+uv add -r backend/requirements.txt
+uv add websockets httpx
 
 # 2. Start services
 python start_backend_services.py
