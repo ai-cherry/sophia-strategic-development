@@ -47,7 +47,9 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       
       - name: Select stack
-        run: pulumi stack select ${{ github.event.inputs.environment || 'production' }}
+        env:
+          INPUT_ENV: ${{ github.event.inputs.environment || 'production' }}
+        run: pulumi stack select $INPUT_ENV
         working-directory: infrastructure
       
       - name: Install dependencies

@@ -57,15 +57,23 @@ jobs:
     steps:
       - name: Set environment variables
         id: set-env
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_ENV: ${{ github.event.inputs.environment }}
+          INPUT_DEPLOY_INFRASTRUCTURE: ${{ github.event.inputs.deploy_infrastructure }}
+          INPUT_DEPLOY_BACKEND: ${{ github.event.inputs.deploy_backend }}
+          INPUT_DEPLOY_FRONTEND: ${{ github.event.inputs.deploy_frontend }}
+          INPUT_ROTATE_SECRETS: ${{ github.event.inputs.rotate_secrets }}
+          INPUT_SERVICE_TO_ROTATE: ${{ github.event.inputs.service_to_rotate }}
         run: |
           # Set environment (production only as per user preference)
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            ENVIRONMENT="${{ github.event.inputs.environment }}"
-            DEPLOY_INFRASTRUCTURE="${{ github.event.inputs.deploy_infrastructure }}"
-            DEPLOY_BACKEND="${{ github.event.inputs.deploy_backend }}"
-            DEPLOY_FRONTEND="${{ github.event.inputs.deploy_frontend }}"
-            ROTATE_SECRETS="${{ github.event.inputs.rotate_secrets }}"
-            SERVICE_TO_ROTATE="${{ github.event.inputs.service_to_rotate }}"
+          if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            ENVIRONMENT="$INPUT_ENV"
+            DEPLOY_INFRASTRUCTURE="$INPUT_DEPLOY_INFRASTRUCTURE"
+            DEPLOY_BACKEND="$INPUT_DEPLOY_BACKEND"
+            DEPLOY_FRONTEND="$INPUT_DEPLOY_FRONTEND"
+            ROTATE_SECRETS="$INPUT_ROTATE_SECRETS"
+            SERVICE_TO_ROTATE="$INPUT_SERVICE_TO_ROTATE"
           else
             # Default values for push/PR events - always production
             ENVIRONMENT="production"

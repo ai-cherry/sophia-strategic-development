@@ -267,11 +267,13 @@ jobs:
         fi
         
     - name: Create deployment summary
+      env:
+        ENH_MODE: ${{ github.event.inputs.enhancement_mode || 'standard' }}
       run: |
         echo "## 🚀 Dashboard Deployment Automation Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Deployment Status:** ${{ needs.deploy-to-vercel.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Enhancement Mode:** ${{ github.event.inputs.enhancement_mode || 'standard' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Enhancement Mode:** $ENH_MODE" >> $GITHUB_STEP_SUMMARY
         echo "**Deployment Time:** $(date)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         

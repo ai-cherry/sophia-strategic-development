@@ -50,14 +50,18 @@ jobs:
     
     - name: 🔍 AI-Enhanced Code Analysis
       id: analysis
+      env:
+        GH_EVENT: ${{ github.event_name }}
+        GH_BRANCH: ${{ github.ref_name }}
+        GH_COMMIT: ${{ github.sha }}
       run: |
         echo "🧠 Running AI-enhanced code analysis..."
-        
+
         # Run comprehensive analysis
         python scripts/cursor_ai_analysis.py \
-          --github-event="${{ github.event_name }}" \
-          --branch="${{ github.ref_name }}" \
-          --commit="${{ github.sha }}" \
+          --github-event="$GH_EVENT" \
+          --branch="$GH_BRANCH" \
+          --commit="$GH_COMMIT" \
           --output="analysis_results.json"
         
         # Extract results for GitHub
@@ -137,11 +141,13 @@ jobs:
           --performance-tuning
     
     - name: 🔄 Update Cursor MCP Config
+      env:
+        BRANCH_NAME: ${{ github.ref_name }}
       run: |
         python scripts/update_cursor_mcp_config.py \
           --performance-optimized \
           --github-aware \
-          --branch="${{ github.ref_name }}"
+          --branch="$BRANCH_NAME"
     
     - name: 📤 Commit Optimizations
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
