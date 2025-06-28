@@ -1,0 +1,978 @@
+#!/usr/bin/env python3
+"""
+Enhanced Codacy MCP Server with Real-time Analysis
+Provides comprehensive code quality analysis, security scanning, and automated fixes
+"""
+
+import asyncio
+import os
+import tempfile
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+
+import ast
+import re
+
+# MCP imports
+
+# Security analysis
+from bandit.core import manager as bandit_manager
+from bandit.core import config as bandit_config
+
+# Code complexity analysis
+try:
+    import radon.complexity as radon_cc
+    import radon.metrics as radon_metrics
+
+    RADON_AVAILABLE = True
+except ImportError:
+    RADON_AVAILABLE = False
+
+# Base class and configs
+from backend.mcp_servers.base.standardized_mcp_server import (
+    StandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckResult,
+    HealthStatus,
+    SyncPriority,
+)
+from backend.utils.logging import get_logger
+
+# The client for the external API
+from .codacy_api_client import CodacyAPIClient
+
+logger = get_logger(__name__)
+
+
+class SeverityLevel(Enum):
+    """Severity levels for code issues"""
+
+    INFO = "info"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class IssueCategory(Enum):
+    """Categories of code issues"""
+
+    SECURITY = "security"
+    PERFORMANCE = "performance"
+    MAINTAINABILITY = "maintainability"
+    RELIABILITY = "reliability"
+    STYLE = "style"
+    COMPLEXITY = "complexity"
+    DUPLICATION = "duplication"
+    DOCUMENTATION = "documentation"
+
+
+@dataclass
+class CodeIssue:
+    """Represents a code quality issue"""
+
+    category: IssueCategory
+    severity: SeverityLevel
+    title: str
+    description: str
+    file_path: str
+    line_number: int
+    column_number: Optional[int] = None
+    code_snippet: Optional[str] = None
+    suggestion: Optional[str] = None
+    rule_id: Optional[str] = None
+    confidence: float = 1.0
+
+
+@dataclass
+class CodeMetrics:
+    """Code quality metrics"""
+
+    lines_of_code: int
+    cyclomatic_complexity: float
+    maintainability_index: float
+    halstead_difficulty: float
+    halstead_effort: float
+    code_duplication: float
+    test_coverage: float
+    security_score: float
+    overall_score: float
+
+
+@dataclass
+class AnalysisResult:
+    """Complete code analysis result"""
+
+    file_path: str
+    issues: List[CodeIssue]
+    metrics: CodeMetrics
+    suggestions: List[str]
+    analysis_time: float
+    timestamp: datetime
+
+
+class SecurityAnalyzer:
+    """Advanced security analysis using Bandit and custom rules"""
+
+    def __init__(self):
+        self.bandit_manager = None
+        self.custom_security_patterns = self._load_custom_patterns()
+
+    def _load_custom_patterns(self) -> List[Dict[str, Any]]:
+        """Load custom security patterns specific to Sophia AI"""
+        return [
+            {
+                "pattern": r"password\s*=\s*['\"][^'\"]+['\"]",
+                "severity": SeverityLevel.CRITICAL,
+                "message": "Hardcoded password detected",
+                "category": "hardcoded_credentials",
+            },
+            {
+                "pattern": r"api_key\s*=\s*['\"][^'\"]+['\"]",
+                "severity": SeverityLevel.HIGH,
+                "message": "Hardcoded API key detected",
+                "category": "hardcoded_credentials",
+            },
+            {
+                "pattern": r"sql\s*=\s*['\"].*%s.*['\"]",
+                "severity": SeverityLevel.HIGH,
+                "message": "Potential SQL injection vulnerability",
+                "category": "sql_injection",
+            },
+            {
+                "pattern": r"eval\s*\(",
+                "severity": SeverityLevel.CRITICAL,
+                "message": "Use of eval() function is dangerous",
+                "category": "code_injection",
+            },
+            {
+                "pattern": r"exec\s*\(",
+                "severity": SeverityLevel.CRITICAL,
+                "message": "Use of exec() function is dangerous",
+                "category": "code_injection",
+            },
+            {
+                "pattern": r"pickle\.loads?\s*\(",
+                "severity": SeverityLevel.HIGH,
+                "message": "Unsafe deserialization with pickle",
+                "category": "deserialization",
+            },
+            {
+                "pattern": r"shell=True",
+                "severity": SeverityLevel.MEDIUM,
+                "message": "Shell injection risk with shell=True",
+                "category": "command_injection",
+            },
+        ]
+
+    async def analyze_security(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Perform comprehensive security analysis"""
+        issues = []
+
+        # Bandit analysis for Python files
+        if file_path.endswith(".py"):
+            issues.extend(await self._analyze_with_bandit(code, file_path))
+
+        # Custom pattern analysis
+        issues.extend(self._analyze_custom_patterns(code, file_path))
+
+        # Sophia AI specific security checks
+        issues.extend(self._analyze_sophia_specific(code, file_path))
+
+        return issues
+
+    async def _analyze_with_bandit(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Analyze code using Bandit security scanner"""
+        issues = []
+
+        try:
+            # Create temporary file for Bandit analysis
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".py", delete=False
+            ) as temp_file:
+                temp_file.write(code)
+                temp_path = temp_file.name
+
+            try:
+                # Configure Bandit
+                conf = bandit_config.BanditConfig()
+                b_mgr = bandit_manager.BanditManager(conf, "file")
+                b_mgr.discover_files([temp_path])
+                b_mgr.run_tests()
+
+                # Process Bandit results
+                for result in b_mgr.get_issue_list():
+                    severity_map = {
+                        "LOW": SeverityLevel.LOW,
+                        "MEDIUM": SeverityLevel.MEDIUM,
+                        "HIGH": SeverityLevel.HIGH,
+                    }
+
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.SECURITY,
+                            severity=severity_map.get(
+                                result.severity, SeverityLevel.MEDIUM
+                            ),
+                            title=result.test,
+                            description=result.text,
+                            file_path=file_path,
+                            line_number=result.lineno,
+                            code_snippet=result.get_code(),
+                            rule_id=result.test_id,
+                            confidence=result.confidence.value
+                            / 3.0,  # Convert to 0-1 scale
+                        )
+                    )
+
+            finally:
+                os.unlink(temp_path)
+
+        except Exception as e:
+            logger.error(f"Bandit analysis failed: {e}")
+
+        return issues
+
+    def _analyze_custom_patterns(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Analyze code using custom security patterns"""
+        issues = []
+        lines = code.split("\n")
+
+        for pattern_info in self.custom_security_patterns:
+            pattern = pattern_info["pattern"]
+
+            for line_num, line in enumerate(lines, 1):
+                if re.search(pattern, line, re.IGNORECASE):
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.SECURITY,
+                            severity=pattern_info["severity"],
+                            title=f"Security Issue: {pattern_info['category']}",
+                            description=pattern_info["message"],
+                            file_path=file_path,
+                            line_number=line_num,
+                            code_snippet=line.strip(),
+                            rule_id=f"custom_{pattern_info['category']}",
+                            confidence=0.8,
+                        )
+                    )
+
+        return issues
+
+    def _analyze_sophia_specific(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Analyze Sophia AI specific security patterns"""
+        issues = []
+        lines = code.split("\n")
+
+        # Check for proper secret management
+        for line_num, line in enumerate(lines, 1):
+            # Check for direct secret usage instead of config system
+            if re.search(
+                r"os\.environ\.get\([\'\"](api_key|password|secret)",
+                line,
+                re.IGNORECASE,
+            ):
+                issues.append(
+                    CodeIssue(
+                        category=IssueCategory.SECURITY,
+                        severity=SeverityLevel.MEDIUM,
+                        title="Direct Environment Variable Access",
+                        description="Use auto_esc_config.get_config_value() instead of direct environment access for secrets",
+                        file_path=file_path,
+                        line_number=line_num,
+                        code_snippet=line.strip(),
+                        suggestion="Replace with: await get_config_value('secret_name')",
+                        rule_id="sophia_secret_management",
+                    )
+                )
+
+            # Check for SQL string concatenation
+            if re.search(r'f[\'\""].*SELECT.*{.*}.*[\'\""]', line) or re.search(
+                r'[\'\""].*SELECT.*[\'\""].*\+', line
+            ):
+                issues.append(
+                    CodeIssue(
+                        category=IssueCategory.SECURITY,
+                        severity=SeverityLevel.HIGH,
+                        title="SQL Injection Risk",
+                        description="Use parameterized queries instead of string concatenation",
+                        file_path=file_path,
+                        line_number=line_num,
+                        code_snippet=line.strip(),
+                        suggestion="Use cursor.execute(query, parameters) with ? placeholders",
+                        rule_id="sophia_sql_injection",
+                    )
+                )
+
+        return issues
+
+
+class ComplexityAnalyzer:
+    """Analyze code complexity using AST and Radon"""
+
+    def __init__(self):
+        self.complexity_thresholds = {"function": 10, "class": 15, "module": 20}
+
+    async def analyze_complexity(
+        self, code: str, file_path: str
+    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+        """Analyze code complexity"""
+        issues = []
+        metrics = {}
+
+        try:
+            # Parse AST
+            tree = ast.parse(code)
+
+            # AST-based analysis
+            ast_issues, ast_metrics = self._analyze_ast(tree, file_path)
+            issues.extend(ast_issues)
+            metrics.update(ast_metrics)
+
+            # Radon analysis if available
+            if RADON_AVAILABLE:
+                radon_issues, radon_metrics = self._analyze_with_radon(code, file_path)
+                issues.extend(radon_issues)
+                metrics.update(radon_metrics)
+
+        except SyntaxError as e:
+            issues.append(
+                CodeIssue(
+                    category=IssueCategory.RELIABILITY,
+                    severity=SeverityLevel.CRITICAL,
+                    title="Syntax Error",
+                    description=f"Syntax error: {e.msg}",
+                    file_path=file_path,
+                    line_number=e.lineno or 1,
+                    rule_id="syntax_error",
+                )
+            )
+
+        return issues, metrics
+
+    def _analyze_ast(
+        self, tree: ast.AST, file_path: str
+    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+        """Analyze AST for complexity issues"""
+        issues = []
+        metrics = {
+            "functions": 0,
+            "classes": 0,
+            "max_function_complexity": 0,
+            "max_class_complexity": 0,
+            "nested_depth": 0,
+        }
+
+        class ComplexityVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.current_depth = 0
+                self.max_depth = 0
+                self.function_complexities = []
+                self.class_complexities = []
+
+            def visit_FunctionDef(self, node):
+                metrics["functions"] += 1
+                complexity = self._calculate_function_complexity(node)
+                self.function_complexities.append(complexity)
+
+                if complexity > self.complexity_thresholds["function"]:
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.COMPLEXITY,
+                            severity=(
+                                SeverityLevel.MEDIUM
+                                if complexity < 20
+                                else SeverityLevel.HIGH
+                            ),
+                            title="High Function Complexity",
+                            description=f"Function '{node.name}' has complexity {complexity}, consider refactoring",
+                            file_path=file_path,
+                            line_number=node.lineno,
+                            suggestion="Break down into smaller functions or reduce conditional complexity",
+                            rule_id="high_function_complexity",
+                        )
+                    )
+
+                self.generic_visit(node)
+
+            def visit_ClassDef(self, node):
+                metrics["classes"] += 1
+                complexity = len(
+                    [n for n in ast.walk(node) if isinstance(n, ast.FunctionDef)]
+                )
+                self.class_complexities.append(complexity)
+
+                if complexity > self.complexity_thresholds["class"]:
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.COMPLEXITY,
+                            severity=SeverityLevel.MEDIUM,
+                            title="Large Class",
+                            description=f"Class '{node.name}' has {complexity} methods, consider splitting",
+                            file_path=file_path,
+                            line_number=node.lineno,
+                            suggestion="Consider breaking into smaller, more focused classes",
+                            rule_id="large_class",
+                        )
+                    )
+
+                self.generic_visit(node)
+
+            def visit_If(self, node):
+                self.current_depth += 1
+                self.max_depth = max(self.max_depth, self.current_depth)
+                self.generic_visit(node)
+                self.current_depth -= 1
+
+            def visit_For(self, node):
+                self.current_depth += 1
+                self.max_depth = max(self.max_depth, self.current_depth)
+                self.generic_visit(node)
+                self.current_depth -= 1
+
+            def visit_While(self, node):
+                self.current_depth += 1
+                self.max_depth = max(self.max_depth, self.current_depth)
+                self.generic_visit(node)
+                self.current_depth -= 1
+
+            def _calculate_function_complexity(self, node):
+                """Calculate cyclomatic complexity for a function"""
+                complexity = 1  # Base complexity
+
+                for child in ast.walk(node):
+                    if isinstance(
+                        child, (ast.If, ast.While, ast.For, ast.ExceptHandler)
+                    ):
+                        complexity += 1
+                    elif isinstance(child, ast.BoolOp):
+                        complexity += len(child.values) - 1
+
+                return complexity
+
+        visitor = ComplexityVisitor()
+        visitor.visit(tree)
+
+        metrics["max_function_complexity"] = (
+            max(visitor.function_complexities) if visitor.function_complexities else 0
+        )
+        metrics["max_class_complexity"] = (
+            max(visitor.class_complexities) if visitor.class_complexities else 0
+        )
+        metrics["nested_depth"] = visitor.max_depth
+
+        # Check for excessive nesting
+        if visitor.max_depth > 4:
+            issues.append(
+                CodeIssue(
+                    category=IssueCategory.COMPLEXITY,
+                    severity=SeverityLevel.MEDIUM,
+                    title="Deep Nesting",
+                    description=f"Maximum nesting depth is {visitor.max_depth}, consider refactoring",
+                    file_path=file_path,
+                    line_number=1,
+                    suggestion="Extract nested logic into separate functions",
+                    rule_id="deep_nesting",
+                )
+            )
+
+        return issues, metrics
+
+    def _analyze_with_radon(
+        self, code: str, file_path: str
+    ) -> Tuple[List[CodeIssue], Dict[str, float]]:
+        """Analyze with Radon if available"""
+        issues = []
+        metrics = {}
+
+        try:
+            # Cyclomatic complexity
+            cc_results = radon_cc.cc_visit(code)
+            for result in cc_results:
+                if result.complexity > self.complexity_thresholds["function"]:
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.COMPLEXITY,
+                            severity=(
+                                SeverityLevel.MEDIUM
+                                if result.complexity < 20
+                                else SeverityLevel.HIGH
+                            ),
+                            title="High Cyclomatic Complexity",
+                            description=f"{result.name} has complexity {result.complexity}",
+                            file_path=file_path,
+                            line_number=result.lineno,
+                            rule_id="radon_complexity",
+                        )
+                    )
+
+            # Maintainability index
+            mi_result = radon_metrics.mi_visit(code, multi=True)
+            if mi_result < 20:
+                issues.append(
+                    CodeIssue(
+                        category=IssueCategory.MAINTAINABILITY,
+                        severity=SeverityLevel.HIGH,
+                        title="Low Maintainability",
+                        description=f"Maintainability index is {mi_result:.1f} (should be > 20)",
+                        file_path=file_path,
+                        line_number=1,
+                        rule_id="low_maintainability",
+                    )
+                )
+
+            metrics["maintainability_index"] = mi_result
+
+        except Exception as e:
+            logger.error(f"Radon analysis failed: {e}")
+
+        return issues, metrics
+
+
+class PerformanceAnalyzer:
+    """Analyze code for performance issues"""
+
+    def __init__(self):
+        self.performance_patterns = [
+            {
+                "pattern": r"\.append\(.*\)\s*in\s+for\s+.*:",
+                "title": "Inefficient List Building",
+                "description": "Consider using list comprehension instead of append in loop",
+                "suggestion": "Use: result = [item for item in iterable] instead of for loop with append",
+            },
+            {
+                "pattern": r"len\(.*\)\s*==\s*0",
+                "title": "Inefficient Empty Check",
+                "description": "Use 'not container' instead of 'len(container) == 0'",
+                "suggestion": "Replace with: if not container:",
+            },
+            {
+                "pattern": r"\.keys\(\)\s*in\s+for",
+                "title": "Unnecessary .keys() Call",
+                "description": "Iterating over dict.keys() is redundant",
+                "suggestion": "Use: for key in dict: instead of for key in dict.keys():",
+            },
+        ]
+
+    async def analyze_performance(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Analyze code for performance issues"""
+        issues = []
+
+        # Pattern-based analysis
+        issues.extend(self._analyze_patterns(code, file_path))
+
+        # AST-based analysis
+        try:
+            tree = ast.parse(code)
+            issues.extend(self._analyze_ast_performance(tree, file_path))
+        except SyntaxError:
+            pass  # Already handled in complexity analyzer
+
+        return issues
+
+    def _analyze_patterns(self, code: str, file_path: str) -> List[CodeIssue]:
+        """Pattern-based performance analysis"""
+        issues = []
+        lines = code.split("\n")
+
+        for pattern_info in self.performance_patterns:
+            pattern = pattern_info["pattern"]
+
+            for line_num, line in enumerate(lines, 1):
+                if re.search(pattern, line):
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.PERFORMANCE,
+                            severity=SeverityLevel.LOW,
+                            title=pattern_info["title"],
+                            description=pattern_info["description"],
+                            file_path=file_path,
+                            line_number=line_num,
+                            code_snippet=line.strip(),
+                            suggestion=pattern_info["suggestion"],
+                            rule_id=f"perf_{pattern_info['title'].lower().replace(' ', '_')}",
+                        )
+                    )
+
+        return issues
+
+    def _analyze_ast_performance(
+        self, tree: ast.AST, file_path: str
+    ) -> List[CodeIssue]:
+        """AST-based performance analysis"""
+        issues = []
+
+        class PerformanceVisitor(ast.NodeVisitor):
+            def visit_For(self, node):
+                # Check for nested loops
+                nested_loops = [
+                    n
+                    for n in ast.walk(node)
+                    if isinstance(n, (ast.For, ast.While)) and n != node
+                ]
+                if len(nested_loops) >= 2:
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.PERFORMANCE,
+                            severity=SeverityLevel.MEDIUM,
+                            title="Nested Loops",
+                            description="Multiple nested loops detected, consider optimization",
+                            file_path=file_path,
+                            line_number=node.lineno,
+                            suggestion="Consider using more efficient algorithms or data structures",
+                            rule_id="nested_loops",
+                        )
+                    )
+
+                self.generic_visit(node)
+
+            def visit_Call(self, node):
+                # Check for inefficient function calls
+                if (
+                    isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.attr == "sort"
+                    and isinstance(node.func.value.ctx, ast.Load)
+                ):
+                    issues.append(
+                        CodeIssue(
+                            category=IssueCategory.PERFORMANCE,
+                            severity=SeverityLevel.LOW,
+                            title="In-place Sort",
+                            description="Consider using sorted() for functional style",
+                            file_path=file_path,
+                            line_number=node.lineno,
+                            suggestion="Use sorted(list) if you need a new list, or keep .sort() for in-place sorting",
+                            rule_id="sort_usage",
+                        )
+                    )
+
+                self.generic_visit(node)
+
+        visitor = PerformanceVisitor()
+        visitor.visit(tree)
+
+        return issues
+
+
+class EnhancedCodacyAnalyzer:
+    """Main analyzer class that coordinates all analysis types"""
+
+    def __init__(self):
+        self.security_analyzer = SecurityAnalyzer()
+        self.complexity_analyzer = ComplexityAnalyzer()
+        self.performance_analyzer = PerformanceAnalyzer()
+        self.analysis_cache = {}
+
+    async def analyze_code(
+        self, code: str, file_path: str = "unknown.py"
+    ) -> AnalysisResult:
+        """Perform comprehensive code analysis"""
+        start_time = asyncio.get_event_loop().time()
+
+        # Check cache
+        code_hash = hash(code)
+        if code_hash in self.analysis_cache:
+            cached_result = self.analysis_cache[code_hash]
+            if (
+                datetime.now() - cached_result.timestamp
+            ).seconds < 300:  # 5 minute cache
+                return cached_result
+
+        all_issues = []
+        all_metrics = {}
+
+        try:
+            # Security analysis
+            security_issues = await self.security_analyzer.analyze_security(
+                code, file_path
+            )
+            all_issues.extend(security_issues)
+
+            # Complexity analysis
+            (
+                complexity_issues,
+                complexity_metrics,
+            ) = await self.complexity_analyzer.analyze_complexity(code, file_path)
+            all_issues.extend(complexity_issues)
+            all_metrics.update(complexity_metrics)
+
+            # Performance analysis
+            performance_issues = await self.performance_analyzer.analyze_performance(
+                code, file_path
+            )
+            all_issues.extend(performance_issues)
+
+            # Calculate overall metrics
+            metrics = self._calculate_metrics(code, all_issues, all_metrics)
+
+            # Generate suggestions
+            suggestions = self._generate_suggestions(all_issues, metrics)
+
+            analysis_time = asyncio.get_event_loop().time() - start_time
+
+            result = AnalysisResult(
+                file_path=file_path,
+                issues=all_issues,
+                metrics=metrics,
+                suggestions=suggestions,
+                analysis_time=analysis_time,
+                timestamp=datetime.now(),
+            )
+
+            # Cache result
+            self.analysis_cache[code_hash] = result
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Code analysis failed: {e}")
+            return AnalysisResult(
+                file_path=file_path,
+                issues=[
+                    CodeIssue(
+                        category=IssueCategory.RELIABILITY,
+                        severity=SeverityLevel.HIGH,
+                        title="Analysis Error",
+                        description=f"Code analysis failed: {str(e)}",
+                        file_path=file_path,
+                        line_number=1,
+                    )
+                ],
+                metrics=CodeMetrics(0, 0, 0, 0, 0, 0, 0, 0, 0),
+                suggestions=["Fix syntax errors and try again"],
+                analysis_time=0,
+                timestamp=datetime.now(),
+            )
+
+    def _calculate_metrics(
+        self, code: str, issues: List[CodeIssue], ast_metrics: Dict[str, float]
+    ) -> CodeMetrics:
+        """Calculate comprehensive code metrics"""
+        lines = code.split("\n")
+        loc = len(
+            [
+                line
+                for line in lines
+                if line.strip() and not line.strip().startswith("#")
+            ]
+        )
+
+        # Security score (100 - security issues weighted by severity)
+        security_issues = [i for i in issues if i.category == IssueCategory.SECURITY]
+        security_penalty = sum(
+            {"critical": 25, "high": 15, "medium": 8, "low": 3, "info": 1}.get(
+                i.severity.value, 0
+            )
+            for i in security_issues
+        )
+        security_score = max(0, 100 - security_penalty)
+
+        # Overall score calculation
+        issue_penalty = len(issues) * 2
+        complexity_penalty = (
+            max(0, ast_metrics.get("max_function_complexity", 0) - 10) * 3
+        )
+
+        overall_score = max(0, 100 - issue_penalty - complexity_penalty)
+
+        return CodeMetrics(
+            lines_of_code=loc,
+            cyclomatic_complexity=ast_metrics.get("max_function_complexity", 0),
+            maintainability_index=ast_metrics.get("maintainability_index", 100),
+            halstead_difficulty=0,  # Would need more sophisticated analysis
+            halstead_effort=0,  # Would need more sophisticated analysis
+            code_duplication=0,  # Would need cross-file analysis
+            test_coverage=0,  # Would need test discovery
+            security_score=security_score,
+            overall_score=overall_score,
+        )
+
+    def _generate_suggestions(
+        self, issues: List[CodeIssue], metrics: CodeMetrics
+    ) -> List[str]:
+        """Generate actionable suggestions based on analysis"""
+        suggestions = []
+
+        # Security suggestions
+        security_issues = [i for i in issues if i.category == IssueCategory.SECURITY]
+        if security_issues:
+            critical_security = [
+                i for i in security_issues if i.severity == SeverityLevel.CRITICAL
+            ]
+            if critical_security:
+                suggestions.append(
+                    "🔴 CRITICAL: Address security vulnerabilities immediately"
+                )
+            suggestions.append(
+                f"🛡️ Fix {len(security_issues)} security issues to improve code safety"
+            )
+
+        # Complexity suggestions
+        if metrics.cyclomatic_complexity > 15:
+            suggestions.append(
+                "🔄 Reduce cyclomatic complexity by breaking down large functions"
+            )
+
+        # Performance suggestions
+        performance_issues = [
+            i for i in issues if i.category == IssueCategory.PERFORMANCE
+        ]
+        if performance_issues:
+            suggestions.append(
+                f"⚡ Optimize {len(performance_issues)} performance issues"
+            )
+
+        # Maintainability suggestions
+        if metrics.maintainability_index < 50:
+            suggestions.append("🔧 Improve code maintainability through refactoring")
+
+        # Overall suggestions
+        if metrics.overall_score < 70:
+            suggestions.append(
+                "📈 Focus on code quality improvements to reach production standards"
+            )
+        elif metrics.overall_score > 90:
+            suggestions.append(
+                "✅ Excellent code quality! Consider code review and documentation"
+            )
+
+        return suggestions[:5]  # Limit to top 5 suggestions
+
+
+class CodacyMCPServer(StandardizedMCPServer):
+    """
+    An MCP server to act as a bridge to the Codacy API.
+    """
+
+    def __init__(self, config: Optional[MCPServerConfig] = None):
+        if config is None:
+            config = MCPServerConfig(
+                server_name="codacy",
+                port=3008,
+                sync_priority=SyncPriority.LOW,
+                sync_interval_minutes=120,  # Sync every 2 hours
+            )
+        super().__init__(config)
+        self.codacy_client: Optional[CodacyAPIClient] = None
+
+    async def server_specific_init(self) -> None:
+        """Initializes the Codacy API client."""
+        codacy_token = get_config_value("CODACY_API_TOKEN")
+        if not codacy_token:
+            logger.error(
+                "CODACY_API_TOKEN is not configured. Codacy MCP server will be disabled."
+            )
+            return
+
+        # In a real app, the project ID would also be configured.
+        self.codacy_client = CodacyAPIClient(
+            api_token=codacy_token, project_id="sophia-main"
+        )
+        logger.info("Codacy client initialized.")
+
+    async def server_specific_cleanup(self) -> None:
+        logger.info("Codacy MCP server shutting down.")
+        # No specific cleanup needed for this server
+        pass
+
+    async def check_external_api(self) -> bool:
+        """Checks the health of the Codacy API."""
+        if not self.codacy_client:
+            return False
+        try:
+            # A simple check, like getting project details
+            await self.codacy_client.get_project_issues(limit=1)
+            return True
+        except Exception:
+            return False
+
+    # The following abstract methods are not strictly necessary for this server's
+    # primary function but are required by the base class.
+    async def sync_data(self) -> Dict[str, Any]:
+        logger.info(
+            "Codacy server does not have a primary sync data function. Returning empty."
+        )
+        return {}
+
+    async def process_with_ai(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        logger.info(
+            "AI processing is not applicable for Codacy server sync. Returning empty."
+        )
+        return {}
+
+    async def server_specific_health_check(self) -> HealthCheckResult:
+        return HealthCheckResult(
+            component="codacy_server_logic",
+            status=HealthStatus.HEALTHY,
+            response_time_ms=0,
+            details="All internal logic is operational.",
+        )
+
+    async def get_data_age_seconds(self) -> int:
+        # Not applicable for this server
+        return 0
+
+    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+        """Defines the tools this MCP server exposes."""
+        return [
+            {
+                "name": "analyze_file",
+                "description": "Analyzes a single file for code quality and security issues.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"file_path": {"type": "string"}},
+                },
+                "required": ["file_path"],
+            },
+            {
+                "name": "get_project_issues",
+                "description": "Retrieves open issues for the project from Codacy.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {"severity_level": {"type": "string"}},
+                },
+            },
+        ]
+
+    async def execute_mcp_tool(
+        self, tool_name: str, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Executes a tool call."""
+        if not self.codacy_client:
+            return {"error": "Codacy client not initialized."}
+
+        if tool_name == "analyze_file":
+            file_path_str = parameters.get("file_path")
+            if not file_path_str:
+                return {"error": "file_path is required."}
+
+            file_path = Path(file_path_str)
+            if not file_path.exists():
+                return {"error": f"File not found: {file_path_str}"}
+
+            content = file_path.read_text()
+            return await self.codacy_client.analyze_file_content(file_path_str, content)
+
+        elif tool_name == "get_project_issues":
+            severity = parameters.get("severity_level")
+            return await self.codacy_client.get_project_issues(severity)
+
+        else:
+            return {"error": f"Unknown tool: {tool_name}"}
+
+
+async def main():
+    """Initializes and starts the Codacy MCP server."""
+    server = CodacyMCPServer()
+    await server.start()
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Codacy MCP Server stopped by user.")

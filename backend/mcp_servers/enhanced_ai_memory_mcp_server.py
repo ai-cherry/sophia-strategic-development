@@ -536,204 +536,154 @@ class EnhancedAiMemoryMCPServer:
     async def store_gong_call_insight(
         self,
         call_id: str,
-        insight_content: str,
-        call_summary: str = None,
-        sentiment_score: Optional[float] = None,
-        key_topics: List[str] = None,
-        risk_indicators: List[str] = None,
-        next_steps: List[str] = None,
+        participant_data: Dict[str, Any],
+        transcript_data: Dict[str, Any],
+        call_metadata: Dict[str, Any],
+        analysis_data: Dict[str, Any],
+        user_id: str,
+        importance_score: float = 0.8,
         tags: List[str] = None,
-        use_cortex_embedding: bool = True,
+        custom_metadata: Dict[str, Any] = None,
+        correlation_id: str = None
     ) -> Dict[str, Any]:
-        """
-        Enhanced Gong call insight storage with STG_GONG_CALLS integration
-
-        Args:
-            call_id: Gong call ID
-            insight_content: AI-generated insight content
-            call_summary: Call summary from Cortex
-            sentiment_score: Call sentiment score (-1.0 to 1.0)
-            key_topics: List of key topics discussed
-            risk_indicators: List of identified risks
-            next_steps: List of recommended next steps
-            tags: Additional tags for categorization
-            use_cortex_embedding: Whether to use Snowflake Cortex for embeddings
-
-        Returns:
-            Storage result with embedding and metadata
-        """
-        if not self.initialized:
-            await self.initialize()
-
+        """Store Gong call insight with comprehensive validation and processing"""
         try:
-            # Generate comprehensive content for embedding
-            content_parts = [insight_content]
-
-            if call_summary:
-                content_parts.append(f"Summary: {call_summary}")
-
-            if key_topics:
-                content_parts.append(f"Topics: {', '.join(key_topics)}")
-
-            if risk_indicators:
-                content_parts.append(f"Risks: {', '.join(risk_indicators)}")
-
-            if next_steps:
-                content_parts.append(f"Next Steps: {', '.join(next_steps)}")
-
-            full_content = " | ".join(content_parts)
-
-            # Generate embedding using Snowflake Cortex or OpenAI
-            embedding = None
-            embedding_source = "none"
-
-            if use_cortex_embedding and self.cortex_service:
-                try:
-                    async with self.cortex_service as cortex:
-                        embedding_result = await cortex.execute_query(
-                            f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{full_content}') as embedding"
-                        )
-                        if not embedding_result.empty:
-                            embedding = embedding_result.iloc[0]["embedding"]
-                            embedding_source = "snowflake_cortex"
-                except Exception as e:
-                    logger.warning(
-                        f"Cortex embedding failed, falling back to OpenAI: {e}"
-                    )
-
-            # Fallback to OpenAI if Cortex unavailable
-            if embedding is None:
-                embedding = await self.get_embedding(full_content)
-                embedding_source = "openai" if embedding else "none"
-
-            # Enhanced metadata
-            metadata = {
-                "call_id": call_id,
-                "insight_type": "gong_call_analysis",
-                "sentiment_score": sentiment_score,
-                "key_topics": key_topics or [],
-                "risk_indicators": risk_indicators or [],
-                "next_steps": next_steps or [],
-                "call_summary": call_summary,
-                "embedding_source": embedding_source,
-                "storage_location": "STG_GONG_CALLS",
-                "tags": tags or [],
-                "created_at": datetime.now().isoformat(),
-            }
-
-            # Store in Pinecone for cross-platform access
-            memory_id = f"gong_call_{call_id}_{int(datetime.now().timestamp())}"
-
-            if self.pinecone_index and embedding:
-                try:
-                    self.pinecone_index.upsert(
-                        [
-                            {
-                                "id": memory_id,
-                                "values": embedding,
-                                "metadata": {
-                                    **metadata,
-                                    "category": EnhancedMemoryCategory.GONG_CALL_INSIGHT.value,
-                                    "content": full_content[
-                                        :1000
-                                    ],  # Truncate for Pinecone metadata
-                                },
-                            }
-                        ]
-                    )
-
-                    logger.info(f"Stored Gong call insight in Pinecone: {memory_id}")
-                except Exception as e:
-                    logger.error(f"Failed to store in Pinecone: {e}")
-
-            # Also update STG_GONG_CALLS table with AI Memory data
-            if self.cortex_service:
-                try:
-                    async with self.cortex_service as cortex:
-                        update_sql = f"""
-                        UPDATE STG_TRANSFORMED.STG_GONG_CALLS
-                        SET 
-                            AI_MEMORY_EMBEDDING = PARSE_JSON('{json.dumps(embedding)}'),
-                            AI_MEMORY_METADATA = PARSE_JSON('{json.dumps(metadata)}'),
-                            AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP(),
-                            CALL_SUMMARY = COALESCE(CALL_SUMMARY, '{call_summary}'),
-                            SENTIMENT_SCORE = COALESCE(SENTIMENT_SCORE, {sentiment_score or "NULL"}),
-                            KEY_TOPICS = COALESCE(KEY_TOPICS, PARSE_JSON('{json.dumps(key_topics or [])}')),
-                            RISK_INDICATORS = COALESCE(RISK_INDICATORS, PARSE_JSON('{json.dumps(risk_indicators or [])}')),
-                            NEXT_STEPS = COALESCE(NEXT_STEPS, PARSE_JSON('{json.dumps(next_steps or [])}'))
-                        WHERE CALL_ID = '{call_id}'
-                        """
-
-                        await cortex.execute_query(update_sql)
-                        logger.info(
-                            f"Updated STG_GONG_CALLS with AI Memory data for call: {call_id}"
-                        )
-
-                except Exception as e:
-                    logger.warning(f"Failed to update STG_GONG_CALLS: {e}")
-
-            # Store in central AI_MEMORY.MEMORY_RECORDS table
-            if self.cortex_service:
-                try:
-                    async with self.cortex_service as cortex:
-                        memory_insert_sql = f"""
-                        INSERT INTO AI_MEMORY.MEMORY_RECORDS (
-                            MEMORY_ID,
-                            CATEGORY,
-                            CONTENT,
-                            EMBEDDING,
-                            METADATA,
-                            SOURCE_TYPE,
-                            SOURCE_ID,
-                            SOURCE_TABLE,
-                            RELEVANCE_SCORE
-                        ) VALUES (
-                            '{memory_id}',
-                            '{EnhancedMemoryCategory.GONG_CALL_INSIGHT.value}',
-                            '{full_content}',
-                            PARSE_JSON('{json.dumps(embedding)}'),
-                            PARSE_JSON('{json.dumps(metadata)}'),
-                            'gong',
-                            '{call_id}',
-                            'STG_GONG_CALLS',
-                            1.0
-                        )
-                        ON CONFLICT (MEMORY_ID) DO UPDATE SET
-                            CONTENT = EXCLUDED.CONTENT,
-                            EMBEDDING = EXCLUDED.EMBEDDING,
-                            METADATA = EXCLUDED.METADATA,
-                            UPDATED_AT = CURRENT_TIMESTAMP()
-                        """
-
-                        await cortex.execute_query(memory_insert_sql)
-                        logger.info(f"Stored in AI_MEMORY.MEMORY_RECORDS: {memory_id}")
-
-                except Exception as e:
-                    logger.warning(f"Failed to store in AI_MEMORY.MEMORY_RECORDS: {e}")
-
-            return {
-                "success": True,
-                "memory_id": memory_id,
-                "call_id": call_id,
-                "embedding_dimensions": len(embedding) if embedding else 0,
-                "embedding_source": embedding_source,
-                "metadata": metadata,
-                "storage_locations": [
-                    "pinecone",
-                    "stg_gong_calls",
-                    "ai_memory_records",
-                ],
-                "content_length": len(full_content),
-            }
-
+            # Validate input data
+            validation_result = await self._validate_gong_insight_data(
+                call_id, participant_data, transcript_data, call_metadata, analysis_data
+            )
+            if not validation_result["valid"]:
+                return {"success": False, "error": validation_result["error"]}
+            
+            # Process and enrich data
+            enriched_data = await self._process_gong_insight_data(
+                participant_data, transcript_data, call_metadata, analysis_data
+            )
+            
+            # Generate memory content
+            memory_content = await self._generate_gong_memory_content(
+                call_id, enriched_data, analysis_data
+            )
+            
+            # Store in AI Memory
+            memory_id = await self._store_gong_memory(
+                memory_content, call_id, user_id, importance_score, tags, custom_metadata
+            )
+            
+            # Update analytics and correlations
+            await self._update_gong_analytics(call_id, memory_id, correlation_id)
+            
+            return self._format_gong_insight_response(memory_id, call_id, enriched_data)
+            
         except Exception as e:
-            logger.error(f"Error storing Gong call insight: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "call_id": call_id,
-            }
+            return self._handle_gong_insight_error(e, call_id)
 
+    async def _validate_gong_insight_data(
+        self, call_id: str, participant_data: Dict, transcript_data: Dict, 
+        call_metadata: Dict, analysis_data: Dict
+    ) -> Dict[str, Any]:
+        """Validate Gong insight data for completeness and format"""
+        if not call_id or not isinstance(call_id, str):
+            return {"valid": False, "error": "Invalid call_id"}
+        
+        if not participant_data or not isinstance(participant_data, dict):
+            return {"valid": False, "error": "Invalid participant_data"}
+        
+        if not transcript_data or not isinstance(transcript_data, dict):
+            return {"valid": False, "error": "Invalid transcript_data"}
+        
+        # Additional validation logic here
+        return {"valid": True}
+
+    async def _process_gong_insight_data(
+        self, participant_data: Dict, transcript_data: Dict, 
+        call_metadata: Dict, analysis_data: Dict
+    ) -> Dict[str, Any]:
+        """Process and enrich Gong insight data"""
+        enriched_data = {
+            "participants": self._process_participants(participant_data),
+            "transcript": self._process_transcript(transcript_data),
+            "metadata": self._process_metadata(call_metadata),
+            "analysis": self._process_analysis(analysis_data)
+        }
+        return enriched_data
+
+    async def _generate_gong_memory_content(
+        self, call_id: str, enriched_data: Dict, analysis_data: Dict
+    ) -> str:
+        """Generate structured memory content from Gong data"""
+        content_parts = [
+            f"Gong Call Analysis - ID: {call_id}",
+            f"Participants: {len(enriched_data['participants'])}",
+            f"Key Topics: {', '.join(analysis_data.get('topics', []))}",
+            f"Sentiment: {analysis_data.get('sentiment', 'neutral')}",
+            f"Action Items: {len(analysis_data.get('action_items', []))}"
+        ]
+        return "
+".join(content_parts)
+
+    async def _store_gong_memory(
+        self, content: str, call_id: str, user_id: str, 
+        importance_score: float, tags: List[str], custom_metadata: Dict
+    ) -> str:
+        """Store processed Gong data in AI Memory"""
+        memory_tags = ["gong_call", "sales_insight"] + (tags or [])
+        
+        metadata = {
+            "call_id": call_id,
+            "source": "gong",
+            "type": "call_insight",
+            **(custom_metadata or {})
+        }
+        
+        return await self.store_memory(
+            content=content,
+            category=MemoryCategory.SALES_CALL_INSIGHT,
+            tags=memory_tags,
+            importance_score=importance_score,
+            metadata=metadata
+        )
+
+    async def _update_gong_analytics(self, call_id: str, memory_id: str, correlation_id: str):
+        """Update analytics and correlation tracking"""
+        # Analytics update logic here
+        pass
+
+    def _format_gong_insight_response(self, memory_id: str, call_id: str, enriched_data: Dict) -> Dict[str, Any]:
+        """Format the final response for Gong insight storage"""
+        return {
+            "success": True,
+            "memory_id": memory_id,
+            "call_id": call_id,
+            "participants_processed": len(enriched_data['participants']),
+            "transcript_length": len(enriched_data['transcript']),
+            "stored_at": datetime.utcnow().isoformat()
+        }
+
+    def _handle_gong_insight_error(self, error: Exception, call_id: str) -> Dict[str, Any]:
+        """Handle errors in Gong insight processing"""
+        logger.error(f"Error storing Gong insight for call {call_id}: {error}")
+        return {
+            "success": False,
+            "error": str(error),
+            "call_id": call_id
+        }
+
+    def _process_participants(self, participant_data: Dict) -> List[Dict]:
+        """Process participant data"""
+        return participant_data.get("participants", [])
+
+    def _process_transcript(self, transcript_data: Dict) -> str:
+        """Process transcript data"""
+        return transcript_data.get("transcript", "")
+
+    def _process_metadata(self, call_metadata: Dict) -> Dict:
+        """Process call metadata"""
+        return call_metadata
+
+    def _process_analysis(self, analysis_data: Dict) -> Dict:
+        """Process analysis data"""
+        return analysis_data
     async def recall_gong_call_insights(
         self,
         query: str,

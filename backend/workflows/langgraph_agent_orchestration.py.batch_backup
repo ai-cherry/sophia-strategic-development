@@ -1,0 +1,936 @@
+"""
+LangGraph Agent Orchestration for Sophia AI
+
+This module implements a LangGraph workflow that orchestrates multiple AI agents
+for comprehensive deal analysis. The SupervisorAgent coordinates between
+SalesCoachAgent and CallAnalysisAgent to provide holistic insights.
+
+Key Features:
+- SupervisorAgent for workflow coordination
+- SalesCoachAgent for HubSpot deal analysis
+- CallAnalysisAgent for Gong call analysis
+- Consolidated findings and recommendations
+- State management and error handling
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, TypedDict
+from dataclasses import dataclass
+from enum import Enum
+
+# LangGraph imports
+try:
+    from langgraph.graph import StateGraph, END
+    from langgraph.prebuilt import ToolExecutor
+    from langgraph.checkpoint.sqlite import SqliteSaver
+
+    LANGGRAPH_AVAILABLE = True
+except ImportError:
+    LANGGRAPH_AVAILABLE = False
+    StateGraph = None
+    END = None
+
+from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+
+logger = logging.getLogger(__name__)
+
+
+class AgentStatus(Enum):
+    """Status of agent execution"""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+
+
+class WorkflowState(TypedDict):
+    """State shared across all agents in the workflow"""
+
+    # Input parameters
+    deal_id: str
+    analysis_type: str
+    user_request: str
+
+    # Agent status tracking
+    supervisor_status: AgentStatus
+    sales_coach_status: AgentStatus
+    call_analysis_status: AgentStatus
+
+    # Data collected by agents
+    hubspot_deal_data: Optional[Dict[str, Any]]
+    gong_calls_data: Optional[List[Dict[str, Any]]]
+
+    # Analysis results
+    sales_coach_insights: Optional[Dict[str, Any]]
+    call_analysis_insights: Optional[Dict[str, Any]]
+
+    # Final consolidated results
+    consolidated_findings: Optional[Dict[str, Any]]
+    recommendations: Optional[List[Dict[str, Any]]]
+
+    # Workflow metadata
+    workflow_id: str
+    started_at: datetime
+    completed_at: Optional[datetime]
+    error_messages: List[str]
+    next_action: str
+
+
+@dataclass
+class CallAnalysisAgent:
+    """
+    Call Analysis Agent for processing Gong call data
+
+    This agent specializes in analyzing call transcripts, sentiment,
+    and extracting actionable insights from sales conversations.
+    """
+
+    name: str = "call_analysis_agent"
+    description: str = "Analyzes Gong call data for insights and patterns"
+
+    # Snowflake integrations
+    cortex_service: Optional[SnowflakeCortexService] = None
+    gong_connector: Optional[SnowflakeGongConnector] = None
+    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+
+    initialized: bool = False
+
+    async def initialize(self) -> None:
+        """Initialize Snowflake services and AI Memory"""
+        if self.initialized:
+            return
+
+        try:
+            self.cortex_service = SnowflakeCortexService()
+            self.gong_connector = SnowflakeGongConnector()
+            self.ai_memory = EnhancedAiMemoryMCPServer()
+
+            await self.ai_memory.initialize()
+
+            self.initialized = True
+            logger.info("✅ Call Analysis Agent initialized")
+
+        except Exception as e:
+            logger.error(f"Failed to initialize Call Analysis Agent: {e}")
+            raise
+
+    async def analyze_deal_calls(
+        self, deal_id: str, company_name: str = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze all calls related to a specific deal
+
+        Args:
+            deal_id: HubSpot deal ID
+            company_name: Company name for call searching
+
+        Returns:
+            Comprehensive call analysis results
+        """
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Get calls related to the deal
+            async with self.gong_connector as connector:
+                if company_name:
+                    # Search by company name and deal context
+                    related_calls = await connector.search_calls_by_content(
+                        search_terms=[company_name, deal_id],
+                        date_range_days=180,  # 6 months of call history
+                        limit=20,
+                    )
+                else:
+                    # Get calls directly linked to deal
+                    related_calls = await connector.get_calls_for_coaching(
+                        date_range_days=180,
+                        sentiment_threshold=0.0,  # Include all calls
+                        limit=20,
+                    )
+
+            if not related_calls:
+                return {
+                    "status": "no_calls_found",
+                    "message": f"No calls found for deal {deal_id}",
+                    "call_count": 0,
+                    "insights": {},
+                }
+
+            # Analyze calls using Snowflake Cortex
+            async with self.cortex_service as cortex:
+                call_insights = []
+                sentiment_scores = []
+                talk_ratios = []
+                key_topics = []
+
+                for call in related_calls[:10]:  # Analyze top 10 calls
+                    call_id = call.get("CALL_ID") or call.get("ID")
+
+                    # Generate call-specific insights
+                    call_analysis = await cortex.complete_text_with_cortex(
+                        prompt=f"""
+                        Analyze this sales call and provide structured insights:
+                        
+                        Call: {call.get("CALL_TITLE", "Unknown")}
+                        Duration: {call.get("CALL_DURATION_SECONDS", 0)} seconds
+                        Participants: {call.get("PARTICIPANT_LIST", "Unknown")}
+                        Sentiment: {call.get("SENTIMENT_SCORE", 0):.2f}
+                        Talk Ratio: {call.get("TALK_RATIO", 0):.2f}
+                        
+                        Provide insights on:
+                        1. Call objective and outcome
+                        2. Customer engagement level
+                        3. Key discussion points
+                        4. Concerns or objections raised
+                        5. Next steps identified
+                        6. Overall call effectiveness
+                        """,
+                        max_tokens=300,
+                    )
+
+                    # Extract topics from call content
+                    call_topics = []
+                    if call.get("matching_content"):
+                        topics_result = await cortex.complete_text_with_cortex(
+                            prompt=f"Extract 3-5 key topics discussed in this call. Return as comma-separated list: {call['matching_content'][:500]}",
+                            max_tokens=50,
+                        )
+                        call_topics = (
+                            [
+                                topic.strip()
+                                for topic in topics_result.split(",")
+                                if topic.strip()
+                            ]
+                            if topics_result
+                            else []
+                        )
+                        key_topics.extend(call_topics)
+
+                    call_insights.append(
+                        {
+                            "call_id": call_id,
+                            "call_title": call.get("CALL_TITLE", "Unknown"),
+                            "sentiment_score": call.get("SENTIMENT_SCORE", 0),
+                            "talk_ratio": call.get("TALK_RATIO", 0),
+                            "duration_minutes": (
+                                call.get("CALL_DURATION_SECONDS", 0) or 0
+                            )
+                            / 60,
+                            "analysis": call_analysis,
+                            "topics": call_topics,
+                        }
+                    )
+
+                    # Collect metrics
+                    sentiment_scores.append(call.get("SENTIMENT_SCORE", 0) or 0)
+                    talk_ratios.append(call.get("TALK_RATIO", 0) or 0)
+
+                # Calculate aggregate metrics
+                avg_sentiment = (
+                    sum(sentiment_scores) / len(sentiment_scores)
+                    if sentiment_scores
+                    else 0
+                )
+                avg_talk_ratio = (
+                    sum(talk_ratios) / len(talk_ratios) if talk_ratios else 0
+                )
+
+                # Identify most common topics
+                topic_frequency = {}
+                for topic in key_topics:
+                    topic_frequency[topic] = topic_frequency.get(topic, 0) + 1
+
+                top_topics = sorted(
+                    topic_frequency.items(), key=lambda x: x[1], reverse=True
+                )[:5]
+
+                # Generate overall assessment
+                overall_assessment = await cortex.complete_text_with_cortex(
+                    prompt=f"""
+                    Provide an overall assessment of the call activity for this deal:
+                    
+                    Call Summary:
+                    - Total calls analyzed: {len(call_insights)}
+                    - Average sentiment: {avg_sentiment:.2f}
+                    - Average talk ratio: {avg_talk_ratio:.2f}
+                    - Top topics: {", ".join([topic for topic, _ in top_topics[:3]])}
+                    
+                    Assessment areas:
+                    1. Overall engagement quality
+                    2. Sales process progression
+                    3. Customer sentiment trends
+                    4. Areas of concern or risk
+                    5. Recommended next actions
+                    """,
+                    max_tokens=400,
+                )
+
+            # Store insights in AI Memory
+            await self.ai_memory.store_gong_call_insight(
+                call_id=f"deal_analysis_{deal_id}",
+                insight_content=overall_assessment,
+                deal_id=deal_id,
+                call_type="deal_analysis",
+                tags=["deal_analysis", "call_insights", "langgraph_workflow"],
+                use_cortex_analysis=True,
+            )
+
+            return {
+                "status": "completed",
+                "call_count": len(related_calls),
+                "calls_analyzed": len(call_insights),
+                "overall_assessment": overall_assessment,
+                "metrics": {
+                    "avg_sentiment": avg_sentiment,
+                    "avg_talk_ratio": avg_talk_ratio,
+                    "sentiment_trend": (
+                        "positive"
+                        if avg_sentiment > 0.3
+                        else "negative"
+                        if avg_sentiment < -0.3
+                        else "neutral"
+                    ),
+                    "talk_ratio_assessment": (
+                        "optimal"
+                        if 0.3 <= avg_talk_ratio <= 0.6
+                        else "needs_improvement"
+                    ),
+                },
+                "top_topics": dict(top_topics),
+                "call_insights": call_insights,
+                "recommendations": self._generate_call_recommendations(
+                    avg_sentiment, avg_talk_ratio, top_topics
+                ),
+            }
+
+        except Exception as e:
+            logger.error(f"Error analyzing deal calls: {e}")
+            return {"status": "error", "error": str(e), "call_count": 0, "insights": {}}
+
+    def _generate_call_recommendations(
+        self, avg_sentiment: float, avg_talk_ratio: float, top_topics: List[tuple]
+    ) -> List[Dict[str, Any]]:
+        """Generate recommendations based on call analysis"""
+        recommendations = []
+
+        # Sentiment-based recommendations
+        if avg_sentiment < 0.2:
+            recommendations.append(
+                {
+                    "type": "sentiment_improvement",
+                    "priority": "high",
+                    "title": "Address Customer Concerns",
+                    "description": f"Average sentiment is low ({avg_sentiment:.2f}). Focus on understanding and addressing customer concerns.",
+                    "actions": [
+                        "Schedule follow-up call to address specific concerns",
+                        "Prepare detailed responses to common objections",
+                        "Consider involving technical experts or executives",
+                    ],
+                }
+            )
+
+        # Talk ratio recommendations
+        if avg_talk_ratio > 0.7:
+            recommendations.append(
+                {
+                    "type": "discovery_improvement",
+                    "priority": "medium",
+                    "title": "Improve Discovery and Listening",
+                    "description": f"Talk ratio is high ({avg_talk_ratio:.1%}). Focus on asking questions and listening more.",
+                    "actions": [
+                        "Prepare open-ended discovery questions",
+                        "Practice active listening techniques",
+                        "Use silence strategically to encourage customer elaboration",
+                    ],
+                }
+            )
+
+        # Topic-based recommendations
+        if top_topics:
+            top_topic = top_topics[0][0]
+            recommendations.append(
+                {
+                    "type": "topic_focus",
+                    "priority": "medium",
+                    "title": f"Continue Focus on {top_topic}",
+                    "description": f"'{top_topic}' is the most discussed topic. Leverage this interest to advance the deal.",
+                    "actions": [
+                        f"Prepare detailed materials about {top_topic}",
+                        "Schedule demo or deep-dive session",
+                        "Connect with relevant technical experts",
+                    ],
+                }
+            )
+
+        return recommendations
+
+
+@dataclass
+class SupervisorAgent:
+    """
+    Supervisor Agent for orchestrating the workflow
+
+    This agent coordinates the overall analysis process, delegates tasks
+    to specialized agents, and consolidates findings into actionable insights.
+    """
+
+    name: str = "supervisor_agent"
+    description: str = "Orchestrates deal analysis workflow and consolidates insights"
+
+    # Service integrations
+    cortex_service: Optional[SnowflakeCortexService] = None
+    hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
+    ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
+
+    initialized: bool = False
+
+    async def initialize(self) -> None:
+        """Initialize services"""
+        if self.initialized:
+            return
+
+        try:
+            self.cortex_service = SnowflakeCortexService()
+            self.hubspot_connector = SnowflakeHubSpotConnector()
+            self.ai_memory = EnhancedAiMemoryMCPServer()
+
+            await self.ai_memory.initialize()
+
+            self.initialized = True
+            logger.info("✅ Supervisor Agent initialized")
+
+        except Exception as e:
+            logger.error(f"Failed to initialize Supervisor Agent: {e}")
+            raise
+
+    async def plan_analysis(self, state: WorkflowState) -> WorkflowState:
+        """
+        Plan the analysis workflow based on the request
+
+        Args:
+            state: Current workflow state
+
+        Returns:
+            Updated state with analysis plan
+        """
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Get deal information from HubSpot
+            async with self.hubspot_connector as connector:
+                deals_data = await connector.query_hubspot_deals(limit=1)
+
+                if not deals_data.empty:
+                    deal_info = deals_data.iloc[0]
+                    state["hubspot_deal_data"] = {
+                        "deal_id": state["deal_id"],
+                        "deal_name": deal_info.get("DEAL_NAME", "Unknown"),
+                        "company_name": deal_info.get("COMPANY_NAME", "Unknown"),
+                        "deal_stage": deal_info.get("DEAL_STAGE", "Unknown"),
+                        "amount": deal_info.get("AMOUNT", 0),
+                        "close_date": deal_info.get("CLOSE_DATE"),
+                        "owner": deal_info.get("HUBSPOT_OWNER_ID", "Unknown"),
+                    }
+                else:
+                    state["hubspot_deal_data"] = None
+                    state["error_messages"].append(
+                        f"Deal {state['deal_id']} not found in HubSpot"
+                    )
+
+            # Determine next action based on available data
+            if state["hubspot_deal_data"]:
+                state["next_action"] = "sales_coach_analysis"
+                state["supervisor_status"] = AgentStatus.COMPLETED
+            else:
+                state["next_action"] = "error_handling"
+                state["supervisor_status"] = AgentStatus.FAILED
+
+            logger.info(f"Analysis planned for deal {state['deal_id']}")
+            return state
+
+        except Exception as e:
+            logger.error(f"Error planning analysis: {e}")
+            state["error_messages"].append(f"Planning error: {str(e)}")
+            state["supervisor_status"] = AgentStatus.FAILED
+            state["next_action"] = "error_handling"
+            return state
+
+    async def consolidate_findings(self, state: WorkflowState) -> WorkflowState:
+        """
+        Consolidate findings from all agents into final recommendations
+
+        Args:
+            state: Current workflow state with agent results
+
+        Returns:
+            Updated state with consolidated findings
+        """
+        try:
+            # Generate consolidated analysis using Snowflake Cortex
+            async with self.cortex_service as cortex:
+                consolidation_prompt = f"""
+                Consolidate the following analysis results into executive insights and recommendations:
+                
+                Deal Information:
+                - Deal: {state["hubspot_deal_data"]["deal_name"] if state["hubspot_deal_data"] else "Unknown"}
+                - Company: {state["hubspot_deal_data"]["company_name"] if state["hubspot_deal_data"] else "Unknown"}
+                - Stage: {state["hubspot_deal_data"]["deal_stage"] if state["hubspot_deal_data"] else "Unknown"}
+                - Value: ${state["hubspot_deal_data"]["amount"]:,.0f if state['hubspot_deal_data'] and state['hubspot_deal_data']['amount'] else 0}
+                
+                Sales Coach Analysis:
+                {state.get("sales_coach_insights", {}).get("summary", "No sales coach analysis available")}
+                
+                Call Analysis Results:
+                {state.get("call_analysis_insights", {}).get("overall_assessment", "No call analysis available")}
+                
+                Provide:
+                1. Executive summary of deal health
+                2. Key opportunities and risks
+                3. Prioritized action items
+                4. Strategic recommendations
+                5. Success probability assessment
+                """
+
+                consolidated_analysis = await cortex.complete_text_with_cortex(
+                    prompt=consolidation_prompt, max_tokens=600
+                )
+
+            # Combine recommendations from all agents
+            all_recommendations = []
+
+            # Add sales coach recommendations
+            if state.get("sales_coach_insights", {}).get("recommendations"):
+                all_recommendations.extend(
+                    state["sales_coach_insights"]["recommendations"]
+                )
+
+            # Add call analysis recommendations
+            if state.get("call_analysis_insights", {}).get("recommendations"):
+                all_recommendations.extend(
+                    state["call_analysis_insights"]["recommendations"]
+                )
+
+            # Sort recommendations by priority
+            priority_order = {"high": 3, "medium": 2, "low": 1}
+            all_recommendations.sort(
+                key=lambda x: priority_order.get(x.get("priority", "low"), 1),
+                reverse=True,
+            )
+
+            state["consolidated_findings"] = {
+                "executive_summary": consolidated_analysis,
+                "deal_health_score": self._calculate_deal_health_score(state),
+                "key_metrics": {
+                    "call_sentiment": state.get("call_analysis_insights", {})
+                    .get("metrics", {})
+                    .get("avg_sentiment", 0),
+                    "call_count": state.get("call_analysis_insights", {}).get(
+                        "call_count", 0
+                    ),
+                    "deal_value": (
+                        state["hubspot_deal_data"]["amount"]
+                        if state["hubspot_deal_data"]
+                        else 0
+                    ),
+                    "deal_stage": (
+                        state["hubspot_deal_data"]["deal_stage"]
+                        if state["hubspot_deal_data"]
+                        else "Unknown"
+                    ),
+                },
+                "analysis_timestamp": datetime.now().isoformat(),
+            }
+
+            state["recommendations"] = all_recommendations[
+                :10
+            ]  # Top 10 recommendations
+            state["completed_at"] = datetime.now()
+            state["next_action"] = "complete"
+
+            # Store consolidated findings in AI Memory
+            await self.ai_memory.store_memory(
+                content=f"Deal Analysis: {consolidated_analysis}",
+                category="deal_analysis_workflow",
+                tags=["langgraph", "consolidated_analysis", state["deal_id"]],
+                importance_score=0.9,
+            )
+
+            logger.info(f"Consolidated findings for deal {state['deal_id']}")
+            return state
+
+        except Exception as e:
+            logger.error(f"Error consolidating findings: {e}")
+            state["error_messages"].append(f"Consolidation error: {str(e)}")
+            state["next_action"] = "error_handling"
+            return state
+
+    def _calculate_deal_health_score(self, state: WorkflowState) -> float:
+        """Calculate overall deal health score from 0-100"""
+        score = 50  # Base score
+
+        # Call sentiment impact (30 points)
+        call_metrics = state.get("call_analysis_insights", {}).get("metrics", {})
+        avg_sentiment = call_metrics.get("avg_sentiment", 0)
+        if avg_sentiment > 0.5:
+            score += 30
+        elif avg_sentiment > 0:
+            score += 15
+        elif avg_sentiment < -0.3:
+            score -= 20
+
+        # Call activity impact (20 points)
+        call_count = state.get("call_analysis_insights", {}).get("call_count", 0)
+        if call_count >= 5:
+            score += 20
+        elif call_count >= 2:
+            score += 10
+        elif call_count == 0:
+            score -= 15
+
+        # Deal stage impact (20 points)
+        deal_stage = (
+            state["hubspot_deal_data"]["deal_stage"]
+            if state["hubspot_deal_data"]
+            else ""
+        )
+        if "closing" in deal_stage.lower() or "negotiation" in deal_stage.lower():
+            score += 20
+        elif "proposal" in deal_stage.lower() or "decision" in deal_stage.lower():
+            score += 15
+        elif "discovery" in deal_stage.lower():
+            score += 5
+
+        return max(0, min(100, score))
+
+
+class LangGraphWorkflowOrchestrator:
+    """
+    LangGraph workflow orchestrator for deal analysis
+
+    This class creates and manages the LangGraph workflow that coordinates
+    between SupervisorAgent, SalesCoachAgent, and CallAnalysisAgent.
+    """
+
+    def __init__(self):
+        self.supervisor_agent = SupervisorAgent()
+        self.sales_coach_agent = SalesCoachAgent()
+        self.call_analysis_agent = CallAnalysisAgent()
+        self.workflow = None
+        self.memory = None
+
+        if not LANGGRAPH_AVAILABLE:
+            logger.warning(
+                "LangGraph not available. Install with: pip install langgraph"
+            )
+
+    async def initialize(self) -> None:
+        """Initialize all agents and create workflow"""
+        if not LANGGRAPH_AVAILABLE:
+            raise ImportError("LangGraph is required for workflow orchestration")
+
+        # Initialize all agents
+        await self.supervisor_agent.initialize()
+        await self.sales_coach_agent.initialize()
+        await self.call_analysis_agent.initialize()
+
+        # Create workflow graph
+        self.workflow = self._create_workflow()
+
+        # Initialize memory for checkpointing
+        self.memory = SqliteSaver.from_conn_string(":memory:")
+
+        logger.info("✅ LangGraph Workflow Orchestrator initialized")
+
+    def _create_workflow(self) -> StateGraph:
+        """Create the LangGraph workflow"""
+        workflow = StateGraph(WorkflowState)
+
+        # Add nodes for each agent
+        workflow.add_node("supervisor_planning", self._supervisor_planning_node)
+        workflow.add_node("sales_coach_analysis", self._sales_coach_analysis_node)
+        workflow.add_node("call_analysis", self._call_analysis_node)
+        workflow.add_node("consolidation", self._consolidation_node)
+        workflow.add_node("error_handling", self._error_handling_node)
+
+        # Define workflow edges with conditional routing
+        workflow.set_entry_point("supervisor_planning")
+
+        # Conditional routing from supervisor planning
+        workflow.add_conditional_edges(
+            "supervisor_planning",
+            self._should_continue_analysis,
+            {
+                "sales_coach_analysis": "sales_coach_analysis",
+                "error_handling": "error_handling",
+            },
+        )
+
+        # Conditional routing from sales coach analysis
+        workflow.add_conditional_edges(
+            "sales_coach_analysis",
+            self._should_continue_to_call_analysis,
+            {
+                "call_analysis": "call_analysis",
+                "consolidation": "consolidation",  # Skip call analysis if sales coach failed
+                "error_handling": "error_handling",
+            },
+        )
+
+        # Conditional routing from call analysis
+        workflow.add_conditional_edges(
+            "call_analysis",
+            self._should_continue_to_consolidation,
+            {"consolidation": "consolidation", "error_handling": "error_handling"},
+        )
+
+        # End states
+        workflow.add_edge("consolidation", END)
+        workflow.add_edge("error_handling", END)
+
+        return workflow.compile(checkpointer=self.memory)
+
+    async def _supervisor_planning_node(self, state: WorkflowState) -> WorkflowState:
+        """Supervisor planning node"""
+        state["supervisor_status"] = AgentStatus.RUNNING
+        result = await self.supervisor_agent.plan_analysis(state)
+        return result
+
+    async def _sales_coach_analysis_node(self, state: WorkflowState) -> WorkflowState:
+        """Sales coach analysis node"""
+        state["sales_coach_status"] = AgentStatus.RUNNING
+
+        try:
+            # Analyze the deal using sales coach agent
+            if state["hubspot_deal_data"]:
+                deal_data = state["hubspot_deal_data"]
+
+                # Create analysis context
+                analysis_result = await self.sales_coach_agent.create_coaching_summary(
+                    sales_rep=deal_data.get("owner", "Unknown"),
+                    time_period_days=90,
+                    include_action_plan=True,
+                )
+
+                state["sales_coach_insights"] = {
+                    "summary": f"Sales coaching analysis for deal {deal_data['deal_name']}",
+                    "analysis_result": analysis_result,
+                    "recommendations": [
+                        {
+                            "type": "sales_process",
+                            "priority": "medium",
+                            "title": "Follow Sales Best Practices",
+                            "description": "Continue following established sales methodology",
+                            "actions": [
+                                "Regular check-ins",
+                                "Process adherence",
+                                "Documentation",
+                            ],
+                        }
+                    ],
+                }
+                state["sales_coach_status"] = AgentStatus.COMPLETED
+            else:
+                state["sales_coach_status"] = AgentStatus.SKIPPED
+                state["error_messages"].append(
+                    "No HubSpot deal data available for sales coach analysis"
+                )
+
+        except Exception as e:
+            logger.error(f"Sales coach analysis error: {e}")
+            state["sales_coach_status"] = AgentStatus.FAILED
+            state["error_messages"].append(f"Sales coach error: {str(e)}")
+
+        return state
+
+    async def _call_analysis_node(self, state: WorkflowState) -> WorkflowState:
+        """Call analysis node"""
+        state["call_analysis_status"] = AgentStatus.RUNNING
+
+        try:
+            if state["hubspot_deal_data"]:
+                deal_data = state["hubspot_deal_data"]
+
+                # Analyze calls related to the deal
+                analysis_result = await self.call_analysis_agent.analyze_deal_calls(
+                    deal_id=state["deal_id"], company_name=deal_data.get("company_name")
+                )
+
+                state["call_analysis_insights"] = analysis_result
+                state["call_analysis_status"] = AgentStatus.COMPLETED
+            else:
+                state["call_analysis_status"] = AgentStatus.SKIPPED
+                state["error_messages"].append(
+                    "No deal data available for call analysis"
+                )
+
+        except Exception as e:
+            logger.error(f"Call analysis error: {e}")
+            state["call_analysis_status"] = AgentStatus.FAILED
+            state["error_messages"].append(f"Call analysis error: {str(e)}")
+
+        return state
+
+    async def _consolidation_node(self, state: WorkflowState) -> WorkflowState:
+        """Consolidation node"""
+        result = await self.supervisor_agent.consolidate_findings(state)
+        return result
+
+    async def _error_handling_node(self, state: WorkflowState) -> WorkflowState:
+        """Error handling node"""
+        state["next_action"] = "complete"
+        state["completed_at"] = datetime.now()
+
+        # Log errors
+        for error in state["error_messages"]:
+            logger.error(f"Workflow error: {error}")
+
+        return state
+
+    def _should_continue_analysis(self, state: WorkflowState) -> str:
+        """Determine if analysis should continue from supervisor planning"""
+        if state["supervisor_status"] == AgentStatus.COMPLETED:
+            return "sales_coach_analysis"
+        else:
+            return "error_handling"
+
+    def _should_continue_to_call_analysis(self, state: WorkflowState) -> str:
+        """Determine if workflow should continue to call analysis"""
+        if state["sales_coach_status"] == AgentStatus.COMPLETED:
+            return "call_analysis"
+        elif state["sales_coach_status"] == AgentStatus.FAILED:
+            # Continue to consolidation with partial results
+            logger.warning(
+                "Sales coach analysis failed, proceeding with partial results"
+            )
+            return "consolidation"
+        else:
+            return "error_handling"
+
+    def _should_continue_to_consolidation(self, state: WorkflowState) -> str:
+        """Determine if workflow should continue to consolidation"""
+        if state["call_analysis_status"] in [AgentStatus.COMPLETED, AgentStatus.FAILED]:
+            # Continue to consolidation even if call analysis failed (partial results)
+            return "consolidation"
+        else:
+            return "error_handling"
+
+    async def analyze_deal(
+        self,
+        deal_id: str,
+        analysis_type: str = "comprehensive",
+        user_request: str = "Analyze this deal",
+    ) -> Dict[str, Any]:
+        """
+        Run the complete deal analysis workflow
+
+        Args:
+            deal_id: HubSpot deal ID to analyze
+            analysis_type: Type of analysis to perform
+            user_request: Original user request
+
+        Returns:
+            Complete analysis results
+        """
+        if not self.workflow:
+            await self.initialize()
+
+        # Create initial state
+        initial_state = WorkflowState(
+            deal_id=deal_id,
+            analysis_type=analysis_type,
+            user_request=user_request,
+            supervisor_status=AgentStatus.PENDING,
+            sales_coach_status=AgentStatus.PENDING,
+            call_analysis_status=AgentStatus.PENDING,
+            hubspot_deal_data=None,
+            gong_calls_data=None,
+            sales_coach_insights=None,
+            call_analysis_insights=None,
+            consolidated_findings=None,
+            recommendations=None,
+            workflow_id=f"workflow_{deal_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            started_at=datetime.now(),
+            completed_at=None,
+            error_messages=[],
+            next_action="supervisor_planning",
+        )
+
+        try:
+            # Run the workflow
+            config = {"configurable": {"thread_id": initial_state["workflow_id"]}}
+            result = await self.workflow.ainvoke(initial_state, config)
+
+            logger.info(f"Workflow completed for deal {deal_id}")
+            return {
+                "status": "completed",
+                "workflow_id": result["workflow_id"],
+                "deal_id": deal_id,
+                "consolidated_findings": result.get("consolidated_findings"),
+                "recommendations": result.get("recommendations"),
+                "execution_time": (
+                    (result["completed_at"] - result["started_at"]).total_seconds()
+                    if result.get("completed_at")
+                    else None
+                ),
+                "errors": result.get("error_messages", []),
+            }
+
+        except Exception as e:
+            logger.error(f"Workflow execution error: {e}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "deal_id": deal_id,
+                "workflow_id": initial_state["workflow_id"],
+            }
+
+
+# Example usage function
+async def run_deal_analysis_workflow(deal_id: str) -> Dict[str, Any]:
+    """
+    Example function to run the deal analysis workflow
+
+    Args:
+        deal_id: HubSpot deal ID to analyze
+
+    Returns:
+        Analysis results
+    """
+    orchestrator = LangGraphWorkflowOrchestrator()
+
+    try:
+        result = await orchestrator.analyze_deal(
+            deal_id=deal_id,
+            analysis_type="comprehensive",
+            user_request=f"Analyze deal {deal_id} for executive insights",
+        )
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Failed to run workflow: {e}")
+        return {"status": "error", "error": str(e), "deal_id": deal_id}
+
+
+# CLI entry point for testing
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1:
+        deal_id = sys.argv[1]
+        result = asyncio.run(run_deal_analysis_workflow(deal_id))
+        print(json.dumps(result, indent=2, default=str))
+    else:
+        print("Usage: python langgraph_agent_orchestration.py <deal_id>")

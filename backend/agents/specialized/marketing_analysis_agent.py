@@ -370,136 +370,146 @@ class MarketingAnalysisAgent(BaseAgent):
     ) -> Dict[str, Any]:
         """
         Generate marketing content using AI with brand and competitive context
-
-        Args:
-            request: Content generation request
-
-        Returns:
-            Generated content with metadata
         """
         if not self.initialized:
             await self.initialize()
 
         try:
-            # Get brand and product context from knowledge base
-            brand_context = ""
-            product_context = ""
-            competitor_context = ""
-
-            if self.knowledge_service:
-                # Get product information
-                if request.product_context:
-                    product_info = await self.knowledge_service.search_entities(
-                        query=request.product_context, entity_type="product", limit=3
-                    )
-                    if product_info:
-                        product_context = "\n".join(
-                            [
-                                f"- {item['name']}: {item['description']}"
-                                for item in product_info
-                            ]
-                        )
-
-                # Get competitor information
-                competitor_info = await self.knowledge_service.search_entities(
-                    query=request.topic, entity_type="competitor", limit=2
-                )
-                if competitor_info:
-                    competitor_context = "\n".join(
-                        [
-                            f"- {item['name']}: {item['description']}"
-                            for item in competitor_info
-                        ]
-                    )
-
-            # Build comprehensive content generation prompt
-            content_prompt = self._build_content_prompt(
-                request, product_context, competitor_context, brand_context
-            )
-
-            # Use SmartAIService for creative content generation
-            llm_request = LLMRequest(
-                messages=[{"role": "user", "content": content_prompt}],
-                task_type=TaskType.CREATIVE_CONTENT,
-                performance_priority=False,
-                cost_sensitivity=0.6,
-                user_id="marketing_agent",
-                temperature=0.8,  # Higher creativity for content
-                metadata={
-                    "content_type": request.content_type.value,
-                    "audience": request.target_audience.value,
-                },
-            )
-
-            response = await smart_ai_service.generate_response(llm_request)
-            generated_content = response.content
-
-            # Generate content variations using Cortex
-            variations = []
-            if request.content_type in [ContentType.EMAIL_COPY, ContentType.AD_COPY]:
-                async with self.cortex_service as cortex:
-                    variation_prompt = f"""
-                    Create 2 alternative versions of this {request.content_type.value}:
-                    
-                    Original:
-                    {generated_content}
-                    
-                    Variations should maintain the same key message but use different approaches.
-                    """
-
-                    variations_text = await cortex.complete_text_with_cortex(
-                        prompt=variation_prompt, max_tokens=800
-                    )
-
-                    if variations_text:
-                        variations = [
-                            v.strip() for v in variations_text.split("---") if v.strip()
-                        ]
-
+            # Prepare content generation context
+            context = await self._prepare_content_context(request)
+            
+            # Generate content using AI
+            generated_content = await self._generate_content_with_ai(request, context)
+            
+            # Create content variations
+            variations = await self._generate_content_variations(request, generated_content)
+            
             # Analyze content quality
-            quality_score = await self._analyze_content_quality(
-                generated_content, request
+            quality_score = await self._analyze_content_quality(generated_content, request)
+            
+            # Store in AI Memory
+            await self._store_content_memory(request, generated_content, quality_score)
+            
+            # Format response
+            return self._format_content_response(
+                generated_content, variations, quality_score, request
             )
-
-            # Store content in AI Memory
-            await self.ai_memory.store_memory(
-                content=f"Generated {request.content_type.value} for {request.target_audience.value}: {request.topic}",
-                category=MemoryCategory.MARKETING_CONTENT,
-                tags=[
-                    "content_generation",
-                    request.content_type.value,
-                    request.target_audience.value,
-                    request.tone,
-                ],
-                importance_score=0.7,
-                metadata={
-                    "content_type": request.content_type.value,
-                    "quality_score": quality_score,
-                },
-            )
-
-            result = {
-                "content": generated_content,
-                "variations": variations,
-                "content_type": request.content_type.value,
-                "target_audience": request.target_audience.value,
-                "quality_score": quality_score,
-                "word_count": len(generated_content.split()),
-                "generated_at": datetime.now().isoformat(),
-                "model_used": response.model,
-                "cost_usd": response.cost_usd,
-                "generation_time_ms": response.latency_ms,
-            }
-
-            logger.info(
-                f"Generated {request.content_type.value} content for {request.target_audience.value}"
-            )
-            return result
 
         except Exception as e:
             logger.error(f"Error generating marketing content: {e}")
             return {"error": str(e), "content": ""}
 
+    async def _prepare_content_context(self, request: ContentGenerationRequest) -> Dict[str, str]:
+        """Prepare brand, product, and competitive context for content generation"""
+        context = {
+            "brand_context": "",
+            "product_context": "",
+            "competitor_context": ""
+        }
+        
+        if self.knowledge_service:
+            # Get product information
+            if request.product_context:
+                product_info = await self.knowledge_service.search_entities(
+                    query=request.product_context, entity_type="product", limit=3
+                )
+                if product_info:
+                    context["product_context"] = "
+".join([
+                        f"- {item['name']}: {item['description']}"
+                        for item in product_info
+                    ])
+
+            # Get competitor information
+            competitor_info = await self.knowledge_service.search_entities(
+                query=request.topic, entity_type="competitor", limit=2
+            )
+            if competitor_info:
+                context["competitor_context"] = "
+".join([
+                    f"- {item['name']}: {item['description']}"
+                    for item in competitor_info
+                ])
+        
+        return context
+
+    async def _generate_content_with_ai(self, request: ContentGenerationRequest, context: Dict[str, str]) -> str:
+        """Generate content using SmartAIService"""
+        # Build comprehensive content generation prompt
+        content_prompt = self._build_content_prompt(request, context)
+
+        # Use SmartAIService for creative content generation
+        llm_request = LLMRequest(
+            messages=[{"role": "user", "content": content_prompt}],
+            task_type=TaskType.CREATIVE_CONTENT,
+            performance_priority=False,
+            cost_sensitivity=0.6,
+            user_id="marketing_agent",
+            temperature=0.8,  # Higher creativity for content
+            metadata={
+                "content_type": request.content_type.value,
+                "audience": request.target_audience.value,
+            },
+        )
+
+        response = await smart_ai_service.generate_response(llm_request)
+        return response.content
+
+    async def _generate_content_variations(self, request: ContentGenerationRequest, content: str) -> List[str]:
+        """Generate content variations using Cortex"""
+        variations = []
+        
+        if request.content_type in [ContentType.EMAIL_COPY, ContentType.AD_COPY]:
+            async with self.cortex_service as cortex:
+                variation_prompt = f"""
+                Create 2 alternative versions of this {request.content_type.value}:
+                
+                Original:
+                {content}
+                
+                Variations should maintain the same key message but use different approaches.
+                """
+
+                variations_text = await cortex.complete_text_with_cortex(
+                    prompt=variation_prompt, max_tokens=800
+                )
+
+                if variations_text:
+                    variations = [
+                        v.strip() for v in variations_text.split("---") if v.strip()
+                    ]
+        
+        return variations
+
+    async def _store_content_memory(self, request: ContentGenerationRequest, content: str, quality_score: float):
+        """Store generated content in AI Memory"""
+        await self.ai_memory.store_memory(
+            content=f"Generated {request.content_type.value} for {request.target_audience.value}: {request.topic}",
+            category=MemoryCategory.MARKETING_CONTENT,
+            tags=[
+                "content_generation",
+                request.content_type.value,
+                request.target_audience.value,
+                request.tone,
+            ],
+            importance_score=0.7,
+            metadata={
+                "content_type": request.content_type.value,
+                "quality_score": quality_score,
+            },
+        )
+
+    def _format_content_response(self, content: str, variations: List[str], quality_score: float, request: ContentGenerationRequest) -> Dict[str, Any]:
+        """Format the final content generation response"""
+        return {
+            "content": content,
+            "variations": variations,
+            "content_type": request.content_type.value,
+            "target_audience": request.target_audience.value,
+            "quality_score": quality_score,
+            "word_count": len(content.split()),
+            "generated_at": datetime.now().isoformat(),
+        }
     async def analyze_audience_segments(
         self, segment_criteria: Dict[str, Any] = None
     ) -> List[AudienceSegmentAnalysis]:

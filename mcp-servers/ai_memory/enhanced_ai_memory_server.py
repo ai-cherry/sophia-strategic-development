@@ -238,79 +238,117 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
     async def smart_recall_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Enhanced memory recall with AI ranking and context awareness"""
         try:
-            query = request.get("query", "")
-            context = request.get("context", {})
-            filters = request.get("filters", {})
-            limit = request.get("limit", 10)
-
-            # Enhance query with context
-            enhanced_query = query
-            if context:
-                # Use AI to enhance the query based on context
-                model, _ = await self.route_to_model(
-                    task="enhance search query", context_size=len(json.dumps(context))
-                )
-
-                enhancement_prompt = f"""
-                Enhance this search query based on the current context:
-                Query: {query}
-                Context: {json.dumps(context, indent=2)}
-                
-                Return an enhanced search query that will find the most relevant memories.
-                """
-
-                result = await self.process_with_ai(
-                    {"prompt": enhancement_prompt}, model=model
-                )
-                enhanced_query = result.get("response", query)
-
-            # Search memories
-            memories = await self.memory_service.search_memories(
-                query=enhanced_query,
-                limit=limit * 2,  # Get more for AI ranking
-                memory_type=filters.get("type"),
-                date_from=filters.get("date_from"),
-                date_to=filters.get("date_to"),
-            )
-
-            if memories and len(memories) > limit:
-                # Use AI to rank and filter results
-                model, _ = await self.route_to_model(
-                    task="rank search results", context_size=len(json.dumps(memories))
-                )
-
-                ranking_prompt = f"""
-                Rank these search results by relevance to the query and context.
-                Return the top {limit} results with relevance scores.
-                
-                Query: {query}
-                Context: {json.dumps(context, indent=2)}
-                Results: {json.dumps(memories, indent=2)}
-                
-                Return as JSON array with relevance scores.
-                """
-
-                ranking_result = await self.process_with_ai(
-                    {"prompt": ranking_prompt}, model=model
-                )
-
-                try:
-                    ranked_memories = json.loads(ranking_result.get("response", "[]"))
-                    memories = ranked_memories[:limit]
-                except:
-                    memories = memories[:limit]
-
-            return {
-                "success": True,
-                "memories": memories,
-                "query": enhanced_query,
-                "total_found": len(memories),
-            }
-
+            query_context = await self._prepare_query_context(request)
+            enhanced_query = await self._enhance_query_with_ai(query_context)
+            raw_memories = await self._search_memories(enhanced_query, request)
+            ranked_memories = await self._rank_memories_with_ai(raw_memories, query_context)
+            
+            return self._format_recall_response(ranked_memories, enhanced_query)
         except Exception as e:
-            self.logger.error(f"Error in smart recall: {e}")
-            return {"success": False, "error": str(e)}
+            return self._handle_recall_error(e)
 
+    async def _prepare_query_context(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract and prepare query context from request"""
+        query = request.get("query", "")
+        context = request.get("context", {})
+        filters = request.get("filters", {})
+        
+        return {
+            "query": query,
+            "context": context,
+            "filters": filters,
+            "limit": request.get("limit", 10)
+        }
+
+    async def _enhance_query_with_ai(self, query_context: Dict[str, Any]) -> str:
+        """Use AI to enhance search query based on context"""
+        query = query_context["query"]
+        context = query_context["context"]
+        
+        if not context:
+            return query
+        
+        # Use AI to enhance the query based on context
+        model, _ = await self.route_to_model(
+            task="enhance search query", 
+            context_size=len(str(context))
+        )
+
+        enhancement_prompt = f"""
+        Enhance this search query based on the current context:
+        Query: {query}
+        Context: {context}
+        
+        Return an enhanced search query that will find the most relevant memories.
+        """
+
+        result = await self.process_with_ai(
+            {"prompt": enhancement_prompt}, model=model
+        )
+        return result.get("response", query)
+
+    async def _search_memories(self, enhanced_query: str, request: Dict[str, Any]) -> List[Dict]:
+        """Search memories with enhanced query"""
+        filters = request.get("filters", {})
+        limit = request.get("limit", 10)
+        
+        # Search memories using the enhanced query
+        memories = await self.memory_service.search_memories(
+            query=enhanced_query,
+            limit=limit * 2,  # Get more for AI ranking
+            memory_type=filters.get("type"),
+            date_from=filters.get("date_from"),
+            date_to=filters.get("date_to"),
+        )
+        
+        return memories or []
+
+    async def _rank_memories_with_ai(self, memories: List[Dict], query_context: Dict[str, Any]) -> List[Dict]:
+        """Use AI to rank and filter search results"""
+        if not memories or len(memories) <= query_context["limit"]:
+            return memories[:query_context["limit"]]
+        
+        # Use AI to rank results
+        model, _ = await self.route_to_model(
+            task="rank search results", 
+            context_size=len(str(memories))
+        )
+
+        ranking_prompt = f"""
+        Rank these search results by relevance to the query and context.
+        Return the top {query_context["limit"]} results with relevance scores.
+        
+        Query: {query_context["query"]}
+        Context: {query_context["context"]}
+        Results: {memories}
+        
+        Return as JSON array with relevance scores.
+        """
+
+        ranking_result = await self.process_with_ai(
+            {"prompt": ranking_prompt}, model=model
+        )
+
+        try:
+            import json
+            ranked_memories = json.loads(ranking_result.get("response", "[]"))
+            return ranked_memories[:query_context["limit"]]
+        except:
+            return memories[:query_context["limit"]]
+
+    def _format_recall_response(self, memories: List[Dict], enhanced_query: str) -> Dict[str, Any]:
+        """Format the final recall response"""
+        return {
+            "success": True,
+            "memories": memories,
+            "query": enhanced_query,
+            "total_found": len(memories),
+        }
+
+    def _handle_recall_error(self, error: Exception) -> Dict[str, Any]:
+        """Handle recall errors consistently"""
+        logger.error(f"Error in smart recall: {error}")
+        return {"success": False, "error": str(error)}
     async def update_memory_enhanced(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Update memory using improved diff editing"""
         try:
