@@ -57,6 +57,11 @@ class SophiaConfig:
     
     def _load_from_pulumi_esc(self) -> Optional[Dict[str, Any]]:
         """Load from Pulumi ESC."""
+        token = os.getenv("PULUMI_ACCESS_TOKEN")
+        if not token or not token.startswith("pul-"):
+            logger.warning("PULUMI_ACCESS_TOKEN is missing or invalid. Skipping Pulumi ESC.")
+            return None
+
         try:
             org = os.getenv("PULUMI_ORG", "scoobyjava-org")
             stack = "sophia-ai-production"
@@ -71,7 +76,7 @@ class SophiaConfig:
                 cmd, 
                 capture_output=True, 
                 text=True, 
-                timeout=30,
+                timeout=15, # Reduced timeout
                 check=False
             )
             
@@ -80,11 +85,20 @@ class SophiaConfig:
                 logger.debug(f"Successfully loaded from Pulumi ESC: {stack}")
                 return config
             else:
-                logger.warning(f"Pulumi ESC failed: {result.stderr.strip()}")
+                error_message = result.stderr.strip()
+                logger.warning(f"Pulumi ESC command failed. Error: {error_message}")
+                if "invalid access token" in error_message:
+                    logger.error("CRITICAL: The Pulumi Access Token is invalid. Please run 'source scripts/fix_environment_permanently.sh'")
                 return None
                 
+        except FileNotFoundError:
+            logger.error("Pulumi command not found. Please ensure Pulumi is installed and in your PATH.")
+            return None
+        except subprocess.TimeoutExpired:
+            logger.warning("Pulumi ESC command timed out. Check network connection and Pulumi status.")
+            return None
         except Exception as e:
-            logger.warning(f"Pulumi ESC error: {e}")
+            logger.warning(f"An unexpected error occurred while loading from Pulumi ESC: {e}")
             return None
     
     def _flatten_config(self, config: Dict[str, Any], prefix: str = "") -> Dict[str, Any]:
