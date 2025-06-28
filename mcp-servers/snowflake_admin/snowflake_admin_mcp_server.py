@@ -27,7 +27,7 @@ from backend.agents.specialized.snowflake_admin_agent import (
     execute_snowflake_admin_task,
     confirm_snowflake_admin_task,
 )
-from backend.mcp.base.standardized_mcp_server import StandardizedMCPServer, MCPServerConfig, HealthCheckResult, HealthStatus
+from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer, MCPServerConfig, HealthCheckResult, HealthStatus
 
 logger = logging.getLogger(__name__)
 

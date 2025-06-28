@@ -29,7 +29,7 @@ except ImportError:
     AsyncOpenAI = None
 
 # Import the standardized base class
-from backend.mcp.base.standardized_mcp_server import (
+from backend.mcp_servers.base.standardized_mcp_server import (
     StandardizedMCPServer, MCPServerConfig, SyncPriority, HealthStatus, HealthCheckResult
 )
 
