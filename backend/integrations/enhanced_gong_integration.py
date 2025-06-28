@@ -16,7 +16,7 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 import json
 
-from ..core.auto_esc_config import get_config_value
+from ..core.simple_config import get_gong_access_key
 from ..utils.enhanced_snowflake_cortex_service import EnhancedSnowflakeCortexService
 # EnhancedGongAPIClient is imported conditionally in __init__ method
 
@@ -107,20 +107,24 @@ class EnhancedGongIntegration:
     def __init__(self):
         try:
             # Get Gong API key from configuration
-            gong_api_key = get_config_value("gong_access_key")
-            if gong_api_key and gong_api_key != "None":
-                # Find the actual EnhancedGongAPIClient class and import it properly
+            gong_api_key = get_gong_access_key()
+            if gong_api_key and gong_api_key != "None" and len(gong_api_key) > 10:
+                # Try to import and initialize the Gong client
                 try:
                     from backend.integrations.gong_api_client_enhanced import EnhancedGongAPIClient
                     self.gong_client = EnhancedGongAPIClient(gong_api_key)
+                    logger.info("✅ Gong client initialized successfully")
                 except ImportError:
-                    logger.warning("EnhancedGongAPIClient not found - running in mock mode")
+                    logger.warning("⚠️ EnhancedGongAPIClient not found - running in mock mode")
+                    self.gong_client = None
+                except Exception as e:
+                    logger.warning(f"⚠️ Gong client initialization failed: {e} - running in mock mode")
                     self.gong_client = None
             else:
-                logger.warning("Gong API key not available - running in mock mode")
+                logger.warning("⚠️ Gong API key not available - running in mock mode")
                 self.gong_client = None
         except Exception as e:
-            logger.warning(f"Gong client initialization failed: {e}")
+            logger.warning(f"⚠️ Gong client initialization failed: {e} - running in mock mode")
             self.gong_client = None
         
         self.cortex_service = EnhancedSnowflakeCortexService()
