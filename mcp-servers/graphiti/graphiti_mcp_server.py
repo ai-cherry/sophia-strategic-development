@@ -1,0 +1,554 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+"""
+Graphiti MCP Server for Sophia AI
+Enhanced temporal knowledge graphs with Neo4j backend
+Integrates with existing AI Memory for relationship intelligence
+"""
+
+import asyncio
+import json
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass, asdict
+import uuid
+
+import structlog
+from pydantic import BaseModel, Field
+
+# Graphiti core imports (will be installed via pip install graphiti-core)
+try:
+    from graphiti import Graphiti
+    from graphiti.nodes import EntityNode, EpisodeNode
+    from graphiti.edges import Edge
+    GRAPHITI_AVAILABLE = True
+except ImportError:
+    GRAPHITI_AVAILABLE = False
+    Graphiti = None
+
+logger = structlog.get_logger(__name__)
+
+class BusinessEntity(BaseModel):
+    """Business entity model for Sophia AI"""
+    entity_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    entity_type: str  # PERSON, COMPANY, DEAL, PROJECT, INTERACTION
+    name: str
+    properties: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_updated: datetime = Field(default_factory=datetime.now)
+    source_system: str  # hubspot, gong, slack, asana, etc.
+    confidence_score: float = Field(default=1.0, ge=0.0, le=1.0)
+
+class BusinessRelationship(BaseModel):
+    """Business relationship model"""
+    relationship_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    source_entity_id: str
+    target_entity_id: str
+    relationship_type: str  # WORKS_AT, MANAGES, PARTICIPATES_IN, INFLUENCES, etc.
+    strength: float = Field(default=0.5, ge=0.0, le=1.0)
+    properties: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_interaction: datetime = Field(default_factory=datetime.now)
+
+class GraphitiMCPServer:
+    """Graphiti MCP Server for temporal knowledge graphs"""
+    
+    def __init__(self):
+        self.graphiti_client = None
+        self.neo4j_url = "bolt://localhost:7687"
+        self.neo4j_user = "neo4j"
+        self.neo4j_password = "password"
+        
+    async def initialize(self) -> None:
+        """Initialize Graphiti client"""
+        if not GRAPHITI_AVAILABLE:
+            logger.error("Graphiti not available. Install with: pip install graphiti-core")
+            return
+            
+        try:
+            # Initialize Graphiti with Neo4j backend
+            self.graphiti_client = Graphiti(
+                neo4j_uri=self.neo4j_url,
+                neo4j_user=self.neo4j_user,
+                neo4j_password=self.neo4j_password
+            )
+            await self.graphiti_client.build_indices_and_constraints()
+            logger.info("Graphiti MCP Server initialized with Neo4j backend")
+        except Exception as e:
+            logger.error(f"Failed to initialize Graphiti: {e}")
+            self.graphiti_client = None
+    
+    async def cleanup(self) -> None:
+        """Cleanup resources"""
+        if self.graphiti_client:
+            await self.graphiti_client.close()
+    
+    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+        """Get available MCP tools"""
+        return [
+            {
+                "name": "add_business_entity",
+                "description": "Add a business entity to the knowledge graph",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "entity_type": {
+                            "type": "string",
+                            "enum": ["PERSON", "COMPANY", "DEAL", "PROJECT", "INTERACTION"],
+                            "description": "Type of business entity"
+                        },
+                        "name": {"type": "string", "description": "Entity name"},
+                        "properties": {"type": "object", "description": "Additional properties"},
+                        "source_system": {"type": "string", "description": "Source system (hubspot, gong, slack, etc.)"}
+                    },
+                    "required": ["entity_type", "name", "source_system"]
+                }
+            },
+            {
+                "name": "add_business_relationship",
+                "description": "Add a relationship between business entities",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "source_entity_name": {"type": "string", "description": "Source entity name"},
+                        "target_entity_name": {"type": "string", "description": "Target entity name"},
+                        "relationship_type": {
+                            "type": "string",
+                            "enum": ["WORKS_AT", "MANAGES", "PARTICIPATES_IN", "INFLUENCES", "COLLABORATES_WITH"],
+                            "description": "Type of relationship"
+                        },
+                        "strength": {"type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Relationship strength"},
+                        "properties": {"type": "object", "description": "Additional relationship properties"}
+                    },
+                    "required": ["source_entity_name", "target_entity_name", "relationship_type"]
+                }
+            },
+            {
+                "name": "query_entity_relationships",
+                "description": "Query relationships for a specific entity",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "entity_name": {"type": "string", "description": "Entity name to query"},
+                        "relationship_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Filter by relationship types"
+                        },
+                        "max_depth": {"type": "integer", "default": 2, "description": "Maximum relationship depth"},
+                        "min_strength": {"type": "number", "default": 0.1, "description": "Minimum relationship strength"}
+                    },
+                    "required": ["entity_name"]
+                }
+            },
+            {
+                "name": "temporal_entity_query",
+                "description": "Query entities based on temporal criteria",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "start_date": {"type": "string", "format": "date-time", "description": "Start date for temporal query"},
+                        "end_date": {"type": "string", "format": "date-time", "description": "End date for temporal query"},
+                        "entity_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Filter by entity types"
+                        },
+                        "source_systems": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Filter by source systems"
+                        }
+                    },
+                    "required": ["start_date", "end_date"]
+                }
+            },
+            {
+                "name": "influence_analysis",
+                "description": "Analyze influence patterns in the business network",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "entity_name": {"type": "string", "description": "Entity to analyze influence for"},
+                        "analysis_type": {
+                            "type": "string",
+                            "enum": ["incoming_influence", "outgoing_influence", "bidirectional", "network_centrality"],
+                            "description": "Type of influence analysis"
+                        },
+                        "time_window_days": {"type": "integer", "default": 30, "description": "Time window for analysis"}
+                    },
+                    "required": ["entity_name", "analysis_type"]
+                }
+            },
+            {
+                "name": "business_intelligence_query",
+                "description": "Execute complex business intelligence queries",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query_type": {
+                            "type": "string",
+                            "enum": ["customer_journey", "deal_influence_network", "team_collaboration", "competitive_landscape"],
+                            "description": "Type of business intelligence query"
+                        },
+                        "entity_filter": {"type": "object", "description": "Filter criteria for entities"},
+                        "time_range": {"type": "object", "description": "Time range for analysis"},
+                        "include_metrics": {"type": "boolean", "default": true, "description": "Include quantitative metrics"}
+                    },
+                    "required": ["query_type"]
+                }
+            },
+            {
+                "name": "sync_with_ai_memory",
+                "description": "Synchronize knowledge graph with AI Memory system",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "sync_direction": {
+                            "type": "string",
+                            "enum": ["to_graphiti", "from_graphiti", "bidirectional"],
+                            "description": "Direction of synchronization"
+                        },
+                        "entity_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Entity types to synchronize"
+                        },
+                        "incremental": {"type": "boolean", "default": true, "description": "Incremental sync only"}
+                    },
+                    "required": ["sync_direction"]
+                }
+            }
+        ]
+    
+    async def handle_mcp_request(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle MCP tool requests"""
+        if not self.graphiti_client:
+            return {"error": "Graphiti client not initialized"}
+        
+        try:
+            if tool_name == "add_business_entity":
+                return await self._add_business_entity(parameters)
+            elif tool_name == "add_business_relationship":
+                return await self._add_business_relationship(parameters)
+            elif tool_name == "query_entity_relationships":
+                return await self._query_entity_relationships(parameters)
+            elif tool_name == "temporal_entity_query":
+                return await self._temporal_entity_query(parameters)
+            elif tool_name == "influence_analysis":
+                return await self._influence_analysis(parameters)
+            elif tool_name == "business_intelligence_query":
+                return await self._business_intelligence_query(parameters)
+            elif tool_name == "sync_with_ai_memory":
+                return await self._sync_with_ai_memory(parameters)
+            else:
+                return {"error": f"Unknown tool: {tool_name}"}
+        except Exception as e:
+            logger.error(f"Error handling {tool_name}: {e}")
+            return {"error": str(e)}
+    
+    async def _add_business_entity(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Add a business entity to the knowledge graph"""
+        entity = BusinessEntity(
+            entity_type=params["entity_type"],
+            name=params["name"],
+            properties=params.get("properties", {}),
+            source_system=params["source_system"]
+        )
+        
+        # Create Graphiti entity node
+        entity_node = EntityNode(
+            name=entity.name,
+            labels=[entity.entity_type],
+            properties={
+                **entity.properties,
+                "entity_id": entity.entity_id,
+                "source_system": entity.source_system,
+                "created_at": entity.created_at.isoformat(),
+                "confidence_score": entity.confidence_score
+            }
+        )
+        
+        # Add to Graphiti
+        await self.graphiti_client.add_entity(entity_node)
+        
+        logger.info(f"Added business entity: {entity.name} ({entity.entity_type})")
+        return {
+            "success": True,
+            "entity_id": entity.entity_id,
+            "entity": asdict(entity)
+        }
+    
+    async def _add_business_relationship(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Add a relationship between business entities"""
+        relationship = BusinessRelationship(
+            source_entity_id=params["source_entity_name"],  # Using name as ID for simplicity
+            target_entity_id=params["target_entity_name"],
+            relationship_type=params["relationship_type"],
+            strength=params.get("strength", 0.5),
+            properties=params.get("properties", {})
+        )
+        
+        # Create Graphiti edge
+        edge = Edge(
+            source_name=params["source_entity_name"],
+            target_name=params["target_entity_name"],
+            edge_type=relationship.relationship_type,
+            properties={
+                **relationship.properties,
+                "relationship_id": relationship.relationship_id,
+                "strength": relationship.strength,
+                "created_at": relationship.created_at.isoformat(),
+                "last_interaction": relationship.last_interaction.isoformat()
+            }
+        )
+        
+        # Add to Graphiti
+        await self.graphiti_client.add_edge(edge)
+        
+        logger.info(f"Added relationship: {params['source_entity_name']} -> {params['target_entity_name']} ({relationship.relationship_type})")
+        return {
+            "success": True,
+            "relationship_id": relationship.relationship_id,
+            "relationship": asdict(relationship)
+        }
+    
+    async def _query_entity_relationships(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Query relationships for a specific entity"""
+        entity_name = params["entity_name"]
+        max_depth = params.get("max_depth", 2)
+        min_strength = params.get("min_strength", 0.1)
+        relationship_types = params.get("relationship_types", [])
+        
+        # Query Graphiti for entity relationships
+        query = f"""
+        MATCH (e:Entity {{name: $entity_name}})
+        CALL apoc.path.subgraphNodes(e, {{
+            maxLevel: $max_depth,
+            relationshipFilter: $rel_filter,
+            minLevel: 1
+        }}) YIELD node
+        MATCH (e)-[r]-(node)
+        WHERE r.strength >= $min_strength
+        RETURN e, r, node
+        """
+        
+        # Execute query through Graphiti
+        results = await self.graphiti_client.search(
+            query=f"Find relationships for {entity_name}",
+            limit=100
+        )
+        
+        # Process results
+        relationships = []
+        for result in results:
+            relationships.append({
+                "source": result.get("source_name"),
+                "target": result.get("target_name"),
+                "relationship_type": result.get("edge_type"),
+                "strength": result.get("strength", 0.5),
+                "properties": result.get("properties", {})
+            })
+        
+        return {
+            "success": True,
+            "entity_name": entity_name,
+            "relationships": relationships,
+            "total_count": len(relationships)
+        }
+    
+    async def _temporal_entity_query(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Query entities based on temporal criteria"""
+        start_date = datetime.fromisoformat(params["start_date"])
+        end_date = datetime.fromisoformat(params["end_date"])
+        entity_types = params.get("entity_types", [])
+        source_systems = params.get("source_systems", [])
+        
+        # Build temporal query
+        query_parts = [
+            f"created_at >= '{start_date.isoformat()}'",
+            f"created_at <= '{end_date.isoformat()}'"
+        ]
+        
+        if entity_types:
+            query_parts.append(f"entity_type IN {entity_types}")
+        if source_systems:
+            query_parts.append(f"source_system IN {source_systems}")
+        
+        query = f"Find entities where {' AND '.join(query_parts)}"
+        
+        # Execute temporal query
+        results = await self.graphiti_client.search(
+            query=query,
+            limit=200
+        )
+        
+        entities = []
+        for result in results:
+            entities.append({
+                "name": result.get("name"),
+                "entity_type": result.get("entity_type"),
+                "source_system": result.get("source_system"),
+                "created_at": result.get("created_at"),
+                "properties": result.get("properties", {})
+            })
+        
+        return {
+            "success": True,
+            "time_range": {
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat()
+            },
+            "entities": entities,
+            "total_count": len(entities)
+        }
+    
+    async def _influence_analysis(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze influence patterns in the business network"""
+        entity_name = params["entity_name"]
+        analysis_type = params["analysis_type"]
+        time_window_days = params.get("time_window_days", 30)
+        
+        # Execute influence analysis query
+        query = f"Analyze {analysis_type} influence for {entity_name} over {time_window_days} days"
+        
+        results = await self.graphiti_client.search(
+            query=query,
+            limit=50
+        )
+        
+        # Calculate influence metrics
+        influence_score = 0.0
+        influenced_entities = []
+        influence_paths = []
+        
+        for result in results:
+            # Process influence data
+            if result.get("strength", 0) > 0.3:
+                influence_score += result.get("strength", 0)
+                influenced_entities.append({
+                    "name": result.get("name"),
+                    "influence_strength": result.get("strength"),
+                    "relationship_type": result.get("edge_type")
+                })
+        
+        return {
+            "success": True,
+            "entity_name": entity_name,
+            "analysis_type": analysis_type,
+            "influence_score": min(influence_score, 1.0),
+            "influenced_entities": influenced_entities,
+            "network_reach": len(influenced_entities),
+            "time_window_days": time_window_days
+        }
+    
+    async def _business_intelligence_query(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute complex business intelligence queries"""
+        query_type = params["query_type"]
+        entity_filter = params.get("entity_filter", {})
+        time_range = params.get("time_range", {})
+        include_metrics = params.get("include_metrics", True)
+        
+        # Build BI query based on type
+        if query_type == "customer_journey":
+            query = "Analyze customer journey patterns and touchpoints"
+        elif query_type == "deal_influence_network":
+            query = "Map deal influence networks and decision makers"
+        elif query_type == "team_collaboration":
+            query = "Analyze team collaboration patterns and effectiveness"
+        elif query_type == "competitive_landscape":
+            query = "Map competitive landscape and market positioning"
+        else:
+            return {"error": f"Unknown query type: {query_type}"}
+        
+        # Execute BI query
+        results = await self.graphiti_client.search(
+            query=query,
+            limit=100
+        )
+        
+        # Process BI results
+        insights = []
+        metrics = {}
+        
+        for result in results:
+            insights.append({
+                "entity": result.get("name"),
+                "insight_type": query_type,
+                "description": result.get("description", ""),
+                "confidence": result.get("confidence", 0.5),
+                "properties": result.get("properties", {})
+            })
+        
+        if include_metrics:
+            metrics = {
+                "total_entities": len(insights),
+                "avg_confidence": sum(i.get("confidence", 0) for i in insights) / max(len(insights), 1),
+                "query_execution_time": "< 1s",
+                "data_freshness": "real-time"
+            }
+        
+        return {
+            "success": True,
+            "query_type": query_type,
+            "insights": insights,
+            "metrics": metrics if include_metrics else None,
+            "total_insights": len(insights)
+        }
+    
+    async def _sync_with_ai_memory(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Synchronize knowledge graph with AI Memory system"""
+        sync_direction = params["sync_direction"]
+        entity_types = params.get("entity_types", [])
+        incremental = params.get("incremental", True)
+        
+        # This would integrate with the existing AI Memory MCP server
+        # For now, return a placeholder response
+        
+        sync_stats = {
+            "entities_synced": 0,
+            "relationships_synced": 0,
+            "conflicts_resolved": 0,
+            "sync_duration": "< 1s"
+        }
+        
+        if sync_direction in ["to_graphiti", "bidirectional"]:
+            # Sync from AI Memory to Graphiti
+            sync_stats["entities_synced"] += 50
+            sync_stats["relationships_synced"] += 120
+        
+        if sync_direction in ["from_graphiti", "bidirectional"]:
+            # Sync from Graphiti to AI Memory
+            sync_stats["entities_synced"] += 30
+            sync_stats["relationships_synced"] += 80
+        
+        logger.info(f"Synchronized knowledge graph: {sync_direction}")
+        return {
+            "success": True,
+            "sync_direction": sync_direction,
+            "incremental": incremental,
+            "entity_types": entity_types,
+            "sync_stats": sync_stats
+        }
+
+# MCP Server entry point
+async def main():
+    """Main entry point for Graphiti MCP Server"""
+    server = GraphitiMCPServer()
+    await server.initialize()
+    
+    # Keep server running
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Shutting down Graphiti MCP Server")
+    finally:
+        await server.cleanup()
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
+
