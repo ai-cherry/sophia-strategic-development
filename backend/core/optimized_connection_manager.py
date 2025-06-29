@@ -63,6 +63,7 @@ except ImportError:
 
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
+from backend.core.snowflake_override import get_snowflake_connection_params
 from backend.core.performance_monitor import performance_monitor
 
 # Import Snowflake configuration override for correct connectivity
@@ -295,7 +296,9 @@ class OptimizedConnectionPool:
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            return snowflake.connector.connect(**params)
+        # Use override parameters
+        sf_params = get_snowflake_connection_params()
+        connection = snowflake.connector.connect(**sf_params)
 
         return await asyncio.to_thread(_sync_connect)
 

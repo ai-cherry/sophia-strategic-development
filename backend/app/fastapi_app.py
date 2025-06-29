@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
 from backend.presentation.api.router import create_application_router
+from backend.core.startup_config import apply_startup_configuration
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,9 @@ def create_fastapi_app() -> FastAPI:
     Create and configure the FastAPI application
     """
     # Create FastAPI app with lifespan management
+# Apply startup configuration
+apply_startup_configuration()
+
     app = FastAPI(
         title="Sophia AI Platform",
         description="AI-powered business intelligence and automation platform",
