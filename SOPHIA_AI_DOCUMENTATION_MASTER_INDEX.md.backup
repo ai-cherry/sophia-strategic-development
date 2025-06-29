@@ -94,7 +94,7 @@ docs/
 #### **🚀 Deployment (Priority 2)**
 - **[infrastructure/](infrastructure/)** - Pulumi infrastructure code
 - **[SOPHIA_AI_COMPREHENSIVE_DEPLOYMENT_REPORT.md](SOPHIA_AI_COMPREHENSIVE_DEPLOYMENT_REPORT.md)** - Deployment guide
-- **[.github/workflows/](.github/workflows/)** - CI/CD pipelines
+- **[.github/workflows/](..github/workflows/)** - CI/CD pipelines
 
 #### **🔌 Integrations (Priority 3)**
 - **[mcp-servers/](mcp-servers/)** - 23 MCP server implementations
@@ -255,4 +255,4 @@ $ python -c "from backend.app.fastapi_app import app; print('✅ All systems ope
 
 **🚀 CURRENT STATUS: Production-ready enterprise AI orchestrator with world-class development experience**
 
-**📞 SUPPORT: For issues, run diagnostic commands and check troubleshooting matrix above**
+**📞 SUPPORT: For issues, run diagnostic commands and check troubleshooting matrix above** 
