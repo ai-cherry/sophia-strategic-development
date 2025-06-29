@@ -181,7 +181,7 @@ class SecurityConfig:
     # Non-secret configuration values
     NON_SECRET_CONFIG: dict[str, str] = {
         # Snowflake Connection Details
-        "snowflake_account": "scoobyjava-vw02766",
+        "snowflake_account": "ZNB04675",
         "snowflake_user": "PAYREADY",
         "snowflake_role": "SYSADMIN",
         "snowflake_warehouse": "COMPUTE_WH",
