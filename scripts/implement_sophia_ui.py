@@ -126,7 +126,7 @@ class SophiaUIImplementation:
 
             # Install backend dependencies
             if not self._run_command(
-                ["pip", "install", "-r", "requirements.txt"],
+                ["uv", "sync"],
                 cwd=self.backend_dir,
                 description="Installing backend dependencies",
             ):

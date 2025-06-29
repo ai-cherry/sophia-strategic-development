@@ -1,0 +1,390 @@
+"""
+Enhanced GitHub Actions Workflow with Comprehensive Oversight
+Integrates deployment oversight system with CI/CD pipeline
+"""
+
+name: Enhanced Deployment with Oversight
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Deployment type'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+        - standard:
+        - hotfix:
+        - rollback:
+      auto_rollback:
+        description: 'Enable automatic rollback'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  DEPLOYMENT_ID: ${{ github.run_id }}-${{ github.run_attempt }}
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  pre-deployment-validation:
+    runs-on: ubuntu-latest
+    outputs:
+      validation-status: ${{ steps.validate.outputs.status }}
+      deployment-approved: ${{ steps.validate.outputs.approved }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        uv sync:
+        uv sync --group dev
+
+    - name: Security scan
+      run: |
+        echo "🔍 Scanning for hardcoded secrets...":
+        python -m bandit -r backend/ -f json -o security-report.json || true:
+        python -m safety check --json --output safety-report.json || true
+
+    - name: Performance benchmarks
+      run: |
+        echo "⚡ Running performance benchmarks...":
+        python scripts/performance_benchmarks.py --output benchmarks.json
+
+    - name: Deployment validation
+      id: validate
+      run: |
+        echo "🎯 Validating deployment configuration...":
+        python -c ":
+        import json:
+        import sys:
+        from backend.core.deployment_oversight_system import DeploymentOversightSystem:
+        import asyncio
+
+        async def validate():
+            oversight = DeploymentOversightSystem()
+            config = {
+                'deployment_type': '${{ github.event.inputs.deployment_type || 'standard' }}',
+                'auto_rollback': ${{ github.event.inputs.auto_rollback || true }},
+                'commit_sha': '${{ github.sha }}',
+                'branch': '${{ github.ref_name }}',
+                'environment': 'production'
+            }
+
+            result = await oversight.pre_deployment_validation(config)
+
+            print(f'Validation Status: {result[\"overall_status\"]}')
+            print(f'::set-output name=status::{result[\"overall_status\"]}')
+            print(f'::set-output name=approved::{result[\"overall_status\"] in [\"approved\", \"approved_with_warnings\"]}')
+
+            if result['blocking_issues']:
+                print('❌ Blocking Issues Found:')
+                for issue in result['blocking_issues']:
+                    print(f'  - {issue}'):
+                sys.exit(1)
+
+            if result['warnings']:
+                print('⚠️ Warnings:')
+                for warning in result['warnings']:
+                    print(f'  - {warning}')
+
+            with open('validation-report.json', 'w') as f:
+                json.dump(result, f, indent=2, default=str)
+
+        asyncio.run(validate()):
+        "
+
+    - name: Upload validation report
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-report
+        path: validation-report.json
+
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('validation-report.json', 'utf8'));
+
+          const status = report.overall_status;
+          const emoji = status === 'approved' ? '✅' : status === 'approved_with_warnings' ? '⚠️' : '❌';
+
+          const comment = `
+          ## ${emoji} Deployment Validation Report
+
+          **Status:** ${status.toUpperCase()}
+
+          ### Security Check:
+          - Status: ${report.checks.security?.status || 'unknown'}
+          - Score: ${(report.checks.security?.score * 100).toFixed(1)}%
+
+          ### Performance Check:
+          - Status: ${report.checks.performance?.status || 'unknown'}
+          - Score: ${(report.checks.performance?.score * 100).toFixed(1)}%
+
+          ### Dependencies Check:
+          - Status: ${report.checks.dependencies?.status || 'unknown'}
+
+          ${report.warnings.length > 0 ? `:
+          ### ⚠️ Warnings:
+          ${report.warnings.map(w => `- ${w}`).join('\n')}
+          ` : ''}
+
+          ${report.blocking_issues.length > 0 ? `:
+          ### ❌ Blocking Issues:
+          ${report.blocking_issues.map(i => `- ${i}`).join('\n')}
+          ` : ''}
+          `;
+
+          github.rest.issues.createComment({:
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  deploy-infrastructure:
+    needs: pre-deployment-validation
+    if: needs.pre-deployment-validation.outputs.deployment-approved == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Pulumi
+      uses: pulumi/actions@v4
+
+    - name: Start deployment monitoring
+      run: |
+        echo "📊 Starting deployment monitoring...":
+        docker-compose exec -T iac-toolkit python -c ":
+        from backend.core.deployment_oversight_system import DeploymentValidator:
+        import asyncio:
+        # This is now a placeholder, as the real validation happens in the next job.:
+        # A real implementation could use this to register the deployment in a database.:
+        print('Simulating start of deployment monitoring.'):
+        "
+
+    - name: Deploy infrastructure
+      run: |
+        echo "🏗️ Deploying infrastructure via iac-toolkit...":
+        docker-compose exec -T iac-toolkit pulumi up --yes --stack production --cwd /app/infrastructure
+
+    - name: Validate infrastructure deployment
+      run: |
+        echo "✅ Validating infrastructure...":
+        python scripts/validate_infrastructure.py --deployment-id ${{ env.DEPLOYMENT_ID }}
+
+  deploy-backend:
+    needs: [pre-deployment-validation, deploy-infrastructure]
+    if: needs.pre-deployment-validation.outputs.deployment-approved == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Build and deploy backend
+      env:
+        COMMIT_SHA: ${{ github.sha }}
+      run: |
+        echo "🚀 Building backend...":
+        docker build -t sophia-backend:${COMMIT_SHA} .
+
+        echo "📦 Deploying backend...":
+        # Deploy to Lambda Labs or your preferred platform:
+        python scripts/deploy_backend.py --image sophia-backend:${COMMIT_SHA}
+
+    - name: Run health checks
+      run: |
+        echo "🏥 Running health checks...":
+        python scripts/health_checks.py --deployment-id ${{ env.DEPLOYMENT_ID }}
+
+  deploy-frontend:
+    needs: [pre-deployment-validation, deploy-backend]
+    if: needs.pre-deployment-validation.outputs.deployment-approved == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Build frontend
+      run: |
+        cd frontend:
+        npm ci:
+        npm run build
+
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./frontend
+
+  post-deployment-validation:
+    needs: [deploy-infrastructure, deploy-backend, deploy-frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: Comprehensive system validation
+      run: |
+        echo "🔍 Running comprehensive system validation...":
+        python -c ":
+        import asyncio:
+        import json:
+        from backend.core.deployment_oversight_system import DeploymentOversightSystem
+
+        async def validate():
+            oversight = DeploymentOversightSystem()
+
+            # Wait for system to stabilize:
+            await asyncio.sleep(60)
+
+            # Get deployment health:
+            dashboard = await oversight.get_deployment_dashboard()
+
+            print('📊 Deployment Dashboard:')
+            print(json.dumps(dashboard, indent=2, default=str))
+
+            # Check if rollback is needed:
+            rollback_decision = await oversight.automatic_rollback_decision('${{ env.DEPLOYMENT_ID }}')
+
+            if rollback_decision['should_rollback']:
+                print('❌ Automatic rollback triggered!'):
+                print(f'Reasons: {rollback_decision[\"triggers\"]}')
+
+                rollback_result = await oversight.execute_rollback(
+                    '${{ env.DEPLOYMENT_ID }}',:
+                    'Automatic rollback due to validation failure':
+                )
+
+                if rollback_result['success']:
+                    print('✅ Rollback completed successfully'):
+                else:
+                    print('❌ Rollback failed!'):
+                    exit(1):
+            else:
+                print('✅ Deployment validation passed')
+
+        asyncio.run(validate()):
+        "
+
+    - name: Performance regression test
+      run: |
+        echo "⚡ Running performance regression tests...":
+        python scripts/performance_regression_test.py --deployment-id ${{ env.DEPLOYMENT_ID }}
+
+    - name: Business metrics validation
+      run: |
+        echo "📈 Validating business metrics...":
+        python scripts/business_metrics_validation.py --deployment-id ${{ env.DEPLOYMENT_ID }}
+
+    - name: Security validation
+      run: |
+        echo "🔒 Running security validation...":
+        python scripts/security_validation.py --deployment-id ${{ env.DEPLOYMENT_ID }}
+
+  deployment-notification:
+    needs: [post-deployment-validation]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Determine deployment status
+      id: status
+      run: |
+        if [[ "${{ needs.post-deployment-validation.result }}" == "success" ]]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "emoji=✅" >> $GITHUB_OUTPUT
+          echo "message=Deployment completed successfully" >> $GITHUB_OUTPUT
+        else:
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "emoji=❌" >> $GITHUB_OUTPUT
+          echo "message=Deployment failed or was rolled back" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Send Slack notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {:
+            "text": "${{ steps.status.outputs.emoji }} Sophia AI Deployment",
+            "attachments": [
+              {:
+                "color": "${{ steps.status.outputs.status == 'success' && 'good' || 'danger' }}",
+                "fields": [
+                  {:
+                    "title": "Status",
+                    "value": "${{ steps.status.outputs.message }}",
+                    "short": true
+                  },:
+                  {:
+                    "title": "Deployment ID",
+                    "value": "${{ env.DEPLOYMENT_ID }}",
+                    "short": true
+                  },:
+                  {:
+                    "title": "Commit",
+                    "value": "<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>",
+                    "short": true
+                  },:
+                  {:
+                    "title": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "short": true
+                  }:
+                ]:
+              }:
+            ]:
+          }:
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Update deployment status
+      run: |
+        echo "📝 Updating deployment status...":
+        docker-compose exec -T iac-toolkit python -c ":
+        print('Final deployment status update would happen here.'):
+        # Example: update_status_in_db('${{ steps.status.outputs.status }}')
+        "

@@ -28,7 +28,7 @@ source venv/bin/activate
 
 # Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt
+uv sync
 
 # Initialize Pulumi stacks
 echo "Initializing Pulumi stacks..."

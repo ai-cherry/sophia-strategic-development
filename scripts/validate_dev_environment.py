@@ -52,7 +52,7 @@ def validate_environment():
         print("✅ Core dependencies available")
     except ImportError as e:
         print(f"❌ Missing dependencies: {e}")
-        print("💡 Run: pip install -r requirements.txt")
+        print("💡 Run: uv sync")
         return False
 
     # Check project structure

@@ -343,7 +343,7 @@ RUN apt-get update && apt-get install -y \\
 
 # Copy requirements and install Python dependencies
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv sync --frozen --no-cache
 
 # Copy application code
 COPY backend/ ./backend/
