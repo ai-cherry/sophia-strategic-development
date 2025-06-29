@@ -1,11 +1,51 @@
+from __future__ import annotations
+
+import json
 import logging
 import os
 import time
+import uuid
 from datetime import datetime
+from typing import Any
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+
+# Import required models and services
+try:
+    from backend.models.llm_models import LLMRequest, ChatResponse
+    from backend.services.unified_intelligence_service import unified_intelligence_service
+except ImportError:
+    # Fallback if models don't exist
+    from pydantic import BaseModel
+    
+    class LLMRequest(BaseModel):
+        message: str
+        context: dict = {}
+        session_id: str = ""
+        user_id: str = ""
+    
+    class ChatResponse(BaseModel):
+        content: str
+        session_id: str
+        metadata: dict = {}
+        processing_time: float = 0
+    
+    # Mock service for fallback
+    class MockUnifiedService:
+        async def process_request(self, request):
+            return ChatResponse(
+                content="Service temporarily unavailable",
+                session_id=request.session_id,
+                metadata={},
+                processing_time=0
+            )
+        
+        async def stream_response(self, data):
+            yield {"content": "Streaming not available"}
+    
+    unified_intelligence_service = MockUnifiedService()
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

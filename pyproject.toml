@@ -91,6 +91,7 @@ dependencies = [
     "marshmallow>=3.26.1",
     "asyncpg>=0.30.0",
     "psutil>=7.0.0",
+    "markdownify>=1.1.0",
 ]
 
 [dependency-groups]

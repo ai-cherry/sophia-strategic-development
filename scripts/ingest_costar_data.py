@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 CoStar Data Ingestion Script for Sophia AI
 
@@ -6,7 +7,6 @@ Standalone script for processing CoStar real estate market data files
 Supports batch processing, validation, and database import operations
 """
 
-from __future__ import annotations
 
 import argparse
 import asyncio

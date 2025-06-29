@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Intelligent Data Ingestion System for Sophia AI
 
@@ -17,8 +18,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import json
 import logging

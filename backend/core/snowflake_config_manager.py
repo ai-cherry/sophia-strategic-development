@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Snowflake Configuration Manager for Sophia AI
 
@@ -27,7 +28,6 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-from __future__ import annotations
 
 import asyncio
 import hashlib
