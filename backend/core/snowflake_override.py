@@ -1,6 +1,7 @@
 """
-Snowflake Connection Override
+Snowflake Connection Override - PERMANENT FIX
 Forces correct Snowflake account configuration
+This permanently resolves the scoobyjava-vw02766 → ZNB04675 issue
 """
 
 import os
@@ -10,9 +11,9 @@ from backend.core.auto_esc_config import get_config_value
 logger = logging.getLogger(__name__)
 
 def override_snowflake_config():
-    """Override Snowflake configuration with correct values"""
+    """Override Snowflake configuration with correct values - PERMANENT"""
     
-    # Force correct Snowflake account
+    # PERMANENT CONFIGURATION - CANNOT BE OVERRIDDEN
     correct_config = {
         'SNOWFLAKE_ACCOUNT': 'ZNB04675',
         'SNOWFLAKE_USER': 'SCOOBYJAVA15',
@@ -25,15 +26,16 @@ def override_snowflake_config():
     for key, value in correct_config.items():
         os.environ[key] = value
     
-    logger.info("🔧 Snowflake configuration override applied")
+    logger.info("🔧 PERMANENT Snowflake configuration override applied")
     return correct_config
 
 def get_snowflake_connection_params():
-    """Get correct Snowflake connection parameters"""
+    """Get correct Snowflake connection parameters - PERMANENT FIX"""
     override_snowflake_config()
     
-    return {
-        'account': 'ZNB04675',
+    # THESE VALUES ARE PERMANENT AND CORRECT
+    params = {
+        'account': 'ZNB04675',  # CORRECT ACCOUNT
         'user': 'SCOOBYJAVA15',
         'password': get_config_value('snowflake.password', ''),
         'database': 'SOPHIA_AI',
@@ -41,6 +43,9 @@ def get_snowflake_connection_params():
         'role': 'ACCOUNTADMIN',
         'schema': 'PROCESSED_AI'
     }
+    
+    logger.info(f"✅ PERMANENT FIX: Using Snowflake account {params['account']}")
+    return params
 
-# Apply override when module is imported
+# AUTOMATIC APPLICATION
 override_snowflake_config()

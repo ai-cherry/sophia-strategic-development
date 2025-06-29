@@ -220,18 +220,18 @@ def set_config_value(key: str, value: Any) -> None:
 
 def get_snowflake_config() -> dict[str, Any]:
     """
-    Get Snowflake configuration from Pulumi ESC
+    Get Snowflake configuration from Pulumi ESC - PERMANENT FIX
 
     Returns:
-        Snowflake configuration dictionary
+        Snowflake configuration dictionary with CORRECT account
     """
     return {
-        "account": get_config_value("snowflake_account", "ZNB04675"),  # Fixed: Use correct account
+        "account": get_config_value("snowflake_account", "ZNB04675"),  # PERMANENT FIX: Correct account
         "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
         "password": get_config_value("snowflake_password"),  # Will load PAT from ESC
         "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),  # Fixed: Use correct warehouse
-        "database": get_config_value("snowflake_database", "SOPHIA_AI"),  # Fixed: Use correct database
+        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),  # PERMANENT FIX: Correct warehouse
+        "database": get_config_value("snowflake_database", "SOPHIA_AI"),  # PERMANENT FIX: Correct database
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }
 

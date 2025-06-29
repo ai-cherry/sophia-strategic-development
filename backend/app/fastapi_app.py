@@ -42,10 +42,10 @@ def create_fastapi_app() -> FastAPI:
     """
     Create and configure the FastAPI application
     """
-    # Create FastAPI app with lifespan management
-# Apply startup configuration
-apply_startup_configuration()
+    # Apply startup configuration for Snowflake fix
+    apply_startup_configuration()
 
+    # Create FastAPI app with lifespan management
     app = FastAPI(
         title="Sophia AI Platform",
         description="AI-powered business intelligence and automation platform",

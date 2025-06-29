@@ -67,7 +67,7 @@ from backend.core.snowflake_override import get_snowflake_connection_params
 from backend.core.performance_monitor import performance_monitor
 
 # Import Snowflake configuration override for correct connectivity
-from backend.core.snowflake_config_override import get_snowflake_connection_params
+
 
 # Try to import optional dependencies
 try:
@@ -287,18 +287,20 @@ class OptimizedConnectionPool:
             self.circuit_breaker.record_failure()
             return None
 
-    async def _create_snowflake_connection(self):
+
+        async def _create_snowflake_connection(self):
         """Create Snowflake connection with corrected configuration"""
         
-        # Get corrected connection parameters
+        # FORCE USE OF OVERRIDE - This ensures ZNB04675 account is always used
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
+        
+        # Log the account being used for verification
+        logger.info(f"🔧 Creating Snowflake connection to account: {params['account']}")
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-        # Use override parameters
-        sf_params = get_snowflake_connection_params()
-        connection = snowflake.connector.connect(**sf_params)
+            return snowflake.connector.connect(**params)
 
         return await asyncio.to_thread(_sync_connect)
 
