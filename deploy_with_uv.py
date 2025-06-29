@@ -15,7 +15,7 @@ def main():
 
     # Install dependencies with UV
     subprocess.run([
-        "uv", "pip", "install", "-r", "requirements.txt"
+        "uv", "uv", "sync"
     ], check=True)
 
     # Run application with UV

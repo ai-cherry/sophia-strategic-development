@@ -158,7 +158,7 @@ RUN pip install uv
 
 # Copy requirements and install dependencies
 COPY requirements.txt .
-RUN uv pip install --system -r requirements.txt
+RUN uv sync --frozen
 
 # Copy application code
 COPY . .

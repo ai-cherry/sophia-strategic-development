@@ -39,7 +39,7 @@ class UVDeploymentManager:
             result = subprocess.run(["uv", "--version"], capture_output=True, text=True)
             if result.returncode != 0:
                 self.log_step("UV Installation", "INFO", "Installing UV")
-                subprocess.run(["pip", "install", "uv"], check=True)
+                subprocess.run(["uv", "add", "uv"], check=True)
 
             self.log_step(
                 "UV Version",

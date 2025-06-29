@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH && pip install -r infrastructure/requirements.txt
+        echo "$HOME/.local/bin" >> $GITHUB_PATH && uv sync
 
       - name: Set up environment variables
         env:

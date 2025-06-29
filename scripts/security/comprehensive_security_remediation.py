@@ -691,7 +691,7 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
 ## Next Steps
 
 1. Run tests: `pytest tests/`
-2. Update dependencies: `pip install -r requirements.txt`
+2. Update dependencies: `uv sync`
 3. Configure secrets: `python scripts/security/setup_pulumi_esc_secrets.py`
 4. Deploy changes: Follow standard deployment process
 """

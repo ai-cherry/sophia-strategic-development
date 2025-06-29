@@ -48,7 +48,7 @@ jobs:
       uses: actions/cache@v4
         with:
           path: ~/.cache/uv
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        key: uv-${{ runner.os }}-${{ hashFiles("uv.lock") }}
         restore-keys: |
           ${{ runner.os }}-pip-
 

@@ -115,7 +115,7 @@ jobs:
           # Python security scan:
           uv sync --group security:
           bandit -r backend/ || true:
-          safety check -r requirements.txt || true
+          uv run safety check || true
 
           # JavaScript security scan:
           cd frontend && npm audit --audit-level moderate || true

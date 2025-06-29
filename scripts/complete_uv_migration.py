@@ -66,11 +66,11 @@ class CompleteUVMigration:
             ),
             (r"pip install -r requirements\.txt", "uv sync --frozen"),
             (
-                r"pip install --upgrade pip",
+                r"# UV handles package management automatically",
                 "# UV handles package management automatically",
             ),
             (
-                r"pip install --no-cache-dir --upgrade pip",
+                r"# UV handles package management automatically",
                 "# UV handles package management automatically",
             ),
             # Copy requirements.txt -> Copy pyproject.toml and uv.lock
@@ -159,11 +159,11 @@ class CompleteUVMigration:
         replacements = [
             # Install UV step
             (
-                r"python -m pip install --upgrade pip",
+                r"python -m # UV handles package management automatically",
                 'curl -LsSf https://astral.sh/uv/install.sh | sh\n        echo "$HOME/.local/bin" >> $GITHUB_PATH',
             ),
             (
-                r"pip install --upgrade pip",
+                r"# UV handles package management automatically",
                 'curl -LsSf https://astral.sh/uv/install.sh | sh\n        echo "$HOME/.local/bin" >> $GITHUB_PATH',
             ),
             # Replace pip install commands
@@ -214,9 +214,9 @@ class CompleteUVMigration:
             # Shell script replacements
             replacements = [
                 (r"pip install -r requirements\.txt", "uv sync"),
-                (r"pip install --upgrade pip", "# UV handles package management"),
+                (r"# UV handles package management automatically", "# UV handles package management"),
                 (r"\$\{.*\} -m pip install", "uv add"),
-                (r"python -m pip install", "uv add"),
+                (r"uv add", "uv add"),
             ]
         else:
             # Python script replacements
@@ -256,7 +256,7 @@ class CompleteUVMigration:
         replacements = [
             # Installation commands
             (r"pip install -r requirements\.txt", "uv sync"),
-            (r"pip install --upgrade pip", "# UV manages packages automatically"),
+            (r"# UV handles package management automatically", "# UV manages packages automatically"),
             (r"pip install ([a-zA-Z0-9\-_]+)", r"uv add \1"),
             # Documentation references
             (r"requirements\.txt file", "pyproject.toml configuration"),
