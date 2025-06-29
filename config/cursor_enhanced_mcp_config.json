@@ -139,6 +139,66 @@
         "on_business_query": ["route_to_premium_model", "provide_strategic_context"],
         "on_data_analysis": ["integrate_business_context", "generate_insights"]
       }
+    },
+    
+    "ai_memory": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/ai_memory/ai_memory_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
+    },
+    
+    "ag_ui": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/ag_ui/ag_ui_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
+    },
+    
+    "bright_data": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/bright_data/bright_data_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
+    },
+    
+    "codacy": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/codacy/codacy_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
+    },
+    
+    "asana": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/asana/asana_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
+    },
+    
+    "notion": {
+      "command": "uv",
+      "args": ["run", "python", "mcp-servers/notion/notion_mcp_server.py"],
+      "cwd": "/Users/lynnmusil/sophia-main",
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      }
     }
   },
   
@@ -256,6 +316,65 @@
             "action": "analyze_business_impact"
           }
         ]
+      },
+      
+      "frontend_development": {
+        "triggers": ["file_save", "component_creation"],
+        "sequence": [
+          {
+            "server": "ag_ui",
+            "tool": "send_text_message",
+            "description": "Stream development progress to UI"
+          },
+          {
+            "server": "ag_ui",
+            "tool": "update_ui_state",
+            "description": "Update component state in real-time"
+          }
+        ]
+      },
+      
+      "competitive_intelligence": {
+        "triggers": ["market_research_request", "competitor_analysis"],
+        "sequence": [
+          {
+            "server": "bright_data",
+            "tool": "monitor_competitor_pricing",
+            "description": "Scrape competitor pricing data"
+          },
+          {
+            "server": "bright_data",
+            "tool": "market_research_scrape",
+            "description": "Gather market intelligence"
+          },
+          {
+            "server": "ai_memory",
+            "tool": "store_memory",
+            "parameters": {
+              "category": "competitive_intelligence",
+              "enhance_with_graphiti": true
+            }
+          }
+        ]
+      },
+      
+      "executive_insights": {
+        "triggers": ["business_analysis", "strategic_planning"],
+        "sequence": [
+          {
+            "server": "ai_memory",
+            "tool": "recall_memory",
+            "parameters": {
+              "category": "strategic_decisions",
+              "use_graphiti_relationships": true
+            }
+          },
+          {
+            "server": "ag_ui",
+            "tool": "send_business_insight",
+            "description": "Stream insights to executive dashboard"
+          }
+        ]
       }
     }
   },
@@ -347,5 +466,102 @@
     "auto_restart_on_failure": true,
     "log_level": "INFO",
     "metrics_collection": true
+  },
+  
+  "auto_triggers": {
+    "on_file_save": [
+      {
+        "server": "codacy",
+        "tool": "analyze_file",
+        "condition": "file_extension in ['.py', '.js', '.ts', '.jsx', '.tsx']"
+      },
+      {
+        "server": "ai_memory",
+        "tool": "auto_store_context",
+        "condition": "always"
+      }
+    ],
+    "on_commit": [
+      {
+        "server": "ai_memory",
+        "tool": "store_memory",
+        "parameters": {
+          "category": "development_milestone",
+          "auto_extract_entities": true
+        }
+      }
+    ],
+    "on_architecture_discussion": [
+      {
+        "server": "ai_memory",
+        "tool": "store_memory",
+        "parameters": {
+          "category": "architecture_decision",
+          "enhance_with_graphiti": true
+        }
+      }
+    ]
+  },
+  
+  "enhanced_features": {
+    "ag_ui_integration": {
+      "enabled": true,
+      "real_time_streaming": true,
+      "state_delta_updates": true,
+      "human_in_the_loop": true,
+      "business_insights": true,
+      "websocket_port": 9001
+    },
+    "bright_data_intelligence": {
+      "enabled": true,
+      "competitive_monitoring": true,
+      "market_research": true,
+      "social_media_intelligence": true,
+      "automated_scraping": true
+    },
+    "graphiti_knowledge_graph": {
+      "enabled": true,
+      "temporal_queries": true,
+      "entity_relationships": true,
+      "business_intelligence": true,
+      "executive_insights": true,
+      "influence_analysis": true
+    },
+    "unified_dashboard": {
+      "ag_ui_streaming": true,
+      "real_time_updates": true,
+      "executive_kpis": true,
+      "competitive_intelligence": true,
+      "knowledge_graph_insights": true
+    }
+  },
+  
+  "natural_language_commands": {
+    "frontend_commands": [
+      "Update dashboard with latest KPIs",
+      "Stream new business insight to CEO dashboard",
+      "Show real-time sales progress",
+      "Update component state with new data"
+    ],
+    "intelligence_commands": [
+      "Monitor competitor pricing changes",
+      "Scrape latest market research data",
+      "Analyze competitor social media sentiment",
+      "Extract business data from company website"
+    ],
+    "memory_commands": [
+      "Find related business entities",
+      "Show decision influence network",
+      "Recall strategic decisions from last quarter",
+      "Analyze entity relationships and impact"
+    ]
+  },
+  
+  "performance_optimization": {
+    "concurrent_operations": true,
+    "intelligent_caching": true,
+    "state_delta_compression": true,
+    "relationship_indexing": true,
+    "real_time_sync": true
   }
 } 

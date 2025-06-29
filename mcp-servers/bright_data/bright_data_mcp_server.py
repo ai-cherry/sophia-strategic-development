@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+"""
+Bright Data MCP Server for Sophia AI
+Enables real-time web scraping and competitive intelligence
+"""
+
+import asyncio
+import json
+import logging
+from typing import Any, Dict, List, Optional
+
+import aiohttp
+import structlog
+from bs4 import BeautifulSoup
+import markdownify
+
+logger = structlog.get_logger()
+
+
+class BrightDataMCPServer:
+    """Bright Data MCP Server for web scraping and competitive intelligence"""
+    
+    def __init__(self):
+        self.session = None
+    
+    async def initialize(self) -> None:
+        """Initialize server"""
+        timeout = aiohttp.ClientTimeout(total=60)
+        self.session = aiohttp.ClientSession(timeout=timeout)
+        logger.info("Bright Data MCP Server initialized")
+    
+    async def cleanup(self) -> None:
+        """Cleanup resources"""
+        if self.session:
+            await self.session.close()
+    
+    def get_mcp_tools(self) -> List[Dict[str, Any]]:
+        """Get available MCP tools"""
+        return [
+            {
+                "name": "scrape_url",
+                "description": "Scrape content from a URL",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string", "description": "URL to scrape"},
+                        "format": {"type": "string", "enum": ["html", "markdown", "text"], "default": "markdown"}
+                    },
+                    "required": ["url"]
+                }
+            },
+            {
+                "name": "monitor_competitor_pricing",
+                "description": "Monitor competitor pricing",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "competitor_urls": {"type": "array", "items": {"type": "string"}},
+                        "product_selectors": {"type": "object"}
+                    },
+                    "required": ["competitor_urls"]
+                }
+            }
+        ]
+    
+    async def execute_mcp_tool(self, tool_name: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute MCP tool"""
+        try:
+            if tool_name == "scrape_url":
+                return await self._scrape_url(**parameters)
+            elif tool_name == "monitor_competitor_pricing":
+                return await self._monitor_competitor_pricing(**parameters)
+            else:
+                raise ValueError(f"Unknown tool: {tool_name}")
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def _scrape_url(self, url: str, format: str = "markdown") -> Dict[str, Any]:
+        """Scrape content from URL"""
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+            }
+            
+            async with self.session.get(url, headers=headers) as response:
+                html_content = await response.text()
+                
+                if format == "markdown":
+                    content = markdownify.markdownify(html_content)
+                elif format == "text":
+                    soup = BeautifulSoup(html_content, 'html.parser')
+                    content = soup.get_text(strip=True)
+                else:
+                    content = html_content
+                
+                return {
+                    "success": True,
+                    "url": url,
+                    "content": content,
+                    "status_code": response.status
+                }
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    async def _monitor_competitor_pricing(self, competitor_urls: List[str], 
+                                        product_selectors: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+        """Monitor competitor pricing"""
+        try:
+            if not product_selectors:
+                product_selectors = {
+                    "price": ".price, .cost, [class*='price']",
+                    "title": "h1, .title, .product-name"
+                }
+            
+            pricing_data = []
+            
+            for url in competitor_urls:
+                try:
+                    result = await self._scrape_url(url, "html")
+                    if result["success"]:
+                        soup = BeautifulSoup(result["content"], 'html.parser')
+                        extracted = {}
+                        
+                        for field, selector in product_selectors.items():
+                            elements = soup.select(selector)
+                            if elements:
+                                extracted[field] = elements[0].get_text(strip=True)
+                        
+                        pricing_data.append({
+                            "url": url,
+                            "extracted_data": extracted
+                        })
+                
+                except Exception as e:
+                    pricing_data.append({"url": url, "error": str(e)})
+            
+            return {
+                "success": True,
+                "pricing_data": pricing_data,
+                "total_competitors": len(competitor_urls)
+            }
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+
+async def main():
+    """Main entry point"""
+    server = BrightDataMCPServer()
+    await server.initialize()
+    
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Shutting down...")
+    finally:
+        await server.cleanup()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
