@@ -36,12 +36,12 @@ jobs:
             ENVIRONMENT="staging"
           elif [[ "$EVENT_NAME" == "pull_request" ]]; then
             ENVIRONMENT="preview"
-          fi
+          fi:
           
           IS_PRODUCTION="false"
           if [[ "$ENVIRONMENT" == "production" ]]; then
             IS_PRODUCTION="true"
-          fi
+          fi:
           
           echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
           echo "is_production=${IS_PRODUCTION}" >> $GITHUB_OUTPUT

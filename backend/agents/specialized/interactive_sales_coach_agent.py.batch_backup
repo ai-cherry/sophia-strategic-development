@@ -5,18 +5,16 @@ Priority #1: AI sales coach providing real-time coaching via Slack
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.services.enhanced_knowledge_base_service import (
-    EnhancedKnowledgeBaseService,
-)
-from backend.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService,
-)
+from backend.services.enhanced_knowledge_base_service import \
+    EnhancedKnowledgeBaseService
+from backend.utils.enhanced_snowflake_cortex_service import \
+    EnhancedSnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 

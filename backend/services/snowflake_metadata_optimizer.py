@@ -146,7 +146,7 @@ class SnowflakeMetadataOptimizer:
             try:
                 cluster_sql = f"""
                 ALTER TABLE {schema}.{table}
-                CLUSTER BY ({', '.join(config.clustering)});
+                CLUSTER BY ({", ".join(config.clustering)});
                 """
                 await self.cortex_service.execute_query(cluster_sql)
             except Exception as e:

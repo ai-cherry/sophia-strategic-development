@@ -3,12 +3,12 @@ name: Documentation Quality Check
 on:
   pull_request:
     paths:
-      - '**.md'
-      - 'docs/**'
+      - '**.md':
+      - 'docs/**':
   push:
     branches: [main]
     paths:
-      - '**.md'
+      - '**.md':
       - 'docs/**'
 
 jobs:
@@ -26,63 +26,63 @@ jobs:
       
       - name: Check for junk documentation patterns
         run: |
-          # Check for duplicate numbered files
+          # Check for duplicate numbered files:
           duplicates=$(find . -name "*[[:space:]][0-9].md" -o -name "*[[:space:]][0-9].txt" | grep -v node_modules | grep -v .git)
-          if [ ! -z "$duplicates" ]; then
+          if [ ! -z "$duplicates" ]; then:
             echo "❌ Found duplicate numbered files:"
-            echo "$duplicates"
-            exit 1
-          fi
+            echo "$duplicates":
+            exit 1:
+          fi:
           
-          # Check for temporary report files
+          # Check for temporary report files:
           reports=$(find . -name "*_REPORT.md" -o -name "*_SUMMARY.md" -o -name "*_STATUS.md" | grep -v docs/ | grep -v node_modules | grep -v .git)
-          if [ ! -z "$reports" ]; then
+          if [ ! -z "$reports" ]; then:
             echo "⚠️  Found report files outside docs directory:"
-            echo "$reports"
-            echo "Consider moving these to docs/ or removing if obsolete"
-          fi
+            echo "$reports":
+            echo "Consider moving these to docs/ or removing if obsolete":
+          fi:
           
-          # Check for validation reports
+          # Check for validation reports:
           validations=$(find . -name "*validation*.json" -o -name "*validation*.txt" | grep -v node_modules | grep -v .git)
-          if [ ! -z "$validations" ]; then
+          if [ ! -z "$validations" ]; then:
             echo "❌ Found validation report files:"
-            echo "$validations"
-            echo "These should not be committed to the repository"
-            exit 1
-          fi
+            echo "$validations":
+            echo "These should not be committed to the repository":
+            exit 1:
+          fi:
       
       - name: Check documentation structure
         run: |
-          # Ensure key directories exist
+          # Ensure key directories exist:
           required_dirs=("docs" "docs/getting-started" "docs/architecture" "docs/integrations" "docs/deployment" "docs/api")
           
-          for dir in "${required_dirs[@]}"; do
-            if [ ! -d "$dir" ]; then
+          for dir in "${required_dirs[@]}"; do:
+            if [ ! -d "$dir" ]; then:
               echo "⚠️  Missing required documentation directory: $dir"
-            fi
-          done
+            fi:
+          done:
       
       - name: Validate markdown files
         run: |
-          # Check for proper markdown structure
-          for file in $(find docs -name "*.md"); do
-            # Check for title
-            if ! grep -q "^# " "$file"; then
-              echo "⚠️  $file is missing a top-level heading"
-            fi
+          # Check for proper markdown structure:
+          for file in $(find docs -name "*.md"); do:
+            # Check for title:
+            if ! grep -q "^# " "$file"; then:
+              echo "⚠️  $file is missing a top-level heading":
+            fi:
             
-            # Check for empty files
-            if [ ! -s "$file" ]; then
-              echo "❌ $file is empty"
-              exit 1
-            fi
-          done
+            # Check for empty files:
+            if [ ! -s "$file" ]; then:
+              echo "❌ $file is empty":
+              exit 1:
+            fi:
+          done:
       
       - name: Check for metadata headers
         run: |
-          # Check if markdown files in docs have metadata
-          for file in $(find docs -name "*.md" | grep -v README.md); do
-            if ! grep -q "^---" "$file"; then
-              echo "⚠️  $file is missing metadata header"
-            fi
+          # Check if markdown files in docs have metadata:
+          for file in $(find docs -name "*.md" | grep -v README.md); do:
+            if ! grep -q "^---" "$file"; then:
+              echo "⚠️  $file is missing metadata header":
+            fi:
           done

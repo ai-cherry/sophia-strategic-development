@@ -4,8 +4,10 @@
   "description": "Advanced MCP configuration with 11-provider Portkey orchestration for Cursor IDE",
   "mcpServers": {
     "sophia_ai_orchestrator": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.sophia_ai_orchestrator_mcp"
       ],
@@ -38,8 +40,10 @@
       }
     },
     "enhanced_ai_memory": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.ai_memory.enhanced_ai_memory_mcp_server"
       ],
@@ -70,8 +74,10 @@
       }
     },
     "portkey_gateway": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.portkey_gateway_mcp"
       ],
@@ -105,8 +111,10 @@
       }
     },
     "code_intelligence": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.code_intelligence_mcp"
       ],
@@ -114,7 +122,7 @@
         "PORTKEY_VIRTUAL_KEY_DEEPSEEK": "${PORTKEY_VIRTUAL_KEY_DEEPSEEK}",
         "PORTKEY_VIRTUAL_KEY_QWEN": "${PORTKEY_VIRTUAL_KEY_QWEN}",
         "ENVIRONMENT": "prod",
-        "MCP_SERVER_PORT": "9004",
+        "MCP_SERVER_PORT": "9003",
         "CODE_ANALYSIS_MODE": "advanced"
       },
       "capabilities": [
@@ -141,8 +149,10 @@
       }
     },
     "business_intelligence": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.business_intelligence_mcp"
       ],
@@ -183,8 +193,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9000"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     },
     "ag_ui": {
@@ -197,8 +206,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9106"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     },
     "bright_data": {
@@ -211,8 +219,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9105"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     },
     "codacy": {
@@ -225,8 +232,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9300"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     },
     "asana": {
@@ -239,8 +245,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9100"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     },
     "notion": {
@@ -253,8 +258,7 @@
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "MCP_SERVER_PORT": "9102"
+        "PULUMI_ORG": "scoobyjava-org"
       }
     }
   },

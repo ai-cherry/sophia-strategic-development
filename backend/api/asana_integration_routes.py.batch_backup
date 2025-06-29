@@ -10,24 +10,27 @@ Comprehensive API endpoints for Asana project management integration including:
 - Chat service integration
 """
 
+import json
 import logging
 from datetime import datetime
-from typing import Optional, Dict, Any
-import json
+from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, HTTPException, Depends, Query, Path, BackgroundTasks
+from fastapi import (APIRouter, BackgroundTasks, Depends, HTTPException, Path,
+                     Query)
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from backend.agents.specialized.asana_project_intelligence_agent import (
-    AsanaProjectIntelligenceAgent,
-)
-from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
-from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.services.enhanced_unified_chat_service import QueryContext
+from backend.agents.specialized.asana_project_intelligence_agent import \
+    AsanaProjectIntelligenceAgent
 from backend.core.auth import get_current_user
+from backend.etl.estuary.estuary_configuration_manager import \
+    EnhancedEstuaryManager
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import \
+    EnhancedAiMemoryMCPServer
+from backend.services.enhanced_unified_chat_service import QueryContext
+from backend.services.sophia_universal_chat_service import \
+    SophiaUniversalChatService
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 

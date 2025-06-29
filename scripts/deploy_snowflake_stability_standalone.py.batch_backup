@@ -7,12 +7,13 @@ Implements comprehensive database-level stability features for Sophia AI product
 No complex import dependencies - uses direct Snowflake connector.
 """
 
-import snowflake.connector
+import json
 import logging
 import sys
-from typing import Dict
 from datetime import datetime
-import json
+from typing import Dict
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(

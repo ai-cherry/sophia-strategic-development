@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+
 """
 Standardized AI Memory MCP Server for persistent development context
 Built on the StandardizedMCPServer base class with Snowflake Cortex integration

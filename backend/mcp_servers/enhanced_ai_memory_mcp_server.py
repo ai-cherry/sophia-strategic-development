@@ -7,17 +7,17 @@ Extended with Slack, Linear, and Foundational Knowledge Base integration
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 import pandas as pd
 
 # MCP imports
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 
 # Enhanced imports
 
@@ -81,30 +81,30 @@ class EnhancedMemoryMetadata:
     business_value_score: float = 0.5
 
     # Slack-specific fields
-    slack_channel_id: Optional[str] = None
-    slack_channel_name: Optional[str] = None
-    slack_user_id: Optional[str] = None
-    slack_thread_ts: Optional[str] = None
-    slack_participants: Optional[List[str]] = None
+    slack_channel_id: str | None = None
+    slack_channel_name: str | None = None
+    slack_user_id: str | None = None
+    slack_thread_ts: str | None = None
+    slack_participants: list[str] | None = None
 
     # Linear-specific fields
-    linear_project_id: Optional[str] = None
-    linear_project_name: Optional[str] = None
-    linear_team_id: Optional[str] = None
-    linear_assignee_id: Optional[str] = None
-    linear_priority: Optional[str] = None
-    linear_status: Optional[str] = None
+    linear_project_id: str | None = None
+    linear_project_name: str | None = None
+    linear_team_id: str | None = None
+    linear_assignee_id: str | None = None
+    linear_priority: str | None = None
+    linear_status: str | None = None
 
     # Foundational-specific fields
-    foundational_type: Optional[str] = None
-    foundational_department: Optional[str] = None
-    foundational_tier: Optional[str] = None
+    foundational_type: str | None = None
+    foundational_department: str | None = None
+    foundational_tier: str | None = None
 
     # Knowledge base-specific fields
-    kb_category: Optional[str] = None
-    kb_visibility: Optional[str] = None
-    kb_author: Optional[str] = None
-    kb_keywords: Optional[List[str]] = None
+    kb_category: str | None = None
+    kb_visibility: str | None = None
+    kb_author: str | None = None
+    kb_keywords: list[str] | None = None
 
 
 class EnhancedAiMemoryMCPServer:
@@ -131,10 +131,10 @@ class EnhancedAiMemoryMCPServer:
         conversation_title: str,
         conversation_summary: str,
         channel_name: str,
-        participants: List[str],
-        key_topics: List[str],
-        decisions_made: List[str],
-        action_items: List[str],
+        participants: list[str],
+        key_topics: list[str],
+        decisions_made: list[str],
+        action_items: list[str],
         business_value_score: float = 0.6,
     ) -> str:
         """Store Slack conversation as memory"""
@@ -191,7 +191,7 @@ class EnhancedAiMemoryMCPServer:
         assignee: str,
         priority: str,
         status: str,
-        labels: List[str],
+        labels: list[str],
         importance_score: float = 0.5,
     ) -> str:
         """Store Linear issue as memory"""
@@ -242,7 +242,7 @@ class EnhancedAiMemoryMCPServer:
         title: str,
         description: str,
         category: str,
-        department: Optional[str] = None,
+        department: str | None = None,
         importance_score: float = 0.7,
     ) -> str:
         """Store foundational knowledge as memory"""
@@ -300,7 +300,7 @@ class EnhancedAiMemoryMCPServer:
         content: str,
         category: str,
         author: str,
-        keywords: List[str],
+        keywords: list[str],
         visibility: str = "internal",
         importance_score: float = 0.6,
     ) -> str:
@@ -344,10 +344,10 @@ class EnhancedAiMemoryMCPServer:
     async def recall_slack_insights(
         self,
         query: str,
-        channel_name: Optional[str] = None,
+        channel_name: str | None = None,
         date_range_days: int = 30,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Recall Slack conversation insights"""
 
         # Build search filters
@@ -379,11 +379,11 @@ class EnhancedAiMemoryMCPServer:
     async def recall_linear_issue_details(
         self,
         query: str,
-        project_name: Optional[str] = None,
-        priority: Optional[str] = None,
-        status: Optional[str] = None,
+        project_name: str | None = None,
+        priority: str | None = None,
+        status: str | None = None,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Recall Linear issue details"""
 
         # Build search filters
@@ -417,10 +417,10 @@ class EnhancedAiMemoryMCPServer:
     async def recall_foundational_knowledge(
         self,
         query: str,
-        knowledge_type: Optional[str] = None,
-        department: Optional[str] = None,
+        knowledge_type: str | None = None,
+        department: str | None = None,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Recall foundational knowledge"""
 
         # Build search filters
@@ -457,10 +457,10 @@ class EnhancedAiMemoryMCPServer:
     async def recall_kb_articles(
         self,
         query: str,
-        category: Optional[str] = None,
-        author: Optional[str] = None,
+        category: str | None = None,
+        author: str | None = None,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Recall knowledge base articles"""
 
         # Build search filters
@@ -491,7 +491,7 @@ class EnhancedAiMemoryMCPServer:
         return results
 
     def _classify_slack_conversation(
-        self, summary: str, decisions: List[str], action_items: List[str]
+        self, summary: str, decisions: list[str], action_items: list[str]
     ) -> EnhancedMemoryCategory:
         """Classify Slack conversation based on content"""
 
@@ -518,7 +518,7 @@ class EnhancedAiMemoryMCPServer:
             return EnhancedMemoryCategory.SLACK_CONVERSATION
 
     def _classify_linear_issue(
-        self, labels: List[str], priority: str, status: str
+        self, labels: list[str], priority: str, status: str
     ) -> EnhancedMemoryCategory:
         """Classify Linear issue based on attributes"""
 
@@ -536,16 +536,16 @@ class EnhancedAiMemoryMCPServer:
     async def store_gong_call_insight(
         self,
         call_id: str,
-        participant_data: Dict[str, Any],
-        transcript_data: Dict[str, Any],
-        call_metadata: Dict[str, Any],
-        analysis_data: Dict[str, Any],
+        participant_data: dict[str, Any],
+        transcript_data: dict[str, Any],
+        call_metadata: dict[str, Any],
+        analysis_data: dict[str, Any],
         user_id: str,
         importance_score: float = 0.8,
-        tags: List[str] = None,
-        custom_metadata: Dict[str, Any] = None,
+        tags: list[str] = None,
+        custom_metadata: dict[str, Any] = None,
         correlation_id: str = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Store Gong call insight with comprehensive validation and processing"""
         try:
             # Validate input data
@@ -586,11 +586,11 @@ class EnhancedAiMemoryMCPServer:
     async def _validate_gong_insight_data(
         self,
         call_id: str,
-        participant_data: Dict,
-        transcript_data: Dict,
-        call_metadata: Dict,
-        analysis_data: Dict,
-    ) -> Dict[str, Any]:
+        participant_data: dict,
+        transcript_data: dict,
+        call_metadata: dict,
+        analysis_data: dict,
+    ) -> dict[str, Any]:
         """Validate Gong insight data for completeness and format"""
         if not call_id or not isinstance(call_id, str):
             return {"valid": False, "error": "Invalid call_id"}
@@ -606,11 +606,11 @@ class EnhancedAiMemoryMCPServer:
 
     async def _process_gong_insight_data(
         self,
-        participant_data: Dict,
-        transcript_data: Dict,
-        call_metadata: Dict,
-        analysis_data: Dict,
-    ) -> Dict[str, Any]:
+        participant_data: dict,
+        transcript_data: dict,
+        call_metadata: dict,
+        analysis_data: dict,
+    ) -> dict[str, Any]:
         """Process and enrich Gong insight data"""
         enriched_data = {
             "participants": self._process_participants(participant_data),
@@ -621,7 +621,7 @@ class EnhancedAiMemoryMCPServer:
         return enriched_data
 
     async def _generate_gong_memory_content(
-        self, call_id: str, enriched_data: Dict, analysis_data: Dict
+        self, call_id: str, enriched_data: dict, analysis_data: dict
     ) -> str:
         """Generate structured memory content from Gong data"""
         content_parts = [
@@ -639,8 +639,8 @@ class EnhancedAiMemoryMCPServer:
         call_id: str,
         user_id: str,
         importance_score: float,
-        tags: List[str],
-        custom_metadata: Dict,
+        tags: list[str],
+        custom_metadata: dict,
     ) -> str:
         """Store processed Gong data in AI Memory"""
         memory_tags = ["gong_call", "sales_insight"] + (tags or [])
@@ -668,8 +668,8 @@ class EnhancedAiMemoryMCPServer:
         pass
 
     def _format_gong_insight_response(
-        self, memory_id: str, call_id: str, enriched_data: Dict
-    ) -> Dict[str, Any]:
+        self, memory_id: str, call_id: str, enriched_data: dict
+    ) -> dict[str, Any]:
         """Format the final response for Gong insight storage"""
         return {
             "success": True,
@@ -682,36 +682,36 @@ class EnhancedAiMemoryMCPServer:
 
     def _handle_gong_insight_error(
         self, error: Exception, call_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Handle errors in Gong insight processing"""
         logger.error(f"Error storing Gong insight for call {call_id}: {error}")
         return {"success": False, "error": str(error), "call_id": call_id}
 
-    def _process_participants(self, participant_data: Dict) -> List[Dict]:
+    def _process_participants(self, participant_data: dict) -> list[dict]:
         """Process participant data"""
         return participant_data.get("participants", [])
 
-    def _process_transcript(self, transcript_data: Dict) -> str:
+    def _process_transcript(self, transcript_data: dict) -> str:
         """Process transcript data"""
         return transcript_data.get("transcript", "")
 
-    def _process_metadata(self, call_metadata: Dict) -> Dict:
+    def _process_metadata(self, call_metadata: dict) -> dict:
         """Process call metadata"""
         return call_metadata
 
-    def _process_analysis(self, analysis_data: Dict) -> Dict:
+    def _process_analysis(self, analysis_data: dict) -> dict:
         """Process analysis data"""
         return analysis_data
 
     async def recall_gong_call_insights(
         self,
         query: str,
-        call_id: Optional[str] = None,
-        sentiment_filter: Optional[str] = None,
-        date_range_days: Optional[int] = None,
+        call_id: str | None = None,
+        sentiment_filter: str | None = None,
+        date_range_days: int | None = None,
         limit: int = 5,
         use_cortex_search: bool = True,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Enhanced Gong call insights recall with STG_GONG_CALLS integration
 
@@ -880,11 +880,11 @@ class EnhancedAiMemoryMCPServer:
         speaker_name: str,
         insight_content: str,
         transcript_text: str = None,
-        segment_sentiment: Optional[float] = None,
-        extracted_entities: List[str] = None,
-        key_phrases: List[str] = None,
-        tags: List[str] = None,
-    ) -> Dict[str, Any]:
+        segment_sentiment: float | None = None,
+        extracted_entities: list[str] = None,
+        key_phrases: list[str] = None,
+        tags: list[str] = None,
+    ) -> dict[str, Any]:
         """
         Store Gong transcript segment insight with STG_GONG_CALL_TRANSCRIPTS integration
 
@@ -1013,7 +1013,7 @@ class EnhancedAiMemoryMCPServer:
         account_name: str,
         limit: int = 10,
         include_transcripts: bool = False,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search for all Gong insights related to a specific account
 
@@ -1098,7 +1098,7 @@ class EnhancedAiMemoryMCPServer:
             logger.error(f"Error searching Gong insights by account: {e}")
             return []
 
-    async def get_gong_memory_statistics(self) -> Dict[str, Any]:
+    async def get_gong_memory_statistics(self) -> dict[str, Any]:
         """
         Get comprehensive statistics about Gong data in AI Memory
 
@@ -1282,7 +1282,7 @@ enhanced_ai_memory = EnhancedAiMemoryMCPServer()
 
 
 @server.list_tools()
-async def list_tools() -> List[Tool]:
+async def list_tools() -> list[Tool]:
     """List available AI Memory tools"""
     return [
         Tool(
@@ -1435,7 +1435,7 @@ async def list_tools() -> List[Tool]:
 
 
 @server.call_tool()
-async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
+async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Execute AI Memory tools"""
     try:
         if name == "store_slack_conversation":

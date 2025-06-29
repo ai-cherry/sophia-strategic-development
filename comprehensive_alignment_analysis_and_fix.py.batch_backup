@@ -7,11 +7,12 @@ Ensures GitHub memory system and Snowflake implementation are properly aligned
 Integrates Estuary credentials and validates end-to-end functionality
 """
 
-import snowflake.connector
+import logging
 import os
 from datetime import datetime
-from typing import Dict, List, Any
-import logging
+from typing import Any, Dict, List
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(

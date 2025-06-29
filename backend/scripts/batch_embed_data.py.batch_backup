@@ -20,21 +20,21 @@ Usage:
     python backend/scripts/batch_embed_data.py --all-tables --dry-run
 """
 
-import asyncio
 import argparse
+import asyncio
 import logging
 import sys
-from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 import structlog
 from tqdm import tqdm
 
+from backend.core.snowflake_config_manager import SnowflakeConfigManager
 # Import Sophia AI components
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.core.snowflake_config_manager import SnowflakeConfigManager
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)

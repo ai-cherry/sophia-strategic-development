@@ -4,9 +4,9 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'scripts/automated_pulumi_esc_deployment.py'
-      - 'backend/infrastructure/**'
-      - '.github/workflows/automated-infrastructure-deployment.yml'
+      - 'scripts/automated_pulumi_esc_deployment.py':
+      - 'backend/infrastructure/**':
+      - '.github/workflows/automated-infrastructure-deployment.yml':
   workflow_dispatch:
     inputs:
       deployment_type:
@@ -15,10 +15,10 @@ on:
         default: 'full'
         type: choice
         options:
-        - full
-        - credentials-only
-        - webhooks-only
-        - platforms-only
+        - full:
+        - credentials-only:
+        - webhooks-only:
+        - platforms-only:
         - validation-only
 
 env:
@@ -46,12 +46,12 @@ jobs:
         
     - name: Install Dependencies
       run: |
-        uv sync
-        uv add pulumi pulumi-aws pulumi-gcp pulumi-azure
+        uv sync:
+        uv add pulumi pulumi-aws pulumi-gcp pulumi-azure:
         
     - name: Configure Pulumi ESC Environment
       run: |
-        # Create Pulumi ESC environment with all secrets
+        # Create Pulumi ESC environment with all secrets:
         pulumi config set --path sophia-ai:snowflake_account "${{ secrets.SNOWFLAKE_ACCOUNT }}"
         pulumi config set --path sophia-ai:snowflake_user "${{ secrets.SNOWFLAKE_USER }}"
         pulumi config set --path sophia-ai:sophia_ai_token "${{ secrets.SOPHIA_AI_TOKEN }}" --secret
@@ -91,7 +91,7 @@ jobs:
         
     - name: Execute Automated Infrastructure Deployment
       env:
-        # All secrets available as environment variables
+        # All secrets available as environment variables:
         SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
         SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
         SOPHIA_AI_TOKEN: ${{ secrets.SOPHIA_AI_TOKEN }}
@@ -130,115 +130,115 @@ jobs:
         SOPHIA_IaC_ORCHESTRATOR_PORT: "9013"
         
       run: |
-        echo "🚀 Starting Automated Infrastructure Deployment..."
-        python3 scripts/automated_pulumi_esc_deployment.py
+        echo "🚀 Starting Automated Infrastructure Deployment...":
+        python3 scripts/automated_pulumi_esc_deployment.py:
         
     - name: Execute Platform-Specific Automations
       run: |
-        echo "🔧 Executing Platform-Specific Automations..."
+        echo "🔧 Executing Platform-Specific Automations...":
         
-        # Run automated credential sync
-        if [ -f "scripts/automated_credential_sync.sh" ]; then
-          chmod +x scripts/automated_credential_sync.sh
-          ./scripts/automated_credential_sync.sh
-        fi
+        # Run automated credential sync:
+        if [ -f "scripts/automated_credential_sync.sh" ]; then:
+          chmod +x scripts/automated_credential_sync.sh:
+          ./scripts/automated_credential_sync.sh:
+        fi:
         
-        # Run automated webhook deployment
-        if [ -f "scripts/automated_webhook_deployment.py" ]; then
-          python3 scripts/automated_webhook_deployment.py
-        fi
+        # Run automated webhook deployment:
+        if [ -f "scripts/automated_webhook_deployment.py" ]; then:
+          python3 scripts/automated_webhook_deployment.py:
+        fi:
         
-        # Run automated platform integration
-        if [ -f "scripts/automated_platform_integration.py" ]; then
-          python3 scripts/automated_platform_integration.py
-        fi
+        # Run automated platform integration:
+        if [ -f "scripts/automated_platform_integration.py" ]; then:
+          python3 scripts/automated_platform_integration.py:
+        fi:
         
     - name: Validate Complete System
       run: |
-        echo "🔍 Validating Complete Automated System..."
+        echo "🔍 Validating Complete Automated System...":
         
-        if [ -f "scripts/automated_system_validation.py" ]; then
-          python3 scripts/automated_system_validation.py
-        fi
+        if [ -f "scripts/automated_system_validation.py" ]; then:
+          python3 scripts/automated_system_validation.py:
+        fi:
         
     - name: Deploy IaC Orchestrator Service
       run: |
-        echo "🚀 Deploying IaC Orchestrator Service..."
+        echo "🚀 Deploying IaC Orchestrator Service...":
         
-        # Start the IaC orchestrator as a service
-        nohup python3 backend/infrastructure/sophia_iac_orchestrator.py > logs/iac_orchestrator.log 2>&1 &
+        # Start the IaC orchestrator as a service:
+        nohup python3 backend/infrastructure/sophia_iac_orchestrator.py > logs/iac_orchestrator.log 2>&1 &:
         
-        # Wait for service to start
-        sleep 10
+        # Wait for service to start:
+        sleep 10:
         
-        # Verify service is running
+        # Verify service is running:
         if curl -f http://localhost:9013/health; then
-          echo "✅ IaC Orchestrator Service Successfully Deployed"
-        else
-          echo "❌ IaC Orchestrator Service Failed to Start"
-          exit 1
-        fi
+          echo "✅ IaC Orchestrator Service Successfully Deployed":
+        else:
+          echo "❌ IaC Orchestrator Service Failed to Start":
+          exit 1:
+        fi:
         
     - name: Generate Deployment Report
       run: |
-        echo "📊 Generating Deployment Report..."
+        echo "📊 Generating Deployment Report...":
         
-        # Create deployment report
-        cat > deployment_report.json << EOF
-        {
+        # Create deployment report:
+        cat > deployment_report.json << EOF:
+        {:
           "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
           "deployment_type": "${{ github.event.inputs.deployment_type || 'full' }}",
           "status": "SUCCESS",
           "components_deployed": [
-            "Pulumi ESC Integration",
-            "Automated Credential Management",
-            "Webhook Infrastructure", 
-            "Platform Integration (14 platforms)",
-            "IaC Orchestrator Service",
-            "MCP Server Integration",
-            "Dependency Management",
-            "State Management with Rollback"
-          ],
+            "Pulumi ESC Integration",:
+            "Automated Credential Management",:
+            "Webhook Infrastructure", :
+            "Platform Integration (14 platforms)",:
+            "IaC Orchestrator Service",:
+            "MCP Server Integration",:
+            "Dependency Management",:
+            "State Management with Rollback":
+          ],:
           "platforms_integrated": [
-            "Snowflake", "Estuary", "Gong", "Slack", "HubSpot",
-            "Vercel", "Lambda Labs", "Figma",
-            "Portkey", "OpenRouter",
-            "Linear", "Asana",
-            "UserGems", "Apollo.io"
-          ],
+            "Snowflake", "Estuary", "Gong", "Slack", "HubSpot",:
+            "Vercel", "Lambda Labs", "Figma",:
+            "Portkey", "OpenRouter",:
+            "Linear", "Asana",:
+            "UserGems", "Apollo.io":
+          ],:
           "services_active": [
-            "IaC Orchestrator (port 9013)",
-            "Webhook Router",
-            "Platform Monitoring",
-            "Dependency Manager",
-            "State Manager",
-            "Natural Language Interface"
-          ]
-        }
-        EOF
+            "IaC Orchestrator (port 9013)",:
+            "Webhook Router",:
+            "Platform Monitoring",:
+            "Dependency Manager",:
+            "State Manager",:
+            "Natural Language Interface":
+          ]:
+        }:
+        EOF:
         
-        echo "✅ Deployment Report Generated"
-        cat deployment_report.json
+        echo "✅ Deployment Report Generated":
+        cat deployment_report.json:
         
     - name: Upload Deployment Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: deployment-artifacts
         path: |
-          deployment_report.json
-          logs/
-          automated_system_activation_report.json
+          deployment_report.json:
+          logs/:
+          automated_system_activation_report.json:
           
     - name: Notify Deployment Success
       run: |
-        echo "🎉 AUTOMATED INFRASTRUCTURE DEPLOYMENT COMPLETED SUCCESSFULLY!"
-        echo ""
-        echo "✅ All 14 platforms integrated with optimal automation strategies"
-        echo "✅ Pulumi ESC managing all credentials securely"  
-        echo "✅ Webhook infrastructure deployed and operational"
-        echo "✅ IaC Orchestrator service running on port 9013"
-        echo "✅ Natural language infrastructure commands enabled"
-        echo "✅ Zero manual steps required for future deployments"
-        echo ""
+        echo "🎉 AUTOMATED INFRASTRUCTURE DEPLOYMENT COMPLETED SUCCESSFULLY!":
+        echo "":
+        echo "✅ All 14 platforms integrated with optimal automation strategies":
+        echo "✅ Pulumi ESC managing all credentials securely"  :
+        echo "✅ Webhook infrastructure deployed and operational":
+        echo "✅ IaC Orchestrator service running on port 9013":
+        echo "✅ Natural language infrastructure commands enabled":
+        echo "✅ Zero manual steps required for future deployments":
+        echo "":
         echo "🚀 Your Sophia AI Infrastructure is now fully automated!"
 

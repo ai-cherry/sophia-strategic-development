@@ -9,12 +9,12 @@ Deploys comprehensive Snowflake infrastructure for Asana integration including:
 - Data quality monitoring and validation
 """
 
+import argparse
 import asyncio
 import logging
-import argparse
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 

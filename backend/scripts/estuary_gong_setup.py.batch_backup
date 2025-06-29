@@ -18,19 +18,20 @@ Features:
 - Integration with Pulumi ESC secrets
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
 import time
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-import argparse
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 import structlog
+
 from backend.core.auto_esc_config import get_config_value
 
 # Configure logging

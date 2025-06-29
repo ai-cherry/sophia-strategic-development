@@ -261,10 +261,10 @@ cursor.execute(query)
 # SQL Injection Vulnerability Analysis Report
 
 ## Executive Summary
-- **Vulnerabilities Found**: {report['vulnerabilities_found']}
-- **High Severity**: {report['high_severity_count']} vulnerabilities
-- **Medium Severity**: {report['medium_severity_count']} vulnerabilities
-- **Low Severity**: {report['low_severity_count']} vulnerabilities
+- **Vulnerabilities Found**: {report["vulnerabilities_found"]}
+- **High Severity**: {report["high_severity_count"]} vulnerabilities
+- **Medium Severity**: {report["medium_severity_count"]} vulnerabilities
+- **Low Severity**: {report["low_severity_count"]} vulnerabilities
 
 ## Vulnerabilities by File
 """

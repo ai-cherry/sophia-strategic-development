@@ -4,8 +4,8 @@ Setup Enhanced Coding Workflow for Sophia AI
 Implements capabilities similar to Zencoder and cursor-companion
 """
 
-import os
 import json
+import os
 import subprocess
 from pathlib import Path
 

@@ -25,29 +25,28 @@ Usage:
     python backend/scripts/deploy_snowflake_application_layer.py --environment DEV --rollback
 """
 
-import asyncio
 import argparse
-import logging
-import sys
-import os
-from datetime import datetime
-from typing import List, Optional
-from dataclasses import dataclass, field
-from enum import Enum
+import asyncio
 import json
+import logging
+import os
+import sys
 import time
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import List, Optional
 
 import snowflake.connector
 import structlog
 
 # Import Sophia AI components
 from backend.core.auto_esc_config import config
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.core.snowflake_config_manager import SnowflakeConfigManager
 from backend.scripts.batch_embed_data import BatchEmbeddingProcessor
-from backend.workflows.langgraph_agent_orchestration import (
-    LangGraphWorkflowOrchestrator,
-)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.workflows.langgraph_agent_orchestration import \
+    LangGraphWorkflowOrchestrator
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)

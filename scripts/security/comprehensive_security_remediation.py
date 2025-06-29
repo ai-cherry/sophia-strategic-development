@@ -27,7 +27,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -711,4 +711,4 @@ def main():
     parser.add_argument('--fix-sql-injection', action='store_true', help='Fix SQL injection vulnerabilities')
     parser.add_argument('--fix-secrets', action='store_true', help='Fix hardcoded secrets')
     parser.add_argument('--fix-subprocess', action='store_true', help='Fix subprocess vulnerabilities')
-    parser.add_argument('--fix-grants', action
+    parser.add_argument('--fix-grants', action)

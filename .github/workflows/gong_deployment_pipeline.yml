@@ -9,9 +9,9 @@ on:
         default: 'dev'
         type: choice
         options:
-          - dev
-          - staging
-          - production
+          - dev:
+          - staging:
+          - production:
       force_deploy:
         description: 'Force deployment even if tests fail'
         required: false
@@ -24,10 +24,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/scripts/estuary_gong_setup.py'
-      - 'backend/scripts/deploy_gong_snowflake_setup.py'
-      - 'scripts/ci/sync_from_gh_to_pulumi.py'
-      - 'scripts/test_gong_deployment_readiness.py'
+      - 'backend/scripts/estuary_gong_setup.py':
+      - 'backend/scripts/deploy_gong_snowflake_setup.py':
+      - 'scripts/ci/sync_from_gh_to_pulumi.py':
+      - 'scripts/test_gong_deployment_readiness.py':
       - '.github/workflows/gong_deployment_pipeline.yml'
 
 env:
@@ -55,7 +55,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests
 
       - name: Setup Pulumi CLI
@@ -66,44 +66,44 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          echo "🔍 Validating deployment prerequisites..."
+          echo "🔍 Validating deployment prerequisites...":
           
-          # Check Pulumi access
-          pulumi login
-          pulumi whoami
+          # Check Pulumi access:
+          pulumi login:
+          pulumi whoami:
           
-          # Check if critical secrets are available
+          # Check if critical secrets are available:
           MISSING_SECRETS=()
           
-          if [ -z "${{ secrets.GONG_ACCESS_KEY }}" ]; then
+          if [ -z "${{ secrets.GONG_ACCESS_KEY }}" ]; then:
             MISSING_SECRETS+=("GONG_ACCESS_KEY")
-          fi
+          fi:
           
-          if [ -z "${{ secrets.GONG_CLIENT_SECRET }}" ]; then
+          if [ -z "${{ secrets.GONG_CLIENT_SECRET }}" ]; then:
             MISSING_SECRETS+=("GONG_CLIENT_SECRET")
-          fi
+          fi:
           
-          if [ -z "${{ secrets.SNOWFLAKE_ACCOUNT }}" ]; then
+          if [ -z "${{ secrets.SNOWFLAKE_ACCOUNT }}" ]; then:
             MISSING_SECRETS+=("SNOWFLAKE_ACCOUNT")
-          fi
+          fi:
           
-          if [ -z "${{ secrets.SNOWFLAKE_PASSWORD }}" ]; then
+          if [ -z "${{ secrets.SNOWFLAKE_PASSWORD }}" ]; then:
             MISSING_SECRETS+=("SNOWFLAKE_PASSWORD")
-          fi
+          fi:
           
-          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then:
             MISSING_SECRETS+=("OPENAI_API_KEY")
-          fi
+          fi:
           
-          if [ -z "${{ secrets.PINECONE_API_KEY }}" ]; then
+          if [ -z "${{ secrets.PINECONE_API_KEY }}" ]; then:
             MISSING_SECRETS+=("PINECONE_API_KEY")
-          fi
+          fi:
           
-          if [ ${#MISSING_SECRETS[@]} -eq 0 ]; then
-            echo "✅ All critical secrets available"
+          if [ ${#MISSING_SECRETS[@]} -eq 0 ]; then:
+            echo "✅ All critical secrets available":
             echo "should_proceed=true" >> $GITHUB_OUTPUT
             echo "summary=All prerequisites validated successfully" >> $GITHUB_OUTPUT
-          else
+          else:
             echo "❌ Missing critical secrets: ${MISSING_SECRETS[*]}"
             echo "should_proceed=false" >> $GITHUB_OUTPUT
             echo "summary=Missing critical secrets: ${MISSING_SECRETS[*]}" >> $GITHUB_OUTPUT
@@ -127,7 +127,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests
 
       - name: Setup Pulumi CLI
@@ -137,7 +137,7 @@ jobs:
         run: python scripts/ci/sync_from_gh_to_pulumi.py
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          # Critical secrets for Gong deployment
+          # Critical secrets for Gong deployment:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
@@ -183,7 +183,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests
 
       - name: Setup Pulumi CLI
@@ -194,7 +194,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          pulumi login
+          pulumi login:
           echo "PULUMI_ORG=${{ env.PULUMI_ORG }}" >> $GITHUB_ENV
 
       - name: Run Deployment Readiness Tests
@@ -203,14 +203,14 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
-          echo "🧪 Running Gong deployment readiness tests..."
+          echo "🧪 Running Gong deployment readiness tests...":
           
-          if python scripts/test_gong_deployment_readiness.py; then
-            echo "✅ Deployment readiness tests passed"
+          if python scripts/test_gong_deployment_readiness.py; then:
+            echo "✅ Deployment readiness tests passed":
             echo "ready=true" >> $GITHUB_OUTPUT
             echo "summary=All deployment readiness tests passed" >> $GITHUB_OUTPUT
-          else
-            echo "❌ Deployment readiness tests failed"
+          else:
+            echo "❌ Deployment readiness tests failed":
             echo "ready=false" >> $GITHUB_OUTPUT
             echo "summary=Deployment readiness tests failed - check logs" >> $GITHUB_OUTPUT
           fi
@@ -242,31 +242,31 @@ jobs:
           elif [[ "${{ needs.validate-prerequisites.outputs.should_proceed }}" == "false" ]]; then
             echo "status=PREREQUISITES_FAILED" >> $GITHUB_OUTPUT
             echo "message=❌ Prerequisites validation failed - missing secrets" >> $GITHUB_OUTPUT
-          else
+          else:
             echo "status=UNKNOWN" >> $GITHUB_OUTPUT
             echo "message=❓ Deployment status unknown" >> $GITHUB_OUTPUT
           fi
 
       - name: Final Status Report
         run: |
-          echo "🏁 FINAL DEPLOYMENT STATUS"
+          echo "🏁 FINAL DEPLOYMENT STATUS":
           echo "=========================="
           echo "Status: ${{ steps.status.outputs.status }}"
           echo "Message: ${{ steps.status.outputs.message }}"
           echo "Environment: ${{ env.DEPLOYMENT_ENV }}"
           echo "Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
-          # Add to step summary
-          echo "## 🚀 Gong Deployment Pipeline Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          # Add to step summary:
+          echo "## 🚀 Gong Deployment Pipeline Results" >> $GITHUB_STEP_SUMMARY:
+          echo "" >> $GITHUB_STEP_SUMMARY:
           echo "**Status:** ${{ steps.status.outputs.status }}" >> $GITHUB_STEP_SUMMARY
           echo "**Message:** ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** ${{ env.DEPLOYMENT_ENV }}" >> $GITHUB_STEP_SUMMARY
           echo "**Triggered By:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY:
           if [[ "${{ steps.status.outputs.status }}" == "SUCCESS" ]]; then
-            echo "✅ Ready to proceed with manual deployment verification" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Fix identified issues before proceeding with deployment" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Ready to proceed with manual deployment verification" >> $GITHUB_STEP_SUMMARY:
+          else:
+            echo "❌ Fix identified issues before proceeding with deployment" >> $GITHUB_STEP_SUMMARY:
           fi

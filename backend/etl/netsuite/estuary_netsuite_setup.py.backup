@@ -6,13 +6,12 @@ Configures Estuary source for NetSuite and creates transformation procedures for
 
 import asyncio
 import logging
-from typing import Dict, Any
 from dataclasses import dataclass
+from typing import Any, Dict
 
 from backend.core.auto_esc_config import get_config_value
-from backend.etl.estuary.estuary_configuration_manager import (
-    EstuaryConfigurationManager,
-)
+from backend.etl.estuary.estuary_configuration_manager import \
+    EstuaryConfigurationManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

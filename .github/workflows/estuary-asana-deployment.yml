@@ -4,16 +4,16 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/etl/estuary/**'
-      - 'backend/scripts/deploy_asana_snowflake_setup.py'
-      - 'backend/agents/specialized/*asana*'
-      - '.github/workflows/estuary-asana-deployment.yml'
+      - 'backend/etl/estuary/**':
+      - 'backend/scripts/deploy_asana_snowflake_setup.py':
+      - 'backend/agents/specialized/*asana*':
+      - '.github/workflows/estuary-asana-deployment.yml':
   pull_request:
     branches: [main]
     paths:
-      - 'backend/etl/estuary/**'
-      - 'backend/scripts/deploy_asana_snowflake_setup.py'
-      - 'backend/agents/specialized/*asana*'
+      - 'backend/etl/estuary/**':
+      - 'backend/scripts/deploy_asana_snowflake_setup.py':
+      - 'backend/agents/specialized/*asana*':
   workflow_dispatch:
     inputs:
       environment:
@@ -22,9 +22,9 @@ on:
         default: 'dev'
         type: choice
         options:
-          - dev
-          - staging
-          - prod
+          - dev:
+          - staging:
+          - prod:
       force_deploy:
         description: 'Force deployment even if tests fail'
         required: false
@@ -62,9 +62,9 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
-          uv sync --group test pytest-asyncio aiohttp
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
+          uv sync --group test pytest-asyncio aiohttp:
       
       - name: Set up Pulumi ESC
         env:
@@ -72,8 +72,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Validate Asana API Token
         id: validate_token
@@ -82,26 +82,26 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
+          python -c ":
+          import asyncio:
+          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager:
           
           async def validate():
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
-              await manager.initialize()
+              await manager.initialize():
               
               result = await manager.test_source_connection('asana')
               if result.status.value == 'success':
-                  print('✅ Asana API token validation passed')
+                  print('✅ Asana API token validation passed'):
                   print('::set-output name=valid::true')
               else:
                   print(f'❌ Asana API token validation failed: {result.error_message}')
                   print('::set-output name=valid::false')
               
-              await manager.cleanup()
+              await manager.cleanup():
           
-          asyncio.run(validate())
-          "
+          asyncio.run(validate()):
+          ":
       
       - name: Validate Snowflake Infrastructure
         id: validate_snowflake
@@ -110,31 +110,31 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          python -c ":
+          import asyncio:
+          from backend.utils.snowflake_cortex_service import SnowflakeCortexService:
           
           async def validate():
               cortex = SnowflakeCortexService()
-              await cortex.initialize()
+              await cortex.initialize():
               
-              # Check if RAW_ESTUARY schema exists
+              # Check if RAW_ESTUARY schema exists:
               result = await cortex.execute_query('''
-                  SELECT COUNT(*) as schema_exists 
-                  FROM INFORMATION_SCHEMA.SCHEMATA 
+                  SELECT COUNT(*) as schema_exists :
+                  FROM INFORMATION_SCHEMA.SCHEMATA :
                   WHERE SCHEMA_NAME = 'RAW_ESTUARY'
-              ''')
+              '''):
               
               if result.iloc[0]['SCHEMA_EXISTS'] > 0:
-                  print('✅ Snowflake infrastructure validation passed')
+                  print('✅ Snowflake infrastructure validation passed'):
                   print('::set-output name=ready::true')
               else:
-                  print('❌ RAW_ESTUARY schema not found')
+                  print('❌ RAW_ESTUARY schema not found'):
                   print('::set-output name=ready::false')
               
-              await cortex.close()
+              await cortex.close():
           
-          asyncio.run(validate())
+          asyncio.run(validate()):
           "
 
   test-asana-integration:
@@ -156,9 +156,9 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
-          uv sync --group test pytest-asyncio
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
+          uv sync --group test pytest-asyncio:
       
       - name: Set up Pulumi ESC
         env:
@@ -166,8 +166,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Run Asana Integration Tests
         env:
@@ -175,9 +175,9 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python backend/scripts/enhanced_asana_integration_test_suite.py \
-            --environment ${{ github.event.inputs.environment || 'dev' }} \
-            --output asana_test_results_${{ github.event.inputs.environment || 'dev' }}.json
+          python backend/scripts/enhanced_asana_integration_test_suite.py \:
+            --environment ${{ github.event.inputs.environment || 'dev' }} \:
+            --output asana_test_results_${{ github.event.inputs.environment || 'dev' }}.json:
       
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -206,8 +206,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -215,8 +215,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Deploy Asana Snowflake DDL and Procedures
         env:
@@ -224,9 +224,9 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python backend/scripts/deploy_asana_snowflake_setup.py \
-            --env ${{ github.event.inputs.environment || 'dev' }} \
-            --execute-all
+          python backend/scripts/deploy_asana_snowflake_setup.py \:
+            --env ${{ github.event.inputs.environment || 'dev' }} \:
+            --execute-all:
       
       - name: Validate Asana Snowflake Deployment
         env:
@@ -234,40 +234,40 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          python -c ":
+          import asyncio:
+          from backend.utils.snowflake_cortex_service import SnowflakeCortexService:
           
           async def validate():
               cortex = SnowflakeCortexService()
-              await cortex.initialize()
+              await cortex.initialize():
               
-              # Verify STG_ASANA_PROJECTS table exists
+              # Verify STG_ASANA_PROJECTS table exists:
               result = await cortex.execute_query('''
-                  SELECT COUNT(*) as table_exists 
-                  FROM INFORMATION_SCHEMA.TABLES 
+                  SELECT COUNT(*) as table_exists :
+                  FROM INFORMATION_SCHEMA.TABLES :
                   WHERE TABLE_SCHEMA = 'STG_TRANSFORMED' 
                   AND TABLE_NAME = 'STG_ASANA_PROJECTS'
-              ''')
+              '''):
               
               if result.iloc[0]['TABLE_EXISTS'] == 0:
-                  raise Exception('STG_ASANA_PROJECTS table not found')
+                  raise Exception('STG_ASANA_PROJECTS table not found'):
               
-              # Verify STG_ASANA_TASKS table exists
+              # Verify STG_ASANA_TASKS table exists:
               result = await cortex.execute_query('''
-                  SELECT COUNT(*) as table_exists 
-                  FROM INFORMATION_SCHEMA.TABLES 
+                  SELECT COUNT(*) as table_exists :
+                  FROM INFORMATION_SCHEMA.TABLES :
                   WHERE TABLE_SCHEMA = 'STG_TRANSFORMED' 
                   AND TABLE_NAME = 'STG_ASANA_TASKS'
-              ''')
+              '''):
               
               if result.iloc[0]['TABLE_EXISTS'] == 0:
-                  raise Exception('STG_ASANA_TASKS table not found')
+                  raise Exception('STG_ASANA_TASKS table not found'):
               
-              await cortex.close()
-              print('✅ Asana Snowflake infrastructure validation passed')
+              await cortex.close():
+              print('✅ Asana Snowflake infrastructure validation passed'):
           
-          asyncio.run(validate())
+          asyncio.run(validate()):
           "
 
   configure-asana-estuary-connectors:
@@ -292,8 +292,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -301,8 +301,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Configure Asana Source and Snowflake Destination
         id: configure_asana
@@ -311,28 +311,28 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
+          python -c ":
+          import asyncio:
+          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager:
           
           async def configure():
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
-              await manager.initialize()
+              await manager.initialize():
               
-              # Setup complete Asana pipeline
+              # Setup complete Asana pipeline:
               results = await manager.setup_complete_asana_pipeline()
               
               if results['connection'].status.value != 'success':
                   raise Exception(f'Asana pipeline setup failed: {results[\"connection\"].error_message}')
               
               connection_id = results['connection'].resource_id
-              print(f'✅ Asana pipeline configured successfully')
+              print(f'✅ Asana pipeline configured successfully'):
               print(f'Connection ID: {connection_id}')
               print(f'::set-output name=connection_id::{connection_id}')
               
-              await manager.cleanup()
+              await manager.cleanup():
           
-          asyncio.run(configure())
+          asyncio.run(configure()):
           "
 
   trigger-initial-asana-sync:
@@ -354,8 +354,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -363,8 +363,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Trigger and Monitor Initial Sync
         env:
@@ -373,25 +373,25 @@ jobs:
           CONNECTION_ID: ${{ needs.configure-asana-estuary-connectors.outputs.asana_connection_id }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          import time
-          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
+          python -c ":
+          import asyncio:
+          import time:
+          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager:
           
           async def trigger_and_monitor():
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
-              await manager.initialize()
+              await manager.initialize():
               
               connection_id = '${{ needs.configure-asana-estuary-connectors.outputs.asana_connection_id }}'
               
-              # Trigger sync
+              # Trigger sync:
               sync_result = await manager.trigger_asana_sync(connection_id)
               if sync_result.status.value != 'success':
                   raise Exception(f'Failed to trigger Asana sync: {sync_result.error_message}')
               
               print(f'✅ Initial Asana sync triggered: {sync_result.resource_id}')
               
-              # Monitor sync progress for up to 30 minutes
+              # Monitor sync progress for up to 30 minutes:
               max_wait_time = 1800  # 30 minutes
               start_time = time.time()
               
@@ -404,14 +404,14 @@ jobs:
                       print(f'Sync status: {job_status}')
                       
                       if job_status in ['succeeded', 'failed', 'cancelled']:
-                          break
+                          break:
                   
-                  await asyncio.sleep(60)  # Check every minute
+                  await asyncio.sleep(60)  # Check every minute:
               
-              await manager.cleanup()
-              print('✅ Initial sync monitoring completed')
+              await manager.cleanup():
+              print('✅ Initial sync monitoring completed'):
           
-          asyncio.run(trigger_and_monitor())
+          asyncio.run(trigger_and_monitor()):
           "
 
   validate-asana-data-pipeline:
@@ -433,8 +433,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -442,8 +442,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Validate Data Quality and AI Enrichment
         env:
@@ -451,16 +451,16 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          python -c ":
+          import asyncio:
+          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager:
+          from backend.utils.snowflake_cortex_service import SnowflakeCortexService:
           
           async def validate():
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
-              await manager.initialize()
+              await manager.initialize():
               
-              # Validate data quality
+              # Validate data quality:
               quality_metrics = await manager.validate_asana_data_quality()
               print(f'Data quality score: {quality_metrics.quality_score:.1f}%')
               print(f'Total records: {quality_metrics.total_records}')
@@ -468,34 +468,34 @@ jobs:
               if quality_metrics.issues:
                   print('Data quality issues:')
                   for issue in quality_metrics.issues:
-                      print(f'  - {issue}')
+                      print(f'  - {issue}'):
               
               if quality_metrics.quality_score < 90:
-                  print('⚠️ Data quality below 90%, but continuing deployment')
+                  print('⚠️ Data quality below 90%, but continuing deployment'):
               else:
-                  print('✅ Data quality validation passed')
+                  print('✅ Data quality validation passed'):
               
-              # Validate AI enrichment
+              # Validate AI enrichment:
               cortex = SnowflakeCortexService()
-              await cortex.initialize()
+              await cortex.initialize():
               
-              # Check if AI embeddings are being generated
+              # Check if AI embeddings are being generated:
               result = await cortex.execute_query('''
-                  SELECT COUNT(*) as enriched_records
-                  FROM STG_TRANSFORMED.STG_ASANA_PROJECTS
-                  WHERE ai_memory_embedding IS NOT NULL
-              ''')
+                  SELECT COUNT(*) as enriched_records:
+                  FROM STG_TRANSFORMED.STG_ASANA_PROJECTS:
+                  WHERE ai_memory_embedding IS NOT NULL:
+              '''):
               
               enriched_count = result.iloc[0]['ENRICHED_RECORDS'] if not result.empty else 0
               print(f'AI enriched projects: {enriched_count}')
               
-              await cortex.close()
-              await manager.cleanup()
+              await cortex.close():
+              await manager.cleanup():
               
-              print('✅ Data pipeline validation completed')
+              print('✅ Data pipeline validation completed'):
           
-          asyncio.run(validate())
-          "
+          asyncio.run(validate()):
+          ":
       
       - name: Run Post-Deployment Integration Tests
         env:
@@ -503,10 +503,10 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python backend/scripts/enhanced_asana_integration_test_suite.py \
-            --environment ${{ github.event.inputs.environment || 'dev' }} \
-            --output post_deployment_asana_results.json \
-            --include-data-validation
+          python backend/scripts/enhanced_asana_integration_test_suite.py \:
+            --environment ${{ github.event.inputs.environment || 'dev' }} \:
+            --output post_deployment_asana_results.json \:
+            --include-data-validation:
       
       - name: Upload validation results
         uses: actions/upload-artifact@v3
@@ -553,11 +553,11 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          if [ -n "$VERCEL_TOKEN" ]; then
-            npx vercel --prod --token $VERCEL_TOKEN
-            echo "✅ Frontend deployed to Vercel with Asana integration"
-          else
-            echo "⚠️ Vercel token not configured, skipping deployment"
+          if [ -n "$VERCEL_TOKEN" ]; then:
+            npx vercel --prod --token $VERCEL_TOKEN:
+            echo "✅ Frontend deployed to Vercel with Asana integration":
+          else:
+            echo "⚠️ Vercel token not configured, skipping deployment":
           fi
 
   notify-deployment-status:
@@ -569,13 +569,13 @@ jobs:
     steps:
       - name: Generate deployment summary
         run: |
-          echo "🚀 Asana Integration Deployment Summary" > deployment_summary.md
+          echo "🚀 Asana Integration Deployment Summary" > deployment_summary.md:
           echo "=======================================" >> deployment_summary.md
-          echo "" >> deployment_summary.md
+          echo "" >> deployment_summary.md:
           echo "**Environment:** ${{ github.event.inputs.environment || 'dev' }}" >> deployment_summary.md
           echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> deployment_summary.md
           echo "**Commit:** ${{ github.sha }}" >> deployment_summary.md
-          echo "" >> deployment_summary.md
+          echo "" >> deployment_summary.md:
           echo "## Job Status:" >> deployment_summary.md
           echo "- Prerequisites: ${{ needs.validate-asana-prerequisites.result }}" >> deployment_summary.md
           echo "- Integration Tests: ${{ needs.test-asana-integration.result }}" >> deployment_summary.md
@@ -584,24 +584,24 @@ jobs:
           echo "- Initial Sync: ${{ needs.trigger-initial-asana-sync.result }}" >> deployment_summary.md
           echo "- Data Validation: ${{ needs.validate-asana-data-pipeline.result }}" >> deployment_summary.md
           echo "- Dashboard Update: ${{ needs.update-project-management-dashboard.result }}" >> deployment_summary.md
-          echo "" >> deployment_summary.md
+          echo "" >> deployment_summary.md:
           
           if [[ "${{ needs.validate-asana-data-pipeline.result }}" == "success" ]]; then
-            echo "✅ **Asana integration deployment completed successfully!**" >> deployment_summary.md
-            echo "" >> deployment_summary.md
+            echo "✅ **Asana integration deployment completed successfully!**" >> deployment_summary.md:
+            echo "" >> deployment_summary.md:
             echo "Asana project management data is now integrated into Sophia AI:" >> deployment_summary.md
-            echo "- ✅ Estuary pipeline configured and running" >> deployment_summary.md
-            echo "- ✅ Snowflake tables populated with Asana data" >> deployment_summary.md
-            echo "- ✅ AI enrichment and embeddings generated" >> deployment_summary.md
-            echo "- ✅ Project Management Dashboard updated" >> deployment_summary.md
-            echo "- ✅ Universal Chat Service enhanced with Asana queries" >> deployment_summary.md
-          else
-            echo "❌ **Asana integration deployment encountered issues**" >> deployment_summary.md
-            echo "" >> deployment_summary.md
-            echo "Please check the job logs for detailed error information." >> deployment_summary.md
-          fi
+            echo "- ✅ Estuary pipeline configured and running" >> deployment_summary.md:
+            echo "- ✅ Snowflake tables populated with Asana data" >> deployment_summary.md:
+            echo "- ✅ AI enrichment and embeddings generated" >> deployment_summary.md:
+            echo "- ✅ Project Management Dashboard updated" >> deployment_summary.md:
+            echo "- ✅ Universal Chat Service enhanced with Asana queries" >> deployment_summary.md:
+          else:
+            echo "❌ **Asana integration deployment encountered issues**" >> deployment_summary.md:
+            echo "" >> deployment_summary.md:
+            echo "Please check the job logs for detailed error information." >> deployment_summary.md:
+          fi:
           
-          cat deployment_summary.md
+          cat deployment_summary.md:
       
       - name: Upload deployment summary
         uses: actions/upload-artifact@v3

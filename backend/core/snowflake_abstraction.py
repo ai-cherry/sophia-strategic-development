@@ -461,8 +461,8 @@ class QueryBuilder:
         placeholders = ["%s"] * len(columns)
 
         query = f"""
-        INSERT INTO {table_name} ({', '.join(columns)})
-        VALUES ({', '.join(placeholders)})
+        INSERT INTO {table_name} ({", ".join(columns)})
+        VALUES ({", ".join(placeholders)})
         """
 
         return query.strip(), values
@@ -491,7 +491,7 @@ class QueryBuilder:
 
         query = f"""
         UPDATE {table_name}
-        SET {', '.join(set_items)}
+        SET {", ".join(set_items)}
         WHERE {where_clause}
         """
 
@@ -536,8 +536,8 @@ class QueryBuilder:
         query = f"""
         MERGE INTO {table_name} AS target
         USING (
-            SELECT {', '.join([f"column{i+1} AS {col}" for i, col in enumerate(all_columns)])}
-            FROM VALUES {', '.join(value_rows)}
+            SELECT {", ".join([f"column{i + 1} AS {col}" for i, col in enumerate(all_columns)])}
+            FROM VALUES {", ".join(value_rows)}
         ) AS source
         ON {merge_conditions}
         WHEN MATCHED THEN

@@ -2,7 +2,7 @@ name: Enhanced Estuary Pipeline Monitoring
 
 on:
   schedule:
-    # Run every 4 hours
+    # Run every 4 hours:
     - cron: '0 */4 * * *'
   workflow_dispatch:
     inputs:
@@ -12,9 +12,9 @@ on:
         default: 'dev'
         type: choice
         options:
-          - dev
-          - staging
-          - prod
+          - dev:
+          - staging:
+          - prod:
       alert_threshold:
         description: 'Quality score threshold for alerts'
         required: false
@@ -43,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -52,8 +52,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Perform Comprehensive Health Check
         env:
@@ -61,23 +61,23 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          import json
-          from datetime import datetime
-          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager
+          python -c ":
+          import asyncio:
+          import json:
+          from datetime import datetime:
+          from backend.etl.estuary.estuary_configuration_manager import EnhancedEstuaryManager:
           
           async def monitor():
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
-              await manager.initialize()
+              await manager.initialize():
               
-              # Perform health check
+              # Perform health check:
               health_check = await manager.perform_health_check()
               
-              # Validate data quality
+              # Validate data quality:
               quality_metrics = await manager.validate_gong_data_quality(200)
               
-              # Create monitoring report
+              # Create monitoring report:
               report = {
                   'timestamp': datetime.utcnow().isoformat(),
                   'environment': '${{ github.event.inputs.environment || 'dev' }}',
@@ -88,15 +88,15 @@ jobs:
                       'total_records': quality_metrics.total_records,
                       'valid_records': quality_metrics.valid_records,
                       'issues': quality_metrics.issues
-                  },
+                  },:
                   'alert_threshold': float('${{ github.event.inputs.alert_threshold || '0.85' }}')
-              }
+              }:
               
-              # Save report
+              # Save report:
               with open('monitoring_report.json', 'w') as f:
                   json.dump(report, f, indent=2)
               
-              # Check for alerts
+              # Check for alerts:
               alerts = []
               
               if health_check['overall_status'] == 'critical':
@@ -108,7 +108,7 @@ jobs:
               if quality_metrics.issues:
                   alerts.append(f'WARNING: Data quality issues detected: {', '.join(quality_metrics.issues)}')
               
-              # Log results
+              # Log results:
               print(f'Health Status: {health_check[\"overall_status\"]}')
               print(f'Data Quality Score: {quality_metrics.quality_score:.3f}')
               print(f'Total Records: {quality_metrics.total_records}')
@@ -116,18 +116,18 @@ jobs:
               if alerts:
                   print('ALERTS:')
                   for alert in alerts:
-                      print(f'  - {alert}')
+                      print(f'  - {alert}'):
                   
-                  # Write alerts to file for GitHub Actions
+                  # Write alerts to file for GitHub Actions:
                   with open('alerts.txt', 'w') as f:
-                      f.write('\n'.join(alerts))
+                      f.write('\n'.join(alerts)):
               else:
-                  print('✅ No alerts - pipeline operating normally')
+                  print('✅ No alerts - pipeline operating normally'):
               
-              await manager.cleanup()
+              await manager.cleanup():
           
-          asyncio.run(monitor())
-          "
+          asyncio.run(monitor()):
+          ":
       
       - name: Upload monitoring report
         uses: actions/upload-artifact@v3
@@ -140,14 +140,14 @@ jobs:
       - name: Check for alerts
         id: check-alerts
         run: |
-          if [ -f alerts.txt ]; then
+          if [ -f alerts.txt ]; then:
             echo "alerts_found=true" >> $GITHUB_OUTPUT
-            echo "alerts<<EOF" >> $GITHUB_OUTPUT
-            cat alerts.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
+            echo "alerts<<EOF" >> $GITHUB_OUTPUT:
+            cat alerts.txt >> $GITHUB_OUTPUT:
+            echo "EOF" >> $GITHUB_OUTPUT:
+          else:
             echo "alerts_found=false" >> $GITHUB_OUTPUT
-          fi
+          fi:
       
       - name: Create GitHub Issue for Critical Alerts
         if: steps.check-alerts.outputs.alerts_found == 'true' && contains(steps.check-alerts.outputs.alerts, 'CRITICAL')
@@ -159,31 +159,31 @@ jobs:
             const timestamp = new Date().toISOString();
             
             const issueBody = `
-            ## 🚨 Critical Pipeline Alert
+            ## 🚨 Critical Pipeline Alert:
             
             **Environment:** ${environment}
             **Timestamp:** ${timestamp}
             **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
             
-            ### Alerts
-            \`\`\`
-            ${alerts}
-            \`\`\`
+            ### Alerts:
+            \`\`\`:
+            ${alerts}:
+            \`\`\`:
             
-            ### Recommended Actions
-            1. Check Estuary Flow connector status
-            2. Verify Snowflake connectivity
-            3. Review data quality issues
-            4. Check system resources and performance
+            ### Recommended Actions:
+            1. Check Estuary Flow connector status:
+            2. Verify Snowflake connectivity:
+            3. Review data quality issues:
+            4. Check system resources and performance:
             
-            ### Monitoring Report
-            Download the full monitoring report from the workflow artifacts.
+            ### Monitoring Report:
+            Download the full monitoring report from the workflow artifacts.:
             
-            ---
-            *This issue was automatically created by the pipeline monitoring workflow.*
-            `;
+            ---:
+            *This issue was automatically created by the pipeline monitoring workflow.*:
+            `;:
             
-            github.rest.issues.create({
+            github.rest.issues.create({:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `🚨 Critical Pipeline Alert - ${environment.toUpperCase()} Environment`,
@@ -208,8 +208,8 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-          uv sync
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+          uv sync:
       
       - name: Set up Pulumi ESC
         env:
@@ -217,8 +217,8 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
-          pulumi login
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH:
+          pulumi login:
       
       - name: Check Data Freshness
         env:
@@ -226,38 +226,38 @@ jobs:
           PULUMI_ORG: ${{ env.PULUMI_ORG }}
         run: |
           export PULUMI_ORG=${{ env.PULUMI_ORG }}
-          python -c "
-          import asyncio
-          from datetime import datetime, timedelta
-          from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+          python -c ":
+          import asyncio:
+          from datetime import datetime, timedelta:
+          from backend.utils.snowflake_cortex_service import SnowflakeCortexService:
           
           async def check_freshness():
               cortex = SnowflakeCortexService()
-              await cortex.initialize()
+              await cortex.initialize():
               
-              # Check raw data freshness
+              # Check raw data freshness:
               raw_freshness_query = '''
-                  SELECT 
-                      MAX(_ESTUARY_EMITTED_AT) as latest_raw_data,
-                      COUNT(*) as records_last_24h
-                  FROM SOPHIA_AI_DEV.RAW_ESTUARY.RAW_GONG_CALLS_RAW
+                  SELECT :
+                      MAX(_ESTUARY_EMITTED_AT) as latest_raw_data,:
+                      COUNT(*) as records_last_24h:
+                  FROM SOPHIA_AI_DEV.RAW_ESTUARY.RAW_GONG_CALLS_RAW:
                   WHERE _ESTUARY_EMITTED_AT >= DATEADD('hour', -24, CURRENT_TIMESTAMP())
-              '''
+              ''':
               
               raw_result = await cortex.execute_query(raw_freshness_query)
               
-              # Check transformed data freshness
+              # Check transformed data freshness:
               stg_freshness_query = '''
-                  SELECT 
-                      MAX(UPDATED_AT) as latest_stg_data,
-                      COUNT(*) as records_last_24h
-                  FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS
+                  SELECT :
+                      MAX(UPDATED_AT) as latest_stg_data,:
+                      COUNT(*) as records_last_24h:
+                  FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS:
                   WHERE UPDATED_AT >= DATEADD('hour', -24, CURRENT_TIMESTAMP())
-              '''
+              ''':
               
               stg_result = await cortex.execute_query(stg_freshness_query)
               
-              # Analyze freshness
+              # Analyze freshness:
               now = datetime.utcnow()
               
               if len(raw_result) > 0 and raw_result.iloc[0]['LATEST_RAW_DATA']:
@@ -279,7 +279,7 @@ jobs:
               print(f'Raw Data Freshness: {raw_age_hours:.1f} hours ago ({raw_records} records in 24h)')
               print(f'Transformed Data Freshness: {stg_age_hours:.1f} hours ago ({stg_records} records in 24h)')
               
-              # Alert thresholds
+              # Alert thresholds:
               if raw_age_hours > 6:  # Alert if raw data is older than 6 hours
                   print(f'⚠️  WARNING: Raw data is {raw_age_hours:.1f} hours old')
               
@@ -293,11 +293,11 @@ jobs:
                   print('🚨 CRITICAL: No data transformed in the last 24 hours')
               
               if raw_age_hours <= 6 and stg_age_hours <= 8 and raw_records > 0 and stg_records > 0:
-                  print('✅ Data freshness is within acceptable limits')
+                  print('✅ Data freshness is within acceptable limits'):
               
-              await cortex.close()
+              await cortex.close():
           
-          asyncio.run(check_freshness())
+          asyncio.run(check_freshness()):
           "
 
   generate-monitoring-summary:
@@ -316,27 +316,27 @@ jobs:
       
       - name: Generate Summary
         run: |
-          echo "## 📊 Pipeline Monitoring Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Pipeline Monitoring Summary" >> $GITHUB_STEP_SUMMARY:
+          echo "" >> $GITHUB_STEP_SUMMARY:
           echo "**Environment:** ${{ github.event.inputs.environment || 'dev' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
           echo "**Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
           
-          if [ -f ./monitoring-artifacts/monitoring_report.json ]; then
-            echo "### Health Check Results" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
-            cat ./monitoring-artifacts/monitoring_report.json | jq '.health_status, .data_quality' >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ⚠️ Monitoring Report Not Available" >> $GITHUB_STEP_SUMMARY
-            echo "The monitoring report could not be generated or downloaded." >> $GITHUB_STEP_SUMMARY
-          fi
+          if [ -f ./monitoring-artifacts/monitoring_report.json ]; then:
+            echo "### Health Check Results" >> $GITHUB_STEP_SUMMARY:
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY:
+            cat ./monitoring-artifacts/monitoring_report.json | jq '.health_status, .data_quality' >> $GITHUB_STEP_SUMMARY:
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY:
+          else:
+            echo "### ⚠️ Monitoring Report Not Available" >> $GITHUB_STEP_SUMMARY:
+            echo "The monitoring report could not be generated or downloaded." >> $GITHUB_STEP_SUMMARY:
+          fi:
           
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
+          echo "### Job Status" >> $GITHUB_STEP_SUMMARY:
           echo "- **Pipeline Health:** ${{ needs.monitor-pipeline-health.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Data Freshness:** ${{ needs.monitor-data-freshness.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
+          echo "---" >> $GITHUB_STEP_SUMMARY:
           echo "*Automated monitoring by Enhanced Estuary Pipeline*" >> $GITHUB_STEP_SUMMARY

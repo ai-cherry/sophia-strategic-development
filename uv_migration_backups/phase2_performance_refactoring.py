@@ -766,13 +766,13 @@ class Phase2PerformanceRefactorer:
 
 ## Executive Summary
 
-**Phase 2 Progress Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Phase 2 Progress Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ### Refactoring Results
-- **Functions Refactored:** {results['functions_refactored']}
-- **Files Modified:** {results['files_modified']}
-- **Categories In Progress:** {results['categories_completed']}/3
-- **Errors Encountered:** {results['errors']}
+- **Functions Refactored:** {results["functions_refactored"]}
+- **Files Modified:** {results["files_modified"]}
+- **Categories In Progress:** {results["categories_completed"]}/3
+- **Errors Encountered:** {results["errors"]}
 
 ### Performance Categories Addressed
 

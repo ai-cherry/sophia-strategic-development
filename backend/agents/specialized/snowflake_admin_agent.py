@@ -14,25 +14,25 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-from backend.core.performance_monitor import performance_monitor
-
 import asyncio
 import json
 import logging
 import re
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
+from backend.core.performance_monitor import performance_monitor
 
 # LangChain imports
 try:
-    from langchain.agents import create_sql_agent, AgentType
-    from langchain.sql_database import SQLDatabase
-    from langchain.callbacks import StdOutCallbackHandler
-    from langchain.schema import AgentAction, AgentFinish
-    from langchain.callbacks.base import BaseCallbackHandler
     import langchain
+    from langchain.agents import AgentType, create_sql_agent
+    from langchain.callbacks import StdOutCallbackHandler
+    from langchain.callbacks.base import BaseCallbackHandler
+    from langchain.schema import AgentAction, AgentFinish
+    from langchain.sql_database import SQLDatabase
 
     LANGCHAIN_AVAILABLE = True
 except ImportError:
@@ -53,8 +53,8 @@ except ImportError:
 
 # OpenAI for LLM
 try:
-    from langchain.llms import OpenAI
     from langchain.chat_models import ChatOpenAI
+    from langchain.llms import OpenAI
 
     OPENAI_AVAILABLE = True
 except ImportError:
@@ -91,8 +91,8 @@ class AdminTaskRequest:
 
     natural_language_request: str
     target_environment: SnowflakeEnvironment
-    task_type: Optional[AdminTaskType] = None
-    entities: Dict[str, Any] = None
+    task_type: AdminTaskType | None = None
+    entities: dict[str, Any] = None
     requires_confirmation: bool = False
     user_id: str = "system"
 
@@ -103,12 +103,12 @@ class AdminTaskResponse:
 
     success: bool
     message: str
-    sql_executed: Optional[str] = None
-    results: Optional[List[Dict[str, Any]]] = None
+    sql_executed: str | None = None
+    results: list[dict[str, Any]] | None = None
     requires_confirmation: bool = False
-    confirmation_sql: Optional[str] = None
-    task_type: Optional[AdminTaskType] = None
-    environment: Optional[SnowflakeEnvironment] = None
+    confirmation_sql: str | None = None
+    task_type: AdminTaskType | None = None
+    environment: SnowflakeEnvironment | None = None
     execution_time: float = 0.0
 
 
@@ -143,7 +143,7 @@ class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
         logger.info(f"Agent finished: {finish.return_values}")
 
     def on_tool_start(
-        self, serialized: Dict[str, Any], input_str: str, **kwargs
+        self, serialized: dict[str, Any], input_str: str, **kwargs
     ) -> None:
         """Log tool start"""
         tool_name = serialized.get("name", "unknown")
@@ -317,7 +317,7 @@ class SnowflakeAdminAgent:
             raise
 
     def _build_connection_string(
-        self, params: Dict[str, str], environment: SnowflakeEnvironment
+        self, params: dict[str, str], environment: SnowflakeEnvironment
     ) -> str:
         """Build Snowflake connection string for SQLDatabase"""
         # This is a simplified connection string - in production, you'd want to handle this more securely
@@ -636,7 +636,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
     @performance_monitor.track_performance
     async def get_environment_info(
         self, environment: SnowflakeEnvironment
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get information about a Snowflake environment"""
         try:
             connection = self.connections.get(environment)
@@ -679,7 +679,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             logger.error(f"Failed to get environment info: {e}")
             return {"error": str(e)}
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform health check on all environments"""
         health_status = {
             "initialized": self.initialized,

@@ -5,21 +5,19 @@ Ingests foundational Pay Ready data from local sources into Snowflake
 """
 
 import asyncio
-import json
 import csv
+import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-import uuid
+from typing import Any, Dict, List, Optional
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.foundational_knowledge_service import (
-    FoundationalKnowledgeService,
-    FoundationalDataType,
-)
+    FoundationalDataType, FoundationalKnowledgeService)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 

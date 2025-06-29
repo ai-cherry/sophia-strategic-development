@@ -48,7 +48,6 @@ logger = structlog.get_logger()
 
 
 class SyncMode(Enum):
-
     def _validate_schema_name(self, schema_name: str) -> str:
         """Validate schema name for security"""
         # Allow only alphanumeric, dots, and underscores

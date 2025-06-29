@@ -31,7 +31,6 @@ JWT_EXPIRATION_HOURS = 24
 
 # Agent Request/Response Models
 class AgentRequest(BaseModel):
-
     def _validate_warehouse(self, warehouse_name: str) -> str:
         """Validate warehouse name against whitelist"""
         safe_warehouses = {"AI_COMPUTE_WH", "COMPUTE_WH", "ANALYTICS_WH"}

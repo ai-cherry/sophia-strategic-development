@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 Smart AI Service - Parallel Portkey/OpenRouter Gateway Implementation
 

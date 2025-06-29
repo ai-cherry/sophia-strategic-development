@@ -6,8 +6,9 @@ Advanced Cortex Agents and AISQL Implementation
 Based on latest 2025 capabilities for enterprise AI assistant ecosystem
 """
 
-import snowflake.connector
 import logging
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(

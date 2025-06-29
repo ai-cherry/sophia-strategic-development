@@ -23,8 +23,8 @@ jobs:
           python-version: '3.11'
       - name: Install Sophia AI Dependencies
         run: |
-          pip install -r infrastructure/requirements.txt
-          uv add pulumi pulumi-esc
+          pip install -r infrastructure/requirements.txt:
+          uv add pulumi pulumi-esc:
       - name: Configure Sophia AI Pulumi ESC
         uses: pulumi/esc-action@v1
         with:
@@ -34,9 +34,9 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       - name: Validate Sophia AI Configuration
         run: |
-          python scripts/validate_sophia_config.py
-          python scripts/test_mcp_servers.py
-          python scripts/verify_lambda_labs_connection.py
+          python scripts/validate_sophia_config.py:
+          python scripts/test_mcp_servers.py:
+          python scripts/verify_lambda_labs_connection.py:
       - name: Sophia AI Infrastructure Preview
         if: github.event_name == 'pull_request'
         uses: pulumi/actions@v6
@@ -59,12 +59,12 @@ jobs:
       - name: Deploy Sophia AI MCP Servers
         if: github.ref == 'refs/heads/main'
         run: |
-          python scripts/deploy_sophia_mcp_servers.py
-          python scripts/verify_mcp_health.py
-          python scripts/update_cursor_config.py
+          python scripts/deploy_sophia_mcp_servers.py:
+          python scripts/verify_mcp_health.py:
+          python scripts/update_cursor_config.py:
       - name: Verify Sophia AI Business Intelligence
         if: github.ref == 'refs/heads/main'
         run: |
-          python scripts/test_business_intelligence_pipeline.py
-          python scripts/verify_ai_services.py
+          python scripts/test_business_intelligence_pipeline.py:
+          python scripts/verify_ai_services.py:
           python scripts/check_cost_optimization.py

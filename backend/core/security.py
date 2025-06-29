@@ -366,8 +366,8 @@ class ParameterizedQueryBuilder:
         placeholders = ["%s"] * len(columns)
 
         query = f"""
-        INSERT INTO {table_name} ({', '.join(columns)})
-        VALUES ({', '.join(placeholders)})
+        INSERT INTO {table_name} ({", ".join(columns)})
+        VALUES ({", ".join(placeholders)})
         """
 
         return query.strip(), values
@@ -408,7 +408,7 @@ class ParameterizedQueryBuilder:
 
         query = f"""
         UPDATE {table_name}
-        SET {', '.join(set_items)}
+        SET {", ".join(set_items)}
         WHERE {where_clause}
         """
 

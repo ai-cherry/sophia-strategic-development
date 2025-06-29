@@ -6,11 +6,12 @@ Snowflake Schema Integration for Sophia AI
 Comprehensive integration with all 6 schemas from the Snowflake breakdown
 """
 
-import logging
 import json
-from typing import Dict, List, Optional, Any
+import logging
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
 import snowflake.connector
 from snowflake.connector import DictCursor
 

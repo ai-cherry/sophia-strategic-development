@@ -6,10 +6,10 @@ PROPERTY_ASSETS, AI_WEB_RESEARCH, and CEO_INTELLIGENCE schemas
 """
 
 import asyncio
-import logging
 import json
-from typing import Dict, List, Any
+import logging
 from dataclasses import dataclass
+from typing import Any, Dict, List
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -314,7 +314,8 @@ class EnhancedBatchEmbeddingProcessor:
             )
 
             # SECURE: Build query with validated identifiers
-            from backend.core.sql_security_validator import validate_schema_name, validate_table_name
+            from backend.core.sql_security_validator import (
+                validate_schema_name, validate_table_name)
             
             safe_schema = validate_schema_name(config.schema_name)
             safe_table = validate_table_name(config.table_name)

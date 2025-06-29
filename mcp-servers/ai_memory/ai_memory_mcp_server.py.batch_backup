@@ -12,7 +12,6 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-
 # Enhanced dependencies with better error handling
 try:
     import pinecone
@@ -30,37 +29,27 @@ except ImportError:
     OPENAI_AVAILABLE = False
     AsyncOpenAI = None
 
-# Import the standardized base class
-from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
-    SyncPriority,
-    HealthStatus,
-    HealthCheckResult,
-)
-
-# Import enhanced Snowflake Cortex service
-from backend.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService,
-    AIProcessingConfig,
-    CortexModel,
-)
-
-# Import existing memory management components
-from backend.core.comprehensive_memory_manager import ComprehensiveMemoryManager
-from backend.core.contextual_memory_intelligence import ContextualMemoryIntelligence
-from backend.core.hierarchical_cache import HierarchicalCache
-
 # Import the canonical MemoryRecord from data_models
 from backend.agents.enhanced.data_models import MemoryRecord
+# Import existing memory management components
+from backend.core.comprehensive_memory_manager import \
+    ComprehensiveMemoryManager
+from backend.core.contextual_memory_intelligence import \
+    ContextualMemoryIntelligence
+from backend.core.hierarchical_cache import HierarchicalCache
+# Import the standardized base class
+from backend.mcp_servers.base.standardized_mcp_server import (
+    HealthCheckResult, HealthStatus, MCPServerConfig, StandardizedMCPServer,
+    SyncPriority)
+# Import the ComprehensiveMemoryService
+from backend.services.comprehensive_memory_service import (
+    ComprehensiveMemoryService, MemoryRecord)
+# Import enhanced Snowflake Cortex service
+from backend.utils.enhanced_snowflake_cortex_service import (
+    AIProcessingConfig, CortexModel, EnhancedSnowflakeCortexService)
 
 # Import the Snowflake Gong connector
 
-# Import the ComprehensiveMemoryService
-from backend.services.comprehensive_memory_service import (
-    ComprehensiveMemoryService,
-    MemoryRecord,
-)
 
 logger = logging.getLogger(__name__)
 

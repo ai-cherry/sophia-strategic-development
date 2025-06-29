@@ -678,13 +678,13 @@ class Phase1CriticalRefactorer:
 
 ## Executive Summary
 
-**Phase 1 Completion Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Phase 1 Completion Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 ### Refactoring Results
-- **Functions Refactored:** {results['functions_refactored']}
-- **Files Modified:** {results['files_modified']}
-- **Categories Completed:** {results['categories_completed']}/3
-- **Errors Encountered:** {results['errors']}
+- **Functions Refactored:** {results["functions_refactored"]}
+- **Files Modified:** {results["files_modified"]}
+- **Categories Completed:** {results["categories_completed"]}/3
+- **Errors Encountered:** {results["errors"]}
 
 ### Business Impact Categories Addressed
 
