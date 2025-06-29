@@ -327,6 +327,21 @@ def initialize_default_config():
 initialize_default_config()
 
 
+
+
+def get_lambda_labs_config() -> dict[str, Any]:
+    """
+    Get Lambda Labs configuration from Pulumi ESC
+
+    Returns:
+        Lambda Labs configuration dictionary
+    """
+    return {
+        "api_key": get_config_value("lambda_api_key") or get_config_value("LAMBDA_API_KEY"),
+        "ip_address": get_config_value("lambda_ip_address") or get_config_value("LAMBDA_IP_ADDRESS"),
+        "ssh_private_key": get_config_value("lambda_ssh_private_key") or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
+    }
+
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
     """Backward compatibility object for legacy config access patterns"""

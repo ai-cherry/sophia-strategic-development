@@ -92,8 +92,10 @@ class PulumiESCSync:
             "GRAFANA_USERNAME": "values.sophia.monitoring.grafana.username",
             "GRAFANA_PASSWORD": "values.sophia.monitoring.grafana.password",
             "PROMETHEUS_URL": "values.sophia.monitoring.prometheus.url",
-            # Cloud Infrastructure - FIXED: GitHub workflow has LAMBDA_API_KEY, not LAMBDA_LABS_API_KEY
+                        # Cloud Infrastructure - FIXED: GitHub workflow has LAMBDA_API_KEY, not LAMBDA_LABS_API_KEY
             "LAMBDA_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
+            "LAMBDA_IP_ADDRESS": "values.sophia.infrastructure.lambda_labs.ip_address",
+            "LAMBDA_SSH_PRIVATE_KEY": "values.sophia.infrastructure.lambda_labs.ssh_private_key",
             "VERCEL_ACCESS_TOKEN": "values.sophia.infrastructure.vercel.access_token",
             "VULTR_API_KEY": "values.sophia.infrastructure.vultr.api_key",
             "PULUMI_ACCESS_TOKEN": "values.sophia.infrastructure.pulumi.access_token",

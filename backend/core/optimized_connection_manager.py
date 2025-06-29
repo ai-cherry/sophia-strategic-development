@@ -65,6 +65,7 @@ except ImportError:
 from backend.core.auto_esc_config import get_config_value
 from backend.core.snowflake_override import get_snowflake_connection_params
 from backend.core.performance_monitor import performance_monitor
+from backend.core.absolute_snowflake_override import get_snowflake_connection_params
 
 # Import Snowflake configuration override for correct connectivity
 
@@ -288,16 +289,16 @@ class OptimizedConnectionPool:
             return None
 
 
-        async def _create_snowflake_connection(self):
-        """Create Snowflake connection with corrected configuration"""
+            async def _create_snowflake_connection(self):
+        """Create Snowflake connection with ABSOLUTE override"""
         
-        # FORCE USE OF OVERRIDE - This ensures ZNB04675 account is always used
+        # ABSOLUTE OVERRIDE - This CANNOT be changed
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
         
-        # Log the account being used for verification
-        logger.info(f"🔧 Creating Snowflake connection to account: {params['account']}")
-
+        # Force log the correct account
+        logger.info(f"🔧 ABSOLUTE OVERRIDE: Connecting to Snowflake account {params['account']}")
+        
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
             return snowflake.connector.connect(**params)

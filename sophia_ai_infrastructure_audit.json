@@ -1,0 +1,172 @@
+{
+  "audit_timestamp": "2025-06-29T16:13:44.110389",
+  "overall_health_score": "66.7%",
+  "components": [
+    {
+      "name": "Pulumi ESC",
+      "status": "healthy",
+      "details": {
+        "pulumi_user": "scoobyjava-org",
+        "environment": "scoobyjava-org/default/sophia-ai-production",
+        "total_secrets": 77,
+        "placeholder_secrets": 0,
+        "sync_status": "working"
+      },
+      "recommendations": [
+        "ESC is properly configured"
+      ]
+    },
+    {
+      "name": "Snowflake Configuration",
+      "status": "healthy",
+      "details": {
+        "esc_account": "ZNB04675",
+        "override_account": "ZNB04675",
+        "using_correct_account": true,
+        "override_active": true,
+        "database": "SOPHIA_AI",
+        "warehouse": "SOPHIA_AI_WH",
+        "user": "SCOOBYJAVA15"
+      },
+      "recommendations": [
+        "Snowflake configuration is correct",
+        "Use ./start_sophia_absolute_fix.py to start with fix"
+      ]
+    },
+    {
+      "name": "Sophia AI Services",
+      "status": "degraded",
+      "details": {
+        "fastapi_status": "failed",
+        "mcp_servers": [
+          "sophia_business_intelligence",
+          "docker",
+          "overlays",
+          "linear",
+          "snowflake_admin",
+          "snowflake",
+          "sophia_infrastructure",
+          "graphiti",
+          "notion",
+          "hubspot",
+          "postgres",
+          "logs",
+          "github",
+          "sophia_data_intelligence",
+          "ai_memory",
+          "ag_ui",
+          "bright_data",
+          "codacy",
+          "slack",
+          "sophia_ai_intelligence",
+          "pulumi",
+          "asana"
+        ],
+        "mcp_server_count": 22,
+        "backend_services": {
+          "backend/core/optimized_connection_manager.py": true,
+          "backend/services/enhanced_unified_chat_service.py": true,
+          "backend/agents/specialized/sales_coach_agent.py": true
+        },
+        "total_backend_files": 3
+      },
+      "recommendations": [
+        "Fix import errors before deployment",
+        "Run Snowflake fix if connection issues persist"
+      ]
+    }
+  ],
+  "server_recommendations": [
+    {
+      "component": "Primary Compute",
+      "current_state": "No active Lambda Labs instances",
+      "recommended_action": "Deploy 1x gpu_1x_a100_sxm4 (A100 80GB)",
+      "priority": "High",
+      "estimated_cost": "$1.10-2.06/hour",
+      "business_impact": "Enables real-time AI processing for Snowflake Cortex, OpenAI orchestration, and vector operations"
+    },
+    {
+      "component": "Development Environment",
+      "current_state": "Local development only",
+      "recommended_action": "Deploy 1x gpu_1x_rtx4090 for development/testing",
+      "priority": "Medium",
+      "estimated_cost": "$0.50-0.90/hour",
+      "business_impact": "Faster development cycles, testing without affecting production"
+    },
+    {
+      "component": "High Availability",
+      "current_state": "Single point of failure",
+      "recommended_action": "Multi-region deployment (us-west-1, us-east-1)",
+      "priority": "Medium",
+      "estimated_cost": "2x instance costs",
+      "business_impact": "99.9% uptime for enterprise clients"
+    },
+    {
+      "component": "Auto-scaling",
+      "current_state": "Manual scaling",
+      "recommended_action": "Implement auto-scaling based on API usage",
+      "priority": "Low",
+      "estimated_cost": "Variable based on usage",
+      "business_impact": "Cost optimization during off-peak hours"
+    },
+    {
+      "component": "Security",
+      "current_state": "Basic security",
+      "recommended_action": "Implement VPC, security groups, SSH key rotation",
+      "priority": "High",
+      "estimated_cost": "Minimal additional cost",
+      "business_impact": "Enterprise-grade security compliance"
+    }
+  ],
+  "deployment_plan": {
+    "phases": [
+      {
+        "name": "Infrastructure Foundation",
+        "duration": "1 week",
+        "tasks": [
+          "Fix GitHub\u2192Pulumi ESC sync (COMPLETED)",
+          "Deploy primary Lambda Labs instance (A100 80GB)",
+          "Configure Snowflake connections (COMPLETED)",
+          "Deploy core MCP servers",
+          "Set up monitoring and alerts"
+        ],
+        "estimated_cost": "$200-400/week",
+        "business_value": "Core AI platform operational"
+      },
+      {
+        "name": "Performance & Reliability",
+        "duration": "2 weeks",
+        "tasks": [
+          "Implement auto-scaling",
+          "Set up development environment",
+          "Configure multi-region deployment",
+          "Optimize database connections",
+          "Performance testing and tuning"
+        ],
+        "estimated_cost": "$400-800/week",
+        "business_value": "Enterprise-grade reliability and performance"
+      },
+      {
+        "name": "Advanced AI Capabilities",
+        "duration": "3 weeks",
+        "tasks": [
+          "Deploy advanced MCP servers",
+          "Implement AI model optimization",
+          "Set up advanced monitoring",
+          "Security hardening",
+          "Business intelligence dashboards"
+        ],
+        "estimated_cost": "$600-1200/week",
+        "business_value": "Advanced AI orchestration and business intelligence"
+      }
+    ],
+    "total_duration": "6 weeks",
+    "estimated_total_cost": "$1200-2400",
+    "roi_projection": "300-500% within 3 months",
+    "key_milestones": [
+      "Week 1: Core platform operational",
+      "Week 3: Enterprise-grade reliability",
+      "Week 6: Advanced AI capabilities"
+    ]
+  }
+}
