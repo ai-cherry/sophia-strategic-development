@@ -226,12 +226,12 @@ def get_snowflake_config() -> dict[str, Any]:
         Snowflake configuration dictionary
     """
     return {
-        "account": get_config_value("snowflake_account", "UHDECNO-CVB64222"),
+        "account": get_config_value("snowflake_account", "ZNB04675"),  # Fixed: Use correct account
         "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
         "password": get_config_value("snowflake_password"),  # Will load PAT from ESC
         "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("snowflake_warehouse", "AI_COMPUTE_WH"),
-        "database": get_config_value("snowflake_database", "SOPHIA_AI_ADVANCED"),
+        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),  # Fixed: Use correct warehouse
+        "database": get_config_value("snowflake_database", "SOPHIA_AI"),  # Fixed: Use correct database
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }
 
@@ -294,7 +294,7 @@ def initialize_default_config():
 
     # Set fallback defaults only if not available from ESC
     if not get_config_value("snowflake_account"):
-        set_config_value("snowflake_account", "UHDECNO-CVB64222")
+        set_config_value("snowflake_account", "ZNB04675")  # Fixed: Use correct account
     if not get_config_value("snowflake_user"):
         set_config_value("snowflake_user", "SCOOBYJAVA15")
     if not get_config_value("snowflake_role"):
