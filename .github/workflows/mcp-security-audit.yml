@@ -1,0 +1,281 @@
+name: MCP Security Audit
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'external/**'
+      - 'mcp-servers/**'
+      - 'mcp-integrations/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+  workflow_dispatch:
+
+env:
+  PULUMI_ORG: scoobyjava-org
+  PULUMI_STACK: sophia-prod-on-lambda
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+    
+    - name: Install UV
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        uv sync --frozen
+    
+    - name: Run Safety dependency scan
+      run: |
+        uv add --dev safety
+        uv run safety check --json --output safety-results.json || true
+    
+    - name: Run Bandit security scan
+      run: |
+        uv add --dev bandit
+        uv run bandit -r mcp-servers/ backend/ mcp-integrations/ -f json -o bandit-results.json || true
+    
+    - name: Run Semgrep security scan
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/python
+        generateSarif: "1"
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-scan-results
+        path: |
+          safety-results.json
+          bandit-results.json
+          semgrep.sarif
+
+  license-compliance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+    
+    - name: Install UV
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        uv sync --frozen
+    
+    - name: Check license compatibility
+      run: |
+        uv add --dev pip-licenses
+        uv run pip-licenses --format=json --output-file=license-report.json
+        
+        # Create license compliance report
+        uv run python scripts/check_license_compliance.py
+    
+    - name: Upload license report
+      uses: actions/upload-artifact@v3
+      with:
+        name: license-compliance-report
+        path: |
+          license-report.json
+          license-compliance-report.json
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Run TruffleHog secrets scan
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+    
+    - name: Run GitLeaks secrets scan
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  mcp-specific-security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+    
+    - name: Install UV
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        uv sync --frozen
+    
+    - name: Validate MCP server security
+      run: |
+        # Check for secure MCP server configurations
+        uv run python scripts/validate_mcp_security.py
+    
+    - name: Check for hardcoded credentials
+      run: |
+        # Scan for potential hardcoded credentials in MCP servers
+        uv run python scripts/scan_mcp_credentials.py
+    
+    - name: Validate Pulumi ESC integration
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      run: |
+        # Install Pulumi CLI
+        curl -fsSL https://get.pulumi.com | sh
+        echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+        
+        # Validate Pulumi ESC configuration
+        uv run python scripts/validate_pulumi_esc_security.py
+    
+    - name: Upload MCP security report
+      uses: actions/upload-artifact@v3
+      with:
+        name: mcp-security-report
+        path: |
+          mcp-security-report.json
+          pulumi-esc-validation.json
+
+  generate-security-report:
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, license-compliance, secrets-scan, mcp-specific-security]
+    if: always()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.12
+    
+    - name: Install UV
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        uv sync --frozen
+    
+    - name: Generate comprehensive security report
+      run: |
+        uv run python scripts/generate_security_report.py \
+          --safety-results security-scan-results/safety-results.json \
+          --bandit-results security-scan-results/bandit-results.json \
+          --license-report license-compliance-report/license-report.json \
+          --mcp-security mcp-security-report/mcp-security-report.json \
+          --output comprehensive-security-report.json
+    
+    - name: Create security issue if vulnerabilities found
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read security report
+          let report = {};
+          try {
+            report = JSON.parse(fs.readFileSync('comprehensive-security-report.json', 'utf8'));
+          } catch (e) {
+            console.log('Could not read security report');
+            return;
+          }
+          
+          if (report.critical_vulnerabilities > 0 || report.high_vulnerabilities > 0) {
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Security Vulnerabilities Detected in MCP Integration',
+              body: `## 🚨 Security Alert
+              
+              The automated security scan has detected vulnerabilities in the MCP integration:
+              
+              - **Critical:** ${report.critical_vulnerabilities}
+              - **High:** ${report.high_vulnerabilities}
+              - **Medium:** ${report.medium_vulnerabilities}
+              - **Low:** ${report.low_vulnerabilities}
+              
+              Please review the security report and take appropriate action.
+              
+              **Scan Date:** ${new Date().toISOString()}
+              **Workflow:** ${context.workflow}
+              **Run ID:** ${context.runId}`,
+              labels: ['security', 'critical', 'mcp-integration']
+            });
+          }
+    
+    - name: Upload comprehensive security report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: comprehensive-security-report
+        path: comprehensive-security-report.json
+    
+    - name: Notify security team
+      if: failure()
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"🚨 SECURITY ALERT: Vulnerabilities detected in MCP integration. Please review immediately.", "color":"danger"}' \
+          $SLACK_WEBHOOK_URL
+
