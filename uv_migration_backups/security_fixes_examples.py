@@ -65,7 +65,7 @@ def convert_shell_command_to_args(command: str) -> list[str]:
 def example_secure_command_usage():
     """Example of how to use secure command execution in different scenarios."""
     # Simple command
-    result = secure_run_command(["ls", "-la"])
+    secure_run_command(["ls", "-la"])
 
     # Command with cd (change directory)
     # Instead of: subprocess.run("cd /tmp && ls", shell=True)
@@ -73,16 +73,16 @@ def example_secure_command_usage():
     original_dir = os.getcwd()
     try:
         os.chdir("/tmp")
-        result = secure_run_command(["ls"])
+        secure_run_command(["ls"])
     finally:
         os.chdir(original_dir)
 
     # Or use cwd parameter:
-    result = secure_run_command(["ls"], cwd="/tmp")
+    secure_run_command(["ls"], cwd="/tmp")
 
     # For pip/npm installs:
     # Instead of: subprocess.run("pip install requests", shell=True)
-    result = secure_run_command(["pip", "install", "requests"])
+    secure_run_command(["pip", "install", "requests"])
 
 
 # -----------------------------------------------------------------------------

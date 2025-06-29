@@ -147,7 +147,7 @@ def main():
         errors = report.get("errors", {})
         fixed_count = 0
 
-        for file_path_str, error_msg in errors.items():
+        for file_path_str, _error_msg in errors.items():
             # Skip node_modules
             if "node_modules" in file_path_str:
                 continue

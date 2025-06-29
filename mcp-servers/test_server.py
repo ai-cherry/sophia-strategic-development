@@ -2,12 +2,11 @@
 """
 Simple Test MCP Server for validation
 """
-import asyncio
-import aiohttp
-from aiohttp import web
-import json
 import sys
 from datetime import datetime
+
+from aiohttp import web
+
 
 async def health_check(request):
     """Health check endpoint"""
@@ -41,7 +40,7 @@ def main():
     """Main function"""
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
     print(f"🚀 Starting Test MCP Server on port {port}...")
-    
+
     app = create_app(port)
     web.run_app(app, host="localhost", port=port)
 

@@ -293,7 +293,7 @@ def problematic_logging():
     """Logging with mismatched format specifiers and arguments."""
     import logging
 
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
 
     # Too many arguments for format string
     # logger.info("Processing item %s", "item1", "extra_arg")

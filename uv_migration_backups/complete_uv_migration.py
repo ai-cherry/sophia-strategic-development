@@ -109,7 +109,6 @@ class CompleteUVMigration:
         """Convert single-stage Dockerfile to multi-stage with UV"""
         lines = content.split("\n")
         new_lines = []
-        in_install_section = False
 
         for line in lines:
             if line.startswith("FROM "):
@@ -124,7 +123,6 @@ class CompleteUVMigration:
                 new_lines.append("# Install dependencies with UV")
                 new_lines.append("COPY pyproject.toml uv.lock ./")
                 new_lines.append("RUN uv sync --frozen --no-cache")
-                in_install_section = True
             elif "COPY requirements.txt" in line:
                 # Skip copying requirements.txt
                 continue

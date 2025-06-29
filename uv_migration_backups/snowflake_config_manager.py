@@ -199,7 +199,7 @@ class SnowflakeConfigManager:
         # Gong schema and tables
         gong_schema_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_GONG_RAW;
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_GONG_RAW.gong_calls (
             call_id VARCHAR(255) PRIMARY KEY,
             title VARCHAR(500),
@@ -217,7 +217,7 @@ class SnowflakeConfigManager:
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_GONG_RAW.gong_transcripts (
             transcript_id VARCHAR(255) PRIMARY KEY,
             call_id VARCHAR(255),
@@ -238,7 +238,7 @@ class SnowflakeConfigManager:
         # Slack schema and tables
         slack_schema_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_SLACK_RAW;
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_SLACK_RAW.slack_messages (
             message_id VARCHAR(255) PRIMARY KEY,
             channel_id VARCHAR(255),
@@ -257,7 +257,7 @@ class SnowflakeConfigManager:
             _estuary_normalized_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
         );
-        
+
         CREATE TABLE IF NOT EXISTS SOPHIA_SLACK_RAW.slack_channels (
             channel_id VARCHAR(255) PRIMARY KEY,
             channel_name VARCHAR(255),
@@ -296,9 +296,9 @@ class SnowflakeConfigManager:
 
         memory_integration_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_MEMORY;
-        
+
         CREATE OR REPLACE VIEW SOPHIA_AI_MEMORY.unified_conversations AS
-        SELECT 
+        SELECT
             'gong' as source_type,
             call_id as conversation_id,
             title as conversation_title,
@@ -310,10 +310,10 @@ class SnowflakeConfigManager:
             created_at
         FROM SOPHIA_GONG_RAW.gong_calls c
         LEFT JOIN SOPHIA_GONG_RAW.gong_transcripts t ON c.call_id = t.call_id
-        
+
         UNION ALL
-        
-        SELECT 
+
+        SELECT
             'slack' as source_type,
             message_id as conversation_id,
             CONCAT('Slack: ', channel_name) as conversation_title,
@@ -324,7 +324,7 @@ class SnowflakeConfigManager:
             metadata,
             created_at
         FROM SOPHIA_SLACK_RAW.slack_messages;
-        
+
         CREATE OR REPLACE FUNCTION SOPHIA_AI_MEMORY.extract_conversation_insights(content TEXT)
         RETURNS VARIANT
         LANGUAGE JAVASCRIPT
@@ -361,9 +361,9 @@ class SnowflakeConfigManager:
 
         semantic_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_SEMANTIC;
-        
+
         CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.conversation_analytics AS
-        SELECT 
+        SELECT
             source_type,
             DATE_TRUNC('day', conversation_time) as conversation_date,
             COUNT(*) as conversation_count,
@@ -372,9 +372,9 @@ class SnowflakeConfigManager:
             AVG(LENGTH(content)) as avg_content_length
         FROM SOPHIA_AI_MEMORY.unified_conversations
         GROUP BY source_type, DATE_TRUNC('day', conversation_time);
-        
+
         CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.cross_platform_insights AS
-        SELECT 
+        SELECT
             DATE_TRUNC('week', conversation_time) as week,
             COUNT(DISTINCT CASE WHEN source_type = 'gong' THEN participants END) as unique_gong_participants,
             COUNT(DISTINCT CASE WHEN source_type = 'slack' THEN participants:user END) as unique_slack_users,
@@ -515,10 +515,10 @@ class SnowflakeConfigManager:
         try:
             # Create clustering keys for large tables
             clustering_sql = """
-            ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_calls 
+            ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_calls
             CLUSTER BY (actual_start_time, call_id);
-            
-            ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages 
+
+            ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages
             CLUSTER BY (timestamp, channel_id);
             """
 
@@ -531,7 +531,7 @@ class SnowflakeConfigManager:
             search_opt_sql = """
             ALTER TABLE IF EXISTS SOPHIA_GONG_RAW.gong_transcripts
             ADD SEARCH OPTIMIZATION ON EQUALITY(speaker_name), SUBSTRING(text_content);
-            
+
             ALTER TABLE IF EXISTS SOPHIA_SLACK_RAW.slack_messages
             ADD SEARCH OPTIMIZATION ON EQUALITY(username), SUBSTRING(text_content);
             """

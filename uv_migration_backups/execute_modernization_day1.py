@@ -164,7 +164,7 @@ from .agents.secret_manager import SecretComplianceManager
 
 __all__ = [
     "EnhancedSophiaIntelligenceAgent",
-    "InfrastructureOrchestrator", 
+    "InfrastructureOrchestrator",
     "BusinessIntelligenceDeployer",
     "SecretComplianceManager"
 ]

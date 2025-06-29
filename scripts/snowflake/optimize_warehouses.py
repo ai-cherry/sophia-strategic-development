@@ -6,19 +6,19 @@
 Optimizes Snowflake warehouses for AI workloads and cost efficiency.
 """
 
-import snowflake.connector
 import logging
-from typing import Dict, List
+
+import snowflake.connector
 
 logger = logging.getLogger(__name__)
 
 class SnowflakeOptimizer:
     """Optimizes Snowflake warehouses and configurations."""
-    
-    def __init__(self, config: Dict):
+
+    def __init__(self, config: dict):
         self.config = config
         self.connection = None
-    
+
     def connect(self):
         """Connect to Snowflake."""
         try:
@@ -27,7 +27,7 @@ class SnowflakeOptimizer:
         except Exception as e:
             logger.error(f"❌ Failed to connect to Snowflake: {e}")
             raise
-    
+
     def optimize_ai_warehouses(self):
         """Optimize warehouses for AI workloads."""
         ai_warehouses = [
@@ -36,9 +36,9 @@ class SnowflakeOptimizer:
             'EMBEDDING_WH',
             'REALTIME_ANALYTICS_WH'
         ]
-        
+
         cursor = self.connection.cursor()
-        
+
         for warehouse in ai_warehouses:
             try:
                 # Optimize warehouse settings
@@ -52,13 +52,13 @@ class SnowflakeOptimizer:
                 logger.info(f"✅ Optimized {warehouse}")
             except Exception as e:
                 logger.warning(f"Could not optimize {warehouse}: {e}")
-        
+
         cursor.close()
-    
+
     def create_resource_monitors(self):
         """Create resource monitors for cost control."""
         cursor = self.connection.cursor()
-        
+
         try:
             cursor.execute("""
                 CREATE OR REPLACE RESOURCE MONITOR AI_WORKLOAD_MONITOR
@@ -73,9 +73,9 @@ class SnowflakeOptimizer:
             logger.info("✅ Created AI workload resource monitor")
         except Exception as e:
             logger.warning(f"Could not create resource monitor: {e}")
-        
+
         cursor.close()
-    
+
     def close(self):
         """Close Snowflake connection."""
         if self.connection:
@@ -89,7 +89,7 @@ def main():
         'password': 'your_password_here',
         'role': 'ACCOUNTADMIN'
     }
-    
+
     optimizer = SnowflakeOptimizer(config)
     try:
         optimizer.connect()

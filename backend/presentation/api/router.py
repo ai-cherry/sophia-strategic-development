@@ -6,7 +6,7 @@ included in the main FastAPI application.
 """
 
 import logging
-import logging
+
 logger = logging.getLogger(__name__)
 from fastapi import APIRouter
 

@@ -5,10 +5,11 @@ Monitors all MCP servers and provides consolidated health status
 """
 
 import asyncio
-import aiohttp
 import json
 from datetime import datetime
-from typing import Dict, List
+
+import aiohttp
+
 
 class MCPHealthMonitor:
     def __init__(self):
@@ -34,8 +35,8 @@ class MCPHealthMonitor:
             "docker": {"port": 9205, "url": "http://localhost:9205/health"},
             "codacy": {"port": 9300, "url": "http://localhost:9300/health"},
         }
-    
-    async def check_server_health(self, session: aiohttp.ClientSession, name: str, config: Dict) -> Dict:
+
+    async def check_server_health(self, session: aiohttp.ClientSession, name: str, config: dict) -> dict:
         """Check health of individual server"""
         try:
             async with session.get(config["url"], timeout=5) as response:
@@ -62,8 +63,8 @@ class MCPHealthMonitor:
                 "port": config["port"],
                 "error": str(e)
             }
-    
-    async def check_all_servers(self) -> Dict:
+
+    async def check_all_servers(self) -> dict:
         """Check health of all MCP servers"""
         async with aiohttp.ClientSession() as session:
             tasks = [
@@ -71,11 +72,11 @@ class MCPHealthMonitor:
                 for name, config in self.servers.items()
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             # Process results
             healthy_count = sum(1 for r in results if isinstance(r, dict) and r.get("status") == "healthy")
             total_count = len(results)
-            
+
             return {
                 "timestamp": datetime.now().isoformat(),
                 "summary": {
@@ -90,9 +91,9 @@ class MCPHealthMonitor:
 async def main():
     monitor = MCPHealthMonitor()
     health_status = await monitor.check_all_servers()
-    
+
     print(json.dumps(health_status, indent=2))
-    
+
     # Exit with error code if any servers are unhealthy
     if health_status["summary"]["unhealthy_servers"] > 0:
         exit(1)

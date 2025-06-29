@@ -10,7 +10,7 @@ Current size: 729 lines
 
 Recommended decomposition:
 - sync_dev_environment_core.py - Core functionality
-- sync_dev_environment_utils.py - Utility functions  
+- sync_dev_environment_utils.py - Utility functions
 - sync_dev_environment_models.py - Data models
 - sync_dev_environment_handlers.py - Request handlers
 

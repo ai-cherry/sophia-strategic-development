@@ -199,7 +199,7 @@ async def test_riley_coaching_analysis():
             print("-" * 50)
             # Show first few lines of the coaching message
             lines = coaching_message.split("\n")
-            for i, line in enumerate(lines[:8]):
+            for _i, line in enumerate(lines[:8]):
                 print(line)
             if len(lines) > 8:
                 print("... (message continues)")

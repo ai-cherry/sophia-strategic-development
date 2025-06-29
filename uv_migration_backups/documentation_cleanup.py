@@ -124,7 +124,7 @@ class DocumentationCleaner:
         files_to_remove = []
         patterns = self.get_junk_patterns()
 
-        for category, pattern_list in patterns.items():
+        for _category, pattern_list in patterns.items():
             for pattern in pattern_list:
                 # Handle root directory patterns
                 if not pattern.startswith("**/"):

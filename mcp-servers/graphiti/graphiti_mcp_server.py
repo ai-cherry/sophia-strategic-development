@@ -421,22 +421,11 @@ class GraphitiMCPServer:
     ) -> dict[str, Any]:
         """Query relationships for a specific entity"""
         entity_name = params["entity_name"]
-        max_depth = params.get("max_depth", 2)
-        min_strength = params.get("min_strength", 0.1)
-        relationship_types = params.get("relationship_types", [])
+        params.get("max_depth", 2)
+        params.get("min_strength", 0.1)
+        params.get("relationship_types", [])
 
         # Query Graphiti for entity relationships
-        query = """
-        MATCH (e:Entity {name: $entity_name})
-        CALL apoc.path.subgraphNodes(e, {
-            maxLevel: $max_depth,
-            relationshipFilter: $rel_filter,
-            minLevel: 1
-        }) YIELD node
-        MATCH (e)-[r]-(node)
-        WHERE r.strength >= $min_strength
-        RETURN e, r, node
-        """
 
         # Execute query through Graphiti
         results = await self.graphiti_client.search(
@@ -522,7 +511,6 @@ class GraphitiMCPServer:
         # Calculate influence metrics
         influence_score = 0.0
         influenced_entities = []
-        influence_paths = []
 
         for result in results:
             # Process influence data
@@ -551,8 +539,8 @@ class GraphitiMCPServer:
     ) -> dict[str, Any]:
         """Execute complex business intelligence queries"""
         query_type = params["query_type"]
-        entity_filter = params.get("entity_filter", {})
-        time_range = params.get("time_range", {})
+        params.get("entity_filter", {})
+        params.get("time_range", {})
         include_metrics = params.get("include_metrics", True)
 
         # Build BI query based on type

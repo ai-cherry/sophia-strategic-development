@@ -149,14 +149,14 @@ class EnhancedAiMemoryMCPServer:
         Slack Conversation: {conversation_title}
         Channel: #{channel_name}
         Participants: {", ".join(participants)}
-        
+
         Summary: {conversation_summary}
-        
+
         Key Topics: {", ".join(key_topics)}
-        
+
         Decisions Made:
         {chr(10).join(f"- {decision}" for decision in decisions_made)}
-        
+
         Action Items:
         {chr(10).join(f"- {item}" for item in action_items)}
         """
@@ -206,9 +206,9 @@ class EnhancedAiMemoryMCPServer:
         Assignee: {assignee}
         Priority: {priority}
         Status: {status}
-        
+
         Description: {issue_description}
-        
+
         Labels: {", ".join(labels)}
         """
 
@@ -267,7 +267,7 @@ class EnhancedAiMemoryMCPServer:
         Type: {record_type.replace("_", " ").title()}
         Category: {category}
         {f"Department: {department}" if department else ""}
-        
+
         Description: {description}
         """
 
@@ -312,9 +312,9 @@ class EnhancedAiMemoryMCPServer:
         Category: {category}
         Author: {author}
         Visibility: {visibility}
-        
+
         Content: {content[:2000]}{"..." if len(content) > 2000 else ""}
-        
+
         Keywords: {", ".join(keywords)}
         """
 
@@ -972,7 +972,7 @@ class EnhancedAiMemoryMCPServer:
                     async with self.cortex_service as cortex:
                         update_sql = f"""
                         UPDATE STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS
-                        SET 
+                        SET
                             AI_MEMORY_EMBEDDING = PARSE_JSON('{json.dumps(embedding)}'),
                             AI_MEMORY_METADATA = PARSE_JSON('{json.dumps(metadata)}'),
                             AI_MEMORY_UPDATED_AT = CURRENT_TIMESTAMP(),
@@ -1143,7 +1143,7 @@ class EnhancedAiMemoryMCPServer:
                     async with self.cortex_service as cortex:
                         # STG_GONG_CALLS statistics
                         calls_stats_sql = """
-                        SELECT 
+                        SELECT
                             COUNT(*) as total_calls,
                             COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as calls_with_embeddings,
                             COUNT(CASE WHEN CALL_SUMMARY IS NOT NULL THEN 1 END) as calls_with_summaries,
@@ -1192,7 +1192,7 @@ class EnhancedAiMemoryMCPServer:
 
                         # STG_GONG_CALL_TRANSCRIPTS statistics
                         transcripts_stats_sql = """
-                        SELECT 
+                        SELECT
                             COUNT(*) as total_transcripts,
                             COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as transcripts_with_embeddings,
                             COUNT(CASE WHEN SEGMENT_SENTIMENT IS NOT NULL THEN 1 END) as transcripts_with_sentiment,
@@ -1233,7 +1233,7 @@ class EnhancedAiMemoryMCPServer:
 
                         # AI_MEMORY.MEMORY_RECORDS statistics
                         memory_stats_sql = """
-                        SELECT 
+                        SELECT
                             COUNT(*) as total_gong_memories,
                             COUNT(CASE WHEN EMBEDDING IS NOT NULL THEN 1 END) as memories_with_embeddings,
                             COUNT(DISTINCT CATEGORY) as unique_categories,

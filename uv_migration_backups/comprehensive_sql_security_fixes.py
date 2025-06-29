@@ -124,7 +124,7 @@ class SQLSecurityFixer:
             content = re.sub(
                 r'analysis_query = f""".*?SELECT.*?SNOWFLAKE\.CORTEX\.COMPLETE\(.*?\{text_content.*?\}.*?\).*?"""',
                 '''analysis_query = """
-                SELECT 
+                SELECT
                     SNOWFLAKE.CORTEX.COMPLETE(
                         %s,
                         %s
@@ -447,7 +447,7 @@ Successfully applied **{sum(fixes.values())} security fixes** across **{len(fixe
 - `backend/services/enhanced_cortex_agent_service.py` - Fixed Cortex AI query vulnerabilities
 - `backend/utils/snowflake_cortex_service.py` - Fixed vector search vulnerabilities
 
-### Medium Priority Fixes  
+### Medium Priority Fixes
 - `backend/etl/gong/ingest_gong_data.py` - Fixed schema creation vulnerabilities
 - `backend/scripts/batch_embed_data.py` - Fixed batch processing vulnerabilities
 - `scripts/enhanced_batch_embed_data.py` - Fixed enhanced batch vulnerabilities
@@ -479,7 +479,7 @@ Successfully applied **{sum(fixes.values())} security fixes** across **{len(fixe
 ## Compliance Status
 
 ✅ **OWASP Top 10 Compliance** - Injection vulnerabilities addressed
-✅ **Enterprise Security Standards** - Comprehensive validation implemented  
+✅ **Enterprise Security Standards** - Comprehensive validation implemented
 ✅ **Production Ready** - All fixes tested and validated
 ✅ **Zero Breaking Changes** - Backward compatible implementation
 

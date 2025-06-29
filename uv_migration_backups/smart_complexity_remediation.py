@@ -177,7 +177,7 @@ class SmartComplexityAnalyzer:
 
             # Analyze functions
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                     function_issues = self._analyze_function(file_path, node)
                     issues.extend(function_issues)
 
@@ -278,11 +278,11 @@ class SmartComplexityAnalyzer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
-            elif isinstance(child, (ast.And, ast.Or)):
+            elif isinstance(child, ast.And | ast.Or):
                 complexity += 1
             elif isinstance(child, ast.ListComp):
                 complexity += 1

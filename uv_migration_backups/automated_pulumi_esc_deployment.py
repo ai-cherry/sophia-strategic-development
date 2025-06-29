@@ -161,7 +161,7 @@ echo "🔐 Starting Automated Credential Sync..."
 
 # Initialize Pulumi ESC
 pulumi config set --path sophia-ai:snowflake_account "${SNOWFLAKE_ACCOUNT}"
-pulumi config set --path sophia-ai:snowflake_user "${SNOWFLAKE_USER}" 
+pulumi config set --path sophia-ai:snowflake_user "${SNOWFLAKE_USER}"
 pulumi config set --path sophia-ai:sophia_ai_token "${SOPHIA_AI_TOKEN}" --secret
 
 pulumi config set --path sophia-ai:estuary_client_id "${ESTUARY_CLIENT_ID}"
@@ -224,14 +224,14 @@ from pathlib import Path
 
 class AutomatedWebhookDeployment:
     """Automated webhook deployment system."""
-    
+
     def __init__(self):
         self.base_url = os.getenv("SOPHIA_WEBHOOK_BASE_URL", "https://app.sophia-intel.ai")
         self.webhook_configs = {
             "gong": {
                 "endpoints": [
                     "/webhook/gong/calls",
-                    "/webhook/gong/emails", 
+                    "/webhook/gong/emails",
                     "/webhook/gong/meetings"
                 ],
                 "auth": "jwt",
@@ -282,24 +282,24 @@ class AutomatedWebhookDeployment:
                 "auth": "signature"
             }
         }
-    
+
     async def deploy_all_webhooks(self):
         """Deploy all webhook configurations automatically."""
         print("🚀 Starting Automated Webhook Deployment...")
-        
+
         for platform, config in self.webhook_configs.items():
             await self._deploy_platform_webhooks(platform, config)
-        
+
         print("✅ All Webhooks Deployed Successfully")
-    
+
     async def _deploy_platform_webhooks(self, platform: str, config: dict):
         """Deploy webhooks for a specific platform."""
         print(f"  Deploying {platform} webhooks...")
-        
+
         for endpoint in config["endpoints"]:
             full_url = f"{self.base_url}{endpoint}"
             print(f"    ✓ {full_url}")
-        
+
         # Here you would implement actual webhook registration
         # This is a placeholder for the automation logic
 
@@ -346,7 +346,7 @@ sys.path.insert(0, str(project_root))
 async def automated_platform_integration():
     """Execute automated integration of all platforms."""
     print("🔧 Starting Automated Platform Integration...")
-    
+
     # Platform integration commands
     integration_commands = [
         # Data Stack Integration
@@ -355,31 +355,31 @@ async def automated_platform_integration():
         "Configure Gong webhooks with JWT authentication",
         "Setup Slack bot with event subscriptions and commands",
         "Configure HubSpot webhooks for CRM events",
-        
-        # Dev Stack Integration  
+
+        # Dev Stack Integration
         "Setup Vercel deployment webhooks and optimization",
         "Configure Lambda Labs instances with cost optimization",
         "Setup Figma webhooks for design-to-code automation",
-        
+
         # AI Stack Integration
         "Configure Portkey gateway with LLM routing optimization",
         "Setup OpenRouter with model performance monitoring",
-        
+
         # Ops Stack Integration
         "Configure Linear webhooks for project management automation",
         "Setup Asana webhooks with task prioritization",
-        
+
         # Additional Platform Integration
         "Configure UserGems contact tracking and lead scoring",
         "Setup Apollo.io outreach optimization"
     ]
-    
+
     for i, command in enumerate(integration_commands, 1):
         print(f"  [{i:2d}/{len(integration_commands)}] {command}")
         # Here you would execute the actual integration command
         # using the IaC orchestrator
         await asyncio.sleep(0.1)  # Simulate processing
-    
+
     print("✅ All Platform Integration Complete")
 
 if __name__ == "__main__":
@@ -418,15 +418,15 @@ from datetime import datetime
 
 class AutomatedSystemValidator:
     """Automated validation and activation system."""
-    
+
     def __init__(self):
         self.validation_results = {}
         self.activation_status = {}
-    
+
     async def validate_and_activate(self):
         """Validate all components and activate the system."""
         print("🔍 Starting Automated System Validation...")
-        
+
         # Validation checks
         validation_checks = [
             ("Pulumi ESC Configuration", self._validate_pulumi_esc),
@@ -438,57 +438,57 @@ class AutomatedSystemValidator:
             ("Dependency Management", self._validate_dependencies),
             ("State Management", self._validate_state_management)
         ]
-        
+
         for check_name, check_function in validation_checks:
             print(f"  Validating {check_name}...")
             result = await check_function()
             self.validation_results[check_name] = result
             status = "✅" if result["valid"] else "❌"
             print(f"    {status} {check_name}: {result['message']}")
-        
+
         # Activation
         if all(result["valid"] for result in self.validation_results.values()):
             await self._activate_system()
             print("🎉 Complete Automated System Successfully Activated!")
         else:
             print("❌ System Validation Failed - Check logs for details")
-    
+
     async def _validate_pulumi_esc(self):
         """Validate Pulumi ESC configuration."""
         return {"valid": True, "message": "Pulumi ESC configuration valid"}
-    
+
     async def _validate_credentials(self):
         """Validate credential management."""
         return {"valid": True, "message": "Credential management operational"}
-    
+
     async def _validate_webhooks(self):
         """Validate webhook infrastructure."""
         return {"valid": True, "message": "Webhook infrastructure ready"}
-    
+
     async def _validate_platforms(self):
         """Validate platform integration."""
         return {"valid": True, "message": "All 14 platforms integrated"}
-    
+
     async def _validate_orchestrator(self):
         """Validate IaC orchestrator."""
         return {"valid": True, "message": "IaC orchestrator operational"}
-    
+
     async def _validate_mcp_integration(self):
         """Validate MCP server integration."""
         return {"valid": True, "message": "MCP integration aligned"}
-    
+
     async def _validate_dependencies(self):
         """Validate dependency management."""
         return {"valid": True, "message": "Dependency management operational"}
-    
+
     async def _validate_state_management(self):
         """Validate state management."""
         return {"valid": True, "message": "State management with rollback ready"}
-    
+
     async def _activate_system(self):
         """Activate the complete automated system."""
         print("🚀 Activating Complete Automated System...")
-        
+
         activation_steps = [
             "Starting IaC Orchestrator on port 9013",
             "Activating webhook router",
@@ -501,11 +501,11 @@ class AutomatedSystemValidator:
             "Enabling real-time alerts",
             "System fully operational"
         ]
-        
+
         for step in activation_steps:
             print(f"  {step}...")
             await asyncio.sleep(0.2)
-        
+
         # Save activation report
         activation_report = {
             "timestamp": datetime.now().isoformat(),
@@ -513,7 +513,7 @@ class AutomatedSystemValidator:
             "validation_results": self.validation_results,
             "components_active": [
                 "Pulumi ESC Integration",
-                "Automated Credential Management", 
+                "Automated Credential Management",
                 "Webhook Infrastructure",
                 "Platform Integration (14 platforms)",
                 "IaC Orchestrator",
@@ -525,7 +525,7 @@ class AutomatedSystemValidator:
                 "Real-time Monitoring"
             ]
         }
-        
+
         with open("automated_system_activation_report.json", "w") as f:
             json.dump(activation_report, f, indent=2)
 

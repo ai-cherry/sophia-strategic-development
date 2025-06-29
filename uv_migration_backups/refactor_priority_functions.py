@@ -59,7 +59,7 @@ def _setup_core_routes(router: APIRouter) -> None:
     )
     router.include_router(
         sophia_universal_chat_routes.router,
-        prefix="/api/v1/chat", 
+        prefix="/api/v1/chat",
         tags=["chat", "ai"]
     )
     router.include_router(
@@ -128,18 +128,18 @@ def _setup_admin_routes(router: APIRouter) -> None:
             refactored_function = '''def create_application_router() -> APIRouter:
     """
     Create and configure the main application router with all endpoints
-    
+
     Returns:
         APIRouter: Configured router with all application routes
     """
     router = APIRouter()
-    
+
     # Setup route groups in logical order
     _setup_core_routes(router)
     _setup_integration_routes(router)
     _setup_data_routes(router)
     _setup_admin_routes(router)
-    
+
     logger.info("✅ Application router created with all endpoints")
     return router'''
 
@@ -201,10 +201,10 @@ async def _validate_chat_request(request: Request) -> Dict[str, Any]:
     """Validate and parse incoming chat request"""
     try:
         request_data = await request.json()
-        
+
         if not request_data.get("message"):
             raise ValueError("Message is required")
-        
+
         return {
             "message": request_data["message"],
             "context": request_data.get("context", {}),
@@ -220,7 +220,7 @@ async def _process_chat_message(validated_data: Dict[str, Any]) -> Dict[str, Any
     """Process chat message through AI pipeline"""
     try:
         session_id = validated_data.get("session_id") or str(uuid.uuid4())
-        
+
         # Create LLM request
         llm_request = LLMRequest(
             message=validated_data["message"],
@@ -228,17 +228,17 @@ async def _process_chat_message(validated_data: Dict[str, Any]) -> Dict[str, Any
             session_id=session_id,
             user_id=validated_data.get("user_id")
         )
-        
+
         # Process through intelligence service
         response = await unified_intelligence_service.process_request(llm_request)
-        
+
         return {
             "response": response.content,
             "session_id": session_id,
             "metadata": response.metadata,
             "processing_time": response.processing_time
         }
-        
+
     except Exception as e:
         logger.error(f"Chat processing error: {e}")
         raise HTTPException(status_code=500, detail=f"Processing error: {e}")
@@ -251,7 +251,7 @@ async def _handle_streaming_response(validated_data: Dict[str, Any]) -> Streamin
                 yield f"data: {json.dumps(chunk)}\\n\\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\\n\\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
@@ -270,21 +270,21 @@ async def unified_chat_endpoint(request: Request):
     try:
         # Validate request
         validated_data = await _validate_chat_request(request)
-        
+
         # Handle streaming requests
         if validated_data.get("stream"):
             return await _handle_streaming_response(validated_data)
-        
+
         # Process regular chat message
         result = await _process_chat_message(validated_data)
-        
+
         return ChatResponse(
             content=result["response"],
             session_id=result["session_id"],
             metadata=result.get("metadata", {}),
             processing_time=result.get("processing_time", 0)
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -366,22 +366,22 @@ async def unified_chat_endpoint(request: Request):
         self._initialize_components()
         self._setup_connections()
         self._finalize_initialization()
-    
+
     def _setup_configuration(self):
         """Setup initial configuration"""
         # TODO: Move configuration setup logic here
         pass
-    
+
     def _initialize_components(self):
         """Initialize core components"""
         # TODO: Move component initialization logic here
         pass
-    
+
     def _setup_connections(self):
         """Setup external connections"""
         # TODO: Move connection setup logic here
         pass
-    
+
     def _finalize_initialization(self):
         """Finalize initialization process"""
         # TODO: Move finalization logic here

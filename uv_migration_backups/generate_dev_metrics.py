@@ -10,7 +10,7 @@ Current size: 769 lines
 
 Recommended decomposition:
 - generate_dev_metrics_core.py - Core functionality
-- generate_dev_metrics_utils.py - Utility functions  
+- generate_dev_metrics_utils.py - Utility functions
 - generate_dev_metrics_models.py - Data models
 - generate_dev_metrics_handlers.py - Request handlers
 

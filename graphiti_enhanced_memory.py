@@ -218,9 +218,9 @@ class GraphitiEnhancedMemory:
         return {
             "total_nodes": len(self.nodes),
             "total_relationships": len(self.relationships),
-            "node_types": list(set(node.node_type for node in self.nodes.values())),
+            "node_types": list({node.node_type for node in self.nodes.values()}),
             "relationship_types": list(
-                set(rel.relationship_type for rel in self.relationships.values())
+                {rel.relationship_type for rel in self.relationships.values()}
             ),
         }
 

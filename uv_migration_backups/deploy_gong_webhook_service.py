@@ -156,13 +156,13 @@ To deploy the webhook service on the remote server (34.74.88.2), follow these st
 5. Set up Nginx for SSL (if not already configured):
    sudo apt update
    sudo apt install -y nginx certbot python3-certbot-nginx
-   
+
    # Create Nginx config
    sudo tee /etc/nginx/sites-available/webhooks.sophia-intel.ai << EOF
    server {
        listen 80;
        server_name webhooks.sophia-intel.ai;
-       
+
        location / {
            proxy_pass http://localhost:8080;
            proxy_http_version 1.1;
@@ -176,11 +176,11 @@ To deploy the webhook service on the remote server (34.74.88.2), follow these st
        }
    }
    EOF
-   
+
    sudo ln -s /etc/nginx/sites-available/webhooks.sophia-intel.ai /etc/nginx/sites-enabled/
    sudo nginx -t
    sudo systemctl reload nginx
-   
+
    # Get SSL certificate
    sudo certbot --nginx -d webhooks.sophia-intel.ai --non-interactive --agree-tos --email admin@sophia-intel.ai
 

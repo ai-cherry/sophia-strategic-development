@@ -147,7 +147,7 @@ class ComprehensiveSyntaxScanner:
                 return False
 
             # Check for basic SQL keywords structure
-            content_upper = content.upper()
+            content.upper()
 
             # Check for incomplete statements
             statements = [stmt.strip() for stmt in content.split(";") if stmt.strip()]
@@ -387,7 +387,7 @@ def main():
     results = scanner.run_comprehensive_scan()
 
     # Save results
-    output_file = scanner.save_results()
+    scanner.save_results()
 
     # Determine exit code based on results
     if results["summary"]["overall_success_rate"] >= 95.0:

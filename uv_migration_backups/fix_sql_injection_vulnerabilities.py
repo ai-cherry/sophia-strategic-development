@@ -178,7 +178,7 @@ class SQLInjectionRemediator:
         if warehouse_name not in safe_warehouses:
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return warehouse_name
-    
+
     def _validate_schema(self, schema_name: str) -> str:
         """Validate schema name against whitelist"""
         safe_schemas = {
@@ -189,7 +189,7 @@ class SQLInjectionRemediator:
         if schema_name not in safe_schemas:
             raise ValueError(f"Invalid schema name: {schema_name}")
         return schema_name
-    
+
     def _validate_table_name(self, table_name: str) -> str:
         """Validate table name against whitelist"""
         safe_tables = {
@@ -263,7 +263,7 @@ cursor.execute(query)
 ## Executive Summary
 - **Vulnerabilities Found**: {report["vulnerabilities_found"]}
 - **High Severity**: {report["high_severity_count"]} vulnerabilities
-- **Medium Severity**: {report["medium_severity_count"]} vulnerabilities  
+- **Medium Severity**: {report["medium_severity_count"]} vulnerabilities
 - **Low Severity**: {report["low_severity_count"]} vulnerabilities
 
 ## Vulnerabilities by File

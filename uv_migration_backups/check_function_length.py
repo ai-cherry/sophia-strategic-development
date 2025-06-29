@@ -42,7 +42,7 @@ class FunctionLengthChecker:
             tree = ast.parse(content)
 
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                     if node.end_lineno is None or node.lineno is None:
                         continue
 
@@ -76,11 +76,11 @@ class FunctionLengthChecker:
         complexity = 1
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
-            elif isinstance(child, (ast.And, ast.Or)):
+            elif isinstance(child, ast.And | ast.Or):
                 complexity += 1
 
         return complexity
@@ -222,7 +222,7 @@ class FunctionLengthChecker:
 
     def check_compliance(self, directory: str = ".") -> bool:
         """Check compliance and return True if all functions are within limit"""
-        results = self.scan_directory(directory)
+        self.scan_directory(directory)
 
         if self.violations:
             print("❌ Function length compliance check failed!")

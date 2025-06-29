@@ -56,6 +56,8 @@ except ImportError:
         @staticmethod
         async def connect(**kwargs):
             raise NotImplementedError(
+# Import Snowflake configuration override for correct connectivity
+from backend.core.snowflake_config_override import get_snowflake_connection_params
                 "aiomysql not available - install with: pip install aiomysql"
             )
 

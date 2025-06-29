@@ -201,16 +201,16 @@ async def main():
 Examples:
   # Process a single file
   python scripts/ingest_costar_data.py --file data/costar_q4_2024.csv
-  
+
   # Process all files in a directory
   python scripts/ingest_costar_data.py --directory data/costar_files/
-  
+
   # Process directory recursively
   python scripts/ingest_costar_data.py --directory data/ --recursive
-  
+
   # Validate files without importing
   python scripts/ingest_costar_data.py --file data/costar_q4_2024.csv --validate-only
-  
+
   # Batch process with verbose logging
   python scripts/ingest_costar_data.py --directory data/ --verbose
         """,

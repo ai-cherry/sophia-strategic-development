@@ -12,7 +12,7 @@ Current size: 705 lines
 
 Recommended decomposition:
 - implement_critical_refactoring_core.py - Core functionality
-- implement_critical_refactoring_utils.py - Utility functions  
+- implement_critical_refactoring_utils.py - Utility functions
 - implement_critical_refactoring_models.py - Data models
 - implement_critical_refactoring_handlers.py - Request handlers
 
@@ -70,7 +70,7 @@ class CriticalRefactorer:
             enhanced_query = await self._enhance_query_with_ai(query_context)
             raw_memories = await self._search_memories(enhanced_query, request)
             ranked_memories = await self._rank_memories_with_ai(raw_memories, query_context)
-            
+
             return self._format_recall_response(ranked_memories, enhanced_query)
         except Exception as e:
             return self._handle_recall_error(e)
@@ -80,7 +80,7 @@ class CriticalRefactorer:
         query = request.get("query", "")
         context = request.get("context", {})
         filters = request.get("filters", {})
-        
+
         return {
             "query": query,
             "context": context,
@@ -92,13 +92,13 @@ class CriticalRefactorer:
         """Use AI to enhance search query based on context"""
         query = query_context["query"]
         context = query_context["context"]
-        
+
         if not context:
             return query
-        
+
         # Use AI to enhance the query based on context
         model, _ = await self.route_to_model(
-            task="enhance search query", 
+            task="enhance search query",
             context_size=len(str(context))
         )
 
@@ -106,7 +106,7 @@ class CriticalRefactorer:
         Enhance this search query based on the current context:
         Query: {query}
         Context: {context}
-        
+
         Return an enhanced search query that will find the most relevant memories.
         """
 
@@ -119,7 +119,7 @@ class CriticalRefactorer:
         """Search memories with enhanced query"""
         filters = request.get("filters", {})
         limit = request.get("limit", 10)
-        
+
         # Search memories using the enhanced query
         memories = await self.memory_service.search_memories(
             query=enhanced_query,
@@ -128,28 +128,28 @@ class CriticalRefactorer:
             date_from=filters.get("date_from"),
             date_to=filters.get("date_to"),
         )
-        
+
         return memories or []
 
     async def _rank_memories_with_ai(self, memories: List[Dict], query_context: Dict[str, Any]) -> List[Dict]:
         """Use AI to rank and filter search results"""
         if not memories or len(memories) <= query_context["limit"]:
             return memories[:query_context["limit"]]
-        
+
         # Use AI to rank results
         model, _ = await self.route_to_model(
-            task="rank search results", 
+            task="rank search results",
             context_size=len(str(memories))
         )
 
         ranking_prompt = f"""
         Rank these search results by relevance to the query and context.
         Return the top {query_context["limit"]} results with relevance scores.
-        
+
         Query: {query_context["query"]}
         Context: {query_context["context"]}
         Results: {memories}
-        
+
         Return as JSON array with relevance scores.
         """
 
@@ -236,19 +236,19 @@ class CriticalRefactorer:
         try:
             # Prepare content generation context
             context = await self._prepare_content_context(request)
-            
+
             # Generate content using AI
             generated_content = await self._generate_content_with_ai(request, context)
-            
+
             # Create content variations
             variations = await self._generate_content_variations(request, generated_content)
-            
+
             # Analyze content quality
             quality_score = await self._analyze_content_quality(generated_content, request)
-            
+
             # Store in AI Memory
             await self._store_content_memory(request, generated_content, quality_score)
-            
+
             # Format response
             return self._format_content_response(
                 generated_content, variations, quality_score, request
@@ -265,7 +265,7 @@ class CriticalRefactorer:
             "product_context": "",
             "competitor_context": ""
         }
-        
+
         if self.knowledge_service:
             # Get product information
             if request.product_context:
@@ -287,7 +287,7 @@ class CriticalRefactorer:
                     f"- {item['name']}: {item['description']}"
                     for item in competitor_info
                 ])
-        
+
         return context
 
     async def _generate_content_with_ai(self, request: ContentGenerationRequest, context: Dict[str, str]) -> str:
@@ -315,15 +315,15 @@ class CriticalRefactorer:
     async def _generate_content_variations(self, request: ContentGenerationRequest, content: str) -> List[str]:
         """Generate content variations using Cortex"""
         variations = []
-        
+
         if request.content_type in [ContentType.EMAIL_COPY, ContentType.AD_COPY]:
             async with self.cortex_service as cortex:
                 variation_prompt = f"""
                 Create 2 alternative versions of this {request.content_type.value}:
-                
+
                 Original:
                 {content}
-                
+
                 Variations should maintain the same key message but use different approaches.
                 """
 
@@ -335,7 +335,7 @@ class CriticalRefactorer:
                     variations = [
                         v.strip() for v in variations_text.split("---") if v.strip()
                     ]
-        
+
         return variations
 
     async def _store_content_memory(self, request: ContentGenerationRequest, content: str, quality_score: float):
@@ -428,10 +428,10 @@ class CriticalRefactorer:
                 query_tools = self._get_query_tools()
                 management_tools = self._get_management_tools()
                 integration_tools = self._get_integration_tools()
-                
+
                 # Combine all tools
                 all_tools = core_tools + query_tools + management_tools + integration_tools
-                
+
                 return ListToolsResult(tools=all_tools)
             except Exception as e:
                 logger.error(f"Error listing tools: {e}")
@@ -453,7 +453,7 @@ class CriticalRefactorer:
                     name="get_capabilities",
                     description="Get server capabilities and features",
                     inputSchema={
-                        "type": "object", 
+                        "type": "object",
                         "properties": {},
                         "required": []
                     }
@@ -493,7 +493,7 @@ class CriticalRefactorer:
                     }
                 ),
                 Tool(
-                    name="update", 
+                    name="update",
                     description="Update existing item",
                     inputSchema={
                         "type": "object",

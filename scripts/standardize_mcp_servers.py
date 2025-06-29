@@ -5,12 +5,10 @@ Fixes port conflicts, standardizes structure, and prepares for deployment
 """
 
 import json
-import os
-import shutil
-from pathlib import Path
-from typing import Dict, List, Any
 import logging
+import os
 from datetime import datetime
+from pathlib import Path
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,7 +19,7 @@ class MCPServerStandardizer:
         self.base_path = Path(base_path)
         self.mcp_servers_path = self.base_path / "mcp-servers"
         self.config_path = self.base_path / "config"
-        
+
         # Port allocation strategy
         self.port_allocation = {
             # Core AI Services (9000-9099)
@@ -31,7 +29,7 @@ class MCPServerStandardizer:
             "sophia_data_intelligence": 9003,
             "code_intelligence": 9004,
             "sophia_ai_intelligence": 9005,
-            
+
             # Integration Services (9100-9199)
             "asana": 9100,
             "linear": 9101,
@@ -40,7 +38,7 @@ class MCPServerStandardizer:
             "github": 9104,
             "bright_data": 9105,
             "ag_ui": 9106,
-            
+
             # Infrastructure Services (9200-9299)
             "snowflake": 9200,
             "snowflake_admin": 9201,
@@ -48,7 +46,7 @@ class MCPServerStandardizer:
             "pulumi": 9203,
             "sophia_infrastructure": 9204,
             "docker": 9205,
-            
+
             # Quality & Security (9300-9399)
             "codacy": 9300,
         }
@@ -56,25 +54,25 @@ class MCPServerStandardizer:
     def run_standardization(self):
         """Run complete MCP server standardization"""
         logger.info("🚀 Starting MCP Server Standardization")
-        
+
         try:
             # Step 1: Analyze current state
             self.analyze_current_state()
-            
+
             # Step 2: Fix port conflicts
             self.fix_port_conflicts()
-            
+
             # Step 3: Standardize Docker configurations
             self.standardize_docker_configs()
-            
+
             # Step 4: Generate deployment scripts
             self.generate_deployment_scripts()
-            
+
             # Step 5: Create monitoring configuration
             self.create_monitoring_config()
-            
+
             logger.info("✅ MCP Server Standardization completed successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Standardization failed: {e}")
             raise
@@ -82,7 +80,7 @@ class MCPServerStandardizer:
     def analyze_current_state(self):
         """Analyze current MCP server state"""
         logger.info("📊 Analyzing current MCP server state...")
-        
+
         servers = []
         for server_dir in self.mcp_servers_path.iterdir():
             if server_dir.is_dir() and not server_dir.name.startswith('.'):
@@ -95,13 +93,13 @@ class MCPServerStandardizer:
                     "size_lines": self._count_python_lines(server_dir)
                 }
                 servers.append(server_info)
-        
+
         # Log analysis
         logger.info(f"Found {len(servers)} MCP servers:")
         for server in servers:
             status = "✅" if server["has_dockerfile"] and server["has_requirements"] else "⚠️"
             logger.info(f"  {status} {server['name']} - {server['size_lines']} lines")
-        
+
         return servers
 
     def _count_python_lines(self, directory: Path) -> int:
@@ -109,7 +107,7 @@ class MCPServerStandardizer:
         total_lines = 0
         for py_file in directory.glob("**/*.py"):
             try:
-                with open(py_file, 'r', encoding='utf-8') as f:
+                with open(py_file, encoding='utf-8') as f:
                     total_lines += len(f.readlines())
             except Exception:
                 pass
@@ -118,13 +116,13 @@ class MCPServerStandardizer:
     def fix_port_conflicts(self):
         """Fix port conflicts in configuration files"""
         logger.info("🔧 Fixing port conflicts...")
-        
+
         # Update cursor enhanced MCP config
         config_file = self.config_path / "cursor_enhanced_mcp_config.json"
         if config_file.exists():
-            with open(config_file, 'r') as f:
+            with open(config_file) as f:
                 config = json.load(f)
-            
+
             # Update port allocations
             for server_name, server_config in config.get("mcpServers", {}).items():
                 if server_name in self.port_allocation:
@@ -132,17 +130,17 @@ class MCPServerStandardizer:
                         server_config["env"] = {}
                     server_config["env"]["MCP_SERVER_PORT"] = str(self.port_allocation[server_name])
                     logger.info(f"  Updated {server_name} port to {self.port_allocation[server_name]}")
-            
+
             # Write updated config
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=2)
-            
+
             logger.info("✅ Port conflicts resolved in cursor_enhanced_mcp_config.json")
 
     def standardize_docker_configs(self):
         """Standardize Docker configurations across all servers"""
         logger.info("🐳 Standardizing Docker configurations...")
-        
+
         # Standard Dockerfile template
         dockerfile_template = '''FROM python:3.12-slim
 
@@ -180,26 +178,26 @@ EXPOSE ${MCP_SERVER_PORT}
 # Run the server
 CMD ["python", "-m", "server"]
 '''
-        
+
         # Apply to all servers that need Dockerfiles
         updated_count = 0
         for server_dir in self.mcp_servers_path.iterdir():
             if server_dir.is_dir() and not server_dir.name.startswith('.'):
                 dockerfile_path = server_dir / "Dockerfile"
-                
+
                 # Create or update Dockerfile if server has Python files
                 if len(list(server_dir.glob("*.py"))) > 0:
                     with open(dockerfile_path, 'w') as f:
                         f.write(dockerfile_template)
                     updated_count += 1
                     logger.info(f"  ✅ Updated Dockerfile for {server_dir.name}")
-        
+
         logger.info(f"✅ Standardized {updated_count} Dockerfiles")
 
     def generate_deployment_scripts(self):
         """Generate deployment scripts"""
         logger.info("🚀 Generating deployment scripts...")
-        
+
         # Create deployment script
         deploy_script = '''#!/bin/bash
 # MCP Servers Deployment Script
@@ -222,18 +220,18 @@ check_port() {
 # Check all required ports
 echo "🔍 Checking port availability..."
 '''
-        
+
         # Add port checks
         for server_name, port in self.port_allocation.items():
             deploy_script += f'check_port {port} || echo "Warning: {server_name} port {port} conflict"\n'
-        
+
         deploy_script += '''
 echo "📦 Starting MCP servers..."
 
 # Start core services first
 echo "🧠 Starting core AI services..."
 '''
-        
+
         # Add server startup commands
         core_servers = ["ai_memory", "sophia_ai_intelligence", "codacy"]
         for server in core_servers:
@@ -248,26 +246,26 @@ if [ -d "mcp-servers/{server}" ]; then
     sleep 2
 fi
 '''
-        
+
         deploy_script += '''
 echo "✅ All MCP servers deployment initiated!"
 echo "📊 Check status with: python mcp-servers/health_check.py"
 echo "🛑 Stop all with: pkill -f 'python -m server'"
 '''
-        
+
         deploy_script_path = self.mcp_servers_path / "deploy.sh"
         with open(deploy_script_path, 'w') as f:
             f.write(deploy_script)
         os.chmod(deploy_script_path, 0o755)
-        
+
         logger.info("✅ Generated deploy.sh script")
 
     def create_monitoring_config(self):
         """Create monitoring and health check configuration"""
         logger.info("📊 Creating monitoring configuration...")
-        
+
         # Health check aggregator script
-        health_check_script = f'''#!/usr/bin/env python3
+        health_check_script = '''#!/usr/bin/env python3
 """
 MCP Servers Health Check Aggregator
 Monitors all MCP servers and provides consolidated health status
@@ -281,15 +279,15 @@ from typing import Dict, List
 
 class MCPHealthMonitor:
     def __init__(self):
-        self.servers = {{
+        self.servers = {
 '''
-        
+
         # Add server configurations
         for server_name, port in self.port_allocation.items():
             health_check_script += f'            "{server_name}": {{"port": {port}, "url": "http://localhost:{port}/health"}},\n'
-        
+
         health_check_script += '''        }
-    
+
     async def check_server_health(self, session: aiohttp.ClientSession, name: str, config: Dict) -> Dict:
         """Check health of individual server"""
         try:
@@ -317,7 +315,7 @@ class MCPHealthMonitor:
                 "port": config["port"],
                 "error": str(e)
             }
-    
+
     async def check_all_servers(self) -> Dict:
         """Check health of all MCP servers"""
         async with aiohttp.ClientSession() as session:
@@ -326,11 +324,11 @@ class MCPHealthMonitor:
                 for name, config in self.servers.items()
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             # Process results
             healthy_count = sum(1 for r in results if isinstance(r, dict) and r.get("status") == "healthy")
             total_count = len(results)
-            
+
             return {
                 "timestamp": datetime.now().isoformat(),
                 "summary": {
@@ -345,9 +343,9 @@ class MCPHealthMonitor:
 async def main():
     monitor = MCPHealthMonitor()
     health_status = await monitor.check_all_servers()
-    
+
     print(json.dumps(health_status, indent=2))
-    
+
     # Exit with error code if any servers are unhealthy
     if health_status["summary"]["unhealthy_servers"] > 0:
         exit(1)
@@ -355,19 +353,19 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 '''
-        
+
         # Write health check script
         health_script_path = self.mcp_servers_path / "health_check.py"
         with open(health_script_path, 'w') as f:
             f.write(health_check_script)
         os.chmod(health_script_path, 0o755)
-        
+
         logger.info("✅ Created health_check.py monitoring script")
 
     def generate_summary_report(self):
         """Generate standardization summary report"""
         logger.info("📋 Generating standardization summary report...")
-        
+
         report = f"""# MCP Servers Standardization Report
 Generated: {datetime.now().isoformat()}
 
@@ -375,8 +373,8 @@ Generated: {datetime.now().isoformat()}
 """
         for server_name, port in self.port_allocation.items():
             report += f"- {server_name}: {port}\n"
-        
-        report += f"""
+
+        report += """
 ## Files Created/Updated
 - mcp-servers/deploy.sh - Deployment script
 - mcp-servers/health_check.py - Health monitoring
@@ -395,11 +393,11 @@ Generated: {datetime.now().isoformat()}
 ✅ Health monitoring system
 ✅ Production-ready setup
 """
-        
+
         report_path = self.base_path / "MCP_STANDARDIZATION_REPORT.md"
         with open(report_path, 'w') as f:
             f.write(report)
-        
+
         logger.info("✅ Generated MCP_STANDARDIZATION_REPORT.md")
 
 def main():
@@ -408,11 +406,11 @@ def main():
         standardizer = MCPServerStandardizer()
         standardizer.run_standardization()
         standardizer.generate_summary_report()
-        
+
         print("\n🎉 MCP Server Standardization Complete!")
         print("📋 Review MCP_STANDARDIZATION_REPORT.md for details")
         print("🚀 Deploy with: cd mcp-servers && ./deploy.sh")
-        
+
     except Exception as e:
         print(f"❌ Standardization failed: {e}")
         exit(1)

@@ -12,7 +12,7 @@ Current size: 643 lines
 
 Recommended decomposition:
 - analyze_technical_debt_core.py - Core functionality
-- analyze_technical_debt_utils.py - Utility functions  
+- analyze_technical_debt_utils.py - Utility functions
 - analyze_technical_debt_models.py - Data models
 - analyze_technical_debt_handlers.py - Request handlers
 
@@ -594,8 +594,8 @@ def generate_markdown_report(report: TechnicalDebtReport):
 
 ## Executive Summary
 
-This automated analysis examined **{report.summary_metrics["total_files_analyzed"]} Python files** 
-({report.summary_metrics["total_lines_of_code"]:,} lines of code) to identify technical debt patterns, 
+This automated analysis examined **{report.summary_metrics["total_files_analyzed"]} Python files**
+({report.summary_metrics["total_lines_of_code"]:,} lines of code) to identify technical debt patterns,
 code complexity issues, and refactoring priorities.
 
 ### Key Findings

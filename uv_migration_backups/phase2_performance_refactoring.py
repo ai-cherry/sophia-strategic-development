@@ -12,7 +12,7 @@ Current size: 876 lines
 
 Recommended decomposition:
 - phase2_performance_refactoring_core.py - Core functionality
-- phase2_performance_refactoring_utils.py - Utility functions  
+- phase2_performance_refactoring_utils.py - Utility functions
 - phase2_performance_refactoring_models.py - Data models
 - phase2_performance_refactoring_handlers.py - Request handlers
 
@@ -110,16 +110,16 @@ class Phase2PerformanceRefactorer:
         """
         try:
             logger.info("Creating NetSuite transformation procedures...")
-            
+
             # Execute transformation procedure creation in logical order
             await self._create_data_validation_procedures()
             await self._create_enrichment_procedures()
             await self._create_aggregation_procedures()
             await self._create_quality_check_procedures()
             await self._create_monitoring_procedures()
-            
+
             logger.info("✅ All transformation procedures created successfully")
-            
+
         except Exception as e:
             logger.error(f"❌ Error creating transformation procedures: {e}")
             raise
@@ -127,70 +127,70 @@ class Phase2PerformanceRefactorer:
     async def _create_data_validation_procedures(self) -> None:
         """Create data validation and cleansing procedures"""
         logger.info("Creating data validation procedures...")
-        
+
         validation_procedures = [
             self._create_customer_validation_procedure(),
             self._create_transaction_validation_procedure(),
             self._create_product_validation_procedure(),
             self._create_financial_validation_procedure()
         ]
-        
+
         for procedure_sql in validation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_enrichment_procedures(self) -> None:
         """Create data enrichment and transformation procedures"""
         logger.info("Creating data enrichment procedures...")
-        
+
         enrichment_procedures = [
             self._create_customer_enrichment_procedure(),
             self._create_sales_enrichment_procedure(),
             self._create_financial_enrichment_procedure(),
             self._create_inventory_enrichment_procedure()
         ]
-        
+
         for procedure_sql in enrichment_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_aggregation_procedures(self) -> None:
         """Create data aggregation and summary procedures"""
         logger.info("Creating data aggregation procedures...")
-        
+
         aggregation_procedures = [
             self._create_daily_sales_aggregation(),
             self._create_monthly_financial_aggregation(),
             self._create_customer_lifetime_value_aggregation(),
             self._create_product_performance_aggregation()
         ]
-        
+
         for procedure_sql in aggregation_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_quality_check_procedures(self) -> None:
         """Create data quality monitoring procedures"""
         logger.info("Creating data quality check procedures...")
-        
+
         quality_procedures = [
             self._create_data_completeness_check(),
             self._create_data_consistency_check(),
             self._create_data_accuracy_check(),
             self._create_data_timeliness_check()
         ]
-        
+
         for procedure_sql in quality_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
     async def _create_monitoring_procedures(self) -> None:
         """Create monitoring and alerting procedures"""
         logger.info("Creating monitoring procedures...")
-        
+
         monitoring_procedures = [
             self._create_pipeline_health_monitor(),
             self._create_performance_monitor(),
             self._create_error_tracking_procedure(),
             self._create_usage_analytics_procedure()
         ]
-        
+
         for procedure_sql in monitoring_procedures:
             await self._execute_procedure_creation(procedure_sql)
 
@@ -559,21 +559,21 @@ class Phase2PerformanceRefactorer:
         try:
             # Prepare workflow execution context
             context = await self._prepare_workflow_context(workflow_config, execution_context)
-            
+
             # Initialize concurrent execution pools
             execution_pools = await self._initialize_execution_pools(context)
-            
+
             # Execute workflow stages concurrently
             stage_results = await self._execute_concurrent_stages(execution_pools, context)
-            
+
             # Aggregate and validate results
             final_results = await self._aggregate_workflow_results(stage_results, context)
-            
+
             # Cleanup and finalize
             await self._cleanup_workflow_resources(execution_pools)
-            
+
             return final_results
-            
+
         except Exception as e:
             logger.error(f"Error orchestrating concurrent workflow: {e}")
             return {"success": False, "error": str(e)}
@@ -595,14 +595,14 @@ class Phase2PerformanceRefactorer:
     async def _initialize_execution_pools(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Initialize concurrent execution pools for different workflow stages"""
         import asyncio
-        
+
         pools = {
             "data_extraction": asyncio.Semaphore(context["max_concurrency"]),
             "data_processing": asyncio.Semaphore(context["max_concurrency"] // 2),
             "data_validation": asyncio.Semaphore(context["max_concurrency"]),
             "data_storage": asyncio.Semaphore(context["max_concurrency"] // 4)
         }
-        
+
         return {
             "semaphores": pools,
             "task_queues": {stage: [] for stage in pools.keys()},
@@ -614,18 +614,18 @@ class Phase2PerformanceRefactorer:
     ) -> Dict[str, Any]:
         """Execute workflow stages concurrently with proper resource management"""
         import asyncio
-        
+
         stage_results = {}
-        
+
         # Execute stages in dependency order with concurrency
         stage_order = ["data_extraction", "data_processing", "data_validation", "data_storage"]
-        
+
         for stage in stage_order:
             logger.info(f"Executing stage: {stage}")
             stage_results[stage] = await self._execute_stage_tasks(
                 stage, execution_pools, context
             )
-        
+
         return stage_results
 
     async def _execute_stage_tasks(
@@ -633,22 +633,22 @@ class Phase2PerformanceRefactorer:
     ) -> Dict[str, Any]:
         """Execute tasks for a specific workflow stage"""
         import asyncio
-        
+
         semaphore = execution_pools["semaphores"][stage]
-        
+
         # Create tasks for the stage
         tasks = []
         for i in range(5):  # Example: 5 tasks per stage
             task = self._create_stage_task(stage, i, semaphore, context)
             tasks.append(task)
-        
+
         # Execute tasks concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process results
         successful_results = [r for r in results if not isinstance(r, Exception)]
         errors = [r for r in results if isinstance(r, Exception)]
-        
+
         return {
             "stage": stage,
             "successful_tasks": len(successful_results),
@@ -662,11 +662,11 @@ class Phase2PerformanceRefactorer:
     ):
         """Create and execute a single stage task"""
         import asyncio
-        
+
         async with semaphore:
             # Simulate task execution
             await asyncio.sleep(0.1)  # Simulate work
-            
+
             return {
                 "stage": stage,
                 "task_id": task_id,
@@ -682,9 +682,9 @@ class Phase2PerformanceRefactorer:
         total_tasks = sum(r["successful_tasks"] + r["failed_tasks"] for r in stage_results.values())
         successful_tasks = sum(r["successful_tasks"] for r in stage_results.values())
         failed_tasks = sum(r["failed_tasks"] for r in stage_results.values())
-        
+
         execution_time = (datetime.utcnow() - context["start_time"]).total_seconds()
-        
+
         return {
             "success": failed_tasks == 0,
             "workflow_id": context["workflow_id"],

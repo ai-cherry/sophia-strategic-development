@@ -2,9 +2,11 @@
 Test configuration for Sophia AI platform.
 """
 
-import pytest
 import asyncio
 from pathlib import Path
+
+import pytest
+
 
 @pytest.fixture(scope="session")
 def event_loop():

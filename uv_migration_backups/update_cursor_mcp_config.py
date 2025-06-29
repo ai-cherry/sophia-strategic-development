@@ -316,7 +316,7 @@ class CursorMCPConfigUpdater:
         self.config.update(dev_optimizations)
 
         # Enable more aggressive auto-triggers for development
-        for server_name, server_config in self.config.get("mcpServers", {}).items():
+        for _server_name, server_config in self.config.get("mcpServers", {}).items():
             if "auto_triggers" in server_config:
                 server_config["auto_triggers"]["on_file_change"] = True
                 server_config["auto_triggers"]["on_save"] = True
@@ -337,7 +337,7 @@ class CursorMCPConfigUpdater:
         self.config.update(prod_optimizations)
 
         # Reduce auto-triggers for production
-        for server_name, server_config in self.config.get("mcpServers", {}).items():
+        for _server_name, server_config in self.config.get("mcpServers", {}).items():
             if "auto_triggers" in server_config:
                 server_config["auto_triggers"]["on_file_change"] = False
                 server_config["auto_triggers"]["on_save"] = False

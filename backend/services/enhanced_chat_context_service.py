@@ -203,7 +203,7 @@ class EnhancedChatContextService:
         search_strategies = [
             # Exact phrase matching
             f"""
-            SELECT 
+            SELECT
                 k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, k.CREATED_AT,
                 c.CATEGORY_NAME,
                 1.0 as similarity_score
@@ -214,19 +214,19 @@ class EnhancedChatContextService:
             """,
             # Keyword matching
             f"""
-            SELECT 
+            SELECT
                 k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, k.CREATED_AT,
                 c.CATEGORY_NAME,
                 0.8 as similarity_score
             FROM KNOWLEDGE_BASE_ENTRIES k
             JOIN KNOWLEDGE_CATEGORIES c ON k.CATEGORY_ID = c.CATEGORY_ID
             WHERE k.STATUS = 'published'
-            AND (UPPER(k.TITLE) LIKE UPPER('%{query}%') 
+            AND (UPPER(k.TITLE) LIKE UPPER('%{query}%')
                  OR UPPER(k.CONTENT) LIKE UPPER('%{query}%'))
             """,
             # Category-based search
             f"""
-            SELECT 
+            SELECT
                 k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, k.CREATED_AT,
                 c.CATEGORY_NAME,
                 0.6 as similarity_score
@@ -282,7 +282,7 @@ class EnhancedChatContextService:
         # Search for entries that contain multiple query words and are from different sources
         search_query = f"""
         WITH relevant_entries AS (
-            SELECT 
+            SELECT
                 k.ENTRY_ID, k.TITLE, k.CONTENT, k.CATEGORY_ID, k.CREATED_AT,
                 c.CATEGORY_NAME,
                 JSON_EXTRACT_PATH_TEXT(k.METADATA, 'filename') as source_filename,
@@ -294,7 +294,7 @@ class EnhancedChatContextService:
                 {" OR ".join([f"UPPER(k.CONTENT) LIKE UPPER('%{word}%')" for word in query_words[:5]])}
             )
         )
-        SELECT 
+        SELECT
             ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, CREATED_AT, CATEGORY_NAME,
             similarity_score, source_filename,
             ARRAY_AGG(DISTINCT source_filename) OVER (PARTITION BY CATEGORY_ID) as source_documents
@@ -401,12 +401,12 @@ class EnhancedChatContextService:
         context.get("context_summary", "")
 
         if not context_items:
-            return f"""I understand you're asking about "{query}". 
+            return f"""I understand you're asking about "{query}".
 
 I don't have specific information about this in our current knowledge base. To help you better, please upload relevant documents such as:
 
 • Customer lists and contact information
-• Product catalogs and service descriptions  
+• Product catalogs and service descriptions
 • Employee directories and organizational charts
 • Business processes and procedure manuals
 • Financial reports and analytics
@@ -525,7 +525,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         cursor = self.connection.cursor()
         await cursor.execute(
             """
-        INSERT INTO CONVERSATION_MESSAGES 
+        INSERT INTO CONVERSATION_MESSAGES
         (MESSAGE_ID, SESSION_ID, USER_ID, CONTENT, MESSAGE_TYPE, CREATED_AT, METADATA)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
@@ -553,7 +553,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         # Get session statistics
         await cursor.execute(
             """
-        SELECT 
+        SELECT
             COUNT(*) as total_messages,
             COUNT(CASE WHEN MESSAGE_TYPE = 'user' THEN 1 END) as user_messages,
             COUNT(CASE WHEN MESSAGE_TYPE = 'assistant' THEN 1 END) as assistant_messages,

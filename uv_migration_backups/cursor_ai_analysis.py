@@ -166,11 +166,11 @@ class CursorAIAnalyzer:
 
         for node in ast.walk(tree):
             # Nested loops penalty
-            if isinstance(node, (ast.For, ast.While)):
+            if isinstance(node, ast.For | ast.While):
                 nested_loops = sum(
                     1
                     for child in ast.walk(node)
-                    if isinstance(child, (ast.For, ast.While)) and child != node
+                    if isinstance(child, ast.For | ast.While) and child != node
                 )
                 penalty += nested_loops * 5
 
@@ -187,7 +187,7 @@ class CursorAIAnalyzer:
         max_depth = depth
 
         for child in ast.iter_child_nodes(node):
-            if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+            if isinstance(child, ast.If | ast.For | ast.While | ast.With | ast.Try):
                 child_depth = self._calculate_nesting_depth(child, depth + 1)
                 max_depth = max(max_depth, child_depth)
 
@@ -295,7 +295,7 @@ class CursorAIAnalyzer:
                     health["servers_configured"] = len(config["mcpServers"])
 
                     # Check for health monitoring
-                    for server_name, server_config in config["mcpServers"].items():
+                    for _server_name, server_config in config["mcpServers"].items():
                         if "healthCheck" in str(server_config):
                             health["servers_with_health_checks"] += 1
 

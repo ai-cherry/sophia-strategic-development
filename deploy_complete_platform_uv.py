@@ -205,7 +205,7 @@ disallow_untyped_defs = true
                     config = json.load(f)
 
                 # Update command paths to use UV
-                for server_name, server_config in config.get("mcpServers", {}).items():
+                for _server_name, server_config in config.get("mcpServers", {}).items():
                     if server_config.get("command") == "python":
                         server_config["command"] = "uv"
                         server_config["args"] = ["run", "python"] + server_config.get(
@@ -270,7 +270,7 @@ import os
 
 config = {
     "account": "UHDECNO-CVB64222",
-    "user": "SCOOBYJAVA15", 
+    "user": "SCOOBYJAVA15",
     "password": "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
     "role": "ACCOUNTADMIN"
 }

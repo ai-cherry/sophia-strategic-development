@@ -334,7 +334,7 @@ import subprocess
 class Environment(Enum):
     """Deployment environments."""
     PRODUCTION = "prod"
-    STAGING = "stg"  
+    STAGING = "stg"
     DEVELOPMENT = "dev"
 
 class SophiaPlatformSettings(BaseModel):
@@ -396,15 +396,15 @@ class SophiaSettings(BaseModel):
 def load_environment_settings(environment: Environment) -> SophiaSettings:
     """Load settings for specific environment from Pulumi ESC."""
     esc_env = f"scoobyjava-org/sophia-ai-{environment.value}"
-    
+
     try:
         result = subprocess.run([
             "pulumi", "env", "open", esc_env, "--format", "json"
         ], capture_output=True, text=True, check=True)
-        
+
         config_data = json.loads(result.stdout)
         sophia_config = config_data.get("values", {}).get("sophia", {})
-        
+
         return SophiaSettings(
             platform=SophiaPlatformSettings(**sophia_config.get("platform", {})),
             infrastructure=SophiaInfrastructureSettings(**sophia_config.get("infrastructure", {})),
@@ -413,7 +413,7 @@ def load_environment_settings(environment: Environment) -> SophiaSettings:
             ai=SophiaAISettings(**sophia_config.get("ai", {})),
             communication=SophiaCommunicationSettings(**sophia_config.get("communication", {}))
         )
-    
+
     except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError) as e:
         print(f"Failed to load from Pulumi ESC: {e}")
         return load_fallback_settings()
@@ -521,7 +521,7 @@ config = load_environment_settings(current_env)
 
     def _json_serializer(self, obj):
         """Custom JSON serializer for enum objects."""
-        if isinstance(obj, (ServiceCategory, Environment)):
+        if isinstance(obj, ServiceCategory | Environment):
             return obj.value
         elif isinstance(obj, datetime):
             return obj.isoformat()

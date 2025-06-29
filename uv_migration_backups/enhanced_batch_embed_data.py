@@ -11,7 +11,7 @@ Current size: 672 lines
 
 Recommended decomposition:
 - enhanced_batch_embed_data_core.py - Core functionality
-- enhanced_batch_embed_data_utils.py - Utility functions  
+- enhanced_batch_embed_data_utils.py - Utility functions
 - enhanced_batch_embed_data_models.py - Data models
 - enhanced_batch_embed_data_handlers.py - Request handlers
 
@@ -297,9 +297,9 @@ class EnhancedBatchEmbeddingProcessor:
             # SECURE: Use parameterized query to prevent SQL injection
             cursor.execute(
                 """
-                SELECT COUNT(*) 
-                FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_SCHEMA = %s 
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_SCHEMA = %s
                 AND TABLE_NAME = %s
             """,
                 (schema_name, table_name),
@@ -340,7 +340,7 @@ class EnhancedBatchEmbeddingProcessor:
 
             # Build query with safe identifiers (columns are from config, not user input)
             query = f"""
-                SELECT 
+                SELECT
                     {config.id_column},
                     {text_concat} AS COMBINED_TEXT
                 FROM {safe_schema}.{safe_table}
@@ -378,7 +378,7 @@ class EnhancedBatchEmbeddingProcessor:
                     cursor.execute(
                         f"""
                         UPDATE {config.schema_name}.{config.table_name}
-                        SET 
+                        SET
                             {config.embedding_column} = SNOWFLAKE.CORTEX.EMBED_TEXT_768('{config.model}', %s),
                             {config.metadata_column} = OBJECT_CONSTRUCT(
                                 'embedding_model', '{config.model}',
@@ -440,7 +440,7 @@ class EnhancedBatchEmbeddingProcessor:
             cursor.execute(
                 f"""
                 UPDATE {config.schema_name}.{config.table_name}
-                SET 
+                SET
                     SENTIMENT_SCORE = SNOWFLAKE.CORTEX.SENTIMENT({primary_text_column}),
                     {config.metadata_column} = OBJECT_INSERT(
                         COALESCE({config.metadata_column}, OBJECT_CONSTRUCT()),
@@ -499,7 +499,7 @@ class EnhancedBatchEmbeddingProcessor:
             cursor.execute(
                 f"""
                 UPDATE {config.schema_name}.{config.table_name}
-                SET 
+                SET
                     AI_GENERATED_SUMMARY = SNOWFLAKE.CORTEX.SUMMARIZE({primary_text_column}),
                     {config.metadata_column} = OBJECT_INSERT(
                         COALESCE({config.metadata_column}, OBJECT_CONSTRUCT()),
@@ -589,7 +589,7 @@ class EnhancedBatchEmbeddingProcessor:
             all_results = {}
 
             # Process each schema
-            schemas = list(set(config.schema_name for config in self.embedding_configs))
+            schemas = list({config.schema_name for config in self.embedding_configs})
 
             for schema in schemas:
                 schema_results = await self.process_schema_embeddings(schema)
@@ -618,7 +618,7 @@ class EnhancedBatchEmbeddingProcessor:
 
                 cursor.execute(
                     f"""
-                    SELECT 
+                    SELECT
                         COUNT(*) AS total_records,
                         COUNT({config.embedding_column}) AS records_with_embeddings,
                         COUNT(CASE WHEN {config.embedding_column} IS NULL THEN 1 END) AS records_without_embeddings,

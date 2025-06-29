@@ -114,7 +114,7 @@ class Phase3SystematicRemediator:
 
             # Analyze functions
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                     function_issues = self._analyze_function_node(
                         node, file_path, content
                     )
@@ -184,7 +184,7 @@ class Phase3SystematicRemediator:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
@@ -297,12 +297,12 @@ class Phase3SystematicRemediator:
         """Validate input parameters for {function_name}"""
         # TODO: Implement validation logic
         pass
-    
+
     async def _process_{function_name}_data(self, *args, **kwargs):
         """Process data for {function_name}"""
         # TODO: Implement processing logic
         pass
-    
+
     async def _handle_{function_name}_error(self, error: Exception):
         """Handle errors for {function_name}"""
         logger.error(f"Error in {function_name}: {{error}}")
@@ -342,12 +342,12 @@ class Phase3SystematicRemediator:
             "optimized": self._optimized_{function_name}_strategy,
         }}
         return strategies.get(strategy_type, strategies["default"])
-    
+
     def _default_{function_name}_strategy(self, *args, **kwargs):
         """Default strategy for {function_name}"""
         # TODO: Implement default strategy
         pass
-    
+
     def _optimized_{function_name}_strategy(self, *args, **kwargs):
         """Optimized strategy for {function_name}"""
         # TODO: Implement optimized strategy
@@ -403,7 +403,7 @@ class Phase3SystematicRemediator:
         """Configuration object for {function_name}"""
         # TODO: Define configuration parameters
         pass
-    
+
     def _create_{function_name}_config(self, *args, **kwargs) -> {function_name.title()}Config:
         """Create configuration object for {function_name}"""
         # TODO: Map parameters to config object
@@ -462,7 +462,7 @@ Current size: {issue["metric_value"]} lines
 
 Recommended decomposition:
 - {Path(file_path).stem}_core.py - Core functionality
-- {Path(file_path).stem}_utils.py - Utility functions  
+- {Path(file_path).stem}_utils.py - Utility functions
 - {Path(file_path).stem}_models.py - Data models
 - {Path(file_path).stem}_handlers.py - Request handlers
 
@@ -474,7 +474,7 @@ TODO: Implement file decomposition
             if "File Decomposition Plan" not in content:
                 # Find first import or class/function definition
                 insertion_point = 0
-                for line_num, line in enumerate(content.splitlines()):
+                for _line_num, line in enumerate(content.splitlines()):
                     if line.strip().startswith(
                         ("import ", "from ", "class ", "def ", "async def")
                     ):
@@ -730,7 +730,7 @@ TODO: Implement file decomposition
 - **Achieved:** Core MCP operations, sales intelligence, executive dashboard
 - **Impact:** Improved reliability of business-critical functions
 
-#### Phase 2: Performance-Critical Functions (Week 2-3)  
+#### Phase 2: Performance-Critical Functions (Week 2-3)
 - **Target:** 22 high priority issues
 - **Achieved:** Data processing optimization, concurrent workflows
 - **Impact:** Enhanced system performance and throughput

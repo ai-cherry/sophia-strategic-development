@@ -107,9 +107,9 @@ class SnowflakeStabilityDeployer:
             (
                 """
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_PROD_MONITOR
-            WITH CREDIT_QUOTA = 1000 
+            WITH CREDIT_QUOTA = 1000
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 75 PERCENT DO NOTIFY
                 ON 90 PERCENT DO SUSPEND_IMMEDIATE
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
@@ -121,7 +121,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_DEV_MONITOR
             WITH CREDIT_QUOTA = 200
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 80 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
             """,
@@ -132,7 +132,7 @@ class SnowflakeStabilityDeployer:
             CREATE OR REPLACE RESOURCE MONITOR SOPHIA_AI_ANALYTICS_MONITOR
             WITH CREDIT_QUOTA = 500
             FREQUENCY = MONTHLY
-            TRIGGERS 
+            TRIGGERS
                 ON 85 PERCENT DO NOTIFY
                 ON 95 PERCENT DO SUSPEND_IMMEDIATE
             """,
@@ -162,7 +162,7 @@ class SnowflakeStabilityDeployer:
         warehouse_queries = [
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_CHAT_WH
             WITH WAREHOUSE_SIZE = 'SMALL'
                 AUTO_SUSPEND = 30
                 AUTO_RESUME = TRUE
@@ -176,7 +176,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ANALYTICS_WH
             WITH WAREHOUSE_SIZE = 'MEDIUM'
                 AUTO_SUSPEND = 300
                 AUTO_RESUME = TRUE
@@ -190,7 +190,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ETL_WH
             WITH WAREHOUSE_SIZE = 'LARGE'
                 AUTO_SUSPEND = 60
                 AUTO_RESUME = TRUE
@@ -204,7 +204,7 @@ class SnowflakeStabilityDeployer:
             ),
             (
                 """
-            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH 
+            CREATE OR REPLACE WAREHOUSE SOPHIA_AI_ML_WH
             WITH WAREHOUSE_SIZE = 'X-LARGE'
                 AUTO_SUSPEND = 180
                 AUTO_RESUME = TRUE
@@ -624,7 +624,7 @@ class SnowflakeStabilityDeployer:
            Successful: {success_count}
            Failed: {len(components) - success_count}
            Overall Status: {report["overall_status"]}
-        
+
         📋 Components Status:
         """
         )

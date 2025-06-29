@@ -58,7 +58,7 @@ class MinimalStagingDeployment:
 
             # Phase 4: Validate deployment
             logger.info("✅ Phase 4: Validate deployment")
-            validation_result = await self._validate_minimal_deployment()
+            await self._validate_minimal_deployment()
 
             # Determine overall status
             running_services = len(

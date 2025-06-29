@@ -128,7 +128,7 @@ class CursorConfigOptimizer:
         logger.info("🔌 Optimizing MCP server configurations...")
 
         # Enhance existing MCP servers with GitHub integration
-        for server_name, server_config in self.config["mcpServers"].items():
+        for _server_name, server_config in self.config["mcpServers"].items():
             # Add GitHub-aware capabilities
             if "capabilities" not in server_config:
                 server_config["capabilities"] = []

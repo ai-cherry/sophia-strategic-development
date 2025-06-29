@@ -10,7 +10,7 @@ Current size: 601 lines
 
 Recommended decomposition:
 - ai_web_research_ingestion_stub_core.py - Core functionality
-- ai_web_research_ingestion_stub_utils.py - Utility functions  
+- ai_web_research_ingestion_stub_utils.py - Utility functions
 - ai_web_research_ingestion_stub_models.py - Data models
 - ai_web_research_ingestion_stub_handlers.py - Request handlers
 

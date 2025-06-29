@@ -474,7 +474,7 @@ class PropertyAssetsIngestor:
                 """
                 UPDATE PROPERTIES
                 SET AI_MEMORY_EMBEDDING = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
-                    'e5-base-v2', 
+                    'e5-base-v2',
                     PROPERTY_NAME || ' ' || ADDRESS || ' ' || PROPERTY_TYPE
                 ),
                 AI_MEMORY_METADATA = OBJECT_CONSTRUCT(

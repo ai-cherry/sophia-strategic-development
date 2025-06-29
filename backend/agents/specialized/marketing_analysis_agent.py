@@ -253,11 +253,11 @@ class MarketingAnalysisAgent(BaseAgent):
                 # Create comprehensive analysis prompt
                 analysis_prompt = f"""
                 Analyze this marketing campaign performance and provide insights:
-                
+
                 Campaign: {campaign_record.get("CAMPAIGN_NAME", "Unknown")}
                 Type: {campaign_record.get("CAMPAIGN_TYPE", "Unknown")}
                 Duration: {campaign_record.get("START_DATE")} to {campaign_record.get("END_DATE", "Ongoing")}
-                
+
                 Performance Metrics:
                 - Impressions: {impressions:,}
                 - Clicks: {clicks:,} (CTR: {ctr:.2f}%)
@@ -267,7 +267,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 - CPA: ${cpa:.2f}
                 - ROI: {roi:.1f}%
                 - Performance Score: {performance_score:.1f}/100
-                
+
                 Provide:
                 1. Executive summary of campaign performance
                 2. Key strengths and areas for improvement
@@ -293,9 +293,9 @@ class MarketingAnalysisAgent(BaseAgent):
                 async with self.cortex_service as cortex:
                     recommendations_prompt = f"""
                     Based on this campaign analysis, provide 5 specific, actionable optimization recommendations:
-                    
+
                     {ai_summary}
-                    
+
                     Format as a numbered list of concrete actions.
                     """
 
@@ -476,10 +476,10 @@ class MarketingAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 variation_prompt = f"""
                 Create 2 alternative versions of this {request.content_type.value}:
-                
+
                 Original:
                 {content}
-                
+
                 Variations should maintain the same key message but use different approaches.
                 """
 
@@ -562,18 +562,18 @@ class MarketingAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 segmentation_prompt = f"""
                 Analyze this customer dataset and identify key audience segments:
-                
+
                 Dataset Overview:
                 - Total contacts: {len(customer_data)}
                 - Industries: {customer_data["INDUSTRY"].value_counts().head().to_dict() if "INDUSTRY" in customer_data.columns else "N/A"}
                 - Company sizes: {customer_data["COMPANY_SIZE"].value_counts().head().to_dict() if "COMPANY_SIZE" in customer_data.columns else "N/A"}
-                
+
                 Identify 5 distinct audience segments based on:
                 1. Company characteristics (size, industry, revenue)
                 2. Engagement patterns
                 3. Conversion behavior
                 4. Geographic distribution
-                
+
                 For each segment, provide:
                 - Segment name and description
                 - Key characteristics
@@ -683,10 +683,10 @@ class MarketingAnalysisAgent(BaseAgent):
             # Generate comprehensive competitive analysis
             analysis_prompt = f"""
             Conduct a comprehensive competitive analysis for {competitor_name} focusing on {analysis_focus}:
-            
+
             Competitor Context:
             {competitor_context}
-            
+
             Analysis Areas:
             1. Market positioning and messaging
             2. Product/service differentiation
@@ -696,7 +696,7 @@ class MarketingAnalysisAgent(BaseAgent):
             6. Market share and customer base
             7. Recent developments and trends
             8. Opportunities for competitive advantage
-            
+
             Provide actionable insights for competitive positioning and strategic response.
             """
 
@@ -709,9 +709,9 @@ class MarketingAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 insights_prompt = f"""
                 From this competitive analysis, extract 5 key strategic insights:
-                
+
                 {analysis_content}
-                
+
                 Focus on actionable intelligence for marketing strategy.
                 """
 
@@ -721,9 +721,9 @@ class MarketingAnalysisAgent(BaseAgent):
 
                 strategic_recommendations_prompt = f"""
                 Based on this competitive analysis, provide 5 specific marketing recommendations:
-                
+
                 {analysis_content}
-                
+
                 Format as actionable recommendations for marketing team.
                 """
 
@@ -814,12 +814,12 @@ class MarketingAnalysisAgent(BaseAgent):
         """Build comprehensive content generation prompt"""
         prompt = f"""
         Generate {request.content_type.value} content for {request.target_audience.value} audience:
-        
+
         Topic: {request.topic}
         Tone: {request.tone}
         Length: {request.length}
         Include CTA: {request.include_cta}
-        
+
         Context:
         """
 
@@ -852,7 +852,7 @@ class MarketingAnalysisAgent(BaseAgent):
         - Use appropriate technical depth and business language
         - Focus on relevant value propositions and benefits
         - Include industry-specific examples where applicable
-        
+
         Generate high-quality, engaging content that drives action.
         """
 
@@ -866,17 +866,17 @@ class MarketingAnalysisAgent(BaseAgent):
             async with self.cortex_service as cortex:
                 quality_prompt = f"""
                 Analyze the quality of this {request.content_type.value} content on a scale of 0-100:
-                
+
                 Content:
                 {content}
-                
+
                 Evaluate based on:
                 1. Clarity and readability
                 2. Audience appropriateness
                 3. Persuasiveness and engagement
                 4. Call-to-action effectiveness
                 5. Brand consistency
-                
+
                 Provide only a numeric score (0-100).
                 """
 

@@ -194,7 +194,7 @@ class SophiaAIMigrator:
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI.ESTUARY_REALTIME;
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI.CORTEX_VECTORS;
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI.BUSINESS_ENRICHED;
-        
+
         -- Session management
         CREATE TABLE IF NOT EXISTS SOPHIA_AI.PUBLIC.user_sessions (
             session_id VARCHAR(255) PRIMARY KEY,
@@ -204,7 +204,7 @@ class SophiaAIMigrator:
             session_data VARIANT,
             ttl_seconds INTEGER DEFAULT 3600
         );
-        
+
         -- Vector embeddings for Cortex Search
         CREATE TABLE IF NOT EXISTS SOPHIA_AI.CORTEX_VECTORS.embeddings (
             id VARCHAR(255) PRIMARY KEY,
@@ -215,7 +215,7 @@ class SophiaAIMigrator:
             metadata VARIANT,
             created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
         );
-        
+
         -- Cortex Search service
         CREATE OR REPLACE CORTEX SEARCH SERVICE sophia_search
         ON TABLE SOPHIA_AI.CORTEX_VECTORS.embeddings

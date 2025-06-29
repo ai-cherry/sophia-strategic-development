@@ -512,7 +512,7 @@ class SophiaHealthChecker:
                 if "error" in details:
                     print(f"    Error: {details['error']}")
                 elif isinstance(details, dict):
-                    for key, value in details.items():
+                    for _key, value in details.items():
                         if isinstance(value, dict) and not all(
                             v for v in value.values()
                         ):

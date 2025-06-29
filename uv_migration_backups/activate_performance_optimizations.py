@@ -27,7 +27,7 @@ Current size: 628 lines
 
 Recommended decomposition:
 - activate_performance_optimizations_core.py - Core functionality
-- activate_performance_optimizations_utils.py - Utility functions  
+- activate_performance_optimizations_utils.py - Utility functions
 - activate_performance_optimizations_models.py - Data models
 - activate_performance_optimizations_handlers.py - Request handlers
 
