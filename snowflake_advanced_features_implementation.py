@@ -26,10 +26,10 @@ class AdvancedSnowflakeImplementation:
             from backend.core.auto_esc_config import get_config_value
 
             self.conn = snowflake.connector.connect(
-                account=get_config_value("snowflake_account", "ZNB04675"),
-                user=get_config_value("snowflake_user", "PAYREADY"),
+                account=get_config_value("snowflake_account", "UHDECNO-CVB64222"),
+                user=get_config_value("snowflake_user", "SCOOBYJAVA15"),
                 password=get_config_value("snowflake_password"),
-                role=get_config_value("snowflake_role", "SYSADMIN"),
+                role=get_config_value("snowflake_role", "ACCOUNTADMIN"),
                 warehouse="AI_COMPUTE_WH",
                 database="SOPHIA_AI_ADVANCED",
             )
