@@ -44,8 +44,6 @@ dependencies = [
     "torch>=2.6.0",
     "scikit-learn>=1.7.0",
     "tiktoken>=0.5.2",
-    # Vector Databases
-    "pinecone-client>=2.2.4",
     "weaviate-client>=3.25.3",
     # Infrastructure & Cloud
     "pulumi>=3.177.0",
@@ -92,6 +90,7 @@ dependencies = [
     "asyncpg>=0.30.0",
     "psutil>=7.0.0",
     "markdownify>=1.1.0",
+    "pinecone>=7.3.0",
 ]
 
 [dependency-groups]
