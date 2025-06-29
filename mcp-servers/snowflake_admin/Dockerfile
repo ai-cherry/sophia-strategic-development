@@ -1,38 +1,35 @@
-FROM python:3.12-slim AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements
-COPY pyproject.toml uv.lock ./
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-RUN uv sync --frozen --no-cache
+# Install UV
+RUN pip install uv
 
-# Copy source code
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN uv pip install --system -r requirements.txt
+
+# Copy application code
 COPY . .
 
-# Set Python path to include backend modules
-ENV PYTHONPATH=/app:/app/backend
-
-# Expose MCP server port
-EXPOSE 8085
+# Set environment variables
+ENV ENVIRONMENT=prod
+ENV PULUMI_ORG=scoobyjava-org
+ENV MCP_SERVER_PORT=${MCP_SERVER_PORT:-9000}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import asyncio; from snowflake_admin_mcp_server import admin_agent; print('healthy')" || exit 1
+    CMD curl -f http://localhost:${MCP_SERVER_PORT}/health || exit 1
 
-# Run the MCP server
-CMD ["python", "snowflake_admin_mcp_server.py"] 
+# Expose port
+EXPOSE ${MCP_SERVER_PORT}
+
+# Run the server
+CMD ["python", "-m", "server"]

@@ -1,28 +1,35 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim
 
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
+# Set working directory
 WORKDIR /app
 
-# Copy only necessary files
-COPY pyproject.toml uv.lock ./
-COPY backend/ /app/backend
-COPY mcp-servers/codacy/ /app/mcp-servers/codacy/
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN uv sync --frozen --no-cache
+# Install UV
+RUN pip install uv
 
-# Set environment variables for production-first operation
-ENV ENVIRONMENT="prod"
-ENV PULUMI_ORG="scoobyjava-org"
-ENV LOG_LEVEL="INFO"
-ENV PYTHONPATH="/app"
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN uv pip install --system -r requirements.txt
 
-# Expose the port the server will run on
-EXPOSE 3008
+# Copy application code
+COPY . .
 
-CMD ["uvicorn", "mcp-servers.codacy.codacy_mcp_server:app", "--host", "0.0.0.0", "--port", "3008"] 
+# Set environment variables
+ENV ENVIRONMENT=prod
+ENV PULUMI_ORG=scoobyjava-org
+ENV MCP_SERVER_PORT=${MCP_SERVER_PORT:-9000}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${MCP_SERVER_PORT}/health || exit 1
+
+# Expose port
+EXPOSE ${MCP_SERVER_PORT}
+
+# Run the server
+CMD ["python", "-m", "server"]

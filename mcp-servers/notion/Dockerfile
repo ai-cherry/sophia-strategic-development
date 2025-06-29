@@ -1,32 +1,35 @@
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim
 
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
+# Set working directory
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    gcc \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-cache
+# Install UV
+RUN pip install uv
 
-# Copy the MCP server code
-COPY notion_mcp_server.py .
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN uv pip install --system -r requirements.txt
+
+# Copy application code
+COPY . .
 
 # Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=prod
+ENV PULUMI_ORG=scoobyjava-org
+ENV MCP_SERVER_PORT=${MCP_SERVER_PORT:-9000}
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys; sys.exit(0)"
+    CMD curl -f http://localhost:${MCP_SERVER_PORT}/health || exit 1
 
-# Run the MCP server
-CMD ["python", "notion_mcp_server.py"] 
+# Expose port
+EXPOSE ${MCP_SERVER_PORT}
+
+# Run the server
+CMD ["python", "-m", "server"]
