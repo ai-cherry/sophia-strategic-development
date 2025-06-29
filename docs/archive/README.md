@@ -1,3 +1,0 @@
-# Archive
-
-Documentation for archive.
