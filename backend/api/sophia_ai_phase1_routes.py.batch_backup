@@ -6,16 +6,15 @@ Unified API for Enhanced Knowledge Base, Interactive Sales Coach, and Memory Pre
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.services.sophia_ai_orchestrator import (
-    SophiaAIOrchestrator,
-    OrchestrationRequest,
-    RequestType,
-    OrchestrationMode,
-)
+from backend.services.sophia_ai_orchestrator import (OrchestrationMode,
+                                                     OrchestrationRequest,
+                                                     RequestType,
+                                                     SophiaAIOrchestrator)
 
 logger = logging.getLogger(__name__)
 

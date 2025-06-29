@@ -13,7 +13,7 @@ on:
         default: 'production'
         type: choice
         options:
-          - production
+          - production:
       deploy_infrastructure:
         description: 'Deploy infrastructure'
         required: false
@@ -66,7 +66,7 @@ jobs:
           INPUT_ROTATE_SECRETS: ${{ github.event.inputs.rotate_secrets }}
           INPUT_SERVICE_TO_ROTATE: ${{ github.event.inputs.service_to_rotate }}
         run: |
-          # Set environment (production only as per user preference)
+          # Set environment (production only as per user preference):
           if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
             ENVIRONMENT="$INPUT_ENV"
             DEPLOY_INFRASTRUCTURE="$INPUT_DEPLOY_INFRASTRUCTURE"
@@ -74,8 +74,8 @@ jobs:
             DEPLOY_FRONTEND="$INPUT_DEPLOY_FRONTEND"
             ROTATE_SECRETS="$INPUT_ROTATE_SECRETS"
             SERVICE_TO_ROTATE="$INPUT_SERVICE_TO_ROTATE"
-          else
-            # Default values for push/PR events - always production
+          else:
+            # Default values for push/PR events - always production:
             ENVIRONMENT="production"
             DEPLOY_INFRASTRUCTURE="false"
             DEPLOY_BACKEND="true"
@@ -112,12 +112,12 @@ jobs:
 
       - name: Run Security Scan
         run: |
-          # Python security scan
-          uv sync --group security
-          bandit -r backend/ || true
+          # Python security scan:
+          uv sync --group security:
+          bandit -r backend/ || true:
           safety check -r requirements.txt || true
 
-          # JavaScript security scan
+          # JavaScript security scan:
           cd frontend && npm audit --audit-level moderate || true
 
   setup-pulumi-esc:
@@ -138,7 +138,7 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add pulumi requests
 
       - name: Setup Pulumi ESC
@@ -147,16 +147,16 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          # Setup Pulumi ESC environment
-          cd infrastructure/esc
-          chmod +x setup_esc.sh
+          # Setup Pulumi ESC environment:
+          cd infrastructure/esc:
+          chmod +x setup_esc.sh:
           ./setup_esc.sh --environment ${{ needs.initialize.outputs.environment }}
 
-          if [ $? -eq 0 ]; then
+          if [ $? -eq 0 ]; then:
             echo "initialized=true" >> $GITHUB_OUTPUT
-          else
+          else:
             echo "initialized=false" >> $GITHUB_OUTPUT
-            exit 1
+            exit 1:
           fi
 
   test-backend:
@@ -173,22 +173,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync:
           uv sync --group test pytest-cov
 
       - name: Inject secrets from Pulumi ESC
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure/esc
-          chmod +x inject_secrets.sh
+          cd infrastructure/esc:
+          chmod +x inject_secrets.sh:
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
 
       - name: Run backend tests
         run: |
-          # Create basic test structure if not exists
-          mkdir -p backend/tests
-          echo "# Basic test placeholder" > backend/tests/__init__.py
+          # Create basic test structure if not exists:
+          mkdir -p backend/tests:
+          echo "# Basic test placeholder" > backend/tests/__init__.py:
           echo "def test_basic(): assert True" > backend/tests/test_basic.py
           pytest backend/tests/ -v --cov=backend --cov-report=xml || true
 
@@ -215,12 +215,12 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd frontend
+          cd frontend:
           npm ci
 
       - name: Run frontend tests
         run: |
-          cd frontend
+          cd frontend:
           npm test -- --coverage --watchAll=false || true
 
       - name: Upload coverage reports
@@ -246,7 +246,7 @@ jobs:
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests pulumi
 
       - name: Rotate secrets
@@ -254,9 +254,9 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd infrastructure/esc
-          python secret_rotation_framework.py \
-            --environment ${{ needs.initialize.outputs.environment }} \
+          cd infrastructure/esc:
+          python secret_rotation_framework.py \:
+            --environment ${{ needs.initialize.outputs.environment }} \:
             --service "${{ needs.initialize.outputs.service_to_rotate }}"
 
   deploy-infrastructure:
@@ -279,8 +279,8 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure
-          pulumi stack select ${{ needs.initialize.outputs.environment }} || pulumi stack init ${{ needs.initialize.outputs.environment }}
+          cd infrastructure:
+          pulumi stack select ${{ needs.initialize.outputs.environment }} || pulumi stack init ${{ needs.initialize.outputs.environment }}:
           pulumi up --yes
 
   deploy-backend:
@@ -300,16 +300,16 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure/esc
-          chmod +x inject_secrets.sh
+          cd infrastructure/esc:
+          chmod +x inject_secrets.sh:
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
 
       - name: Deploy to Lambda Labs
         env:
           LAMBDA_LABS_API_KEY: ${{ env.LAMBDA_LABS_API_KEY }}
         run: |
-          # Deploy backend to Lambda Labs
-          echo "Deploying backend to Lambda Labs..."
+          # Deploy backend to Lambda Labs:
+          echo "Deploying backend to Lambda Labs...":
           # Add actual deployment commands here
 
   deploy-frontend:
@@ -329,12 +329,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd frontend
+          cd frontend:
           npm ci
 
       - name: Build frontend
         run: |
-          cd frontend
+          cd frontend:
           npm run build
 
       - name: Deploy to Vercel

@@ -26,16 +26,18 @@ Performance Targets:
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
-from enum import Enum
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # Internal imports
-from backend.core.optimized_connection_manager import connection_manager, ConnectionType
+from backend.core.optimized_connection_manager import (ConnectionType,
+                                                       connection_manager)
 from backend.core.performance_monitor import performance_monitor
-from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
+from backend.utils.optimized_snowflake_cortex_service import \
+    optimized_cortex_service
 
 logger = logging.getLogger(__name__)
 

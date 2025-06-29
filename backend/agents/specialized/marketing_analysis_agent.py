@@ -12,25 +12,25 @@ Provides comprehensive marketing analysis capabilities including:
 from __future__ import annotations
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.services.smart_ai_service import (
-    smart_ai_service,
-    LLMRequest,
-    TaskType,
-    generate_competitive_analysis,
-)
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
     MemoryCategory,
 )
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.smart_ai_service import (
+    LLMRequest,
+    TaskType,
+    generate_competitive_analysis,
+    smart_ai_service,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class CampaignAnalysis:
     campaign_name: str
     campaign_type: CampaignType
     start_date: datetime
-    end_date: Optional[datetime]
+    end_date: datetime | None
 
     # Performance metrics
     impressions: int
@@ -100,8 +100,8 @@ class CampaignAnalysis:
     # AI insights
     performance_score: float
     ai_summary: str
-    optimization_recommendations: List[str]
-    audience_insights: Dict[str, Any]
+    optimization_recommendations: list[str]
+    audience_insights: dict[str, Any]
 
     # Metadata
     confidence_score: float
@@ -118,9 +118,9 @@ class ContentGenerationRequest:
     tone: str = "professional"
     length: str = "medium"
     include_cta: bool = True
-    product_context: Optional[str] = None
-    competitor_context: Optional[str] = None
-    brand_guidelines: Optional[str] = None
+    product_context: str | None = None
+    competitor_context: str | None = None
+    brand_guidelines: str | None = None
 
 
 @dataclass
@@ -135,15 +135,15 @@ class AudienceSegmentAnalysis:
     average_deal_size: float
 
     # Behavioral insights
-    preferred_channels: List[str]
-    content_preferences: List[str]
-    decision_factors: List[str]
-    pain_points: List[str]
+    preferred_channels: list[str]
+    content_preferences: list[str]
+    decision_factors: list[str]
+    pain_points: list[str]
 
     # AI insights
     ai_summary: str
-    targeting_recommendations: List[str]
-    content_suggestions: List[str]
+    targeting_recommendations: list[str]
+    content_suggestions: list[str]
 
     confidence_score: float
 
@@ -166,10 +166,10 @@ class MarketingAnalysisAgent(BaseAgent):
         self.description = "AI-powered marketing intelligence and content generation"
 
         # Service integrations
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.hubspot_connector: Optional[SnowflakeHubSpotConnector] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-        self.knowledge_service: Optional[FoundationalKnowledgeService] = None
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.hubspot_connector: SnowflakeHubSpotConnector | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
+        self.knowledge_service: FoundationalKnowledgeService | None = None
 
         self.initialized = False
 
@@ -198,7 +198,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
     async def analyze_campaign_performance(
         self, campaign_id: str, include_ai_insights: bool = True
-    ) -> Optional[CampaignAnalysis]:
+    ) -> CampaignAnalysis | None:
         """
         Analyze marketing campaign performance with AI insights
 
@@ -367,7 +367,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
     async def generate_marketing_content(
         self, request: ContentGenerationRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate marketing content using AI with brand and competitive context
         """
@@ -405,7 +405,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
     async def _prepare_content_context(
         self, request: ContentGenerationRequest
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Prepare brand, product, and competitive context for content generation"""
         context = {"brand_context": "", "product_context": "", "competitor_context": ""}
 
@@ -438,7 +438,7 @@ class MarketingAnalysisAgent(BaseAgent):
         return context
 
     async def _generate_content_with_ai(
-        self, request: ContentGenerationRequest, context: Dict[str, str]
+        self, request: ContentGenerationRequest, context: dict[str, str]
     ) -> str:
         """Generate content using SmartAIService"""
         # Build comprehensive content generation prompt
@@ -468,7 +468,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
     async def _generate_content_variations(
         self, request: ContentGenerationRequest, content: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate content variations using Cortex"""
         variations = []
 
@@ -517,10 +517,10 @@ class MarketingAnalysisAgent(BaseAgent):
     def _format_content_response(
         self,
         content: str,
-        variations: List[str],
+        variations: list[str],
         quality_score: float,
         request: ContentGenerationRequest,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Format the final content generation response"""
         return {
             "content": content,
@@ -533,8 +533,8 @@ class MarketingAnalysisAgent(BaseAgent):
         }
 
     async def analyze_audience_segments(
-        self, segment_criteria: Dict[str, Any] = None
-    ) -> List[AudienceSegmentAnalysis]:
+        self, segment_criteria: dict[str, Any] = None
+    ) -> list[AudienceSegmentAnalysis]:
         """
         Analyze audience segments using Snowflake Cortex AI
 
@@ -656,7 +656,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
     async def generate_competitive_analysis(
         self, competitor_name: str, analysis_focus: str = "positioning"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate competitive analysis using SmartAIService and knowledge base
 
@@ -778,8 +778,8 @@ class MarketingAnalysisAgent(BaseAgent):
         return max(0, min(100, ctr_score + conversion_score + roi_score))
 
     async def _analyze_campaign_audience(
-        self, campaign_id: str, campaign_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, campaign_id: str, campaign_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyze campaign audience engagement and behavior"""
         try:
             # Mock audience analysis (in production, would query actual data)

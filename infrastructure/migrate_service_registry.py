@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+
 """Merge integration_registry.json and service_registry.json into services_registry.json."""
 
 

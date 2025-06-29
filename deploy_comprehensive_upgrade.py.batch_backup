@@ -4,26 +4,24 @@ Sophia AI Comprehensive Upgrade Deployment Script
 Orchestrates the complete transformation to advanced Snowflake Cortex AI + Estuary platform
 """
 
-import sys
-import json
-import asyncio
-import logging
 import argparse
-from pathlib import Path
-from datetime import datetime
-import subprocess
+import asyncio
+import json
+import logging
 import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from backend.services.enhanced_cortex_agent_service import (
-    get_enhanced_cortex_agent_service,
-)
-from backend.integrations.advanced_estuary_flow_manager import (
-    get_advanced_estuary_flow_manager,
-)
 from backend.core.auto_esc_config import get_config_value
+from backend.integrations.advanced_estuary_flow_manager import \
+    get_advanced_estuary_flow_manager
+from backend.services.enhanced_cortex_agent_service import \
+    get_enhanced_cortex_agent_service
 
 # Configure logging
 logging.basicConfig(
@@ -592,9 +590,7 @@ class SophiaAIComprehensiveUpgrade:
 
             # Test with sample data
             from backend.services.enhanced_cortex_agent_service import (
-                MultimodalAgentRequest,
-                MultimodalFile,
-            )
+                MultimodalAgentRequest, MultimodalFile)
 
             test_file = MultimodalFile(
                 file_id="test_document",
@@ -624,9 +620,8 @@ class SophiaAIComprehensiveUpgrade:
             cortex_service = await get_enhanced_cortex_agent_service()
 
             # Test analytics query
-            from backend.services.enhanced_cortex_agent_service import (
-                AdvancedAnalyticsQuery,
-            )
+            from backend.services.enhanced_cortex_agent_service import \
+                AdvancedAnalyticsQuery
 
             test_query = AdvancedAnalyticsQuery(
                 query_type="customer_intelligence", parameters={"limit": 5}

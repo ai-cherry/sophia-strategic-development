@@ -6,14 +6,15 @@ AI-driven project health analysis and risk detection for Linear issues
 
 import json
 import logging
-from datetime import datetime
-from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 from backend.agents.core.base_agent import BaseAgent
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import \
+    EnhancedAiMemoryMCPServer
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 

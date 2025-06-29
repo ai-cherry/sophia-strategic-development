@@ -25,17 +25,17 @@ Performance Targets:
 """
 
 import asyncio
+import gzip
 import logging
 import pickle
+import threading
 import time
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
-from collections import OrderedDict
-import gzip
-from datetime import datetime, timedelta
-import threading
 
 # Optional Redis support
 try:

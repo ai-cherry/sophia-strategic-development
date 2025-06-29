@@ -442,9 +442,9 @@ async def unified_chat_endpoint(request: Request):
         report = f"""# Priority Function Refactoring Report
 
 ## Summary
-- **Functions Refactored**: {results['functions_refactored']}
-- **Files Modified**: {results['files_modified']}
-- **Errors Encountered**: {results['errors']}
+- **Functions Refactored**: {results["functions_refactored"]}
+- **Files Modified**: {results["files_modified"]}
+- **Errors Encountered**: {results["errors"]}
 
 ## Refactored Functions
 

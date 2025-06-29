@@ -16,14 +16,7 @@ from uuid import uuid4
 
 import jwt
 import structlog
-from fastapi import (
-    BackgroundTasks,
-    FastAPI,
-    HTTPException,
-    Request,
-    Response,
-    status,
-)
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from pydantic import BaseModel, Field

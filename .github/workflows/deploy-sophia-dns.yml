@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'infrastructure/dns/**'
-      - 'infrastructure/esc/sophia-intelligence-platform.yaml'
-      - 'scripts/dns-manager.py'
-      - '.github/workflows/deploy-sophia-dns.yml'
+      - 'infrastructure/dns/**':
+      - 'infrastructure/esc/sophia-intelligence-platform.yaml':
+      - 'scripts/dns-manager.py':
+      - '.github/workflows/deploy-sophia-dns.yml':
   
   pull_request:
     branches: [main]
     paths:
-      - 'infrastructure/dns/**'
-      - 'infrastructure/esc/sophia-intelligence-platform.yaml'
-      - 'scripts/dns-manager.py'
+      - 'infrastructure/dns/**':
+      - 'infrastructure/esc/sophia-intelligence-platform.yaml':
+      - 'scripts/dns-manager.py':
   
   workflow_dispatch:
     inputs:
@@ -24,9 +24,9 @@ on:
         default: 'production'
         type: choice
         options:
-          - development
-          - staging
-          - production
+          - development:
+          - staging:
+          - production:
       domain:
         description: 'Domain to deploy'
         required: true
@@ -64,7 +64,7 @@ jobs:
           INPUT_VALIDATE: ${{ github.event.inputs.validate_only }}
           REF: ${{ github.ref }}
         run: |
-          # Determine environment
+          # Determine environment:
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "environment=$INPUT_ENV" >> $GITHUB_OUTPUT
             echo "domain=$INPUT_DOMAIN" >> $GITHUB_OUTPUT
@@ -73,13 +73,13 @@ jobs:
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "domain=sophia-intel.ai" >> $GITHUB_OUTPUT
             echo "validate_only=false" >> $GITHUB_OUTPUT
-          else
+          else:
             echo "environment=development" >> $GITHUB_OUTPUT
             echo "domain=sophia-intel.ai" >> $GITHUB_OUTPUT
             echo "validate_only=true" >> $GITHUB_OUTPUT
-          fi
+          fi:
           
-          # Set GitHub Actions IP for Namecheap API
+          # Set GitHub Actions IP for Namecheap API:
           echo "client_ip=${{ secrets.GH_IP_ADDRESS }}" >> $GITHUB_OUTPUT
           
           echo "🔍 Deployment Context:"
@@ -103,76 +103,76 @@ jobs:
 
       - name: Configure Pulumi ESC
         run: |
-          echo "📡 Configuring Pulumi ESC access..."
-          pulumi login
+          echo "📡 Configuring Pulumi ESC access...":
+          pulumi login:
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_PROJECT="${{ env.PULUMI_PROJECT }}"
           export PULUMI_STACK="${{ env.PULUMI_STACK_ENV }}"
           
-          echo "🔍 Validating Pulumi ESC environment..."
-          pulumi env get $PULUMI_ORG/$PULUMI_PROJECT/$PULUMI_STACK --show-secrets
+          echo "🔍 Validating Pulumi ESC environment...":
+          pulumi env get $PULUMI_ORG/$PULUMI_PROJECT/$PULUMI_STACK --show-secrets:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
       - name: Validate Required Secrets
         run: |
-          echo "🔐 Validating required secrets availability..."
+          echo "🔐 Validating required secrets availability...":
           
-          # Check each secret individually since GitHub Actions doesn't support dynamic secret access
+          # Check each secret individually since GitHub Actions doesn't support dynamic secret access:
           MISSING_SECRETS=()
           
-          # Check LAMBDA_IP_ADDRESS
-          if [[ -z "${{ secrets.LAMBDA_IP_ADDRESS }}" ]]; then
+          # Check LAMBDA_IP_ADDRESS:
+          if [[ -z "${{ secrets.LAMBDA_IP_ADDRESS }}" ]]; then:
             MISSING_SECRETS+=("LAMBDA_IP_ADDRESS")
             echo "❌ Missing secret: LAMBDA_IP_ADDRESS"
-          else
+          else:
             echo "✅ Secret available: LAMBDA_IP_ADDRESS"
-          fi
+          fi:
           
-          # Check GH_IP_ADDRESS
-          if [[ -z "${{ secrets.GH_IP_ADDRESS }}" ]]; then
+          # Check GH_IP_ADDRESS:
+          if [[ -z "${{ secrets.GH_IP_ADDRESS }}" ]]; then:
             MISSING_SECRETS+=("GH_IP_ADDRESS")
             echo "❌ Missing secret: GH_IP_ADDRESS"
-          else
+          else:
             echo "✅ Secret available: GH_IP_ADDRESS"
-          fi
+          fi:
           
-          # Check PULUMI_IP_ADDRESS
-          if [[ -z "${{ secrets.PULUMI_IP_ADDRESS }}" ]]; then
+          # Check PULUMI_IP_ADDRESS:
+          if [[ -z "${{ secrets.PULUMI_IP_ADDRESS }}" ]]; then:
             MISSING_SECRETS+=("PULUMI_IP_ADDRESS")
             echo "❌ Missing secret: PULUMI_IP_ADDRESS"
-          else
+          else:
             echo "✅ Secret available: PULUMI_IP_ADDRESS"
-          fi
+          fi:
           
-          # Check NAMECHEAP_API_USER
-          if [[ -z "${{ secrets.NAMECHEAP_API_USER }}" ]]; then
+          # Check NAMECHEAP_API_USER:
+          if [[ -z "${{ secrets.NAMECHEAP_API_USER }}" ]]; then:
             MISSING_SECRETS+=("NAMECHEAP_API_USER")
             echo "❌ Missing secret: NAMECHEAP_API_USER"
-          else
+          else:
             echo "✅ Secret available: NAMECHEAP_API_USER"
-          fi
+          fi:
           
-          # Check NAMECHEAP_API_KEY
-          if [[ -z "${{ secrets.NAMECHEAP_API_KEY }}" ]]; then
+          # Check NAMECHEAP_API_KEY:
+          if [[ -z "${{ secrets.NAMECHEAP_API_KEY }}" ]]; then:
             MISSING_SECRETS+=("NAMECHEAP_API_KEY")
             echo "❌ Missing secret: NAMECHEAP_API_KEY"
-          else
+          else:
             echo "✅ Secret available: NAMECHEAP_API_KEY"
-          fi
+          fi:
           
-          # Check NAMECHEAP_USERNAME
-          if [[ -z "${{ secrets.NAMECHEAP_USERNAME }}" ]]; then
+          # Check NAMECHEAP_USERNAME:
+          if [[ -z "${{ secrets.NAMECHEAP_USERNAME }}" ]]; then:
             MISSING_SECRETS+=("NAMECHEAP_USERNAME")
             echo "❌ Missing secret: NAMECHEAP_USERNAME"
-          else
+          else:
             echo "✅ Secret available: NAMECHEAP_USERNAME"
-          fi
+          fi:
           
-          if [[ ${#MISSING_SECRETS[@]} -gt 0 ]]; then
+          if [[ ${#MISSING_SECRETS[@]} -gt 0 ]]; then:
             echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
-            exit 1
-          fi
+            exit 1:
+          fi:
           
           echo "✅ All required secrets are available"
 
@@ -192,7 +192,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests python-dotenv aiohttp
 
       - name: Setup Pulumi CLI
@@ -202,16 +202,16 @@ jobs:
 
       - name: Validate Current DNS Records
         run: |
-          echo "🔍 Validating current DNS records for ${{ needs.context-detection.outputs.domain }}..."
+          echo "🔍 Validating current DNS records for ${{ needs.context-detection.outputs.domain }}...":
           
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_ACCESS_TOKEN="${{ secrets.PULUMI_ACCESS_TOKEN }}"
           
-          # Make DNS manager script executable
-          chmod +x scripts/dns-manager.py
+          # Make DNS manager script executable:
+          chmod +x scripts/dns-manager.py:
           
-          # Run DNS validation
-          python scripts/dns-manager.py validate --domain "${{ needs.context-detection.outputs.domain }}"
+          # Run DNS validation:
+          python scripts/dns-manager.py validate --domain "${{ needs.context-detection.outputs.domain }}":
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
@@ -239,28 +239,28 @@ jobs:
       - name: Install Dependencies
         working-directory: infrastructure/dns
         run: |
-          echo "📦 Installing TypeScript infrastructure dependencies..."
+          echo "📦 Installing TypeScript infrastructure dependencies...":
           npm ci
 
       - name: Build TypeScript Infrastructure
         working-directory: infrastructure/dns
         run: |
-          echo "🔨 Building TypeScript infrastructure..."
+          echo "🔨 Building TypeScript infrastructure...":
           npm run build
 
       - name: Preview Infrastructure Changes
         working-directory: infrastructure/dns
         run: |
-          echo "👀 Previewing infrastructure changes..."
+          echo "👀 Previewing infrastructure changes...":
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_CONFIG_PASSPHRASE=""
           
-          # Initialize Pulumi stack if needed
-          pulumi stack select ${{ env.PULUMI_ORG }}/sophia-intelligence-dns/${{ needs.context-detection.outputs.environment }} || \
-          pulumi stack init ${{ env.PULUMI_ORG }}/sophia-intelligence-dns/${{ needs.context-detection.outputs.environment }}
+          # Initialize Pulumi stack if needed:
+          pulumi stack select ${{ env.PULUMI_ORG }}/sophia-intelligence-dns/${{ needs.context-detection.outputs.environment }} || \:
+          pulumi stack init ${{ env.PULUMI_ORG }}/sophia-intelligence-dns/${{ needs.context-detection.outputs.environment }}:
           
-          # Run preview
-          pulumi preview --diff
+          # Run preview:
+          pulumi preview --diff:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AWS_REGION: us-east-1
@@ -268,18 +268,18 @@ jobs:
       - name: Deploy Infrastructure
         working-directory: infrastructure/dns
         run: |
-          echo "🚀 Deploying DNS infrastructure..."
+          echo "🚀 Deploying DNS infrastructure...":
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_CONFIG_PASSPHRASE=""
           
-          # Deploy infrastructure
-          pulumi up --yes --diff
+          # Deploy infrastructure:
+          pulumi up --yes --diff:
           
-          # Export stack outputs
-          pulumi stack output --json > deployment-outputs.json
+          # Export stack outputs:
+          pulumi stack output --json > deployment-outputs.json:
           
           echo "📊 Deployment outputs:"
-          cat deployment-outputs.json | jq '.'
+          cat deployment-outputs.json | jq '.':
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           AWS_REGION: us-east-1
@@ -308,7 +308,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests python-dotenv aiohttp
 
       - name: Setup Pulumi CLI
@@ -318,16 +318,16 @@ jobs:
 
       - name: Deploy DNS Records
         run: |
-          echo "🌐 Deploying DNS records for ${{ needs.context-detection.outputs.domain }}..."
+          echo "🌐 Deploying DNS records for ${{ needs.context-detection.outputs.domain }}...":
           
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_ACCESS_TOKEN="${{ secrets.PULUMI_ACCESS_TOKEN }}"
           
-          # Make DNS manager script executable
-          chmod +x scripts/dns-manager.py
+          # Make DNS manager script executable:
+          chmod +x scripts/dns-manager.py:
           
-          # Deploy DNS records
-          python scripts/dns-manager.py setup --domain "${{ needs.context-detection.outputs.domain }}"
+          # Deploy DNS records:
+          python scripts/dns-manager.py setup --domain "${{ needs.context-detection.outputs.domain }}":
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
@@ -348,7 +348,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
           uv add requests python-dotenv aiohttp
 
       - name: Setup Pulumi CLI
@@ -358,27 +358,27 @@ jobs:
 
       - name: Wait for DNS Propagation
         run: |
-          echo "⏳ Waiting for DNS propagation (60 seconds)..."
+          echo "⏳ Waiting for DNS propagation (60 seconds)...":
           sleep 60
 
       - name: Validate DNS Deployment
         run: |
-          echo "🔍 Validating DNS deployment for ${{ needs.context-detection.outputs.domain }}..."
+          echo "🔍 Validating DNS deployment for ${{ needs.context-detection.outputs.domain }}...":
           
           export PULUMI_ORG="${{ env.PULUMI_ORG }}"
           export PULUMI_ACCESS_TOKEN="${{ secrets.PULUMI_ACCESS_TOKEN }}"
           
-          # Make DNS manager script executable
-          chmod +x scripts/dns-manager.py
+          # Make DNS manager script executable:
+          chmod +x scripts/dns-manager.py:
           
-          # Validate DNS records
-          python scripts/dns-manager.py validate --domain "${{ needs.context-detection.outputs.domain }}"
+          # Validate DNS records:
+          python scripts/dns-manager.py validate --domain "${{ needs.context-detection.outputs.domain }}":
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
       - name: Test Endpoint Health
         run: |
-          echo "🏥 Testing endpoint health..."
+          echo "🏥 Testing endpoint health...":
           
           DOMAIN="${{ needs.context-detection.outputs.domain }}"
           ENDPOINTS=(
@@ -386,15 +386,15 @@ jobs:
             "https://api.$DOMAIN"
             "https://dashboard.$DOMAIN"
             "https://sophia.$DOMAIN"
-          )
+          ):
           
-          for endpoint in "${ENDPOINTS[@]}"; do
-            echo "Testing $endpoint..."
-            if curl -sSf --max-time 10 --connect-timeout 5 "$endpoint" > /dev/null 2>&1; then
-              echo "  ✅ $endpoint is responding"
-            else
-              echo "  ⚠️  $endpoint is not responding (may be expected if service not deployed yet)"
-            fi
+          for endpoint in "${ENDPOINTS[@]}"; do:
+            echo "Testing $endpoint...":
+            if curl -sSf --max-time 10 --connect-timeout 5 "$endpoint" > /dev/null 2>&1; then:
+              echo "  ✅ $endpoint is responding":
+            else:
+              echo "  ⚠️  $endpoint is not responding (may be expected if service not deployed yet)":
+            fi:
           done
 
   notification:
@@ -414,7 +414,7 @@ jobs:
             echo "status=validation" >> $GITHUB_OUTPUT
             echo "emoji=🔍" >> $GITHUB_OUTPUT
             echo "message=DNS validation completed" >> $GITHUB_OUTPUT
-          else
+          else:
             echo "status=failure" >> $GITHUB_OUTPUT
             echo "emoji=❌" >> $GITHUB_OUTPUT
             echo "message=DNS deployment failed" >> $GITHUB_OUTPUT
@@ -422,25 +422,25 @@ jobs:
 
       - name: Create Deployment Summary
         run: |
-          echo "## ${{ steps.status.outputs.emoji }} Sophia Intelligence DNS Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ${{ steps.status.outputs.emoji }} Sophia Intelligence DNS Deployment" >> $GITHUB_STEP_SUMMARY:
+          echo "" >> $GITHUB_STEP_SUMMARY:
           echo "**Status:** ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
           echo "**Domain:** ${{ needs.context-detection.outputs.domain }}" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** ${{ needs.context-detection.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
           echo "**Deployment Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
           
           if [[ "${{ steps.status.outputs.status }}" == "success" ]]; then
-            echo "### 🎯 Deployed Endpoints" >> $GITHUB_STEP_SUMMARY
+            echo "### 🎯 Deployed Endpoints" >> $GITHUB_STEP_SUMMARY:
             echo "- [Main Site](https://${{ needs.context-detection.outputs.domain }})" >> $GITHUB_STEP_SUMMARY
             echo "- [API](https://api.${{ needs.context-detection.outputs.domain }})" >> $GITHUB_STEP_SUMMARY
             echo "- [Dashboard](https://dashboard.${{ needs.context-detection.outputs.domain }})" >> $GITHUB_STEP_SUMMARY
             echo "- [Sophia AI](https://sophia.${{ needs.context-detection.outputs.domain }})" >> $GITHUB_STEP_SUMMARY
             echo "- [Development](https://dev.${{ needs.context-detection.outputs.domain }})" >> $GITHUB_STEP_SUMMARY
-          fi
+          fi:
           
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY:
+          echo "### 📊 Job Results" >> $GITHUB_STEP_SUMMARY:
           echo "- Context Detection: ${{ needs.context-detection.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Infrastructure: ${{ needs.typescript-infrastructure.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- DNS Deployment: ${{ needs.dns-deployment.result }}" >> $GITHUB_STEP_SUMMARY

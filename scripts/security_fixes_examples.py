@@ -204,7 +204,9 @@ def secure_jinja_setup():
     from jinja2 import Environment
 
     env = Environment(
-        autoescape=True, trim_blocks=True, lstrip_blocks=True  # Enable autoescaping
+        autoescape=True,
+        trim_blocks=True,
+        lstrip_blocks=True,  # Enable autoescaping
     )
     return env
 

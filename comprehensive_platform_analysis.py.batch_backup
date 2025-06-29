@@ -10,12 +10,12 @@ This script performs the complete analysis requested in the Cursor AI prompt:
 - Deployment Readiness Validation
 """
 
-import json
 import asyncio
+import json
 import logging
 from datetime import datetime
-from typing import Dict, List
 from pathlib import Path
+from typing import Dict, List
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

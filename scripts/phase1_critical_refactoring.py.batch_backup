@@ -6,12 +6,12 @@ Implements systematic refactoring for the 28 most critical complexity issues
 affecting core MCP operations, sales intelligence, and executive dashboard.
 """
 
+import logging
 import os
 import re
 import shutil
-import logging
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

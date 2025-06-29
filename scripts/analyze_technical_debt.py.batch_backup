@@ -6,15 +6,15 @@ Analyzes codebase for technical debt patterns, code churn, and complexity metric
 Generates actionable insights and visualizations for refactoring prioritization.
 """
 
+import json
+import logging
 import os
 import re
-import json
 import subprocess
-from pathlib import Path
-from typing import Dict, List, Any
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-import logging
+from pathlib import Path
+from typing import Any, Dict, List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

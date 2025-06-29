@@ -28,10 +28,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from bandit.core import config as bandit_config
-
 # MCP imports
 # Security analysis
+from bandit.core import config as bandit_config
 from bandit.core import manager as bandit_manager
 
 # Code complexity analysis

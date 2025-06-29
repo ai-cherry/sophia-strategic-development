@@ -29,12 +29,7 @@ import aiohttp
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 from mcp.server.stdio import stdio_server
-from mcp.types import (
-    CallToolResult,
-    ListToolsResult,
-    TextContent,
-    Tool,
-)
+from mcp.types import CallToolResult, ListToolsResult, TextContent, Tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -61,3 +61,15 @@ def test_snowflake_connection() -> bool:
     except Exception as e:
         logger.error(f"Snowflake connection test failed: {e}")
         return False
+
+
+# Enhanced Snowflake connection optimization
+SNOWFLAKE_OPTIMIZATION_CONFIG = {
+    'connection_pool_size': 10,
+    'connection_timeout': 30,
+    'query_timeout': 300,
+    'retry_attempts': 3,
+    'auto_commit': True,
+    'warehouse_auto_suspend': 60,
+    'warehouse_auto_resume': True
+}

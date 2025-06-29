@@ -35,21 +35,22 @@ Author: Sophia AI Team
 Version: 2.0
 """
 
+import argparse
 import asyncio
 import json
 import logging
 import sys
-import argparse
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from enum import Enum
-import uuid
 import time
 import traceback
+import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 import snowflake.connector
+
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 

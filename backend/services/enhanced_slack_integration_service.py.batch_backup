@@ -5,15 +5,16 @@ CRITICAL: Migrates from deprecated RTM API to Events API/Socket Mode
 Addresses: Critical Priority Item - Prevent service disruption
 """
 
-import logging
 import asyncio
-from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime, timedelta
+import logging
 from dataclasses import dataclass
-from slack_sdk.web.async_client import AsyncWebClient
+from datetime import datetime, timedelta
+from typing import Any, Callable, Dict, List, Optional
+
 from slack_sdk.socket_mode.async_client import AsyncSocketModeClient
 from slack_sdk.socket_mode.request import SocketModeRequest
 from slack_sdk.socket_mode.response import SocketModeResponse
+from slack_sdk.web.async_client import AsyncWebClient
 
 logger = logging.getLogger(__name__)
 

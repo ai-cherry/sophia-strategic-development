@@ -41,8 +41,8 @@ jobs:
       - name: Install and Build
         working-directory: ./frontend
         run: |
-          npm ci
-          npm run build
+          npm ci:
+          npm run build:
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
         with:

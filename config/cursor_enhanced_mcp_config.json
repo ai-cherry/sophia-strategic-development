@@ -2,12 +2,13 @@
   "version": "3.0",
   "name": "Sophia AI Enhanced Cursor IDE Integration",
   "description": "Advanced MCP configuration with 11-provider Portkey orchestration for Cursor IDE",
-  
   "mcpServers": {
     "sophia_ai_orchestrator": {
-      "command": "python",
+      "command": "uv",
       "args": [
-        "-m", 
+        "run",
+        "python",
+        "-m",
         "backend.mcp_servers.sophia_ai_orchestrator_mcp"
       ],
       "env": {
@@ -19,21 +20,30 @@
       },
       "capabilities": [
         "intelligent_provider_routing",
-        "real_time_cost_optimization", 
+        "real_time_cost_optimization",
         "code_generation_optimization",
         "context_aware_completions",
         "performance_monitoring"
       ],
       "auto_triggers": {
-        "on_file_save": ["analyze_code", "suggest_optimizations"],
-        "on_selection": ["provide_context_completion"],
-        "on_error": ["suggest_fixes", "route_to_best_model"]
+        "on_file_save": [
+          "analyze_code",
+          "suggest_optimizations"
+        ],
+        "on_selection": [
+          "provide_context_completion"
+        ],
+        "on_error": [
+          "suggest_fixes",
+          "route_to_best_model"
+        ]
       }
     },
-    
     "enhanced_ai_memory": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.ai_memory.enhanced_ai_memory_mcp_server"
       ],
@@ -47,20 +57,27 @@
       "capabilities": [
         "code_pattern_learning",
         "architecture_decision_storage",
-        "bug_solution_recall", 
+        "bug_solution_recall",
         "context_aware_suggestions",
         "development_workflow_optimization"
       ],
       "auto_triggers": {
-        "on_code_completion": ["recall_similar_patterns"],
-        "on_error_fix": ["store_solution_pattern"],
-        "on_architecture_discussion": ["store_decision_context"]
+        "on_code_completion": [
+          "recall_similar_patterns"
+        ],
+        "on_error_fix": [
+          "store_solution_pattern"
+        ],
+        "on_architecture_discussion": [
+          "store_decision_context"
+        ]
       }
     },
-    
     "portkey_gateway": {
-      "command": "python",
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.portkey_gateway_mcp"
       ],
@@ -79,15 +96,25 @@
         "fallback_management"
       ],
       "auto_triggers": {
-        "on_provider_failure": ["switch_provider", "log_failure"],
-        "on_cost_threshold": ["optimize_routing", "alert_user"],
-        "on_performance_degradation": ["auto_scale", "route_to_faster_provider"]
+        "on_provider_failure": [
+          "switch_provider",
+          "log_failure"
+        ],
+        "on_cost_threshold": [
+          "optimize_routing",
+          "alert_user"
+        ],
+        "on_performance_degradation": [
+          "auto_scale",
+          "route_to_faster_provider"
+        ]
       }
     },
-    
     "code_intelligence": {
-      "command": "python", 
+      "command": "uv",
       "args": [
+        "run",
+        "python",
         "-m",
         "backend.mcp_servers.code_intelligence_mcp"
       ],
@@ -107,16 +134,26 @@
         "documentation_automation"
       ],
       "auto_triggers": {
-        "on_code_change": ["analyze_complexity", "suggest_improvements"],
-        "on_function_creation": ["generate_tests", "add_documentation"],
-        "on_security_pattern": ["scan_vulnerabilities", "suggest_fixes"]
+        "on_code_change": [
+          "analyze_complexity",
+          "suggest_improvements"
+        ],
+        "on_function_creation": [
+          "generate_tests",
+          "add_documentation"
+        ],
+        "on_security_pattern": [
+          "scan_vulnerabilities",
+          "suggest_fixes"
+        ]
       }
     },
-    
     "business_intelligence": {
-      "command": "python",
+      "command": "uv",
       "args": [
-        "-m", 
+        "run",
+        "python",
+        "-m",
         "backend.mcp_servers.business_intelligence_mcp"
       ],
       "env": {
@@ -130,70 +167,94 @@
       "capabilities": [
         "strategic_analysis",
         "market_research",
-        "competitive_intelligence", 
+        "competitive_intelligence",
         "financial_modeling",
         "executive_reporting",
         "decision_support"
       ],
       "auto_triggers": {
-        "on_business_query": ["route_to_premium_model", "provide_strategic_context"],
-        "on_data_analysis": ["integrate_business_context", "generate_insights"]
+        "on_business_query": [
+          "route_to_premium_model",
+          "provide_strategic_context"
+        ],
+        "on_data_analysis": [
+          "integrate_business_context",
+          "generate_insights"
+        ]
       }
     },
-    
     "ai_memory": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/ai_memory/ai_memory_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/ai_memory/ai_memory_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       }
     },
-    
     "ag_ui": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/ag_ui/ag_ui_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/ag_ui/ag_ui_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       }
     },
-    
     "bright_data": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/bright_data/bright_data_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/bright_data/bright_data_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       }
     },
-    
     "codacy": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/codacy/codacy_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/codacy/codacy_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       }
     },
-    
     "asana": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/asana/asana_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/asana/asana_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
       }
     },
-    
     "notion": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/notion/notion_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/notion/notion_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
@@ -201,7 +262,6 @@
       }
     }
   },
-  
   "cursor_ide_integration": {
     "enhanced_completions": {
       "enabled": true,
@@ -210,7 +270,6 @@
       "cost_optimization": true,
       "performance_monitoring": true
     },
-    
     "natural_language_commands": {
       "enabled": true,
       "commands": {
@@ -222,7 +281,7 @@
         },
         "analyze_performance": {
           "trigger": "@analyze",
-          "route_to": "code_intelligence", 
+          "route_to": "code_intelligence",
           "default_complexity": "moderate",
           "cost_preference": "cost_optimized"
         },
@@ -245,7 +304,6 @@
         }
       }
     },
-    
     "intelligent_routing": {
       "enabled": true,
       "routing_strategy": "task_complexity_based",
@@ -253,14 +311,29 @@
       "performance_priority": "balanced",
       "fallback_enabled": true,
       "provider_selection_criteria": {
-        "code_tasks": ["deepseek", "qwen", "mistral"],
-        "business_tasks": ["anthropic", "openai"],
-        "research_tasks": ["perplexity", "grok"],
-        "fast_tasks": ["groq", "together"],
-        "creative_tasks": ["anthropic", "openai"]
+        "code_tasks": [
+          "deepseek",
+          "qwen",
+          "mistral"
+        ],
+        "business_tasks": [
+          "anthropic",
+          "openai"
+        ],
+        "research_tasks": [
+          "perplexity",
+          "grok"
+        ],
+        "fast_tasks": [
+          "groq",
+          "together"
+        ],
+        "creative_tasks": [
+          "anthropic",
+          "openai"
+        ]
       }
     },
-    
     "real_time_features": {
       "live_cost_tracking": true,
       "provider_health_monitoring": true,
@@ -269,25 +342,29 @@
       "usage_analytics": true
     }
   },
-  
   "workflow_automation": {
     "development_workflows": {
       "code_review": {
-        "triggers": ["file_save", "git_commit"],
+        "triggers": [
+          "file_save",
+          "git_commit"
+        ],
         "actions": [
           {
             "server": "code_intelligence",
             "action": "analyze_code_quality"
           },
           {
-            "server": "enhanced_ai_memory", 
+            "server": "enhanced_ai_memory",
             "action": "store_review_context"
           }
         ]
       },
-      
       "bug_fixing": {
-        "triggers": ["error_detection", "test_failure"],
+        "triggers": [
+          "error_detection",
+          "test_failure"
+        ],
         "actions": [
           {
             "server": "enhanced_ai_memory",
@@ -303,9 +380,11 @@
           }
         ]
       },
-      
       "architecture_decisions": {
-        "triggers": ["architecture_discussion", "design_pattern_usage"],
+        "triggers": [
+          "architecture_discussion",
+          "design_pattern_usage"
+        ],
         "actions": [
           {
             "server": "enhanced_ai_memory",
@@ -317,9 +396,11 @@
           }
         ]
       },
-      
       "frontend_development": {
-        "triggers": ["file_save", "component_creation"],
+        "triggers": [
+          "file_save",
+          "component_creation"
+        ],
         "sequence": [
           {
             "server": "ag_ui",
@@ -333,9 +414,11 @@
           }
         ]
       },
-      
       "competitive_intelligence": {
-        "triggers": ["market_research_request", "competitor_analysis"],
+        "triggers": [
+          "market_research_request",
+          "competitor_analysis"
+        ],
         "sequence": [
           {
             "server": "bright_data",
@@ -357,9 +440,11 @@
           }
         ]
       },
-      
       "executive_insights": {
-        "triggers": ["business_analysis", "strategic_planning"],
+        "triggers": [
+          "business_analysis",
+          "strategic_planning"
+        ],
         "sequence": [
           {
             "server": "ai_memory",
@@ -378,12 +463,11 @@
       }
     }
   },
-  
   "cost_management": {
     "budget_controls": {
       "daily_limit": 25.0,
       "hourly_limit": 5.0,
-      "per_request_limit": 0.50
+      "per_request_limit": 0.5
     },
     "optimization_strategies": {
       "cache_responses": true,
@@ -397,7 +481,6 @@
       "provider_cost_comparison": true
     }
   },
-  
   "performance_monitoring": {
     "metrics": {
       "response_time": true,
@@ -418,20 +501,17 @@
       "predictive_scaling": true
     }
   },
-  
   "advanced_capabilities": {
     "context_sharing": {
       "cross_server_context": true,
       "persistent_memory": true,
       "session_continuity": true
     },
-    
     "collaborative_features": {
       "team_memory_sharing": true,
       "shared_cost_tracking": true,
       "collaborative_optimization": true
     },
-    
     "ai_artifacts_integration": {
       "code_generation": true,
       "documentation_creation": true,
@@ -439,27 +519,23 @@
       "ui_mockups": false
     }
   },
-  
   "security_configuration": {
     "credential_management": {
       "use_environment_variables": true,
       "secure_credential_storage": true,
       "automatic_rotation_support": true
     },
-    
     "data_protection": {
       "pii_detection": true,
       "sensitive_data_masking": true,
       "audit_logging": true
     },
-    
     "access_control": {
       "role_based_access": true,
       "feature_gating": true,
       "usage_monitoring": true
     }
   },
-  
   "deployment_configuration": {
     "environment": "prod",
     "health_check_interval": 60,
@@ -467,7 +543,6 @@
     "log_level": "INFO",
     "metrics_collection": true
   },
-  
   "auto_triggers": {
     "on_file_save": [
       {
@@ -502,7 +577,6 @@
       }
     ]
   },
-  
   "enhanced_features": {
     "ag_ui_integration": {
       "enabled": true,
@@ -535,7 +609,6 @@
       "knowledge_graph_insights": true
     }
   },
-  
   "natural_language_commands": {
     "frontend_commands": [
       "Update dashboard with latest KPIs",
@@ -556,7 +629,6 @@
       "Analyze entity relationships and impact"
     ]
   },
-  
   "performance_optimization": {
     "concurrent_operations": true,
     "intelligent_caching": true,
@@ -564,4 +636,4 @@
     "relationship_indexing": true,
     "real_time_sync": true
   }
-} 
+}

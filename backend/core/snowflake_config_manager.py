@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 Snowflake Configuration Manager for Sophia AI
 

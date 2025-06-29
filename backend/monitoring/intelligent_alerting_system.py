@@ -182,7 +182,6 @@ class IntelligentAlertingSystem:
                 minutes_since_created >= escalate_after
                 and alert.escalation_count < max_escalations
             ):
-
                 await self._escalate_alert(alert)
 
     async def _escalate_alert(self, alert: Alert):

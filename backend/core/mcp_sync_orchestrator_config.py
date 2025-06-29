@@ -14,9 +14,7 @@ from backend.core.cross_platform_sync_orchestrator import (
     SyncConfiguration,
     SyncPriority,
 )
-from backend.mcp_servers.base.standardized_mcp_server import (
-    MCPServerConfig,
-)
+from backend.mcp_servers.base.standardized_mcp_server import MCPServerConfig
 from backend.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )

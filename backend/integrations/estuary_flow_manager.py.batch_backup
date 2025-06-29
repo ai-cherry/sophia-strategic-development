@@ -4,16 +4,17 @@ Estuary Flow Manager for Sophia AI Platform
 Comprehensive integration replacing Estuary with Estuary Flow
 """
 
-import subprocess
 import json
 import logging
-import yaml
 import os
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from pathlib import Path
+import subprocess
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import yaml
 
 # Configure logging
 logging.basicConfig(

@@ -54,7 +54,7 @@ name: Sophia AI Production Deployment
 'on':
   pull_request:
     branches:
-    - main
+    - main:
   push:
     branches:
     - main

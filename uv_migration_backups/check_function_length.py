@@ -213,7 +213,7 @@ class FunctionLengthChecker:
 4. **Team Training**: Share refactoring best practices
 
 ### Success Metrics
-- Target: <5% violation rate (currently {violation_count/self.total_functions*100:.1f}%)
+- Target: <5% violation rate (currently {violation_count / self.total_functions * 100:.1f}%)
 - Maximum function length: 75 lines
 - Average function length: <30 lines
 """

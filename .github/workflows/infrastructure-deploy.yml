@@ -11,7 +11,7 @@ on:
         default: 'production'
         type: choice
         options:
-          - production
+          - production:
           - development
 
 env:
@@ -54,7 +54,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync:
         working-directory: infrastructure
       
       - name: Preview changes
@@ -74,6 +74,6 @@ jobs:
       - name: Export outputs
         if: github.event_name != 'pull_request'
         run: |
-          pulumi stack output --json > outputs.json
-          echo "Infrastructure deployed successfully"
+          pulumi stack output --json > outputs.json:
+          echo "Infrastructure deployed successfully":
         working-directory: infrastructure

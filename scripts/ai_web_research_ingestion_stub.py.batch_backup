@@ -6,11 +6,12 @@ Placeholder for ingesting web research data into AI_WEB_RESEARCH schema
 
 import asyncio
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List
-from dataclasses import dataclass
-import pandas as pd
+
 import aiohttp
+import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService

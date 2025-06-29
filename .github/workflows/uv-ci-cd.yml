@@ -36,8 +36,8 @@ jobs:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            uv-${{ runner.os }}-${{ matrix.python-version }}-
-            uv-${{ runner.os }}-
+            uv-${{ runner.os }}-${{ matrix.python-version }}-:
+            uv-${{ runner.os }}-:
       
       - name: Install dependencies
         run: uv sync --group dev --group test
@@ -98,13 +98,13 @@ jobs:
       
       - name: Build Docker image with UV
         run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -f Dockerfile.uv \
+          docker buildx build \:
+            --platform linux/amd64,linux/arm64 \:
+            -f Dockerfile.uv \:
             -t sophia-ai:latest \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
-            .
+            .:
       
       - name: Install Pulumi dependencies
         run: uv sync --group prod-stack
@@ -116,7 +116,7 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          pulumi login
+          pulumi login:
       
       - name: Deploy infrastructure with Pulumi
         env:

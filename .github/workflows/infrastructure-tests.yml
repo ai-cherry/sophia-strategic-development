@@ -4,16 +4,16 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'infrastructure/**'
-      - 'tests/infrastructure/**'
-      - '.github/workflows/infrastructure-tests.yml'
+      - 'infrastructure/**':
+      - 'tests/infrastructure/**':
+      - '.github/workflows/infrastructure-tests.yml':
   pull_request:
     branches: [ main ]
     paths:
-      - 'infrastructure/**'
-      - 'tests/infrastructure/**'
+      - 'infrastructure/**':
+      - 'tests/infrastructure/**':
   schedule:
-    # Run tests daily at 2 AM UTC
+    # Run tests daily at 2 AM UTC:
     - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
@@ -23,11 +23,11 @@ on:
         default: 'all'
         type: choice
         options:
-          - all
-          - unit
-          - integration
-          - e2e
-          - performance
+          - all:
+          - unit:
+          - integration:
+          - e2e:
+          - performance:
           - security
 
 jobs:
@@ -55,9 +55,9 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        uv sync
-        uv sync --group dev
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        uv sync:
+        uv sync --group dev:
         uv sync --group test pytest-cov pytest-xdist pytest-asyncio
 
     - name: Run unit tests
@@ -87,16 +87,16 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        uv sync
-        uv sync --group dev
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        uv sync:
+        uv sync --group dev:
         uv sync --group test pytest-asyncio
 
     - name: Set up test environment
       run: |
-        # Create test configuration
-        echo "Creating test environment configuration..."
-        mkdir -p ~/.pulumi
+        # Create test configuration:
+        echo "Creating test environment configuration...":
+        mkdir -p ~/.pulumi:
         echo '{"environment": "test"}' > ~/.pulumi/test-config.json
 
     - name: Run integration tests
@@ -122,9 +122,9 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        uv sync
-        uv sync --group dev
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        uv sync:
+        uv sync --group dev:
         uv sync --group test pytest-asyncio
 
     - name: Set up Pulumi
@@ -167,9 +167,9 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        uv sync
-        uv sync --group dev
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        uv sync:
+        uv sync --group dev:
         uv sync --group test pytest-asyncio
 
     - name: Run performance tests
@@ -198,20 +198,20 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        uv sync
-        uv sync --group dev
+        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        uv sync:
+        uv sync --group dev:
         uv sync --group test bandit safety
 
     - name: Run security tests
       run: |
-        # Run pytest security tests
+        # Run pytest security tests:
         pytest tests/infrastructure/security/ -v --tb=short -m security || true
 
-        # Run bandit security scan
+        # Run bandit security scan:
         bandit -r infrastructure/ -f json -o bandit-report.json
 
-        # Check for known vulnerabilities
+        # Check for known vulnerabilities:
         safety check --json > safety-report.json || true
 
     - name: Upload security reports
@@ -219,7 +219,7 @@ jobs:
       with:
         name: security-reports
         path: |
-          bandit-report.json
+          bandit-report.json:
           safety-report.json
 
   test-summary:
@@ -240,24 +240,24 @@ jobs:
         REF_NAME: ${{ github.ref_name }}
         COMMIT_SHA: ${{ github.sha }}
       run: |
-        echo "## Infrastructure Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "## Infrastructure Test Summary" >> $GITHUB_STEP_SUMMARY:
         echo "" >> $GITHUB_STEP_SUMMARY
 
-        # Check job statuses
+        # Check job statuses:
         if [[ "${{ needs.unit-tests.result }}" == "success" ]]; then
           echo "✅ Unit Tests: Passed" >> $GITHUB_STEP_SUMMARY
-        else
+        else:
           echo "❌ Unit Tests: Failed" >> $GITHUB_STEP_SUMMARY
         fi
 
         if [[ "${{ needs.integration-tests.result }}" == "success" ]]; then
           echo "✅ Integration Tests: Passed" >> $GITHUB_STEP_SUMMARY
-        else
+        else:
           echo "❌ Integration Tests: Failed" >> $GITHUB_STEP_SUMMARY
         fi
 
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Test Execution Details" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY:
+        echo "### Test Execution Details" >> $GITHUB_STEP_SUMMARY:
         echo "- Triggered by: $EVENT_NAME" >> $GITHUB_STEP_SUMMARY
         echo "- Branch: $REF_NAME" >> $GITHUB_STEP_SUMMARY
         echo "- Commit: $COMMIT_SHA" >> $GITHUB_STEP_SUMMARY
@@ -274,7 +274,7 @@ jobs:
       with:
         status: ${{ job.status }}
         text: |
-          Infrastructure tests failed!
+          Infrastructure tests failed!:
           Repository: ${{ github.repository }}
           Branch: ${{ github.ref_name }}
           Commit: ${{ github.sha }}

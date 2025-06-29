@@ -24,10 +24,10 @@ EXPECTED RESULTS:
 import asyncio
 import json
 import logging
-import time
-from typing import Dict, Any, List
-from pathlib import Path
 import sys
+import time
+from pathlib import Path
+from typing import Any, Dict, List
 
 # Configure logging
 logging.basicConfig(
@@ -190,7 +190,8 @@ class SophiaAIPerformanceActivator:
         try:
             # Import and run Redis deployment
             sys.path.append(str(self.base_path))
-            from scripts.deploy_redis_infrastructure import deploy_redis_for_sophia_ai
+            from scripts.deploy_redis_infrastructure import \
+                deploy_redis_for_sophia_ai
 
             deployment_result = await deploy_redis_for_sophia_ai()
 
@@ -214,7 +215,8 @@ class SophiaAIPerformanceActivator:
         """Activate connection optimization"""
         try:
             # Test connection manager
-            from backend.core.optimized_connection_manager import connection_manager
+            from backend.core.optimized_connection_manager import \
+                connection_manager
 
             # Initialize connection manager
             await connection_manager.initialize()
@@ -279,9 +281,8 @@ class SophiaAIPerformanceActivator:
         """Activate performance monitoring"""
         try:
             # Initialize performance monitoring
-            from backend.core.integrated_performance_monitoring import (
-                initialize_performance_monitoring,
-            )
+            from backend.core.integrated_performance_monitoring import \
+                initialize_performance_monitoring
 
             monitoring_success = await initialize_performance_monitoring()
 
@@ -362,7 +363,8 @@ class SophiaAIPerformanceActivator:
 
             # Test 2: Performance Metrics Collection
             try:
-                from backend.core.integrated_performance_monitoring import track_metric
+                from backend.core.integrated_performance_monitoring import \
+                    track_metric
 
                 await track_metric("validation_test", "test_metric", 1.0)
                 validation_results["performance_metrics"] = True
@@ -424,9 +426,8 @@ class SophiaAIPerformanceActivator:
 
             # Test 5: Monitoring System Active
             try:
-                from backend.core.integrated_performance_monitoring import (
-                    get_performance_dashboard,
-                )
+                from backend.core.integrated_performance_monitoring import \
+                    get_performance_dashboard
 
                 dashboard_data = await get_performance_dashboard()
                 validation_results["monitoring_active"] = "timestamp" in dashboard_data
@@ -452,7 +453,8 @@ class SophiaAIPerformanceActivator:
     async def _test_connection(self):
         """Test individual connection performance"""
         try:
-            from backend.core.optimized_connection_manager import connection_manager
+            from backend.core.optimized_connection_manager import \
+                connection_manager
 
             async with connection_manager.get_connection():
                 # Simulate connection usage
@@ -474,9 +476,8 @@ class SophiaAIPerformanceActivator:
 
             # Add actual measured improvements if available
             try:
-                from backend.core.integrated_performance_monitoring import (
-                    get_performance_dashboard,
-                )
+                from backend.core.integrated_performance_monitoring import \
+                    get_performance_dashboard
 
                 dashboard_data = await get_performance_dashboard()
 

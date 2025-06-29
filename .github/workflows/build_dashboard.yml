@@ -4,7 +4,7 @@ name: Build Sophia Dashboard Frontend
 on:
   push:
     branches:
-      - main
+      - main:
     paths:
       - 'sophia-dashboard/**'
 

@@ -16,9 +16,7 @@ from typing import Any
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from backend.agents.specialized.snowflake_admin_agent import (
-    SnowflakeAdminAgent,
-)
+from backend.agents.specialized.snowflake_admin_agent import SnowflakeAdminAgent
 from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
@@ -102,3 +100,21 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("Snowflake Admin MCP Server stopped by user.")
+
+
+# Enhanced error handling for production stability
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
+
+def safe_execute(func):
+    """Decorator for safe function execution with error handling."""
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error in {func.__name__}: {e}")
+            logger.error(traceback.format_exc())
+            return {"error": str(e), "function": func.__name__}
+    return wrapper

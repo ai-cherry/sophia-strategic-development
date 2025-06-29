@@ -7,12 +7,12 @@ Enhanced Chat Context Service for Sophia AI
 Provides large contextual windows and intelligent context management
 """
 
-import logging
 import json
+import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any
 from uuid import uuid4
-import snowflake.connector
+
 from snowflake.connector import DictCursor
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,8 @@ class ContextWindow:
         return len(text) // 4
 
     def truncate_context(
-        self, context_items: List[Dict], max_tokens: int
-    ) -> List[Dict]:
+        self, context_items: list[dict], max_tokens: int
+    ) -> list[dict]:
         """Intelligently truncate context to fit within token limits"""
         if not context_items:
             return []
@@ -74,7 +74,7 @@ class ContextWindow:
 class EnhancedChatContextService:
     """Enhanced chat service with large contextual windows and intelligent context management"""
 
-    def __init__(self, snowflake_config: Dict[str, str]):
+    def __init__(self, snowflake_config: dict[str, str]):
         self.snowflake_config = snowflake_config
         self.connection = None
         self.context_window = ContextWindow()
@@ -91,7 +91,7 @@ class EnhancedChatContextService:
 
     async def get_enhanced_context(
         self, query: str, session_id: str, user_id: str, max_context_tokens: int = 16000
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get enhanced context for query with large contextual windows"""
 
         # Get conversation history
@@ -170,7 +170,7 @@ class EnhancedChatContextService:
 
     async def _get_conversation_context(
         self, session_id: str, user_id: str
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Get recent conversation history"""
         cursor = self.connection.cursor(DictCursor)
 
@@ -195,7 +195,7 @@ class EnhancedChatContextService:
     @performance_monitor.track_performance
     async def _get_knowledge_context(
         self, query: str, user_id: str, limit: int = 10
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Get relevant knowledge base entries with enhanced search"""
         cursor = self.connection.cursor(DictCursor)
 
@@ -269,7 +269,7 @@ class EnhancedChatContextService:
     @performance_monitor.track_performance
     async def _get_cross_document_context(
         self, query: str, user_id: str, limit: int = 5
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Get cross-document context by finding related entries across different documents"""
         cursor = self.connection.cursor(DictCursor)
 
@@ -291,7 +291,7 @@ class EnhancedChatContextService:
             JOIN KNOWLEDGE_CATEGORIES c ON k.CATEGORY_ID = c.CATEGORY_ID
             WHERE k.STATUS = 'published'
             AND (
-                {' OR '.join([f"UPPER(k.CONTENT) LIKE UPPER('%{word}%')" for word in query_words[:5]])}
+                {" OR ".join([f"UPPER(k.CONTENT) LIKE UPPER('%{word}%')" for word in query_words[:5]])}
             )
         )
         SELECT 
@@ -314,7 +314,7 @@ class EnhancedChatContextService:
             cursor.close()
             return []
 
-    def _calculate_context_stats(self, context_items: List[Dict]) -> Dict[str, Any]:
+    def _calculate_context_stats(self, context_items: list[dict]) -> dict[str, Any]:
         """Calculate statistics about the context"""
         if not context_items:
             return {}
@@ -361,7 +361,7 @@ class EnhancedChatContextService:
 
         return stats
 
-    def _generate_context_summary(self, context_items: List[Dict]) -> str:
+    def _generate_context_summary(self, context_items: list[dict]) -> str:
         """Generate a summary of the context"""
         if not context_items:
             return "No relevant context found."
@@ -393,7 +393,7 @@ class EnhancedChatContextService:
 
     @performance_monitor.track_performance
     async def generate_enhanced_response(
-        self, query: str, context: Dict[str, Any], session_id: str, user_id: str
+        self, query: str, context: dict[str, Any], session_id: str, user_id: str
     ) -> str:
         """Generate enhanced AI response using large contextual windows"""
 
@@ -500,7 +500,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
         user_id: str,
         content: str,
         message_type: str,
-        context_metadata: Optional[Dict] = None,
+        context_metadata: dict | None = None,
     ) -> str:
         """Save message with enhanced context metadata"""
         message_id = str(uuid4())
@@ -546,7 +546,7 @@ Once you upload these documents, I'll be able to provide detailed, contextualize
     @performance_monitor.track_performance
     async def get_session_analytics(
         self, session_id: str, user_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get analytics for a chat session"""
         cursor = self.connection.cursor(DictCursor)
 
