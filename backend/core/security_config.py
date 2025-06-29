@@ -180,12 +180,12 @@ class SecurityConfig:
 
     # Non-secret configuration values
     NON_SECRET_CONFIG: dict[str, str] = {
-        # Snowflake Connection Details
-        "snowflake_account": "scoobyjava-vw02766",
-        "snowflake_user": "PAYREADY",
-        "snowflake_role": "SYSADMIN",
-        "snowflake_warehouse": "COMPUTE_WH",
-        "snowflake_database": "SOPHIA_AI",
+        # Snowflake Connection Details - CORRECTED
+        "snowflake_account": "ZNB04675",
+        "snowflake_user": "SCOOBYJAVA15",
+        "snowflake_role": "ACCOUNTADMIN",
+        "snowflake_warehouse": "SOPHIA_AI_PROD_WH",
+        "snowflake_database": "SOPHIA_AI_PROD_PROD",
         "snowflake_schema": "PROCESSED_AI",
         # Redis Configuration
         "redis_host": "localhost",
