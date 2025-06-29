@@ -5,7 +5,12 @@ This module consolidates all API routes into a single router that can be
 included in the main FastAPI application.
 """
 
+import logging
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter
+
+logger = logging.getLogger(__name__)
 
 from backend.api import (
     asana_integration_routes,
