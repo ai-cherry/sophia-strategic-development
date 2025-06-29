@@ -90,6 +90,7 @@ dependencies = [
     "jsonschema>=4.24.0",
     "marshmallow>=3.26.1",
     "asyncpg>=0.30.0",
+    "psutil>=7.0.0",
 ]
 
 [dependency-groups]
