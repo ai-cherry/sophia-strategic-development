@@ -3,18 +3,18 @@ Unified Chat API Routes - Phase 2A Implementation
 Consolidates sophia_universal_chat_routes.py, universal_chat_routes.py, and enhanced_ceo_chat_routes.py
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, List, Any, Literal
 import logging
-import asyncio
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Any, Literal
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 
 # Import existing services for backward compatibility
 try:
-    from ..services.sophia_universal_chat_service import SophiaUniversalChatService
     from ..services.enhanced_unified_chat_service import EnhancedUnifiedChatService
+    from ..services.sophia_universal_chat_service import SophiaUniversalChatService
 except ImportError:
     # Fallback for development
     SophiaUniversalChatService = None
@@ -30,35 +30,35 @@ class ChatRequest(BaseModel):
     """Unified chat request model supporting all chat modes"""
     message: str = Field(..., description="User message content")
     mode: Literal["universal", "sophia", "executive"] = Field(
-        default="universal", 
+        default="universal",
         description="Chat mode: universal (basic), sophia (full AI), executive (CEO-focused)"
     )
-    session_id: Optional[str] = Field(
-        default=None, 
+    session_id: str | None = Field(
+        default=None,
         description="Session ID for conversation continuity"
     )
-    context: Optional[Dict[str, Any]] = Field(
-        default=None, 
+    context: dict[str, Any] | None = Field(
+        default=None,
         description="Additional context for the conversation"
     )
-    user_role: Optional[str] = Field(
-        default=None, 
+    user_role: str | None = Field(
+        default=None,
         description="User role for role-based responses"
     )
-    provider: Optional[str] = Field(
-        default="openai", 
+    provider: str | None = Field(
+        default="openai",
         description="AI provider: openai, portkey, anthropic"
     )
-    temperature: Optional[float] = Field(
-        default=0.7, 
-        ge=0.0, 
-        le=2.0, 
+    temperature: float | None = Field(
+        default=0.7,
+        ge=0.0,
+        le=2.0,
         description="Response creativity (0.0-2.0)"
     )
-    max_tokens: Optional[int] = Field(
-        default=1000, 
-        ge=1, 
-        le=4000, 
+    max_tokens: int | None = Field(
+        default=1000,
+        ge=1,
+        le=4000,
         description="Maximum response length"
     )
 
@@ -68,24 +68,24 @@ class ChatResponse(BaseModel):
     session_id: str = Field(..., description="Session ID for this conversation")
     mode: str = Field(..., description="Chat mode used")
     provider: str = Field(..., description="AI provider used")
-    metadata: Optional[Dict[str, Any]] = Field(
-        default=None, 
+    metadata: dict[str, Any] | None = Field(
+        default=None,
         description="Additional response metadata"
     )
-    suggestions: Optional[List[str]] = Field(
-        default=None, 
+    suggestions: list[str] | None = Field(
+        default=None,
         description="Suggested follow-up questions"
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, 
+        default_factory=datetime.utcnow,
         description="Response timestamp"
     )
-    tokens_used: Optional[int] = Field(
-        default=None, 
+    tokens_used: int | None = Field(
+        default=None,
         description="Tokens consumed for this request"
     )
-    cost: Optional[float] = Field(
-        default=None, 
+    cost: float | None = Field(
+        default=None,
         description="Estimated cost for this request"
     )
 
@@ -102,7 +102,7 @@ class ChatSession(BaseModel):
 # Mock services for development (replace with actual implementations)
 class MockChatService:
     """Mock chat service for development and testing"""
-    
+
     async def process_universal_chat(self, request: ChatRequest) -> ChatResponse:
         """Process universal chat request"""
         return ChatResponse(
@@ -115,7 +115,7 @@ class MockChatService:
             tokens_used=50,
             cost=0.001
         )
-    
+
     async def process_sophia_chat(self, request: ChatRequest) -> ChatResponse:
         """Process Sophia AI chat request"""
         return ChatResponse(
@@ -124,7 +124,7 @@ class MockChatService:
             mode="sophia",
             provider=request.provider,
             metadata={
-                "response_type": "sophia", 
+                "response_type": "sophia",
                 "features": ["business_intelligence", "data_analysis", "strategic_insights"],
                 "sophia_version": "2.1.0"
             },
@@ -136,7 +136,7 @@ class MockChatService:
             tokens_used=120,
             cost=0.003
         )
-    
+
     async def process_executive_chat(self, request: ChatRequest) -> ChatResponse:
         """Process executive/CEO chat request"""
         return ChatResponse(
@@ -145,7 +145,7 @@ class MockChatService:
             mode="executive",
             provider=request.provider or "portkey",  # Default to Portkey for executive mode
             metadata={
-                "response_type": "executive", 
+                "response_type": "executive",
                 "features": ["executive_insights", "strategic_analysis", "board_summaries"],
                 "executive_level": "c_suite",
                 "portkey_integration": True
@@ -167,36 +167,36 @@ mock_service = MockChatService()
 async def handle_universal_chat(request: ChatRequest) -> ChatResponse:
     """Handle universal chat mode"""
     logger.info(f"Processing universal chat: {request.message[:50]}...")
-    
+
     # Use existing universal chat service if available
     if SophiaUniversalChatService:
         # TODO: Integrate with existing service
         pass
-    
+
     # For now, use mock service
     return await mock_service.process_universal_chat(request)
 
 async def handle_sophia_chat(request: ChatRequest) -> ChatResponse:
     """Handle Sophia AI chat mode"""
     logger.info(f"Processing Sophia chat: {request.message[:50]}...")
-    
+
     # Use existing Sophia chat service if available
     if SophiaUniversalChatService:
         # TODO: Integrate with existing service
         pass
-    
+
     # For now, use mock service
     return await mock_service.process_sophia_chat(request)
 
 async def handle_executive_chat(request: ChatRequest) -> ChatResponse:
     """Handle executive/CEO chat mode"""
     logger.info(f"Processing executive chat: {request.message[:50]}...")
-    
+
     # Use existing enhanced CEO chat service if available
     if EnhancedUnifiedChatService:
         # TODO: Integrate with existing service
         pass
-    
+
     # For now, use mock service
     return await mock_service.process_executive_chat(request)
 
@@ -220,11 +220,11 @@ async def unified_chat(request: ChatRequest) -> ChatResponse:
         # Validate request
         if not request.message.strip():
             raise HTTPException(status_code=400, detail="Message cannot be empty")
-        
+
         # Generate session ID if not provided
         if not request.session_id:
             request.session_id = str(uuid.uuid4())
-        
+
         # Route to appropriate handler based on mode
         if request.mode == "executive":
             response = await handle_executive_chat(request)
@@ -232,10 +232,10 @@ async def unified_chat(request: ChatRequest) -> ChatResponse:
             response = await handle_sophia_chat(request)
         else:  # universal
             response = await handle_universal_chat(request)
-        
+
         logger.info(f"Chat processed successfully: mode={request.mode}, session={request.session_id}")
         return response
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -258,14 +258,14 @@ async def get_chat_session(session_id: str) -> ChatSession:
     )
 
 @router.delete("/chat/sessions/{session_id}")
-async def delete_chat_session(session_id: str) -> Dict[str, str]:
+async def delete_chat_session(session_id: str) -> dict[str, str]:
     """Delete chat session"""
     # Mock implementation - replace with actual session storage
     logger.info(f"Deleting chat session: {session_id}")
     return {"message": f"Session {session_id} deleted successfully"}
 
-@router.get("/chat/sessions", response_model=List[ChatSession])
-async def list_chat_sessions(limit: int = 10, offset: int = 0) -> List[ChatSession]:
+@router.get("/chat/sessions", response_model=list[ChatSession])
+async def list_chat_sessions(limit: int = 10, offset: int = 0) -> list[ChatSession]:
     """List chat sessions"""
     # Mock implementation - replace with actual session storage
     return [
@@ -283,7 +283,7 @@ async def list_chat_sessions(limit: int = 10, offset: int = 0) -> List[ChatSessi
 
 # Health check endpoint
 @router.get("/chat/health")
-async def chat_health_check() -> Dict[str, Any]:
+async def chat_health_check() -> dict[str, Any]:
     """Health check for chat services"""
     return {
         "status": "healthy",
@@ -295,10 +295,10 @@ async def chat_health_check() -> Dict[str, Any]:
 
 # Backward compatibility endpoints (deprecated)
 @router.post("/sophia-universal-chat", deprecated=True)
-async def sophia_universal_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any]:
+async def sophia_universal_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
     """Legacy Sophia universal chat endpoint (deprecated)"""
     logger.warning("Using deprecated sophia-universal-chat endpoint")
-    
+
     # Convert legacy request to unified format
     unified_request = ChatRequest(
         message=request.get("message", ""),
@@ -306,9 +306,9 @@ async def sophia_universal_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any
         session_id=request.get("session_id"),
         context=request.get("context")
     )
-    
+
     response = await unified_chat(unified_request)
-    
+
     # Convert to legacy response format
     return {
         "response": response.response,
@@ -317,19 +317,19 @@ async def sophia_universal_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any
     }
 
 @router.post("/universal-chat", deprecated=True)
-async def universal_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any]:
+async def universal_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
     """Legacy universal chat endpoint (deprecated)"""
     logger.warning("Using deprecated universal-chat endpoint")
-    
+
     # Convert legacy request to unified format
     unified_request = ChatRequest(
         message=request.get("message", ""),
         mode="universal",
         session_id=request.get("session_id")
     )
-    
+
     response = await unified_chat(unified_request)
-    
+
     # Convert to legacy response format
     return {
         "response": response.response,
@@ -337,10 +337,10 @@ async def universal_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 @router.post("/enhanced-ceo-chat", deprecated=True)
-async def enhanced_ceo_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any]:
+async def enhanced_ceo_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
     """Legacy enhanced CEO chat endpoint (deprecated)"""
     logger.warning("Using deprecated enhanced-ceo-chat endpoint")
-    
+
     # Convert legacy request to unified format
     unified_request = ChatRequest(
         message=request.get("message", ""),
@@ -349,9 +349,9 @@ async def enhanced_ceo_chat_legacy(request: Dict[str, Any]) -> Dict[str, Any]:
         provider="portkey",  # CEO chat uses Portkey
         user_role="ceo"
     )
-    
+
     response = await unified_chat(unified_request)
-    
+
     # Convert to legacy response format
     return {
         "response": response.response,

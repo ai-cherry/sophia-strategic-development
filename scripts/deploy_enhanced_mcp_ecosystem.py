@@ -6,14 +6,11 @@ Deploys upgraded MCP servers based on the enhancement plan
 
 import asyncio
 import json
-import os
+import logging
 import subprocess
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional
-import logging
-import aiohttp
 import time
+from pathlib import Path
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,20 +18,20 @@ logger = logging.getLogger(__name__)
 
 class MCPEcosystemDeployer:
     """Enhanced MCP ecosystem deployment orchestrator"""
-    
+
     def __init__(self):
         self.workspace_root = Path(__file__).parent.parent
         self.external_dir = self.workspace_root / "external"
         self.mcp_servers_dir = self.workspace_root / "mcp-servers"
         self.config_dir = self.workspace_root / "config"
-        
+
         # Deployment phases
         self.phases = {
             1: "High-Impact Server Upgrades",
-            2: "Strategic Platform Extensions", 
+            2: "Strategic Platform Extensions",
             3: "Advanced Capabilities"
         }
-        
+
         # Server configurations
         self.official_repos = {
             "microsoft_playwright": "https://github.com/microsoft/playwright-mcp.git",
@@ -46,15 +43,15 @@ class MCPEcosystemDeployer:
             "davidamom_snowflake": "https://github.com/davidamom/snowflake-mcp.git",
             "dynamike_snowflake": "https://github.com/dynamike/snowflake-mcp-server.git"
         }
-        
+
         self.npm_packages = [
             "@modelcontextprotocol/server-github",
-            "@modelcontextprotocol/server-filesystem", 
+            "@modelcontextprotocol/server-filesystem",
             "@modelcontextprotocol/server-postgres",
             "@vercel/sdk",
             "@modelcontextprotocol/inspector"
         ]
-        
+
         # Port assignments
         self.port_assignments = {
             # Core services (existing)
@@ -63,20 +60,20 @@ class MCPEcosystemDeployer:
             "portkey_gateway": 9002,
             "code_intelligence": 9003,
             "business_intelligence": 9004,
-            
+
             # Official integrations (new)
             "microsoft_playwright": 9010,
             "glips_figma_context": 9011,
             "snowflake_cortex_official": 9012,
             "portkey_admin": 9013,
             "openrouter_search": 9014,
-            
+
             # npm services (new)
             "github_enhanced": 9020,
             "filesystem_secure": 9021,
             "postgres_advanced": 9022,
             "vercel_deploy": 9023,
-            
+
             # Additional Snowflake servers
             "isaacwasserman_snowflake": 9030,
             "davidamom_snowflake": 9031,
@@ -86,7 +83,7 @@ class MCPEcosystemDeployer:
     async def deploy_phase(self, phase: int) -> bool:
         """Deploy specific phase of the enhancement plan"""
         logger.info(f"🚀 Starting Phase {phase}: {self.phases[phase]}")
-        
+
         try:
             if phase == 1:
                 return await self._deploy_phase_1()
@@ -97,7 +94,7 @@ class MCPEcosystemDeployer:
             else:
                 logger.error(f"Invalid phase: {phase}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Phase {phase} deployment failed: {e}")
             return False
@@ -105,34 +102,34 @@ class MCPEcosystemDeployer:
     async def _deploy_phase_1(self) -> bool:
         """Phase 1: High-Impact Server Upgrades"""
         logger.info("Phase 1: Deploying high-impact server upgrades...")
-        
+
         tasks = [
             self._clone_official_repos([
                 "microsoft_playwright",
-                "glips_figma_context", 
+                "glips_figma_context",
                 "snowflake_cortex_official"
             ]),
             self._install_npm_packages(),
             self._backup_existing_config(),
             self._update_mcp_configuration(phase=1)
         ]
-        
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Check if all tasks succeeded
         success = all(not isinstance(result, Exception) and result for result in results)
-        
+
         if success:
             logger.info("✅ Phase 1 deployment completed successfully")
         else:
             logger.error("❌ Phase 1 deployment had failures")
-            
+
         return success
 
     async def _deploy_phase_2(self) -> bool:
         """Phase 2: Strategic Platform Extensions"""
         logger.info("Phase 2: Deploying strategic platform extensions...")
-        
+
         tasks = [
             self._clone_official_repos([
                 "portkey_admin",
@@ -143,86 +140,86 @@ class MCPEcosystemDeployer:
             self._setup_multi_snowflake_routing(),
             self._update_mcp_configuration(phase=2)
         ]
-        
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
         success = all(not isinstance(result, Exception) and result for result in results)
-        
+
         if success:
             logger.info("✅ Phase 2 deployment completed successfully")
         else:
             logger.error("❌ Phase 2 deployment had failures")
-            
+
         return success
 
     async def _deploy_phase_3(self) -> bool:
         """Phase 3: Advanced Capabilities"""
         logger.info("Phase 3: Deploying advanced capabilities...")
-        
+
         tasks = [
             self._clone_official_repos(["dynamike_snowflake"]),
             self._setup_intelligent_routing(),
             self._deploy_containerized_ecosystem(),
             self._update_mcp_configuration(phase=3)
         ]
-        
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
         success = all(not isinstance(result, Exception) and result for result in results)
-        
+
         if success:
             logger.info("✅ Phase 3 deployment completed successfully")
         else:
             logger.error("❌ Phase 3 deployment had failures")
-            
+
         return success
 
-    async def _clone_official_repos(self, repo_names: List[str]) -> bool:
+    async def _clone_official_repos(self, repo_names: list[str]) -> bool:
         """Clone official MCP repositories"""
         logger.info(f"Cloning official repositories: {repo_names}")
-        
+
         # Ensure external directory exists
         self.external_dir.mkdir(exist_ok=True)
-        
+
         for repo_name in repo_names:
             if repo_name not in self.official_repos:
                 logger.warning(f"Unknown repository: {repo_name}")
                 continue
-                
+
             repo_url = self.official_repos[repo_name]
             target_dir = self.external_dir / repo_name
-            
+
             try:
                 if target_dir.exists():
                     logger.info(f"Repository {repo_name} already exists, updating...")
                     subprocess.run(
-                        ["git", "pull"], 
-                        cwd=target_dir, 
-                        check=True, 
+                        ["git", "pull"],
+                        cwd=target_dir,
+                        check=True,
                         capture_output=True
                     )
                 else:
                     logger.info(f"Cloning {repo_name}...")
                     subprocess.run(
-                        ["git", "clone", repo_url, str(target_dir)], 
-                        check=True, 
+                        ["git", "clone", repo_url, str(target_dir)],
+                        check=True,
                         capture_output=True
                     )
-                    
+
                 logger.info(f"✅ {repo_name} ready")
-                
+
             except subprocess.CalledProcessError as e:
                 logger.error(f"❌ Failed to clone {repo_name}: {e}")
                 return False
-                
+
         return True
 
     async def _install_npm_packages(self) -> bool:
         """Install npm MCP server packages"""
         logger.info("Installing npm MCP server packages...")
-        
+
         # Create npm MCP directory
         npm_mcp_dir = self.workspace_root / "npm-mcp-servers"
         npm_mcp_dir.mkdir(exist_ok=True)
-        
+
         # Initialize package.json if it doesn't exist
         package_json = npm_mcp_dir / "package.json"
         if not package_json.exists():
@@ -233,10 +230,10 @@ class MCPEcosystemDeployer:
                 "private": True,
                 "dependencies": {}
             }
-            
+
             with open(package_json, 'w') as f:
                 json.dump(init_package, f, indent=2)
-        
+
         # Install packages
         try:
             for package in self.npm_packages:
@@ -247,10 +244,10 @@ class MCPEcosystemDeployer:
                     check=True,
                     capture_output=True
                 )
-            
+
             logger.info("✅ npm packages installed successfully")
             return True
-            
+
         except subprocess.CalledProcessError as e:
             logger.error(f"❌ Failed to install npm packages: {e}")
             return False
@@ -258,19 +255,19 @@ class MCPEcosystemDeployer:
     async def _backup_existing_config(self) -> bool:
         """Backup existing MCP configuration"""
         logger.info("Backing up existing configuration...")
-        
+
         try:
             config_file = self.config_dir / "cursor_enhanced_mcp_config.json"
             backup_file = self.config_dir / f"cursor_enhanced_mcp_config_backup_{int(time.time())}.json"
-            
+
             if config_file.exists():
                 subprocess.run(["cp", str(config_file), str(backup_file)], check=True)
                 logger.info(f"✅ Configuration backed up to {backup_file}")
             else:
                 logger.warning("No existing configuration found to backup")
-                
+
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to backup configuration: {e}")
             return False
@@ -278,18 +275,18 @@ class MCPEcosystemDeployer:
     async def _update_mcp_configuration(self, phase: int) -> bool:
         """Update MCP configuration for the specified phase"""
         logger.info(f"Updating MCP configuration for Phase {phase}...")
-        
+
         try:
             config_file = self.config_dir / "cursor_enhanced_mcp_config.json"
-            
+
             # Load existing configuration
             if config_file.exists():
-                with open(config_file, 'r') as f:
+                with open(config_file) as f:
                     config = json.load(f)
             else:
                 # Create base configuration
                 config = self._create_base_config()
-            
+
             # Update configuration based on phase
             if phase == 1:
                 config = self._add_phase_1_servers(config)
@@ -297,19 +294,19 @@ class MCPEcosystemDeployer:
                 config = self._add_phase_2_servers(config)
             elif phase == 3:
                 config = self._add_phase_3_servers(config)
-            
+
             # Write updated configuration
             with open(config_file, 'w') as f:
                 json.dump(config, f, indent=2)
-            
+
             logger.info("✅ MCP configuration updated successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to update MCP configuration: {e}")
             return False
 
-    def _create_base_config(self) -> Dict:
+    def _create_base_config(self) -> dict:
         """Create base MCP configuration"""
         return {
             "version": "3.1",
@@ -324,7 +321,7 @@ class MCPEcosystemDeployer:
             }
         }
 
-    def _add_phase_1_servers(self, config: Dict) -> Dict:
+    def _add_phase_1_servers(self, config: dict) -> dict:
         """Add Phase 1 servers to configuration"""
         phase_1_servers = {
             "microsoft_playwright_official": {
@@ -338,7 +335,7 @@ class MCPEcosystemDeployer:
                 },
                 "capabilities": [
                     "web_automation",
-                    "browser_testing", 
+                    "browser_testing",
                     "accessibility_snapshots",
                     "pdf_handling",
                     "javascript_execution"
@@ -379,11 +376,11 @@ class MCPEcosystemDeployer:
                 ]
             }
         }
-        
+
         config["mcpServers"].update(phase_1_servers)
         return config
 
-    def _add_phase_2_servers(self, config: Dict) -> Dict:
+    def _add_phase_2_servers(self, config: dict) -> dict:
         """Add Phase 2 servers to configuration"""
         phase_2_servers = {
             "portkey_admin_official": {
@@ -393,7 +390,7 @@ class MCPEcosystemDeployer:
                 ],
                 "env": {
                     "PORTKEY_API_KEY": "${PORTKEY_API_KEY}",
-                    "ENVIRONMENT": "prod", 
+                    "ENVIRONMENT": "prod",
                     "MCP_SERVER_PORT": str(self.port_assignments["portkey_admin"])
                 },
                 "capabilities": [
@@ -404,7 +401,7 @@ class MCPEcosystemDeployer:
                 ]
             },
             "openrouter_search_official": {
-                "command": "node", 
+                "command": "node",
                 "args": [
                     str(self.external_dir / "openrouter_search" / "dist" / "index.js")
                 ],
@@ -421,11 +418,11 @@ class MCPEcosystemDeployer:
                 ]
             }
         }
-        
+
         config["mcpServers"].update(phase_2_servers)
         return config
 
-    def _add_phase_3_servers(self, config: Dict) -> Dict:
+    def _add_phase_3_servers(self, config: dict) -> dict:
         """Add Phase 3 servers to configuration"""
         phase_3_servers = {
             "intelligent_router": {
@@ -449,14 +446,14 @@ class MCPEcosystemDeployer:
                 ]
             }
         }
-        
+
         config["mcpServers"].update(phase_3_servers)
         return config
 
     async def _setup_multi_snowflake_routing(self) -> bool:
         """Setup intelligent routing for multiple Snowflake servers"""
         logger.info("Setting up multi-Snowflake server routing...")
-        
+
         # This would implement intelligent routing logic
         # For now, just log the setup
         logger.info("✅ Multi-Snowflake routing configured")
@@ -465,7 +462,7 @@ class MCPEcosystemDeployer:
     async def _setup_intelligent_routing(self) -> bool:
         """Setup intelligent routing across all servers"""
         logger.info("Setting up intelligent MCP server routing...")
-        
+
         # This would create the intelligent router implementation
         # For now, just log the setup
         logger.info("✅ Intelligent routing configured")
@@ -474,7 +471,7 @@ class MCPEcosystemDeployer:
     async def _deploy_containerized_ecosystem(self) -> bool:
         """Deploy containerized MCP ecosystem"""
         logger.info("Deploying containerized MCP ecosystem...")
-        
+
         # This would build and deploy Docker containers
         # For now, just log the deployment
         logger.info("✅ Containerized ecosystem deployed")
@@ -483,7 +480,7 @@ class MCPEcosystemDeployer:
     async def health_check_all_servers(self) -> bool:
         """Health check all deployed MCP servers"""
         logger.info("Performing comprehensive health check...")
-        
+
         # This would check all server endpoints
         # For now, return True
         logger.info("✅ All servers healthy")
@@ -513,37 +510,37 @@ Configuration:
 Status: Deployment Successful ✅
 Next Steps: Run health checks and performance tests
         """
-        
+
         return report.strip()
 
 
 async def main():
     """Main deployment function"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Deploy Enhanced MCP Ecosystem")
-    parser.add_argument("--phase", type=int, choices=[1, 2, 3], 
+    parser.add_argument("--phase", type=int, choices=[1, 2, 3],
                        help="Deployment phase (1, 2, or 3)")
-    parser.add_argument("--all", action="store_true", 
+    parser.add_argument("--all", action="store_true",
                        help="Deploy all phases")
     parser.add_argument("--health-check", action="store_true",
                        help="Run health check only")
-    
+
     args = parser.parse_args()
-    
+
     deployer = MCPEcosystemDeployer()
-    
+
     if args.health_check:
         await deployer.health_check_all_servers()
         return
-    
+
     if args.all:
         logger.info("🚀 Starting full deployment (all phases)")
         success = True
         for phase in [1, 2, 3]:
             phase_success = await deployer.deploy_phase(phase)
             success = success and phase_success
-            
+
         if success:
             logger.info("🎉 Full deployment completed successfully!")
             report = await deployer.generate_deployment_report()
@@ -551,11 +548,11 @@ async def main():
         else:
             logger.error("❌ Deployment failed")
             sys.exit(1)
-            
+
     elif args.phase:
         logger.info(f"🚀 Starting Phase {args.phase} deployment")
         success = await deployer.deploy_phase(args.phase)
-        
+
         if success:
             logger.info(f"🎉 Phase {args.phase} deployment completed successfully!")
         else:
@@ -566,4 +563,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

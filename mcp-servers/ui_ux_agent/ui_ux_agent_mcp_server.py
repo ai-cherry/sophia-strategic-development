@@ -10,34 +10,33 @@ Business Value:
 - Accessibility compliance automation
 """
 
-import json
-import logging
 import asyncio
-from datetime import datetime, UTC
-from typing import Any, Dict, List, Optional, Union
-from pathlib import Path
-import sys
 import hashlib
+import logging
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 # Add the backend directory to Python path for imports
 backend_path = Path(__file__).parent.parent.parent / "backend"
 sys.path.append(str(backend_path))
 
 from backend.mcp_servers.base.standardized_mcp_server import (
-    StandardizedMCPServer,
-    MCPServerConfig,
-    SyncPriority,
     HealthCheckResult,
     HealthStatus,
+    MCPServerConfig,
+    ModelProvider,
     ServerCapability,
-    ModelProvider
+    StandardizedMCPServer,
+    SyncPriority,
 )
 
 logger = logging.getLogger(__name__)
 
 class UIComponent:
     """Represents a UI component with metadata and analysis"""
-    
+
     def __init__(self, name: str, component_type: str, framework: str):
         self.component_id = hashlib.md5(f"{name}_{component_type}".encode()).hexdigest()[:8]
         self.name = name
@@ -50,8 +49,8 @@ class UIComponent:
         self.last_updated = datetime.now(UTC)
         self.usage_count = 0
         self.feedback_score = 0.0
-        
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "component_id": self.component_id,
             "name": self.name,
@@ -69,16 +68,16 @@ class UIComponent:
 
 class DesignPattern:
     """Represents a design pattern with automation rules"""
-    
-    def __init__(self, pattern_name: str, category: str, automation_rules: List[str]):
+
+    def __init__(self, pattern_name: str, category: str, automation_rules: list[str]):
         self.pattern_name = pattern_name
         self.category = category
         self.automation_rules = automation_rules
         self.usage_frequency = 0
         self.success_rate = 0.0
         self.last_used = None
-        
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "pattern_name": self.pattern_name,
             "category": self.category,
@@ -90,18 +89,18 @@ class DesignPattern:
 
 class UIUXAgentMCPServer(StandardizedMCPServer):
     """MCP server for UI/UX design automation and optimization"""
-    
+
     def __init__(self, config: MCPServerConfig):
         super().__init__(config)
-        self.components: Dict[str, UIComponent] = {}
-        self.design_patterns: Dict[str, DesignPattern] = {}
-        self.automation_rules: List[Dict[str, Any]] = []
-        self.analytics: Dict[str, Any] = {}
-        
+        self.components: dict[str, UIComponent] = {}
+        self.design_patterns: dict[str, DesignPattern] = {}
+        self.automation_rules: list[dict[str, Any]] = []
+        self.analytics: dict[str, Any] = {}
+
     async def server_specific_init(self) -> None:
         """Initialize UI/UX Agent server"""
         logger.info("🚀 Initializing UI/UX Agent MCP Server...")
-        
+
         # Initialize design patterns with automation rules
         self.design_patterns = {
             "glassmorphism_card": DesignPattern(
@@ -156,7 +155,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 ]
             )
         }
-        
+
         # Initialize automation rules for development workflow
         self.automation_rules = [
             {
@@ -212,13 +211,13 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 "auto_execute": True
             }
         ]
-        
+
         logger.info("✅ UI/UX Agent MCP Server initialized")
-        
+
     async def server_specific_cleanup(self) -> None:
         """Cleanup UI/UX Agent server"""
         logger.info("🔄 Cleaning up UI/UX Agent MCP Server...")
-        
+
     async def server_specific_health_check(self) -> HealthCheckResult:
         """Perform UI/UX Agent specific health checks"""
         return HealthCheckResult(
@@ -233,12 +232,12 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 "average_component_quality": self._calculate_average_quality()
             }
         )
-    
+
     async def check_external_api(self) -> bool:
         """Check if Figma API is accessible"""
         return True  # Mock for demo - would check actual Figma API
-    
-    async def get_server_capabilities(self) -> List[ServerCapability]:
+
+    async def get_server_capabilities(self) -> list[ServerCapability]:
         """Get UI/UX Agent server capabilities"""
         return [
             ServerCapability(
@@ -286,14 +285,14 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 version="1.0.0"
             )
         ]
-    
-    async def sync_data(self) -> Dict[str, Any]:
+
+    async def sync_data(self) -> dict[str, Any]:
         """Sync UI/UX Agent data"""
         # Update analytics
         total_components = len(self.components)
         avg_quality = self._calculate_average_quality()
         pattern_usage = sum(pattern.usage_frequency for pattern in self.design_patterns.values())
-        
+
         self.analytics = {
             "total_components": total_components,
             "average_quality_score": avg_quality,
@@ -302,7 +301,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "accessibility_compliance_rate": self._calculate_accessibility_compliance(),
             "automation_success_rate": self._calculate_automation_success_rate()
         }
-        
+
         return {
             "synced": True,
             "components_synced": total_components,
@@ -310,8 +309,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "analytics": self.analytics,
             "sync_time": datetime.now(UTC).isoformat()
         }
-    
-    async def process_with_ai(self, data: Any, model: Optional[ModelProvider] = None) -> Any:
+
+    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
         """Process UI/UX data with AI for optimization suggestions"""
         if isinstance(data, dict):
             if "component_code" in data:
@@ -321,37 +320,37 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             elif "accessibility_check" in data:
                 return await self.perform_accessibility_analysis(data["accessibility_check"])
         return data
-    
-    async def analyze_component(self, component_code: str, component_type: str) -> Dict[str, Any]:
+
+    async def analyze_component(self, component_code: str, component_type: str) -> dict[str, Any]:
         """Analyze a UI component for quality and improvements"""
         # Simulate component analysis
         component_name = f"Component_{len(self.components) + 1}"
         component = UIComponent(component_name, component_type, "React")
-        
+
         # Simulate scoring (would use actual analysis in production)
         component.accessibility_score = 85.0 + (len(component_code) % 15)  # Mock scoring
         component.performance_score = 78.0 + (hash(component_code) % 20)  # Mock scoring
         component.design_consistency_score = 92.0 + (len(component_name) % 8)  # Mock scoring
-        
+
         self.components[component.component_id] = component
-        
+
         return {
             "component_id": component.component_id,
             "analysis": component.to_dict(),
             "recommendations": await self._generate_recommendations(component),
             "auto_improvements": await self._suggest_auto_improvements(component)
         }
-    
-    async def generate_component_suggestion(self, design_request: str) -> Dict[str, Any]:
+
+    async def generate_component_suggestion(self, design_request: str) -> dict[str, Any]:
         """Generate component suggestions based on design request"""
         # Analyze request for pattern matching
         request_lower = design_request.lower()
         suggested_patterns = []
-        
+
         for pattern_name, pattern in self.design_patterns.items():
             if any(keyword in request_lower for keyword in pattern.automation_rules):
                 suggested_patterns.append(pattern.to_dict())
-        
+
         return {
             "design_request": design_request,
             "suggested_patterns": suggested_patterns,
@@ -360,27 +359,27 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "complexity_score": len(suggested_patterns) * 2.5,
             "generated_at": datetime.now(UTC).isoformat()
         }
-    
-    async def perform_accessibility_analysis(self, component_data: str) -> Dict[str, Any]:
+
+    async def perform_accessibility_analysis(self, component_data: str) -> dict[str, Any]:
         """Perform comprehensive accessibility analysis"""
         issues = []
         suggestions = []
-        
+
         # Simulate accessibility checking (would use actual tools in production)
         if "aria-label" not in component_data:
             issues.append("Missing ARIA labels for screen readers")
             suggestions.append("Add aria-label attributes to interactive elements")
-            
+
         if "tabindex" not in component_data:
             issues.append("No keyboard navigation support detected")
             suggestions.append("Add proper tabindex values for keyboard navigation")
-            
+
         if "role=" not in component_data:
             issues.append("Missing semantic roles")
             suggestions.append("Add appropriate ARIA roles for better semantic meaning")
-        
+
         compliance_score = max(0, 100 - (len(issues) * 15))
-        
+
         return {
             "accessibility_score": compliance_score,
             "wcag_compliance": "AA" if compliance_score >= 80 else "A" if compliance_score >= 60 else "Non-compliant",
@@ -389,24 +388,24 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "auto_fix_available": len(issues) > 0,
             "analyzed_at": datetime.now(UTC).isoformat()
         }
-    
-    async def _generate_recommendations(self, component: UIComponent) -> List[str]:
+
+    async def _generate_recommendations(self, component: UIComponent) -> list[str]:
         """Generate improvement recommendations for a component"""
         recommendations = []
-        
+
         if component.accessibility_score < 90:
             recommendations.append("Improve accessibility compliance with ARIA attributes")
         if component.performance_score < 85:
             recommendations.append("Optimize component rendering performance")
         if component.design_consistency_score < 95:
             recommendations.append("Align with design system guidelines")
-            
+
         return recommendations
-    
-    async def _suggest_auto_improvements(self, component: UIComponent) -> List[Dict[str, Any]]:
+
+    async def _suggest_auto_improvements(self, component: UIComponent) -> list[dict[str, Any]]:
         """Suggest automated improvements"""
         improvements = []
-        
+
         if component.accessibility_score < 90:
             improvements.append({
                 "type": "accessibility",
@@ -414,7 +413,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 "description": "Automatically add ARIA labels for screen readers",
                 "estimated_impact": "15-20% accessibility score improvement"
             })
-            
+
         if component.performance_score < 85:
             improvements.append({
                 "type": "performance",
@@ -422,37 +421,37 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 "description": "Add React.memo for performance optimization",
                 "estimated_impact": "10-15% render performance improvement"
             })
-            
+
         return improvements
-    
+
     def _calculate_average_quality(self) -> float:
         """Calculate average quality score across all components"""
         if not self.components:
             return 0.0
-        
+
         total_score = sum(
             (comp.accessibility_score + comp.performance_score + comp.design_consistency_score) / 3
             for comp in self.components.values()
         )
         return total_score / len(self.components)
-    
-    def _get_most_used_pattern(self) -> Optional[str]:
+
+    def _get_most_used_pattern(self) -> str | None:
         """Get the most frequently used design pattern"""
         if not self.design_patterns:
             return None
-        
+
         return max(self.design_patterns.items(), key=lambda x: x[1].usage_frequency)[0]
-    
+
     def _calculate_accessibility_compliance(self) -> float:
         """Calculate overall accessibility compliance rate"""
         if not self.components:
             return 100.0
-        
+
         compliant_components = sum(
             1 for comp in self.components.values() if comp.accessibility_score >= 80
         )
         return (compliant_components / len(self.components)) * 100
-    
+
     def _calculate_automation_success_rate(self) -> float:
         """Calculate automation success rate"""
         # Mock calculation - would track actual automation success in production
@@ -461,44 +460,44 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
 # FastAPI route setup
 def setup_ui_ux_agent_routes(app, server: UIUXAgentMCPServer):
     """Setup UI/UX Agent routes"""
-    
+
     @app.get("/ui-ux/components")
     async def get_components():
         return {
             "components": {comp_id: comp.to_dict() for comp_id, comp in server.components.items()}
         }
-    
+
     @app.get("/ui-ux/patterns")
     async def get_design_patterns():
         return {
             "patterns": {name: pattern.to_dict() for name, pattern in server.design_patterns.items()}
         }
-    
+
     @app.post("/ui-ux/analyze")
-    async def analyze_component(request: Dict[str, Any]):
+    async def analyze_component(request: dict[str, Any]):
         component_code = request.get("code", "")
         component_type = request.get("type", "unknown")
         return await server.analyze_component(component_code, component_type)
-    
+
     @app.post("/ui-ux/accessibility-check")
-    async def accessibility_check(request: Dict[str, Any]):
+    async def accessibility_check(request: dict[str, Any]):
         component_data = request.get("component", "")
         return await server.perform_accessibility_analysis(component_data)
-    
+
     @app.post("/ui-ux/generate")
-    async def generate_component(request: Dict[str, Any]):
+    async def generate_component(request: dict[str, Any]):
         design_request = request.get("request", "")
         return await server.generate_component_suggestion(design_request)
-    
+
     @app.get("/ui-ux/analytics")
     async def get_analytics():
         await server.sync_data()
         return server.analytics
-    
+
     @app.get("/ui-ux/automation-rules")
     async def get_automation_rules():
         return {"automation_rules": server.automation_rules}
-    
+
     @app.get("/ui-ux/status")
     async def get_status():
         return {"status": "UI/UX Agent MCP Server operational", "port": 9002}
@@ -514,10 +513,10 @@ async def main():
         enable_webfetch=True,
         enable_self_knowledge=True
     )
-    
+
     server = UIUXAgentMCPServer(config)
     setup_ui_ux_agent_routes(server.app, server)
-    
+
     # Start the server
     await server.start()
 
@@ -526,4 +525,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("UI/UX Agent MCP Server stopped by user.") 
+        logger.info("UI/UX Agent MCP Server stopped by user.")

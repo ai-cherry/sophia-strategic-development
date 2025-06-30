@@ -4,7 +4,6 @@ Provides access to HubSpot API functionality through specialized client modules.
 """
 
 import logging
-import os
 import pathlib
 from typing import Any, Literal
 

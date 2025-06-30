@@ -6,7 +6,7 @@ Based on comprehensive gap analysis and strategic recommendations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 
 # Configure logging
 logging.basicConfig(

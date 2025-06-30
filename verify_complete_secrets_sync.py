@@ -1,5 +1,6 @@
-import subprocess
 import shlex
+import subprocess
+
 #!/usr/bin/env python3
 """
 Comprehensive verification that ALL 67 GitHub Organization Secrets
@@ -7,7 +8,6 @@ are properly synced to Pulumi ESC and accessible via backend
 """
 
 import asyncio
-import os
 import sys
 from datetime import datetime
 

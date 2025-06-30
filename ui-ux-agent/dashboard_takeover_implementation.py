@@ -8,7 +8,7 @@ Based on gap analysis findings and strategic recommendations
 import asyncio
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 
 import requests
 

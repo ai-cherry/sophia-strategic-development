@@ -1,4 +1,5 @@
 import os
+
 """
 Comprehensive Security Configuration for Sophia AI
 Centralized secrets management with Pulumi ESC integration and best practices

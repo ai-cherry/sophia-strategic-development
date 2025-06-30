@@ -162,7 +162,7 @@ class DashboardIntegrationDemo:
                     logger.info(f"      {i:2d}: {line}")
                 if len(component["component_code"].split("\n")) > 10:
                     logger.info(
-                        f"      ... ({len(component['component_code'].split('\n')) - 10} more lines)"
+                        f"      ... ({len(component['component_code'].split(chr(10))) - 10} more lines)"
                     )
 
             else:

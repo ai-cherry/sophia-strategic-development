@@ -29,6 +29,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from snowflake.connector import DictCursor
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

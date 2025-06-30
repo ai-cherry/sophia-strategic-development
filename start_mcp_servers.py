@@ -5,6 +5,7 @@ Starts essential MCP servers with proper error handling
 """
 
 import os
+from backend.core.auto_esc_config import get_config_value
 import signal
 import subprocess
 import sys
@@ -22,8 +23,8 @@ class MCPServerManager:
         os.environ["PULUMI_ORG"] = "scoobyjava-org"
         os.environ["PYTHONPATH"] = str(self.root_path)
         # Set minimal environment variables to avoid dependency issues
-        get_config_value("openai_api_key") = get_config_value("openai_api_key")
-        get_config_value("pinecone_api_key") = get_config_value("pinecone_api_key")
+        os.environ["OPENAI_API_KEY"] = get_config_value("openai_api_key") or ""
+        os.environ["PINECONE_API_KEY"] = get_config_value("pinecone_api_key") or ""
 
     def start_infrastructure(self):
         """Start infrastructure services"""

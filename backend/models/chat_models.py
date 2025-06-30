@@ -3,11 +3,13 @@ Unified Chat Models - Phase 2A Implementation
 Centralized models for all chat functionality
 """
 
-from pydantic import BaseModel, Field, validator
-from typing import Optional, Dict, List, Any, Literal, Union
+import uuid
 from datetime import datetime
 from enum import Enum
-import uuid
+from typing import Any
+
+from pydantic import BaseModel, Field, validator
+
 
 # Enums for better type safety
 class ChatMode(str, Enum):
@@ -43,43 +45,43 @@ class ChatMessage(BaseModel):
     role: MessageRole
     content: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 class ChatContext(BaseModel):
     """Chat context information"""
-    user_id: Optional[str] = None
-    user_role: Optional[str] = None
-    organization: Optional[str] = None
-    department: Optional[str] = None
-    preferences: Optional[Dict[str, Any]] = None
-    business_context: Optional[Dict[str, Any]] = None
+    user_id: str | None = None
+    user_role: str | None = None
+    organization: str | None = None
+    department: str | None = None
+    preferences: dict[str, Any] | None = None
+    business_context: dict[str, Any] | None = None
 
 class ChatConfiguration(BaseModel):
     """Chat configuration settings"""
     mode: ChatMode = ChatMode.UNIVERSAL
     provider: ChatProvider = ChatProvider.OPENAI
-    model: Optional[str] = None
+    model: str | None = None
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int = Field(default=1000, ge=1, le=8000)
-    top_p: Optional[float] = Field(default=None, ge=0.0, le=1.0)
-    frequency_penalty: Optional[float] = Field(default=None, ge=-2.0, le=2.0)
-    presence_penalty: Optional[float] = Field(default=None, ge=-2.0, le=2.0)
-    stop_sequences: Optional[List[str]] = None
+    top_p: float | None = Field(default=None, ge=0.0, le=1.0)
+    frequency_penalty: float | None = Field(default=None, ge=-2.0, le=2.0)
+    presence_penalty: float | None = Field(default=None, ge=-2.0, le=2.0)
+    stop_sequences: list[str] | None = None
 
 # Request Models
 class ChatRequest(BaseModel):
     """Unified chat request"""
     message: str = Field(..., min_length=1, max_length=10000, description="User message content")
     mode: ChatMode = Field(default=ChatMode.UNIVERSAL, description="Chat mode")
-    session_id: Optional[str] = Field(default=None, description="Session ID for conversation continuity")
-    context: Optional[ChatContext] = Field(default=None, description="Chat context")
-    configuration: Optional[ChatConfiguration] = Field(default=None, description="Chat configuration")
+    session_id: str | None = Field(default=None, description="Session ID for conversation continuity")
+    context: ChatContext | None = Field(default=None, description="Chat context")
+    configuration: ChatConfiguration | None = Field(default=None, description="Chat configuration")
     stream: bool = Field(default=False, description="Enable streaming response")
-    
+
     @validator('session_id', pre=True, always=True)
     def generate_session_id(cls, v):
         return v or str(uuid.uuid4())
-    
+
     @validator('configuration', pre=True, always=True)
     def set_default_config(cls, v, values):
         if v is None:
@@ -95,11 +97,11 @@ class StreamChatRequest(ChatRequest):
 class ChatMetadata(BaseModel):
     """Chat response metadata"""
     response_type: str
-    features: List[str] = []
-    model_used: Optional[str] = None
-    provider_info: Optional[Dict[str, Any]] = None
-    processing_time_ms: Optional[int] = None
-    confidence_score: Optional[float] = None
+    features: list[str] = []
+    model_used: str | None = None
+    provider_info: dict[str, Any] | None = None
+    processing_time_ms: int | None = None
+    confidence_score: float | None = None
 
 class ChatUsage(BaseModel):
     """Token and cost usage information"""
@@ -117,10 +119,10 @@ class ChatResponse(BaseModel):
     mode: ChatMode = Field(..., description="Chat mode used")
     provider: ChatProvider = Field(..., description="AI provider used")
     status: ChatStatus = Field(default=ChatStatus.COMPLETED)
-    metadata: Optional[ChatMetadata] = None
-    suggestions: Optional[List[str]] = None
+    metadata: ChatMetadata | None = None
+    suggestions: list[str] | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    usage: Optional[ChatUsage] = None
+    usage: ChatUsage | None = None
 
 class StreamChatResponse(BaseModel):
     """Streaming chat response chunk"""
@@ -128,13 +130,13 @@ class StreamChatResponse(BaseModel):
     session_id: str
     delta: str = Field(..., description="Response chunk")
     finished: bool = Field(default=False, description="Whether this is the final chunk")
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 class ChatError(BaseModel):
     """Chat error response"""
     error_code: str
     error_message: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 # Session Models
@@ -147,14 +149,14 @@ class ChatSession(BaseModel):
     message_count: int = 0
     total_tokens: int = 0
     total_cost: float = 0.0
-    context: Optional[ChatContext] = None
-    configuration: Optional[ChatConfiguration] = None
+    context: ChatContext | None = None
+    configuration: ChatConfiguration | None = None
     is_active: bool = True
 
 class ChatHistory(BaseModel):
     """Chat conversation history"""
     session_id: str
-    messages: List[ChatMessage] = []
+    messages: list[ChatMessage] = []
     created_at: datetime
     updated_at: datetime
     total_messages: int = 0
@@ -169,7 +171,7 @@ class ChatAnalytics(BaseModel):
     total_tokens: int
     total_cost: float
     average_response_time_ms: float
-    user_satisfaction: Optional[float] = None
+    user_satisfaction: float | None = None
     created_at: datetime
     period_start: datetime
     period_end: datetime
@@ -181,22 +183,22 @@ class ChatMetrics(BaseModel):
     total_tokens: int
     total_cost: float
     average_session_length: float
-    mode_distribution: Dict[str, int]
-    provider_distribution: Dict[str, int]
+    mode_distribution: dict[str, int]
+    provider_distribution: dict[str, int]
     period_start: datetime
     period_end: datetime
 
 # Batch Processing Models
 class BatchChatRequest(BaseModel):
     """Batch chat processing request"""
-    requests: List[ChatRequest] = Field(..., max_items=100)
-    batch_id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
+    requests: list[ChatRequest] = Field(..., max_items=100)
+    batch_id: str | None = Field(default_factory=lambda: str(uuid.uuid4()))
     priority: int = Field(default=1, ge=1, le=10)
 
 class BatchChatResponse(BaseModel):
     """Batch chat processing response"""
     batch_id: str
-    responses: List[Union[ChatResponse, ChatError]]
+    responses: list[ChatResponse | ChatError]
     total_requests: int
     successful_requests: int
     failed_requests: int
@@ -207,10 +209,10 @@ class BatchChatResponse(BaseModel):
 class ProviderConfig(BaseModel):
     """AI provider configuration"""
     provider: ChatProvider
-    api_key: Optional[str] = None
-    base_url: Optional[str] = None
-    model_mappings: Dict[str, str] = {}
-    rate_limits: Optional[Dict[str, int]] = None
+    api_key: str | None = None
+    base_url: str | None = None
+    model_mappings: dict[str, str] = {}
+    rate_limits: dict[str, int] | None = None
     timeout_seconds: int = 30
     retry_attempts: int = 3
 
@@ -218,16 +220,16 @@ class ModeConfig(BaseModel):
     """Chat mode configuration"""
     mode: ChatMode
     default_provider: ChatProvider
-    allowed_providers: List[ChatProvider]
+    allowed_providers: list[ChatProvider]
     default_model: str
     system_prompt: str
     max_context_length: int = 4000
-    features: List[str] = []
+    features: list[str] = []
 
 class UnifiedChatConfig(BaseModel):
     """Complete unified chat configuration"""
-    providers: List[ProviderConfig]
-    modes: List[ModeConfig]
+    providers: list[ProviderConfig]
+    modes: list[ModeConfig]
     default_mode: ChatMode = ChatMode.UNIVERSAL
     session_timeout_minutes: int = 60
     max_sessions_per_user: int = 10

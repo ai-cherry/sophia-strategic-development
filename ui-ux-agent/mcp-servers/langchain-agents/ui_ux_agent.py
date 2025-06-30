@@ -5,8 +5,7 @@ Leverages LangChain Agents v0.3 (June 2025) for design automation workflows
 """
 
 import logging
-import os
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Any
 
 import requests
@@ -363,6 +362,7 @@ Auto-generated from Figma design using Sophia AI UI/UX Agent.
 
 ```tsx
 import {{ {component_name} }} from './components/{hints.get("suggested_file_name", "component")}';
+from backend.core.auto_esc_config import get_config_value
 
 function Dashboard() {{
   return (

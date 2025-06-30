@@ -7,6 +7,7 @@ Starts MCP servers with full tool execution capabilities
 import asyncio
 import logging
 import os
+from backend.core.auto_esc_config import get_config_value
 import subprocess
 import sys
 import time
@@ -29,8 +30,8 @@ class EnhancedMCPServerManager:
         os.environ["PULUMI_ORG"] = "scoobyjava-org"
         os.environ["PYTHONPATH"] = str(self.root_path)
         # Set environment variables with fallbacks
-        get_config_value("openai_api_key") = get_config_value("openai_api_key")
-        get_config_value("pinecone_api_key") = get_config_value("pinecone_api_key")
+        os.environ["OPENAI_API_KEY"] = get_config_value("openai_api_key") or ""
+        os.environ["PINECONE_API_KEY"] = get_config_value("pinecone_api_key") or ""
 
     async def create_ai_memory_server(self, port: int):
         """Create AI Memory MCP server with enhanced capabilities"""

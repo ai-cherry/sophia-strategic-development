@@ -1,4 +1,5 @@
 import os
+
 """Enhanced Security and Secret Management for Sophia AI Platform.
 
 Comprehensive secret management with Pulumi ESC integration, automatic validation,

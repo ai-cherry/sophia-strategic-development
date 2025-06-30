@@ -1,5 +1,6 @@
-import subprocess
 import shlex
+import subprocess
+
 #!/usr/bin/env python3
 """
 ULTIMATE Snowflake Fix for Sophia AI

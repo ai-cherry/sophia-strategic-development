@@ -23,7 +23,7 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -372,20 +372,20 @@ class StandardizedMCPServer(ABC):
                     # Check if server actually needs Snowflake
                     server_capabilities = await self.get_server_capabilities()
                     needs_snowflake = any(
-                        cap.category in ["ai", "data", "analytics"] 
+                        cap.category in ["ai", "data", "analytics"]
                         for cap in server_capabilities
                     )
-                    
+
                     if needs_snowflake:
                         self.cortex_service = SnowflakeCortexService()
                         await self.cortex_service.initialize()
                         logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
                     else:
                         logger.info(f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)")
-                        
+
                 except Exception as e:
                     logger.warning(f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}")
-                    logger.info(f"   Server will continue without Snowflake capabilities")
+                    logger.info("   Server will continue without Snowflake capabilities")
                     self.cortex_service = None
 
             # Initialize server capabilities for self-knowledge
@@ -520,7 +520,7 @@ class StandardizedMCPServer(ABC):
                 ssl_context.verify_mode = ssl.CERT_NONE
             except Exception:
                 ssl_context = False  # Disable SSL verification as fallback
-            
+
             async with self.session.get(url, ssl=ssl_context) as response:
                 response.raise_for_status()
                 content = await response.text()

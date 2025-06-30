@@ -6,10 +6,9 @@ Tests the 5 game-changing servers with mock environment variables
 
 import json
 import os
-import sys
 import subprocess
 from datetime import datetime
-from typing import Dict, List, Optional
+
 
 class MCPIntegrationTester:
     def __init__(self):
@@ -22,17 +21,17 @@ class MCPIntegrationTester:
             "APIFY_TOKEN": "test_apify_token",
             "FIGMA_ACCESS_TOKEN": "test_figma_token"
         }
-        
-    def test_playwright_mcp(self) -> Dict[str, any]:
+
+    def test_playwright_mcp(self) -> dict[str, any]:
         """Test Microsoft Playwright MCP capabilities"""
         print("🎭 Testing Microsoft Playwright MCP...")
-        
+
         # Check if package.json exists
         package_path = "mcp-servers/playwright/microsoft-playwright-mcp/package.json"
         if os.path.exists(package_path):
-            with open(package_path, 'r') as f:
+            with open(package_path) as f:
                 package_data = json.load(f)
-                
+
             return {
                 "name": "Microsoft Playwright MCP",
                 "status": "installed",
@@ -53,11 +52,11 @@ class MCPIntegrationTester:
                 "status": "not_found",
                 "error": "Package not found"
             }
-    
-    def test_snowflake_cortex(self) -> Dict[str, any]:
+
+    def test_snowflake_cortex(self) -> dict[str, any]:
         """Test Snowflake Cortex Agent MCP"""
         print("❄️  Testing Snowflake Cortex Agent MCP...")
-        
+
         script_path = "mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py"
         if os.path.exists(script_path):
             # Test Python syntax
@@ -67,7 +66,7 @@ class MCPIntegrationTester:
                     capture_output=True,
                     text=True
                 )
-                
+
                 if result.returncode == 0:
                     return {
                         "name": "Snowflake Cortex Agent",
@@ -99,16 +98,16 @@ class MCPIntegrationTester:
                 "status": "not_found",
                 "error": "Script not found"
             }
-    
-    def test_apollo_mcp(self) -> Dict[str, any]:
+
+    def test_apollo_mcp(self) -> dict[str, any]:
         """Test Apollo.io MCP Server"""
         print("🚀 Testing Apollo.io MCP Server...")
-        
+
         package_path = "mcp-servers/apollo/apollo-io-mcp/package.json"
         if os.path.exists(package_path):
-            with open(package_path, 'r') as f:
+            with open(package_path) as f:
                 package_data = json.load(f)
-                
+
             return {
                 "name": "Apollo.io MCP",
                 "status": "installed",
@@ -129,16 +128,16 @@ class MCPIntegrationTester:
                 "status": "not_found",
                 "error": "Package not found"
             }
-    
-    def test_apify_config(self) -> Dict[str, any]:
+
+    def test_apify_config(self) -> dict[str, any]:
         """Test Apify MCP configuration"""
         print("🕷️  Testing Apify Official MCP configuration...")
-        
+
         config_path = "config/mcp/phase1/apify_config.json"
         if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path) as f:
                 config_data = json.load(f)
-                
+
             return {
                 "name": "Apify Official MCP",
                 "status": "configured",
@@ -154,23 +153,23 @@ class MCPIntegrationTester:
                 "status": "not_configured",
                 "error": "Configuration not found"
             }
-    
-    def test_figma_context(self) -> Dict[str, any]:
+
+    def test_figma_context(self) -> dict[str, any]:
         """Test Figma Context MCP"""
         print("🎨 Testing Figma Context MCP...")
-        
+
         # Check multiple possible locations
         paths = [
             "mcp-servers/figma_context/figma-context-mcp/package.json",
             "mcp-servers/figma_context/figma-context-mcp/README.md"
         ]
-        
+
         for path in paths:
             if os.path.exists(path):
                 if path.endswith('package.json'):
-                    with open(path, 'r') as f:
+                    with open(path) as f:
                         package_data = json.load(f)
-                    
+
                     return {
                         "name": "Figma Context MCP",
                         "status": "installed",
@@ -194,17 +193,17 @@ class MCPIntegrationTester:
                         ],
                         "business_value": "$300K+ design automation"
                     }
-        
+
         return {
             "name": "Figma Context MCP",
             "status": "not_found",
             "error": "Package not found"
         }
-    
-    def test_integration_workflow(self) -> Dict[str, any]:
+
+    def test_integration_workflow(self) -> dict[str, any]:
         """Test a sample integration workflow"""
         print("\n🔄 Testing Integration Workflow...")
-        
+
         workflow = {
             "name": "Design-to-Deployment Pipeline",
             "steps": [
@@ -241,9 +240,9 @@ class MCPIntegrationTester:
             ],
             "total_value": "$1.7M+ automated workflow"
         }
-        
+
         return workflow
-    
+
     def generate_report(self):
         """Generate integration test report"""
         print("\n" + "="*60)
@@ -251,7 +250,7 @@ class MCPIntegrationTester:
         print("="*60)
         print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print()
-        
+
         # Test each server
         servers = [
             self.test_playwright_mcp(),
@@ -260,59 +259,59 @@ class MCPIntegrationTester:
             self.test_apify_config(),
             self.test_figma_context()
         ]
-        
+
         # Server Status
         print("📊 SERVER STATUS:")
         total_value = 0
         ready_count = 0
-        
+
         for server in servers:
             status = server.get("status", "unknown")
             icon = "✅" if status in ["installed", "ready", "configured"] else "❌"
-            
+
             print(f"\n{icon} {server['name']}")
             print(f"   Status: {status}")
-            
+
             if "capabilities" in server:
                 print("   Capabilities:")
                 for cap in server["capabilities"][:3]:  # Show first 3
                     print(f"     • {cap}")
                 if len(server["capabilities"]) > 3:
                     print(f"     • ... and {len(server['capabilities']) - 3} more")
-            
+
             if "business_value" in server:
                 print(f"   Business Value: {server['business_value']}")
                 if status in ["installed", "ready", "configured"]:
                     ready_count += 1
-            
+
             if "error" in server:
                 print(f"   ⚠️  Error: {server['error']}")
-        
+
         # Integration Workflow
         workflow = self.test_integration_workflow()
         print(f"\n�� INTEGRATION WORKFLOW: {workflow['name']}")
         for step in workflow["steps"]:
             print(f"   Step {step['step']}: {step['server']} → {step['action']}")
         print(f"   Total Value: {workflow['total_value']}")
-        
+
         # Summary
-        print(f"\n📈 SUMMARY:")
+        print("\n📈 SUMMARY:")
         print(f"   Servers Ready: {ready_count}/5")
         print(f"   Integration Status: {'Ready' if ready_count >= 3 else 'Partial'}")
-        print(f"   Business Value: $1.7M+ potential")
-        
+        print("   Business Value: $1.7M+ potential")
+
         # Next Steps
-        print(f"\n📝 NEXT STEPS:")
+        print("\n📝 NEXT STEPS:")
         if ready_count < 5:
             print("   1. Install missing Node.js dependencies:")
             print("      cd mcp-servers/playwright/microsoft-playwright-mcp && npm install")
             print("      cd mcp-servers/apollo/apollo-io-mcp && npm install")
             print("      cd mcp-servers/figma_context/figma-context-mcp && npm install")
-        
+
         print("   2. Set environment variables (see health check)")
         print("   3. Configure Cursor with config/cursor_phase1_mcp_config.json")
         print("   4. Start testing individual servers")
-        
+
         print("\n" + "="*60)
 
 if __name__ == "__main__":

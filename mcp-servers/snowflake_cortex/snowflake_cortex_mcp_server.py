@@ -4,11 +4,10 @@ Snowflake Cortex Agent MCP Server
 Integrates with Snowflake Cortex AI for native SQL + AI capabilities
 """
 
-import os
-import json
 import asyncio
-from typing import Dict, Any, List, Optional
+import os
 from datetime import datetime
+from typing import Any
 
 try:
     from mcp.server.fastmcp import FastMCP
@@ -32,9 +31,9 @@ class SnowflakeCortexMCPServer:
         self.password = get_config_value("snowflake_password")
         self.warehouse = os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH')
         self.database = os.getenv('SNOWFLAKE_DATABASE', 'SOPHIA_AI')
-        
+
     @app.tool()
-    async def cortex_complete(self, prompt: str, model: str = "mistral-7b") -> Dict[str, Any]:
+    async def cortex_complete(self, prompt: str, model: str = "mistral-7b") -> dict[str, Any]:
         """
         Use Snowflake Cortex COMPLETE function for AI text generation
         """
@@ -44,7 +43,7 @@ class SnowflakeCortexMCPServer:
             '{prompt}'
         ) as response
         """
-        
+
         return {
             "status": "success",
             "model": model,
@@ -52,16 +51,16 @@ class SnowflakeCortexMCPServer:
             "response": f"Cortex response for: {prompt}",
             "timestamp": datetime.now().isoformat()
         }
-    
+
     @app.tool()
-    async def cortex_sentiment(self, text: str) -> Dict[str, Any]:
+    async def cortex_sentiment(self, text: str) -> dict[str, Any]:
         """
         Analyze sentiment using Snowflake Cortex
         """
         query = f"""
         SELECT SNOWFLAKE.CORTEX.SENTIMENT('{text}') as sentiment_score
         """
-        
+
         return {
             "status": "success",
             "text": text,
@@ -69,9 +68,9 @@ class SnowflakeCortexMCPServer:
             "sentiment_label": "positive",
             "timestamp": datetime.now().isoformat()
         }
-    
+
     @app.tool()
-    async def cortex_translate(self, text: str, source_lang: str, target_lang: str) -> Dict[str, Any]:
+    async def cortex_translate(self, text: str, source_lang: str, target_lang: str) -> dict[str, Any]:
         """
         Translate text using Snowflake Cortex
         """
@@ -82,7 +81,7 @@ class SnowflakeCortexMCPServer:
             '{target_lang}'
         ) as translated_text
         """
-        
+
         return {
             "status": "success",
             "original_text": text,
@@ -91,9 +90,9 @@ class SnowflakeCortexMCPServer:
             "target_language": target_lang,
             "timestamp": datetime.now().isoformat()
         }
-    
+
     @app.tool()
-    async def cortex_extract_answer(self, text: str, question: str) -> Dict[str, Any]:
+    async def cortex_extract_answer(self, text: str, question: str) -> dict[str, Any]:
         """
         Extract answer from text using Snowflake Cortex
         """
@@ -103,7 +102,7 @@ class SnowflakeCortexMCPServer:
             '{question}'
         ) as answer
         """
-        
+
         return {
             "status": "success",
             "question": question,
@@ -111,16 +110,16 @@ class SnowflakeCortexMCPServer:
             "confidence": 0.92,
             "timestamp": datetime.now().isoformat()
         }
-    
+
     @app.tool()
-    async def cortex_summarize(self, text: str, max_length: int = 100) -> Dict[str, Any]:
+    async def cortex_summarize(self, text: str, max_length: int = 100) -> dict[str, Any]:
         """
         Summarize text using Snowflake Cortex
         """
         query = f"""
         SELECT SNOWFLAKE.CORTEX.SUMMARIZE('{text}') as summary
         """
-        
+
         return {
             "status": "success",
             "original_length": len(text),

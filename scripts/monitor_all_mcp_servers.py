@@ -1,11 +1,10 @@
-import subprocess
-import shlex
 # File: scripts/monitor_all_mcp_servers.py
-
 import asyncio
 import json
 import logging
 import os
+import shlex
+import subprocess
 import sys
 import time
 from pathlib import Path
