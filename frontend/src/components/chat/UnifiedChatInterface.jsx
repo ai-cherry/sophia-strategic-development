@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import MCPIntegrationService from '../../services/mcpIntegration';
+import apiClient from '../../services/apiClient';
 import { 
   MessageCircle, 
   Send, 
@@ -159,27 +160,17 @@ const UnifiedChatInterface = ({
     setError(null);
     
     try {
-      const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: messageText,
-          mode: currentMode,
-          session_id: currentSessionId,
-          context: {
-            user_role: 'user',
-            timestamp: new Date().toISOString()
-          }
-        })
+      const response = await apiClient.post('/api/v1/chat', {
+        message: messageText,
+        mode: currentMode,
+        session_id: currentSessionId,
+        context: {
+          user_role: 'user',
+          timestamp: new Date().toISOString()
+        }
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
+      const data = response.data;
       
       const assistantMessage = {
         id: 'assistant_' + Date.now(),

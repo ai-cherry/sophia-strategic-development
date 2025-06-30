@@ -1,19 +1,21 @@
 import axios from 'axios';
 
-// API Configuration
+// API Configuration - EXPLICIT BACKEND URL
+const BACKEND_URL = 'https://e5h6i7c09ylk.manus.space';
+
 const API_CONFIG = {
-  production: 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer',
+  production: BACKEND_URL,
   development: 'http://localhost:8000',
   timeout: 10000,
   retries: 3,
   retryDelay: 1000
 };
 
-// Get base URL based on environment
+// Get base URL based on environment - FORCE PRODUCTION BACKEND
 const getBaseURL = () => {
-  return process.env.NODE_ENV === 'production' 
-    ? API_CONFIG.production 
-    : API_CONFIG.development;
+  // ALWAYS use the explicit backend URL - never use frontend URL
+  console.log('API Client using backend URL:', BACKEND_URL);
+  return BACKEND_URL;
 };
 
 // Create axios instance with default configuration
