@@ -5,12 +5,10 @@ Implements actual MCP servers for Snowflake, HubSpot, Slack, GitHub, and Notion
 """
 
 import asyncio
+import json
 import logging
-import os
-import subprocess
 import sys
 from pathlib import Path
-import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -79,7 +77,7 @@ logger = logging.getLogger(__name__)
 
 def override_snowflake_config():
     """Override Snowflake configuration with correct values"""
-    
+
     # Force correct Snowflake account
     correct_config = {
         'SNOWFLAKE_ACCOUNT': 'ZNB04675',
@@ -89,17 +87,17 @@ def override_snowflake_config():
         'SNOWFLAKE_ROLE': 'ACCOUNTADMIN',
         'SNOWFLAKE_SCHEMA': 'PROCESSED_AI'
     }
-    
+
     for key, value in correct_config.items():
         os.environ[key] = value
-    
+
     logger.info("🔧 Snowflake configuration override applied")
     return correct_config
 
 def get_snowflake_connection_params():
     """Get correct Snowflake connection parameters"""
     override_snowflake_config()
-    
+
     return {
         'account': 'ZNB04675',
         'user': 'SCOOBYJAVA15',
@@ -188,78 +186,78 @@ logger = logging.getLogger(__name__)
 
 class SnowflakeMCPServer:
     """Snowflake MCP Server for data warehouse operations"""
-    
+
     def __init__(self, port: int = 9100):
         self.port = port
         self.name = "snowflake"
         self.version = "1.0.0"
-        
+
         # Initialize MCP server
         self.mcp_server = Server(self.name, self.version)
-        
+
         # Initialize connection manager
         self.connection_manager = None
-        
+
         # Register tools and resources
         self._register_tools()
         self._register_resources()
-    
+
     def _register_tools(self):
         """Register Snowflake MCP tools"""
-        
+
         @self.mcp_server.tool("execute_query")
         async def execute_query(query: str, limit: int = 100) -> Dict[str, Any]:
             """Execute a SQL query on Snowflake"""
             try:
                 if not self.connection_manager:
                     await self._initialize_connection()
-                
+
                 # Get connection
                 connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-                
+
                 if not connection:
                     return {"error": "No Snowflake connection available"}
-                
+
                 # Execute query
                 cursor = connection.cursor()
                 cursor.execute(f"SELECT * FROM ({query}) LIMIT {limit}")
-                
+
                 # Fetch results
                 results = cursor.fetchall()
                 columns = [desc[0] for desc in cursor.description]
-                
+
                 # Format results
                 formatted_results = []
                 for row in results:
                     formatted_results.append(dict(zip(columns, row)))
-                
+
                 cursor.close()
-                
+
                 return {
                     "success": True,
                     "results": formatted_results,
                     "row_count": len(formatted_results),
                     "columns": columns
                 }
-                
+
             except Exception as e:
                 logger.error(f"Query execution failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("get_table_info")
         async def get_table_info(table_name: str, schema: str = "PROCESSED_AI") -> Dict[str, Any]:
             """Get information about a Snowflake table"""
             try:
                 if not self.connection_manager:
                     await self._initialize_connection()
-                
+
                 connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-                
+
                 if not connection:
                     return {"error": "No Snowflake connection available"}
-                
+
                 cursor = connection.cursor()
-                
+
                 # Get table schema
                 cursor.execute(f"""
                     SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
@@ -267,15 +265,15 @@ class SnowflakeMCPServer:
                     WHERE TABLE_SCHEMA = '{schema}' AND TABLE_NAME = '{table_name}'
                     ORDER BY ORDINAL_POSITION
                 """)
-                
+
                 columns = cursor.fetchall()
-                
+
                 # Get row count
                 cursor.execute(f"SELECT COUNT(*) FROM {schema}.{table_name}")
                 row_count = cursor.fetchone()[0]
-                
+
                 cursor.close()
-                
+
                 return {
                     "success": True,
                     "table_name": table_name,
@@ -291,88 +289,88 @@ class SnowflakeMCPServer:
                         for col in columns
                     ]
                 }
-                
+
             except Exception as e:
                 logger.error(f"Table info failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check Snowflake connection health"""
             try:
                 if not self.connection_manager:
                     await self._initialize_connection()
-                
+
                 connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-                
+
                 if not connection:
                     return {"healthy": False, "error": "No connection available"}
-                
+
                 # Test query
                 cursor = connection.cursor()
                 cursor.execute("SELECT CURRENT_VERSION()")
                 version = cursor.fetchone()[0]
                 cursor.close()
-                
+
                 return {
                     "healthy": True,
                     "snowflake_version": version,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
                 return {"healthy": False, "error": str(e)}
-    
+
     def _register_resources(self):
         """Register Snowflake MCP resources"""
-        
+
         @self.mcp_server.resource("schemas")
         async def get_schemas() -> List[Dict[str, Any]]:
             """Get available schemas"""
             try:
                 if not self.connection_manager:
                     await self._initialize_connection()
-                
+
                 connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-                
+
                 if not connection:
                     return []
-                
+
                 cursor = connection.cursor()
                 cursor.execute("SHOW SCHEMAS IN DATABASE SOPHIA_AI")
                 schemas = cursor.fetchall()
                 cursor.close()
-                
+
                 return [{"name": schema[1]} for schema in schemas]
-                
+
             except Exception as e:
                 logger.error(f"Schema list failed: {e}")
                 return []
-    
+
     async def _initialize_connection(self):
         """Initialize connection manager"""
         if not self.connection_manager:
             self.connection_manager = OptimizedConnectionManager()
             await self.connection_manager.initialize()
-    
+
     async def start(self):
         """Start the Snowflake MCP server"""
         logger.info(f"🚀 Starting Snowflake MCP Server on port {self.port}")
-        
+
         # Initialize connection
         await self._initialize_connection()
-        
+
         # Test connection
         health = await self.mcp_server.call_tool("health_check", {})
         logger.info(f"   Health check: {health}")
-        
+
         logger.info("✅ Snowflake MCP Server started successfully")
-    
+
     async def stop(self):
         """Stop the Snowflake MCP server"""
         logger.info("🛑 Stopping Snowflake MCP Server")
-        
+
         if self.connection_manager:
             # Close connections
             pass
@@ -420,25 +418,25 @@ logger = logging.getLogger(__name__)
 
 class HubSpotMCPServer:
     """HubSpot MCP Server for CRM operations"""
-    
+
     def __init__(self, port: int = 9101):
         self.port = port
         self.name = "hubspot"
         self.version = "1.0.0"
-        
+
         # Initialize MCP server
         self.mcp_server = Server(self.name, self.version)
-        
+
         # Load API key
         self.api_key = get_config_value("hubspot.api_key", "")
-        
+
         # Register tools and resources
         self._register_tools()
         self._register_resources()
-    
+
     def _register_tools(self):
         """Register HubSpot MCP tools"""
-        
+
         @self.mcp_server.tool("get_contacts")
         async def get_contacts(limit: int = 10) -> Dict[str, Any]:
             """Get HubSpot contacts"""
@@ -456,11 +454,11 @@ class HubSpotMCPServer:
                     ],
                     "total": 1
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get contacts failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("get_deals")
         async def get_deals(limit: int = 10) -> Dict[str, Any]:
             """Get HubSpot deals"""
@@ -479,30 +477,30 @@ class HubSpotMCPServer:
                     ],
                     "total": 1
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get deals failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check HubSpot connection health"""
             try:
                 has_api_key = bool(self.api_key)
-                
+
                 return {
                     "healthy": has_api_key,
                     "api_key_configured": has_api_key,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
                 return {"healthy": False, "error": str(e)}
-    
+
     def _register_resources(self):
         """Register HubSpot MCP resources"""
-        
+
         @self.mcp_server.resource("pipelines")
         async def get_pipelines() -> List[Dict[str, Any]]:
             """Get HubSpot sales pipelines"""
@@ -511,21 +509,21 @@ class HubSpotMCPServer:
                 return [
                     {"id": "default", "name": "Sales Pipeline", "stages": 5}
                 ]
-                
+
             except Exception as e:
                 logger.error(f"Get pipelines failed: {e}")
                 return []
-    
+
     async def start(self):
         """Start the HubSpot MCP server"""
         logger.info(f"🚀 Starting HubSpot MCP Server on port {self.port}")
-        
+
         # Test connection
         health = await self.mcp_server.call_tool("health_check", {})
         logger.info(f"   Health check: {health}")
-        
+
         logger.info("✅ HubSpot MCP Server started successfully")
-    
+
     async def stop(self):
         """Stop the HubSpot MCP server"""
         logger.info("🛑 Stopping HubSpot MCP Server")
@@ -573,25 +571,25 @@ logger = logging.getLogger(__name__)
 
 class SlackMCPServer:
     """Slack MCP Server for team communication"""
-    
+
     def __init__(self, port: int = 9102):
         self.port = port
         self.name = "slack"
         self.version = "1.0.0"
-        
+
         # Initialize MCP server
         self.mcp_server = Server(self.name, self.version)
-        
+
         # Load API token
         self.bot_token = get_config_value("slack.bot_token", "")
-        
+
         # Register tools and resources
         self._register_tools()
         self._register_resources()
-    
+
     def _register_tools(self):
         """Register Slack MCP tools"""
-        
+
         @self.mcp_server.tool("send_message")
         async def send_message(channel: str, message: str) -> Dict[str, Any]:
             """Send a message to a Slack channel"""
@@ -603,11 +601,11 @@ class SlackMCPServer:
                     "message": message,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Send message failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("get_channels")
         async def get_channels() -> Dict[str, Any]:
             """Get Slack channels"""
@@ -620,30 +618,30 @@ class SlackMCPServer:
                         {"id": "C5678", "name": "sophia-ai"}
                     ]
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get channels failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check Slack connection health"""
             try:
                 has_token = bool(self.bot_token)
-                
+
                 return {
                     "healthy": has_token,
                     "bot_token_configured": has_token,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
                 return {"healthy": False, "error": str(e)}
-    
+
     def _register_resources(self):
         """Register Slack MCP resources"""
-        
+
         @self.mcp_server.resource("workspace_info")
         async def get_workspace_info() -> Dict[str, Any]:
             """Get Slack workspace information"""
@@ -653,21 +651,21 @@ class SlackMCPServer:
                     "name": "Pay Ready Workspace",
                     "domain": "payready.slack.com"
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get workspace info failed: {e}")
                 return {}
-    
+
     async def start(self):
         """Start the Slack MCP server"""
         logger.info(f"🚀 Starting Slack MCP Server on port {self.port}")
-        
+
         # Test connection
         health = await self.mcp_server.call_tool("health_check", {})
         logger.info(f"   Health check: {health}")
-        
+
         logger.info("✅ Slack MCP Server started successfully")
-    
+
     async def stop(self):
         """Stop the Slack MCP server"""
         logger.info("🛑 Stopping Slack MCP Server")
@@ -715,25 +713,25 @@ logger = logging.getLogger(__name__)
 
 class GitHubMCPServer:
     """GitHub MCP Server for repository operations"""
-    
+
     def __init__(self, port: int = 9103):
         self.port = port
         self.name = "github"
         self.version = "1.0.0"
-        
+
         # Initialize MCP server
         self.mcp_server = Server(self.name, self.version)
-        
+
         # Load API token
         self.access_token = get_config_value("github.access_token", "")
-        
+
         # Register tools and resources
         self._register_tools()
         self._register_resources()
-    
+
     def _register_tools(self):
         """Register GitHub MCP tools"""
-        
+
         @self.mcp_server.tool("get_repository")
         async def get_repository(owner: str, repo: str) -> Dict[str, Any]:
             """Get GitHub repository information"""
@@ -749,11 +747,11 @@ class GitHubMCPServer:
                         "forks": 5
                     }
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get repository failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("get_pull_requests")
         async def get_pull_requests(owner: str, repo: str, state: str = "open") -> Dict[str, Any]:
             """Get GitHub pull requests"""
@@ -770,30 +768,30 @@ class GitHubMCPServer:
                         }
                     ]
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get pull requests failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check GitHub connection health"""
             try:
                 has_token = bool(self.access_token)
-                
+
                 return {
                     "healthy": has_token,
                     "access_token_configured": has_token,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
                 return {"healthy": False, "error": str(e)}
-    
+
     def _register_resources(self):
         """Register GitHub MCP resources"""
-        
+
         @self.mcp_server.resource("user_info")
         async def get_user_info() -> Dict[str, Any]:
             """Get GitHub user information"""
@@ -803,21 +801,21 @@ class GitHubMCPServer:
                     "login": "sophia-ai",
                     "name": "Sophia AI"
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get user info failed: {e}")
                 return {}
-    
+
     async def start(self):
         """Start the GitHub MCP server"""
         logger.info(f"🚀 Starting GitHub MCP Server on port {self.port}")
-        
+
         # Test connection
         health = await self.mcp_server.call_tool("health_check", {})
         logger.info(f"   Health check: {health}")
-        
+
         logger.info("✅ GitHub MCP Server started successfully")
-    
+
     async def stop(self):
         """Stop the GitHub MCP server"""
         logger.info("🛑 Stopping GitHub MCP Server")
@@ -865,25 +863,25 @@ logger = logging.getLogger(__name__)
 
 class NotionMCPServer:
     """Notion MCP Server for knowledge management"""
-    
+
     def __init__(self, port: int = 9104):
         self.port = port
         self.name = "notion"
         self.version = "1.0.0"
-        
+
         # Initialize MCP server
         self.mcp_server = Server(self.name, self.version)
-        
+
         # Load API token
         self.api_token = get_config_value("notion.api_token", "")
-        
+
         # Register tools and resources
         self._register_tools()
         self._register_resources()
-    
+
     def _register_tools(self):
         """Register Notion MCP tools"""
-        
+
         @self.mcp_server.tool("get_pages")
         async def get_pages(database_id: str = "") -> Dict[str, Any]:
             """Get Notion pages"""
@@ -899,11 +897,11 @@ class NotionMCPServer:
                         }
                     ]
                 }
-                
+
             except Exception as e:
                 logger.error(f"Get pages failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("create_page")
         async def create_page(title: str, content: str, parent_id: str = "") -> Dict[str, Any]:
             """Create a new Notion page"""
@@ -915,30 +913,30 @@ class NotionMCPServer:
                     "title": title,
                     "url": f"https://notion.so/new_page_123"
                 }
-                
+
             except Exception as e:
                 logger.error(f"Create page failed: {e}")
                 return {"error": str(e)}
-        
+
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check Notion connection health"""
             try:
                 has_token = bool(self.api_token)
-                
+
                 return {
                     "healthy": has_token,
                     "api_token_configured": has_token,
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
             except Exception as e:
                 logger.error(f"Health check failed: {e}")
                 return {"healthy": False, "error": str(e)}
-    
+
     def _register_resources(self):
         """Register Notion MCP resources"""
-        
+
         @self.mcp_server.resource("databases")
         async def get_databases() -> List[Dict[str, Any]]:
             """Get Notion databases"""
@@ -948,21 +946,21 @@ class NotionMCPServer:
                     {"id": "db1", "title": "Projects"},
                     {"id": "db2", "title": "Tasks"}
                 ]
-                
+
             except Exception as e:
                 logger.error(f"Get databases failed: {e}")
                 return []
-    
+
     async def start(self):
         """Start the Notion MCP server"""
         logger.info(f"🚀 Starting Notion MCP Server on port {self.port}")
-        
+
         # Test connection
         health = await self.mcp_server.call_tool("health_check", {})
         logger.info(f"   Health check: {health}")
-        
+
         logger.info("✅ Notion MCP Server started successfully")
-    
+
     async def stop(self):
         """Stop the Notion MCP server"""
         logger.info("🛑 Stopping Notion MCP Server")
@@ -1017,7 +1015,7 @@ logger = logging.getLogger(__name__)
 async def start_all_services():
     """Start all MCP services"""
     logger.info("🚀 Starting Sophia AI MCP Services")
-    
+
     services = [
         ("Snowflake", snowflake_server),
         ("HubSpot", hubspot_server),
@@ -1025,22 +1023,22 @@ async def start_all_services():
         ("GitHub", github_server),
         ("Notion", notion_server)
     ]
-    
+
     for name, server in services:
         try:
             await server.start()
         except Exception as e:
             logger.error(f"❌ Failed to start {name}: {e}")
-    
+
     logger.info("✅ All MCP services started")
-    
+
     # Keep running
     try:
         while True:
             await asyncio.sleep(60)
     except KeyboardInterrupt:
         logger.info("🛑 Shutting down services...")
-        
+
         for name, server in services:
             try:
                 await server.stop()
@@ -1186,7 +1184,7 @@ Phase 1B service integration is {'✅ COMPLETE' if successful == total else f'�
 ## 📋 MCP Services Created
 
 - **Snowflake MCP** (Port 9100) - Data warehouse operations
-- **HubSpot MCP** (Port 9101) - CRM and sales data  
+- **HubSpot MCP** (Port 9101) - CRM and sales data
 - **Slack MCP** (Port 9102) - Team communication
 - **GitHub MCP** (Port 9103) - Repository management
 - **Notion MCP** (Port 9104) - Knowledge management

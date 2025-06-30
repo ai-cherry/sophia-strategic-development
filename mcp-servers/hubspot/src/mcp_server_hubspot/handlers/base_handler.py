@@ -3,15 +3,15 @@ Base handler for HubSpot API operations.
 Provides common functionality for all specialized handlers.
 """
 
-from typing import Any, Dict, List, Optional
-import logging
 import json
+import logging
+from typing import Any
 
 import mcp.types as types
 from sentence_transformers import SentenceTransformer
 
-from ..hubspot_client import HubSpotClient
 from ..faiss_manager import FaissManager
+from ..hubspot_client import HubSpotClient
 from ..utils import store_in_faiss
 
 
@@ -42,7 +42,7 @@ class BaseHandler:
         self,
         data: Any,
         data_type: str,
-        metadata_extras: Optional[Dict[str, Any]] = None,
+        metadata_extras: dict[str, Any] | None = None,
     ) -> None:
         """Safely store data in FAISS with error handling.
 
@@ -79,7 +79,7 @@ class BaseHandler:
                 f"Error storing {data_type} in FAISS: {str(e)}", exc_info=True
             )
 
-    def create_text_response(self, content: Any) -> List[types.TextContent]:
+    def create_text_response(self, content: Any) -> list[types.TextContent]:
         """Create a text response from content.
 
         Args:
@@ -94,7 +94,7 @@ class BaseHandler:
         return [types.TextContent(type="text", text=content)]
 
     def validate_required_arguments(
-        self, arguments: Optional[Dict[str, Any]], required_keys: List[str]
+        self, arguments: dict[str, Any] | None, required_keys: list[str]
     ) -> None:
         """Validate that required arguments are present.
 
@@ -113,7 +113,7 @@ class BaseHandler:
                 raise ValueError(f"Missing required argument: {key}")
 
     def get_argument_with_default(
-        self, arguments: Optional[Dict[str, Any]], key: str, default: Any
+        self, arguments: dict[str, Any] | None, key: str, default: Any
     ) -> Any:
         """Get an argument with a default value if not provided.
 

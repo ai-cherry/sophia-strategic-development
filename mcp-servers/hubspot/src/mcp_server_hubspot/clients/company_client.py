@@ -4,14 +4,13 @@ Client for HubSpot company-related operations.
 
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 from hubspot import HubSpot
 from hubspot.crm.companies import PublicObjectSearchRequest
-from hubspot.crm.contacts.exceptions import ApiException
 
-from ..core.formatters import convert_datetime_fields
 from ..core.error_handler import handle_hubspot_errors
+from ..core.formatters import convert_datetime_fields
 
 logger = logging.getLogger("mcp_hubspot_client.company")
 
@@ -103,7 +102,7 @@ class CompanyClient:
             limit=500,
         )
 
-    def _extract_engagement_ids(self, associated_engagements: Any) -> List[str]:
+    def _extract_engagement_ids(self, associated_engagements: Any) -> list[str]:
         """Extract engagement IDs from the associations response.
 
         Args:
@@ -119,8 +118,8 @@ class CompanyClient:
         return engagement_ids
 
     def _get_engagement_details(
-        self, engagement_ids: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, engagement_ids: list[str]
+    ) -> list[dict[str, Any]]:
         """Get detailed information for each engagement.
 
         Args:
@@ -146,7 +145,7 @@ class CompanyClient:
 
         return activities
 
-    def _format_engagement(self, engagement_response: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_engagement(self, engagement_response: dict[str, Any]) -> dict[str, Any]:
         """Format the engagement response into a standardized structure.
 
         Args:
@@ -179,7 +178,7 @@ class CompanyClient:
         return formatted_engagement
 
     def _format_engagement_content(
-        self, engagement_type: str, metadata: Dict[str, Any]
+        self, engagement_type: str, metadata: dict[str, Any]
     ) -> Any:
         """Format the content of an engagement based on its type.
 
@@ -202,7 +201,7 @@ class CompanyClient:
             return self._format_call_content(metadata)
         return {}
 
-    def _format_email_content(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_email_content(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Format email-specific content.
 
         Args:
@@ -230,7 +229,7 @@ class CompanyClient:
             "body": metadata.get("text", "") or metadata.get("html", ""),
         }
 
-    def _format_email_participant(self, participant: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_email_participant(self, participant: dict[str, Any]) -> dict[str, Any]:
         """Format an email participant (recipient, sender, etc.).
 
         Args:
@@ -246,7 +245,7 @@ class CompanyClient:
             "lastName": participant.get("lastName", ""),
         }
 
-    def _format_task_content(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_task_content(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Format task-specific content.
 
         Args:
@@ -262,7 +261,7 @@ class CompanyClient:
             "for_object_type": metadata.get("forObjectType", ""),
         }
 
-    def _format_meeting_content(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_meeting_content(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Format meeting-specific content.
 
         Args:
@@ -279,7 +278,7 @@ class CompanyClient:
             "internal_notes": metadata.get("internalMeetingNotes", ""),
         }
 
-    def _format_call_content(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_call_content(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Format call-specific content.
 
         Args:

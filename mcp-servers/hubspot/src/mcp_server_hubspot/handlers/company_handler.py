@@ -2,13 +2,12 @@
 Handler for company-related HubSpot operations.
 """
 
-from typing import Any, Dict, List, Optional
 import json
+from typing import Any
 
 import mcp.types as types
 
-from ..hubspot_client import HubSpotClient, ApiException
-from ..faiss_manager import FaissManager
+from ..hubspot_client import ApiException
 from .base_handler import BaseHandler
 
 
@@ -27,7 +26,7 @@ class CompanyHandler(BaseHandler):
             hubspot_client, faiss_manager, embedding_model, "company_handler"
         )
 
-    def get_create_company_schema(self) -> Dict[str, Any]:
+    def get_create_company_schema(self) -> dict[str, Any]:
         """Get the input schema for creating a company.
 
         Returns:
@@ -45,7 +44,7 @@ class CompanyHandler(BaseHandler):
             "required": ["name"],
         }
 
-    def get_company_activity_schema(self) -> Dict[str, Any]:
+    def get_company_activity_schema(self) -> dict[str, Any]:
         """Get the input schema for company activity.
 
         Returns:
@@ -59,7 +58,7 @@ class CompanyHandler(BaseHandler):
             "required": ["company_id"],
         }
 
-    def get_active_companies_schema(self) -> Dict[str, Any]:
+    def get_active_companies_schema(self) -> dict[str, Any]:
         """Get the input schema for active companies.
 
         Returns:
@@ -76,8 +75,8 @@ class CompanyHandler(BaseHandler):
         }
 
     def create_company(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Create a new company in HubSpot.
 
         Args:
@@ -143,8 +142,8 @@ class CompanyHandler(BaseHandler):
             return self.create_text_response(f"Error: {str(e)}")
 
     def get_company_activity(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get activity history for a specific company.
 
         Args:
@@ -168,8 +167,8 @@ class CompanyHandler(BaseHandler):
         return self.create_text_response(results)
 
     def get_active_companies(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get most recently active companies from HubSpot.
 
         Args:

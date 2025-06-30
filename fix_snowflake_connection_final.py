@@ -69,7 +69,6 @@ async def test_connection_manager():
         # Import and test connection manager
         from backend.core.optimized_connection_manager import (
             OptimizedConnectionManager,
-            ConnectionType,
         )
 
         # Create manager instance

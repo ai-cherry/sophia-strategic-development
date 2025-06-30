@@ -4,8 +4,8 @@ Ensures correct configuration is loaded at application startup
 This file permanently fixes the scoobyjava-vw02766 → ZNB04675 issue
 """
 
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 

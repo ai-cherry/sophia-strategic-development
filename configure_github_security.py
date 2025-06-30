@@ -5,11 +5,10 @@ Configure GitHub repository security settings for Sophia AI MCP integration
 
 import json
 import logging
-import requests
 import subprocess
-import sys
 from datetime import datetime
-from typing import Dict, List, Optional
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -179,17 +178,17 @@ assignees: ['scoobyjava']
 
 ## MCP Server Bug Report
 
-**Server Name:** 
-**Version:** 
-**Environment:** 
+**Server Name:**
+**Version:**
+**Environment:**
 
 ### Description
 A clear description of the bug.
 
 ### Steps to Reproduce
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ### Expected Behavior
 What should happen.
@@ -223,8 +222,8 @@ assignees: ['scoobyjava']
 
 ## MCP Integration Request
 
-**Service/Tool:** 
-**Repository URL:** 
+**Service/Tool:**
+**Repository URL:**
 **Priority:** High/Medium/Low
 
 ### Business Justification
@@ -261,8 +260,8 @@ assignees: ['scoobyjava']
 ## Security Vulnerability Report
 
 **Severity:** Critical/High/Medium/Low
-**Component:** 
-**Affected Versions:** 
+**Component:**
+**Affected Versions:**
 
 ### Description
 Clear description of the vulnerability.
@@ -271,9 +270,9 @@ Clear description of the vulnerability.
 What could happen if exploited.
 
 ### Steps to Reproduce
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ### Mitigation
 Suggested fixes or workarounds.
@@ -319,7 +318,7 @@ Any other relevant details.
 
         return success_count > 0
 
-    def configure_secrets_management(self) -> Dict:
+    def configure_secrets_management(self) -> dict:
         """Review and document secrets management configuration."""
         logger.info("🔐 Reviewing secrets management configuration")
 
@@ -423,7 +422,7 @@ Any other relevant details.
         logger.info("✅ Secrets management configuration documented")
         return secrets_doc
 
-    def run_configuration(self) -> Dict:
+    def run_configuration(self) -> dict:
         """Run complete GitHub security configuration."""
         logger.info("🚀 Starting GitHub security configuration")
 

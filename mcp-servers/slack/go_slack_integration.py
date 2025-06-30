@@ -8,14 +8,14 @@ Delivers 20-30% performance improvement over pure Python implementation
 import asyncio
 import json
 import logging
-import subprocess
-import aiohttp
 import os
-from typing import Dict, List, Optional, Any
+import subprocess
+import time
 from dataclasses import dataclass
 from datetime import datetime
-import signal
-import time
+from typing import Any
+
+import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -28,7 +28,7 @@ class GoSlackConfig:
 
     go_server_port: int = 9008
     go_server_host: str = "127.0.0.1"
-    slack_token: Optional[str] = None
+    slack_token: str | None = None
     transport_type: str = "sse"  # stdio or sse
     health_check_interval: int = 30
     max_retries: int = 3
@@ -43,9 +43,9 @@ class GoSlackMCPBridge:
 
     def __init__(self, config: GoSlackConfig = None):
         self.config = config or GoSlackConfig()
-        self.go_process: Optional[subprocess.Popen] = None
+        self.go_process: subprocess.Popen | None = None
         self.is_running = False
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self.base_url = (
             f"http://{self.config.go_server_host}:{self.config.go_server_port}"
         )
@@ -232,7 +232,7 @@ class GoSlackMCPBridge:
 
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Make HTTP request to Go server with performance tracking"""
         if not self.is_running or not self.session:
             raise RuntimeError("Go Slack MCP server is not running")
@@ -268,7 +268,7 @@ class GoSlackMCPBridge:
 
     # High-performance Slack operations
 
-    async def get_channels(self, types: List[str] = None) -> List[Dict[str, Any]]:
+    async def get_channels(self, types: list[str] = None) -> list[dict[str, Any]]:
         """Get Slack channels with high performance"""
         params = {}
         if types:
@@ -278,7 +278,7 @@ class GoSlackMCPBridge:
 
     async def get_conversations(
         self, channel_id: str, limit: int = 100, cursor: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get channel conversations with high performance"""
         params = {"channel": channel_id, "limit": limit}
         if cursor:
@@ -288,7 +288,7 @@ class GoSlackMCPBridge:
 
     async def search_messages(
         self, query: str, count: int = 20
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search messages with high performance"""
         params = {"query": query, "count": count}
 
@@ -296,7 +296,7 @@ class GoSlackMCPBridge:
 
     async def send_message(
         self, channel: str, text: str, thread_ts: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send message with high performance"""
         data = {"channel": channel, "text": text}
         if thread_ts:
@@ -304,7 +304,7 @@ class GoSlackMCPBridge:
 
         return await self._make_request("POST", "/message", json=data)
 
-    async def get_user_info(self, user_id: str) -> Dict[str, Any]:
+    async def get_user_info(self, user_id: str) -> dict[str, Any]:
         """Get user information with high performance"""
         return await self._make_request("GET", f"/users/{user_id}")
 
@@ -323,7 +323,7 @@ class GoSlackMCPBridge:
 
     # Performance and monitoring methods
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get performance metrics for the Go integration"""
         uptime = None
         if self.metrics["uptime_start"]:
@@ -350,7 +350,7 @@ class GoSlackMCPBridge:
             "performance_improvement": "20-30% faster than Python implementation",
         }
 
-    async def get_server_stats(self) -> Dict[str, Any]:
+    async def get_server_stats(self) -> dict[str, Any]:
         """Get detailed server statistics from Go implementation"""
         try:
             return await self._make_request("GET", "/stats")
@@ -390,7 +390,7 @@ class EnhancedSlackService:
     """Enhanced Slack service with Go performance boost"""
 
     def __init__(self):
-        self.go_bridge: Optional[GoSlackMCPBridge] = None
+        self.go_bridge: GoSlackMCPBridge | None = None
         self.fallback_to_python = True
 
     async def initialize(self):
@@ -406,7 +406,7 @@ class EnhancedSlackService:
             )
             self.go_bridge = None
 
-    async def get_channels(self, **kwargs) -> List[Dict[str, Any]]:
+    async def get_channels(self, **kwargs) -> list[dict[str, Any]]:
         """Get channels with performance optimization"""
         if self.go_bridge and self.go_bridge.is_running:
             try:
@@ -422,7 +422,7 @@ class EnhancedSlackService:
         slack_service = SlackIntegrationService()
         return await slack_service.get_channels(**kwargs)
 
-    async def get_performance_comparison(self) -> Dict[str, Any]:
+    async def get_performance_comparison(self) -> dict[str, Any]:
         """Compare Go vs Python performance"""
         if not self.go_bridge:
             return {"error": "Go bridge not available"}

@@ -3,10 +3,10 @@
 Create forks of target MCP repositories to ai-cherry organization
 """
 
-import requests
 import subprocess
-import sys
 import time
+
+import requests
 
 
 def get_github_token():

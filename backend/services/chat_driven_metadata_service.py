@@ -10,18 +10,16 @@ and real-time validation for intuitive metadata collection.
 import asyncio
 import json
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union, Tuple
+from typing import Any
 from uuid import uuid4
-from dataclasses import dataclass
-from pydantic import BaseModel, Field
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.event_driven_ingestion_service import (
     EventDrivenIngestionService,
     IngestionEvent,
-    EventType,
 )
 
 logger = logging.getLogger(__name__)
@@ -59,9 +57,9 @@ class MetadataField:
     field_type: MetadataFieldType
     required: bool = False
     description: str = ""
-    options: List[str] = None  # For multiple choice
+    options: list[str] = None  # For multiple choice
     default_value: Any = None
-    validation_rules: Dict[str, Any] = None
+    validation_rules: dict[str, Any] = None
     ai_extractable: bool = True  # Can AI extract this automatically?
 
     def __post_init__(self):
@@ -78,8 +76,8 @@ class MetadataResponse:
     session_id: str
     job_id: str
     user_id: str
-    field_responses: Dict[str, Any]
-    confidence_scores: Dict[str, float]
+    field_responses: dict[str, Any]
+    confidence_scores: dict[str, float]
     timestamp: datetime
     validation_status: ValidationStatus = ValidationStatus.PENDING
 
@@ -92,7 +90,7 @@ class HybridPrompt:
     question: str
     field_id: str
     prompt_type: str  # "multiple_choice", "free_text", "hybrid"
-    options: List[str] = None
+    options: list[str] = None
     allow_other: bool = True  # Allow "Other" option with free text
     ai_suggestion: str = None  # AI-generated suggestion
     confidence: float = 0.0  # AI confidence in suggestion
@@ -108,7 +106,7 @@ class MetadataTemplateEngine:
     def __init__(self):
         self.templates = self._load_default_templates()
 
-    def _load_default_templates(self) -> Dict[str, List[MetadataField]]:
+    def _load_default_templates(self) -> dict[str, list[MetadataField]]:
         """Load default metadata templates for common file types"""
         return {
             "document": [
@@ -261,7 +259,7 @@ class MetadataTemplateEngine:
 
     def get_template_for_file(
         self, filename: str, file_type: str, ai_detected_type: str = None
-    ) -> List[MetadataField]:
+    ) -> list[MetadataField]:
         """Get metadata template based on file characteristics"""
         # Priority: AI detected type > filename analysis > file type > default
 
@@ -297,8 +295,8 @@ class AIMetadataExtractor:
             logger.warning(f"⚠️ AI Metadata Extractor not available: {e}")
 
     async def extract_metadata_suggestions(
-        self, content: str, filename: str, metadata_fields: List[MetadataField]
-    ) -> Dict[str, Tuple[Any, float]]:
+        self, content: str, filename: str, metadata_fields: list[MetadataField]
+    ) -> dict[str, tuple[Any, float]]:
         """
         Extract metadata suggestions from content
         Returns dict of field_id -> (suggested_value, confidence_score)
@@ -319,16 +317,16 @@ class AIMetadataExtractor:
 
             prompt = f"""
             Analyze the following document and extract metadata based on the content.
-            
+
             Filename: {filename}
             Content: {content[:2000]}...  # First 2000 chars
-            
+
             Extract the following metadata fields:
             {chr(10).join(field_descriptions)}
-            
+
             Return a JSON object with:
             - field_id: {{"value": extracted_value, "confidence": 0.0-1.0}}
-            
+
             Only include fields you can extract with reasonable confidence (>0.5).
             For multiple choice fields, use exact option values.
             """
@@ -363,7 +361,7 @@ class AIMetadataExtractor:
 
     async def detect_document_type(
         self, content: str, filename: str
-    ) -> Tuple[str, float]:
+    ) -> tuple[str, float]:
         """Detect document type using AI"""
         if not self.openai_client:
             return "document", 0.0
@@ -371,12 +369,12 @@ class AIMetadataExtractor:
         try:
             prompt = f"""
             Analyze this document and classify its type.
-            
+
             Filename: {filename}
             Content: {content[:1000]}...
-            
+
             Choose from: document, report, contract, policy, procedure, meeting_notes, proposal, specification
-            
+
             Return JSON: {{"type": "detected_type", "confidence": 0.0-1.0}}
             """
 
@@ -413,7 +411,7 @@ class ChatDrivenMetadataService:
         self.ai_extractor = AIMetadataExtractor()
 
         # Active metadata sessions
-        self.active_sessions: Dict[str, Dict[str, Any]] = {}
+        self.active_sessions: dict[str, dict[str, Any]] = {}
 
         # Metrics
         self.metrics = {
@@ -460,7 +458,7 @@ class ChatDrivenMetadataService:
         user_id: str,
         filename: str,
         file_type: str,
-        missing_fields: List[Dict[str, Any]] = None,
+        missing_fields: list[dict[str, Any]] = None,
     ) -> str:
         """Create a new metadata collection session"""
         try:
@@ -528,10 +526,10 @@ class ChatDrivenMetadataService:
 
     async def _generate_hybrid_prompts(
         self,
-        metadata_fields: List[MetadataField],
-        ai_suggestions: Dict[str, Tuple[Any, float]],
+        metadata_fields: list[MetadataField],
+        ai_suggestions: dict[str, tuple[Any, float]],
         filename: str,
-    ) -> List[HybridPrompt]:
+    ) -> list[HybridPrompt]:
         """Generate hybrid prompts for metadata collection"""
         prompts = []
 
@@ -609,7 +607,7 @@ class ChatDrivenMetadataService:
 
         return base_question + "?"
 
-    async def get_session_prompts(self, session_id: str) -> List[Dict[str, Any]]:
+    async def get_session_prompts(self, session_id: str) -> list[dict[str, Any]]:
         """Get prompts for a metadata session"""
         if session_id not in self.active_sessions:
             raise ValueError(f"Session {session_id} not found")
@@ -641,8 +639,8 @@ class ChatDrivenMetadataService:
         return prompts_data
 
     async def submit_metadata_response(
-        self, session_id: str, responses: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, session_id: str, responses: dict[str, Any]
+    ) -> dict[str, Any]:
         """Submit metadata responses"""
         try:
             if session_id not in self.active_sessions:
@@ -684,8 +682,8 @@ class ChatDrivenMetadataService:
             raise
 
     async def _validate_responses(
-        self, session: Dict[str, Any], responses: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, session: dict[str, Any], responses: dict[str, Any]
+    ) -> dict[str, Any]:
         """Validate metadata responses"""
         errors = []
         warnings = []
@@ -750,7 +748,7 @@ class ChatDrivenMetadataService:
             "validated_responses": responses,
         }
 
-    async def get_service_metrics(self) -> Dict[str, Any]:
+    async def get_service_metrics(self) -> dict[str, Any]:
         """Get service metrics"""
         return {
             "service_type": "chat_driven_metadata",

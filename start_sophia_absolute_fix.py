@@ -22,7 +22,6 @@ os.environ["SNOWFLAKE_SCHEMA"] = "PROCESSED_AI"
 print("🔧 ABSOLUTE Snowflake environment configured")
 
 # Import absolute override to force settings
-import backend.core.absolute_snowflake_override
 
 # Test the fix
 try:

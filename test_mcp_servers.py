@@ -5,7 +5,7 @@ Quick testing tool for MCP servers
 """
 
 import asyncio
-import sys
+
 from backend.mcp_servers.mcp_registry import mcp_registry
 
 

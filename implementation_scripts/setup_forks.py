@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Setup and manage forked MCP repositories."""
 
-import requests
-import json
 import os
+
+import requests
 
 
 def fork_repository(owner, repo, org):

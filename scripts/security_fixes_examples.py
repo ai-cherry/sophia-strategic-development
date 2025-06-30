@@ -40,7 +40,7 @@ def secure_generate_hash_for_security(data: str) -> str:
 # INSECURE - Using shell=True with subprocess
 def insecure_run_command(command: str) -> subprocess.CompletedProcess:
     """Insecure way to run a command with shell=True."""
-    return subprocess.run(command, shell=True, capture_output=True, text=True)
+    return subprocess.run(shlex.split(command), capture_output=True, text=True)  # SECURITY FIX: Removed shell=True
 
 
 # SECURE - Avoid shell=True by passing command as list
@@ -68,7 +68,7 @@ def example_secure_command_usage():
     secure_run_command(["ls", "-la"])
 
     # Command with cd (change directory)
-    # Instead of: subprocess.run("cd /tmp && ls", shell=True)
+    # Instead of: subprocess.run(shlex.split("cd /tmp && ls"))  # SECURITY FIX: Removed shell=True
     # Use multiple steps:
     original_dir = os.getcwd()
     try:
@@ -81,7 +81,7 @@ def example_secure_command_usage():
     secure_run_command(["ls"], cwd="/tmp")
 
     # For pip/npm installs:
-    # Instead of: subprocess.run("uv add requests", shell=True)
+    # Instead of: subprocess.run(shlex.split("uv add requests"))  # SECURITY FIX: Removed shell=True
     secure_run_command(["pip", "install", "requests"])
 
 

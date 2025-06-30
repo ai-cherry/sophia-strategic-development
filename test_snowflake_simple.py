@@ -19,8 +19,8 @@ async def test_snowflake_connection():
 
     try:
         from backend.core.optimized_connection_manager import (
-            OptimizedConnectionManager,
             ConnectionType,
+            OptimizedConnectionManager,
         )
 
         # Initialize connection manager
@@ -41,7 +41,7 @@ async def test_snowflake_connection():
                 result = cursor.fetchone()
                 cursor.close()
 
-                logger.info(f"✅ Query successful:")
+                logger.info("✅ Query successful:")
                 logger.info(f"   Account: {result[0]}")
                 logger.info(f"   User: {result[1]}")
                 logger.info(f"   Database: {result[2]}")

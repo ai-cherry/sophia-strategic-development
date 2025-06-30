@@ -15,7 +15,7 @@ def fix_github_actions_workflow():
 
     workflow_file = ".github/workflows/sync_secrets.yml"
 
-    with open(workflow_file, "r") as f:
+    with open(workflow_file) as f:
         content = f.read()
 
     # Fix 1: Add missing Lambda credentials
@@ -80,7 +80,7 @@ def fix_sync_script():
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
-    with open(sync_file, "r") as f:
+    with open(sync_file) as f:
         content = f.read()
 
     # Add missing Lambda credentials to the mapping
@@ -111,7 +111,7 @@ def update_auto_esc_config():
 
     config_file = "backend/core/auto_esc_config.py"
 
-    with open(config_file, "r") as f:
+    with open(config_file) as f:
         content = f.read()
 
     # Add Lambda Labs configuration getter
@@ -164,7 +164,7 @@ def manual_sync_lambda_credentials():
     """Manually sync Lambda Labs credentials to Pulumi ESC"""
     print("🔧 MANUAL LAMBDA LABS CREDENTIALS SYNC")
     print("=" * 60)
-    
+
     # Check if we have Pulumi access
     try:
         subprocess.run(["pulumi", "whoami"], capture_output=True, text=True, check=True)
@@ -172,19 +172,19 @@ def manual_sync_lambda_credentials():
     except subprocess.CalledProcessError:
         print("❌ Pulumi access failed - check PULUMI_ACCESS_TOKEN")
         return False
-    
+
     env_path = "scoobyjava-org/default/sophia-ai-production"
-    
+
     # Lambda Labs credentials to sync
     credentials = {
         "LAMBDA_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
-        "LAMBDA_IP_ADDRESS": "values.sophia.infrastructure.lambda_labs.ip_address", 
+        "LAMBDA_IP_ADDRESS": "values.sophia.infrastructure.lambda_labs.ip_address",
         "LAMBDA_SSH_PRIVATE_KEY": "values.sophia.infrastructure.lambda_labs.ssh_private_key"
     }
-    
+
     print("\\n📋 ENTER LAMBDA LABS CREDENTIALS:")
     print("(Get these from GitHub Organization Secrets)")
-    
+
     values = {}
     for env_var, pulumi_path in credentials.items():
         if env_var == "LAMBDA_SSH_PRIVATE_KEY":
@@ -204,17 +204,17 @@ def manual_sync_lambda_credentials():
                 return False
         else:
             value = input(f"{env_var}: ").strip()
-        
+
         if value:
             values[env_var] = (value, pulumi_path)
             print(f"✅ Got {env_var}")
         else:
             print(f"⚠️ Skipping empty {env_var}")
-    
+
     # Sync to Pulumi ESC
     print("\\n🔄 SYNCING TO PULUMI ESC...")
     success_count = 0
-    
+
     for env_var, (value, pulumi_path) in values.items():
         try:
             cmd = ["pulumi", "env", "set", env_path, pulumi_path, value, "--secret"]
@@ -223,9 +223,9 @@ def manual_sync_lambda_credentials():
             success_count += 1
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to sync {env_var}: {e.stderr}")
-    
+
     print(f"\\n📊 SYNC COMPLETE: {success_count}/{len(values)} credentials synced")
-    
+
     if success_count > 0:
         print("\\n🧪 TESTING ACCESS...")
         # Test the synced credentials
@@ -234,15 +234,15 @@ def manual_sync_lambda_credentials():
                 ["pulumi", "env", "get", env_path, "--show-secrets"],
                 capture_output=True, text=True, check=True
             )
-            
+
             if "lambda_labs" in result.stdout:
                 print("✅ Lambda Labs credentials found in Pulumi ESC")
             else:
                 print("⚠️ Lambda Labs credentials not visible in Pulumi ESC")
-                
+
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to verify sync: {e.stderr}")
-    
+
     return success_count > 0
 
 if __name__ == "__main__":

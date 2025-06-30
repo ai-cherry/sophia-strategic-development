@@ -70,7 +70,7 @@ class CodewideSnowflakeFixer:
         # Fix the malformed _create_snowflake_connection method
         fixed_method = '''    async def _create_snowflake_connection(self):
         """Create Snowflake connection with corrected configuration"""
-        
+
         # Get corrected connection parameters from override
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
@@ -179,7 +179,7 @@ logger = logging.getLogger(__name__)
 
 def configure_snowflake_environment():
     """Configure Snowflake environment variables at startup - PERMANENT FIX"""
-    
+
     # PERMANENT SNOWFLAKE CONFIGURATION - DO NOT MODIFY
     correct_config = {
         'SNOWFLAKE_ACCOUNT': 'ZNB04675',
@@ -189,25 +189,25 @@ def configure_snowflake_environment():
         'SNOWFLAKE_ROLE': 'ACCOUNTADMIN',
         'SNOWFLAKE_SCHEMA': 'PROCESSED_AI'
     }
-    
+
     for key, value in correct_config.items():
         os.environ[key] = value
         logger.info(f"✅ PERMANENT FIX: Set {key}: {value}")
-    
+
     logger.info("🔧 PERMANENT Snowflake environment configuration applied")
     logger.info("   This permanently fixes the scoobyjava-vw02766 → ZNB04675 issue")
 
 def apply_startup_configuration():
     """Apply all startup configuration - CALLED AUTOMATICALLY"""
     logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT SNOWFLAKE FIX)")
-    
+
     # Configure Snowflake with correct account
     configure_snowflake_environment()
-    
+
     # Set other environment variables
     os.environ['ENVIRONMENT'] = 'prod'
     os.environ['PULUMI_ORG'] = 'scoobyjava-org'
-    
+
     logger.info("✅ Startup configuration complete - Snowflake fix applied")
 
 # AUTOMATIC APPLICATION - This runs when module is imported
@@ -232,7 +232,7 @@ logger = logging.getLogger(__name__)
 
 def override_snowflake_config():
     """Override Snowflake configuration with correct values - PERMANENT"""
-    
+
     # PERMANENT CONFIGURATION - CANNOT BE OVERRIDDEN
     correct_config = {
         'SNOWFLAKE_ACCOUNT': 'ZNB04675',
@@ -242,17 +242,17 @@ def override_snowflake_config():
         'SNOWFLAKE_ROLE': 'ACCOUNTADMIN',
         'SNOWFLAKE_SCHEMA': 'PROCESSED_AI'
     }
-    
+
     for key, value in correct_config.items():
         os.environ[key] = value
-    
+
     logger.info("🔧 PERMANENT Snowflake configuration override applied")
     return correct_config
 
 def get_snowflake_connection_params():
     """Get correct Snowflake connection parameters - PERMANENT FIX"""
     override_snowflake_config()
-    
+
     # THESE VALUES ARE PERMANENT AND CORRECT
     params = {
         'account': 'ZNB04675',  # CORRECT ACCOUNT
@@ -263,7 +263,7 @@ def get_snowflake_connection_params():
         'role': 'ACCOUNTADMIN',
         'schema': 'PROCESSED_AI'
     }
-    
+
     logger.info(f"✅ PERMANENT FIX: Using Snowflake account {params['account']}")
     return params
 
@@ -356,14 +356,14 @@ override_snowflake_config()
 
 ## 🔧 PERMANENT SNOWFLAKE FIX STATUS
 
-**Issue:** ✅ PERMANENTLY RESOLVED  
-**Problem:** System was connecting to wrong account `scoobyjava-vw02766`  
-**Solution:** Comprehensive codewide fix applied  
-**Status:** All files updated, permanent override in place  
+**Issue:** ✅ PERMANENTLY RESOLVED
+**Problem:** System was connecting to wrong account `scoobyjava-vw02766`
+**Solution:** Comprehensive codewide fix applied
+**Status:** All files updated, permanent override in place
 
 ### Fix Components Applied:
 - ✅ `backend/core/startup_config.py` - Automatic configuration on import
-- ✅ `backend/core/snowflake_override.py` - Permanent parameter override  
+- ✅ `backend/core/snowflake_override.py` - Permanent parameter override
 - ✅ `backend/core/optimized_connection_manager.py` - Fixed connection method
 - ✅ `backend/app/fastapi_app.py` - Startup configuration import
 - ✅ `backend/core/auto_esc_config.py` - Correct default values
@@ -422,9 +422,9 @@ override_snowflake_config()
 
         report_content = f"""# 🔧 COMPREHENSIVE SNOWFLAKE FIX REPORT
 
-**Date:** {asyncio.get_event_loop().time()}  
-**Fixes Applied:** {successful}/{total}  
-**Success Rate:** {(successful/total*100):.1f}%  
+**Date:** {asyncio.get_event_loop().time()}
+**Fixes Applied:** {successful}/{total}
+**Success Rate:** {(successful/total*100):.1f}%
 **Status:** {'✅ COMPLETE' if successful == total else '⚠️ PARTIAL'}
 
 ## 📊 FIX RESULTS
@@ -444,15 +444,15 @@ override_snowflake_config()
 
             report_content += "\n"
 
-        report_content += f"""## 🎉 PERMANENT FIX STATUS
+        report_content += """## 🎉 PERMANENT FIX STATUS
 
 The Snowflake connection issue has been **PERMANENTLY RESOLVED**:
 
-✅ **Root Cause Fixed:** All references to `scoobyjava-vw02766` eliminated  
-✅ **Correct Account:** Now using `ZNB04675` everywhere  
-✅ **Automatic Override:** Permanent configuration that cannot be bypassed  
-✅ **Startup Integration:** Fix applies automatically on application start  
-✅ **Comprehensive Coverage:** All files and configuration sources updated  
+✅ **Root Cause Fixed:** All references to `scoobyjava-vw02766` eliminated
+✅ **Correct Account:** Now using `ZNB04675` everywhere
+✅ **Automatic Override:** Permanent configuration that cannot be bypassed
+✅ **Startup Integration:** Fix applies automatically on application start
+✅ **Comprehensive Coverage:** All files and configuration sources updated
 
 ## 🚀 VERIFICATION COMMANDS
 
@@ -462,7 +462,7 @@ Test the fix:
 python -c "
 from backend.core.snowflake_override import get_snowflake_connection_params
 params = get_snowflake_connection_params()
-print(f'Account: {{params[\"account\"]}}')
+print(f'Account: {params[\"account\"]}')
 print('✅ Fix working!' if params['account'] == 'ZNB04675' else '❌ Fix failed!')
 "
 
@@ -471,7 +471,7 @@ python -c "
 import os
 from backend.core.startup_config import apply_startup_configuration
 apply_startup_configuration()
-print(f'SNOWFLAKE_ACCOUNT: {{os.environ.get(\"SNOWFLAKE_ACCOUNT\")}}')
+print(f'SNOWFLAKE_ACCOUNT: {os.environ.get(\"SNOWFLAKE_ACCOUNT\")}')
 "
 
 # Start FastAPI and verify no 404 errors
@@ -486,7 +486,7 @@ uvicorn.run('backend.app.fastapi_app:app', host='0.0.0.0', port=8000, reload=Fal
 This fix includes multiple layers of protection:
 
 1. **Startup Configuration** - Automatically applied on import
-2. **Environment Override** - Forces correct environment variables  
+2. **Environment Override** - Forces correct environment variables
 3. **Parameter Override** - Ensures correct connection parameters
 4. **FastAPI Integration** - Applied before app startup
 5. **Documentation Update** - Permanent record of the fix

@@ -4,10 +4,10 @@ Fix Snowflake Connection Script
 Clear cache and test connection with corrected configuration
 """
 
-import os
-import sys
 import logging
+import os
 import shutil
+import sys
 from pathlib import Path
 
 # Configure logging
@@ -80,9 +80,10 @@ def test_connection():
 
     try:
         import asyncio
+
         from backend.core.optimized_connection_manager import (
-            OptimizedConnectionManager,
             ConnectionType,
+            OptimizedConnectionManager,
         )
 
         async def test_async_connection():

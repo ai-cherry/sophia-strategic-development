@@ -5,12 +5,10 @@ Provides CRM and sales data functionality
 
 import asyncio
 import logging
-import json
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
-from mcp import Server, Tool, Resource
-from mcp.types import TextContent, ImageContent
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -39,7 +37,7 @@ class HubSpotMCPServer:
         """Register HubSpot MCP tools"""
 
         @self.mcp_server.tool("get_contacts")
-        async def get_contacts(limit: int = 10) -> Dict[str, Any]:
+        async def get_contacts(limit: int = 10) -> dict[str, Any]:
             """Get HubSpot contacts"""
             try:
                 # Mock implementation for now
@@ -61,7 +59,7 @@ class HubSpotMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("get_deals")
-        async def get_deals(limit: int = 10) -> Dict[str, Any]:
+        async def get_deals(limit: int = 10) -> dict[str, Any]:
             """Get HubSpot deals"""
             try:
                 # Mock implementation for now
@@ -84,7 +82,7 @@ class HubSpotMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check HubSpot connection health"""
             try:
                 has_api_key = bool(self.api_key)
@@ -103,7 +101,7 @@ class HubSpotMCPServer:
         """Register HubSpot MCP resources"""
 
         @self.mcp_server.resource("pipelines")
-        async def get_pipelines() -> List[Dict[str, Any]]:
+        async def get_pipelines() -> list[dict[str, Any]]:
             """Get HubSpot sales pipelines"""
             try:
                 # Mock implementation

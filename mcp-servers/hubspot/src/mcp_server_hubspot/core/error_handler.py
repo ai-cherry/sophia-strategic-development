@@ -2,10 +2,11 @@
 Error handling utilities for HubSpot API interactions.
 """
 
-import logging
-import json
 import functools
-from typing import Any, Callable
+import json
+import logging
+from collections.abc import Callable
+from typing import Any
 
 from hubspot.crm.contacts.exceptions import ApiException
 

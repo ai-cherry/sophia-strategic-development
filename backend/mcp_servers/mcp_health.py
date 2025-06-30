@@ -5,10 +5,9 @@ Comprehensive health checks and monitoring for all MCP servers
 
 import asyncio
 import logging
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Any
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +34,14 @@ class SystemHealth:
     degraded_services: int
     unhealthy_services: int
     last_updated: datetime
-    services: List[ServiceHealth]
+    services: list[ServiceHealth]
 
 
 class MCPHealthMonitor:
     """Health monitoring for all MCP services"""
 
     def __init__(self):
-        self.health_history: Dict[str, List[ServiceHealth]] = {}
+        self.health_history: dict[str, list[ServiceHealth]] = {}
         self.services = ["snowflake", "hubspot", "slack", "github", "notion"]
 
     async def check_service_health(self, service_name: str) -> ServiceHealth:
@@ -166,7 +165,7 @@ class MCPHealthMonitor:
 
         return system_health
 
-    def get_health_report(self) -> Dict[str, Any]:
+    def get_health_report(self) -> dict[str, Any]:
         """Get comprehensive health report"""
         return {
             "timestamp": datetime.now().isoformat(),

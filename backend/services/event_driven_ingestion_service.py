@@ -10,21 +10,20 @@ building on Phase 2 polyglot MCP ecosystem for enterprise-grade performance.
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import uuid4
-from dataclasses import dataclass, asdict
+
 import aioredis
-from pydantic import BaseModel
+
+from backend.core.auto_esc_config import get_config_value
 
 # Import our existing enhanced ingestion service
 from backend.services.enhanced_ingestion_service import (
     EnhancedIngestionService,
-    IngestionJob,
-    IngestionStatus,
 )
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +53,10 @@ class IngestionEvent:
     job_id: str
     user_id: str
     timestamp: datetime
-    payload: Dict[str, Any]
-    metadata: Dict[str, Any] = None
+    payload: dict[str, Any]
+    metadata: dict[str, Any] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization"""
         return {
             "event_id": self.event_id,
@@ -70,7 +69,7 @@ class IngestionEvent:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "IngestionEvent":
+    def from_dict(cls, data: dict[str, Any]) -> "IngestionEvent":
         """Create from dictionary"""
         return cls(
             event_id=data["event_id"],
@@ -87,8 +86,8 @@ class IngestionEventBus:
     """Event bus for ingestion orchestration using Redis as message broker"""
 
     def __init__(self):
-        self.redis: Optional[aioredis.Redis] = None
-        self.subscribers: Dict[str, List[callable]] = {}
+        self.redis: aioredis.Redis | None = None
+        self.subscribers: dict[str, list[callable]] = {}
         self.is_running = False
 
     async def initialize(self):
@@ -231,7 +230,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
         filename: str,
         file_content: bytes,
         file_type: str,
-        metadata: Dict[str, Any] = None,
+        metadata: dict[str, Any] = None,
     ) -> str:
         """
         Create ingestion job with event-driven processing
@@ -274,7 +273,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             logger.error(f"❌ Failed to create event-driven ingestion job: {e}")
             raise
 
-    async def publish_progress_event(self, job_id: str, progress_data: Dict[str, Any]):
+    async def publish_progress_event(self, job_id: str, progress_data: dict[str, Any]):
         """Publish progress update event for real-time streaming"""
         try:
             event = IngestionEvent(
@@ -291,7 +290,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
         except Exception as e:
             logger.error(f"❌ Failed to publish progress event: {e}")
 
-    async def get_service_metrics(self) -> Dict[str, Any]:
+    async def get_service_metrics(self) -> dict[str, Any]:
         """Get event-driven service metrics"""
         return {
             "service_type": "event_driven_ingestion",

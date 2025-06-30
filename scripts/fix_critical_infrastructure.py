@@ -4,13 +4,10 @@ CRITICAL INFRASTRUCTURE FIX SCRIPT
 Addresses 5 critical infrastructure misalignments identified in comprehensive analysis
 """
 
-import os
-import subprocess
 import logging
-import json
-import yaml
+import subprocess
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -109,7 +106,7 @@ class CriticalInfrastructureFixer:
             deploy_foundation_file.write_text(content)
             logger.info("✅ Updated Estuary foundation deployment script")
 
-    def run_all_fixes(self) -> Dict[str, Any]:
+    def run_all_fixes(self) -> dict[str, Any]:
         """Run all critical infrastructure fixes"""
         logger.info("🚀 STARTING COMPREHENSIVE INFRASTRUCTURE FIXES")
         logger.info("=" * 80)
@@ -122,13 +119,13 @@ class CriticalInfrastructureFixer:
         }
 
         # Execute Snowflake fix
-        logger.info(f"\n🔧 Executing: Snowflake Connectivity Fix")
+        logger.info("\n🔧 Executing: Snowflake Connectivity Fix")
         try:
             if self.fix_snowflake_connectivity():
-                logger.info(f"✅ Snowflake Connectivity - COMPLETED")
+                logger.info("✅ Snowflake Connectivity - COMPLETED")
                 results["success_rate"] = 100
             else:
-                logger.error(f"❌ Snowflake Connectivity - FAILED")
+                logger.error("❌ Snowflake Connectivity - FAILED")
                 results["success_rate"] = 0
         except Exception as e:
             logger.error(f"❌ Snowflake Connectivity - EXCEPTION: {e}")

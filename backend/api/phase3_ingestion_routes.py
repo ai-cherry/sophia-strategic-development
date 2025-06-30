@@ -4,15 +4,13 @@ Phase 3 Ingestion API Routes for Sophia AI
 Integrates event-driven ingestion, chat-driven metadata, and SSE progress streaming
 """
 
-import asyncio
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Depends, Request, File, UploadFile, Form
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -25,7 +23,7 @@ class IngestionJobRequest(BaseModel):
 
     filename: str = Field(..., description="Name of the file")
     file_type: str = Field(..., description="MIME type of the file")
-    metadata: Optional[Dict[str, Any]] = Field(
+    metadata: dict[str, Any] | None = Field(
         default=None, description="Initial metadata"
     )
     event_driven: bool = Field(default=True, description="Use event-driven processing")
@@ -38,7 +36,7 @@ class IngestionJobResponse(BaseModel):
     status: str
     message: str
     created_at: datetime
-    estimated_completion: Optional[datetime] = None
+    estimated_completion: datetime | None = None
 
 
 class JobStatusResponse(BaseModel):
@@ -51,8 +49,8 @@ class JobStatusResponse(BaseModel):
     message: str
     created_at: datetime
     updated_at: datetime
-    metadata: Dict[str, Any]
-    error_message: Optional[str] = None
+    metadata: dict[str, Any]
+    error_message: str | None = None
 
 
 # Router setup
@@ -62,20 +60,19 @@ router = APIRouter(prefix="/api/v1/phase3", tags=["Phase 3 Ingestion"])
 @router.post("/jobs", response_model=IngestionJobResponse)
 async def create_ingestion_job(
     file: UploadFile = File(...),
-    metadata: Optional[str] = Form(default=None),
+    metadata: str | None = Form(default=None),
     event_driven: bool = Form(default=True),
     user_id: str = Form(...),
 ):
     """Create a new ingestion job with file upload"""
     try:
         # Read file content
-        file_content = await file.read()
+        await file.read()
 
         # Parse metadata if provided
-        parsed_metadata = {}
         if metadata:
             try:
-                parsed_metadata = json.loads(metadata)
+                json.loads(metadata)
             except json.JSONDecodeError:
                 raise HTTPException(status_code=400, detail="Invalid metadata JSON")
 

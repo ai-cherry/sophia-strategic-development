@@ -2,8 +2,7 @@
 Handler for ticket-related HubSpot operations.
 """
 
-from typing import Any, Dict, List, Optional
-import json
+from typing import Any
 
 import mcp.types as types
 
@@ -25,7 +24,7 @@ class TicketHandler(BaseHandler):
             hubspot_client, faiss_manager, embedding_model, "ticket_handler"
         )
 
-    def get_tickets_schema(self) -> Dict[str, Any]:
+    def get_tickets_schema(self) -> dict[str, Any]:
         """Get the input schema for tickets.
 
         Returns:
@@ -54,7 +53,7 @@ class TicketHandler(BaseHandler):
             },
         }
 
-    def get_ticket_conversation_threads_schema(self) -> Dict[str, Any]:
+    def get_ticket_conversation_threads_schema(self) -> dict[str, Any]:
         """Get the input schema for ticket conversation threads.
 
         Returns:
@@ -72,8 +71,8 @@ class TicketHandler(BaseHandler):
         }
 
     def get_tickets(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get tickets from HubSpot based on configurable selection criteria.
 
         Args:
@@ -122,7 +121,7 @@ class TicketHandler(BaseHandler):
         return self.create_text_response(results)
 
     def _store_tickets_in_faiss(
-        self, results: Dict[str, Any], criteria: str, limit: int
+        self, results: dict[str, Any], criteria: str, limit: int
     ) -> None:
         """Store ticket data in FAISS.
 
@@ -147,8 +146,8 @@ class TicketHandler(BaseHandler):
             )
 
     def get_ticket_conversation_threads(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get conversation threads associated with a specific ticket.
 
         Args:
@@ -200,7 +199,7 @@ class TicketHandler(BaseHandler):
             )
 
     def _store_ticket_threads_in_faiss(
-        self, results: Dict[str, Any], ticket_id: str
+        self, results: dict[str, Any], ticket_id: str
     ) -> None:
         """Store ticket conversation threads in FAISS.
 

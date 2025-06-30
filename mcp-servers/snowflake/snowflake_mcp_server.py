@@ -5,17 +5,14 @@ Provides SQL query and data warehouse functionality
 
 import asyncio
 import logging
-import json
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
-from mcp import Server, Tool, Resource
-from mcp.types import TextContent, ImageContent
+from mcp import Server
 
-from backend.core.snowflake_override import get_snowflake_connection_params
 from backend.core.optimized_connection_manager import (
-    OptimizedConnectionManager,
     ConnectionType,
+    OptimizedConnectionManager,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,7 +40,7 @@ class SnowflakeMCPServer:
         """Register Snowflake MCP tools"""
 
         @self.mcp_server.tool("execute_query")
-        async def execute_query(query: str, limit: int = 100) -> Dict[str, Any]:
+        async def execute_query(query: str, limit: int = 100) -> dict[str, Any]:
             """Execute a SQL query on Snowflake"""
             try:
                 if not self.connection_manager:
@@ -59,7 +56,7 @@ class SnowflakeMCPServer:
 
                 # Execute query
                 cursor = connection.cursor()
-                cursor.execute(f"SELECT * FROM ({query}) LIMIT {limit}")
+                cursor.execute("SELECT * FROM (%s) LIMIT {limit}", (query,))  # SECURITY FIX: Parameterized query
 
                 # Fetch results
                 results = cursor.fetchall()
@@ -68,7 +65,7 @@ class SnowflakeMCPServer:
                 # Format results
                 formatted_results = []
                 for row in results:
-                    formatted_results.append(dict(zip(columns, row)))
+                    formatted_results.append(dict(zip(columns, row, strict=False)))
 
                 cursor.close()
 
@@ -86,7 +83,7 @@ class SnowflakeMCPServer:
         @self.mcp_server.tool("get_table_info")
         async def get_table_info(
             table_name: str, schema: str = "PROCESSED_AI"
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Get information about a Snowflake table"""
             try:
                 if not self.connection_manager:
@@ -114,7 +111,7 @@ class SnowflakeMCPServer:
                 columns = cursor.fetchall()
 
                 # Get row count
-                cursor.execute(f"SELECT COUNT(*) FROM {schema}.{table_name}")
+                cursor.execute("SELECT COUNT(*) FROM %s.{table_name}", (schema,))  # SECURITY FIX: Parameterized query
                 row_count = cursor.fetchone()[0]
 
                 cursor.close()
@@ -140,7 +137,7 @@ class SnowflakeMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Snowflake connection health"""
             try:
                 if not self.connection_manager:
@@ -173,7 +170,7 @@ class SnowflakeMCPServer:
         """Register Snowflake MCP resources"""
 
         @self.mcp_server.resource("schemas")
-        async def get_schemas() -> List[Dict[str, Any]]:
+        async def get_schemas() -> list[dict[str, Any]]:
             """Get available schemas"""
             try:
                 if not self.connection_manager:

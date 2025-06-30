@@ -2,11 +2,10 @@
 """
 Test script for retrieving closed tickets and their conversation threads using the MCP tools.
 """
+import logging
 import os
 import sys
-import json
-import logging
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 # Add src directory to path to allow direct imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
@@ -21,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger("test_mcp_ticket_conversations")
 
 
-def test_get_closed_tickets(hubspot_client: HubSpotClient) -> List[Dict[str, Any]]:
+def test_get_closed_tickets(hubspot_client: HubSpotClient) -> list[dict[str, Any]]:
     """Test getting closed tickets using the MCP tool.
 
     Args:
@@ -61,7 +60,7 @@ def test_get_closed_tickets(hubspot_client: HubSpotClient) -> List[Dict[str, Any
 
 def test_get_ticket_conversation_threads(
     hubspot_client: HubSpotClient, ticket_id: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Test getting conversation threads for a specific ticket using the MCP tool.
 
     Args:

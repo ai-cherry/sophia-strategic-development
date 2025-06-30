@@ -10,21 +10,21 @@ and hybrid WebSocket/SSE architecture for maximum compatibility.
 import asyncio
 import json
 import logging
+import time
+from collections.abc import AsyncGenerator
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, AsyncGenerator
+from typing import Any
 from uuid import uuid4
-from dataclasses import dataclass, asdict
-import time
 
 from fastapi import Request
-from fastapi.responses import StreamingResponse
 from sse_starlette import EventSourceResponse
 
 from backend.services.event_driven_ingestion_service import (
     EventDrivenIngestionService,
-    IngestionEvent,
     EventType,
+    IngestionEvent,
 )
 from backend.websocket.resilient_websocket_manager import ResilientWebSocketManager
 
@@ -58,10 +58,10 @@ class ProgressEvent:
     total_steps: int
     current_step_index: int
     message: str
-    details: Dict[str, Any] = None
-    metadata: Dict[str, Any] = None
+    details: dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
-    def to_sse_data(self) -> Dict[str, Any]:
+    def to_sse_data(self) -> dict[str, Any]:
         """Convert to SSE-compatible data"""
         return {
             "id": self.event_id,
@@ -85,7 +85,7 @@ class WCAGProgressFormatter:
     """WCAG-compliant progress message formatter"""
 
     @staticmethod
-    def format_progress_message(event: ProgressEvent) -> Dict[str, str]:
+    def format_progress_message(event: ProgressEvent) -> dict[str, str]:
         """Format progress message for accessibility"""
         # Main message for screen readers
         aria_label = f"Processing step {event.current_step_index + 1} of {event.total_steps}: {event.current_step}"
@@ -119,13 +119,13 @@ class SSEProgressStreamer:
 
     def __init__(self):
         # Active SSE connections
-        self.active_connections: Dict[str, Set[str]] = (
+        self.active_connections: dict[str, set[str]] = (
             {}
         )  # user_id -> set of connection_ids
-        self.connection_queues: Dict[str, asyncio.Queue] = (
+        self.connection_queues: dict[str, asyncio.Queue] = (
             {}
         )  # connection_id -> event queue
-        self.connection_metadata: Dict[str, Dict[str, Any]] = (
+        self.connection_metadata: dict[str, dict[str, Any]] = (
             {}
         )  # connection_id -> metadata
 
@@ -139,7 +139,7 @@ class SSEProgressStreamer:
         }
 
     async def create_sse_stream(
-        self, user_id: str, job_ids: List[str] = None, request: Request = None
+        self, user_id: str, job_ids: list[str] = None, request: Request = None
     ) -> EventSourceResponse:
         """Create SSE stream for user"""
         connection_id = str(uuid4())
@@ -223,7 +223,7 @@ class SSEProgressStreamer:
                     self.metrics["events_sent"] += 1
                     self.metrics["last_event_time"] = datetime.now()
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # Send heartbeat if needed
                     current_time = time.time()
                     if current_time - last_heartbeat >= heartbeat_interval:
@@ -237,7 +237,7 @@ class SSEProgressStreamer:
                         }
 
                         yield f"id: {heartbeat_event['id']}\n"
-                        yield f"event: heartbeat\n"
+                        yield "event: heartbeat\n"
                         yield f"data: {json.dumps(heartbeat_event['data'])}\n\n"
 
                         last_heartbeat = current_time
@@ -325,7 +325,7 @@ class HybridProgressStreamingService:
         self.websocket_manager = ResilientWebSocketManager()
 
         # Progress tracking
-        self.job_progress: Dict[str, Dict[str, Any]] = {}
+        self.job_progress: dict[str, dict[str, Any]] = {}
 
         # Metrics
         self.metrics = {
@@ -387,7 +387,7 @@ class HybridProgressStreamingService:
 
     async def _convert_ingestion_to_progress(
         self, ingestion_event: IngestionEvent
-    ) -> Optional[ProgressEvent]:
+    ) -> ProgressEvent | None:
         """Convert ingestion event to progress event"""
         event_mapping = {
             EventType.INGESTION_INITIATED: (
@@ -509,7 +509,7 @@ class HybridProgressStreamingService:
     # SSE Endpoints
 
     async def create_sse_stream(
-        self, user_id: str, job_ids: List[str] = None, request: Request = None
+        self, user_id: str, job_ids: list[str] = None, request: Request = None
     ) -> EventSourceResponse:
         """Create SSE stream (public interface)"""
         self.metrics["sse_connections"] += 1
@@ -531,7 +531,7 @@ class HybridProgressStreamingService:
         progress_percentage: float,
         current_step: str,
         message: str,
-        details: Dict[str, Any] = None,
+        details: dict[str, Any] = None,
     ):
         """Manually update job progress"""
         try:
@@ -554,7 +554,7 @@ class HybridProgressStreamingService:
         except Exception as e:
             logger.error(f"❌ Failed to update job progress: {e}")
 
-    async def get_service_metrics(self) -> Dict[str, Any]:
+    async def get_service_metrics(self) -> dict[str, Any]:
         """Get service metrics"""
         sse_metrics = self.sse_streamer.metrics
 

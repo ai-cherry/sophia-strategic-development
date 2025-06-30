@@ -3,9 +3,8 @@ Enhanced API Authentication for MCP Servers
 Provides secure authentication for all external services
 """
 
-import os
 import logging
-from typing import Dict, Optional
+
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
@@ -17,7 +16,7 @@ class MCPAuthenticator:
     def __init__(self):
         self.credentials = self._load_credentials()
 
-    def _load_credentials(self) -> Dict[str, str]:
+    def _load_credentials(self) -> dict[str, str]:
         """Load all API credentials from Pulumi ESC"""
 
         credentials = {
@@ -47,7 +46,7 @@ class MCPAuthenticator:
 
     def get_credential(
         self, service: str, credential_type: str = "api_key"
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get credential for a specific service"""
         key = f"{service}_{credential_type}"
         return self.credentials.get(key)
@@ -72,7 +71,7 @@ class MCPAuthenticator:
 
         return True
 
-    def get_service_status(self) -> Dict[str, bool]:
+    def get_service_status(self) -> dict[str, bool]:
         """Get configuration status for all services"""
         services = ["snowflake", "hubspot", "slack", "github", "notion"]
         return {service: self.is_service_configured(service) for service in services}

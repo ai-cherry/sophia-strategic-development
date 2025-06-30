@@ -6,7 +6,6 @@ Implements the highest-priority MCP repositories for immediate business value
 
 import asyncio
 import logging
-import os
 import subprocess
 import sys
 from pathlib import Path

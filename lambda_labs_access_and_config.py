@@ -4,14 +4,12 @@ Lambda Labs Access & Server Configuration Optimizer for Sophia AI
 Comprehensive script to access Lambda Labs, audit server configurations, and optimize for current state
 """
 
+import json
 import os
 import sys
-import json
-import requests
-import time
-from typing import Dict, List, Any
 from dataclasses import dataclass
-from datetime import datetime
+
+import requests
 
 # Add project root to path
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -104,7 +102,7 @@ class LambdaLabsManager:
         for config_file in config_files:
             if os.path.exists(config_file):
                 try:
-                    with open(config_file, "r") as f:
+                    with open(config_file) as f:
                         if config_file.endswith(".json"):
                             config = json.load(f)
                             if "api_key" in config:

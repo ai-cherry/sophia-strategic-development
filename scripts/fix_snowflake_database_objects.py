@@ -6,9 +6,10 @@ Creates missing schemas and tables causing SQL compilation errors
 
 import asyncio
 import logging
+
 from backend.core.optimized_connection_manager import (
-    OptimizedConnectionManager,
     ConnectionType,
+    OptimizedConnectionManager,
 )
 
 logging.basicConfig(level=logging.INFO)

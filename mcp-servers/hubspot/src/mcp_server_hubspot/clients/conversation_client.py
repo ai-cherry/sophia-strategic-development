@@ -2,20 +2,19 @@
 Client for HubSpot conversation-related operations.
 """
 
-import json
 import logging
-import requests
-from typing import Any, Dict, List, Optional
+from typing import Any
 
+import requests
 from hubspot import HubSpot
+from hubspot.crm.contacts.exceptions import ApiException
 from hubspot.crm.objects.emails import (
     BatchReadInputSimplePublicObjectId,
     SimplePublicObjectId,
 )
-from hubspot.crm.contacts.exceptions import ApiException
 
-from ..core.formatters import convert_datetime_fields
 from ..core.error_handler import handle_hubspot_errors
+from ..core.formatters import convert_datetime_fields
 from ..core.storage import ThreadStorage
 
 logger = logging.getLogger("mcp_hubspot_client.conversation")
@@ -40,8 +39,8 @@ class ConversationClient:
 
     @handle_hubspot_errors
     def get_recent_emails(
-        self, limit: int = 10, after: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, limit: int = 10, after: str | None = None
+    ) -> dict[str, Any]:
         """Get recent emails from HubSpot with pagination.
 
         Args:
@@ -66,7 +65,7 @@ class ConversationClient:
 
         return {"results": email_details, "pagination": {"next": {"after": next_after}}}
 
-    def _fetch_emails_page(self, limit: int, after: Optional[str]) -> Any:
+    def _fetch_emails_page(self, limit: int, after: str | None) -> Any:
         """Fetch a page of emails from HubSpot.
 
         Args:
@@ -80,7 +79,7 @@ class ConversationClient:
             limit=limit, archived=False, after=after
         )
 
-    def _create_empty_email_response(self, api_response: Any) -> Dict[str, Any]:
+    def _create_empty_email_response(self, api_response: Any) -> dict[str, Any]:
         """Create an empty email response structure with pagination.
 
         Args:
@@ -95,7 +94,7 @@ class ConversationClient:
 
         return {"results": [], "pagination": {"next": {"after": next_after}}}
 
-    def _get_email_details(self, email_ids: List[str]) -> List[Dict[str, Any]]:
+    def _get_email_details(self, email_ids: list[str]) -> list[dict[str, Any]]:
         """Get detailed content for each email.
 
         Args:
@@ -121,7 +120,7 @@ class ConversationClient:
         # Convert datetime fields
         return convert_datetime_fields(formatted_emails)
 
-    def _fetch_email_batch(self, batch_ids: List[str]) -> Any:
+    def _fetch_email_batch(self, batch_ids: list[str]) -> Any:
         """Fetch details for a batch of emails.
 
         Args:
@@ -149,7 +148,7 @@ class ConversationClient:
             batch_read_input_simple_public_object_id=batch_input
         )
 
-    def _format_email_batch(self, batch_response: Any) -> List[Dict[str, Any]]:
+    def _format_email_batch(self, batch_response: Any) -> list[dict[str, Any]]:
         """Format a batch of email responses.
 
         Args:
@@ -181,7 +180,7 @@ class ConversationClient:
 
         return formatted_emails
 
-    def _extract_pagination_token(self, api_response: Any) -> Optional[str]:
+    def _extract_pagination_token(self, api_response: Any) -> str | None:
         """Extract the pagination token from an API response.
 
         Args:
@@ -196,8 +195,8 @@ class ConversationClient:
 
     @handle_hubspot_errors
     def get_recent_threads(
-        self, limit: int = 10, after: Optional[str] = None, refresh_cache: bool = False
-    ) -> Dict[str, Any]:
+        self, limit: int = 10, after: str | None = None, refresh_cache: bool = False
+    ) -> dict[str, Any]:
         """Get recent conversation threads from HubSpot with pagination.
 
         Args:
@@ -228,8 +227,8 @@ class ConversationClient:
         }
 
     def _get_threads_data(
-        self, limit: int, after: Optional[str], refresh_cache: bool
-    ) -> Dict[str, Any]:
+        self, limit: int, after: str | None, refresh_cache: bool
+    ) -> dict[str, Any]:
         """Get thread data, either from cache or by fetching from API.
 
         Args:
@@ -259,7 +258,7 @@ class ConversationClient:
 
         return threads_response
 
-    def _fetch_threads_page(self, limit: int, after: Optional[str]) -> Dict[str, Any]:
+    def _fetch_threads_page(self, limit: int, after: str | None) -> dict[str, Any]:
         """Fetch a page of conversation threads from HubSpot.
 
         Args:
@@ -284,8 +283,8 @@ class ConversationClient:
         return response.json()
 
     def _create_empty_threads_response(
-        self, threads_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, threads_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create an empty threads response structure with pagination.
 
         Args:
@@ -304,8 +303,8 @@ class ConversationClient:
         }
 
     def _get_thread_messages(
-        self, thread_results: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, thread_results: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Get messages for each thread and format them.
 
         Args:
@@ -343,7 +342,7 @@ class ConversationClient:
 
         return formatted_threads
 
-    def _fetch_thread_messages(self, thread_id: str) -> Dict[str, Any]:
+    def _fetch_thread_messages(self, thread_id: str) -> dict[str, Any]:
         """Fetch messages for a specific thread.
 
         Args:
@@ -363,8 +362,8 @@ class ConversationClient:
         return response.json()
 
     def _format_thread(
-        self, thread: Dict[str, Any], messages: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, thread: dict[str, Any], messages: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Format a thread with its messages.
 
         Args:
@@ -394,7 +393,7 @@ class ConversationClient:
 
         return formatted_thread
 
-    def _format_message(self, msg: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_message(self, msg: dict[str, Any]) -> dict[str, Any]:
         """Format a message.
 
         Args:
@@ -421,7 +420,7 @@ class ConversationClient:
             "channel_account_id": msg.get("channelAccountId", ""),
         }
 
-    def _extract_sender_info(self, msg: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_sender_info(self, msg: dict[str, Any]) -> dict[str, Any]:
         """Extract sender information from a message.
 
         Args:
@@ -446,7 +445,7 @@ class ConversationClient:
             }
         return sender_info
 
-    def _extract_recipients_info(self, msg: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _extract_recipients_info(self, msg: dict[str, Any]) -> list[dict[str, Any]]:
         """Extract recipient information from a message.
 
         Args:

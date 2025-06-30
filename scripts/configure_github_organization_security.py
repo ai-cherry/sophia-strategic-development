@@ -4,12 +4,12 @@ GitHub Organization Security Configuration Script
 Implements enterprise-grade security policies for ai-cherry organization
 """
 
-import os
 import json
-import requests
-from typing import Dict, List, Optional
-from dataclasses import dataclass
 import logging
+import os
+from dataclasses import dataclass
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -23,16 +23,16 @@ class SecurityConfig:
     """Configuration for GitHub organization security"""
 
     org_name: str = "ai-cherry"
-    github_token: Optional[str] = None
+    github_token: str | None = None
 
     # Branch Protection Settings
-    branch_protection: Dict = None
+    branch_protection: dict = None
 
     # Security Scanning Settings
-    security_scanning: Dict = None
+    security_scanning: dict = None
 
     # Repository Settings
-    repository_settings: Dict = None
+    repository_settings: dict = None
 
     def __post_init__(self):
         """Initialize default configurations"""
@@ -110,7 +110,7 @@ class GitHubSecurityManager:
             "codex": "low",
         }
 
-    def get_organization_repositories(self) -> List[Dict]:
+    def get_organization_repositories(self) -> list[dict]:
         """Get all repositories in the organization"""
         try:
             url = f"{self.base_url}/orgs/{self.config.org_name}/repos"
@@ -163,7 +163,7 @@ class GitHubSecurityManager:
             logger.error(f"❌ Error configuring branch protection for {repo_name}: {e}")
             return False
 
-    def enable_security_features(self, repo_name: str) -> Dict[str, bool]:
+    def enable_security_features(self, repo_name: str) -> dict[str, bool]:
         """Enable security features for a repository"""
         results = {}
 
@@ -248,7 +248,7 @@ class GitHubSecurityManager:
     def create_security_workflow(self, repo_name: str) -> bool:
         """Create GitHub Actions security workflow"""
 
-        workflow_content = f"""name: Security Scan
+        workflow_content = """name: Security Scan
 on:
   push:
     branches: [ main, develop ]
@@ -263,11 +263,11 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -275,22 +275,22 @@ jobs:
         scan-ref: '.'
         format: 'sarif'
         output: 'trivy-results.sarif'
-        
+
     - name: Upload Trivy scan results to GitHub Security tab
       uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
-        
+
     - name: Run CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
         languages: python, javascript
-        
+
     - name: Dependency Review
       uses: actions/dependency-review-action@v4
       if: github.event_name == 'pull_request'
-      
+
     - name: Secret Scanning
       run: |
         echo "Secret scanning is handled by GitHub's built-in secret scanning"
@@ -330,14 +330,14 @@ jobs:
             logger.error(f"❌ Error creating security workflow for {repo_name}: {e}")
             return False
 
-    def generate_security_report(self, results: Dict) -> str:
+    def generate_security_report(self, results: dict) -> str:
         """Generate comprehensive security configuration report"""
 
         report = f"""
 # GitHub Organization Security Configuration Report
 
-**Organization:** {self.config.org_name}  
-**Generated:** {json.dumps(results.get('timestamp', 'Unknown'))}  
+**Organization:** {self.config.org_name}
+**Generated:** {json.dumps(results.get('timestamp', 'Unknown'))}
 **Repositories Processed:** {len(results.get('repositories', {}))}
 
 ## 🔒 Security Configuration Summary
@@ -353,7 +353,7 @@ jobs:
 
             report += f"- **{repo_name}** ({priority} priority): {protection_status} Branch Protection\n"
 
-        report += f"""
+        report += """
 ### Security Features Status
 """
 
@@ -377,7 +377,7 @@ jobs:
   - Automated Fixes: {auto_fixes}
 """
 
-        report += f"""
+        report += """
 ### Security Workflows
 """
 
@@ -413,7 +413,7 @@ jobs:
 - Enable secret scanning push protection on all repositories
 - Implement automated dependency updates
 
-#### Medium Priority  
+#### Medium Priority
 - Set up organization-wide security policies
 - Configure custom security advisories
 - Implement advanced threat protection
@@ -426,20 +426,20 @@ jobs:
 ## 🎯 Next Steps
 
 1. **Review and approve** security configurations
-2. **Monitor security alerts** regularly  
+2. **Monitor security alerts** regularly
 3. **Update security policies** as needed
 4. **Train team members** on security best practices
 5. **Schedule regular security audits**
 
 ---
 
-**Security Status:** {'🟢 EXCELLENT' if security_score >= 90 else '🟡 GOOD' if security_score >= 70 else '🔴 NEEDS IMPROVEMENT'}  
+**Security Status:** {'🟢 EXCELLENT' if security_score >= 90 else '🟡 GOOD' if security_score >= 70 else '🔴 NEEDS IMPROVEMENT'}
 **Compliance Level:** {'Enterprise-Grade' if security_score >= 90 else 'Business-Grade' if security_score >= 70 else 'Basic'}
 """
 
         return report
 
-    def configure_organization_security(self) -> Dict:
+    def configure_organization_security(self) -> dict:
         """Configure security for entire organization"""
         logger.info(f"🚀 Starting security configuration for {self.config.org_name}")
 

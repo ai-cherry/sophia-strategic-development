@@ -4,14 +4,9 @@ FULLY AUTOMATED LAMBDA LABS DEPLOYMENT
 One-click deployment of Sophia AI to Lambda Labs with GPU optimization
 """
 
+import logging
 import os
 import sys
-import time
-import json
-import subprocess
-import requests
-from typing import Dict, List, Optional
-import logging
 from pathlib import Path
 
 # Setup logging
@@ -131,15 +126,15 @@ echo "⏳ Waiting for instance to be ready (this takes 3-5 minutes)..."
 while true; do
     INSTANCE_DATA=$(curl -s "https://cloud.lambdalabs.com/api/v1/instances/$INSTANCE_ID" \\
         -H "Authorization: Bearer $LAMBDA_LABS_API_KEY")
-    
+
     STATUS=$(echo "$INSTANCE_DATA" | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['status'])")
-    
+
     if [ "$STATUS" = "running" ]; then
         INSTANCE_IP=$(echo "$INSTANCE_DATA" | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['ip'])")
         echo "✅ Instance ready at IP: $INSTANCE_IP"
         break
     fi
-    
+
     echo "⏳ Instance status: $STATUS"
     sleep 30
 done
@@ -153,29 +148,29 @@ echo "🛠️ Setting up server environment..."
 ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'ENDSSH'
     # Update system
     sudo apt update && sudo apt upgrade -y
-    
+
     # Install Docker
     curl -fsSL https://get.docker.com -o get-docker.sh
     sudo sh get-docker.sh
     sudo usermod -aG docker ubuntu
-    
+
     # Install Kubernetes
     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
     sudo apt update
     sudo apt install -y kubelet kubeadm kubectl
-    
+
     # Install Helm
     curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz -o helm.tar.gz
     tar -zxvf helm.tar.gz
     sudo mv linux-amd64/helm /usr/local/bin/helm
-    
+
     # Install NVIDIA drivers
     sudo apt install -y nvidia-driver-535
-    
+
     # Install Git and other tools
     sudo apt install -y git python3.12 python3.12-venv curl
-    
+
     echo "🔄 Rebooting for NVIDIA drivers..."
     sudo reboot
 ENDSSH
@@ -193,36 +188,36 @@ ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'ENDSS
     curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
     sudo apt update && sudo apt install -y nvidia-container-toolkit
     sudo systemctl restart docker
-    
+
     # Test NVIDIA
     nvidia-smi
-    
+
     # Clone Sophia AI
     git clone https://github.com/ai-cherry/sophia-main.git
     cd sophia-main
-    
+
     # Initialize Kubernetes
     sudo kubeadm init --pod-network-cidr=10.244.0.0/16
     mkdir -p $HOME/.kube
     sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
     sudo chown $(id -u):$(id -g) $HOME/.kube/config
-    
+
     # Install network plugin
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-    
+
     # Allow scheduling on master node
     kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-    
+
     # Install NVIDIA device plugin
     kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.0/nvidia-device-plugin.yml
-    
+
     # Wait for system to be ready
     sleep 60
-    
+
     # Deploy Sophia AI
     chmod +x scripts/deploy_lambda_labs_kubernetes.sh
     ./scripts/deploy_lambda_labs_kubernetes.sh
-    
+
     echo "✅ Deployment complete!"
 ENDSSH
 

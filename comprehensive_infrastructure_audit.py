@@ -4,13 +4,13 @@ Comprehensive Infrastructure Audit & Server Configuration Optimizer for Sophia A
 This script audits current infrastructure state and provides optimization recommendations
 """
 
-import os
-import sys
 import json
+import os
 import subprocess
-from typing import Dict, List, Any
+import sys
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 # Add project root to path
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -23,8 +23,8 @@ class InfrastructureComponent:
 
     name: str
     status: str
-    details: Dict[str, Any]
-    recommendations: List[str]
+    details: dict[str, Any]
+    recommendations: list[str]
 
 
 @dataclass
@@ -137,10 +137,10 @@ class SophiaAIInfrastructureAuditor:
         print("🔍 Auditing Snowflake Configuration...")
 
         try:
-            from backend.core.auto_esc_config import get_snowflake_config
             from backend.core.absolute_snowflake_override import (
                 get_snowflake_connection_params,
             )
+            from backend.core.auto_esc_config import get_snowflake_config
 
             # Get configuration from both sources
             esc_config = get_snowflake_config()
@@ -194,7 +194,6 @@ class SophiaAIInfrastructureAuditor:
 
         # Check if FastAPI app can import
         try:
-            from backend.app.fastapi_app import app
 
             services_status["fastapi"] = {"status": "importable", "error": None}
         except Exception as e:
@@ -251,7 +250,7 @@ class SophiaAIInfrastructureAuditor:
             recommendations=recommendations,
         )
 
-    def analyze_lambda_labs_requirements(self) -> List[ServerRecommendation]:
+    def analyze_lambda_labs_requirements(self) -> list[ServerRecommendation]:
         """Analyze Lambda Labs server requirements for Sophia AI"""
         print("🔍 Analyzing Lambda Labs Requirements...")
 
@@ -315,7 +314,7 @@ class SophiaAIInfrastructureAuditor:
 
         return recommendations
 
-    def generate_deployment_plan(self) -> Dict[str, Any]:
+    def generate_deployment_plan(self) -> dict[str, Any]:
         """Generate comprehensive deployment plan"""
         print("🔍 Generating Deployment Plan...")
 
@@ -376,7 +375,7 @@ class SophiaAIInfrastructureAuditor:
             ],
         }
 
-    def run_comprehensive_audit(self) -> Dict[str, Any]:
+    def run_comprehensive_audit(self) -> dict[str, Any]:
         """Run complete infrastructure audit"""
         print("🚀 COMPREHENSIVE SOPHIA AI INFRASTRUCTURE AUDIT")
         print("=" * 70)
@@ -434,11 +433,11 @@ def main():
     audit_results = auditor.run_comprehensive_audit()
 
     # Display results
-    print(f"\n📊 AUDIT RESULTS")
+    print("\n📊 AUDIT RESULTS")
     print("=" * 50)
     print(f"Overall Health Score: {audit_results['overall_health_score']}")
 
-    print(f"\n🔧 COMPONENT STATUS:")
+    print("\n🔧 COMPONENT STATUS:")
     for component in audit_results["components"]:
         status_emoji = (
             "✅"
@@ -448,11 +447,11 @@ def main():
         print(f"  {status_emoji} {component['name']}: {component['status']}")
 
         if component["recommendations"]:
-            print(f"    Recommendations:")
+            print("    Recommendations:")
             for rec in component["recommendations"]:
                 print(f"      - {rec}")
 
-    print(f"\n🖥️ SERVER RECOMMENDATIONS:")
+    print("\n🖥️ SERVER RECOMMENDATIONS:")
     for rec in audit_results["server_recommendations"]:
         priority_emoji = (
             "🔴"
@@ -466,7 +465,7 @@ def main():
         print(f"    Impact: {rec['business_impact']}")
         print()
 
-    print(f"📋 DEPLOYMENT PLAN:")
+    print("📋 DEPLOYMENT PLAN:")
     for i, phase in enumerate(audit_results["deployment_plan"]["phases"], 1):
         print(f"  Phase {i}: {phase['name']} ({phase['duration']})")
         print(f"    Cost: {phase['estimated_cost']}")
@@ -475,7 +474,7 @@ def main():
             print(f"      - {task}")
         print()
 
-    print(f"💰 INVESTMENT SUMMARY:")
+    print("💰 INVESTMENT SUMMARY:")
     plan = audit_results["deployment_plan"]
     print(f"  Total Duration: {plan['total_duration']}")
     print(f"  Estimated Cost: {plan['estimated_total_cost']}")
@@ -485,10 +484,10 @@ def main():
     with open("sophia_ai_infrastructure_audit.json", "w") as f:
         json.dump(audit_results, f, indent=2)
 
-    print(f"\n📄 Detailed report saved: sophia_ai_infrastructure_audit.json")
+    print("\n📄 Detailed report saved: sophia_ai_infrastructure_audit.json")
 
     # Provide immediate next steps
-    print(f"\n🚀 IMMEDIATE NEXT STEPS:")
+    print("\n🚀 IMMEDIATE NEXT STEPS:")
     print("1. Fix any degraded components shown above")
     print("2. Configure Lambda Labs credentials using manual_lambda_sync.py")
     print("3. Deploy primary Lambda Labs instance")

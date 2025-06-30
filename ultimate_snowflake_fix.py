@@ -5,10 +5,7 @@ This script applies the most comprehensive fix possible to ensure correct Snowfl
 """
 
 import os
-import sys
 import re
-import shutil
-from pathlib import Path
 
 
 def apply_ultimate_snowflake_fix():
@@ -72,7 +69,7 @@ print("🔧 ABSOLUTE Snowflake override applied - Account: ZNB04675")
 
     connection_manager_file = "backend/core/optimized_connection_manager.py"
 
-    with open(connection_manager_file, "r") as f:
+    with open(connection_manager_file) as f:
         content = f.read()
 
     # Add absolute import at the top
@@ -97,14 +94,14 @@ print("🔧 ABSOLUTE Snowflake override applied - Account: ZNB04675")
     # Replace the _create_snowflake_connection method completely
     new_method = '''    async def _create_snowflake_connection(self):
         """Create Snowflake connection with ABSOLUTE override"""
-        
+
         # ABSOLUTE OVERRIDE - This CANNOT be changed
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
-        
+
         # Force log the correct account
         logger.info(f"🔧 ABSOLUTE OVERRIDE: Connecting to Snowflake account {params['account']}")
-        
+
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
             return snowflake.connector.connect(**params)
@@ -123,7 +120,7 @@ print("🔧 ABSOLUTE Snowflake override applied - Account: ZNB04675")
     print("4. Updating FastAPI app...")
 
     fastapi_file = "backend/app/fastapi_app.py"
-    with open(fastapi_file, "r") as f:
+    with open(fastapi_file) as f:
         content = f.read()
 
     # Add absolute import at the top
@@ -177,20 +174,20 @@ try:
     from backend.core.absolute_snowflake_override import get_snowflake_connection_params
     params = get_snowflake_connection_params()
     print(f"✅ VERIFIED: Snowflake account is {params['account']}")
-    
+
     if params['account'] == 'ZNB04675':
         print("🎉 ABSOLUTE FIX SUCCESSFUL - Ready to start Sophia AI!")
     else:
         print(f"❌ ABSOLUTE FIX FAILED - account is {params['account']}")
         sys.exit(1)
-        
+
 except Exception as e:
     print(f"❌ ABSOLUTE FIX ERROR: {e}")
     sys.exit(1)
 
 if __name__ == "__main__":
     print("🚀 Starting Sophia AI with ABSOLUTE Snowflake fix...")
-    
+
     # Start the FastAPI application
     import uvicorn
     uvicorn.run(

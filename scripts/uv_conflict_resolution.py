@@ -19,7 +19,6 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ class UVConflictResolver:
             shutil.copy2(file_path, backup_path)
             logger.debug(f"Backed up {file_path} to {backup_path}")
 
-    def update_file_content(self, file_path: Path, replacements: List[tuple]) -> bool:
+    def update_file_content(self, file_path: Path, replacements: list[tuple]) -> bool:
         """Update file content with UV-compatible commands"""
         if not file_path.exists():
             return False
@@ -463,7 +462,7 @@ uv export -o requirements.txt
 
 ---
 
-*Resolution completed by UV Conflict Resolver*  
+*Resolution completed by UV Conflict Resolver*
 *All systems operational and ready for production deployment*
 """
 

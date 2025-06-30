@@ -13,11 +13,11 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from mcp_servers.snowflake.snowflake_mcp_server import snowflake_server
-from mcp_servers.hubspot.hubspot_mcp_server import hubspot_server
-from mcp_servers.slack.slack_mcp_server import slack_server
 from mcp_servers.github.github_mcp_server import github_server
+from mcp_servers.hubspot.hubspot_mcp_server import hubspot_server
 from mcp_servers.notion.notion_mcp_server import notion_server
+from mcp_servers.slack.slack_mcp_server import slack_server
+from mcp_servers.snowflake.snowflake_mcp_server import snowflake_server
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

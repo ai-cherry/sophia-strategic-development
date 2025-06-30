@@ -4,11 +4,9 @@ Comprehensive Codebase Alignment & Cleanup
 Removes all conflicting files and ensures complete consistency with the new 67-secret system
 """
 
+import json
 import os
 import shutil
-import json
-import re
-from pathlib import Path
 
 
 def cleanup_conflicting_files():
@@ -69,7 +67,7 @@ def cleanup_conflicting_files():
 
 def cleanup_backup_directories():
     """Remove obsolete backup directories"""
-    print(f"\n🗂️ CLEANING UP BACKUP DIRECTORIES")
+    print("\n🗂️ CLEANING UP BACKUP DIRECTORIES")
     print("=" * 40)
 
     backup_dirs = ["uv_conflict_resolution_backups"]
@@ -92,7 +90,7 @@ def cleanup_backup_directories():
 
 def update_documentation_index():
     """Update the master documentation index"""
-    print(f"\n📚 UPDATING DOCUMENTATION INDEX")
+    print("\n📚 UPDATING DOCUMENTATION INDEX")
     print("=" * 35)
 
     doc_index_file = "docs/SOPHIA_AI_DOCUMENTATION_MASTER_INDEX.md"
@@ -202,7 +200,7 @@ cd backend && python -m uvicorn app.fastapi_app:app --reload
 
 def analyze_github_organization_structure():
     """Analyze GitHub organization structure and provide recommendations"""
-    print(f"\n🔍 ANALYZING GITHUB ORGANIZATION STRUCTURE")
+    print("\n🔍 ANALYZING GITHUB ORGANIZATION STRUCTURE")
     print("=" * 50)
 
     # Analysis based on websearch results
@@ -288,7 +286,7 @@ def analyze_github_organization_structure():
 
 def compare_with_sophia_mcp_structure():
     """Compare GitHub structure with Sophia AI MCP structure"""
-    print(f"\n🔄 COMPARING WITH SOPHIA AI MCP STRUCTURE")
+    print("\n🔄 COMPARING WITH SOPHIA AI MCP STRUCTURE")
     print("=" * 50)
 
     # Current Sophia AI MCP servers from config
@@ -340,7 +338,7 @@ def compare_with_sophia_mcp_structure():
     }
 
     # Check alignment
-    for category, servers in sophia_mcp_servers.items():
+    for _category, servers in sophia_mcp_servers.items():
         for server_name, port in servers.items():
             if server_name in ["slack", "notion"]:
                 github_equivalent = f"{server_name}-mcp-server"
@@ -371,10 +369,10 @@ def compare_with_sophia_mcp_structure():
                 )
 
     # Check for GitHub repos not in Sophia
-    for repo_name, details in github_mcp_forks.items():
+    for repo_name, _details in github_mcp_forks.items():
         server_name = repo_name.replace("-mcp-server", "")
         found_in_sophia = False
-        for category, servers in sophia_mcp_servers.items():
+        for _category, servers in sophia_mcp_servers.items():
             if server_name in servers:
                 found_in_sophia = True
                 break
@@ -396,7 +394,7 @@ def compare_with_sophia_mcp_structure():
 
 def generate_improvement_recommendations():
     """Generate comprehensive improvement recommendations"""
-    print(f"\n💡 GENERATING IMPROVEMENT RECOMMENDATIONS")
+    print("\n💡 GENERATING IMPROVEMENT RECOMMENDATIONS")
     print("=" * 50)
 
     recommendations = {
@@ -505,7 +503,7 @@ def generate_improvement_recommendations():
 
 def create_implementation_roadmap():
     """Create detailed implementation roadmap"""
-    print(f"\n🗺️ CREATING IMPLEMENTATION ROADMAP")
+    print("\n🗺️ CREATING IMPLEMENTATION ROADMAP")
     print("=" * 40)
 
     roadmap = {
@@ -567,7 +565,7 @@ def create_implementation_roadmap():
 
 def generate_comprehensive_report():
     """Generate comprehensive GitHub organization analysis report"""
-    print(f"\n📋 GENERATING COMPREHENSIVE REPORT")
+    print("\n📋 GENERATING COMPREHENSIVE REPORT")
     print("=" * 45)
 
     # Run all analyses
@@ -602,15 +600,15 @@ def generate_comprehensive_report():
     with open("GITHUB_ORGANIZATION_ANALYSIS_REPORT.json", "w") as f:
         json.dump(report, f, indent=2)
 
-    print(f"  ✅ Generated comprehensive analysis report")
-    print(f"  📄 Report saved: GITHUB_ORGANIZATION_ANALYSIS_REPORT.json")
+    print("  ✅ Generated comprehensive analysis report")
+    print("  📄 Report saved: GITHUB_ORGANIZATION_ANALYSIS_REPORT.json")
 
     return report
 
 
 def main():
     """Run comprehensive codebase alignment"""
-    print(f"\n🚀 COMPREHENSIVE CODEBASE ALIGNMENT")
+    print("\n🚀 COMPREHENSIVE CODEBASE ALIGNMENT")
     print("=" * 45)
 
     # Step 1: Clean up obsolete files
@@ -637,18 +635,18 @@ def main():
     # Step 8: Generate comprehensive report
     generate_comprehensive_report()
 
-    print(f"\n🎉 COMPREHENSIVE ALIGNMENT COMPLETE!")
+    print("\n🎉 COMPREHENSIVE ALIGNMENT COMPLETE!")
     print("=" * 45)
     print(f"✅ Removed {removed_files} obsolete files")
     print(f"✅ Removed {removed_dirs} backup directories")
-    print(f"✅ Updated documentation index")
-    print(f"✅ Analyzed GitHub organization structure")
-    print(f"✅ Compared MCP structures")
-    print(f"✅ Generated improvement recommendations")
-    print(f"✅ Created implementation roadmap")
-    print(f"✅ Generated comprehensive analysis report")
+    print("✅ Updated documentation index")
+    print("✅ Analyzed GitHub organization structure")
+    print("✅ Compared MCP structures")
+    print("✅ Generated improvement recommendations")
+    print("✅ Created implementation roadmap")
+    print("✅ Generated comprehensive analysis report")
 
-    print(f"\n🚀 SYSTEM STATUS:")
+    print("\n🚀 SYSTEM STATUS:")
     print("✅ Secret management: COMPLETE (67/67 secrets)")
     print("✅ Codebase alignment: PERFECT")
     print("✅ Documentation: CURRENT")

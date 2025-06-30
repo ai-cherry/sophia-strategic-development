@@ -5,11 +5,10 @@ Provides enterprise-grade Snowflake integration for Sophia AI
 """
 
 import asyncio
-import logging
 import json
-import os
-from typing import Any, Dict, List, Optional
+import logging
 from datetime import datetime
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
@@ -44,7 +43,7 @@ class EnhancedSnowflakeMCPServer:
         logger.info(f"🚀 Enhanced Snowflake MCP Server initialized on port {port}")
         logger.info(f"   Write operations: {'enabled' if allow_write else 'disabled'}")
 
-    def _load_snowflake_config(self) -> Dict[str, Any]:
+    def _load_snowflake_config(self) -> dict[str, Any]:
         """Load Snowflake configuration from Pulumi ESC"""
         return {
             "account": get_config_value("snowflake.account", ""),
@@ -70,7 +69,7 @@ class EnhancedSnowflakeMCPServer:
         """Register Snowflake MCP tools"""
 
         @self.mcp.tool(title="List Databases")
-        def list_databases() -> Dict[str, Any]:
+        def list_databases() -> dict[str, Any]:
             """List all available databases in Snowflake"""
             try:
                 databases = [
@@ -90,7 +89,7 @@ class EnhancedSnowflakeMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp.tool(title="Execute SQL Query")
-        def execute_query(query: str) -> Dict[str, Any]:
+        def execute_query(query: str) -> dict[str, Any]:
             """Execute a SQL query on Snowflake"""
             try:
                 # Check if write operations are allowed
@@ -124,7 +123,7 @@ class EnhancedSnowflakeMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp.tool(title="Health Check")
-        def health_check() -> Dict[str, Any]:
+        def health_check() -> dict[str, Any]:
             """Check Snowflake connection health"""
             try:
                 health_data = {
@@ -188,7 +187,7 @@ class EnhancedSnowflakeMCPServer:
 async def main():
     """Main function for running the server standalone"""
     server = EnhancedSnowflakeMCPServer(port=9100, allow_write=False)
-    mcp_server = await server.run_server()
+    await server.run_server()
 
     logger.info("Enhanced Snowflake MCP Server is running...")
 

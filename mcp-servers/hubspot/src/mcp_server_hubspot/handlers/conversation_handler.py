@@ -2,8 +2,7 @@
 Handler for conversation-related HubSpot operations.
 """
 
-from typing import Any, Dict, List, Optional
-import json
+from typing import Any
 
 import mcp.types as types
 
@@ -25,7 +24,7 @@ class ConversationHandler(BaseHandler):
             hubspot_client, faiss_manager, embedding_model, "conversation_handler"
         )
 
-    def get_recent_conversations_schema(self) -> Dict[str, Any]:
+    def get_recent_conversations_schema(self) -> dict[str, Any]:
         """Get the input schema for recent conversations.
 
         Returns:
@@ -47,8 +46,8 @@ class ConversationHandler(BaseHandler):
         }
 
     def get_recent_conversations(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get recent conversation threads from HubSpot with their messages.
 
         Args:
@@ -85,7 +84,7 @@ class ConversationHandler(BaseHandler):
         return self.create_text_response(truncated_results)
 
     def _store_conversations_in_faiss(
-        self, results: Dict[str, Any], limit: int, after: Optional[str]
+        self, results: dict[str, Any], limit: int, after: str | None
     ) -> None:
         """Store conversation threads in FAISS.
 
@@ -123,8 +122,8 @@ class ConversationHandler(BaseHandler):
             )
 
     def _truncate_conversation_messages(
-        self, results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, results: dict[str, Any]
+    ) -> dict[str, Any]:
         """Truncate message text for API response.
 
         Args:

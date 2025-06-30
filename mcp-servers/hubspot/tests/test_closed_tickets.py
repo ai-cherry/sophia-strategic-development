@@ -4,20 +4,19 @@ Test script for retrieving closed tickets from HubSpot.
 This script directly uses the HubSpot client to test different approaches
 to get closed tickets and provides detailed debug output.
 """
-import os
-import sys
 import json
 import logging
-from typing import Dict, Any, List, Optional
+import os
+import sys
 from datetime import datetime
 
 # Add src directory to path to allow direct imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 # Import HubSpot client
-from mcp_server_hubspot.hubspot_client import HubSpotClient
 from hubspot import HubSpot
 from hubspot.crm.tickets import PublicObjectSearchRequest
+from mcp_server_hubspot.hubspot_client import HubSpotClient
 
 # Configure logging
 logging.basicConfig(
@@ -29,7 +28,7 @@ logger = logging.getLogger("test_closed_tickets")
 class TicketTester:
     """Test different approaches to get closed tickets from HubSpot."""
 
-    def __init__(self, access_token: Optional[str] = None):
+    def __init__(self, access_token: str | None = None):
         """Initialize with HubSpot API token.
 
         Args:
@@ -289,7 +288,7 @@ def main():
     elif isinstance(standard_results, dict):
         print(f"Standard method: {len(standard_results.get('results', []))} tickets")
     else:
-        print(f"Standard method: Unexpected result format")
+        print("Standard method: Unexpected result format")
 
     # Handle lowercase results - it might be a JSON string
     if isinstance(lowercase_results, str):
@@ -309,7 +308,7 @@ def main():
     elif isinstance(lowercase_results, dict):
         print(f"Lowercase method: {len(lowercase_results.get('results', []))} tickets")
     else:
-        print(f"Lowercase method: Unexpected result format")
+        print("Lowercase method: Unexpected result format")
 
     # Handle direct search results
     print("Direct search results:")

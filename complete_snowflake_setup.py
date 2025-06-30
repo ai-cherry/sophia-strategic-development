@@ -4,10 +4,8 @@ Complete Snowflake Configuration Setup
 Configure all Snowflake settings with working PAT token
 """
 
-import os
 import json
 import logging
-from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +32,7 @@ def setup_snowflake_configuration():
     logger.info(f"   Account: {config['account']} (resolves to ZNB04675)")
     logger.info(f"   User: {config['user']}")
     logger.info(f"   Role: {config['role']}")
-    logger.info(f"   PAT Token: Valid until June 24, 2026")
+    logger.info("   PAT Token: Valid until June 24, 2026")
 
     return config
 
@@ -238,7 +236,7 @@ def create_snowflake_infrastructure():
         cursor.execute(
             """
             CREATE OR REPLACE VIEW COLLECTION_INSIGHTS AS
-            SELECT 
+            SELECT
                 collection_status,
                 COUNT(*) as count,
                 AVG(amount_owed) as avg_amount,

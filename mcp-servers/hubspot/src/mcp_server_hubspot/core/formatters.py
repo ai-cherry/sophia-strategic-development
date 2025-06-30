@@ -2,8 +2,9 @@
 Utility module for formatting data.
 """
 
-from typing import Any
 from datetime import datetime
+from typing import Any
+
 from dateutil.tz import tzlocal
 
 

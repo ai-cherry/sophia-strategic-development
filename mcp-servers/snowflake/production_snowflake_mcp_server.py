@@ -4,16 +4,15 @@ Real Snowflake integration with business intelligence capabilities for Sophia AI
 """
 
 import asyncio
-import logging
 import json
-import os
-from typing import Any, Dict, List, Optional, Union
-from datetime import datetime
-
-from mcp.server.fastmcp import FastMCP
+import logging
 
 # Import Sophia AI components
 import sys
+from datetime import datetime
+from typing import Any
+
+from mcp.server.fastmcp import FastMCP
 
 sys.path.append("/Users/lynnmusil/sophia-main")
 from backend.core.auto_esc_config import get_config_value
@@ -44,7 +43,7 @@ class ProductionSnowflakeMCPServer:
         logger.info(f"🚀 Production Snowflake MCP Server initialized on port {port}")
         logger.info(f"   Write operations: {'enabled' if allow_write else 'disabled'}")
 
-    def _load_snowflake_config(self) -> Dict[str, Any]:
+    def _load_snowflake_config(self) -> dict[str, Any]:
         """Load Snowflake configuration from Pulumi ESC"""
         try:
             config = {
@@ -83,7 +82,7 @@ class ProductionSnowflakeMCPServer:
         """Register production-ready Snowflake tools"""
 
         @self.mcp.tool(title="Execute Business Intelligence Query")
-        async def execute_bi_query(query: str) -> Dict[str, Any]:
+        async def execute_bi_query(query: str) -> dict[str, Any]:
             """Execute a business intelligence query on Snowflake"""
             try:
                 # Security check
@@ -123,7 +122,7 @@ class ProductionSnowflakeMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp.tool(title="Get CEO Dashboard Data")
-        async def get_ceo_dashboard_data() -> Dict[str, Any]:
+        async def get_ceo_dashboard_data() -> dict[str, Any]:
             """Get key metrics for CEO dashboard"""
             try:
                 # Mock CEO dashboard data (will be real queries)
@@ -160,7 +159,7 @@ class ProductionSnowflakeMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp.tool(title="Health Check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Comprehensive health check"""
             try:
                 health_data = {
@@ -249,7 +248,7 @@ async def main():
     )
 
     server = ProductionSnowflakeMCPServer(port=9100, allow_write=False)
-    mcp_server = await server.run_server()
+    await server.run_server()
 
     logger.info(
         "🎯 Production Snowflake MCP Server is running and ready for business intelligence..."

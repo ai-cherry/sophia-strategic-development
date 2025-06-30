@@ -4,8 +4,9 @@ Forces correct Snowflake account configuration
 This permanently resolves the scoobyjava-vw02766 → ZNB04675 issue
 """
 
-import os
 import logging
+import os
+
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)

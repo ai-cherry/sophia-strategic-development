@@ -4,8 +4,9 @@ Snowflake PAT Token Connection Test
 Test different PAT token formats
 """
 
-import snowflake.connector
 import logging
+
+import snowflake.connector
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -51,7 +52,7 @@ def test_pat_connection():
             cursor.execute("SELECT CURRENT_ACCOUNT(), CURRENT_USER(), CURRENT_ROLE()")
             result = cursor.fetchone()
 
-            logger.info(f"✅ Connection details:")
+            logger.info("✅ Connection details:")
             logger.info(f"   Account: {result[0]}")
             logger.info(f"   User: {result[1]}")
             logger.info(f"   Role: {result[2]}")
@@ -95,7 +96,7 @@ def test_authenticator_methods():
         cursor.execute("SELECT CURRENT_ACCOUNT(), CURRENT_USER(), CURRENT_ROLE()")
         result = cursor.fetchone()
 
-        logger.info(f"✅ Connection details:")
+        logger.info("✅ Connection details:")
         logger.info(f"   Account: {result[0]}")
         logger.info(f"   User: {result[1]}")
         logger.info(f"   Role: {result[2]}")

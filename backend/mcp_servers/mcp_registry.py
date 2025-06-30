@@ -5,10 +5,9 @@ Central registry for managing all MCP servers
 
 import asyncio
 import logging
-from typing import Dict, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
-from .sophia_mcp_base import SophiaMCPServer, MCPServerHealth, create_mcp_server
+from .sophia_mcp_base import MCPServerHealth, SophiaMCPServer, create_mcp_server
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +28,9 @@ class MCPServerRegistry:
     """Registry for managing all MCP servers"""
 
     def __init__(self):
-        self.servers: Dict[str, SophiaMCPServer] = {}
-        self.configs: Dict[str, MCPServerConfig] = {}
-        self.health_status: Dict[str, MCPServerHealth] = {}
+        self.servers: dict[str, SophiaMCPServer] = {}
+        self.configs: dict[str, MCPServerConfig] = {}
+        self.health_status: dict[str, MCPServerHealth] = {}
 
         # Load default configurations
         self._load_default_configs()
@@ -123,7 +122,7 @@ class MCPServerRegistry:
             except Exception as e:
                 logger.error(f"❌ Health check failed for {name}: {e}")
 
-    def get_server_status(self) -> Dict[str, Dict]:
+    def get_server_status(self) -> dict[str, dict]:
         """Get status of all servers"""
         status = {}
 

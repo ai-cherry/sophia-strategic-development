@@ -3,11 +3,9 @@ Simplified MCP Base for Sophia AI
 Minimal MCP integration that works with existing architecture
 """
 
-import asyncio
-import json
 import logging
-from typing import Any, Dict, List, Optional
 from abc import ABC, abstractmethod
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +13,7 @@ logger = logging.getLogger(__name__)
 class SimpleMCPTool:
     """Simple MCP tool definition."""
 
-    def __init__(self, name: str, description: str, parameters: Dict[str, Any]):
+    def __init__(self, name: str, description: str, parameters: dict[str, Any]):
         self.name = name
         self.description = description
         self.parameters = parameters
@@ -37,14 +35,14 @@ class SimpleMCPServer(ABC):
         logger.info(f"🚀 Initialized {name} Simple MCP Server v{version}")
 
     @abstractmethod
-    async def initialize_tools(self) -> List[SimpleMCPTool]:
+    async def initialize_tools(self) -> list[SimpleMCPTool]:
         """Initialize server tools - implement in subclasses."""
         pass
 
     @abstractmethod
     async def execute_tool(
-        self, tool_name: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute a tool - implement in subclasses."""
         pass
 
@@ -65,7 +63,7 @@ class SimpleMCPServer(ABC):
         self.is_running = False
         logger.info(f"🛑 {self.name} MCP Server stopped")
 
-    async def list_tools(self) -> List[Dict[str, Any]]:
+    async def list_tools(self) -> list[dict[str, Any]]:
         """List available tools."""
         return [
             {
@@ -77,8 +75,8 @@ class SimpleMCPServer(ABC):
         ]
 
     async def call_tool(
-        self, tool_name: str, parameters: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, tool_name: str, parameters: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Call a tool."""
         if not self.is_running:
             raise RuntimeError(f"Server {self.name} is not running")
@@ -96,7 +94,7 @@ class SimpleMCPServer(ABC):
             logger.error(f"❌ Tool execution failed: {e}")
             return {"success": False, "error": str(e)}
 
-    async def get_health(self) -> Dict[str, Any]:
+    async def get_health(self) -> dict[str, Any]:
         """Get server health status."""
         return {
             "name": self.name,
@@ -114,7 +112,7 @@ class SimpleAIMemoryMCPServer(SimpleMCPServer):
         super().__init__("ai_memory", "1.0.0")
         self.memory_store = {}
 
-    async def initialize_tools(self) -> List[SimpleMCPTool]:
+    async def initialize_tools(self) -> list[SimpleMCPTool]:
         """Initialize AI Memory tools."""
         return [
             SimpleMCPTool(
@@ -133,8 +131,8 @@ class SimpleAIMemoryMCPServer(SimpleMCPServer):
         ]
 
     async def execute_tool(
-        self, tool_name: str, parameters: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, tool_name: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Execute AI Memory tools."""
         if tool_name == "store_memory":
             key = parameters["key"]
@@ -176,22 +174,22 @@ class SimpleMCPManager:
         logger.info("🛑 All MCP servers stopped")
 
     async def call_tool(
-        self, server_name: str, tool_name: str, parameters: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, server_name: str, tool_name: str, parameters: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Call a tool on a specific server."""
         if server_name not in self.servers:
             raise ValueError(f"Server {server_name} not found")
 
         return await self.servers[server_name].call_tool(tool_name, parameters)
 
-    async def get_all_tools(self) -> Dict[str, List[Dict[str, Any]]]:
+    async def get_all_tools(self) -> dict[str, list[dict[str, Any]]]:
         """Get all tools from all servers."""
         all_tools = {}
         for server_name, server in self.servers.items():
             all_tools[server_name] = await server.list_tools()
         return all_tools
 
-    async def get_health_status(self) -> Dict[str, Any]:
+    async def get_health_status(self) -> dict[str, Any]:
         """Get health status of all servers."""
         health_status = {}
         for server_name, server in self.servers.items():

@@ -3,17 +3,16 @@ Sophia MCP Base Class
 Unified base class for all Sophia AI MCP servers
 """
 
-import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 try:
-    from mcp import Server, Tool, Resource
-    from mcp.types import TextContent, ImageContent
+    from mcp import Resource, Server, Tool
+    from mcp.types import ImageContent, TextContent
 
     MCP_AVAILABLE = True
 except ImportError:
@@ -44,7 +43,7 @@ class MCPServerHealth:
     total_requests: int
     successful_requests: int
     failed_requests: int
-    last_request_time: Optional[datetime]
+    last_request_time: datetime | None
     error_rate: float
 
 
@@ -54,7 +53,7 @@ class SophiaMCPServer(ABC):
     Provides unified patterns for authentication, logging, health checks, and error handling
     """
 
-    def __init__(self, name: str, version: str = "1.0.0", port: Optional[int] = None):
+    def __init__(self, name: str, version: str = "1.0.0", port: int | None = None):
         self.name = name
         self.version = version
         self.port = port
@@ -84,7 +83,7 @@ class SophiaMCPServer(ABC):
             self.mcp_server = None
             self.logger.warning("MCP SDK not available - running in mock mode")
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load configuration from Pulumi ESC and environment"""
         return {
             "environment": get_config_value("environment", "prod"),

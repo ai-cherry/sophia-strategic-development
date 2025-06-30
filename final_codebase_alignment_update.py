@@ -5,7 +5,6 @@ Updates any remaining references and ensures complete documentation alignment
 """
 
 import os
-import re
 
 
 def update_sophia_env_config():
@@ -15,7 +14,7 @@ def update_sophia_env_config():
 
     config_file = "backend/core/sophia_env_config.py"
 
-    with open(config_file, "r") as f:
+    with open(config_file) as f:
         content = f.read()
 
     # Add clarifying comment about .env usage
@@ -35,7 +34,7 @@ def update_sophia_env_config():
 
 def create_migration_guide():
     """Create a migration guide for the new secret system"""
-    print(f"\n📚 CREATING SECRET MIGRATION GUIDE")
+    print("\n📚 CREATING SECRET MIGRATION GUIDE")
     print("=" * 35)
 
     guide_content = """# Secret Management Migration Guide
@@ -109,7 +108,7 @@ from backend.core.auto_esc_config import get_config_value
 
 # Get any secret
 api_key = get_config_value("openai_api_key")
-lambda_key = get_config_value("lambda_api_key") 
+lambda_key = get_config_value("lambda_api_key")
 hubspot_token = get_config_value("hubspot_access_token")
 ```
 
@@ -185,7 +184,7 @@ pulumi config get hubspot_access_token --stack sophia-ai-production
 
 def update_readme_references():
     """Update any README files with new secret management info"""
-    print(f"\n📝 UPDATING README REFERENCES")
+    print("\n📝 UPDATING README REFERENCES")
     print("=" * 30)
 
     # Update main README if it exists
@@ -193,7 +192,7 @@ def update_readme_references():
 
     for readme_file in readme_files:
         if os.path.exists(readme_file):
-            with open(readme_file, "r") as f:
+            with open(readme_file) as f:
                 content = f.read()
 
             # Check if it mentions old secret management
@@ -210,7 +209,7 @@ def update_readme_references():
 
 def generate_final_status_report():
     """Generate final comprehensive status report"""
-    print(f"\n📋 GENERATING FINAL STATUS REPORT")
+    print("\n📋 GENERATING FINAL STATUS REPORT")
     print("=" * 35)
 
     status_report = {
@@ -288,14 +287,14 @@ def main():
     # Generate final status report
     generate_final_status_report()
 
-    print(f"\n🎉 FINAL ALIGNMENT COMPLETE!")
+    print("\n🎉 FINAL ALIGNMENT COMPLETE!")
     print("=" * 35)
     print("✅ Updated environment config clarifications")
     print("✅ Created comprehensive migration guide")
     print("✅ Reviewed README references")
     print("✅ Generated final status report")
 
-    print(f"\n🚀 SOPHIA AI STATUS: 100% ALIGNED")
+    print("\n🚀 SOPHIA AI STATUS: 100% ALIGNED")
     print("✅ Secret management: COMPLETE (67/67 secrets)")
     print("✅ Codebase cleanup: COMPLETE")
     print("✅ Documentation: CURRENT & COMPREHENSIVE")

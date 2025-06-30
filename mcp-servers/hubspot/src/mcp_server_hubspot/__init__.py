@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 from typing import Optional
+
 from . import server
 from .hubspot_client import HubSpotClient
 
@@ -16,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger("mcp_hubspot")
 
 
-async def main(access_token: Optional[str] = None):
+async def main(access_token: str | None = None):
     """Run the HubSpot MCP server."""
     # Set hardcoded storage directory
     os.environ["HUBSPOT_STORAGE_DIR"] = "/storage"

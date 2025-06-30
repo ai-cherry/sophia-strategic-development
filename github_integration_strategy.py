@@ -12,13 +12,12 @@ Date: 2025-06-29
 
 import json
 import logging
-import os
-import requests
 import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -136,7 +135,7 @@ class GitHubIntegrationStrategy:
             logger.error(f"Error extracting PAT: {e}")
             return None
 
-    def analyze_github_organization(self) -> Dict:
+    def analyze_github_organization(self) -> dict:
         """Analyze current GitHub organization structure and permissions."""
         logger.info(f"🔍 Analyzing GitHub organization: {self.org_name}")
 
@@ -201,7 +200,7 @@ class GitHubIntegrationStrategy:
             logger.error(f"❌ Error analyzing organization: {e}")
             return {}
 
-    def analyze_organization_permissions(self) -> Dict:
+    def analyze_organization_permissions(self) -> dict:
         """Analyze PAT permissions and organization access levels."""
         logger.info("🔐 Analyzing PAT permissions and access levels")
 
@@ -266,8 +265,8 @@ class GitHubIntegrationStrategy:
             return permissions
 
     def assess_integration_capabilities(
-        self, org_data: Dict, permissions: Dict
-    ) -> Dict:
+        self, org_data: dict, permissions: dict
+    ) -> dict:
         """Assess what integration strategies are possible with current permissions."""
         capabilities = {
             "can_create_repos": permissions["admin_access"],
@@ -295,7 +294,7 @@ class GitHubIntegrationStrategy:
 
         return capabilities
 
-    def analyze_target_repositories(self) -> List[Dict]:
+    def analyze_target_repositories(self) -> list[dict]:
         """Analyze each target repository for integration feasibility."""
         logger.info("📊 Analyzing target repositories for integration")
 
@@ -373,7 +372,7 @@ class GitHubIntegrationStrategy:
 
         return analyzed_repos
 
-    def assess_repository_integration(self, repo_data: Dict, config: Dict) -> Dict:
+    def assess_repository_integration(self, repo_data: dict, config: dict) -> dict:
         """Assess how well a repository can be integrated."""
         assessment = {
             "compatibility_score": 0,
@@ -438,7 +437,7 @@ class GitHubIntegrationStrategy:
 
         return assessment
 
-    def analyze_repository_security(self, repo_data: Dict) -> Dict:
+    def analyze_repository_security(self, repo_data: dict) -> dict:
         """Analyze security aspects of the repository."""
         security = {
             "security_score": 0,
@@ -473,7 +472,7 @@ class GitHubIntegrationStrategy:
 
         return security
 
-    def recommend_integration_approach(self, repo_data: Dict, config: Dict) -> Dict:
+    def recommend_integration_approach(self, repo_data: dict, config: dict) -> dict:
         """Recommend the best integration approach for each repository."""
         approach = {
             "primary_method": config["integration_type"],
@@ -533,7 +532,7 @@ class GitHubIntegrationStrategy:
 
         return approach
 
-    def create_github_configurations(self, analyzed_repos: List[Dict]) -> List[Dict]:
+    def create_github_configurations(self, analyzed_repos: list[dict]) -> list[dict]:
         """Create GitHub-specific configurations for optimal integration."""
         logger.info("⚙️ Creating GitHub configurations for integration")
 
@@ -683,17 +682,17 @@ class GitHubIntegrationStrategy:
                     "body": """
 ## MCP Server Bug Report
 
-**Server Name:** 
-**Version:** 
-**Environment:** 
+**Server Name:**
+**Version:**
+**Environment:**
 
 ### Description
 A clear description of the bug.
 
 ### Steps to Reproduce
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ### Expected Behavior
 What should happen.
@@ -718,8 +717,8 @@ Any other context about the problem.
                     "body": """
 ## MCP Integration Request
 
-**Service/Tool:** 
-**Repository URL:** 
+**Service/Tool:**
+**Repository URL:**
 **Priority:** High/Medium/Low
 
 ### Business Justification
@@ -745,8 +744,8 @@ Any other relevant information.
         return configurations
 
     def create_implementation_plan(
-        self, analyzed_repos: List[Dict], configurations: List[Dict]
-    ) -> Dict:
+        self, analyzed_repos: list[dict], configurations: list[dict]
+    ) -> dict:
         """Create detailed implementation plan for GitHub integration."""
         logger.info("📋 Creating comprehensive implementation plan")
 
@@ -865,7 +864,7 @@ Any other relevant information.
 
         return plan
 
-    def generate_implementation_scripts(self) -> Dict[str, str]:
+    def generate_implementation_scripts(self) -> dict[str, str]:
         """Generate scripts for implementing the GitHub integration."""
         logger.info("🔧 Generating implementation scripts")
 
@@ -956,17 +955,17 @@ def fork_repository(owner, repo, org):
         'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}',
         'Accept': 'application/vnd.github.v3+json'
     }
-    
+
     fork_data = {
         'organization': org
     }
-    
+
     response = requests.post(
         f'https://api.github.com/repos/{owner}/{repo}/forks',
         headers=headers,
         json=fork_data
     )
-    
+
     if response.status_code == 202:
         print(f"✅ Successfully forked {owner}/{repo} to {org}")
         return response.json()
@@ -981,9 +980,9 @@ def main():
         ('korotovsky', 'slack-mcp-server'),
         ('brightdata', 'mcp-server')
     ]
-    
+
     org = 'ai-cherry'
-    
+
     for owner, repo in forks_to_create:
         fork_repository(owner, repo, org)
 
@@ -1008,34 +1007,34 @@ jobs:
     strategy:
       matrix:
         python-version: [3.11, 3.12]
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-    
+
     - name: Install dependencies
       run: |
         uv sync
-    
+
     - name: Test MCP servers
       run: |
         uv run python scripts/test_mcp_servers.py
-    
+
     - name: Validate MCP protocol compliance
       run: |
         uv run python scripts/validate_mcp_compliance.py
-    
+
     - name: Upload test results
       uses: actions/upload-artifact@v3
       if: always()
@@ -1046,7 +1045,7 @@ jobs:
 
         return scripts
 
-    def execute_analysis(self) -> Dict:
+    def execute_analysis(self) -> dict:
         """Execute the complete GitHub integration analysis."""
         logger.info("🚀 Starting comprehensive GitHub integration analysis")
 
@@ -1094,8 +1093,8 @@ jobs:
             return self.integration_results
 
     def generate_final_recommendations(
-        self, repo_analysis: List[Dict], github_configs: List[Dict]
-    ) -> List[Dict]:
+        self, repo_analysis: list[dict], github_configs: list[dict]
+    ) -> list[dict]:
         """Generate final recommendations for GitHub integration."""
         recommendations = []
 

@@ -4,10 +4,10 @@ Immediate Snowflake Connectivity Fix
 Addresses the 404 errors by updating configuration to correct account details
 """
 
-import os
-import sys
 import asyncio
 import logging
+import os
+import sys
 from pathlib import Path
 
 # Add project root to path
@@ -110,7 +110,7 @@ class SnowflakeConnectivityFixer:
         logger.info("🚀 Starting Snowflake connectivity fix...")
 
         # 1. Diagnose current configuration
-        current_config = await self.diagnose_current_config()
+        await self.diagnose_current_config()
 
         # 2. Test correct configuration
         logger.info("🧪 Testing correct configuration...")

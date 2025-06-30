@@ -2,11 +2,11 @@
 """
 Script to retrieve all closed tickets and their conversation threads from HubSpot.
 """
-import os
-import sys
 import json
 import logging
-from typing import Dict, Any, List
+import os
+import sys
+from typing import Any
 
 # Add src directory to path to allow direct imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger("get_closed_ticket_conversations")
 
 
-def get_closed_tickets(hubspot_client: HubSpotClient) -> List[Dict[str, Any]]:
+def get_closed_tickets(hubspot_client: HubSpotClient) -> list[dict[str, Any]]:
     """Get all closed tickets from HubSpot.
 
     Args:
@@ -46,7 +46,7 @@ def get_closed_tickets(hubspot_client: HubSpotClient) -> List[Dict[str, Any]]:
 
 def get_ticket_conversations(
     hubspot_client: HubSpotClient, ticket_id: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get conversation threads for a specific ticket.
 
     Args:

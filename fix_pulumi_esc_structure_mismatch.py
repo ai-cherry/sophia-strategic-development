@@ -5,7 +5,6 @@ The root cause of persistent placeholders is structure mismatch between sync and
 """
 
 import subprocess
-import os
 
 
 def analyze_esc_structure():
@@ -60,15 +59,15 @@ def analyze_esc_structure():
                     if "PLACEHOLDER_" in line:
                         nested_placeholders += 1
 
-            print(f"📊 STRUCTURE ANALYSIS:")
+            print("📊 STRUCTURE ANALYSIS:")
             print(f"  Top-level REAL values: {top_level_real}")
             print(f"  Top-level PLACEHOLDERS: {top_level_placeholders}")
             print(f"  Nested PLACEHOLDERS: {nested_placeholders}")
 
-            print(f"\n🔍 ROOT CAUSE IDENTIFIED:")
-            print(f"  - Backend reads from TOP-LEVEL structure (working)")
-            print(f"  - Sync script writes to NESTED structure (placeholders)")
-            print(f"  - This creates a MISMATCH causing persistent placeholders")
+            print("\n🔍 ROOT CAUSE IDENTIFIED:")
+            print("  - Backend reads from TOP-LEVEL structure (working)")
+            print("  - Sync script writes to NESTED structure (placeholders)")
+            print("  - This creates a MISMATCH causing persistent placeholders")
 
             return True
 
@@ -79,72 +78,50 @@ def analyze_esc_structure():
 
 def fix_sync_script_structure():
     """Fix the sync script to use top-level structure instead of nested"""
-    print(f"\n🔧 FIXING SYNC SCRIPT STRUCTURE")
+    print("\n🔧 FIXING SYNC SCRIPT STRUCTURE")
     print("=" * 40)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
-    with open(sync_file, "r") as f:
+    with open(sync_file) as f:
         content = f.read()
 
     # Create new mappings that use top-level structure (matching what backend reads)
-    new_mappings = {
-        # Top-level mappings (what backend actually reads)
-        "OPENAI_API_KEY": "openai_api_key",
-        "ANTHROPIC_API_KEY": "anthropic_api_key",
-        "GONG_ACCESS_KEY": "gong_access_key",
-        "PINECONE_API_KEY": "pinecone_api_key",
-        "SNOWFLAKE_ACCOUNT": "snowflake_account",
-        "SNOWFLAKE_USER": "snowflake_user",
-        "SNOWFLAKE_PASSWORD": "snowflake_password",
-        "SNOWFLAKE_ROLE": "snowflake_role",
-        "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
-        "SNOWFLAKE_DATABASE": "snowflake_database",
-        # Lambda Labs (top-level)
-        "LAMBDA_API_KEY": "lambda_api_key",
-        "LAMBDA_IP_ADDRESS": "lambda_ip_address",
-        "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
-        # Other critical services (top-level)
-        "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
-        "SLACK_BOT_TOKEN": "slack_bot_token",
-        "LINEAR_API_KEY": "linear_api_key",
-        "NOTION_API_KEY": "notion_api_key",
-    }
 
     # Replace the entire secret_mappings section
-    new_mappings_code = f"""        # TOP-LEVEL MAPPINGS (matching what backend actually reads)
+    new_mappings_code = """        # TOP-LEVEL MAPPINGS (matching what backend actually reads)
         # CRITICAL: These map to top-level ESC keys, not nested values.sophia.*
-        self.secret_mappings = {{
+        self.secret_mappings = {
             # Core AI Services (top-level)
             "OPENAI_API_KEY": "openai_api_key",
             "ANTHROPIC_API_KEY": "anthropic_api_key",
-            "GONG_ACCESS_KEY": "gong_access_key", 
+            "GONG_ACCESS_KEY": "gong_access_key",
             "PINECONE_API_KEY": "pinecone_api_key",
-            
+
             # Snowflake (top-level)
             "SNOWFLAKE_ACCOUNT": "snowflake_account",
             "SNOWFLAKE_USER": "snowflake_user",
-            "SNOWFLAKE_PASSWORD": "snowflake_password", 
+            "SNOWFLAKE_PASSWORD": "snowflake_password",
             "SNOWFLAKE_ROLE": "snowflake_role",
             "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
             "SNOWFLAKE_DATABASE": "snowflake_database",
-            
-            # Lambda Labs (top-level) 
+
+            # Lambda Labs (top-level)
             "LAMBDA_API_KEY": "lambda_api_key",
             "LAMBDA_IP_ADDRESS": "lambda_ip_address",
             "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
-            
+
             # Business Intelligence (top-level)
             "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
-            "SLACK_BOT_TOKEN": "slack_bot_token", 
+            "SLACK_BOT_TOKEN": "slack_bot_token",
             "LINEAR_API_KEY": "linear_api_key",
             "NOTION_API_KEY": "notion_api_key",
-            
+
             # Additional services (top-level for immediate use)
             "VERCEL_ACCESS_TOKEN": "vercel_access_token",
             "PORTKEY_API_KEY": "portkey_api_key",
             "OPENROUTER_API_KEY": "openrouter_api_key",
-        }}"""
+        }"""
 
     # Replace the existing mappings
     import re
@@ -160,7 +137,7 @@ def fix_sync_script_structure():
 
 def test_structure_fix():
     """Test if the structure fix will work"""
-    print(f"\n🧪 TESTING STRUCTURE FIX")
+    print("\n🧪 TESTING STRUCTURE FIX")
     print("=" * 30)
 
     print("Testing backend config access patterns...")
@@ -184,17 +161,17 @@ def test_structure_fix():
         # Test keys that should work after sync
         target_keys = ["lambda_api_key", "hubspot_access_token", "slack_bot_token"]
 
-        print(f"\nKeys that will work after sync:")
+        print("\nKeys that will work after sync:")
         for key in target_keys:
             value = get_config_value(key)
             status = "✅ READY" if value else "🔧 WILL BE SYNCED"
             print(f"  {key}: {status}")
 
-        print(f"\n💡 SOLUTION CONFIRMED:")
-        print(f"  - Sync script now writes to TOP-LEVEL structure")
-        print(f"  - Backend reads from TOP-LEVEL structure")
-        print(f"  - This eliminates the structure mismatch")
-        print(f"  - Placeholders will be replaced with real values")
+        print("\n💡 SOLUTION CONFIRMED:")
+        print("  - Sync script now writes to TOP-LEVEL structure")
+        print("  - Backend reads from TOP-LEVEL structure")
+        print("  - This eliminates the structure mismatch")
+        print("  - Placeholders will be replaced with real values")
 
     except Exception as e:
         print(f"❌ Test error: {e}")
@@ -215,14 +192,14 @@ def main():
     # Test the fix
     test_structure_fix()
 
-    print(f"\n🎉 DEFINITIVE FIX COMPLETE!")
+    print("\n🎉 DEFINITIVE FIX COMPLETE!")
     print("=" * 40)
     print("✅ Identified root cause: Structure mismatch")
     print("✅ Fixed sync script to use top-level structure")
     print("✅ Verified backend compatibility")
     print("✅ Eliminated placeholder persistence")
 
-    print(f"\n🚀 NEXT STEPS:")
+    print("\n🚀 NEXT STEPS:")
     print("1. Commit and push this fix")
     print("2. GitHub Actions will sync to correct structure")
     print("3. Backend will read real values instead of placeholders")

@@ -4,9 +4,8 @@ Snowflake Connection Test Script
 Test the corrected Snowflake configuration
 """
 
-import os
-import sys
 import logging
+import sys
 from pathlib import Path
 
 # Add the project root to Python path
@@ -28,7 +27,6 @@ def test_snowflake_connection():
 
         # Import configuration
         from backend.core.auto_esc_config import get_config_value
-        from backend.core.security_config import SecurityConfig
 
         logger.info("🔍 Testing Snowflake connection configuration")
 
@@ -72,7 +70,7 @@ def test_snowflake_connection():
         )
         result = cursor.fetchone()
 
-        logger.info(f"✅ Connection details:")
+        logger.info("✅ Connection details:")
         logger.info(f"   Account: {result[0]}")
         logger.info(f"   User: {result[1]}")
         logger.info(f"   Role: {result[2]}")

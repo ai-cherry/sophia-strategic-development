@@ -6,34 +6,31 @@ Provides tools for interacting with HubSpot API through an MCP server interface.
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Optional
-import json
-from dotenv import load_dotenv
+from typing import Any
 
-from mcp.server.models import InitializationOptions
-from mcp.server.lowlevel import NotificationOptions
-import mcp.types as types
-from mcp.server import Server
 import mcp.server.stdio
+import mcp.types as types
+from dotenv import load_dotenv
+from mcp.server import Server
+from mcp.server.lowlevel import NotificationOptions
+from mcp.server.models import InitializationOptions
 from pydantic import AnyUrl
-
 from sentence_transformers import SentenceTransformer
 
-from .hubspot_client import HubSpotClient, ApiException
 from .faiss_manager import FaissManager
-from .utils import store_in_faiss, search_in_faiss
 from .handlers.company_handler import CompanyHandler
 from .handlers.contact_handler import ContactHandler
 from .handlers.conversation_handler import ConversationHandler
-from .handlers.ticket_handler import TicketHandler
 from .handlers.search_handler import SearchHandler
+from .handlers.ticket_handler import TicketHandler
+from .hubspot_client import ApiException, HubSpotClient
 
 logger = logging.getLogger("mcp_hubspot_server")
 
 load_dotenv()
 
 
-async def main(access_token: Optional[str] = None):
+async def main(access_token: str | None = None):
     """Run the HubSpot MCP server."""
     logger.info("Server starting")
 
@@ -110,7 +107,7 @@ def initialize_faiss_manager(embedding_model: SentenceTransformer) -> FaissManag
     return faiss_manager
 
 
-def initialize_hubspot_client(access_token: Optional[str]) -> HubSpotClient:
+def initialize_hubspot_client(access_token: str | None) -> HubSpotClient:
     """Initialize and return the HubSpot client."""
     return HubSpotClient(access_token)
 
@@ -166,7 +163,7 @@ def register_resource_handlers(server: Server) -> None:
     async def handle_read_resource(uri: AnyUrl) -> str:
         if uri.scheme != "hubspot":
             raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
-        path = str(uri).replace("hubspot://", "")
+        str(uri).replace("hubspot://", "")
         return ""
 
 
@@ -299,8 +296,8 @@ def register_tool_call_handler(
 
 
 if __name__ == "__main__":
-    import asyncio
     import argparse
+    import asyncio
 
     parser = argparse.ArgumentParser(description="HubSpot MCP Server")
     parser.add_argument("--access-token", help="HubSpot API access token")

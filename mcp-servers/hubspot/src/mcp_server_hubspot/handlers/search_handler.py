@@ -2,8 +2,7 @@
 Handler for search operations on indexed HubSpot data.
 """
 
-from typing import Any, Dict, List, Optional
-import json
+from typing import Any
 
 import mcp.types as types
 from sentence_transformers import SentenceTransformer
@@ -30,7 +29,7 @@ class SearchHandler(BaseHandler):
         # Note: This handler doesn't need the HubSpot client, only the FAISS components
         super().__init__(None, faiss_manager, embedding_model, "search_handler")
 
-    def get_search_data_schema(self) -> Dict[str, Any]:
+    def get_search_data_schema(self) -> dict[str, Any]:
         """Get the input schema for data search.
 
         Returns:
@@ -49,8 +48,8 @@ class SearchHandler(BaseHandler):
         }
 
     def search_data(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Search for similar data in stored HubSpot API responses.
 
         Args:

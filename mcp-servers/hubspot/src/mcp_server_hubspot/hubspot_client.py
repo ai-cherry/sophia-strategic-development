@@ -5,19 +5,17 @@ Provides access to HubSpot API functionality through specialized client modules.
 
 import logging
 import os
-import json
 import pathlib
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, Literal
 
 from hubspot import HubSpot
 from hubspot.crm.contacts.exceptions import ApiException
 
-from .core.storage import ThreadStorage
-from .core.formatters import convert_datetime_fields
 from .clients.company_client import CompanyClient
 from .clients.contact_client import ContactClient
 from .clients.conversation_client import ConversationClient
 from .clients.ticket_client import TicketClient
+from .core.storage import ThreadStorage
 
 # Re-export ApiException
 __all__ = ["HubSpotClient", "ApiException"]
@@ -28,7 +26,7 @@ logger = logging.getLogger("mcp_hubspot_client")
 class HubSpotClient:
     """Main HubSpot client that composes specialized clients for each domain."""
 
-    def __init__(self, access_token: Optional[str] = None):
+    def __init__(self, access_token: str | None = None):
         """Initialize the HubSpot client with API credentials.
 
         Args:
@@ -49,7 +47,7 @@ class HubSpotClient:
         )
         self.tickets = TicketClient(self.client, self.access_token)
 
-    def _get_access_token(self, access_token: Optional[str]) -> str:
+    def _get_access_token(self, access_token: str | None) -> str:
         """Retrieve and validate the HubSpot access token.
 
         Args:
@@ -102,8 +100,8 @@ class HubSpotClient:
         return self.contacts.get_recent(limit)
 
     def get_recent_emails(
-        self, limit: int = 10, after: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, limit: int = 10, after: str | None = None
+    ) -> dict[str, Any]:
         """Get recent emails from HubSpot with pagination.
 
         Args:
@@ -116,8 +114,8 @@ class HubSpotClient:
         return self.conversations.get_recent_emails(limit, after)
 
     def get_recent_conversations(
-        self, limit: int = 10, after: Optional[str] = None, refresh_cache: bool = False
-    ) -> Dict[str, Any]:
+        self, limit: int = 10, after: str | None = None, refresh_cache: bool = False
+    ) -> dict[str, Any]:
         """Get recent conversation threads from HubSpot with pagination.
 
         Args:
@@ -136,7 +134,7 @@ class HubSpotClient:
         limit: int = 50,
         max_retries: int = 3,
         retry_delay: float = 1.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get tickets from HubSpot based on configurable selection criteria.
 
         Args:
@@ -152,7 +150,7 @@ class HubSpotClient:
         """
         return self.tickets.get_tickets(criteria, limit, max_retries, retry_delay)
 
-    def get_ticket_conversation_threads(self, ticket_id: str) -> Dict[str, Any]:
+    def get_ticket_conversation_threads(self, ticket_id: str) -> dict[str, Any]:
         """Get conversation threads associated with a specific ticket.
 
         Args:

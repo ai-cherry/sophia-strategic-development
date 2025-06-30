@@ -13,8 +13,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from backend.mcp_servers.mcp_health import health_monitor
 from backend.mcp_servers.mcp_auth import mcp_auth
+from backend.mcp_servers.mcp_health import health_monitor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ async def run_integration_tests():
     health_score = (healthy_services / total_services) * 100
     overall_score = (auth_score + health_score) / 2
 
-    logger.info(f"\n📊 Test Results Summary:")
+    logger.info("\n📊 Test Results Summary:")
     logger.info(
         f"   Authentication Score: {auth_score:.1f}% ({configured_services}/{total_services} services)"
     )

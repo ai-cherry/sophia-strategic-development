@@ -4,17 +4,16 @@ Client for HubSpot contact-related operations.
 
 import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from hubspot import HubSpot
 from hubspot.crm.contacts import (
     PublicObjectSearchRequest,
     SimplePublicObjectInputForCreate,
 )
-from hubspot.crm.contacts.exceptions import ApiException
 
-from ..core.formatters import convert_datetime_fields
 from ..core.error_handler import handle_hubspot_errors
+from ..core.formatters import convert_datetime_fields
 
 logger = logging.getLogger("mcp_hubspot_client.contact")
 
@@ -75,7 +74,7 @@ class ContactClient:
         )
 
     @handle_hubspot_errors
-    def create_contact(self, properties: Dict[str, Any]) -> Dict[str, Any]:
+    def create_contact(self, properties: dict[str, Any]) -> dict[str, Any]:
         """Create a new contact in HubSpot.
 
         Args:
@@ -107,8 +106,8 @@ class ContactClient:
         return api_response.to_dict()
 
     def _find_existing_contact(
-        self, firstname: str, lastname: str, company: Optional[str] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, firstname: str, lastname: str, company: str | None = None
+    ) -> dict[str, Any] | None:
         """Search for an existing contact with the same name and company.
 
         Args:

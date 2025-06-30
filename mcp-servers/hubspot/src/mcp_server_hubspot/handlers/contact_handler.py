@@ -2,8 +2,8 @@
 Handler for contact-related HubSpot operations.
 """
 
-from typing import Any, Dict, List, Optional
 import json
+from typing import Any
 
 import mcp.types as types
 
@@ -26,7 +26,7 @@ class ContactHandler(BaseHandler):
             hubspot_client, faiss_manager, embedding_model, "contact_handler"
         )
 
-    def get_create_contact_schema(self) -> Dict[str, Any]:
+    def get_create_contact_schema(self) -> dict[str, Any]:
         """Get the input schema for creating a contact.
 
         Returns:
@@ -46,7 +46,7 @@ class ContactHandler(BaseHandler):
             "required": ["firstname", "lastname"],
         }
 
-    def get_active_contacts_schema(self) -> Dict[str, Any]:
+    def get_active_contacts_schema(self) -> dict[str, Any]:
         """Get the input schema for active contacts.
 
         Returns:
@@ -63,8 +63,8 @@ class ContactHandler(BaseHandler):
         }
 
     def create_contact(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Create a new contact in HubSpot.
 
         Args:
@@ -147,8 +147,8 @@ class ContactHandler(BaseHandler):
             return self.create_text_response(f"Error: {str(e)}")
 
     def get_active_contacts(
-        self, arguments: Optional[Dict[str, Any]]
-    ) -> List[types.TextContent]:
+        self, arguments: dict[str, Any] | None
+    ) -> list[types.TextContent]:
         """Get most recently active contacts from HubSpot.
 
         Args:

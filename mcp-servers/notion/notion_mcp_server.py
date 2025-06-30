@@ -5,12 +5,10 @@ Provides knowledge management functionality
 
 import asyncio
 import logging
-import json
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
-from mcp import Server, Tool, Resource
-from mcp.types import TextContent, ImageContent
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -39,7 +37,7 @@ class NotionMCPServer:
         """Register Notion MCP tools"""
 
         @self.mcp_server.tool("get_pages")
-        async def get_pages(database_id: str = "") -> Dict[str, Any]:
+        async def get_pages(database_id: str = "") -> dict[str, Any]:
             """Get Notion pages"""
             try:
                 # Mock implementation for now
@@ -61,7 +59,7 @@ class NotionMCPServer:
         @self.mcp_server.tool("create_page")
         async def create_page(
             title: str, content: str, parent_id: str = ""
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Create a new Notion page"""
             try:
                 # Mock implementation for now
@@ -69,7 +67,7 @@ class NotionMCPServer:
                     "success": True,
                     "page_id": "new_page_123",
                     "title": title,
-                    "url": f"https://notion.so/new_page_123",
+                    "url": "https://notion.so/new_page_123",
                 }
 
             except Exception as e:
@@ -77,7 +75,7 @@ class NotionMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Notion connection health"""
             try:
                 has_token = bool(self.api_token)
@@ -96,7 +94,7 @@ class NotionMCPServer:
         """Register Notion MCP resources"""
 
         @self.mcp_server.resource("databases")
-        async def get_databases() -> List[Dict[str, Any]]:
+        async def get_databases() -> list[dict[str, Any]]:
             """Get Notion databases"""
             try:
                 # Mock implementation

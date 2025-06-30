@@ -6,18 +6,16 @@ Delivers 35% development velocity improvement through optimized multi-language e
 """
 
 import asyncio
-import json
 import logging
-import subprocess
-import yaml
 import os
-import signal
-import time
-from typing import Dict, List, Optional, Any, Union
-from dataclasses import dataclass, asdict
-from enum import Enum
+import subprocess
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Any
+
 import aiohttp
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +49,12 @@ class MCPServerConfig:
     priority: str  # critical, high, medium, low
 
     # Language-specific configuration
-    python_module: Optional[str] = None
-    go_binary_path: Optional[str] = None
-    typescript_script: Optional[str] = None
+    python_module: str | None = None
+    go_binary_path: str | None = None
+    typescript_script: str | None = None
 
     # Runtime configuration
-    environment_vars: Dict[str, str] = None
+    environment_vars: dict[str, str] = None
     working_directory: str = "."
     health_check_path: str = "/health"
     startup_timeout: int = 30
@@ -72,7 +70,7 @@ class MCPServerConfig:
 class PolyglotMCPConfig:
     """Configuration for polyglot MCP deployment"""
 
-    servers: List[MCPServerConfig]
+    servers: list[MCPServerConfig]
     global_timeout: int = 60
     health_check_interval: int = 30
     log_level: str = "INFO"
@@ -82,7 +80,7 @@ class PolyglotMCPConfig:
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "PolyglotMCPConfig":
         """Load configuration from YAML file"""
-        with open(yaml_path, "r") as f:
+        with open(yaml_path) as f:
             config_data = yaml.safe_load(f)
 
         servers = []
@@ -99,7 +97,7 @@ class MCPServerManager:
 
     def __init__(self, config: MCPServerConfig):
         self.config = config
-        self.process: Optional[subprocess.Popen] = None
+        self.process: subprocess.Popen | None = None
         self.status = MCPServerStatus.STOPPED
         self.restart_count = 0
         self.last_restart = None
@@ -223,7 +221,7 @@ class MCPServerManager:
             self.metrics["health_checks_failed"] += 1
             return False
 
-    def _build_command(self) -> List[str]:
+    def _build_command(self) -> list[str]:
         """Build command based on server language"""
         if self.config.language == MCPLanguage.PYTHON:
             return [
@@ -240,7 +238,7 @@ class MCPServerManager:
         else:
             raise ValueError(f"Unsupported language: {self.config.language}")
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get server metrics"""
         uptime = 0
         if self.metrics["start_time"]:
@@ -277,15 +275,15 @@ class PolyglotMCPOrchestrator:
 
     def __init__(self, config: PolyglotMCPConfig):
         self.config = config
-        self.servers: Dict[str, MCPServerManager] = {}
+        self.servers: dict[str, MCPServerManager] = {}
         self.is_running = False
-        self.health_monitor_task: Optional[asyncio.Task] = None
+        self.health_monitor_task: asyncio.Task | None = None
 
         # Initialize server managers
         for server_config in config.servers:
             self.servers[server_config.name] = MCPServerManager(server_config)
 
-    async def start_all(self) -> Dict[str, bool]:
+    async def start_all(self) -> dict[str, bool]:
         """Start all MCP servers"""
         logger.info("🚀 Starting polyglot MCP deployment...")
 
@@ -363,7 +361,7 @@ class PolyglotMCPOrchestrator:
 
         return await self.servers[server_name].restart()
 
-    async def get_status(self) -> Dict[str, Any]:
+    async def get_status(self) -> dict[str, Any]:
         """Get comprehensive status of all servers"""
         server_metrics = {}
         for name, manager in self.servers.items():
@@ -419,7 +417,7 @@ class PolyglotMCPOrchestrator:
             return await asyncio.wait_for(
                 manager.start(), timeout=manager.config.startup_timeout
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(f"❌ {name} startup timed out")
             return False
         except Exception as e:
@@ -520,11 +518,11 @@ async def main():
 
     try:
         # Start all servers
-        results = await orchestrator.start_all()
+        await orchestrator.start_all()
 
         # Display status
         status = await orchestrator.get_status()
-        print(f"\n🎉 POLYGLOT MCP DEPLOYMENT STATUS")
+        print("\n🎉 POLYGLOT MCP DEPLOYMENT STATUS")
         print("=" * 50)
         print(f"Overall Status: {status['overall_status']}")
         print(f"Servers Running: {status['servers_running']}")

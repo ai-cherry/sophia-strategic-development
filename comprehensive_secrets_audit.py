@@ -5,7 +5,6 @@ Ensures ALL secrets from GitHub are properly mapped and synced to Pulumi ESC
 """
 
 import re
-import os
 
 
 def extract_github_workflow_secrets():
@@ -15,7 +14,7 @@ def extract_github_workflow_secrets():
 
     workflow_file = ".github/workflows/sync_secrets.yml"
 
-    with open(workflow_file, "r") as f:
+    with open(workflow_file) as f:
         content = f.read()
 
     # Find all ${{ secrets.SECRET_NAME }} patterns
@@ -23,7 +22,7 @@ def extract_github_workflow_secrets():
     secrets = re.findall(secret_pattern, content)
 
     # Remove duplicates and sort
-    unique_secrets = sorted(list(set(secrets)))
+    unique_secrets = sorted(set(secrets))
 
     print(f"📊 Found {len(unique_secrets)} unique secrets in GitHub Actions workflow:")
 
@@ -112,12 +111,12 @@ def extract_github_workflow_secrets():
 
 def extract_sync_script_mappings():
     """Extract current mappings from sync script"""
-    print(f"\n🔍 EXTRACTING CURRENT SYNC SCRIPT MAPPINGS")
+    print("\n🔍 EXTRACTING CURRENT SYNC SCRIPT MAPPINGS")
     print("=" * 50)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
-    with open(sync_file, "r") as f:
+    with open(sync_file) as f:
         content = f.read()
 
     # Extract mappings from the secret_mappings dictionary
@@ -133,7 +132,7 @@ def extract_sync_script_mappings():
 
 def generate_complete_mappings(github_secrets, categories):
     """Generate complete mappings for all GitHub secrets"""
-    print(f"\n🔧 GENERATING COMPLETE MAPPINGS FOR ALL SECRETS")
+    print("\n🔧 GENERATING COMPLETE MAPPINGS FOR ALL SECRETS")
     print("=" * 55)
 
     complete_mappings = {}
@@ -158,7 +157,7 @@ def generate_complete_mappings(github_secrets, categories):
 
 def identify_conflicts_and_gaps(github_secrets, current_mappings):
     """Identify conflicts and gaps between GitHub and sync script"""
-    print(f"\n🔍 IDENTIFYING CONFLICTS AND GAPS")
+    print("\n🔍 IDENTIFYING CONFLICTS AND GAPS")
     print("=" * 40)
 
     github_set = set(github_secrets)
@@ -167,7 +166,7 @@ def identify_conflicts_and_gaps(github_secrets, current_mappings):
     missing_from_sync = github_set - sync_set
     extra_in_sync = sync_set - github_set
 
-    print(f"📊 ANALYSIS RESULTS:")
+    print("📊 ANALYSIS RESULTS:")
     print(f"  GitHub secrets: {len(github_secrets)}")
     print(f"  Sync mappings: {len(current_mappings)}")
     print(f"  Missing from sync: {len(missing_from_sync)}")
@@ -188,12 +187,12 @@ def identify_conflicts_and_gaps(github_secrets, current_mappings):
 
 def update_sync_script_with_complete_mappings(complete_mappings):
     """Update sync script with complete mappings"""
-    print(f"\n🔧 UPDATING SYNC SCRIPT WITH COMPLETE MAPPINGS")
+    print("\n🔧 UPDATING SYNC SCRIPT WITH COMPLETE MAPPINGS")
     print("=" * 55)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
-    with open(sync_file, "r") as f:
+    with open(sync_file) as f:
         content = f.read()
 
     # Generate the new mappings section
@@ -331,15 +330,15 @@ def main():
     # Update sync script
     update_sync_script_with_complete_mappings(complete_mappings)
 
-    print(f"\n🎉 COMPREHENSIVE AUDIT COMPLETE!")
+    print("\n🎉 COMPREHENSIVE AUDIT COMPLETE!")
     print("=" * 40)
     print(f"✅ Analyzed {len(github_secrets)} GitHub secrets")
     print(f"✅ Generated {len(complete_mappings)} complete mappings")
-    print(f"✅ Updated sync script with ALL secrets")
+    print("✅ Updated sync script with ALL secrets")
     print(f"✅ Eliminated {len(missing)} missing mappings")
-    print(f"✅ Ready for complete GitHub→Pulumi ESC sync")
+    print("✅ Ready for complete GitHub→Pulumi ESC sync")
 
-    print(f"\n🚀 NEXT STEPS:")
+    print("\n🚀 NEXT STEPS:")
     print("1. Commit updated sync script")
     print("2. Push to trigger GitHub Actions")
     print("3. Verify all secrets sync to Pulumi ESC")

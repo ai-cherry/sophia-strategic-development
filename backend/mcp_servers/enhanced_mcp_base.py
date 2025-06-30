@@ -7,15 +7,13 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Callable
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from contextlib import asynccontextmanager
-from collections.abc import AsyncIterator
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp import Context, Image
-from mcp.types import TextContent, ImageContent
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -31,7 +29,7 @@ class MCPServerHealth:
     total_requests: int
     successful_requests: int
     failed_requests: int
-    last_request_time: Optional[datetime]
+    last_request_time: datetime | None
     error_rate: float
 
 
@@ -39,9 +37,9 @@ class MCPServerHealth:
 class SophiaContext:
     """Sophia AI context for MCP servers"""
 
-    config: Dict[str, Any]
-    connection_manager: Optional[Any] = None
-    health_metrics: Optional[Dict[str, Any]] = None
+    config: dict[str, Any]
+    connection_manager: Any | None = None
+    health_metrics: dict[str, Any] | None = None
 
 
 class EnhancedSophiaMCPServer(ABC):
@@ -50,7 +48,7 @@ class EnhancedSophiaMCPServer(ABC):
     Provides enterprise-grade patterns with FastMCP integration
     """
 
-    def __init__(self, name: str, version: str = "1.0.0", port: Optional[int] = None):
+    def __init__(self, name: str, version: str = "1.0.0", port: int | None = None):
         self.name = name
         self.version = version
         self.port = port
@@ -83,7 +81,7 @@ class EnhancedSophiaMCPServer(ABC):
 
         self.logger.info(f"🚀 Initialized {name} Enhanced MCP Server v{version}")
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load configuration from Pulumi ESC and environment"""
         return {
             "environment": get_config_value("environment", "prod"),
@@ -122,7 +120,7 @@ class EnhancedSophiaMCPServer(ABC):
         pass
 
     @abstractmethod
-    def get_dependencies(self) -> List[str]:
+    def get_dependencies(self) -> list[str]:
         """Return list of dependencies for this server"""
         return []
 

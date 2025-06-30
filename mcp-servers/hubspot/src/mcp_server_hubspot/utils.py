@@ -2,16 +2,18 @@
 
 import json
 import logging
+from typing import Any
+
 import numpy as np
-from typing import Dict, List, Any, Optional, Tuple
 from sentence_transformers import SentenceTransformer
+
 from .faiss_manager import FaissManager
 
 logger = logging.getLogger("mcp_hubspot_utils")
 
 
 def generate_embeddings(
-    data: List[Dict[str, Any]], model: SentenceTransformer
+    data: list[dict[str, Any]], model: SentenceTransformer
 ) -> np.ndarray:
     """Generate embeddings for a list of data items.
 
@@ -28,10 +30,10 @@ def generate_embeddings(
 
 def store_in_faiss(
     faiss_manager: FaissManager,
-    data: List[Dict[str, Any]],
+    data: list[dict[str, Any]],
     data_type: str,
     model: SentenceTransformer,
-    metadata_extras: Optional[Dict[str, Any]] = None,
+    metadata_extras: dict[str, Any] | None = None,
 ) -> None:
     """Store data in FAISS index.
 
@@ -76,7 +78,7 @@ def store_in_faiss(
 
 def search_in_faiss(
     faiss_manager: FaissManager, query: str, model: SentenceTransformer, limit: int = 10
-) -> Tuple[List[Dict[str, Any]], List[float]]:
+) -> tuple[list[dict[str, Any]], list[float]]:
     """Search in FAISS index.
 
     Args:
@@ -99,7 +101,7 @@ def search_in_faiss(
 
         # Format results
         results = []
-        for i, (metadata, distance) in enumerate(zip(metadata_list, distances)):
+        for i, (metadata, distance) in enumerate(zip(metadata_list, distances, strict=False)):
             results.append(
                 {
                     "rank": i + 1,

@@ -4,6 +4,7 @@ Provides correct Snowflake configuration to fix 404 connectivity issues
 """
 
 import os
+
 from backend.core.auto_esc_config import get_config_value
 
 # Correct Snowflake configuration

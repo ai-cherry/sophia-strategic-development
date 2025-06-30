@@ -5,12 +5,10 @@ Provides team communication functionality
 
 import asyncio
 import logging
-import json
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
-from mcp import Server, Tool, Resource
-from mcp.types import TextContent, ImageContent
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -39,7 +37,7 @@ class SlackMCPServer:
         """Register Slack MCP tools"""
 
         @self.mcp_server.tool("send_message")
-        async def send_message(channel: str, message: str) -> Dict[str, Any]:
+        async def send_message(channel: str, message: str) -> dict[str, Any]:
             """Send a message to a Slack channel"""
             try:
                 # Mock implementation for now
@@ -55,7 +53,7 @@ class SlackMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("get_channels")
-        async def get_channels() -> Dict[str, Any]:
+        async def get_channels() -> dict[str, Any]:
             """Get Slack channels"""
             try:
                 # Mock implementation for now
@@ -72,7 +70,7 @@ class SlackMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Slack connection health"""
             try:
                 has_token = bool(self.bot_token)
@@ -91,7 +89,7 @@ class SlackMCPServer:
         """Register Slack MCP resources"""
 
         @self.mcp_server.resource("workspace_info")
-        async def get_workspace_info() -> Dict[str, Any]:
+        async def get_workspace_info() -> dict[str, Any]:
             """Get Slack workspace information"""
             try:
                 # Mock implementation

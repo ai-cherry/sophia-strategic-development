@@ -17,7 +17,6 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -29,8 +28,8 @@ class ComprehensiveDeadCodeCleanup:
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
         self.root_path = Path(".")
-        self.removed_files: List[Path] = []
-        self.removed_dirs: List[Path] = []
+        self.removed_files: list[Path] = []
+        self.removed_dirs: list[Path] = []
         self.total_size_freed = 0
 
         # Create final backup before cleanup

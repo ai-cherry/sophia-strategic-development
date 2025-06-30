@@ -5,12 +5,10 @@ Provides repository management functionality
 
 import asyncio
 import logging
-import json
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from typing import Any
 
-from mcp import Server, Tool, Resource
-from mcp.types import TextContent, ImageContent
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -39,7 +37,7 @@ class GitHubMCPServer:
         """Register GitHub MCP tools"""
 
         @self.mcp_server.tool("get_repository")
-        async def get_repository(owner: str, repo: str) -> Dict[str, Any]:
+        async def get_repository(owner: str, repo: str) -> dict[str, Any]:
             """Get GitHub repository information"""
             try:
                 # Mock implementation for now
@@ -61,7 +59,7 @@ class GitHubMCPServer:
         @self.mcp_server.tool("get_pull_requests")
         async def get_pull_requests(
             owner: str, repo: str, state: str = "open"
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Get GitHub pull requests"""
             try:
                 # Mock implementation for now
@@ -82,7 +80,7 @@ class GitHubMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check GitHub connection health"""
             try:
                 has_token = bool(self.access_token)
@@ -101,7 +99,7 @@ class GitHubMCPServer:
         """Register GitHub MCP resources"""
 
         @self.mcp_server.resource("user_info")
-        async def get_user_info() -> Dict[str, Any]:
+        async def get_user_info() -> dict[str, Any]:
             """Get GitHub user information"""
             try:
                 # Mock implementation

@@ -3,10 +3,9 @@
 Fix the OptimizedConnectionManager indentation issue
 """
 
-import re
 
 # Read the file
-with open("backend/core/optimized_connection_manager.py", "r") as f:
+with open("backend/core/optimized_connection_manager.py") as f:
     content = f.read()
 
 # Fix the indentation issue around _create_snowflake_connection
@@ -15,7 +14,7 @@ with open("backend/core/optimized_connection_manager.py", "r") as f:
 fixed_content = content.replace(
     """        async def _create_snowflake_connection(self):
         \"\"\"Create Snowflake connection with corrected configuration\"\"\"
-        
+
         # Get corrected connection parameters from override
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
@@ -28,7 +27,7 @@ fixed_content = content.replace(
     """
     async def _create_snowflake_connection(self):
         \"\"\"Create Snowflake connection with corrected configuration\"\"\"
-        
+
         # Get corrected connection parameters from override
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout

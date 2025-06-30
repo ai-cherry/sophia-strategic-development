@@ -62,10 +62,10 @@ except ImportError:
     aiomysql = MockAioMySQL()
 
 # Configuration and monitoring
-from backend.core.auto_esc_config import get_config_value
-from backend.core.snowflake_override import get_snowflake_connection_params
-from backend.core.performance_monitor import performance_monitor
 from backend.core.absolute_snowflake_override import get_snowflake_connection_params
+from backend.core.auto_esc_config import get_config_value
+from backend.core.performance_monitor import performance_monitor
+from backend.core.snowflake_override import get_snowflake_connection_params
 
 # Import Snowflake configuration override for correct connectivity
 

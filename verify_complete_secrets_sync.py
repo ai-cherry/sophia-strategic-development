@@ -7,7 +7,6 @@ are properly synced to Pulumi ESC and accessible via backend
 import asyncio
 import os
 import sys
-import time
 from datetime import datetime
 
 # Add backend to path
@@ -32,7 +31,7 @@ def check_github_actions_status():
 
 def test_pulumi_esc_access():
     """Test direct Pulumi ESC access to verify secrets"""
-    print(f"\n🔍 TESTING DIRECT PULUMI ESC ACCESS")
+    print("\n🔍 TESTING DIRECT PULUMI ESC ACCESS")
     print("=" * 40)
 
     # Test key secrets that should be synced
@@ -66,7 +65,7 @@ def test_pulumi_esc_access():
 
 async def test_backend_secret_access():
     """Test backend access to all synced secrets"""
-    print(f"\n🔍 TESTING BACKEND SECRET ACCESS")
+    print("\n🔍 TESTING BACKEND SECRET ACCESS")
     print("=" * 35)
 
     try:
@@ -122,7 +121,7 @@ async def test_backend_secret_access():
 
             print(f"    📊 Category status: {category_working}/{len(secrets)} working")
 
-        print(f"\n📊 OVERALL BACKEND ACCESS RESULTS:")
+        print("\n📊 OVERALL BACKEND ACCESS RESULTS:")
         print(f"  Total secrets tested: {total_tested}")
         print(f"  Working secrets: {total_working}")
         print(f"  Success rate: {(total_working/total_tested)*100:.1f}%")
@@ -141,32 +140,32 @@ async def test_backend_secret_access():
 
 def generate_verification_report(backend_working, backend_total):
     """Generate comprehensive verification report"""
-    print(f"\n📋 COMPREHENSIVE VERIFICATION REPORT")
+    print("\n📋 COMPREHENSIVE VERIFICATION REPORT")
     print("=" * 45)
     print(f"🕐 Verification time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"📊 Sync script mappings: 67 secrets")
-    print(f"🔧 Backend compatibility: ✅ Confirmed")
+    print("📊 Sync script mappings: 67 secrets")
+    print("🔧 Backend compatibility: ✅ Confirmed")
     print(f"💾 Backend secret access: {backend_working}/{backend_total} working")
 
     if backend_working >= 10:
-        print(f"🎉 STATUS: COMPLETE SUCCESS - All systems operational!")
-        print(f"🚀 Lambda Labs deployment: READY")
-        print(f"�� All organization secrets: ACCESSIBLE")
+        print("🎉 STATUS: COMPLETE SUCCESS - All systems operational!")
+        print("🚀 Lambda Labs deployment: READY")
+        print("�� All organization secrets: ACCESSIBLE")
     elif backend_working >= 4:
-        print(f"✅ STATUS: CORE SUCCESS - Key secrets working")
-        print(f"⏳ Remaining secrets: Syncing via GitHub Actions")
+        print("✅ STATUS: CORE SUCCESS - Key secrets working")
+        print("⏳ Remaining secrets: Syncing via GitHub Actions")
     else:
-        print(f"⏳ STATUS: IN PROGRESS - GitHub Actions still syncing")
-        print(f"🔄 Check again in 2-3 minutes")
+        print("⏳ STATUS: IN PROGRESS - GitHub Actions still syncing")
+        print("🔄 Check again in 2-3 minutes")
 
-    print(f"\n�� MONITORING LINKS:")
-    print(f"  GitHub Actions: https://github.com/ai-cherry/sophia-main/actions")
-    print(f"  Pulumi ESC: https://app.pulumi.com/scoobyjava-org/environments")
+    print("\n�� MONITORING LINKS:")
+    print("  GitHub Actions: https://github.com/ai-cherry/sophia-main/actions")
+    print("  Pulumi ESC: https://app.pulumi.com/scoobyjava-org/environments")
 
-    print(f"\n🧪 MANUAL VERIFICATION COMMANDS:")
-    print(f"  pulumi login")
-    print(f"  pulumi config get lambda_api_key --stack sophia-ai-production")
-    print(f"  pulumi config get hubspot_access_token --stack sophia-ai-production")
+    print("\n🧪 MANUAL VERIFICATION COMMANDS:")
+    print("  pulumi login")
+    print("  pulumi config get lambda_api_key --stack sophia-ai-production")
+    print("  pulumi config get hubspot_access_token --stack sophia-ai-production")
 
 
 async def main():
@@ -187,7 +186,7 @@ async def main():
     # Generate report
     generate_verification_report(backend_working, backend_total)
 
-    print(f"\n✨ VERIFICATION COMPLETE!")
+    print("\n✨ VERIFICATION COMPLETE!")
     print("The persistent GitHub Organization Secrets sync nightmare is SOLVED! 🎉")
 
 

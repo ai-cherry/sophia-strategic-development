@@ -5,7 +5,7 @@ Storage handling for HubSpot conversation threads.
 import json
 import logging
 import pathlib
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger("mcp_hubspot_client.storage")
 
@@ -24,7 +24,7 @@ class ThreadStorage:
         self.threads_file = self.storage_dir / "conversation_threads.json"
         self.threads_cache = self._load_cache()
 
-    def _load_cache(self) -> Dict[str, Any]:
+    def _load_cache(self) -> dict[str, Any]:
         """Load conversation threads from cache file if it exists.
 
         Returns:
@@ -32,14 +32,14 @@ class ThreadStorage:
         """
         try:
             if self.threads_file.exists():
-                with open(self.threads_file, "r") as f:
+                with open(self.threads_file) as f:
                     return json.load(f)
             return {"results": [], "paging": {"next": {"after": None}}}
         except Exception as e:
             logger.error(f"Error loading threads cache: {str(e)}")
             return {"results": [], "paging": {"next": {"after": None}}}
 
-    def save_cache(self, threads_data: Dict[str, Any]) -> None:
+    def save_cache(self, threads_data: dict[str, Any]) -> None:
         """Save conversation threads to cache file.
 
         Args:
@@ -51,7 +51,7 @@ class ThreadStorage:
         except Exception as e:
             logger.error(f"Error saving threads cache: {str(e)}")
 
-    def get_cached_threads(self) -> Dict[str, Any]:
+    def get_cached_threads(self) -> dict[str, Any]:
         """Get the current cached threads.
 
         Returns:
@@ -59,7 +59,7 @@ class ThreadStorage:
         """
         return self.threads_cache
 
-    def update_cache(self, threads_data: Dict[str, Any]) -> None:
+    def update_cache(self, threads_data: dict[str, Any]) -> None:
         """Update the cache with new thread data.
 
         Args:

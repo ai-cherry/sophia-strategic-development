@@ -5,16 +5,16 @@ Client for HubSpot ticket-related operations.
 import json
 import logging
 import time
-import requests
-from typing import Any, Dict, List, Optional, Literal
 from datetime import datetime, timedelta
+from typing import Any, Literal
 
+import requests
 from hubspot import HubSpot
-from hubspot.crm.tickets import PublicObjectSearchRequest
 from hubspot.crm.contacts.exceptions import ApiException
+from hubspot.crm.tickets import PublicObjectSearchRequest
 
-from ..core.formatters import convert_datetime_fields
 from ..core.error_handler import handle_hubspot_errors
+from ..core.formatters import convert_datetime_fields
 
 logger = logging.getLogger("mcp_hubspot_client.ticket")
 
@@ -39,7 +39,7 @@ class TicketClient:
         limit: int = 50,
         max_retries: int = 3,
         retry_delay: float = 1.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get tickets from HubSpot based on configurable selection criteria.
 
         Args:
@@ -66,7 +66,7 @@ class TicketClient:
 
     def _create_filter_groups_for_criteria(
         self, criteria: Literal["default", "Closed"]
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Create filter groups based on ticket selection criteria.
 
         Args:
@@ -84,7 +84,7 @@ class TicketClient:
                 f"Invalid criteria: {criteria}. Must be 'default' or 'Closed'"
             )
 
-    def _create_default_criteria_filters(self) -> List[Dict[str, Any]]:
+    def _create_default_criteria_filters(self) -> list[dict[str, Any]]:
         """Create filter groups for the default criteria.
         Default: Tickets with "close date" or "last modified date" > 1 day ago
 
@@ -116,7 +116,7 @@ class TicketClient:
         # Add both filter groups (either condition can match)
         return [close_date_filter, last_close_date_filter]
 
-    def _create_closed_criteria_filters(self) -> List[Dict[str, Any]]:
+    def _create_closed_criteria_filters(self) -> list[dict[str, Any]]:
         """Create filter groups for the closed criteria.
         Closed: Ticket status equals "Closed"
 
@@ -147,7 +147,7 @@ class TicketClient:
         ]
 
     def _create_ticket_search_request(
-        self, filter_groups: List[Dict[str, Any]], limit: int
+        self, filter_groups: list[dict[str, Any]], limit: int
     ) -> PublicObjectSearchRequest:
         """Create a search request for tickets with specified filters.
 
@@ -181,7 +181,7 @@ class TicketClient:
         search_request: PublicObjectSearchRequest,
         max_retries: int,
         retry_delay: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute a ticket search with retry logic for rate limiting.
 
         Args:
@@ -259,7 +259,7 @@ class TicketClient:
                     raise
 
     @handle_hubspot_errors
-    def get_conversation_threads(self, ticket_id: str) -> Dict[str, Any]:
+    def get_conversation_threads(self, ticket_id: str) -> dict[str, Any]:
         """Get conversation threads associated with a specific ticket.
 
         Args:
@@ -304,7 +304,7 @@ class TicketClient:
             )
             return self._create_empty_ticket_threads_response(ticket_id)
 
-    def _get_associated_conversations(self, ticket_id: str) -> Dict[str, Any]:
+    def _get_associated_conversations(self, ticket_id: str) -> dict[str, Any]:
         """Get conversation threads associated with a ticket.
 
         Args:
@@ -325,8 +325,8 @@ class TicketClient:
         return response.json()
 
     def _extract_thread_ids(
-        self, associated_conversations: Dict[str, Any]
-    ) -> List[str]:
+        self, associated_conversations: dict[str, Any]
+    ) -> list[str]:
         """Extract thread IDs from the conversations association response.
 
         Args:
@@ -352,7 +352,7 @@ class TicketClient:
 
         return thread_ids
 
-    def _create_empty_ticket_threads_response(self, ticket_id: str) -> Dict[str, Any]:
+    def _create_empty_ticket_threads_response(self, ticket_id: str) -> dict[str, Any]:
         """Create an empty ticket threads response.
 
         Args:
@@ -369,8 +369,8 @@ class TicketClient:
         }
 
     def _get_thread_messages(
-        self, thread_ids: List[str]
-    ) -> tuple[List[Dict[str, Any]], int]:
+        self, thread_ids: list[str]
+    ) -> tuple[list[dict[str, Any]], int]:
         """Get messages for each thread and format them.
 
         Args:
@@ -416,7 +416,7 @@ class TicketClient:
 
         return threads, total_messages
 
-    def _fetch_thread_messages(self, thread_id: str) -> Dict[str, Any]:
+    def _fetch_thread_messages(self, thread_id: str) -> dict[str, Any]:
         """Fetch messages for a specific thread.
 
         Args:
@@ -436,7 +436,7 @@ class TicketClient:
 
         return response.json()
 
-    def _format_message(self, msg: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_message(self, msg: dict[str, Any]) -> dict[str, Any]:
         """Format a message.
 
         Args:
@@ -458,7 +458,7 @@ class TicketClient:
             ),  # Focus only on text content, ignore attachments
         }
 
-    def _determine_sender_type(self, msg: Dict[str, Any]) -> str:
+    def _determine_sender_type(self, msg: dict[str, Any]) -> str:
         """Determine the sender type (AGENT or CUSTOMER).
 
         Args:

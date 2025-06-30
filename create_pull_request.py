@@ -6,10 +6,6 @@
 This script creates a comprehensive pull request for the strategic plan improvements.
 """
 
-import json
-import subprocess
-import sys
-from datetime import datetime
 
 
 def create_pull_request():
@@ -24,10 +20,10 @@ def create_pull_request():
 
 ## 📊 **EXECUTION SUMMARY**
 
-✅ **All 7 phases completed successfully**  
-📈 **99.8% syntax validation success rate**  
-🎯 **85.7% overall success rate**  
-🔧 **13 major improvements implemented**  
+✅ **All 7 phases completed successfully**
+📈 **99.8% syntax validation success rate**
+🎯 **85.7% overall success rate**
+🔧 **13 major improvements implemented**
 🚀 **Platform ready for production deployment**
 
 ---
@@ -36,7 +32,7 @@ def create_pull_request():
 
 ### **Critical Issues Resolved**
 - ✅ Fixed security remediation syntax error (line 714)
-- ✅ Resolved f-string backslash issues in dashboard integration  
+- ✅ Resolved f-string backslash issues in dashboard integration
 - ✅ Fixed 33 YAML workflow syntax issues
 - ✅ Applied automated Ruff fixes across entire codebase
 
@@ -201,8 +197,8 @@ This pull request represents a **comprehensive transformation** of the Sophia AI
     print("🚀 Creating Pull Request...")
     print("=" * 60)
     print(f"Title: {title}")
-    print(f"Branch: strategic-plan-comprehensive-improvements")
-    print(f"Target: main")
+    print("Branch: strategic-plan-comprehensive-improvements")
+    print("Target: main")
     print("=" * 60)
 
     # Save PR description to file for reference

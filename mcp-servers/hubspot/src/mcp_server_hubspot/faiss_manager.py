@@ -1,11 +1,12 @@
-import os
-import logging
 import glob
-from datetime import datetime, timedelta
+import json
+import logging
+import os
+from datetime import datetime
+from typing import Any
+
 import faiss
 import numpy as np
-import json
-from typing import Dict, List, Optional, Any, Tuple
 
 logger = logging.getLogger("mcp_hubspot_faiss_manager")
 
@@ -29,8 +30,8 @@ class FaissManager:
         self.storage_dir = storage_dir
         self.max_days = max_days
         self.embedding_dimension = embedding_dimension
-        self.indexes: Dict[str, faiss.Index] = {}
-        self.metadata: Dict[str, List[Dict[str, Any]]] = {}
+        self.indexes: dict[str, faiss.Index] = {}
+        self.metadata: dict[str, list[dict[str, Any]]] = {}
 
         # Ensure storage directory exists
         self._ensure_storage_dir()
@@ -124,7 +125,7 @@ class FaissManager:
 
             # Load metadata
             if os.path.exists(metadata_path):
-                with open(metadata_path, "r") as f:
+                with open(metadata_path) as f:
                     metadata = json.load(f)
             else:
                 metadata = []
@@ -216,7 +217,7 @@ class FaissManager:
             logger.debug(f"Saving FAISS index for {date_str} to {index_path}")
             # Save FAISS index
             faiss.write_index(self.indexes[date_str], index_path)
-            logger.debug(f"FAISS index saved successfully")
+            logger.debug("FAISS index saved successfully")
 
             logger.debug(
                 f"Saving metadata for {date_str} to {metadata_path} ({len(self.metadata[date_str])} items)"
@@ -224,7 +225,7 @@ class FaissManager:
             # Save metadata
             with open(metadata_path, "w") as f:
                 json.dump(self.metadata[date_str], f)
-            logger.debug(f"Metadata saved successfully")
+            logger.debug("Metadata saved successfully")
 
             logger.info(
                 f"Saved index for {date_str} with {self.indexes[date_str].ntotal} vectors"
@@ -235,7 +236,7 @@ class FaissManager:
             )
 
     def add_data(
-        self, vectors: np.ndarray, metadata_list: List[Dict[str, Any]]
+        self, vectors: np.ndarray, metadata_list: list[dict[str, Any]]
     ) -> None:
         """Add data to today's index.
 
@@ -271,7 +272,7 @@ class FaissManager:
             f"Current metadata count after addition: {len(self.metadata[today])}"
         )
 
-        logger.debug(f"Saving index after data addition")
+        logger.debug("Saving index after data addition")
         # Save the updated index
         self._save_index(today)
 
@@ -281,7 +282,7 @@ class FaissManager:
 
     def search(
         self, query_vector: np.ndarray, k: int = 10
-    ) -> Tuple[List[Dict[str, Any]], List[float]]:
+    ) -> tuple[list[dict[str, Any]], list[float]]:
         """Search across all indexes for the most similar vectors.
 
         Args:
