@@ -42,36 +42,97 @@ class PulumiESCSync:
         # CRITICAL: Pulumi paths must match what backend/core/auto_esc_config.py expects
                 # TOP-LEVEL MAPPINGS (what backend actually reads)
         # CRITICAL FIX: Use top-level ESC keys, not nested values.sophia.*
+                # COMPLETE MAPPINGS - ALL GITHUB ORGANIZATION SECRETS
+        # Automatically generated to match ALL secrets in GitHub Actions workflow
         self.secret_mappings = {
-            # Core AI Services (top-level keys)
-            "OPENAI_API_KEY": "openai_api_key",
+            # Core AI Services
             "ANTHROPIC_API_KEY": "anthropic_api_key",
             "GONG_ACCESS_KEY": "gong_access_key",
+            "OPENAI_API_KEY": "openai_api_key",
             "PINECONE_API_KEY": "pinecone_api_key",
-            
-            # Snowflake (top-level keys)
-            "SNOWFLAKE_ACCOUNT": "snowflake_account", 
-            "SNOWFLAKE_USER": "snowflake_user",
+
+            # Extended AI Services
+            "CODESTRAL_API_KEY": "codestral_api_key",
+            "DEEPSEEK_API_KEY": "deepseek_api_key",
+            "HUGGINGFACE_API_TOKEN": "huggingface_api_token",
+            "LANGCHAIN_API_KEY": "langchain_api_key",
+            "LLAMA_API_KEY": "llama_api_key",
+            "MISTRAL_API_KEY": "mistral_api_key",
+            "OPENROUTER_API_KEY": "openrouter_api_key",
+            "PERPLEXITY_API_KEY": "perplexity_api_key",
+            "PORTKEY_API_KEY": "portkey_api_key",
+            "TOGETHERAI_API_KEY": "togetherai_api_key",
+            "VENICE_AI_API_KEY": "venice_ai_api_key",
+            "XAI_API_KEY": "xai_api_key",
+
+            # Business Intelligence
+            "GONG_BASE_URL": "gong_base_url",
+            "GONG_CLIENT_SECRET": "gong_client_secret",
+            "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
+            "LINEAR_API_KEY": "linear_api_key",
+            "NOTION_API_KEY": "notion_api_key",
+            "SALESFORCE_ACCESS_TOKEN": "salesforce_access_token",
+
+            # Communication
+            "SLACK_APP_TOKEN": "slack_app_token",
+            "SLACK_BOT_TOKEN": "slack_bot_token",
+            "SLACK_CLIENT_ID": "slack_client_id",
+            "SLACK_CLIENT_SECRET": "slack_client_secret",
+            "SLACK_SIGNING_SECRET": "slack_signing_secret",
+
+            # Data Infrastructure
+            "DATABASE_URL": "database_url",
+            "PINECONE_ENVIRONMENT": "pinecone_environment",
+            "PINECONE_INDEX_NAME": "pinecone_index_name",
+            "REDIS_URL": "redis_url",
+            "SNOWFLAKE_ACCOUNT": "snowflake_account",
             "SNOWFLAKE_PASSWORD": "snowflake_password",
             "SNOWFLAKE_ROLE": "snowflake_role",
-            "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
-            "SNOWFLAKE_DATABASE": "snowflake_database",
-            
-            # Lambda Labs (top-level keys) - CRITICAL FIX
+            "SNOWFLAKE_USER": "snowflake_user",
+            "WEAVIATE_API_KEY": "weaviate_api_key",
+            "WEAVIATE_GRPC_ENDPOINT": "weaviate_grpc_endpoint",
+            "WEAVIATE_REST_ENDPOINT": "weaviate_rest_endpoint",
+            "WEAVIATE_URL": "weaviate_url",
+
+            # Cloud Infrastructure
             "LAMBDA_API_KEY": "lambda_api_key",
             "LAMBDA_IP_ADDRESS": "lambda_ip_address",
             "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
-            
-            # Business Intelligence (top-level keys)
-            "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
-            "SLACK_BOT_TOKEN": "slack_bot_token",
-            "LINEAR_API_KEY": "linear_api_key", 
-            "NOTION_API_KEY": "notion_api_key",
-            
-            # Additional high-priority services
+            "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
             "VERCEL_ACCESS_TOKEN": "vercel_access_token",
-            "PORTKEY_API_KEY": "portkey_api_key",
-            "OPENROUTER_API_KEY": "openrouter_api_key",
+            "VULTR_API_KEY": "vultr_api_key",
+
+            # Observability
+            "ARIZE_API_KEY": "arize_api_key",
+            "ARIZE_SPACE_ID": "arize_space_id",
+            "GRAFANA_PASSWORD": "grafana_password",
+            "GRAFANA_URL": "grafana_url",
+            "GRAFANA_USERNAME": "grafana_username",
+            "PROMETHEUS_URL": "prometheus_url",
+
+            # Research Tools
+            "APIFY_API_TOKEN": "apify_api_token",
+            "BRAVE_API_KEY": "brave_api_key",
+            "EXA_API_KEY": "exa_api_key",
+            "SERP_API_KEY": "serp_api_key",
+            "TAVILY_API_KEY": "tavily_api_key",
+            "ZENROWS_API_KEY": "zenrows_api_key",
+
+            # Development Tools
+            "DOCKER_TOKEN": "docker_token",
+            "GH_API_TOKEN": "gh_api_token",
+            "NPM_API_TOKEN": "npm_api_token",
+            "RETOOL_API_TOKEN": "retool_api_token",
+
+            # Data Integration
+            "ESTUARY_ACCESS_TOKEN": "estuary_access_token",
+            "PIPEDREAM_API_KEY": "pipedream_api_key",
+
+            # Security
+            "API_SECRET_KEY": "api_secret_key",
+            "ENCRYPTION_KEY": "encryption_key",
+            "JWT_SECRET": "jwt_secret",
+
         }
 
     def validate_prerequisites(self) -> bool:
