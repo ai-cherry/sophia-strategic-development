@@ -197,7 +197,7 @@ class SophiaEnvironmentConfig:
             # Check for environment indicator files
             project_root = Path.cwd()
 
-            # Check for .env files with environment hints
+            # Check for legacy .env files with environment hints (detection only - NOT used for secrets)
             env_files = [".env", ".env.local", ".env.production", ".env.staging"]
             for env_file in env_files:
                 env_path = project_root / env_file
