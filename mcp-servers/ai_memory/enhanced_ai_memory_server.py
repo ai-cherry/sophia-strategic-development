@@ -215,7 +215,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                     "ai_analysis": ai_analysis,
                     "fetched_docs": fetched_docs,
                     "model_used": str(model),
-                    "stored_at": datetime.utcnow().isoformat(),
+                    "stored_at": datetime.now(UTC).isoformat(),
                 },
             )
 
@@ -440,7 +440,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                 memory_type=category,
                 metadata={
                     "source": "webfetch",
-                    "fetched_at": datetime.utcnow().isoformat(),
+                    "fetched_at": datetime.now(UTC).isoformat(),
                     "cached": result.cached,
                 },
             )

@@ -136,7 +136,7 @@ class GongSnowflakeDeployer:
                 "success": True,
                 "environment": self.env.value,
                 "dry_run": self.dry_run,
-                "deployment_timestamp": datetime.utcnow().isoformat(),
+                "deployment_timestamp": datetime.now(UTC).isoformat(),
                 "steps_completed": len(self.deployment_log),
                 "deployment_log": self.deployment_log,
                 "ddl_execution": ddl_result,
@@ -321,7 +321,7 @@ class GongSnowflakeDeployer:
             "step": step,
             "message": message,
             "success": success,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         self.deployment_log.append(log_entry)
 

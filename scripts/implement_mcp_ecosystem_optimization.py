@@ -51,7 +51,7 @@ class ExampleLinearMCPServer(StandardizedMCPServer):
             enable_metrics=True,
         )
         super().__init__(config)
-        self.last_data_update = datetime.utcnow()
+        self.last_data_update = datetime.now(UTC)
 
     async def server_specific_init(self) -> None:
         """Initialize Linear-specific components."""
@@ -83,7 +83,7 @@ class ExampleLinearMCPServer(StandardizedMCPServer):
             "projects": [{"id": "PROJ-001", "name": "MCP Ecosystem", "progress": 0.75}],
         }
 
-        self.last_data_update = datetime.utcnow()
+        self.last_data_update = datetime.now(UTC)
         return sync_data
 
     async def process_with_ai(self, data: dict[str, Any]) -> dict[str, Any]:
@@ -142,7 +142,7 @@ class ExampleLinearMCPServer(StandardizedMCPServer):
 
     async def get_data_age_seconds(self) -> int:
         """Get age of most recent data."""
-        return int((datetime.utcnow() - self.last_data_update).total_seconds())
+        return int((datetime.now(UTC) - self.last_data_update).total_seconds())
 
 
 class ExampleSalesIntelligenceAgent(AgentWorkflowInterface):

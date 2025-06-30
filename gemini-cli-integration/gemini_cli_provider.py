@@ -311,5 +311,5 @@ class GeminiCLIModelRouter:
         """Get usage statistics"""
         return {
             "gemini_cli_stats": self.usage_tracker,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }

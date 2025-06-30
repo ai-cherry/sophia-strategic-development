@@ -99,7 +99,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         """Process sales intelligence request through appropriate channels"""
 
         request_id = (
-            f"bi_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{request.request_type}"
+            f"bi_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}_{request.request_type}"
         )
         logger.info(f"Processing BI request: {request_id}")
 
@@ -132,7 +132,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
                 data=data,
                 recommendations=recommendations,
                 action_items=action_items,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
             )
 
             # Log to Sophia for conversation context
@@ -147,7 +147,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
                 request_type=request.request_type,
                 status="error",
                 data={"error": str(e)},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
             )
 
     async def _process_prospect_enrichment(
@@ -290,7 +290,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
         # Aggregate intelligence from multiple sources
         market_data = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "competitive_landscape": {},
             "market_trends": {},
             "opportunities": [],
@@ -589,7 +589,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
                         "action": "Schedule discovery call with key decision makers",
                         "owner": "sales_team",
                         "priority": "high",
-                        "due_date": (datetime.utcnow() + timedelta(days=3)).isoformat(),
+                        "due_date": (datetime.now(UTC) + timedelta(days=3)).isoformat(),
                     }
                 )
 
@@ -601,7 +601,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
                         "action": f"Address competitive threat: {threat.get('description', '')}",
                         "owner": "product_team",
                         "priority": threat.get("severity", "medium"),
-                        "due_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
+                        "due_date": (datetime.now(UTC) + timedelta(days=7)).isoformat(),
                     }
                 )
 

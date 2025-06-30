@@ -127,7 +127,7 @@ class BaseAgent(ABC):
 
             self.status = AgentStatus.ACTIVE
             self.initialized = True
-            self.metrics["last_activity"] = datetime.utcnow()
+            self.metrics["last_activity"] = datetime.now(UTC)
 
             self.logger.info(f"{self.agent_config.name} agent initialized successfully")
 
@@ -226,7 +226,7 @@ class BaseAgent(ABC):
 
     async def _process_task(self, task: Task):
         """Process a single task"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         self.active_tasks[task.id] = asyncio.current_task()
 
         try:
@@ -239,7 +239,7 @@ class BaseAgent(ABC):
             )
 
             # Calculate execution time
-            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            execution_time = (datetime.now(UTC) - start_time).total_seconds()
 
             # Create result
             task_result = TaskResult(
@@ -247,7 +247,7 @@ class BaseAgent(ABC):
                 status="success",
                 result=result,
                 execution_time=execution_time,
-                metadata={"completed_at": datetime.utcnow().isoformat()},
+                metadata={"completed_at": datetime.now(UTC).isoformat()},
             )
 
             # Update metrics
@@ -264,7 +264,7 @@ class BaseAgent(ABC):
                 status="timeout",
                 result=None,
                 error="Task execution timed out",
-                execution_time=(datetime.utcnow() - start_time).total_seconds(),
+                execution_time=(datetime.now(UTC) - start_time).total_seconds(),
             )
             self.metrics["tasks_timeout"] += 1
             self.logger.warning(f"Task {task.id} timed out")
@@ -275,7 +275,7 @@ class BaseAgent(ABC):
                 status="error",
                 result=None,
                 error=str(e),
-                execution_time=(datetime.utcnow() - start_time).total_seconds(),
+                execution_time=(datetime.now(UTC) - start_time).total_seconds(),
             )
             self.metrics["tasks_failed"] += 1
             self.logger.error(f"Task {task.id} failed: {str(e)}")
@@ -285,7 +285,7 @@ class BaseAgent(ABC):
             self.task_history.append(task_result)
             if task.id in self.active_tasks:
                 del self.active_tasks[task.id]
-            self.metrics["last_activity"] = datetime.utcnow()
+            self.metrics["last_activity"] = datetime.now(UTC)
 
             # Limit history size
             if len(self.task_history) > 1000:
@@ -305,7 +305,7 @@ class BaseAgent(ABC):
                 # Update status based on activity
                 if self.metrics["last_activity"]:
                     time_since_activity = (
-                        datetime.utcnow() - self.metrics["last_activity"]
+                        datetime.now(UTC) - self.metrics["last_activity"]
                     ).total_seconds()
                     if time_since_activity > 300:  # 5 minutes
                         if self.status == AgentStatus.ACTIVE:

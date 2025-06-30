@@ -179,7 +179,7 @@ class PerformanceMonitoringIntegration:
                 service_name=service_name,
                 metric_name=metric_name,
                 value=value,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 tags=tags,
             )
 
@@ -213,7 +213,7 @@ class PerformanceMonitoringIntegration:
                 status=status,
                 response_time=response_time,
                 error_rate=error_rate,
-                last_check=datetime.utcnow(),
+                last_check=datetime.now(UTC),
                 details=details,
             )
 
@@ -413,7 +413,7 @@ class PerformanceMonitoringIntegration:
 
             # Check cooldown
             if alert_key in self.last_alerts:
-                time_since_last = datetime.utcnow() - self.last_alerts[alert_key]
+                time_since_last = datetime.now(UTC) - self.last_alerts[alert_key]
                 if time_since_last.total_seconds() < self.config["alert_cooldown"]:
                     return
 
@@ -423,10 +423,10 @@ class PerformanceMonitoringIntegration:
 
                 if metric.value >= thresholds["critical"]:
                     await self._send_alert("critical", metric)
-                    self.last_alerts[alert_key] = datetime.utcnow()
+                    self.last_alerts[alert_key] = datetime.now(UTC)
                 elif metric.value >= thresholds["degraded"]:
                     await self._send_alert("warning", metric)
-                    self.last_alerts[alert_key] = datetime.utcnow()
+                    self.last_alerts[alert_key] = datetime.now(UTC)
 
         except Exception as e:
             logger.error(f"Error checking metric alerts: {e}")
@@ -482,7 +482,7 @@ class PerformanceMonitoringIntegration:
         """Get comprehensive performance dashboard data"""
         try:
             dashboard_data = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "system_health": {},
                 "service_health": {},
                 "recent_metrics": {},
@@ -531,7 +531,7 @@ class PerformanceMonitoringIntegration:
                 return {}
 
             # Get metrics for the last N hours
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             start_time = end_time - timedelta(hours=hours)
 
             metrics_data = {}

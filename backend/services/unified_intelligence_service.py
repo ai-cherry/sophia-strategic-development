@@ -129,7 +129,7 @@ class SophiaUnifiedIntelligenceService:
             "query_type": query_type,
             "context": context or {},
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "session_id": context.get("session_id") if context else None,
         }
 

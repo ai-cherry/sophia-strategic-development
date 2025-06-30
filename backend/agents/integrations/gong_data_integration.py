@@ -847,7 +847,7 @@ class LangGraphAgentWorkflowOrchestrator:
         workflow_id = str(uuid4())
         self.active_workflows[workflow_id] = {
             "status": WorkflowStatus.IN_PROGRESS,
-            "started_at": datetime.utcnow(),
+            "started_at": datetime.now(UTC),
             "call_id": call_data.call_id,
         }
 
@@ -889,7 +889,7 @@ class LangGraphAgentWorkflowOrchestrator:
             )
 
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.COMPLETED
-            self.active_workflows[workflow_id]["completed_at"] = datetime.utcnow()
+            self.active_workflows[workflow_id]["completed_at"] = datetime.now(UTC)
 
         except Exception as e:
             self.logger.error(
@@ -912,7 +912,7 @@ class LangGraphAgentWorkflowOrchestrator:
 
         self.active_workflows[workflow_id] = {
             "status": WorkflowStatus.IN_PROGRESS,
-            "started_at": datetime.utcnow(),
+            "started_at": datetime.now(UTC),
             "insight_type": insight_type,
         }
 
@@ -967,7 +967,7 @@ class LangGraphAgentWorkflowOrchestrator:
 
         self.active_workflows[workflow_id] = {
             "status": WorkflowStatus.IN_PROGRESS,
-            "started_at": datetime.utcnow(),
+            "started_at": datetime.now(UTC),
             "action_type": action_type,
         }
 
@@ -1112,7 +1112,7 @@ class LangGraphAgentWorkflowOrchestrator:
                         ),
                         "insight": result.get("content"),
                         "confidence": result.get("metadata", {}).get("confidence", 0.5),
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "processing_time_ms": result.get("metadata", {}).get(
                             "processing_time_ms", 0
                         ),
@@ -1228,7 +1228,7 @@ class ConversationIntelligenceUpdater:
         update_data = {
             "call_id": call_id,
             "agent_insights": agent_insights,
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
             "insight_count": len(agent_insights.get("consolidated_insights", [])),
             "action_count": len(agent_insights.get("recommended_actions", [])),
         }
@@ -1255,7 +1255,7 @@ class ConversationIntelligenceUpdater:
             json.dumps(
                 {
                     "event_type": "trend_update",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "data": trend_data,
                 }
             ),
@@ -1603,7 +1603,7 @@ class GongAgentIntegrationManager:
 
         # Send update notification
         await self.redis_client.notify_insight_detected(
-            webhook_id=f"agent_update_{datetime.utcnow().timestamp()}",
+            webhook_id=f"agent_update_{datetime.now(UTC).timestamp()}",
             insight_type="agent_data_enrichment",
             insight_data=update_data,
             priority=NotificationPriority.LOW,
@@ -1624,7 +1624,7 @@ class GongAgentIntegrationManager:
                     "recipients": recipients,
                     "message": message,
                     "source": "gong_agent_integration",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ),
         )
@@ -1637,7 +1637,7 @@ class GongAgentIntegrationManager:
             "agent_type": agent_type,
             "response_time": response_data.get("response_time_ms", 0),
             "confidence": response_data.get("confidence", 0),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         await self.redis_client.redis.publish(

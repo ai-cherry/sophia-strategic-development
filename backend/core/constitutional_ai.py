@@ -119,7 +119,7 @@ class SophiaConstitutionalFramework:
             "compliance_score": compliance_score,
             "principle_scores": validation_results,
             "violations": violations,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         if not result["approved"]:
@@ -366,7 +366,7 @@ class SophiaConstitutionalFramework:
         return {
             "approved": True,
             "compliance_score": 0.95,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def validate_optimization(
@@ -387,5 +387,5 @@ class SophiaConstitutionalFramework:
         return {
             "approved": score > 0.7,
             "compliance_score": score,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }

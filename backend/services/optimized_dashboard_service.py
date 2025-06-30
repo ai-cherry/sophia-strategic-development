@@ -88,7 +88,7 @@ class OptimizedDashboardService:
         system_health, service_metrics, trends, alerts = dashboard_data
 
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "user_id": user_id,
             "system_health": (
                 system_health if not isinstance(system_health, Exception) else {}

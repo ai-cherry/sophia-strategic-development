@@ -83,7 +83,7 @@ class SophiaInfrastructureChatInterface:
         # Add to conversation history
         self.conversation_history.append(
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "user_message": message,
                 "context": user_context,
             }
@@ -108,7 +108,7 @@ class SophiaInfrastructureChatInterface:
         # Add response to history
         self.conversation_history.append(
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "ai_response": response,
                 "action_taken": result.get("proposed_action"),
             }

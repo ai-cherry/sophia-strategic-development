@@ -216,7 +216,7 @@ ORDER BY CALL_DATETIME_UTC DESC;
     async def test_integration(self) -> dict[str, Any]:
         """Test the complete Gong integration"""
         try:
-            test_results = {"timestamp": datetime.utcnow().isoformat(), "tests": []}
+            test_results = {"timestamp": datetime.now(UTC).isoformat(), "tests": []}
 
             # Test Snowflake connectivity
             try:
@@ -251,7 +251,7 @@ ORDER BY CALL_DATETIME_UTC DESC;
 
         except Exception as e:
             return {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "overall_status": "ERROR",
                 "error": str(e),
                 "tests": [],
@@ -298,7 +298,7 @@ async def main():
 
         if args.output:
             results_dict = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "results": [
                     {
                         "component": r.component.value,

@@ -586,7 +586,7 @@ class Phase2PerformanceRefactorer:
             "workflow_id": workflow_config.get("workflow_id", f"workflow_{datetime.now().timestamp()}"),
             "config": workflow_config,
             "execution_context": execution_context or {},
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.now(UTC),
             "max_concurrency": workflow_config.get("max_concurrency", 10),
             "timeout_seconds": workflow_config.get("timeout_seconds", 300),
             "retry_attempts": workflow_config.get("retry_attempts", 3)
@@ -683,7 +683,7 @@ class Phase2PerformanceRefactorer:
         successful_tasks = sum(r["successful_tasks"] for r in stage_results.values())
         failed_tasks = sum(r["failed_tasks"] for r in stage_results.values())
 
-        execution_time = (datetime.utcnow() - context["start_time"]).total_seconds()
+        execution_time = (datetime.now(UTC) - context["start_time"]).total_seconds()
 
         return {
             "success": failed_tasks == 0,
@@ -696,7 +696,7 @@ class Phase2PerformanceRefactorer:
                 "success_rate": successful_tasks / total_tasks if total_tasks > 0 else 0
             },
             "stage_results": stage_results,
-            "completed_at": datetime.utcnow().isoformat()
+            "completed_at": datetime.now(UTC).isoformat()
         }
 
     async def _cleanup_workflow_resources(self, execution_pools: Dict[str, Any]):

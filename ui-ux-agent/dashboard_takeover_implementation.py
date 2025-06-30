@@ -482,7 +482,7 @@ class DashboardTakeoverManager:
         logger.info("📋 Phase 5: Generating Comprehensive Takeover Report...")
 
         report = {
-            "execution_timestamp": datetime.utcnow().isoformat(),
+            "execution_timestamp": datetime.now(UTC).isoformat(),
             "dashboard_takeover_summary": {
                 "total_components_enhanced": len(enhanced_components),
                 "enhancement_success_rate": "100%",

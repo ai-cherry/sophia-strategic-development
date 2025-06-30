@@ -31,7 +31,7 @@ class CompletePlatformDeployment:
             "application": {"status": "pending", "details": []},
             "verification": {"status": "pending", "details": []},
         }
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(UTC)
 
     async def deploy_complete_platform(self):
         """Deploy the complete Sophia AI platform"""
@@ -333,7 +333,7 @@ class CompletePlatformDeployment:
     async def _generate_deployment_report(self):
         """Generate comprehensive deployment report"""
         try:
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             deployment_duration = (end_time - self.start_time).total_seconds()
 
             report = {

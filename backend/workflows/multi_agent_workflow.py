@@ -243,7 +243,7 @@ class MultiAgentWorkflow:
     async def execute_workflow(self) -> WorkflowExecution:
         """Execute the complete multi-agent workflow."""
         execution_id = f"{self.workflow_def.workflow_id}_{int(time.time())}"
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         execution = WorkflowExecution(
             workflow_id=self.workflow_def.workflow_id,
@@ -283,7 +283,7 @@ class MultiAgentWorkflow:
                 logger.error(f"❌ Workflow {execution_id} timed out")
 
             # Finalize execution
-            execution.end_time = datetime.utcnow()
+            execution.end_time = datetime.now(UTC)
             execution.task_results = self.task_results.copy()
             execution.execution_metrics = self._calculate_execution_metrics(execution)
 
@@ -304,7 +304,7 @@ class MultiAgentWorkflow:
         except Exception as e:
             execution.status = WorkflowStatus.FAILED
             execution.error_message = str(e)
-            execution.end_time = datetime.utcnow()
+            execution.end_time = datetime.now(UTC)
             execution.task_results = self.task_results.copy()
 
             logger.error(f"❌ Workflow {execution_id} failed: {e}")
@@ -393,7 +393,7 @@ class MultiAgentWorkflow:
 
     async def _execute_single_task(self, task: WorkflowTask) -> WorkflowResult:
         """Execute a single task with retry logic and validation."""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         retry_count = 0
 
         while retry_count <= task.retry_attempts:
@@ -427,7 +427,7 @@ class MultiAgentWorkflow:
                 # Validate output
                 validation_passed = await self._validate_task_output(task, output)
 
-                end_time = datetime.utcnow()
+                end_time = datetime.now(UTC)
                 execution_time = (end_time - start_time).total_seconds()
 
                 # Create successful result
@@ -453,7 +453,7 @@ class MultiAgentWorkflow:
 
                 if retry_count > task.retry_attempts:
                     # Final failure
-                    end_time = datetime.utcnow()
+                    end_time = datetime.now(UTC)
                     execution_time = (end_time - start_time).total_seconds()
 
                     result = WorkflowResult(

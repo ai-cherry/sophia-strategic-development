@@ -59,7 +59,7 @@ class EnhancedChatResponse:
         if self.suggestions is None:
             self.suggestions = []
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow().isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
 
 
 class EnhancedCEOUniversalChatService:
@@ -305,7 +305,7 @@ class EnhancedCEOUniversalChatService:
         return {
             "service": "enhanced_ceo_universal_chat",
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "features": {
                 "web_research": bool(self.web_research_apis.get("perplexity")),
                 "deep_research": True,

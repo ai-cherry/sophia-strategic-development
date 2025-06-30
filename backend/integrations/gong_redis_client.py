@@ -141,7 +141,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.CALL_PROCESSED,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": priority,
             "data": call_data.dict(),
         }
@@ -176,7 +176,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.EMAIL_PROCESSED,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": priority,
             "data": email_data.dict(),
         }
@@ -203,7 +203,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.MEETING_PROCESSED,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": priority,
             "data": meeting_data.dict(),
         }
@@ -233,7 +233,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.INSIGHT_DETECTED,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": priority,
             "webhook_id": webhook_id,
             "insight_type": insight_type,
@@ -265,7 +265,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.ACTION_REQUIRED,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": NotificationPriority.HIGH,
             "action_type": action_type,
             "assigned_to": assigned_to,
@@ -279,7 +279,7 @@ class RedisNotificationClient:
         )
 
         # Store action for tracking
-        action_id = f"action:{action_type}:{datetime.utcnow().timestamp()}"
+        action_id = f"action:{action_type}:{datetime.now(UTC).timestamp()}"
         await self._store_notification(action_id, message, ttl=259200)  # 3 days
 
         self.logger.info(
@@ -298,7 +298,7 @@ class RedisNotificationClient:
 
         message = {
             "event_type": NotificationType.PROCESSING_ERROR,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "priority": NotificationPriority.HIGH,
             "webhook_id": webhook_id,
             "error_type": error_type,

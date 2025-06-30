@@ -52,7 +52,7 @@ class MessageQueue:
         # Add message with timestamp
         queued_message = {
             "message": message,
-            "queued_at": datetime.utcnow().isoformat(),
+            "queued_at": datetime.now(UTC).isoformat(),
             "attempts": 0,
         }
 
@@ -97,8 +97,8 @@ class ResilientWebSocketManager:
             connection_info = WebSocketConnection(
                 websocket=websocket,
                 client_id=client_id,
-                connected_at=datetime.utcnow(),
-                last_ping=datetime.utcnow(),
+                connected_at=datetime.now(UTC),
+                last_ping=datetime.now(UTC),
                 state=WebSocketState.CONNECTED,
             )
 
@@ -155,7 +155,7 @@ class ResilientWebSocketManager:
         try:
             await connection.websocket.send_json(message)
             connection.message_count += 1
-            connection.last_ping = datetime.utcnow()
+            connection.last_ping = datetime.now(UTC)
             self.stats["messages_sent"] += 1
             return True
 
@@ -198,19 +198,19 @@ class ResilientWebSocketManager:
                 # Send ping to check connection
                 ping_message = {
                     "type": "ping",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
 
                 try:
                     await connection.websocket.send_json(ping_message)
-                    connection.last_ping = datetime.utcnow()
+                    connection.last_ping = datetime.now(UTC)
                 except:
                     # Connection is dead, remove it
                     await self.disconnect(connection.websocket, client_id)
                     break
 
                 # Check for stale connections (5 minutes without activity)
-                if (datetime.utcnow() - connection.last_ping).seconds > 300:
+                if (datetime.now(UTC) - connection.last_ping).seconds > 300:
                     logger.warning(f"Stale WebSocket connection detected: {client_id}")
                     await self.disconnect(connection.websocket, client_id)
                     break
@@ -252,7 +252,7 @@ class ResilientWebSocketManager:
     async def get_connection_stats(self) -> dict[str, Any]:
         """Get WebSocket connection statistics"""
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "stats": self.stats,
             "active_connections": {
                 client_id: {

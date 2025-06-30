@@ -227,7 +227,7 @@ class DeploymentValidator:
                 ],
                 warnings=[],
                 recommendations=["Fix validation execution errors before deployment"],
-                validation_timestamp=datetime.utcnow(),
+                validation_timestamp=datetime.now(UTC),
                 execution_time=time.time() - start_time,
                 environment=self.environment,
             )
@@ -701,7 +701,7 @@ class DeploymentValidator:
             critical_failures=critical_failures,
             warnings=warnings,
             recommendations=recommendations,
-            validation_timestamp=datetime.utcnow(),
+            validation_timestamp=datetime.now(UTC),
             execution_time=time.time() - start_time,
             environment=self.environment,
         )

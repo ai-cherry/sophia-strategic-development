@@ -62,7 +62,7 @@ class Phase2EnhancementManager:
             "dashboard_takeover": dashboard_results,
             "advanced_workflows": workflow_results,
             "production_deployment": deployment_results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         await self._display_phase2_summary(results)

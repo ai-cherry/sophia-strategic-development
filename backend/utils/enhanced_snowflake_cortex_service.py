@@ -185,7 +185,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             for i in range(0, len(texts), batch_size):
                 batch = texts[i : i + batch_size]
-                batch_start = datetime.utcnow()
+                batch_start = datetime.now(UTC)
 
                 # Create batch embedding query
                 embedding_queries = []
@@ -207,7 +207,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                     query_results = await self.execute_query(batch_query)
 
                     batch_duration = (
-                        datetime.utcnow() - batch_start
+                        datetime.now(UTC) - batch_start
                     ).total_seconds() * 1000
 
                     # Process results
@@ -216,7 +216,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                             text=result["TEXT"],
                             embedding=result["EMBEDDING"],
                             model=result["MODEL"],
-                            timestamp=datetime.utcnow(),
+                            timestamp=datetime.now(UTC),
                             processing_time_ms=batch_duration / len(batch),
                         )
                         results.append(embedding_result)
@@ -431,7 +431,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                     content=insight_data.get("insight", ""),
                     confidence_score=insight_data.get("confidence", 0.7),
                     supporting_data=insight_data.get("supporting_evidence", []),
-                    generated_at=datetime.utcnow(),
+                    generated_at=datetime.now(UTC),
                 )
                 ai_insights.append(insight)
 
@@ -445,7 +445,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                     content=f"Failed to generate insights: {str(e)}",
                     confidence_score=0.0,
                     supporting_data=[],
-                    generated_at=datetime.utcnow(),
+                    generated_at=datetime.now(UTC),
                 )
             ]
 

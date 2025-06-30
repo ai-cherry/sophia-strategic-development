@@ -390,7 +390,7 @@ class MCPMetricsCollector:
             # Custom metrics for trend analysis
             self.custom_metrics["sync_success_rate"].append(
                 {
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(UTC),
                     "value": success_rate,
                     "records_processed": records_processed,
                     "data_age_seconds": data_age_seconds,
@@ -445,7 +445,7 @@ class MCPMetricsCollector:
             # Custom AI metrics
             self.custom_metrics["ai_processing_times"].append(
                 {
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(UTC),
                     "operation": operation,
                     "duration": duration_seconds,
                     "accuracy": accuracy_score,
@@ -481,7 +481,7 @@ class MCPMetricsCollector:
             # Custom workflow metrics
             self.custom_metrics["workflow_executions"].append(
                 {
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(UTC),
                     "workflow_type": workflow_type,
                     "status": status,
                     "duration": duration_seconds,
@@ -511,7 +511,7 @@ class MCPMetricsCollector:
 
             # Custom health tracking
             self.health_checks[component].append(
-                {"timestamp": datetime.utcnow(), "healthy": is_healthy}
+                {"timestamp": datetime.now(UTC), "healthy": is_healthy}
             )
 
             # Check for alert conditions
@@ -544,7 +544,7 @@ class MCPMetricsCollector:
             # Custom resource tracking
             self.custom_metrics["resource_usage"].append(
                 {
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(UTC),
                     "memory_bytes": memory_bytes,
                     "cpu_percent": cpu_percent,
                 }
@@ -577,7 +577,7 @@ class MCPMetricsCollector:
                     metric_name=f"{component}_health",
                     current_value=0,
                     threshold_value=1,
-                    triggered_at=datetime.utcnow(),
+                    triggered_at=datetime.now(UTC),
                     server_name=self.server_name,
                 )
 
@@ -588,7 +588,7 @@ class MCPMetricsCollector:
                 # Resolve existing alert
                 alert = self.active_alerts[alert_id]
                 alert.resolved = True
-                alert.resolved_at = datetime.utcnow()
+                alert.resolved_at = datetime.now(UTC)
 
                 self._resolve_alert(alert)
                 del self.active_alerts[alert_id]
@@ -617,7 +617,7 @@ class MCPMetricsCollector:
         try:
             summary = {
                 "server_name": self.server_name,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "health_status": len(self.active_alerts) == 0,
                 "active_alerts": len(self.active_alerts),
                 "metrics": {},
@@ -682,7 +682,7 @@ class MCPMetricsCollector:
             logger.error(f"Failed to generate metrics summary: {e}")
             return {
                 "server_name": self.server_name,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "error": str(e),
             }
 
@@ -693,7 +693,7 @@ class MCPMetricsCollector:
             bi_metrics = {
                 "server_name": self.server_name,
                 "reporting_period": "last_24_hours",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "business_metrics": {},
             }
 
@@ -702,7 +702,7 @@ class MCPMetricsCollector:
                 recent_syncs = [
                     m
                     for m in self.custom_metrics["sync_success_rate"]
-                    if m["timestamp"] > datetime.utcnow() - timedelta(hours=24)
+                    if m["timestamp"] > datetime.now(UTC) - timedelta(hours=24)
                 ]
                 if recent_syncs:
                     avg_efficiency = sum(m["value"] for m in recent_syncs) / len(
@@ -717,7 +717,7 @@ class MCPMetricsCollector:
                 recent_ai = [
                     m
                     for m in self.custom_metrics["ai_processing_times"]
-                    if m["timestamp"] > datetime.utcnow() - timedelta(hours=24)
+                    if m["timestamp"] > datetime.now(UTC) - timedelta(hours=24)
                 ]
                 bi_metrics["business_metrics"]["ai_insights_generated_24h"] = len(
                     recent_ai
@@ -728,7 +728,7 @@ class MCPMetricsCollector:
                 recent_workflows = [
                     w
                     for w in self.custom_metrics["workflow_executions"]
-                    if w["timestamp"] > datetime.utcnow() - timedelta(hours=24)
+                    if w["timestamp"] > datetime.now(UTC) - timedelta(hours=24)
                 ]
                 if recent_workflows:
                     automation_success = sum(
@@ -779,7 +779,7 @@ class MCPMetricsCollector:
 
     def _cleanup_old_metrics(self) -> None:
         """Clean up metrics older than 24 hours."""
-        cutoff_time = datetime.utcnow() - timedelta(hours=24)
+        cutoff_time = datetime.now(UTC) - timedelta(hours=24)
 
         for _metric_name, metric_data in self.custom_metrics.items():
             # Remove old entries

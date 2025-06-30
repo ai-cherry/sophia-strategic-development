@@ -213,8 +213,8 @@ class CortexAgentService:
         payload = {
             "user_id": user_id,
             "agent_name": agent_name,
-            "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
-            "iat": datetime.utcnow(),
+            "exp": datetime.now(UTC) + timedelta(hours=JWT_EXPIRATION_HOURS),
+            "iat": datetime.now(UTC),
         }
 
         return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)

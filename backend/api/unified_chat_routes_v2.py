@@ -250,8 +250,8 @@ async def get_chat_session(session_id: str) -> ChatSession:
     return ChatSession(
         session_id=session_id,
         mode="sophia",
-        created_at=datetime.utcnow(),
-        last_activity=datetime.utcnow(),
+        created_at=datetime.now(UTC),
+        last_activity=datetime.now(UTC),
         message_count=5,
         total_tokens=500,
         total_cost=0.015
@@ -272,8 +272,8 @@ async def list_chat_sessions(limit: int = 10, offset: int = 0) -> List[ChatSessi
         ChatSession(
             session_id=f"session_{i}",
             mode="sophia" if i % 2 == 0 else "executive",
-            created_at=datetime.utcnow(),
-            last_activity=datetime.utcnow(),
+            created_at=datetime.now(UTC),
+            last_activity=datetime.now(UTC),
             message_count=i * 3,
             total_tokens=i * 100,
             total_cost=i * 0.01
@@ -287,7 +287,7 @@ async def chat_health_check() -> Dict[str, Any]:
     """Health check for chat services"""
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "modes": ["universal", "sophia", "executive"],
         "providers": ["openai", "portkey", "anthropic"],
         "version": "2.0.0"

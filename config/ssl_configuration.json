@@ -1,0 +1,29 @@
+{
+  "ssl_context": {
+    "verify_mode": "CERT_NONE",
+    "check_hostname": false,
+    "ca_certs": null,
+    "custom_ca_bundle": null,
+    "timeout_seconds": 30
+  },
+  "webfetch_ssl": {
+    "enabled": true,
+    "verify_ssl": false,
+    "trust_env": true,
+    "ssl_context_config": {
+      "protocol": "TLS_CLIENT",
+      "verify_mode": "CERT_NONE",
+      "check_hostname": false
+    }
+  },
+  "fallback_options": {
+    "disable_ssl": true,
+    "use_system_ca": false,
+    "allow_unverified": true
+  },
+  "error_handling": {
+    "retry_without_ssl": true,
+    "max_retries": 3,
+    "timeout_escalation": [10, 20, 30]
+  }
+}

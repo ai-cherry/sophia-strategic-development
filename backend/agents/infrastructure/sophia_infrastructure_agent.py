@@ -678,7 +678,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         """Comprehensive security scan"""
         return {
             "status": "secure",
-            "last_scan": datetime.utcnow().isoformat(),
+            "last_scan": datetime.now(UTC).isoformat(),
             "vulnerabilities_found": 0,
             "security_score": 95,
         }
@@ -725,7 +725,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
 
     async def _check_security_status(self) -> dict[str, Any]:
         """Check security status"""
-        return {"vulnerabilities": 0, "last_scan": datetime.utcnow().isoformat()}
+        return {"vulnerabilities": 0, "last_scan": datetime.now(UTC).isoformat()}
 
     async def _analyze_patterns(
         self, deployment_history: list[dict[str, Any]]
@@ -827,7 +827,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
         return {
             "action": decision.action,
             "status": "completed",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def _monitor_execution(

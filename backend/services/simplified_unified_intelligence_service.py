@@ -50,7 +50,7 @@ class SimplifiedUnifiedIntelligenceService:
         Returns:
             Unified intelligence response
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         self.performance_metrics["total_queries"] += 1
 
         logger.info(f"🔍 Processing unified query: {query[:100]}...")
@@ -76,7 +76,7 @@ class SimplifiedUnifiedIntelligenceService:
             insights = self._generate_insights(query, response_data, context)
 
             # Step 4: Calculate metrics
-            processing_time = (datetime.utcnow() - start_time).total_seconds()
+            processing_time = (datetime.now(UTC) - start_time).total_seconds()
             self._update_performance_metrics(processing_time, True)
 
             self.performance_metrics["successful_queries"] += 1
@@ -96,7 +96,7 @@ class SimplifiedUnifiedIntelligenceService:
 
         except Exception as e:
             logger.error(f"❌ Error processing unified query: {e}", exc_info=True)
-            processing_time = (datetime.utcnow() - start_time).total_seconds()
+            processing_time = (datetime.now(UTC) - start_time).total_seconds()
             self._update_performance_metrics(processing_time, False)
 
             return {
@@ -176,7 +176,7 @@ class SimplifiedUnifiedIntelligenceService:
                     "type": "historical_context",
                     "content": f"Historical context related to: {query}",
                     "relevance": 0.8,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ]
             response_data["sources"].append("ai_memory_simulation")
@@ -319,7 +319,7 @@ class SimplifiedUnifiedIntelligenceService:
                 "Consider creating a saved query template for recurring analysis",
             ],
             "next_optimization_cycle": (
-                datetime.utcnow().replace(hour=datetime.utcnow().hour + 1)
+                datetime.now(UTC).replace(hour=datetime.now(UTC).hour + 1)
             ).isoformat(),
         }
 
@@ -374,7 +374,7 @@ class SimplifiedUnifiedIntelligenceService:
                 },
                 "performance_score": min(1.0, success_rate / 100),
                 "uptime": "99.9%",
-                "last_optimization": datetime.utcnow().isoformat(),
+                "last_optimization": datetime.now(UTC).isoformat(),
             },
             "cost_analysis": {
                 "total_queries": self.performance_metrics["total_queries"],

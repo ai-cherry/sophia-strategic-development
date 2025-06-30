@@ -164,13 +164,13 @@ class UnifiedAIOrchestrationService:
                 "agent_response": agent_response,
                 "customer_context": customer_context,
                 "real_time_insights": real_time_insights,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "confidence_score": 0.95,
             }
 
         except Exception as e:
             logger.error(f"❌ Customer intelligence query failed: {e}")
-            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+            return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def process_sales_optimization_query(
         self, deal_id: str, query: str
@@ -201,13 +201,13 @@ class UnifiedAIOrchestrationService:
                 "agent_response": agent_response,
                 "deal_context": deal_context,
                 "competitive_insights": competitive_insights,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "confidence_score": 0.92,
             }
 
         except Exception as e:
             logger.error(f"❌ Sales optimization query failed: {e}")
-            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+            return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def process_compliance_monitoring_query(
         self, query: str, time_range: str = "30d"
@@ -238,13 +238,13 @@ class UnifiedAIOrchestrationService:
                 "agent_response": agent_response,
                 "compliance_context": compliance_context,
                 "violation_alerts": violation_alerts,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "confidence_score": 0.98,
             }
 
         except Exception as e:
             logger.error(f"❌ Compliance monitoring query failed: {e}")
-            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+            return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def _get_customer_context(self, customer_id: str) -> dict[str, Any]:
         """Get comprehensive customer context from unified data"""
@@ -503,14 +503,14 @@ class UnifiedAIOrchestrationService:
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
                 (
-                    f"{agent_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+                    f"{agent_id}_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}",
                     agent_id,
                     user_id,
                     query,
                     response,
                     100,  # Placeholder execution time
                     True,
-                    datetime.utcnow(),
+                    datetime.now(UTC),
                 ),
             )
 
@@ -550,12 +550,12 @@ class UnifiedAIOrchestrationService:
                 "pipeline_health": pipeline_status,
                 "cortex_agents_status": len(self.cortex_agents),
                 "data_sources_status": self.data_sources,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
             logger.error(f"❌ Failed to get system health: {e}")
-            return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+            return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def _get_pipeline_health(self) -> dict[str, Any]:
         """Get Estuary Flow pipeline health status"""

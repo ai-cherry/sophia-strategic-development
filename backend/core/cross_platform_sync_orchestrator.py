@@ -462,7 +462,7 @@ class CrossPlatformSyncOrchestrator:
         start_time = time.time()
         orchestration_result = {
             "status": "started",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "sync_results": {},
             "conflicts_detected": [],
             "metrics": {},
@@ -604,7 +604,7 @@ class CrossPlatformSyncOrchestrator:
         if not last_sync:
             return True
 
-        time_since_sync = datetime.utcnow() - last_sync.timestamp
+        time_since_sync = datetime.now(UTC) - last_sync.timestamp
         interval_threshold = timedelta(minutes=config.sync_interval_minutes)
 
         if time_since_sync < interval_threshold:
@@ -772,7 +772,7 @@ class CrossPlatformSyncOrchestrator:
 
             # Store metrics for historical tracking
             metrics_data = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "total_syncs": total_syncs,
                 "successful_syncs": successful_syncs,
                 "total_records": total_records,
@@ -811,7 +811,7 @@ class CrossPlatformSyncOrchestrator:
     async def get_sync_status(self) -> dict[str, Any]:
         """Get current sync status across all platforms."""
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "sync_results": {
                 key: {
                     "platform": result.platform,

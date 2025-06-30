@@ -80,7 +80,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "query_type": query_type,
             "context": context or {},
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "session_id": context.get("session_id") if context else None,
         }
 
@@ -260,7 +260,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                     "Add specific date ranges for faster results",
                     "Include entity names for precise matching",
                 ],
-                "next_optimization_cycle": datetime.utcnow().isoformat(),
+                "next_optimization_cycle": datetime.now(UTC).isoformat(),
             },
             "source": "snowflake_cortex_ai_simulation",
             "business_data": {
@@ -356,7 +356,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             },
             "performance_score": self._calculate_performance_score(),
             "uptime": "99.9%",  # This would come from monitoring
-            "last_optimization": datetime.utcnow().isoformat(),
+            "last_optimization": datetime.now(UTC).isoformat(),
         }
 
         return health
@@ -447,13 +447,13 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         # This would come from the self-optimization engine
         return [
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "type": "query_optimization",
                 "description": "Optimized database query patterns",
                 "impact": "15% faster response time",
             },
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "type": "cost_optimization",
                 "description": "Improved model selection strategy",
                 "impact": "12% cost reduction",

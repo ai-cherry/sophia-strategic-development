@@ -227,7 +227,7 @@ class Phase1CriticalRefactorer:
             "call_id": call_id,
             "participants_processed": len(enriched_data['participants']),
             "transcript_length": len(enriched_data['transcript']),
-            "stored_at": datetime.utcnow().isoformat()
+            "stored_at": datetime.now(UTC).isoformat()
         }
 
     def _handle_gong_insight_error(self, error: Exception, call_id: str) -> Dict[str, Any]:
@@ -542,7 +542,7 @@ class Phase1CriticalRefactorer:
             "query_type": query_type,
             "context": context or {},
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "session_id": context.get("session_id") if context else None
         }
 

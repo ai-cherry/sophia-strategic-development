@@ -239,7 +239,7 @@ class AGUIMCPServer(StandardizedMCPServer):
                 AGUIEvent(
                     event_type=AGUIEventType.SESSION_START,
                     event_id=str(uuid.uuid4()),
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                     session_id=session_id,
                     agent_id="sophia_ai",
                     data={
@@ -317,7 +317,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         error_event = AGUIEvent(
             event_type=AGUIEventType.ERROR,
             event_id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             session_id=session_id,
             agent_id="sophia_ai",
             data={"error": error_message},
@@ -497,7 +497,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         event = AGUIEvent(
             event_type=AGUIEventType.TEXT_MESSAGE_CONTENT,
             event_id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             session_id=session_id,
             agent_id="sophia_ai",
             data={"message": message},
@@ -516,7 +516,7 @@ class AGUIMCPServer(StandardizedMCPServer):
                 path=update["path"],
                 operation=update["operation"],
                 value=update["value"],
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
             )
             for update in updates
         ]
@@ -524,7 +524,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         event = AGUIEvent(
             event_type=AGUIEventType.STATE_DELTA,
             event_id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             session_id=session_id,
             agent_id="sophia_ai",
             data={"updates": [asdict(update) for update in state_updates]},
@@ -546,7 +546,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         event = AGUIEvent(
             event_type=AGUIEventType.BUSINESS_INSIGHT,
             event_id=str(uuid.uuid4()),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             session_id=session_id,
             agent_id="sophia_ai",
             data={

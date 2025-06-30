@@ -380,7 +380,7 @@ class SecretManager:
             # Test signing and verification
             test_payload = {
                 "test": "data",
-                "exp": datetime.utcnow() + timedelta(minutes=1),
+                "exp": datetime.now(UTC) + timedelta(minutes=1),
             }
 
             # Sign with private key

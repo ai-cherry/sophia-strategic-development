@@ -125,7 +125,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     component="lambda_cli",
                     status=HealthStatus.HEALTHY,
                     response_time_ms=response_time,
-                    last_success=datetime.utcnow()
+                    last_success=datetime.now(UTC)
                 )
             else:
                 return HealthCheckResult(
@@ -195,7 +195,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 return {
                     "synced": True,
                     "instances_synced": instance_count,
-                    "sync_time": datetime.utcnow().isoformat()
+                    "sync_time": datetime.now(UTC).isoformat()
                 }
             else:
                 return {

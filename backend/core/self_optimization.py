@@ -20,11 +20,11 @@ class PerformanceTracker:
 
     def __init__(self):
         self.metrics = defaultdict(list)
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(UTC)
 
     async def collect_metrics(self) -> dict[str, Any]:
         """Collect current performance metrics"""
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
         uptime = (current_time - self.start_time).total_seconds()
 
         # Aggregate metrics
@@ -206,7 +206,7 @@ class SophiaSelfOptimizer:
 
         result = {
             "optimization": optimization,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "status": "pending",
             "improvements": {},
         }
@@ -399,5 +399,5 @@ class SophiaSelfOptimizer:
             "current_metrics": metrics,
             "optimization_history_count": len(self.optimization_history),
             "recent_optimizations": self.optimization_history[-5:],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }

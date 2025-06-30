@@ -105,13 +105,13 @@ class EnhancedGongSnowflakeDeployer:
         # Deployment tracking
         self.deployment_log: list[dict[str, Any]] = []
         self.deployment_id = (
-            f"GONG_DEPLOY_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+            f"GONG_DEPLOY_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
         )
         self.completed_phases: list[DeploymentPhase] = []
 
     async def deploy_complete_infrastructure(self) -> dict[str, Any]:
         """Deploy complete Gong infrastructure with enhanced error handling"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             logger.info("🚀 Starting enhanced Gong Snowflake deployment")
@@ -155,7 +155,7 @@ class EnhancedGongSnowflakeDeployer:
                     raise Exception(f"Deployment failed at phase {phase.value}: {e}")
 
             # Generate deployment summary
-            total_time = (datetime.utcnow() - start_time).total_seconds()
+            total_time = (datetime.now(UTC) - start_time).total_seconds()
 
             summary = {
                 "deployment_id": self.deployment_id,
@@ -163,7 +163,7 @@ class EnhancedGongSnowflakeDeployer:
                 "environment": self.config.environment.value,
                 "database": self.config.database,
                 "start_time": start_time.isoformat(),
-                "end_time": datetime.utcnow().isoformat(),
+                "end_time": datetime.now(UTC).isoformat(),
                 "total_time_seconds": total_time,
                 "completed_phases": [phase.value for phase in self.completed_phases],
                 "deployment_log": self.deployment_log,
@@ -635,7 +635,7 @@ class EnhancedGongSnowflakeDeployer:
                 {
                     "operation": operation_name,
                     "status": "SUCCESS",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql,
                 }
             )
@@ -648,7 +648,7 @@ class EnhancedGongSnowflakeDeployer:
                     "operation": operation_name,
                     "status": "FAILED",
                     "error": str(e),
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "sql_preview": sql[:200] + "..." if len(sql) > 200 else sql,
                 }
             )
@@ -677,7 +677,7 @@ class EnhancedGongSnowflakeDeployer:
             "deployment_id": self.deployment_id,
             "phase": phase.value,
             "status": status,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "environment": self.config.environment.value,
         }
 

@@ -67,7 +67,7 @@ class UIUXAgent:
             figma_status = await self._check_figma_server()
             return {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "agent": "UI/UX LangChain Agent",
                 "version": "1.0.0",
                 "figma_server_status": figma_status,
@@ -210,7 +210,7 @@ class UIUXAgent:
             test_code=test_code,
             documentation=documentation,
             metadata={
-                "generation_timestamp": datetime.utcnow().isoformat(),
+                "generation_timestamp": datetime.now(UTC).isoformat(),
                 "design_tokens_used": len(tokens),
                 "accessibility_optimized": True,
                 "responsive_design": True,
@@ -404,7 +404,7 @@ function Dashboard() {{
         await self._get_design_context(file_id, node_id)
 
         return {
-            "analysis_timestamp": datetime.utcnow().isoformat(),
+            "analysis_timestamp": datetime.now(UTC).isoformat(),
             "component_complexity": "medium",
             "estimated_implementation_time": "15-30 minutes",
             "recommended_approach": "react_typescript_tailwind",
@@ -428,7 +428,7 @@ function Dashboard() {{
     async def _validate_design_system(self, component_code: str) -> dict[str, Any]:
         """Validate component against design system"""
         return {
-            "validation_timestamp": datetime.utcnow().isoformat(),
+            "validation_timestamp": datetime.now(UTC).isoformat(),
             "overall_score": 95,
             "compliance_checks": {
                 "color_usage": {"score": 100, "status": "passed"},

@@ -154,7 +154,7 @@ class HealthCheckResult:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(UTC)
 
 
 class CircuitBreaker:
@@ -173,7 +173,7 @@ class CircuitBreaker:
             return True
         elif self.state == "OPEN":
             if self.last_failure_time and \\
-               (datetime.utcnow() - self.last_failure_time).seconds > self.recovery_timeout:
+               (datetime.now(UTC) - self.last_failure_time).seconds > self.recovery_timeout:
                 self.state = "HALF_OPEN"
                 return True
             return False
@@ -188,7 +188,7 @@ class CircuitBreaker:
     def record_failure(self):
         """Record failed operation"""
         self.failure_count += 1
-        self.last_failure_time = datetime.utcnow()
+        self.last_failure_time = datetime.now(UTC)
 
         if self.failure_count >= self.failure_threshold:
             self.state = "OPEN"
@@ -383,7 +383,7 @@ class ConnectionPool:
 
             response_time = (time.time() - start_time) * 1000
             self.health_status = HealthStatus.HEALTHY
-            self.last_health_check = datetime.utcnow()
+            self.last_health_check = datetime.now(UTC)
 
             return HealthCheckResult(
                 service=self.connection_type.value,
@@ -507,7 +507,7 @@ class UnifiedConnectionManager:
         return {
             "global_metrics": self.metrics,
             "pool_metrics": pool_metrics,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(UTC).isoformat()
         }
 
 
@@ -741,7 +741,7 @@ class HealthMonitoringSystem:
             service=service,
             severity=severity,
             message=message,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(UTC)
         )
 
         self.alerts.append(alert)
@@ -782,7 +782,7 @@ class HealthMonitoringSystem:
         ]
 
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "overall_status": self._calculate_overall_status(health_results),
             "service_health": health_results,
             "recent_alerts": recent_alerts,

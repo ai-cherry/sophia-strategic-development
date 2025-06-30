@@ -93,7 +93,7 @@ class HealthMonitoringSystem:
             service=service,
             severity=severity,
             message=message,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
         )
 
         self.alerts.append(alert)
@@ -134,7 +134,7 @@ class HealthMonitoringSystem:
         ]
 
         return {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "overall_status": self._calculate_overall_status(health_results),
             "service_health": health_results,
             "recent_alerts": recent_alerts,

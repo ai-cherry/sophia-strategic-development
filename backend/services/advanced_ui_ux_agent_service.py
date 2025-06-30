@@ -188,7 +188,7 @@ class AdvancedUIUXAgentService:
         self, request: str, context: DesignContext
     ) -> DesignResponse:
         """Process natural language design request"""
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             # 1. Analyze design intent
@@ -213,7 +213,7 @@ class AdvancedUIUXAgentService:
                 design_options, context
             )
 
-            processing_time = (datetime.utcnow() - start_time).total_seconds()
+            processing_time = (datetime.now(UTC) - start_time).total_seconds()
 
             # Update stats
             self.stats["designs_generated"] += len(design_options)
@@ -483,7 +483,7 @@ class AdvancedUIUXAgentService:
                 "Add loading states and error handling",
                 "Implement better visual hierarchy",
             ],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def get_mcp_server_status(self) -> dict[str, Any]:
@@ -500,7 +500,7 @@ class AdvancedUIUXAgentService:
         """Get service usage statistics"""
         return {
             **self.stats,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "uptime": "99.9%",
             "avg_processing_time": "2.3s",
             "supported_frameworks": [f.value for f in UIFramework],
@@ -512,7 +512,7 @@ class AdvancedUIUXAgentService:
         return {
             "service": "advanced_ui_ux_agent",
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "features": {
                 "portkey_integration": bool(self.portkey.api_key),
                 "multi_model_routing": True,

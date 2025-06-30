@@ -572,7 +572,7 @@ TODO: Implement file decomposition
         """Execute Phase 3 systematic complexity remediation"""
         logger.info("🚀 Starting Phase 3: Systematic Complexity Remediation")
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         # Analyze remaining issues
         categorized_issues = self.analyze_remaining_complexity_issues(root_path)
@@ -581,7 +581,7 @@ TODO: Implement file decomposition
         results = self.process_issues_in_batches(categorized_issues)
 
         # Calculate final metrics
-        execution_time = (datetime.utcnow() - start_time).total_seconds()
+        execution_time = (datetime.now(UTC) - start_time).total_seconds()
 
         final_results = {
             **results,

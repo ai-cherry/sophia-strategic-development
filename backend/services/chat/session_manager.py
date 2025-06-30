@@ -47,7 +47,7 @@ class SessionManager:
     
     async def _cleanup_expired_sessions(self):
         """Remove expired sessions"""
-        cutoff_time = datetime.utcnow() - timedelta(minutes=self.session_timeout_minutes)
+        cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
         expired_sessions = [
             session_id for session_id, session in self._sessions.items()
             if session.last_activity < cutoff_time
@@ -72,7 +72,7 @@ class SessionManager:
             session = self._sessions[session_id]
             
             # Update last activity
-            session.last_activity = datetime.utcnow()
+            session.last_activity = datetime.now(UTC)
             
             # Update mode if different (allows mode switching within session)
             if session.mode != mode:
@@ -85,8 +85,8 @@ class SessionManager:
         session = ChatSession(
             session_id=session_id,
             mode=mode,
-            created_at=datetime.utcnow(),
-            last_activity=datetime.utcnow(),
+            created_at=datetime.now(UTC),
+            last_activity=datetime.now(UTC),
             context=context,
             configuration=configuration
         )
@@ -102,13 +102,13 @@ class SessionManager:
         
         if session:
             # Check if session is expired
-            cutoff_time = datetime.utcnow() - timedelta(minutes=self.session_timeout_minutes)
+            cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
             if session.last_activity < cutoff_time:
                 await self.delete_session(session_id)
                 return None
             
             # Update last activity
-            session.last_activity = datetime.utcnow()
+            session.last_activity = datetime.now(UTC)
         
         return session
     
@@ -124,7 +124,7 @@ class SessionManager:
             return False
         
         # Update activity and metrics
-        session.last_activity = datetime.utcnow()
+        session.last_activity = datetime.now(UTC)
         session.message_count += 1
         session.total_tokens += tokens_used
         session.total_cost += cost
@@ -155,7 +155,7 @@ class SessionManager:
         
         # Filter active sessions only
         if active_only:
-            cutoff_time = datetime.utcnow() - timedelta(minutes=self.session_timeout_minutes)
+            cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
             sessions = [s for s in sessions if s.last_activity >= cutoff_time]
         
         # Sort by last activity (most recent first)
@@ -188,7 +188,7 @@ class SessionManager:
             }
         
         # Calculate metrics
-        cutoff_time = datetime.utcnow() - timedelta(minutes=self.session_timeout_minutes)
+        cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
         active_sessions = [s for s in sessions if s.last_activity >= cutoff_time]
         
         mode_distribution = {}

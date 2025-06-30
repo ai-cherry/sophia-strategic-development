@@ -117,7 +117,7 @@ async def get_llm_status():
             status="healthy" if portkey_connected else "degraded",
             portkey_connected=portkey_connected,
             virtual_key_configured=virtual_key_configured,
-            last_health_check=datetime.utcnow().isoformat(),
+            last_health_check=datetime.now(UTC).isoformat(),
             supported_models=supported_models,
             cost_tracking_enabled=True,
         )
@@ -171,7 +171,7 @@ async def chat_completion(request: ChatRequest):
             task_type=response.task_type.value,
             success=response.success,
             error=response.error,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     except Exception as e:
@@ -246,7 +246,7 @@ async def analyze_business(request: BusinessAnalysisRequest):
             task_type=response.task_type.value,
             success=response.success,
             error=response.error,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     except Exception as e:
@@ -277,7 +277,7 @@ async def generate_code(request: CodeGenerationRequest):
             task_type=response.task_type.value,
             success=response.success,
             error=response.error,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     except Exception as e:
@@ -392,11 +392,11 @@ async def health_check():
             "service": "Simplified Portkey LLM",
             "virtual_key_configured": bool(service.virtual_key),
             "portkey_connected": is_healthy,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         return {
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }

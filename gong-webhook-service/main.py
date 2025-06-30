@@ -43,7 +43,7 @@ async def root():
     return {
         "service": "Gong Webhook Service",
         "status": "running",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -53,7 +53,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "gong-webhook-service",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": "1.0.0",
     }
 
@@ -64,7 +64,7 @@ async def webhook_health():
     return {
         "status": "healthy",
         "endpoint": "gong-webhooks",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -104,7 +104,7 @@ async def handle_call_webhook(request: Request):
             content={
                 "status": "success",
                 "message": "Webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -116,7 +116,7 @@ async def handle_call_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Webhook accepted for processing",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -139,7 +139,7 @@ async def handle_email_webhook(request: Request):
             content={
                 "status": "success",
                 "message": "Email webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -150,7 +150,7 @@ async def handle_email_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Email webhook accepted",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -173,7 +173,7 @@ async def handle_meeting_webhook(request: Request):
             content={
                 "status": "success",
                 "message": "Meeting webhook received successfully",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -184,7 +184,7 @@ async def handle_meeting_webhook(request: Request):
             content={
                 "status": "accepted",
                 "message": "Meeting webhook accepted",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -199,7 +199,7 @@ async def handle_generic_webhook(path: str, request: Request):
         content={
             "status": "success",
             "message": f"Webhook received at /{path}",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     )
 
@@ -214,7 +214,7 @@ async def not_found_handler(request: Request, exc):
         content={
             "status": "accepted",
             "message": "Endpoint accepted",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     )
 
@@ -228,7 +228,7 @@ async def internal_error_handler(request: Request, exc):
         content={
             "status": "accepted",
             "message": "Request accepted despite error",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     )
 

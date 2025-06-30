@@ -1615,7 +1615,7 @@ class SnowflakeCortexService:
                     logger.warning(f"Could not generate AI insights: {e}")
                     analytics["ai_insights"] = {"error": "AI insights unavailable"}
 
-            analytics["generated_at"] = datetime.utcnow().isoformat()
+            analytics["generated_at"] = datetime.now(UTC).isoformat()
 
             logger.info(
                 f"Generated Gong call analytics for {date_range_days} days: {analytics['summary']['total_calls']} calls analyzed"

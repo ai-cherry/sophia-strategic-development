@@ -351,7 +351,7 @@ class EstuaryGongOrchestrator:
                 "snowflake_destination_id": self.snowflake_destination_id,
                 "connection_id": self.connection_id,
                 "sync_job_id": sync_job.get("jobId"),
-                "setup_timestamp": datetime.utcnow().isoformat(),
+                "setup_timestamp": datetime.now(UTC).isoformat(),
                 "next_steps": [
                     "Monitor sync job progress",
                     "Verify data landing in RAW_ESTUARY tables",
@@ -825,7 +825,7 @@ class EstuaryGongOrchestrator:
                             if success_rate > 80
                             else "degraded" if success_rate > 50 else "unhealthy"
                         ),
-                        "monitoring_timestamp": datetime.utcnow().isoformat(),
+                        "monitoring_timestamp": datetime.now(UTC).isoformat(),
                     }
                 else:
                     return {"error": f"Failed to fetch jobs: {response.status}"}

@@ -161,7 +161,7 @@ class FigmaDevModeMCPServer:
             """Health check endpoint"""
             return {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "figma_token_configured": SecureCredentialManager.validate_credentials(),
                 "server": "Figma Dev Mode MCP Server",
                 "version": "1.0.0",
@@ -267,7 +267,7 @@ class FigmaDevModeMCPServer:
             design_tokens=tokens,
             component_metadata=metadata,
             implementation_hints=hints,
-            extraction_timestamp=datetime.utcnow().isoformat(),
+            extraction_timestamp=datetime.now(UTC).isoformat(),
         )
 
 

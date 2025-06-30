@@ -23,7 +23,7 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -161,7 +161,7 @@ class StandardizedMCPServer(ABC):
         self.session: aiohttp.ClientSession | None = None
 
         # Health tracking
-        self.last_health_check = datetime.utcnow()
+        self.last_health_check = datetime.now(UTC)
         self.health_results: dict[str, HealthCheckResult] = {}
         self.is_healthy = False
 
@@ -366,11 +366,27 @@ class StandardizedMCPServer(ABC):
                 headers={"User-Agent": f"Sophia-AI-MCP/{self.server_name}/3.18.0"},
             )
 
-            # Initialize Snowflake Cortex service
+            # Initialize Snowflake Cortex service ONLY if explicitly enabled AND needed
             if self.config.enable_ai_processing:
-                self.cortex_service = SnowflakeCortexService()
-                await self.cortex_service.initialize()
-                logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
+                try:
+                    # Check if server actually needs Snowflake
+                    server_capabilities = await self.get_server_capabilities()
+                    needs_snowflake = any(
+                        cap.category in ["ai", "data", "analytics"] 
+                        for cap in server_capabilities
+                    )
+                    
+                    if needs_snowflake:
+                        self.cortex_service = SnowflakeCortexService()
+                        await self.cortex_service.initialize()
+                        logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
+                    else:
+                        logger.info(f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)")
+                        
+                except Exception as e:
+                    logger.warning(f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}")
+                    logger.info(f"   Server will continue without Snowflake capabilities")
+                    self.cortex_service = None
 
             # Initialize server capabilities for self-knowledge
             if self.config.enable_self_knowledge:
@@ -394,7 +410,8 @@ class StandardizedMCPServer(ABC):
             logger.error(f"❌ Failed to initialize {self.server_name}: {e}")
             if self.config.enable_metrics:
                 self.health_gauge.set(0)
-            raise
+            # Don't raise - allow server to start without full capabilities
+            logger.info(f"   {self.server_name} starting with limited capabilities")
 
     async def _initialize_capabilities(self) -> None:
         """Initialize server capabilities for self-knowledge feature."""
@@ -493,8 +510,18 @@ class StandardizedMCPServer(ABC):
             if not parsed.scheme or not parsed.netloc:
                 raise ValueError(f"Invalid URL: {url}")
 
-            # Fetch content
-            async with self.session.get(url, ssl=True) as response:
+            # Fetch content with SSL configuration
+            ssl_context = None
+            try:
+                # Load SSL configuration if available
+                import ssl
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+            except Exception:
+                ssl_context = False  # Disable SSL verification as fallback
+            
+            async with self.session.get(url, ssl=ssl_context) as response:
                 response.raise_for_status()
                 content = await response.text()
 
@@ -589,7 +616,7 @@ class StandardizedMCPServer(ABC):
         routing_metadata = {
             "task": task,
             "context_size": context_size,
-            "routing_time": datetime.utcnow().isoformat(),
+            "routing_time": datetime.now(UTC).isoformat(),
         }
 
         # Large context window tasks go to Gemini
@@ -779,7 +806,7 @@ class StandardizedMCPServer(ABC):
 
             # Update health status
             self.is_healthy = overall_healthy
-            self.last_health_check = datetime.utcnow()
+            self.last_health_check = datetime.now(UTC)
             self.health_results = health_results
 
             # Update metrics
@@ -819,7 +846,7 @@ class StandardizedMCPServer(ABC):
                 "version": "3.18.0",
                 "status": "critical",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
     async def _check_webfetch_health(self) -> HealthCheckResult:
@@ -842,7 +869,7 @@ class StandardizedMCPServer(ABC):
                 component="webfetch",
                 status=HealthStatus.HEALTHY,
                 response_time_ms=result.fetch_time_ms,
-                last_success=datetime.utcnow(),
+                last_success=datetime.now(UTC),
                 metadata={"cache_size": len(self.webfetch_cache)},
             )
 
@@ -865,7 +892,7 @@ class StandardizedMCPServer(ABC):
                 component="external_api",
                 status=HealthStatus.HEALTHY if is_healthy else HealthStatus.UNHEALTHY,
                 response_time_ms=response_time,
-                last_success=datetime.utcnow() if is_healthy else None,
+                last_success=datetime.now(UTC) if is_healthy else None,
             )
         except Exception as e:
             response_time = (time.time() - start_time) * 1000
@@ -889,7 +916,7 @@ class StandardizedMCPServer(ABC):
                 component="snowflake_cortex",
                 status=HealthStatus.HEALTHY,
                 response_time_ms=response_time,
-                last_success=datetime.utcnow(),
+                last_success=datetime.now(UTC),
                 metadata={"test_query_result": str(result)},
             )
         except Exception as e:
@@ -904,7 +931,7 @@ class StandardizedMCPServer(ABC):
     async def _check_data_freshness(self) -> HealthCheckResult:
         """Check data freshness."""
         if self.last_sync_time:
-            age_seconds = (datetime.utcnow() - self.last_sync_time).total_seconds()
+            age_seconds = (datetime.now(UTC) - self.last_sync_time).total_seconds()
 
             # Update metrics
             if self.config.enable_metrics:

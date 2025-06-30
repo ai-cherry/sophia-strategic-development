@@ -45,7 +45,7 @@ class AgentRequest:
         self.payload = payload
         self.correlation_id = correlation_id or self._generate_id()
         self.priority = priority
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(UTC)
 
     def _generate_id(self) -> str:
         import uuid
@@ -67,7 +67,7 @@ class AgentResponse:
         self.data = data or {}
         self.error = error
         self.metadata = metadata or {}
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(UTC)
 
 
 class BaseAgent(ABC):
@@ -150,7 +150,7 @@ class BaseAgent(ABC):
             span.set_attribute("request.action", request.action)
             span.set_attribute("request.correlation_id", request.correlation_id)
 
-            start_time = datetime.utcnow()
+            start_time = datetime.now(UTC)
 
             try:
                 # Log request
@@ -164,7 +164,7 @@ class BaseAgent(ABC):
                 response = await self.process(request)
 
                 # Record metrics
-                latency = (datetime.utcnow() - start_time).total_seconds()
+                latency = (datetime.now(UTC) - start_time).total_seconds()
                 self.latency_histogram.record(latency)
                 self.request_counter.add(1, {"status": response.status})
 
@@ -255,7 +255,7 @@ class CircuitBreaker:
     def _should_attempt_reset(self) -> bool:
         return (
             self.last_failure_time
-            and (datetime.utcnow() - self.last_failure_time).seconds
+            and (datetime.now(UTC) - self.last_failure_time).seconds
             >= self.recovery_timeout
         )
 
@@ -265,7 +265,7 @@ class CircuitBreaker:
 
     def _on_failure(self):
         self.failure_count += 1
-        self.last_failure_time = datetime.utcnow()
+        self.last_failure_time = datetime.now(UTC)
         if self.failure_count >= self.failure_threshold:
             self.state = "open"
 

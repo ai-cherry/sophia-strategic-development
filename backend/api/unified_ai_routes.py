@@ -249,7 +249,7 @@ async def search_multi_source_data(
     try:
         logger.info(f"Processing multi-source search query: {request.query}")
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         # Simulate multi-source search (would integrate with Cortex Search in production)
         search_results = await _perform_multi_source_search(
@@ -260,7 +260,7 @@ async def search_multi_source_data(
             request.limit,
         )
 
-        end_time = datetime.utcnow()
+        end_time = datetime.now(UTC)
         search_time_ms = int((end_time - start_time).total_seconds() * 1000)
 
         return MultiSourceSearchResponse(
@@ -269,7 +269,7 @@ async def search_multi_source_data(
             results=search_results,
             total_results=len(search_results),
             search_time_ms=search_time_ms,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     except Exception as e:
@@ -294,7 +294,7 @@ async def get_data_sources_status(
     try:
         return {
             "data_sources": ai_service.data_sources,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Data sources status check failed: {e}")
@@ -328,7 +328,7 @@ async def get_cortex_agents_status(
         return {
             "cortex_agents": agents_info,
             "total_agents": len(ai_service.cortex_agents),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Cortex agents status check failed: {e}")
@@ -355,7 +355,7 @@ async def get_real_time_customer_insights(
         return {
             "customer_id": customer_id,
             "insights": insights,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Real-time insights retrieval failed: {e}")
@@ -382,7 +382,7 @@ async def get_competitive_intelligence(
         return {
             "deal_id": deal_id,
             "competitive_intelligence": intelligence,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Competitive intelligence retrieval failed: {e}")
@@ -410,7 +410,7 @@ async def get_recent_compliance_violations(
             "time_range": time_range,
             "violations": violations,
             "total_violations": len(violations),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Compliance violations retrieval failed: {e}")
@@ -533,7 +533,7 @@ async def websocket_real_time_updates(websocket):
                     "avg_response_time_ms": 150,
                     "data_freshness_minutes": 2,
                 },
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
             await websocket.send_text(json.dumps(update))

@@ -12,7 +12,7 @@ Business Value:
 import json
 import logging
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 import sys
@@ -42,7 +42,7 @@ class SnowflakeQueryResult:
         self.query = query
         self.results = results
         self.execution_time_ms = execution_time_ms
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(UTC)
         
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -78,7 +78,7 @@ class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
             component="snowflake_cli",
             status=HealthStatus.HEALTHY,
             response_time_ms=50.0,
-            last_success=datetime.utcnow()
+            last_success=datetime.now(UTC)
         )
     
     async def check_external_api(self) -> bool:
@@ -102,7 +102,7 @@ class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
         return {
             "synced": True,
             "query_history_count": len(self.query_history),
-            "sync_time": datetime.utcnow().isoformat()
+            "sync_time": datetime.now(UTC).isoformat()
         }
     
     async def process_with_ai(self, data: Any, model: Optional[ModelProvider] = None) -> Any:

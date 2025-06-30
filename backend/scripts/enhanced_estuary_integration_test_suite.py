@@ -179,7 +179,7 @@ class EstuaryIntegrationTestSuite:
                 ],
                 performance_metrics={},
                 recommendations=["Fix test suite execution errors"],
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
             )
         finally:
             await self._cleanup_test_services()
@@ -1030,7 +1030,7 @@ class EstuaryIntegrationTestSuite:
             test_results=self.test_results,
             performance_metrics=self.performance_metrics,
             recommendations=recommendations,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
         )
 
     def _generate_recommendations(self) -> list[str]:

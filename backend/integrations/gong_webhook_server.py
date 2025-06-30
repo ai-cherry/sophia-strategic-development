@@ -448,7 +448,7 @@ async def health_check():
     """Health check endpoint."""
     checks = {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "version": "1.0.0",
         "checks": {
             "redis": {"status": "ok"},  # TODO: Implement actual health checks
@@ -482,11 +482,11 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             # Create webhook record
             webhook = GongCallWebhook(
                 event_type="call",
-                event_timestamp=datetime.utcnow(),
+                event_timestamp=datetime.now(UTC),
                 object_id=webhook_data.get("call_id", ""),
                 object_type="call",
                 call_id=webhook_data.get("call_id", ""),
-                call_start_time=webhook_data.get("call_start_time", datetime.utcnow()),
+                call_start_time=webhook_data.get("call_start_time", datetime.now(UTC)),
                 duration=webhook_data.get("duration", 0),
                 participants=webhook_data.get("participants", []),
             )

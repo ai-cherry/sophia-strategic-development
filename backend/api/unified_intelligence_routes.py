@@ -134,7 +134,7 @@ async def unified_intelligence_health():
 
         health_status = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "services": {
                 "snowflake_cortex": bool(unified_service.snowflake_cortex),
                 "ai_memory": bool(unified_service.ai_memory),
@@ -164,7 +164,7 @@ async def unified_intelligence_health():
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 

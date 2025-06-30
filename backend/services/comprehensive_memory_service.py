@@ -229,7 +229,7 @@ class ComprehensiveMemoryService:
                     gong_call = GongCallData(
                         call_id=call_data.get("call_id", ""),
                         title=call_data.get("title", "Untitled Call"),
-                        started_at=call_data.get("started_at", datetime.utcnow()),
+                        started_at=call_data.get("started_at", datetime.now(UTC)),
                         duration=call_data.get("duration", 0),
                         transcript=call_data.get("transcript", ""),
                         participants=call_data.get("participants", []),

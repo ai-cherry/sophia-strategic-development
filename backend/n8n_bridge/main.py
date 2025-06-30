@@ -131,7 +131,7 @@ async def health_check():
         
         return N8NHealthResponse(
             status="healthy" if mcp_health == "healthy" and redis_health == "healthy" else "degraded",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             mcp_service_status=str(mcp_health),
             redis_status=redis_health,
             active_workflows=active_workflows
@@ -150,7 +150,7 @@ async def process_n8n_request(
     Process N8N workflow request through MCP orchestration
     This is the main integration endpoint
     """
-    start_time = datetime.utcnow()
+    start_time = datetime.now(UTC)
     
     try:
         # Track active workflow
@@ -175,7 +175,7 @@ async def process_n8n_request(
         )
         
         # Calculate execution time
-        execution_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        execution_time = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
         
         # Schedule cleanup in background
         background_tasks.add_task(
@@ -192,7 +192,7 @@ async def process_n8n_request(
         )
         
     except Exception as e:
-        execution_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        execution_time = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
         logger.error(f"N8N request processing failed: {e}")
         
         return N8NResponse(
@@ -211,7 +211,7 @@ async def batch_process_n8n_requests(
     """
     Process multiple N8N requests in parallel for performance
     """
-    start_time = datetime.utcnow()
+    start_time = datetime.now(UTC)
     
     try:
         # Process requests in parallel
@@ -229,7 +229,7 @@ async def batch_process_n8n_requests(
                 f"{request.workflow_id}:{request.execution_id}"
             )
         
-        execution_time = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        execution_time = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
         
         return {
             "success": True,

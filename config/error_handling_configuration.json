@@ -1,0 +1,32 @@
+{
+  "error_handling": {
+    "standard_format": {
+      "include_timestamp": true,
+      "include_server_name": true,
+      "include_correlation_id": true,
+      "include_stack_trace": "development_only"
+    },
+    "logging_configuration": {
+      "level": "INFO",
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+      "file_rotation": true,
+      "max_file_size": "10MB",
+      "backup_count": 5
+    },
+    "retry_policies": {
+      "default_retries": 3,
+      "backoff_factor": 1.0,
+      "max_retry_delay": 60,
+      "retryable_errors": [
+        "ConnectionError",
+        "TimeoutError",
+        "ServerError"
+      ]
+    },
+    "circuit_breaker": {
+      "failure_threshold": 5,
+      "timeout_seconds": 60,
+      "half_open_max_calls": 3
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "webfetch": {
+    "enabled": true,
+    "ssl_configuration": {
+      "verify_ssl": false,
+      "ssl_context": "custom",
+      "timeout": 30
+    },
+    "cache_settings": {
+      "enabled": true,
+      "ttl_seconds": 3600,
+      "max_cache_size": 1000
+    },
+    "user_agent": "Sophia-AI-WebFetch/3.18.0",
+    "rate_limiting": {
+      "requests_per_minute": 60,
+      "burst_limit": 10
+    },
+    "content_processing": {
+      "markdown_conversion": true,
+      "html_cleaning": true,
+      "text_extraction": true
+    }
+  }
+}

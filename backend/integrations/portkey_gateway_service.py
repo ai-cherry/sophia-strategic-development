@@ -200,7 +200,7 @@ class PortkeyGatewayService:
             payload["metadata"] = {
                 "task_type": task_type,
                 "context_size": sum(len(msg["content"]) for msg in messages),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
             if self.api_key:
@@ -364,7 +364,7 @@ class PortkeyGatewayService:
         return {
             "service": "portkey_gateway",
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "features": {
                 "api_key_configured": bool(self.api_key),
                 "multi_model_routing": True,

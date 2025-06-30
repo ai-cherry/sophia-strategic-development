@@ -705,7 +705,7 @@ class EnhancedEstuaryManager:
                 valid_records=valid_records,
                 invalid_records=total_records - valid_records,
                 quality_score=quality_score,
-                validation_timestamp=datetime.utcnow(),
+                validation_timestamp=datetime.now(UTC),
                 issues=issues,
             )
 
@@ -713,7 +713,7 @@ class EnhancedEstuaryManager:
             logger.error(f"❌ Failed to validate Asana data quality: {e}")
             return DataQualityMetrics(
                 quality_score=0.0,
-                validation_timestamp=datetime.utcnow(),
+                validation_timestamp=datetime.now(UTC),
                 issues=[f"Validation failed: {str(e)}"],
             )
 
@@ -723,7 +723,7 @@ class EnhancedEstuaryManager:
             logger.info("🏥 Performing Estuary health check")
 
             health_status = {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "overall_status": "healthy",
                 "components": {},
                 "metrics": {},
@@ -762,7 +762,7 @@ class EnhancedEstuaryManager:
         except Exception as e:
             logger.error(f"❌ Health check failed: {e}")
             return {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "overall_status": "unhealthy",
                 "error": str(e),
             }

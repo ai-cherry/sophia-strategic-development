@@ -123,7 +123,7 @@ class UnifiedChatService:
         """Get health status of all services"""
         status = {
             "status": "healthy",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "services": {},
             "total_services": len(self._services)
         }

@@ -148,14 +148,14 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             )
             self.coding_standards_cache["python"] = {
                 "content": python_standards.markdown_content,
-                "fetched_at": datetime.utcnow().isoformat(),
+                "fetched_at": datetime.now(UTC).isoformat(),
             }
 
             # Fetch JavaScript/TypeScript standards
             js_standards = await self.webfetch("https://standardjs.com/rules.html")
             self.coding_standards_cache["javascript"] = {
                 "content": js_standards.markdown_content,
-                "fetched_at": datetime.utcnow().isoformat(),
+                "fetched_at": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
@@ -463,7 +463,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
                 result = await self.webfetch(standards_urls[language])
                 self.coding_standards_cache[language] = {
                     "content": result.markdown_content,
-                    "fetched_at": datetime.utcnow().isoformat(),
+                    "fetched_at": datetime.now(UTC).isoformat(),
                 }
             except Exception as e:
                 self.logger.warning(f"Could not fetch {language} standards: {e}")
@@ -484,7 +484,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
                 {
                     "source": "github",
                     "language": language,
-                    "fetched_at": datetime.utcnow().isoformat(),
+                    "fetched_at": datetime.now(UTC).isoformat(),
                     "count": "multiple",
                 }
             )

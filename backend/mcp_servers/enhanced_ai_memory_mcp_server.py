@@ -677,7 +677,7 @@ class EnhancedAiMemoryMCPServer:
             "call_id": call_id,
             "participants_processed": len(enriched_data["participants"]),
             "transcript_length": len(enriched_data["transcript"]),
-            "stored_at": datetime.utcnow().isoformat(),
+            "stored_at": datetime.now(UTC).isoformat(),
         }
 
     def _handle_gong_insight_error(

@@ -198,7 +198,7 @@ class EnhancedDeploymentTracker:
         self, component: ComponentType, environment: Environment
     ) -> str:
         """Generate unique deployment ID."""
-        timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
         return f"{component.value}-{environment.value}-{timestamp}"
 
     async def start_deployment(
@@ -221,7 +221,7 @@ class EnhancedDeploymentTracker:
             environment=environment,
             version=version,
             status=DeploymentStatus.INITIATED,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             github_sha=github_context.get("sha"),
             github_ref=github_context.get("ref"),
             github_actor=github_context.get("actor"),
@@ -261,7 +261,7 @@ class EnhancedDeploymentTracker:
         if status in [DeploymentStatus.COMPLETED, DeploymentStatus.FAILED]:
             # Calculate duration
             deployment.duration_seconds = int(
-                (datetime.utcnow() - deployment.timestamp).total_seconds()
+                (datetime.now(UTC) - deployment.timestamp).total_seconds()
             )
 
             # Move to history

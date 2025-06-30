@@ -166,7 +166,7 @@ class VectorIntelligenceRouter:
                 "source": "snowflake_cortex",
                 "results": results,
                 "table": table_name,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
@@ -206,7 +206,7 @@ class VectorIntelligenceRouter:
                 "source": "ai_memory",
                 "results": memories,
                 "category": category,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
@@ -275,7 +275,7 @@ class VectorIntelligenceRouter:
             "sources": sources_used,
             "total_results": len(all_results),
             "fusion_strategy": fusion_strategy,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     def _calculate_relevance(self, item: dict[str, Any], query: str) -> float:

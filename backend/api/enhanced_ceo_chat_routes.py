@@ -459,11 +459,11 @@ async def health_check():
             "status": "healthy",
             "active_providers": status["active_providers"],
             "total_providers": status["total_providers"],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }

@@ -80,7 +80,7 @@ class GraphitiEnhancedMemory:
                 node_type=entity_type,
                 name=name,
                 properties=properties,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
             )
 
             self.nodes[node_id] = node
@@ -108,7 +108,7 @@ class GraphitiEnhancedMemory:
                 target_node_id=target_id,
                 relationship_type=relationship_type,
                 strength=strength,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
             )
 
             self.relationships[relationship_id] = relationship
