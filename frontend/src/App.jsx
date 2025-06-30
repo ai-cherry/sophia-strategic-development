@@ -1,140 +1,264 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import UnifiedChatInterface from './components/chat/UnifiedChatInterface';
 import './App.css';
-import './styles/executive-theme.css';
 
-// Import enhanced CEO dashboard
-import CEODashboardLayout from './components/dashboard/CEODashboard/CEODashboardLayout';
-import EnhancedCEODashboard from './components/dashboard/EnhancedCEODashboard';
-import StreamlinedUltraEnhancedCEODashboard from './components/dashboard/StreamlinedUltraEnhancedCEODashboard';
-import { useBackendConnection } from './hooks/useBackendConnection';
+// Simplified UnifiedDashboard with integrated chat
+const SimpleUnifiedDashboard = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  
+  return (
+    <div style={{ padding: '20px', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h1 style={{ color: '#333', marginBottom: '10px' }}>🚀 Sophia AI Unified Dashboard</h1>
+        <p style={{ color: '#666' }}>Consolidated Executive Command Center</p>
+        
+        {/* Tab Navigation */}
+        <div style={{ marginTop: '20px', borderBottom: '1px solid #e0e0e0' }}>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            {['overview', 'analytics', 'chat'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  padding: '10px 20px',
+                  border: 'none',
+                  background: 'none',
+                  borderBottom: activeTab === tab ? '2px solid #8b5cf6' : '2px solid transparent',
+                  color: activeTab === tab ? '#8b5cf6' : '#666',
+                  fontWeight: activeTab === tab ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                  textTransform: 'capitalize'
+                }}
+              >
+                {tab === 'chat' ? '💬 AI Assistant' : tab === 'analytics' ? '📊 Analytics' : '📈 Overview'}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+              <h3 style={{ color: '#333', marginBottom: '10px' }}>💰 Monthly Revenue</h3>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>$2.1M</div>
+              <div style={{ color: '#10b981', fontSize: '14px' }}>↗ +3.2% from last month</div>
+            </div>
+            
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+              <h3 style={{ color: '#333', marginBottom: '10px' }}>👥 Active Agents</h3>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>48</div>
+              <div style={{ color: '#10b981', fontSize: '14px' }}>↗ +5 from last month</div>
+            </div>
+            
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+              <h3 style={{ color: '#333', marginBottom: '10px' }}>✅ Success Rate</h3>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>94.2%</div>
+              <div style={{ color: '#ef4444', fontSize: '14px' }}>↘ -0.5% from last month</div>
+            </div>
+            
+            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+              <h3 style={{ color: '#333', marginBottom: '10px' }}>📊 API Calls</h3>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#333' }}>1.2B</div>
+              <div style={{ color: '#10b981', fontSize: '14px' }}>↗ +12% from last month</div>
+            </div>
+          </div>
+          
+          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+            <h3 style={{ color: '#333', marginBottom: '15px' }}>🤖 Agno Performance</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+              <div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Avg Instantiation</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>245μs</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Pool Size</div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold' }}>12 / 20</div>
+              </div>
+            </div>
+            <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px', fontSize: '12px', color: '#666' }}>
+              Agno-powered agents are 5000x faster than legacy implementations
+            </div>
+          </div>
+        </>
+      )}
+      
+      {activeTab === 'analytics' && (
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+          <h3 style={{ color: '#333', marginBottom: '15px' }}>📊 Advanced Analytics</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            <div>
+              <h4 style={{ color: '#333', marginBottom: '10px' }}>Cost Analysis</h4>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span>OpenAI GPT-4</span>
+                  <span>$8.50</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span>Portkey Gateway</span>
+                  <span>$2.30</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderTop: '1px solid #ddd', paddingTop: '8px' }}>
+                  <span>Total</span>
+                  <span>$10.80</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style={{ color: '#333', marginBottom: '10px' }}>Usage Trends</h4>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: '#666' }}>Peak Usage</div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold' }}>2:00 PM - 4:00 PM</div>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: '#666' }}>Most Active Mode</div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold' }}>Sophia AI (65%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {activeTab === 'chat' && (
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e0e0e0', overflow: 'hidden' }}>
+          <UnifiedChatInterface
+            mode="sophia"
+            height="600px"
+            showModeSelector={true}
+            showSettings={true}
+            apiEndpoint="/api/v1/chat"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Home Page Component
 const HomePage = () => {
   const navigate = useNavigate();
-  const { connectionStatus, checkConnection } = useBackendConnection();
   
-  useEffect(() => {
-    checkConnection();
-    const interval = setInterval(checkConnection, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
-  }, [checkConnection]);
-
-  const handleLaunchCEODashboard = () => {
-    navigate('/dashboard/ceo');
-  };
-
-  const handleLaunchEnhancedCEODashboard = () => {
-    navigate('/dashboard/ceo-enhanced');
-  };
-
-  const handleLaunchUltraEnhancedCEODashboard = () => {
-    navigate('/dashboard/ceo-ultra');
-  };
-
-  const handleDashboardHub = () => {
-    navigate('/dashboard');
-  };
-
-  const handleTestBackend = async () => {
-    await checkConnection();
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="text-center py-12">
-        <h1 className="text-4xl font-bold mb-2">Sophia AI</h1>
-        <p className="text-xl text-gray-400">Pay Ready Business Intelligence Platform</p>
-      </header>
-
-      {/* System Status */}
-      <section className="max-w-4xl mx-auto px-6 mb-12">
-        <h2 className="text-2xl font-semibold mb-6">System Status</h2>
+    <div style={{ padding: '40px', textAlign: 'center', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '48px', fontWeight: 'bold', color: '#1f2937', marginBottom: '20px' }}>
+          🧠 Sophia AI
+        </h1>
+        <p style={{ fontSize: '20px', color: '#6b7280', marginBottom: '40px' }}>
+          Pay Ready Business Intelligence Platform
+        </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Frontend</h3>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="text-green-400">Running</span>
-            </div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '40px' }}>
+          <button 
+            onClick={() => navigate('/dashboard/unified')}
+            style={{ 
+              padding: '20px', 
+              backgroundColor: '#8b5cf6', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '16px', 
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#8b5cf6'}
+          >
+            🚀 Launch Unified Dashboard
+          </button>
           
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Backend</h3>
-            <div className="flex items-center">
-              <div className={`w-2 h-2 rounded-full mr-2 ${
-                connectionStatus.backend ? 'bg-green-500' : 'bg-red-500'
-              }`}></div>
-              <span className={connectionStatus.backend ? 'text-green-400' : 'text-red-400'}>
-                {connectionStatus.backend ? 'Connected' : 'Error'}
-              </span>
-            </div>
-          </div>
+          <button 
+            onClick={() => navigate('/chat')}
+            style={{ 
+              padding: '20px', 
+              backgroundColor: '#10b981', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '16px', 
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            💬 Open Chat Interface
+          </button>
           
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Snowflake</h3>
-            <div className="flex items-center">
-              <div className={`w-2 h-2 rounded-full mr-2 ${
-                connectionStatus.snowflake ? 'bg-green-500' : 'bg-yellow-500'
-              }`}></div>
-              <span className={connectionStatus.snowflake ? 'text-green-400' : 'text-yellow-400'}>
-                {connectionStatus.snowflake ? 'Connected' : 'Pending'}
-              </span>
-            </div>
-          </div>
-          
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">WebSocket</h3>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="text-green-400">Ready</span>
-            </div>
-          </div>
+          <button 
+            onClick={() => navigate('/test')}
+            style={{ 
+              padding: '20px', 
+              backgroundColor: '#f59e0b', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '16px', 
+              fontWeight: 'bold',
+              cursor: 'pointer'
+            }}
+          >
+            🧪 Test Page
+          </button>
         </div>
-      </section>
+      </div>
+    </div>
+  );
+};
 
-      {/* Action Buttons */}
-      <section className="max-w-4xl mx-auto px-6 text-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-            onClick={handleLaunchUltraEnhancedCEODashboard}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+const ChatPage = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <div style={{ padding: '20px', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ color: '#333', margin: 0 }}>💬 Sophia AI Chat Interface</h1>
+          <button 
+            onClick={() => navigate('/')} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#6b7280', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
           >
-            🚀 Launch Ultra-Enhanced CEO Dashboard
-          </button>
-          
-          <button
-            onClick={handleLaunchEnhancedCEODashboard}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            Launch Enhanced CEO Dashboard
-          </button>
-          
-          <button
-            onClick={handleLaunchCEODashboard}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            🚀 Launch CEO Dashboard (Enhanced)
-          </button>
-          
-          <button
-            onClick={handleDashboardHub}
-            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            Dashboard Hub
-          </button>
-          
-          <button
-            onClick={handleTestBackend}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            Test Backend
+            ← Back to Home
           </button>
         </div>
-      </section>
+        
+        <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e0e0e0', overflow: 'hidden' }}>
+          <UnifiedChatInterface
+            mode="universal"
+            height="700px"
+            showModeSelector={true}
+            showSettings={true}
+            apiEndpoint="/api/v1/chat"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TestPage = () => {
+  const navigate = useNavigate();
+  
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1>Test Page</h1>
+      <p>This is a test page to verify routing works.</p>
+      <button onClick={() => navigate('/')} style={{ padding: '10px 20px', marginTop: '10px' }}>
+        Back to Home
+      </button>
     </div>
   );
 };
@@ -146,11 +270,9 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard/ceo" element={<StreamlinedUltraEnhancedCEODashboard />} />
-            <Route path="/dashboard/ceo-legacy" element={<CEODashboardLayout />} />
-            <Route path="/dashboard/ceo-enhanced" element={<EnhancedCEODashboard />} />
-            <Route path="/dashboard/ceo-ultra" element={<StreamlinedUltraEnhancedCEODashboard />} />
-            <Route path="/dashboard/*" element={<div>Dashboard Hub Coming Soon</div>} />
+            <Route path="/test" element={<TestPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/dashboard/unified" element={<SimpleUnifiedDashboard />} />
           </Routes>
         </div>
       </Router>
