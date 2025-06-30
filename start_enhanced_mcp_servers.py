@@ -29,8 +29,8 @@ class EnhancedMCPServerManager:
         os.environ["PULUMI_ORG"] = "scoobyjava-org"
         os.environ["PYTHONPATH"] = str(self.root_path)
         # Set environment variables with fallbacks
-        os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "fallback-key")
-        os.environ["PINECONE_API_KEY"] = os.getenv("PINECONE_API_KEY", "fallback-key")
+        get_config_value("openai_api_key") = get_config_value("openai_api_key")
+        get_config_value("pinecone_api_key") = get_config_value("pinecone_api_key")
 
     async def create_ai_memory_server(self, port: int):
         """Create AI Memory MCP server with enhanced capabilities"""

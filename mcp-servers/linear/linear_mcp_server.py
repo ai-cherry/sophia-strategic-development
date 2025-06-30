@@ -41,7 +41,7 @@ class LinearMCPServer:
     def __init__(self):
         self.server = Server("linear-mcp-server")
         self.base_url = "https://api.linear.app/graphql"
-        self.access_token = os.getenv("LINEAR_API_KEY")
+        self.access_token = get_config_value("linear_api_key")
         self.team_id = os.getenv("LINEAR_TEAM_ID")
 
         if not self.access_token:

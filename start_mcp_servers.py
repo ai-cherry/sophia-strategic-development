@@ -22,8 +22,8 @@ class MCPServerManager:
         os.environ["PULUMI_ORG"] = "scoobyjava-org"
         os.environ["PYTHONPATH"] = str(self.root_path)
         # Set minimal environment variables to avoid dependency issues
-        os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
-        os.environ["PINECONE_API_KEY"] = os.getenv("PINECONE_API_KEY", "")
+        get_config_value("openai_api_key") = get_config_value("openai_api_key")
+        get_config_value("pinecone_api_key") = get_config_value("pinecone_api_key")
 
     def start_infrastructure(self):
         """Start infrastructure services"""

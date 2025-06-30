@@ -68,7 +68,7 @@ class SophiaInfrastructureChatInterface:
                 return response.json().get("completion", "")
             except Exception as e:
                 # Fallback logic: try OpenAI directly if configured
-                fallback = os.getenv("OPENAI_API_KEY")
+                fallback = get_config_value("openai_api_key")
                 if fallback:
                     # ... fallback logic here ...
                     return "[LLM fallback response]"

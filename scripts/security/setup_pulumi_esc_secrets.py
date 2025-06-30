@@ -175,7 +175,7 @@ class PulumiESCManager:
 
         for secret_key in SecurityConfig.get_secret_keys():
             value = self.get_secret(secret_key)
-            if value and not value.startswith("PLACEHOLDER_"):
+            if value and not value.startswith(""):
                 valid_secrets.append(secret_key)
             else:
                 missing_secrets.append(secret_key)
@@ -316,7 +316,7 @@ class PulumiESCManager:
 
             placeholders_found = []
             for key, value in values.items():
-                if isinstance(value, str) and value.startswith("PLACEHOLDER_"):
+                if isinstance(value, str) and value.startswith(""):
                     placeholders_found.append(key)
 
             if placeholders_found:

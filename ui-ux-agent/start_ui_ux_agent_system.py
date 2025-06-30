@@ -74,9 +74,9 @@ class EnhancedUIUXAgentSystemManager:
             logger.warning(f"⚠️  Pulumi ESC integration check failed: {e}")
 
         # Check other credentials
-        figma_token = os.getenv("FIGMA_PAT") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
-        openai_key = os.getenv("OPENAI_API_KEY")
-        openrouter_key = os.getenv("OPENROUTER_API_KEY")
+        figma_token = get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+        openai_key = get_config_value("openai_api_key")
+        openrouter_key = get_config_value("openrouter_api_key")
 
         if figma_token:
             logger.info("✅ Figma credentials available")
@@ -376,7 +376,7 @@ class EnhancedUIUXAgentSystemManager:
         """Keep the enhanced system running with comprehensive status"""
         # Check if FIGMA_PAT is available
         figma_pat_available = bool(
-            os.getenv("FIGMA_PAT") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+            get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
         )
 
         logger.info("============================================================")

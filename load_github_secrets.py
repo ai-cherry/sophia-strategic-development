@@ -87,7 +87,7 @@ class GitHubSecretsLoader:
 
         for secret_name in self.required_secrets.keys():
             value = os.getenv(secret_name)
-            if value and value != "fallback-key" and not value.startswith("test-"):
+            if value and value != "" and not value.startswith("test-"):
                 secrets[secret_name] = value
                 logger.info(f"✅ Loaded {secret_name} from environment")
 
@@ -97,14 +97,14 @@ class GitHubSecretsLoader:
         """Create development-appropriate secrets for local testing"""
         dev_secrets = {
             "OPENAI_API_KEY": "sk-development-key-for-local-testing",
-            "PINECONE_API_KEY": "dev-pinecone-key",
+            "PINECONE_API_KEY": "",
             "PINECONE_ENVIRONMENT": "us-east1-gcp",
-            "GONG_ACCESS_KEY": "dev-gong-access-key",
+            "GONG_ACCESS_KEY": "",
             "GONG_CLIENT_SECRET": "dev-gong-client-secret",
             "SLACK_BOT_TOKEN": "xoxb-dev-slack-token",
             "HUBSPOT_ACCESS_TOKEN": "dev-hubspot-token",
-            "LINEAR_API_KEY": "dev-linear-api-key",
-            "NOTION_API_KEY": "dev-notion-api-key",
+            "LINEAR_API_KEY": "",
+            "NOTION_API_KEY": "",
         }
 
         logger.info("�� Created development secrets for local testing")

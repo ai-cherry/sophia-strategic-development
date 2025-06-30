@@ -69,7 +69,7 @@ class EstuaryIntegrationManager:
                 ),
             },
             "slack": {
-                "token": os.getenv("SLACK_BOT_TOKEN", ""),
+                "token": get_config_value("slack_bot_token"),
                 "channel_filter": os.getenv("SLACK_CHANNEL_FILTER", ""),
             },
         }

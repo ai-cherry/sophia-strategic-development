@@ -43,7 +43,7 @@ def analyze_esc_structure():
 
                 if not in_nested_structure:
                     # Top-level structure
-                    if "PLACEHOLDER_" in line:
+                    if "" in line:
                         top_level_placeholders += 1
                     elif (
                         any(
@@ -56,7 +56,7 @@ def analyze_esc_structure():
                         top_level_real += 1
                 else:
                     # Nested structure
-                    if "PLACEHOLDER_" in line:
+                    if "" in line:
                         nested_placeholders += 1
 
             print("📊 STRUCTURE ANALYSIS:")

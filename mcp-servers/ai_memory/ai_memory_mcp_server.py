@@ -290,8 +290,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         openai_api_key = config.get("openai_api_key")
 
         if not openai_api_key or openai_api_key in [
-            "fallback-key",
-            "sk-development-key-fallback",
+            "",
+            "",
         ]:
             logger.warning(
                 "No valid OpenAI API key found. Semantic search will be limited."
@@ -328,8 +328,8 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         pinecone_environment = config.get("pinecone_environment", "us-east1-gcp")
 
         if not pinecone_api_key or pinecone_api_key in [
-            "dev-pinecone-key",
-            "fallback-key",
+            "",
+            "",
         ]:
             logger.warning(
                 "No valid Pinecone API key found. Vector search will be limited."

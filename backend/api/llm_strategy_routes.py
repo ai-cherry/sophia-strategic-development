@@ -61,11 +61,11 @@ class SophiaLLMManager:
         self.portkey_endpoint = os.getenv(
             "PORTKEY_ENDPOINT", "https://api.portkey.ai/v1/chat/completions"
         )
-        self.portkey_api_key = os.getenv("PORTKEY_API_KEY", "")
+        self.portkey_api_key = get_config_value("portkey_api_key")
 
         # OpenRouter Backend Configuration
         self.openrouter_endpoint = "https://openrouter.ai/api/v1/chat/completions"
-        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY", "")
+        self.openrouter_api_key = get_config_value("openrouter_api_key")
 
         # Performance and cost tracking
         self.usage_metrics = {}

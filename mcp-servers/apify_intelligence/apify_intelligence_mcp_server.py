@@ -27,7 +27,7 @@ class ApifyIntelligenceMCPServer:
     def __init__(self, port: int = 9015):
         self.port = port
         self.server = Server("apify-intelligence")
-        self.apify_token = os.getenv("APIFY_API_TOKEN", "")
+        self.apify_token = get_config_value("apify_api_token")
         self.apify_client = None
         
         # Competitive intelligence configurations

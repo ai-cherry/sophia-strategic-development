@@ -37,7 +37,7 @@ class SecurityConfig:
     def __post_init__(self):
         """Initialize default configurations"""
         if not self.github_token:
-            self.github_token = os.getenv("GITHUB_TOKEN")
+            self.github_token = get_config_value("github_token")
 
         if not self.branch_protection:
             self.branch_protection = {
@@ -489,7 +489,7 @@ def main():
     """Main execution function"""
 
     # Check for GitHub token
-    github_token = os.getenv("GITHUB_TOKEN")
+    github_token = get_config_value("github_token")
     if not github_token:
         logger.error("❌ GITHUB_TOKEN environment variable not set")
         logger.info("Please set GITHUB_TOKEN with organization admin permissions")

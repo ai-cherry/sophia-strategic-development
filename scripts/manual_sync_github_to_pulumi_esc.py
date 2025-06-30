@@ -24,25 +24,25 @@ PRIORITY_1_SECRETS = {
     "gong_access_key": "TV33BPZ5UN45QKZ...",          # From GitHub: GONG_ACCESS_KEY
     
     # Gateway Services - MISSING (add these)
-    "portkey_api_key": "PLACEHOLDER_FROM_GITHUB_PORTKEY_API_KEY",      # From GitHub: PORTKEY_API_KEY
-    "openrouter_api_key": "PLACEHOLDER_FROM_GITHUB_OPENROUTER_API_KEY", # From GitHub: OPENROUTER_API_KEY
+    "portkey_api_key": "",      # From GitHub: PORTKEY_API_KEY
+    "openrouter_api_key": "", # From GitHub: OPENROUTER_API_KEY
     
     # Business Intelligence - MISSING (add these) 
-    "hubspot_access_token": "PLACEHOLDER_FROM_GITHUB_HUBSPOT_ACCESS_TOKEN",  # From GitHub: HUBSPOT_ACCESS_TOKEN
-    "linear_api_key": "PLACEHOLDER_FROM_GITHUB_LINEAR_API_KEY",               # From GitHub: LINEAR_API_KEY
-    "asana_access_token": "PLACEHOLDER_FROM_GITHUB_ASANA_API_TOKEN",          # From GitHub: ASANA_API_TOKEN
+    "hubspot_access_token": "",  # From GitHub: HUBSPOT_ACCESS_TOKEN
+    "linear_api_key": "",               # From GitHub: LINEAR_API_KEY
+    "asana_access_token": "",          # From GitHub: ASANA_API_TOKEN
     
     # Communication - MISSING (add these)
-    "slack_bot_token": "PLACEHOLDER_FROM_GITHUB_SLACK_BOT_TOKEN",    # From GitHub: SLACK_BOT_TOKEN
-    "slack_app_token": "PLACEHOLDER_FROM_GITHUB_SLACK_APP_TOKEN",    # From GitHub: SLACK_APP_TOKEN
+    "slack_bot_token": "",    # From GitHub: SLACK_BOT_TOKEN
+    "slack_app_token": "",    # From GitHub: SLACK_APP_TOKEN
     
     # Development Tools - MISSING (add these)
-    "github_token": "PLACEHOLDER_FROM_GITHUB_GH_API_TOKEN",          # From GitHub: GH_API_TOKEN
-    "figma_pat": "PLACEHOLDER_FROM_GITHUB_FIGMA_PAT",                # From GitHub: FIGMA_PAT
-    "notion_api_token": "PLACEHOLDER_FROM_GITHUB_NOTION_API_KEY",    # From GitHub: NOTION_API_KEY
+    "github_token": "",          # From GitHub: GH_API_TOKEN
+    "figma_pat": "",                # From GitHub: FIGMA_PAT
+    "notion_api_token": "",    # From GitHub: NOTION_API_KEY
     
     # Infrastructure - MISSING (add these)
-    "lambda_api_key": "PLACEHOLDER_FROM_GITHUB_LAMBDA_API_KEY",      # From GitHub: LAMBDA_API_KEY
+    "lambda_api_key": "",      # From GitHub: LAMBDA_API_KEY
     
     # Snowflake - WORKING ✓
     "snowflake_account": "ZNB04675",                  # From GitHub: SNOWFLAKE_ACCOUNT
@@ -111,7 +111,7 @@ def main():
     failed_secrets = []
     
     for secret_name, placeholder in PRIORITY_1_SECRETS.items():
-        if placeholder.startswith("PLACEHOLDER_"):
+        if placeholder.startswith(""):
             logger.warning(f"⚠️  {secret_name}: Using placeholder - needs GitHub organization secret value")
         
         if sync_single_secret(secret_name, placeholder):
@@ -131,7 +131,7 @@ def main():
         logger.warning(f"⚠️  Failed secrets: {', '.join(failed_secrets)}")
     
     # Instructions for completing the sync
-    placeholder_secrets = [name for name, value in PRIORITY_1_SECRETS.items() if value.startswith("PLACEHOLDER_")]
+    placeholder_secrets = [name for name, value in PRIORITY_1_SECRETS.items() if value.startswith("")]
     
     if placeholder_secrets:
         logger.info(f"\n🔧 NEXT STEPS:")

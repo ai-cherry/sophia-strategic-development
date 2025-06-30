@@ -499,8 +499,8 @@ class EstuaryAdapter(PlatformAdapter):
             "name": "Sophia AI Gong",
             "source_type": "gong",
             "configuration": {
-                "access_key": os.getenv("GONG_ACCESS_KEY"),
-                "access_key_secret": os.getenv("GONG_CLIENT_SECRET"),
+                "access_key": get_config_value("gong_access_key"),
+                "access_key_secret": get_config_value("gong_client_secret"),
                 "start_date": parameters.get("start_date", "2024-01-01T00:00:00Z"),
             },
         }
@@ -515,7 +515,7 @@ class EstuaryAdapter(PlatformAdapter):
             "name": "Sophia AI Slack",
             "source_type": "slack",
             "configuration": {
-                "api_token": os.getenv("SLACK_BOT_TOKEN"),
+                "api_token": get_config_value("slack_bot_token"),
                 "start_date": parameters.get("start_date", "2024-01-01T00:00:00Z"),
                 "lookback_window": 1,
                 "join_channels": True,

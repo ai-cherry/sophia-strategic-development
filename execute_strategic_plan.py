@@ -838,7 +838,7 @@ def main():
     config = {
         'account': 'UHDECNO-CVB64222',
         'user': 'SCOOBYJAVA15',
-        'password': 'your_password_here',
+        'password': "",
         'role': 'ACCOUNTADMIN'
     }
 
@@ -976,7 +976,7 @@ def main():
     config = {
         'account': 'UHDECNO-CVB64222',
         'user': 'SCOOBYJAVA15',
-        'password': 'your_password_here',
+        'password': "",
         'role': 'ACCOUNTADMIN'
     }
 

@@ -46,7 +46,7 @@ def get_figma_credentials():
             logger.warning(f"Pulumi ESC access failed: {e}")
 
     # Fallback to environment variable
-    figma_pat = os.getenv("FIGMA_PAT") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+    figma_pat = get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
     if figma_pat:
         logger.info("✅ Using Figma PAT from environment variable")
         return figma_pat
@@ -56,8 +56,8 @@ def get_figma_credentials():
 
 
 FIGMA_PAT = get_figma_credentials()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENAI_API_KEY = get_config_value("openai_api_key")
+OPENROUTER_API_KEY = get_config_value("openrouter_api_key")
 
 FIGMA_API_BASE = "https://api.figma.com/v1"
 

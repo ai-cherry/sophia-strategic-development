@@ -47,7 +47,7 @@ ADMIN_USER_ID = "ceo_user"
 SNOWFLAKE_CONFIG = {
     "account": "ZNB04675",
     "user": "SCOOBYJAVA15",
-    "password": os.getenv("SNOWFLAKE_PASSWORD", ""),
+    "password": get_config_value("snowflake_password"),
     "role": "ACCOUNTADMIN",
     "database": "SOPHIA_AI_PROD",
     "schema": "UNIVERSAL_CHAT",

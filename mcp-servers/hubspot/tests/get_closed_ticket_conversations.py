@@ -83,7 +83,7 @@ def get_ticket_conversations(
 def main():
     """Run the script to get closed tickets and their conversations."""
     # Initialize HubSpot client
-    access_token = os.getenv("HUBSPOT_ACCESS_TOKEN")
+    access_token = get_config_value("hubspot_access_token")
     if not access_token:
         logger.error("HUBSPOT_ACCESS_TOKEN environment variable is required")
         sys.exit(1)

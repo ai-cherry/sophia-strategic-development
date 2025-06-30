@@ -29,7 +29,7 @@ class SnowflakeCortexMCPServer:
     def __init__(self):
         self.account = os.getenv('SNOWFLAKE_ACCOUNT')
         self.user = os.getenv('SNOWFLAKE_USER')
-        self.password = os.getenv('SNOWFLAKE_PASSWORD')
+        self.password = get_config_value("snowflake_password")
         self.warehouse = os.getenv('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH')
         self.database = os.getenv('SNOWFLAKE_DATABASE', 'SOPHIA_AI')
         

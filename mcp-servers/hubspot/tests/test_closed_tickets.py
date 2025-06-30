@@ -34,7 +34,7 @@ class TicketTester:
         Args:
             access_token: HubSpot API token (if None, uses HUBSPOT_ACCESS_TOKEN env var)
         """
-        self.access_token = access_token or os.getenv("HUBSPOT_ACCESS_TOKEN")
+        self.access_token = access_token or get_config_value("hubspot_access_token")
         if not self.access_token:
             raise ValueError("HUBSPOT_ACCESS_TOKEN environment variable is required")
 

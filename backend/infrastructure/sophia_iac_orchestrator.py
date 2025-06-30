@@ -135,7 +135,7 @@ class SophiaIaCOrchestrator:
         self.llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.1,
-            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            openai_api_key=get_config_value("openai_api_key"),
         )
 
         self.agent_executor = None

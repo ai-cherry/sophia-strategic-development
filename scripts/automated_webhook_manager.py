@@ -47,8 +47,8 @@ class AutomatedWebhookManager:
                 ],
                 "auth_type": "jwt",
                 "credentials": {
-                    "access_key": os.getenv("GONG_ACCESS_KEY"),
-                    "client_secret": os.getenv("GONG_CLIENT_SECRET"),
+                    "access_key": get_config_value("gong_access_key"),
+                    "client_secret": get_config_value("gong_client_secret"),
                     "jwt_public_key": os.getenv("GONG_WEBHOOK_JWT_PUBLIC_KEY"),
                 },
             },
@@ -67,8 +67,8 @@ class AutomatedWebhookManager:
                 ],
                 "auth_type": "signature",
                 "credentials": {
-                    "bot_token": os.getenv("SLACK_BOT_TOKEN"),
-                    "app_token": os.getenv("SLACK_APP_TOKEN"),
+                    "bot_token": get_config_value("slack_bot_token"),
+                    "app_token": get_config_value("slack_app_token"),
                     "signing_secret": os.getenv("SLACK_SIGNING_SECRET"),
                 },
             },
@@ -89,7 +89,7 @@ class AutomatedWebhookManager:
                     },
                 ],
                 "auth_type": "signature",
-                "credentials": {"access_token": os.getenv("HUBSPOT_ACCESS_TOKEN")},
+                "credentials": {"access_token": get_config_value("hubspot_access_token")},
             },
             "estuary": {
                 "platform_api_base": "https://api.estuary.dev/v1",
@@ -139,7 +139,7 @@ class AutomatedWebhookManager:
                     },
                 ],
                 "auth_type": "signature",
-                "credentials": {"api_key": os.getenv("LINEAR_API_KEY")},
+                "credentials": {"api_key": get_config_value("linear_api_key")},
             },
             "figma": {
                 "platform_api_base": "https://api.figma.com/v1",
@@ -157,7 +157,7 @@ class AutomatedWebhookManager:
                     {"path": "/webhook/asana/projects", "events": ["project"]},
                 ],
                 "auth_type": "signature",
-                "credentials": {"access_token": os.getenv("ASANA_ACCESS_TOKEN")},
+                "credentials": {"access_token": get_config_value("asana_access_token")},
             },
         }
 

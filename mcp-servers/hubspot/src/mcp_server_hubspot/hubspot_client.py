@@ -59,7 +59,7 @@ class HubSpotClient:
         Raises:
             ValueError: If no valid token is available
         """
-        token = access_token or os.getenv("HUBSPOT_ACCESS_TOKEN")
+        token = access_token or get_config_value("hubspot_access_token")
         logger.debug(f"Using access token: {'[MASKED]' if token else 'None'}")
         if not token:
             raise ValueError("HUBSPOT_ACCESS_TOKEN environment variable is required")

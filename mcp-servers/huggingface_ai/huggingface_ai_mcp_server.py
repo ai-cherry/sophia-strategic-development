@@ -26,7 +26,7 @@ class HuggingFaceAIMCPServer:
     def __init__(self, port: int = 9016):
         self.port = port
         self.server = Server("huggingface-ai")
-        self.hf_token = os.getenv("HF_TOKEN", "")
+        self.hf_token = get_config_value("huggingface_token")
         
         # Model configurations for different use cases
         self.model_configs = {

@@ -42,7 +42,7 @@ class AsanaMCPServer:
     def __init__(self):
         self.server = Server("asana-mcp-server")
         self.base_url = "https://app.asana.com/api/1.0"
-        self.access_token = os.getenv("ASANA_ACCESS_TOKEN")
+        self.access_token = get_config_value("asana_access_token")
         self.workspace_gid = os.getenv("ASANA_WORKSPACE_GID")
 
         if not self.access_token:

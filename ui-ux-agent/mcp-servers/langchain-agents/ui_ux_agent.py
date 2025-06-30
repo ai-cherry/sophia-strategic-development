@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 FIGMA_MCP_SERVER = "http://localhost:9001"
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENAI_API_KEY = get_config_value("openai_api_key")
+OPENROUTER_API_KEY = get_config_value("openrouter_api_key")
 
 
 class CodeGenerationRequest(BaseModel):

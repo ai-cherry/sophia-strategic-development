@@ -15,7 +15,7 @@ def setup_claude_api():
     print("=" * 60)
 
     # Check current API key
-    current_key = os.getenv("ANTHROPIC_API_KEY")
+    current_key = get_config_value("anthropic_api_key")
     if current_key:
         masked_key = (
             current_key[:8] + "..." + current_key[-4:]
@@ -84,7 +84,7 @@ def setup_claude_api():
         print(f"✅ Created {zshrc} with API key")
 
     # Set for current session
-    os.environ["ANTHROPIC_API_KEY"] = api_key
+    get_config_value("anthropic_api_key") = api_key
     print("✅ API key set for current session")
 
     return test_api_connection()

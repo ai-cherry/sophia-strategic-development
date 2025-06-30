@@ -202,8 +202,8 @@ class RemainingVulnerabilityFixer:
         
         # Secret patterns to replace
         secret_patterns = {
-            r'"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+"': 'os.getenv("SNOWFLAKE_PASSWORD")',
-            r'"TV33BPZ5UN[A-Z0-9]+"': 'os.getenv("GONG_ACCESS_KEY")',
+            r'"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+"': 'get_config_value("snowflake_password")',
+            r'"TV33BPZ5UN[A-Z0-9]+"': 'get_config_value("gong_access_key")',
             r'"sophia_ceo_access_2024"': 'os.getenv("CEO_ACCESS_TOKEN")',
             r'"database_password"': 'os.getenv("DATABASE_PASSWORD")',
             r'"jwt_secret"': 'os.getenv("JWT_SECRET")',

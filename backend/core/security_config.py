@@ -317,7 +317,7 @@ values:
                 template += f"\n  # {category_name}\n"
                 for secret_key in secrets:
                     config = cls.get_secret_config(secret_key)
-                    template += f'  {secret_key}: "PLACEHOLDER_{secret_key.upper()}"\n'
+                    template += f'  {secret_key}: ""\n'
                     if config is not None:
                         template += f"  # {config.description}\n"
 

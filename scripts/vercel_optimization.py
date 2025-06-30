@@ -68,7 +68,7 @@ class VercelOptimizer:
     def _get_vercel_token(self) -> str:
         """Get Vercel API token from environment or Pulumi ESC."""
         # Try environment variable first
-        token = os.getenv("VERCEL_ACCESS_TOKEN")
+        token = get_config_value("vercel_access_token")
         if token:
             return token
 
