@@ -7,6 +7,7 @@ Deploys and configures Cortex AI agents for business intelligence.
 """
 
 import logging
+import re
 
 import snowflake.connector
 
@@ -24,6 +25,12 @@ class CortexAIDeployer:
         """Connect to Snowflake."""
         self.connection = snowflake.connector.connect(**self.config)
         logger.info("✅ Connected to Snowflake for Cortex AI deployment")
+
+    def _validate_agent_name(self, agent_name: str) -> str:
+        """Validate agent name to prevent SQL injection"""
+        if not re.match(r'^[A-Z_][A-Z0-9_]*$', agent_name):
+            raise ValueError(f"Invalid agent name: {agent_name}")
+        return agent_name
 
     def deploy_business_intelligence_agents(self):
         """Deploy business intelligence Cortex AI agents."""
@@ -49,15 +56,18 @@ class CortexAIDeployer:
 
         for agent in agents:
             try:
+                # SECURITY FIX: Use validated agent name and parameterized query
+                agent_name = self._validate_agent_name(agent['name'])
                 cursor.execute(
-                    f"""
-                    CREATE OR REPLACE CORTEX AGENT {agent['name']}
-                    DESCRIPTION = '{agent['description']}'
-                    TOOLS = {agent['tools']}
+                    """
+                    CREATE OR REPLACE CORTEX AGENT %s
+                    DESCRIPTION = %s
+                    TOOLS = %s
                     WAREHOUSE = 'AI_COMPUTE_WH'
                     DATABASE = 'SOPHIA_AI_ADVANCED'
                     SCHEMA = 'PROCESSED_AI'
-                """
+                """,
+                    (agent_name, agent['description'], str(agent['tools']))
                 )
                 logger.info(f"✅ Deployed {agent['name']}")
             except Exception as e:

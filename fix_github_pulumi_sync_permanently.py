@@ -253,7 +253,7 @@ if __name__ == "__main__":
     with open("manual_lambda_sync.py", "w") as f:
         f.write(manual_sync)
 
-    os.chmod("manual_lambda_sync.py", 0o755)
+    os.chmod("manual_lambda_sync.py", 0o644)  # SECURITY FIX: Reduced permissions
     print("✅ Created manual sync script: manual_lambda_sync.py")
 
 

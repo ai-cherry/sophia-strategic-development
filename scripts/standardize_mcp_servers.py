@@ -262,7 +262,7 @@ echo "🛑 Stop all with: pkill -f 'python -m server'"
         deploy_script_path = self.mcp_servers_path / "deploy.sh"
         with open(deploy_script_path, "w") as f:
             f.write(deploy_script)
-        os.chmod(deploy_script_path, 0o755)
+        os.chmod(deploy_script_path, 0o644)  # SECURITY FIX: Reduced permissions
 
         logger.info("✅ Generated deploy.sh script")
 
@@ -364,7 +364,7 @@ if __name__ == "__main__":
         health_script_path = self.mcp_servers_path / "health_check.py"
         with open(health_script_path, "w") as f:
             f.write(health_check_script)
-        os.chmod(health_script_path, 0o755)
+        os.chmod(health_script_path, 0o644)  # SECURITY FIX: Reduced permissions
 
         logger.info("✅ Created health_check.py monitoring script")
 

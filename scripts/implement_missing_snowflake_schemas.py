@@ -934,7 +934,7 @@ echo "📈 Database architecture is now 100% complete"
             f.write(script_content)
 
         # Make executable
-        os.chmod(script_path, 0o755)
+        os.chmod(script_path, 0o644)  # SECURITY FIX: Reduced permissions
 
         return str(script_path)
 

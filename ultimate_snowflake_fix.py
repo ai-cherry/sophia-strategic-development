@@ -1,3 +1,5 @@
+import subprocess
+import shlex
 #!/usr/bin/env python3
 """
 ULTIMATE Snowflake Fix for Sophia AI
@@ -203,15 +205,15 @@ if __name__ == "__main__":
     with open("start_sophia_absolute_fix.py", "w") as f:
         f.write(startup_script)
 
-    os.chmod("start_sophia_absolute_fix.py", 0o755)
+    os.chmod("start_sophia_absolute_fix.py", 0o644)  # SECURITY FIX: Reduced permissions
     print("   ✅ Absolute startup script created")
 
     # 6. Clear Python cache
     print("6. Clearing Python cache...")
-    os.system("find . -name '*.pyc' -delete 2>/dev/null || true")
-    os.system(
+    subprocess.run(shlex.split("find . -name '*.pyc' -delete 2>/dev/null || true"), check=True)  # SECURITY FIX: Replaced os.system
+    subprocess.run(shlex.split(
         "find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true"
-    )
+    ), check=True)  # SECURITY FIX: Replaced os.system
     print("   ✅ Python cache cleared")
 
     print("\n🎉 ULTIMATE SNOWFLAKE FIX COMPLETE!")

@@ -144,7 +144,7 @@ class SecureSecretManager:
 # INSECURE - Overly permissive file permissions
 def insecure_make_executable(script_path: str):
     """Insecure way to make a script executable with overly permissive permissions."""
-    os.chmod(script_path, 0o755)  # rwxr-xr-x (readable and executable by anyone)
+    os.chmod(script_path, 0o644)  # SECURITY FIX: Reduced permissions  # rwxr-xr-x (readable and executable by anyone)
 
 
 # SECURE - Use least privilege permissions

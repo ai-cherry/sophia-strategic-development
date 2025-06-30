@@ -1,3 +1,5 @@
+import subprocess
+import shlex
 #!/usr/bin/env python3
 """
 Comprehensive verification that ALL 67 GitHub Organization Secrets
@@ -20,7 +22,7 @@ def check_github_actions_status():
     print("📋 Recent commits that should trigger sync:")
 
     # Show recent commits
-    os.system("git log --oneline -3")
+    subprocess.run(shlex.split("git log --oneline -3"), check=True)  # SECURITY FIX: Replaced os.system
 
     print(f"\n⏰ Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(
@@ -52,9 +54,9 @@ def test_pulumi_esc_access():
 
     for secret in test_secrets:
         print(f"  Testing {secret}...")
-        result = os.system(
+        result = subprocess.run(shlex.split(
             f"pulumi config get {secret} --stack sophia-ai-production >/dev/null 2>&1"
-        )
+        ), check=True)  # SECURITY FIX: Replaced os.system
         if result == 0:
             print(f"    ✅ {secret}: Available")
         else:

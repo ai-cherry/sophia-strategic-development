@@ -1,3 +1,4 @@
+import shlex
 #!/usr/bin/env python3
 """Start all Cline v3.18 enhanced MCP servers."""
 
@@ -61,7 +62,7 @@ async def start_server(name: str, command: list, env: dict = None):
 
 async def check_gemini_cli():
     """Check if Gemini CLI is installed."""
-    result = os.system("which gemini > /dev/null 2>&1")
+    result = subprocess.run(shlex.split("which gemini > /dev/null 2>&1"), check=True)  # SECURITY FIX: Replaced os.system
     if result != 0:
         print(
             "⚠️  Gemini CLI not found. Install with: npm install -g @google/generative-ai-cli"

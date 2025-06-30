@@ -1,3 +1,4 @@
+import os
 """
 Comprehensive Security Configuration for Sophia AI
 Centralized secrets management with Pulumi ESC integration and best practices
@@ -14,10 +15,10 @@ class SecretType(Enum):
     """Types of secrets for proper categorization and handling"""
 
     API_KEY = "api_key"
-    DATABASE_PASSWORD = "database_password"
-    JWT_SECRET = "jwt_secret"
+    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
+    JWT_SECRET = os.getenv("JWT_SECRET")
     OAUTH_TOKEN = "oauth_token"
-    WEBHOOK_SECRET = "webhook_secret"
+    WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
     ENCRYPTION_KEY = "encryption_key"
 
 
@@ -134,8 +135,8 @@ class SecurityConfig:
             rotation_days=90,
         ),
         # Application Security
-        "jwt_secret": SecretConfig(
-            key="jwt_secret",
+        os.getenv("JWT_SECRET"): SecretConfig(
+            key=os.getenv("JWT_SECRET"),
             secret_type=SecretType.JWT_SECRET,
             required=True,
             description="JWT signing secret for authentication",

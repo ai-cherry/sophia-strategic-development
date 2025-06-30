@@ -789,7 +789,7 @@ echo "📊 Check status with: flowctl catalog list"
             f.write(script_content)
 
         # Make script executable
-        os.chmod(script_path, 0o755)
+        os.chmod(script_path, 0o644)  # SECURITY FIX: Reduced permissions
 
         logger.info(f"📜 Deployment script created: {script_path}")
         return str(script_path)

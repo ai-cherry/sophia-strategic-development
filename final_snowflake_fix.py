@@ -129,7 +129,7 @@ if __name__ == "__main__":
 with open("start_sophia_fixed.py", "w") as f:
     f.write(startup_script_content)
 
-os.chmod("start_sophia_fixed.py", 0o755)
+os.chmod("start_sophia_fixed.py", 0o644)  # SECURITY FIX: Reduced permissions
 print("✅ Created startup script with permanent fix")
 
 # 3. Test the fix immediately
