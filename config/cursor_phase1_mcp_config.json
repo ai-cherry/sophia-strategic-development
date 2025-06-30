@@ -1,0 +1,53 @@
+{
+  "mcpServers": {
+    "microsoft-playwright": {
+      "command": "node",
+      "args": ["mcp-servers/playwright/microsoft-playwright-mcp/index.js"],
+      "env": {
+        "PLAYWRIGHT_HEADLESS": "true",
+        "PLAYWRIGHT_TIMEOUT": "30000"
+      },
+      "priority": "critical",
+      "category": "web-automation"
+    },
+    "snowflake-cortex": {
+      "command": "python",
+      "args": ["mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py"],
+      "env": {
+        "SNOWFLAKE_ACCOUNT": "${SNOWFLAKE_ACCOUNT}",
+        "SNOWFLAKE_USER": "${SNOWFLAKE_USER}",
+        "SNOWFLAKE_PASSWORD": "${SNOWFLAKE_PASSWORD}",
+        "SNOWFLAKE_WAREHOUSE": "COMPUTE_WH"
+      },
+      "priority": "critical",
+      "category": "data-intelligence"
+    },
+    "apollo-io": {
+      "command": "node",
+      "args": ["mcp-servers/apollo/apollo-io-mcp/index.js"],
+      "env": {
+        "APOLLO_IO_API_KEY": "${APOLLO_IO_API_KEY}"
+      },
+      "priority": "high",
+      "category": "sales-intelligence"
+    },
+    "apify": {
+      "type": "sse",
+      "url": "https://mcp.apify.com/sse",
+      "headers": {
+        "Authorization": "Bearer ${APIFY_TOKEN}"
+      },
+      "priority": "high",
+      "category": "web-scraping"
+    },
+    "figma-context": {
+      "command": "node",
+      "args": ["mcp-servers/figma_context/figma-context-mcp/index.js"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "${FIGMA_ACCESS_TOKEN}"
+      },
+      "priority": "high",
+      "category": "design-automation"
+    }
+  }
+}
