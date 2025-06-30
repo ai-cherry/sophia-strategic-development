@@ -61,14 +61,38 @@
       "implementation_phase": "phase_2", 
       "business_value": "50% faster issue detection"
     },
-    "n8n_workflow_cli": {
-      "port": 9019,
-      "description": "Enhanced N8N workflow management using N8N CLI",
-      "capabilities": ["workflow_export", "workflow_import", "credential_management", "monitoring"],
-      "priority": "high",
-      "implementation_phase": "phase_1",
-      "business_value": "60% faster workflow development"
-    },
+         "n8n_workflow_cli": {
+       "port": 9019,
+       "description": "Enhanced N8N workflow management using N8N CLI",
+       "capabilities": ["workflow_export", "workflow_import", "credential_management", "monitoring"],
+       "priority": "high",
+       "implementation_phase": "phase_1",
+       "business_value": "60% faster workflow development"
+     },
+     "lambda_labs_cli": {
+       "port": 9020,
+       "description": "Direct GPU instance management using Lambda Labs CLI",
+       "capabilities": ["instance_launch", "instance_terminate", "cost_estimation", "resource_monitoring"],
+       "priority": "high",
+       "implementation_phase": "strategic_enhancement",
+       "business_value": "30% cost optimization through direct GPU control"
+     },
+     "snowflake_cli_enhanced": {
+       "port": 9021,
+       "description": "Advanced Snowflake operations using enhanced CLI integration",
+       "capabilities": ["cortex_ai_operations", "cost_analysis", "query_optimization", "pipeline_management"],
+       "priority": "high",
+       "implementation_phase": "strategic_enhancement", 
+       "business_value": "25% performance improvement through advanced operations"
+     },
+     "estuary_flow_cli": {
+       "port": 9022,
+       "description": "Direct data pipeline management using Estuary Flow CLI",
+       "capabilities": ["pipeline_control", "data_validation", "real_time_monitoring", "error_handling"],
+       "priority": "medium",
+       "implementation_phase": "strategic_enhancement",
+       "business_value": "40% pipeline reliability through direct control"
+     },
     
     "comment_business": "=== BUSINESS INTELLIGENCE SERVERS (9100-9199) ===",
     "gong": 9100,
@@ -108,36 +132,50 @@
     "monitoring": "arize_phoenix",
     "workflow_automation": "n8n_workflow_cli"
   },
-  "deployment_requirements": {
-    "phase_1_servers": ["apify_intelligence", "huggingface_ai", "n8n_workflow_cli"],
-    "phase_2_servers": ["weaviate_primary", "arize_phoenix"],
-    "dependencies": {
-      "apify_intelligence": ["ai_memory"],
-      "huggingface_ai": ["ai_memory", "snowflake_cortex"],
-      "weaviate_primary": ["ai_memory", "pinecone"],
-      "arize_phoenix": ["existing_monitoring"],
-      "n8n_workflow_cli": ["n8n_instance"]
-    },
-    "environment_variables": {
-      "apify_intelligence": ["APIFY_API_TOKEN"],
-      "huggingface_ai": ["HF_TOKEN"],
-      "weaviate_primary": ["WEAVIATE_URL", "WEAVIATE_API_KEY"],
-      "arize_phoenix": ["PHOENIX_API_KEY"],
-      "n8n_workflow_cli": ["N8N_URL", "N8N_USER", "N8N_PASSWORD"]
-    }
-  },
-  "success_metrics": {
-    "phase_1_targets": {
-      "competitive_analysis_speed": "80% improvement",
-      "ai_model_availability": "70% increase",
-      "workflow_development": "60% faster"
-    },
-    "phase_2_targets": {
-      "vector_search_uptime": "99.9%",
-      "issue_detection_speed": "50% faster",
-      "overall_system_reliability": "95%+"
-    }
-  },
+     "deployment_requirements": {
+     "phase_1_servers": ["apify_intelligence", "huggingface_ai", "n8n_workflow_cli"],
+     "phase_2_servers": ["weaviate_primary", "arize_phoenix"],
+     "strategic_enhancement_servers": ["lambda_labs_cli", "snowflake_cli_enhanced", "estuary_flow_cli"],
+     "dependencies": {
+       "apify_intelligence": ["ai_memory"],
+       "huggingface_ai": ["ai_memory", "snowflake_cortex"],
+       "weaviate_primary": ["ai_memory", "pinecone"],
+       "arize_phoenix": ["existing_monitoring"],
+       "n8n_workflow_cli": ["n8n_instance"],
+       "lambda_labs_cli": ["existing_lambda_labs_integration"],
+       "snowflake_cli_enhanced": ["existing_snowflake_cortex"],
+       "estuary_flow_cli": ["existing_estuary_mcp"]
+     },
+     "environment_variables": {
+       "apify_intelligence": ["APIFY_API_TOKEN"],
+       "huggingface_ai": ["HF_TOKEN"],
+       "weaviate_primary": ["WEAVIATE_URL", "WEAVIATE_API_KEY"],
+       "arize_phoenix": ["PHOENIX_API_KEY"],
+       "n8n_workflow_cli": ["N8N_URL", "N8N_USER", "N8N_PASSWORD"],
+       "lambda_labs_cli": ["LAMBDA_LABS_API_KEY"],
+       "snowflake_cli_enhanced": ["SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER", "SNOWFLAKE_DATABASE"],
+       "estuary_flow_cli": ["ESTUARY_API_KEY", "ESTUARY_FLOW_URL"]
+     }
+   },
+     "success_metrics": {
+     "phase_1_targets": {
+       "competitive_analysis_speed": "80% improvement",
+       "ai_model_availability": "70% increase",
+       "workflow_development": "60% faster"
+     },
+     "phase_2_targets": {
+       "vector_search_uptime": "99.9%",
+       "issue_detection_speed": "50% faster",
+       "overall_system_reliability": "95%+"
+     },
+     "strategic_enhancement_targets": {
+       "gpu_cost_optimization": "30% reduction",
+       "snowflake_performance_improvement": "25% faster queries",
+       "data_pipeline_reliability": "40% improvement",
+       "total_annual_savings": "$15K-25K",
+       "implementation_time": "2-3 developer days"
+     }
+   },
   "mcp_orchestration_integration": {
     "description": "Integration with existing MCP orchestration service",
     "orchestration_port": 9000,
