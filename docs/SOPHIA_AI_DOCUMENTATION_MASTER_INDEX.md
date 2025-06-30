@@ -34,7 +34,7 @@
 - [MCP Servers](06-mcp-servers/README.md)
 - [Sample Queries](sample_queries/enhanced_sample_developer_queries.md)
 
-### �� Performance & Monitoring
+### 🔢 Performance & Monitoring
 - [Performance Optimization](07-performance/README.md)
 - [Security Guidelines](08-security/README.md)
 
