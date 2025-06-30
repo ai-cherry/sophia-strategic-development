@@ -1,19 +1,33 @@
 import axios from 'axios';
 
-// API Configuration
+// API Configuration - Environment-aware backend URL
+const PRODUCTION_BACKEND_URL = 'https://e5h6i7c09ylk.manus.space';
+
 const API_CONFIG = {
-  production: 'https://8000-ihyzju3pnhb3mzxu6i43r-a616a0fd.manusvm.computer',
+  production: PRODUCTION_BACKEND_URL,
   development: 'http://localhost:8000',
   timeout: 10000,
   retries: 3,
   retryDelay: 1000
 };
 
-// Get base URL based on environment
+// Get base URL based on environment - Smart environment detection
 const getBaseURL = () => {
-  return process.env.NODE_ENV === 'production' 
-    ? API_CONFIG.production 
-    : API_CONFIG.development;
+  // Check for explicit environment variable first
+  if (process.env.REACT_APP_API_URL) {
+    console.log('API Client using REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Use environment-based detection
+  const isDevelopment = process.env.NODE_ENV === 'development' || 
+                       window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1';
+  
+  const baseURL = isDevelopment ? API_CONFIG.development : API_CONFIG.production;
+  console.log(`API Client using ${isDevelopment ? 'development' : 'production'} URL:`, baseURL);
+  return baseURL;
+}
 };
 
 // Create axios instance with default configuration
