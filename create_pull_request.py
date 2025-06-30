@@ -6,27 +6,24 @@
 This script creates a comprehensive pull request for the strategic plan improvements.
 """
 
-import json
-import subprocess
-import sys
-from datetime import datetime
+
 
 def create_pull_request():
     """Create a comprehensive pull request."""
-    
+
     # Pull request title
     title = "🚀 Strategic Plan Comprehensive Implementation - Production Ready"
-    
+
     # Comprehensive pull request description
     description = """
 # 🎉 Strategic Plan Comprehensive Implementation
 
 ## 📊 **EXECUTION SUMMARY**
 
-✅ **All 7 phases completed successfully**  
-📈 **99.8% syntax validation success rate**  
-🎯 **85.7% overall success rate**  
-🔧 **13 major improvements implemented**  
+✅ **All 7 phases completed successfully**
+📈 **99.8% syntax validation success rate**
+🎯 **85.7% overall success rate**
+🔧 **13 major improvements implemented**
 🚀 **Platform ready for production deployment**
 
 ---
@@ -35,7 +32,7 @@ def create_pull_request():
 
 ### **Critical Issues Resolved**
 - ✅ Fixed security remediation syntax error (line 714)
-- ✅ Resolved f-string backslash issues in dashboard integration  
+- ✅ Resolved f-string backslash issues in dashboard integration
 - ✅ Fixed 33 YAML workflow syntax issues
 - ✅ Applied automated Ruff fixes across entire codebase
 
@@ -200,18 +197,20 @@ This pull request represents a **comprehensive transformation** of the Sophia AI
     print("🚀 Creating Pull Request...")
     print("=" * 60)
     print(f"Title: {title}")
-    print(f"Branch: strategic-plan-comprehensive-improvements")
-    print(f"Target: main")
+    print("Branch: strategic-plan-comprehensive-improvements")
+    print("Target: main")
     print("=" * 60)
-    
+
     # Save PR description to file for reference
-    with open('pull_request_description.md', 'w') as f:
+    with open("pull_request_description.md", "w") as f:
         f.write(description)
-    
+
     print("✅ Pull request description saved to: pull_request_description.md")
     print()
     print("🔗 **Create Pull Request Manually:**")
-    print("Visit: https://github.com/ai-cherry/sophia-main/pull/new/strategic-plan-comprehensive-improvements")
+    print(
+        "Visit: https://github.com/ai-cherry/sophia-main/pull/new/strategic-plan-comprehensive-improvements"
+    )
     print()
     print("📋 **Or use GitHub CLI:**")
     print(f'gh pr create --title "{title}" --body-file pull_request_description.md')
@@ -223,6 +222,6 @@ This pull request represents a **comprehensive transformation** of the Sophia AI
     print("- Platform ready for production deployment")
     print("=" * 60)
 
+
 if __name__ == "__main__":
     create_pull_request()
-

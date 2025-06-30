@@ -15,10 +15,10 @@ from typing import Any
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class ImmediateIntegrationFixes:
     """Addresses critical issues from Strategic Plan + MCP Integration"""
@@ -34,14 +34,16 @@ class ImmediateIntegrationFixes:
             "timestamp": datetime.now().isoformat(),
             "fix": fix_name,
             "status": status,
-            "details": details
+            "details": details,
         }
         self.fixes_applied.append(entry)
         logger.info(f"[{status}] {fix_name}: {details}")
 
     async def fix_snowflake_connectivity(self) -> bool:
         """Fix critical Snowflake connectivity issue"""
-        self.log_fix("Snowflake Connectivity", "STARTING", "Diagnosing 404 login-request errors")
+        self.log_fix(
+            "Snowflake Connectivity", "STARTING", "Diagnosing 404 login-request errors"
+        )
 
         try:
             # First, check if we can import the configuration
@@ -49,9 +51,14 @@ class ImmediateIntegrationFixes:
 
             try:
                 from backend.core.auto_esc_config import get_config_value
-                self.log_fix("Config Import", "SUCCESS", "auto_esc_config module accessible")
+
+                self.log_fix(
+                    "Config Import", "SUCCESS", "auto_esc_config module accessible"
+                )
             except ImportError as e:
-                self.log_fix("Config Import", "ERROR", f"Cannot import auto_esc_config: {e}")
+                self.log_fix(
+                    "Config Import", "ERROR", f"Cannot import auto_esc_config: {e}"
+                )
                 return False
 
             # Check Snowflake configuration values
@@ -61,7 +68,7 @@ class ImmediateIntegrationFixes:
                 "snowflake_password",
                 "snowflake_database",
                 "snowflake_warehouse",
-                "snowflake_schema"
+                "snowflake_schema",
             ]
 
             config_status = {}
@@ -73,7 +80,11 @@ class ImmediateIntegrationFixes:
                         if config_key == "snowflake_account":
                             # Validate account format
                             if "snowflakecomputing.com" not in str(value):
-                                self.log_fix("Account Format", "WARNING", f"Account may need .snowflakecomputing.com suffix: {value}")
+                                self.log_fix(
+                                    "Account Format",
+                                    "WARNING",
+                                    f"Account may need .snowflakecomputing.com suffix: {value}",
+                                )
                     else:
                         config_status[config_key] = "❌ Missing"
                         self.issues_found.append(f"Missing config: {config_key}")
@@ -97,9 +108,11 @@ class ImmediateIntegrationFixes:
 
         try:
             # Check if UV is installed
-            result = subprocess.run(['uv', '--version'], capture_output=True, text=True)
+            result = subprocess.run(["uv", "--version"], capture_output=True, text=True)
             if result.returncode == 0:
-                self.log_fix("UV Installation", "SUCCESS", f"UV version: {result.stdout.strip()}")
+                self.log_fix(
+                    "UV Installation", "SUCCESS", f"UV version: {result.stdout.strip()}"
+                )
             else:
                 self.log_fix("UV Installation", "ERROR", "UV not found")
                 return False
@@ -119,16 +132,24 @@ class ImmediateIntegrationFixes:
 
     async def test_mcp_infrastructure(self) -> bool:
         """Test MCP infrastructure from deployment analysis"""
-        self.log_fix("MCP Infrastructure", "STARTING", "Testing port allocation and health monitoring")
+        self.log_fix(
+            "MCP Infrastructure",
+            "STARTING",
+            "Testing port allocation and health monitoring",
+        )
 
         try:
             # Check if health monitoring script exists
             health_script = self.project_root / "mcp-servers" / "health_check.py"
             if health_script.exists():
-                self.log_fix("Health Script", "SUCCESS", "Health monitoring script available")
+                self.log_fix(
+                    "Health Script", "SUCCESS", "Health monitoring script available"
+                )
                 return True
             else:
-                self.log_fix("Health Script", "WARNING", "Health monitoring script missing")
+                self.log_fix(
+                    "Health Script", "WARNING", "Health monitoring script missing"
+                )
                 return False
 
         except Exception as e:
@@ -144,7 +165,7 @@ class ImmediateIntegrationFixes:
             "syntax_validation": False,
             "docker_optimization": False,
             "ci_cd_pipeline": False,
-            "security_enhancements": False
+            "security_enhancements": False,
         }
 
         try:
@@ -152,15 +173,23 @@ class ImmediateIntegrationFixes:
             validation_results["uv_environment"] = await self.validate_uv_environment()
 
             # Check for syntax scanner
-            syntax_scanner = self.project_root / "scripts" / "comprehensive_syntax_scanner.py"
+            syntax_scanner = (
+                self.project_root / "scripts" / "comprehensive_syntax_scanner.py"
+            )
             if syntax_scanner.exists():
-                self.log_fix("Syntax Scanner", "SUCCESS", "Comprehensive syntax scanner available")
+                self.log_fix(
+                    "Syntax Scanner",
+                    "SUCCESS",
+                    "Comprehensive syntax scanner available",
+                )
                 validation_results["syntax_validation"] = True
 
             # Check for Docker optimization
             dockerfile_uv = self.project_root / "Dockerfile.uv"
             if dockerfile_uv.exists():
-                self.log_fix("Docker UV", "SUCCESS", "UV-optimized Dockerfile available")
+                self.log_fix(
+                    "Docker UV", "SUCCESS", "UV-optimized Dockerfile available"
+                )
                 validation_results["docker_optimization"] = True
 
             # Check for CI/CD pipeline
@@ -172,7 +201,11 @@ class ImmediateIntegrationFixes:
             # Check for security enhancements
             security_dir = self.project_root / "scripts" / "security"
             if security_dir.exists() and any(security_dir.glob("*.py")):
-                self.log_fix("Security Scripts", "SUCCESS", "Security enhancement scripts available")
+                self.log_fix(
+                    "Security Scripts",
+                    "SUCCESS",
+                    "Security enhancement scripts available",
+                )
                 validation_results["security_enhancements"] = True
 
             return validation_results
@@ -183,7 +216,9 @@ class ImmediateIntegrationFixes:
 
     async def generate_integration_report(self) -> dict[str, Any]:
         """Generate comprehensive integration status report"""
-        self.log_fix("Integration Report", "STARTING", "Generating comprehensive status")
+        self.log_fix(
+            "Integration Report", "STARTING", "Generating comprehensive status"
+        )
 
         # Run all validations
         snowflake_status = await self.fix_snowflake_connectivity()
@@ -191,7 +226,9 @@ class ImmediateIntegrationFixes:
         mcp_status = await self.test_mcp_infrastructure()
 
         # Calculate overall readiness
-        strategic_plan_score = sum(strategic_plan_status.values()) / len(strategic_plan_status) * 100
+        strategic_plan_score = (
+            sum(strategic_plan_status.values()) / len(strategic_plan_status) * 100
+        )
 
         report = {
             "timestamp": datetime.now().isoformat(),
@@ -200,35 +237,44 @@ class ImmediateIntegrationFixes:
                 "strategic_plan_readiness": strategic_plan_score,
                 "mcp_infrastructure": mcp_status,
                 "overall_readiness": (
-                    (1 if snowflake_status else 0) +
-                    (strategic_plan_score / 100) +
-                    (1 if mcp_status else 0)
-                ) / 3 * 100
+                    (1 if snowflake_status else 0)
+                    + (strategic_plan_score / 100)
+                    + (1 if mcp_status else 0)
+                )
+                / 3
+                * 100,
             },
             "strategic_plan_details": strategic_plan_status,
             "fixes_applied": self.fixes_applied,
             "issues_found": self.issues_found,
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Generate recommendations
         if not snowflake_status:
-            report["recommendations"].append("CRITICAL: Fix Snowflake connectivity - check account URL format")
+            report["recommendations"].append(
+                "CRITICAL: Fix Snowflake connectivity - check account URL format"
+            )
 
         if strategic_plan_score < 80:
-            report["recommendations"].append("HIGH: Complete strategic plan implementation")
+            report["recommendations"].append(
+                "HIGH: Complete strategic plan implementation"
+            )
 
         if not mcp_status:
-            report["recommendations"].append("MEDIUM: Fix MCP infrastructure health monitoring")
+            report["recommendations"].append(
+                "MEDIUM: Fix MCP infrastructure health monitoring"
+            )
 
         # Save report
         report_path = self.project_root / "integration_status_report.json"
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
         self.log_fix("Integration Report", "SUCCESS", f"Report saved to {report_path}")
 
         return report
+
 
 async def main():
     """Main execution function"""
@@ -247,9 +293,15 @@ async def main():
 
         overall_readiness = report["overall_status"]["overall_readiness"]
         print(f"🎯 Overall Readiness: {overall_readiness:.1f}%")
-        print(f"❄️ Snowflake Status: {'✅ Connected' if report['overall_status']['snowflake_connectivity'] else '❌ Connection Issues'}")
-        print(f"📋 Strategic Plan: {report['overall_status']['strategic_plan_readiness']:.1f}% Complete")
-        print(f"🔧 MCP Infrastructure: {'✅ Operational' if report['overall_status']['mcp_infrastructure'] else '❌ Issues Found'}")
+        print(
+            f"❄️ Snowflake Status: {'✅ Connected' if report['overall_status']['snowflake_connectivity'] else '❌ Connection Issues'}"
+        )
+        print(
+            f"📋 Strategic Plan: {report['overall_status']['strategic_plan_readiness']:.1f}% Complete"
+        )
+        print(
+            f"🔧 MCP Infrastructure: {'✅ Operational' if report['overall_status']['mcp_infrastructure'] else '❌ Issues Found'}"
+        )
 
         if report["recommendations"]:
             print("\n🔧 IMMEDIATE RECOMMENDATIONS:")
@@ -271,6 +323,7 @@ async def main():
     except Exception as e:
         print(f"\n❌ INTEGRATION CHECK FAILED: {e}")
         return 3
+
 
 if __name__ == "__main__":
     exit_code = asyncio.run(main())

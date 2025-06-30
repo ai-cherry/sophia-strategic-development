@@ -252,6 +252,13 @@ class GongAPIClient:
 
 
 class SnowflakeDataLoader:
+
+    def _validate_schema_name(self, schema_name: str) -> str:
+        """Validate schema name to prevent SQL injection"""
+        import re
+        if not re.match(r'^[A-Z_][A-Z0-9_.]*$', schema_name):
+            raise ValueError(f"Invalid schema name: {schema_name}")
+        return schema_name
     """Enhanced Snowflake data loader with transaction management"""
 
     def __init__(self, config: PipelineConfig):
@@ -316,7 +323,7 @@ class SnowflakeDataLoader:
         cursor = self.connection.cursor()
         try:
             for schema in schemas:
-                cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {self.database}.{schema}")
+                cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{schema}"))
                 logger.debug(f"Ensured schema exists: {schema}")
         except Exception as e:
             logger.error(f"Failed to ensure schemas exist: {e}")

@@ -1,3 +1,5 @@
+import subprocess
+import shlex
 # File: scripts/monitor_all_mcp_servers.py
 
 import asyncio
@@ -68,7 +70,7 @@ async def get_server_health(session, server_name, port):
 
 def display_dashboard(server_statuses):
     """Displays the monitoring dashboard in the terminal."""
-    os.system("clear" if os.name == "posix" else "cls")
+    subprocess.run(shlex.split("clear" if os.name == "posix" else "cls"), check=True)  # SECURITY FIX: Replaced os.system
 
     table = Table(
         title=f"MCP Server Monitoring Dashboard - Last Updated: {time.strftime('%Y-%m-%d %H:%M:%S')}"

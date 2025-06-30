@@ -53,7 +53,7 @@ class EstuaryFoundationDeployment:
 
         # Snowflake configuration
         self.snowflake_config = {
-            "account": "UHDECNO-CVB64222",
+            "account": "ZNB04675",
             "user": "SCOOBYJAVA15",
             "password": get_config_value("snowflake_password"),
             "role": "ACCOUNTADMIN",

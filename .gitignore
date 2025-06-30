@@ -213,3 +213,8 @@ ipython_config.py
 # Auto-generated secrets
 .env.secrets
 .vercel
+
+# GitHub Personal Access Tokens
+github_pat_*
+*.token
+.env.github

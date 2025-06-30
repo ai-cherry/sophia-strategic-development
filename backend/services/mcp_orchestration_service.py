@@ -11,12 +11,15 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 class MCPOrchestrationService:
     """Orchestrates all MCP servers for unified operation."""
 
     def __init__(self):
         self.servers = {}
-        self.config_path = Path(__file__).parent.parent.parent / "cursor_mcp_config.json"
+        self.config_path = (
+            Path(__file__).parent.parent.parent / "cursor_mcp_config.json"
+        )
         self.load_configuration()
 
     def load_configuration(self):
@@ -25,7 +28,7 @@ class MCPOrchestrationService:
             if self.config_path.exists():
                 with open(self.config_path) as f:
                     config = json.load(f)
-                    self.servers = config.get('mcpServers', {})
+                    self.servers = config.get("mcpServers", {})
                 logger.info(f"Loaded {len(self.servers)} MCP server configurations")
         except Exception as e:
             logger.error(f"Failed to load MCP configuration: {e}")
@@ -65,6 +68,7 @@ class MCPOrchestrationService:
         logger.info("🛑 Stopping all MCP servers...")
         # Implementation for stopping servers
         pass
+
 
 # Global orchestration service instance
 mcp_orchestration = MCPOrchestrationService()

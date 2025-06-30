@@ -11,9 +11,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-import backend.core.absolute_snowflake_override  # ABSOLUTE OVERRIDE
-from backend.presentation.api.router import create_application_router
 from backend.core.startup_config import apply_startup_configuration
+from backend.presentation.api.router import create_application_router
 
 logger = logging.getLogger(__name__)
 

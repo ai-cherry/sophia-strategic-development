@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sophia AI - One-Click Lambda Labs Deployment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .deploy-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .deploy-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .deploy-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            color: #666;
+            padding-left: 20px;
+        }
+        
+        .cost-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .cost-info strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Sophia AI</h1>
+            <p>One-Click Lambda Labs Deployment</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>What This Does:</h3>
+            <ul>
+                <li>Automatically provisions RTX 4090 GPU server</li>
+                <li>Installs all dependencies (Docker, Kubernetes, NVIDIA drivers)</li>
+                <li>Deploys Sophia AI with GPU optimization</li>
+                <li>Provides access URLs and monitoring</li>
+            </ul>
+        </div>
+        
+        <div class="cost-info">
+            <strong>💰 Cost:</strong> ~$1.50/hour for RTX 4090 instance<br>
+            <strong>⏱️ Time:</strong> 20-30 minutes for full deployment
+        </div>
+        
+        <form id="deploymentForm">
+            <div class="form-group">
+                <label for="apiKey">Lambda Labs API Key:</label>
+                <input type="password" id="apiKey" name="apiKey" placeholder="Get from https://cloud.lambdalabs.com/api-keys" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="instanceName">Instance Name (optional):</label>
+                <input type="text" id="instanceName" name="instanceName" placeholder="sophia-ai-production" value="sophia-ai-production">
+            </div>
+            
+            <button type="submit" class="deploy-btn" id="deployBtn">
+                🚀 Deploy Sophia AI to Lambda Labs
+            </button>
+        </form>
+        
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Initializing deployment...</div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('deploymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const apiKey = document.getElementById('apiKey').value;
+            const instanceName = document.getElementById('instanceName').value || 'sophia-ai-production';
+            
+            if (!apiKey) {
+                showStatus('Please enter your Lambda Labs API key', 'error');
+                return;
+            }
+            
+            // Start deployment
+            startDeployment(apiKey, instanceName);
+        });
+        
+        async function startDeployment(apiKey, instanceName) {
+            const deployBtn = document.getElementById('deployBtn');
+            const progress = document.getElementById('progress');
+            const status = document.getElementById('status');
+            
+            // Disable button and show progress
+            deployBtn.disabled = true;
+            deployBtn.textContent = '🚀 Deploying...';
+            progress.style.display = 'block';
+            status.style.display = 'none';
+            
+            try {
+                // Step 1: Generate deployment script
+                updateProgress(10, 'Generating deployment script...');
+                const deploymentScript = generateDeploymentScript(apiKey, instanceName);
+                
+                // Step 2: Show download instructions
+                updateProgress(20, 'Deployment script ready!');
+                
+                // Create download link
+                const blob = new Blob([deploymentScript], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'deploy_sophia_ai.sh';
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                updateProgress(100, 'Download complete!');
+                
+                showStatus(`
+                    <strong>✅ Deployment script downloaded!</strong><br><br>
+                    <strong>Next steps:</strong><br>
+                    1. Open Terminal/Command Prompt<br>
+                    2. Navigate to your Downloads folder<br>
+                    3. Run: <code>chmod +x deploy_sophia_ai.sh && ./deploy_sophia_ai.sh</code><br><br>
+                    <strong>The script will:</strong><br>
+                    • Provision your Lambda Labs server<br>
+                    • Install all dependencies<br>
+                    • Deploy Sophia AI with GPU optimization<br>
+                    • Provide access URLs<br><br>
+                    <strong>⏱️ Total time: 20-30 minutes</strong>
+                `, 'success');
+                
+            } catch (error) {
+                showStatus('Deployment failed: ' + error.message, 'error');
+            } finally {
+                deployBtn.disabled = false;
+                deployBtn.textContent = '🚀 Deploy Sophia AI to Lambda Labs';
+            }
+        }
+        
+        function generateDeploymentScript(apiKey, instanceName) {
+            return `#!/bin/bash
+
+# 🚀 SOPHIA AI - AUTOMATED LAMBDA LABS DEPLOYMENT
+# Generated: ${new Date().toISOString()}
+
+set -e
+
+export LAMBDA_LABS_API_KEY="${apiKey}"
+
+echo "🚀 STARTING SOPHIA AI DEPLOYMENT TO LAMBDA LABS"
+echo "=============================================="
+echo "⏱️  Estimated time: 20-30 minutes"
+echo "💰 Cost: ~$1.50/hour for RTX 4090"
+echo "=============================================="
+
+# Step 1: Create SSH key
+SSH_KEY_PATH="$HOME/.ssh/lambda_labs_sophia_key"
+if [ ! -f "$SSH_KEY_PATH" ]; then
+    echo "🔑 Creating SSH key..."
+    ssh-keygen -t rsa -b 4096 -f "$SSH_KEY_PATH" -N "" -C "sophia-ai-lambda-labs"
+    echo "✅ SSH key created"
+fi
+
+# Step 2: Upload SSH key to Lambda Labs
+echo "📤 Uploading SSH key to Lambda Labs..."
+PUBLIC_KEY=$(cat "$SSH_KEY_PATH.pub")
+curl -X POST "https://cloud.lambdalabs.com/api/v1/ssh-keys" \\
+    -H "Authorization: Bearer $LAMBDA_LABS_API_KEY" \\
+    -H "Content-Type: application/json" \\
+    -d "{\\"name\\": \\"sophia-ai-key\\", \\"public_key\\": \\"$PUBLIC_KEY\\"}" || echo "Key may already exist"
+
+# Step 3: Launch instance
+echo "🚀 Launching RTX 4090 instance..."
+LAUNCH_RESPONSE=$(curl -X POST "https://cloud.lambdalabs.com/api/v1/instance-operations/launch" \\
+    -H "Authorization: Bearer $LAMBDA_LABS_API_KEY" \\
+    -H "Content-Type: application/json" \\
+    -d '{
+        "region_name": "us-west-2",
+        "instance_type_name": "gpu_1x_rtx4090",
+        "ssh_key_names": ["sophia-ai-key"],
+        "name": "${instanceName}"
+    }')
+
+INSTANCE_ID=$(echo "$LAUNCH_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['instance_ids'][0])")
+echo "✅ Instance launched: $INSTANCE_ID"
+
+# Step 4: Wait for instance
+echo "⏳ Waiting for instance to be ready..."
+while true; do
+    INSTANCE_DATA=$(curl -s "https://cloud.lambdalabs.com/api/v1/instances/$INSTANCE_ID" \\
+        -H "Authorization: Bearer $LAMBDA_LABS_API_KEY")
+    
+    STATUS=$(echo "$INSTANCE_DATA" | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['status'])")
+    
+    if [ "$STATUS" = "running" ]; then
+        INSTANCE_IP=$(echo "$INSTANCE_DATA" | python3 -c "import sys, json; print(json.load(sys.stdin)['data']['ip'])")
+        echo "✅ Instance ready at IP: $INSTANCE_IP"
+        break
+    fi
+    
+    echo "⏳ Status: $STATUS"
+    sleep 30
+done
+
+# Wait for SSH
+echo "⏳ Waiting for SSH (2 minutes)..."
+sleep 120
+
+# Step 5: Deploy Sophia AI
+echo "🚀 Deploying Sophia AI..."
+ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'ENDSSH'
+    # Install dependencies
+    sudo apt update && sudo apt upgrade -y
+    curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh
+    sudo usermod -aG docker ubuntu
+    
+    # Install Kubernetes
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    sudo apt update && sudo apt install -y kubelet kubeadm kubectl
+    
+    # Install Helm
+    curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz -o helm.tar.gz
+    tar -zxvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm
+    
+    # Install NVIDIA
+    sudo apt install -y nvidia-driver-535 git
+    sudo reboot
+ENDSSH
+
+echo "⏳ Waiting for reboot..."
+sleep 120
+
+# Complete deployment
+ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'ENDSSH'
+    # Complete NVIDIA setup
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+    curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+    curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+    sudo apt update && sudo apt install -y nvidia-container-toolkit
+    sudo systemctl restart docker
+    
+    # Setup Kubernetes
+    sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+    kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.0/nvidia-device-plugin.yml
+    
+    # Deploy Sophia AI
+    git clone https://github.com/ai-cherry/sophia-main.git
+    cd sophia-main
+    chmod +x scripts/deploy_lambda_labs_kubernetes.sh
+    ./scripts/deploy_lambda_labs_kubernetes.sh
+ENDSSH
+
+echo ""
+echo "🎉 SOPHIA AI DEPLOYMENT COMPLETE!"
+echo "=============================================="
+echo "🌐 Server IP: $INSTANCE_IP"
+echo "🔑 SSH: ssh -i $SSH_KEY_PATH ubuntu@$INSTANCE_IP"
+echo "🚀 API: http://$INSTANCE_IP:8000"
+echo "=============================================="
+echo "💡 Remember to terminate instance when done!"
+`;
+        }
+        
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

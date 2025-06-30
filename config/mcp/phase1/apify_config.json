@@ -1,0 +1,21 @@
+{
+  "name": "apify",
+  "type": "sse",
+  "url": "https://mcp.apify.com/sse",
+  "description": "Official Apify MCP Server - 5,000+ automation tools",
+  "headers": {
+    "Authorization": "Bearer ${APIFY_TOKEN}"
+  },
+  "capabilities": [
+    "web-scraping",
+    "data-extraction",
+    "browser-automation",
+    "api-integration"
+  ],
+  "actors": {
+    "web-scraper": "apify/web-scraper",
+    "google-maps": "apify/google-maps-scraper",
+    "instagram": "apify/instagram-scraper",
+    "linkedin": "apify/linkedin-scraper"
+  }
+}

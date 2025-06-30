@@ -14,14 +14,11 @@ def main():
     print("🚀 Starting UV-based deployment...")
 
     # Install dependencies with UV
-    subprocess.run([
-        "uv", "uv", "sync"
-    ], check=True)
+    subprocess.run(["uv", "uv", "sync"], check=True)
 
     # Run application with UV
-    subprocess.run([
-        "uv", "run", "python", "-m", "backend.app.fastapi_app"
-    ], check=True)
+    subprocess.run(["uv", "run", "python", "-m", "backend.app.fastapi_app"], check=True)
+
 
 if __name__ == "__main__":
     main()

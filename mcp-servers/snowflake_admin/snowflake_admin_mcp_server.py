@@ -108,8 +108,10 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
+
 def safe_execute(func):
     """Decorator for safe function execution with error handling."""
+
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -117,4 +119,5 @@ def safe_execute(func):
             logger.error(f"Error in {func.__name__}: {e}")
             logger.error(traceback.format_exc())
             return {"error": str(e), "function": func.__name__}
+
     return wrapper

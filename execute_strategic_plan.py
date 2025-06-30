@@ -21,13 +21,16 @@ from pathlib import Path
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(f'strategic_plan_execution_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler(
+            f'strategic_plan_execution_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+        ),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 class StrategicPlanExecutor:
     """Executes the comprehensive strategic plan for Sophia AI platform."""
@@ -35,12 +38,12 @@ class StrategicPlanExecutor:
     def __init__(self):
         self.base_dir = Path(__file__).parent
         self.results = {
-            'execution_start': datetime.now().isoformat(),
-            'phases_completed': [],
-            'issues_fixed': [],
-            'improvements_made': [],
-            'tests_passed': [],
-            'deployment_status': 'pending'
+            "execution_start": datetime.now().isoformat(),
+            "phases_completed": [],
+            "issues_fixed": [],
+            "improvements_made": [],
+            "tests_passed": [],
+            "deployment_status": "pending",
         }
 
     async def execute_plan(self) -> dict:
@@ -70,16 +73,16 @@ class StrategicPlanExecutor:
             # Phase 7: Final Validation and Deployment Preparation
             await self.phase_7_final_validation()
 
-            self.results['execution_end'] = datetime.now().isoformat()
-            self.results['deployment_status'] = 'ready'
+            self.results["execution_end"] = datetime.now().isoformat()
+            self.results["deployment_status"] = "ready"
 
             logger.info("🎉 Strategic Plan Execution Complete!")
             return self.results
 
         except Exception as e:
             logger.error(f"❌ Strategic Plan Execution Failed: {e}")
-            self.results['execution_error'] = str(e)
-            self.results['deployment_status'] = 'failed'
+            self.results["execution_error"] = str(e)
+            self.results["deployment_status"] = "failed"
             return self.results
 
     async def phase_1_critical_fixes(self):
@@ -95,32 +98,38 @@ class StrategicPlanExecutor:
         # Fix critical YAML workflow issues
         await self.fix_critical_yaml_issues()
 
-        self.results['phases_completed'].append('phase_1_critical_fixes')
+        self.results["phases_completed"].append("phase_1_critical_fixes")
         logger.info("✅ Phase 1 Complete: Critical syntax errors resolved")
 
     async def fix_security_remediation_syntax(self):
         """Fix the unclosed parenthesis in security remediation script."""
-        file_path = self.base_dir / "scripts/security/comprehensive_security_remediation.py"
+        file_path = (
+            self.base_dir / "scripts/security/comprehensive_security_remediation.py"
+        )
 
         if file_path.exists():
             content = file_path.read_text()
 
             # Find and fix the unclosed parenthesis around line 714
-            lines = content.split('\n')
+            lines = content.split("\n")
             if len(lines) > 714:
                 # Look for common patterns of unclosed parentheses
                 for i in range(710, min(720, len(lines))):
                     line = lines[i]
-                    if '(' in line and ')' not in line and not line.strip().endswith(','):
+                    if (
+                        "(" in line
+                        and ")" not in line
+                        and not line.strip().endswith(",")
+                    ):
                         # Add closing parenthesis if it seems to be missing
-                        if line.strip().endswith('('):
-                            lines[i] = line + ')'
-                        elif '(' in line and line.count('(') > line.count(')'):
-                            lines[i] = line + ')'
+                        if line.strip().endswith("("):
+                            lines[i] = line + ")"
+                        elif "(" in line and line.count("(") > line.count(")"):
+                            lines[i] = line + ")"
 
                 # Write back the fixed content
-                file_path.write_text('\n'.join(lines))
-                self.results['issues_fixed'].append('security_remediation_syntax_error')
+                file_path.write_text("\n".join(lines))
+                self.results["issues_fixed"].append("security_remediation_syntax_error")
                 logger.info("✅ Fixed security remediation syntax error")
 
     async def fix_dashboard_fstring_error(self):
@@ -129,18 +138,22 @@ class StrategicPlanExecutor:
 
         if file_path.exists():
             content = file_path.read_text()
-            lines = content.split('\n')
+            lines = content.split("\n")
 
             # Fix f-string with backslash around line 166
             if len(lines) > 166:
                 line = lines[165]  # 0-indexed
-                if 'f"' in line and '\\' in line:
+                if 'f"' in line and "\\" in line:
                     # Replace f-string with backslash with regular string formatting
-                    fixed_line = line.replace('f"', '"').replace('\\n', '\\n"').replace('{', '{}')
+                    fixed_line = (
+                        line.replace('f"', '"')
+                        .replace("\\n", '\\n"')
+                        .replace("{", "{}")
+                    )
                     if fixed_line != line:
                         lines[165] = fixed_line
-                        file_path.write_text('\n'.join(lines))
-                        self.results['issues_fixed'].append('dashboard_fstring_error')
+                        file_path.write_text("\n".join(lines))
+                        self.results["issues_fixed"].append("dashboard_fstring_error")
                         logger.info("✅ Fixed dashboard f-string error")
 
     async def fix_critical_yaml_issues(self):
@@ -154,27 +167,37 @@ class StrategicPlanExecutor:
             for yaml_file in yaml_files:
                 try:
                     content = yaml_file.read_text()
-                    lines = content.split('\n')
+                    lines = content.split("\n")
                     modified = False
 
                     # Fix common YAML issues
                     for i, line in enumerate(lines):
                         # Fix missing colons after keys
-                        if line.strip() and not line.startswith('#') and not line.startswith('-'):
-                            if line.count(':') == 0 and '=' not in line and line.strip().endswith(''):
-                                if i + 1 < len(lines) and lines[i + 1].startswith('  '):
-                                    lines[i] = line + ':'
+                        if (
+                            line.strip()
+                            and not line.startswith("#")
+                            and not line.startswith("-")
+                        ):
+                            if (
+                                line.count(":") == 0
+                                and "=" not in line
+                                and line.strip().endswith("")
+                            ):
+                                if i + 1 < len(lines) and lines[i + 1].startswith("  "):
+                                    lines[i] = line + ":"
                                     modified = True
 
                     if modified:
-                        yaml_file.write_text('\n'.join(lines))
+                        yaml_file.write_text("\n".join(lines))
                         fixed_count += 1
 
                 except Exception as e:
                     logger.warning(f"Could not fix {yaml_file.name}: {e}")
 
             if fixed_count > 0:
-                self.results['issues_fixed'].append(f'yaml_syntax_errors_{fixed_count}_files')
+                self.results["issues_fixed"].append(
+                    f"yaml_syntax_errors_{fixed_count}_files"
+                )
                 logger.info(f"✅ Fixed YAML syntax issues in {fixed_count} files")
 
     async def phase_2_code_quality(self):
@@ -190,19 +213,34 @@ class StrategicPlanExecutor:
         # Apply automated Ruff fixes
         await self.apply_ruff_fixes()
 
-        self.results['phases_completed'].append('phase_2_code_quality')
+        self.results["phases_completed"].append("phase_2_code_quality")
         logger.info("✅ Phase 2 Complete: Code quality enhanced")
 
     async def run_code_formatting(self):
         """Run Black code formatter on Python files."""
         try:
-            result = subprocess.run([
-                'python3', '-m', 'black', '--line-length', '88', '--target-version', 'py311',
-                'backend/', 'scripts/', 'mcp-servers/', '--exclude', '.venv'
-            ], capture_output=True, text=True, cwd=self.base_dir)
+            result = subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "black",
+                    "--line-length",
+                    "88",
+                    "--target-version",
+                    "py311",
+                    "backend/",
+                    "scripts/",
+                    "mcp-servers/",
+                    "--exclude",
+                    ".venv",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir,
+            )
 
             if result.returncode == 0:
-                self.results['improvements_made'].append('black_formatting_applied')
+                self.results["improvements_made"].append("black_formatting_applied")
                 logger.info("✅ Black code formatting applied")
             else:
                 logger.warning(f"Black formatting issues: {result.stderr}")
@@ -212,13 +250,28 @@ class StrategicPlanExecutor:
     async def fix_import_organization(self):
         """Fix import organization with isort."""
         try:
-            result = subprocess.run([
-                'python3', '-m', 'isort', '--profile', 'black', '--line-length', '88',
-                'backend/', 'scripts/', 'mcp-servers/', '--skip', '.venv'
-            ], capture_output=True, text=True, cwd=self.base_dir)
+            result = subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "isort",
+                    "--profile",
+                    "black",
+                    "--line-length",
+                    "88",
+                    "backend/",
+                    "scripts/",
+                    "mcp-servers/",
+                    "--skip",
+                    ".venv",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir,
+            )
 
             if result.returncode == 0:
-                self.results['improvements_made'].append('isort_imports_organized')
+                self.results["improvements_made"].append("isort_imports_organized")
                 logger.info("✅ Import organization applied")
             else:
                 logger.warning(f"Import organization issues: {result.stderr}")
@@ -228,12 +281,24 @@ class StrategicPlanExecutor:
     async def apply_ruff_fixes(self):
         """Apply automated Ruff fixes."""
         try:
-            subprocess.run([
-                'python3', '-m', 'ruff', 'check', '--fix', '--unsafe-fixes',
-                'backend/', 'scripts/', 'mcp-servers/'
-            ], capture_output=True, text=True, cwd=self.base_dir)
+            subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "ruff",
+                    "check",
+                    "--fix",
+                    "--unsafe-fixes",
+                    "backend/",
+                    "scripts/",
+                    "mcp-servers/",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir,
+            )
 
-            self.results['improvements_made'].append('ruff_fixes_applied')
+            self.results["improvements_made"].append("ruff_fixes_applied")
             logger.info("✅ Ruff automated fixes applied")
         except Exception as e:
             logger.warning(f"Could not run Ruff fixes: {e}")
@@ -251,7 +316,7 @@ class StrategicPlanExecutor:
         # Create UV-compatible deployment scripts
         await self.create_uv_deployment_scripts()
 
-        self.results['phases_completed'].append('phase_3_uv_migration')
+        self.results["phases_completed"].append("phase_3_uv_migration")
         logger.info("✅ Phase 3 Complete: UV environment standardized")
 
     async def ensure_pyproject_toml(self):
@@ -259,7 +324,7 @@ class StrategicPlanExecutor:
         pyproject_path = self.base_dir / "pyproject.toml"
 
         if not pyproject_path.exists():
-            pyproject_content = '''[build-system]
+            pyproject_content = """[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -399,16 +464,16 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
 ]
-'''
+"""
             pyproject_path.write_text(pyproject_content)
-            self.results['improvements_made'].append('pyproject_toml_created')
+            self.results["improvements_made"].append("pyproject_toml_created")
             logger.info("✅ Created comprehensive pyproject.toml")
 
     async def update_mcp_configurations(self):
         """Update MCP configurations for UV compatibility."""
         config_files = [
             self.base_dir / "cursor_mcp_config.json",
-            self.base_dir / "config/cursor_enhanced_mcp_config.json"
+            self.base_dir / "config/cursor_enhanced_mcp_config.json",
         ]
 
         for config_file in config_files:
@@ -418,16 +483,24 @@ markers = [
                         config = json.load(f)
 
                     # Update Python paths to use UV
-                    if 'mcpServers' in config:
-                        for _server_name, server_config in config['mcpServers'].items():
-                            if 'command' in server_config and server_config['command'] == 'python':
-                                server_config['command'] = 'uv'
-                                server_config['args'] = ['run', 'python'] + server_config.get('args', [])
+                    if "mcpServers" in config:
+                        for _server_name, server_config in config["mcpServers"].items():
+                            if (
+                                "command" in server_config
+                                and server_config["command"] == "python"
+                            ):
+                                server_config["command"] = "uv"
+                                server_config["args"] = [
+                                    "run",
+                                    "python",
+                                ] + server_config.get("args", [])
 
-                    with open(config_file, 'w') as f:
+                    with open(config_file, "w") as f:
                         json.dump(config, f, indent=2)
 
-                    self.results['improvements_made'].append(f'mcp_config_updated_{config_file.name}')
+                    self.results["improvements_made"].append(
+                        f"mcp_config_updated_{config_file.name}"
+                    )
                 except Exception as e:
                     logger.warning(f"Could not update {config_file}: {e}")
 
@@ -470,7 +543,7 @@ if __name__ == "__main__":
         deploy_script_path.write_text(deploy_script_content)
         deploy_script_path.chmod(0o755)
 
-        self.results['improvements_made'].append('uv_deployment_script_created')
+        self.results["improvements_made"].append("uv_deployment_script_created")
         logger.info("✅ UV deployment script created")
 
     async def phase_4_mcp_enhancement(self):
@@ -486,7 +559,7 @@ if __name__ == "__main__":
         # Update MCP server configurations
         await self.update_mcp_server_configs()
 
-        self.results['phases_completed'].append('phase_4_mcp_enhancement')
+        self.results["phases_completed"].append("phase_4_mcp_enhancement")
         logger.info("✅ Phase 4 Complete: MCP servers enhanced")
 
     async def enhance_mcp_servers(self):
@@ -496,10 +569,10 @@ if __name__ == "__main__":
         if mcp_servers_dir.exists():
             # Enhance each MCP server directory
             for server_dir in mcp_servers_dir.iterdir():
-                if server_dir.is_dir() and not server_dir.name.startswith('.'):
+                if server_dir.is_dir() and not server_dir.name.startswith("."):
                     await self.enhance_individual_mcp_server(server_dir)
 
-        self.results['improvements_made'].append('mcp_servers_enhanced')
+        self.results["improvements_made"].append("mcp_servers_enhanced")
         logger.info("✅ MCP servers enhanced with better error handling")
 
     async def enhance_individual_mcp_server(self, server_dir: Path):
@@ -518,7 +591,9 @@ if __name__ == "__main__":
             # Add basic error handling if not present
             if "try:" not in content or "except Exception" not in content:
                 # Add basic error handling wrapper
-                enhanced_content = content + '''
+                enhanced_content = (
+                    content
+                    + '''
 
 # Enhanced error handling for production stability
 import logging
@@ -537,11 +612,14 @@ def safe_execute(func):
             return {"error": str(e), "function": func.__name__}
     return wrapper
 '''
+                )
                 main_file.write_text(enhanced_content)
 
     async def create_mcp_orchestration(self):
         """Create unified MCP orchestration system."""
-        orchestration_path = self.base_dir / "backend/services/mcp_orchestration_service.py"
+        orchestration_path = (
+            self.base_dir / "backend/services/mcp_orchestration_service.py"
+        )
 
         orchestration_content = '''"""
 🎯 MCP Orchestration Service
@@ -620,7 +698,7 @@ mcp_orchestration = MCPOrchestrationService()
         orchestration_path.parent.mkdir(parents=True, exist_ok=True)
         orchestration_path.write_text(orchestration_content)
 
-        self.results['improvements_made'].append('mcp_orchestration_service_created')
+        self.results["improvements_made"].append("mcp_orchestration_service_created")
         logger.info("✅ MCP orchestration service created")
 
     async def update_mcp_server_configs(self):
@@ -633,16 +711,18 @@ mcp_orchestration = MCPOrchestrationService()
                     config = json.load(f)
 
                 # Add timeout and retry configurations
-                if 'mcpServers' in config:
-                    for _server_name, server_config in config['mcpServers'].items():
-                        server_config['timeout'] = server_config.get('timeout', 30)
-                        server_config['retries'] = server_config.get('retries', 3)
-                        server_config['health_check'] = server_config.get('health_check', True)
+                if "mcpServers" in config:
+                    for _server_name, server_config in config["mcpServers"].items():
+                        server_config["timeout"] = server_config.get("timeout", 30)
+                        server_config["retries"] = server_config.get("retries", 3)
+                        server_config["health_check"] = server_config.get(
+                            "health_check", True
+                        )
 
-                with open(config_path, 'w') as f:
+                with open(config_path, "w") as f:
                     json.dump(config, f, indent=2)
 
-                self.results['improvements_made'].append('mcp_configs_enhanced')
+                self.results["improvements_made"].append("mcp_configs_enhanced")
                 logger.info("✅ MCP server configurations enhanced")
             except Exception as e:
                 logger.warning(f"Could not update MCP configurations: {e}")
@@ -660,7 +740,7 @@ mcp_orchestration = MCPOrchestrationService()
         # Create Cortex AI enhancement scripts
         await self.create_cortex_ai_scripts()
 
-        self.results['phases_completed'].append('phase_5_snowflake_optimization')
+        self.results["phases_completed"].append("phase_5_snowflake_optimization")
         logger.info("✅ Phase 5 Complete: Snowflake Cortex AI optimized")
 
     async def create_snowflake_integration_scripts(self):
@@ -776,14 +856,16 @@ if __name__ == "__main__":
 '''
 
         optimization_script.write_text(optimization_content)
-        self.results['improvements_made'].append('snowflake_optimization_script_created')
+        self.results["improvements_made"].append(
+            "snowflake_optimization_script_created"
+        )
         logger.info("✅ Snowflake optimization script created")
 
     async def optimize_snowflake_configs(self):
         """Optimize Snowflake configuration files."""
         config_files = [
             self.base_dir / "backend/core/auto_esc_config.py",
-            self.base_dir / "backend/core/config_manager.py"
+            self.base_dir / "backend/core/config_manager.py",
         ]
 
         for config_file in config_files:
@@ -791,8 +873,10 @@ if __name__ == "__main__":
                 content = config_file.read_text()
 
                 # Add connection pooling and optimization settings
-                if 'connection_pool' not in content:
-                    enhanced_content = content + '''
+                if "connection_pool" not in content:
+                    enhanced_content = (
+                        content
+                        + """
 
 # Enhanced Snowflake connection optimization
 SNOWFLAKE_OPTIMIZATION_CONFIG = {
@@ -804,10 +888,11 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     'warehouse_auto_suspend': 60,
     'warehouse_auto_resume': True
 }
-'''
+"""
+                    )
                     config_file.write_text(enhanced_content)
 
-        self.results['improvements_made'].append('snowflake_configs_optimized')
+        self.results["improvements_made"].append("snowflake_configs_optimized")
         logger.info("✅ Snowflake configurations optimized")
 
     async def create_cortex_ai_scripts(self):
@@ -908,7 +993,7 @@ if __name__ == "__main__":
 '''
 
         cortex_script.write_text(cortex_content)
-        self.results['improvements_made'].append('cortex_ai_deployment_script_created')
+        self.results["improvements_made"].append("cortex_ai_deployment_script_created")
         logger.info("✅ Cortex AI deployment script created")
 
     async def phase_6_documentation_testing(self):
@@ -924,7 +1009,7 @@ if __name__ == "__main__":
         # Run test suite
         await self.run_test_suite()
 
-        self.results['phases_completed'].append('phase_6_documentation_testing')
+        self.results["phases_completed"].append("phase_6_documentation_testing")
         logger.info("✅ Phase 6 Complete: Documentation and testing updated")
 
     async def update_documentation(self):
@@ -937,7 +1022,7 @@ if __name__ == "__main__":
 
             # Add strategic plan execution section
             if "Strategic Plan Execution" not in content:
-                strategic_section = '''
+                strategic_section = """
 
 ## 🚀 Strategic Plan Execution
 
@@ -968,11 +1053,11 @@ python3 execute_strategic_plan.py
 # Deploy with UV
 python3 deploy_with_uv.py
 ```
-'''
+"""
                 content += strategic_section
                 readme_path.write_text(content)
 
-        self.results['improvements_made'].append('documentation_updated')
+        self.results["improvements_made"].append("documentation_updated")
         logger.info("✅ Documentation updated with strategic plan details")
 
     async def create_comprehensive_tests(self):
@@ -1065,22 +1150,25 @@ class TestStrategicPlanExecution:
 '''
         test_basic.write_text(test_basic_content)
 
-        self.results['improvements_made'].append('comprehensive_tests_created')
+        self.results["improvements_made"].append("comprehensive_tests_created")
         logger.info("✅ Comprehensive test suite created")
 
     async def run_test_suite(self):
         """Run the test suite."""
         try:
-            result = subprocess.run([
-                'python3', '-m', 'pytest', 'tests/', '-v', '--tb=short'
-            ], capture_output=True, text=True, cwd=self.base_dir)
+            result = subprocess.run(
+                ["python3", "-m", "pytest", "tests/", "-v", "--tb=short"],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir,
+            )
 
             if result.returncode == 0:
-                self.results['tests_passed'].append('all_tests_passed')
+                self.results["tests_passed"].append("all_tests_passed")
                 logger.info("✅ All tests passed")
             else:
                 logger.warning(f"Some tests failed: {result.stdout}")
-                self.results['tests_passed'].append('partial_tests_passed')
+                self.results["tests_passed"].append("partial_tests_passed")
         except Exception as e:
             logger.warning(f"Could not run tests: {e}")
 
@@ -1097,18 +1185,21 @@ class TestStrategicPlanExecution:
         # Generate execution report
         await self.generate_execution_report()
 
-        self.results['phases_completed'].append('phase_7_final_validation')
+        self.results["phases_completed"].append("phase_7_final_validation")
         logger.info("✅ Phase 7 Complete: Final validation and deployment preparation")
 
     async def final_syntax_validation(self):
         """Run final syntax validation."""
         try:
-            result = subprocess.run([
-                'python3', 'scripts/comprehensive_syntax_scanner.py'
-            ], capture_output=True, text=True, cwd=self.base_dir)
+            result = subprocess.run(
+                ["python3", "scripts/comprehensive_syntax_scanner.py"],
+                capture_output=True,
+                text=True,
+                cwd=self.base_dir,
+            )
 
             if "EXCELLENT: Syntax validation passed" in result.stdout:
-                self.results['tests_passed'].append('final_syntax_validation_passed')
+                self.results["tests_passed"].append("final_syntax_validation_passed")
                 logger.info("✅ Final syntax validation passed")
             else:
                 logger.warning("Final syntax validation had issues")
@@ -1119,7 +1210,8 @@ class TestStrategicPlanExecution:
         """Create deployment readiness checklist."""
         checklist_path = self.base_dir / "DEPLOYMENT_CHECKLIST.md"
 
-        checklist_content = '''# 🚀 Sophia AI Deployment Checklist
+        checklist_content = (
+            """# 🚀 Sophia AI Deployment Checklist
 
 ## ✅ Pre-Deployment Validation
 
@@ -1202,11 +1294,14 @@ If deployment issues occur:
 ---
 
 **Deployment Status**: Ready for Production
-**Last Updated**: ''' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '''
-'''
+**Last Updated**: """
+            + datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            + """
+"""
+        )
 
         checklist_path.write_text(checklist_content)
-        self.results['improvements_made'].append('deployment_checklist_created')
+        self.results["improvements_made"].append("deployment_checklist_created")
         logger.info("✅ Deployment checklist created")
 
     async def generate_execution_report(self):
@@ -1214,41 +1309,44 @@ If deployment issues occur:
         report_path = self.base_dir / "strategic_execution_results.json"
 
         # Add summary statistics
-        self.results['summary'] = {
-            'total_phases': 7,
-            'phases_completed': len(self.results['phases_completed']),
-            'issues_fixed': len(self.results['issues_fixed']),
-            'improvements_made': len(self.results['improvements_made']),
-            'tests_passed': len(self.results['tests_passed']),
-            'success_rate': len(self.results['phases_completed']) / 7 * 100
+        self.results["summary"] = {
+            "total_phases": 7,
+            "phases_completed": len(self.results["phases_completed"]),
+            "issues_fixed": len(self.results["issues_fixed"]),
+            "improvements_made": len(self.results["improvements_made"]),
+            "tests_passed": len(self.results["tests_passed"]),
+            "success_rate": len(self.results["phases_completed"]) / 7 * 100,
         }
 
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             json.dump(self.results, f, indent=2)
 
         logger.info("✅ Execution report generated")
         logger.info(f"📊 Success Rate: {self.results['summary']['success_rate']:.1f}%")
         logger.info(f"🔧 Issues Fixed: {self.results['summary']['issues_fixed']}")
-        logger.info(f"⚡ Improvements Made: {self.results['summary']['improvements_made']}")
+        logger.info(
+            f"⚡ Improvements Made: {self.results['summary']['improvements_made']}"
+        )
+
 
 async def main():
     """Main execution function."""
     executor = StrategicPlanExecutor()
     results = await executor.execute_plan()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🎉 STRATEGIC PLAN EXECUTION COMPLETE!")
-    print("="*60)
+    print("=" * 60)
     print(f"✅ Phases Completed: {len(results['phases_completed'])}/7")
     print(f"🔧 Issues Fixed: {len(results['issues_fixed'])}")
     print(f"⚡ Improvements Made: {len(results['improvements_made'])}")
     print(f"🧪 Tests Passed: {len(results['tests_passed'])}")
     print(f"📊 Success Rate: {results['summary']['success_rate']:.1f}%")
     print(f"🚀 Deployment Status: {results['deployment_status']}")
-    print("="*60)
+    print("=" * 60)
 
     return results
 
+
 if __name__ == "__main__":
     asyncio.run(main())
-

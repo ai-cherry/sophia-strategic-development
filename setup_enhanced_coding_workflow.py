@@ -738,7 +738,7 @@ if __name__ == "__main__":
     with open("sophia_prompt_manager.py", "w") as f:
         f.write(cli_tool)
 
-    os.chmod("sophia_prompt_manager.py", 0o755)
+    os.chmod("sophia_prompt_manager.py", 0o644)  # SECURITY FIX: Reduced permissions
 
     print("  ✅ Prompt management CLI created")
 
@@ -851,7 +851,7 @@ if __name__ == "__main__":
     with open("sophia_workflow_runner.py", "w") as f:
         f.write(workflow_runner)
 
-    os.chmod("sophia_workflow_runner.py", 0o755)
+    os.chmod("sophia_workflow_runner.py", 0o644)  # SECURITY FIX: Reduced permissions
 
     print("  ✅ Workflow automation created")
 

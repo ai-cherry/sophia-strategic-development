@@ -226,12 +226,18 @@ def get_snowflake_config() -> dict[str, Any]:
         Snowflake configuration dictionary with CORRECT account
     """
     return {
-        "account": get_config_value("snowflake_account", "ZNB04675"),  # PERMANENT FIX: Correct account
+        "account": get_config_value(
+            "snowflake_account", "ZNB04675"
+        ),  # PERMANENT FIX: Correct account
         "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
         "password": get_config_value("snowflake_password"),  # Will load PAT from ESC
         "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),  # PERMANENT FIX: Correct warehouse
-        "database": get_config_value("snowflake_database", "SOPHIA_AI"),  # PERMANENT FIX: Correct database
+        "warehouse": get_config_value(
+            "snowflake_warehouse", "SOPHIA_AI_WH"
+        ),  # PERMANENT FIX: Correct warehouse
+        "database": get_config_value(
+            "snowflake_database", "SOPHIA_AI"
+        ),  # PERMANENT FIX: Correct database
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }
 
@@ -327,8 +333,6 @@ def initialize_default_config():
 initialize_default_config()
 
 
-
-
 def get_lambda_labs_config() -> dict[str, Any]:
     """
     Get Lambda Labs configuration from Pulumi ESC
@@ -337,10 +341,14 @@ def get_lambda_labs_config() -> dict[str, Any]:
         Lambda Labs configuration dictionary
     """
     return {
-        "api_key": get_config_value("lambda_api_key") or get_config_value("LAMBDA_API_KEY"),
-        "ip_address": get_config_value("lambda_ip_address") or get_config_value("LAMBDA_IP_ADDRESS"),
-        "ssh_private_key": get_config_value("lambda_ssh_private_key") or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
+        "api_key": get_config_value("lambda_api_key")
+        or get_config_value("LAMBDA_API_KEY"),
+        "ip_address": get_config_value("lambda_ip_address")
+        or get_config_value("LAMBDA_IP_ADDRESS"),
+        "ssh_private_key": get_config_value("lambda_ssh_private_key")
+        or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
     }
+
 
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
@@ -396,11 +404,11 @@ config = ConfigObject()
 
 # Enhanced Snowflake connection optimization
 SNOWFLAKE_OPTIMIZATION_CONFIG = {
-    'connection_pool_size': 10,
-    'connection_timeout': 30,
-    'query_timeout': 300,
-    'retry_attempts': 3,
-    'auto_commit': True,
-    'warehouse_auto_suspend': 60,
-    'warehouse_auto_resume': True
+    "connection_pool_size": 10,
+    "connection_timeout": 30,
+    "query_timeout": 300,
+    "retry_attempts": 3,
+    "auto_commit": True,
+    "warehouse_auto_suspend": 60,
+    "warehouse_auto_resume": True,
 }

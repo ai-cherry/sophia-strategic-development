@@ -1,3 +1,4 @@
+import shlex
 #!/usr/bin/env python3
 """
 Unified AI Assistant for Sophia AI (Enhanced with Latest Models)
@@ -205,9 +206,8 @@ class UnifiedAIAssistant:
         try:
             # Use Claude CLI with latest models
             cmd = f'./claude-cli-integration/claude chat "{query}"'
-            result = subprocess.run(
-                cmd, shell=True, capture_output=True, text=True, timeout=60
-            )
+            result = subprocess.run(shlex.split(cmd), capture_output=True, text=True, timeout=60
+            )  # SECURITY FIX: Removed shell=True
 
             if result.returncode == 0:
                 return f"🤖 **Claude {model} Response:**\n\n{result.stdout}"
