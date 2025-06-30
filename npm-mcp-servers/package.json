@@ -1,0 +1,13 @@
+{
+  "name": "sophia-ai-npm-mcp-servers",
+  "version": "1.0.0",
+  "description": "npm MCP servers for Sophia AI",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/inspector": "^0.15.0",
+    "@modelcontextprotocol/server-filesystem": "^2025.3.28",
+    "@modelcontextprotocol/server-github": "^2025.4.8",
+    "@modelcontextprotocol/server-postgres": "^0.6.2",
+    "@vercel/sdk": "^1.9.0"
+  }
+}
