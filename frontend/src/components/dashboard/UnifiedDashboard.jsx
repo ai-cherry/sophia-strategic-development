@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { api } from '../../services/apiClient';
+import MCPIntegrationService from '../../services/mcpIntegration';
 
 // Enhanced KPI Card Component
 const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon, target }) => {
@@ -361,6 +362,11 @@ const UnifiedDashboard = () => {
   const [agnoMetrics, setAgnoMetrics] = useState(null);
   const [agnoLoading, setAgnoLoading] = useState(true);
   const [agnoError, setAgnoError] = useState(null);
+  
+  // MCP Integration State
+  const [mcpService] = useState(() => new MCPIntegrationService());
+  const [mcpConnected, setMcpConnected] = useState(false);
+  const [mcpServices, setMcpServices] = useState(new Set());
 
   // Mock data
   const kpiData = [
@@ -385,6 +391,18 @@ const UnifiedDashboard = () => {
   ];
 
   useEffect(() => {
+    // Initialize MCP Integration
+    const initializeMCP = async () => {
+      try {
+        await mcpService.initialize();
+        setMcpConnected(mcpService.isConnected);
+        setMcpServices(mcpService.availableServices);
+        console.log('MCP Integration initialized:', mcpService.availableServices.size, 'services');
+      } catch (error) {
+        console.error('MCP initialization failed:', error);
+      }
+    };
+
     // Load Agno metrics from API
     const fetchAgnoMetrics = async () => {
       try {
@@ -399,8 +417,10 @@ const UnifiedDashboard = () => {
       }
     };
 
+    // Initialize both MCP and fetch metrics
+    initializeMCP();
     fetchAgnoMetrics();
-  }, []);
+  }, [mcpService]);
 
   return (
     <div className="min-h-screen bg-gray-50">
