@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=sophia_admin
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-sophia_secure_password}
+      - N8N_HOST=0.0.0.0
+      - N8N_PROTOCOL=http
+      - N8N_PORT=5678
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-sophia_encryption_key_32_chars}
+      - WEBHOOK_URL=http://localhost:5678
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168  # 7 days
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+      - ./custom-nodes:/home/node/.n8n/nodes:ro
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  sophia-mcp-bridge:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile.n8n-bridge
+    ports:
+      - "9099:9099"
+    environment:
+      - ENVIRONMENT=prod
+      - N8N_INTEGRATION=true
+      - PULUMI_ORG=scoobyjava-org
+      - MCP_ORCHESTRATION_PORT=9000
+    volumes:
+      - ../backend:/app
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - n8n
+
+  redis-cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+networks:
+  sophia-network:
+    driver: bridge
+    name: sophia-ai-network
+
+volumes:
+  redis_data:
+    driver: local 
