@@ -16,10 +16,19 @@ class MCPHealthMonitor:
         self.servers = {
             "ai_memory": {"port": 9000, "url": "http://localhost:9000/health"},
             "ai_orchestrator": {"port": 9001, "url": "http://localhost:9001/health"},
-            "sophia_business_intelligence": {"port": 9002, "url": "http://localhost:9002/health"},
-            "sophia_data_intelligence": {"port": 9003, "url": "http://localhost:9003/health"},
+            "sophia_business_intelligence": {
+                "port": 9002,
+                "url": "http://localhost:9002/health",
+            },
+            "sophia_data_intelligence": {
+                "port": 9003,
+                "url": "http://localhost:9003/health",
+            },
             "code_intelligence": {"port": 9004, "url": "http://localhost:9004/health"},
-            "sophia_ai_intelligence": {"port": 9005, "url": "http://localhost:9005/health"},
+            "sophia_ai_intelligence": {
+                "port": 9005,
+                "url": "http://localhost:9005/health",
+            },
             "asana": {"port": 9100, "url": "http://localhost:9100/health"},
             "linear": {"port": 9101, "url": "http://localhost:9101/health"},
             "notion": {"port": 9102, "url": "http://localhost:9102/health"},
@@ -31,12 +40,17 @@ class MCPHealthMonitor:
             "snowflake_admin": {"port": 9201, "url": "http://localhost:9201/health"},
             "postgres": {"port": 9202, "url": "http://localhost:9202/health"},
             "pulumi": {"port": 9203, "url": "http://localhost:9203/health"},
-            "sophia_infrastructure": {"port": 9204, "url": "http://localhost:9204/health"},
+            "sophia_infrastructure": {
+                "port": 9204,
+                "url": "http://localhost:9204/health",
+            },
             "docker": {"port": 9205, "url": "http://localhost:9205/health"},
             "codacy": {"port": 9300, "url": "http://localhost:9300/health"},
         }
 
-    async def check_server_health(self, session: aiohttp.ClientSession, name: str, config: dict) -> dict:
+    async def check_server_health(
+        self, session: aiohttp.ClientSession, name: str, config: dict
+    ) -> dict:
         """Check health of individual server"""
         try:
             async with session.get(config["url"], timeout=5) as response:
@@ -47,21 +61,21 @@ class MCPHealthMonitor:
                         "status": "healthy",
                         "port": config["port"],
                         "response_time": data.get("response_time", 0),
-                        "details": data
+                        "details": data,
                     }
                 else:
                     return {
                         "name": name,
                         "status": "unhealthy",
                         "port": config["port"],
-                        "error": f"HTTP {response.status}"
+                        "error": f"HTTP {response.status}",
                     }
         except Exception as e:
             return {
                 "name": name,
                 "status": "error",
                 "port": config["port"],
-                "error": str(e)
+                "error": str(e),
             }
 
     async def check_all_servers(self) -> dict:
@@ -74,7 +88,11 @@ class MCPHealthMonitor:
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
             # Process results
-            healthy_count = sum(1 for r in results if isinstance(r, dict) and r.get("status") == "healthy")
+            healthy_count = sum(
+                1
+                for r in results
+                if isinstance(r, dict) and r.get("status") == "healthy"
+            )
             total_count = len(results)
 
             return {
@@ -83,10 +101,15 @@ class MCPHealthMonitor:
                     "total_servers": total_count,
                     "healthy_servers": healthy_count,
                     "unhealthy_servers": total_count - healthy_count,
-                    "health_percentage": round((healthy_count / total_count) * 100, 1) if total_count > 0 else 0
+                    "health_percentage": (
+                        round((healthy_count / total_count) * 100, 1)
+                        if total_count > 0
+                        else 0
+                    ),
                 },
-                "servers": [r for r in results if isinstance(r, dict)]
+                "servers": [r for r in results if isinstance(r, dict)],
             }
+
 
 async def main():
     monitor = MCPHealthMonitor()
@@ -97,6 +120,7 @@ async def main():
     # Exit with error code if any servers are unhealthy
     if health_status["summary"]["unhealthy_servers"] > 0:
         exit(1)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

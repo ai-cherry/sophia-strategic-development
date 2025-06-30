@@ -15,117 +15,146 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class Phase1AImplementer:
     """Implements Phase 1A foundation setup"""
-    
+
     def __init__(self):
         self.base_dir = Path.cwd()
         self.external_dir = self.base_dir / "external"
         self.backend_dir = self.base_dir / "backend"
         self.mcp_servers_dir = self.backend_dir / "mcp_servers"
-        
+
         # Ensure directories exist
         self.mcp_servers_dir.mkdir(exist_ok=True)
-    
+
     async def implement_phase1a(self):
         """Implement all Phase 1A components"""
         logger.info("�� Starting Phase 1A: Foundation Setup Implementation")
-        
+
         steps = [
             ("Install Anthropic MCP SDK", self.install_anthropic_sdk),
             ("Setup MCP Inspector", self.setup_mcp_inspector),
             ("Create Sophia MCP Base Class", self.create_sophia_mcp_base),
             ("Fix Snowflake Connection Permanently", self.fix_snowflake_connection),
             ("Create MCP Server Registry", self.create_mcp_registry),
-            ("Setup Development Tools", self.setup_development_tools)
+            ("Setup Development Tools", self.setup_development_tools),
         ]
-        
+
         results = []
         for step_name, step_func in steps:
             try:
                 logger.info(f"📋 {step_name}...")
                 result = await step_func()
-                results.append({"step": step_name, "status": "success", "result": result})
+                results.append(
+                    {"step": step_name, "status": "success", "result": result}
+                )
                 logger.info(f"   ✅ {step_name} completed successfully")
             except Exception as e:
                 logger.error(f"   ❌ {step_name} failed: {e}")
                 results.append({"step": step_name, "status": "failed", "error": str(e)})
-        
+
         # Generate report
         await self.generate_phase1a_report(results)
-        
+
         return results
-    
+
     async def install_anthropic_sdk(self):
         """Install Anthropic MCP SDK"""
         sdk_path = self.external_dir / "anthropic-mcp-python-sdk"
-        
+
         if not sdk_path.exists():
             logger.warning(f"SDK path {sdk_path} does not exist, cloning...")
-            result = subprocess.run([
-                "git", "clone", 
-                "https://github.com/modelcontextprotocol/python-sdk.git",
-                str(sdk_path)
-            ], capture_output=True, text=True)
-            
+            result = subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "https://github.com/modelcontextprotocol/python-sdk.git",
+                    str(sdk_path),
+                ],
+                capture_output=True,
+                text=True,
+            )
+
             if result.returncode != 0:
                 raise Exception(f"Failed to clone SDK: {result.stderr}")
-        
+
         # Install in development mode
         logger.info("   Installing MCP SDK in development mode...")
-        result = subprocess.run([
-            sys.executable, "-m", "pip", "install", "-e", str(sdk_path)
-        ], capture_output=True, text=True)
-        
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-e", str(sdk_path)],
+            capture_output=True,
+            text=True,
+        )
+
         if result.returncode != 0:
             raise Exception(f"SDK installation failed: {result.stderr}")
-        
+
         # Verify installation
         try:
             import mcp
-            logger.info(f"   ✅ MCP SDK version: {mcp.__version__ if hasattr(mcp, '__version__') else 'installed'}")
+
+            logger.info(
+                f"   ✅ MCP SDK version: {mcp.__version__ if hasattr(mcp, '__version__') else 'installed'}"
+            )
             return {"status": "installed", "path": str(sdk_path)}
         except ImportError as e:
             raise Exception(f"SDK verification failed: {e}")
-    
+
     async def setup_mcp_inspector(self):
         """Setup MCP Inspector for development"""
         inspector_path = self.external_dir / "anthropic-mcp-inspector"
-        
+
         if not inspector_path.exists():
-            logger.warning(f"Inspector path {inspector_path} does not exist, cloning...")
-            result = subprocess.run([
-                "git", "clone",
-                "https://github.com/modelcontextprotocol/inspector.git",
-                str(inspector_path)
-            ], capture_output=True, text=True)
-            
+            logger.warning(
+                f"Inspector path {inspector_path} does not exist, cloning..."
+            )
+            result = subprocess.run(
+                [
+                    "git",
+                    "clone",
+                    "https://github.com/modelcontextprotocol/inspector.git",
+                    str(inspector_path),
+                ],
+                capture_output=True,
+                text=True,
+            )
+
             if result.returncode != 0:
                 raise Exception(f"Failed to clone Inspector: {result.stderr}")
-        
+
         # Check if it's a Node.js project and install dependencies
         package_json = inspector_path / "package.json"
         if package_json.exists():
             logger.info("   Installing Inspector dependencies...")
-            result = subprocess.run([
-                "npm", "install"
-            ], cwd=inspector_path, capture_output=True, text=True)
-            
+            result = subprocess.run(
+                ["npm", "install"], cwd=inspector_path, capture_output=True, text=True
+            )
+
             if result.returncode != 0:
                 logger.warning(f"npm install failed: {result.stderr}")
-                return {"status": "partial", "note": "Dependencies not installed, but files available"}
-        
+                return {
+                    "status": "partial",
+                    "note": "Dependencies not installed, but files available",
+                }
+
         # Create startup script
         startup_script = self.base_dir / "start_mcp_inspector.sh"
-        startup_script.write_text(f"""#!/bin/bash
+        startup_script.write_text(
+            f"""#!/bin/bash
 # MCP Inspector Startup Script
 cd {inspector_path}
 npm start
-""")
+"""
+        )
         startup_script.chmod(0o755)
-        
-        return {"status": "configured", "path": str(inspector_path), "startup_script": str(startup_script)}
-    
+
+        return {
+            "status": "configured",
+            "path": str(inspector_path),
+            "startup_script": str(startup_script),
+        }
+
     async def create_sophia_mcp_base(self):
         """Create Sophia MCP Base Class"""
         base_class_content = '''"""
@@ -377,20 +406,20 @@ def create_mcp_server(server_type: str, **kwargs) -> SophiaMCPServer:
     
     return servers[server_type](**kwargs)
 '''
-        
+
         # Write the base class
         base_class_file = self.mcp_servers_dir / "sophia_mcp_base.py"
         base_class_file.write_text(base_class_content)
-        
+
         # Create __init__.py for the mcp_servers package
         init_file = self.mcp_servers_dir / "__init__.py"
         init_file.write_text('"""Sophia AI MCP Servers Package"""')
-        
+
         return {"status": "created", "path": str(base_class_file)}
-    
+
     async def fix_snowflake_connection(self):
         """Create a permanent fix for Snowflake connection"""
-        
+
         # Create a startup configuration script
         startup_fix_content = '''"""
 Sophia AI Startup Configuration
@@ -437,43 +466,46 @@ def apply_startup_configuration():
 # Auto-apply configuration when module is imported
 apply_startup_configuration()
 '''
-        
+
         startup_config_file = self.backend_dir / "core" / "startup_config.py"
         startup_config_file.write_text(startup_fix_content)
-        
+
         # Update FastAPI app to import startup config
         fastapi_app_file = self.backend_dir / "app" / "fastapi_app.py"
-        
+
         if fastapi_app_file.exists():
             content = fastapi_app_file.read_text()
-            
+
             # Add import at the top if not already present
-            if "from backend.core.startup_config import apply_startup_configuration" not in content:
+            if (
+                "from backend.core.startup_config import apply_startup_configuration"
+                not in content
+            ):
                 # Find the imports section and add our import
-                lines = content.split('\n')
+                lines = content.split("\n")
                 import_line = "from backend.core.startup_config import apply_startup_configuration"
-                
+
                 # Add after other imports
                 for i, line in enumerate(lines):
-                    if line.startswith('from backend.') and 'import' in line:
+                    if line.startswith("from backend.") and "import" in line:
                         lines.insert(i + 1, import_line)
                         break
-                
+
                 # Add call to apply configuration early in the file
                 for i, line in enumerate(lines):
-                    if 'app = FastAPI(' in line:
+                    if "app = FastAPI(" in line:
                         lines.insert(i, "# Apply startup configuration")
                         lines.insert(i + 1, "apply_startup_configuration()")
                         lines.insert(i + 2, "")
                         break
-                
-                fastapi_app_file.write_text('\n'.join(lines))
-        
+
+                fastapi_app_file.write_text("\n".join(lines))
+
         return {"status": "created", "startup_config": str(startup_config_file)}
-    
+
     async def create_mcp_registry(self):
         """Create MCP server registry for management"""
-        
+
         registry_content = '''"""
 Sophia AI MCP Server Registry
 Central registry for managing all MCP servers
@@ -632,15 +664,15 @@ class MCPServerRegistry:
 # Global registry instance
 mcp_registry = MCPServerRegistry()
 '''
-        
+
         registry_file = self.mcp_servers_dir / "mcp_registry.py"
         registry_file.write_text(registry_content)
-        
+
         return {"status": "created", "path": str(registry_file)}
-    
+
     async def setup_development_tools(self):
         """Setup development and testing tools"""
-        
+
         # Create test script
         test_script_content = '''#!/usr/bin/env python3
 """
@@ -682,13 +714,13 @@ async def test_mcp_servers():
 if __name__ == "__main__":
     asyncio.run(test_mcp_servers())
 '''
-        
+
         test_script = self.base_dir / "test_mcp_servers.py"
         test_script.write_text(test_script_content)
         test_script.chmod(0o755)
-        
+
         # Create development configuration
-        dev_config_content = '''# Development Configuration for MCP Servers
+        dev_config_content = """# Development Configuration for MCP Servers
 
 # Environment variables for development
 export ENVIRONMENT=dev
@@ -709,24 +741,21 @@ alias start-inspector="./start_mcp_inspector.sh"
 alias sophia-dev="source .venv/bin/activate && export ENVIRONMENT=dev"
 
 echo "🔧 Sophia AI MCP development environment configured"
-'''
-        
+"""
+
         dev_config = self.base_dir / "dev_mcp_config.sh"
         dev_config.write_text(dev_config_content)
         dev_config.chmod(0o755)
-        
-        return {
-            "test_script": str(test_script),
-            "dev_config": str(dev_config)
-        }
-    
+
+        return {"test_script": str(test_script), "dev_config": str(dev_config)}
+
     async def generate_phase1a_report(self, results: list):
         """Generate Phase 1A implementation report"""
         logger.info("📊 Generating Phase 1A implementation report")
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         report_content = f"""# 🚀 PHASE 1A IMPLEMENTATION REPORT
 
 **Implementation Date:** {asyncio.get_event_loop().time()}
@@ -738,12 +767,12 @@ echo "🔧 Sophia AI MCP development environment configured"
 ## 📊 Implementation Results
 
 """
-        
+
         for result in results:
             status_emoji = "✅" if result["status"] == "success" else "❌"
             report_content += f"### {status_emoji} {result['step']}\n"
             report_content += f"- **Status:** {result['status']}\n"
-            
+
             if result["status"] == "success":
                 if "result" in result:
                     for key, value in result["result"].items():
@@ -751,9 +780,9 @@ echo "🔧 Sophia AI MCP development environment configured"
             else:
                 if "error" in result:
                     report_content += f"- **Error:** {result['error']}\n"
-            
+
             report_content += "\n"
-        
+
         report_content += f"""## 🎯 Next Steps
 
 ### Phase 1B: Service Integration (Days 3-4)
@@ -781,34 +810,36 @@ Phase 1A foundation setup is {'✅ COMPLETE' if successful == total else f'⚠�
 
 {'Ready to proceed with Phase 1B service integration!' if successful == total else 'Manual attention required for failed steps before proceeding.'}
 """
-        
+
         # Write report
         report_file = self.base_dir / "PHASE1A_IMPLEMENTATION_REPORT.md"
         report_file.write_text(report_content)
-        
+
         logger.info(f"📄 Phase 1A report written to {report_file}")
+
 
 async def main():
     """Main implementation function"""
     implementer = Phase1AImplementer()
-    
+
     try:
         results = await implementer.implement_phase1a()
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         if successful == total:
             logger.info("🎉 Phase 1A implementation completed successfully!")
             logger.info("🚀 Ready to proceed with Phase 1B service integration")
         else:
             logger.warning(f"⚠️ {total - successful} steps need manual attention")
-        
+
         return successful == total
-        
+
     except Exception as e:
         logger.error(f"❌ Phase 1A implementation failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = asyncio.run(main())

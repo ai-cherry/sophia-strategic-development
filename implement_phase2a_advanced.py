@@ -14,66 +14,70 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class Phase2AImplementer:
     """Implements Phase 2A advanced integration"""
-    
+
     def __init__(self):
         self.base_dir = Path.cwd()
-    
+
     async def implement_phase2a(self):
         """Implement all Phase 2A components"""
         logger.info("🚀 Starting Phase 2A: Advanced Integration Implementation")
-        
+
         steps = [
             ("Test Snowflake Connection Fix", self.test_snowflake_fix),
             ("Add Real API Authentication", self.add_api_authentication),
             ("Implement Health Monitoring", self.implement_health_monitoring),
             ("Create Integration Tests", self.create_integration_tests),
             ("Setup Production Configuration", self.setup_production_config),
-            ("Deploy to GitHub", self.deploy_to_github)
+            ("Deploy to GitHub", self.deploy_to_github),
         ]
-        
+
         results = []
         for step_name, step_func in steps:
             try:
                 logger.info(f"📋 {step_name}...")
                 result = await step_func()
-                results.append({"step": step_name, "status": "success", "result": result})
+                results.append(
+                    {"step": step_name, "status": "success", "result": result}
+                )
                 logger.info(f"   ✅ {step_name} completed successfully")
             except Exception as e:
                 logger.error(f"   ❌ {step_name} failed: {e}")
                 results.append({"step": step_name, "status": "failed", "error": str(e)})
-        
+
         # Generate report
         await self.generate_phase2a_report(results)
         return results
-    
+
     async def test_snowflake_fix(self):
         """Test the Snowflake connection fix"""
         logger.info("   Testing Snowflake connection with correct account...")
-        
+
         try:
             # Test the override
             from backend.core.snowflake_override import get_snowflake_connection_params
+
             params = get_snowflake_connection_params()
-            
+
             # Verify correct account
-            if params['account'] != 'ZNB04675':
+            if params["account"] != "ZNB04675":
                 raise Exception(f"Wrong account: {params['account']}")
-            
+
             return {
-                "account": params['account'],
-                "user": params['user'],
-                "database": params['database'],
-                "status": "override_working"
+                "account": params["account"],
+                "user": params["user"],
+                "database": params["database"],
+                "status": "override_working",
             }
-            
+
         except Exception as e:
             raise Exception(f"Snowflake fix test failed: {e}")
-    
+
     async def add_api_authentication(self):
         """Add real API authentication to services"""
-        
+
         # Create enhanced authentication module
         auth_content = '''"""
 Enhanced API Authentication for MCP Servers
@@ -160,15 +164,15 @@ class MCPAuthenticator:
 # Global authenticator instance
 mcp_auth = MCPAuthenticator()
 '''
-        
+
         auth_file = self.base_dir / "backend" / "mcp_servers" / "mcp_auth.py"
         auth_file.write_text(auth_content)
-        
+
         return {"status": "created", "path": str(auth_file)}
-    
+
     async def implement_health_monitoring(self):
         """Implement comprehensive health monitoring"""
-        
+
         monitoring_content = '''"""
 MCP Services Health Monitoring
 Comprehensive health checks and monitoring for all MCP servers
@@ -337,15 +341,15 @@ class MCPHealthMonitor:
 # Global health monitor instance
 health_monitor = MCPHealthMonitor()
 '''
-        
+
         monitoring_file = self.base_dir / "backend" / "mcp_servers" / "mcp_health.py"
         monitoring_file.write_text(monitoring_content)
-        
+
         return {"status": "created", "path": str(monitoring_file)}
-    
+
     async def create_integration_tests(self):
         """Create comprehensive integration tests"""
-        
+
         test_content = '''#!/usr/bin/env python3
 """
 MCP Services Integration Test Suite
@@ -468,18 +472,18 @@ if __name__ == "__main__":
     score = asyncio.run(run_integration_tests())
     sys.exit(0 if score >= 60 else 1)
 '''
-        
+
         test_file = self.base_dir / "test_mcp_integration.py"
         test_file.write_text(test_content)
         test_file.chmod(0o755)
-        
+
         return {"status": "created", "path": str(test_file)}
-    
+
     async def setup_production_config(self):
         """Setup production configuration"""
-        
+
         # Create production environment script
-        prod_config_content = '''#!/bin/bash
+        prod_config_content = """#!/bin/bash
 # Production Environment Configuration for Sophia AI MCP Services
 
 echo "🚀 Configuring Sophia AI MCP Services for Production"
@@ -510,69 +514,75 @@ echo "🏢 Pulumi Org: $PULUMI_ORG"
 # Start services
 echo "🚀 Starting MCP services..."
 python start_mcp_services.py
-'''
-        
+"""
+
         prod_script = self.base_dir / "start_production_mcp.sh"
         prod_script.write_text(prod_config_content)
         prod_script.chmod(0o755)
-        
+
         return {"status": "created", "script": str(prod_script)}
-    
+
     async def deploy_to_github(self):
         """Deploy all changes to GitHub"""
-        
+
         try:
             import subprocess
-            
+
             # Add all new files
-            result = subprocess.run(['git', 'add', '.'], capture_output=True, text=True)
+            result = subprocess.run(["git", "add", "."], capture_output=True, text=True)
             if result.returncode != 0:
                 raise Exception(f"Git add failed: {result.stderr}")
-            
+
             # Create commit message
-            commit_msg = "🚀 Phase 1A & 1B: Complete MCP Foundation & Service Integration\\n\\n" + \
-                        "PHASE 1A FOUNDATION:\\n" + \
-                        "✅ Sophia MCP Base Class with enterprise patterns\\n" + \
-                        "✅ MCP Server Registry for centralized management\\n" + \
-                        "✅ Development tools and testing framework\\n\\n" + \
-                        "PHASE 1B SERVICE INTEGRATION:\\n" + \
-                        "✅ 5 MCP Servers: Snowflake, HubSpot, Slack, GitHub, Notion\\n" + \
-                        "✅ Snowflake connection fix (ZNB04675 account)\\n" + \
-                        "✅ Service configuration and startup scripts\\n\\n" + \
-                        "PHASE 2A ADVANCED INTEGRATION:\\n" + \
-                        "✅ Enhanced authentication system\\n" + \
-                        "✅ Comprehensive health monitoring\\n" + \
-                        "✅ Integration test suite\\n" + \
-                        "✅ Production configuration\\n\\n" + \
-                        "BUSINESS VALUE:\\n" + \
-                        "🎯 5 production-ready MCP servers\\n" + \
-                        "🔧 Permanent Snowflake connection fix\\n" + \
-                        "📊 Enterprise-grade monitoring\\n" + \
-                        "🧪 Comprehensive testing framework\\n" + \
-                        "🚀 Production deployment ready"
-            
+            commit_msg = (
+                "🚀 Phase 1A & 1B: Complete MCP Foundation & Service Integration\\n\\n"
+                + "PHASE 1A FOUNDATION:\\n"
+                + "✅ Sophia MCP Base Class with enterprise patterns\\n"
+                + "✅ MCP Server Registry for centralized management\\n"
+                + "✅ Development tools and testing framework\\n\\n"
+                + "PHASE 1B SERVICE INTEGRATION:\\n"
+                + "✅ 5 MCP Servers: Snowflake, HubSpot, Slack, GitHub, Notion\\n"
+                + "✅ Snowflake connection fix (ZNB04675 account)\\n"
+                + "✅ Service configuration and startup scripts\\n\\n"
+                + "PHASE 2A ADVANCED INTEGRATION:\\n"
+                + "✅ Enhanced authentication system\\n"
+                + "✅ Comprehensive health monitoring\\n"
+                + "✅ Integration test suite\\n"
+                + "✅ Production configuration\\n\\n"
+                + "BUSINESS VALUE:\\n"
+                + "🎯 5 production-ready MCP servers\\n"
+                + "🔧 Permanent Snowflake connection fix\\n"
+                + "📊 Enterprise-grade monitoring\\n"
+                + "🧪 Comprehensive testing framework\\n"
+                + "🚀 Production deployment ready"
+            )
+
             # Commit changes
-            result = subprocess.run(['git', 'commit', '-m', commit_msg], capture_output=True, text=True)
+            result = subprocess.run(
+                ["git", "commit", "-m", commit_msg], capture_output=True, text=True
+            )
             if result.returncode != 0:
                 raise Exception(f"Git commit failed: {result.stderr}")
-            
+
             # Push to GitHub
-            result = subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True, text=True)
+            result = subprocess.run(
+                ["git", "push", "origin", "main"], capture_output=True, text=True
+            )
             if result.returncode != 0:
                 raise Exception(f"Git push failed: {result.stderr}")
-            
+
             return {"status": "deployed", "commit_message": commit_msg}
-            
+
         except Exception as e:
             raise Exception(f"GitHub deployment failed: {e}")
-    
+
     async def generate_phase2a_report(self, results: list):
         """Generate Phase 2A implementation report"""
         logger.info("📊 Generating Phase 2A implementation report")
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         report_content = f"""# 🚀 PHASE 2A IMPLEMENTATION REPORT
 
 **Implementation Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -584,20 +594,20 @@ python start_mcp_services.py
 ## 📊 Implementation Results
 
 """
-        
+
         for result in results:
             status_emoji = "✅" if result["status"] == "success" else "❌"
             report_content += f"### {status_emoji} {result['step']}\\n"
             report_content += f"- **Status:** {result['status']}\\n"
-            
+
             if result["status"] == "success" and "result" in result:
                 for key, value in result["result"].items():
                     report_content += f"- **{key.title()}:** {value}\\n"
             elif result["status"] == "failed" and "error" in result:
                 report_content += f"- **Error:** {result['error']}\\n"
-            
+
             report_content += "\\n"
-        
+
         report_content += f"""## 🎉 SOPHIA AI MCP PLATFORM STATUS
 
 ### ✅ COMPLETE IMPLEMENTATIONS
@@ -655,34 +665,36 @@ asyncio.run(health_monitor.check_all_services())
 
 {'🎉 PHASE 2A COMPLETE - READY FOR PRODUCTION!' if successful == total else f'⚠️ {total - successful} ISSUES NEED ATTENTION'}
 """
-        
+
         # Write report
         report_file = self.base_dir / "PHASE2A_IMPLEMENTATION_REPORT.md"
         report_file.write_text(report_content)
-        
+
         logger.info(f"📄 Phase 2A report written to {report_file}")
+
 
 async def main():
     """Main implementation function"""
     implementer = Phase2AImplementer()
-    
+
     try:
         results = await implementer.implement_phase2a()
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         if successful == total:
             logger.info("🎉 Phase 2A implementation completed successfully!")
             logger.info("🚀 Sophia AI MCP Platform is now production-ready!")
         else:
             logger.warning(f"⚠️ {total - successful} steps need manual attention")
-        
+
         return successful == total
-        
+
     except Exception as e:
         logger.error(f"❌ Phase 2A implementation failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = asyncio.run(main())

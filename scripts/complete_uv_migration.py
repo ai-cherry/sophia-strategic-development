@@ -214,7 +214,10 @@ class CompleteUVMigration:
             # Shell script replacements
             replacements = [
                 (r"pip install -r requirements\.txt", "uv sync"),
-                (r"# UV handles package management automatically", "# UV handles package management"),
+                (
+                    r"# UV handles package management automatically",
+                    "# UV handles package management",
+                ),
                 (r"\$\{.*\} -m pip install", "uv add"),
                 (r"uv add", "uv add"),
             ]
@@ -256,7 +259,10 @@ class CompleteUVMigration:
         replacements = [
             # Installation commands
             (r"pip install -r requirements\.txt", "uv sync"),
-            (r"# UV handles package management automatically", "# UV manages packages automatically"),
+            (
+                r"# UV handles package management automatically",
+                "# UV manages packages automatically",
+            ),
             (r"pip install ([a-zA-Z0-9\-_]+)", r"uv add \1"),
             # Documentation references
             (r"requirements\.txt file", "pyproject.toml configuration"),

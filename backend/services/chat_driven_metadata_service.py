@@ -3,7 +3,7 @@
 Chat-Driven Metadata Collection Service for Sophia AI
 Phase 3: User Experience Implementation (August 2025)
 
-Implements hybrid prompts (MC + free text), AI-powered detection, 
+Implements hybrid prompts (MC + free text), AI-powered detection,
 and real-time validation for intuitive metadata collection.
 """
 
@@ -18,12 +18,18 @@ from dataclasses import dataclass
 from pydantic import BaseModel, Field
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.event_driven_ingestion_service import EventDrivenIngestionService, IngestionEvent, EventType
+from backend.services.event_driven_ingestion_service import (
+    EventDrivenIngestionService,
+    IngestionEvent,
+    EventType,
+)
 
 logger = logging.getLogger(__name__)
 
+
 class MetadataFieldType(str, Enum):
     """Types of metadata fields"""
+
     TEXT = "text"
     MULTIPLE_CHOICE = "multiple_choice"
     DATE = "date"
@@ -34,16 +40,20 @@ class MetadataFieldType(str, Enum):
     PRIORITY = "priority"
     CATEGORY = "category"
 
+
 class ValidationStatus(str, Enum):
     """Validation status for metadata"""
+
     VALID = "valid"
     INVALID = "invalid"
     NEEDS_CONFIRMATION = "needs_confirmation"
     PENDING = "pending"
 
+
 @dataclass
 class MetadataField:
     """Metadata field definition"""
+
     field_id: str
     field_name: str
     field_type: MetadataFieldType
@@ -53,16 +63,18 @@ class MetadataField:
     default_value: Any = None
     validation_rules: Dict[str, Any] = None
     ai_extractable: bool = True  # Can AI extract this automatically?
-    
+
     def __post_init__(self):
         if self.options is None:
             self.options = []
         if self.validation_rules is None:
             self.validation_rules = {}
 
+
 @dataclass
 class MetadataResponse:
     """User response to metadata request"""
+
     session_id: str
     job_id: str
     user_id: str
@@ -71,9 +83,11 @@ class MetadataResponse:
     timestamp: datetime
     validation_status: ValidationStatus = ValidationStatus.PENDING
 
+
 @dataclass
 class HybridPrompt:
     """Hybrid prompt combining multiple choice and free text"""
+
     prompt_id: str
     question: str
     field_id: str
@@ -82,95 +96,208 @@ class HybridPrompt:
     allow_other: bool = True  # Allow "Other" option with free text
     ai_suggestion: str = None  # AI-generated suggestion
     confidence: float = 0.0  # AI confidence in suggestion
-    
+
     def __post_init__(self):
         if self.options is None:
             self.options = []
 
+
 class MetadataTemplateEngine:
     """Template engine for generating metadata prompts based on file type and content"""
-    
+
     def __init__(self):
         self.templates = self._load_default_templates()
-        
+
     def _load_default_templates(self) -> Dict[str, List[MetadataField]]:
         """Load default metadata templates for common file types"""
         return {
             "document": [
-                MetadataField("title", "Document Title", MetadataFieldType.TEXT, required=True),
-                MetadataField("department", "Department", MetadataFieldType.DEPARTMENT, required=True,
-                            options=["Engineering", "Sales", "Marketing", "Operations", "Finance", "HR", "Legal"]),
-                MetadataField("category", "Document Category", MetadataFieldType.CATEGORY, required=True,
-                            options=["Policy", "Procedure", "Report", "Proposal", "Meeting Notes", "Contract", "Specification"]),
-                MetadataField("priority", "Priority Level", MetadataFieldType.PRIORITY, required=False,
-                            options=["Low", "Medium", "High", "Critical"], default_value="Medium"),
-                MetadataField("tags", "Tags", MetadataFieldType.TAGS, required=False,
-                            description="Comma-separated tags for easier searching"),
-                MetadataField("confidential", "Confidential", MetadataFieldType.BOOLEAN, required=True, default_value=False),
-                MetadataField("expiry_date", "Expiry Date", MetadataFieldType.DATE, required=False,
-                            description="When does this document expire or need review?")
+                MetadataField(
+                    "title", "Document Title", MetadataFieldType.TEXT, required=True
+                ),
+                MetadataField(
+                    "department",
+                    "Department",
+                    MetadataFieldType.DEPARTMENT,
+                    required=True,
+                    options=[
+                        "Engineering",
+                        "Sales",
+                        "Marketing",
+                        "Operations",
+                        "Finance",
+                        "HR",
+                        "Legal",
+                    ],
+                ),
+                MetadataField(
+                    "category",
+                    "Document Category",
+                    MetadataFieldType.CATEGORY,
+                    required=True,
+                    options=[
+                        "Policy",
+                        "Procedure",
+                        "Report",
+                        "Proposal",
+                        "Meeting Notes",
+                        "Contract",
+                        "Specification",
+                    ],
+                ),
+                MetadataField(
+                    "priority",
+                    "Priority Level",
+                    MetadataFieldType.PRIORITY,
+                    required=False,
+                    options=["Low", "Medium", "High", "Critical"],
+                    default_value="Medium",
+                ),
+                MetadataField(
+                    "tags",
+                    "Tags",
+                    MetadataFieldType.TAGS,
+                    required=False,
+                    description="Comma-separated tags for easier searching",
+                ),
+                MetadataField(
+                    "confidential",
+                    "Confidential",
+                    MetadataFieldType.BOOLEAN,
+                    required=True,
+                    default_value=False,
+                ),
+                MetadataField(
+                    "expiry_date",
+                    "Expiry Date",
+                    MetadataFieldType.DATE,
+                    required=False,
+                    description="When does this document expire or need review?",
+                ),
             ],
             "report": [
-                MetadataField("report_type", "Report Type", MetadataFieldType.MULTIPLE_CHOICE, required=True,
-                            options=["Financial", "Performance", "Compliance", "Technical", "Market Research"]),
-                MetadataField("reporting_period", "Reporting Period", MetadataFieldType.TEXT, required=True,
-                            description="e.g., Q3 2025, July 2025, FY 2025"),
-                MetadataField("stakeholders", "Key Stakeholders", MetadataFieldType.TAGS, required=False,
-                            description="Who should have access to this report?"),
-                MetadataField("data_sources", "Data Sources", MetadataFieldType.TAGS, required=False,
-                            description="What systems or databases were used?")
+                MetadataField(
+                    "report_type",
+                    "Report Type",
+                    MetadataFieldType.MULTIPLE_CHOICE,
+                    required=True,
+                    options=[
+                        "Financial",
+                        "Performance",
+                        "Compliance",
+                        "Technical",
+                        "Market Research",
+                    ],
+                ),
+                MetadataField(
+                    "reporting_period",
+                    "Reporting Period",
+                    MetadataFieldType.TEXT,
+                    required=True,
+                    description="e.g., Q3 2025, July 2025, FY 2025",
+                ),
+                MetadataField(
+                    "stakeholders",
+                    "Key Stakeholders",
+                    MetadataFieldType.TAGS,
+                    required=False,
+                    description="Who should have access to this report?",
+                ),
+                MetadataField(
+                    "data_sources",
+                    "Data Sources",
+                    MetadataFieldType.TAGS,
+                    required=False,
+                    description="What systems or databases were used?",
+                ),
             ],
             "contract": [
-                MetadataField("contract_type", "Contract Type", MetadataFieldType.MULTIPLE_CHOICE, required=True,
-                            options=["Service Agreement", "NDA", "Employment", "Vendor", "Partnership", "License"]),
-                MetadataField("counterparty", "Counterparty", MetadataFieldType.TEXT, required=True,
-                            description="Company or individual name"),
-                MetadataField("value", "Contract Value", MetadataFieldType.NUMBER, required=False,
-                            description="Total contract value in USD"),
-                MetadataField("effective_date", "Effective Date", MetadataFieldType.DATE, required=True),
-                MetadataField("expiry_date", "Expiry Date", MetadataFieldType.DATE, required=False),
-                MetadataField("auto_renewal", "Auto Renewal", MetadataFieldType.BOOLEAN, required=False, default_value=False)
-            ]
+                MetadataField(
+                    "contract_type",
+                    "Contract Type",
+                    MetadataFieldType.MULTIPLE_CHOICE,
+                    required=True,
+                    options=[
+                        "Service Agreement",
+                        "NDA",
+                        "Employment",
+                        "Vendor",
+                        "Partnership",
+                        "License",
+                    ],
+                ),
+                MetadataField(
+                    "counterparty",
+                    "Counterparty",
+                    MetadataFieldType.TEXT,
+                    required=True,
+                    description="Company or individual name",
+                ),
+                MetadataField(
+                    "value",
+                    "Contract Value",
+                    MetadataFieldType.NUMBER,
+                    required=False,
+                    description="Total contract value in USD",
+                ),
+                MetadataField(
+                    "effective_date",
+                    "Effective Date",
+                    MetadataFieldType.DATE,
+                    required=True,
+                ),
+                MetadataField(
+                    "expiry_date", "Expiry Date", MetadataFieldType.DATE, required=False
+                ),
+                MetadataField(
+                    "auto_renewal",
+                    "Auto Renewal",
+                    MetadataFieldType.BOOLEAN,
+                    required=False,
+                    default_value=False,
+                ),
+            ],
         }
-    
-    def get_template_for_file(self, filename: str, file_type: str, ai_detected_type: str = None) -> List[MetadataField]:
+
+    def get_template_for_file(
+        self, filename: str, file_type: str, ai_detected_type: str = None
+    ) -> List[MetadataField]:
         """Get metadata template based on file characteristics"""
         # Priority: AI detected type > filename analysis > file type > default
-        
+
         if ai_detected_type and ai_detected_type.lower() in self.templates:
             return self.templates[ai_detected_type.lower()]
-        
+
         # Analyze filename for clues
         filename_lower = filename.lower()
         if any(word in filename_lower for word in ["contract", "agreement", "nda"]):
             return self.templates.get("contract", self.templates["document"])
         elif any(word in filename_lower for word in ["report", "analysis", "summary"]):
             return self.templates.get("report", self.templates["document"])
-        
+
         # Default to document template
         return self.templates["document"]
 
+
 class AIMetadataExtractor:
     """AI-powered metadata extraction from document content"""
-    
+
     def __init__(self):
         self.openai_client = None
-        
+
     async def initialize(self):
         """Initialize OpenAI client"""
         try:
             import openai
+
             api_key = await get_config_value("openai_api_key")
             self.openai_client = openai.AsyncOpenAI(api_key=api_key)
             logger.info("✅ AI Metadata Extractor initialized")
         except Exception as e:
             logger.warning(f"⚠️ AI Metadata Extractor not available: {e}")
-    
+
     async def extract_metadata_suggestions(
-        self, 
-        content: str, 
-        filename: str, 
-        metadata_fields: List[MetadataField]
+        self, content: str, filename: str, metadata_fields: List[MetadataField]
     ) -> Dict[str, Tuple[Any, float]]:
         """
         Extract metadata suggestions from content
@@ -178,7 +305,7 @@ class AIMetadataExtractor:
         """
         if not self.openai_client:
             return {}
-        
+
         try:
             # Build extraction prompt
             field_descriptions = []
@@ -189,7 +316,7 @@ class AIMetadataExtractor:
                 if field.description:
                     desc += f" - {field.description}"
                 field_descriptions.append(desc)
-            
+
             prompt = f"""
             Analyze the following document and extract metadata based on the content.
             
@@ -205,37 +332,42 @@ class AIMetadataExtractor:
             Only include fields you can extract with reasonable confidence (>0.5).
             For multiple choice fields, use exact option values.
             """
-            
+
             response = await self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",  # Cost-effective for metadata extraction
                 messages=[
-                    {"role": "system", "content": "You are an expert document analyzer. Extract metadata accurately and provide confidence scores."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are an expert document analyzer. Extract metadata accurately and provide confidence scores.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.1,  # Low temperature for consistent extraction
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
             )
-            
+
             result = json.loads(response.choices[0].message.content)
-            
+
             # Convert to expected format
             suggestions = {}
             for field_id, data in result.items():
                 if isinstance(data, dict) and "value" in data and "confidence" in data:
                     suggestions[field_id] = (data["value"], float(data["confidence"]))
-            
+
             logger.info(f"🤖 AI extracted {len(suggestions)} metadata suggestions")
             return suggestions
-            
+
         except Exception as e:
             logger.error(f"❌ AI metadata extraction failed: {e}")
             return {}
-    
-    async def detect_document_type(self, content: str, filename: str) -> Tuple[str, float]:
+
+    async def detect_document_type(
+        self, content: str, filename: str
+    ) -> Tuple[str, float]:
         """Detect document type using AI"""
         if not self.openai_client:
             return "document", 0.0
-        
+
         try:
             prompt = f"""
             Analyze this document and classify its type.
@@ -247,59 +379,62 @@ class AIMetadataExtractor:
             
             Return JSON: {{"type": "detected_type", "confidence": 0.0-1.0}}
             """
-            
+
             response = await self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a document classifier. Be precise and confident."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a document classifier. Be precise and confident.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.1,
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
             )
-            
+
             result = json.loads(response.choices[0].message.content)
             return result.get("type", "document"), float(result.get("confidence", 0.0))
-            
+
         except Exception as e:
             logger.error(f"❌ Document type detection failed: {e}")
             return "document", 0.0
+
 
 class ChatDrivenMetadataService:
     """
     Main service for chat-driven metadata collection
     Integrates with event-driven ingestion service
     """
-    
+
     def __init__(self, ingestion_service: EventDrivenIngestionService):
         self.ingestion_service = ingestion_service
         self.template_engine = MetadataTemplateEngine()
         self.ai_extractor = AIMetadataExtractor()
-        
+
         # Active metadata sessions
         self.active_sessions: Dict[str, Dict[str, Any]] = {}
-        
+
         # Metrics
         self.metrics = {
             "sessions_created": 0,
             "prompts_generated": 0,
             "responses_received": 0,
             "ai_suggestions_used": 0,
-            "validation_failures": 0
+            "validation_failures": 0,
         }
-    
+
     async def initialize(self):
         """Initialize the service"""
         await self.ai_extractor.initialize()
-        
+
         # Subscribe to metadata request events
         await self.ingestion_service.event_bus.subscribe(
-            "metadata.requested", 
-            self._handle_metadata_request
+            "metadata.requested", self._handle_metadata_request
         )
-        
+
         logger.info("✅ Chat-driven metadata service initialized")
-    
+
     async def _handle_metadata_request(self, event: IngestionEvent):
         """Handle metadata request from ingestion service"""
         try:
@@ -308,52 +443,52 @@ class ChatDrivenMetadataService:
             missing_fields = event.payload.get("missing_fields", [])
             filename = event.payload.get("filename", "")
             file_type = event.payload.get("file_type", "")
-            
+
             # Create metadata collection session
             session_id = await self.create_metadata_session(
                 job_id, user_id, filename, file_type, missing_fields
             )
-            
+
             logger.info(f"📝 Created metadata session {session_id} for job {job_id}")
-            
+
         except Exception as e:
             logger.error(f"❌ Error handling metadata request: {e}")
-    
+
     async def create_metadata_session(
         self,
         job_id: str,
         user_id: str,
         filename: str,
         file_type: str,
-        missing_fields: List[Dict[str, Any]] = None
+        missing_fields: List[Dict[str, Any]] = None,
     ) -> str:
         """Create a new metadata collection session"""
         try:
             session_id = str(uuid4())
-            
+
             # Get file content for AI analysis
             file_content = await self._get_file_content(job_id)
-            
+
             # Detect document type with AI
             ai_doc_type, type_confidence = await self.ai_extractor.detect_document_type(
                 file_content, filename
             )
-            
+
             # Get metadata template
             metadata_fields = self.template_engine.get_template_for_file(
                 filename, file_type, ai_doc_type
             )
-            
+
             # Get AI suggestions for metadata
             ai_suggestions = await self.ai_extractor.extract_metadata_suggestions(
                 file_content, filename, metadata_fields
             )
-            
+
             # Generate hybrid prompts
             prompts = await self._generate_hybrid_prompts(
                 metadata_fields, ai_suggestions, filename
             )
-            
+
             # Store session
             self.active_sessions[session_id] = {
                 "job_id": job_id,
@@ -367,46 +502,46 @@ class ChatDrivenMetadataService:
                 "prompts": prompts,
                 "responses": {},
                 "created_at": datetime.now(),
-                "status": "active"
+                "status": "active",
             }
-            
+
             self.metrics["sessions_created"] += 1
             self.metrics["prompts_generated"] += len(prompts)
-            
+
             return session_id
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create metadata session: {e}")
             raise
-    
+
     async def _get_file_content(self, job_id: str) -> str:
         """Get file content for AI analysis"""
         try:
             # Get job from ingestion service
             job = await self.ingestion_service.get_job_status(job_id)
-            if job and hasattr(job, 'file_content'):
-                return job.file_content.decode('utf-8', errors='ignore')
+            if job and hasattr(job, "file_content"):
+                return job.file_content.decode("utf-8", errors="ignore")
             return ""
         except Exception as e:
             logger.warning(f"⚠️ Could not get file content for AI analysis: {e}")
             return ""
-    
+
     async def _generate_hybrid_prompts(
         self,
         metadata_fields: List[MetadataField],
         ai_suggestions: Dict[str, Tuple[Any, float]],
-        filename: str
+        filename: str,
     ) -> List[HybridPrompt]:
         """Generate hybrid prompts for metadata collection"""
         prompts = []
-        
+
         for field in metadata_fields:
             # Get AI suggestion if available
             ai_suggestion = None
             confidence = 0.0
             if field.field_id in ai_suggestions:
                 ai_suggestion, confidence = ai_suggestions[field.field_id]
-            
+
             # Generate appropriate prompt based on field type
             if field.field_type == MetadataFieldType.MULTIPLE_CHOICE:
                 prompt = HybridPrompt(
@@ -417,9 +552,13 @@ class ChatDrivenMetadataService:
                     options=field.options,
                     allow_other=True,
                     ai_suggestion=ai_suggestion,
-                    confidence=confidence
+                    confidence=confidence,
                 )
-            elif field.field_type in [MetadataFieldType.DEPARTMENT, MetadataFieldType.PRIORITY, MetadataFieldType.CATEGORY]:
+            elif field.field_type in [
+                MetadataFieldType.DEPARTMENT,
+                MetadataFieldType.PRIORITY,
+                MetadataFieldType.CATEGORY,
+            ]:
                 prompt = HybridPrompt(
                     prompt_id=str(uuid4()),
                     question=self._generate_mc_question(field, filename),
@@ -428,7 +567,7 @@ class ChatDrivenMetadataService:
                     options=field.options,
                     allow_other=True,
                     ai_suggestion=ai_suggestion,
-                    confidence=confidence
+                    confidence=confidence,
                 )
             else:
                 prompt = HybridPrompt(
@@ -437,45 +576,47 @@ class ChatDrivenMetadataService:
                     field_id=field.field_id,
                     prompt_type="free_text",
                     ai_suggestion=ai_suggestion,
-                    confidence=confidence
+                    confidence=confidence,
                 )
-            
+
             prompts.append(prompt)
-        
+
         return prompts
-    
+
     def _generate_mc_question(self, field: MetadataField, filename: str) -> str:
         """Generate multiple choice question"""
         base_question = f"What is the {field.field_name.lower()} for '{filename}'?"
-        
+
         if field.description:
             base_question += f" ({field.description})"
-        
+
         if field.required:
             base_question += " *Required"
-        
+
         return base_question
-    
+
     def _generate_text_question(self, field: MetadataField, filename: str) -> str:
         """Generate free text question"""
-        base_question = f"Please provide the {field.field_name.lower()} for '{filename}'"
-        
+        base_question = (
+            f"Please provide the {field.field_name.lower()} for '{filename}'"
+        )
+
         if field.description:
             base_question += f". {field.description}"
-        
+
         if field.required:
             base_question += " *Required"
-        
+
         return base_question + "?"
-    
+
     async def get_session_prompts(self, session_id: str) -> List[Dict[str, Any]]:
         """Get prompts for a metadata session"""
         if session_id not in self.active_sessions:
             raise ValueError(f"Session {session_id} not found")
-        
+
         session = self.active_sessions[session_id]
         prompts_data = []
-        
+
         for prompt in session["prompts"]:
             prompt_data = {
                 "prompt_id": prompt.prompt_id,
@@ -484,102 +625,116 @@ class ChatDrivenMetadataService:
                 "prompt_type": prompt.prompt_type,
                 "options": prompt.options,
                 "allow_other": prompt.allow_other,
-                "required": any(f.required for f in session["metadata_fields"] if f.field_id == prompt.field_id),
-                "ai_suggestion": {
-                    "value": prompt.ai_suggestion,
-                    "confidence": prompt.confidence
-                } if prompt.ai_suggestion else None
+                "required": any(
+                    f.required
+                    for f in session["metadata_fields"]
+                    if f.field_id == prompt.field_id
+                ),
+                "ai_suggestion": (
+                    {"value": prompt.ai_suggestion, "confidence": prompt.confidence}
+                    if prompt.ai_suggestion
+                    else None
+                ),
             }
             prompts_data.append(prompt_data)
-        
+
         return prompts_data
-    
+
     async def submit_metadata_response(
-        self,
-        session_id: str,
-        responses: Dict[str, Any]
+        self, session_id: str, responses: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Submit metadata responses"""
         try:
             if session_id not in self.active_sessions:
                 raise ValueError(f"Session {session_id} not found")
-            
+
             session = self.active_sessions[session_id]
-            
+
             # Validate responses
             validation_result = await self._validate_responses(session, responses)
-            
+
             if validation_result["status"] == ValidationStatus.VALID:
                 # Store responses
                 session["responses"] = responses
                 session["status"] = "completed"
-                
+
                 # Send metadata back to ingestion service
                 await self.ingestion_service.receive_metadata_response(
-                    session["job_id"],
-                    responses
+                    session["job_id"], responses
                 )
-                
+
                 self.metrics["responses_received"] += 1
-                
+
                 # Count AI suggestions used
                 for field_id, value in responses.items():
                     if field_id in session["ai_suggestions"]:
                         ai_value, _ = session["ai_suggestions"][field_id]
                         if str(value).strip().lower() == str(ai_value).strip().lower():
                             self.metrics["ai_suggestions_used"] += 1
-                
+
                 logger.info(f"✅ Metadata response submitted for session {session_id}")
-                
+
             else:
                 self.metrics["validation_failures"] += 1
-            
+
             return validation_result
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to submit metadata response: {e}")
             raise
-    
+
     async def _validate_responses(
-        self,
-        session: Dict[str, Any],
-        responses: Dict[str, Any]
+        self, session: Dict[str, Any], responses: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Validate metadata responses"""
         errors = []
         warnings = []
-        
+
         # Check required fields
         required_fields = [f.field_id for f in session["metadata_fields"] if f.required]
         for field_id in required_fields:
             if field_id not in responses or not responses[field_id]:
                 errors.append(f"Required field '{field_id}' is missing")
-        
+
         # Validate field types and values
         for field in session["metadata_fields"]:
             if field.field_id in responses:
                 value = responses[field.field_id]
-                
+
                 # Multiple choice validation
-                if field.field_type in [MetadataFieldType.MULTIPLE_CHOICE, MetadataFieldType.DEPARTMENT, 
-                                     MetadataFieldType.PRIORITY, MetadataFieldType.CATEGORY]:
-                    if field.options and value not in field.options and value != "Other":
-                        warnings.append(f"Value '{value}' for field '{field.field_id}' is not in predefined options")
-                
+                if field.field_type in [
+                    MetadataFieldType.MULTIPLE_CHOICE,
+                    MetadataFieldType.DEPARTMENT,
+                    MetadataFieldType.PRIORITY,
+                    MetadataFieldType.CATEGORY,
+                ]:
+                    if (
+                        field.options
+                        and value not in field.options
+                        and value != "Other"
+                    ):
+                        warnings.append(
+                            f"Value '{value}' for field '{field.field_id}' is not in predefined options"
+                        )
+
                 # Date validation
                 elif field.field_type == MetadataFieldType.DATE:
                     try:
                         datetime.fromisoformat(str(value))
                     except ValueError:
-                        errors.append(f"Invalid date format for field '{field.field_id}': {value}")
-                
+                        errors.append(
+                            f"Invalid date format for field '{field.field_id}': {value}"
+                        )
+
                 # Number validation
                 elif field.field_type == MetadataFieldType.NUMBER:
                     try:
                         float(value)
                     except (ValueError, TypeError):
-                        errors.append(f"Invalid number format for field '{field.field_id}': {value}")
-        
+                        errors.append(
+                            f"Invalid number format for field '{field.field_id}': {value}"
+                        )
+
         # Determine validation status
         if errors:
             status = ValidationStatus.INVALID
@@ -587,14 +742,14 @@ class ChatDrivenMetadataService:
             status = ValidationStatus.NEEDS_CONFIRMATION
         else:
             status = ValidationStatus.VALID
-        
+
         return {
             "status": status,
             "errors": errors,
             "warnings": warnings,
-            "validated_responses": responses
+            "validated_responses": responses,
         }
-    
+
     async def get_service_metrics(self) -> Dict[str, Any]:
         """Get service metrics"""
         return {
@@ -605,73 +760,88 @@ class ChatDrivenMetadataService:
             "responses_received": self.metrics["responses_received"],
             "ai_suggestions_used": self.metrics["ai_suggestions_used"],
             "ai_suggestion_adoption_rate": (
-                self.metrics["ai_suggestions_used"] / max(self.metrics["responses_received"], 1) * 100
+                self.metrics["ai_suggestions_used"]
+                / max(self.metrics["responses_received"], 1)
+                * 100
             ),
             "validation_failures": self.metrics["validation_failures"],
             "validation_success_rate": (
-                (self.metrics["responses_received"] - self.metrics["validation_failures"]) / 
-                max(self.metrics["responses_received"], 1) * 100
-            )
+                (
+                    self.metrics["responses_received"]
+                    - self.metrics["validation_failures"]
+                )
+                / max(self.metrics["responses_received"], 1)
+                * 100
+            ),
         }
+
 
 # Convenience functions
 
-async def create_chat_driven_metadata_service(ingestion_service: EventDrivenIngestionService) -> ChatDrivenMetadataService:
+
+async def create_chat_driven_metadata_service(
+    ingestion_service: EventDrivenIngestionService,
+) -> ChatDrivenMetadataService:
     """Create and initialize chat-driven metadata service"""
     service = ChatDrivenMetadataService(ingestion_service)
     await service.initialize()
     return service
 
+
 if __name__ == "__main__":
     # Test the service
     async def main():
-        from backend.services.event_driven_ingestion_service import create_event_driven_ingestion_service
-        
+        from backend.services.event_driven_ingestion_service import (
+            create_event_driven_ingestion_service,
+        )
+
         logger.info("🧪 Testing chat-driven metadata service...")
-        
+
         # Create ingestion service
         ingestion_service = await create_event_driven_ingestion_service()
-        
+
         # Create metadata service
         metadata_service = await create_chat_driven_metadata_service(ingestion_service)
-        
+
         try:
             # Test session creation
             session_id = await metadata_service.create_metadata_session(
                 job_id="test_job_123",
                 user_id="test_user",
                 filename="sample_contract.pdf",
-                file_type="application/pdf"
+                file_type="application/pdf",
             )
-            
+
             logger.info(f"✅ Created test session: {session_id}")
-            
+
             # Get prompts
             prompts = await metadata_service.get_session_prompts(session_id)
             logger.info(f"📝 Generated {len(prompts)} prompts")
-            
+
             # Test response submission
             test_responses = {
                 "title": "Service Agreement with Acme Corp",
                 "department": "Legal",
                 "category": "Contract",
                 "priority": "High",
-                "confidential": True
+                "confidential": True,
             }
-            
-            result = await metadata_service.submit_metadata_response(session_id, test_responses)
+
+            result = await metadata_service.submit_metadata_response(
+                session_id, test_responses
+            )
             logger.info(f"✅ Response validation: {result['status']}")
-            
+
             # Get metrics
             metrics = await metadata_service.get_service_metrics()
             logger.info(f"📊 Service metrics: {metrics}")
-            
+
             print("✅ Chat-driven metadata service test PASSED")
-            
+
         except Exception as e:
             logger.error(f"❌ Test failed: {e}")
             print("❌ Chat-driven metadata service test FAILED")
         finally:
             await ingestion_service.shutdown()
-    
-    asyncio.run(main()) 
+
+    asyncio.run(main())

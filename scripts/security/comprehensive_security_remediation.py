@@ -25,7 +25,9 @@ import re
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -40,42 +42,57 @@ class SecurityRemediator:
         # Known hardcoded secrets to replace
         self.known_secrets = {
             # JWT tokens
-            r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+': 'JWT_TOKEN',
+            r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+": "JWT_TOKEN",
             # Snowflake password pattern
-            r'"eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0\..*?"': 'SNOWFLAKE_PASSWORD',
+            r'"eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0\..*?"': "SNOWFLAKE_PASSWORD",
             # API keys
-            r'"TV33BPZ5UN44QKZCZJUCAKRXHQ6Q3L5N"': 'GONG_ACCESS_KEY',
+            r'"TV33BPZ5UN44QKZCZJUCAKRXHQ6Q3L5N"': "GONG_ACCESS_KEY",
             # Access tokens
-            r'"sophia_ceo_access_2024"': 'CEO_ACCESS_TOKEN',
+            r'"sophia_ceo_access_2024"': "CEO_ACCESS_TOKEN",
         }
 
         # SQL injection patterns to fix
         self.sql_injection_patterns = [
             # cursor.execute with string concatenation
-            (r'cursor\.execute\s*\(\s*["\'].*?\+.*?["\']', 'cursor.execute with concatenation'),
+            (
+                r'cursor\.execute\s*\(\s*["\'].*?\+.*?["\']',
+                "cursor.execute with concatenation",
+            ),
             # f-string in SQL queries
-            (r'cursor\.execute\s*\(\s*f["\'].*?\{.*?\}.*?["\']', 'cursor.execute with f-string'),
+            (
+                r'cursor\.execute\s*\(\s*f["\'].*?\{.*?\}.*?["\']',
+                "cursor.execute with f-string",
+            ),
             # String format in SQL
-            (r'cursor\.execute\s*\(\s*["\'].*?%s.*?["\']\.format', 'cursor.execute with format'),
+            (
+                r'cursor\.execute\s*\(\s*["\'].*?%s.*?["\']\.format',
+                "cursor.execute with format",
+            ),
             # Direct table/schema concatenation
-            (r'(USE\s+SCHEMA|USE\s+DATABASE|FROM|INTO|UPDATE|DELETE\s+FROM)\s*["\']?\s*\+\s*', 'SQL concatenation'),
+            (
+                r'(USE\s+SCHEMA|USE\s+DATABASE|FROM|INTO|UPDATE|DELETE\s+FROM)\s*["\']?\s*\+\s*',
+                "SQL concatenation",
+            ),
         ]
 
         # Subprocess patterns to fix
         self.subprocess_patterns = [
             # subprocess.run with shell=True
-            (r'subprocess\.run\s*\([^)]*shell\s*=\s*True', 'subprocess.run with shell=True'),
+            (
+                r"subprocess\.run\s*\([^)]*shell\s*=\s*True",
+                "subprocess.run with shell=True",
+            ),
             # subprocess.Popen without static string
-            (r'subprocess\.Popen\s*\(\s*[^"\'`]', 'subprocess.Popen with variable'),
+            (r'subprocess\.Popen\s*\(\s*[^"\'`]', "subprocess.Popen with variable"),
             # os.system calls
-            (r'os\.system\s*\(', 'os.system usage'),
+            (r"os\.system\s*\(", "os.system usage"),
         ]
 
         # Insecure dependencies to update
         self.vulnerable_dependencies = {
-            'cryptography==42.0.0': 'cryptography==42.0.4',
-            'python-multipart==0.0.7': 'python-multipart==0.0.18',
-            'transformers==4.35.2': 'transformers==4.36.0',
+            "cryptography==42.0.0": "cryptography==42.0.4",
+            "python-multipart==0.0.7": "python-multipart==0.0.18",
+            "transformers==4.35.2": "transformers==4.36.0",
         }
 
     def fix_sql_injection(self, file_path: Path) -> int:
@@ -83,7 +100,7 @@ class SecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -102,15 +119,20 @@ class SecurityRemediator:
 
             if content != original_content:
                 # Ensure proper imports
-                if 'cursor.execute' in content and 'import snowflake.connector' not in content:
-                    content = self._add_import(content, 'import snowflake.connector')
+                if (
+                    "cursor.execute" in content
+                    and "import snowflake.connector" not in content
+                ):
+                    content = self._add_import(content, "import snowflake.connector")
 
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
-                fixes = content.count('# SECURITY FIX:')
+                fixes = content.count("# SECURITY FIX:")
                 self.files_modified.add(file_path)
-                logger.info(f"Fixed {fixes} SQL injection vulnerabilities in {file_path}")
+                logger.info(
+                    f"Fixed {fixes} SQL injection vulnerabilities in {file_path}"
+                )
 
         except Exception as e:
             logger.error(f"Error fixing SQL injection in {file_path}: {e}")
@@ -132,15 +154,15 @@ class SecurityRemediator:
             # Count number of concatenations
             concat_count = 1
             remaining = var_part
-            while '+' in remaining:
+            while "+" in remaining:
                 concat_count += 1
-                remaining = remaining.split('+', 1)[1]
+                remaining = remaining.split("+", 1)[1]
 
             # Replace with parameterized query
-            placeholders = ' '.join(['%s'] * concat_count)
-            params = var_part.replace(' + ', ', ')
+            placeholders = " ".join(["%s"] * concat_count)
+            params = var_part.replace(" + ", ", ")
 
-            return f'cursor.execute({quote}{sql_part} {placeholders}{quote}, ({params},))  # SECURITY FIX: Parameterized query'
+            return f"cursor.execute({quote}{sql_part} {placeholders}{quote}, ({params},))  # SECURITY FIX: Parameterized query"
 
         return re.sub(pattern, replace_concatenation, content)
 
@@ -149,7 +171,9 @@ class SecurityRemediator:
         # Pattern: cursor.execute(f"SELECT * FROM {table_name}")
         # Fixed: cursor.execute("SELECT * FROM %s", (table_name,))
 
-        pattern = r'cursor\.execute\s*\(\s*f(["\'])([^"\']*?)\{([^}]+)\}([^"\']*?)\1\s*\)'
+        pattern = (
+            r'cursor\.execute\s*\(\s*f(["\'])([^"\']*?)\{([^}]+)\}([^"\']*?)\1\s*\)'
+        )
 
         def replace_fstring(match):
             quote = match.group(1)
@@ -157,7 +181,7 @@ class SecurityRemediator:
             var_name = match.group(3)
             sql_after = match.group(4)
 
-            return f'cursor.execute({quote}{sql_before}%s{sql_after}{quote}, ({var_name},))  # SECURITY FIX: Parameterized query'
+            return f"cursor.execute({quote}{sql_before}%s{sql_after}{quote}, ({var_name},))  # SECURITY FIX: Parameterized query"
 
         return re.sub(pattern, replace_fstring, content)
 
@@ -167,13 +191,14 @@ class SecurityRemediator:
         # Fixed: Use validated schema names from whitelist
 
         patterns = [
-            (r'"USE\s+SCHEMA\s+"\s*\+\s*([^,\)]+)', 'USE SCHEMA'),
-            (r'"USE\s+DATABASE\s+"\s*\+\s*([^,\)]+)', 'USE DATABASE'),
-            (r'"FROM\s+"\s*\+\s*([^,\)]+)', 'FROM'),
-            (r'"INTO\s+"\s*\+\s*([^,\)]+)', 'INTO'),
+            (r'"USE\s+SCHEMA\s+"\s*\+\s*([^,\)]+)', "USE SCHEMA"),
+            (r'"USE\s+DATABASE\s+"\s*\+\s*([^,\)]+)', "USE DATABASE"),
+            (r'"FROM\s+"\s*\+\s*([^,\)]+)', "FROM"),
+            (r'"INTO\s+"\s*\+\s*([^,\)]+)', "INTO"),
         ]
 
         for pattern, sql_type in patterns:
+
             def replace_concat(match):
                 var_name = match.group(1).strip()
 
@@ -197,10 +222,18 @@ class SecurityRemediator:
         pattern = r'(\w+)\s*=\s*(["\'])([^"\']*?)\2\s*\+\s*([^,\n;]+)'
 
         def is_sql_query(text):
-            sql_keywords = ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'FROM', 'WHERE', 'JOIN']
+            sql_keywords = [
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "FROM",
+                "WHERE",
+                "JOIN",
+            ]
             return any(keyword in text.upper() for keyword in sql_keywords)
 
-        lines = content.split('\n')
+        lines = content.split("\n")
         modified_lines = []
 
         for line in lines:
@@ -212,20 +245,22 @@ class SecurityRemediator:
                 concat_part = match.group(4).strip()
 
                 # Add comment and fix
-                modified_lines.append("    # SECURITY FIX: Use parameterized queries instead of string concatenation")
+                modified_lines.append(
+                    "    # SECURITY FIX: Use parameterized queries instead of string concatenation"
+                )
                 modified_lines.append(f"    {var_name}_params = ({concat_part},)")
                 modified_lines.append(f"    {var_name} = {quote}{sql_part}%s{quote}")
             else:
                 modified_lines.append(line)
 
-        return '\n'.join(modified_lines)
+        return "\n".join(modified_lines)
 
     def fix_hardcoded_secrets(self, file_path: Path) -> int:
         """Fix hardcoded secrets in a file"""
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -234,15 +269,23 @@ class SecurityRemediator:
             for pattern, secret_type in self.known_secrets.items():
                 matches = list(re.finditer(pattern, content))
                 if matches:
-                    for match in reversed(matches):  # Process in reverse to maintain positions
+                    for match in reversed(
+                        matches
+                    ):  # Process in reverse to maintain positions
                         secret_value = match.group(0)
 
                         # Determine the appropriate config key
-                        config_key = self._get_config_key_for_secret(secret_type, secret_value)
+                        config_key = self._get_config_key_for_secret(
+                            secret_type, secret_value
+                        )
 
                         # Replace with secure config call
                         replacement = f'get_config_value("{config_key}")'
-                        content = content[:match.start()] + replacement + content[match.end():]
+                        content = (
+                            content[: match.start()]
+                            + replacement
+                            + content[match.end() :]
+                        )
                         fixes += 1
 
             # Also check for any remaining JWT-like patterns
@@ -254,10 +297,17 @@ class SecurityRemediator:
 
             if content != original_content:
                 # Add import if needed
-                if 'get_config_value' in content and 'from backend.core.auto_esc_config import get_config_value' not in content:
-                    content = self._add_import(content, 'from backend.core.auto_esc_config import get_config_value')
+                if (
+                    "get_config_value" in content
+                    and "from backend.core.auto_esc_config import get_config_value"
+                    not in content
+                ):
+                    content = self._add_import(
+                        content,
+                        "from backend.core.auto_esc_config import get_config_value",
+                    )
 
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)
@@ -271,26 +321,26 @@ class SecurityRemediator:
     def _get_config_key_for_secret(self, secret_type: str, secret_value: str) -> str:
         """Determine the appropriate config key for a secret"""
         config_map = {
-            'JWT_TOKEN': 'jwt_token',
-            'SNOWFLAKE_PASSWORD': 'snowflake_password',
-            'GONG_ACCESS_KEY': 'gong_access_key',
-            'CEO_ACCESS_TOKEN': 'ceo_access_token',
+            "JWT_TOKEN": "jwt_token",
+            "SNOWFLAKE_PASSWORD": "snowflake_password",
+            "GONG_ACCESS_KEY": "gong_access_key",
+            "CEO_ACCESS_TOKEN": "ceo_access_token",
         }
 
         # Check for specific patterns
-        if 'airbyte' in secret_value.lower():
-            return 'airbyte_access_token'
-        elif 'estuary' in secret_value.lower():
-            return 'estuary_access_token'
+        if "airbyte" in secret_value.lower():
+            return "airbyte_access_token"
+        elif "estuary" in secret_value.lower():
+            return "estuary_access_token"
 
-        return config_map.get(secret_type, 'api_token')
+        return config_map.get(secret_type, "api_token")
 
     def fix_subprocess_vulnerabilities(self, file_path: Path) -> int:
         """Fix subprocess vulnerabilities in a file"""
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -306,13 +356,13 @@ class SecurityRemediator:
 
             if content != original_content:
                 # Add import if needed
-                if 'shlex.split' in content and 'import shlex' not in content:
-                    content = self._add_import(content, 'import shlex')
+                if "shlex.split" in content and "import shlex" not in content:
+                    content = self._add_import(content, "import shlex")
 
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
-                fixes = content.count('# SECURITY FIX:')
+                fixes = content.count("# SECURITY FIX:")
                 self.files_modified.add(file_path)
                 logger.info(f"Fixed {fixes} subprocess vulnerabilities in {file_path}")
 
@@ -326,17 +376,17 @@ class SecurityRemediator:
         # Pattern: subprocess.run(command, shell=True)
         # Fixed: subprocess.run(shlex.split(command))
 
-        pattern = r'subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)'
+        pattern = r"subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)"
 
         def replace_shell_true(match):
             command = match.group(1).strip()
             other_args = match.group(2)
 
             # If command is a string variable, use shlex.split
-            if not command.startswith('['):
-                return f'subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True'
+            if not command.startswith("["):
+                return f"subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True"
             else:
-                return f'subprocess.run({command}{other_args})  # SECURITY FIX: Removed shell=True'
+                return f"subprocess.run({command}{other_args})  # SECURITY FIX: Removed shell=True"
 
         return re.sub(pattern, replace_shell_true, content)
 
@@ -345,13 +395,13 @@ class SecurityRemediator:
         # Pattern: subprocess.Popen(cmd, ...)
         # Fixed: subprocess.Popen(shlex.split(cmd), ...)
 
-        pattern = r'subprocess\.Popen\s*\(\s*([a-zA-Z_]\w*)\s*([,)])'
+        pattern = r"subprocess\.Popen\s*\(\s*([a-zA-Z_]\w*)\s*([,)])"
 
         def replace_popen(match):
             var_name = match.group(1)
             delimiter = match.group(2)
 
-            return f'subprocess.Popen(shlex.split({var_name}) if isinstance({var_name}, str) else {var_name}{delimiter}  # SECURITY FIX: Safe command parsing'
+            return f"subprocess.Popen(shlex.split({var_name}) if isinstance({var_name}, str) else {var_name}{delimiter}  # SECURITY FIX: Safe command parsing"
 
         return re.sub(pattern, replace_popen, content)
 
@@ -360,18 +410,18 @@ class SecurityRemediator:
         # Pattern: os.system(command)
         # Fixed: subprocess.run(shlex.split(command), check=True)
 
-        pattern = r'os\.system\s*\(([^)]+)\)'
+        pattern = r"os\.system\s*\(([^)]+)\)"
 
         def replace_os_system(match):
             command = match.group(1).strip()
 
-            return f'subprocess.run(shlex.split({command}), check=True)  # SECURITY FIX: Replaced os.system'
+            return f"subprocess.run(shlex.split({command}), check=True)  # SECURITY FIX: Replaced os.system"
 
         content = re.sub(pattern, replace_os_system, content)
 
         # Add subprocess import if needed
-        if 'subprocess.run' in content and 'import subprocess' not in content:
-            content = self._add_import(content, 'import subprocess')
+        if "subprocess.run" in content and "import subprocess" not in content:
+            content = self._add_import(content, "import subprocess")
 
         return content
 
@@ -379,36 +429,38 @@ class SecurityRemediator:
         """Fix insecure SQL GRANT statements"""
         fixes = 0
 
-        if file_path.suffix != '.sql':
+        if file_path.suffix != ".sql":
             return 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Fix GRANT ALL statements
             content = re.sub(
-                r'GRANT\s+ALL\s+',
-                'GRANT SELECT, INSERT, UPDATE, DELETE ',
+                r"GRANT\s+ALL\s+",
+                "GRANT SELECT, INSERT, UPDATE, DELETE ",
                 content,
-                flags=re.IGNORECASE
+                flags=re.IGNORECASE,
             )
 
             # Fix grants to non-role accounts
             # Pattern: GRANT ... TO user_name (should be TO ROLE role_name)
-            pattern = r'GRANT\s+[^;]+\s+TO\s+(?!ROLE\s+)(\w+)'
+            pattern = r"GRANT\s+[^;]+\s+TO\s+(?!ROLE\s+)(\w+)"
 
             def fix_grant_to_role(match):
                 account_name = match.group(1)
 
                 # Check if it already ends with _role
-                if account_name.lower().endswith('_role'):
+                if account_name.lower().endswith("_role"):
                     return match.group(0)
                 else:
                     # Add ROLE prefix and _ROLE suffix
-                    return match.group(0).replace(f'TO {account_name}', f'TO ROLE {account_name.upper()}_ROLE')
+                    return match.group(0).replace(
+                        f"TO {account_name}", f"TO ROLE {account_name.upper()}_ROLE"
+                    )
 
             content = re.sub(pattern, fix_grant_to_role, content, flags=re.IGNORECASE)
 
@@ -421,10 +473,10 @@ class SecurityRemediator:
 """
                 content = security_notice + content
 
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
-                fixes = original_content.count('GRANT') - content.count('GRANT ALL')
+                fixes = original_content.count("GRANT") - content.count("GRANT ALL")
                 self.files_modified.add(file_path)
                 logger.info(f"Fixed {fixes} insecure GRANT statements in {file_path}")
 
@@ -437,7 +489,7 @@ class SecurityRemediator:
         """Update vulnerable dependencies in requirements files"""
         fixes = 0
 
-        requirements_files = list(self.project_root.glob('**/requirements.txt'))
+        requirements_files = list(self.project_root.glob("**/requirements.txt"))
 
         for req_file in requirements_files:
             try:
@@ -454,7 +506,7 @@ class SecurityRemediator:
                         logger.info(f"Updated {old_dep} to {new_dep} in {req_file}")
 
                 if content != original_content:
-                    with open(req_file, 'w') as f:
+                    with open(req_file, "w") as f:
                         f.write(content)
 
                     self.files_modified.add(req_file)
@@ -469,32 +521,32 @@ class SecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Replace xml.etree.ElementTree with defusedxml
-            if 'xml.etree.ElementTree' in content:
+            if "xml.etree.ElementTree" in content:
                 content = content.replace(
-                    'import xml.etree.ElementTree as ET',
-                    'import defusedxml.ElementTree as ET  # SECURITY FIX: Use defusedxml for XXE protection'
+                    "import xml.etree.ElementTree as ET",
+                    "import defusedxml.ElementTree as ET  # SECURITY FIX: Use defusedxml for XXE protection",
                 )
                 content = content.replace(
-                    'from xml.etree import ElementTree',
-                    'from defusedxml import ElementTree  # SECURITY FIX: Use defusedxml for XXE protection'
+                    "from xml.etree import ElementTree",
+                    "from defusedxml import ElementTree  # SECURITY FIX: Use defusedxml for XXE protection",
                 )
                 fixes += 1
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)
                 logger.info(f"Fixed XML vulnerabilities in {file_path}")
 
                 # Update requirements if needed
-                self._add_dependency_if_needed('defusedxml')
+                self._add_dependency_if_needed("defusedxml")
 
         except Exception as e:
             logger.error(f"Error fixing XML in {file_path}: {e}")
@@ -506,13 +558,13 @@ class SecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Add security warning for pickle usage
-            if 'pickle.loads' in content or 'pickle.load' in content:
+            if "pickle.loads" in content or "pickle.load" in content:
                 warning = """
 # SECURITY WARNING: pickle is vulnerable to arbitrary code execution
 # Consider using safer alternatives like JSON or MessagePack
@@ -520,13 +572,13 @@ class SecurityRemediator:
 """
 
                 # Find pickle import and add warning after it
-                lines = content.split('\n')
+                lines = content.split("\n")
                 for i, line in enumerate(lines):
-                    if 'import pickle' in line:
+                    if "import pickle" in line:
                         lines.insert(i + 1, warning)
                         break
 
-                content = '\n'.join(lines)
+                content = "\n".join(lines)
 
                 # Add basic validation wrapper
                 validation_code = """
@@ -551,22 +603,22 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
 """
 
                 # Add the safe wrapper function
-                if 'def safe_pickle_loads' not in content:
-                    content = content.replace('pickle.loads(', 'safe_pickle_loads(')
+                if "def safe_pickle_loads" not in content:
+                    content = content.replace("pickle.loads(", "safe_pickle_loads(")
 
                     # Add the function definition
-                    lines = content.split('\n')
+                    lines = content.split("\n")
                     for i, line in enumerate(lines):
-                        if 'import pickle' in line:
+                        if "import pickle" in line:
                             lines.insert(i + 1, validation_code)
                             break
 
-                    content = '\n'.join(lines)
+                    content = "\n".join(lines)
 
                 fixes += 1
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)
@@ -579,12 +631,12 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
 
     def _add_import(self, content: str, import_statement: str) -> str:
         """Add an import statement to the file content"""
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Find the last import statement
         last_import_idx = -1
         for i, line in enumerate(lines):
-            if line.strip().startswith('import ') or line.strip().startswith('from '):
+            if line.strip().startswith("import ") or line.strip().startswith("from "):
                 last_import_idx = i
 
         if last_import_idx >= 0:
@@ -596,17 +648,19 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
             if lines[0].strip().startswith('"""') or lines[0].strip().startswith("'''"):
                 # Find the end of the docstring
                 for i in range(1, len(lines)):
-                    if lines[i].strip().endswith('"""') or lines[i].strip().endswith("'''"):
+                    if lines[i].strip().endswith('"""') or lines[i].strip().endswith(
+                        "'''"
+                    ):
                         insert_idx = i + 1
                         break
 
             lines.insert(insert_idx, import_statement)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _add_dependency_if_needed(self, package: str):
         """Add a dependency to requirements.txt if not present"""
-        req_files = list(self.project_root.glob('**/requirements.txt'))
+        req_files = list(self.project_root.glob("**/requirements.txt"))
 
         for req_file in req_files:
             try:
@@ -614,8 +668,8 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
                     content = f.read()
 
                 if package not in content:
-                    with open(req_file, 'a') as f:
-                        f.write(f'\n{package}\n')
+                    with open(req_file, "a") as f:
+                        f.write(f"\n{package}\n")
 
                     logger.info(f"Added {package} to {req_file}")
 
@@ -628,37 +682,40 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
 
         # Define file patterns for each fix type
         patterns = {
-            'sql_injection': ['*.py'],
-            'secrets': ['*.py', '*.yaml', '*.yml', '*.json'],
-            'subprocess': ['*.py'],
-            'grants': ['*.sql'],
-            'xml': ['*.py'],
-            'pickle': ['*.py'],
+            "sql_injection": ["*.py"],
+            "secrets": ["*.py", "*.yaml", "*.yml", "*.json"],
+            "subprocess": ["*.py"],
+            "grants": ["*.sql"],
+            "xml": ["*.py"],
+            "pickle": ["*.py"],
         }
 
-        file_patterns = patterns.get(fix_type, ['*.py'])
+        file_patterns = patterns.get(fix_type, ["*.py"])
 
         for pattern in file_patterns:
             for file_path in directory.rglob(pattern):
                 # Skip certain directories
-                if any(skip in str(file_path) for skip in ['.git', '__pycache__', 'venv', '.env']):
+                if any(
+                    skip in str(file_path)
+                    for skip in [".git", "__pycache__", "venv", ".env"]
+                ):
                     continue
 
                 # Skip this script
-                if 'comprehensive_security_remediation.py' in str(file_path):
+                if "comprehensive_security_remediation.py" in str(file_path):
                     continue
 
-                if fix_type == 'sql_injection':
+                if fix_type == "sql_injection":
                     total_fixes += self.fix_sql_injection(file_path)
-                elif fix_type == 'secrets':
+                elif fix_type == "secrets":
                     total_fixes += self.fix_hardcoded_secrets(file_path)
-                elif fix_type == 'subprocess':
+                elif fix_type == "subprocess":
                     total_fixes += self.fix_subprocess_vulnerabilities(file_path)
-                elif fix_type == 'grants':
+                elif fix_type == "grants":
                     total_fixes += self.fix_insecure_grants(file_path)
-                elif fix_type == 'xml':
+                elif fix_type == "xml":
                     total_fixes += self.fix_xml_vulnerabilities(file_path)
-                elif fix_type == 'pickle':
+                elif fix_type == "pickle":
                     total_fixes += self.fix_pickle_vulnerabilities(file_path)
 
         return total_fixes
@@ -701,9 +758,21 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description='Comprehensive Security Remediation for Sophia AI')
-    parser.add_argument('--fix-all', action='store_true', help='Fix all security issues')
-    parser.add_argument('--fix-sql-injection', action='store_true', help='Fix SQL injection vulnerabilities')
-    parser.add_argument('--fix-secrets', action='store_true', help='Fix hardcoded secrets')
-    parser.add_argument('--fix-subprocess', action='store_true', help='Fix subprocess vulnerabilities')
-    parser.add_argument('--fix-grants', action)
+    parser = argparse.ArgumentParser(
+        description="Comprehensive Security Remediation for Sophia AI"
+    )
+    parser.add_argument(
+        "--fix-all", action="store_true", help="Fix all security issues"
+    )
+    parser.add_argument(
+        "--fix-sql-injection",
+        action="store_true",
+        help="Fix SQL injection vulnerabilities",
+    )
+    parser.add_argument(
+        "--fix-secrets", action="store_true", help="Fix hardcoded secrets"
+    )
+    parser.add_argument(
+        "--fix-subprocess", action="store_true", help="Fix subprocess vulnerabilities"
+    )
+    parser.add_argument("--fix-grants", action)

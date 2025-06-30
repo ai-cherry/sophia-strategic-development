@@ -20,19 +20,19 @@ class TestStrategicPlanExecution:
         """Test that executor initializes correctly."""
         executor = StrategicPlanExecutor()
         assert executor.base_dir.exists()
-        assert 'execution_start' in executor.results
-        assert executor.results['deployment_status'] == 'pending'
+        assert "execution_start" in executor.results
+        assert executor.results["deployment_status"] == "pending"
 
     def test_results_structure(self):
         """Test that results have correct structure."""
         executor = StrategicPlanExecutor()
         required_keys = [
-            'execution_start',
-            'phases_completed',
-            'issues_fixed',
-            'improvements_made',
-            'tests_passed',
-            'deployment_status'
+            "execution_start",
+            "phases_completed",
+            "issues_fixed",
+            "improvements_made",
+            "tests_passed",
+            "deployment_status",
         ]
 
         for key in required_keys:
@@ -43,4 +43,4 @@ class TestStrategicPlanExecution:
         """Test Phase 1 execution."""
         executor = StrategicPlanExecutor()
         await executor.phase_1_critical_fixes()
-        assert 'phase_1_critical_fixes' in executor.results['phases_completed']
+        assert "phase_1_critical_fixes" in executor.results["phases_completed"]

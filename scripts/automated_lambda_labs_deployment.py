@@ -15,60 +15,65 @@ import logging
 from pathlib import Path
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class AutomatedLambdaLabsDeployment:
     """Fully automated Lambda Labs deployment orchestrator"""
-    
+
     def __init__(self):
         self.project_root = Path.cwd()
         self.lambda_api_key = os.getenv("LAMBDA_LABS_API_KEY")
         self.instance_id = None
         self.instance_ip = None
         self.ssh_key_path = os.path.expanduser("~/.ssh/lambda_labs_key")
-        
+
         # Deployment configuration
         self.config = {
             "instance_type": "gpu_1x_rtx4090",
-            "region": "us-west-2", 
+            "region": "us-west-2",
             "ssh_key_name": "sophia-ai-key",
-            "instance_name": "sophia-ai-production"
+            "instance_name": "sophia-ai-production",
         }
-    
+
     def run_full_deployment(self):
         """Run the complete automated deployment"""
         logger.info("🚀 STARTING FULLY AUTOMATED LAMBDA LABS DEPLOYMENT")
         logger.info("This will take 20-30 minutes and cost ~$1.50/hour")
-        logger.info("="*80)
-        
+        logger.info("=" * 80)
+
         try:
             # Step 1: Validate API key
             if not self.lambda_api_key:
                 logger.error("❌ LAMBDA_LABS_API_KEY environment variable not set")
-                logger.info("💡 Get your API key from: https://cloud.lambdalabs.com/api-keys")
+                logger.info(
+                    "💡 Get your API key from: https://cloud.lambdalabs.com/api-keys"
+                )
                 logger.info("💡 Set it with: export LAMBDA_LABS_API_KEY='your-api-key'")
                 sys.exit(1)
-            
+
             logger.info("✅ API key validated")
-            
+
             # Step 2: Create one-click deployment script
             self.create_one_click_script()
-            
+
             logger.info("🎉 AUTOMATED DEPLOYMENT READY!")
-            logger.info("="*80)
+            logger.info("=" * 80)
             logger.info("🚀 To deploy, run: ./scripts/one_click_lambda_deploy.sh")
             logger.info("⏱️  Total time: 20-30 minutes")
             logger.info("💰 Cost: ~$1.50/hour for RTX 4090")
-            logger.info("="*80)
-            
+            logger.info("=" * 80)
+
         except Exception as e:
             logger.error(f"❌ Setup failed: {e}")
             sys.exit(1)
-    
+
     def create_one_click_script(self):
         """Create the one-click deployment script"""
-        script_content = '''#!/bin/bash
+        script_content = """#!/bin/bash
 
 # 🚀 ONE-CLICK LAMBDA LABS DEPLOYMENT
 # Fully automated deployment of Sophia AI to Lambda Labs
@@ -237,19 +242,21 @@ echo "   3. Check GPU usage: ssh -i $SSH_KEY_PATH ubuntu@$INSTANCE_IP 'nvidia-sm
 echo "=============================================="
 echo "💰 Remember to terminate the instance when done to save costs!"
 echo "💡 Terminate at: https://cloud.lambdalabs.com/instances"
-'''
-        
+"""
+
         # Write the script
         script_path = self.project_root / "scripts/one_click_lambda_deploy.sh"
         script_path.write_text(script_content)
         script_path.chmod(0o755)
-        
+
         logger.info(f"✅ One-click script created: {script_path}")
+
 
 def main():
     """Main entry point"""
     if len(sys.argv) > 1 and sys.argv[1] == "--help":
-        print("""
+        print(
+            """
 🚀 AUTOMATED LAMBDA LABS DEPLOYMENT SETUP
 
 This creates a one-click deployment script for Lambda Labs.
@@ -272,12 +279,14 @@ What the one-click script does:
 
 Total time: 20-30 minutes
 Cost: ~$1.50/hour
-        """)
+        """
+        )
         return
-    
+
     # Run setup
     deployer = AutomatedLambdaLabsDeployment()
     deployer.run_full_deployment()
+
 
 if __name__ == "__main__":
     main()

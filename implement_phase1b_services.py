@@ -16,22 +16,23 @@ import json
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class Phase1BImplementer:
     """Implements Phase 1B service integration"""
-    
+
     def __init__(self):
         self.base_dir = Path.cwd()
         self.mcp_servers_dir = self.base_dir / "mcp-servers"
         self.backend_mcp_dir = self.base_dir / "backend" / "mcp_servers"
-        
+
         # Ensure directories exist
         self.mcp_servers_dir.mkdir(exist_ok=True)
         self.backend_mcp_dir.mkdir(exist_ok=True)
-    
+
     async def implement_phase1b(self):
         """Implement all Phase 1B components"""
         logger.info("🚀 Starting Phase 1B: Service Integration Implementation")
-        
+
         steps = [
             ("Fix Snowflake Connection Issue", self.fix_snowflake_connection_issue),
             ("Implement Snowflake MCP Server", self.implement_snowflake_mcp),
@@ -40,28 +41,30 @@ class Phase1BImplementer:
             ("Implement GitHub MCP Server", self.implement_github_mcp),
             ("Implement Notion MCP Server", self.implement_notion_mcp),
             ("Create Service Configuration", self.create_service_configuration),
-            ("Test All Services", self.test_all_services)
+            ("Test All Services", self.test_all_services),
         ]
-        
+
         results = []
         for step_name, step_func in steps:
             try:
                 logger.info(f"📋 {step_name}...")
                 result = await step_func()
-                results.append({"step": step_name, "status": "success", "result": result})
+                results.append(
+                    {"step": step_name, "status": "success", "result": result}
+                )
                 logger.info(f"   ✅ {step_name} completed successfully")
             except Exception as e:
                 logger.error(f"   ❌ {step_name} failed: {e}")
                 results.append({"step": step_name, "status": "failed", "error": str(e)})
-        
+
         # Generate report
         await self.generate_phase1b_report(results)
-        
+
         return results
-    
+
     async def fix_snowflake_connection_issue(self):
         """Fix the Snowflake connection issue permanently"""
-        
+
         # Create a comprehensive Snowflake connection override
         override_content = '''"""
 Snowflake Connection Override
@@ -110,26 +113,34 @@ def get_snowflake_connection_params():
 # Apply override when module is imported
 override_snowflake_config()
 '''
-        
+
         override_file = self.base_dir / "backend" / "core" / "snowflake_override.py"
         override_file.write_text(override_content)
-        
+
         # Update the optimized connection manager to use override
-        connection_manager_file = self.base_dir / "backend" / "core" / "optimized_connection_manager.py"
-        
+        connection_manager_file = (
+            self.base_dir / "backend" / "core" / "optimized_connection_manager.py"
+        )
+
         if connection_manager_file.exists():
             content = connection_manager_file.read_text()
-            
+
             # Add import at top if not present
-            if "from backend.core.snowflake_override import get_snowflake_connection_params" not in content:
-                lines = content.split('\n')
-                
+            if (
+                "from backend.core.snowflake_override import get_snowflake_connection_params"
+                not in content
+            ):
+                lines = content.split("\n")
+
                 # Find imports section and add our import
                 for i, line in enumerate(lines):
-                    if line.startswith('from backend.') and 'import' in line:
-                        lines.insert(i + 1, "from backend.core.snowflake_override import get_snowflake_connection_params")
+                    if line.startswith("from backend.") and "import" in line:
+                        lines.insert(
+                            i + 1,
+                            "from backend.core.snowflake_override import get_snowflake_connection_params",
+                        )
                         break
-                
+
                 # Find Snowflake connection creation and replace parameters
                 for i, line in enumerate(lines):
                     if "snowflake.connector.connect(" in line:
@@ -138,23 +149,23 @@ override_snowflake_config()
                         replacement = f"""{indent}# Use override parameters
 {indent}sf_params = get_snowflake_connection_params()
 {indent}connection = snowflake.connector.connect(**sf_params)"""
-                        
+
                         # Find the end of the connection call
                         j = i
-                        while j < len(lines) and not lines[j].strip().endswith(')'):
+                        while j < len(lines) and not lines[j].strip().endswith(")"):
                             j += 1
-                        
+
                         # Replace the lines
-                        lines[i:j+1] = replacement.split('\n')
+                        lines[i : j + 1] = replacement.split("\n")
                         break
-                
-                connection_manager_file.write_text('\n'.join(lines))
-        
+
+                connection_manager_file.write_text("\n".join(lines))
+
         return {"status": "override_created", "file": str(override_file)}
-    
+
     async def implement_snowflake_mcp(self):
         """Implement Snowflake MCP Server"""
-        
+
         snowflake_mcp_content = '''"""
 Snowflake MCP Server Implementation
 Provides SQL query and data warehouse functionality
@@ -373,21 +384,21 @@ snowflake_server = SnowflakeMCPServer()
 if __name__ == "__main__":
     asyncio.run(snowflake_server.start())
 '''
-        
+
         # Write Snowflake MCP server
         snowflake_file = self.mcp_servers_dir / "snowflake" / "snowflake_mcp_server.py"
         snowflake_file.parent.mkdir(exist_ok=True)
         snowflake_file.write_text(snowflake_mcp_content)
-        
+
         # Create __init__.py
         init_file = snowflake_file.parent / "__init__.py"
         init_file.write_text('"""Snowflake MCP Server"""')
-        
+
         return {"status": "created", "path": str(snowflake_file)}
-    
+
     async def implement_hubspot_mcp(self):
         """Implement HubSpot MCP Server"""
-        
+
         hubspot_mcp_content = '''"""
 HubSpot MCP Server Implementation
 Provides CRM and sales data functionality
@@ -526,21 +537,21 @@ hubspot_server = HubSpotMCPServer()
 if __name__ == "__main__":
     asyncio.run(hubspot_server.start())
 '''
-        
+
         # Write HubSpot MCP server
         hubspot_file = self.mcp_servers_dir / "hubspot" / "hubspot_mcp_server.py"
         hubspot_file.parent.mkdir(exist_ok=True)
         hubspot_file.write_text(hubspot_mcp_content)
-        
+
         # Create __init__.py
         init_file = hubspot_file.parent / "__init__.py"
         init_file.write_text('"""HubSpot MCP Server"""')
-        
+
         return {"status": "created", "path": str(hubspot_file)}
-    
+
     async def implement_slack_mcp(self):
         """Implement Slack MCP Server"""
-        
+
         slack_mcp_content = '''"""
 Slack MCP Server Implementation
 Provides team communication functionality
@@ -668,21 +679,21 @@ slack_server = SlackMCPServer()
 if __name__ == "__main__":
     asyncio.run(slack_server.start())
 '''
-        
+
         # Write Slack MCP server
         slack_file = self.mcp_servers_dir / "slack" / "slack_mcp_server.py"
         slack_file.parent.mkdir(exist_ok=True)
         slack_file.write_text(slack_mcp_content)
-        
+
         # Create __init__.py
         init_file = slack_file.parent / "__init__.py"
         init_file.write_text('"""Slack MCP Server"""')
-        
+
         return {"status": "created", "path": str(slack_file)}
-    
+
     async def implement_github_mcp(self):
         """Implement GitHub MCP Server"""
-        
+
         github_mcp_content = '''"""
 GitHub MCP Server Implementation
 Provides repository management functionality
@@ -818,21 +829,21 @@ github_server = GitHubMCPServer()
 if __name__ == "__main__":
     asyncio.run(github_server.start())
 '''
-        
+
         # Write GitHub MCP server
         github_file = self.mcp_servers_dir / "github" / "github_mcp_server.py"
         github_file.parent.mkdir(exist_ok=True)
         github_file.write_text(github_mcp_content)
-        
+
         # Create __init__.py
         init_file = github_file.parent / "__init__.py"
         init_file.write_text('"""GitHub MCP Server"""')
-        
+
         return {"status": "created", "path": str(github_file)}
-    
+
     async def implement_notion_mcp(self):
         """Implement Notion MCP Server"""
-        
+
         notion_mcp_content = '''"""
 Notion MCP Server Implementation
 Provides knowledge management functionality
@@ -963,21 +974,21 @@ notion_server = NotionMCPServer()
 if __name__ == "__main__":
     asyncio.run(notion_server.start())
 '''
-        
+
         # Write Notion MCP server
         notion_file = self.mcp_servers_dir / "notion" / "notion_mcp_server.py"
         notion_file.parent.mkdir(exist_ok=True)
         notion_file.write_text(notion_mcp_content)
-        
+
         # Create __init__.py
         init_file = notion_file.parent / "__init__.py"
         init_file.write_text('"""Notion MCP Server"""')
-        
+
         return {"status": "created", "path": str(notion_file)}
-    
+
     async def create_service_configuration(self):
         """Create service configuration and startup scripts"""
-        
+
         # Create master startup script
         startup_script_content = '''#!/usr/bin/env python3
 """
@@ -1039,88 +1050,85 @@ async def start_all_services():
 if __name__ == "__main__":
     asyncio.run(start_all_services())
 '''
-        
+
         startup_script = self.base_dir / "start_mcp_services.py"
         startup_script.write_text(startup_script_content)
         startup_script.chmod(0o755)
-        
+
         # Create configuration file
         config_content = {
             "services": {
                 "snowflake": {
                     "port": 9100,
                     "enabled": True,
-                    "description": "Data warehouse operations"
+                    "description": "Data warehouse operations",
                 },
                 "hubspot": {
                     "port": 9101,
                     "enabled": True,
-                    "description": "CRM and sales data"
+                    "description": "CRM and sales data",
                 },
                 "slack": {
                     "port": 9102,
                     "enabled": True,
-                    "description": "Team communication"
+                    "description": "Team communication",
                 },
                 "github": {
                     "port": 9103,
                     "enabled": True,
-                    "description": "Repository management"
+                    "description": "Repository management",
                 },
                 "notion": {
                     "port": 9104,
                     "enabled": True,
-                    "description": "Knowledge management"
-                }
+                    "description": "Knowledge management",
+                },
             },
             "global_settings": {
                 "log_level": "INFO",
                 "health_check_interval": 60,
-                "auto_restart": True
-            }
+                "auto_restart": True,
+            },
         }
-        
+
         config_file = self.base_dir / "mcp_services_config.json"
         config_file.write_text(json.dumps(config_content, indent=2))
-        
-        return {
-            "startup_script": str(startup_script),
-            "config_file": str(config_file)
-        }
-    
+
+        return {"startup_script": str(startup_script), "config_file": str(config_file)}
+
     async def test_all_services(self):
         """Test all MCP services"""
         logger.info("🧪 Testing all MCP services")
-        
+
         # Import and test each service
         test_results = {}
-        
+
         services = [
             ("snowflake", "mcp_servers.snowflake.snowflake_mcp_server"),
             ("hubspot", "mcp_servers.hubspot.hubspot_mcp_server"),
             ("slack", "mcp_servers.slack.slack_mcp_server"),
             ("github", "mcp_servers.github.github_mcp_server"),
-            ("notion", "mcp_servers.notion.notion_mcp_server")
+            ("notion", "mcp_servers.notion.notion_mcp_server"),
         ]
-        
+
         for service_name, module_path in services:
             try:
                 # Test import
                 exec(f"from {module_path} import {service_name}_server")
                 test_results[service_name] = {"import": "success"}
-                
+
             except Exception as e:
                 test_results[service_name] = {"import": "failed", "error": str(e)}
-        
+
         return test_results
-    
+
     async def generate_phase1b_report(self, results: list):
         """Generate Phase 1B implementation report"""
         logger.info("📊 Generating Phase 1B implementation report")
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         report_content = f"""# 🚀 PHASE 1B IMPLEMENTATION REPORT
 
 **Implementation Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -1132,12 +1140,12 @@ if __name__ == "__main__":
 ## 📊 Implementation Results
 
 """
-        
+
         for result in results:
             status_emoji = "✅" if result["status"] == "success" else "❌"
             report_content += f"### {status_emoji} {result['step']}\n"
             report_content += f"- **Status:** {result['status']}\n"
-            
+
             if result["status"] == "success":
                 if "result" in result:
                     for key, value in result["result"].items():
@@ -1145,9 +1153,9 @@ if __name__ == "__main__":
             else:
                 if "error" in result:
                     report_content += f"- **Error:** {result['error']}\n"
-            
+
             report_content += "\n"
-        
+
         report_content += f"""## 🎯 Next Steps
 
 ### Phase 2A: Advanced Integration (Days 5-6)
@@ -1196,34 +1204,36 @@ Created permanent fix for Snowflake connection issue:
 - Updated connection manager to use override parameters
 - No more `scoobyjava-vw02766` connection errors
 """
-        
+
         # Write report
         report_file = self.base_dir / "PHASE1B_IMPLEMENTATION_REPORT.md"
         report_file.write_text(report_content)
-        
+
         logger.info(f"📄 Phase 1B report written to {report_file}")
+
 
 async def main():
     """Main implementation function"""
     implementer = Phase1BImplementer()
-    
+
     try:
         results = await implementer.implement_phase1b()
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         if successful == total:
             logger.info("🎉 Phase 1B implementation completed successfully!")
             logger.info("🚀 Ready to proceed with Phase 2A advanced integration")
         else:
             logger.warning(f"⚠️ {total - successful} steps need manual attention")
-        
+
         return successful == total
-        
+
     except Exception as e:
         logger.error(f"❌ Phase 1B implementation failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = asyncio.run(main())

@@ -35,7 +35,7 @@ def verify_workspace():
         "uv.lock",
         ".cursorrules",
         "backend/app/fastapi_app.py",
-        "frontend/package.json"
+        "frontend/package.json",
     ]
 
     print("\n📁 Project Files Check:")
@@ -75,7 +75,7 @@ def verify_workspace():
         "VIRTUAL_ENV": str(venv_path),
         "SOPHIA_PROJECT_ROOT": str(current_dir),
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
+        "PULUMI_ORG": "scoobyjava-org",
     }
 
     env_ok = True

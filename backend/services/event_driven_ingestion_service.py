@@ -22,14 +22,16 @@ from pydantic import BaseModel
 from backend.services.enhanced_ingestion_service import (
     EnhancedIngestionService,
     IngestionJob,
-    IngestionStatus
+    IngestionStatus,
 )
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
+
 class EventType(str, Enum):
     """Event types for ingestion orchestration"""
+
     INGESTION_INITIATED = "ingestion.initiated"
     PROCESSING_STARTED = "processing.started"
     METADATA_REQUESTED = "metadata.requested"
@@ -42,9 +44,11 @@ class EventType(str, Enum):
     INGESTION_COMPLETED = "ingestion.completed"
     INGESTION_FAILED = "ingestion.failed"
 
+
 @dataclass
 class IngestionEvent:
     """Event data structure for ingestion orchestration"""
+
     event_id: str
     event_type: EventType
     job_id: str
@@ -52,7 +56,7 @@ class IngestionEvent:
     timestamp: datetime
     payload: Dict[str, Any]
     metadata: Dict[str, Any] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization"""
         return {
@@ -62,11 +66,11 @@ class IngestionEvent:
             "user_id": self.user_id,
             "timestamp": self.timestamp.isoformat(),
             "payload": self.payload,
-            "metadata": self.metadata or {}
+            "metadata": self.metadata or {},
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'IngestionEvent':
+    def from_dict(cls, data: Dict[str, Any]) -> "IngestionEvent":
         """Create from dictionary"""
         return cls(
             event_id=data["event_id"],
@@ -75,75 +79,80 @@ class IngestionEvent:
             user_id=data["user_id"],
             timestamp=datetime.fromisoformat(data["timestamp"]),
             payload=data["payload"],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
+
 
 class IngestionEventBus:
     """Event bus for ingestion orchestration using Redis as message broker"""
-    
+
     def __init__(self):
         self.redis: Optional[aioredis.Redis] = None
         self.subscribers: Dict[str, List[callable]] = {}
         self.is_running = False
-        
+
     async def initialize(self):
         """Initialize Redis connection"""
         try:
             # Get Redis connection details from config
             redis_url = await get_config_value("redis_url", "redis://localhost:6379")
             self.redis = aioredis.from_url(redis_url, decode_responses=True)
-            
+
             # Test connection
             await self.redis.ping()
             logger.info("✅ Event bus initialized with Redis")
-            
+
         except Exception as e:
             logger.warning(f"⚠️ Redis not available, using in-memory fallback: {e}")
             # Fallback to in-memory event handling for development
             self.redis = None
-    
+
     async def publish(self, event: IngestionEvent):
         """Publish event to the bus"""
         try:
             event_data = json.dumps(event.to_dict())
-            
+
             if self.redis:
                 # Publish to Redis
-                await self.redis.publish(f"ingestion:{event.event_type.value}", event_data)
-                
+                await self.redis.publish(
+                    f"ingestion:{event.event_type.value}", event_data
+                )
+
                 # Store in stream for replay capability
                 await self.redis.xadd(
                     f"ingestion_stream:{event.job_id}",
                     event.to_dict(),
-                    maxlen=1000  # Keep last 1000 events per job
+                    maxlen=1000,  # Keep last 1000 events per job
                 )
             else:
                 # In-memory fallback - directly call subscribers
                 await self._handle_in_memory_event(event)
-                
-            logger.debug(f"📤 Published event: {event.event_type.value} for job {event.job_id}")
-            
+
+            logger.debug(
+                f"📤 Published event: {event.event_type.value} for job {event.job_id}"
+            )
+
         except Exception as e:
             logger.error(f"❌ Failed to publish event: {e}")
             raise
-    
+
     async def subscribe(self, event_pattern: str, handler: callable):
         """Subscribe to events matching pattern"""
         if event_pattern not in self.subscribers:
             self.subscribers[event_pattern] = []
         self.subscribers[event_pattern].append(handler)
-        
+
         if self.redis and not self.is_running:
             # Start Redis subscriber task
             asyncio.create_task(self._redis_subscriber())
             self.is_running = True
-    
+
     async def _redis_subscriber(self):
         """Redis subscriber task"""
         try:
             pubsub = self.redis.pubsub()
             await pubsub.psubscribe("ingestion:*")
-            
+
             async for message in pubsub.listen():
                 if message["type"] == "pmessage":
                     try:
@@ -152,10 +161,10 @@ class IngestionEventBus:
                         await self._handle_event(event)
                     except Exception as e:
                         logger.error(f"❌ Error handling Redis event: {e}")
-                        
+
         except Exception as e:
             logger.error(f"❌ Redis subscriber error: {e}")
-    
+
     async def _handle_event(self, event: IngestionEvent):
         """Handle incoming event by calling subscribers"""
         for pattern, handlers in self.subscribers.items():
@@ -165,11 +174,11 @@ class IngestionEventBus:
                         await handler(event)
                     except Exception as e:
                         logger.error(f"❌ Event handler error: {e}")
-    
+
     async def _handle_in_memory_event(self, event: IngestionEvent):
         """Handle event in memory (fallback mode)"""
         await self._handle_event(event)
-    
+
     def _pattern_matches(self, pattern: str, event_type: str) -> bool:
         """Simple pattern matching for event types"""
         if pattern == "*":
@@ -178,50 +187,51 @@ class IngestionEventBus:
             return event_type.startswith(pattern[:-1])
         return pattern == event_type
 
+
 class EventDrivenIngestionService(EnhancedIngestionService):
     """
     Event-driven ingestion service extending EnhancedIngestionService
     Implements enterprise-grade event orchestration while maintaining backwards compatibility
     """
-    
+
     def __init__(self, snowflake_config: dict[str, str] = None):
         # Initialize parent class
         super().__init__(snowflake_config or {})
-        
+
         # Event-driven components
         self.event_bus = IngestionEventBus()
         self.event_driven_enabled = True  # Feature flag
-        
+
         # Performance metrics
         self.metrics = {
             "events_published": 0,
             "events_processed": 0,
             "avg_processing_time": 0.0,
-            "last_event_time": None
+            "last_event_time": None,
         }
-    
+
     async def initialize(self):
         """Initialize event-driven components"""
         try:
             # Initialize parent service
             await self.connect()
-            
+
             # Initialize event bus
             await self.event_bus.initialize()
-            
+
             logger.info("✅ Event-driven ingestion service initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to initialize event-driven service: {e}")
             raise
-    
+
     async def create_ingestion_job_event_driven(
         self,
         user_id: str,
         filename: str,
         file_content: bytes,
         file_type: str,
-        metadata: Dict[str, Any] = None
+        metadata: Dict[str, Any] = None,
     ) -> str:
         """
         Create ingestion job with event-driven processing
@@ -232,7 +242,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             job = await self.create_ingestion_job(
                 user_id, filename, file_content, file_type, metadata
             )
-            
+
             if self.event_driven_enabled:
                 # Publish ingestion initiated event
                 event = IngestionEvent(
@@ -245,25 +255,25 @@ class EventDrivenIngestionService(EnhancedIngestionService):
                         "filename": filename,
                         "file_type": file_type,
                         "file_size": len(file_content),
-                        "metadata": metadata or {}
-                    }
+                        "metadata": metadata or {},
+                    },
                 )
-                
+
                 await self.event_bus.publish(event)
                 self.metrics["events_published"] += 1
                 self.metrics["last_event_time"] = datetime.now()
-                
+
                 logger.info(f"📤 Published ingestion event for job {job.job_id}")
             else:
                 # Fallback to direct processing
                 asyncio.create_task(self.process_file_async(job.job_id, file_content))
-            
+
             return job.job_id
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create event-driven ingestion job: {e}")
             raise
-    
+
     async def publish_progress_event(self, job_id: str, progress_data: Dict[str, Any]):
         """Publish progress update event for real-time streaming"""
         try:
@@ -273,14 +283,14 @@ class EventDrivenIngestionService(EnhancedIngestionService):
                 job_id=job_id,
                 user_id=progress_data.get("user_id", "system"),
                 timestamp=datetime.now(),
-                payload=progress_data
+                payload=progress_data,
             )
-            
+
             await self.event_bus.publish(event)
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to publish progress event: {e}")
-    
+
     async def get_service_metrics(self) -> Dict[str, Any]:
         """Get event-driven service metrics"""
         return {
@@ -289,27 +299,33 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             "events_published": self.metrics["events_published"],
             "events_processed": self.metrics["events_processed"],
             "avg_processing_time": self.metrics["avg_processing_time"],
-            "last_event_time": self.metrics["last_event_time"].isoformat() if self.metrics["last_event_time"] else None
+            "last_event_time": (
+                self.metrics["last_event_time"].isoformat()
+                if self.metrics["last_event_time"]
+                else None
+            ),
         }
-    
+
     async def shutdown(self):
         """Graceful shutdown of event-driven components"""
         try:
             logger.info("🛑 Shutting down event-driven ingestion service...")
-            
+
             # Close event bus connections
             if self.event_bus.redis:
                 await self.event_bus.redis.close()
-            
+
             # Disconnect parent service
             await self.disconnect()
-            
+
             logger.info("✅ Event-driven ingestion service shutdown complete")
-            
+
         except Exception as e:
             logger.error(f"❌ Error during shutdown: {e}")
 
+
 # Convenience functions for integration
+
 
 async def create_event_driven_ingestion_service() -> EventDrivenIngestionService:
     """Create and initialize event-driven ingestion service"""
@@ -317,12 +333,13 @@ async def create_event_driven_ingestion_service() -> EventDrivenIngestionService
     await service.initialize()
     return service
 
+
 if __name__ == "__main__":
     # Test the event-driven ingestion service
     async def main():
         logger.info("🧪 Testing event-driven ingestion service...")
         service = await create_event_driven_ingestion_service()
-        
+
         try:
             # Test job creation
             job_id = await service.create_ingestion_job_event_driven(
@@ -330,21 +347,21 @@ if __name__ == "__main__":
                 filename="test_document.txt",
                 file_content=b"This is a test document for event-driven ingestion.",
                 file_type="text/plain",
-                metadata={"department": "Engineering", "priority": "high"}
+                metadata={"department": "Engineering", "priority": "high"},
             )
-            
+
             logger.info(f"✅ Created test job: {job_id}")
-            
+
             # Get metrics
             metrics = await service.get_service_metrics()
             logger.info(f"📊 Service metrics: {metrics}")
-            
+
             print("✅ Event-driven ingestion service test PASSED")
-            
+
         except Exception as e:
             logger.error(f"❌ Test failed: {e}")
             print("❌ Event-driven ingestion service test FAILED")
         finally:
             await service.shutdown()
-    
-    asyncio.run(main()) 
+
+    asyncio.run(main())

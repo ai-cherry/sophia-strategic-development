@@ -12,6 +12,7 @@ import snowflake.connector
 
 logger = logging.getLogger(__name__)
 
+
 class SnowflakeOptimizer:
     """Optimizes Snowflake warehouses and configurations."""
 
@@ -31,10 +32,10 @@ class SnowflakeOptimizer:
     def optimize_ai_warehouses(self):
         """Optimize warehouses for AI workloads."""
         ai_warehouses = [
-            'AI_COMPUTE_WH',
-            'CORTEX_COMPUTE_WH',
-            'EMBEDDING_WH',
-            'REALTIME_ANALYTICS_WH'
+            "AI_COMPUTE_WH",
+            "CORTEX_COMPUTE_WH",
+            "EMBEDDING_WH",
+            "REALTIME_ANALYTICS_WH",
         ]
 
         cursor = self.connection.cursor()
@@ -42,13 +43,15 @@ class SnowflakeOptimizer:
         for warehouse in ai_warehouses:
             try:
                 # Optimize warehouse settings
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     ALTER WAREHOUSE {warehouse} SET
                     AUTO_SUSPEND = 60
                     AUTO_RESUME = TRUE
                     RESOURCE_MONITOR = 'AI_WORKLOAD_MONITOR'
                     COMMENT = 'Optimized for AI workloads - {warehouse}'
-                """)
+                """
+                )
                 logger.info(f"✅ Optimized {warehouse}")
             except Exception as e:
                 logger.warning(f"Could not optimize {warehouse}: {e}")
@@ -60,7 +63,8 @@ class SnowflakeOptimizer:
         cursor = self.connection.cursor()
 
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE OR REPLACE RESOURCE MONITOR AI_WORKLOAD_MONITOR
                 WITH CREDIT_QUOTA = 1000
                 FREQUENCY = MONTHLY
@@ -69,7 +73,8 @@ class SnowflakeOptimizer:
                     ON 75 PERCENT DO NOTIFY
                     ON 90 PERCENT DO SUSPEND
                     ON 100 PERCENT DO SUSPEND_IMMEDIATE
-            """)
+            """
+            )
             logger.info("✅ Created AI workload resource monitor")
         except Exception as e:
             logger.warning(f"Could not create resource monitor: {e}")
@@ -81,13 +86,14 @@ class SnowflakeOptimizer:
         if self.connection:
             self.connection.close()
 
+
 def main():
     """Main optimization function."""
     config = {
-        'account': 'UHDECNO-CVB64222',
-        'user': 'SCOOBYJAVA15',
-        'password': 'your_password_here',
-        'role': 'ACCOUNTADMIN'
+        "account": "UHDECNO-CVB64222",
+        "user": "SCOOBYJAVA15",
+        "password": "your_password_here",
+        "role": "ACCOUNTADMIN",
     }
 
     optimizer = SnowflakeOptimizer(config)
@@ -98,6 +104,7 @@ def main():
         logger.info("🎉 Snowflake optimization complete!")
     finally:
         optimizer.close()
+
 
 if __name__ == "__main__":
     main()

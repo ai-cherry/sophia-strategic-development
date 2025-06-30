@@ -73,11 +73,13 @@ mcpServers:
     
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        nvidia.com/gpu: 0.25
+        memory: "512Mi"
+        cpu: "200m"
       limits:
-        memory: "1Gi"
-        cpu: "500m"
+        nvidia.com/gpu: 0.25
+        memory: "2Gi"
+        cpu: "1000m"
     
     env:
       - name: MCP_SERVER_TYPE
@@ -374,11 +376,17 @@ podDisruptionBudget:
   enabled: true
   minAvailable: 1
 
-# Node Affinity and Tolerations
+# Lambda Labs GPU Node Affinity and Tolerations
 nodeSelector:
+  lambdalabs.com/gpu-type: "rtx-4090"
+  lambdalabs.com/instance-type: "gpu_1x_a10"
   kubernetes.io/arch: amd64
 
 tolerations:
+  - key: "lambdalabs.com/gpu"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
   - key: "sophia.ai/mcp-servers"
     operator: "Equal"
     value: "true"

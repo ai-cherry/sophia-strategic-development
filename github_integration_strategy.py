@@ -23,17 +23,20 @@ from typing import Dict, List, Optional, Tuple
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(f'github_integration_strategy_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler(
+            f'github_integration_strategy_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+        ),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
+
 class GitHubIntegrationStrategy:
     """Analyzes and implements GitHub integration strategy for MCP repositories."""
-    
+
     def __init__(self, pat_token: str = None):
         """Initialize with GitHub PAT token."""
         # Extract PAT from git remote if not provided
@@ -41,601 +44,643 @@ class GitHubIntegrationStrategy:
             self.pat_token = self.extract_pat_from_git_remote()
         else:
             self.pat_token = pat_token
-            
+
         self.headers = {
-            'Authorization': f'token {self.pat_token}',
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'Sophia-AI-Integration-Strategy'
+            "Authorization": f"token {self.pat_token}",
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "Sophia-AI-Integration-Strategy",
         }
-        
-        self.base_url = 'https://api.github.com'
-        self.org_name = 'ai-cherry'
-        self.repo_name = 'sophia-main'
-        
+
+        self.base_url = "https://api.github.com"
+        self.org_name = "ai-cherry"
+        self.repo_name = "sophia-main"
+
         # Top MCP repositories to integrate
         self.target_repositories = [
             {
-                'name': 'anthropic-mcp-servers',
-                'url': 'https://github.com/modelcontextprotocol/servers',
-                'priority': 'critical',
-                'integration_type': 'submodule',
-                'purpose': 'Reference implementations and community servers'
+                "name": "anthropic-mcp-servers",
+                "url": "https://github.com/modelcontextprotocol/servers",
+                "priority": "critical",
+                "integration_type": "submodule",
+                "purpose": "Reference implementations and community servers",
             },
             {
-                'name': 'anthropic-mcp-python-sdk',
-                'url': 'https://github.com/modelcontextprotocol/python-sdk',
-                'priority': 'critical',
-                'integration_type': 'dependency',
-                'purpose': 'Official Python SDK for MCP protocol'
+                "name": "anthropic-mcp-python-sdk",
+                "url": "https://github.com/modelcontextprotocol/python-sdk",
+                "priority": "critical",
+                "integration_type": "dependency",
+                "purpose": "Official Python SDK for MCP protocol",
             },
             {
-                'name': 'anthropic-mcp-inspector',
-                'url': 'https://github.com/modelcontextprotocol/inspector',
-                'priority': 'critical',
-                'integration_type': 'submodule',
-                'purpose': 'Visual testing and debugging tool'
+                "name": "anthropic-mcp-inspector",
+                "url": "https://github.com/modelcontextprotocol/inspector",
+                "priority": "critical",
+                "integration_type": "submodule",
+                "purpose": "Visual testing and debugging tool",
             },
             {
-                'name': 'notion-mcp-server',
-                'url': 'https://github.com/makenotion/notion-mcp-server',
-                'priority': 'high',
-                'integration_type': 'fork',
-                'purpose': 'Official Notion MCP server implementation'
+                "name": "notion-mcp-server",
+                "url": "https://github.com/makenotion/notion-mcp-server",
+                "priority": "high",
+                "integration_type": "fork",
+                "purpose": "Official Notion MCP server implementation",
             },
             {
-                'name': 'slack-mcp-server',
-                'url': 'https://github.com/korotovsky/slack-mcp-server',
-                'priority': 'high',
-                'integration_type': 'fork',
-                'purpose': 'Advanced Slack integration with SSE support'
+                "name": "slack-mcp-server",
+                "url": "https://github.com/korotovsky/slack-mcp-server",
+                "priority": "high",
+                "integration_type": "fork",
+                "purpose": "Advanced Slack integration with SSE support",
             },
             {
-                'name': 'brightdata-mcp-server',
-                'url': 'https://github.com/brightdata/mcp-server',
-                'priority': 'medium',
-                'integration_type': 'fork',
-                'purpose': 'Web scraping and data collection capabilities'
-            }
+                "name": "brightdata-mcp-server",
+                "url": "https://github.com/brightdata/mcp-server",
+                "priority": "medium",
+                "integration_type": "fork",
+                "purpose": "Web scraping and data collection capabilities",
+            },
         ]
-        
+
         self.integration_results = {
-            'analysis_timestamp': datetime.now().isoformat(),
-            'repositories_analyzed': [],
-            'integration_recommendations': [],
-            'github_configurations': [],
-            'security_considerations': [],
-            'implementation_plan': []
+            "analysis_timestamp": datetime.now().isoformat(),
+            "repositories_analyzed": [],
+            "integration_recommendations": [],
+            "github_configurations": [],
+            "security_considerations": [],
+            "implementation_plan": [],
         }
-    
+
     def extract_pat_from_git_remote(self) -> str:
         """Extract PAT token from git remote URL."""
         try:
             result = subprocess.run(
-                ['git', 'remote', 'get-url', 'origin'],
+                ["git", "remote", "get-url", "origin"],
                 capture_output=True,
                 text=True,
-                cwd='/home/ubuntu/sophia-main'
+                cwd="/home/ubuntu/sophia-main",
             )
-            
+
             if result.returncode == 0:
                 remote_url = result.stdout.strip()
                 # Extract PAT from URL format: https://github_pat_TOKEN@github.com/...
-                if 'github_pat_' in remote_url:
-                    start = remote_url.find('github_pat_')
-                    end = remote_url.find('@github.com')
+                if "github_pat_" in remote_url:
+                    start = remote_url.find("github_pat_")
+                    end = remote_url.find("@github.com")
                     if start != -1 and end != -1:
                         return remote_url[start:end]
-            
+
             logger.error("Could not extract PAT from git remote")
             return None
-            
+
         except Exception as e:
             logger.error(f"Error extracting PAT: {e}")
             return None
-    
+
     def analyze_github_organization(self) -> Dict:
         """Analyze current GitHub organization structure and permissions."""
         logger.info(f"🔍 Analyzing GitHub organization: {self.org_name}")
-        
+
         try:
             # Get organization info
             org_response = requests.get(
-                f"{self.base_url}/orgs/{self.org_name}",
-                headers=self.headers
+                f"{self.base_url}/orgs/{self.org_name}", headers=self.headers
             )
-            
+
             if org_response.status_code == 200:
                 org_data = org_response.json()
                 logger.info(f"✅ Organization access confirmed: {org_data['name']}")
-                
+
                 # Get repositories
                 repos_response = requests.get(
                     f"{self.base_url}/orgs/{self.org_name}/repos",
                     headers=self.headers,
-                    params={'per_page': 100}
+                    params={"per_page": 100},
                 )
-                
-                repos_data = repos_response.json() if repos_response.status_code == 200 else []
-                
+
+                repos_data = (
+                    repos_response.json() if repos_response.status_code == 200 else []
+                )
+
                 # Get organization permissions
                 permissions = self.analyze_organization_permissions()
-                
+
                 analysis = {
-                    'organization': {
-                        'name': org_data['name'],
-                        'description': org_data.get('description', ''),
-                        'public_repos': org_data['public_repos'],
-                        'private_repos': org_data.get('total_private_repos', 0),
-                        'plan': org_data.get('plan', {}).get('name', 'unknown')
+                    "organization": {
+                        "name": org_data["name"],
+                        "description": org_data.get("description", ""),
+                        "public_repos": org_data["public_repos"],
+                        "private_repos": org_data.get("total_private_repos", 0),
+                        "plan": org_data.get("plan", {}).get("name", "unknown"),
                     },
-                    'repositories': [
+                    "repositories": [
                         {
-                            'name': repo['name'],
-                            'private': repo['private'],
-                            'size': repo['size'],
-                            'language': repo['language'],
-                            'updated_at': repo['updated_at']
+                            "name": repo["name"],
+                            "private": repo["private"],
+                            "size": repo["size"],
+                            "language": repo["language"],
+                            "updated_at": repo["updated_at"],
                         }
                         for repo in repos_data
                     ],
-                    'permissions': permissions,
-                    'integration_capabilities': self.assess_integration_capabilities(org_data, permissions)
+                    "permissions": permissions,
+                    "integration_capabilities": self.assess_integration_capabilities(
+                        org_data, permissions
+                    ),
                 }
-                
-                self.integration_results['repositories_analyzed'] = analysis
+
+                self.integration_results["repositories_analyzed"] = analysis
                 return analysis
-                
+
             else:
-                logger.error(f"❌ Failed to access organization: {org_response.status_code}")
+                logger.error(
+                    f"❌ Failed to access organization: {org_response.status_code}"
+                )
                 return {}
-                
+
         except Exception as e:
             logger.error(f"❌ Error analyzing organization: {e}")
             return {}
-    
+
     def analyze_organization_permissions(self) -> Dict:
         """Analyze PAT permissions and organization access levels."""
         logger.info("🔐 Analyzing PAT permissions and access levels")
-        
+
         permissions = {
-            'repo_access': False,
-            'admin_access': False,
-            'actions_access': False,
-            'packages_access': False,
-            'security_access': False,
-            'webhooks_access': False
+            "repo_access": False,
+            "admin_access": False,
+            "actions_access": False,
+            "packages_access": False,
+            "security_access": False,
+            "webhooks_access": False,
         }
-        
+
         try:
             # Test repository access
             repo_response = requests.get(
                 f"{self.base_url}/repos/{self.org_name}/{self.repo_name}",
-                headers=self.headers
+                headers=self.headers,
             )
-            permissions['repo_access'] = repo_response.status_code == 200
-            
+            permissions["repo_access"] = repo_response.status_code == 200
+
             # Test admin access (try to get organization settings)
             admin_response = requests.get(
                 f"{self.base_url}/orgs/{self.org_name}/actions/permissions",
-                headers=self.headers
+                headers=self.headers,
             )
-            permissions['admin_access'] = admin_response.status_code == 200
-            
+            permissions["admin_access"] = admin_response.status_code == 200
+
             # Test actions access
             actions_response = requests.get(
                 f"{self.base_url}/repos/{self.org_name}/{self.repo_name}/actions/workflows",
-                headers=self.headers
+                headers=self.headers,
             )
-            permissions['actions_access'] = actions_response.status_code == 200
-            
+            permissions["actions_access"] = actions_response.status_code == 200
+
             # Test packages access
             packages_response = requests.get(
-                f"{self.base_url}/orgs/{self.org_name}/packages",
-                headers=self.headers
+                f"{self.base_url}/orgs/{self.org_name}/packages", headers=self.headers
             )
-            permissions['packages_access'] = packages_response.status_code == 200
-            
+            permissions["packages_access"] = packages_response.status_code == 200
+
             # Test security access
             security_response = requests.get(
                 f"{self.base_url}/repos/{self.org_name}/{self.repo_name}/vulnerability-alerts",
-                headers=self.headers
+                headers=self.headers,
             )
-            permissions['security_access'] = security_response.status_code == 200
-            
+            permissions["security_access"] = security_response.status_code == 200
+
             # Test webhooks access
             webhooks_response = requests.get(
                 f"{self.base_url}/repos/{self.org_name}/{self.repo_name}/hooks",
-                headers=self.headers
+                headers=self.headers,
             )
-            permissions['webhooks_access'] = webhooks_response.status_code == 200
-            
-            logger.info(f"✅ Permissions analysis complete: {sum(permissions.values())}/6 capabilities available")
+            permissions["webhooks_access"] = webhooks_response.status_code == 200
+
+            logger.info(
+                f"✅ Permissions analysis complete: {sum(permissions.values())}/6 capabilities available"
+            )
             return permissions
-            
+
         except Exception as e:
             logger.error(f"❌ Error analyzing permissions: {e}")
             return permissions
-    
-    def assess_integration_capabilities(self, org_data: Dict, permissions: Dict) -> Dict:
+
+    def assess_integration_capabilities(
+        self, org_data: Dict, permissions: Dict
+    ) -> Dict:
         """Assess what integration strategies are possible with current permissions."""
         capabilities = {
-            'can_create_repos': permissions['admin_access'],
-            'can_fork_repos': permissions['repo_access'],
-            'can_add_submodules': permissions['repo_access'],
-            'can_setup_actions': permissions['actions_access'],
-            'can_manage_packages': permissions['packages_access'],
-            'can_setup_security': permissions['security_access'],
-            'can_setup_webhooks': permissions['webhooks_access'],
-            'recommended_strategies': []
+            "can_create_repos": permissions["admin_access"],
+            "can_fork_repos": permissions["repo_access"],
+            "can_add_submodules": permissions["repo_access"],
+            "can_setup_actions": permissions["actions_access"],
+            "can_manage_packages": permissions["packages_access"],
+            "can_setup_security": permissions["security_access"],
+            "can_setup_webhooks": permissions["webhooks_access"],
+            "recommended_strategies": [],
         }
-        
+
         # Determine recommended integration strategies
-        if capabilities['can_create_repos']:
-            capabilities['recommended_strategies'].append('create_dedicated_mcp_repos')
-        
-        if capabilities['can_fork_repos']:
-            capabilities['recommended_strategies'].append('fork_external_repos')
-        
-        if capabilities['can_add_submodules']:
-            capabilities['recommended_strategies'].append('add_as_submodules')
-        
-        if capabilities['can_setup_actions']:
-            capabilities['recommended_strategies'].append('automated_sync_workflows')
-        
+        if capabilities["can_create_repos"]:
+            capabilities["recommended_strategies"].append("create_dedicated_mcp_repos")
+
+        if capabilities["can_fork_repos"]:
+            capabilities["recommended_strategies"].append("fork_external_repos")
+
+        if capabilities["can_add_submodules"]:
+            capabilities["recommended_strategies"].append("add_as_submodules")
+
+        if capabilities["can_setup_actions"]:
+            capabilities["recommended_strategies"].append("automated_sync_workflows")
+
         return capabilities
-    
+
     def analyze_target_repositories(self) -> List[Dict]:
         """Analyze each target repository for integration feasibility."""
         logger.info("📊 Analyzing target repositories for integration")
-        
+
         analyzed_repos = []
-        
+
         for repo_config in self.target_repositories:
             logger.info(f"🔍 Analyzing: {repo_config['name']}")
-            
+
             try:
                 # Extract owner and repo name from URL
-                url_parts = repo_config['url'].replace('https://github.com/', '').split('/')
+                url_parts = (
+                    repo_config["url"].replace("https://github.com/", "").split("/")
+                )
                 owner, repo_name = url_parts[0], url_parts[1]
-                
+
                 # Get repository information
                 repo_response = requests.get(
-                    f"{self.base_url}/repos/{owner}/{repo_name}",
-                    headers=self.headers
+                    f"{self.base_url}/repos/{owner}/{repo_name}", headers=self.headers
                 )
-                
+
                 if repo_response.status_code == 200:
                     repo_data = repo_response.json()
-                    
+
                     analysis = {
-                        'config': repo_config,
-                        'github_data': {
-                            'full_name': repo_data['full_name'],
-                            'description': repo_data['description'],
-                            'language': repo_data['language'],
-                            'size': repo_data['size'],
-                            'stars': repo_data['stargazers_count'],
-                            'forks': repo_data['forks_count'],
-                            'license': repo_data.get('license', {}).get('name', 'Unknown'),
-                            'updated_at': repo_data['updated_at'],
-                            'default_branch': repo_data['default_branch'],
-                            'topics': repo_data.get('topics', [])
+                        "config": repo_config,
+                        "github_data": {
+                            "full_name": repo_data["full_name"],
+                            "description": repo_data["description"],
+                            "language": repo_data["language"],
+                            "size": repo_data["size"],
+                            "stars": repo_data["stargazers_count"],
+                            "forks": repo_data["forks_count"],
+                            "license": repo_data.get("license", {}).get(
+                                "name", "Unknown"
+                            ),
+                            "updated_at": repo_data["updated_at"],
+                            "default_branch": repo_data["default_branch"],
+                            "topics": repo_data.get("topics", []),
                         },
-                        'integration_assessment': self.assess_repository_integration(repo_data, repo_config),
-                        'security_analysis': self.analyze_repository_security(repo_data),
-                        'recommended_approach': self.recommend_integration_approach(repo_data, repo_config)
+                        "integration_assessment": self.assess_repository_integration(
+                            repo_data, repo_config
+                        ),
+                        "security_analysis": self.analyze_repository_security(
+                            repo_data
+                        ),
+                        "recommended_approach": self.recommend_integration_approach(
+                            repo_data, repo_config
+                        ),
                     }
-                    
+
                     analyzed_repos.append(analysis)
                     logger.info(f"✅ Analysis complete for {repo_config['name']}")
-                    
+
                 else:
-                    logger.warning(f"⚠️ Could not access repository: {repo_config['name']}")
-                    analyzed_repos.append({
-                        'config': repo_config,
-                        'error': f"HTTP {repo_response.status_code}",
-                        'recommended_approach': 'manual_download'
-                    })
-                    
+                    logger.warning(
+                        f"⚠️ Could not access repository: {repo_config['name']}"
+                    )
+                    analyzed_repos.append(
+                        {
+                            "config": repo_config,
+                            "error": f"HTTP {repo_response.status_code}",
+                            "recommended_approach": "manual_download",
+                        }
+                    )
+
             except Exception as e:
                 logger.error(f"❌ Error analyzing {repo_config['name']}: {e}")
-                analyzed_repos.append({
-                    'config': repo_config,
-                    'error': str(e),
-                    'recommended_approach': 'manual_download'
-                })
-        
+                analyzed_repos.append(
+                    {
+                        "config": repo_config,
+                        "error": str(e),
+                        "recommended_approach": "manual_download",
+                    }
+                )
+
         return analyzed_repos
-    
+
     def assess_repository_integration(self, repo_data: Dict, config: Dict) -> Dict:
         """Assess how well a repository can be integrated."""
         assessment = {
-            'compatibility_score': 0,
-            'integration_complexity': 'unknown',
-            'benefits': [],
-            'challenges': [],
-            'requirements': []
+            "compatibility_score": 0,
+            "integration_complexity": "unknown",
+            "benefits": [],
+            "challenges": [],
+            "requirements": [],
         }
-        
+
         # Assess compatibility based on language
-        if repo_data['language'] == 'Python':
-            assessment['compatibility_score'] += 30
-            assessment['benefits'].append('Native Python compatibility')
-        elif repo_data['language'] == 'TypeScript':
-            assessment['compatibility_score'] += 20
-            assessment['benefits'].append('Can be used as reference or via Node.js')
-            assessment['challenges'].append('Requires Node.js runtime')
-        
+        if repo_data["language"] == "Python":
+            assessment["compatibility_score"] += 30
+            assessment["benefits"].append("Native Python compatibility")
+        elif repo_data["language"] == "TypeScript":
+            assessment["compatibility_score"] += 20
+            assessment["benefits"].append("Can be used as reference or via Node.js")
+            assessment["challenges"].append("Requires Node.js runtime")
+
         # Assess based on size
-        if repo_data['size'] < 10000:  # Less than 10MB
-            assessment['compatibility_score'] += 20
-            assessment['benefits'].append('Lightweight integration')
-        elif repo_data['size'] > 100000:  # More than 100MB
-            assessment['challenges'].append('Large repository size')
-        
+        if repo_data["size"] < 10000:  # Less than 10MB
+            assessment["compatibility_score"] += 20
+            assessment["benefits"].append("Lightweight integration")
+        elif repo_data["size"] > 100000:  # More than 100MB
+            assessment["challenges"].append("Large repository size")
+
         # Assess based on activity
         from datetime import datetime, timedelta
-        updated_date = datetime.fromisoformat(repo_data['updated_at'].replace('Z', '+00:00'))
-        if updated_date > datetime.now().replace(tzinfo=updated_date.tzinfo) - timedelta(days=30):
-            assessment['compatibility_score'] += 25
-            assessment['benefits'].append('Recently updated (active development)')
-        
+
+        updated_date = datetime.fromisoformat(
+            repo_data["updated_at"].replace("Z", "+00:00")
+        )
+        if updated_date > datetime.now().replace(
+            tzinfo=updated_date.tzinfo
+        ) - timedelta(days=30):
+            assessment["compatibility_score"] += 25
+            assessment["benefits"].append("Recently updated (active development)")
+
         # Assess based on popularity
-        if repo_data['stargazers_count'] > 1000:
-            assessment['compatibility_score'] += 15
-            assessment['benefits'].append('High community adoption')
-        
+        if repo_data["stargazers_count"] > 1000:
+            assessment["compatibility_score"] += 15
+            assessment["benefits"].append("High community adoption")
+
         # Assess based on license
-        license_name = repo_data.get('license', {}).get('name', 'Unknown')
-        if license_name in ['MIT License', 'Apache License 2.0', 'BSD 3-Clause "New" or "Revised" License']:
-            assessment['compatibility_score'] += 10
-            assessment['benefits'].append('Permissive license')
-        elif license_name == 'Unknown':
-            assessment['challenges'].append('Unknown license terms')
-        
+        license_name = repo_data.get("license", {}).get("name", "Unknown")
+        if license_name in [
+            "MIT License",
+            "Apache License 2.0",
+            'BSD 3-Clause "New" or "Revised" License',
+        ]:
+            assessment["compatibility_score"] += 10
+            assessment["benefits"].append("Permissive license")
+        elif license_name == "Unknown":
+            assessment["challenges"].append("Unknown license terms")
+
         # Determine integration complexity
-        if assessment['compatibility_score'] >= 80:
-            assessment['integration_complexity'] = 'low'
-        elif assessment['compatibility_score'] >= 60:
-            assessment['integration_complexity'] = 'medium'
+        if assessment["compatibility_score"] >= 80:
+            assessment["integration_complexity"] = "low"
+        elif assessment["compatibility_score"] >= 60:
+            assessment["integration_complexity"] = "medium"
         else:
-            assessment['integration_complexity'] = 'high'
-        
+            assessment["integration_complexity"] = "high"
+
         return assessment
-    
+
     def analyze_repository_security(self, repo_data: Dict) -> Dict:
         """Analyze security aspects of the repository."""
         security = {
-            'security_score': 0,
-            'security_features': [],
-            'security_concerns': [],
-            'recommendations': []
+            "security_score": 0,
+            "security_features": [],
+            "security_concerns": [],
+            "recommendations": [],
         }
-        
+
         # Check for security features
-        if repo_data.get('has_issues'):
-            security['security_features'].append('Issue tracking enabled')
-            security['security_score'] += 10
-        
-        if repo_data.get('has_wiki'):
-            security['security_features'].append('Documentation available')
-            security['security_score'] += 5
-        
+        if repo_data.get("has_issues"):
+            security["security_features"].append("Issue tracking enabled")
+            security["security_score"] += 10
+
+        if repo_data.get("has_wiki"):
+            security["security_features"].append("Documentation available")
+            security["security_score"] += 5
+
         # Check for potential concerns
-        if not repo_data.get('license'):
-            security['security_concerns'].append('No license specified')
-            security['recommendations'].append('Verify license terms before integration')
-        
-        if repo_data['size'] > 50000:  # Large repositories
-            security['security_concerns'].append('Large codebase requires thorough review')
-            security['recommendations'].append('Conduct security audit before integration')
-        
+        if not repo_data.get("license"):
+            security["security_concerns"].append("No license specified")
+            security["recommendations"].append(
+                "Verify license terms before integration"
+            )
+
+        if repo_data["size"] > 50000:  # Large repositories
+            security["security_concerns"].append(
+                "Large codebase requires thorough review"
+            )
+            security["recommendations"].append(
+                "Conduct security audit before integration"
+            )
+
         return security
-    
+
     def recommend_integration_approach(self, repo_data: Dict, config: Dict) -> Dict:
         """Recommend the best integration approach for each repository."""
         approach = {
-            'primary_method': config['integration_type'],
-            'alternative_methods': [],
-            'implementation_steps': [],
-            'considerations': []
+            "primary_method": config["integration_type"],
+            "alternative_methods": [],
+            "implementation_steps": [],
+            "considerations": [],
         }
-        
+
         # Refine recommendation based on analysis
-        if config['integration_type'] == 'submodule':
-            approach['implementation_steps'] = [
+        if config["integration_type"] == "submodule":
+            approach["implementation_steps"] = [
                 f"git submodule add {config['url']} external/{config['name']}",
                 "git submodule update --init --recursive",
                 "Add submodule to .gitmodules configuration",
-                "Update documentation with submodule usage"
+                "Update documentation with submodule usage",
             ]
-            approach['considerations'] = [
+            approach["considerations"] = [
                 "Submodules require careful version management",
                 "Team members need to understand submodule workflows",
-                "Consider pinning to specific commits for stability"
+                "Consider pinning to specific commits for stability",
             ]
-        
-        elif config['integration_type'] == 'fork':
-            approach['implementation_steps'] = [
+
+        elif config["integration_type"] == "fork":
+            approach["implementation_steps"] = [
                 f"Fork repository to {self.org_name} organization",
                 "Clone forked repository locally",
                 "Add upstream remote for updates",
                 "Customize for Sophia AI integration",
-                "Set up automated sync workflows"
+                "Set up automated sync workflows",
             ]
-            approach['considerations'] = [
+            approach["considerations"] = [
                 "Maintain sync with upstream repository",
                 "Document customizations clearly",
-                "Consider contributing improvements back upstream"
+                "Consider contributing improvements back upstream",
             ]
-        
-        elif config['integration_type'] == 'dependency':
-            approach['implementation_steps'] = [
+
+        elif config["integration_type"] == "dependency":
+            approach["implementation_steps"] = [
                 "Add to pyproject.toml dependencies",
                 "Update uv.lock file",
                 "Import and integrate in codebase",
-                "Add to requirements documentation"
+                "Add to requirements documentation",
             ]
-            approach['considerations'] = [
+            approach["considerations"] = [
                 "Monitor for security updates",
                 "Pin to specific versions for stability",
-                "Test compatibility with existing dependencies"
+                "Test compatibility with existing dependencies",
             ]
-        
+
         # Add alternative methods
-        if config['integration_type'] != 'submodule':
-            approach['alternative_methods'].append('submodule')
-        if config['integration_type'] != 'fork':
-            approach['alternative_methods'].append('fork')
-        if config['integration_type'] != 'dependency':
-            approach['alternative_methods'].append('dependency')
-        
+        if config["integration_type"] != "submodule":
+            approach["alternative_methods"].append("submodule")
+        if config["integration_type"] != "fork":
+            approach["alternative_methods"].append("fork")
+        if config["integration_type"] != "dependency":
+            approach["alternative_methods"].append("dependency")
+
         return approach
-    
+
     def create_github_configurations(self, analyzed_repos: List[Dict]) -> List[Dict]:
         """Create GitHub-specific configurations for optimal integration."""
         logger.info("⚙️ Creating GitHub configurations for integration")
-        
+
         configurations = []
-        
+
         # 1. Repository Structure Configuration
         repo_structure = {
-            'type': 'repository_structure',
-            'name': 'MCP Integration Structure',
-            'description': 'Organize MCP repositories within Sophia AI',
-            'structure': {
-                'external/': {
-                    'description': 'External MCP repositories as submodules',
-                    'submodules': [
-                        repo['config']['name'] for repo in analyzed_repos 
-                        if isinstance(repo.get('recommended_approach'), dict) and 
-                        repo.get('recommended_approach', {}).get('primary_method') == 'submodule'
-                    ]
+            "type": "repository_structure",
+            "name": "MCP Integration Structure",
+            "description": "Organize MCP repositories within Sophia AI",
+            "structure": {
+                "external/": {
+                    "description": "External MCP repositories as submodules",
+                    "submodules": [
+                        repo["config"]["name"]
+                        for repo in analyzed_repos
+                        if isinstance(repo.get("recommended_approach"), dict)
+                        and repo.get("recommended_approach", {}).get("primary_method")
+                        == "submodule"
+                    ],
                 },
-                'mcp-integrations/': {
-                    'description': 'Custom integrations based on external repos',
-                    'purpose': 'Sophia-specific adaptations of external MCP servers'
+                "mcp-integrations/": {
+                    "description": "Custom integrations based on external repos",
+                    "purpose": "Sophia-specific adaptations of external MCP servers",
                 },
-                'mcp-forks/': {
-                    'description': 'Links to forked repositories in organization',
-                    'repos': [
-                        repo['config']['name'] for repo in analyzed_repos 
-                        if isinstance(repo.get('recommended_approach'), dict) and 
-                        repo.get('recommended_approach', {}).get('primary_method') == 'fork'
-                    ]
-                }
-            }
+                "mcp-forks/": {
+                    "description": "Links to forked repositories in organization",
+                    "repos": [
+                        repo["config"]["name"]
+                        for repo in analyzed_repos
+                        if isinstance(repo.get("recommended_approach"), dict)
+                        and repo.get("recommended_approach", {}).get("primary_method")
+                        == "fork"
+                    ],
+                },
+            },
         }
         configurations.append(repo_structure)
-        
+
         # 2. GitHub Actions Workflows
         workflows_config = {
-            'type': 'github_actions',
-            'name': 'MCP Integration Workflows',
-            'description': 'Automated workflows for MCP repository management',
-            'workflows': [
+            "type": "github_actions",
+            "name": "MCP Integration Workflows",
+            "description": "Automated workflows for MCP repository management",
+            "workflows": [
                 {
-                    'name': 'sync-mcp-submodules.yml',
-                    'purpose': 'Automatically sync submodules with upstream',
-                    'trigger': 'schedule (weekly)',
-                    'actions': [
-                        'Check for upstream updates',
-                        'Update submodules if changes detected',
-                        'Run integration tests',
-                        'Create PR if tests pass'
-                    ]
+                    "name": "sync-mcp-submodules.yml",
+                    "purpose": "Automatically sync submodules with upstream",
+                    "trigger": "schedule (weekly)",
+                    "actions": [
+                        "Check for upstream updates",
+                        "Update submodules if changes detected",
+                        "Run integration tests",
+                        "Create PR if tests pass",
+                    ],
                 },
                 {
-                    'name': 'test-mcp-integrations.yml',
-                    'purpose': 'Test all MCP server integrations',
-                    'trigger': 'push, pull_request',
-                    'actions': [
-                        'Setup Python environment',
-                        'Install dependencies',
-                        'Run MCP server tests',
-                        'Validate protocol compliance'
-                    ]
+                    "name": "test-mcp-integrations.yml",
+                    "purpose": "Test all MCP server integrations",
+                    "trigger": "push, pull_request",
+                    "actions": [
+                        "Setup Python environment",
+                        "Install dependencies",
+                        "Run MCP server tests",
+                        "Validate protocol compliance",
+                    ],
                 },
                 {
-                    'name': 'security-audit-mcp.yml',
-                    'purpose': 'Security audit of MCP dependencies',
-                    'trigger': 'schedule (daily)',
-                    'actions': [
-                        'Scan dependencies for vulnerabilities',
-                        'Check for license compliance',
-                        'Generate security report',
-                        'Create issues for findings'
-                    ]
-                }
-            ]
+                    "name": "security-audit-mcp.yml",
+                    "purpose": "Security audit of MCP dependencies",
+                    "trigger": "schedule (daily)",
+                    "actions": [
+                        "Scan dependencies for vulnerabilities",
+                        "Check for license compliance",
+                        "Generate security report",
+                        "Create issues for findings",
+                    ],
+                },
+            ],
         }
         configurations.append(workflows_config)
-        
+
         # 3. Branch Protection Rules
         branch_protection = {
-            'type': 'branch_protection',
-            'name': 'MCP Integration Branch Protection',
-            'description': 'Protect main branch from unsafe MCP integrations',
-            'rules': {
-                'main': {
-                    'required_status_checks': [
-                        'test-mcp-integrations',
-                        'security-audit-mcp'
+            "type": "branch_protection",
+            "name": "MCP Integration Branch Protection",
+            "description": "Protect main branch from unsafe MCP integrations",
+            "rules": {
+                "main": {
+                    "required_status_checks": [
+                        "test-mcp-integrations",
+                        "security-audit-mcp",
                     ],
-                    'enforce_admins': False,
-                    'required_pull_request_reviews': {
-                        'required_approving_review_count': 1,
-                        'dismiss_stale_reviews': True,
-                        'require_code_owner_reviews': True
+                    "enforce_admins": False,
+                    "required_pull_request_reviews": {
+                        "required_approving_review_count": 1,
+                        "dismiss_stale_reviews": True,
+                        "require_code_owner_reviews": True,
                     },
-                    'restrictions': None
+                    "restrictions": None,
                 }
-            }
+            },
         }
         configurations.append(branch_protection)
-        
+
         # 4. Repository Secrets Configuration
         secrets_config = {
-            'type': 'repository_secrets',
-            'name': 'MCP Integration Secrets',
-            'description': 'Required secrets for MCP server integrations',
-            'secrets': [
+            "type": "repository_secrets",
+            "name": "MCP Integration Secrets",
+            "description": "Required secrets for MCP server integrations",
+            "secrets": [
                 {
-                    'name': 'NOTION_API_KEY',
-                    'description': 'API key for Notion MCP server',
-                    'required_for': ['notion-mcp-server']
+                    "name": "NOTION_API_KEY",
+                    "description": "API key for Notion MCP server",
+                    "required_for": ["notion-mcp-server"],
                 },
                 {
-                    'name': 'SLACK_BOT_TOKEN',
-                    'description': 'Bot token for Slack MCP server',
-                    'required_for': ['slack-mcp-server']
+                    "name": "SLACK_BOT_TOKEN",
+                    "description": "Bot token for Slack MCP server",
+                    "required_for": ["slack-mcp-server"],
                 },
                 {
-                    'name': 'BRIGHTDATA_API_KEY',
-                    'description': 'API key for BrightData web scraping',
-                    'required_for': ['brightdata-mcp-server']
+                    "name": "BRIGHTDATA_API_KEY",
+                    "description": "API key for BrightData web scraping",
+                    "required_for": ["brightdata-mcp-server"],
                 },
                 {
-                    'name': 'PINECONE_API_KEY',
-                    'description': 'API key for Pinecone vector database',
-                    'required_for': ['vector-memory-server']
-                }
-            ]
+                    "name": "PINECONE_API_KEY",
+                    "description": "API key for Pinecone vector database",
+                    "required_for": ["vector-memory-server"],
+                },
+            ],
         }
         configurations.append(secrets_config)
-        
+
         # 5. Issue Templates
         issue_templates = {
-            'type': 'issue_templates',
-            'name': 'MCP Integration Issue Templates',
-            'description': 'Standardized templates for MCP-related issues',
-            'templates': [
+            "type": "issue_templates",
+            "name": "MCP Integration Issue Templates",
+            "description": "Standardized templates for MCP-related issues",
+            "templates": [
                 {
-                    'name': 'mcp-server-bug.md',
-                    'title': 'MCP Server Bug Report',
-                    'labels': ['bug', 'mcp-server'],
-                    'assignees': ['mcp-team'],
-                    'body': '''
+                    "name": "mcp-server-bug.md",
+                    "title": "MCP Server Bug Report",
+                    "labels": ["bug", "mcp-server"],
+                    "assignees": ["mcp-team"],
+                    "body": """
 ## MCP Server Bug Report
 
 **Server Name:** 
@@ -663,14 +708,14 @@ Paste relevant logs here
 
 ### Additional Context
 Any other context about the problem.
-'''
+""",
                 },
                 {
-                    'name': 'mcp-integration-request.md',
-                    'title': 'New MCP Integration Request',
-                    'labels': ['enhancement', 'mcp-integration'],
-                    'assignees': ['mcp-team'],
-                    'body': '''
+                    "name": "mcp-integration-request.md",
+                    "title": "New MCP Integration Request",
+                    "labels": ["enhancement", "mcp-integration"],
+                    "assignees": ["mcp-team"],
+                    "body": """
 ## MCP Integration Request
 
 **Service/Tool:** 
@@ -691,117 +736,145 @@ What defines a successful integration.
 
 ### Additional Notes
 Any other relevant information.
-'''
-                }
-            ]
+""",
+                },
+            ],
         }
         configurations.append(issue_templates)
-        
+
         return configurations
-    
-    def create_implementation_plan(self, analyzed_repos: List[Dict], configurations: List[Dict]) -> Dict:
+
+    def create_implementation_plan(
+        self, analyzed_repos: List[Dict], configurations: List[Dict]
+    ) -> Dict:
         """Create detailed implementation plan for GitHub integration."""
         logger.info("📋 Creating comprehensive implementation plan")
-        
+
         plan = {
-            'overview': {
-                'total_repositories': len(analyzed_repos),
-                'integration_methods': {
-                    'submodules': len([r for r in analyzed_repos if isinstance(r.get('recommended_approach'), dict) and r.get('recommended_approach', {}).get('primary_method') == 'submodule']),
-                    'forks': len([r for r in analyzed_repos if isinstance(r.get('recommended_approach'), dict) and r.get('recommended_approach', {}).get('primary_method') == 'fork']),
-                    'dependencies': len([r for r in analyzed_repos if isinstance(r.get('recommended_approach'), dict) and r.get('recommended_approach', {}).get('primary_method') == 'dependency'])
+            "overview": {
+                "total_repositories": len(analyzed_repos),
+                "integration_methods": {
+                    "submodules": len(
+                        [
+                            r
+                            for r in analyzed_repos
+                            if isinstance(r.get("recommended_approach"), dict)
+                            and r.get("recommended_approach", {}).get("primary_method")
+                            == "submodule"
+                        ]
+                    ),
+                    "forks": len(
+                        [
+                            r
+                            for r in analyzed_repos
+                            if isinstance(r.get("recommended_approach"), dict)
+                            and r.get("recommended_approach", {}).get("primary_method")
+                            == "fork"
+                        ]
+                    ),
+                    "dependencies": len(
+                        [
+                            r
+                            for r in analyzed_repos
+                            if isinstance(r.get("recommended_approach"), dict)
+                            and r.get("recommended_approach", {}).get("primary_method")
+                            == "dependency"
+                        ]
+                    ),
                 },
-                'estimated_timeline': '4 weeks',
-                'risk_level': 'medium'
+                "estimated_timeline": "4 weeks",
+                "risk_level": "medium",
             },
-            'phases': [
+            "phases": [
                 {
-                    'phase': 1,
-                    'name': 'Foundation Setup',
-                    'duration': '1 week',
-                    'tasks': [
-                        'Setup repository structure',
-                        'Configure GitHub Actions workflows',
-                        'Implement branch protection rules',
-                        'Add critical dependencies (MCP SDK)'
+                    "phase": 1,
+                    "name": "Foundation Setup",
+                    "duration": "1 week",
+                    "tasks": [
+                        "Setup repository structure",
+                        "Configure GitHub Actions workflows",
+                        "Implement branch protection rules",
+                        "Add critical dependencies (MCP SDK)",
                     ],
-                    'deliverables': [
-                        'Repository structure established',
-                        'CI/CD pipelines operational',
-                        'Security measures in place'
-                    ]
+                    "deliverables": [
+                        "Repository structure established",
+                        "CI/CD pipelines operational",
+                        "Security measures in place",
+                    ],
                 },
                 {
-                    'phase': 2,
-                    'name': 'Core Integrations',
-                    'duration': '2 weeks',
-                    'tasks': [
-                        'Add Anthropic MCP servers as submodules',
-                        'Fork and customize Notion MCP server',
-                        'Fork and enhance Slack MCP server',
-                        'Integrate MCP Inspector for testing'
+                    "phase": 2,
+                    "name": "Core Integrations",
+                    "duration": "2 weeks",
+                    "tasks": [
+                        "Add Anthropic MCP servers as submodules",
+                        "Fork and customize Notion MCP server",
+                        "Fork and enhance Slack MCP server",
+                        "Integrate MCP Inspector for testing",
                     ],
-                    'deliverables': [
-                        'Core MCP framework operational',
-                        'Enterprise integrations functional',
-                        'Testing framework established'
-                    ]
+                    "deliverables": [
+                        "Core MCP framework operational",
+                        "Enterprise integrations functional",
+                        "Testing framework established",
+                    ],
                 },
                 {
-                    'phase': 3,
-                    'name': 'Advanced Capabilities',
-                    'duration': '1 week',
-                    'tasks': [
-                        'Integrate BrightData web capabilities',
-                        'Add vector database support',
-                        'Implement security monitoring',
-                        'Optimize performance'
+                    "phase": 3,
+                    "name": "Advanced Capabilities",
+                    "duration": "1 week",
+                    "tasks": [
+                        "Integrate BrightData web capabilities",
+                        "Add vector database support",
+                        "Implement security monitoring",
+                        "Optimize performance",
                     ],
-                    'deliverables': [
-                        'Advanced features operational',
-                        'Security monitoring active',
-                        'Performance optimized'
-                    ]
-                }
+                    "deliverables": [
+                        "Advanced features operational",
+                        "Security monitoring active",
+                        "Performance optimized",
+                    ],
+                },
             ],
-            'risk_mitigation': [
+            "risk_mitigation": [
                 {
-                    'risk': 'Dependency conflicts',
-                    'probability': 'medium',
-                    'impact': 'high',
-                    'mitigation': 'Thorough testing in isolated environments'
+                    "risk": "Dependency conflicts",
+                    "probability": "medium",
+                    "impact": "high",
+                    "mitigation": "Thorough testing in isolated environments",
                 },
                 {
-                    'risk': 'License compatibility issues',
-                    'probability': 'low',
-                    'impact': 'high',
-                    'mitigation': 'Legal review of all licenses before integration'
+                    "risk": "License compatibility issues",
+                    "probability": "low",
+                    "impact": "high",
+                    "mitigation": "Legal review of all licenses before integration",
                 },
                 {
-                    'risk': 'Security vulnerabilities',
-                    'probability': 'medium',
-                    'impact': 'high',
-                    'mitigation': 'Automated security scanning and regular audits'
-                }
+                    "risk": "Security vulnerabilities",
+                    "probability": "medium",
+                    "impact": "high",
+                    "mitigation": "Automated security scanning and regular audits",
+                },
             ],
-            'success_metrics': [
-                'All target repositories successfully integrated',
-                '99.9% production readiness achieved',
-                'Zero security vulnerabilities introduced',
-                'CI/CD pipeline success rate > 95%'
-            ]
+            "success_metrics": [
+                "All target repositories successfully integrated",
+                "99.9% production readiness achieved",
+                "Zero security vulnerabilities introduced",
+                "CI/CD pipeline success rate > 95%",
+            ],
         }
-        
+
         return plan
-    
+
     def generate_implementation_scripts(self) -> Dict[str, str]:
         """Generate scripts for implementing the GitHub integration."""
         logger.info("🔧 Generating implementation scripts")
-        
+
         scripts = {}
-        
+
         # 1. Repository setup script
-        scripts['setup_repository_structure.sh'] = '''#!/bin/bash
+        scripts[
+            "setup_repository_structure.sh"
+        ] = """#!/bin/bash
 # Setup MCP Integration Repository Structure
 
 echo "🚀 Setting up Sophia AI MCP integration structure..."
@@ -837,10 +910,12 @@ git submodule update --init --recursive
 EOF
 
 echo "✅ Repository structure created"
-'''
-        
+"""
+
         # 2. Submodule integration script
-        scripts['integrate_submodules.sh'] = '''#!/bin/bash
+        scripts[
+            "integrate_submodules.sh"
+        ] = """#!/bin/bash
 # Integrate MCP repositories as submodules
 
 echo "🔗 Integrating MCP repositories as submodules..."
@@ -863,10 +938,12 @@ git commit -m "Add MCP repositories as submodules
 - Configured submodules for automatic updates"
 
 echo "✅ Submodules integrated successfully"
-'''
-        
+"""
+
         # 3. Fork management script
-        scripts['setup_forks.py'] = '''#!/usr/bin/env python3
+        scripts[
+            "setup_forks.py"
+        ] = '''#!/usr/bin/env python3
 """Setup and manage forked MCP repositories."""
 
 import requests
@@ -913,9 +990,11 @@ def main():
 if __name__ == '__main__':
     main()
 '''
-        
+
         # 4. GitHub Actions workflow
-        scripts['test-mcp-integrations.yml'] = '''name: Test MCP Integrations
+        scripts[
+            "test-mcp-integrations.yml"
+        ] = """name: Test MCP Integrations
 
 on:
   push:
@@ -963,160 +1042,185 @@ jobs:
       with:
         name: test-results-${{ matrix.python-version }}
         path: test-results/
-'''
-        
+"""
+
         return scripts
-    
+
     def execute_analysis(self) -> Dict:
         """Execute the complete GitHub integration analysis."""
         logger.info("🚀 Starting comprehensive GitHub integration analysis")
-        
+
         try:
             # 1. Analyze GitHub organization
             org_analysis = self.analyze_github_organization()
-            
+
             # 2. Analyze target repositories
             repo_analysis = self.analyze_target_repositories()
-            
+
             # 3. Create GitHub configurations
             github_configs = self.create_github_configurations(repo_analysis)
-            
+
             # 4. Create implementation plan
-            implementation_plan = self.create_implementation_plan(repo_analysis, github_configs)
-            
+            implementation_plan = self.create_implementation_plan(
+                repo_analysis, github_configs
+            )
+
             # 5. Generate implementation scripts
             implementation_scripts = self.generate_implementation_scripts()
-            
+
             # Compile results
-            self.integration_results.update({
-                'organization_analysis': org_analysis,
-                'repository_analysis': repo_analysis,
-                'github_configurations': github_configs,
-                'implementation_plan': implementation_plan,
-                'implementation_scripts': implementation_scripts,
-                'recommendations': self.generate_final_recommendations(repo_analysis, github_configs)
-            })
-            
+            self.integration_results.update(
+                {
+                    "organization_analysis": org_analysis,
+                    "repository_analysis": repo_analysis,
+                    "github_configurations": github_configs,
+                    "implementation_plan": implementation_plan,
+                    "implementation_scripts": implementation_scripts,
+                    "recommendations": self.generate_final_recommendations(
+                        repo_analysis, github_configs
+                    ),
+                }
+            )
+
             # Save results
             self.save_results()
-            
+
             logger.info("🎉 GitHub integration analysis completed successfully")
             return self.integration_results
-            
+
         except Exception as e:
             logger.error(f"❌ Analysis failed: {e}")
-            self.integration_results['error'] = str(e)
+            self.integration_results["error"] = str(e)
             return self.integration_results
-    
-    def generate_final_recommendations(self, repo_analysis: List[Dict], github_configs: List[Dict]) -> List[Dict]:
+
+    def generate_final_recommendations(
+        self, repo_analysis: List[Dict], github_configs: List[Dict]
+    ) -> List[Dict]:
         """Generate final recommendations for GitHub integration."""
         recommendations = []
-        
+
         # High-priority recommendations
-        recommendations.append({
-            'priority': 'critical',
-            'category': 'security',
-            'title': 'Implement comprehensive security scanning',
-            'description': 'Set up automated security scanning for all integrated repositories',
-            'action_items': [
-                'Configure Dependabot for dependency updates',
-                'Enable CodeQL analysis for security vulnerabilities',
-                'Set up license compliance checking',
-                'Implement secrets scanning'
-            ]
-        })
-        
-        recommendations.append({
-            'priority': 'critical',
-            'category': 'integration',
-            'title': 'Establish MCP protocol compliance testing',
-            'description': 'Ensure all integrated servers comply with MCP protocol standards',
-            'action_items': [
-                'Integrate MCP Inspector into CI/CD pipeline',
-                'Create automated protocol compliance tests',
-                'Set up regression testing for protocol changes',
-                'Document protocol compliance requirements'
-            ]
-        })
-        
-        recommendations.append({
-            'priority': 'high',
-            'category': 'maintenance',
-            'title': 'Automate repository synchronization',
-            'description': 'Keep integrated repositories synchronized with upstream changes',
-            'action_items': [
-                'Set up automated submodule updates',
-                'Configure upstream sync for forked repositories',
-                'Implement change notification system',
-                'Create rollback procedures for failed updates'
-            ]
-        })
-        
+        recommendations.append(
+            {
+                "priority": "critical",
+                "category": "security",
+                "title": "Implement comprehensive security scanning",
+                "description": "Set up automated security scanning for all integrated repositories",
+                "action_items": [
+                    "Configure Dependabot for dependency updates",
+                    "Enable CodeQL analysis for security vulnerabilities",
+                    "Set up license compliance checking",
+                    "Implement secrets scanning",
+                ],
+            }
+        )
+
+        recommendations.append(
+            {
+                "priority": "critical",
+                "category": "integration",
+                "title": "Establish MCP protocol compliance testing",
+                "description": "Ensure all integrated servers comply with MCP protocol standards",
+                "action_items": [
+                    "Integrate MCP Inspector into CI/CD pipeline",
+                    "Create automated protocol compliance tests",
+                    "Set up regression testing for protocol changes",
+                    "Document protocol compliance requirements",
+                ],
+            }
+        )
+
+        recommendations.append(
+            {
+                "priority": "high",
+                "category": "maintenance",
+                "title": "Automate repository synchronization",
+                "description": "Keep integrated repositories synchronized with upstream changes",
+                "action_items": [
+                    "Set up automated submodule updates",
+                    "Configure upstream sync for forked repositories",
+                    "Implement change notification system",
+                    "Create rollback procedures for failed updates",
+                ],
+            }
+        )
+
         return recommendations
-    
+
     def save_results(self):
         """Save analysis results to files."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Save comprehensive results
         results_file = f"github_integration_analysis_{timestamp}.json"
-        with open(results_file, 'w') as f:
+        with open(results_file, "w") as f:
             json.dump(self.integration_results, f, indent=2, default=str)
-        
+
         logger.info(f"📄 Results saved to: {results_file}")
-        
+
         # Save implementation scripts
         scripts_dir = Path("implementation_scripts")
         scripts_dir.mkdir(exist_ok=True)
-        
-        for script_name, script_content in self.integration_results.get('implementation_scripts', {}).items():
+
+        for script_name, script_content in self.integration_results.get(
+            "implementation_scripts", {}
+        ).items():
             script_path = scripts_dir / script_name
             script_path.write_text(script_content)
-            if script_name.endswith('.sh'):
+            if script_name.endswith(".sh"):
                 script_path.chmod(0o755)
-        
+
         logger.info(f"🔧 Implementation scripts saved to: {scripts_dir}")
+
 
 def main():
     """Main execution function."""
     print("🚀 GitHub Integration Strategy Analysis")
     print("=" * 60)
-    
+
     try:
         # Initialize strategy analyzer
         strategy = GitHubIntegrationStrategy()
-        
+
         # Execute comprehensive analysis
         results = strategy.execute_analysis()
-        
+
         # Print summary
         print("\n" + "=" * 60)
         print("📊 ANALYSIS SUMMARY")
         print("=" * 60)
-        
-        if 'error' not in results:
-            org_analysis = results.get('organization_analysis', {})
-            repo_analysis = results.get('repository_analysis', [])
-            
-            print(f"✅ Organization: {org_analysis.get('organization', {}).get('name', 'Unknown')}")
+
+        if "error" not in results:
+            org_analysis = results.get("organization_analysis", {})
+            repo_analysis = results.get("repository_analysis", [])
+
+            print(
+                f"✅ Organization: {org_analysis.get('organization', {}).get('name', 'Unknown')}"
+            )
             print(f"📦 Repositories analyzed: {len(repo_analysis)}")
-            print(f"🔧 GitHub configurations: {len(results.get('github_configurations', []))}")
-            print(f"📋 Implementation phases: {len(results.get('implementation_plan', {}).get('phases', []))}")
+            print(
+                f"🔧 GitHub configurations: {len(results.get('github_configurations', []))}"
+            )
+            print(
+                f"📋 Implementation phases: {len(results.get('implementation_plan', {}).get('phases', []))}"
+            )
             print(f"🎯 Recommendations: {len(results.get('recommendations', []))}")
-            
+
             print("\n🎉 Analysis completed successfully!")
-            print("📄 Check the generated files for detailed results and implementation scripts.")
+            print(
+                "📄 Check the generated files for detailed results and implementation scripts."
+            )
         else:
             print(f"❌ Analysis failed: {results['error']}")
-        
+
         print("=" * 60)
-        
+
     except Exception as e:
         print(f"❌ Execution failed: {e}")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     exit(main())
-

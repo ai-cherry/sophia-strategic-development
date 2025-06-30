@@ -3,6 +3,7 @@ ABSOLUTE SNOWFLAKE OVERRIDE - DO NOT MODIFY
 This file provides the FINAL, ABSOLUTE override for Snowflake configuration
 """
 
+
 def get_snowflake_connection_params():
     """Get ABSOLUTE Snowflake connection parameters - CANNOT BE OVERRIDDEN"""
     return {
@@ -13,11 +14,13 @@ def get_snowflake_connection_params():
         "warehouse": "SOPHIA_AI_WH",
         "database": "SOPHIA_AI",
         "schema": "PROCESSED_AI",
-        "timeout": 30
+        "timeout": 30,
     }
+
 
 # Immediately set environment variables when imported
 import os
+
 os.environ["SNOWFLAKE_ACCOUNT"] = "ZNB04675"
 os.environ["SNOWFLAKE_USER"] = "SCOOBYJAVA15"
 os.environ["SNOWFLAKE_DATABASE"] = "SOPHIA_AI"

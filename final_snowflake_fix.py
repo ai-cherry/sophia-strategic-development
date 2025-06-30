@@ -9,22 +9,28 @@ import re
 # 1. Ensure the OptimizedConnectionManager imports and uses the override correctly
 connection_manager_file = "backend/core/optimized_connection_manager.py"
 
-with open(connection_manager_file, 'r') as f:
+with open(connection_manager_file, "r") as f:
     content = f.read()
 
 # Ensure the import is at the top
-if "from backend.core.snowflake_override import get_snowflake_connection_params" not in content:
+if (
+    "from backend.core.snowflake_override import get_snowflake_connection_params"
+    not in content
+):
     # Add the import after other backend imports
-    lines = content.split('\n')
-    
+    lines = content.split("\n")
+
     # Find where to insert the import
     insert_idx = 0
     for i, line in enumerate(lines):
-        if line.startswith('from backend.core.') and 'import' in line:
+        if line.startswith("from backend.core.") and "import" in line:
             insert_idx = i + 1
-    
-    lines.insert(insert_idx, "from backend.core.snowflake_override import get_snowflake_connection_params")
-    content = '\n'.join(lines)
+
+    lines.insert(
+        insert_idx,
+        "from backend.core.snowflake_override import get_snowflake_connection_params",
+    )
+    content = "\n".join(lines)
 
 # Ensure the _create_snowflake_connection method is properly implemented
 snowflake_method = '''    async def _create_snowflake_connection(self):
@@ -44,11 +50,11 @@ snowflake_method = '''    async def _create_snowflake_connection(self):
         return await asyncio.to_thread(_sync_connect)'''
 
 # Replace the existing method
-pattern = r'async def _create_snowflake_connection\(self\):.*?return await asyncio\.to_thread\(_sync_connect\)'
+pattern = r"async def _create_snowflake_connection\(self\):.*?return await asyncio\.to_thread\(_sync_connect\)"
 content = re.sub(pattern, snowflake_method, content, flags=re.DOTALL)
 
 # Write the updated content
-with open(connection_manager_file, 'w') as f:
+with open(connection_manager_file, "w") as f:
     f.write(content)
 
 print("✅ Updated OptimizedConnectionManager with forced override")
@@ -120,10 +126,10 @@ if __name__ == "__main__":
         sys.exit(1)
 '''
 
-with open('start_sophia_fixed.py', 'w') as f:
+with open("start_sophia_fixed.py", "w") as f:
     f.write(startup_script_content)
 
-os.chmod('start_sophia_fixed.py', 0o755)
+os.chmod("start_sophia_fixed.py", 0o755)
 print("✅ Created startup script with permanent fix")
 
 # 3. Test the fix immediately
@@ -132,23 +138,25 @@ print("\n🧪 Testing the fix...")
 try:
     # Clear any cached imports
     import sys
-    modules_to_clear = [m for m in sys.modules.keys() if m.startswith('backend.core')]
+
+    modules_to_clear = [m for m in sys.modules.keys() if m.startswith("backend.core")]
     for module in modules_to_clear:
         del sys.modules[module]
-    
+
     # Test the override
     from backend.core.snowflake_override import get_snowflake_connection_params
+
     params = get_snowflake_connection_params()
-    
+
     print(f"   Account: {params['account']}")
     print(f"   User: {params['user']}")
     print(f"   Database: {params['database']}")
-    
-    if params['account'] == 'ZNB04675':
+
+    if params["account"] == "ZNB04675":
         print("✅ Fix is working correctly!")
     else:
         print(f"❌ Fix failed - still using {params['account']}")
-        
+
 except Exception as e:
     print(f"❌ Test failed: {e}")
 

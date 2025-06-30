@@ -19,23 +19,31 @@ logger = logging.getLogger(__name__)
 
 # Pydantic models for API
 
+
 class IngestionJobRequest(BaseModel):
     """Request model for creating ingestion job"""
+
     filename: str = Field(..., description="Name of the file")
     file_type: str = Field(..., description="MIME type of the file")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Initial metadata")
+    metadata: Optional[Dict[str, Any]] = Field(
+        default=None, description="Initial metadata"
+    )
     event_driven: bool = Field(default=True, description="Use event-driven processing")
+
 
 class IngestionJobResponse(BaseModel):
     """Response model for ingestion job creation"""
+
     job_id: str
     status: str
     message: str
     created_at: datetime
     estimated_completion: Optional[datetime] = None
 
+
 class JobStatusResponse(BaseModel):
     """Response model for job status"""
+
     job_id: str
     status: str
     progress_percentage: float
@@ -46,21 +54,23 @@ class JobStatusResponse(BaseModel):
     metadata: Dict[str, Any]
     error_message: Optional[str] = None
 
+
 # Router setup
 router = APIRouter(prefix="/api/v1/phase3", tags=["Phase 3 Ingestion"])
+
 
 @router.post("/jobs", response_model=IngestionJobResponse)
 async def create_ingestion_job(
     file: UploadFile = File(...),
     metadata: Optional[str] = Form(default=None),
     event_driven: bool = Form(default=True),
-    user_id: str = Form(...)
+    user_id: str = Form(...),
 ):
     """Create a new ingestion job with file upload"""
     try:
         # Read file content
         file_content = await file.read()
-        
+
         # Parse metadata if provided
         parsed_metadata = {}
         if metadata:
@@ -68,21 +78,28 @@ async def create_ingestion_job(
                 parsed_metadata = json.loads(metadata)
             except json.JSONDecodeError:
                 raise HTTPException(status_code=400, detail="Invalid metadata JSON")
-        
+
         # For now, return a mock response until services are fully integrated
         job_id = str(uuid4())
-        
+
         return IngestionJobResponse(
             job_id=job_id,
             status="created",
             message="Ingestion job created successfully",
             created_at=datetime.now(),
-            estimated_completion=datetime.now().replace(minute=datetime.now().minute + 5) if event_driven else None
+            estimated_completion=(
+                datetime.now().replace(minute=datetime.now().minute + 5)
+                if event_driven
+                else None
+            ),
         )
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to create ingestion job: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create ingestion job: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create ingestion job: {str(e)}"
+        )
+
 
 @router.get("/jobs/{job_id}/status", response_model=JobStatusResponse)
 async def get_job_status(job_id: str):
@@ -98,12 +115,15 @@ async def get_job_status(job_id: str):
             created_at=datetime.now(),
             updated_at=datetime.now(),
             metadata={"department": "Engineering", "priority": "high"},
-            error_message=None
+            error_message=None,
         )
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to get job status: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get job status: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get job status: {str(e)}"
+        )
+
 
 @router.get("/health")
 async def health_check():
@@ -114,28 +134,32 @@ async def health_check():
         "services": {
             "event_driven_ingestion": {"status": "healthy"},
             "chat_driven_metadata": {"status": "healthy"},
-            "hybrid_progress_streaming": {"status": "healthy"}
+            "hybrid_progress_streaming": {"status": "healthy"},
         },
         "phase": "3",
-        "implementation": "Option A → B"
+        "implementation": "Option A → B",
     }
+
 
 @router.post("/test/create-sample-job")
 async def create_sample_job(user_id: str = "test_user"):
     """Create a sample job for testing"""
     try:
         job_id = str(uuid4())
-        
+
         return {
             "job_id": job_id,
             "message": "Sample job created successfully",
             "filename": "sample_service_agreement.txt",
-            "user_id": user_id
+            "user_id": user_id,
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to create sample job: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create sample job: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create sample job: {str(e)}"
+        )
+
 
 # Export router
 __all__ = ["router"]

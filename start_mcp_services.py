@@ -22,38 +22,40 @@ from mcp_servers.notion.notion_mcp_server import notion_server
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 async def start_all_services():
     """Start all MCP services"""
     logger.info("🚀 Starting Sophia AI MCP Services")
-    
+
     services = [
         ("Snowflake", snowflake_server),
         ("HubSpot", hubspot_server),
         ("Slack", slack_server),
         ("GitHub", github_server),
-        ("Notion", notion_server)
+        ("Notion", notion_server),
     ]
-    
+
     for name, server in services:
         try:
             await server.start()
         except Exception as e:
             logger.error(f"❌ Failed to start {name}: {e}")
-    
+
     logger.info("✅ All MCP services started")
-    
+
     # Keep running
     try:
         while True:
             await asyncio.sleep(60)
     except KeyboardInterrupt:
         logger.info("🛑 Shutting down services...")
-        
+
         for name, server in services:
             try:
                 await server.stop()
             except Exception as e:
                 logger.error(f"❌ Failed to stop {name}: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(start_all_services())

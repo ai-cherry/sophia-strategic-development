@@ -14,17 +14,18 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class CodewideSnowflakeFixer:
     """Comprehensive fix for Snowflake configuration across all files"""
-    
+
     def __init__(self):
         self.base_dir = Path.cwd()
         self.fixes_applied = []
-        
+
     async def fix_all_snowflake_issues(self):
         """Apply comprehensive Snowflake fixes"""
         logger.info("🔧 Starting comprehensive codewide Snowflake fix")
-        
+
         fixes = [
             ("Fix OptimizedConnectionManager", self.fix_connection_manager),
             ("Update FastAPI App Import", self.fix_fastapi_app),
@@ -32,34 +33,40 @@ class CodewideSnowflakeFixer:
             ("Update Auto ESC Config", self.update_auto_esc_config),
             ("Fix All Config Files", self.fix_config_files),
             ("Update Documentation", self.update_documentation),
-            ("Test Fix", self.test_fix)
+            ("Test Fix", self.test_fix),
         ]
-        
+
         for fix_name, fix_func in fixes:
             try:
                 logger.info(f"📋 {fix_name}...")
                 result = await fix_func()
-                self.fixes_applied.append({"fix": fix_name, "status": "success", "result": result})
+                self.fixes_applied.append(
+                    {"fix": fix_name, "status": "success", "result": result}
+                )
                 logger.info(f"   ✅ {fix_name} completed")
             except Exception as e:
                 logger.error(f"   ❌ {fix_name} failed: {e}")
-                self.fixes_applied.append({"fix": fix_name, "status": "failed", "error": str(e)})
-        
+                self.fixes_applied.append(
+                    {"fix": fix_name, "status": "failed", "error": str(e)}
+                )
+
         # Generate report
         await self.generate_fix_report()
-        
+
         return self.fixes_applied
-    
+
     async def fix_connection_manager(self):
         """Fix the OptimizedConnectionManager"""
-        
-        manager_file = self.base_dir / "backend" / "core" / "optimized_connection_manager.py"
-        
+
+        manager_file = (
+            self.base_dir / "backend" / "core" / "optimized_connection_manager.py"
+        )
+
         if not manager_file.exists():
             return {"status": "file_not_found"}
-        
+
         content = manager_file.read_text()
-        
+
         # Fix the malformed _create_snowflake_connection method
         fixed_method = '''    async def _create_snowflake_connection(self):
         """Create Snowflake connection with corrected configuration"""
@@ -73,79 +80,91 @@ class CodewideSnowflakeFixer:
             return snowflake.connector.connect(**params)
 
         return await asyncio.to_thread(_sync_connect)'''
-        
+
         # Replace the malformed method
-        pattern = r'async def _create_snowflake_connection\(self\):.*?return await asyncio\.to_thread\(_sync_connect\)'
+        pattern = r"async def _create_snowflake_connection\(self\):.*?return await asyncio\.to_thread\(_sync_connect\)"
         content = re.sub(pattern, fixed_method, content, flags=re.DOTALL)
-        
+
         # Ensure correct imports at the top
-        if "from backend.core.snowflake_override import get_snowflake_connection_params" not in content:
+        if (
+            "from backend.core.snowflake_override import get_snowflake_connection_params"
+            not in content
+        ):
             # Add the import after existing imports
-            lines = content.split('\n')
-            
+            lines = content.split("\n")
+
             # Find the last import line
             last_import_idx = 0
             for i, line in enumerate(lines):
-                if line.startswith('from backend.core.') and 'import' in line:
+                if line.startswith("from backend.core.") and "import" in line:
                     last_import_idx = i
-            
+
             # Insert our import
-            lines.insert(last_import_idx + 1, "from backend.core.snowflake_override import get_snowflake_connection_params")
-            content = '\n'.join(lines)
-        
+            lines.insert(
+                last_import_idx + 1,
+                "from backend.core.snowflake_override import get_snowflake_connection_params",
+            )
+            content = "\n".join(lines)
+
         # Remove duplicate import if exists
         content = content.replace(
             "from backend.core.snowflake_config_override import get_snowflake_connection_params",
-            ""
+            "",
         )
-        
+
         manager_file.write_text(content)
-        
+
         return {"status": "fixed", "file": str(manager_file)}
-    
+
     async def fix_fastapi_app(self):
         """Fix FastAPI app to import startup config"""
-        
+
         app_file = self.base_dir / "backend" / "app" / "fastapi_app.py"
-        
+
         if not app_file.exists():
             return {"status": "file_not_found"}
-        
+
         content = app_file.read_text()
-        
+
         # Add startup config import at the top
-        if "from backend.core.startup_config import apply_startup_configuration" not in content:
-            lines = content.split('\n')
-            
+        if (
+            "from backend.core.startup_config import apply_startup_configuration"
+            not in content
+        ):
+            lines = content.split("\n")
+
             # Find the first import and add our import after it
             for i, line in enumerate(lines):
-                if line.startswith('from ') or line.startswith('import '):
-                    lines.insert(i + 1, "from backend.core.startup_config import apply_startup_configuration")
+                if line.startswith("from ") or line.startswith("import "):
+                    lines.insert(
+                        i + 1,
+                        "from backend.core.startup_config import apply_startup_configuration",
+                    )
                     break
-            
-            content = '\n'.join(lines)
-        
+
+            content = "\n".join(lines)
+
         # Add call to apply configuration early in the app
         if "apply_startup_configuration()" not in content:
-            lines = content.split('\n')
-            
+            lines = content.split("\n")
+
             # Find where app is created and add configuration call before it
             for i, line in enumerate(lines):
-                if 'app = FastAPI(' in line or 'FastAPI(' in line:
+                if "app = FastAPI(" in line or "FastAPI(" in line:
                     lines.insert(i, "# Apply startup configuration for Snowflake fix")
                     lines.insert(i + 1, "apply_startup_configuration()")
                     lines.insert(i + 2, "")
                     break
-            
-            content = '\n'.join(lines)
-        
+
+            content = "\n".join(lines)
+
         app_file.write_text(content)
-        
+
         return {"status": "fixed", "file": str(app_file)}
-    
+
     async def create_permanent_override(self):
         """Create permanent Snowflake override that can't be bypassed"""
-        
+
         # Enhanced startup config
         startup_config_content = '''"""
 Sophia AI Startup Configuration - PERMANENT SNOWFLAKE FIX
@@ -194,10 +213,10 @@ def apply_startup_configuration():
 # AUTOMATIC APPLICATION - This runs when module is imported
 apply_startup_configuration()
 '''
-        
+
         startup_file = self.base_dir / "backend" / "core" / "startup_config.py"
         startup_file.write_text(startup_config_content)
-        
+
         # Enhanced override
         override_content = '''"""
 Snowflake Connection Override - PERMANENT FIX
@@ -251,28 +270,28 @@ def get_snowflake_connection_params():
 # AUTOMATIC APPLICATION
 override_snowflake_config()
 '''
-        
+
         override_file = self.base_dir / "backend" / "core" / "snowflake_override.py"
         override_file.write_text(override_content)
-        
+
         return {
             "startup_config": str(startup_file),
-            "override_config": str(override_file)
+            "override_config": str(override_file),
         }
-    
+
     async def update_auto_esc_config(self):
         """Update auto_esc_config to use correct defaults"""
-        
+
         config_file = self.base_dir / "backend" / "core" / "auto_esc_config.py"
-        
+
         if not config_file.exists():
             return {"status": "file_not_found"}
-        
+
         content = config_file.read_text()
-        
+
         # Update the get_snowflake_config function to use correct defaults
-        pattern = r'def get_snowflake_config\(\) -> dict\[str, Any\]:.*?}'
-        
+        pattern = r"def get_snowflake_config\(\) -> dict\[str, Any\]:.*?}"
+
         replacement = '''def get_snowflake_config() -> dict[str, Any]:
     """
     Get Snowflake configuration from Pulumi ESC - PERMANENT FIX
@@ -289,51 +308,51 @@ override_snowflake_config()
         "database": get_config_value("snowflake_database", "SOPHIA_AI"),  # PERMANENT FIX: Correct database
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }'''
-        
+
         content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-        
+
         config_file.write_text(content)
-        
+
         return {"status": "updated", "file": str(config_file)}
-    
+
     async def fix_config_files(self):
         """Fix any remaining config files"""
-        
+
         # Look for any files that might still have the old account
-        config_patterns = [
-            "*.json", "*.yaml", "*.yml", "*.toml"
-        ]
-        
+        config_patterns = ["*.json", "*.yaml", "*.yml", "*.toml"]
+
         fixed_files = []
-        
+
         for pattern in config_patterns:
             for config_file in self.base_dir.rglob(pattern):
                 if config_file.is_file():
                     try:
                         content = config_file.read_text()
-                        
+
                         if "scoobyjava-vw02766" in content:
                             # Replace old account with new account
-                            updated_content = content.replace("scoobyjava-vw02766", "ZNB04675")
+                            updated_content = content.replace(
+                                "scoobyjava-vw02766", "ZNB04675"
+                            )
                             config_file.write_text(updated_content)
                             fixed_files.append(str(config_file))
-                            
+
                     except Exception as e:
                         logger.warning(f"Could not process {config_file}: {e}")
-        
+
         return {"fixed_files": fixed_files}
-    
+
     async def update_documentation(self):
         """Update documentation to reflect the permanent fix"""
-        
+
         # Update the master documentation index
         doc_file = self.base_dir / "SOPHIA_AI_DOCUMENTATION_MASTER_INDEX.md"
-        
+
         if doc_file.exists():
             content = doc_file.read_text()
-            
+
             # Add permanent fix section
-            fix_section = '''
+            fix_section = """
 
 ## 🔧 PERMANENT SNOWFLAKE FIX STATUS
 
@@ -355,51 +374,53 @@ override_snowflake_config()
 - ✅ Permanent fix that cannot be bypassed
 - ✅ All configuration sources aligned
 
-'''
-            
+"""
+
             # Add to the end of the file
             content += fix_section
             doc_file.write_text(content)
-        
+
         return {"status": "updated", "file": str(doc_file)}
-    
+
     async def test_fix(self):
         """Test that the fix is working"""
-        
+
         try:
             # Test the override
             from backend.core.snowflake_override import get_snowflake_connection_params
+
             params = get_snowflake_connection_params()
-            
-            if params['account'] != 'ZNB04675':
+
+            if params["account"] != "ZNB04675":
                 raise Exception(f"Fix failed - account is still {params['account']}")
-            
+
             # Test startup config
             from backend.core.startup_config import apply_startup_configuration
+
             apply_startup_configuration()
-            
+
             # Check environment variables
-            if os.environ.get('SNOWFLAKE_ACCOUNT') != 'ZNB04675':
+            if os.environ.get("SNOWFLAKE_ACCOUNT") != "ZNB04675":
                 raise Exception("Environment variable not set correctly")
-            
+
             return {
                 "status": "success",
-                "account": params['account'],
-                "user": params['user'],
-                "database": params['database'],
-                "warehouse": params['warehouse']
+                "account": params["account"],
+                "user": params["user"],
+                "database": params["database"],
+                "warehouse": params["warehouse"],
             }
-            
+
         except Exception as e:
             return {"status": "failed", "error": str(e)}
-    
+
     async def generate_fix_report(self):
         """Generate comprehensive fix report"""
-        
+
         successful = sum(1 for fix in self.fixes_applied if fix["status"] == "success")
         total = len(self.fixes_applied)
-        
-        report_content = f'''# 🔧 COMPREHENSIVE SNOWFLAKE FIX REPORT
+
+        report_content = f"""# 🔧 COMPREHENSIVE SNOWFLAKE FIX REPORT
 
 **Date:** {asyncio.get_event_loop().time()}  
 **Fixes Applied:** {successful}/{total}  
@@ -408,22 +429,22 @@ override_snowflake_config()
 
 ## 📊 FIX RESULTS
 
-'''
-        
+"""
+
         for fix in self.fixes_applied:
             status_emoji = "✅" if fix["status"] == "success" else "❌"
             report_content += f"### {status_emoji} {fix['fix']}\n"
             report_content += f"- **Status:** {fix['status']}\n"
-            
+
             if fix["status"] == "success" and "result" in fix:
                 for key, value in fix["result"].items():
                     report_content += f"- **{key.title()}:** {value}\n"
             elif fix["status"] == "failed" and "error" in fix:
                 report_content += f"- **Error:** {fix['error']}\n"
-            
+
             report_content += "\n"
-        
-        report_content += f'''## 🎉 PERMANENT FIX STATUS
+
+        report_content += f"""## 🎉 PERMANENT FIX STATUS
 
 The Snowflake connection issue has been **PERMANENTLY RESOLVED**:
 
@@ -471,34 +492,38 @@ This fix includes multiple layers of protection:
 5. **Documentation Update** - Permanent record of the fix
 
 **The scoobyjava-vw02766 → ZNB04675 issue is now PERMANENTLY RESOLVED!**
-'''
-        
+"""
+
         report_file = self.base_dir / "SNOWFLAKE_PERMANENT_FIX_REPORT.md"
         report_file.write_text(report_content)
-        
+
         logger.info(f"📄 Comprehensive fix report written to {report_file}")
+
 
 async def main():
     """Main fix function"""
     fixer = CodewideSnowflakeFixer()
-    
+
     try:
         results = await fixer.fix_all_snowflake_issues()
-        
+
         successful = sum(1 for r in results if r["status"] == "success")
         total = len(results)
-        
+
         if successful == total:
             logger.info("�� Comprehensive Snowflake fix completed successfully!")
-            logger.info("🚀 The scoobyjava-vw02766 → ZNB04675 issue is PERMANENTLY RESOLVED!")
+            logger.info(
+                "🚀 The scoobyjava-vw02766 → ZNB04675 issue is PERMANENTLY RESOLVED!"
+            )
         else:
             logger.warning(f"⚠️ {total - successful} fixes need manual attention")
-        
+
         return successful == total
-        
+
     except Exception as e:
         logger.error(f"❌ Comprehensive fix failed: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = asyncio.run(main())

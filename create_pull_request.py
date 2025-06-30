@@ -11,12 +11,13 @@ import subprocess
 import sys
 from datetime import datetime
 
+
 def create_pull_request():
     """Create a comprehensive pull request."""
-    
+
     # Pull request title
     title = "🚀 Strategic Plan Comprehensive Implementation - Production Ready"
-    
+
     # Comprehensive pull request description
     description = """
 # 🎉 Strategic Plan Comprehensive Implementation
@@ -203,15 +204,17 @@ This pull request represents a **comprehensive transformation** of the Sophia AI
     print(f"Branch: strategic-plan-comprehensive-improvements")
     print(f"Target: main")
     print("=" * 60)
-    
+
     # Save PR description to file for reference
-    with open('pull_request_description.md', 'w') as f:
+    with open("pull_request_description.md", "w") as f:
         f.write(description)
-    
+
     print("✅ Pull request description saved to: pull_request_description.md")
     print()
     print("🔗 **Create Pull Request Manually:**")
-    print("Visit: https://github.com/ai-cherry/sophia-main/pull/new/strategic-plan-comprehensive-improvements")
+    print(
+        "Visit: https://github.com/ai-cherry/sophia-main/pull/new/strategic-plan-comprehensive-improvements"
+    )
     print()
     print("📋 **Or use GitHub CLI:**")
     print(f'gh pr create --title "{title}" --body-file pull_request_description.md')
@@ -223,6 +226,6 @@ This pull request represents a **comprehensive transformation** of the Sophia AI
     print("- Platform ready for production deployment")
     print("=" * 60)
 
+
 if __name__ == "__main__":
     create_pull_request()
-

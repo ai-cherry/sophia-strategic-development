@@ -288,17 +288,18 @@ class OptimizedConnectionPool:
             self.circuit_breaker.record_failure()
             return None
 
-
-            async def _create_snowflake_connection(self):
+    async def _create_snowflake_connection(self):
         """Create Snowflake connection with ABSOLUTE override"""
-        
+
         # ABSOLUTE OVERRIDE - This CANNOT be changed
         params = get_snowflake_connection_params()
         params["timeout"] = self.connection_timeout
-        
+
         # Force log the correct account
-        logger.info(f"🔧 ABSOLUTE OVERRIDE: Connecting to Snowflake account {params['account']}")
-        
+        logger.info(
+            f"🔧 ABSOLUTE OVERRIDE: Connecting to Snowflake account {params['account']}"
+        )
+
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
             return snowflake.connector.connect(**params)
