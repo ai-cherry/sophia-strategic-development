@@ -119,7 +119,62 @@ def get_config_value(key: str, default: Any = None) -> Any:
     # Try to load from Pulumi ESC
     esc_data = _load_esc_environment()
 
-    # Get key mappings from SecurityConfig or use fallback
+    # Enhanced key mappings for GitHub Organization Secrets compatibility
+    # Updated June 30, 2025 to match GitHub → Pulumi ESC sync patterns
+    esc_key_mappings = {
+        # Core AI Services (working)
+        "openai_api_key": "openai_api_key",
+        "anthropic_api_key": "anthropic_api_key", 
+        "pinecone_api_key": "pinecone_api_key",
+        "gong_access_key": "gong_access_key",
+        
+        # Gateway Services (missing - fixed by sync)
+        "portkey_api_key": "portkey_api_key",
+        "openrouter_api_key": "openrouter_api_key",
+        
+        # Business Intelligence (missing - fixed by sync)
+        "hubspot_access_token": "hubspot_access_token",
+        "linear_api_key": "linear_api_key",
+        "asana_access_token": "asana_access_token",  # Note: GitHub has ASANA_API_TOKEN
+        
+        # Communication (missing - fixed by sync)
+        "slack_bot_token": "slack_bot_token",
+        "slack_app_token": "slack_app_token",
+        "slack_client_id": "slack_client_id",
+        "slack_client_secret": "slack_client_secret",
+        "slack_signing_secret": "slack_signing_secret",
+        
+        # Development Tools (missing - fixed by sync)
+        "github_token": "github_token",              # Note: GitHub has GH_API_TOKEN
+        "figma_pat": "figma_pat",
+        "notion_api_token": "notion_api_token",      # Note: GitHub has NOTION_API_KEY
+        
+        # Infrastructure (missing - fixed by sync)
+        "lambda_api_key": "lambda_api_key",
+        "lambda_ip_address": "lambda_ip_address",
+        "lambda_ssh_private_key": "lambda_ssh_private_key",
+        
+        # Snowflake (working)
+        "snowflake_account": "snowflake_account",
+        "snowflake_user": "snowflake_user",
+        "snowflake_password": "snowflake_password",
+        "snowflake_role": "snowflake_role",
+        "snowflake_warehouse": "snowflake_warehouse",
+        "snowflake_database": "snowflake_database",
+        "snowflake_schema": "snowflake_schema",
+        
+        # Additional mappings for comprehensive coverage
+        "codacy_api_token": "codacy_api_token",
+        "estuary_access_token": "estuary_access_token",
+        "vercel_access_token": "vercel_access_token",
+        "docker_token": "docker_token",
+        "npm_api_token": "npm_api_token",
+    }
+    
+    # Use mapped key or original key
+    esc_key = esc_key_mappings.get(key, key)
+
+    # Get key mappings from SecurityConfig if available
     security_config = _get_security_config()
     if security_config:
         # Use SecurityConfig for key validation and mapping
@@ -129,25 +184,6 @@ def get_config_value(key: str, default: Any = None) -> Any:
         ):
             # Check if this is a known non-secret config key
             pass
-
-        # Use direct key mapping for SecurityConfig registered keys
-        esc_key = key
-    else:
-        # Fallback key mappings for backward compatibility
-        esc_key_mappings = {
-            "snowflake_account": "snowflake_account",
-            "snowflake_user": "snowflake_user",
-            "snowflake_password": "snowflake_password",
-            "snowflake_role": "snowflake_role",
-            "snowflake_warehouse": "snowflake_warehouse",
-            "snowflake_database": "snowflake_database",
-            "snowflake_schema": "snowflake_schema",
-            "gong_access_key": "gong_access_key",
-            "openai_api_key": "openai_api_key",
-            "anthropic_api_key": "anthropic_api_key",
-            "pinecone_api_key": "pinecone_api_key",
-        }
-        esc_key = esc_key_mappings.get(key, key)
 
     # Try to get from ESC using mapped key (handle quoted keys)
     quoted_esc_key = f'"{esc_key}"'
