@@ -142,14 +142,17 @@ Check the health status of all chat services.
 ### Modular Services
 ```
 backend/services/chat/
+├── __init__.py               # Service exports
 ├── base_chat_service.py      # Abstract base class
 ├── unified_chat_service.py   # Main orchestrator
 ├── session_manager.py        # Session management
 ├── context_manager.py        # Context handling
-├── sophia_chat_service.py    # Sophia mode implementation
-├── executive_chat_service.py # Executive mode implementation
-└── universal_chat_service.py # Universal mode implementation
+├── sophia_chat_service.py    # Sophia mode (planned)
+├── executive_chat_service.py # Executive mode (planned)
+└── universal_chat_service.py # Universal mode (planned)
 ```
+
+*Note: Mode-specific service implementations are currently using mock services while the actual implementations are being migrated to the new architecture.*
 
 ### Service Features
 - **Dependency Injection**: Services are injected at runtime
