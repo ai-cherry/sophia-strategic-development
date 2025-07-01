@@ -1,0 +1,297 @@
+# Sophia AI Complete Infrastructure Stack
+# Comprehensive Docker Compose configuration for full data pipeline
+# Includes: PostgreSQL, Redis, Weaviate, Estuary Flow, Monitoring, and Sophia AI services
+
+version: '3.8'
+
+services:
+  # PostgreSQL - Primary structured data storage
+  postgresql:
+    image: postgres:15
+    container_name: sophia-postgresql
+    environment:
+      POSTGRES_DB: sophia_ai
+      POSTGRES_USER: sophia_user
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: sophia_ai,estuary_staging,analytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init-scripts:/docker-entrypoint-initdb.d
+      - ./sql/schemas:/schemas
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sophia_user -d sophia_ai"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis - Caching and real-time data
+  redis:
+    image: redis:7-alpine
+    container_name: sophia-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Weaviate - Vector database for embeddings
+  weaviate:
+    image: semitechnologies/weaviate:1.22.4
+    container_name: sophia-weaviate
+    ports:
+      - "8080:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'none'
+      ENABLE_MODULES: 'text2vec-openai,text2vec-cohere,text2vec-huggingface,generative-openai'
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Estuary Flow Agent (for local development)
+  estuary-agent:
+    image: ghcr.io/estuary/flow:dev
+    container_name: sophia-estuary-agent
+    environment:
+      ESTUARY_ACCESS_TOKEN: ${ESTUARY_ACCESS_TOKEN}
+      ESTUARY_REFRESH_TOKEN: ${ESTUARY_REFRESH_TOKEN}
+    volumes:
+      - ./estuary-config:/flow-config
+      - estuary_data:/var/lib/estuary
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - postgresql
+      - redis
+
+  # Sophia AI Backend Service
+  sophia-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: sophia-backend
+    environment:
+      # Database connections
+      DATABASE_HOST: postgresql
+      DATABASE_PORT: 5432
+      DATABASE_NAME: sophia_ai
+      DATABASE_USER: sophia_user
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      
+      # Redis connection
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
+      # Weaviate connection
+      WEAVIATE_HOST: weaviate
+      WEAVIATE_PORT: 8080
+      
+      # Snowflake connection
+      SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
+      SNOWFLAKE_USER: PROGRAMMATIC_SERVICE_USER
+      SNOWFLAKE_PASSWORD: ${SOPHIA_AI_TOKEN}
+      SNOWFLAKE_ROLE: ${SNOWFLAKE_ROLE}
+      SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE}
+      SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE}
+      SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA}
+      
+      # API Keys
+      GONG_ACCESS_KEY: ${GONG_ACCESS_KEY}
+      GONG_ACCESS_KEY_SECRET: ${GONG_ACCESS_KEY_SECRET}
+      HUBSPOT_ACCESS_TOKEN: ${HUBSPOT_ACCESS_TOKEN}
+      ESTUARY_ACCESS_TOKEN: ${ESTUARY_ACCESS_TOKEN}
+      
+      # AI Service Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      
+      # Vector DB Keys
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      PINECONE_ENVIRONMENT: ${PINECONE_ENVIRONMENT}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - postgresql
+      - redis
+      - weaviate
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Sophia AI Frontend Service
+  sophia-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: sophia-frontend
+    environment:
+      REACT_APP_API_URL: http://sophia-backend:8000
+      REACT_APP_ENVIRONMENT: production
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app/frontend
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - sophia-backend
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sophia-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana - Monitoring dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sophia-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - prometheus
+
+  # Node Exporter - System metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: sophia-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+
+  # Nginx - Reverse proxy and load balancer
+  nginx:
+    image: nginx:alpine
+    container_name: sophia-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - sophia-backend
+      - sophia-frontend
+      - grafana
+
+  # Data Pipeline Orchestrator
+  sophia-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.orchestrator
+    container_name: sophia-orchestrator
+    environment:
+      # All environment variables from sophia-backend
+      DATABASE_HOST: postgresql
+      REDIS_HOST: redis
+      WEAVIATE_HOST: weaviate
+      ESTUARY_ACCESS_TOKEN: ${ESTUARY_ACCESS_TOKEN}
+      SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
+      SOPHIA_AI_TOKEN: ${SOPHIA_AI_TOKEN}
+    volumes:
+      - ./backend/etl:/app/etl
+      - ./logs/orchestrator:/app/logs
+    restart: unless-stopped
+    networks:
+      - sophia-network
+    depends_on:
+      - postgresql
+      - redis
+      - weaviate
+      - estuary-agent
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  weaviate_data:
+    driver: local
+  estuary_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  sophia-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

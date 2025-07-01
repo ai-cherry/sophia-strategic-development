@@ -62,7 +62,7 @@ except ImportError:
     aiomysql = MockAioMySQL()
 
 # Configuration and monitoring
-from backend.core.absolute_snowflake_override import get_snowflake_connection_params
+from backend.core.secure_snowflake_config import secure_snowflake_config
 from backend.core.auto_esc_config import get_config_value
 from backend.core.performance_monitor import performance_monitor
 from backend.core.snowflake_override import get_snowflake_connection_params
@@ -289,21 +289,20 @@ class OptimizedConnectionPool:
             return None
 
     async def _create_snowflake_connection(self):
-        """Create Snowflake connection with ABSOLUTE override"""
+        """Create Snowflake connection with secure configuration"""
 
-        # ABSOLUTE OVERRIDE - This CANNOT be changed
-        params = get_snowflake_connection_params()
-        params["timeout"] = self.connection_timeout
+        # Get secure connection parameters
+        connection_params = secure_snowflake_config.get_connection_params()
+        connection_params["timeout"] = self.connection_timeout
 
         # Force log the correct account
         logger.info(
-            f"🔧 ABSOLUTE OVERRIDE: Connecting to Snowflake account {params['account']}"
+            f"🔧 SECURE CONFIG: Connecting to Snowflake account {connection_params['account']}"
         )
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            return # TODO: Replace with repository injection
-    # repository.get_connection(**params)
+            return snowflake.connector.connect(**connection_params)
 
         return await asyncio.to_thread(_sync_connect)
 
@@ -406,8 +405,7 @@ class OptimizedConnectionPool:
 
                 def _sync_health_check():
                     cursor = connection.cursor()
-                    # TODO: Replace with repository method
-    # repository.execute_query("SELECT 1")
+                    cursor.execute("SELECT 1")
                     cursor.close()
                     return True
 
@@ -615,11 +613,9 @@ class OptimizedConnectionManager:
                     def _sync_execute():
                         cursor = connection.cursor()
                         if params:
-                            # TODO: Replace with repository method
-    # repository.execute_query(query, params)
+                            cursor.execute(query, params)
                         else:
-                            # TODO: Replace with repository method
-    # repository.execute_query(query)
+                            cursor.execute(query)
                         result = cursor.fetchall()
                         cursor.close()
                         return result
@@ -692,13 +688,9 @@ class OptimizedConnectionManager:
                             def _sync_batch_execute():
                                 cursor = connection.cursor()
                                 if batch_query.params:
-                                    # TODO: Replace with repository method
-    # repository.execute_query(
-                                        batch_query.query, batch_query.params
-                                    )
+                                    cursor.execute(batch_query.query, batch_query.params)
                                 else:
-                                    # TODO: Replace with repository method
-    # repository.execute_query(batch_query.query)
+                                    cursor.execute(batch_query.query)
                                 result = cursor.fetchall()
                                 cursor.close()
                                 return result

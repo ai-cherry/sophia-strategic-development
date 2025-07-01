@@ -1,0 +1,373 @@
+# Sophia AI Estuary Flow Configuration
+# Complete data pipeline configuration for real-time data ingestion
+# Sources: HubSpot, Gong, Slack → PostgreSQL → Snowflake
+
+# Import shared configuration
+import:
+  - flow://sophia-ai/shared-config
+
+# Data Captures (Sources)
+captures:
+  # HubSpot CRM Data Capture
+  sophia-ai/hubspot-capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-hubspot:dev
+        config:
+          credentials:
+            credentials_title: "Private App Credentials"
+            access_token: ${HUBSPOT_ACCESS_TOKEN}
+          start_date: "2024-01-01T00:00:00Z"
+    bindings:
+      - resource:
+          stream: "contacts"
+          syncMode: "incremental"
+        target: sophia-ai/hubspot/contacts
+      - resource:
+          stream: "deals"
+          syncMode: "incremental"
+        target: sophia-ai/hubspot/deals
+      - resource:
+          stream: "companies"
+          syncMode: "incremental"
+        target: sophia-ai/hubspot/companies
+      - resource:
+          stream: "tickets"
+          syncMode: "incremental"
+        target: sophia-ai/hubspot/tickets
+      - resource:
+          stream: "engagements"
+          syncMode: "incremental"
+        target: sophia-ai/hubspot/engagements
+
+  # Gong Call Data Capture
+  sophia-ai/gong-capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-gong:dev
+        config:
+          access_key: ${GONG_ACCESS_KEY}
+          access_key_secret: ${GONG_ACCESS_KEY_SECRET}
+          start_date: "2024-01-01T00:00:00Z"
+    bindings:
+      - resource:
+          stream: "calls"
+          syncMode: "incremental"
+        target: sophia-ai/gong/calls
+      - resource:
+          stream: "users"
+          syncMode: "full_refresh"
+        target: sophia-ai/gong/users
+      - resource:
+          stream: "workspaces"
+          syncMode: "full_refresh"
+        target: sophia-ai/gong/workspaces
+
+  # Slack Workspace Data Capture (if available)
+  sophia-ai/slack-capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-slack:dev
+        config:
+          api_token: ${SLACK_BOT_TOKEN}
+          start_date: "2024-01-01T00:00:00Z"
+          join_channels: true
+    bindings:
+      - resource:
+          stream: "channels"
+          syncMode: "incremental"
+        target: sophia-ai/slack/channels
+      - resource:
+          stream: "messages"
+          syncMode: "incremental"
+        target: sophia-ai/slack/messages
+      - resource:
+          stream: "users"
+          syncMode: "incremental"
+        target: sophia-ai/slack/users
+
+# Data Collections (Intermediate Processing)
+collections:
+  # HubSpot Collections
+  sophia-ai/hubspot/contacts:
+    schema:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        firstname: { type: string }
+        lastname: { type: string }
+        company: { type: string }
+        phone: { type: string }
+        lifecyclestage: { type: string }
+        createdate: { type: string, format: date-time }
+        lastmodifieddate: { type: string, format: date-time }
+        properties: { type: object }
+      required: [id]
+    key: [/id]
+
+  sophia-ai/hubspot/deals:
+    schema:
+      type: object
+      properties:
+        id: { type: string }
+        dealname: { type: string }
+        amount: { type: number }
+        dealstage: { type: string }
+        pipeline: { type: string }
+        closedate: { type: string, format: date-time }
+        createdate: { type: string, format: date-time }
+        hubspot_owner_id: { type: string }
+        properties: { type: object }
+      required: [id]
+    key: [/id]
+
+  sophia-ai/hubspot/companies:
+    schema:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        domain: { type: string }
+        industry: { type: string }
+        city: { type: string }
+        state: { type: string }
+        country: { type: string }
+        createdate: { type: string, format: date-time }
+        properties: { type: object }
+      required: [id]
+    key: [/id]
+
+  # Gong Collections
+  sophia-ai/gong/calls:
+    schema:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        url: { type: string }
+        purpose: { type: string }
+        meetingUrl: { type: string }
+        actualStart: { type: string, format: date-time }
+        actualEnd: { type: string, format: date-time }
+        duration: { type: integer }
+        primaryUserId: { type: string }
+        direction: { type: string }
+        system: { type: string }
+        scope: { type: string }
+        media: { type: string }
+        language: { type: string }
+        workspaceId: { type: string }
+        transcript: { type: string }
+        participants: { type: array }
+        customData: { type: object }
+      required: [id]
+    key: [/id]
+
+  sophia-ai/gong/users:
+    schema:
+      type: object
+      properties:
+        id: { type: string }
+        emailAddress: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        active: { type: boolean }
+        phoneNumber: { type: string }
+        extension: { type: string }
+        created: { type: string, format: date-time }
+        settings: { type: object }
+      required: [id]
+    key: [/id]
+
+  # Slack Collections
+  sophia-ai/slack/messages:
+    schema:
+      type: object
+      properties:
+        ts: { type: string }
+        channel: { type: string }
+        user: { type: string }
+        text: { type: string }
+        thread_ts: { type: string }
+        reply_count: { type: integer }
+        reactions: { type: array }
+        files: { type: array }
+        edited: { type: object }
+        deleted_ts: { type: string }
+      required: [ts, channel]
+    key: [/ts, /channel]
+
+# Data Transformations
+transforms:
+  # Enrich HubSpot contacts with company data
+  sophia-ai/enriched-contacts:
+    source:
+      name: sophia-ai/hubspot/contacts
+    shuffle:
+      key: [/company]
+    lambda: |
+      // Enrich contact with company information
+      const contact = $input;
+      const company = $companies[contact.company];
+      
+      return {
+        ...contact,
+        company_info: company || null,
+        full_name: `${contact.firstname || ''} ${contact.lastname || ''}`.trim(),
+        enriched_at: new Date().toISOString()
+      };
+
+  # Process Gong call transcripts for insights
+  sophia-ai/processed-calls:
+    source:
+      name: sophia-ai/gong/calls
+    lambda: |
+      // Process call data for analytics
+      const call = $input;
+      
+      return {
+        ...call,
+        transcript_length: call.transcript ? call.transcript.length : 0,
+        participant_count: call.participants ? call.participants.length : 0,
+        call_date: call.actualStart ? new Date(call.actualStart).toISOString().split('T')[0] : null,
+        duration_minutes: call.duration ? Math.round(call.duration / 60) : 0,
+        processed_at: new Date().toISOString()
+      };
+
+# Data Materializations (Destinations)
+materializations:
+  # PostgreSQL Staging - Primary destination for all data
+  sophia-ai/postgresql-staging:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-postgres:dev
+        config:
+          address: "${DATABASE_HOST}:5432"
+          database: "sophia_ai"
+          user: "sophia_user"
+          password: "${DATABASE_PASSWORD}"
+          schema: "estuary_staging"
+    bindings:
+      # HubSpot data
+      - source: sophia-ai/hubspot/contacts
+        resource:
+          table: "hubspot_contacts"
+          delta_updates: true
+      - source: sophia-ai/hubspot/deals
+        resource:
+          table: "hubspot_deals"
+          delta_updates: true
+      - source: sophia-ai/hubspot/companies
+        resource:
+          table: "hubspot_companies"
+          delta_updates: true
+      
+      # Gong data
+      - source: sophia-ai/gong/calls
+        resource:
+          table: "gong_calls"
+          delta_updates: true
+      - source: sophia-ai/gong/users
+        resource:
+          table: "gong_users"
+          delta_updates: true
+      
+      # Slack data
+      - source: sophia-ai/slack/messages
+        resource:
+          table: "slack_messages"
+          delta_updates: true
+      - source: sophia-ai/slack/channels
+        resource:
+          table: "slack_channels"
+          delta_updates: true
+      
+      # Processed data
+      - source: sophia-ai/enriched-contacts
+        resource:
+          table: "enriched_contacts"
+          delta_updates: true
+      - source: sophia-ai/processed-calls
+        resource:
+          table: "processed_calls"
+          delta_updates: true
+
+  # Snowflake Data Warehouse - Analytics destination
+  sophia-ai/snowflake-warehouse:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-snowflake:dev
+        config:
+          account: "${SNOWFLAKE_ACCOUNT}"
+          user: "PROGRAMMATIC_SERVICE_USER"
+          password: "${SOPHIA_AI_TOKEN}"
+          role: "${SNOWFLAKE_ROLE}"
+          warehouse: "${SNOWFLAKE_WAREHOUSE}"
+          database: "${SNOWFLAKE_DATABASE}"
+          schema: "ESTUARY_DATA"
+    bindings:
+      # Core business data for analytics
+      - source: sophia-ai/enriched-contacts
+        resource:
+          table: "ENRICHED_CONTACTS"
+      - source: sophia-ai/processed-calls
+        resource:
+          table: "PROCESSED_CALLS"
+      - source: sophia-ai/hubspot/deals
+        resource:
+          table: "HUBSPOT_DEALS"
+
+  # Redis Cache - Real-time data access
+  sophia-ai/redis-cache:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-redis:dev
+        config:
+          address: "${REDIS_HOST}:6379"
+          password: "${REDIS_PASSWORD}"
+    bindings:
+      # Cache recent contacts for fast lookup
+      - source: sophia-ai/hubspot/contacts
+        resource:
+          key_template: "contact:{{ .id }}"
+          ttl_seconds: 3600
+      # Cache active deals
+      - source: sophia-ai/hubspot/deals
+        resource:
+          key_template: "deal:{{ .id }}"
+          ttl_seconds: 1800
+
+# Data Tests
+tests:
+  # Validate HubSpot data quality
+  sophia-ai/test-hubspot-contacts:
+    steps:
+      - ingest:
+          collection: sophia-ai/hubspot/contacts
+      - verify:
+          collection: sophia-ai/hubspot/contacts
+          partitions:
+            include:
+              id: ["test-contact-1", "test-contact-2"]
+          documents:
+            - id: "test-contact-1"
+              email: "test@example.com"
+              firstname: "Test"
+              lastname: "Contact"
+
+  # Validate Gong data processing
+  sophia-ai/test-gong-calls:
+    steps:
+      - ingest:
+          collection: sophia-ai/gong/calls
+      - verify:
+          collection: sophia-ai/processed-calls
+          partitions:
+            include:
+              id: ["test-call-1"]
+          documents:
+            - id: "test-call-1"
+              duration_minutes: { $gte: 0 }
+              transcript_length: { $gte: 0 }
+
