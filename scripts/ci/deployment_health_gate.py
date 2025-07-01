@@ -19,16 +19,16 @@ try:
 except ImportError:
     print("⚠️ Pulumi ESC integration not available, falling back to environment variables")
     ESC_AVAILABLE = False
-
+    
     # Create a dummy function to avoid linter errors
-    async def get_config_value(key: str) -> str:
-        return ""
+    def get_config_value(key: str, default=None) -> str:
+        return default or ""
 
 REQUIRED_SECRETS = [
     "openai_api_key",
     "anthropic_api_key", 
     "pinecone_api_key",
-    "gong_access_token",
+    "gong_access_key",
     "snowflake_password"
 ]
 
@@ -49,18 +49,18 @@ REPORT = {
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
-async def check_secrets():
+def check_secrets():
     """Check if critical secrets are available via Pulumi ESC or environment variables"""
     if ESC_AVAILABLE:
         try:
             # Test ESC connectivity
-            test_secret = await get_config_value("openai_api_key")
+            test_secret = get_config_value("openai_api_key")
             REPORT["esc_status"] = "connected"
             
             for secret in REQUIRED_SECRETS:
                 try:
-                    value = await get_config_value(secret)
-                    if not value or value.startswith("PLACEHOLDER"):
+                    value = get_config_value(secret)
+                    if not value or value.startswith("PLACEHOLDER") or value == "[secret]":
                         REPORT["missing_secrets"].append(secret)
                 except Exception as e:
                     REPORT["missing_secrets"].append(f"{secret} (ESC error: {str(e)})")
@@ -81,7 +81,7 @@ async def check_secrets():
                 REPORT["missing_secrets"].append(secret)
 
 
-async def check_service_health(service_name: str) -> bool:
+def check_service_health(service_name: str) -> bool:
     """Check if a service is healthy via configuration"""
     if not ESC_AVAILABLE:
         return False
@@ -89,18 +89,18 @@ async def check_service_health(service_name: str) -> bool:
     try:
         # Check if service configuration is available
         if service_name == "snowflake":
-            account = await get_config_value("snowflake_account")
-            password = await get_config_value("snowflake_password")
-            return bool(account and password and not password.startswith("PLACEHOLDER"))
+            account = get_config_value("snowflake_account")
+            password = get_config_value("snowflake_password")
+            return bool(account and password and not password.startswith("PLACEHOLDER") and password != "[secret]")
         elif service_name == "openai":
-            key = await get_config_value("openai_api_key")
-            return bool(key and not key.startswith("PLACEHOLDER"))
+            key = get_config_value("openai_api_key")
+            return bool(key and not key.startswith("PLACEHOLDER") and key != "[secret]")
         elif service_name == "anthropic":
-            key = await get_config_value("anthropic_api_key")
-            return bool(key and not key.startswith("PLACEHOLDER"))
+            key = get_config_value("anthropic_api_key")
+            return bool(key and not key.startswith("PLACEHOLDER") and key != "[secret]")
         elif service_name == "pinecone":
-            key = await get_config_value("pinecone_api_key")
-            return bool(key and not key.startswith("PLACEHOLDER"))
+            key = get_config_value("pinecone_api_key")
+            return bool(key and not key.startswith("PLACEHOLDER") and key != "[secret]")
         else:
             return False
     except Exception as e:
@@ -129,7 +129,7 @@ def check_backend_health():
         return False
 
 
-async def check_mcp_servers():
+def check_mcp_servers():
     """Check if critical MCP servers are accessible"""
     critical_mcp_servers = [
         ("ai_memory", 9000),
@@ -160,17 +160,17 @@ async def check_mcp_servers():
     return all(result.get("healthy", False) for result in mcp_results)
 
 
-async def main():
+def main():
     """Main health gate validation"""
     print("🏥 Running Deployment Health Gate...")
     
     # Check secrets
-    await check_secrets()
+    check_secrets()
     
     # Check service configurations
     service_checks = []
     for service in CRITICAL_SERVICES:
-        healthy = await check_service_health(service)
+        healthy = check_service_health(service)
         service_checks.append(healthy)
         if not healthy:
             REPORT["failed_services"].append(service)
@@ -179,7 +179,7 @@ async def main():
     backend_ok = check_backend_health()
     
     # Check MCP servers (non-blocking for CI)
-    mcp_ok = await check_mcp_servers()
+    mcp_ok = check_mcp_servers()
     
     # Save comprehensive report
     out = Path("health_gate_report.json")
@@ -219,4 +219,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    main() 
